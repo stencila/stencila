@@ -2853,6 +2853,7 @@ version = "0.77.1"
 dependencies = [
  "ansi_term 0.12.1",
  "async-trait",
+ "base64 0.13.0",
  "bollard",
  "chrono",
  "defaults",

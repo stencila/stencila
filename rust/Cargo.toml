@@ -87,6 +87,7 @@ default = [
 [dependencies]
 ansi_term = "0.12.1"
 async-trait = "0.1.50"
+base64 = "0.13.0"
 bollard = { version = "0.10.1", optional = true }
 chrono = "0.4.19"
 defaults = "0.2.0"

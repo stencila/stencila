@@ -31,6 +31,7 @@ pub mod methods {
 
     pub mod validate;
 
+    pub mod compile;
     pub mod execute;
 }
 

@@ -1,5 +1,5 @@
 use crate::{
-    methods::{decode::decode, encode::encode},
+    methods::{compile::compile, decode::decode, encode::encode},
     pubsub::publish,
     utils::{schemas, uuids},
 };
@@ -307,7 +307,10 @@ impl Document {
         };
 
         // Import the content into the `root` node of the document
-        let root = decode(&self.content, format).await?;
+        let mut root = decode(&self.content, format).await?;
+
+        // Compile the `root` node and update document dependencies
+        let _compilation = compile(&mut root, &self.path)?;
 
         // Encode the `root` node into each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {
