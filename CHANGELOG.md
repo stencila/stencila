@@ -1,3 +1,16 @@
+# [0.77.0](https://github.com/stencila/stencila/compare/v0.76.0...v0.77.0) (2021-06-09)
+
+
+### Bug Fixes
+
+* **Desktop:** Clean up document event listeners to avoid memory leaks ([13bd3c1](https://github.com/stencila/stencila/commit/13bd3c1f2a40e6e7d098f1911940662837e66fe5))
+* **Preview:** Fix scrolling of preview pane contents ([7fcf7eb](https://github.com/stencila/stencila/commit/7fcf7eb4e819a77ceef2943cbee373c2b9131076))
+
+
+### Features
+
+* **Desktop:** Add first-launch onboarding flow ([1afa693](https://github.com/stencila/stencila/commit/1afa6939dfc62fd81f3db1b4bbe4f0bd087d9280))
+
 # [0.76.0](https://github.com/stencila/stencila/compare/v0.75.0...v0.76.0) (2021-06-08)
 
 
