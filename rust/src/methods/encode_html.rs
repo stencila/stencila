@@ -1,16 +1,13 @@
 use eyre::Result;
 use std::fs;
-use std::{
-    collections::BTreeMap,
-    path::{Path, PathBuf},
-};
+use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
 
 /// Encode a node to HTML
 pub fn encode_html(node: &Node) -> Result<String> {
     let context = Context {
         root: node,
-        data_uris: true,
+        data_uris: false,
     };
     let html = node.to_html(&context);
     Ok(html)
@@ -262,8 +259,8 @@ mark_to_html!(Superscript, "sup");
 /// File URLs are usually resolves elsewhere e.g. in the `compile` method
 /// before encoding to HTML.
 fn file_uri_to_data_uri(url: &str) -> String {
-    let path = if url.starts_with("file://") {
-        PathBuf::from(&url[7..])
+    let path = if let Some(path) = url.strip_prefix("file://") {
+        PathBuf::from(path)
     } else {
         return url.into();
     };

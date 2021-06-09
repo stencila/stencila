@@ -1,7 +1,6 @@
 use eyre::Result;
 use std::{
     collections::{BTreeMap, HashSet},
-    fs,
     path::{Path, PathBuf},
 };
 use stencila_schema::*;
@@ -312,8 +311,8 @@ fn compile_content_url(content_url: &str, context: &mut Context) -> String {
     }
 
     // Extract the path
-    let path = if content_url.starts_with("file://") {
-        &content_url[7..]
+    let path = if let Some(path) = content_url.strip_prefix("file://") {
+        path
     } else {
         content_url
     };

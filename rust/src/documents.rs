@@ -360,8 +360,7 @@ impl Document {
             "jmespath" => {
                 let expr = jmespatch::compile(query)?;
                 let result = expr.search(&self.root)?;
-                let result = serde_json::to_value(result.clone())?;
-                result
+                serde_json::to_value(result)?
             }
             "jsonptr" => {
                 let data = serde_json::to_value(&self.root)?;
