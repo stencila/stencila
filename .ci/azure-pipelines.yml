@@ -47,7 +47,7 @@ jobs:
       # Cache Cargo home. For the choice of dirs see:
       #   https://doc.rust-lang.org/cargo/guide/cargo-home.html#caching-the-cargo-home-in-ci
       #   https://levans.fr/rust_travis_cache.html
-      - script: Cache@2
+      - task: Cache@2
         inputs:
           path: $(Build.SourcesDirectory)/.cargo/bin/
           key: 'Cargo bin | Linux'
