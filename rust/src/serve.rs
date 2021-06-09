@@ -413,7 +413,7 @@ fn login_handler(key_and_params: (Option<String>, LoginParams)) -> warp::reply::
 /// document to that.
 #[tracing::instrument(skip(documents))]
 fn get_handler(
-    documents: Arc<Mutex<Documents>>,
+    _documents: Arc<Mutex<Documents>>,
     path: warp::path::FullPath,
     accept: Option<String>,
     _claims: jwt::Claims,
