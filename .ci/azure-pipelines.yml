@@ -45,12 +45,8 @@ jobs:
       #   https://levans.fr/rust_travis_cache.html
       - task: Cache@2
         inputs:
-          path:
-            - $CARGO_HOME/bin/
-            - $CARGO_HOME/registry/index/
-            - $CARGO_HOME/registry/cache/
-            - $CARGO_HOME/git/db/
-          key: 'Rust | Linux'
+          path: $CARGO_HOME/bin/
+          key: 'Cargo bin | Linux'
 
       # Rust crate is linted if there are changes in the `rust` folder.
       - script: make -C rust lint
