@@ -301,11 +301,11 @@ impl Compile for ListItemContent {
     }
 }
 
-/// A `Compile` implementation for `MediaObject` node types
+/// Compile to `content_url` property of `MediaObject` node types
 ///
 /// If the `content_url` property is  a `file://` URL (implicitly
-/// or explicitly) then resolves the file path and loads the
-/// file content in `content_url` as a `base64` encoded string.
+/// or explicitly) then resolves the file path, records it as
+/// a file dependency, and returns an absolute `file://` URL.
 fn compile_content_url(content_url: &str, context: &mut Context) -> String {
     if content_url.starts_with("http://") || content_url.starts_with("https://") {
         return content_url.into();
@@ -329,26 +329,12 @@ fn compile_content_url(content_url: &str, context: &mut Context) -> String {
         path.to_path_buf()
     };
 
-    // Read the file, convert it to a dataURI, and record it as a dependency
-    match fs::read(&path) {
-        Ok(bytes) => {
-            let mime = match mime_guess::from_path(&path).first() {
-                Some(mime) => mime.to_string(),
-                None => "image/png".to_string(),
-            };
-            let data = base64::encode(bytes);
+    context.file_dependencies.insert(path.clone());
 
-            context.file_dependencies.insert(path);
-
-            format!("data:{mime};base64,{data}", mime = mime, data = data)
-        }
-        Err(error) => {
-            tracing::error!("Unable to read media file {}: {}", path.display(), error);
-            content_url.to_string()
-        }
-    }
+    format!("file://{}", path.display())
 }
 
+/// A `Compile` implementation for `MediaObject` node types
 macro_rules! compile_media_object {
     ( $( $type:ty ),* ) => {
         $(
