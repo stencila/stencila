@@ -3,6 +3,7 @@ import { documents } from 'stencila'
 import { CHANNEL } from '../../preload'
 import { removeChannelHandlers } from '../utils/handler'
 import { DOCUMENT_CHANNEL } from './channel'
+import { rewriteHtml } from '../local-protocol'
 
 export const registerDocumentHandlers = () => {
   ipcMain.handle(CHANNEL.OPEN_DOCUMENT, async (_event, filePath: string) => {
@@ -43,10 +44,14 @@ export const registerDocumentHandlers = () => {
     CHANNEL.DOCUMENT_GET_PREVIEW,
     async (ipcEvent, documentId: string) => {
       documents.subscribe(documentId, ['encoded:html'], (_topic, docEvent) => {
-        ipcEvent.sender.send(CHANNEL.DOCUMENT_GET_PREVIEW, docEvent)
+        const event = {
+          ...docEvent,
+          content: rewriteHtml(docEvent.content ?? ''),
+        }
+        ipcEvent.sender.send(CHANNEL.DOCUMENT_GET_PREVIEW, event)
       })
 
-      return documents.dump(documentId, 'html')
+      return rewriteHtml(documents.dump(documentId, 'html'))
     }
   )
 

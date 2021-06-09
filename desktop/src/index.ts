@@ -1,10 +1,12 @@
 import { app, BrowserWindow, ipcMain, protocol } from 'electron'
+import { createWindow } from './app/window'
 import { debug } from './debug'
 import { main } from './main'
 import { requestHandler, scheme } from './main/app-protocol'
 import { openLauncherWindow } from './main/launcher/window'
 import { openOnboardingWindow } from './main/onboarding/window'
 import { initAppConfigStore } from './main/store/bootstrap'
+import * as localProtocol from './main/local-protocol'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -21,6 +23,11 @@ if (process.platform === 'linux') {
 const createMainWindow = (): void => {
   /* eng-disable PROTOCOL_HANDLER_JS_CHECK */
   protocol.registerBufferProtocol(scheme, requestHandler)
+
+  protocol.registerFileProtocol(
+    localProtocol.scheme,
+    localProtocol.requestHandler
+  )
 
   initAppConfigStore()
 
