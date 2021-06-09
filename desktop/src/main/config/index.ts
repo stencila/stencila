@@ -1,6 +1,8 @@
 import { ipcMain } from 'electron'
 import { config, Plugin, plugins } from 'stencila'
 import { CHANNEL } from '../../preload'
+import { removeChannelHandlers } from '../utils/handler'
+import { CONFIG_CHANNEL } from './channels'
 import { showSettings } from './window'
 
 export const getConfig = async () => {
@@ -59,4 +61,8 @@ export const registerConfigHandlers = () => {
   ipcMain.handle(CHANNEL.REFRESH_PLUGINS, async () => {
     return plugins.refresh(plugins.list().map((plugin) => plugin.name))
   })
+}
+
+export const removeConfigHandlers = () => {
+  removeChannelHandlers(CONFIG_CHANNEL)
 }

@@ -1,6 +1,8 @@
 import { ipcMain } from 'electron'
 import { projects } from 'stencila'
 import { CHANNEL } from '../../preload'
+import { removeChannelHandlers } from '../utils/handler'
+import { PROJECT_CHANNEL } from './channels'
 import { openProject } from './handlers'
 import { openProjectWindow } from './window'
 
@@ -31,4 +33,8 @@ export const registerProjectHandlers = () => {
       })
     }
   )
+}
+
+export const removeProjectHandlers = () => {
+  removeChannelHandlers(PROJECT_CHANNEL)
 }

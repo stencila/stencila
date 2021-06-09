@@ -1,6 +1,8 @@
 import { parse } from 'path'
 import { projects } from 'stencila'
+import { registerProjectHandlers, removeProjectHandlers } from '.'
 import { createWindow } from '../../app/window'
+import { registerDocumentHandlers, removeDocoumentHandlers } from '../document'
 
 const getProjectName = (path: string): string => parse(path).base
 
@@ -18,9 +20,13 @@ export const openProjectWindow = (directoryPath: string) => {
 
   projectWindow.on('closed', () => {
     projects.close(directoryPath)
+    removeProjectHandlers()
+    removeDocoumentHandlers()
   })
 
   projectWindow.webContents.on('did-finish-load', () => {
+    registerProjectHandlers()
+    registerDocumentHandlers()
     projectWindow?.show()
   })
 

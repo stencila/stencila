@@ -1,4 +1,5 @@
 import { BrowserWindow } from 'electron'
+import { registerConfigHandlers, removeConfigHandlers } from '.'
 import { createWindow } from '../../app/window'
 import { i18n } from '../../i18n'
 
@@ -18,10 +19,12 @@ export const showSettings = () => {
   })
 
   settingsWindow.on('closed', () => {
+    removeConfigHandlers()
     settingsWindow = null
   })
 
   settingsWindow.webContents.on('did-finish-load', () => {
+    registerConfigHandlers()
     settingsWindow?.show()
   })
 

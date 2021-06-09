@@ -1,5 +1,7 @@
 import { BrowserWindow } from 'electron'
+import { registerLauncherHandlers, removeLauncherHandlers } from '.'
 import { createWindow } from '../../app/window'
+import { registerProjectHandlers, removeProjectHandlers } from '../project'
 
 let launcherWindow: BrowserWindow | null
 
@@ -22,10 +24,14 @@ export const openLauncherWindow = () => {
   })
 
   launcherWindow.on('closed', () => {
+    removeProjectHandlers()
+    removeLauncherHandlers()
     launcherWindow = null
   })
 
   launcherWindow.webContents.on('did-finish-load', () => {
+    registerProjectHandlers()
+    registerLauncherHandlers()
     launcherWindow?.show()
   })
 

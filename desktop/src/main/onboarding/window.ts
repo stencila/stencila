@@ -1,4 +1,5 @@
 import { BrowserWindow } from 'electron'
+import { registerOnboardingHandlers, removeOnboaringHandlers } from '.'
 import { createWindow } from '../../app/window'
 import { i18n } from '../../i18n'
 
@@ -19,10 +20,12 @@ export const openOnboardingWindow = () => {
   })
 
   onboardingWindow.on('closed', () => {
+    removeOnboaringHandlers()
     onboardingWindow = null
   })
 
   onboardingWindow.webContents.on('did-finish-load', () => {
+    registerOnboardingHandlers()
     onboardingWindow?.show()
   })
 

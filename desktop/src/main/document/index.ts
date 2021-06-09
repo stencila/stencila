@@ -1,6 +1,8 @@
 import { ipcMain } from 'electron'
 import { documents } from 'stencila'
 import { CHANNEL } from '../../preload'
+import { removeChannelHandlers } from '../utils/handler'
+import { DOCUMENT_CHANNEL } from './channel'
 
 export const registerDocumentHandlers = () => {
   ipcMain.handle(CHANNEL.OPEN_DOCUMENT, async (_event, filePath: string) => {
@@ -57,4 +59,8 @@ export const registerDocumentHandlers = () => {
       documents.write(documentId, content)
     }
   )
+}
+
+export const removeDocoumentHandlers = () => {
+  removeChannelHandlers(DOCUMENT_CHANNEL)
 }
