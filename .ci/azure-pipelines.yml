@@ -50,15 +50,15 @@ jobs:
       - task: Cache@2
         inputs:
           path: $(Build.SourcesDirectory)/.cargo/bin/
-          key: 'Cargo bin | Linux'
+          key: 'Cargo bin | $(Agent.OS)'
       - task: Cache@2
         inputs:
           path: $(Build.SourcesDirectory)/.cargo/registry/index/
-          key: 'Cargo registry index | Linux'
+          key: 'Cargo registry index | $(Agent.OS)'
       - task: Cache@2
         inputs:
           path: $(Build.SourcesDirectory)/.cargo/registry/cache/
-          key: 'Cargo registry cache | Linux'
+          key: 'Cargo registry cache | $(Agent.OS)'
 
       # Rust crate is linted if there are changes in the `rust` folder.
       - script: make -C rust lint
@@ -69,7 +69,7 @@ jobs:
       - script: |
           set -e
           cd rust
-          cargo install cargo-tarpaulin
+          cargo install cargo-tarpaulin --quiet
           make cover
           bash <(curl -s https://codecov.io/bash) -F rust
         condition: contains(variables.changed, 'rust')
@@ -78,7 +78,10 @@ jobs:
       # Rust crate is audited if there are changes in the `rust` folder.
       # However, given that this is run at the top level is will audit all dependencies
       # including those used by `cli`, `node` etc
-      - script: cargo install cargo-audit && cargo audit
+      - script: |
+          set -e
+          cargo install cargo-audit --quiet
+          cargo audit
         condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Audit'
 
@@ -91,7 +94,7 @@ jobs:
       - script: |
           set -e
           cd cli
-          cargo install cargo-tarpaulin
+          cargo install cargo-tarpaulin --quiet
           make cover
           bash <(curl -s https://codecov.io/bash) -F cli
         condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'cli'))
@@ -128,7 +131,7 @@ jobs:
       # CLI is built and published on tags
       - script: |
           set -e
-          cargo install cargo-strip
+          cargo install cargo-strip --quiet
           make -C cli build
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
@@ -163,16 +166,12 @@ jobs:
     steps:
       - task: Cache@2
         inputs:
-          path: $(Build.SourcesDirectory)/.cargo/bin/
-          key: 'Cargo bin | MacOS'
-      - task: Cache@2
-        inputs:
           path: $(Build.SourcesDirectory)/.cargo/registry/index/
-          key: 'Cargo registry index | MacOS'
+          key: 'Cargo registry index | $(Agent.OS)'
       - task: Cache@2
         inputs:
           path: $(Build.SourcesDirectory)/.cargo/registry/cache/
-          key: 'Cargo registry cache | MacOS'
+          key: 'Cargo registry cache | $(Agent.OS)'
 
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
@@ -180,7 +179,7 @@ jobs:
 
       - script: |
           set -e
-          cargo install cargo-strip
+          cargo install cargo-strip --quiet
           make -C cli build
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
@@ -219,16 +218,12 @@ jobs:
     steps:
       - task: Cache@2
         inputs:
-          path: $(Build.SourcesDirectory)/.cargo/bin/
-          key: 'Cargo bin | Windows'
-      - task: Cache@2
-        inputs:
           path: $(Build.SourcesDirectory)/.cargo/registry/index/
-          key: 'Cargo registry index | Windows'
+          key: 'Cargo registry index | $(Agent.OS)'
       - task: Cache@2
         inputs:
           path: $(Build.SourcesDirectory)/.cargo/registry/cache/
-          key: 'Cargo registry cache | Windows'
+          key: 'Cargo registry cache | $(Agent.OS)'
 
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
@@ -236,7 +231,7 @@ jobs:
 
       - script: |
           set -e
-          cargo install cargo-strip
+          cargo install cargo-strip --quiet
           make -C cli build
           bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
