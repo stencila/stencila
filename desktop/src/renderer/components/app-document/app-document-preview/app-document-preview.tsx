@@ -40,11 +40,13 @@ export class AppDocumentPreview {
     })
   }
 
-  private unsubscribeFromDocument = (documentId = this.documentId) =>
-    window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
+  private unsubscribeFromDocument = (documentId = this.documentId) => {
+    window.api.removeAll(CHANNEL.DOCUMENT_GET_PREVIEW)
+    return window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
       documentId,
       topics: ['encoded:html'],
     })
+  }
 
   componentWillLoad() {
     this.subscribeToDocument()

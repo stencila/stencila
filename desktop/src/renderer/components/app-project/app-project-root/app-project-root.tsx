@@ -4,7 +4,7 @@ import { store } from '../../../store'
 import { initPane } from '../../../store/documentPane/documentPaneActions'
 import { fetchProject } from '../../../store/project/projectActions'
 import { ProjectRouter } from '../projectRouter'
-import { listenForFileEvents } from './projectEvents'
+import { listenForFileEvents, removeFileEventListener } from './projectEvents'
 
 @Component({
   tag: 'app-project-root',
@@ -19,6 +19,10 @@ export class AppProjectRoot {
     initPane()
     store.dispatch(fetchProject(projectPath))
     listenForFileEvents()
+  }
+
+  disconnectedCallback() {
+    removeFileEventListener()
   }
 
   render() {

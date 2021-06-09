@@ -16,6 +16,8 @@ export interface IpcRendererAPI {
   invoke: Invoke
   send(channel: Channel, ...args: unknown[]): void
   receive: (channel: Channel, func: Handler) => void
+  remove: (channel: Channel, func: Handler) => void
+  removeAll: (channel: Channel) => void
 
   /** @return A function that removes this listener. */
   // on(channel: string, listener: (...args: unknown[]) => void): () => void;

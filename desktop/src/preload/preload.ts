@@ -20,6 +20,15 @@ const apis: IpcRendererAPI = {
       ipcRenderer.on(channel, (_event, ...args) => func(...args))
     }
   },
+  remove: (channel: Channel, func: Handler) => {
+    if (isChannel(channel)) {
+      // Deliberately strip event as it includes `sender`
+      ipcRenderer.removeListener(channel, (_event, ...args) => func(...args))
+    }
+  },
+  removeAll: (channel: Channel) => {
+    ipcRenderer.removeAllListeners(channel)
+  },
 }
 
 // Expose protected methods that allow the renderer process to use

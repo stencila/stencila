@@ -9,3 +9,7 @@ export const listenForFileEvents = () => {
     store.dispatch(projectActions.updateProjectFiles(e.files))
   })
 }
+
+export const removeFileEventListener = () => {
+  window.api.removeAll(CHANNEL.GET_PROJECT_FILES)
+}

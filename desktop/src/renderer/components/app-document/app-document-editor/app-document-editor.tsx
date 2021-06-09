@@ -49,11 +49,15 @@ export class AppDocumentEditor {
     })
   }
 
-  private unsubscribeFromDocument = (documentId = this.documentId) =>
-    window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
+  private unsubscribeFromDocument = (documentId = this.documentId) => {
+    window.api.removeAll(CHANNEL.SAVE_ACTIVE_DOCUMENT)
+    window.api.removeAll(CHANNEL.GET_DOCUMENT_CONTENTS)
+
+    return window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
       documentId,
       topics: ['modified'],
     })
+  }
 
   private fileFormatToLanguage = (): string => {
     switch (this.file?.format) {
