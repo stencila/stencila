@@ -131,7 +131,7 @@ jobs:
       # Desktop is tested if there are changes in the `rust`, `node`, or `desktop` folders
       - script: |
           set -e
-          make -C node build
+          make -C node build-debug
           make -C desktop test
         condition: |
           or(
