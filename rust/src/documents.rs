@@ -349,6 +349,30 @@ impl Document {
         Ok(())
     }
 
+    /// Query the document
+    ///
+    /// Returns a JSON value. Returns `null` if the query does not select anything.
+    fn query(&self, query: &str, lang: &str) -> Result<serde_json::Value> {
+        let result = match lang {
+            "jmespath" => {
+                let expr = jmespatch::compile(query)?;
+                let result = expr.search(&self.root)?;
+                let result = serde_json::to_value(result.clone())?;
+                result
+            }
+            "jsonptr" => {
+                let data = serde_json::to_value(&self.root)?;
+                let result = data.pointer(query);
+                match result {
+                    Some(value) => value.clone(),
+                    None => serde_json::Value::Null,
+                }
+            }
+            _ => bail!("Unknown query language '{}'", lang),
+        };
+        Ok(result)
+    }
+
     /// Remove a subscriber to one of the document's topics
     #[allow(clippy::unnecessary_wraps)]
     fn unsubscribe(&mut self, topic: &str) -> Result<()> {
@@ -618,6 +642,7 @@ pub mod cli {
         Open(Open),
         Close(Close),
         Show(Show),
+        Query(Query),
         Convert(Convert),
         Schemas(Schemas),
     }
@@ -630,6 +655,7 @@ pub mod cli {
                 Action::Open(action) => action.run(documents).await,
                 Action::Close(action) => action.run(documents),
                 Action::Show(action) => action.run(documents).await,
+                Action::Query(action) => action.run(documents).await,
                 Action::Convert(action) => action.run(documents).await,
                 Action::Schemas(action) => action.run(),
             }
@@ -710,6 +736,49 @@ pub mod cli {
             let Self { file, format } = self;
             let document = documents.open(file, format.clone()).await?;
             display::value(document)
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        about = "Show a document",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Query {
+        /// The path of the document file
+        file: String,
+
+        /// The query to run on the document
+        query: String,
+
+        /// The format of the file
+        #[structopt(short, long)]
+        format: Option<String>,
+
+        /// The language of the query
+        #[structopt(
+            short,
+            long,
+            default_value = "jmespath",
+            possible_values = &QUERY_LANGS
+        )]
+        lang: String,
+    }
+
+    const QUERY_LANGS: [&str; 2] = ["jmespath", "jsonptr"];
+
+    impl Query {
+        pub async fn run(&self, documents: &mut Documents) -> display::Result {
+            let Self {
+                file,
+                format,
+                query,
+                lang,
+            } = self;
+            let document = documents.open(file, format.clone()).await?;
+            let result = document.query(query, lang)?;
+            display::value(result)
         }
     }
 
