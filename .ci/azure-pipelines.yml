@@ -40,9 +40,16 @@ jobs:
       # condition simply to improve visibility (ie. its quicker to discover where
       # a build fails if it is broken into several steps)
 
+      # Cache Cargo home. For the choice of dirs see:
+      #   https://doc.rust-lang.org/cargo/guide/cargo-home.html#caching-the-cargo-home-in-ci
+      #   https://levans.fr/rust_travis_cache.html
       - task: Cache@2
         inputs:
-          path: $(Build.SourcesDirectory)/target
+          path:
+            - $CARGO_HOME/bin/
+            - $CARGO_HOME/registry/index/
+            - $CARGO_HOME/registry/cache/
+            - $CARGO_HOME/git/db/
           key: 'Rust | Linux'
 
       # Rust crate is linted if there are changes in the `rust` folder.
@@ -146,11 +153,6 @@ jobs:
         startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       )
     steps:
-      - task: Cache@2
-        inputs:
-          path: $(Build.SourcesDirectory)/target
-          key: 'Rust | MacOS'
-
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
@@ -194,11 +196,6 @@ jobs:
         startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       )
     steps:
-      - task: Cache@2
-        inputs:
-          path: $(Build.SourcesDirectory)/target
-          key: 'Rust | Windows'
-
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
