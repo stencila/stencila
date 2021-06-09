@@ -5,6 +5,10 @@ trigger:
       # Ensure that CI is triggered for tags
       - refs/tags/*
 
+variables:
+  - name: CARGO_HOME
+    value: $(Build.SourcesDirectory)/.cargo
+
 jobs:
   # Create variables indicating whether or not there are changes in
   # each product folder
@@ -43,9 +47,9 @@ jobs:
       # Cache Cargo home. For the choice of dirs see:
       #   https://doc.rust-lang.org/cargo/guide/cargo-home.html#caching-the-cargo-home-in-ci
       #   https://levans.fr/rust_travis_cache.html
-      - task: Cache@2
+      - script: Cache@2
         inputs:
-          path: $(Agent.HomeDirectory)/.cargo/bin/
+          path: $(Build.SourcesDirectory)/.cargo/bin/
           key: 'Cargo bin | Linux'
 
       # Rust crate is linted if there are changes in the `rust` folder.
