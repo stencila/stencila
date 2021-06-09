@@ -1,3 +1,10 @@
+## [0.77.1](https://github.com/stencila/stencila/compare/v0.77.0...v0.77.1) (2021-06-09)
+
+
+### Bug Fixes
+
+* **Desktop:** Fix mismatched package version failing builds ([30aa48b](https://github.com/stencila/stencila/commit/30aa48b85ec6b23070aa744ff12679def19f9308))
+
 # [0.77.0](https://github.com/stencila/stencila/compare/v0.76.0...v0.77.0) (2021-06-09)
 
 
