@@ -1,5 +1,5 @@
 .pluginCard {
-  @apply p-4 rounded mb-4 border border-solid;
+  @apply p-4 rounded mb-4 border border-solid text-left;
   border-color: var(--color-neutral-300);
 }
 

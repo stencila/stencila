@@ -1,4 +1,3 @@
-import Store from 'secure-electron-store'
 import { Channel, Handler } from './index'
 
 declare global {
@@ -14,7 +13,6 @@ type INVOKE = (channel: Channel, ...args: unknown[]) => Promise<unknown>
 type Invoke = INVOKE
 
 export interface IpcRendererAPI {
-  store: Store
   invoke: Invoke
   send(channel: Channel, ...args: unknown[]): void
   receive: (channel: Channel, func: Handler) => void

@@ -1,11 +1,19 @@
 import { registerConfigHandlers } from './config'
 import { registerDocumentHandlers } from './document'
+import { registerGlobalHandlers } from './global'
+import { registerLauncherHandlers } from './launcher'
 import { registerMenu } from './menu'
+import { registerOnboardingHandlers } from './onboarding'
 import { registerProjectHandlers } from './project'
+import { registerAppConfigStoreHandlers } from './store'
 
 export const main = () => {
-  registerMenu()
+  registerAppConfigStoreHandlers()
   registerConfigHandlers()
-  registerProjectHandlers()
   registerDocumentHandlers()
+  registerGlobalHandlers()
+  registerLauncherHandlers()
+  registerMenu()
+  registerOnboardingHandlers()
+  registerProjectHandlers()
 }

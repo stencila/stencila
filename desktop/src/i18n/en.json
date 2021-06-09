@@ -9,10 +9,41 @@
         "empty": "Select a file from the sidebar to get started"
       }
     },
+    "onboarding": {
+      "title": "Welcome!",
+      "welcome": {
+        "title": "Thank you for installing Stencila!",
+        "explanation": "The Stencila desktop application allows you to author, convert, and preview reproducible manuscripts right on your desktop.",
+        "next": "Get started"
+      },
+      "plugins": {
+        "title": "Plugins",
+        "explanation": "Stencila is extensible by plugins to add support for multiple languages and file formats.\nWe recommend installing the following plugins to get started.",
+        "next": "Next"
+      },
+      "reporting": {
+        "confirm": "Enable anonymous crash reports",
+        "next": "Skip"
+      },
+      "end": {
+        "title": "You’re all set!",
+        "explanation": "You’re now ready to start working on your projects.",
+        "resources": {
+          "info": "Here are some helpful resources to get you started:",
+          "help": "Help & knowledge centre",
+          "chat": "Chat with the team on Discord"
+        },
+        "next": "Finish setup"
+      }
+    },
     "settings": {
       "title": "Settings",
       "general": {
-        "title": "General"
+        "title": "General",
+        "crashReports": {
+          "label": "Send crash reports",
+          "help": "Help us improve the application by enabling automatic error reporting.\nReports only contain information helpful in reproducing and solving errors, and do not contain any personally identifiable information"
+        }
       },
       "plugins": {
         "checkUpdates": "Check for Updates",

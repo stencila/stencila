@@ -1,10 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { Channel, Handler, isChannel } from '../preload'
 import { IpcRendererAPI } from '../preload/types'
-import { rendererStore } from './store'
 
 const apis: IpcRendererAPI = {
-  store: rendererStore,
   invoke: (channel, data) => {
     if (isChannel(channel)) {
       return ipcRenderer.invoke(channel, data)

@@ -1,11 +1,10 @@
 import { app, BrowserWindow, ipcMain, protocol } from 'electron'
 import { debug } from './debug'
-import { createWindow } from './app/window'
 import { main } from './main'
 import { requestHandler, scheme } from './main/app-protocol'
-import { initStore } from './main/store/bootstrap'
-
-let store: ReturnType<typeof initStore>
+import { openLauncherWindow } from './main/launcher/window'
+import { openOnboardingWindow } from './main/onboarding/window'
+import { initAppConfigStore } from './main/store/bootstrap'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -23,17 +22,14 @@ const createMainWindow = (): void => {
   /* eng-disable PROTOCOL_HANDLER_JS_CHECK */
   protocol.registerBufferProtocol(scheme, requestHandler)
 
-  const mainWindowUrl = '/'
-  const mainWindow = createWindow(mainWindowUrl, {
-    height: 430,
-    width: 860,
-    maxHeight: 860,
-    maxWidth: 1200,
-    minHeight: 350,
-    minWidth: 600,
-  })
+  initAppConfigStore()
 
-  store = initStore(mainWindow)
+  // If app is launched for the first time, show onboarding flow
+  if (process.argv[1] === '--squirrel-firstrun') {
+    openOnboardingWindow()
+  } else {
+    openLauncherWindow()
+  }
 }
 
 protocol.registerSchemesAsPrivileged([
@@ -61,8 +57,6 @@ app.on('ready', createMainWindow)
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
-  } else {
-    store.clearMainBindings(ipcMain)
   }
 })
 

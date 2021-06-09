@@ -1,0 +1,30 @@
+ul {
+  @apply p-0 m-0 mb-8 text-lg leading-normal;
+}
+
+li {
+  @apply my-2 list-none;
+
+  stencila-icon {
+    @apply mr-1;
+  }
+
+  a {
+    & > * {
+      @apply align-middle leading-none;
+    }
+
+    &,
+    &:link,
+    &:visited {
+      /* @apply no-underline, */
+      color: var(--color-key);
+      text-decoration: none;
+    }
+
+    &:hover,
+    &:active {
+      color: var(--color-brand);
+    }
+  }
+}

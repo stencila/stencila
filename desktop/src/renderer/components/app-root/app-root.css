@@ -1,3 +1,7 @@
+:host {
+  @apply block h-full w-full;
+}
+
 header {
   background: #5851ff;
   color: white;

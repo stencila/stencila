@@ -17,7 +17,9 @@ export class AppLauncher {
 
   private openProject = (path: string) => (e: Event) => {
     e.preventDefault()
-    window.api.invoke(CHANNEL.OPEN_PROJECT, path)
+    window.api.invoke(CHANNEL.OPEN_PROJECT, path).then(() => {
+      window.api.invoke(CHANNEL.CLOSE_LAUNCHER_WINDOW)
+    })
   }
 
   componentWillLoad() {
@@ -31,7 +33,11 @@ export class AppLauncher {
 
         <main>
           <div class="launcherActions">
-            <stencila-button size="small" fill={true} onClick={this.selectFiles}>
+            <stencila-button
+              size="small"
+              fill={true}
+              onClick={this.selectFiles}
+            >
               Open folder…
             </stencila-button>
 

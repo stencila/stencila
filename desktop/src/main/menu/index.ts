@@ -1,5 +1,6 @@
 import { app, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
 import { showSettings } from '../config/window'
+import { openOnboardingWindow } from '../onboarding/window'
 import { openProject } from '../project/handlers'
 import { saveActiveDoc } from '../window/windowUtils'
 
@@ -147,6 +148,11 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
             'https://github.com/stencila/stencila/issues/new'
           )
         },
+      },
+      { type: 'separator' },
+      {
+        label: 'Open initial setup screen',
+        click: openOnboardingWindow,
       },
     ],
   },

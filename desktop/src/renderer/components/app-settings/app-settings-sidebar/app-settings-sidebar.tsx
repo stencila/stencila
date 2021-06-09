@@ -16,19 +16,13 @@ export class AppSettingsSidebar {
       <nav class="app-side-nav">
         <ul>
           <li>
-            <stencila-tooltip text="Coming soon!">
-              <a
-                {...href('/settings')}
-                class={{ active: activePath === '/settings', disabled: true }}
-                onClick={(e) => {
-                  e.preventDefault()
-                  ;(e.currentTarget as HTMLAnchorElement).blur()
-                }}
-              >
-                <stencila-icon icon="settings-3"></stencila-icon>
-                <span>{i18n.t('settings.general.title')}</span>
-              </a>
-            </stencila-tooltip>
+            <a
+              {...href('/settings')}
+              class={{ active: activePath === '/settings' }}
+            >
+              <stencila-icon icon="settings-3"></stencila-icon>
+              <span>{i18n.t('settings.general.title')}</span>
+            </a>
           </li>
 
           <li>

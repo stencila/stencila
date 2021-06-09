@@ -1,0 +1,28 @@
+.settingsGeneral {
+}
+
+.title {
+  @apply flex justify-between items-center mb-4;
+  color: var(--color-neutral-700);
+
+  h1 {
+    @apply inline m-0 text-lg pr-4;
+  }
+}
+
+fieldset {
+  @apply border-0 m-0 p-0 align-middle;
+}
+
+.helpText {
+  @apply text-sm mt-1;
+  color: var(--color-neutral-700);
+}
+
+input {
+  @apply m-0 mr-2;
+
+  &[type='checkbox'] {
+    @apply mr-2;
+  }
+}

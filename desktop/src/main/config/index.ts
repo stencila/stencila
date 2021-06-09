@@ -28,7 +28,7 @@ export const getPlugins = () => {
 }
 
 export const registerConfigHandlers = () => {
-  ipcMain.handle(CHANNEL.SHOW_CONFIG_WINDOW, async () => {
+  ipcMain.handle(CHANNEL.OPEN_CONFIG_WINDOW, async () => {
     return showSettings()
   })
 

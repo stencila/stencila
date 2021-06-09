@@ -19,6 +19,11 @@
   --font-family-mono: 'IBM Plex Mono', 'Fira Code', 'monospace';
 }
 
+html,
+body {
+  @apply h-full w-full;
+}
+
 * {
   box-sizing: border-box;
 }

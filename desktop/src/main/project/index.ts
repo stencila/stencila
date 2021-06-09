@@ -8,7 +8,7 @@ export const registerProjectHandlers = () => {
   ipcMain.handle(
     CHANNEL.SHOW_PROJECT_WINDOW,
     async (_event, directoryPath: string) => {
-      return openProjectWindow(directoryPath)
+      openProjectWindow(directoryPath)
     }
   )
 
@@ -19,7 +19,7 @@ export const registerProjectHandlers = () => {
   ipcMain.handle(
     CHANNEL.OPEN_PROJECT,
     async (_event, directoryPath: string) => {
-      return openProjectWindow(directoryPath)
+      openProjectWindow(directoryPath)
     }
   )
 

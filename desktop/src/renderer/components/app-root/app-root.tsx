@@ -10,25 +10,27 @@ import { Router } from '../../router'
 export class AppRoot {
   render() {
     return (
-      <main>
-        <Router.Switch>
-          <Route
-            path={(path) =>
-              path === '/' || path === '/renderer/main_window/index.html'
-            }
-          >
-            <app-launcher></app-launcher>
-          </Route>
+      <Router.Switch>
+        <Route
+          path={(path) =>
+            path === '/' || path === '/renderer/main_window/index.html'
+          }
+        >
+          <app-launcher></app-launcher>
+        </Route>
 
-          <Route path="/settings">
-            <app-settings-root></app-settings-root>
-          </Route>
+        <Route path={/^\/settings\/?/}>
+          <app-settings-root></app-settings-root>
+        </Route>
 
-          <Route path={/^\/project/}>
-            <app-project-root></app-project-root>
-          </Route>
-        </Router.Switch>
-      </main>
+        <Route path={/^\/onboarding\/?/}>
+          <app-onboarding-root></app-onboarding-root>
+        </Route>
+
+        <Route path={/^\/project/}>
+          <app-project-root></app-project-root>
+        </Route>
+      </Router.Switch>
     )
   }
 }

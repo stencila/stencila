@@ -30,6 +30,16 @@ export namespace Components {
     }
     interface AppLauncher {
     }
+    interface AppOnboardingEnd {
+    }
+    interface AppOnboardingPlugins {
+    }
+    interface AppOnboardingReporting {
+    }
+    interface AppOnboardingRoot {
+    }
+    interface AppOnboardingWelcome {
+    }
     interface AppProjectRoot {
     }
     interface AppProjectSidebarFile {
@@ -41,6 +51,8 @@ export namespace Components {
     interface AppRoot {
     }
     interface AppSettingsAdvanced {
+    }
+    interface AppSettingsGeneral {
     }
     interface AppSettingsPluginCard {
         "pluginName": string;
@@ -97,6 +109,36 @@ declare global {
         prototype: HTMLAppLauncherElement;
         new (): HTMLAppLauncherElement;
     };
+    interface HTMLAppOnboardingEndElement extends Components.AppOnboardingEnd, HTMLStencilElement {
+    }
+    var HTMLAppOnboardingEndElement: {
+        prototype: HTMLAppOnboardingEndElement;
+        new (): HTMLAppOnboardingEndElement;
+    };
+    interface HTMLAppOnboardingPluginsElement extends Components.AppOnboardingPlugins, HTMLStencilElement {
+    }
+    var HTMLAppOnboardingPluginsElement: {
+        prototype: HTMLAppOnboardingPluginsElement;
+        new (): HTMLAppOnboardingPluginsElement;
+    };
+    interface HTMLAppOnboardingReportingElement extends Components.AppOnboardingReporting, HTMLStencilElement {
+    }
+    var HTMLAppOnboardingReportingElement: {
+        prototype: HTMLAppOnboardingReportingElement;
+        new (): HTMLAppOnboardingReportingElement;
+    };
+    interface HTMLAppOnboardingRootElement extends Components.AppOnboardingRoot, HTMLStencilElement {
+    }
+    var HTMLAppOnboardingRootElement: {
+        prototype: HTMLAppOnboardingRootElement;
+        new (): HTMLAppOnboardingRootElement;
+    };
+    interface HTMLAppOnboardingWelcomeElement extends Components.AppOnboardingWelcome, HTMLStencilElement {
+    }
+    var HTMLAppOnboardingWelcomeElement: {
+        prototype: HTMLAppOnboardingWelcomeElement;
+        new (): HTMLAppOnboardingWelcomeElement;
+    };
     interface HTMLAppProjectRootElement extends Components.AppProjectRoot, HTMLStencilElement {
     }
     var HTMLAppProjectRootElement: {
@@ -126,6 +168,12 @@ declare global {
     var HTMLAppSettingsAdvancedElement: {
         prototype: HTMLAppSettingsAdvancedElement;
         new (): HTMLAppSettingsAdvancedElement;
+    };
+    interface HTMLAppSettingsGeneralElement extends Components.AppSettingsGeneral, HTMLStencilElement {
+    }
+    var HTMLAppSettingsGeneralElement: {
+        prototype: HTMLAppSettingsGeneralElement;
+        new (): HTMLAppSettingsGeneralElement;
     };
     interface HTMLAppSettingsPluginCardElement extends Components.AppSettingsPluginCard, HTMLStencilElement {
     }
@@ -165,11 +213,17 @@ declare global {
         "app-document-pane-tabs": HTMLAppDocumentPaneTabsElement;
         "app-document-preview": HTMLAppDocumentPreviewElement;
         "app-launcher": HTMLAppLauncherElement;
+        "app-onboarding-end": HTMLAppOnboardingEndElement;
+        "app-onboarding-plugins": HTMLAppOnboardingPluginsElement;
+        "app-onboarding-reporting": HTMLAppOnboardingReportingElement;
+        "app-onboarding-root": HTMLAppOnboardingRootElement;
+        "app-onboarding-welcome": HTMLAppOnboardingWelcomeElement;
         "app-project-root": HTMLAppProjectRootElement;
         "app-project-sidebar-file": HTMLAppProjectSidebarFileElement;
         "app-project-sidebar-files": HTMLAppProjectSidebarFilesElement;
         "app-root": HTMLAppRootElement;
         "app-settings-advanced": HTMLAppSettingsAdvancedElement;
+        "app-settings-general": HTMLAppSettingsGeneralElement;
         "app-settings-plugin-card": HTMLAppSettingsPluginCardElement;
         "app-settings-plugins": HTMLAppSettingsPluginsElement;
         "app-settings-root": HTMLAppSettingsRootElement;
@@ -200,6 +254,16 @@ declare namespace LocalJSX {
     }
     interface AppLauncher {
     }
+    interface AppOnboardingEnd {
+    }
+    interface AppOnboardingPlugins {
+    }
+    interface AppOnboardingReporting {
+    }
+    interface AppOnboardingRoot {
+    }
+    interface AppOnboardingWelcome {
+    }
     interface AppProjectRoot {
     }
     interface AppProjectSidebarFile {
@@ -211,6 +275,8 @@ declare namespace LocalJSX {
     interface AppRoot {
     }
     interface AppSettingsAdvanced {
+    }
+    interface AppSettingsGeneral {
     }
     interface AppSettingsPluginCard {
         "pluginName"?: string;
@@ -231,11 +297,17 @@ declare namespace LocalJSX {
         "app-document-pane-tabs": AppDocumentPaneTabs;
         "app-document-preview": AppDocumentPreview;
         "app-launcher": AppLauncher;
+        "app-onboarding-end": AppOnboardingEnd;
+        "app-onboarding-plugins": AppOnboardingPlugins;
+        "app-onboarding-reporting": AppOnboardingReporting;
+        "app-onboarding-root": AppOnboardingRoot;
+        "app-onboarding-welcome": AppOnboardingWelcome;
         "app-project-root": AppProjectRoot;
         "app-project-sidebar-file": AppProjectSidebarFile;
         "app-project-sidebar-files": AppProjectSidebarFiles;
         "app-root": AppRoot;
         "app-settings-advanced": AppSettingsAdvanced;
+        "app-settings-general": AppSettingsGeneral;
         "app-settings-plugin-card": AppSettingsPluginCard;
         "app-settings-plugins": AppSettingsPlugins;
         "app-settings-root": AppSettingsRoot;
@@ -254,11 +326,17 @@ declare module "@stencil/core" {
             "app-document-pane-tabs": LocalJSX.AppDocumentPaneTabs & JSXBase.HTMLAttributes<HTMLAppDocumentPaneTabsElement>;
             "app-document-preview": LocalJSX.AppDocumentPreview & JSXBase.HTMLAttributes<HTMLAppDocumentPreviewElement>;
             "app-launcher": LocalJSX.AppLauncher & JSXBase.HTMLAttributes<HTMLAppLauncherElement>;
+            "app-onboarding-end": LocalJSX.AppOnboardingEnd & JSXBase.HTMLAttributes<HTMLAppOnboardingEndElement>;
+            "app-onboarding-plugins": LocalJSX.AppOnboardingPlugins & JSXBase.HTMLAttributes<HTMLAppOnboardingPluginsElement>;
+            "app-onboarding-reporting": LocalJSX.AppOnboardingReporting & JSXBase.HTMLAttributes<HTMLAppOnboardingReportingElement>;
+            "app-onboarding-root": LocalJSX.AppOnboardingRoot & JSXBase.HTMLAttributes<HTMLAppOnboardingRootElement>;
+            "app-onboarding-welcome": LocalJSX.AppOnboardingWelcome & JSXBase.HTMLAttributes<HTMLAppOnboardingWelcomeElement>;
             "app-project-root": LocalJSX.AppProjectRoot & JSXBase.HTMLAttributes<HTMLAppProjectRootElement>;
             "app-project-sidebar-file": LocalJSX.AppProjectSidebarFile & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFileElement>;
             "app-project-sidebar-files": LocalJSX.AppProjectSidebarFiles & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFilesElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
             "app-settings-advanced": LocalJSX.AppSettingsAdvanced & JSXBase.HTMLAttributes<HTMLAppSettingsAdvancedElement>;
+            "app-settings-general": LocalJSX.AppSettingsGeneral & JSXBase.HTMLAttributes<HTMLAppSettingsGeneralElement>;
             "app-settings-plugin-card": LocalJSX.AppSettingsPluginCard & JSXBase.HTMLAttributes<HTMLAppSettingsPluginCardElement>;
             "app-settings-plugins": LocalJSX.AppSettingsPlugins & JSXBase.HTMLAttributes<HTMLAppSettingsPluginsElement>;
             "app-settings-root": LocalJSX.AppSettingsRoot & JSXBase.HTMLAttributes<HTMLAppSettingsRootElement>;
