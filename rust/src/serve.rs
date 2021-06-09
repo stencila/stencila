@@ -411,7 +411,7 @@ fn login_handler(key_and_params: (Option<String>, LoginParams)) -> warp::reply::
 /// returned (which, in the background will request the document as JSON). Otherwise,
 /// will attempt to determine the desired format from the `Accept` header and convert the
 /// document to that.
-#[tracing::instrument(skip(documents))]
+#[tracing::instrument(skip(_documents))]
 fn get_handler(
     _documents: Arc<Mutex<Documents>>,
     path: warp::path::FullPath,
