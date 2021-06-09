@@ -467,7 +467,7 @@ fn get_handler(
         }
     } else {
         // TODO: Make this function async to handle the following
-        let mut documents = documents.lock().expect("Unable to obtain lock");
+        // let mut documents = documents.lock().expect("Unable to obtain lock");
         #[cfg(ignore)]
         match documents.open(path, None) {
             Ok(document) => {
