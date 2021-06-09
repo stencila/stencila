@@ -69,7 +69,7 @@ jobs:
       - script: |
           set -e
           cd rust
-          cargo install cargo-tarpaulin --quiet
+          cargo list | grep --quiet tarpaulin || cargo install cargo-tarpaulin
           make cover
           bash <(curl -s https://codecov.io/bash) -F rust
         condition: contains(variables.changed, 'rust')
@@ -80,7 +80,7 @@ jobs:
       # including those used by `cli`, `node` etc
       - script: |
           set -e
-          cargo install cargo-audit --quiet
+          cargo list | grep --quiet audit || cargo install cargo-audit
           cargo audit
         condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Audit'
@@ -94,7 +94,7 @@ jobs:
       - script: |
           set -e
           cd cli
-          cargo install cargo-tarpaulin --quiet
+          cargo list | grep --quiet tarpaulin || cargo install cargo-tarpaulin
           make cover
           bash <(curl -s https://codecov.io/bash) -F cli
         condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'cli'))
@@ -131,7 +131,7 @@ jobs:
       # CLI is built and published on tags
       - script: |
           set -e
-          cargo install cargo-strip --quiet
+          cargo list | grep --quiet strip || cargo install cargo-strip
           make -C cli build
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
@@ -179,7 +179,7 @@ jobs:
 
       - script: |
           set -e
-          cargo install cargo-strip --quiet
+          cargo list | grep --quiet strip || cargo install cargo-strip
           make -C cli build
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
@@ -231,7 +231,7 @@ jobs:
 
       - script: |
           set -e
-          cargo install cargo-strip --quiet
+          cargo list | grep --quiet strip || cargo install cargo-strip
           make -C cli build
           bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
