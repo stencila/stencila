@@ -2,6 +2,8 @@ import { BrowserWindow } from 'electron'
 import { registerOnboardingHandlers, removeOnboaringHandlers } from '.'
 import { createWindow } from '../../app/window'
 import { i18n } from '../../i18n'
+import { registerConfigHandlers, removeConfigHandlers } from '../config'
+import { registerLauncherHandlers, removeLauncherHandlers } from '../launcher'
 
 let onboardingWindow: BrowserWindow | null
 
@@ -13,18 +15,24 @@ export const openOnboardingWindow = () => {
     height: 600,
     maxWidth: 1000,
     minWidth: 600,
-    minHeight: 600,
+    maxHeight: 800,
+    minHeight: 500,
     show: false,
     title: i18n.t('onboarding.title'),
-    center: true,
+    fullscreenable: false,
+    center: true
   })
 
   onboardingWindow.on('closed', () => {
+    removeLauncherHandlers()
+    removeConfigHandlers()
     removeOnboaringHandlers()
     onboardingWindow = null
   })
 
   onboardingWindow.webContents.on('did-finish-load', () => {
+    registerLauncherHandlers()
+    registerConfigHandlers()
     registerOnboardingHandlers()
     onboardingWindow?.show()
   })

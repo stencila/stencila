@@ -5,13 +5,17 @@ import { LAUNCHER_CHANNEL } from './channels'
 import { closeLauncherWindow, openLauncherWindow } from './window'
 
 export const registerLauncherHandlers = () => {
-  ipcMain.handle(CHANNEL.OPEN_LAUNCHER_WINDOW, async () => {
-    openLauncherWindow()
-  })
+  try {
+    ipcMain.handle(CHANNEL.OPEN_LAUNCHER_WINDOW, async () => {
+      openLauncherWindow()
+    })
 
-  ipcMain.handle(CHANNEL.CLOSE_LAUNCHER_WINDOW, async () => {
-    closeLauncherWindow()
-  })
+    ipcMain.handle(CHANNEL.CLOSE_LAUNCHER_WINDOW, async () => {
+      closeLauncherWindow()
+    })
+  } catch {
+    // Handlers likely already registered
+  }
 }
 
 export const removeLauncherHandlers = () => {
