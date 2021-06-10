@@ -15,7 +15,7 @@ export interface AppConfigStore {
   [key: string]: JSONValue
 }
 
-const storeName = 'unprotected.json'
+const storeName = 'storeUnprotected.json'
 const userDataPath = app.getPath('userData')
 export const unprotectedStorePath = path.join(userDataPath, storeName)
 
@@ -30,7 +30,10 @@ export const readUnprotectedStore = (): AppConfigStore => {
   return {}
 }
 
-const defaultConfigStore = {}
+const defaultConfigStore: AppConfigStore = {
+  REPORT_ERRORS: false
+}
+
 export let unprotectedStore: ObservableMap<AppConfigStore>
 
 export const writeUnprotectedStore = (store: AppConfigStore): void => {
@@ -40,6 +43,7 @@ export const writeUnprotectedStore = (store: AppConfigStore): void => {
 export const resetUnprotectedStore = (): void => {
   fs.writeFileSync(unprotectedStorePath, JSON.stringify(defaultConfigStore))
 }
+
 export const initAppConfigStore = () => {
   let config = defaultConfigStore
   if (fs.existsSync(unprotectedStorePath)) {

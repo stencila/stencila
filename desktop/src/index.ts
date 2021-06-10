@@ -5,6 +5,7 @@ import { requestHandler, scheme } from './main/app-protocol'
 import { openLauncherWindow } from './main/launcher/window'
 import { openOnboardingWindow } from './main/onboarding/window'
 import { initAppConfigStore } from './main/store/bootstrap'
+import { isFirstLaunch, setFirstLaunchState } from './main/utils/firstLaunch'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -25,8 +26,9 @@ const createMainWindow = (): void => {
   initAppConfigStore()
 
   // If app is launched for the first time, show onboarding flow
-  if (process.argv[1] === '--squirrel-firstrun') {
+  if (isFirstLaunch()) {
     openOnboardingWindow()
+    setFirstLaunchState(false)
   } else {
     openLauncherWindow()
   }
@@ -37,9 +39,9 @@ protocol.registerSchemesAsPrivileged([
     scheme: scheme,
     privileges: {
       standard: true,
-      secure: true,
-    },
-  },
+      secure: true
+    }
+  }
 ])
 
 if (process.env.NODE_ENV === 'development') {
