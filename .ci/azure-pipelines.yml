@@ -53,7 +53,7 @@ jobs:
       # Use caches
       - task: Cache@2
         inputs:
-          path: $(RUSTCACHE)
+          path: $(RUST_CACHE)
           key: 'Rust | $(Agent.OS)'
 
       # Install core Rust build tools if there are changes any folder using Rust.
@@ -188,7 +188,7 @@ jobs:
     steps:
       - task: Cache@2
         inputs:
-          path: $(RUSTCACHE)
+          path: $(RUST_CACHE)
           key: 'Rust | $(Agent.OS)'
 
       - script: |
@@ -258,7 +258,7 @@ jobs:
     steps:
       - task: Cache@2
         inputs:
-          path: $(RUSTCACHE)
+          path: $(RUST_CACHE)
           key: 'Rust | $(Agent.OS)'
 
       - script: |
@@ -305,9 +305,9 @@ jobs:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
       - script: |
-          set -e
+          sccache --show-stats
+          sccache --stop-server
           cargo cache --autoclean
-          cargo cache sc
         condition: eq(variables.RUST_CACHING, 'true')
         continueOnError: true
         displayName: 'Rust: Clean cache'
