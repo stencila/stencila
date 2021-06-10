@@ -26,6 +26,12 @@ pub fn schemas(cx: FunctionContext) -> JsResult<JsString> {
     to_json_or_throw(cx, schemas)
 }
 
+/// Get the hash map of document formats
+pub fn formats(cx: FunctionContext) -> JsResult<JsString> {
+    let formats = &*documents::DOCUMENT_FORMATS;
+    to_json(cx, formats)
+}
+
 /// List documents
 pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
     let documents = &*obtain(&mut cx)?;

@@ -13,6 +13,7 @@ mod pubsub;
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("documentsSchemas", documents::schemas)?;
+    cx.export_function("documentsFormats", documents::formats)?;
     cx.export_function("documentsList", documents::list)?;
     cx.export_function("documentsCreate", documents::create)?;
     cx.export_function("documentsOpen", documents::open)?;

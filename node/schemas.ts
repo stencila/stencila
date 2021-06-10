@@ -28,7 +28,7 @@ const addon = require('./index.node')
     return Array.isArray(schema) ? [...prev, ...schema] : [...prev, schema]
   }, [])
 
-  const ts = (
+  let ts = (
     await Promise.all(
       schemas.map(async (schema) => {
         // Replace `title` with `$id` or remove it. This is necessary because
@@ -62,6 +62,12 @@ const addon = require('./index.node')
       })
     )
   ).join('\n')
+
+  ts += `\nexport const DOCUMENT_FORMATS: Record<string, DocumentFormat> = ${JSON.stringify(
+    JSON.parse(addon.documentsFormats()),
+    null,
+    '  '
+  )}\n`
 
   fs.writeFileSync(path.join(__dirname, 'src', 'types.ts'), ts)
 })()
