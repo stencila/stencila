@@ -1,3 +1,10 @@
+# [0.78.0](https://github.com/stencila/stencila/compare/v0.77.1...v0.78.0) (2021-06-10)
+
+
+### Features
+
+* **Custom errors:** Define custom error types and publish them under the "errors" topic ([d0c6978](https://github.com/stencila/stencila/commit/d0c69782b1deea79ad3e23f59dc6a552da947df7))
+
 ## [0.77.1](https://github.com/stencila/stencila/compare/v0.77.0...v0.77.1) (2021-06-09)
 
 
