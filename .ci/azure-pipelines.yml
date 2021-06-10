@@ -62,7 +62,8 @@ jobs:
 
       # Install core Rust build tools if there are changes any folder using Rust.
       # Additional build tools e.g. `tarpaulin` are installed just-in-time given
-      # that prior steps may not succeed.
+      # that prior steps may not succeed. This is always done, including for
+      # release builds (otherwise they can take longer than the maximum of one hour).
       - script: |
           set -e
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-unknown-linux-musl.tar.gz | tar xz
@@ -72,13 +73,7 @@ jobs:
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
           cargo list | grep --quiet cache || cargo install cargo-cache
           echo "##vso[task.setvariable variable=RUST_CACHING]true"
-        condition: |
-          or(
-            contains(variables.changed, 'rust'),
-            contains(variables.changed, 'cli'),
-            contains(variables.changed, 'node')
-          )
-        displayName: 'Rust: Install build tools'
+        displayName: 'Install build tools'
 
       # Rust crate is linted if there are changes in the `rust` folder.
       - script: make -C rust lint
@@ -210,13 +205,7 @@ jobs:
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
           cargo list | grep --quiet cache || cargo install cargo-cache
           echo "##vso[task.setvariable variable=RUST_CACHING]true"
-        condition: |
-          or(
-            contains(variables.changed, 'rust'),
-            contains(variables.changed, 'cli'),
-            contains(variables.changed, 'node')
-          )
-        displayName: 'Rust: Install build tools'
+        displayName: 'Install build tools'
 
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
@@ -278,7 +267,6 @@ jobs:
             Rust | $(Agent.OS)
 
       - script: |
-          set -e
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-pc-windows-msvc.tar.gz -o sccache.tar.gz
           tar -xzf sccache.tar.gz
           mv -f sccache*/sccache $(CARGO_HOME)/bin/sccache
@@ -287,20 +275,13 @@ jobs:
           echo ##vso[task.setvariable variable=RUSTC_WRAPPER]sccache
           cargo list | grep --quiet cache || cargo install cargo-cache
           echo ##vso[task.setvariable variable=RUST_CACHING]true
-        condition: |
-          or(
-            contains(variables.changed, 'rust'),
-            contains(variables.changed, 'cli'),
-            contains(variables.changed, 'node')
-          )
-        displayName: 'Rust: Install build tools'
+        displayName: 'Install build tools'
 
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
       - script: |
-          set -e
           cargo list | grep --quiet strip || cargo install cargo-strip
           make -C cli build
           bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
@@ -316,7 +297,6 @@ jobs:
         displayName: 'Node.js: Use 16.x'
 
       - script: |
-          set -e
           make -C node build
           make -C desktop publish
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
