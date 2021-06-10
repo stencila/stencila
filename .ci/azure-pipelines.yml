@@ -65,8 +65,8 @@ jobs:
       # that prior steps may not succeed.
       - script: |
           set -e
+          [[ -f $(CARGO_HOME)/bin/sccache ]] || cargo install sccache
           echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
-          which sccache || cargo install sccache
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
           cargo list | grep --quiet cache || cargo install cargo-cache
           echo "##vso[task.setvariable variable=RUST_CACHING]true"
@@ -202,8 +202,8 @@ jobs:
 
       - script: |
           set -e
+          [[ -f $(CARGO_HOME)/bin/sccache ]] || cargo install sccache
           echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
-          which sccache || cargo install sccache
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
           cargo list | grep --quiet cache || cargo install cargo-cache
           echo "##vso[task.setvariable variable=RUST_CACHING]true"
@@ -277,8 +277,8 @@ jobs:
 
       - script: |
           set -e
+          [[ -f $(CARGO_HOME)/bin/sccache ]] || cargo install sccache
           echo ##vso[task.prependpath]$(CARGO_HOME)/bin
-          which sccache || cargo install sccache
           echo ##vso[task.setvariable variable=RUSTC_WRAPPER]sccache
           cargo list | grep --quiet cache || cargo install cargo-cache
           echo ##vso[task.setvariable variable=RUST_CACHING]true
