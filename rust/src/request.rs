@@ -5,6 +5,7 @@ use async_trait::async_trait;
 use enum_dispatch::enum_dispatch;
 use eyre::{bail, eyre, Context, Result};
 use serde::Serialize;
+use std::collections::HashMap;
 use std::env;
 use strum::VariantNames;
 use tokio::io::AsyncWriteExt;
@@ -64,26 +65,10 @@ impl Client {
     }
 
     /// Make a JSON-RPC method call to a plugin or peer.
-    ///
-    /// ```
-    /// use stencila::methods::Method;
-    /// use stencila::request::Client;
-    /// use serde_json::json;
-    ///
-    /// let mut client = Client::new("docker://stencila/rasta", None).unwrap();
-    /// client.call(
-    ///     Method::Execute,
-    ///     &json!({
-    ///         "type": "CodeChunk",
-    ///         "programmingLanguage": "r",
-    ///         "text": "plot(mtcars)",
-    ///     })
-    /// );
-    /// ```
     pub async fn call(
         &mut self,
         method: Method,
-        params: &serde_json::Value,
+        params: HashMap<String, serde_json::Value>,
     ) -> Result<serde_json::Value> {
         // Construct a JSON-RPC request
         let request = serde_json::json!({
@@ -375,7 +360,7 @@ pub mod cli {
 
         let mut client = Client::new(&url, key)?;
         let params = crate::cli::args::params(&params);
-        let result = client.call(method, &params).await?;
+        let result = client.call(method, params).await?;
         println!("{}", serde_json::to_string_pretty(&result)?);
 
         Ok(())

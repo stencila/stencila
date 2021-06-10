@@ -1,29 +1,29 @@
+use schemars::JsonSchema;
 use serde::Serialize;
-use strum::{EnumString, EnumVariantNames, ToString};
+use strum::{Display, EnumString, EnumVariantNames};
 
-#[derive(Debug, EnumString, EnumVariantNames, PartialEq, Serialize, ToString)]
+/// An enumeration of all methods
+#[derive(
+    Clone, Copy, Debug, Display, EnumString, EnumVariantNames, PartialEq, JsonSchema, Serialize,
+)]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 pub enum Method {
-    Build,
-    Call,
-    Clean,
-    Compile,
-    Decode,
-    Delete,
-    Encode,
-    Enrich,
-    Execute,
-    Export,
-    Funcs,
-    Get,
-    Import,
-    Pipe,
     Read,
-    Reshape,
-    Select,
-    Set,
-    Validate,
-    Vars,
     Write,
+
+    Decode,
+    Encode,
+
+    Validate,
+
+    Upcast,
+    Downcast,
+
+    Import,
+    Export,
+
+    Compile,
+    Build,
+    Execute,
 }

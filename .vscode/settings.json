@@ -50,6 +50,7 @@
     "itemscope",
     "itemtype",
     "schemars",
-    "structopt"
+    "structopt",
+    "undelegatable"
   ]
 }

@@ -1,5 +1,6 @@
 export * as config from './config'
 export * as documents from './documents'
+export * as errors from './errors'
 export * as logging from './logging'
 export * as plugins from './plugins'
 export * as projects from './projects'
