@@ -66,7 +66,7 @@ jobs:
       - script: |
           set -e
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-unknown-linux-musl.tar.gz | tar xz
-          mv --force sccache*/sccache $(CARGO_HOME)/bin/sccache 
+          mv -f sccache*/sccache $(CARGO_HOME)/bin/sccache 
           chmod +x $(CARGO_HOME)/bin/sccache
           echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
@@ -204,7 +204,7 @@ jobs:
       - script: |
           set -e
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-apple-darwin.tar.gz | tar xz
-          mv --force sccache*/sccache $(CARGO_HOME)/bin/sccache
+          mv -f sccache*/sccache $(CARGO_HOME)/bin/sccache
           chmod +x $(CARGO_HOME)/bin/sccache
           echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
@@ -279,8 +279,9 @@ jobs:
 
       - script: |
           set -e
-          curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-pc-windows-msvc.tar.gz | tar xz
-          mv --force sccache*/sccache $(CARGO_HOME)/bin/sccache
+          curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-pc-windows-msvc.tar.gz -o sccache.tar.gz
+          tar -xzf sccache.tar.gz
+          mv -f sccache*/sccache $(CARGO_HOME)/bin/sccache
           chmod +x $(CARGO_HOME)/bin/sccache
           echo ##vso[task.prependpath]$(CARGO_HOME)/bin
           echo ##vso[task.setvariable variable=RUSTC_WRAPPER]sccache
