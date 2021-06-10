@@ -5,6 +5,7 @@ use crate::{
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
+use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -17,8 +18,122 @@ use std::{
         Arc, Mutex, MutexGuard,
     },
 };
-use stencila_schema::Node;
+use stencila_schema::{AudioObject, ImageObject, Node, VideoObject};
 use strum::ToString;
+
+/// Information about a document format
+///
+/// Used to determine various application behaviors
+/// e.g. not reading binary formats into memory unnecessarily
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct DocumentFormat {
+    /// The lowercase name of the format e.g. `md`, `docx`, `dockerfile`
+    #[def = r#""unknown".to_string()"#]
+    name: String,
+
+    /// Whether or not the format should be considered binary
+    /// e.g. not to be displayed in a text / code editor
+    #[def = "true"]
+    binary: bool,
+
+    /// The type of `CreativeWork` that this format is expected to be.
+    /// This will be `None` for data serialization formats such as
+    /// JSON or YAML which have no expected type (the actual type is
+    /// embedded in the data).
+    #[serde(rename = "type")]
+    type_: Option<String>,
+}
+
+impl DocumentFormat {
+    pub fn new(name: &str, binary: bool, type_: &str) -> DocumentFormat {
+        DocumentFormat {
+            name: name.into(),
+            binary,
+            type_: if type_.len() == 0 {
+                None
+            } else {
+                Some(type_.to_string())
+            },
+        }
+    }
+}
+
+/// List of known document formats
+#[derive(Serialize)]
+#[serde(transparent)]
+pub struct DocumentFormats {
+    /// Document formats keyed by their name
+    formats: HashMap<String, DocumentFormat>,
+}
+
+impl DocumentFormats {
+    pub fn new() -> DocumentFormats {
+        let formats = vec![
+            // Data serialization formats
+            DocumentFormat::new("json", false, ""),
+            DocumentFormat::new("json5", false, ""),
+            DocumentFormat::new("yaml", false, ""),
+            // Article formats
+            DocumentFormat::new("docx", true, "Article"),
+            DocumentFormat::new("odt", true, "Article"),
+            DocumentFormat::new("ipynb", false, "Article"),
+            DocumentFormat::new("md", false, "Article"),
+            DocumentFormat::new("rmd", false, "Article"),
+            DocumentFormat::new("tex", false, "Article"),
+            DocumentFormat::new("txt", false, "Article"),
+            // Audio formats
+            DocumentFormat::new("flac", true, "AudioObject"),
+            DocumentFormat::new("mp3", true, "AudioObject"),
+            DocumentFormat::new("ogg", true, "AudioObject"),
+            // Image formats
+            DocumentFormat::new("gif", true, "ImageObject"),
+            DocumentFormat::new("jpeg", true, "ImageObject"),
+            DocumentFormat::new("jpg", true, "ImageObject"),
+            DocumentFormat::new("png", true, "ImageObject"),
+            // Video formats
+            DocumentFormat::new("3gp", true, "VideoObject"),
+            DocumentFormat::new("mp4", true, "VideoObject"),
+            DocumentFormat::new("ogv", true, "VideoObject"),
+            DocumentFormat::new("webm", true, "VideoObject"),
+        ];
+
+        let formats = formats
+            .into_iter()
+            .map(|format| (format.name.clone(), format))
+            .collect();
+
+        DocumentFormats { formats }
+    }
+
+    /// Match a format name to a `DocumentFormat`
+    pub fn match_name(&self, name: &str) -> DocumentFormat {
+        match self.formats.get(&name.to_lowercase()) {
+            Some(format) => format.clone(),
+            None => DocumentFormat::default(),
+        }
+    }
+
+    /// Match a file path to a `DocumentFormat`
+    pub fn match_path<P: AsRef<Path>>(&self, path: &P) -> DocumentFormat {
+        let path = path.as_ref();
+        // Use file extension
+        let name = match path.extension() {
+            Some(ext) => ext,
+            // Fallback to the filename if no extension
+            None => match path.file_name() {
+                Some(name) => name,
+                // Fallback to the provided "path"
+                None => path.as_os_str(),
+            },
+        };
+
+        self.match_name(&name.to_string_lossy().to_string())
+    }
+}
+
+pub static DOCUMENT_FORMATS: Lazy<DocumentFormats> = Lazy::new(DocumentFormats::new);
 
 #[derive(Debug, JsonSchema, Serialize, ToString)]
 #[serde(rename_all = "lowercase")]
@@ -105,23 +220,21 @@ pub struct Document {
     /// for temporary documents.
     name: String,
 
-    /// The current content of the document.
+    /// The format of the document.
     ///
-    /// When a `new()` document is created, the `content` will be open.
+    /// On initialization, this is inferred, if possible, from the file name extension
+    /// of the document's `path`. However, it may change whilst the document is
+    /// open in memory (e.g. if the `load` function sets a different format).
+    format: DocumentFormat,
+
+    /// The current UTF8 string content of the document.
+    ///
     /// When a document is `read()` from a file the `content` is the content
     /// of the file. The `content` may subsequently be changed using
     /// the `load()` function. A call to `write()` will write the content
     /// back to `path`.
     #[serde(skip)]
     content: String,
-
-    /// The format of the document's `content`.
-    ///
-    /// On initialization, this is inferred, if possible, from the file name extension
-    /// of the document's `path`. However, it may change whilst the document is
-    /// open in memory (e.g. if the `load` function sets a different format).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    format: Option<String>,
 
     /// The root Stencila Schema node of the document
     #[serde(skip)]
@@ -149,7 +262,7 @@ impl Document {
     ///
     /// # Arguments
     ///
-    /// - `format`: The format of the document.
+    /// - `format`: The format of the document; defaults to plain text.
     ///
     /// This function is intended to be used by editors when creating
     /// a new document. The created document will be `temporary: true`
@@ -160,6 +273,8 @@ impl Document {
         if !path.exists() {
             fs::write(path.clone(), "").expect("Unable to write temporary file");
         }
+
+        let format = DOCUMENT_FORMATS.match_path(&format.unwrap_or_else(|| "txt".to_string()));
 
         let id = uuids::generate(uuids::Family::Document);
 
@@ -195,10 +310,10 @@ impl Document {
             .unwrap_or_else(|| "Untitled".into())
             .into();
 
-        let format = format.or_else(|| {
-            path.extension()
-                .map(|ext| ext.to_string_lossy().to_lowercase())
-        });
+        let format = match format {
+            None => DOCUMENT_FORMATS.match_path(&path),
+            Some(format) => DOCUMENT_FORMATS.match_path(&format),
+        };
 
         let mut document = Document {
             id,
@@ -208,15 +323,24 @@ impl Document {
             format,
             ..Default::default()
         };
-        document.read().await?;
+
+        if document.format.binary {
+            document.update().await?;
+        } else {
+            document.read().await?;
+        }
 
         Ok(document)
     }
 
     /// Read the document from the file system and return its content.
     ///
-    /// Sets `status` to `Synced`.
+    /// Sets `status` to `Synced`. Will error if the document's format
+    /// is binary.
     async fn read(&mut self) -> Result<String> {
+        if self.format.binary {
+            bail!("Content should not be read from binary files")
+        }
         let content = fs::read_to_string(&self.path)?;
         self.load(content, None).await?;
         self.status = DocumentStatus::Synced;
@@ -297,17 +421,43 @@ impl Document {
         self.content = content;
         self.status = DocumentStatus::Unwritten;
         if let Some(format) = format {
-            self.format = Some(format)
+            self.format = DOCUMENT_FORMATS.match_path(&format)
         }
 
-        // To decode the content we need to know, or assume, its format
-        let format = match &self.format {
-            Some(format) => format.as_str(),
-            None => "txt",
-        };
+        self.update().await
+    }
 
+    /// Update the `root` node of the document and publish updated encodings
+    async fn update(&mut self) -> Result<()> {
         // Import the content into the `root` node of the document
-        let mut root = decode(&self.content, format).await?;
+        let mut root = if !self.format.binary {
+            decode(&self.content, &self.format.name).await?
+        } else {
+            let content_url = self.path.display().to_string();
+
+            match &self.format.type_ {
+                None => Node::Null,
+                Some(type_) => match type_.as_str() {
+                    "AudioObject" => Node::AudioObject(AudioObject {
+                        content_url,
+                        ..Default::default()
+                    }),
+                    "ImageObject" => Node::ImageObject(ImageObject {
+                        content_url,
+                        ..Default::default()
+                    }),
+                    "VideoObject" => Node::VideoObject(VideoObject {
+                        content_url,
+                        ..Default::default()
+                    }),
+                    _ => bail!(
+                        "Unhandled binary document format '{}' type '{}'",
+                        self.format.name,
+                        type_
+                    ),
+                },
+            }
+        };
 
         // Compile the `root` node and update document dependencies
         let _compilation = compile(&mut root, &self.path)?;
@@ -448,7 +598,7 @@ impl Document {
             Ok(content) => self.publish(
                 DocumentEventType::Modified,
                 Some(content),
-                self.format.clone(),
+                Some(self.format.name.clone()),
             ),
             Err(error) => tracing::error!("While attempting to read modified file: {}", error),
         }
@@ -614,6 +764,7 @@ pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![
         schemas::generate::<Document>()?,
         schemas::generate::<DocumentEvent>()?,
+        schemas::generate::<DocumentFormat>()?,
     ]);
     Ok(schemas)
 }
@@ -847,7 +998,7 @@ mod tests {
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
-        assert!(doc.format.is_none());
+        assert_eq!(doc.format.name, "txt");
         assert_eq!(doc.content, "");
         assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
@@ -856,7 +1007,7 @@ mod tests {
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
-        assert_eq!(doc.format.unwrap(), "md");
+        assert_eq!(doc.format.name, "md");
         assert_eq!(doc.content, "");
         assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
@@ -874,7 +1025,7 @@ mod tests {
             assert!(doc.path.starts_with(fixtures));
             assert!(!doc.temporary);
             assert!(matches!(doc.status, DocumentStatus::Synced));
-            assert_eq!(doc.format.unwrap(), "json");
+            assert_eq!(doc.format.name, "json");
             assert!(doc.content.len() > 0);
             assert!(doc.root.is_some());
             assert_eq!(doc.subscriptions, hashmap! {});
