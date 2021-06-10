@@ -8,3 +8,7 @@ export const getFocusedWindow = () => {
 export const saveActiveDoc = () => {
   getFocusedWindow()?.webContents.send(CHANNEL.SAVE_ACTIVE_DOCUMENT)
 }
+
+export const closeActiveTab = async () => {
+  getFocusedWindow()?.webContents.send(CHANNEL.CLOSE_ACTIVE_DOCUMENT)
+}

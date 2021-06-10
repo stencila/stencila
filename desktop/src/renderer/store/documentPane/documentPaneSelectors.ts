@@ -1,7 +1,7 @@
 import { EntityId } from '@reduxjs/toolkit'
-import { RootState } from '..'
 import { array as A, option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
+import { RootState } from '..'
 
 export const selectPaneId = (state: RootState) => {
   return state.panes.ids[0]
@@ -15,10 +15,10 @@ export const selectDoc = (state: RootState) => (docId: EntityId) => {
   return state.panes.entities.views[docId]
 }
 
-export const selectActiveDoc = (state: RootState) => {
+export const selectActiveView = (state: RootState): O.Option<EntityId> => {
   return pipe(
     selectPane(state),
-    O.chain((pane) => pane.activeView)
+    O.chain(pane => pane.activeView)
   )
 }
 
@@ -26,7 +26,7 @@ export const selectPane = (state: RootState) => {
   return pipe(
     state.panes.ids,
     A.head,
-    O.chain((id) => O.some(state.panes.entities.panes[id]) ?? O.none),
+    O.chain(id => O.some(state.panes.entities.panes[id]) ?? O.none),
     O.chain(O.fromNullable)
   )
 }

@@ -4,15 +4,15 @@ import { pipe } from 'fp-ts/function'
 import { IResizeEvent } from 'split-me/dist/types/components/split-me/interfaces'
 import { state } from '../../../store'
 import {
-  selectActiveDoc,
-  selectPaneViews,
+  selectActiveView,
   selectPaneId,
+  selectPaneViews
 } from '../../../store/documentPane/documentPaneSelectors'
 
 @Component({
   tag: 'app-document-pane',
   styleUrl: 'app-document-pane.css',
-  scoped: true,
+  scoped: true
 })
 export class AppDocumentPane {
   private splitSizes: number[] | undefined
@@ -24,7 +24,7 @@ export class AppDocumentPane {
   }
 
   render() {
-    const activeDocument = selectActiveDoc(state)
+    const activeDocument = selectActiveView(state)
 
     return (
       <div class="documentPane">
@@ -36,7 +36,7 @@ export class AppDocumentPane {
 
         {pipe(
           activeDocument,
-          O.map((activeDocumentId) => (
+          O.map(activeDocumentId => (
             <div class="documentPaneContents">
               <split-me
                 n={2}

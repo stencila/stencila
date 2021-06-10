@@ -9,7 +9,7 @@ import { listenForFileEvents, removeFileEventListener } from './projectEvents'
 @Component({
   tag: 'app-project-root',
   styleUrl: 'app-project-root.css',
-  scoped: true,
+  scoped: true
 })
 export class AppProjectRoot {
   componentWillLoad() {
@@ -18,7 +18,7 @@ export class AppProjectRoot {
     )
     initPane()
     store.dispatch(fetchProject(projectPath))
-    listenForFileEvents()
+    listenForFileEvents(projectPath)
   }
 
   disconnectedCallback() {

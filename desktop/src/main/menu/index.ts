@@ -2,9 +2,10 @@ import { app, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
 import { showSettings } from '../config/window'
 import { openOnboardingWindow } from '../onboarding/window'
 import { openProject } from '../project/handlers'
-import { saveActiveDoc } from '../window/windowUtils'
+import { closeActiveTab, saveActiveDoc } from '../window/windowUtils'
 
 const isMac = process.platform === 'darwin'
+const isWindows = process.platform === 'win32'
 
 const template: (MenuItemConstructorOptions | MenuItem)[] = [
   // { role: 'appMenu' }
@@ -18,7 +19,7 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
             {
               label: 'Preferences…',
               accelerator: 'CommandOrControl+,',
-              click: showSettings,
+              click: showSettings
             },
             { type: 'separator' as const },
             { role: 'services' as const },
@@ -27,9 +28,9 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
             { role: 'hideOthers' as const },
             { role: 'unhide' as const },
             { type: 'separator' as const },
-            { role: 'quit' as const },
-          ],
-        },
+            { role: 'quit' as const }
+          ]
+        }
       ]
     : []),
   // { role: 'fileMenu' }
@@ -44,21 +45,31 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
       {
         label: 'Save',
         click: saveActiveDoc,
-        accelerator: 'CommandOrControl+s',
+        accelerator: 'CommandOrControl+s'
       },
       { type: 'separator' },
       ...(isMac
-        ? [{ role: 'close' as const }]
+        ? [
+            {
+              label: 'Close Tab' as const,
+              click: closeActiveTab,
+              accelerator: isWindows ? 'Control+Shift+W' : 'CommandOrControl+w'
+            },
+            {
+              role: 'close' as const,
+              accelerator: isWindows ? 'Alt+F4' : 'CommandOrControl+Shift+w'
+            }
+          ]
         : [
             {
               label: 'Preferences…',
               accelerator: 'CommandOrControl+,',
-              click: showSettings,
+              click: showSettings
             },
             { type: 'separator' as const },
-            { role: 'quit' as const },
-          ]),
-    ],
+            { role: 'quit' as const }
+          ])
+    ]
   },
   // { role: 'editMenu' }
   {
@@ -80,16 +91,16 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
               label: 'Speech',
               submenu: [
                 { role: 'startSpeaking' as const },
-                { role: 'stopSpeaking' as const },
-              ],
-            },
+                { role: 'stopSpeaking' as const }
+              ]
+            }
           ]
         : [
             { role: 'delete' as const },
             { type: 'separator' as const },
-            { role: 'selectAll' as const },
-          ]),
-    ],
+            { role: 'selectAll' as const }
+          ])
+    ]
   },
   // { role: 'viewMenu' }
   {
@@ -103,8 +114,8 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
       { role: 'zoomIn' },
       { role: 'zoomOut' },
       { type: 'separator' },
-      { role: 'togglefullscreen' },
-    ],
+      { role: 'togglefullscreen' }
+    ]
   },
   // { role: 'windowMenu' }
   {
@@ -117,10 +128,10 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
             { type: 'separator' as const },
             { role: 'front' as const },
             { type: 'separator' as const },
-            { role: 'window' as const },
+            { role: 'window' as const }
           ]
-        : [{ role: 'close' as const }]),
-    ],
+        : [{ role: 'close' as const }])
+    ]
   },
   {
     role: 'help',
@@ -130,14 +141,14 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
         click: async () => {
           const { shell } = require('electron')
           await shell.openExternal('http://help.stenci.la')
-        },
+        }
       },
       {
         label: 'Learn More',
         click: async () => {
           const { shell } = require('electron')
           await shell.openExternal('https://stenci.la')
-        },
+        }
       },
       { type: 'separator' },
       {
@@ -147,15 +158,15 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
           await shell.openExternal(
             'https://github.com/stencila/stencila/issues/new'
           )
-        },
+        }
       },
       { type: 'separator' },
       {
         label: 'Open initial setup screen',
-        click: openOnboardingWindow,
-      },
-    ],
-  },
+        click: openOnboardingWindow
+      }
+    ]
+  }
 ]
 
 const menu = Menu.buildFromTemplate(template)
