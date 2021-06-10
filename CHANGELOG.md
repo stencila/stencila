@@ -1,3 +1,11 @@
+## [0.78.1](https://github.com/stencila/stencila/compare/v0.78.0...v0.78.1) (2021-06-10)
+
+
+### Bug Fixes
+
+* **Desktop:** Fix issues when trying to register duplicate IPC handlers ([1504b37](https://github.com/stencila/stencila/commit/1504b373528846f374fcfae10876451effa981f4))
+* **Desktop:** Make first launch experience work across platforms ([af5cca8](https://github.com/stencila/stencila/commit/af5cca8910ee420e436fa74e107f21ffcc9b6e48))
+
 # [0.78.0](https://github.com/stencila/stencila/compare/v0.77.1...v0.78.0) (2021-06-10)
 
 
