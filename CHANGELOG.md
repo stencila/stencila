@@ -1,3 +1,10 @@
+# [0.79.0](https://github.com/stencila/stencila/compare/v0.78.1...v0.79.0) (2021-06-10)
+
+
+### Features
+
+* **Desktop:** Add keyboard shortcut for closing active tab ([fa09b54](https://github.com/stencila/stencila/commit/fa09b540f20c936bc47f78694b1392dc6d76ce9f))
+
 ## [0.78.1](https://github.com/stencila/stencila/compare/v0.78.0...v0.78.1) (2021-06-10)
 
 

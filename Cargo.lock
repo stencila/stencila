@@ -61,9 +61,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.40"
+version = "1.0.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28b2cd92db5cbd74e8e5028f7e27dd7aa3090e89e4f2a197cc7c8dfb69c7063b"
+checksum = "15af2628f6890fe2609a3b91bef4c83450512802e59489f9c1cb1fa5df064a61"
 
 [[package]]
 name = "async-trait"
@@ -2822,7 +2822,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.78.1"
+version = "0.79.0"
 dependencies = [
  "ansi_term 0.12.1",
  "async-trait",
@@ -2878,7 +2878,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.78.1"
+version = "0.79.0"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -2896,7 +2896,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.78.1"
+version = "0.79.0"
 dependencies = [
  "neon",
  "stencila",
