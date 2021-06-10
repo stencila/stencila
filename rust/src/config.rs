@@ -1,4 +1,4 @@
-use crate::{logging, plugins, projects, serve, upgrade, utils::schemas};
+use crate::{logging, plugins, projects, serve, telemetry, upgrade, utils::schemas};
 use eyre::{bail, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -17,6 +17,9 @@ pub struct Config {
 
     #[validate]
     pub logging: logging::config::LoggingConfig,
+
+    #[validate]
+    pub telemetry: telemetry::config::TelemetryConfig,
 
     #[validate]
     pub serve: serve::config::ServeConfig,

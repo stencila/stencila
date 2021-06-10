@@ -322,6 +322,29 @@ export interface Config {
     }
   }
   /**
+   * Configuration settings for telemetry
+   */
+  telemetry?: {
+    /**
+     * Telemetry settings for Stencila CLI
+     */
+    cli?: {
+      /**
+       * Whether to send error reports to Sentry. Default is false.
+       */
+      sentry?: boolean
+    }
+    /**
+     * Telemetry settings for Stencila Desktop
+     */
+    desktop?: {
+      /**
+       * Whether to send error reports to Sentry. Default is false.
+       */
+      sentry?: boolean
+    }
+  }
+  /**
    * Configuration settings for running as a server
    */
   serve?: {
@@ -398,6 +421,10 @@ export type Error =
   | {
       type: 'PluginNotInstalled'
       plugin: string
+    }
+  | {
+      type: 'Unknown'
+      [k: string]: unknown
     }
 /**
  * An enumeration of all methods
