@@ -6,8 +6,14 @@ trigger:
       - refs/tags/*
 
 variables:
-  - name: CARGO_HOME
-    value: $(Build.SourcesDirectory)/.cargo
+  # Settings for Rust caching. See also:
+  #   https://github.com/johnterickson/cargo2junit/blob/master/azure-pipelines.yml
+  #   https://doc.rust-lang.org/cargo/guide/cargo-home.html#caching-the-cargo-home-in-ci
+  #   https://levans.fr/rust_travis_cache.html
+  RUST_CACHE: $(Build.SourcesDirectory)/rust_cache
+  CARGO_HOME: $(RUST_CACHE)/.cargo
+  SCCACHE_DIR: $(RUST_CACHE)/sccache
+  SCCACHE_CACHE_SIZE: 1G
 
 jobs:
   # Create variables indicating whether or not there are changes in
@@ -44,21 +50,33 @@ jobs:
       # condition simply to improve visibility (ie. its quicker to discover where
       # a build fails if it is broken into several steps)
 
-      # Cache Cargo home. For the choice of dirs see:
-      #   https://doc.rust-lang.org/cargo/guide/cargo-home.html#caching-the-cargo-home-in-ci
-      #   https://levans.fr/rust_travis_cache.html
+      # Use caches
       - task: Cache@2
         inputs:
-          path: $(Build.SourcesDirectory)/.cargo/bin/
-          key: 'Cargo bin | $(Agent.OS)'
-      - task: Cache@2
-        inputs:
-          path: $(Build.SourcesDirectory)/.cargo/registry/index/
-          key: 'Cargo registry index | $(Agent.OS)'
-      - task: Cache@2
-        inputs:
-          path: $(Build.SourcesDirectory)/.cargo/registry/cache/
-          key: 'Cargo registry cache | $(Agent.OS)'
+          path: $(RUST_CACHE)
+          key: 'Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock | $(Build.SourceVersion)'
+          restoreKeys: |
+            Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock
+            Rust | $(Agent.OS) | ./Cargo.toml
+            Rust | $(Agent.OS)
+
+      # Install core Rust build tools if there are changes any folder using Rust.
+      # Additional build tools e.g. `tarpaulin` are installed just-in-time given
+      # that prior steps may not succeed.
+      - script: |
+          set -e
+          test -f $(CARGO_HOME)/bin/sccache || cargo install sccache
+          echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
+          echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
+          cargo list | grep --quiet cache || cargo install cargo-cache
+          echo "##vso[task.setvariable variable=RUST_CACHING]true"
+        condition: |
+          or(
+            contains(variables.changed, 'rust'),
+            contains(variables.changed, 'cli'),
+            contains(variables.changed, 'node')
+          )
+        displayName: 'Rust: Install build tools'
 
       # Rust crate is linted if there are changes in the `rust` folder.
       - script: make -C rust lint
@@ -118,7 +136,7 @@ jobs:
       # Desktop is tested if there are changes in the `rust`, `node`, or `desktop` folders
       - script: |
           set -e
-          make -C node build
+          make -C node build-debug
           make -C desktop test
         condition: |
           or(
@@ -150,6 +168,14 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
+      # Reduce the size of the Rust cache (and print summary) before storing it.
+      - script: |
+          sccache --stop-server
+          cargo cache --autoclean
+        condition: eq(variables.RUST_CACHING, 'true')
+        continueOnError: true
+        displayName: 'Rust: Clean cache'
+
   # On MacOS, Rust crate is tested if there are changes in `rust` folder,
   # CLI and desktop are built and published on tags.
   - job: MacOS
@@ -166,12 +192,27 @@ jobs:
     steps:
       - task: Cache@2
         inputs:
-          path: $(Build.SourcesDirectory)/.cargo/registry/index/
-          key: 'Cargo registry index | $(Agent.OS)'
-      - task: Cache@2
-        inputs:
-          path: $(Build.SourcesDirectory)/.cargo/registry/cache/
-          key: 'Cargo registry cache | $(Agent.OS)'
+          path: $(RUST_CACHE)
+          key: 'Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock | $(Build.SourceVersion)'
+          restoreKeys: |
+            Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock
+            Rust | $(Agent.OS) | ./Cargo.toml
+            Rust | $(Agent.OS)
+
+      - script: |
+          set -e
+          test -f $(CARGO_HOME)/bin/sccache || cargo install sccache
+          echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
+          echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
+          cargo list | grep --quiet cache || cargo install cargo-cache
+          echo "##vso[task.setvariable variable=RUST_CACHING]true"
+        condition: |
+          or(
+            contains(variables.changed, 'rust'),
+            contains(variables.changed, 'cli'),
+            contains(variables.changed, 'node')
+          )
+        displayName: 'Rust: Install build tools'
 
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
@@ -202,6 +243,13 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
+      - script: |
+          sccache --stop-server
+          cargo cache --autoclean
+        condition: eq(variables.RUST_CACHING, 'true')
+        continueOnError: true
+        displayName: 'Rust: Clean cache'
+
   # On Windows, Rust crate is tested if there are changes in `rust` folder,
   # CLI and desktop are built and published on tags.
   - job: Windows
@@ -218,12 +266,27 @@ jobs:
     steps:
       - task: Cache@2
         inputs:
-          path: $(Build.SourcesDirectory)/.cargo/registry/index/
-          key: 'Cargo registry index | $(Agent.OS)'
-      - task: Cache@2
-        inputs:
-          path: $(Build.SourcesDirectory)/.cargo/registry/cache/
-          key: 'Cargo registry cache | $(Agent.OS)'
+          path: $(RUST_CACHE)
+          key: 'Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock | $(Build.SourceVersion)'
+          restoreKeys: |
+            Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock
+            Rust | $(Agent.OS) | ./Cargo.toml
+            Rust | $(Agent.OS)
+
+      - script: |
+          set -e
+          test -f $(CARGO_HOME)/bin/sccache || cargo install sccache
+          echo ##vso[task.prependpath]$(CARGO_HOME)/bin
+          echo ##vso[task.setvariable variable=RUSTC_WRAPPER]sccache
+          cargo list | grep --quiet cache || cargo install cargo-cache
+          echo ##vso[task.setvariable variable=RUST_CACHING]true
+        condition: |
+          or(
+            contains(variables.changed, 'rust'),
+            contains(variables.changed, 'cli'),
+            contains(variables.changed, 'node')
+          )
+        displayName: 'Rust: Install build tools'
 
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
@@ -253,6 +316,13 @@ jobs:
         displayName: 'Desktop: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+      - script: |
+          sccache --stop-server
+          cargo cache --autoclean
+        condition: eq(variables.RUST_CACHING, 'true')
+        continueOnError: true
+        displayName: 'Rust: Clean cache'
 
   # Releases are only made if all three platform builds have succeeded and on the `master` branch.
   - job: Release
