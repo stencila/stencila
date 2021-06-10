@@ -62,9 +62,9 @@ jobs:
       - script: |
           set -e
           which sccache || cargo install sccache
-          echo '##vso[task.setvariable variable=RUSTC_WRAPPER]sccache'
+          echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
           cargo list | grep --quiet cache || cargo install cargo-cache
-          echo '##vso[task.setvariable variable=RUST_CACHING]true'
+          echo "##vso[task.setvariable variable=RUST_CACHING]true"
         condition: |
           or(
             contains(variables.changed, 'rust'),
@@ -194,9 +194,9 @@ jobs:
       - script: |
           set -e
           which sccache || cargo install sccache
-          echo '##vso[task.setvariable variable=RUSTC_WRAPPER]sccache'
+          echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
           cargo list | grep --quiet cache || cargo install cargo-cache
-          echo '##vso[task.setvariable variable=RUST_CACHING]true'
+          echo "##vso[task.setvariable variable=RUST_CACHING]true"
         condition: |
           or(
             contains(variables.changed, 'rust'),
@@ -264,9 +264,9 @@ jobs:
       - script: |
           set -e
           which sccache || cargo install sccache
-          echo '##vso[task.setvariable variable=RUSTC_WRAPPER]sccache'
+          echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
           cargo list | grep --quiet cache || cargo install cargo-cache
-          echo '##vso[task.setvariable variable=RUST_CACHING]true'
+          echo "##vso[task.setvariable variable=RUST_CACHING]true"
         condition: |
           or(
             contains(variables.changed, 'rust'),
