@@ -65,7 +65,7 @@ jobs:
       # that prior steps may not succeed.
       - script: |
           set -e
-          [[ -f $(CARGO_HOME)/bin/sccache ]] || cargo install sccache
+          test -f $(CARGO_HOME)/bin/sccache || cargo install sccache
           echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
           cargo list | grep --quiet cache || cargo install cargo-cache
@@ -170,7 +170,6 @@ jobs:
 
       # Reduce the size of the Rust cache (and print summary) before storing it.
       - script: |
-          sccache --show-stats
           sccache --stop-server
           cargo cache --autoclean
         condition: eq(variables.RUST_CACHING, 'true')
@@ -202,7 +201,7 @@ jobs:
 
       - script: |
           set -e
-          [[ -f $(CARGO_HOME)/bin/sccache ]] || cargo install sccache
+          test -f $(CARGO_HOME)/bin/sccache || cargo install sccache
           echo "##vso[task.prependpath]$(CARGO_HOME)/bin"
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
           cargo list | grep --quiet cache || cargo install cargo-cache
@@ -245,7 +244,6 @@ jobs:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
       - script: |
-          sccache --show-stats
           sccache --stop-server
           cargo cache --autoclean
         condition: eq(variables.RUST_CACHING, 'true')
@@ -277,7 +275,7 @@ jobs:
 
       - script: |
           set -e
-          [[ -f $(CARGO_HOME)/bin/sccache ]] || cargo install sccache
+          test -f $(CARGO_HOME)/bin/sccache || cargo install sccache
           echo ##vso[task.prependpath]$(CARGO_HOME)/bin
           echo ##vso[task.setvariable variable=RUSTC_WRAPPER]sccache
           cargo list | grep --quiet cache || cargo install cargo-cache
@@ -320,7 +318,6 @@ jobs:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
       - script: |
-          sccache --show-stats
           sccache --stop-server
           cargo cache --autoclean
         condition: eq(variables.RUST_CACHING, 'true')
