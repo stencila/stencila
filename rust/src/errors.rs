@@ -17,7 +17,7 @@ use thiserror::Error;
 pub enum Error {
     /// The user attempted to call a method that is not implemented internally
     /// and so must be delegated to a plugin. However, none of the registered
-    /// plugins implement this method. It may be that the use needs to do
+    /// plugins implement this method. It may be that the user needs to do
     /// `stencila plugins refresh` to fetch the manifests for the plugins.
     /// Or it may be that the method name is just plain wrong.
     #[error("None of the registered plugins implement method '{method}'")]
