@@ -165,9 +165,9 @@ jobs:
 
       # Reduce the size of the Rust cache (and print summary) before storing it.
       - script: |
-          set -e
+          sccache --show-stats
+          sccache --stop-server
           cargo cache --autoclean
-          cargo cache sc
         condition: eq(variables.RUST_CACHING, 'true')
         continueOnError: true
         displayName: 'Rust: Clean cache'
@@ -235,9 +235,9 @@ jobs:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
       - script: |
-          set -e
+          sccache --show-stats
+          sccache --stop-server
           cargo cache --autoclean
-          cargo cache sc
         condition: eq(variables.RUST_CACHING, 'true')
         continueOnError: true
         displayName: 'Rust: Clean cache'
