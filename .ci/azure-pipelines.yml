@@ -54,7 +54,11 @@ jobs:
       - task: Cache@2
         inputs:
           path: $(RUST_CACHE)
-          key: 'Rust | $(Agent.OS)'
+          key: 'Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock | $(Build.SourceVersion)'
+          restoreKeys: |
+            Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock
+            Rust | $(Agent.OS) | ./Cargo.toml
+            Rust | $(Agent.OS)
 
       # Install core Rust build tools if there are changes any folder using Rust.
       # Additional build tools e.g. `tarpaulin` are installed just-in-time given
@@ -189,7 +193,11 @@ jobs:
       - task: Cache@2
         inputs:
           path: $(RUST_CACHE)
-          key: 'Rust | $(Agent.OS)'
+          key: 'Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock | $(Build.SourceVersion)'
+          restoreKeys: |
+            Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock
+            Rust | $(Agent.OS) | ./Cargo.toml
+            Rust | $(Agent.OS)
 
       - script: |
           set -e
@@ -259,14 +267,18 @@ jobs:
       - task: Cache@2
         inputs:
           path: $(RUST_CACHE)
-          key: 'Rust | $(Agent.OS)'
+          key: 'Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock | $(Build.SourceVersion)'
+          restoreKeys: |
+            Rust | $(Agent.OS) | ./Cargo.toml | ./Cargo.lock
+            Rust | $(Agent.OS) | ./Cargo.toml
+            Rust | $(Agent.OS)
 
       - script: |
           set -e
           which sccache || cargo install sccache
-          echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
+          echo ##vso[task.setvariable variable=RUSTC_WRAPPER]sccache
           cargo list | grep --quiet cache || cargo install cargo-cache
-          echo "##vso[task.setvariable variable=RUST_CACHING]true"
+          echo ##vso[task.setvariable variable=RUST_CACHING]true
         condition: |
           or(
             contains(variables.changed, 'rust'),
