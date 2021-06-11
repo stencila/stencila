@@ -436,6 +436,10 @@ export type Error =
       type: 'PluginNotInstalled'
       plugin: string
     }
+  | {
+      type: 'Unknown'
+      [k: string]: unknown
+    }
 /**
  * An enumeration of all methods
  */

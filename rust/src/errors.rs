@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::{methods::Method, utils::schemas};
+use crate::methods::Method;
 use eyre::Result;
-use schemars::{gen::SchemaSettings, schema_for, JsonSchema};
+use schemars::{gen::SchemaSettings, JsonSchema};
 use serde::Serialize;
 use thiserror::Error;
 

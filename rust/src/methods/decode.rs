@@ -14,7 +14,7 @@ pub async fn decode(content: &str, format: &str) -> Result<Node> {
 
         _ => {
             #[cfg(feature = "request")]
-            return plugins::delegate(
+            return crate::plugins::delegate(
                 super::Method::Decode,
                 hashmap! {
                     "content".to_string() => serde_json::to_value(content)?,
