@@ -5,21 +5,21 @@ use crate::{
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
+use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
+use std::time::Duration;
 use std::{
     collections::{hash_map::Entry, HashMap},
     env, fs,
     path::{Path, PathBuf},
-    sync::{
-        mpsc::{channel, TryRecvError},
-        Arc, Mutex, MutexGuard,
-    },
+    sync::Arc,
 };
 use stencila_schema::{AudioObject, ImageObject, Node, VideoObject};
 use strum::ToString;
+use tokio::{sync::Mutex, task::JoinHandle};
 
 /// Information about a document format
 ///
@@ -637,65 +637,34 @@ impl Document {
     }
 }
 
-#[derive(Debug, Clone)]
-struct DocumentWatcher {
-    sender: crossbeam_channel::Sender<()>,
+#[derive(Debug)]
+pub struct DocumentHandler {
+    /// The document being handled
+    document: Arc<Mutex<Document>>,
+
+    /// The sender for the the file watcher and join handle for async handler task
+    ///
+    /// This should be dropped when the document is closed and
+    /// replaced when the document's file is renamed.
+    watcher: Option<(std::sync::mpsc::Sender<DebouncedEvent>, JoinHandle<()>)>,
 }
 
-impl DocumentWatcher {
-    fn new(path: PathBuf, document: Arc<Mutex<Document>>) -> DocumentWatcher {
-        let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
-        std::thread::spawn(move || -> Result<()> {
-            use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
-            use std::time::Duration;
-
-            let (watcher_sender, watcher_receiver) = channel();
-            let mut watcher = watcher(watcher_sender, Duration::from_millis(100))?;
-            watcher.watch(&path, RecursiveMode::NonRecursive).unwrap();
-
-            let path = path.display().to_string();
-            let span = tracing::info_span!("document_watch", path = path.as_str());
-            let _enter = span.enter();
-            tracing::debug!("Starting document file watch: {}", path);
-
-            let lock = || document.lock().expect("Unable to lock document");
-
-            let handle = |event| match event {
-                DebouncedEvent::Remove(path) => lock().deleted(path),
-                DebouncedEvent::Rename(from, to) => lock().renamed(from, to),
-                // TODO: reinstate once this is async
-                //DebouncedEvent::Write(path) => lock().modified(path).await,
-                _ => {}
-            };
-
-            loop {
-                if let Err(crossbeam_channel::TryRecvError::Disconnected) =
-                    thread_receiver.try_recv()
-                {
-                    tracing::debug!("Ending document file watch: {}", path);
-                    break;
-                }
-                match watcher_receiver.recv() {
-                    Ok(event) => handle(event),
-                    Err(error) => tracing::error!("Watch error: {:?}", error),
-                }
-            }
-
-            Ok(())
-        });
-        DocumentWatcher {
-            sender: thread_sender,
+impl Clone for DocumentHandler {
+    fn clone(&self) -> Self {
+        DocumentHandler {
+            document: self.document.clone(),
+            watcher: None,
         }
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
-pub struct DocumentHandler {
-    #[serde(flatten)]
-    document: Arc<Mutex<Document>>,
-
-    #[serde(skip)]
-    watcher: DocumentWatcher,
+impl Drop for DocumentHandler {
+    fn drop(&mut self) {
+        match &self.watcher {
+            Some(watcher) => watcher.1.abort(),
+            None => {}
+        }
+    }
 }
 
 impl DocumentHandler {
@@ -703,12 +672,82 @@ impl DocumentHandler {
     ///
     /// # Arguments
     ///
-    /// - `format`: The format of the document.
-    fn new(document: Document) -> DocumentHandler {
+    /// - `document`: The document that this handler is for.
+    /// - `watch`: Whether to watch the document (e.g. not for temporary, new files)
+    fn new(document: Document, watch: bool) -> DocumentHandler {
+        let id = document.id.clone();
         let path = document.path.clone();
-        let document: Arc<Mutex<Document>> = Arc::new(Mutex::new(document));
-        let watcher = DocumentWatcher::new(path, Arc::clone(&document));
+
+        let document = Arc::new(Mutex::new(document));
+        let watcher = if watch {
+            Some(DocumentHandler::watch(id, path, Arc::clone(&document)))
+        } else {
+            None
+        };
+
         DocumentHandler { document, watcher }
+    }
+
+    /// Watch the document.
+    ///
+    /// It is necessary to have a file watcher that is separate from a project directory watcher
+    /// for documents that are opened independent of a project (a.k.a. orphan documents).
+    ///
+    /// Unfortunately this watcher is unable to recognize renames of the file (because it is only
+    /// watching a single file, not a directory). Thus any rename events must be detected and acted
+    /// upon at the project level (if any, i.e if the document is part of a project).
+    fn watch(
+        id: String,
+        path: PathBuf,
+        document: Arc<Mutex<Document>>,
+    ) -> (std::sync::mpsc::Sender<DebouncedEvent>, JoinHandle<()>) {
+        let (watcher_sender, watcher_receiver) = std::sync::mpsc::channel();
+        let (async_sender, mut async_receiver) = tokio::sync::mpsc::channel(100);
+
+        // Standard thread to run blocking sync watcher in
+        let watcher_sender_clone = watcher_sender.clone();
+        std::thread::spawn(move || {
+            let mut watcher = watcher(watcher_sender_clone, Duration::from_millis(100))
+                .expect("Unable to create watcher");
+            watcher
+                .watch(&path, RecursiveMode::NonRecursive)
+                .expect("Unable to watch file");
+
+            let path = path.display().to_string();
+            let span = tracing::info_span!("document_watch", path = path.as_str());
+            let _enter = span.enter();
+            tracing::debug!("Starting watch for document '{}' at '{}'", id, path);
+            loop {
+                match watcher_receiver.recv() {
+                    Ok(event) => {
+                        tracing::debug!("Event for document '{}' at '{}': {:?}", id, path, event);
+                        if async_sender.blocking_send(event).is_err() {
+                            break;
+                        }
+                    }
+                    Err(error) => {
+                        tracing::debug!("Error for document '{}' at '{}': {}", id, path, error);
+                    }
+                }
+            }
+            tracing::debug!("Ending watch for document '{}' at '{}'", id, path);
+            drop(async_sender)
+        });
+
+        // Async task to handle events
+        let join_handle = tokio::spawn(async move {
+            loop {
+                if let Some(event) = async_receiver.recv().await {
+                    match event {
+                        DebouncedEvent::Remove(path) => document.lock().await.deleted(path),
+                        DebouncedEvent::Write(path) => document.lock().await.modified(path).await,
+                        _ => {}
+                    }
+                }
+            }
+        });
+
+        (watcher_sender, join_handle)
     }
 }
 
@@ -730,8 +769,8 @@ impl Documents {
 
     pub fn create(&mut self, format: Option<String>) -> Result<Document> {
         let document = Document::new(format);
-        self.registry
-            .insert(document.id.clone(), DocumentHandler::new(document.clone()));
+        let handler = DocumentHandler::new(document.clone(), false);
+        self.registry.insert(document.id.clone(), handler);
         Ok(document)
     }
 
@@ -739,52 +778,48 @@ impl Documents {
         let path = Path::new(path).canonicalize()?;
 
         for handler in self.registry.values() {
-            let document = handler.document.lock().expect("Unable to lock document");
+            let document = handler.document.lock().await;
             if document.path == path {
                 return Ok(document.clone());
             }
         }
 
         let document = Document::open(path, format).await?;
-        self.registry
-            .insert(document.id.clone(), DocumentHandler::new(document.clone()));
+        let handler = DocumentHandler::new(document.clone(), true);
+        self.registry.insert(document.id.clone(), handler);
         Ok(document)
     }
 
-    pub fn get(&mut self, id: &str) -> Result<MutexGuard<Document>> {
-        if let Some(handle) = self.registry.get(id) {
-            if let Ok(guard) = handle.document.lock() {
-                Ok(guard)
-            } else {
-                bail!("Unable to lock document {}", id)
-            }
+    pub fn get(&mut self, id: &str) -> Result<Arc<Mutex<Document>>> {
+        if let Some(handler) = self.registry.get(id) {
+            Ok(handler.document.clone())
         } else {
             bail!("No document with id {}", id)
         }
     }
 
     pub async fn read(&mut self, id: &str) -> Result<String> {
-        self.get(&id)?.read().await
+        self.get(&id)?.lock().await.read().await
     }
 
     pub async fn write(&mut self, id: &str, content: Option<String>) -> Result<()> {
-        self.get(&id)?.write(content, None).await
+        self.get(&id)?.lock().await.write(content, None).await
     }
 
     pub async fn dump(&mut self, id: &str, format: Option<String>) -> Result<String> {
-        self.get(&id)?.dump(format).await
+        self.get(&id)?.lock().await.dump(format).await
     }
 
     pub async fn load(&mut self, id: &str, content: String) -> Result<()> {
-        self.get(&id)?.load(content, None).await
+        self.get(&id)?.lock().await.load(content, None).await
     }
 
-    pub fn subscribe(&mut self, id: &str, topic: &str) -> Result<()> {
-        self.get(&id)?.subscribe(topic)
+    pub async fn subscribe(&mut self, id: &str, topic: &str) -> Result<()> {
+        self.get(&id)?.lock().await.subscribe(topic)
     }
 
-    pub fn unsubscribe(&mut self, id: &str, topic: &str) -> Result<()> {
-        self.get(&id)?.unsubscribe(topic)
+    pub async fn unsubscribe(&mut self, id: &str, topic: &str) -> Result<()> {
+        self.get(&id)?.lock().await.unsubscribe(topic)
     }
 
     pub fn close(&mut self, id: &str) -> Result<()> {

@@ -69,10 +69,11 @@ pub fn get(mut cx: FunctionContext) -> JsResult<JsString> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
     let document = match documents.get(id) {
-        Ok(document) => document.clone(),
+        Ok(document) => document,
         Err(error) => return cx.throw_error(error.to_string()),
     };
-    to_json(cx, document)
+    let result = RUNTIME.block_on(async { document.lock().await.clone() });
+    to_json(cx, result)
 }
 
 /// Read a document
@@ -120,10 +121,8 @@ pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.subscribe(id, topic) {
-        Ok(_) => Ok(cx.undefined()),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
+    let result = RUNTIME.block_on(async { documents.subscribe(id, topic).await });
+    to_undefined_or_throw(cx, result)
 }
 
 /// Unsubscribe from one or more of a document's topics
@@ -131,10 +130,8 @@ pub fn unsubscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.unsubscribe(id, topic) {
-        Ok(_) => Ok(cx.undefined()),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
+    let result = RUNTIME.block_on(async { documents.unsubscribe(id, topic).await });
+    to_undefined_or_throw(cx, result)
 }
 
 /// Close a document
