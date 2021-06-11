@@ -40,8 +40,6 @@ upgrade = ["self_update"]
 
 config = ["humantime", "toml", "validator"]
 
-inspect = []
-
 format-json = []
 format-yaml = ["serde_yaml"]
 format-html = ["html-escape"]
@@ -74,7 +72,6 @@ default = [
     "plugins-r",
     "upgrade",
     "config",
-    "inspect",
     "format-json",
     "format-yaml",
     "format-html",
