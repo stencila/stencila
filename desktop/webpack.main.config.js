@@ -1,3 +1,5 @@
+const plugins = require('./webpack.plugins')
+
 module.exports = {
   /**
    * This is the main entry point for your application, it's the first file
@@ -6,6 +8,7 @@ module.exports = {
   entry: './src/index.ts',
   // Put your normal webpack config below here
   target: 'electron-main',
+  plugins: [...plugins],
   module: {
     rules: [
       // Add support for native node modules
@@ -21,9 +24,9 @@ module.exports = {
           loader: '@marshallofsound/webpack-asset-relocator-loader',
           options: {
             outputAssetBase: 'native_modules',
-            debugLog: true,
-          },
-        },
+            debugLog: true
+          }
+        }
       },
       {
         test: /\.tsx?$/,
@@ -32,13 +35,13 @@ module.exports = {
           loader: 'ts-loader',
           options: {
             configFile: 'tsconfig.main.json',
-            transpileOnly: true,
-          },
-        },
-      },
-    ],
+            transpileOnly: true
+          }
+        }
+      }
+    ]
   },
   resolve: {
-    extensions: ['.js', '.mjs', '.ts', '.json'],
-  },
+    extensions: ['.js', '.mjs', '.ts', '.json']
+  }
 }

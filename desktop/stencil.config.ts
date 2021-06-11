@@ -1,5 +1,6 @@
 import { Config } from '@stencil/core'
 import { postcss } from '@stencil/postcss'
+import dotenv from 'rollup-plugin-dotenv'
 
 // https://stenciljs.com/docs/config
 
@@ -10,25 +11,28 @@ export const config: Config = {
   taskQueue: 'async',
   tsconfig: 'tsconfig.ui.json',
   devServer: {
-    openBrowser: false,
+    openBrowser: false
   },
   outputTargets: [
     {
       type: 'www',
       // comment the following line to disable service workers in production
       serviceWorker: null,
-      baseUrl: 'https://myapp.local/',
-    },
+      baseUrl: 'https://myapp.local/'
+    }
   ],
+  rollupPlugins: {
+    before: [dotenv()]
+  },
   plugins: [
     postcss({
       plugins: [
         require('tailwindcss')({
           darkMode: 'media',
-          purge: ['./src/main/**/*.html', './src/main/**/*.tsx'],
+          purge: ['./src/main/**/*.html', './src/main/**/*.tsx']
         }),
-        require('postcss-nested'),
-      ],
-    }),
-  ],
+        require('postcss-nested')
+      ]
+    })
+  ]
 }
