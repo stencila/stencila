@@ -10,7 +10,7 @@ use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use std::{
     collections::{hash_map::Entry, HashMap},
     env, fs,
@@ -224,6 +224,11 @@ pub struct Document {
     #[def = "DocumentStatus::Unread"]
     status: DocumentStatus,
 
+    /// The last time that the document was written to disk.
+    /// Used to ignore subsequent file modification events.
+    #[serde(skip)]
+    last_write: Option<Instant>,
+
     /// The name of the document
     ///
     /// Usually the filename from the `path` but "Unnamed"
@@ -387,6 +392,7 @@ impl Document {
 
         fs::write(&self.path, self.content.as_bytes())?;
         self.status = DocumentStatus::Synced;
+        self.last_write = Some(Instant::now());
 
         Ok(())
     }
@@ -616,12 +622,22 @@ impl Document {
         self.publish(DocumentEventType::Renamed, None, None)
     }
 
+    const LAST_WRITE_MUTE_MILLIS: u64 = 300;
+
     /// Called when the file is modified
     ///
     /// Reads the file into `content` and emits a `Modified` event so that the user
     /// can be asked if they want to load the new content into editor, or overwrite with
     /// existing editor content.
+    ///
+    /// Will ignore any events within a small duration of `write()` being called.
     async fn modified(&mut self, path: PathBuf) {
+        if let Some(last_write) = self.last_write {
+            if last_write.elapsed() < Duration::from_millis(Document::LAST_WRITE_MUTE_MILLIS) {
+                return;
+            }
+        }
+
         tracing::debug!("Document modified: {}", path.display());
 
         self.status = DocumentStatus::Unread;
@@ -688,6 +704,8 @@ impl DocumentHandler {
         DocumentHandler { document, watcher }
     }
 
+    const WATCHER_DELAY_MILLIS: u64 = 100;
+
     /// Watch the document.
     ///
     /// It is necessary to have a file watcher that is separate from a project directory watcher
@@ -707,8 +725,11 @@ impl DocumentHandler {
         // Standard thread to run blocking sync watcher in
         let watcher_sender_clone = watcher_sender.clone();
         std::thread::spawn(move || {
-            let mut watcher = watcher(watcher_sender_clone, Duration::from_millis(100))
-                .expect("Unable to create watcher");
+            let mut watcher = watcher(
+                watcher_sender_clone,
+                Duration::from_millis(DocumentHandler::WATCHER_DELAY_MILLIS),
+            )
+            .expect("Unable to create watcher");
             watcher
                 .watch(&path, RecursiveMode::NonRecursive)
                 .expect("Unable to watch file");

@@ -8,6 +8,7 @@ import {
   open,
   subscribe,
   unsubscribe,
+  write,
 } from './documents'
 import { DocumentEvent } from './types'
 
@@ -88,7 +89,7 @@ test('workflow-open-modify', async () => {
     }]
   }`
   )
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await new Promise((resolve) => setTimeout(resolve, 500))
   expect(events).toEqual([
     expect.objectContaining({
       type: 'encoded',
@@ -108,13 +109,35 @@ test('workflow-open-modify', async () => {
     }]
   }`
   )
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await new Promise((resolve) => setTimeout(resolve, 500))
   expect(events).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
         type: 'modified',
         content: expect.stringMatching(/Some new content/),
       }),
+      expect.objectContaining({
+        type: 'encoded',
+        format: 'json',
+      }),
+    ])
+  )
+
+  // Write the document from here (note there should be no `modified` event)
+  events = []
+  write(
+    docId,
+    `{
+    "type": "Article",
+    "content": [{
+      "type": "Paragraph",
+      "content": ["Some newer content"]
+    }]
+  }`
+  )
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  expect(events).toEqual(
+    expect.arrayContaining([
       expect.objectContaining({
         type: 'encoded',
         format: 'json',
