@@ -2,7 +2,7 @@
 
 [package]
 name = "stencila"
-version = "0.79.0"
+version = "0.80.0"
 authors = ["Stencila <hello@stenci.la>"]
 edition = "2018"
 

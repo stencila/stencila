@@ -1,3 +1,26 @@
+# [0.80.0](https://github.com/stencila/stencila/compare/v0.79.0...v0.80.0) (2021-06-11)
+
+
+### Bug Fixes
+
+* **Desktop:** Add protocol for secure access to media files ([98b5877](https://github.com/stencila/stencila/commit/98b58770bd8562fe10d14c66a27847c9169ad194))
+* **Documents:** Ignore midifications after writes ([21f8fd0](https://github.com/stencila/stencila/commit/21f8fd0f33e3a9e52bc19e051d6ca523278f276d))
+* **Documents:** Reinstate document watching ([209e051](https://github.com/stencila/stencila/commit/209e051cfdd66762d2bb73d15707de35495106c1))
+* **Documents:** Restrict links to the project directory ([4c81020](https://github.com/stencila/stencila/commit/4c81020356ccf9a725537c57cd4aa8507574e0b2))
+
+
+### Features
+
+* **Documents:** Add ability to query documents using JSON Pointer or JMESPath ([40e7158](https://github.com/stencila/stencila/commit/40e7158f7511e2ef961667eeda2ed0dbeae54ce2))
+* **Documents:** Add compile method ([fb06a21](https://github.com/stencila/stencila/commit/fb06a211e0c069bd3b4175d63deaf3b76fdbc877))
+* **Documents:** Allow media objects to be opended as documents ([ffadd64](https://github.com/stencila/stencila/commit/ffadd646f31b60c2a8c843952a29ea4c0f87a9a1))
+* **Node.js:** Expose `DocumentFormat` type and map ([a4b9ab6](https://github.com/stencila/stencila/commit/a4b9ab6bab6aec173b866414e1e23b51be10cf1b))
+
+
+### Performance Improvements
+
+* **Rust:** Use crossbeam-channel where possible ([67df93d](https://github.com/stencila/stencila/commit/67df93d5ef9d77d86e0df81dd547d90b3a954dcd))
+
 # [0.79.0](https://github.com/stencila/stencila/compare/v0.78.1...v0.79.0) (2021-06-10)
 
 
