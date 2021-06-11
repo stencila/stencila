@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron'
-import { CHANNEL } from '../../preload'
+import { CHANNEL } from '../../preload/channels'
 import { removeChannelHandlers } from '../utils/handler'
 import { ONBOARDING_CHANNEL } from './channels'
 import { closeOnboardingWindow, openOnboardingWindow } from './window'

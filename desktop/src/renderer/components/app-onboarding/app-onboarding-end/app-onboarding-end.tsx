@@ -1,11 +1,11 @@
 import { Component, h } from '@stencil/core'
 import { i18n } from '../../../../i18n'
-import { CHANNEL } from '../../../../preload'
+import { CHANNEL } from '../../../../preload/channels'
 
 @Component({
   tag: 'app-onboarding-end',
   styleUrl: 'app-onboarding-end.css',
-  scoped: false,
+  scoped: false
 })
 export class AppOnboardingEnd {
   private openLinkInBrowser = (url: string) => (e: MouseEvent) => {

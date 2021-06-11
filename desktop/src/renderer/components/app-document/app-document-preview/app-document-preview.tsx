@@ -1,12 +1,12 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { Component, h, Host, Prop, State, Watch } from '@stencil/core'
 import { DocumentEvent } from 'stencila'
-import { CHANNEL } from '../../../../preload'
+import { CHANNEL } from '../../../../preload/channels'
 
 @Component({
   tag: 'app-document-preview',
   styleUrl: 'app-document-preview.css',
-  scoped: true,
+  scoped: true
 })
 export class AppDocumentPreview {
   @Prop() documentId: EntityId
@@ -23,11 +23,11 @@ export class AppDocumentPreview {
   @State() previewContents: string
 
   private subscribeToDocument = (documentId = this.documentId) => {
-    window.api.invoke(CHANNEL.DOCUMENT_GET_PREVIEW, documentId).then((html) => {
+    window.api.invoke(CHANNEL.DOCUMENT_GET_PREVIEW, documentId).then(html => {
       this.previewContents = html as string
     })
 
-    window.api.receive(CHANNEL.DOCUMENT_GET_PREVIEW, (event) => {
+    window.api.receive(CHANNEL.DOCUMENT_GET_PREVIEW, event => {
       const e = event as DocumentEvent
       if (
         e.document.id === documentId &&
@@ -44,7 +44,7 @@ export class AppDocumentPreview {
     window.api.removeAll(CHANNEL.DOCUMENT_GET_PREVIEW)
     return window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
       documentId,
-      topics: ['encoded:html'],
+      topics: ['encoded:html']
     })
   }
 

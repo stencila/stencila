@@ -1,11 +1,11 @@
 import { Component, h, State } from '@stencil/core'
 import { i18n } from '../../../../i18n'
-import { CHANNEL } from '../../../../preload'
+import { CHANNEL } from '../../../../preload/channels'
 
 @Component({
   tag: 'app-settings-general',
   styleUrl: 'app-settings-general.css',
-  scoped: true,
+  scoped: true
 })
 export class AppSettingsGeneral {
   @State() config: Record<string, unknown>

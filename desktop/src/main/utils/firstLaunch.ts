@@ -1,14 +1,8 @@
-import { app } from 'electron'
-import path from 'path'
 import {
   getAppConfig,
   setAppConfig,
   UnprotectedStoreKeys
 } from '../store/handlers'
-
-const storeName = 'unprotected.json'
-const userDataPath = app.getPath('userData')
-export const unprotectedStorePath = path.join(userDataPath, storeName)
 
 /**
  * Checks whether the app is being launched for the first time

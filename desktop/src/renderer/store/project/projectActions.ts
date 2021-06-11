@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { normalize } from 'normalizr'
-import { CHANNEL } from '../../../preload'
+import { CHANNEL } from '../../../preload/channels'
 import { projectEntity } from './entities'
 import { ProjectStoreEntities } from './ProjectStoreTypes'
 

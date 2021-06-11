@@ -1,7 +1,7 @@
 import { apply as AP, option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { FileEvent } from 'stencila'
-import { CHANNEL } from '../../../../preload'
+import { CHANNEL } from '../../../../preload/channels'
 import { state, store } from '../../../store'
 import { closeDocument } from '../../../store/documentPane/documentPaneActions'
 import {

@@ -3,31 +3,34 @@ const CspHtmlWebpackPlugin = require('csp-html-webpack-plugin')
 const HtmlInsertTagWebpackPlugin = require('html-insert-tag-webpack-plugin')
 const path = require('path')
 const plugins = require('./webpack.plugins')
+const webpack = require('webpack')
 const rules = require('./webpack.rules')
 
 rules.push({
   test: /\.css$/,
-  use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
+  use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
 })
 
 module.exports = {
-  target: 'electron-renderer',
   module: {
-    rules,
+    rules
   },
   plugins: [
     ...plugins,
+    new webpack.DefinePlugin({
+      'process.type': '"renderer"'
+    }),
     new HtmlInsertTagWebpackPlugin([
       {
         tagName: 'base',
         inject: {
           tagName: 'head',
-          location: 'after',
+          location: 'after'
         },
         attributes: {
-          href: 'stencila://rse',
-        },
-      },
+          href: 'stencila://rse'
+        }
+      }
     ]),
     new CspHtmlWebpackPlugin(
       {
@@ -39,40 +42,41 @@ module.exports = {
           "'self'",
           "'unsafe-inline'",
           'https://unpkg.com/',
-          'https://fonts.googleapis.com/',
+          'https://fonts.googleapis.com/'
         ],
         'connect-src': "'self'",
         'font-src': [
           "'self'",
           'https://fonts.gstatic.com/',
-          'https://unpkg.com/',
-        ],
+          'https://unpkg.com/'
+        ]
       },
       {
         hashEnabled: {
           'script-src': true,
-          'style-src': true,
+          'style-src': true
         },
         nonceEnabled: {
           'script-src': true,
-          'style-src': false,
-        },
+          'style-src': false
+        }
       }
     ),
     new CopyWebpackPlugin({
       patterns: [
         {
           from: path.resolve(__dirname, 'www', 'build'),
-          to: 'build',
+          to: 'build'
         },
         {
           from: path.resolve(__dirname, 'www', 'assets'),
-          to: 'assets',
-        },
-      ],
-    }),
+          to: 'assets'
+        }
+      ]
+    })
   ],
   resolve: {
-    extensions: ['.js', '.mjs', '.ts', '.css'],
-  },
+    mainFields: ['browser', 'module', 'main'],
+    extensions: ['.js', '.mjs', '.ts', '.css']
+  }
 }

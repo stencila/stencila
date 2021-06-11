@@ -1,17 +1,17 @@
 import { Component, h, Prop, State } from '@stencil/core'
 import { Plugin } from 'stencila'
 import { i18n } from '../../../../i18n'
-import { CHANNEL } from '../../../../preload/index'
+import { CHANNEL } from '../../../../preload/channels'
 import { capitalize } from '../../utils/stringUtils'
 import {
   getAvailablePlugins,
-  pluginStore,
+  pluginStore
 } from '../app-settings-plugins/pluginStore'
 
 @Component({
   tag: 'app-settings-plugin-card',
   styleUrl: 'app-settings-plugin-card.css',
-  scoped: true,
+  scoped: true
 })
 export class AppSettingsPluginCard {
   @Prop() pluginName: string

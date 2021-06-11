@@ -69,6 +69,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "1.6.0",
+    "@sentry/electron": "2.4.1",
     "@stencila/brand": "0.7.0",
     "@stencila/components": "0.32.0",
     "electron-squirrel-startup": "1.0.0",
@@ -139,7 +140,7 @@
                   "js": "./src/renderer/renderer.ts",
                   "name": "main_window",
                   "preload": {
-                    "js": "./src/preload/preload.ts"
+                    "js": "./src/preload/index.ts"
                   }
                 }
               ]

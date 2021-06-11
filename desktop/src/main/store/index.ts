@@ -1,11 +1,11 @@
 import { ipcMain } from 'electron'
-import { CHANNEL } from '../../preload'
+import { CHANNEL } from '../../preload/channels'
 import { JSONValue } from './bootstrap'
 import {
   getAppConfig,
   readAppConfig,
   setAppConfig,
-  UnprotectedStoreKeys,
+  UnprotectedStoreKeys
 } from './handlers'
 
 export const registerAppConfigStoreHandlers = () => {

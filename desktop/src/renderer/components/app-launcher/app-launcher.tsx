@@ -1,12 +1,12 @@
 import { Component, h, State } from '@stencil/core'
 import Logo from '@stencila/brand/dist/logos/stencilaLogo.svg'
-import { CHANNEL } from '../../../preload/index'
+import { CHANNEL } from '../../../preload/channels'
 import { fetchRecentProjects } from '../../store/project/projectActions'
 
 @Component({
   tag: 'app-launcher',
   styleUrl: 'app-launcher.css',
-  scoped: true,
+  scoped: true
 })
 export class AppLauncher {
   @State() recentProjects: string[] = []
@@ -53,7 +53,7 @@ export class AppLauncher {
           <div class="recentProjects">
             <h2>Recent projects</h2>
             <ul>
-              {this.recentProjects.map((projectPath) => (
+              {this.recentProjects.map(projectPath => (
                 <li>
                   <a
                     onClick={this.openProject(projectPath)}

@@ -7,11 +7,5 @@
     "jsx": "react",
     "jsxFactory": "h"
   },
-  "include": [
-    "./src/renderer",
-    "./src/i18n",
-    "./src/lib.d.ts",
-    "./src/preload/index.ts",
-    "./src/preload/types.d.ts"
-  ]
+  "include": ["./src/renderer", "./src/i18n", "./src/lib.d.ts", "./src/preload"]
 }

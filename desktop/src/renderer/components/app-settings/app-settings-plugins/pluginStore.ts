@@ -1,6 +1,6 @@
 import { createStore } from '@stencil/store'
 import { Plugin } from 'stencila'
-import { CHANNEL } from '../../../../preload/index'
+import { CHANNEL } from '../../../../preload/channels'
 
 interface PluginStore {
   plugins: {
@@ -12,8 +12,8 @@ interface PluginStore {
 const defaultStore: PluginStore = {
   plugins: {
     entities: {},
-    ids: [],
-  },
+    ids: []
+  }
 }
 
 export const { state: pluginStore, onChange } = createStore(defaultStore)

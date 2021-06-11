@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import { projects } from 'stencila'
-import { CHANNEL } from '../../preload'
+import { CHANNEL } from '../../preload/channels'
 import { removeChannelHandlers } from '../utils/handler'
 import { PROJECT_CHANNEL } from './channels'
 import { openProject } from './handlers'

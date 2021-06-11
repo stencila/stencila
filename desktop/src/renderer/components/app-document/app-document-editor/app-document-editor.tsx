@@ -1,14 +1,14 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
 import { DocumentEvent, File } from 'stencila'
-import { CHANNEL } from '../../../../preload'
+import { CHANNEL } from '../../../../preload/channels'
 
 @Component({
   tag: 'app-document-editor',
   styleUrl: 'app-document-editor.css',
   // Scoped must be off for this component to avoid mangling class names
   // for the CodeEditor selectors.
-  scoped: false,
+  scoped: false
 })
 export class AppDocumentEditor {
   @Element() el: HTMLElement
@@ -31,13 +31,13 @@ export class AppDocumentEditor {
   private subscribeToDocument = (documentId = this.documentId) => {
     window.api
       .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, documentId)
-      .then((contents) => {
+      .then(contents => {
         if (typeof contents === 'string') {
           this.editorRef?.setContents(contents)
         }
       })
 
-    window.api.receive(CHANNEL.GET_DOCUMENT_CONTENTS, (event) => {
+    window.api.receive(CHANNEL.GET_DOCUMENT_CONTENTS, event => {
       const { type, content } = event as DocumentEvent
       if (type === 'modified' && typeof content == 'string') {
         this.editorRef?.setContents(content)
@@ -55,7 +55,7 @@ export class AppDocumentEditor {
 
     return window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
       documentId,
-      topics: ['modified'],
+      topics: ['modified']
     })
   }
 
@@ -77,10 +77,10 @@ export class AppDocumentEditor {
       .then(({ text }) => {
         window.api.invoke(CHANNEL.SAVE_DOCUMENT, {
           documentId: this.documentId,
-          content: text,
+          content: text
         })
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err)
       })
   }

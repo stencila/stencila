@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron'
-import { CHANNEL } from '../../preload'
+import { CHANNEL } from '../../preload/channels'
 
 export const getFocusedWindow = () => {
   return BrowserWindow.getFocusedWindow()

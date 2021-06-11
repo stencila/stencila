@@ -1,6 +1,6 @@
 import { ipcMain, shell } from 'electron'
-import { captureError, LogHandler } from '../../debug'
-import { CHANNEL } from '../../preload'
+import { captureError, LogHandler } from '../../preload/errors'
+import { CHANNEL } from '../../preload/channels'
 
 export const registerGlobalHandlers = () => {
   ipcMain.handle(

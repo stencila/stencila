@@ -1,8 +1,8 @@
-import { contextBridge, ipcRenderer } from 'electron'
-import { Channel, Handler, isChannel } from '../preload'
+import { ipcRenderer } from 'electron'
 import { IpcRendererAPI } from '../preload/types'
+import { Channel, Handler, isChannel } from './channels'
 
-const apis: IpcRendererAPI = {
+export const apis: IpcRendererAPI = {
   invoke: (channel, data) => {
     if (isChannel(channel)) {
       return ipcRenderer.invoke(channel, data)
@@ -28,9 +28,5 @@ const apis: IpcRendererAPI = {
   },
   removeAll: (channel: Channel) => {
     ipcRenderer.removeAllListeners(channel)
-  },
+  }
 }
-
-// Expose protected methods that allow the renderer process to use
-// the ipcRenderer without exposing the entire object
-contextBridge.exposeInMainWorld('api', apis)

@@ -1,4 +1,5 @@
 const plugins = require('./webpack.plugins')
+const webpack = require('webpack')
 
 module.exports = {
   /**
@@ -6,9 +7,12 @@ module.exports = {
    * that runs in the main process.
    */
   entry: './src/index.ts',
-  // Put your normal webpack config below here
-  target: 'electron-main',
-  plugins: [...plugins],
+  plugins: [
+    ...plugins,
+    new webpack.DefinePlugin({
+      'process.type': '"browser"'
+    })
+  ],
   module: {
     rules: [
       // Add support for native node modules

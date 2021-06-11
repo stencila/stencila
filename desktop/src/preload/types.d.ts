@@ -1,4 +1,4 @@
-import { Channel, Handler } from './index'
+import { Channel, Handler } from './channels'
 
 declare global {
   interface Window {

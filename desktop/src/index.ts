@@ -1,13 +1,20 @@
-import { app, BrowserWindow, ipcMain, protocol } from 'electron'
-import { createWindow } from './app/window'
+import { app, BrowserWindow, protocol } from 'electron'
 import { debug } from './debug'
 import { main } from './main'
 import { requestHandler, scheme } from './main/app-protocol'
 import { openLauncherWindow } from './main/launcher/window'
+import * as localProtocol from './main/local-protocol'
 import { openOnboardingWindow } from './main/onboarding/window'
 import { initAppConfigStore } from './main/store/bootstrap'
 import { isFirstLaunch, setFirstLaunchState } from './main/utils/firstLaunch'
-import * as localProtocol from './main/local-protocol'
+import { getAppConfig, UnprotectedStoreKeys } from './main/store/handlers'
+import { enableCrashReports } from './preload/errors'
+
+initAppConfigStore()
+
+if (getAppConfig(UnprotectedStoreKeys.REPORT_ERRORS)) {
+  enableCrashReports()
+}
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -29,8 +36,6 @@ const createMainWindow = (): void => {
     localProtocol.scheme,
     localProtocol.requestHandler
   )
-
-  initAppConfigStore()
 
   // If app is launched for the first time, show onboarding flow
   if (isFirstLaunch()) {
