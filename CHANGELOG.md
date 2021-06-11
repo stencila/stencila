@@ -1,3 +1,10 @@
+## [0.80.1](https://github.com/stencila/stencila/compare/v0.80.0...v0.80.1) (2021-06-11)
+
+
+### Bug Fixes
+
+* **Onboarding:** Fix bug preventing progressing to next steps ([27c4711](https://github.com/stencila/stencila/commit/27c471150ea51a3416feabfd0d69a46acadde3e7))
+
 # [0.80.0](https://github.com/stencila/stencila/compare/v0.79.0...v0.80.0) (2021-06-11)
 
 
