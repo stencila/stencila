@@ -1,4 +1,4 @@
-use eyre::Result;
+use eyre::{bail, Result};
 use std::{
     collections::{BTreeMap, HashSet},
     path::{Path, PathBuf},
@@ -6,12 +6,13 @@ use std::{
 use stencila_schema::*;
 
 /// Compile a node
-pub fn compile(node: &mut Node, path: &Path) -> Result<Context> {
+pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<Context> {
     let mut context = Context {
         path: PathBuf::from(path),
+        project: PathBuf::from(project),
         file_dependencies: HashSet::new(),
     };
-    node.compile(&mut context);
+    node.compile(&mut context)?;
     Ok(context)
 }
 
@@ -22,13 +23,17 @@ pub struct Context {
     /// Used to resolve relative paths e.g. in `ImageObject` and `Include` nodes
     path: PathBuf,
 
-    /// Files that the document is dependant upon
+    /// The project that the document is within.
+    /// Used to restrict any file links to be within the project
+    project: PathBuf,
+
+    /// Files that the document is dependant upon e.g. images, data
     file_dependencies: HashSet<PathBuf>,
 }
 
 /// Trait for compiling a node
 trait Compile {
-    fn compile(&mut self, context: &mut Context);
+    fn compile(&mut self, context: &mut Context) -> Result<()>;
 }
 
 // The following `impl Compile` for enums try to include all variants so that
@@ -38,7 +43,7 @@ trait Compile {
 
 /// Compile a `Node`
 impl Compile for Node {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
             Node::Array(node) => node.compile(context),
             Node::Article(node) => node.compile(context),
@@ -68,7 +73,7 @@ impl Compile for Node {
             Node::MediaObject(node) => node.compile(context),
             Node::NontextualAnnotation(node) => node.compile(context),
             Node::Note(node) => node.compile(context),
-            Node::Null => {}
+            Node::Null => Ok(()),
             Node::Number(node) => node.compile(context),
             Node::Object(node) => node.compile(context),
             Node::Paragraph(node) => node.compile(context),
@@ -87,14 +92,16 @@ impl Compile for Node {
             Node::Table(node) => node.compile(context),
             Node::ThematicBreak(node) => node.compile(context),
             Node::VideoObject(node) => node.compile(context),
-
-            _ => tracing::debug!("Compile is not implemented for {:?}", self),
+            _ => {
+                tracing::debug!("Compile is not implemented for {:?}", self);
+                Ok(())
+            }
         }
     }
 }
 
 impl Compile for InlineContent {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
             InlineContent::Array(node) => node.compile(context),
             InlineContent::AudioObject(node) => node.compile(context),
@@ -111,7 +118,7 @@ impl Compile for InlineContent {
             InlineContent::MathFragment(node) => node.compile(context),
             InlineContent::NontextualAnnotation(node) => node.compile(context),
             InlineContent::Note(node) => node.compile(context),
-            InlineContent::Null => {}
+            InlineContent::Null => Ok(()),
             InlineContent::Number(node) => node.compile(context),
             InlineContent::Object(node) => node.compile(context),
             InlineContent::Quote(node) => node.compile(context),
@@ -125,7 +132,7 @@ impl Compile for InlineContent {
 }
 
 impl Compile for BlockContent {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
             BlockContent::Claim(node) => node.compile(context),
             BlockContent::CodeBlock(node) => node.compile(context),
@@ -144,7 +151,7 @@ impl Compile for BlockContent {
 }
 
 impl Compile for CreativeWorkTypes {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
             CreativeWorkTypes::Article(node) => node.compile(context),
             CreativeWorkTypes::AudioObject(node) => node.compile(context),
@@ -174,9 +181,11 @@ impl<T> Compile for Option<T>
 where
     T: Compile,
 {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         if let Some(value) = self {
             value.compile(context)
+        } else {
+            Ok(())
         }
     }
 }
@@ -185,7 +194,7 @@ impl<T> Compile for Box<T>
 where
     T: Compile,
 {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         (**self).compile(context)
     }
 }
@@ -194,10 +203,11 @@ impl<T> Compile for Vec<T>
 where
     T: Compile,
 {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         for item in self {
-            item.compile(context)
+            item.compile(context)?
         }
+        Ok(())
     }
 }
 
@@ -206,7 +216,7 @@ macro_rules! compile_nothing {
     ( $( $type:ty ),* ) => {
         $(
             impl Compile for $type {
-                fn compile(&mut self, _compilation: &mut Context) {}
+                fn compile(&mut self, _compilation: &mut Context) -> Result<()> {Ok(())}
             }
         )*
     };
@@ -246,7 +256,7 @@ macro_rules! compile_content {
     ( $( $type:ty ),* ) => {
         $(
             impl Compile for $type {
-                fn compile(&mut self, context: &mut Context) {
+                fn compile(&mut self, context: &mut Context) -> Result<()> {
                     self.content.compile(context)
                 }
             }
@@ -282,7 +292,7 @@ compile_content!(
 // Implementations for `content` property enums
 
 impl Compile for CreativeWorkContent {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
             CreativeWorkContent::String(node) => node.compile(context),
             CreativeWorkContent::VecInlineContent(nodes) => nodes.compile(context),
@@ -292,7 +302,7 @@ impl Compile for CreativeWorkContent {
 }
 
 impl Compile for ListItemContent {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
             ListItemContent::VecInlineContent(nodes) => nodes.compile(context),
             ListItemContent::VecBlockContent(nodes) => nodes.compile(context),
@@ -305,9 +315,9 @@ impl Compile for ListItemContent {
 /// If the `content_url` property is  a `file://` URL (implicitly
 /// or explicitly) then resolves the file path, records it as
 /// a file dependency, and returns an absolute `file://` URL.
-fn compile_content_url(content_url: &str, context: &mut Context) -> String {
+fn compile_content_url(content_url: &str, context: &mut Context) -> Result<String> {
     if content_url.starts_with("http://") || content_url.starts_with("https://") {
-        return content_url.into();
+        return Ok(content_url.into());
     }
 
     // Extract the path
@@ -328,9 +338,19 @@ fn compile_content_url(content_url: &str, context: &mut Context) -> String {
         path.to_path_buf()
     };
 
+    // Assert that the path is within the project
+    if path.strip_prefix(&context.project).is_err() {
+        bail!(
+            "Document contains a link to a file outside of its project: '{}'. Resolved path '{}' is outside of project path '{}'",
+            content_url,
+            path.display(),
+            &context.project.display()
+        )
+    }
+
     context.file_dependencies.insert(path.clone());
 
-    format!("file://{}", path.display())
+    Ok(format!("file://{}", path.display()))
 }
 
 /// A `Compile` implementation for `MediaObject` node types
@@ -338,8 +358,9 @@ macro_rules! compile_media_object {
     ( $( $type:ty ),* ) => {
         $(
             impl Compile for $type {
-                fn compile(&mut self, context: &mut Context) {
-                    self.content_url = compile_content_url(&self.content_url, context);
+                fn compile(&mut self, context: &mut Context) -> Result<()> {
+                    self.content_url = compile_content_url(&self.content_url, context)?;
+                    Ok(())
                 }
             }
         )*
@@ -359,32 +380,33 @@ compile_media_object!(
 // Custom implementations where necessary for other types
 
 impl Compile for CiteGroup {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         self.items.compile(context)
     }
 }
 
 impl Compile for Collection {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         self.parts.compile(context)
     }
 }
 
 impl Compile for CollectionSimple {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         self.parts.compile(context)
     }
 }
 
 impl Compile for List {
-    fn compile(&mut self, context: &mut Context) {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
         self.items.compile(context)
     }
 }
 
 impl Compile for ListItem {
-    fn compile(&mut self, context: &mut Context) {
-        self.item.compile(context);
-        self.content.compile(context);
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
+        self.item.compile(context)?;
+        self.content.compile(context)?;
+        Ok(())
     }
 }

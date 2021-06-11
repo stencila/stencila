@@ -13,6 +13,12 @@ export interface Document {
    */
   path: string
   /**
+   * The project directory for this document.
+   *
+   * Used to restrict file links (e.g. image paths) to within the project for both security and reproducibility reasons. For documents opened from within a project, this will be project directory. For "orphan" documents (opened by themselves) this will be the parent directory of the document. When the document is compiled, an error will be returned if a file link is outside of the root.
+   */
+  project: string
+  /**
    * Whether or not the document's file is in the temporary directory.
    */
   temporary: boolean
@@ -408,36 +414,8 @@ export interface Config {
 }
 
 export const DOCUMENT_FORMATS: Record<string, DocumentFormat> = {
-  "json5": {
-    "name": "json5",
-    "binary": false
-  },
-  "ipynb": {
-    "name": "ipynb",
-    "binary": false,
-    "type": "Article"
-  },
-  "md": {
-    "name": "md",
-    "binary": false,
-    "type": "Article"
-  },
-  "png": {
-    "name": "png",
-    "binary": true,
-    "type": "ImageObject"
-  },
-  "jpg": {
-    "name": "jpg",
-    "binary": true,
-    "type": "ImageObject"
-  },
-  "yaml": {
-    "name": "yaml",
-    "binary": false
-  },
-  "ogv": {
-    "name": "ogv",
+  "3gp": {
+    "name": "3gp",
     "binary": true,
     "type": "VideoObject"
   },
@@ -446,23 +424,28 @@ export const DOCUMENT_FORMATS: Record<string, DocumentFormat> = {
     "binary": true,
     "type": "Article"
   },
-  "odt": {
-    "name": "odt",
-    "binary": true,
-    "type": "Article"
-  },
-  "mp3": {
-    "name": "mp3",
+  "flac": {
+    "name": "flac",
     "binary": true,
     "type": "AudioObject"
   },
-  "tex": {
-    "name": "tex",
+  "gif": {
+    "name": "gif",
+    "binary": true,
+    "type": "ImageObject"
+  },
+  "ipynb": {
+    "name": "ipynb",
     "binary": false,
     "type": "Article"
   },
-  "gif": {
-    "name": "gif",
+  "jpeg": {
+    "name": "jpeg",
+    "binary": true,
+    "type": "ImageObject"
+  },
+  "jpg": {
+    "name": "jpg",
     "binary": true,
     "type": "ImageObject"
   },
@@ -470,29 +453,67 @@ export const DOCUMENT_FORMATS: Record<string, DocumentFormat> = {
     "name": "json",
     "binary": false
   },
-  "jpeg": {
-    "name": "jpeg",
+  "json5": {
+    "name": "json5",
+    "binary": false
+  },
+  "md": {
+    "name": "md",
+    "binary": false,
+    "type": "Article"
+  },
+  "mp3": {
+    "name": "mp3",
     "binary": true,
-    "type": "ImageObject"
+    "type": "AudioObject"
   },
   "mp4": {
     "name": "mp4",
     "binary": true,
     "type": "VideoObject"
   },
-  "3gp": {
-    "name": "3gp",
+  "odt": {
+    "name": "odt",
+    "binary": true,
+    "type": "Article"
+  },
+  "ogg": {
+    "name": "ogg",
+    "binary": true,
+    "type": "AudioObject"
+  },
+  "ogv": {
+    "name": "ogv",
     "binary": true,
     "type": "VideoObject"
+  },
+  "png": {
+    "name": "png",
+    "binary": true,
+    "type": "ImageObject"
+  },
+  "rmd": {
+    "name": "rmd",
+    "binary": false,
+    "type": "Article"
+  },
+  "tex": {
+    "name": "tex",
+    "binary": false,
+    "type": "Article"
+  },
+  "txt": {
+    "name": "txt",
+    "binary": false,
+    "type": "Article"
   },
   "webm": {
     "name": "webm",
     "binary": true,
     "type": "VideoObject"
   },
-  "rmd": {
-    "name": "rmd",
-    "binary": false,
-    "type": "Article"
+  "yaml": {
+    "name": "yaml",
+    "binary": false
   }
 }

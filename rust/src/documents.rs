@@ -203,6 +203,16 @@ pub struct Document {
     /// The absolute path of the document's file.
     pub path: PathBuf,
 
+    /// The project directory for this document.
+    ///
+    /// Used to restrict file links (e.g. image paths) to within
+    /// the project for both security and reproducibility reasons.
+    /// For documents opened from within a project, this will be project directory.
+    /// For "orphan" documents (opened by themselves) this will be the
+    /// parent directory of the document. When the document is compiled,
+    /// an error will be returned if a file link is outside of the root.
+    project: PathBuf,
+
     /// Whether or not the document's file is in the temporary
     /// directory.
     temporary: bool,
@@ -268,19 +278,25 @@ impl Document {
     /// a new document. The created document will be `temporary: true`
     /// and have a temporary file path.
     fn new(format: Option<String>) -> Document {
+        let id = uuids::generate(uuids::Family::Document);
+
         let path = env::temp_dir().join(uuids::generate(uuids::Family::File));
         // Ensure that the file exists
         if !path.exists() {
             fs::write(path.clone(), "").expect("Unable to write temporary file");
         }
 
-        let format = DOCUMENT_FORMATS.match_path(&format.unwrap_or_else(|| "txt".to_string()));
+        let project = path
+            .parent()
+            .expect("Unable to get path parent")
+            .to_path_buf();
 
-        let id = uuids::generate(uuids::Family::Document);
+        let format = DOCUMENT_FORMATS.match_path(&format.unwrap_or_else(|| "txt".to_string()));
 
         Document {
             id,
             path,
+            project,
             temporary: true,
             status: DocumentStatus::Synced,
             name: "Unnamed".into(),
@@ -297,12 +313,18 @@ impl Document {
     ///
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the file extension.
+    /// TODO: add project: Option<PathBuf> so that project can be explictly set
     async fn open(path: PathBuf, format: Option<String>) -> Result<Document> {
         if path.is_dir() {
             bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
         }
 
         let id = uuids::generate(uuids::Family::Document);
+
+        let project = path
+            .parent()
+            .expect("Unable to get path parent")
+            .to_path_buf();
 
         let name = path
             .file_name()
@@ -318,6 +340,7 @@ impl Document {
         let mut document = Document {
             id,
             path,
+            project,
             temporary: false,
             name,
             format,
@@ -460,7 +483,7 @@ impl Document {
         };
 
         // Compile the `root` node and update document dependencies
-        let _compilation = compile(&mut root, &self.path)?;
+        let _compilation = compile(&mut root, &self.path, &self.project)?;
 
         // Encode the `root` node into each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {
@@ -578,6 +601,15 @@ impl Document {
     /// a document's tab can be updated with the new file name.
     fn renamed(&mut self, from: PathBuf, to: PathBuf) {
         tracing::debug!("Document renamed: {} to {}", from.display(), to.display());
+
+        // If the document has been moved out of its project then we need to reassign `project`
+        // (to ensure that files in the old project can not be linked to).
+        if to.strip_prefix(&self.project).is_err() {
+            self.project = match to.parent() {
+                Some(path) => path.to_path_buf(),
+                None => to.clone(),
+            }
+        }
 
         self.path = to;
 

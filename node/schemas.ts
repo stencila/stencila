@@ -63,11 +63,13 @@ const addon = require('./index.node')
     )
   ).join('\n')
 
-  ts += `\nexport const DOCUMENT_FORMATS: Record<string, DocumentFormat> = ${JSON.stringify(
-    JSON.parse(addon.documentsFormats()),
-    null,
-    '  '
-  )}\n`
+  // Document formats, ordered by key to avoid big diffs each time regenerated
+  const unordered = JSON.parse(addon.documentsFormats())
+  const formats = Object.keys(unordered)
+    .sort()
+    .reduce((prev, key) => ({ ...prev, [key]: unordered[key] }), {})
+  const json = JSON.stringify(formats, null, '  ')
+  ts += `\nexport const DOCUMENT_FORMATS: Record<string, DocumentFormat> = ${json}\n`
 
   fs.writeFileSync(path.join(__dirname, 'src', 'types.ts'), ts)
 })()
