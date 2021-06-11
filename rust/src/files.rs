@@ -5,10 +5,7 @@ use serde_with::skip_serializing_none;
 use std::{
     collections::{btree_map::Entry, BTreeMap, BTreeSet},
     path::{Path, PathBuf},
-    sync::{
-        mpsc::{channel, TryRecvError},
-        Arc, Mutex, MutexGuard,
-    },
+    sync::{mpsc, Arc, Mutex, MutexGuard},
     time::UNIX_EPOCH,
 };
 
@@ -277,7 +274,7 @@ impl FileRegistry {
 
         // Collect files in parallel using a collector thread and several walker thread
         // (number of which is chosen by the `ignore` walker)
-        let (sender, receiver) = channel();
+        let (sender, receiver) = crossbeam_channel::bounded(100);
         let join_handle =
             std::thread::spawn(move || -> BTreeMap<PathBuf, File> { receiver.iter().collect() });
         walker.run(|| {
@@ -586,7 +583,7 @@ pub struct Files {
     pub registry: Arc<Mutex<FileRegistry>>,
 
     #[serde(skip)]
-    pub watcher: Option<std::sync::mpsc::Sender<()>>,
+    pub watcher: Option<crossbeam_channel::Sender<()>>,
 }
 
 impl Files {
@@ -600,12 +597,12 @@ impl Files {
         // Watch files and make updates as needed
         let watcher = if watch {
             let registry = Arc::clone(&registry);
-            let (thread_sender, thread_receiver) = channel();
+            let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
             std::thread::spawn(move || -> Result<()> {
                 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
                 use std::time::Duration;
 
-                let (watcher_sender, watcher_receiver) = channel();
+                let (watcher_sender, watcher_receiver) = mpsc::channel();
                 let mut watcher = watcher(watcher_sender, Duration::from_secs(1))?;
                 watcher.watch(&path, RecursiveMode::Recursive).unwrap();
 
@@ -669,7 +666,9 @@ impl Files {
                 tracing::debug!("Starting project file watch: {}", project);
 
                 loop {
-                    if let Err(TryRecvError::Disconnected) = thread_receiver.try_recv() {
+                    if let Err(crossbeam_channel::TryRecvError::Disconnected) =
+                        thread_receiver.try_recv()
+                    {
                         tracing::debug!("Ending project file watch: {}", project);
                         break;
                     }

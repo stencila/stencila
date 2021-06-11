@@ -639,12 +639,12 @@ impl Document {
 
 #[derive(Debug, Clone)]
 struct DocumentWatcher {
-    sender: std::sync::mpsc::Sender<()>,
+    sender: crossbeam_channel::Sender<()>,
 }
 
 impl DocumentWatcher {
     fn new(path: PathBuf, document: Arc<Mutex<Document>>) -> DocumentWatcher {
-        let (thread_sender, thread_receiver) = channel();
+        let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
         std::thread::spawn(move || -> Result<()> {
             use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
             use std::time::Duration;
@@ -669,7 +669,9 @@ impl DocumentWatcher {
             };
 
             loop {
-                if let Err(TryRecvError::Disconnected) = thread_receiver.try_recv() {
+                if let Err(crossbeam_channel::TryRecvError::Disconnected) =
+                    thread_receiver.try_recv()
+                {
                     tracing::debug!("Ending document file watch: {}", path);
                     break;
                 }

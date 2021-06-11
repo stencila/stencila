@@ -2856,6 +2856,7 @@ dependencies = [
  "base64 0.13.0",
  "bollard",
  "chrono",
+ "crossbeam-channel",
  "defaults",
  "dirs-next",
  "enum_dispatch",
