@@ -1,10 +1,11 @@
 use crate::{
-    methods::{decode::decode, encode::encode},
+    methods::{compile::compile, decode::decode, encode::encode},
     pubsub::publish,
     utils::{schemas, uuids},
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
+use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -17,8 +18,122 @@ use std::{
         Arc, Mutex, MutexGuard,
     },
 };
-use stencila_schema::Node;
+use stencila_schema::{AudioObject, ImageObject, Node, VideoObject};
 use strum::ToString;
+
+/// Information about a document format
+///
+/// Used to determine various application behaviors
+/// e.g. not reading binary formats into memory unnecessarily
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct DocumentFormat {
+    /// The lowercase name of the format e.g. `md`, `docx`, `dockerfile`
+    #[def = r#""unknown".to_string()"#]
+    name: String,
+
+    /// Whether or not the format should be considered binary
+    /// e.g. not to be displayed in a text / code editor
+    #[def = "true"]
+    binary: bool,
+
+    /// The type of `CreativeWork` that this format is expected to be.
+    /// This will be `None` for data serialization formats such as
+    /// JSON or YAML which have no expected type (the actual type is
+    /// embedded in the data).
+    #[serde(rename = "type")]
+    type_: Option<String>,
+}
+
+impl DocumentFormat {
+    pub fn new(name: &str, binary: bool, type_: &str) -> DocumentFormat {
+        DocumentFormat {
+            name: name.into(),
+            binary,
+            type_: if type_.len() == 0 {
+                None
+            } else {
+                Some(type_.to_string())
+            },
+        }
+    }
+}
+
+/// List of known document formats
+#[derive(Serialize)]
+#[serde(transparent)]
+pub struct DocumentFormats {
+    /// Document formats keyed by their name
+    formats: HashMap<String, DocumentFormat>,
+}
+
+impl DocumentFormats {
+    pub fn new() -> DocumentFormats {
+        let formats = vec![
+            // Data serialization formats
+            DocumentFormat::new("json", false, ""),
+            DocumentFormat::new("json5", false, ""),
+            DocumentFormat::new("yaml", false, ""),
+            // Article formats
+            DocumentFormat::new("docx", true, "Article"),
+            DocumentFormat::new("odt", true, "Article"),
+            DocumentFormat::new("ipynb", false, "Article"),
+            DocumentFormat::new("md", false, "Article"),
+            DocumentFormat::new("rmd", false, "Article"),
+            DocumentFormat::new("tex", false, "Article"),
+            DocumentFormat::new("txt", false, "Article"),
+            // Audio formats
+            DocumentFormat::new("flac", true, "AudioObject"),
+            DocumentFormat::new("mp3", true, "AudioObject"),
+            DocumentFormat::new("ogg", true, "AudioObject"),
+            // Image formats
+            DocumentFormat::new("gif", true, "ImageObject"),
+            DocumentFormat::new("jpeg", true, "ImageObject"),
+            DocumentFormat::new("jpg", true, "ImageObject"),
+            DocumentFormat::new("png", true, "ImageObject"),
+            // Video formats
+            DocumentFormat::new("3gp", true, "VideoObject"),
+            DocumentFormat::new("mp4", true, "VideoObject"),
+            DocumentFormat::new("ogv", true, "VideoObject"),
+            DocumentFormat::new("webm", true, "VideoObject"),
+        ];
+
+        let formats = formats
+            .into_iter()
+            .map(|format| (format.name.clone(), format))
+            .collect();
+
+        DocumentFormats { formats }
+    }
+
+    /// Match a format name to a `DocumentFormat`
+    pub fn match_name(&self, name: &str) -> DocumentFormat {
+        match self.formats.get(&name.to_lowercase()) {
+            Some(format) => format.clone(),
+            None => DocumentFormat::default(),
+        }
+    }
+
+    /// Match a file path to a `DocumentFormat`
+    pub fn match_path<P: AsRef<Path>>(&self, path: &P) -> DocumentFormat {
+        let path = path.as_ref();
+        // Use file extension
+        let name = match path.extension() {
+            Some(ext) => ext,
+            // Fallback to the filename if no extension
+            None => match path.file_name() {
+                Some(name) => name,
+                // Fallback to the provided "path"
+                None => path.as_os_str(),
+            },
+        };
+
+        self.match_name(&name.to_string_lossy().to_string())
+    }
+}
+
+pub static DOCUMENT_FORMATS: Lazy<DocumentFormats> = Lazy::new(DocumentFormats::new);
 
 #[derive(Debug, JsonSchema, Serialize, ToString)]
 #[serde(rename_all = "lowercase")]
@@ -88,6 +203,16 @@ pub struct Document {
     /// The absolute path of the document's file.
     pub path: PathBuf,
 
+    /// The project directory for this document.
+    ///
+    /// Used to restrict file links (e.g. image paths) to within
+    /// the project for both security and reproducibility reasons.
+    /// For documents opened from within a project, this will be project directory.
+    /// For "orphan" documents (opened by themselves) this will be the
+    /// parent directory of the document. When the document is compiled,
+    /// an error will be returned if a file link is outside of the root.
+    project: PathBuf,
+
     /// Whether or not the document's file is in the temporary
     /// directory.
     temporary: bool,
@@ -105,23 +230,21 @@ pub struct Document {
     /// for temporary documents.
     name: String,
 
-    /// The current content of the document.
+    /// The format of the document.
     ///
-    /// When a `new()` document is created, the `content` will be open.
+    /// On initialization, this is inferred, if possible, from the file name extension
+    /// of the document's `path`. However, it may change whilst the document is
+    /// open in memory (e.g. if the `load` function sets a different format).
+    format: DocumentFormat,
+
+    /// The current UTF8 string content of the document.
+    ///
     /// When a document is `read()` from a file the `content` is the content
     /// of the file. The `content` may subsequently be changed using
     /// the `load()` function. A call to `write()` will write the content
     /// back to `path`.
     #[serde(skip)]
     content: String,
-
-    /// The format of the document's `content`.
-    ///
-    /// On initialization, this is inferred, if possible, from the file name extension
-    /// of the document's `path`. However, it may change whilst the document is
-    /// open in memory (e.g. if the `load` function sets a different format).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    format: Option<String>,
 
     /// The root Stencila Schema node of the document
     #[serde(skip)]
@@ -149,23 +272,31 @@ impl Document {
     ///
     /// # Arguments
     ///
-    /// - `format`: The format of the document.
+    /// - `format`: The format of the document; defaults to plain text.
     ///
     /// This function is intended to be used by editors when creating
     /// a new document. The created document will be `temporary: true`
     /// and have a temporary file path.
     fn new(format: Option<String>) -> Document {
+        let id = uuids::generate(uuids::Family::Document);
+
         let path = env::temp_dir().join(uuids::generate(uuids::Family::File));
         // Ensure that the file exists
         if !path.exists() {
             fs::write(path.clone(), "").expect("Unable to write temporary file");
         }
 
-        let id = uuids::generate(uuids::Family::Document);
+        let project = path
+            .parent()
+            .expect("Unable to get path parent")
+            .to_path_buf();
+
+        let format = DOCUMENT_FORMATS.match_path(&format.unwrap_or_else(|| "txt".to_string()));
 
         Document {
             id,
             path,
+            project,
             temporary: true,
             status: DocumentStatus::Synced,
             name: "Unnamed".into(),
@@ -182,6 +313,7 @@ impl Document {
     ///
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the file extension.
+    /// TODO: add project: Option<PathBuf> so that project can be explictly set
     async fn open(path: PathBuf, format: Option<String>) -> Result<Document> {
         if path.is_dir() {
             bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
@@ -189,34 +321,49 @@ impl Document {
 
         let id = uuids::generate(uuids::Family::Document);
 
+        let project = path
+            .parent()
+            .expect("Unable to get path parent")
+            .to_path_buf();
+
         let name = path
             .file_name()
             .map(|os_str| os_str.to_string_lossy())
             .unwrap_or_else(|| "Untitled".into())
             .into();
 
-        let format = format.or_else(|| {
-            path.extension()
-                .map(|ext| ext.to_string_lossy().to_lowercase())
-        });
+        let format = match format {
+            None => DOCUMENT_FORMATS.match_path(&path),
+            Some(format) => DOCUMENT_FORMATS.match_path(&format),
+        };
 
         let mut document = Document {
             id,
             path,
+            project,
             temporary: false,
             name,
             format,
             ..Default::default()
         };
-        document.read().await?;
+
+        if document.format.binary {
+            document.update().await?;
+        } else {
+            document.read().await?;
+        }
 
         Ok(document)
     }
 
     /// Read the document from the file system and return its content.
     ///
-    /// Sets `status` to `Synced`.
+    /// Sets `status` to `Synced`. Will error if the document's format
+    /// is binary.
     async fn read(&mut self) -> Result<String> {
+        if self.format.binary {
+            bail!("Content should not be read from binary files")
+        }
         let content = fs::read_to_string(&self.path)?;
         self.load(content, None).await?;
         self.status = DocumentStatus::Synced;
@@ -297,17 +444,46 @@ impl Document {
         self.content = content;
         self.status = DocumentStatus::Unwritten;
         if let Some(format) = format {
-            self.format = Some(format)
+            self.format = DOCUMENT_FORMATS.match_path(&format)
         }
 
-        // To decode the content we need to know, or assume, its format
-        let format = match &self.format {
-            Some(format) => format.as_str(),
-            None => "txt",
+        self.update().await
+    }
+
+    /// Update the `root` node of the document and publish updated encodings
+    async fn update(&mut self) -> Result<()> {
+        // Import the content into the `root` node of the document
+        let mut root = if !self.format.binary {
+            decode(&self.content, &self.format.name).await?
+        } else {
+            let content_url = self.path.display().to_string();
+
+            match &self.format.type_ {
+                None => Node::Null,
+                Some(type_) => match type_.as_str() {
+                    "AudioObject" => Node::AudioObject(AudioObject {
+                        content_url,
+                        ..Default::default()
+                    }),
+                    "ImageObject" => Node::ImageObject(ImageObject {
+                        content_url,
+                        ..Default::default()
+                    }),
+                    "VideoObject" => Node::VideoObject(VideoObject {
+                        content_url,
+                        ..Default::default()
+                    }),
+                    _ => bail!(
+                        "Unhandled binary document format '{}' type '{}'",
+                        self.format.name,
+                        type_
+                    ),
+                },
+            }
         };
 
-        // Import the content into the `root` node of the document
-        let root = decode(&self.content, format).await?;
+        // Compile the `root` node and update document dependencies
+        let _compilation = compile(&mut root, &self.path, &self.project)?;
 
         // Encode the `root` node into each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {
@@ -347,6 +523,29 @@ impl Document {
             }
         }
         Ok(())
+    }
+
+    /// Query the document
+    ///
+    /// Returns a JSON value. Returns `null` if the query does not select anything.
+    fn query(&self, query: &str, lang: &str) -> Result<serde_json::Value> {
+        let result = match lang {
+            "jmespath" => {
+                let expr = jmespatch::compile(query)?;
+                let result = expr.search(&self.root)?;
+                serde_json::to_value(result)?
+            }
+            "jsonptr" => {
+                let data = serde_json::to_value(&self.root)?;
+                let result = data.pointer(query);
+                match result {
+                    Some(value) => value.clone(),
+                    None => serde_json::Value::Null,
+                }
+            }
+            _ => bail!("Unknown query language '{}'", lang),
+        };
+        Ok(result)
     }
 
     /// Remove a subscriber to one of the document's topics
@@ -403,6 +602,15 @@ impl Document {
     fn renamed(&mut self, from: PathBuf, to: PathBuf) {
         tracing::debug!("Document renamed: {} to {}", from.display(), to.display());
 
+        // If the document has been moved out of its project then we need to reassign `project`
+        // (to ensure that files in the old project can not be linked to).
+        if to.strip_prefix(&self.project).is_err() {
+            self.project = match to.parent() {
+                Some(path) => path.to_path_buf(),
+                None => to.clone(),
+            }
+        }
+
         self.path = to;
 
         self.publish(DocumentEventType::Renamed, None, None)
@@ -422,7 +630,7 @@ impl Document {
             Ok(content) => self.publish(
                 DocumentEventType::Modified,
                 Some(content),
-                self.format.clone(),
+                Some(self.format.name.clone()),
             ),
             Err(error) => tracing::error!("While attempting to read modified file: {}", error),
         }
@@ -588,6 +796,7 @@ pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![
         schemas::generate::<Document>()?,
         schemas::generate::<DocumentEvent>()?,
+        schemas::generate::<DocumentFormat>()?,
     ]);
     Ok(schemas)
 }
@@ -618,6 +827,7 @@ pub mod cli {
         Open(Open),
         Close(Close),
         Show(Show),
+        Query(Query),
         Convert(Convert),
         Schemas(Schemas),
     }
@@ -630,6 +840,7 @@ pub mod cli {
                 Action::Open(action) => action.run(documents).await,
                 Action::Close(action) => action.run(documents),
                 Action::Show(action) => action.run(documents).await,
+                Action::Query(action) => action.run(documents).await,
                 Action::Convert(action) => action.run(documents).await,
                 Action::Schemas(action) => action.run(),
             }
@@ -715,6 +926,49 @@ pub mod cli {
 
     #[derive(Debug, StructOpt)]
     #[structopt(
+        about = "Show a document",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Query {
+        /// The path of the document file
+        file: String,
+
+        /// The query to run on the document
+        query: String,
+
+        /// The format of the file
+        #[structopt(short, long)]
+        format: Option<String>,
+
+        /// The language of the query
+        #[structopt(
+            short,
+            long,
+            default_value = "jmespath",
+            possible_values = &QUERY_LANGS
+        )]
+        lang: String,
+    }
+
+    const QUERY_LANGS: [&str; 2] = ["jmespath", "jsonptr"];
+
+    impl Query {
+        pub async fn run(&self, documents: &mut Documents) -> display::Result {
+            let Self {
+                file,
+                format,
+                query,
+                lang,
+            } = self;
+            let document = documents.open(file, format.clone()).await?;
+            let result = document.query(query, lang)?;
+            display::value(result)
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
         about = "Convert a document to another format",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
@@ -776,7 +1030,7 @@ mod tests {
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
-        assert!(doc.format.is_none());
+        assert_eq!(doc.format.name, "txt");
         assert_eq!(doc.content, "");
         assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
@@ -785,7 +1039,7 @@ mod tests {
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
-        assert_eq!(doc.format.unwrap(), "md");
+        assert_eq!(doc.format.name, "md");
         assert_eq!(doc.content, "");
         assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
@@ -803,7 +1057,7 @@ mod tests {
             assert!(doc.path.starts_with(fixtures));
             assert!(!doc.temporary);
             assert!(matches!(doc.status, DocumentStatus::Synced));
-            assert_eq!(doc.format.unwrap(), "json");
+            assert_eq!(doc.format.name, "json");
             assert!(doc.content.len() > 0);
             assert!(doc.root.is_some());
             assert_eq!(doc.subscriptions, hashmap! {});

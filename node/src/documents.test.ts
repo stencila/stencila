@@ -23,7 +23,11 @@ test('create', async () => {
     expect.objectContaining({
       temporary: true,
       name: 'Unnamed',
-      format: 'md',
+      format: expect.objectContaining({
+        name: 'md',
+        binary: false,
+        type: 'Article',
+      }),
     })
   )
 })
@@ -45,7 +49,10 @@ test('workflow-open-modify', async () => {
   const docId = doc.id
   expect(doc).toEqual(
     expect.objectContaining({
-      format: 'json',
+      format: expect.objectContaining({
+        name: 'json',
+        binary: false,
+      }),
       temporary: false,
       subscriptions: {},
     })

@@ -1,10 +1,14 @@
 use eyre::Result;
-use std::collections::BTreeMap;
+use std::fs;
+use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
 
 /// Encode a node to HTML
 pub fn encode_html(node: &Node) -> Result<String> {
-    let context = Context { root: node };
+    let context = Context {
+        root: node,
+        data_uris: false,
+    };
     let html = node.to_html(&context);
     Ok(html)
 }
@@ -58,6 +62,10 @@ pub fn encode_html_standalone(node: &Node, theme: Option<String>) -> Result<Stri
 struct Context<'a> {
     /// The root node being encoded
     root: &'a Node,
+
+    /// Whether <img>, <audio> and <video> elements should
+    /// use dataURIs
+    data_uris: bool,
 }
 
 /// Trait for encoding a node as HTML
@@ -245,11 +253,46 @@ mark_to_html!(Superscript, "sup");
 // Inline content: others
 ///////////////////////////////////////////////////////////////////////////////
 
+/// Convert a file:// URL to a data:// URI
+///
+/// Note that this function assumes that paths are absolute.
+/// File URLs are usually resolves elsewhere e.g. in the `compile` method
+/// before encoding to HTML.
+fn file_uri_to_data_uri(url: &str) -> String {
+    let path = if let Some(path) = url.strip_prefix("file://") {
+        PathBuf::from(path)
+    } else {
+        return url.into();
+    };
+
+    // Read the file, convert it to a dataURI, and record it as a dependency
+    match fs::read(&path) {
+        Ok(bytes) => {
+            let mime = match mime_guess::from_path(&path).first() {
+                Some(mime) => mime.to_string(),
+                None => "image/png".to_string(),
+            };
+            let data = base64::encode(bytes);
+
+            format!("data:{mime};base64,{data}", mime = mime, data = data)
+        }
+        Err(error) => {
+            tracing::warn!("Unable to read media file {}: {}", path.display(), error);
+            url.into()
+        }
+    }
+}
+
 impl ToHtml for AudioObjectSimple {
-    fn to_html(&self, _context: &Context) -> String {
+    fn to_html(&self, context: &Context) -> String {
+        let src = if context.data_uris {
+            file_uri_to_data_uri(&self.content_url)
+        } else {
+            self.content_url.clone()
+        };
         format!(
             r#"<audio itemtype="http://schema.org/AudioObject" src="{src}"></audio>"#,
-            src = self.content_url
+            src = src
         )
     }
 }
@@ -333,10 +376,15 @@ impl ToHtml for CodeFragment {
 }
 
 impl ToHtml for ImageObjectSimple {
-    fn to_html(&self, _context: &Context) -> String {
+    fn to_html(&self, context: &Context) -> String {
+        let src = if context.data_uris {
+            file_uri_to_data_uri(&self.content_url)
+        } else {
+            self.content_url.clone()
+        };
         format!(
             r#"<img itemtype="http://schema.org/ImageObject" src="{src}" />"#,
-            src = self.content_url
+            src = src
         )
     }
 }
@@ -379,7 +427,13 @@ impl ToHtml for Quote {
 }
 
 impl ToHtml for VideoObjectSimple {
-    fn to_html(&self, _context: &Context) -> String {
+    fn to_html(&self, context: &Context) -> String {
+        let src = if context.data_uris {
+            file_uri_to_data_uri(&self.content_url)
+        } else {
+            self.content_url.clone()
+        };
+
         let format = match &self.format {
             None => String::new(),
             Some(format) => format!(r#"type="{}""#, format),
@@ -387,7 +441,7 @@ impl ToHtml for VideoObjectSimple {
 
         format!(
             r#"<video itemtype="http://schema.org/VideoObject"><source src="{src}" {format}></source></video>"#,
-            src = self.content_url,
+            src = src,
             format = format
         )
     }
