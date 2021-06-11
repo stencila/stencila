@@ -13,7 +13,7 @@
       "title": "Welcome!",
       "welcome": {
         "title": "Thank you for installing Stencila!",
-        "explanation": "The Stencila desktop application allows you to author, convert, and preview reproducible manuscripts right on your desktop.",
+        "explanation": "The Stencila desktop application allows you to author, convert, and preview executable documents right on your desktop.",
         "next": "Get started"
       },
       "plugins": {

@@ -3,6 +3,8 @@ import { href } from '@stencil/router'
 import { i18n } from '../../../../i18n'
 import { getAvailablePlugins } from '../../app-settings/app-settings-plugins/pluginStore'
 
+const recommendedPlugins = ['encoda']
+
 @Component({
   tag: 'app-onboarding-plugins',
   styleUrl: 'app-onboarding-plugins.css',
@@ -10,7 +12,7 @@ import { getAvailablePlugins } from '../../app-settings/app-settings-plugins/plu
 })
 export class AppOnboardingPlugins {
   async componentWillLoad() {
-    return getAvailablePlugins()
+    return getAvailablePlugins(recommendedPlugins)
   }
 
   render() {
@@ -22,7 +24,11 @@ export class AppOnboardingPlugins {
 
         <p>{i18n.t('onboarding.plugins.explanation')}</p>
 
-        <app-settings-plugin-card pluginName="encoda"></app-settings-plugin-card>
+        {recommendedPlugins.map((pluginName) => (
+          <app-settings-plugin-card
+            pluginName={pluginName}
+          ></app-settings-plugin-card>
+        ))}
 
         <stencila-button {...href('/onboarding/reporting')}>
           {i18n.t('onboarding.plugins.next')}

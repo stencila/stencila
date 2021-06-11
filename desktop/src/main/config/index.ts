@@ -8,7 +8,7 @@ import { showSettings } from './window'
 export const getConfig = async () => {
   return {
     config: config.read(),
-    schema: config.schema()
+    schema: config.schema(),
   }
 }
 
@@ -22,7 +22,7 @@ export const getPlugins = () => {
     (pluginObject: NormalizedPlugins, plugin) => {
       return {
         entities: { ...pluginObject.entities, [plugin.name]: plugin },
-        ids: [...pluginObject.ids, plugin.name]
+        ids: [...pluginObject.ids, plugin.name],
       }
     },
     { entities: {}, ids: [] }
@@ -44,6 +44,7 @@ export const registerConfigHandlers = () => {
     })
 
     ipcMain.handle(CHANNEL.LIST_AVAILABLE_PLUGINS, async () => {
+      plugins.refresh([])
       return getPlugins()
     })
 
@@ -59,9 +60,14 @@ export const registerConfigHandlers = () => {
       return plugins.upgrade(name)
     })
 
-    ipcMain.handle(CHANNEL.REFRESH_PLUGINS, async () => {
-      return plugins.refresh(plugins.list().map(plugin => plugin.name))
-    })
+    ipcMain.handle(
+      CHANNEL.REFRESH_PLUGINS,
+      async (_event, pluginList?: string[]) => {
+        return plugins.refresh(
+          pluginList ?? plugins.list().map((plugin) => plugin.name)
+        )
+      }
+    )
   } catch {
     // Handlers likely already registered
   }

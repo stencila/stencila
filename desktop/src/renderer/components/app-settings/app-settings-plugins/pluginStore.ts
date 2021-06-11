@@ -18,7 +18,11 @@ const defaultStore: PluginStore = {
 
 export const { state: pluginStore, onChange } = createStore(defaultStore)
 
-export const getAvailablePlugins = async () => {
+export const getAvailablePlugins = async (pluginList?: string[]) => {
+  if (pluginList) {
+    await window.api.invoke(CHANNEL.REFRESH_PLUGINS, pluginList)
+  }
+
   const plugins = (await window.api.invoke(
     CHANNEL.LIST_AVAILABLE_PLUGINS
   )) as any
