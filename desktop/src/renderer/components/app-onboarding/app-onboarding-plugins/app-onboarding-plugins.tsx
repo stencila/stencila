@@ -2,6 +2,7 @@ import { Component, h } from '@stencil/core'
 import { href } from '@stencil/router'
 import { i18n } from '../../../../i18n'
 import { getAvailablePlugins } from '../../app-settings/app-settings-plugins/pluginStore'
+import { OnboardingRouter } from '../onboardingRouter'
 
 const recommendedPlugins = ['encoda']
 
@@ -30,7 +31,7 @@ export class AppOnboardingPlugins {
           ></app-settings-plugin-card>
         ))}
 
-        <stencila-button {...href('/onboarding/reporting')}>
+        <stencila-button {...href('/onboarding/reporting', OnboardingRouter)}>
           {i18n.t('onboarding.plugins.next')}
         </stencila-button>
       </div>

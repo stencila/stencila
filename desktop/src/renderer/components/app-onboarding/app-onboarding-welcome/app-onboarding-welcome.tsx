@@ -2,6 +2,7 @@ import { Component, h } from '@stencil/core'
 import { href } from '@stencil/router'
 import Logo from '@stencila/brand/dist/logos/stencilaLogo.svg'
 import { i18n } from '../../../../i18n'
+import { OnboardingRouter } from '../onboardingRouter'
 
 @Component({
   tag: 'app-onboarding-welcome',
@@ -18,7 +19,7 @@ export class AppOnboardingWelcome {
 
         <p>{i18n.t('onboarding.welcome.explanation')}</p>
 
-        <stencila-button {...href('/onboarding/plugins')}>
+        <stencila-button {...href('/onboarding/plugins', OnboardingRouter)}>
           {i18n.t('onboarding.welcome.next')}
         </stencila-button>
       </div>

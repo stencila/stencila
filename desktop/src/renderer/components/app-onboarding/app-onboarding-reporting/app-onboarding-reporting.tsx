@@ -35,7 +35,7 @@ export class AppOnboardingReoporting {
           {i18n.t('onboarding.reporting.confirm')}
         </stencila-button>
 
-        <a {...href('/onboarding/end')} class="skipSection">
+        <a {...href('/onboarding/end', OnboardingRouter)} class="skipSection">
           {i18n.t('onboarding.reporting.next')}
         </a>
       </div>
