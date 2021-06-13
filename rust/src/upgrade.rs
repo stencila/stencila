@@ -176,6 +176,7 @@ pub mod config {
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
+    use crate::cli::display;
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -207,7 +208,7 @@ pub mod cli {
     /// Note that the in-memory state of application and plugins is unchanged after this call
     /// (e.g. if called in interactive mode). A restart is required to upload both the new
     /// version and plugin versions.
-    pub async fn run(args: Args, _config: &config::UpgradeConfig) -> Result<()> {
+    pub async fn run(args: Args, _config: &config::UpgradeConfig) -> display::Result {
         let Args {
             to,
             plugins: include_plugins,
@@ -216,7 +217,9 @@ pub mod cli {
             ..
         } = args;
 
-        upgrade(None, to, include_plugins, confirm, verbose).await
+        upgrade(None, to, include_plugins, confirm, verbose).await?;
+
+        display::nothing()
     }
 }
 
@@ -254,7 +257,9 @@ mod tests {
             },
             &config,
         )
-        .await
+        .await?;
+    
+        Ok(())
     }
 
     #[test]

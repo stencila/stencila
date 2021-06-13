@@ -69,20 +69,20 @@ pub const GLOBAL_ARGS: [&str; 5] = ["--interact", "-i", "--debug", "--log-level"
     setting = structopt::clap::AppSettings::DeriveDisplayOrder
 )]
 pub enum Command {
-    // Commands, defined in this file, that often delegate
-    // to one or more of the `stencila` library functions
-    //
-    Open(OpenCommand),
-
-    // Commands defined in the `stencila` library
-    //
-    Serve(serve::cli::Args),
-
-    #[structopt(aliases = &["document", "docs", "doc"])]
-    Documents(documents::cli::Command),
+    // General commands that delegate to either the `projects` module,
+    // or the `documents` module (depending upon if path is a folder or file),
+    // or combine results from both in the case of `List`.
+    //List(ListCommand),
+    //Open(OpenCommand),
+    //Close(CloseCommand),
+    //Show(ShowCommand),
 
     #[structopt(aliases = &["project"])]
     Projects(projects::cli::Command),
+
+    // Module-specific commands defined in the `stencila` library
+    #[structopt(aliases = &["document", "docs", "doc"])]
+    Documents(documents::cli::Command),
 
     #[structopt(aliases = &["plugin"])]
     Plugins(plugins::cli::Command),
@@ -102,35 +102,25 @@ pub async fn run_command(
     projects: &mut projects::Projects,
     config: &mut config::Config,
 ) -> Result<()> {
-    match command {
-        Command::Open(command) => command.run(projects, documents, config).await,
-        Command::Serve(args) => serve::cli::run(args, documents, &config.serve).await,
-        Command::Documents(command) => {
-            display::render(interactive, formats, command.run(documents).await?)
-        }
-        Command::Projects(command) => display::render(
-            interactive,
-            formats,
-            command.run(projects, &config.projects)?,
-        ),
-        Command::Plugins(command) => display::render(
-            interactive,
-            formats,
-            plugins::cli::run(command, &config.plugins).await?,
-        ),
-        Command::Config(command) => {
-            display::render(interactive, formats, config::cli::run(command, config)?)
-        }
-        Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade).await,
-    }
+    let result = match command {
+        //Command::List(command) => command.run(projects, documents, config).await,
+        //Command::Open(command) => command.run(projects, documents, config).await,
+        //Command::Close(command) => command.run(projects, documents, config).await,
+        //Command::Show(command) => command.run(projects, documents, config).await,
+        Command::Documents(command) => command.run(documents).await,
+        Command::Projects(command) => command.run(projects, &config.projects),
+        Command::Plugins(command) => plugins::cli::run(command, &config.plugins).await,
+        Command::Config(command) => config::cli::run(command, config),
+        Command::Upgrade(command) => upgrade::cli::run(command, &config.upgrade).await,
+    };
+    display::render(interactive, formats, result?)
 }
 
-/// Open a project or document in your web browser
+/// Open a project or document using Stencila Desktop or a web browser
 ///
 /// If the path is a directory, then Stencila will attempt to
-/// open it as a project (i.e. open it's main document).
-/// If it's a file, then Stencila will open it as an orphan
-/// document (i.e. not associated with any project).
+/// open it's main document. If the path a file, then Stencila
+/// will open it as an orphan document (i.e. not associated with any project).
 ///
 /// In the future, this command will open the project/document
 /// in the Stencila Desktop if that is available.
@@ -682,9 +672,10 @@ mod interact {
                                 formats.into()
                             };
 
-                            if let Err(error) =
-                                run_command(true, command, &formats, documents, projects, config)
-                                    .await
+                            if let Err(error) = run_command(
+                                true, command, &formats, documents, projects, config,
+                            )
+                            .await
                             {
                                 print_error(error);
                             };
