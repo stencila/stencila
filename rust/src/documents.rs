@@ -51,7 +51,7 @@ impl DocumentFormat {
         DocumentFormat {
             name: name.into(),
             binary,
-            type_: if type_.len() == 0 {
+            type_: if type_.is_empty() {
                 None
             } else {
                 Some(type_.to_string())
@@ -68,8 +68,8 @@ pub struct DocumentFormats {
     formats: HashMap<String, DocumentFormat>,
 }
 
-impl DocumentFormats {
-    pub fn new() -> DocumentFormats {
+impl Default for DocumentFormats {
+    fn default() -> DocumentFormats {
         let formats = vec![
             // Data serialization formats
             DocumentFormat::new("json", false, ""),
@@ -106,7 +106,9 @@ impl DocumentFormats {
 
         DocumentFormats { formats }
     }
+}
 
+impl DocumentFormats {
     /// Match a format name to a `DocumentFormat`
     pub fn match_name(&self, name: &str) -> DocumentFormat {
         match self.formats.get(&name.to_lowercase()) {
@@ -133,7 +135,7 @@ impl DocumentFormats {
     }
 }
 
-pub static DOCUMENT_FORMATS: Lazy<DocumentFormats> = Lazy::new(DocumentFormats::new);
+pub static DOCUMENT_FORMATS: Lazy<DocumentFormats> = Lazy::new(DocumentFormats::default);
 
 #[derive(Debug, JsonSchema, Serialize, ToString)]
 #[serde(rename_all = "lowercase")]
