@@ -20,10 +20,10 @@ export function schemas(): JSONSchema7[] {
 /**
  * List projects that are currently open
  *
- * @returns An array of projects
+ * @returns An array of project paths (relative to the current working directory)
  */
-export function list(): Project[] {
-  return fromJSON<Project[]>(addon.projectsList())
+export function list(): string[] {
+  return fromJSON<string[]>(addon.projectsList())
 }
 
 /**

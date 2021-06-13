@@ -35,7 +35,8 @@ pub fn formats(cx: FunctionContext) -> JsResult<JsString> {
 /// List documents
 pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
     let documents = &*obtain(&mut cx)?;
-    to_json_or_throw(cx, documents.list())
+    let result = RUNTIME.block_on(async { documents.list().await });
+    to_json_or_throw(cx, result)
 }
 
 /// Create a document

@@ -786,8 +786,22 @@ impl Documents {
         Self::default()
     }
 
-    pub fn list(&self) -> Result<Vec<String>> {
-        Ok(self.registry.keys().cloned().collect::<Vec<String>>())
+    /// List documents that are currently open
+    ///
+    /// Returns a vector of document paths (relative to the current working directory)
+    pub async fn list(&self) -> Result<Vec<String>> {
+        let cwd = std::env::current_dir()?;
+        let mut paths = Vec::new();
+        for document in self.registry.values() {
+            let path = &document.document.lock().await.path;
+            let path = match pathdiff::diff_paths(path, &cwd) {
+                Some(path) => path,
+                None => path.clone(),
+            };
+            let path = path.display().to_string();
+            paths.push(path);
+        }
+        Ok(paths)
     }
 
     pub fn create(&mut self, format: Option<String>) -> Result<Document> {
@@ -896,7 +910,7 @@ pub mod cli {
         pub async fn run(&self, documents: &mut Documents) -> display::Result {
             let Self { action } = self;
             match action {
-                Action::List(action) => action.run(documents),
+                Action::List(action) => action.run(documents).await,
                 Action::Open(action) => action.run(documents).await,
                 Action::Close(action) => action.run(documents),
                 Action::Show(action) => action.run(documents).await,
@@ -915,8 +929,8 @@ pub mod cli {
     pub struct List {}
 
     impl List {
-        pub fn run(&self, documents: &mut Documents) -> display::Result {
-            let list = documents.list()?;
+        pub async fn run(&self, documents: &mut Documents) -> display::Result {
+            let list = documents.list().await?;
             display::value(list)
         }
     }

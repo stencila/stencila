@@ -262,9 +262,22 @@ impl Projects {
         Ok(Path::new(folder).canonicalize()?.display().to_string())
     }
 
-    /// List projects that are open
-    pub fn list(&self) -> Result<HashMap<String, Project>> {
-        Ok(self.registry.clone())
+    /// List documents that are currently open
+    ///
+    /// Returns a vector of document paths (relative to the current working directory)
+    pub fn list(&self) -> Result<Vec<String>> {
+        let cwd = std::env::current_dir()?;
+        let mut paths = Vec::new();
+        for project in self.registry.values() {
+            let path = &project.path;
+            let path = match pathdiff::diff_paths(path, &cwd) {
+                Some(path) => path,
+                None => path.clone(),
+            };
+            let path = path.display().to_string();
+            paths.push(path);
+        }
+        Ok(paths)
     }
 
     /// Open a project
@@ -427,7 +440,7 @@ pub mod cli {
 
     impl List {
         pub fn run(&self, projects: &mut Projects) -> display::Result {
-            let list = projects.list()?.keys().cloned().collect::<Vec<String>>();
+            let list = projects.list()?;
             display::value(list)
         }
     }

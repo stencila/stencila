@@ -1,7 +1,8 @@
 #![recursion_limit = "256"]
 
-use std::{env, path::Path};
+use std::{collections::HashMap, env, path::Path};
 use stencila::{
+    cli::display,
     config, documents,
     eyre::{bail, Error, Result},
     logging::{
@@ -72,11 +73,10 @@ pub enum Command {
     // General commands that delegate to either the `projects` module,
     // or the `documents` module (depending upon if path is a folder or file),
     // or combine results from both in the case of `List`.
-    //List(ListCommand),
+    List(ListCommand),
     //Open(OpenCommand),
     //Close(CloseCommand),
     //Show(ShowCommand),
-
     #[structopt(aliases = &["project"])]
     Projects(projects::cli::Command),
 
@@ -103,7 +103,7 @@ pub async fn run_command(
     config: &mut config::Config,
 ) -> Result<()> {
     let result = match command {
-        //Command::List(command) => command.run(projects, documents, config).await,
+        Command::List(command) => command.run(projects, documents).await,
         //Command::Open(command) => command.run(projects, documents, config).await,
         //Command::Close(command) => command.run(projects, documents, config).await,
         //Command::Show(command) => command.run(projects, documents, config).await,
@@ -113,7 +113,28 @@ pub async fn run_command(
         Command::Config(command) => config::cli::run(command, config),
         Command::Upgrade(command) => upgrade::cli::run(command, &config.upgrade).await,
     };
-    display::render(interactive, formats, result?)
+    render::render(interactive, formats, result?)
+}
+
+/// List all open project and documents.
+#[derive(Debug, StructOpt)]
+#[structopt(
+    setting = structopt::clap::AppSettings::NoBinaryName,
+    setting = structopt::clap::AppSettings::ColoredHelp,
+)]
+pub struct ListCommand {}
+
+impl ListCommand {
+    pub async fn run(
+        self,
+        projects: &mut projects::Projects,
+        documents: &mut documents::Documents,
+    ) -> display::Result {
+        let mut value = HashMap::new();
+        value.insert("projects", projects.list()?);
+        value.insert("documents", documents.list().await?);
+        display::value(value)
+    }
 }
 
 /// Open a project or document using Stencila Desktop or a web browser
@@ -416,7 +437,7 @@ mod feedback {
 
 /// Module for displaying command results prettily
 #[cfg(feature = "pretty")]
-mod display {
+mod render {
     use super::*;
     use stencila::{cli::display::Display, once_cell::sync::Lazy};
     use syntect::easy::HighlightLines;
@@ -672,10 +693,9 @@ mod interact {
                                 formats.into()
                             };
 
-                            if let Err(error) = run_command(
-                                true, command, &formats, documents, projects, config,
-                            )
-                            .await
+                            if let Err(error) =
+                                run_command(true, command, &formats, documents, projects, config)
+                                    .await
                             {
                                 print_error(error);
                             };

@@ -19,10 +19,10 @@ export function schemas(): JSONSchema7 {
 /**
  * List documents that are currently open
  *
- * @returns An array of documents
+ * @returns An array of document paths (relative to the current working directory)
  */
-export function list(): Document[] {
-  return fromJSON<Document[]>(addon.documentsList())
+export function list(): string[] {
+  return fromJSON<string[]>(addon.documentsList())
 }
 
 /**
