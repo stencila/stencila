@@ -92,26 +92,28 @@ impl Project {
     const FILE_NAME: &'static str = "project.json";
 
     /// Get the path to a projects' manifest file
-    fn file(folder: &str) -> PathBuf {
-        Path::new(folder).join(Project::FILE_NAME)
+    fn file<P: AsRef<Path>>(folder: P) -> PathBuf {
+        folder.as_ref().join(Project::FILE_NAME)
     }
 
     /// Read a project's manifest file
     ///
     /// If there is no manifest file, then return a default project
-    fn read(folder: &str) -> Result<Project> {
-        if !Path::new(folder).exists() {
-            bail!("Project folder does not exist: {}", folder)
+    fn read<P: AsRef<Path>>(folder: P) -> Result<Project> {
+        let folder = folder.as_ref().canonicalize()?;
+
+        if !folder.exists() {
+            bail!("Project folder does not exist: {}", folder.display())
         }
 
-        let file = Project::file(folder);
+        let file = Project::file(&folder);
         let mut project = if file.exists() {
             let json = fs::read_to_string(file)?;
             serde_json::from_str(&json)?
         } else {
             Project::default()
         };
-        project.path = Path::new(folder).canonicalize()?;
+        project.path = folder;
 
         Ok(project)
     }
@@ -119,8 +121,8 @@ impl Project {
     /// Write a project's manifest file
     ///
     /// If the project folder does not exist yet then it will be created
-    pub fn write(folder: &str, project: &Project) -> Result<()> {
-        fs::create_dir_all(folder)?;
+    pub fn write<P: AsRef<Path>>(folder: P, project: &Project) -> Result<()> {
+        fs::create_dir_all(&folder)?;
 
         let file = Project::file(folder);
         let json = serde_json::to_string_pretty(project)?;
@@ -133,8 +135,8 @@ impl Project {
     ///
     /// If the project has already been initialized (i.e. has a manifest file)
     /// then this function will do nothing.
-    pub fn init(folder: &str) -> Result<()> {
-        if Project::file(folder).exists() {
+    pub fn init<P: AsRef<Path>>(folder: P) -> Result<()> {
+        if Project::file(&folder).exists() {
             return Ok(());
         }
 
@@ -146,7 +148,12 @@ impl Project {
 
     /// Load a project including creating default values for properties
     /// where necessary
-    pub fn open(folder: &str, config: &config::ProjectsConfig, watch: bool) -> Result<Project> {
+    pub fn open<P: AsRef<Path>>(
+        folder: P,
+        config: &config::ProjectsConfig,
+        watch: bool,
+    ) -> Result<Project> {
+        let folder = folder.as_ref();
         let mut project = Project::read(folder)?;
 
         // Watch exclude patterns default to the configured defaults
@@ -163,12 +170,10 @@ impl Project {
         project.main_path = project.resolve_main_path(&config.main_patterns);
 
         // Name defaults to the name of the folder
-        project.name = project
-            .name
-            .or_else(|| match Path::new(folder).components().last() {
-                Some(last) => Some(last.as_os_str().to_string_lossy().to_string()),
-                None => Some("Unnamed".to_string()),
-            });
+        project.name = project.name.or_else(|| match folder.components().last() {
+            Some(last) => Some(last.as_os_str().to_string_lossy().to_string()),
+            None => Some("Unnamed".to_string()),
+        });
 
         // Theme defaults to the configured default
         project.theme = project.theme.or_else(|| Some(config.theme.clone()));
@@ -249,17 +254,12 @@ impl Project {
 #[serde(default)]
 pub struct Projects {
     /// The projects, stored by absolute path
-    pub registry: HashMap<String, Project>,
+    pub registry: HashMap<PathBuf, Project>,
 }
 
 impl Projects {
     pub fn new() -> Self {
         Self::default()
-    }
-
-    /// Get the canonical absolute path of a project folder
-    fn path(folder: &str) -> Result<String> {
-        Ok(Path::new(folder).canonicalize()?.display().to_string())
     }
 
     /// List documents that are currently open
@@ -285,14 +285,13 @@ impl Projects {
     /// This function `loads` a project, stores it, optionally watches the project folder,
     /// updates the project on changes and publishes the updates on the "project"
     /// pubsub topic channel.
-    pub fn open(
+    pub fn open<P: AsRef<Path>>(
         &mut self,
-        folder: &str,
+        folder: P,
         config: &config::ProjectsConfig,
         watch: bool,
     ) -> Result<Project> {
-        let path = Projects::path(folder)?;
-
+        let path = folder.as_ref().canonicalize()?;
         let project = match self.registry.entry(path) {
             Entry::Occupied(entry) => entry.into_mut(),
             Entry::Vacant(entry) => match Project::open(folder, config, watch) {
@@ -304,8 +303,8 @@ impl Projects {
     }
 
     /// Close a project
-    pub fn close(&mut self, folder: &str) -> Result<()> {
-        let path = Projects::path(folder)?;
+    pub fn close<P: AsRef<Path>>(&mut self, folder: P) -> Result<()> {
+        let path = folder.as_ref().canonicalize()?;
         self.registry.remove(&path);
         Ok(())
     }
@@ -420,7 +419,7 @@ pub mod cli {
         /// If no `project.json` file exists in the folder then a new one
         /// will be created.
         #[structopt(default_value = ".")]
-        pub folder: String,
+        pub folder: PathBuf,
     }
 
     impl Init {
@@ -454,7 +453,7 @@ pub mod cli {
     pub struct Open {
         /// The path of the project folder
         #[structopt(default_value = ".")]
-        pub folder: String,
+        pub folder: PathBuf,
     }
 
     impl Open {
@@ -478,7 +477,7 @@ pub mod cli {
     pub struct Close {
         /// The path of the project folder
         #[structopt(default_value = ".")]
-        pub folder: String,
+        pub folder: PathBuf,
     }
 
     impl Close {
@@ -498,7 +497,7 @@ pub mod cli {
     pub struct Show {
         /// The path of the project folder
         #[structopt(default_value = ".")]
-        pub folder: String,
+        pub folder: PathBuf,
     }
 
     impl Show {

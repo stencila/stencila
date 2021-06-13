@@ -588,8 +588,12 @@ pub struct Files {
 
 impl Files {
     /// Load files from a folder
-    pub fn load(folder: &str, watch: bool, watch_exclude_patterns: Vec<String>) -> Result<Files> {
-        let path = Path::new(folder).canonicalize()?;
+    pub fn load<P: AsRef<Path>>(
+        folder: P,
+        watch: bool,
+        watch_exclude_patterns: Vec<String>,
+    ) -> Result<Files> {
+        let path = folder.as_ref().canonicalize()?;
 
         // Create a registry of the files
         let registry = Arc::new(Mutex::new(FileRegistry::new(&path)));

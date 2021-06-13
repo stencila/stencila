@@ -1,6 +1,6 @@
 #![recursion_limit = "256"]
 
-use std::{collections::HashMap, env, path::Path};
+use std::{collections::HashMap, env, path::PathBuf};
 use stencila::{
     cli::display,
     config, documents,
@@ -74,8 +74,8 @@ pub enum Command {
     // or the `documents` module (depending upon if path is a folder or file),
     // or combine results from both in the case of `List`.
     List(ListCommand),
-    //Open(OpenCommand),
-    //Close(CloseCommand),
+    Open(OpenCommand),
+    Close(CloseCommand),
     //Show(ShowCommand),
     #[structopt(aliases = &["project"])]
     Projects(projects::cli::Command),
@@ -104,8 +104,8 @@ pub async fn run_command(
 ) -> Result<()> {
     let result = match command {
         Command::List(command) => command.run(projects, documents).await,
-        //Command::Open(command) => command.run(projects, documents, config).await,
-        //Command::Close(command) => command.run(projects, documents, config).await,
+        Command::Open(command) => command.run(projects, documents, config).await,
+        Command::Close(command) => command.run(projects, documents).await,
         //Command::Show(command) => command.run(projects, documents, config).await,
         Command::Documents(command) => command.run(documents).await,
         Command::Projects(command) => command.run(projects, &config.projects),
@@ -137,11 +137,11 @@ impl ListCommand {
     }
 }
 
-/// Open a project or document using Stencila Desktop or a web browser
+/// Open a project or document using a web browser
 ///
-/// If the path is a directory, then Stencila will attempt to
-/// open it's main document. If the path a file, then Stencila
-/// will open it as an orphan document (i.e. not associated with any project).
+/// If the path a file, it will be opened as a document.
+/// If the path a folder, it will be opened as a project and it's main file
+/// (if any) opened.
 ///
 /// In the future, this command will open the project/document
 /// in the Stencila Desktop if that is available.
@@ -151,9 +151,9 @@ impl ListCommand {
     setting = structopt::clap::AppSettings::ColoredHelp,
 )]
 pub struct OpenCommand {
-    /// The file or directory to open
+    /// The file or folder to open
     #[structopt(default_value = ".")]
-    path: String,
+    path: PathBuf,
 }
 
 impl OpenCommand {
@@ -162,10 +162,10 @@ impl OpenCommand {
         projects: &mut projects::Projects,
         documents: &mut documents::Documents,
         config: &config::Config,
-    ) -> Result<()> {
+    ) -> display::Result {
         let Self { path } = self;
 
-        let doc_path = if Path::new(&path.clone()).is_dir() {
+        let doc_path = if path.is_dir() {
             let project = projects.open(&path, &config.projects, true)?;
             project.main_path
         } else {
@@ -190,7 +190,44 @@ impl OpenCommand {
 
         // Open browser at the login page and start serving
         webbrowser::open(login_url.as_str())?;
-        serve::serve(documents, None, Some(key)).await
+        serve::serve(documents, None, Some(key)).await?;
+
+        display::nothing()
+    }
+}
+
+/// Close a project or document
+///
+/// If the path a file, the associated open document (if any) will be closed.
+/// If the path a folder, the associated project (if any) will be closed.
+/// Closing a document or project just means that it is unloaded from memory
+/// and the file or folder is not longer watched for changes.
+#[derive(Debug, StructOpt)]
+#[structopt(
+    setting = structopt::clap::AppSettings::NoBinaryName,
+    setting = structopt::clap::AppSettings::ColoredHelp,
+)]
+pub struct CloseCommand {
+    /// The file or folder to close
+    #[structopt(default_value = ".")]
+    path: PathBuf,
+}
+
+impl CloseCommand {
+    pub async fn run(
+        self,
+        projects: &mut projects::Projects,
+        documents: &mut documents::Documents,
+    ) -> display::Result {
+        let Self { path } = self;
+
+        if path.is_dir() {
+            projects.close(&path)?;
+        } else {
+            documents.close(&path).await?;
+        }
+
+        display::nothing()
     }
 }
 
