@@ -76,7 +76,7 @@ pub enum Command {
     List(ListCommand),
     Open(OpenCommand),
     Close(CloseCommand),
-    //Show(ShowCommand),
+    Show(ShowCommand),
     #[structopt(aliases = &["project"])]
     Projects(projects::cli::Command),
 
@@ -106,7 +106,7 @@ pub async fn run_command(
         Command::List(command) => command.run(projects, documents).await,
         Command::Open(command) => command.run(projects, documents, config).await,
         Command::Close(command) => command.run(projects, documents).await,
-        //Command::Show(command) => command.run(projects, documents, config).await,
+        Command::Show(command) => command.run(projects, documents, config).await,
         Command::Documents(command) => command.run(documents).await,
         Command::Projects(command) => command.run(projects, &config.projects),
         Command::Plugins(command) => plugins::cli::run(command, &config.plugins).await,
@@ -139,8 +139,8 @@ impl ListCommand {
 
 /// Open a project or document using a web browser
 ///
-/// If the path a file, it will be opened as a document.
-/// If the path a folder, it will be opened as a project and it's main file
+/// If the path is a file, it will be opened as a document.
+/// If the path is a folder, it will be opened as a project and it's main file
 /// (if any) opened.
 ///
 /// In the future, this command will open the project/document
@@ -198,8 +198,8 @@ impl OpenCommand {
 
 /// Close a project or document
 ///
-/// If the path a file, the associated open document (if any) will be closed.
-/// If the path a folder, the associated project (if any) will be closed.
+/// If the path is a file, the associated open document (if any) will be closed.
+/// If the path is a folder, the associated project (if any) will be closed.
 /// Closing a document or project just means that it is unloaded from memory
 /// and the file or folder is not longer watched for changes.
 #[derive(Debug, StructOpt)]
@@ -228,6 +228,38 @@ impl CloseCommand {
         }
 
         display::nothing()
+    }
+}
+
+/// Show a project or document
+///
+/// If the path is a file, it will be opened as a document and displayed.
+/// If the path is a folder, it will be opened as a project and displayed.
+#[derive(Debug, StructOpt)]
+#[structopt(
+    setting = structopt::clap::AppSettings::NoBinaryName,
+    setting = structopt::clap::AppSettings::ColoredHelp,
+)]
+pub struct ShowCommand {
+    /// The file or folder to close
+    #[structopt(default_value = ".")]
+    path: PathBuf,
+}
+
+impl ShowCommand {
+    pub async fn run(
+        self,
+        projects: &mut projects::Projects,
+        documents: &mut documents::Documents,
+        config: &config::Config,
+    ) -> display::Result {
+        let Self { path } = self;
+
+        if path.is_dir() {
+            display::value(projects.open(&path, &config.projects, true)?)
+        } else {
+            display::value(documents.open(&path, None).await?)
+        }
     }
 }
 

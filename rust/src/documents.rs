@@ -963,7 +963,7 @@ pub mod cli {
 
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "List open documents >",
+        about = "List open documents",
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct List {}
@@ -977,7 +977,7 @@ pub mod cli {
 
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Open a document >",
+        about = "Open a document",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
@@ -997,7 +997,7 @@ pub mod cli {
 
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Close a document >",
+        about = "Close a document",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
