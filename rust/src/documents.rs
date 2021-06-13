@@ -804,6 +804,7 @@ impl Documents {
         Ok(paths)
     }
 
+    /// Create a new empty document
     pub fn create(&mut self, format: Option<String>) -> Result<Document> {
         let document = Document::new(format);
         let handler = DocumentHandler::new(document.clone(), false);
@@ -811,8 +812,21 @@ impl Documents {
         Ok(document)
     }
 
-    pub async fn open(&mut self, path: &str, format: Option<String>) -> Result<Document> {
-        let path = Path::new(path).canonicalize()?;
+    /// Open a document
+    ///
+    /// # Arguments
+    ///
+    /// - `path`: The path of the document to open
+    /// - `format`: The format to open the document as (inferred from filename extension if not supplied)
+    ///
+    /// If the document has already been opened, it will not be re-opened, but rather the existing
+    /// in-memory instance will be returned.
+    pub async fn open<P: AsRef<Path>>(
+        &mut self,
+        path: P,
+        format: Option<String>,
+    ) -> Result<Document> {
+        let path = Path::new(path.as_ref()).canonicalize()?;
 
         for handler in self.registry.values() {
             let document = handler.document.lock().await;
@@ -825,6 +839,37 @@ impl Documents {
         let handler = DocumentHandler::new(document.clone(), true);
         self.registry.insert(document.id.clone(), handler);
         Ok(document)
+    }
+
+    /// Close a document
+    ///
+    /// # Arguments
+    ///
+    /// - `id_or_path`: The id or path of the document to close
+    ///
+    /// If `id_or_path` matches an existing document `id` then that document will
+    /// be closed. Otherwise a search will be done and the first document with a matching
+    /// path will be closed.
+    pub async fn close<P: AsRef<Path>>(&mut self, id_or_path: P) -> Result<()> {
+        let id_or_path_path = id_or_path.as_ref();
+        let id_or_path_string = id_or_path_path.to_string_lossy().to_string();
+        let mut id_to_remove = String::new();
+
+        if self.registry.contains_key(&id_or_path_string) {
+            id_to_remove = id_or_path_string
+        } else {
+            let path = id_or_path_path.canonicalize()?;
+            for (id, handler) in &self.registry {
+                let document = handler.document.lock().await;
+                if document.path == path {
+                    id_to_remove = document.id.clone();
+                    break
+                }
+            }
+        };
+        self.registry.remove(&id_to_remove);
+
+        Ok(())
     }
 
     pub fn get(&mut self, id: &str) -> Result<Arc<Mutex<Document>>> {
@@ -857,11 +902,6 @@ impl Documents {
 
     pub async fn unsubscribe(&mut self, id: &str, topic: &str) -> Result<()> {
         self.get(&id)?.lock().await.unsubscribe(topic)
-    }
-
-    pub fn close(&mut self, id: &str) -> Result<()> {
-        self.registry.remove(id);
-        Ok(())
     }
 }
 
@@ -912,7 +952,7 @@ pub mod cli {
             match action {
                 Action::List(action) => action.run(documents).await,
                 Action::Open(action) => action.run(documents).await,
-                Action::Close(action) => action.run(documents),
+                Action::Close(action) => action.run(documents).await,
                 Action::Show(action) => action.run(documents).await,
                 Action::Query(action) => action.run(documents).await,
                 Action::Convert(action) => action.run(documents).await,
@@ -968,9 +1008,9 @@ pub mod cli {
     }
 
     impl Close {
-        pub fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(&self, documents: &mut Documents) -> display::Result {
             let Self { file } = self;
-            documents.close(file)?;
+            documents.close(file).await?;
             display::nothing()
         }
     }

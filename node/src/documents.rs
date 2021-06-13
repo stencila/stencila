@@ -139,8 +139,6 @@ pub fn unsubscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 pub fn close(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.close(id) {
-        Ok(_) => Ok(cx.undefined()),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
+    let result = RUNTIME.block_on(async { documents.close(id).await });
+    to_undefined_or_throw(cx, result)
 }
