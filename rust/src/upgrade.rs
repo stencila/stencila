@@ -258,7 +258,7 @@ mod tests {
             &config,
         )
         .await?;
-    
+
         Ok(())
     }
 

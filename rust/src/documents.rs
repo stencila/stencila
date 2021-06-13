@@ -859,11 +859,11 @@ impl Documents {
             id_to_remove = id_or_path_string
         } else {
             let path = id_or_path_path.canonicalize()?;
-            for (id, handler) in &self.registry {
+            for (_id, handler) in &self.registry {
                 let document = handler.document.lock().await;
                 if document.path == path {
                     id_to_remove = document.id.clone();
-                    break
+                    break;
                 }
             }
         };
