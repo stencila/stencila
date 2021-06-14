@@ -330,18 +330,18 @@ export interface Config {
      */
     cli?: {
       /**
-       * Whether to send error reports to Sentry. Default is false.
+       * Whether to send error reports. Default is false.
        */
-      sentry?: boolean
+      error_reports?: boolean
     }
     /**
      * Telemetry settings for Stencila Desktop
      */
     desktop?: {
       /**
-       * Whether to send error reports to Sentry. Default is false.
+       * Whether to send error reports. Default is false.
        */
-      sentry?: boolean
+      error_reports?: boolean
     }
   }
   /**

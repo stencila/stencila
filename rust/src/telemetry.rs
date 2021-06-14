@@ -16,9 +16,9 @@ pub mod config {
     #[serde(default)]
     #[schemars(deny_unknown_fields)]
     pub struct TelemetryCLIConfig {
-        /// Whether to send error reports to Sentry. Default is false.
+        /// Whether to send error reports. Default is false.
         #[def = "false"]
-        pub sentry: bool,
+        pub error_reports: bool,
     }
 
     /// Telemetry settings for Stencila Desktop
@@ -26,9 +26,9 @@ pub mod config {
     #[serde(default)]
     #[schemars(deny_unknown_fields)]
     pub struct TelemetryDesktopConfig {
-        /// Whether to send error reports to Sentry. Default is false.
+        /// Whether to send error reports. Default is false.
         #[def = "false"]
-        pub sentry: bool,
+        pub error_reports: bool,
     }
 
     /// Telemetry
