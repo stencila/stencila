@@ -1,13 +1,14 @@
 use crate::{
     documents::Documents,
     jwt,
-    methods::encode_html,
     rpc::{Error, Protocol, Request, Response},
     utils::urls,
 };
 use eyre::{bail, Result};
 use futures::{FutureExt, StreamExt};
 use jwt::JwtError;
+use once_cell::sync::Lazy;
+use regex::{Captures, Regex};
 use reqwest::{header::HeaderValue, StatusCode};
 use rust_embed::RustEmbed;
 use serde::Deserialize;
@@ -185,14 +186,14 @@ pub async fn serve_on(
         }
         Protocol::Http | Protocol::Ws => {
             let statics = warp::get()
-                .and(warp::path("static"))
+                .and(warp::path("~static"))
                 .and(warp::path::tail())
                 .and_then(get_static);
 
             let key_clone = key.clone();
 
             let login = warp::get()
-                .and(warp::path("login"))
+                .and(warp::path("~login"))
                 .map(move || key_clone.clone())
                 .and(warp::query::<LoginParams>())
                 .map(login_handler);
@@ -205,6 +206,12 @@ pub async fn serve_on(
             {
                 warp::any().map(move || documents.clone())
             }
+
+            let local = warp::get()
+                .and(warp::path("~local"))
+                .and(warp::path::tail())
+                .and(authorize())
+                .and_then(get_local);
 
             let get = warp::get()
                 .and(with_documents(documents))
@@ -240,6 +247,7 @@ pub async fn serve_on(
 
             let routes = login
                 .or(statics)
+                .or(local)
                 .or(get)
                 .or(post)
                 .or(post_wrap)
@@ -318,7 +326,7 @@ pub fn login_url(key: &str, expiry_seconds: Option<i64>, next: Option<String>) -
     let token = jwt::encode(key.to_string(), expiry_seconds)?;
     let next = next.unwrap_or_else(|| "/".to_string());
     Ok(format!(
-        "http://127.0.0.1:9000/login?token={}&next={}",
+        "http://127.0.0.1:9000/~login?token={}&next={}",
         token, next
     ))
 }
@@ -361,7 +369,7 @@ struct LoginParams {
     pub next: Option<String>,
 }
 
-/// Handle a HTTP `GET /login` request
+/// Handle a HTTP `GET /~login` request
 ///
 /// This view is intended for humans so it returns HTML responses telling the
 /// human if something failed with the login and what to do about it. Otherwise,
@@ -416,19 +424,39 @@ fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Respo
     }
 }
 
-/// Handle a HTTP `GET` request to a `/local/` path
+/// Handle a HTTP `GET` request to a `/~local/` path
 async fn get_local(
     path: warp::path::Tail,
     _claims: jwt::Claims,
-) -> Result<warp::reply::Response, warp::Rejection> {
+) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    let asset = match std::fs::read(path) {
-        Ok(asset) => asset,
-        Err(_) => return Err(warp::reject::not_found()),
+
+    let cwd = std::env::current_dir().expect("Unable to get current working directory");
+
+    let path = match cwd.join(path).canonicalize() {
+        Ok(path) => path,
+        Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
+    };
+
+    if path.strip_prefix(&cwd).is_err() {
+        return error_response(
+            StatusCode::FORBIDDEN,
+            "Requested path is outside of current working directory",
+        );
+    }
+
+    let content = match std::fs::read(&path) {
+        Ok(content) => content,
+        Err(error) => {
+            return error_response(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                &format!("When reading file: {}", error),
+            )
+        }
     };
     let mime = mime_guess::from_path(path).first_or_octet_stream();
 
-    let mut response = warp::reply::Response::new(asset.into());
+    let mut response = warp::reply::Response::new(content.into());
     response.headers_mut().insert(
         "content-type",
         warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
@@ -472,7 +500,7 @@ async fn get_handler(
         Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
     };
 
-    if path.strip_prefix(cwd).is_err() {
+    if path.strip_prefix(&cwd).is_err() {
         return error_response(
             StatusCode::FORBIDDEN,
             "Requested path is outside of current working directory",
@@ -496,7 +524,7 @@ async fn get_handler(
             };
 
             let content = match format.as_str() {
-                "html" => encode_html_standalone(&content, &theme),
+                "html" => rewrite_html(&content, &theme, &cwd),
                 _ => content,
             };
 
@@ -518,7 +546,25 @@ async fn get_handler(
     }
 }
 
-pub fn encode_html_standalone(body: &str, theme: &str) -> String {
+pub fn rewrite_html(body: &str, theme: &str, cwd: &Path) -> String {
+    static REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r#""file://(.*?)""#).expect("Unable to create regex"));
+    let body = REGEX.replace_all(body, |captures: &Captures| {
+        let path = match captures.get(1) {
+            Some(matc) => matc.as_str(),
+            None => return r#""""#.to_string(),
+        };
+        let path = match Path::new(path).canonicalize() {
+            Ok(path) => path,
+            Err(_) => return r#""""#.to_string(),
+        };
+        match path.strip_prefix(cwd) {
+            // TODO: Add a HMAC here
+            Ok(path) => format!("/~local/{}", path.display().to_string()),
+            Err(_) => return r#""""#.to_string(),
+        }
+    });
+
     format!(
         r#"<!DOCTYPE html>
 <html lang="en">
