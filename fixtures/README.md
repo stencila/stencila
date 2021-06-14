@@ -11,6 +11,7 @@ The [`articles`](articles) folder contains [`Article`](https://schema.stenci.la/
 - [`elife-small.json`](articles/elife-small.json): A smallish eLife article useful for things like visual regression tests
 - [`elife-mid.json`](articles/elife-mid.json): A mid-sized eLife article with several figures and tables
 - [`era-plotly.json`](articles/era-plotly.json): An executable research article, written as a Jupyter Notebook, with Plotly code chunk outputs
+- [simple.tex](articles/simple.tex): A simple LaTeX article
 
 Run `make -C articles` to update the article fixtures.
 
