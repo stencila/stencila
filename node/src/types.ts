@@ -359,6 +359,29 @@ export interface Config {
     }
   }
   /**
+   * Configuration settings for telemetry
+   */
+  telemetry?: {
+    /**
+     * Telemetry settings for Stencila CLI
+     */
+    cli?: {
+      /**
+       * Whether to send error reports. Default is false.
+       */
+      error_reports?: boolean
+    }
+    /**
+     * Telemetry settings for Stencila Desktop
+     */
+    desktop?: {
+      /**
+       * Whether to send error reports. Default is false.
+       */
+      error_reports?: boolean
+    }
+  }
+  /**
    * Configuration settings for running as a server
    */
   serve?: {

@@ -62,11 +62,12 @@ pub mod jwt;
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod rpc;
 
-// Internal messaging
+// Internal messaging etc
 
 pub mod errors;
 pub mod logging;
 pub mod pubsub;
+pub mod telemetry;
 
 // Utilities
 //
