@@ -206,19 +206,21 @@ impl ToHtml for String {
 }
 
 impl ToHtml for Vec<Primitive> {
-    fn to_html(&self, _context: &Context) -> String {
+    fn to_html(&self, context: &Context) -> String {
+        let json = serde_json::to_string(self).unwrap_or_else(|_| "".into());
         format!(
-            r#"<span itemtype="http://schema.stenci.la/Array">{content}</span>"#,
-            content = serde_json::to_string(self).unwrap_or_else(|_| "".into())
+            r#"<code itemtype="http://schema.stenci.la/Array">{content}</code>"#,
+            content = json.to_html(context) // Ensure string is escaped
         )
     }
 }
 
 impl ToHtml for BTreeMap<String, Primitive> {
-    fn to_html(&self, _context: &Context) -> String {
+    fn to_html(&self, context: &Context) -> String {
+        let json = serde_json::to_string(self).unwrap_or_else(|_| "".into());
         format!(
-            r#"<span itemtype="http://schema.stenci.la/Object">{content}</span>"#,
-            content = serde_json::to_string(self).unwrap_or_else(|_| "".into())
+            r#"<code itemtype="http://schema.stenci.la/Object">{content}</code>"#,
+            content = json.to_html(context) // Ensure string is escaped
         )
     }
 }
