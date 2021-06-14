@@ -8,9 +8,9 @@ Be careful when changing files since that will probably break tests that rely up
 
 The [`articles`](articles) folder contains [`Article`](https://schema.stenci.la/Article) JSON documents having varying characteristics e.g.
 
-- [`elife-small.json`](projects/elife-small.json): A smallish eLife article useful for things like visual regression tests
-- [`elife-mid.json`](projects/elife-mid.json): A mid-sized eLife article with several figures and tables
-- [`era-plotly.json`](projects/era-plotly.json): An executable research article, written as a Jupyter Notebook, with Plotly code chunk outputs
+- [`elife-small.json`](articles/elife-small.json): A smallish eLife article useful for things like visual regression tests
+- [`elife-mid.json`](articles/elife-mid.json): A mid-sized eLife article with several figures and tables
+- [`era-plotly.json`](articles/era-plotly.json): An executable research article, written as a Jupyter Notebook, with Plotly code chunk outputs
 
 Run `make -C articles` to update the article fixtures.
 
