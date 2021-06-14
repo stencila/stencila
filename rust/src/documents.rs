@@ -48,15 +48,21 @@ struct DocumentEvent {
     /// and `encoded` events.
     content: Option<String>,
 
-    /// The format of the document, only provided for, `modified` (the format
+    /// The format of the document, only provided for `modified` (the format
     /// of the document) and `encoded` events (the format of the encoding).
-    format: Option<String>,
+    #[schemars(schema_with = "DocumentEvent::schema_format")]
+    format: Option<Format>,
 }
 
 impl DocumentEvent {
     /// Generate the JSON Schema for the `document` property to avoid nesting
     fn schema_document(_generator: &mut SchemaGenerator) -> Schema {
         schemas::typescript("Document", true)
+    }
+
+    /// Generate the JSON Schema for the `format` property to avoid nesting
+    fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("Format", false)
     }
 }
 
@@ -466,8 +472,15 @@ impl Document {
 
     /// Publish a `DocumentEvent` for this document
     fn publish(&self, type_: DocumentEventType, content: Option<String>, format: Option<String>) {
+        let format = format.map(|name| FORMATS.match_name(&name));
+
         let topic = match type_ {
-            DocumentEventType::Encoded => format!("encoded:{}", format.clone().unwrap_or_default()),
+            DocumentEventType::Encoded => format!(
+                "encoded:{}",
+                format
+                    .clone()
+                    .map_or_else(|| "undef".to_string(), |format| format.name)
+            ),
             _ => type_.to_string(),
         };
         let topic = format!("documents:{}:{}", self.id, topic);
