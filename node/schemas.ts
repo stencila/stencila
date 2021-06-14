@@ -18,6 +18,7 @@ const addon = require('./index.node')
 
 ;(async () => {
   const schemas = [
+    'formatsSchemas',
     'documentsSchemas',
     'projectsSchemas',
     'pluginsSchema',
@@ -64,13 +65,13 @@ const addon = require('./index.node')
     )
   ).join('\n')
 
-  // Document formats, ordered by key to avoid big diffs each time regenerated
-  const unordered = JSON.parse(addon.documentsFormats())
+  // File formats, ordered by key to avoid big diffs each time they are regenerated
+  const unordered = JSON.parse(addon.formatsFormats())
   const formats = Object.keys(unordered)
     .sort()
     .reduce((prev, key) => ({ ...prev, [key]: unordered[key] }), {})
   const json = JSON.stringify(formats, null, '  ')
-  ts += `\nexport const DOCUMENT_FORMATS: Record<string, DocumentFormat> = ${json}\n`
+  ts += `\nexport const FORMATS: Record<string, Format> = ${json}\n`
 
   fs.writeFileSync(path.join(__dirname, 'src', 'types.ts'), ts)
 })()
