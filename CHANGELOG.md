@@ -1,3 +1,24 @@
+# [0.81.0](https://github.com/stencila/stencila/compare/v0.80.1...v0.81.0) (2021-06-14)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate ignore to 0.4.18 ([7cde18c](https://github.com/stencila/stencila/commit/7cde18c3a3275e54b500049b7e25c26160c2097a))
+* **dependencies:** update rust crate linya to 0.2.1 ([a99911f](https://github.com/stencila/stencila/commit/a99911f5687e822e9c34817946d1bf4790bf6ab1))
+* **dependencies:** update rust crate once_cell to 1.8.0 ([6ecafdb](https://github.com/stencila/stencila/commit/6ecafdb75f904b48f5c5e9ede92b2be7b4f380b7))
+* **dependencies:** update rust crate serde_with to 1.9.2 ([7e805c7](https://github.com/stencila/stencila/commit/7e805c7428650b9e8df179e685d32301a99c447d))
+* **HTML:** Escape strings ([e17d0a3](https://github.com/stencila/stencila/commit/e17d0a394a09fe5c4d99d46c9746a7b757c8807c))
+* **HTML:** Remove backslash from Cite ([024eaf3](https://github.com/stencila/stencila/commit/024eaf3d1ded21f206e882d86985f0c379f38a47))
+* **Open:** Open project or document in browser ([705c8d8](https://github.com/stencila/stencila/commit/705c8d8641f56c5b07cb847ef86b20e0baed6feb))
+* **Serve:** Serve local assets ([70a95ff](https://github.com/stencila/stencila/commit/70a95ff3770e2c47d490ab5632a45802baeeefac))
+
+
+### Features
+
+* **CLI:** Add close command ([1aa4365](https://github.com/stencila/stencila/commit/1aa43653d9d44fe0ae9c8db2c7edc0d6daa77c90))
+* **CLI:** Add show command ([7507118](https://github.com/stencila/stencila/commit/75071186220cc8e7238725477dcce7779c7584c4))
+* **Rust:** Allow a document to be closed by path ([b6e6819](https://github.com/stencila/stencila/commit/b6e6819a11de26f15dd6b6601c7fc7cd861485be))
+
 ## [0.80.1](https://github.com/stencila/stencila/compare/v0.80.0...v0.80.1) (2021-06-11)
 
 
