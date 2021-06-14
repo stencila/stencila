@@ -1,6 +1,6 @@
 #![recursion_limit = "256"]
 
-use std::{collections::HashMap, env, path::PathBuf};
+use std::{collections::HashMap, path::PathBuf};
 use stencila::{
     cli::display,
     config, documents,
@@ -91,20 +91,26 @@ pub enum Command {
 
     Upgrade(upgrade::cli::Args),
 }
+#[derive(Debug)]
+pub struct Context {
+    interactive: bool,
+
+    serving: bool,
+}
 
 /// Run a command
 #[tracing::instrument(skip(documents, projects, config))]
 pub async fn run_command(
-    interactive: bool,
     command: Command,
     formats: &[String],
+    context: &mut Context,
     documents: &mut documents::Documents,
     projects: &mut projects::Projects,
     config: &mut config::Config,
 ) -> Result<()> {
     let result = match command {
         Command::List(command) => command.run(projects, documents).await,
-        Command::Open(command) => command.run(projects, documents, config).await,
+        Command::Open(command) => command.run(context, projects, documents, config).await,
         Command::Close(command) => command.run(projects, documents).await,
         Command::Show(command) => command.run(projects, documents, config).await,
         Command::Documents(command) => command.run(documents).await,
@@ -113,7 +119,7 @@ pub async fn run_command(
         Command::Config(command) => config::cli::run(command, config),
         Command::Upgrade(command) => upgrade::cli::run(command, &config.upgrade).await,
     };
-    render::render(interactive, formats, result?)
+    render::render(context.interactive, formats, result?)
 }
 
 /// List all open project and documents.
@@ -143,7 +149,7 @@ impl ListCommand {
 /// If the path is a folder, it will be opened as a project and it's main file
 /// (if any) opened.
 ///
-/// In the future, this command will open the project/document
+/// In the future this command will open the project/document
 /// in the Stencila Desktop if that is available.
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -154,43 +160,66 @@ pub struct OpenCommand {
     /// The file or folder to open
     #[structopt(default_value = ".")]
     path: PathBuf,
+
+    /// The theme to use to view the document
+    #[structopt(short, long)]
+    theme: Option<String>,
 }
 
 impl OpenCommand {
     pub async fn run(
         self,
+        context: &mut Context,
         projects: &mut projects::Projects,
         documents: &mut documents::Documents,
         config: &config::Config,
     ) -> display::Result {
-        let Self { path } = self;
+        let Self { path, theme } = self;
 
-        let doc_path = if path.is_dir() {
+        let path = if path.is_dir() {
             let project = projects.open(&path, &config.projects, true)?;
-            project.main_path
+            match project.main_path {
+                Some(path) => path,
+                None => {
+                    tracing::info!("Project has no main project to display");
+                    return display::nothing();
+                }
+            }
         } else {
             let document = documents.open(&path, None).await?;
-            Some(document.path)
+            document.path
         };
 
-        let doc_path = if let Some(path) = doc_path {
-            let rel_path = path.strip_prefix(env::current_dir()?)?.to_path_buf();
-            Some(rel_path)
+        // Assert that the path is inside the current working directory and
+        // strip that prefix (the `cwd` is prefixed when serving and path traversal checked for again)
+        let path = match path.strip_prefix(std::env::current_dir()?) {
+            Ok(path) => path.display().to_string(),
+            Err(_) => bail!("For security reasons it is only possible to open documents that are nested within the current working directory.")
+        };
+
+        // Append the theme query parameter if set
+        let path = if let Some(theme) = theme {
+            format!("{path}?theme={theme}", path = path, theme = theme.to_ascii_lowercase())
         } else {
-            None
+            path
         };
 
-        // Generate a key and a login URL
+        // Generate a key and a corresponding login URL and open browser at the login page (will
+        // redirect to document page).
         let key = serve::generate_key();
-        let login_url = serve::login_url(
-            &key,
-            Some(60),
-            doc_path.map(|path| path.display().to_string()),
-        )?;
-
-        // Open browser at the login page and start serving
+        let login_url = serve::login_url(&key, Some(60), Some(path))?;
         webbrowser::open(login_url.as_str())?;
-        serve::serve(documents, None, Some(key)).await?;
+
+        // If not yet serving, serve in the background, or in the current thread,
+        // depending upon mode.
+        if !context.serving {
+            context.serving = true;
+            if context.interactive {
+                serve::serve_background(documents, None, Some(key))?
+            } else {
+                serve::serve(documents, None, Some(key)).await?;
+            }
+        }
 
         display::nothing()
     }
@@ -371,12 +400,18 @@ pub async fn main() -> Result<()> {
         None => vec!["md".to_string(), "yaml".to_string(), "json".to_string()],
     };
 
+    // Create the CLI context to pass down
+    let mut context = Context {
+        interactive: command.is_none(),
+        serving: false,
+    };
+
     // Get the result of running the command
     let result = if let Some(command) = command {
         run_command(
-            false,
             command,
             &formats,
+            &mut context,
             &mut documents,
             &mut projects,
             &mut config,
@@ -392,7 +427,15 @@ pub async fn main() -> Result<()> {
                 // Remove the global args which can not be applied to each interactive line
                 .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
                 .collect();
-            interact::run(prefix, &formats, &mut documents, &mut projects, &mut config).await
+            interact::run(
+                prefix,
+                &formats,
+                &mut context,
+                &mut documents,
+                &mut projects,
+                &mut config,
+            )
+            .await
         }
         #[cfg(not(feature = "interact"))]
         {
@@ -703,6 +746,7 @@ mod interact {
     pub async fn run(
         prefix: Vec<String>,
         formats: &[String],
+        context: &mut Context,
         documents: &mut documents::Documents,
         projects: &mut projects::Projects,
         config: &mut config::Config,
@@ -763,7 +807,7 @@ mod interact {
                             };
 
                             if let Err(error) =
-                                run_command(true, command, &formats, documents, projects, config)
+                                run_command(command, &formats, context, documents, projects, config)
                                     .await
                             {
                                 print_error(error);

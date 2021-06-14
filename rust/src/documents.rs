@@ -664,7 +664,7 @@ pub struct DocumentHandler {
     ///
     /// This should be dropped when the document is closed and
     /// replaced when the document's file is renamed.
-    watcher: Option<(std::sync::mpsc::Sender<DebouncedEvent>, JoinHandle<()>)>,
+    watcher: Option<JoinHandle<()>>,
 }
 
 impl Clone for DocumentHandler {
@@ -679,7 +679,7 @@ impl Clone for DocumentHandler {
 impl Drop for DocumentHandler {
     fn drop(&mut self) {
         match &self.watcher {
-            Some(watcher) => watcher.1.abort(),
+            Some(watcher) => watcher.abort(),
             None => {}
         }
     }
@@ -716,11 +716,7 @@ impl DocumentHandler {
     /// Unfortunately this watcher is unable to recognize renames of the file (because it is only
     /// watching a single file, not a directory). Thus any rename events must be detected and acted
     /// upon at the project level (if any, i.e if the document is part of a project).
-    fn watch(
-        id: String,
-        path: PathBuf,
-        document: Arc<Mutex<Document>>,
-    ) -> (std::sync::mpsc::Sender<DebouncedEvent>, JoinHandle<()>) {
+    fn watch(id: String, path: PathBuf, document: Arc<Mutex<Document>>) -> JoinHandle<()> {
         let (watcher_sender, watcher_receiver) = std::sync::mpsc::channel();
         let (async_sender, mut async_receiver) = tokio::sync::mpsc::channel(100);
 
@@ -770,7 +766,7 @@ impl DocumentHandler {
             }
         });
 
-        (watcher_sender, join_handle)
+        join_handle
     }
 }
 

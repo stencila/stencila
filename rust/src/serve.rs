@@ -1,18 +1,19 @@
 use crate::{
     documents::Documents,
     jwt,
+    methods::encode_html,
     rpc::{Error, Protocol, Request, Response},
     utils::urls,
 };
 use eyre::{bail, Result};
 use futures::{FutureExt, StreamExt};
 use jwt::JwtError;
-use reqwest::StatusCode;
+use reqwest::{header::HeaderValue, StatusCode};
 use rust_embed::RustEmbed;
 use serde::Deserialize;
-use std::sync::Mutex;
-use std::{env, fmt::Debug, sync::Arc};
-use std::{path::Path, str::FromStr};
+use std::str::FromStr;
+use std::{env, fmt::Debug, path::Path, sync::Arc};
+use tokio::sync::Mutex;
 use warp::{Filter, Reply};
 
 /// Serve JSON-RPC requests at a URL
@@ -49,17 +50,6 @@ pub async fn serve(
 
     let documents = Arc::new(Mutex::new(documents.clone()));
     serve_on(documents, Some(protocol), Some(address), port, key).await
-}
-
-/// Run a server in the current thread.
-#[tracing::instrument]
-pub fn serve_blocking(
-    documents: &mut Documents,
-    url: Option<String>,
-    key: Option<String>,
-) -> Result<()> {
-    let runtime = tokio::runtime::Runtime::new()?;
-    runtime.block_on(async { serve(documents, url, key).await })
 }
 
 /// Run a server on another thread.
@@ -112,7 +102,8 @@ struct Static;
 ///
 /// ```
 /// # #![recursion_limit = "256"]
-/// use std::sync::{Arc, Mutex};
+/// use std::sync::Arc;
+/// use tokio::sync::Mutex;
 /// use stencila::documents::Documents;
 /// use stencila::rpc::Protocol;
 /// use stencila::serve::serve_on;
@@ -193,12 +184,17 @@ pub async fn serve_on(
             }
         }
         Protocol::Http | Protocol::Ws => {
+            let statics = warp::get()
+                .and(warp::path("static"))
+                .and(warp::path::tail())
+                .and_then(get_static);
+
             let key_clone = key.clone();
 
             let login = warp::get()
                 .and(warp::path("login"))
+                .map(move || key_clone.clone())
                 .and(warp::query::<LoginParams>())
-                .map(move |params: LoginParams| (key_clone.clone(), params))
                 .map(login_handler);
 
             let authorize = || jwt_filter(key.clone());
@@ -213,12 +209,9 @@ pub async fn serve_on(
             let get = warp::get()
                 .and(with_documents(documents))
                 .and(warp::path::full())
-                .and(warp::header::optional::<String>("accept"))
+                .and(warp::query::<GetParams>())
                 .and(authorize())
-                .map(get_handler);
-
-            // The following POST routes are temporarily disabled
-            // pending working out how to make them async.
+                .and_then(get_handler);
 
             let post = warp::post()
                 .and(warp::path::end())
@@ -246,6 +239,7 @@ pub async fn serve_on(
                 .max_age(24 * 60 * 60);
 
             let routes = login
+                .or(statics)
                 .or(get)
                 .or(post)
                 .or(post_wrap)
@@ -268,6 +262,32 @@ pub async fn serve_on(
     };
 
     Ok(())
+}
+
+/// Return an error response
+fn error_response(
+    code: warp::http::StatusCode,
+    message: &str,
+) -> Result<warp::reply::Response, std::convert::Infallible> {
+    Ok(warp::reply::with_status(
+        warp::reply::json(&serde_json::json!({ "message": message })),
+        code,
+    )
+    .into_response())
+}
+
+/// Handle a HTTP `GET` request to the `/static/` path
+async fn get_static(path: warp::path::Tail) -> Result<warp::reply::Response, warp::Rejection> {
+    let path = path.as_str();
+    let asset = Static::get(path).ok_or_else(warp::reject::not_found)?;
+    let mime = mime_guess::from_path(path).first_or_octet_stream();
+
+    let mut res = warp::reply::Response::new(asset.into());
+    res.headers_mut().insert(
+        "content-type",
+        HeaderValue::from_str(mime.as_ref()).unwrap(),
+    );
+    Ok(res)
 }
 
 /// Generate a secret key for signing and verifying JSON Web Tokens.
@@ -335,11 +355,6 @@ fn jwt_filter(
         )
 }
 
-#[derive(Debug, Deserialize)]
-struct TokenParam {
-    pub token: Option<String>,
-}
-
 #[derive(Debug, Deserialize, Clone)]
 struct LoginParams {
     pub token: Option<String>,
@@ -352,8 +367,7 @@ struct LoginParams {
 /// human if something failed with the login and what to do about it. Otherwise,
 /// it just sets a cookie and redirects them to the next page.
 #[allow(clippy::unnecessary_unwrap)]
-fn login_handler(key_and_params: (Option<String>, LoginParams)) -> warp::reply::Response {
-    let (key, params) = key_and_params;
+fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Response {
     let token = params.token;
     let next = params.next.unwrap_or_else(|| "/".to_string());
 
@@ -402,7 +416,36 @@ fn login_handler(key_and_params: (Option<String>, LoginParams)) -> warp::reply::
     }
 }
 
-/// Handle a HTTP `GET` request
+/// Handle a HTTP `GET` request to a `/local/` path
+async fn get_local(
+    path: warp::path::Tail,
+    _claims: jwt::Claims,
+) -> Result<warp::reply::Response, warp::Rejection> {
+    let path = path.as_str();
+    let asset = match std::fs::read(path) {
+        Ok(asset) => asset,
+        Err(_) => return Err(warp::reject::not_found()),
+    };
+    let mime = mime_guess::from_path(path).first_or_octet_stream();
+
+    let mut response = warp::reply::Response::new(asset.into());
+    response.headers_mut().insert(
+        "content-type",
+        warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
+    );
+    return Ok(response);
+}
+
+#[derive(Debug, Deserialize)]
+struct GetParams {
+    /// The format desired
+    format: Option<String>,
+
+    /// The theme desired (for format `html`)
+    theme: Option<String>,
+}
+
+/// Handle a HTTP `GET` request for a document
 ///
 /// If the requested path starts with `/static` or is not one of the registered file types,
 /// then returns the static asset with the
@@ -411,116 +454,106 @@ fn login_handler(key_and_params: (Option<String>, LoginParams)) -> warp::reply::
 /// returned (which, in the background will request the document as JSON). Otherwise,
 /// will attempt to determine the desired format from the `Accept` header and convert the
 /// document to that.
-#[tracing::instrument(skip(_documents))]
-fn get_handler(
-    _documents: Arc<Mutex<Documents>>,
+#[tracing::instrument(skip(documents))]
+async fn get_handler(
+    documents: Arc<Mutex<Documents>>,
     path: warp::path::FullPath,
-    accept: Option<String>,
+    params: GetParams,
     _claims: jwt::Claims,
-) -> impl warp::Reply {
+) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    let path = path.strip_prefix("/").unwrap_or(path);
+    tracing::info!("GET {}", path);
 
-    tracing::info!("GET /{}", path);
+    let cwd = std::env::current_dir().expect("Unable to get current working directory");
 
-    // Check early on that the path either starts with `static/` or
-    // exists within the current directory
-    fn ok(path: &str) -> Result<()> {
-        if path.starts_with("static/") {
-            return Ok(());
-        };
-        let path = Path::new(path).canonicalize()?; // also checks exists
-        path.strip_prefix(env::current_dir()?)?;
-        Ok(())
-    }
-    if ok(path).is_err() {
-        return warp::reply::with_status(
-            warp::reply::json(&serde_json::json!({
-                "message": "not found"
-            })),
-            StatusCode::NOT_FOUND,
-        )
-        .into_response();
+    let path = Path::new(path.strip_prefix("/").unwrap_or(path));
+    let path = match cwd.join(path).canonicalize() {
+        Ok(path) => path,
+        Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
+    };
+
+    if path.strip_prefix(cwd).is_err() {
+        return error_response(
+            StatusCode::FORBIDDEN,
+            "Requested path is outside of current working directory",
+        );
     }
 
-    let accept = accept.unwrap_or_default();
+    let format = params.format.unwrap_or("html".into());
+    let theme = params.theme.unwrap_or("wilmore".into());
 
-    if path.starts_with("static/") || !path.ends_with(".json") {
-        let content = if path.starts_with("static/") {
-            Static::get(path)
-        } else {
-            std::fs::read(path).ok().map(|content| content.into())
-        };
-        if let Some(asset) = content {
-            let mime = mime_guess::from_path(path).first_or_octet_stream();
+    let mut documents = documents.lock().await;
+    match documents.open(path, None).await {
+        Ok(document) => {
+            let content = match documents.dump(&document.id, Some(format.clone())).await {
+                Ok(content) => content,
+                Err(error) => {
+                    return error_response(
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        &format!("While converting document to {}: {}", format, error),
+                    )
+                }
+            };
 
-            let mut response = warp::reply::Response::new(asset.into());
+            let content = match format.as_str() {
+                "html" => encode_html_standalone(&content, &theme),
+                _ => content,
+            };
+
+            let mime = mime_guess::from_ext(&format).first_or_octet_stream();
+
+            let mut response = warp::reply::Response::new(content.into());
             response.headers_mut().insert(
                 "content-type",
                 warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
             );
-            return response;
+            return Ok(response);
         }
-    } else if accept.contains("text/html") {
-        if let Some(asset) = Static::get("index.html") {
-            return warp::reply::html(asset).into_response();
-        }
-    } else {
-        // TODO: Make this function async to handle the following
-        // let mut documents = documents.lock().expect("Unable to obtain lock");
-        #[cfg(ignore)]
-        match documents.open(path, None) {
-            Ok(document) => {
-                let mime = accept.split(',').next().unwrap_or("text/plain");
-                let parts: Vec<&str> = mime.split('/').collect();
-                if parts.len() == 2 {
-                    if let Some(format) = mime_guess::get_extensions(parts[0], parts[1]) {
-                        let format = format[0].to_string();
-                        if let Ok(content) = document.dump(Some(format)) {
-                            let mut response = warp::reply::Response::new(content.into());
-                            response.headers_mut().insert(
-                                "content-type",
-                                warp::http::header::HeaderValue::from_str(mime).unwrap(),
-                            );
-                            return response;
-                        } else {
-                            return warp::reply::with_status(
-                                warp::reply::json(&serde_json::json!({
-                                    "message": "error converting document"
-                                })),
-                                StatusCode::INTERNAL_SERVER_ERROR,
-                            )
-                            .into_response();
-                        }
-                    }
-                }
-                return warp::reply::with_status(
-                    warp::reply::json(&serde_json::json!({
-                        "message": format!("unknown content type: {}", mime)
-                    })),
-                    StatusCode::BAD_REQUEST,
-                )
-                .into_response();
-            }
-            Err(error) => {
-                return warp::reply::with_status(
-                    warp::reply::json(&serde_json::json!({
-                        "message": format!("when opening document: {}", error.to_string())
-                    })),
-                    StatusCode::NOT_FOUND,
-                )
-                .into_response()
-            }
+        Err(error) => {
+            return error_response(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                &format!("While opening document: {}", error),
+            )
         }
     }
+}
 
-    warp::reply::with_status(
-        warp::reply::json(&serde_json::json!({
-            "message": "unable to provide requested resource"
-        })),
-        StatusCode::BAD_REQUEST,
+pub fn encode_html_standalone(body: &str, theme: &str) -> String {
+    format!(
+        r#"<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link
+            href="https://unpkg.com/@stencila/thema/dist/themes/{theme}/styles.css"
+            rel="stylesheet">
+        <script
+            src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.esm.js"
+            type="module"></script>
+        <script
+            src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.js"
+            type="text/javascript" nomodule=""></script>
+        <style>
+            .todo {{
+                font-family: mono;
+                color: #f88;
+                background: #fff2f2;
+            }}
+            .unsupported {{
+                font-family: mono;
+                color: #777;
+                background: #eee;
+            }}
+        </style>
+    </head>
+    <body>
+        <div data-itemscope="root">{body}</div>
+    </body>
+</html>"#,
+        theme = theme,
+        body = body
     )
-    .into_response()
 }
 
 /// Handle a HTTP `POST /` request
