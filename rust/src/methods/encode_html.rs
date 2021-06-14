@@ -337,7 +337,7 @@ impl ToHtml for Cite {
             }
         };
         format!(
-            r#"<cite itemtype="http://schema.stenci.la/Cite"><a href="\#{target}">{content}</a></cite>"#,
+            "<cite itemtype=\"http://schema.stenci.la/Cite\"><a href=\"#{target}\">{content}</a></cite>",
             target = self.target,
             content = content
         )
