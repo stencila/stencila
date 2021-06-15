@@ -13,6 +13,10 @@ export interface Format {
    */
   binary: boolean
   /**
+   * Whether or not previews should be generated for files of this format. e.g. a `.py` is not binary, but should not necessarily have a preview opened for it.
+   */
+  preview: boolean
+  /**
    * The type of `CreativeWork` that this format is expected to be. This will be `None` for data serialization formats such as JSON or YAML which have no expected type (the actual type is embedded in the data).
    */
   type?: string
@@ -465,143 +469,174 @@ export const FORMATS: Record<string, Format> = {
   "3gp": {
     "name": "3gp",
     "binary": true,
+    "preview": true,
     "type": "VideoObject"
   },
   "dockerfile": {
     "name": "dockerfile",
-    "binary": false
+    "binary": false,
+    "preview": false
   },
   "docx": {
     "name": "docx",
     "binary": true,
+    "preview": true,
     "type": "Article"
   },
   "flac": {
     "name": "flac",
     "binary": true,
+    "preview": true,
     "type": "AudioObject"
   },
   "gif": {
     "name": "gif",
     "binary": true,
+    "preview": true,
     "type": "ImageObject"
   },
   "ipynb": {
     "name": "ipynb",
     "binary": false,
+    "preview": true,
     "type": "Article"
   },
   "jpeg": {
     "name": "jpeg",
     "binary": true,
+    "preview": true,
     "type": "ImageObject"
   },
   "jpg": {
     "name": "jpg",
     "binary": true,
+    "preview": true,
     "type": "ImageObject"
   },
   "js": {
     "name": "js",
-    "binary": false
+    "binary": false,
+    "preview": false
   },
   "json": {
     "name": "json",
-    "binary": false
+    "binary": false,
+    "preview": true
   },
   "json5": {
     "name": "json5",
-    "binary": false
+    "binary": false,
+    "preview": true
   },
   "makefile": {
     "name": "makefile",
-    "binary": false
+    "binary": false,
+    "preview": false
   },
   "md": {
     "name": "md",
     "binary": false,
+    "preview": true,
     "type": "Article"
   },
   "mp3": {
     "name": "mp3",
     "binary": true,
+    "preview": true,
     "type": "AudioObject"
   },
   "mp4": {
     "name": "mp4",
     "binary": true,
+    "preview": true,
     "type": "VideoObject"
   },
   "odt": {
     "name": "odt",
     "binary": true,
+    "preview": true,
     "type": "Article"
   },
   "ogg": {
     "name": "ogg",
     "binary": true,
+    "preview": true,
     "type": "AudioObject"
   },
   "ogv": {
     "name": "ogv",
     "binary": true,
+    "preview": true,
     "type": "VideoObject"
   },
   "png": {
     "name": "png",
     "binary": true,
+    "preview": true,
     "type": "ImageObject"
   },
   "py": {
     "name": "py",
-    "binary": false
+    "binary": false,
+    "preview": false
   },
   "r": {
     "name": "r",
-    "binary": false
+    "binary": false,
+    "preview": false
   },
   "rmd": {
     "name": "rmd",
     "binary": false,
+    "preview": true,
     "type": "Article"
   },
   "sh": {
     "name": "sh",
-    "binary": false
+    "binary": false,
+    "preview": false
   },
   "tex": {
     "name": "tex",
     "binary": false,
+    "preview": true,
     "type": "Article"
   },
   "toml": {
     "name": "toml",
-    "binary": false
+    "binary": false,
+    "preview": true
   },
   "ts": {
     "name": "ts",
-    "binary": false
+    "binary": false,
+    "preview": false
   },
   "txt": {
     "name": "txt",
     "binary": false,
+    "preview": true,
     "type": "Article"
   },
   "unknown": {
     "name": "unknown",
-    "binary": true
+    "binary": true,
+    "preview": false
   },
   "webm": {
     "name": "webm",
     "binary": true,
+    "preview": true,
     "type": "VideoObject"
   },
   "xml": {
     "name": "xml",
-    "binary": false
+    "binary": false,
+    "preview": true
   },
   "yaml": {
     "name": "yaml",
-    "binary": false
+    "binary": false,
+    "preview": true
   }
 }
