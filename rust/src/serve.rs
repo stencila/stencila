@@ -273,6 +273,9 @@ pub async fn serve_on(
 }
 
 /// Return an error response
+///
+/// Used to have a consistent structure to error responses in the
+/// handler functions below.
 #[allow(clippy::unnecessary_wraps)]
 fn error_response(
     code: warp::http::StatusCode,
@@ -285,10 +288,15 @@ fn error_response(
     .into_response())
 }
 
-/// Handle a HTTP `GET` request to the `/static/` path
-async fn get_static(path: warp::path::Tail) -> Result<warp::reply::Response, warp::Rejection> {
+/// Handle a HTTP `GET` request to the `/~static/` path
+async fn get_static(
+    path: warp::path::Tail,
+) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    let asset = Static::get(path).ok_or_else(warp::reject::not_found)?;
+    let asset = match Static::get(path) {
+        Some(asset) => asset,
+        None => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
+    };
     let mime = mime_guess::from_path(path).first_or_octet_stream();
 
     let mut res = warp::reply::Response::new(asset.into());
@@ -545,20 +553,27 @@ async fn get_handler(
     }
 }
 
+/// Rewrite HTML to serve local files and wrap with desired theme etc.
+///
+/// Only local files somewhere withing the current working directory are
+/// served.
 pub fn rewrite_html(body: &str, theme: &str, cwd: &Path) -> String {
     static REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r#""file://(.*?)""#).expect("Unable to create regex"));
     let body = REGEX.replace_all(body, |captures: &Captures| {
         let path = match captures.get(1) {
             Some(matc) => matc.as_str(),
+            // Redact the path if there is no first capture (should always be)
             None => return r#""""#.to_string(),
         };
         let path = match Path::new(path).canonicalize() {
             Ok(path) => path,
+            // Redact the path if it can not be canonicalized
             Err(_) => return r#""""#.to_string(),
         };
         match path.strip_prefix(cwd) {
             Ok(path) => format!("/~local/{}", path.display().to_string()),
+            // Redact the path if it is outside of the current directory
             Err(_) => r#""""#.to_string(),
         }
     });
