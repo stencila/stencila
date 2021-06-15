@@ -1,3 +1,11 @@
+# [0.84.0](https://github.com/stencila/stencila/compare/v0.83.0...v0.84.0) (2021-06-15)
+
+
+### Features
+
+* **Desktop:** Add basic support styling previews with project themes ([d2e06d8](https://github.com/stencila/stencila/commit/d2e06d81fcf6305fdafe023b763185e6dd414962))
+* **Desktop:** Only show editor panel for editable documents ([725bb46](https://github.com/stencila/stencila/commit/725bb46e9a0cc958dcaae561418aec7da7124c09))
+
 # [0.83.0](https://github.com/stencila/stencila/compare/v0.82.0...v0.83.0) (2021-06-15)
 
 
