@@ -38,3 +38,9 @@ export const selectProjectRootFiles = (state: RootState) => {
     }
   }
 }
+
+export const getProjectTheme = (state: RootState): string => {
+  const id = state.projects.ids[0] ?? ''
+  const project = state.projects.entities.projects[id]
+  return project?.theme ?? 'stencila'
+}
