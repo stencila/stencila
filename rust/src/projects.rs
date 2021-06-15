@@ -6,6 +6,7 @@ use regex::Regex;
 use schemars::{schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use std::sync::{mpsc, Arc, Mutex};
 use std::{
     collections::{hash_map::Entry, HashMap},
     fs,
@@ -18,7 +19,7 @@ use std::{
 /// Uses schema.org properties where possible but adds extension properties
 /// where needed (e.g. `theme`).
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, JsonSchema, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, JsonSchema, Deserialize, Serialize)]
 #[serde(default, rename_all = "camelCase")]
 #[schemars(deny_unknown_fields)]
 pub struct Project {
@@ -91,7 +92,7 @@ impl Project {
     /// The name of the project's manifest file within the project directory
     const FILE_NAME: &'static str = "project.json";
 
-    /// Get the path to a projects' manifest file
+    /// Get the path to a project's manifest file
     fn file<P: AsRef<Path>>(folder: P) -> PathBuf {
         folder.as_ref().join(Project::FILE_NAME)
     }
@@ -146,86 +147,83 @@ impl Project {
         Ok(())
     }
 
-    /// Load a project including creating default values for properties
-    /// where necessary
-    pub fn open<P: AsRef<Path>>(
-        folder: P,
-        config: &config::ProjectsConfig,
-        watch: bool,
-    ) -> Result<Project> {
-        let folder = folder.as_ref();
-        let mut project = Project::read(folder)?;
+    /// Open a project from an existing folder
+    ///
+    /// Reads the `project.json` file (if any) and walks the project folder
+    /// to build a filesystem tree.
+    pub fn open<P: AsRef<Path>>(folder: P, config: &config::ProjectsConfig) -> Result<Project> {
+        let mut project = Project::read(&folder)?;
 
-        // Watch exclude patterns default to the configured defaults
-        let watch_exclude_patterns = project
-            .watch_exclude_patterns
-            .clone()
-            .unwrap_or_else(|| config.watch_exclude_patterns.clone());
+        // Get all the files and folders in the project
+        project.files = Files::new(folder);
 
-        // Get all the files in the project
-        project.files = Files::load(folder, watch, watch_exclude_patterns)?;
-
-        // Resolve the main file path first as some of the other project properties
-        // may be defined there (e.g. in the YAML header of a Markdown file)
-        project.main_path = project.resolve_main_path(&config.main_patterns);
-
-        // Name defaults to the name of the folder
-        project.name = project.name.or_else(|| match folder.components().last() {
-            Some(last) => Some(last.as_os_str().to_string_lossy().to_string()),
-            None => Some("Unnamed".to_string()),
-        });
-
-        // Theme defaults to the configured default
-        project.theme = project.theme.or_else(|| Some(config.theme.clone()));
+        // Update the project's properties, some one which may depend on the files
+        project.update(config);
 
         Ok(project)
     }
 
-    /// Attempt to resolve the path of the main file for a project
+    /// Update a project after changes to it's package.json or main file.
     ///
     /// Attempts to use the projects `main` property. If that is not specified, or
     /// there is no matching file in the project, attempts to match one of the
     /// project's files against the `main_patterns`.
-    fn resolve_main_path(&self, main_patterns: &[String]) -> Option<PathBuf> {
-        let files = &self.files.registry().expect("Unable to get files").files;
+    fn update(&mut self, config: &config::ProjectsConfig) {
+        let files = &self.files.files;
 
-        // Check that there is a file with the specified main path
-        if let Some(main) = &self.main {
-            let main_path = self.path.join(main);
-            if files.contains_key(&main_path) {
-                return Some(main_path);
-            } else {
-                tracing::warn!("Project main file specified could not be found: {}", main);
-                // Will attempt to find using patterns
+        // Resolve the main file path first as some of the other project properties
+        // may be defined there (e.g. in the YAML header of a Markdown file)
+        self.main_path = (|| {
+            // Check that there is a file with the specified main path
+            if let Some(main) = &self.main {
+                let main_path = self.path.join(main);
+                if files.contains_key(&main_path) {
+                    return Some(main_path);
+                } else {
+                    tracing::warn!("Project main file specified could not be found: {}", main);
+                    // Will attempt to find using patterns
+                }
             }
-        }
 
-        // For each `main_pattern` (in order)...
-        for pattern in main_patterns {
-            // Make matching case insensitive
-            let re = match Regex::new(&pattern.to_lowercase()) {
-                Ok(re) => re,
-                Err(_) => {
-                    tracing::warn!("Project main file pattern is invalid: {}", pattern);
-                    continue;
-                }
-            };
+            // For each `main_pattern` (in order)...
+            for pattern in &config.main_patterns {
+                // Make matching case insensitive
+                let re = match Regex::new(&pattern.to_lowercase()) {
+                    Ok(re) => re,
+                    Err(_) => {
+                        tracing::warn!("Project main file pattern is invalid: {}", pattern);
+                        continue;
+                    }
+                };
 
-            for file in files.values() {
-                // Ignore directories
-                if file.children.is_some() {
-                    continue;
-                }
-                // Match relative path to pattern
-                if let Ok(relative_path) = file.path.strip_prefix(&self.path) {
-                    if re.is_match(&relative_path.to_string_lossy().to_lowercase()) {
-                        return Some(file.path.clone());
+                for file in files.values() {
+                    // Ignore directories
+                    if file.children.is_some() {
+                        continue;
+                    }
+                    // Match relative path to pattern
+                    if let Ok(relative_path) = file.path.strip_prefix(&self.path) {
+                        if re.is_match(&relative_path.to_string_lossy().to_lowercase()) {
+                            return Some(file.path.clone());
+                        }
                     }
                 }
             }
-        }
 
-        None
+            None
+        })();
+
+        // Name defaults to the name of the project's folder
+        self.name = self
+            .name
+            .clone()
+            .or_else(|| match &self.path.components().last() {
+                Some(last) => Some(last.as_os_str().to_string_lossy().to_string()),
+                None => Some("Unnamed".to_string()),
+            });
+
+        // Theme defaults to the configured default
+        self.theme = self.theme.clone().or_else(|| Some(config.theme.clone()));
     }
 
     /// Show a project
@@ -238,7 +236,9 @@ impl Project {
         let template = r#"
 # {{name}}
 
-**Main**: {{ main }}
+**Project path**: {{ path }}
+**Main file**: {{ main_path }}
+**Image file**: {{ image_path }}
 **Theme**: {{ theme }}
 
 "#;
@@ -248,13 +248,149 @@ impl Project {
     }
 }
 
+#[derive(Debug)]
+pub struct ProjectHandler {
+    /// The project being handled
+    project: Arc<Mutex<Project>>,
+
+    /// The project watcher's channel sender
+    ///
+    /// Held so that when this handler is dropped, the
+    /// watcher thread is closed
+    pub watcher: Option<crossbeam_channel::Sender<()>>,
+}
+
+impl ProjectHandler {
+    /// Open a project and, optionally, watch it for changes
+    pub fn open<P: AsRef<Path>>(
+        folder: P,
+        config: &config::ProjectsConfig,
+        watch: bool,
+    ) -> Result<ProjectHandler> {
+        let project = Project::open(&folder, config)?;
+
+        // Watch exclude patterns default to the configured defaults.
+        // Note that this project setting can not be updated while it is open.
+        let watch_exclude_patterns = project
+            .watch_exclude_patterns
+            .clone()
+            .unwrap_or_else(|| config.watch_exclude_patterns.clone());
+
+        let project = Arc::new(Mutex::new(project));
+
+        let watcher = if watch {
+            // Clone the mutex to send to the thread
+            let project = project.clone();
+
+            // Create a `PathBuf` of the folder to send to the thread
+            let folder = folder.as_ref().to_path_buf();
+
+            // Create a `string` of the folder for use by logging in the thread
+            let folder_string = folder.display().to_string();
+
+            let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
+            std::thread::spawn(move || -> Result<()> {
+                use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
+                use std::time::Duration;
+
+                let (watcher_sender, watcher_receiver) = mpsc::channel();
+                let mut watcher = watcher(watcher_sender, Duration::from_secs(1))?;
+                watcher.watch(&folder, RecursiveMode::Recursive).unwrap();
+
+                let exclude_globs: Vec<glob::Pattern> = watch_exclude_patterns
+                    .iter()
+                    .filter_map(|pattern| match glob::Pattern::new(pattern) {
+                        Ok(glob) => Some(glob),
+                        Err(error) => {
+                            tracing::warn!(
+                                "Invalid watch exclude glob pattern; will ignore: {} : {}",
+                                pattern,
+                                error
+                            );
+                            None
+                        }
+                    })
+                    .collect();
+
+                let should_include = |event_path: &Path| {
+                    if let Ok(event_path) = event_path.strip_prefix(&folder) {
+                        for glob in &exclude_globs {
+                            if glob.matches(&event_path.display().to_string()) {
+                                return false;
+                            }
+                        }
+                    }
+                    true
+                };
+
+                let handle_event = |event: DebouncedEvent| match event {
+                    DebouncedEvent::Create(path) => {
+                        if should_include(&path) {
+                            let project = &mut *project.lock().unwrap();
+                            project.files.created(&path)
+                        }
+                    }
+                    DebouncedEvent::Remove(path) => {
+                        if should_include(&path) {
+                            let project = &mut *project.lock().unwrap();
+                            project.files.removed(&path)
+                        }
+                    }
+                    DebouncedEvent::Rename(from, to) => {
+                        if should_include(&from) || should_include(&to) {
+                            let project = &mut *project.lock().unwrap();
+                            project.files.renamed(&from, &to);
+                        }
+                    }
+                    DebouncedEvent::Write(path) => {
+                        if should_include(&path) {
+                            let project = &mut *project.lock().unwrap();
+                            project.files.modified(&path)
+                        }
+                    }
+                    _ => {}
+                };
+
+                let span = tracing::info_span!("file_watch", project = folder_string.as_str());
+                let _enter = span.enter();
+                tracing::debug!("Starting project file watch: {}", folder_string);
+                // Event checking timeout. Can be quite long since only want to check
+                // whether we can end this thread.
+                let timeout = Duration::from_millis(100);
+                loop {
+                    // Check for an event. Use `recv_timeout` so we don't
+                    // get stuck here and will do following check that ends this
+                    // thread if the owning `ProjectHandler` is dropped
+                    if let Ok(event) = watcher_receiver.recv_timeout(timeout) {
+                        handle_event(event)
+                    }
+                    // Check to see if this thread should be ended
+                    if let Err(crossbeam_channel::TryRecvError::Disconnected) =
+                        thread_receiver.try_recv()
+                    {
+                        tracing::debug!("Ending project file watch: {}", folder_string);
+                        break;
+                    }
+                }
+
+                Ok(())
+            });
+
+            Some(thread_sender)
+        } else {
+            None
+        };
+
+        Ok(ProjectHandler { project, watcher })
+    }
+}
+
 /// An in-memory store of projects and associated
 /// data (e.g. file system watchers)
-#[derive(Debug, Deserialize, Default)]
-#[serde(default)]
+#[derive(Debug, Default)]
 pub struct Projects {
     /// The projects, stored by absolute path
-    pub registry: HashMap<PathBuf, Project>,
+    pub registry: HashMap<PathBuf, ProjectHandler>,
 }
 
 impl Projects {
@@ -269,7 +405,7 @@ impl Projects {
         let cwd = std::env::current_dir()?;
         let mut paths = Vec::new();
         for project in self.registry.values() {
-            let path = &project.path;
+            let path = &project.project.lock().expect("Unable to obtain lock").path;
             let path = match pathdiff::diff_paths(path, &cwd) {
                 Some(path) => path,
                 None => path.clone(),
@@ -281,10 +417,6 @@ impl Projects {
     }
 
     /// Open a project
-    ///
-    /// This function `loads` a project, stores it, optionally watches the project folder,
-    /// updates the project on changes and publishes the updates on the "project"
-    /// pubsub topic channel.
     pub fn open<P: AsRef<Path>>(
         &mut self,
         folder: P,
@@ -292,14 +424,16 @@ impl Projects {
         watch: bool,
     ) -> Result<Project> {
         let path = folder.as_ref().canonicalize()?;
-        let project = match self.registry.entry(path) {
+
+        let handler = match self.registry.entry(path) {
             Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => match Project::open(folder, config, watch) {
-                Ok(project) => entry.insert(project),
+            Entry::Vacant(entry) => match ProjectHandler::open(folder, config, watch) {
+                Ok(handler) => entry.insert(handler),
                 Err(error) => return Err(error),
             },
         };
-        Ok(project.clone())
+
+        Ok(handler.project.lock().unwrap().clone())
     }
 
     /// Close a project
