@@ -1,4 +1,5 @@
 use crate::{
+    formats::{Format, FORMATS},
     methods::{compile::compile, decode::decode, encode::encode},
     pubsub::publish,
     utils::{schemas, uuids},
@@ -6,7 +7,6 @@ use crate::{
 use defaults::Defaults;
 use eyre::{bail, Result};
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
-use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -20,122 +20,6 @@ use std::{
 use stencila_schema::{AudioObject, ImageObject, Node, VideoObject};
 use strum::ToString;
 use tokio::{sync::Mutex, task::JoinHandle};
-
-/// Information about a document format
-///
-/// Used to determine various application behaviors
-/// e.g. not reading binary formats into memory unnecessarily
-#[skip_serializing_none]
-#[derive(Clone, Debug, Defaults, JsonSchema, Serialize)]
-#[schemars(deny_unknown_fields)]
-pub struct DocumentFormat {
-    /// The lowercase name of the format e.g. `md`, `docx`, `dockerfile`
-    #[def = r#""unknown".to_string()"#]
-    name: String,
-
-    /// Whether or not the format should be considered binary
-    /// e.g. not to be displayed in a text / code editor
-    #[def = "true"]
-    binary: bool,
-
-    /// The type of `CreativeWork` that this format is expected to be.
-    /// This will be `None` for data serialization formats such as
-    /// JSON or YAML which have no expected type (the actual type is
-    /// embedded in the data).
-    #[serde(rename = "type")]
-    type_: Option<String>,
-}
-
-impl DocumentFormat {
-    pub fn new(name: &str, binary: bool, type_: &str) -> DocumentFormat {
-        DocumentFormat {
-            name: name.into(),
-            binary,
-            type_: if type_.is_empty() {
-                None
-            } else {
-                Some(type_.to_string())
-            },
-        }
-    }
-}
-
-/// List of known document formats
-#[derive(Serialize)]
-#[serde(transparent)]
-pub struct DocumentFormats {
-    /// Document formats keyed by their name
-    formats: HashMap<String, DocumentFormat>,
-}
-
-impl Default for DocumentFormats {
-    fn default() -> DocumentFormats {
-        let formats = vec![
-            // Data serialization formats
-            DocumentFormat::new("json", false, ""),
-            DocumentFormat::new("json5", false, ""),
-            DocumentFormat::new("yaml", false, ""),
-            // Article formats
-            DocumentFormat::new("docx", true, "Article"),
-            DocumentFormat::new("odt", true, "Article"),
-            DocumentFormat::new("ipynb", false, "Article"),
-            DocumentFormat::new("md", false, "Article"),
-            DocumentFormat::new("rmd", false, "Article"),
-            DocumentFormat::new("tex", false, "Article"),
-            DocumentFormat::new("txt", false, "Article"),
-            // Audio formats
-            DocumentFormat::new("flac", true, "AudioObject"),
-            DocumentFormat::new("mp3", true, "AudioObject"),
-            DocumentFormat::new("ogg", true, "AudioObject"),
-            // Image formats
-            DocumentFormat::new("gif", true, "ImageObject"),
-            DocumentFormat::new("jpeg", true, "ImageObject"),
-            DocumentFormat::new("jpg", true, "ImageObject"),
-            DocumentFormat::new("png", true, "ImageObject"),
-            // Video formats
-            DocumentFormat::new("3gp", true, "VideoObject"),
-            DocumentFormat::new("mp4", true, "VideoObject"),
-            DocumentFormat::new("ogv", true, "VideoObject"),
-            DocumentFormat::new("webm", true, "VideoObject"),
-        ];
-
-        let formats = formats
-            .into_iter()
-            .map(|format| (format.name.clone(), format))
-            .collect();
-
-        DocumentFormats { formats }
-    }
-}
-
-impl DocumentFormats {
-    /// Match a format name to a `DocumentFormat`
-    pub fn match_name(&self, name: &str) -> DocumentFormat {
-        match self.formats.get(&name.to_lowercase()) {
-            Some(format) => format.clone(),
-            None => DocumentFormat::default(),
-        }
-    }
-
-    /// Match a file path to a `DocumentFormat`
-    pub fn match_path<P: AsRef<Path>>(&self, path: &P) -> DocumentFormat {
-        let path = path.as_ref();
-        // Use file extension
-        let name = match path.extension() {
-            Some(ext) => ext,
-            // Fallback to the filename if no extension
-            None => match path.file_name() {
-                Some(name) => name,
-                // Fallback to the provided "path"
-                None => path.as_os_str(),
-            },
-        };
-
-        self.match_name(&name.to_string_lossy().to_string())
-    }
-}
-
-pub static DOCUMENT_FORMATS: Lazy<DocumentFormats> = Lazy::new(DocumentFormats::default);
 
 #[derive(Debug, JsonSchema, Serialize, ToString)]
 #[serde(rename_all = "lowercase")]
@@ -164,15 +48,21 @@ struct DocumentEvent {
     /// and `encoded` events.
     content: Option<String>,
 
-    /// The format of the document, only provided for, `modified` (the format
+    /// The format of the document, only provided for `modified` (the format
     /// of the document) and `encoded` events (the format of the encoding).
-    format: Option<String>,
+    #[schemars(schema_with = "DocumentEvent::schema_format")]
+    format: Option<Format>,
 }
 
 impl DocumentEvent {
     /// Generate the JSON Schema for the `document` property to avoid nesting
     fn schema_document(_generator: &mut SchemaGenerator) -> Schema {
         schemas::typescript("Document", true)
+    }
+
+    /// Generate the JSON Schema for the `format` property to avoid nesting
+    fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("Format", false)
     }
 }
 
@@ -242,7 +132,9 @@ pub struct Document {
     /// On initialization, this is inferred, if possible, from the file name extension
     /// of the document's `path`. However, it may change whilst the document is
     /// open in memory (e.g. if the `load` function sets a different format).
-    format: DocumentFormat,
+    #[def = "Format::unknown()"]
+    #[schemars(schema_with = "Document::schema_format")]
+    format: Format,
 
     /// The current UTF8 string content of the document.
     ///
@@ -275,6 +167,12 @@ pub struct Document {
 }
 
 impl Document {
+    /// Generate the JSON Schema for the `format` property to avoid duplicated
+    /// inline type.
+    fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("Format", true)
+    }
+
     /// Create a new empty document.
     ///
     /// # Arguments
@@ -298,7 +196,7 @@ impl Document {
             .expect("Unable to get path parent")
             .to_path_buf();
 
-        let format = DOCUMENT_FORMATS.match_path(&format.unwrap_or_else(|| "txt".to_string()));
+        let format = FORMATS.match_path(&format.unwrap_or_else(|| "txt".to_string()));
 
         Document {
             id,
@@ -340,8 +238,8 @@ impl Document {
             .into();
 
         let format = match format {
-            None => DOCUMENT_FORMATS.match_path(&path),
-            Some(format) => DOCUMENT_FORMATS.match_path(&format),
+            None => FORMATS.match_path(&path),
+            Some(format) => FORMATS.match_path(&format),
         };
 
         let mut document = Document {
@@ -452,7 +350,7 @@ impl Document {
         self.content = content;
         self.status = DocumentStatus::Unwritten;
         if let Some(format) = format {
-            self.format = DOCUMENT_FORMATS.match_path(&format)
+            self.format = FORMATS.match_path(&format)
         }
 
         self.update().await
@@ -574,8 +472,15 @@ impl Document {
 
     /// Publish a `DocumentEvent` for this document
     fn publish(&self, type_: DocumentEventType, content: Option<String>, format: Option<String>) {
+        let format = format.map(|name| FORMATS.match_name(&name));
+
         let topic = match type_ {
-            DocumentEventType::Encoded => format!("encoded:{}", format.clone().unwrap_or_default()),
+            DocumentEventType::Encoded => format!(
+                "encoded:{}",
+                format
+                    .clone()
+                    .map_or_else(|| "undef".to_string(), |format| format.name)
+            ),
             _ => type_.to_string(),
         };
         let topic = format!("documents:{}:{}", self.id, topic);
@@ -904,7 +809,6 @@ pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![
         schemas::generate::<Document>()?,
         schemas::generate::<DocumentEvent>()?,
-        schemas::generate::<DocumentFormat>()?,
     ]);
     Ok(schemas)
 }

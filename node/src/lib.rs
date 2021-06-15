@@ -5,6 +5,7 @@ use neon::prelude::*;
 mod config;
 mod documents;
 mod errors;
+mod formats;
 mod logging;
 mod plugins;
 mod prelude;
@@ -14,7 +15,6 @@ mod pubsub;
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("documentsSchemas", documents::schemas)?;
-    cx.export_function("documentsFormats", documents::formats)?;
     cx.export_function("documentsList", documents::list)?;
     cx.export_function("documentsCreate", documents::create)?;
     cx.export_function("documentsOpen", documents::open)?;
@@ -31,6 +31,9 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("projectsList", projects::list)?;
     cx.export_function("projectsOpen", projects::open)?;
     cx.export_function("projectsClose", projects::close)?;
+
+    cx.export_function("formatsSchemas", formats::schemas)?;
+    cx.export_function("formatsFormats", formats::formats)?;
 
     cx.export_function("pluginsSchema", plugins::schema)?;
     cx.export_function("pluginsList", plugins::list)?;

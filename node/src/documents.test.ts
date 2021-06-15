@@ -93,7 +93,10 @@ test('workflow-open-modify', async () => {
   expect(events).toEqual([
     expect.objectContaining({
       type: 'encoded',
-      format: 'json',
+      format: expect.objectContaining({
+        name: "json",
+        binary: false
+      }),
     }),
   ])
 
@@ -118,7 +121,10 @@ test('workflow-open-modify', async () => {
       }),
       expect.objectContaining({
         type: 'encoded',
-        format: 'json',
+        format: expect.objectContaining({
+          name: "json",
+          binary: false
+        }),
       }),
     ])
   )
@@ -140,7 +146,10 @@ test('workflow-open-modify', async () => {
     expect.arrayContaining([
       expect.objectContaining({
         type: 'encoded',
-        format: 'json',
+        format: expect.objectContaining({
+          name: "json",
+          binary: false
+        }),
       }),
     ])
   )

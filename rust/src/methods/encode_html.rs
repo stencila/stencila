@@ -293,7 +293,7 @@ impl ToHtml for AudioObjectSimple {
             self.content_url.clone()
         };
         format!(
-            r#"<audio itemtype="http://schema.org/AudioObject" src="{src}"></audio>"#,
+            r#"<audio itemtype="http://schema.org/AudioObject" controls src="{src}"></audio>"#,
             src = src
         )
     }
@@ -442,7 +442,7 @@ impl ToHtml for VideoObjectSimple {
         };
 
         format!(
-            r#"<video itemtype="http://schema.org/VideoObject"><source src="{src}" {format}></source></video>"#,
+            r#"<video itemtype="http://schema.org/VideoObject" controls><source src="{src}" {format}></source></video>"#,
             src = src,
             format = format
         )

@@ -12,12 +12,17 @@ export const getFileIcon = (file?: File, isCollapsed?: boolean): IconNames => {
     return isCollapsed ? 'folder' : 'folder-open'
   }
 
-  // Don't differentiate between image formats for now
-  if (file.mediaType?.includes('image')) {
-    return 'image'
+  // Don't differentiate between media formats for now
+  switch (file.format.type) {
+    case 'AudioObject':
+      return 'mv'
+    case 'ImageObject':
+      return 'image'
+    case 'VideoObject':
+      return 'video'
   }
 
-  switch (file.format) {
+  switch (file.format.name) {
     case 'csv':
       return 'layout-grid'
     case 'json':

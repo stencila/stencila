@@ -32,7 +32,7 @@ export class AppDocumentPreview {
       if (
         e.document.id === documentId &&
         e.type === 'encoded' &&
-        e.format == 'html' &&
+        e.format?.name == 'html' &&
         e.content !== undefined
       ) {
         this.previewContents = e.content
