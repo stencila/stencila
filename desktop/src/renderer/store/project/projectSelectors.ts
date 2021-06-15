@@ -1,3 +1,4 @@
+import { EntityId } from '@reduxjs/toolkit'
 import { RootState } from '..'
 
 export const selectProject = (state: RootState) => {
@@ -22,9 +23,9 @@ export const selectProjectFiles = (state: RootState) => {
   }
 }
 
-export const selectProjectFile = (state: RootState) => (filePath: string) => {
+export const selectProjectFile = (state: RootState) => (docId: EntityId) => {
   const files = state.projects.entities.files
-  return files ? files[filePath] : undefined
+  return files ? files[docId] : undefined
 }
 
 export const selectProjectRootFiles = (state: RootState) => {

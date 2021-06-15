@@ -1,14 +1,16 @@
 import { EntityId } from '@reduxjs/toolkit'
-import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
-import { DocumentEvent, File } from 'stencila'
+import { Component, Element, h, Host, Prop, State, Watch } from '@stencil/core'
+import { DocumentEvent } from 'stencila'
 import { CHANNEL } from '../../../../preload/channels'
+import { state } from '../../../../renderer/store'
+import { selectDoc } from '../../../../renderer/store/documentPane/documentPaneSelectors'
 
 @Component({
   tag: 'app-document-editor',
   styleUrl: 'app-document-editor.css',
   // Scoped must be off for this component to avoid mangling class names
   // for the CodeEditor selectors.
-  scoped: false
+  scoped: false,
 })
 export class AppDocumentEditor {
   @Element() el: HTMLElement
@@ -16,8 +18,6 @@ export class AppDocumentEditor {
   private editorRef: HTMLStencilaEditorElement | null = null
 
   @Prop() documentId: EntityId
-
-  private file?: File
 
   @Watch('documentId')
   documentIdWatchHandler(newValue: string, prevValue: string) {
@@ -28,25 +28,27 @@ export class AppDocumentEditor {
     }
   }
 
-  private subscribeToDocument = (documentId = this.documentId) => {
-    window.api
-      .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, documentId)
-      .then(contents => {
-        if (typeof contents === 'string') {
-          this.editorRef?.setContents(contents)
-        }
-      })
+  @State() contents: string
 
-    window.api.receive(CHANNEL.GET_DOCUMENT_CONTENTS, event => {
+  private subscribeToDocument = (documentId = this.documentId) => {
+    window.api.receive(CHANNEL.GET_DOCUMENT_CONTENTS, (event) => {
       const { type, content } = event as DocumentEvent
       if (type === 'modified' && typeof content == 'string') {
-        this.editorRef?.setContents(content)
+        this.contents = content
       }
     })
 
     window.api.receive(CHANNEL.SAVE_ACTIVE_DOCUMENT, () => {
       this.saveDoc()
     })
+
+    return window.api
+      .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, documentId)
+      .then((contents) => {
+        if (typeof contents === 'string') {
+          this.contents = contents
+        }
+      })
   }
 
   private unsubscribeFromDocument = (documentId = this.documentId) => {
@@ -55,19 +57,17 @@ export class AppDocumentEditor {
 
     return window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
       documentId,
-      topics: ['modified']
+      topics: ['modified'],
     })
   }
 
   private fileFormatToLanguage = (): string => {
-    switch (this.file?.format.name) {
-      case 'bash':
-        return 'bash'
-      case 'py':
+    const file = selectDoc(state)(this.documentId)
+    switch (file?.format?.name) {
       case 'ipynb':
         return 'python'
       default:
-        return 'r'
+        return file?.format?.name ?? 'md'
     }
   }
 
@@ -77,17 +77,20 @@ export class AppDocumentEditor {
       .then(({ text }) => {
         window.api.invoke(CHANNEL.SAVE_DOCUMENT, {
           documentId: this.documentId,
-          content: text
+          content: text,
         })
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err)
       })
   }
 
+  componentWillLoad() {
+    return this.subscribeToDocument()
+  }
+
   componentDidLoad() {
     this.editorRef = this.el.querySelector('stencila-editor')
-    this.subscribeToDocument()
   }
 
   disconnectedCallback() {
@@ -100,6 +103,7 @@ export class AppDocumentEditor {
         <div class="app-document-editor">
           <stencila-editor
             activeLanguage={this.fileFormatToLanguage()}
+            contents={this.contents}
           ></stencila-editor>
         </div>
       </Host>

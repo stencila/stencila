@@ -8,10 +8,7 @@ type DocumentEditor = {
 
 type DocumentPreview = {
   type: 'preview'
-  id: EntityId
-  format: string
-  name: string
-}
+} & Document
 
 export type PaneView = DocumentEditor | DocumentPreview
 
