@@ -131,7 +131,7 @@
     "ts-node": "9.1.1",
     "typescript": "4.2.3",
     "wdio-chromedriver-service": "7.0.0",
-    "wdio-geckodriver-service": "1.1.2",
+    "wdio-geckodriver-service": "2.0.1",
     "wdio-novus-visual-regression-service": "1.2.4",
     "wdio-screenshot-v5": "1.0.0",
     "webdriverio": "7.3.0",
