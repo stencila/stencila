@@ -1,3 +1,15 @@
+# [0.85.0](https://github.com/stencila/stencila/compare/v0.84.0...v0.85.0) (2021-06-15)
+
+
+### Bug Fixes
+
+* **Desktop:** Allowing loading images using 'local:' protocol ([51cd9e4](https://github.com/stencila/stencila/commit/51cd9e48476b582e33c4ad2ca54a82fdbc58e8a0))
+
+
+### Features
+
+* **Desktop:** Add shortcut for opening project launcher ([03d8137](https://github.com/stencila/stencila/commit/03d81376a9e4240aa5d93e2c50e1fda8c8e2e79e))
+
 # [0.84.0](https://github.com/stencila/stencila/compare/v0.83.0...v0.84.0) (2021-06-15)
 
 
