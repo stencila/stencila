@@ -60,7 +60,7 @@ export class AppDocumentEditor {
   }
 
   private fileFormatToLanguage = (): string => {
-    switch (this.file?.format) {
+    switch (this.file?.format.name) {
       case 'bash':
         return 'bash'
       case 'py':
