@@ -1,3 +1,16 @@
+# [0.83.0](https://github.com/stencila/stencila/compare/v0.82.0...v0.83.0) (2021-06-15)
+
+
+### Bug Fixes
+
+* **dependencies:** update docusaurus monorepo to v2.0.0-beta.0 ([1357707](https://github.com/stencila/stencila/commit/1357707e80d6c4e91259b42dbef6bd816df23c4d))
+* **HTML:** Add controls attribute to audio and video elements ([2543750](https://github.com/stencila/stencila/commit/25437504085484e19ca439255d5eedf31c9d6379))
+
+
+### Features
+
+* **Formats:** Add preview property ([b885e8d](https://github.com/stencila/stencila/commit/b885e8da0c12c40323d5c9f65eec9b9bd02db008))
+
 # [0.82.0](https://github.com/stencila/stencila/compare/v0.81.0...v0.82.0) (2021-06-15)
 
 
