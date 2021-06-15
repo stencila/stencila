@@ -478,7 +478,7 @@ dependencies = [
  "crossterm_winapi",
  "lazy_static",
  "libc",
- "mio 0.7.11",
+ "mio 0.7.13",
  "parking_lot",
  "signal-hook",
  "winapi 0.3.9",
@@ -1579,9 +1579,9 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "0.7.11"
+version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf80d3e903b34e0bd7282b218398aec54e082c840d9baf8339e0080a0c542956"
+checksum = "8c2bdb6314ec10835cd3293dd268473a835c02b7b352e788be788b3c6ca6bb16"
 dependencies = [
  "libc",
  "log",
@@ -2718,9 +2718,9 @@ dependencies = [
 
 [[package]]
 name = "serde_with"
-version = "1.9.2"
+version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e3132bd01cfb74aac8b1b10083ad1f38dbf756df3176d5e63dd91e3f62a87f5"
+checksum = "6a3b379ba4fd515d3fdccfe8584eb9fcc6f7dd1bbe14636a12c98a36fbbfc850"
 dependencies = [
  "rustversion",
  "serde",
@@ -2792,7 +2792,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7e31d442c16f047a671b5a71e2161d6e68814012b7f5379d269ebd915fac2729"
 dependencies = [
  "libc",
- "mio 0.7.11",
+ "mio 0.7.13",
  "signal-hook-registry",
 ]
 
@@ -2855,7 +2855,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.81.0"
+version = "0.82.0"
 dependencies = [
  "ansi_term 0.12.1",
  "async-trait",
@@ -2915,7 +2915,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.81.0"
+version = "0.82.0"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -2933,7 +2933,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.81.0"
+version = "0.82.0"
 dependencies = [
  "neon",
  "stencila",
@@ -3199,7 +3199,7 @@ dependencies = [
  "bytes",
  "libc",
  "memchr",
- "mio 0.7.11",
+ "mio 0.7.13",
  "num_cpus",
  "once_cell",
  "parking_lot",

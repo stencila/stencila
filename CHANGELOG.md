@@ -1,3 +1,10 @@
+# [0.82.0](https://github.com/stencila/stencila/compare/v0.81.0...v0.82.0) (2021-06-15)
+
+
+### Features
+
+* **Telemetry:** Add telemetry module ([9c04444](https://github.com/stencila/stencila/commit/9c0444454cffc39a526c1bd7f3798630be0aa45f))
+
 # [0.81.0](https://github.com/stencila/stencila/compare/v0.80.1...v0.81.0) (2021-06-14)
 
 
