@@ -21,6 +21,11 @@ pub struct Format {
     /// e.g. not to be displayed in a text / code editor
     pub binary: bool,
 
+    /// Whether or not previews should be generated for files of
+    /// this format. e.g. a `.py` is not binary, but should not
+    /// necessarily have a preview opened for it.
+    pub preview: bool,
+
     /// The type of `CreativeWork` that this format is expected to be.
     /// This will be `None` for data serialization formats such as
     /// JSON or YAML which have no expected type (the actual type is
@@ -31,10 +36,11 @@ pub struct Format {
 
 impl Format {
     /// Create a new file format
-    pub fn new(name: &str, binary: bool, type_: &str) -> Format {
+    pub fn new(name: &str, binary: bool, preview: bool, type_: &str) -> Format {
         Format {
             name: name.into(),
             binary,
+            preview,
             type_: if type_.is_empty() {
                 None
             } else {
@@ -48,6 +54,7 @@ impl Format {
         Format {
             name: "unknown".to_string(),
             binary: true,
+            preview: false,
             type_: None,
         }
     }
@@ -64,42 +71,43 @@ pub struct Formats {
 impl Default for Formats {
     fn default() -> Formats {
         let formats = vec![
-            // Data serialization formats
-            Format::new("json", false, ""),
-            Format::new("json5", false, ""),
-            Format::new("toml", false, ""),
-            Format::new("xml", false, ""),
-            Format::new("yaml", false, ""),
+            // Data serialization formats. These may be used
+            // to store documents so `preview: true`.
+            Format::new("json", false, true, ""),
+            Format::new("json5", false, true, ""),
+            Format::new("toml", false, true, ""),
+            Format::new("xml", false, true, ""),
+            Format::new("yaml", false, true, ""),
             // Code formats
-            Format::new("dockerfile", false, ""),
-            Format::new("js", false, ""),
-            Format::new("makefile", false, ""),
-            Format::new("py", false, ""),
-            Format::new("r", false, ""),
-            Format::new("sh", false, ""),
-            Format::new("ts", false, ""),
+            Format::new("dockerfile", false, false, ""),
+            Format::new("js", false, false, ""),
+            Format::new("makefile", false, false, ""),
+            Format::new("py", false, false, ""),
+            Format::new("r", false, false, ""),
+            Format::new("sh", false, false, ""),
+            Format::new("ts", false, false, ""),
             // Article formats
-            Format::new("docx", true, "Article"),
-            Format::new("odt", true, "Article"),
-            Format::new("ipynb", false, "Article"),
-            Format::new("md", false, "Article"),
-            Format::new("rmd", false, "Article"),
-            Format::new("tex", false, "Article"),
-            Format::new("txt", false, "Article"),
+            Format::new("docx", true, true, "Article"),
+            Format::new("odt", true, true, "Article"),
+            Format::new("ipynb", false, true, "Article"),
+            Format::new("md", false, true, "Article"),
+            Format::new("rmd", false, true, "Article"),
+            Format::new("tex", false, true, "Article"),
+            Format::new("txt", false, true, "Article"),
             // Audio formats
-            Format::new("flac", true, "AudioObject"),
-            Format::new("mp3", true, "AudioObject"),
-            Format::new("ogg", true, "AudioObject"),
+            Format::new("flac", true, true, "AudioObject"),
+            Format::new("mp3", true, true, "AudioObject"),
+            Format::new("ogg", true, true, "AudioObject"),
             // Image formats
-            Format::new("gif", true, "ImageObject"),
-            Format::new("jpeg", true, "ImageObject"),
-            Format::new("jpg", true, "ImageObject"),
-            Format::new("png", true, "ImageObject"),
+            Format::new("gif", true, true, "ImageObject"),
+            Format::new("jpeg", true, true, "ImageObject"),
+            Format::new("jpg", true, true, "ImageObject"),
+            Format::new("png", true, true, "ImageObject"),
             // Video formats
-            Format::new("3gp", true, "VideoObject"),
-            Format::new("mp4", true, "VideoObject"),
-            Format::new("ogv", true, "VideoObject"),
-            Format::new("webm", true, "VideoObject"),
+            Format::new("3gp", true, true, "VideoObject"),
+            Format::new("mp4", true, true, "VideoObject"),
+            Format::new("ogv", true, true, "VideoObject"),
+            Format::new("webm", true, true, "VideoObject"),
             // Special `unknown` format which defines handling
             // of file types that are not registered above
             Format::unknown(),
