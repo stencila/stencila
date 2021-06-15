@@ -86,7 +86,7 @@ export interface DocumentEvent {
    */
   content?: string
   /**
-   * The format of the document, only provided for, `modified` (the format of the document) and `encoded` events (the format of the encoding).
+   * The format of the document, only provided for `modified` (the format of the document) and `encoded` events (the format of the encoding).
    */
   format?: Format
 }
@@ -174,15 +174,7 @@ export interface File {
    *
    * Usually this is the lower cased filename extension (if any) but may also be normalized. May be more convenient, and usually more available, than the `media_type` property.
    */
-  format?: string
-  /**
-   * The media type (aka MIME type) of the file
-   */
-  mediaType?: string
-  /**
-   * The SHA1 hash of the contents of the file
-   */
-  sha1?: string
+  format: Format
   /**
    * The parent `File`, if any
    */

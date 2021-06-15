@@ -1,3 +1,9 @@
+use crate::{
+    formats::{Format, FORMATS},
+    pubsub::publish,
+    utils::schemas,
+};
+use defaults::Defaults;
 use eyre::{bail, Result};
 use schemars::{schema::Schema, JsonSchema};
 use serde::Serialize;
@@ -8,13 +14,11 @@ use std::{
     sync::{mpsc, Arc, Mutex, MutexGuard},
     time::UNIX_EPOCH,
 };
-
-use crate::{pubsub::publish, utils::schemas};
 use strum::ToString;
 
 /// A file or directory within a `Project`
 #[skip_serializing_none]
-#[derive(Debug, Default, Clone, JsonSchema, Serialize)]
+#[derive(Debug, Defaults, Clone, JsonSchema, Serialize)]
 #[serde(rename_all = "camelCase")]
 #[schemars(deny_unknown_fields)]
 pub struct File {
@@ -35,13 +39,9 @@ pub struct File {
     /// Usually this is the lower cased filename extension (if any)
     /// but may also be normalized. May be more convenient,
     /// and usually more available, than the `media_type` property.
-    pub format: Option<String>,
-
-    /// The media type (aka MIME type) of the file
-    pub media_type: Option<String>,
-
-    /// The SHA1 hash of the contents of the file
-    pub sha1: Option<String>,
+    #[def = "Format::unknown()"]
+    #[schemars(schema_with = "File::schema_format")]
+    pub format: Format,
 
     /// The parent `File`, if any
     pub parent: Option<PathBuf>,
@@ -56,6 +56,11 @@ pub struct File {
 }
 
 impl File {
+    /// Generate the JSON Schema for the `format` property to avoid nested type.
+    fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("Format", true)
+    }
+
     /// Get a file's name from it's path
     pub fn name(path: &Path) -> String {
         path.file_name()
@@ -67,12 +72,6 @@ impl File {
     /// Get a file's parent from it's path
     pub fn parent(path: &Path) -> Option<PathBuf> {
         path.parent().map(|parent| parent.into())
-    }
-
-    /// Get a file's format from it's file name extension
-    pub fn format(path: &Path) -> Option<String> {
-        path.extension()
-            .map(|ext| ext.to_string_lossy().to_lowercase())
     }
 
     /// Load a file from a path
@@ -87,7 +86,7 @@ impl File {
 
         let name = File::name(&path);
         let parent = File::parent(&path);
-        let format = File::format(&path);
+        let format = FORMATS.match_path(&path);
 
         let (modified, size) = match path.metadata() {
             Ok(metadata) => {
@@ -103,24 +102,10 @@ impl File {
             Err(_) => (None, None),
         };
 
-        let (media_type, children) = if path.is_file() {
-            let media_type = if let Some(ext) = &format {
-                mime_guess::from_ext(&ext)
-                    .first()
-                    .map(|mime| mime.essence_str().to_string())
-                    .or_else(|| match ext.as_str() {
-                        // Add MIME types that are not registered
-                        // See https://github.com/jupyter/jupyter/issues/68
-                        "ipynb" => Some("application/ipynb+json".to_string()),
-                        _ => None,
-                    })
-            } else {
-                None
-            };
-
-            (media_type, None)
+        let children = if path.is_file() {
+            None
         } else {
-            (None, Some(BTreeSet::new()))
+            Some(BTreeSet::new())
         };
 
         File {
@@ -130,7 +115,6 @@ impl File {
             modified,
             size,
             format,
-            media_type,
             children,
             ..Default::default()
         }
@@ -489,9 +473,9 @@ impl FileRegistry {
                 // all it's descendants. Move the file from old to new path.
                 let mut file = entry.remove();
                 file.path = new_path.into();
-                file.name = File::name(new_path);
-                file.parent = File::parent(new_path);
-                file.format = File::format(new_path);
+                file.name = File::name(&new_path);
+                file.parent = File::parent(&new_path);
+                file.format = FORMATS.match_path(&new_path);
                 rename_children(&mut self.files, &mut file, old_path, new_path);
                 self.files.insert(new_path.into(), file.clone());
                 file
