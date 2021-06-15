@@ -607,6 +607,7 @@ impl Document {
     ///
     /// Changes the `path` and publishes a `Renamed` event so that, for example,
     /// a document's tab can be updated with the new file name.
+    #[allow(dead_code)]
     fn renamed(&mut self, from: PathBuf, to: PathBuf) {
         tracing::debug!("Document renamed: {} to {}", from.display(), to.display());
 
@@ -721,10 +722,9 @@ impl DocumentHandler {
         let (async_sender, mut async_receiver) = tokio::sync::mpsc::channel(100);
 
         // Standard thread to run blocking sync watcher in
-        let watcher_sender_clone = watcher_sender.clone();
         std::thread::spawn(move || {
             let mut watcher = watcher(
-                watcher_sender_clone,
+                watcher_sender,
                 Duration::from_millis(DocumentHandler::WATCHER_DELAY_MILLIS),
             )
             .expect("Unable to create watcher");
@@ -754,7 +754,7 @@ impl DocumentHandler {
         });
 
         // Async task to handle events
-        let join_handle = tokio::spawn(async move {
+        tokio::spawn(async move {
             loop {
                 if let Some(event) = async_receiver.recv().await {
                     match event {
@@ -764,9 +764,7 @@ impl DocumentHandler {
                     }
                 }
             }
-        });
-
-        join_handle
+        })
     }
 }
 
@@ -855,7 +853,7 @@ impl Documents {
             id_to_remove = id_or_path_string
         } else {
             let path = id_or_path_path.canonicalize()?;
-            for (_id, handler) in &self.registry {
+            for handler in self.registry.values() {
                 let document = handler.document.lock().await;
                 if document.path == path {
                     id_to_remove = document.id.clone();

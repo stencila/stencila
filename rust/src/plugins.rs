@@ -1280,9 +1280,9 @@ impl Plugin {
     fn client(&self) -> Result<Client> {
         let installation = match self.installation {
             Some(installation) => installation,
-            None => Err(Error::PluginNotInstalled {
+            None => bail!(Error::PluginNotInstalled {
                 plugin: self.name.clone(),
-            })?,
+            }),
         };
 
         let name = self.name.as_str();
@@ -1822,7 +1822,7 @@ impl Plugins {
         // Get the implementations for the method
         let implems = match self.methods.get(&method.to_string()) {
             Some(method) => method,
-            None => Err(Error::UndelegatableMethod { method })?,
+            None => bail!(Error::UndelegatableMethod { method }),
         };
 
         // Find the first implementation for which the params validate against
@@ -1838,7 +1838,7 @@ impl Plugins {
 
         match plugin {
             Some(plugin) => self.delegate_to_plugin(&plugin, method, params).await,
-            None => Err(Error::UndelegatableCall { method, params })?,
+            None => bail!(Error::UndelegatableCall { method, params }),
         }
     }
 }

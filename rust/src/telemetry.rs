@@ -15,7 +15,7 @@ pub mod config {
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
     #[schemars(deny_unknown_fields)]
-    pub struct TelemetryCLIConfig {
+    pub struct TelemetryCliConfig {
         /// Whether to send error reports. Default is false.
         #[def = "false"]
         pub error_reports: bool,
@@ -38,7 +38,7 @@ pub mod config {
     #[serde(default)]
     #[schemars(deny_unknown_fields)]
     pub struct TelemetryConfig {
-        pub cli: TelemetryCLIConfig,
+        pub cli: TelemetryCliConfig,
         pub desktop: TelemetryDesktopConfig,
     }
 }

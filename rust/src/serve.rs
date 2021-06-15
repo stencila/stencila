@@ -273,6 +273,7 @@ pub async fn serve_on(
 }
 
 /// Return an error response
+#[allow(clippy::unnecessary_wraps)]
 fn error_response(
     code: warp::http::StatusCode,
     message: &str,
@@ -507,8 +508,8 @@ async fn get_handler(
         );
     }
 
-    let format = params.format.unwrap_or("html".into());
-    let theme = params.theme.unwrap_or("wilmore".into());
+    let format = params.format.unwrap_or_else(|| "html".into());
+    let theme = params.theme.unwrap_or_else(|| "wilmore".into());
 
     let mut documents = documents.lock().await;
     match documents.open(path, None).await {
@@ -535,14 +536,12 @@ async fn get_handler(
                 "content-type",
                 warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
             );
-            return Ok(response);
+            Ok(response)
         }
-        Err(error) => {
-            return error_response(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                &format!("While opening document: {}", error),
-            )
-        }
+        Err(error) => error_response(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            &format!("While opening document: {}", error),
+        ),
     }
 }
 
@@ -559,9 +558,8 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path) -> String {
             Err(_) => return r#""""#.to_string(),
         };
         match path.strip_prefix(cwd) {
-            // TODO: Add a HMAC here
             Ok(path) => format!("/~local/{}", path.display().to_string()),
-            Err(_) => return r#""""#.to_string(),
+            Err(_) => r#""""#.to_string(),
         }
     });
 
