@@ -93,74 +93,93 @@ impl Project {
     const FILE_NAME: &'static str = "project.json";
 
     /// Get the path to a project's manifest file
-    fn file<P: AsRef<Path>>(folder: P) -> PathBuf {
-        folder.as_ref().join(Project::FILE_NAME)
+    fn file<P: AsRef<Path>>(path: P) -> PathBuf {
+        path.as_ref().join(Project::FILE_NAME)
     }
 
-    /// Read a project's manifest file
+    /// Load a project's from its manifest file
     ///
-    /// If there is no manifest file, then return a default project
-    fn read<P: AsRef<Path>>(folder: P) -> Result<Project> {
-        let folder = folder.as_ref().canonicalize()?;
-
-        if !folder.exists() {
-            bail!("Project folder does not exist: {}", folder.display())
+    /// If there is no manifest file, then default values will be used
+    fn load<P: AsRef<Path>>(path: P) -> Result<Project> {
+        let path = path.as_ref();
+        if !path.exists() {
+            bail!("Project folder does not exist: {}", path.display())
         }
+        let path = path.canonicalize()?;
 
-        let file = Project::file(&folder);
+        let file = Project::file(&path);
         let mut project = if file.exists() {
             let json = fs::read_to_string(file)?;
             serde_json::from_str(&json)?
         } else {
             Project::default()
         };
-        project.path = folder;
+        project.path = path;
 
         Ok(project)
-    }
-
-    /// Write a project's manifest file
-    ///
-    /// If the project folder does not exist yet then it will be created
-    pub fn write<P: AsRef<Path>>(folder: P, project: &Project) -> Result<()> {
-        fs::create_dir_all(&folder)?;
-
-        let file = Project::file(folder);
-        let json = serde_json::to_string_pretty(project)?;
-        fs::write(file, json)?;
-
-        Ok(())
-    }
-
-    /// Initialize a project in a new, or existing, folder
-    ///
-    /// If the project has already been initialized (i.e. has a manifest file)
-    /// then this function will do nothing.
-    pub fn init<P: AsRef<Path>>(folder: P) -> Result<()> {
-        if Project::file(&folder).exists() {
-            return Ok(());
-        }
-
-        let project = Project::default();
-        Project::write(folder, &project)?;
-
-        Ok(())
     }
 
     /// Open a project from an existing folder
     ///
     /// Reads the `project.json` file (if any) and walks the project folder
     /// to build a filesystem tree.
-    pub fn open<P: AsRef<Path>>(folder: P, config: &config::ProjectsConfig) -> Result<Project> {
-        let mut project = Project::read(&folder)?;
+    pub fn open<P: AsRef<Path>>(path: P, config: &config::ProjectsConfig) -> Result<Project> {
+        // Load the project manifest (if any).
+        let mut project = Project::load(&path)?;
 
         // Get all the files and folders in the project
-        project.files = Files::new(folder);
+        project.files = Files::new(&path);
 
-        // Update the project's properties, some one which may depend on the files
+        // Update the project's properties,
+        // some one which may depend on the files.
         project.update(config);
 
         Ok(project)
+    }
+
+    /// Initialize a project in a new, or existing, folder
+    ///
+    /// If the project has already been initialized (i.e. has a manifest file)
+    /// then this function will do nothing.
+    pub fn init<P: AsRef<Path>>(path: P, config: &config::ProjectsConfig) -> Result<()> {
+        if Project::file(&path).exists() {
+            return Ok(());
+        }
+
+        if !path.as_ref().exists() {
+            fs::create_dir_all(&path)?;
+        }
+
+        let project = Project::open(path, config)?;
+        project.write()?;
+
+        Ok(())
+    }
+
+    /// Read a project's manifest file and update the project
+    ///
+    /// Overwrites properties with values from the file and then
+    /// calls `update()`.
+    /// If there is no manifest file, then default values will be used.
+    fn read(&mut self, config: &config::ProjectsConfig) -> Result<()> {
+        let file = Project::file(&self.path);
+        let props = if file.exists() {
+            let json = fs::read_to_string(file)?;
+            serde_json::from_str(&json)?
+        } else {
+            Project::default()
+        };
+
+        self.name = props.name;
+        self.description = props.description;
+        self.main = props.main;
+        self.image = props.image;
+        self.theme = props.theme;
+        self.watch_exclude_patterns = props.watch_exclude_patterns;
+
+        self.update(config);
+
+        Ok(())
     }
 
     /// Update a project after changes to it's package.json or main file.
@@ -169,6 +188,8 @@ impl Project {
     /// there is no matching file in the project, attempts to match one of the
     /// project's files against the `main_patterns`.
     fn update(&mut self, config: &config::ProjectsConfig) {
+        tracing::debug!("Updating project: {}", self.path.display());
+
         let files = &self.files.files;
 
         // Resolve the main file path first as some of the other project properties
@@ -226,6 +247,22 @@ impl Project {
         self.theme = self.theme.clone().or_else(|| Some(config.theme.clone()));
     }
 
+    /// Write a project's manifest file
+    ///
+    /// If the project folder does not exist yet then it will be created
+    pub fn write(&self) -> Result<()> {
+        let path = &self.path;
+        if !path.exists() {
+            fs::create_dir_all(path)?;
+        }
+
+        let file = Project::file(path);
+        let json = serde_json::to_string_pretty(self)?;
+        fs::write(file, json)?;
+
+        Ok(())
+    }
+
     /// Show a project
     ///
     /// Generates a Markdown representation of a project.
@@ -237,8 +274,8 @@ impl Project {
 # {{name}}
 
 **Project path**: {{ path }}
-**Main file**: {{ main_path }}
-**Image file**: {{ image_path }}
+**Main file**: {{ mainPath }}
+**Image file**: {{ imagePath }}
 **Theme**: {{ theme }}
 
 "#;
@@ -285,6 +322,9 @@ impl ProjectHandler {
             // Create a `PathBuf` of the folder to send to the thread
             let folder = folder.as_ref().to_path_buf();
 
+            // Clone the config to send to the thread
+            let config = config.clone();
+
             let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
             std::thread::spawn(move || -> Result<()> {
                 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
@@ -294,6 +334,9 @@ impl ProjectHandler {
                 let mut watcher = watcher(watcher_sender, Duration::from_secs(1))?;
                 watcher.watch(&folder, RecursiveMode::Recursive)?;
 
+                let folder_string = folder.display().to_string();
+
+                // The globs of files to be excluded from the watch
                 let exclude_globs: Vec<glob::Pattern> = watch_exclude_patterns
                     .iter()
                     .filter_map(|pattern| match glob::Pattern::new(pattern) {
@@ -309,7 +352,11 @@ impl ProjectHandler {
                     })
                     .collect();
 
-                let should_include = |event_path: &Path| {
+                // Lock the mutex for the project
+                let lock = || project.lock().expect("Unable to lock project");
+
+                // Should the event trigger an update to the project files?
+                let should_update_files = |event_path: &Path| {
                     if let Ok(event_path) = event_path.strip_prefix(&folder) {
                         for glob in &exclude_globs {
                             if glob.matches(&event_path.display().to_string()) {
@@ -320,29 +367,55 @@ impl ProjectHandler {
                     true
                 };
 
+                // Should the event trigger an update to other project properties?
+                let should_read_project = |event_path: &Path| {
+                    if let Some(file_name) = event_path.file_name() {
+                        if file_name == Project::FILE_NAME {
+                            return true;
+                        }
+                    }
+                    false
+                };
+
+                // Read the project
+                let read_project = || {
+                    if let Err(error) = lock().read(&config) {
+                        tracing::error!("While reading project '{}': {}", folder_string, error)
+                    }
+                };
+
+                // Handle an event
                 let handle_event = |event: DebouncedEvent| match event {
                     DebouncedEvent::Create(path) => {
-                        if should_include(&path) {
-                            let project = &mut *project.lock().unwrap();
-                            project.files.created(&path)
+                        if should_update_files(&path) {
+                            lock().files.created(&path);
+                        }
+                        if should_read_project(&path) {
+                            read_project();
                         }
                     }
                     DebouncedEvent::Remove(path) => {
-                        if should_include(&path) {
-                            let project = &mut *project.lock().unwrap();
-                            project.files.removed(&path)
+                        if should_update_files(&path) {
+                            lock().files.removed(&path);
+                        }
+                        if should_read_project(&path) {
+                            read_project();
                         }
                     }
                     DebouncedEvent::Rename(from, to) => {
-                        if should_include(&from) || should_include(&to) {
-                            let project = &mut *project.lock().unwrap();
-                            project.files.renamed(&from, &to);
+                        if should_update_files(&from) || should_update_files(&to) {
+                            lock().files.renamed(&from, &to);
+                        }
+                        if should_read_project(&from) || should_read_project(&to) {
+                            read_project();
                         }
                     }
                     DebouncedEvent::Write(path) => {
-                        if should_include(&path) {
-                            let project = &mut *project.lock().unwrap();
-                            project.files.modified(&path)
+                        if should_update_files(&path) {
+                            lock().files.modified(&path);
+                        }
+                        if should_read_project(&path) {
+                            read_project();
                         }
                     }
                     _ => {}
@@ -352,7 +425,6 @@ impl ProjectHandler {
                 // whether we can end this thread.
                 let timeout = Duration::from_millis(100);
 
-                let folder_string = folder.display().to_string();
                 let span = tracing::info_span!("project_watcher", project = folder_string.as_str());
                 let _enter = span.enter();
                 tracing::debug!("Starting project watcher: {}", folder_string);
@@ -529,7 +601,7 @@ pub mod cli {
         ) -> display::Result {
             let Self { action } = self;
             match action {
-                Action::Init(action) => action.run(),
+                Action::Init(action) => action.run(config),
                 Action::List(action) => action.run(projects),
                 Action::Open(action) => action.run(projects, config),
                 Action::Close(action) => action.run(projects),
@@ -556,9 +628,9 @@ pub mod cli {
     }
 
     impl Init {
-        pub fn run(&self) -> display::Result {
+        pub fn run(&self, config: &config::ProjectsConfig) -> display::Result {
             let Self { folder } = self;
-            Project::init(folder)?;
+            Project::init(folder, config)?;
             display::nothing()
         }
     }
