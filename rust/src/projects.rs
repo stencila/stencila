@@ -250,14 +250,14 @@ impl Project {
 
 #[derive(Debug)]
 pub struct ProjectHandler {
-    /// The project being handled
+    /// The project being handled.
     project: Arc<Mutex<Project>>,
 
-    /// The project watcher's channel sender
+    /// The watcher thread's channel sender.
     ///
     /// Held so that when this handler is dropped, the
-    /// watcher thread is closed
-    pub watcher: Option<crossbeam_channel::Sender<()>>,
+    /// watcher thread is ended.
+    watcher: Option<crossbeam_channel::Sender<()>>,
 }
 
 impl ProjectHandler {
@@ -285,9 +285,6 @@ impl ProjectHandler {
             // Create a `PathBuf` of the folder to send to the thread
             let folder = folder.as_ref().to_path_buf();
 
-            // Create a `string` of the folder for use by logging in the thread
-            let folder_string = folder.display().to_string();
-
             let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
             std::thread::spawn(move || -> Result<()> {
                 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
@@ -295,7 +292,7 @@ impl ProjectHandler {
 
                 let (watcher_sender, watcher_receiver) = mpsc::channel();
                 let mut watcher = watcher(watcher_sender, Duration::from_secs(1))?;
-                watcher.watch(&folder, RecursiveMode::Recursive).unwrap();
+                watcher.watch(&folder, RecursiveMode::Recursive)?;
 
                 let exclude_globs: Vec<glob::Pattern> = watch_exclude_patterns
                     .iter()
@@ -351,12 +348,14 @@ impl ProjectHandler {
                     _ => {}
                 };
 
-                let span = tracing::info_span!("file_watch", project = folder_string.as_str());
-                let _enter = span.enter();
-                tracing::debug!("Starting project file watch: {}", folder_string);
                 // Event checking timeout. Can be quite long since only want to check
                 // whether we can end this thread.
                 let timeout = Duration::from_millis(100);
+
+                let folder_string = folder.display().to_string();
+                let span = tracing::info_span!("project_watcher", project = folder_string.as_str());
+                let _enter = span.enter();
+                tracing::debug!("Starting project watcher: {}", folder_string);
                 loop {
                     // Check for an event. Use `recv_timeout` so we don't
                     // get stuck here and will do following check that ends this
@@ -368,10 +367,10 @@ impl ProjectHandler {
                     if let Err(crossbeam_channel::TryRecvError::Disconnected) =
                         thread_receiver.try_recv()
                     {
-                        tracing::debug!("Ending project file watch: {}", folder_string);
                         break;
                     }
                 }
+                tracing::debug!("Ending project watcher: {}", folder_string);
 
                 Ok(())
             });
