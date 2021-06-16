@@ -7,7 +7,7 @@ use regex::Regex;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::sync::{Arc, Mutex, MutexGuard, mpsc};
+use std::sync::{mpsc, Arc, Mutex, MutexGuard};
 use std::{
     collections::{hash_map::Entry, HashMap},
     fs,
@@ -46,17 +46,11 @@ impl ProjectEvent {
     /// Will publish the events under the `projects:<>:props` topic
     /// so it can be differentiated from `FileEvents` under the
     /// `projects:{}:files` topic.
-    pub fn publish(
-        project: &Project,
-        type_: ProjectEventType,
-    ) {
-        let topic = &format!(
-            "projects:{}:props",
-            project.path.display()
-        );
+    pub fn publish(project: &Project, type_: ProjectEventType) {
+        let topic = &format!("projects:{}:props", project.path.display());
         let event = ProjectEvent {
             project: project.clone(),
-            type_
+            type_,
         };
         publish(topic, &event)
     }
@@ -561,7 +555,7 @@ impl Projects {
     /// Get a project
     pub fn get<P: AsRef<Path>>(&mut self, path: P) -> Result<MutexGuard<Project>> {
         let path = path.as_ref().canonicalize()?;
-        
+
         if let Some(handler) = self.registry.get(&path) {
             Ok(handler.project.lock().expect("Unable to lock project"))
         } else {
