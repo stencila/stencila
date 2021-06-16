@@ -1,3 +1,10 @@
+## [0.85.1](https://github.com/stencila/stencila/compare/v0.85.0...v0.85.1) (2021-06-16)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/brand to v0.7.1 ([0eab022](https://github.com/stencila/stencila/commit/0eab022296c7fc4e4a5559ad300faaedd4c5b8d8))
+
 # [0.85.0](https://github.com/stencila/stencila/compare/v0.84.0...v0.85.0) (2021-06-15)
 
 
