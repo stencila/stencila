@@ -698,15 +698,11 @@ impl DocumentHandler {
         // Async task to handle events
         let handler = tokio::spawn(async move {
             tracing::debug!("Starting document handler");
-            loop {
-                if let Some(event) = async_receiver.recv().await {
-                    match event {
-                        DebouncedEvent::Remove(path) => document.lock().await.deleted(path),
-                        DebouncedEvent::Write(path) => document.lock().await.modified(path).await,
-                        _ => {}
-                    }
-                } else {
-                    break;
+            while let Some(event) = async_receiver.recv().await {
+                match event {
+                    DebouncedEvent::Remove(path) => document.lock().await.deleted(path),
+                    DebouncedEvent::Write(path) => document.lock().await.modified(path).await,
+                    _ => {}
                 }
             }
             // Because we abort this thread, this entry may never get
