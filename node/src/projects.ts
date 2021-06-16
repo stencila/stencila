@@ -2,7 +2,7 @@
 
 import { JSONSchema7 } from 'json-schema'
 import { fromJSON } from './prelude'
-import { subscribe } from './pubsub'
+import { subscribe, Subscriber } from './pubsub'
 import { Project } from './types'
 
 const addon = require('../index.node')
@@ -30,17 +30,34 @@ export function list(): string[] {
  * Open a project
  *
  * @param path Path to the project folder
- * @param subscriber A subscriber function that will receive published
- *                   events for the project
+ * @param projectEventsSubscriber A subscriber function that will receive `ProjectEvent`s
+ * @param fileEventsSubscriber A subscriber function that will receive `FileEvent`s
  * @return A project
  */
 export function open(
   folder: string,
-  subscriber?: (topic: string, event: unknown) => unknown
+  projectEventsSubscriber?: Subscriber,
+  fileEventsSubscriber?: Subscriber
 ): Project {
   const project = fromJSON<Project>(addon.projectsOpen(folder))
-  if (subscriber !== undefined) subscribe(`projects:${project.path}`, subscriber)
+  if (projectEventsSubscriber !== undefined)
+    subscribe(`projects:${project.path}:props`, projectEventsSubscriber)
+  if (fileEventsSubscriber !== undefined)
+    subscribe(`projects:${project.path}:files`, fileEventsSubscriber)
   return project as Project
+}
+
+/**
+ * Write a project's `project.json` file
+ * 
+ * TODO: Allow passing of new project properties
+ * to the project.
+ *
+ * @param path Path to the project folder
+ * @return A project
+ */
+export function write(folder: string) {
+  addon.projectsWrite(folder)
 }
 
 /**

@@ -43,12 +43,16 @@ pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
     to_json_or_throw(cx, projects.open(folder, &config.projects, true))
 }
 
+/// Write a project
+pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let folder = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let projects = &mut *obtain(&mut cx)?;
+    to_undefined_or_throw(cx, projects.write(folder))
+}
+
 /// Close a project
 pub fn close(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let folder = &cx.argument::<JsString>(0)?.value(&mut cx);
     let projects = &mut *obtain(&mut cx)?;
-    match projects.close(folder) {
-        Ok(_) => Ok(cx.undefined()),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
+    to_undefined_or_throw(cx, projects.close(folder))
 }

@@ -1,17 +1,66 @@
 use crate::cli::display;
 use crate::files::{File, FileEvent, Files};
+use crate::pubsub::publish;
 use crate::utils::schemas;
 use eyre::{bail, Result};
 use regex::Regex;
-use schemars::{schema::Schema, JsonSchema};
+use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard, mpsc};
 use std::{
     collections::{hash_map::Entry, HashMap},
     fs,
     path::{Path, PathBuf},
 };
+use strum::ToString;
+
+#[derive(Debug, JsonSchema, Serialize, ToString)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+enum ProjectEventType {
+    Updated,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+struct ProjectEvent {
+    /// The project associated with the event
+    #[schemars(schema_with = "ProjectEvent::schema_project")]
+    project: Project,
+
+    /// The type of event
+    #[serde(rename = "type")]
+    type_: ProjectEventType,
+}
+
+impl ProjectEvent {
+    /// Generate the JSON Schema for the `project` property to avoid nesting
+    fn schema_project(_generator: &mut SchemaGenerator) -> Schema {
+        schemas::typescript("Project", true)
+    }
+
+    /// Publish a `ProjectEvent`.
+    ///
+    /// Will publish the events under the `projects:<>:props` topic
+    /// so it can be differentiated from `FileEvents` under the
+    /// `projects:{}:files` topic.
+    pub fn publish(
+        project: &Project,
+        type_: ProjectEventType,
+    ) {
+        let topic = &format!(
+            "projects:{}:props",
+            project.path.display()
+        );
+        let event = ProjectEvent {
+            project: project.clone(),
+            type_
+        };
+        publish(topic, &event)
+    }
+}
 
 /// Details of a project
 ///
@@ -245,6 +294,8 @@ impl Project {
 
         // Theme defaults to the configured default
         self.theme = self.theme.clone().or_else(|| Some(config.theme.clone()));
+
+        ProjectEvent::publish(self, ProjectEventType::Updated)
     }
 
     /// Write a project's manifest file
@@ -490,15 +541,15 @@ impl Projects {
     /// Open a project
     pub fn open<P: AsRef<Path>>(
         &mut self,
-        folder: P,
+        path: P,
         config: &config::ProjectsConfig,
         watch: bool,
     ) -> Result<Project> {
-        let path = folder.as_ref().canonicalize()?;
+        let path = path.as_ref().canonicalize()?;
 
-        let handler = match self.registry.entry(path) {
+        let handler = match self.registry.entry(path.clone()) {
             Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => match ProjectHandler::open(folder, config, watch) {
+            Entry::Vacant(entry) => match ProjectHandler::open(path, config, watch) {
                 Ok(handler) => entry.insert(handler),
                 Err(error) => return Err(error),
             },
@@ -507,9 +558,25 @@ impl Projects {
         Ok(handler.project.lock().unwrap().clone())
     }
 
+    /// Get a project
+    pub fn get<P: AsRef<Path>>(&mut self, path: P) -> Result<MutexGuard<Project>> {
+        let path = path.as_ref().canonicalize()?;
+        
+        if let Some(handler) = self.registry.get(&path) {
+            Ok(handler.project.lock().expect("Unable to lock project"))
+        } else {
+            bail!("No project with path {}", path.display())
+        }
+    }
+
+    /// Write a project
+    pub fn write<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
+        self.get(&path)?.write()
+    }
+
     /// Close a project
-    pub fn close<P: AsRef<Path>>(&mut self, folder: P) -> Result<()> {
-        let path = folder.as_ref().canonicalize()?;
+    pub fn close<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
+        let path = path.as_ref().canonicalize()?;
         self.registry.remove(&path);
         Ok(())
     }
@@ -519,6 +586,7 @@ impl Projects {
 pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![
         schemas::generate::<Project>()?,
+        schemas::generate::<ProjectEvent>()?,
         schemas::generate::<File>()?,
         schemas::generate::<FileEvent>()?,
     ]);
