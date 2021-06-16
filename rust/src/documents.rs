@@ -24,7 +24,6 @@ use tokio::{sync::Mutex, task::JoinHandle};
 #[derive(Debug, JsonSchema, Serialize, ToString)]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
-#[schemars(deny_unknown_fields)]
 enum DocumentEventType {
     Deleted,
     Renamed,
