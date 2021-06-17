@@ -21,6 +21,7 @@ export class AppProjectSidebarFiles {
               {files.map((filePath) => (
                 <app-project-sidebar-file
                   filePath={filePath}
+                  key={filePath}
                 ></app-project-sidebar-file>
               ))}
             </ul>
