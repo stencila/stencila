@@ -85,6 +85,8 @@ test('workflow: open and modify', async () => {
   )
 
   // Modify the project.json file on disk
+  projectEvents = []
+  fileEvents = []
   fs.writeFileSync(
     path.join(folder, 'project.json'),
     JSON.stringify({
@@ -93,23 +95,19 @@ test('workflow: open and modify', async () => {
   )
   // This timeout needs to be longer than the file watcher debouncing
   await new Promise((resolve) => setTimeout(resolve, 500))
-  expect(projectEvents).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        type: 'updated',
-        project: expect.objectContaining({
-          path: folder,
-          theme: 'wilmore',
-        }),
+  expect(projectEvents).toEqual([
+    expect.objectContaining({
+      type: 'updated',
+      project: expect.objectContaining({
+        path: folder,
+        theme: 'wilmore',
       }),
-    ])
-  )
-  expect(fileEvents).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        type: 'created',
-        path: path.join(folder, 'project.json'),
-      }),
-    ])
-  )
+    }),
+  ])
+  expect(fileEvents).toEqual([
+    expect.objectContaining({
+      type: 'created',
+      path: path.join(folder, 'project.json'),
+    }),
+  ])
 })
