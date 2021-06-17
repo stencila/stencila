@@ -311,13 +311,7 @@ export const generateTypeMaps = async (): Promise<string> => {
   ])
 
   return (
-    `
-  export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }
-
-  export type TypeMapGeneric<
-    T extends { type: string } & object = { type: string }
-  > = { [key in T['type']]: key }
-  ` +
+    `export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }\n` +
     files
       .map((file) => {
         const { title = '' } = file

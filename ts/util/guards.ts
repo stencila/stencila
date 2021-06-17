@@ -6,7 +6,6 @@ import {
   inlineContentTypes,
   Node,
   TypeMap,
-  TypeMapGeneric,
   Types,
 } from '../types'
 
@@ -43,7 +42,7 @@ export const isEntity = (node?: Node): node is Entity => {
  * e.g. isTypeOf('CreativeWork')(node)
  */
 export const isTypeOf =
-  <T extends Partial<TypeMap | TypeMapGeneric>>(typeMap: T) =>
+  <T extends Partial<TypeMap>>(typeMap: T) =>
   (node?: Node): boolean =>
     isEntity(node) && Object.keys(typeMap).includes(node.type)
 
