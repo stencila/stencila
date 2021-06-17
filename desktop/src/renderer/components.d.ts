@@ -12,6 +12,7 @@ export namespace Components {
         "documentId": EntityId;
     }
     interface AppDocumentPane {
+        "paneId": EntityId;
     }
     interface AppDocumentPaneEmpty {
     }
@@ -23,7 +24,6 @@ export namespace Components {
     interface AppDocumentPaneTabs {
         "activeDocument": O.Option<EntityId>;
         "paneId": EntityId;
-        "viewIds": EntityId[];
     }
     interface AppDocumentPreview {
         "documentId": EntityId;
@@ -236,6 +236,7 @@ declare namespace LocalJSX {
         "documentId"?: EntityId;
     }
     interface AppDocumentPane {
+        "paneId": EntityId;
     }
     interface AppDocumentPaneEmpty {
     }
@@ -247,7 +248,6 @@ declare namespace LocalJSX {
     interface AppDocumentPaneTabs {
         "activeDocument"?: O.Option<EntityId>;
         "paneId"?: EntityId;
-        "viewIds"?: EntityId[];
     }
     interface AppDocumentPreview {
         "documentId"?: EntityId;

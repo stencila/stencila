@@ -1,4 +1,5 @@
-import { Component, h, Listen } from '@stencil/core'
+import { EntityId } from '@reduxjs/toolkit'
+import { Component, h, Listen, Prop } from '@stencil/core'
 import { array as A, option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { IResizeEvent } from 'split-me/dist/types/components/split-me/interfaces'
@@ -6,8 +7,6 @@ import { state } from '../../../store'
 import {
   selectActiveView,
   selectDoc,
-  selectPaneId,
-  selectPaneViews,
 } from '../../../store/documentPane/documentPaneSelectors'
 
 @Component({
@@ -17,6 +16,8 @@ import {
 })
 export class AppDocumentPane {
   private splitSizes: number[] | undefined
+
+  @Prop() paneId!: EntityId
 
   @Listen('slotResized')
   resizeHandler(e: CustomEvent<IResizeEvent>) {
@@ -31,8 +32,7 @@ export class AppDocumentPane {
       <div class="documentPane">
         <app-document-pane-tabs
           activeDocument={activeDocumentId}
-          paneId={selectPaneId(state)}
-          viewIds={selectPaneViews(state)(selectPaneId(state))}
+          paneId={this.paneId}
         ></app-document-pane-tabs>
 
         {pipe(

@@ -1,4 +1,6 @@
 import { Component, h, Host, Prop, State } from '@stencil/core'
+import { option as O } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 import { File } from 'stencila'
 import { state } from '../../../../store'
 import { addDocumentToPane } from '../../../../store/documentPane/documentPaneActions'
@@ -21,10 +23,11 @@ export class AppProjectSidebarFile {
   private file: File | undefined
 
   setActiveFile = (path: string) => {
-    const paneId = selectPaneId(state)
-    if (paneId) {
-      addDocumentToPane(paneId.toString(), path)
-    }
+    pipe(
+      state,
+      selectPaneId,
+      O.map((paneId) => addDocumentToPane(paneId, path))
+    )
   }
 
   private clickHandler = (e: MouseEvent) => {

@@ -19,6 +19,7 @@ export type DocumentPane = {
 }
 
 export type NormalizedDocumentPaneStore = {
+  activePane: O.Option<EntityId>
   entities: {
     panes: Record<EntityId, DocumentPane>
     views: Record<EntityId, PaneView>

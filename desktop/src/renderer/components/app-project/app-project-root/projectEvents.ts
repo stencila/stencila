@@ -6,22 +6,19 @@ import { state, store } from '../../../store'
 import { closeDocument } from '../../../store/documentPane/documentPaneActions'
 import {
   selectActiveView,
-  selectPaneId
+  selectPaneId,
 } from '../../../store/documentPane/documentPaneSelectors'
 import { projectActions } from '../../../store/project/projectStore'
 
 export const listenForFileEvents = (_projectId: string) => {
-  window.api.receive(CHANNEL.GET_PROJECT_FILES, event => {
+  window.api.receive(CHANNEL.GET_PROJECT_FILES, (event) => {
     const e = event as FileEvent
     store.dispatch(projectActions.updateProjectFiles(e.files))
   })
 
   window.api.receive(CHANNEL.CLOSE_ACTIVE_DOCUMENT, () => {
     pipe(
-      AP.sequenceT(O.Apply)(
-        O.fromNullable(selectPaneId(state)),
-        selectActiveView(state)
-      ),
+      AP.sequenceT(O.Apply)(selectPaneId(state), selectActiveView(state)),
       O.map(([paneId, viewId]) => {
         closeDocument(paneId, viewId)
       })

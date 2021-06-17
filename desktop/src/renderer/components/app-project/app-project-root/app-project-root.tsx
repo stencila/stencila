@@ -6,17 +6,19 @@ import { fetchProject } from '../../../store/project/projectActions'
 import { ProjectRouter } from '../projectRouter'
 import { listenForFileEvents, removeFileEventListener } from './projectEvents'
 
+const rootPaneId = 1
+
 @Component({
   tag: 'app-project-root',
   styleUrl: 'app-project-root.css',
-  scoped: true
+  scoped: true,
 })
 export class AppProjectRoot {
   componentWillLoad() {
     const projectPath = decodeURI(
       window.location.pathname.replace('/project', '')
     )
-    initPane()
+    initPane(rootPaneId)
     store.dispatch(fetchProject(projectPath))
     listenForFileEvents(projectPath)
   }
@@ -43,7 +45,7 @@ export class AppProjectRoot {
                 path={() => true}
                 render={() => (
                   <main>
-                    <app-document-pane></app-document-pane>
+                    <app-document-pane paneId={rootPaneId}></app-document-pane>
                   </main>
                 )}
               ></Route>

@@ -5,8 +5,8 @@ import { CHANNEL } from '../../../preload/channels'
 import { store } from '../index'
 import { documentPaneActions } from './documentPaneStore'
 
-export const initPane = () => {
-  store.dispatch(documentPaneActions.createPane())
+export const initPane = (paneId: EntityId) => {
+  store.dispatch(documentPaneActions.createPane({ paneId }))
 }
 
 export const addDocumentToPane = async (paneId: EntityId, docId: EntityId) => {
@@ -18,7 +18,7 @@ export const addDocumentToPane = async (paneId: EntityId, docId: EntityId) => {
   return store.dispatch(
     documentPaneActions.addDocToPane({
       paneId,
-      view: { type: 'editor', ...document }
+      view: { type: 'editor', ...document },
     })
   )
 }
@@ -27,7 +27,7 @@ export const closeDocument = (paneId: EntityId, docId: EntityId) => {
   store.dispatch(
     documentPaneActions.removeDocFromPane({
       paneId,
-      docId
+      docId,
     })
   )
 }
@@ -36,7 +36,7 @@ export const setActiveDocument = (paneId: EntityId, docId: EntityId) => {
   store.dispatch(
     documentPaneActions.updatePane({
       id: paneId,
-      changes: { activeView: O.some(docId) }
+      changes: { activeView: O.some(docId) },
     })
   )
 }

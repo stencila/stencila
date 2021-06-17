@@ -1,13 +1,14 @@
 import { createSlice, EntityId, PayloadAction } from '@reduxjs/toolkit'
-import { array as A, option as O, string } from 'fp-ts'
+import { array as A, option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import {
-  PaneView,
   DocumentPane,
   NormalizedDocumentPaneStore,
+  PaneView,
 } from './documentPaneTypes'
 
 const initialState: NormalizedDocumentPaneStore = {
+  activePane: O.none,
   entities: {
     panes: {},
     views: {},
@@ -19,14 +20,14 @@ export const documentPaneSlice = createSlice({
   name: 'documentPanes',
   initialState: initialState,
   reducers: {
-    createPane: (state) => {
-      const newPaneId = state.ids.length + 1
-      state.entities.panes[newPaneId] = {
-        id: newPaneId,
+    createPane: (state, { payload }: PayloadAction<{ paneId: EntityId }>) => {
+      state.activePane = O.some(payload.paneId)
+      state.entities.panes[payload.paneId] = {
+        id: payload.paneId,
         activeView: O.none,
         views: [],
       }
-      state.ids = [...state.ids, newPaneId]
+      state.ids = [...state.ids, payload.paneId]
     },
     updatePane: (
       state,
