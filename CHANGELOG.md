@@ -1,3 +1,12 @@
+## [0.86.1](https://github.com/stencila/stencila/compare/v0.86.0...v0.86.1) (2021-06-17)
+
+
+### Bug Fixes
+
+* **Build:** Fix loading of manifest.json in production builds ([69a0bcd](https://github.com/stencila/stencila/commit/69a0bcd22b4776eb168c9b6e3c88a62418d31cc0))
+* **Desktop:** Expose tab closing shortcuts on all platforms ([96c6554](https://github.com/stencila/stencila/commit/96c65541160dcd865f4c8282b21eecead5a6681b))
+* **File list:** Add keys to items to provide stable identity ([7880374](https://github.com/stencila/stencila/commit/7880374ac38a0c8b9ed684d9e5f877d7bb12c551))
+
 # [0.86.0](https://github.com/stencila/stencila/compare/v0.85.1...v0.86.0) (2021-06-17)
 
 
