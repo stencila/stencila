@@ -446,9 +446,14 @@ const parentSchema = (
  */
 const updateNodeSchema = (schemas: Map<string, JsonSchema>): void => {
   const entitySchema = schemas.get('Entity') as JsonSchema
-  const entityRefs = (entitySchema.descendants ?? []).map((descendant) => ({
-    $ref: `${descendant}.schema.json`,
-  }))
+  const entityRefs = [
+    {
+      $ref: `Entity.schema.json`,
+    },
+    ...(entitySchema.descendants ?? []).map((descendant) => ({
+      $ref: `${descendant}.schema.json`,
+    })),
+  ]
 
   const nodeSchema = schemas.get('Node') as JsonSchema
   nodeSchema.anyOf = [...(entityRefs ?? []), ...(nodeSchema.anyOf ?? [])]

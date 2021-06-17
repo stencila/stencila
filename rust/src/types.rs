@@ -5409,6 +5409,7 @@ pub enum MediaObjectTypes {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Node {
+    Entity(Entity),
     ArrayValidator(ArrayValidator),
     Article(Article),
     AudioObject(AudioObject),
