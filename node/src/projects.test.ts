@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import tmp from 'tmp'
-import { open, schemas, write } from './projects'
+import { open, schemas, subscribe, write } from './projects'
 import { FileEvent, ProjectEvent } from './types'
 
 function fixture(folder: string) {
@@ -68,17 +68,17 @@ test('workflow: open and modify', async () => {
   let fileEvents: FileEvent[] = []
 
   // Open the project
-  const project = open(
-    folder,
-    (_topic, event) => projectEvents.push(event as ProjectEvent),
-    (_topic, event) => fileEvents.push(event as FileEvent)
-  )
+  const project = open(folder)
   expect(project).toEqual(
     expect.objectContaining({
       path: folder,
       theme: 'stencila',
     })
   )
+
+  // Subscribe to the project
+  subscribe(folder, ['props'], (_topic, event) => projectEvents.push(event as ProjectEvent))
+  subscribe(folder, ['files'], (_topic, event) => fileEvents.push(event as FileEvent))
 
   // Modify the project.json file on disk
   fs.writeFileSync(

@@ -6,7 +6,7 @@ use neon::prelude::*;
 use std::sync::{Mutex, MutexGuard};
 use stencila::{
     once_cell::sync::Lazy,
-    projects::{self, Projects},
+    projects::{self, Project, Projects},
 };
 
 /// A global projects store
@@ -23,7 +23,7 @@ pub fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Projec
     }
 }
 
-/// Get project schema
+/// Get schemas
 pub fn schemas(cx: FunctionContext) -> JsResult<JsString> {
     let schema = projects::schemas();
     to_json_or_throw(cx, schema)
@@ -37,22 +37,24 @@ pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
 
 /// Open a project
 pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
-    let folder = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
     let projects = &mut *obtain(&mut cx)?;
     let config = &*config::obtain(&mut cx)?;
-    to_json_or_throw(cx, projects.open(folder, &config.projects, true))
+    to_json_or_throw(cx, projects.open(path, &config.projects, true))
 }
 
 /// Write a project
 pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let folder = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let updates = &cx.argument::<JsString>(1)?.value(&mut cx);
+    let updates = from_json::<Project>(&mut cx, &updates)?;
     let projects = &mut *obtain(&mut cx)?;
-    to_undefined_or_throw(cx, projects.write(folder))
+    to_undefined_or_throw(cx, projects.write(path, Some(updates)))
 }
 
 /// Close a project
 pub fn close(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let folder = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
     let projects = &mut *obtain(&mut cx)?;
-    to_undefined_or_throw(cx, projects.close(folder))
+    to_undefined_or_throw(cx, projects.close(path))
 }

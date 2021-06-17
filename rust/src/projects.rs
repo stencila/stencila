@@ -175,7 +175,7 @@ impl Project {
 
         // Update the project's properties,
         // some one which may depend on the files.
-        project.update(config);
+        project.update(config, None);
 
         Ok(project)
     }
@@ -194,7 +194,7 @@ impl Project {
         }
 
         let project = Project::open(path, config)?;
-        project.write()?;
+        project.write(None)?;
 
         Ok(())
     }
@@ -202,25 +202,36 @@ impl Project {
     /// Read a project's manifest file and update the project
     ///
     /// Overwrites properties with values from the file and then
-    /// calls `update()`.
-    /// If there is no manifest file, then default values will be used.
+    /// calls `update()`. If there is no manifest file, then default
+    /// values will be used.
     fn read(&mut self, config: &config::ProjectsConfig) -> Result<()> {
         let file = Project::file(&self.path);
-        let props = if file.exists() {
+        let updates = if file.exists() {
             let json = fs::read_to_string(file)?;
             serde_json::from_str(&json)?
         } else {
             Project::default()
         };
 
-        self.name = props.name;
-        self.description = props.description;
-        self.main = props.main;
-        self.image = props.image;
-        self.theme = props.theme;
-        self.watch_exclude_patterns = props.watch_exclude_patterns;
+        self.update(config, Some(updates));
 
-        self.update(config);
+        Ok(())
+    }
+
+    /// Write a project's manifest file, optionally providing updated properties
+    ///
+    /// If the project folder does not exist yet then it will be created.
+    pub fn write(&self, updates: Option<Project>) -> Result<()> {
+        // TODO: call update with updates once we have a global config
+
+        let path = &self.path;
+        if !path.exists() {
+            fs::create_dir_all(path)?;
+        }
+
+        let file = Project::file(path);
+        let json = serde_json::to_string_pretty(self)?;
+        fs::write(file, json)?;
 
         Ok(())
     }
@@ -230,8 +241,17 @@ impl Project {
     /// Attempts to use the projects `main` property. If that is not specified, or
     /// there is no matching file in the project, attempts to match one of the
     /// project's files against the `main_patterns`.
-    fn update(&mut self, config: &config::ProjectsConfig) {
+    fn update(&mut self, config: &config::ProjectsConfig, updates: Option<Project>) {
         tracing::debug!("Updating project: {}", self.path.display());
+
+        if let Some(updates) = updates {
+            self.name = updates.name;
+            self.description = updates.description;
+            self.main = updates.main;
+            self.image = updates.image;
+            self.theme = updates.theme;
+            self.watch_exclude_patterns = updates.watch_exclude_patterns;
+        }
 
         let files = &self.files.files;
 
@@ -290,22 +310,6 @@ impl Project {
         self.theme = self.theme.clone().or_else(|| Some(config.theme.clone()));
 
         ProjectEvent::publish(self, ProjectEventType::Updated)
-    }
-
-    /// Write a project's manifest file
-    ///
-    /// If the project folder does not exist yet then it will be created
-    pub fn write(&self) -> Result<()> {
-        let path = &self.path;
-        if !path.exists() {
-            fs::create_dir_all(path)?;
-        }
-
-        let file = Project::file(path);
-        let json = serde_json::to_string_pretty(self)?;
-        fs::write(file, json)?;
-
-        Ok(())
     }
 
     /// Show a project
@@ -564,8 +568,8 @@ impl Projects {
     }
 
     /// Write a project
-    pub fn write<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
-        self.get(&path)?.write()
+    pub fn write<P: AsRef<Path>>(&mut self, path: P, updates: Option<Project>) -> Result<()> {
+        self.get(&path)?.write(updates)
     }
 
     /// Close a project
