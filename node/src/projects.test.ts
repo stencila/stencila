@@ -17,7 +17,9 @@ function fixture(folder: string) {
  * Wait for a bit (usually for events), longer on CI (because that seems necessary).
  */
 async function delay(milliseconds: number) {
-  await new Promise((resolve) => setTimeout(resolve, milliseconds * (process.env.CI ? 4 : 1)))
+  await new Promise((resolve) =>
+    setTimeout(resolve, milliseconds * (process.env.CI ? 4 : 1))
+  )
 }
 
 test('schema', () => {
@@ -109,19 +111,23 @@ test('workflow: open and modify', async () => {
   // Wait for debounced filesystem events to propagate
   await delay(500)
 
-  expect(projectEvents).toEqual([
-    expect.objectContaining({
-      type: 'updated',
-      project: expect.objectContaining({
-        path: folder,
-        theme: 'wilmore',
+  expect(projectEvents).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        type: 'updated',
+        project: expect.objectContaining({
+          path: folder,
+          theme: 'wilmore',
+        }),
       }),
-    }),
-  ])
-  expect(fileEvents).toEqual([
-    expect.objectContaining({
-      type: 'created',
-      path: path.join(folder, 'project.json'),
-    }),
-  ])
+    ])
+  )
+  expect(fileEvents).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        type: 'created',
+        path: path.join(folder, 'project.json'),
+      }),
+    ])
+  )
 })
