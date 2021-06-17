@@ -72,6 +72,10 @@ module.exports = {
           from: path.resolve(__dirname, 'www', 'assets'),
           to: 'assets',
         },
+        {
+          from: path.resolve(__dirname, 'www', 'manifest.json'),
+          to: '.',
+        },
       ],
     }),
   ],
