@@ -22,7 +22,7 @@ export class AppOnboardingEnd {
   render() {
     return (
       <div class="app-onboarding">
-        <stencila-icon icon="cake-2"></stencila-icon>
+        <stencila-icon icon="rocket"></stencila-icon>
 
         <h1>{i18n.t('onboarding.end.title')}</h1>
 

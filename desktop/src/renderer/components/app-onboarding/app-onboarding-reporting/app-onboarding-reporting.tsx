@@ -25,7 +25,7 @@ export class AppOnboardingReoporting {
   render() {
     return (
       <div class="app-onboarding">
-        <stencila-icon icon="bug-2"></stencila-icon>
+        <stencila-icon icon="heart-pulse"></stencila-icon>
 
         <h1>{i18n.t('settings.general.crashReports.label')}</h1>
 
