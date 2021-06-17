@@ -216,11 +216,6 @@ pub async fn lock() -> MutexGuard<'static, Config> {
     CONFIG.lock().await
 }
 
-/// Try to lock the global config store (for use in sync functions)
-pub fn try_lock() -> Result<MutexGuard<'static, Config>> {
-    Ok(CONFIG.try_lock()?)
-}
-
 /// Get the JSON Schema for the configuration
 pub fn schema() -> Result<serde_json::Value> {
     schemas::generate::<Config>()

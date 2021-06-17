@@ -113,7 +113,7 @@ pub async fn run_command(
         Command::Close(command) => command.run(projects, documents).await,
         Command::Show(command) => command.run(projects, documents).await,
         Command::Documents(command) => command.run(documents).await,
-        Command::Projects(command) => command.run(projects),
+        Command::Projects(command) => command.run(projects).await,
         Command::Plugins(command) => plugins::cli::run(command).await,
         Command::Config(command) => config::cli::run(command).await,
         Command::Upgrade(command) => upgrade::cli::run(command).await,
@@ -136,7 +136,7 @@ impl ListCommand {
         documents: &mut documents::Documents,
     ) -> display::Result {
         let mut value = HashMap::new();
-        value.insert("projects", projects.list()?);
+        value.insert("projects", projects.list().await?);
         value.insert("documents", documents.list().await?);
         display::value(value)
     }
@@ -175,7 +175,7 @@ impl OpenCommand {
         let Self { path, theme } = self;
 
         let path = if path.is_dir() {
-            let project = projects.open(&path, true)?;
+            let project = projects.open(&path, true).await?;
             match project.main_path {
                 Some(path) => path,
                 None => {
@@ -286,7 +286,7 @@ impl ShowCommand {
         let Self { path } = self;
 
         if path.is_dir() {
-            display::value(projects.open(&path, true)?)
+            display::value(projects.open(&path, true).await?)
         } else {
             display::value(documents.open(&path, None).await?)
         }

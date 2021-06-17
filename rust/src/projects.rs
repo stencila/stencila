@@ -3,17 +3,21 @@ use crate::files::{File, FileEvent, Files};
 use crate::pubsub::publish;
 use crate::utils::schemas;
 use eyre::{bail, Result};
+use notify::DebouncedEvent;
 use regex::Regex;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::sync::{mpsc, Arc, Mutex, MutexGuard};
+use std::sync::Arc;
+use std::time::Duration;
 use std::{
     collections::{hash_map::Entry, HashMap},
     fs,
     path::{Path, PathBuf},
 };
 use strum::ToString;
+use tokio::sync::Mutex;
+use tokio::task::JoinHandle;
 
 #[derive(Debug, JsonSchema, Serialize, ToString)]
 #[serde(rename_all = "lowercase")]
@@ -166,7 +170,7 @@ impl Project {
     ///
     /// Reads the `project.json` file (if any) and walks the project folder
     /// to build a filesystem tree.
-    pub fn open<P: AsRef<Path>>(path: P) -> Result<Project> {
+    pub async fn open<P: AsRef<Path>>(path: P) -> Result<Project> {
         // Load the project manifest (if any).
         let mut project = Project::load(&path)?;
 
@@ -175,7 +179,7 @@ impl Project {
 
         // Update the project's properties,
         // some one which may depend on the files.
-        project.update(None);
+        project.update(None).await;
 
         Ok(project)
     }
@@ -184,7 +188,7 @@ impl Project {
     ///
     /// If the project has already been initialized (i.e. has a manifest file)
     /// then this function will do nothing.
-    pub fn init<P: AsRef<Path>>(path: P) -> Result<()> {
+    pub async fn init<P: AsRef<Path>>(path: P) -> Result<()> {
         if Project::file(&path).exists() {
             return Ok(());
         }
@@ -193,8 +197,8 @@ impl Project {
             fs::create_dir_all(&path)?;
         }
 
-        let mut project = Project::open(path)?;
-        project.write(None)?;
+        let mut project = Project::open(path).await?;
+        project.write(None).await?;
 
         Ok(())
     }
@@ -204,7 +208,7 @@ impl Project {
     /// Overwrites properties with values from the file and then
     /// calls `update()`. If there is no manifest file, then default
     /// values will be used.
-    fn read(&mut self) -> Result<()> {
+    async fn read(&mut self) -> Result<()> {
         let file = Project::file(&self.path);
         let updates = if file.exists() {
             let json = fs::read_to_string(file)?;
@@ -213,7 +217,7 @@ impl Project {
             Project::default()
         };
 
-        self.update(Some(updates));
+        self.update(Some(updates)).await;
 
         Ok(())
     }
@@ -221,9 +225,9 @@ impl Project {
     /// Write a project's manifest file, optionally providing updated properties
     ///
     /// If the project folder does not exist yet then it will be created.
-    pub fn write(&mut self, updates: Option<Project>) -> Result<()> {
+    pub async fn write(&mut self, updates: Option<Project>) -> Result<()> {
         if updates.is_some() {
-            self.update(updates)
+            self.update(updates).await
         }
 
         let path = &self.path;
@@ -243,7 +247,7 @@ impl Project {
     /// Attempts to use the projects `main` property. If that is not specified, or
     /// there is no matching file in the project, attempts to match one of the
     /// project's files against the `main_patterns`.
-    fn update(&mut self, updates: Option<Project>) {
+    async fn update(&mut self, updates: Option<Project>) {
         tracing::debug!("Updating project: {}", self.path.display());
 
         if let Some(updates) = updates {
@@ -257,9 +261,7 @@ impl Project {
 
         let files = &self.files.files;
 
-        let config = &crate::config::try_lock()
-            .expect("Unable to lock config")
-            .projects;
+        let config = &crate::config::lock().await.projects;
 
         // Resolve the main file path first as some of the other project properties
         // may be defined there (e.g. in the YAML header of a Markdown file)
@@ -350,16 +352,43 @@ pub struct ProjectHandler {
     /// Held so that when this handler is dropped, the
     /// watcher thread is ended.
     watcher: Option<crossbeam_channel::Sender<()>>,
+
+    /// The event handler thread's join handle.
+    ///
+    /// Held so that when this handler is dropped, the
+    /// event handler thread is aborted.
+    handler: Option<JoinHandle<()>>,
+}
+
+impl Drop for ProjectHandler {
+    fn drop(&mut self) {
+        match &self.handler {
+            Some(handler) => handler.abort(),
+            None => {}
+        }
+    }
 }
 
 impl ProjectHandler {
     /// Open a project and, optionally, watch it for changes
-    pub fn open<P: AsRef<Path>>(folder: P, watch: bool) -> Result<ProjectHandler> {
-        let project = Project::open(&folder)?;
+    pub async fn open<P: AsRef<Path>>(folder: P, watch: bool) -> Result<ProjectHandler> {
+        let project = Project::open(&folder).await?;
+        let handler = ProjectHandler::new(project, watch).await;
+        Ok(handler)
+    }
+
+    /// Create a new project handler.
+    ///
+    /// # Arguments
+    ///
+    /// - `project`: The project that this handler is for.
+    /// - `watch`: Whether to watch the project (e.g. not for temporary, new files)
+    async fn new(project: Project, watch: bool) -> ProjectHandler {
+        let path = project.path.clone();
 
         // Watch exclude patterns default to the configured defaults.
-        // Note that this project setting can not be updated while it is open.
-        let config = &crate::config::try_lock()?.projects;
+        // Note that this project setting can not be updated while it is being watched.
+        let config = &crate::config::lock().await.projects;
         let watch_exclude_patterns = project
             .watch_exclude_patterns
             .clone()
@@ -367,141 +396,177 @@ impl ProjectHandler {
 
         let project = Arc::new(Mutex::new(project));
 
-        let watcher = if watch {
-            // Clone the mutex to send to the thread
-            let project = project.clone();
+        let (watcher, handler) = if watch {
+            let (watcher, handler) =
+                ProjectHandler::watch(path, watch_exclude_patterns, Arc::clone(&project));
+            (Some(watcher), Some(handler))
+        } else {
+            (None, None)
+        };
 
-            // Create a `PathBuf` of the folder to send to the thread
-            let folder = folder.as_ref().to_path_buf();
+        ProjectHandler {
+            project,
+            watcher,
+            handler,
+        }
+    }
 
-            let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
-            std::thread::spawn(move || -> Result<()> {
-                use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
-                use std::time::Duration;
+    const WATCHER_DELAY_MILLIS: u64 = 300;
 
-                let (watcher_sender, watcher_receiver) = mpsc::channel();
-                let mut watcher = watcher(watcher_sender, Duration::from_secs(1))?;
-                watcher.watch(&folder, RecursiveMode::Recursive)?;
+    /// Watch the project.
+    fn watch(
+        path: PathBuf,
+        watch_exclude_patterns: Vec<String>,
+        project: Arc<Mutex<Project>>,
+    ) -> (crossbeam_channel::Sender<()>, JoinHandle<()>) {
+        let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
+        let (async_sender, mut async_receiver) = tokio::sync::mpsc::channel(100);
 
-                let folder_string = folder.display().to_string();
+        let path_clone = path.clone();
 
-                // The globs of files to be excluded from the watch
-                let exclude_globs: Vec<glob::Pattern> = watch_exclude_patterns
-                    .iter()
-                    .filter_map(|pattern| match glob::Pattern::new(pattern) {
-                        Ok(glob) => Some(glob),
-                        Err(error) => {
-                            tracing::warn!(
-                                "Invalid watch exclude glob pattern; will ignore: {} : {}",
-                                pattern,
-                                error
-                            );
-                            None
-                        }
-                    })
-                    .collect();
+        // Standard thread to run blocking sync file watcher
+        std::thread::spawn(move || -> Result<()> {
+            use notify::{watcher, RecursiveMode, Watcher};
 
-                // Lock the mutex for the project
-                let lock = || project.lock().expect("Unable to lock project");
+            let (watcher_sender, watcher_receiver) = std::sync::mpsc::channel();
+            let mut watcher = watcher(
+                watcher_sender,
+                Duration::from_millis(ProjectHandler::WATCHER_DELAY_MILLIS),
+            )?;
+            watcher.watch(&path, RecursiveMode::Recursive)?;
 
-                // Should the event trigger an update to the project files?
-                let should_update_files = |event_path: &Path| {
-                    if let Ok(event_path) = event_path.strip_prefix(&folder) {
-                        for glob in &exclude_globs {
-                            if glob.matches(&event_path.display().to_string()) {
-                                return false;
-                            }
-                        }
-                    }
-                    true
-                };
+            // Event checking timeout. Can be quite long since only want to check
+            // whether we can end this thread.
+            let timeout = Duration::from_millis(100);
 
-                // Should the event trigger an update to other project properties?
-                let should_read_project = |event_path: &Path| {
-                    if let Some(file_name) = event_path.file_name() {
-                        if file_name == Project::FILE_NAME {
-                            return true;
-                        }
-                    }
-                    false
-                };
-
-                // Read the project
-                let read_project = || {
-                    if let Err(error) = lock().read() {
-                        tracing::error!("While reading project '{}': {}", folder_string, error)
-                    }
-                };
-
-                // Handle an event
-                let handle_event = |event: DebouncedEvent| match event {
-                    DebouncedEvent::Create(path) => {
-                        if should_update_files(&path) {
-                            lock().files.created(&path);
-                        }
-                        if should_read_project(&path) {
-                            read_project();
-                        }
-                    }
-                    DebouncedEvent::Remove(path) => {
-                        if should_update_files(&path) {
-                            lock().files.removed(&path);
-                        }
-                        if should_read_project(&path) {
-                            read_project();
-                        }
-                    }
-                    DebouncedEvent::Rename(from, to) => {
-                        if should_update_files(&from) || should_update_files(&to) {
-                            lock().files.renamed(&from, &to);
-                        }
-                        if should_read_project(&from) || should_read_project(&to) {
-                            read_project();
-                        }
-                    }
-                    DebouncedEvent::Write(path) => {
-                        if should_update_files(&path) {
-                            lock().files.modified(&path);
-                        }
-                        if should_read_project(&path) {
-                            read_project();
-                        }
-                    }
-                    _ => {}
-                };
-
-                // Event checking timeout. Can be quite long since only want to check
-                // whether we can end this thread.
-                let timeout = Duration::from_millis(100);
-
-                let span = tracing::info_span!("project_watcher", project = folder_string.as_str());
-                let _enter = span.enter();
-                tracing::debug!("Starting project watcher: {}", folder_string);
-                loop {
-                    // Check for an event. Use `recv_timeout` so we don't
-                    // get stuck here and will do following check that ends this
-                    // thread if the owning `ProjectHandler` is dropped
-                    if let Ok(event) = watcher_receiver.recv_timeout(timeout) {
-                        handle_event(event)
-                    }
-                    // Check to see if this thread should be ended
-                    if let Err(crossbeam_channel::TryRecvError::Disconnected) =
-                        thread_receiver.try_recv()
-                    {
+            let path_string = path.display().to_string();
+            let span = tracing::info_span!("project_watcher", project = path_string.as_str());
+            let _enter = span.enter();
+            tracing::debug!("Starting project watcher: {}", path_string);
+            loop {
+                // Check for an event. Use `recv_timeout` so we don't
+                // get stuck here and will do following check that ends this
+                // thread if the owning `DocumentHandler` is dropped
+                if let Ok(event) = watcher_receiver.recv_timeout(timeout) {
+                    tracing::debug!("Event for project '{}': {:?}", path_string, event);
+                    if async_sender.blocking_send(event).is_err() {
                         break;
                     }
                 }
-                tracing::debug!("Ending project watcher: {}", folder_string);
+                // Check to see if this thread should be ended
+                if let Err(crossbeam_channel::TryRecvError::Disconnected) =
+                    thread_receiver.try_recv()
+                {
+                    break;
+                }
+            }
+            tracing::debug!("Ending project watcher: {}", path_string);
 
-                Ok(())
-            });
+            // Drop the sync send so that the event handling thread also ends
+            drop(async_sender);
 
-            Some(thread_sender)
-        } else {
-            None
-        };
+            Ok(())
+        });
 
-        Ok(ProjectHandler { project, watcher })
+        // Async task to handle events
+        let handler = tokio::spawn(async move {
+            // The globs of files to be excluded from the watch
+            let exclude_globs: Vec<glob::Pattern> = watch_exclude_patterns
+                .iter()
+                .filter_map(|pattern| match glob::Pattern::new(pattern) {
+                    Ok(glob) => Some(glob),
+                    Err(error) => {
+                        tracing::warn!(
+                            "Invalid watch exclude glob pattern; will ignore: {} : {}",
+                            pattern,
+                            error
+                        );
+                        None
+                    }
+                })
+                .collect();
+
+            // Should the event trigger an update to the project files?
+            let should_update_files = |event_path: &Path| {
+                if let Ok(event_path) = event_path.strip_prefix(&path_clone) {
+                    for glob in &exclude_globs {
+                        if glob.matches(&event_path.display().to_string()) {
+                            return false;
+                        }
+                    }
+                }
+                true
+            };
+
+            // Should the event trigger an update to other project properties?
+            let should_read_project = |event_path: &Path| {
+                if let Some(file_name) = event_path.file_name() {
+                    if file_name == Project::FILE_NAME {
+                        return true;
+                    }
+                }
+                false
+            };
+
+            // Read the project
+            async fn read_project(project: &mut Project) {
+                if let Err(error) = project.read().await {
+                    tracing::error!(
+                        "While reading project '{}': {}",
+                        project.path.display(),
+                        error
+                    )
+                }
+            }
+
+            tracing::debug!("Starting project handler");
+            while let Some(event) = async_receiver.recv().await {
+                match event {
+                    DebouncedEvent::Create(path) => {
+                        let project = &mut *project.lock().await;
+                        if should_update_files(&path) {
+                            project.files.created(&path);
+                        }
+                        if should_read_project(&path) {
+                            read_project(project).await;
+                        }
+                    }
+                    DebouncedEvent::Remove(path) => {
+                        let project = &mut *project.lock().await;
+                        if should_update_files(&path) {
+                            project.files.removed(&path);
+                        }
+                        if should_read_project(&path) {
+                            read_project(project).await;
+                        }
+                    }
+                    DebouncedEvent::Rename(from, to) => {
+                        let project = &mut *project.lock().await;
+                        if should_update_files(&from) || should_update_files(&to) {
+                            project.files.renamed(&from, &to);
+                        }
+                        if should_read_project(&from) || should_read_project(&to) {
+                            read_project(project).await;
+                        }
+                    }
+                    DebouncedEvent::Write(path) => {
+                        let project = &mut *project.lock().await;
+                        if should_update_files(&path) {
+                            project.files.modified(&path);
+                        }
+                        if should_read_project(&path) {
+                            read_project(project).await;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            // Because we abort this thread, this entry may never get
+            // printed (only if the `async_sender` is dropped before this is aborted)
+            tracing::debug!("Ending project handler");
+        });
+
+        (thread_sender, handler)
     }
 }
 
@@ -521,11 +586,11 @@ impl Projects {
     /// List documents that are currently open
     ///
     /// Returns a vector of document paths (relative to the current working directory)
-    pub fn list(&self) -> Result<Vec<String>> {
+    pub async fn list(&self) -> Result<Vec<String>> {
         let cwd = std::env::current_dir()?;
         let mut paths = Vec::new();
         for project in self.registry.values() {
-            let path = &project.project.lock().expect("Unable to obtain lock").path;
+            let path = &project.project.lock().await.path;
             let path = match pathdiff::diff_paths(path, &cwd) {
                 Some(path) => path,
                 None => path.clone(),
@@ -537,34 +602,34 @@ impl Projects {
     }
 
     /// Open a project
-    pub fn open<P: AsRef<Path>>(&mut self, path: P, watch: bool) -> Result<Project> {
+    pub async fn open<P: AsRef<Path>>(&mut self, path: P, watch: bool) -> Result<Project> {
         let path = path.as_ref().canonicalize()?;
 
         let handler = match self.registry.entry(path.clone()) {
             Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => match ProjectHandler::open(path, watch) {
+            Entry::Vacant(entry) => match ProjectHandler::open(path, watch).await {
                 Ok(handler) => entry.insert(handler),
                 Err(error) => return Err(error),
             },
         };
 
-        Ok(handler.project.lock().unwrap().clone())
+        Ok(handler.project.lock().await.clone())
     }
 
     /// Get a project
-    pub fn get<P: AsRef<Path>>(&mut self, path: P) -> Result<MutexGuard<Project>> {
+    pub fn get<P: AsRef<Path>>(&mut self, path: P) -> Result<Arc<Mutex<Project>>> {
         let path = path.as_ref().canonicalize()?;
 
         if let Some(handler) = self.registry.get(&path) {
-            Ok(handler.project.lock().expect("Unable to lock project"))
+            Ok(handler.project.clone())
         } else {
             bail!("No project with path {}", path.display())
         }
     }
 
     /// Write a project
-    pub fn write<P: AsRef<Path>>(&mut self, path: P, updates: Option<Project>) -> Result<()> {
-        self.get(&path)?.write(updates)
+    pub async fn write<P: AsRef<Path>>(&mut self, path: P, updates: Option<Project>) -> Result<()> {
+        self.get(&path)?.lock().await.write(updates).await
     }
 
     /// Close a project
@@ -655,14 +720,14 @@ pub mod cli {
     }
 
     impl Command {
-        pub fn run(&self, projects: &mut Projects) -> display::Result {
+        pub async fn run(&self, projects: &mut Projects) -> display::Result {
             let Self { action } = self;
             match action {
-                Action::Init(action) => action.run(),
-                Action::List(action) => action.run(projects),
-                Action::Open(action) => action.run(projects),
+                Action::Init(action) => action.run().await,
+                Action::List(action) => action.run(projects).await,
+                Action::Open(action) => action.run(projects).await,
                 Action::Close(action) => action.run(projects),
-                Action::Show(action) => action.run(projects),
+                Action::Show(action) => action.run(projects).await,
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -685,9 +750,9 @@ pub mod cli {
     }
 
     impl Init {
-        pub fn run(&self) -> display::Result {
+        pub async fn run(&self) -> display::Result {
             let Self { folder } = self;
-            Project::init(folder)?;
+            Project::init(folder).await?;
             display::nothing()
         }
     }
@@ -700,8 +765,8 @@ pub mod cli {
     pub struct List {}
 
     impl List {
-        pub fn run(&self, projects: &mut Projects) -> display::Result {
-            let list = projects.list()?;
+        pub async fn run(&self, projects: &mut Projects) -> display::Result {
+            let list = projects.list().await?;
             display::value(list)
         }
     }
@@ -719,9 +784,9 @@ pub mod cli {
     }
 
     impl Open {
-        pub fn run(&self, projects: &mut Projects) -> display::Result {
+        pub async fn run(&self, projects: &mut Projects) -> display::Result {
             let Self { folder } = self;
-            let Project { name, .. } = projects.open(folder, true)?;
+            let Project { name, .. } = projects.open(folder, true).await?;
             display::value(name)
         }
     }
@@ -759,9 +824,9 @@ pub mod cli {
     }
 
     impl Show {
-        pub fn run(&self, projects: &mut Projects) -> display::Result {
+        pub async fn run(&self, projects: &mut Projects) -> display::Result {
             let Self { folder } = self;
-            let project = projects.open(folder, false)?;
+            let project = projects.open(folder, false).await?;
             let content = project.show()?;
             display::new("md", &content, Some(project))
         }
