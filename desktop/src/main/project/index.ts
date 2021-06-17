@@ -29,9 +29,11 @@ export const registerProjectHandlers = () => {
     ipcMain.handle(
       CHANNEL.GET_PROJECT_FILES,
       async (ipcEvent, directoryPath: string) => {
-        return projects.open(directoryPath, (_topic, projectEvent) => {
-          ipcEvent.sender.send(CHANNEL.GET_PROJECT_FILES, projectEvent)
+        const project = projects.open(directoryPath)
+        projects.subscribe(project.path, ['files'], (_topic, fileEvent) => {
+          ipcEvent.sender.send(CHANNEL.GET_PROJECT_FILES, fileEvent)
         })
+        return project
       }
     )
   } catch {
