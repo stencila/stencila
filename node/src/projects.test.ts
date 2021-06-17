@@ -4,10 +4,20 @@ import tmp from 'tmp'
 import { open, schemas, subscribe, write } from './projects'
 import { FileEvent, ProjectEvent } from './types'
 
+/**
+ * Get the path to one of the project fixtures
+ */
 function fixture(folder: string) {
   return path.normalize(
     path.join(__dirname, '..', '..', 'fixtures', 'projects', folder)
   )
+}
+
+/**
+ * Wait for a bit (usually for events), longer on CI (because that seems necessary).
+ */
+async function delay(milliseconds: number) {
+  await new Promise((resolve) => setTimeout(resolve, milliseconds * (process.env.CI ? 4 : 1)))
 }
 
 test('schema', () => {
@@ -84,17 +94,21 @@ test('workflow: open and modify', async () => {
     fileEvents.push(event as FileEvent)
   )
 
-  // Modify the project.json file on disk
+  // Wait for events to propagate before clearing event arrays
+  await delay(500)
   projectEvents = []
   fileEvents = []
+
+  // Modify the project.json file on disk
   fs.writeFileSync(
     path.join(folder, 'project.json'),
     JSON.stringify({
       theme: 'wilmore',
     })
   )
-  // This timeout needs to be longer than the file watcher debouncing
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  // Wait for debounced filesystem events to propagate
+  await delay(500)
+
   expect(projectEvents).toEqual([
     expect.objectContaining({
       type: 'updated',
