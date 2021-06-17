@@ -1,13 +1,15 @@
 use crate::{logging, plugins, projects, serve, telemetry, upgrade, utils::schemas};
 use eyre::{bail, Result};
+use once_cell::sync::Lazy;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
+use std::sync::Arc;
+use tokio::sync::{Mutex, MutexGuard};
 use validator::Validate;
-
 #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
 #[serde(default)]
 #[schemars(deny_unknown_fields)]
@@ -218,6 +220,20 @@ pub fn reset(config: &Config, property: &str) -> Result<Config> {
     })
 }
 
+/// A global config store
+///
+/// Previously, we loaded config on startup and then passed them to various
+/// functions in other modules.
+/// However, this proved complicated for things like `Project` and `Document`
+/// file watching threads when they need access to the current config.
+pub static CONFIG: Lazy<Arc<Mutex<Config>>> =
+    Lazy::new(|| Arc::new(Mutex::new(read().expect("Unable to read config"))));
+
+/// Lock the global config store
+pub async fn lock() -> MutexGuard<'static, Config> {
+    CONFIG.lock().await
+}
+
 /// CLI options for the `config` command
 #[cfg(feature = "cli")]
 pub mod cli {
@@ -291,8 +307,11 @@ pub mod cli {
         pub property: String,
     }
 
-    pub fn run(args: Command, config: &mut Config) -> display::Result {
+    pub async fn run(args: Command) -> display::Result {
         let Command { action } = args;
+
+        let config = &mut *lock().await;
+
         match action {
             Action::Get(action) => {
                 let Get { pointer } = action;
@@ -428,46 +447,34 @@ mod tests {
         Ok(())
     }
 
-    #[test]
-    fn test_cli() -> Result<()> {
+    #[tokio::test]
+    async fn test_cli() -> Result<()> {
         use super::cli::*;
 
-        let mut config = Config {
-            ..Default::default()
-        };
+        run(Command {
+            action: Action::Get(Get { pointer: None }),
+        })
+        .await?;
 
-        run(
-            Command {
-                action: Action::Get(Get { pointer: None }),
-            },
-            &mut config,
-        )?;
+        run(Command {
+            action: Action::Set(Set {
+                pointer: "upgrade.confirm".to_string(),
+                value: "true".to_string(),
+            }),
+        })
+        .await?;
 
-        run(
-            Command {
-                action: Action::Set(Set {
-                    pointer: "upgrade.confirm".to_string(),
-                    value: "true".to_string(),
-                }),
-            },
-            &mut config,
-        )?;
+        run(Command {
+            action: Action::Reset(Reset {
+                property: "upgrade".to_string(),
+            }),
+        })
+        .await?;
 
-        run(
-            Command {
-                action: Action::Reset(Reset {
-                    property: "upgrade".to_string(),
-                }),
-            },
-            &mut config,
-        )?;
-
-        run(
-            Command {
-                action: Action::Dirs,
-            },
-            &mut config,
-        )?;
+        run(Command {
+            action: Action::Dirs,
+        })
+        .await?;
 
         Ok(())
     }

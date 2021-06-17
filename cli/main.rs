@@ -116,7 +116,7 @@ pub async fn run_command(
         Command::Documents(command) => command.run(documents).await,
         Command::Projects(command) => command.run(projects, &config.projects),
         Command::Plugins(command) => plugins::cli::run(command, &config.plugins).await,
-        Command::Config(command) => config::cli::run(command, config),
+        Command::Config(command) => config::cli::run(command).await,
         Command::Upgrade(command) => upgrade::cli::run(command, &config.upgrade).await,
     };
     render::render(context.interactive, formats, result?)
@@ -199,7 +199,11 @@ impl OpenCommand {
 
         // Append the theme query parameter if set
         let path = if let Some(theme) = theme {
-            format!("{path}?theme={theme}", path = path, theme = theme.to_ascii_lowercase())
+            format!(
+                "{path}?theme={theme}",
+                path = path,
+                theme = theme.to_ascii_lowercase()
+            )
         } else {
             path
         };
