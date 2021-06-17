@@ -11,7 +11,7 @@ pub fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
                 .value(&mut cx);
             from_json::<Config>(&mut cx, &json)?
         }
-        None => crate::config::obtain(&mut cx)?.clone(),
+        None => crate::config::lock(&mut cx)?.clone(),
     };
 
     // Do not emit log events to stderr, instead enable pubsub and file handlers

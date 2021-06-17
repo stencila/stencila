@@ -7,7 +7,7 @@ import { Config } from './types'
 const addon = require('../index.node')
 
 /**
- * Get the JSON schema for the configuration object
+ * Get the JSON schema for the configuration object.
  *
  * @returns A JSON Schema v7 object describing the properties of
  *          the configuration object
@@ -17,25 +17,27 @@ export function schema(): JSONSchema7 {
 }
 
 /**
- * Read the configuration from the configuration file
+ * Get the global configuration object.
  *
  * @returns The configuration object
  */
-export function read(): Config {
-  return fromJSON<Config>(addon.configRead())
+export function get(): Config {
+  return fromJSON<Config>(addon.configGet())
 }
 
 /**
- * Write the configuration to the configuration file
+ * Set the entire global configuration object.
+ * 
+ * The returned object may be different because defaults are populated.
  *
- * @param config The configuration object
+ * @returns The configuration object
  */
-export function write(config: Config): void {
-  addon.configWrite(toJSON(config))
+ export function set(config: Config): Config {
+  return fromJSON<Config>(addon.configSet(toJSON(config)))
 }
 
 /**
- * Test that the configuration object is valid
+ * Test that a configuration object is valid.
  *
  * @param config
  * @returns true (or throws an error)
@@ -45,30 +47,28 @@ export function validate(config: Config): true {
 }
 
 /**
- * Set a property of the configuration object
+ * Set a property of the global configuration object.
  *
- * Performs validation on the value. Will throw errors for invalid pointer
- * or error.
+ * Performs validation on the value before writing to disk. 
+ * Will throw errors for invalid pointer or error.
  *
- * @param config The configuration object
  * @param pointer The pointer to the property to be set e.g. `upgrade.auto`
  * @param value The value to set the property to
  * @returns The updated configuration object
  */
-export function set(config: Config, pointer: string, value: string): Config {
-  return fromJSON<Config>(addon.configSet(toJSON(config), pointer, value))
+export function setProperty(pointer: string, value: string): Config {
+  return fromJSON<Config>(addon.configSetProperty(pointer, value))
 }
 
 /**
- * Reset all or part of the configuration to defaults
+ * Reset all or part of the global configuration object to defaults.
  *
  * @param config The configuration object
  * @param property The property to reset. Use `all` to reset the entire object.
  * @returns The updated configuration object
  */
-export function reset(
-  config: Config,
+export function resetProperty(
   property: 'all' | 'logging' | 'serve' | 'plugins' | 'upgrade'
 ): Config {
-  return fromJSON<Config>(addon.configReset(toJSON(config), property))
+  return fromJSON<Config>(addon.configResetProperty(property))
 }

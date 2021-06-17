@@ -44,11 +44,11 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("pluginsRefresh", plugins::refresh)?;
 
     cx.export_function("configSchema", config::schema)?;
-    cx.export_function("configRead", config::read)?;
-    cx.export_function("configWrite", config::write)?;
-    cx.export_function("configValidate", config::validate)?;
+    cx.export_function("configGet", config::get)?;
     cx.export_function("configSet", config::set)?;
-    cx.export_function("configReset", config::reset)?;
+    cx.export_function("configValidate", config::validate)?;
+    cx.export_function("configSetProperty", config::set_property)?;
+    cx.export_function("configResetProperty", config::reset_property)?;
 
     cx.export_function("pubsubInit", pubsub::init)?;
     cx.export_function("pubsubSubscribe", pubsub::subscribe)?;

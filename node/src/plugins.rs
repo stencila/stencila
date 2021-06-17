@@ -15,7 +15,7 @@ pub fn lock(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Plugins>
     match PLUGINS.try_lock() {
         Ok(guard) => Ok(guard),
         Err(error) => cx.throw_error(format!(
-            "When attempting on obtain plugins: {}",
+            "When attempting to lock plugins: {}",
             error.to_string()
         )),
     }
@@ -29,7 +29,7 @@ pub fn schema(cx: FunctionContext) -> JsResult<JsString> {
 
 /// List plugins
 pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
-    let aliases = &config::obtain(&mut cx)?.plugins.aliases;
+    let aliases = &config::lock(&mut cx)?.plugins.aliases;
     let plugins = &*lock(&mut cx)?;
 
     to_json(cx, plugins.list_plugins(aliases))
@@ -39,7 +39,7 @@ pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn install(mut cx: FunctionContext) -> JsResult<JsString> {
     let spec = &cx.argument::<JsString>(0)?.value(&mut cx);
 
-    let config = &config::obtain(&mut cx)?;
+    let config = &config::lock(&mut cx)?;
     let installs = &installations(&mut cx, 1, &config)?;
     let aliases = &config.plugins.aliases;
     let plugins = &mut *lock(&mut cx)?;
@@ -54,7 +54,7 @@ pub fn install(mut cx: FunctionContext) -> JsResult<JsString> {
 /// Uninstall a plugin
 pub fn uninstall(mut cx: FunctionContext) -> JsResult<JsString> {
     let alias = &cx.argument::<JsString>(0)?.value(&mut cx);
-    let aliases = &config::obtain(&mut cx)?.plugins.aliases;
+    let aliases = &config::lock(&mut cx)?.plugins.aliases;
     let plugins = &mut *lock(&mut cx)?;
 
     match Plugin::uninstall(alias, aliases, plugins) {
@@ -66,7 +66,7 @@ pub fn uninstall(mut cx: FunctionContext) -> JsResult<JsString> {
 /// Upgrade a plugin
 pub fn upgrade(mut cx: FunctionContext) -> JsResult<JsString> {
     let spec = &cx.argument::<JsString>(0)?.value(&mut cx);
-    let config = &config::obtain(&mut cx)?;
+    let config = &config::lock(&mut cx)?;
     let installs = &config.plugins.installations;
     let aliases = &config.plugins.aliases;
     let plugins = &mut *lock(&mut cx)?;
@@ -89,7 +89,7 @@ pub fn refresh(mut cx: FunctionContext) -> JsResult<JsString> {
         })
         .collect();
 
-    let config = &config::obtain(&mut cx)?;
+    let config = &config::lock(&mut cx)?;
     let aliases = &config.plugins.aliases;
     let plugins = &mut *lock(&mut cx)?;
 

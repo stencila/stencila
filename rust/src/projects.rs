@@ -166,7 +166,7 @@ impl Project {
     ///
     /// Reads the `project.json` file (if any) and walks the project folder
     /// to build a filesystem tree.
-    pub fn open<P: AsRef<Path>>(path: P, config: &config::ProjectsConfig) -> Result<Project> {
+    pub fn open<P: AsRef<Path>>(path: P) -> Result<Project> {
         // Load the project manifest (if any).
         let mut project = Project::load(&path)?;
 
@@ -175,7 +175,7 @@ impl Project {
 
         // Update the project's properties,
         // some one which may depend on the files.
-        project.update(config, None);
+        project.update(None);
 
         Ok(project)
     }
@@ -184,7 +184,7 @@ impl Project {
     ///
     /// If the project has already been initialized (i.e. has a manifest file)
     /// then this function will do nothing.
-    pub fn init<P: AsRef<Path>>(path: P, config: &config::ProjectsConfig) -> Result<()> {
+    pub fn init<P: AsRef<Path>>(path: P) -> Result<()> {
         if Project::file(&path).exists() {
             return Ok(());
         }
@@ -193,7 +193,7 @@ impl Project {
             fs::create_dir_all(&path)?;
         }
 
-        let project = Project::open(path, config)?;
+        let mut project = Project::open(path)?;
         project.write(None)?;
 
         Ok(())
@@ -204,7 +204,7 @@ impl Project {
     /// Overwrites properties with values from the file and then
     /// calls `update()`. If there is no manifest file, then default
     /// values will be used.
-    fn read(&mut self, config: &config::ProjectsConfig) -> Result<()> {
+    fn read(&mut self) -> Result<()> {
         let file = Project::file(&self.path);
         let updates = if file.exists() {
             let json = fs::read_to_string(file)?;
@@ -213,7 +213,7 @@ impl Project {
             Project::default()
         };
 
-        self.update(config, Some(updates));
+        self.update(Some(updates));
 
         Ok(())
     }
@@ -221,8 +221,10 @@ impl Project {
     /// Write a project's manifest file, optionally providing updated properties
     ///
     /// If the project folder does not exist yet then it will be created.
-    pub fn write(&self, updates: Option<Project>) -> Result<()> {
-        // TODO: call update with updates once we have a global config
+    pub fn write(&mut self, updates: Option<Project>) -> Result<()> {
+        if updates.is_some() {
+            self.update(updates)
+        }
 
         let path = &self.path;
         if !path.exists() {
@@ -241,7 +243,7 @@ impl Project {
     /// Attempts to use the projects `main` property. If that is not specified, or
     /// there is no matching file in the project, attempts to match one of the
     /// project's files against the `main_patterns`.
-    fn update(&mut self, config: &config::ProjectsConfig, updates: Option<Project>) {
+    fn update(&mut self, updates: Option<Project>) {
         tracing::debug!("Updating project: {}", self.path.display());
 
         if let Some(updates) = updates {
@@ -254,6 +256,10 @@ impl Project {
         }
 
         let files = &self.files.files;
+
+        let config = &crate::config::try_lock()
+            .expect("Unable to lock config")
+            .projects;
 
         // Resolve the main file path first as some of the other project properties
         // may be defined there (e.g. in the YAML header of a Markdown file)
@@ -348,15 +354,12 @@ pub struct ProjectHandler {
 
 impl ProjectHandler {
     /// Open a project and, optionally, watch it for changes
-    pub fn open<P: AsRef<Path>>(
-        folder: P,
-        config: &config::ProjectsConfig,
-        watch: bool,
-    ) -> Result<ProjectHandler> {
-        let project = Project::open(&folder, config)?;
+    pub fn open<P: AsRef<Path>>(folder: P, watch: bool) -> Result<ProjectHandler> {
+        let project = Project::open(&folder)?;
 
         // Watch exclude patterns default to the configured defaults.
         // Note that this project setting can not be updated while it is open.
+        let config = &crate::config::try_lock()?.projects;
         let watch_exclude_patterns = project
             .watch_exclude_patterns
             .clone()
@@ -370,9 +373,6 @@ impl ProjectHandler {
 
             // Create a `PathBuf` of the folder to send to the thread
             let folder = folder.as_ref().to_path_buf();
-
-            // Clone the config to send to the thread
-            let config = config.clone();
 
             let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
             std::thread::spawn(move || -> Result<()> {
@@ -428,7 +428,7 @@ impl ProjectHandler {
 
                 // Read the project
                 let read_project = || {
-                    if let Err(error) = lock().read(&config) {
+                    if let Err(error) = lock().read() {
                         tracing::error!("While reading project '{}': {}", folder_string, error)
                     }
                 };
@@ -537,17 +537,12 @@ impl Projects {
     }
 
     /// Open a project
-    pub fn open<P: AsRef<Path>>(
-        &mut self,
-        path: P,
-        config: &config::ProjectsConfig,
-        watch: bool,
-    ) -> Result<Project> {
+    pub fn open<P: AsRef<Path>>(&mut self, path: P, watch: bool) -> Result<Project> {
         let path = path.as_ref().canonicalize()?;
 
         let handler = match self.registry.entry(path.clone()) {
             Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => match ProjectHandler::open(path, config, watch) {
+            Entry::Vacant(entry) => match ProjectHandler::open(path, watch) {
                 Ok(handler) => entry.insert(handler),
                 Err(error) => return Err(error),
             },
@@ -660,18 +655,14 @@ pub mod cli {
     }
 
     impl Command {
-        pub fn run(
-            &self,
-            projects: &mut Projects,
-            config: &config::ProjectsConfig,
-        ) -> display::Result {
+        pub fn run(&self, projects: &mut Projects) -> display::Result {
             let Self { action } = self;
             match action {
-                Action::Init(action) => action.run(config),
+                Action::Init(action) => action.run(),
                 Action::List(action) => action.run(projects),
-                Action::Open(action) => action.run(projects, config),
+                Action::Open(action) => action.run(projects),
                 Action::Close(action) => action.run(projects),
-                Action::Show(action) => action.run(projects, config),
+                Action::Show(action) => action.run(projects),
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -694,9 +685,9 @@ pub mod cli {
     }
 
     impl Init {
-        pub fn run(&self, config: &config::ProjectsConfig) -> display::Result {
+        pub fn run(&self) -> display::Result {
             let Self { folder } = self;
-            Project::init(folder, config)?;
+            Project::init(folder)?;
             display::nothing()
         }
     }
@@ -728,13 +719,9 @@ pub mod cli {
     }
 
     impl Open {
-        pub fn run(
-            &self,
-            projects: &mut Projects,
-            config: &config::ProjectsConfig,
-        ) -> display::Result {
+        pub fn run(&self, projects: &mut Projects) -> display::Result {
             let Self { folder } = self;
-            let Project { name, .. } = projects.open(folder, config, true)?;
+            let Project { name, .. } = projects.open(folder, true)?;
             display::value(name)
         }
     }
@@ -772,13 +759,9 @@ pub mod cli {
     }
 
     impl Show {
-        pub fn run(
-            &self,
-            projects: &mut Projects,
-            config: &config::ProjectsConfig,
-        ) -> display::Result {
+        pub fn run(&self, projects: &mut Projects) -> display::Result {
             let Self { folder } = self;
-            let project = projects.open(folder, config, false)?;
+            let project = projects.open(folder, false)?;
             let content = project.show()?;
             display::new("md", &content, Some(project))
         }

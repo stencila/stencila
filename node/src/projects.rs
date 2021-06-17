@@ -1,7 +1,4 @@
-use crate::{
-    config::{self},
-    prelude::*,
-};
+use crate::prelude::*;
 use neon::prelude::*;
 use std::sync::{Mutex, MutexGuard};
 use stencila::{
@@ -39,8 +36,7 @@ pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
     let path = &cx.argument::<JsString>(0)?.value(&mut cx);
     let projects = &mut *obtain(&mut cx)?;
-    let config = &*config::obtain(&mut cx)?;
-    to_json_or_throw(cx, projects.open(path, &config.projects, true))
+    to_json_or_throw(cx, projects.open(path, true))
 }
 
 /// Write a project
