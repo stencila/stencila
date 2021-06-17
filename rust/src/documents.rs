@@ -357,6 +357,8 @@ impl Document {
 
     /// Update the `root` node of the document and publish updated encodings
     async fn update(&mut self) -> Result<()> {
+        tracing::debug!("Updating document '{}'", self.id);
+
         // Import the content into the `root` node of the document
         let mut root = if !self.format.binary {
             decode(&self.content, &self.format.name).await?
@@ -393,6 +395,7 @@ impl Document {
         // Encode the `root` node into each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {
             if let Some(format) = subscription.strip_prefix("encoded:") {
+                tracing::debug!("Encoding document '{}' to '{}'", self.id, format);
                 match encode(&root, format).await {
                     Ok(content) => {
                         self.publish(

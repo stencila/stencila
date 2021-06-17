@@ -49,14 +49,21 @@ impl Format {
         }
     }
 
-    /// Create the special `unknown` file format
-    pub fn unknown() -> Format {
+    /// Create the special `unregistered` file format where all we
+    /// have is the name e.g. from a file extension
+    pub fn unregistered(name: &str) -> Format {
         Format {
-            name: "unknown".to_string(),
+            name: name.into(),
             binary: true,
             preview: false,
             type_: None,
         }
+    }
+
+    /// Create the special `unknown` file format where we do not
+    /// even know the name.
+    pub fn unknown() -> Format {
+        Format::unregistered("unknown")
     }
 }
 
@@ -88,9 +95,10 @@ impl Default for Formats {
             Format::new("ts", false, false, ""),
             // Article formats
             Format::new("docx", true, true, "Article"),
-            Format::new("odt", true, true, "Article"),
+            Format::new("html", false, true, "Article"),
             Format::new("ipynb", false, true, "Article"),
             Format::new("md", false, true, "Article"),
+            Format::new("odt", true, true, "Article"),
             Format::new("rmd", false, true, "Article"),
             Format::new("tex", false, true, "Article"),
             Format::new("txt", false, true, "Article"),
@@ -127,7 +135,7 @@ impl Formats {
     pub fn match_name(&self, name: &str) -> Format {
         match self.formats.get(&name.to_lowercase()) {
             Some(format) => format.clone(),
-            None => Format::unknown(),
+            None => Format::unregistered(name),
         }
     }
 
