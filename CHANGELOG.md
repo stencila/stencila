@@ -1,3 +1,20 @@
+# [0.86.0](https://github.com/stencila/stencila/compare/v0.85.1...v0.86.0) (2021-06-17)
+
+
+### Bug Fixes
+
+* **Documents:** Add HTML and  `unregistered` formats ([c9c5f9a](https://github.com/stencila/stencila/commit/c9c5f9a6773e6ed5c8c0ef6a1f4a0b1155a65197))
+* **Documents:** End watcher thread properly; consistency with `ProjectHandler` ([9eb7ff8](https://github.com/stencila/stencila/commit/9eb7ff8d8a71587df1e0c9f4dabf4b2f9fc91db9))
+* **Logging:** Only include log entries from this crate ([e5c0347](https://github.com/stencila/stencila/commit/e5c034733832c2207711dad248413c8b66956d0a))
+* **Projects:** Make projects async to avoid try_lock ([fdb464c](https://github.com/stencila/stencila/commit/fdb464c609cfe4b1d011aa769c8025bf79bd3969))
+
+
+### Features
+
+* **Files:** Give directories their own format ([4cb509e](https://github.com/stencila/stencila/commit/4cb509ecd74ed7d717a4d31c70bf31b35ed496d3))
+* **Projects:** Add project events, published when project is updated ([d4be122](https://github.com/stencila/stencila/commit/d4be122bc253987ed6d364ad7547d1ccf70541c6))
+* **Projects:** Update properties when project.json changes ([49b2e9c](https://github.com/stencila/stencila/commit/49b2e9c451e17c1afe6740413ef50738ec7270c7))
+
 ## [0.85.1](https://github.com/stencila/stencila/compare/v0.85.0...v0.85.1) (2021-06-16)
 
 
