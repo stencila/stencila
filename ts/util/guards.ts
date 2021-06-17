@@ -1,4 +1,5 @@
 import {
+  BlockContent,
   blockContentTypes,
   Entity,
   InlineContent,
@@ -24,7 +25,6 @@ export const isPrimitive = (
   if (Array.isArray(node)) return true
   if (type === 'object' && !Object.prototype.hasOwnProperty.call(node, 'type'))
     return true
-
   return false
 }
 
@@ -55,34 +55,31 @@ export const isTypeOf =
 export const isA = <K extends keyof Types>(
   type: K,
   node: Node | undefined
-): node is Types[K] => {
-  return isEntity(node) && node.type === type
-}
+): node is Types[K] => isEntity(node) && node.type === type
 
 /**
  * Returns a type guard to determine whether a node is of a specific type.
  *
- * e.g. isType('Article')(node)
+ * e.g. `isType('Article')(node)`
  * e.g. `article.content.filter(isType('Paragraph'))`
  */
 export const isType =
   <K extends keyof Types>(type: K) =>
-  (node?: Node): node is Types[K] => {
-    return isA(type, node)
-  }
+  (node?: Node): node is Types[K] =>
+    isA(type, node)
 
 /**
  * Type guard to determine whether a node is `InlineContent`.
  *
  * e.g. `nodes.filter(isInlineContent)`
  */
-export const isInlineContent = (node?: Node): node is InlineContent => {
-  return isPrimitive(node) || isTypeOf(inlineContentTypes)(node)
-}
+export const isInlineContent = (node?: Node): node is InlineContent =>
+  isPrimitive(node) || isTypeOf(inlineContentTypes)(node)
 
 /**
  * Type guard to determine whether a node is `BlockContent`.
  *
  * e.g. `nodes.filter(isBlockContent)`
  */
-export const isBlockContent = isTypeOf(blockContentTypes)
+export const isBlockContent = (node?: Node): node is BlockContent =>
+  isTypeOf(blockContentTypes)(node)
