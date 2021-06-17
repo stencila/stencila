@@ -1,28 +1,34 @@
-import { read, validate, set, reset, schema } from './config'
+import {
+  get,
+  validate,
+  set,
+  resetProperty,
+  schema,
+  setProperty,
+} from './config'
 
-describe('config', () => {
-  test('schema', () => {
-    expect(schema()).toEqual(
-      expect.objectContaining({
-        $schema: 'https://json-schema.org/draft/2019-09/schema',
-        $id: 'Config',
-        type: 'object',
-        properties: expect.objectContaining({
-          projects: expect.objectContaining({
-            title: 'Projects',
-            description: 'Configuration settings for project defaults',
-          }),
-          logging: expect.objectContaining({}),
-          plugins: expect.objectContaining({}),
-          serve: expect.objectContaining({}),
-          upgrade: expect.objectContaining({}),
+test('schema', () => {
+  expect(schema()).toEqual(
+    expect.objectContaining({
+      $schema: 'https://json-schema.org/draft/2019-09/schema',
+      $id: 'Config',
+      type: 'object',
+      properties: expect.objectContaining({
+        projects: expect.objectContaining({
+          title: 'Projects',
+          description: 'Configuration settings for project defaults',
         }),
-      })
-    )
-  })
+        logging: expect.objectContaining({}),
+        plugins: expect.objectContaining({}),
+        serve: expect.objectContaining({}),
+        upgrade: expect.objectContaining({}),
+      }),
+    })
+  )
+})
 
-  const conf = read()
-
+test('get', () => {
+  const conf = get()
   expect(conf).toEqual(
     expect.objectContaining({
       logging: expect.objectContaining({}),
@@ -31,59 +37,55 @@ describe('config', () => {
       upgrade: expect.objectContaining({}),
     })
   )
+})
 
-  test('validate', () => {
-    expect(validate(conf)).toBe(true)
-    try {
-      // @ts-ignore
-      validate({ logging: { file: { level: 'foo' } } })
-    } catch (error) {
-      expect(error.toString()).toMatch(
-        'unknown variant `foo`, expected one of `trace`, `debug`, `info`, `warn`, `error`, `never` at line 1 column 33'
-      )
-    }
-  })
+test('set', () => {
+  const conf = set({})
+  expect(conf).toEqual(get())
+})
 
-  test('set', () => {
-    expect(set(conf, 'upgrade.auto', '1 week')).toEqual({
-      ...conf,
-      upgrade: {
-        ...conf.upgrade,
-        auto: '1 week',
-      },
-    })
-    try {
-      set(conf, 'upgrade.auto', 'foo bar')
-    } catch (error) {
-      expect(error.toString()).toMatch(`Invalid configuration value/s:
+test('validate', () => {
+  const conf = get()
+  expect(validate(conf)).toBe(true)
 
-{
-  "upgrade": {
-    "auto": [
-      {
-        "code": "invalid_duration_string",
-        "message": "Not a valid duration",
-        "params": {
-          "value": "foo bar"
-        }
-      }
-    ]
+  try {
+    // @ts-ignore
+    validate({ logging: { file: { level: 'foo' } } })
+  } catch (error) {
+    expect(error.toString()).toMatch(
+      'unknown variant `foo`, expected one of `trace`, `debug`, `info`, `warn`, `error`, `never` at line 1 column 33'
+    )
   }
-}`)
-    }
-  })
+})
 
-  test('reset', () => {
-    reset(conf, 'all')
-    reset(conf, 'logging')
-    try {
-      // @ts-ignore
-      reset(conf, 'foo')
-    } catch (error) {
-      // @ts-ignore
-      expect(error.toString()).toMatch(
-        'No top level configuration property named: foo'
-      )
-    }
+test('setProperty', () => {
+  const conf = get()
+  expect(setProperty('upgrade.auto', '1 week')).toEqual({
+    ...conf,
+    upgrade: {
+      ...conf.upgrade,
+      auto: '1 week',
+    },
   })
+  try {
+    setProperty('upgrade.auto', 'foo bar')
+  } catch (error) {
+    expect(error.toString()).toMatch(
+      `Error: ValidationErrors({\"upgrade\": Struct(ValidationErrors({\"auto\": Field([ValidationError { code: \"invalid_duration_string\", message: Some(\"Not a valid duration\"), params: {\"value\": String(\"foo bar\")} }])}))})`
+    )
+  }
+})
+
+test('resetProperty', () => {
+  resetProperty('all')
+  resetProperty('logging')
+  try {
+    // @ts-ignore
+    resetProperty('foo')
+  } catch (error) {
+    // @ts-ignore
+    expect(error.toString()).toMatch(
+      'No top level configuration property named: foo'
+    )
+  }
 })

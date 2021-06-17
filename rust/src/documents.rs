@@ -6,7 +6,7 @@ use crate::{
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
-use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
+use notify::DebouncedEvent;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -24,7 +24,6 @@ use tokio::{sync::Mutex, task::JoinHandle};
 #[derive(Debug, JsonSchema, Serialize, ToString)]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
-#[schemars(deny_unknown_fields)]
 enum DocumentEventType {
     Deleted,
     Renamed,
@@ -358,6 +357,8 @@ impl Document {
 
     /// Update the `root` node of the document and publish updated encodings
     async fn update(&mut self) -> Result<()> {
+        tracing::debug!("Updating document '{}'", self.id);
+
         // Import the content into the `root` node of the document
         let mut root = if !self.format.binary {
             decode(&self.content, &self.format.name).await?
@@ -394,6 +395,7 @@ impl Document {
         // Encode the `root` node into each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {
             if let Some(format) = subscription.strip_prefix("encoded:") {
+                tracing::debug!("Encoding document '{}' to '{}'", self.id, format);
                 match encode(&root, format).await {
                     Ok(content) => {
                         self.publish(
@@ -563,14 +565,20 @@ impl Document {
 
 #[derive(Debug)]
 pub struct DocumentHandler {
-    /// The document being handled
+    /// The document being handled.
     document: Arc<Mutex<Document>>,
 
-    /// The sender for the the file watcher and join handle for async handler task
+    /// The watcher thread's channel sender.
     ///
-    /// This should be dropped when the document is closed and
-    /// replaced when the document's file is renamed.
-    watcher: Option<JoinHandle<()>>,
+    /// Held so that when this handler is dropped, the
+    /// watcher thread is ended.
+    watcher: Option<crossbeam_channel::Sender<()>>,
+
+    /// The event handler thread's join handle.
+    ///
+    /// Held so that when this handler is dropped, the
+    /// event handler thread is aborted.
+    handler: Option<JoinHandle<()>>,
 }
 
 impl Clone for DocumentHandler {
@@ -578,14 +586,15 @@ impl Clone for DocumentHandler {
         DocumentHandler {
             document: self.document.clone(),
             watcher: None,
+            handler: None,
         }
     }
 }
 
 impl Drop for DocumentHandler {
     fn drop(&mut self) {
-        match &self.watcher {
-            Some(watcher) => watcher.abort(),
+        match &self.handler {
+            Some(handler) => handler.abort(),
             None => {}
         }
     }
@@ -603,13 +612,18 @@ impl DocumentHandler {
         let path = document.path.clone();
 
         let document = Arc::new(Mutex::new(document));
-        let watcher = if watch {
-            Some(DocumentHandler::watch(id, path, Arc::clone(&document)))
+        let (watcher, handler) = if watch {
+            let (watcher, handler) = DocumentHandler::watch(id, path, Arc::clone(&document));
+            (Some(watcher), Some(handler))
         } else {
-            None
+            (None, None)
         };
 
-        DocumentHandler { document, watcher }
+        DocumentHandler {
+            document,
+            watcher,
+            handler,
+        }
     }
 
     const WATCHER_DELAY_MILLIS: u64 = 100;
@@ -622,54 +636,83 @@ impl DocumentHandler {
     /// Unfortunately this watcher is unable to recognize renames of the file (because it is only
     /// watching a single file, not a directory). Thus any rename events must be detected and acted
     /// upon at the project level (if any, i.e if the document is part of a project).
-    fn watch(id: String, path: PathBuf, document: Arc<Mutex<Document>>) -> JoinHandle<()> {
-        let (watcher_sender, watcher_receiver) = std::sync::mpsc::channel();
+    fn watch(
+        id: String,
+        path: PathBuf,
+        document: Arc<Mutex<Document>>,
+    ) -> (crossbeam_channel::Sender<()>, JoinHandle<()>) {
+        let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
         let (async_sender, mut async_receiver) = tokio::sync::mpsc::channel(100);
 
-        // Standard thread to run blocking sync watcher in
-        std::thread::spawn(move || {
+        // Standard thread to run blocking sync file watcher
+        std::thread::spawn(move || -> Result<()> {
+            use notify::{watcher, RecursiveMode, Watcher};
+
+            let (watcher_sender, watcher_receiver) = std::sync::mpsc::channel();
             let mut watcher = watcher(
                 watcher_sender,
                 Duration::from_millis(DocumentHandler::WATCHER_DELAY_MILLIS),
-            )
-            .expect("Unable to create watcher");
-            watcher
-                .watch(&path, RecursiveMode::NonRecursive)
-                .expect("Unable to watch file");
+            )?;
+            watcher.watch(&path, RecursiveMode::NonRecursive)?;
 
-            let path = path.display().to_string();
-            let span = tracing::info_span!("document_watch", path = path.as_str());
+            // Event checking timeout. Can be quite long since only want to check
+            // whether we can end this thread.
+            let timeout = Duration::from_millis(100);
+
+            let path_string = path.display().to_string();
+            let span = tracing::info_span!("document_watch", path = path_string.as_str());
             let _enter = span.enter();
-            tracing::debug!("Starting watch for document '{}' at '{}'", id, path);
+            tracing::debug!(
+                "Starting document watcher for '{}' at '{}'",
+                id,
+                path_string
+            );
             loop {
-                match watcher_receiver.recv() {
-                    Ok(event) => {
-                        tracing::debug!("Event for document '{}' at '{}': {:?}", id, path, event);
-                        if async_sender.blocking_send(event).is_err() {
-                            break;
-                        }
-                    }
-                    Err(error) => {
-                        tracing::debug!("Error for document '{}' at '{}': {}", id, path, error);
+                // Check for an event. Use `recv_timeout` so we don't
+                // get stuck here and will do following check that ends this
+                // thread if the owning `DocumentHandler` is dropped
+                if let Ok(event) = watcher_receiver.recv_timeout(timeout) {
+                    tracing::debug!(
+                        "Event for document '{}' at '{}': {:?}",
+                        id,
+                        path_string,
+                        event
+                    );
+                    if async_sender.blocking_send(event).is_err() {
+                        break;
                     }
                 }
+                // Check to see if this thread should be ended
+                if let Err(crossbeam_channel::TryRecvError::Disconnected) =
+                    thread_receiver.try_recv()
+                {
+                    break;
+                }
             }
-            tracing::debug!("Ending watch for document '{}' at '{}'", id, path);
-            drop(async_sender)
+            tracing::debug!("Ending document watcher for '{}' at '{}'", id, path_string);
+
+            // Drop the sync send so that the event handling thread also ends
+            drop(async_sender);
+
+            Ok(())
         });
 
         // Async task to handle events
-        tokio::spawn(async move {
-            loop {
-                if let Some(event) = async_receiver.recv().await {
-                    match event {
-                        DebouncedEvent::Remove(path) => document.lock().await.deleted(path),
-                        DebouncedEvent::Write(path) => document.lock().await.modified(path).await,
-                        _ => {}
-                    }
+        let handler = tokio::spawn(async move {
+            tracing::debug!("Starting document handler");
+            while let Some(event) = async_receiver.recv().await {
+                match event {
+                    DebouncedEvent::Remove(path) => document.lock().await.deleted(path),
+                    DebouncedEvent::Write(path) => document.lock().await.modified(path).await,
+                    _ => {}
                 }
             }
-        })
+            // Because we abort this thread, this entry may never get
+            // printed (only if the `async_sender` is dropped before this is aborted)
+            tracing::debug!("Ending document handler");
+        });
+
+        (thread_sender, handler)
     }
 }
 

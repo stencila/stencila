@@ -1,4 +1,4 @@
-// Node.js bindings for ../../rust/src/projects.rs, see there for more documentation.
+// Node.js bindings for ../../rust/src/documents.rs, see there for more documentation.
 
 import { JSONSchema7 } from 'json-schema'
 import { fromJSON } from './prelude'
@@ -8,16 +8,16 @@ import { Document, DocumentEvent } from './types'
 const addon = require('../index.node')
 
 /**
- * Get the JSON Schemas associated with the `documents` module
+ * Get the JSON Schemas associated with the `documents` module.
  *
  * @returns An array of JSON Schema v7 objects
  */
-export function schemas(): JSONSchema7 {
-  return fromJSON<JSONSchema7>(addon.documentsSchema())
+export function schemas(): JSONSchema7[] {
+  return fromJSON<JSONSchema7[]>(addon.documentsSchema())
 }
 
 /**
- * List documents that are currently open
+ * List documents that are currently open.
  *
  * @returns An array of document paths (relative to the current working directory)
  */
@@ -38,11 +38,8 @@ export function create(format?: string): Document {
 /**
  * Open an existing document, optionally specifying its format.
  *
- * If you want the document's content you need to `open(<path>)` it
- * and then `subscribe(<path>, ['content'], (topic, event) => ...)` to it.
- *
  * @param path Path to the document's file
- * @param format Format of the document. If none will be inferred from
+ * @param format Format of the document. If `undefined` will be inferred from
  *               the file extension.
  * @return A document
  */
@@ -51,7 +48,7 @@ export function open(path: string, format?: string): Document {
 }
 
 /**
- * Get a document
+ * Get a document.
  *
  * @param id Id of the document
  */
@@ -78,9 +75,8 @@ export function write(id: string, content: string): string {
 }
 
 /**
- * Dump the current content of a document
- * without reading it from the file system.
- * The inverse of `load()`.
+ * Dump the current content of a document without reading it
+ * from the file system. The inverse of `load()`.
  *
  * @param id Id of the document
  */
@@ -94,35 +90,36 @@ export function dump(id: string, format?: string): string {
  *
  *
  * @param id Id of the document
+ * @param content The content to load into the document
  */
 export function load(id: string, content: string): void {
   return addon.documentsLoad(id, content)
 }
 
 /**
- * Subscribe to one or more of a document's topics
+ * Subscribe to one or more of a document's topics.
  *
  * @param id Id of the document
- * @param topic See docs for `Document#subscriptions` for valid values
+ * @param topic See Rust docs for `Document#subscriptions` for valid values
  * @param subscriber A subscriber function that will receive published
  *                   events for the document topic/s
  */
 export function subscribe(
-  path: string,
+  id: string,
   topics: string[],
   subscriber: (topic: string, event: DocumentEvent) => unknown
 ): void {
   for (const topic of topics) {
-    addon.documentsSubscribe(path, topic)
+    addon.documentsSubscribe(id, topic)
     pubsub.subscribe(
-      `documents:${path}:${topic}`,
+      `documents:${id}:${topic}`,
       subscriber as pubsub.Subscriber
     )
   }
 }
 
 /**
- * Unsubscribe from one or more of a document's topics
+ * Unsubscribe from one or more of a document's topics.
  *
  * @param id Id of the document
  * @param subscriber A subscriber function that will receive published
@@ -136,7 +133,10 @@ export function unsubscribe(id: string, topics: string[]): void {
 }
 
 /**
- * Close a document
+ * Close a document.
+ * 
+ * This will drop the document from memory and stop any
+ * associated file watching thread.
  *
  * @param id Id of the document
  */

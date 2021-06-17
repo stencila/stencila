@@ -7,7 +7,7 @@ import { showSettings } from './window'
 
 export const getConfig = async () => {
   return {
-    config: config.read(),
+    config: config.get(),
     schema: config.schema()
   }
 }

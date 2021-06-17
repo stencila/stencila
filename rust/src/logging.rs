@@ -283,7 +283,7 @@ pub fn init(
     let error_layer = ErrorLayer::default();
 
     // tracing_subscriber does not currently allow for different layers to have different
-    // so work out the minimal debug level and filter by that in the root subscriber.
+    // levels so work out the minimum level and filter by that in the root subscriber.
     let mut min_level = LoggingLevel::Never;
     if stderr_level < min_level {
         min_level = stderr_level
@@ -295,8 +295,14 @@ pub fn init(
         min_level = file_level
     }
 
+    // Only show log entries for this crate to avoid excessive noise.
+    // We may want to show entries from other crates during development
+    // so we may add another flag for this in the future.
+    // e.g. `--log-scope=stencila` vs `--log-scope==all`.
+    let directives = format!("stencila={}", min_level.to_string());
+
     let registry = tracing_subscriber::registry()
-        .with(EnvFilter::new(min_level.to_string()))
+        .with(EnvFilter::new(directives))
         .with(pubsub_layer)
         .with(file_layer)
         .with(error_layer);

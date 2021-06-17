@@ -1,12 +1,33 @@
+use crate::logging::config::LoggingConfig;
+use crate::plugins::config::PluginsConfig;
+use crate::serve::config::ServeConfig;
+use crate::upgrade::config::UpgradeConfig;
 use crate::{logging, plugins, projects, serve, telemetry, upgrade, utils::schemas};
 use eyre::{bail, Result};
+use once_cell::sync::Lazy;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
+use std::sync::Arc;
+use tokio::sync::{Mutex, MutexGuard};
 use validator::Validate;
+
+/// Get the directory where configuration data is stored
+pub fn dir(ensure: bool) -> Result<PathBuf> {
+    let config_base = dirs_next::config_dir().unwrap_or_else(|| env::current_dir().unwrap());
+    let dir = match env::consts::OS {
+        "macos" => config_base.join("Stencila"),
+        "windows" => config_base.join("Stencila").join("Config"),
+        _ => config_base.join("stencila"),
+    };
+    if ensure {
+        fs::create_dir_all(&dir)?;
+    }
+    Ok(dir)
+}
 
 #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
 #[serde(default)]
@@ -31,191 +52,173 @@ pub struct Config {
     pub upgrade: upgrade::config::UpgradeConfig,
 }
 
-/// Get the JSON Schema for the configuration
-pub fn schema() -> Result<serde_json::Value> {
-    schemas::generate::<Config>()
-}
+impl Config {
+    const CONFIG_FILE: &'static str = "config.toml";
 
-/// Get the directory where configuration data is stored
-pub fn dir(ensure: bool) -> Result<PathBuf> {
-    let config_base = dirs_next::config_dir().unwrap_or_else(|| env::current_dir().unwrap());
-    let dir = match env::consts::OS {
-        "macos" => config_base.join("Stencila"),
-        "windows" => config_base.join("Stencila").join("Config"),
-        _ => config_base.join("stencila"),
-    };
-    if ensure {
-        fs::create_dir_all(&dir)?;
-    }
-    Ok(dir)
-}
+    /// Get the path of the configuration file
+    #[tracing::instrument]
+    fn path() -> Result<PathBuf> {
+        #[cfg(not(test))]
+        return Ok(dir(true)?.join(Config::CONFIG_FILE));
 
-const CONFIG_FILE: &str = "config.toml";
-
-/// Get the path of the configuration file
-#[tracing::instrument]
-fn path() -> Result<PathBuf> {
-    #[cfg(not(test))]
-    return Ok(dir(true)?.join(CONFIG_FILE));
-
-    // When running tests, avoid messing with users existing config
-    #[cfg(test)]
-    {
-        let path = std::env::temp_dir()
-            .join("stencila")
-            .join("test")
-            .join(CONFIG_FILE);
-        fs::create_dir_all(path.parent().unwrap())?;
-        Ok(path)
-    }
-}
-
-/// Read a config from the configuration file
-#[tracing::instrument]
-pub fn read() -> Result<Config> {
-    let config_file = path()?;
-
-    let content = if config_file.exists() {
-        match fs::read_to_string(config_file.clone()) {
-            Ok(content) => content,
-            // If there was a problem reading the config file warn the user
-            // but return an empty string.
-            Err(error) => {
-                tracing::warn!("Error while reading config file: {}", error.to_string());
-                String::new()
-            }
+        // When running tests, avoid messing with users existing config
+        #[cfg(test)]
+        {
+            let path = std::env::temp_dir()
+                .join("stencila")
+                .join("test")
+                .join(Config::CONFIG_FILE);
+            fs::create_dir_all(path.parent().unwrap())?;
+            Ok(path)
         }
-    } else {
-        // If there is no config file just return an empty string
-        String::new()
-    };
+    }
 
-    let config = match toml::from_str(content.as_str()) {
-        Ok(config) => config,
-        // If there was a problem reading the config file. e.g syntax error, a change
-        // in the enum variants for an option, then warn the user and return the
-        // defaults instead. This avoids a "corrupt" config file from preventing the
-        // user from doing anything.
-        Err(error) => {
-            tracing::warn!(
+    /// Ensure that a string is a valid JSON pointer
+    ///
+    /// Replaces dots (`.`) with slashes (`/`) and ensures a
+    /// leading slash.
+    #[tracing::instrument]
+    pub fn json_pointer(pointer: &str) -> String {
+        let pointer = pointer.replace(".", "/");
+        if pointer.starts_with('/') {
+            pointer
+        } else {
+            format!("/{}", pointer)
+        }
+    }
+
+    /// Read a config from the configuration file
+    #[tracing::instrument]
+    pub fn load() -> Result<Config> {
+        let config_file = Config::path()?;
+
+        let content = if config_file.exists() {
+            match fs::read_to_string(config_file.clone()) {
+                Ok(content) => content,
+                // If there was a problem reading the config file warn the user
+                // but return an empty string.
+                Err(error) => {
+                    tracing::warn!("Error while reading config file: {}", error.to_string());
+                    String::new()
+                }
+            }
+        } else {
+            // If there is no config file just return an empty string
+            String::new()
+        };
+
+        let config = match toml::from_str(content.as_str()) {
+            Ok(config) => config,
+            // If there was a problem reading the config file. e.g syntax error, a change
+            // in the enum variants for an option, then warn the user and return the
+            // defaults instead. This avoids a "corrupt" config file from preventing the
+            // user from doing anything.
+            Err(error) => {
+                tracing::warn!(
                 "Error while parsing config file; use `stencila config reset all` or edit {} to fix; defaults will be used: {}",
                 config_file.display(),
                 error.to_string()
             );
-            Config {
-                ..Default::default()
+                Config {
+                    ..Default::default()
+                }
             }
-        }
-    };
+        };
 
-    if let Err(errors) = config.validate() {
-        tracing::error!(
+        if let Err(errors) = config.validate() {
+            tracing::error!(
             "Invalid config file; use `stencila config set`, `stencila config reset` or edit {} to fix.\n\n{}",
             config_file.display(),
             serde_json::to_string_pretty(&errors)?
         )
+        }
+
+        Ok(config)
     }
 
-    Ok(config)
-}
+    /// Write a config to the configuration file
+    #[tracing::instrument]
+    pub fn write(&self) -> Result<()> {
+        self.validate()?;
 
-/// Write a config to the configuration file
-#[tracing::instrument]
-pub fn write(config: &Config) -> Result<()> {
-    let config_file = path()?;
-
-    let mut file = fs::File::create(config_file)?;
-    file.write_all(toml::to_string(&config)?.as_bytes())?;
-    Ok(())
-}
-
-/// Ensure that a string is a valid JSON pointer
-///
-/// Replaces dots (`.`) with slashes (`/`) and ensures a
-/// leading slash.
-#[tracing::instrument]
-pub fn json_pointer(pointer: &str) -> String {
-    let pointer = pointer.replace(".", "/");
-    if pointer.starts_with('/') {
-        pointer
-    } else {
-        format!("/{}", pointer)
+        let config_file = Config::path()?;
+        let mut file = fs::File::create(config_file)?;
+        file.write_all(toml::to_string(&self)?.as_bytes())?;
+        Ok(())
     }
-}
 
-/// Get a config property
-#[tracing::instrument]
-pub fn get(config: &Config, pointer: Option<String>) -> Result<serde_json::Value> {
-    match pointer {
-        None => Ok(serde_json::to_value(config)?),
-        Some(pointer) => {
-            let config = serde_json::to_value(config)?;
-            if let Some(part) = config.pointer(json_pointer(&pointer).as_str()) {
-                let json = serde_json::to_string(part)?;
-                let part: toml::Value = serde_json::from_str(&json)?;
-                Ok(serde_json::to_value(part)?)
-            } else {
-                bail!("No configuration value at pointer: {}", pointer)
+    /// Get a config property
+    #[tracing::instrument]
+    pub fn get(&self, pointer: Option<String>) -> Result<serde_json::Value> {
+        match pointer {
+            None => Ok(serde_json::to_value(self)?),
+            Some(pointer) => {
+                let config = serde_json::to_value(self)?;
+                if let Some(part) = config.pointer(Config::json_pointer(&pointer).as_str()) {
+                    let json = serde_json::to_string(part)?;
+                    let part: toml::Value = serde_json::from_str(&json)?;
+                    Ok(serde_json::to_value(part)?)
+                } else {
+                    bail!("No configuration value at pointer: {}", pointer)
+                }
             }
         }
     }
-}
 
-/// Validate a configuration
-#[tracing::instrument]
-pub fn validate(config: &Config) -> Result<()> {
-    if let Err(errors) = config.validate() {
-        bail!(
-            "Invalid configuration value/s:\n\n{}",
-            serde_json::to_string_pretty(&errors)?
-        )
-    } else {
-        Ok(())
+    /// Set a property and write to disk
+    #[tracing::instrument]
+    pub fn set(&mut self, pointer: &str, value: &str) -> Result<()> {
+        // Serialize self to a JSON value and set property
+        let mut config = serde_json::to_value(&self)?;
+        if let Some(property) = config.pointer_mut(Config::json_pointer(&pointer).as_str()) {
+            let value = match serde_json::from_str(&value) {
+                Ok(value) => value,
+                Err(_) => serde_json::Value::String(value.into()),
+            };
+            *property = value;
+        } else {
+            bail!("No configuration value at pointer: {}", pointer)
+        };
+
+        // Now deserialize self from the JSON value
+        *self = serde_json::from_value(config)?;
+
+        self.write()
+    }
+
+    /// Reset one, or all, properties and write to disk
+    #[tracing::instrument]
+    pub fn reset(&mut self, property: &str) -> Result<()> {
+        match property {
+            "all" => *self = Config::default(),
+            "logging" => self.logging = LoggingConfig::default(),
+            "plugins" => self.plugins = PluginsConfig::default(),
+            "serve" => self.serve = ServeConfig::default(),
+            "upgrade" => self.upgrade = UpgradeConfig::default(),
+            _ => bail!("No top level configuration property named: {}", property),
+        }
+
+        self.write()
     }
 }
 
-/// Set a config property
-#[tracing::instrument]
-pub fn set(config: &Config, pointer: &str, value: &str) -> Result<Config> {
-    let mut config = serde_json::to_value(config)?;
-    if let Some(property) = config.pointer_mut(json_pointer(&pointer).as_str()) {
-        let value = match serde_json::from_str(&value) {
-            Ok(value) => value,
-            Err(_) => serde_json::Value::String(value.into()),
-        };
-        *property = value;
-    } else {
-        bail!("No configuration value at pointer: {}", pointer)
-    };
+/// A global config store
+///
+/// Previously, we loaded config on startup and then passed them to various
+/// functions in other modules.
+/// However, this proved complicated for things like `Project` and `Document`
+/// file watching threads when they need access to the current config.
+pub static CONFIG: Lazy<Arc<Mutex<Config>>> =
+    Lazy::new(|| Arc::new(Mutex::new(Config::load().expect("Unable to read config"))));
 
-    let config: Config = serde_json::from_value(config)?;
-    validate(&config)?;
-    Ok(config)
+/// Lock the global config store
+pub async fn lock() -> MutexGuard<'static, Config> {
+    CONFIG.lock().await
 }
 
-/// Reset a config property
-#[tracing::instrument]
-pub fn reset(config: &Config, property: &str) -> Result<Config> {
-    Ok(match property {
-        "all" => Default::default(),
-        "logging" => Config {
-            logging: Default::default(),
-            ..config.clone()
-        },
-        "plugins" => Config {
-            plugins: Default::default(),
-            ..config.clone()
-        },
-        "serve" => Config {
-            serve: Default::default(),
-            ..config.clone()
-        },
-        "upgrade" => Config {
-            upgrade: Default::default(),
-            ..config.clone()
-        },
-        _ => bail!("No top level configuration property named: {}", property),
-    })
+/// Get the JSON Schema for the configuration
+pub fn schema() -> Result<serde_json::Value> {
+    schemas::generate::<Config>()
 }
 
 /// CLI options for the `config` command
@@ -291,24 +294,25 @@ pub mod cli {
         pub property: String,
     }
 
-    pub fn run(args: Command, config: &mut Config) -> display::Result {
+    pub async fn run(args: Command) -> display::Result {
         let Command { action } = args;
+
+        let config = &mut *lock().await;
+
         match action {
             Action::Get(action) => {
                 let Get { pointer } = action;
-                let value = get(config, pointer)?;
+                let value = config.get(pointer)?;
                 display::value(value)
             }
             Action::Set(action) => {
                 let Set { pointer, value } = action;
-                *config = set(config, &pointer, &value)?;
-                write(config)?;
+                config.set(&pointer, &value)?;
                 display::nothing()
             }
             Action::Reset(action) => {
                 let Reset { property } = action;
-                *config = reset(config, &property)?;
-                write(config)?;
+                config.reset(&property)?;
                 display::nothing()
             }
             Action::Dirs => {
@@ -338,17 +342,17 @@ mod tests {
 
     #[test]
     fn test_path() -> Result<()> {
-        let path = path()?;
+        let path = Config::path()?;
         assert!(path.starts_with(std::env::temp_dir()));
         Ok(())
     }
 
     #[test]
     fn test_json_pointer() {
-        assert_eq!(json_pointer("a"), "/a");
-        assert_eq!(json_pointer("a/b"), "/a/b");
-        assert_eq!(json_pointer("/a.b"), "/a/b");
-        assert_eq!(json_pointer("a.b.c"), "/a/b/c");
+        assert_eq!(Config::json_pointer("a"), "/a");
+        assert_eq!(Config::json_pointer("a/b"), "/a/b");
+        assert_eq!(Config::json_pointer("/a.b"), "/a/b");
+        assert_eq!(Config::json_pointer("a.b.c"), "/a/b/c");
     }
 
     #[test]
@@ -357,20 +361,15 @@ mod tests {
             ..Default::default()
         };
 
-        let _all = get(&config, None)?;
-        //assert!(all.contains("[serve]\n"));
-        //assert!(all.contains("[upgrade]\n"));
+        serde_json::from_value::<Config>(config.get(None)?)?;
 
-        let _serve = get(&config, Some("serve".to_string()))?;
-        //assert!(!serve.contains("[serve]\n"));
-        //assert!(serve.contains("url = "));
+        serde_json::from_value::<ServeConfig>(config.get(Some("serve".to_string()))?)?;
 
-        let _upgrade = get(&config, Some("upgrade".to_string()))?;
-        //assert!(!upgrade.contains("[upgrade]\n"));
-        //assert!(upgrade.contains("auto = "));
+        serde_json::from_value::<UpgradeConfig>(config.get(Some("upgrade".to_string()))?)?;
 
         assert_eq!(
-            get(&config, Some("foo.bar".to_string()))
+            config
+                .get(Some("foo.bar".to_string()))
                 .unwrap_err()
                 .to_string(),
             "No configuration value at pointer: foo.bar"
@@ -381,18 +380,18 @@ mod tests {
 
     #[test]
     fn test_set() -> Result<()> {
-        let config = Config {
+        let mut config = Config {
             ..Default::default()
         };
 
-        let result = set(&config, "upgrade.auto", "off")?;
-        assert_eq!(result.upgrade.auto, "off");
+        config.set("upgrade.auto", "off")?;
+        assert_eq!(config.upgrade.auto, "off");
 
-        let result = set(&config, "upgrade.verbose", "true")?;
-        assert_eq!(result.upgrade.verbose, true);
+        config.set("upgrade.verbose", "true")?;
+        assert_eq!(config.upgrade.verbose, true);
 
         assert_eq!(
-            set(&config, "foo.bar", "baz").unwrap_err().to_string(),
+            config.set("foo.bar", "baz").unwrap_err().to_string(),
             "No configuration value at pointer: foo.bar"
         );
 
@@ -401,7 +400,7 @@ mod tests {
 
     #[test]
     fn test_reset() -> Result<()> {
-        let config = serde_json::from_value(json!({
+        let mut config: Config = serde_json::from_value(json!({
             "upgrade": {
                 "auto": "off",
                 "verbose": true,
@@ -413,61 +412,49 @@ mod tests {
             ..Default::default()
         };
 
-        let result = reset(&config, "upgrade")?;
-        assert_eq!(result.upgrade.auto, default.upgrade.auto);
-        assert_eq!(result.upgrade.verbose, default.upgrade.verbose);
+        config.reset("upgrade")?;
+        assert_eq!(config.upgrade.auto, default.upgrade.auto);
+        assert_eq!(config.upgrade.verbose, default.upgrade.verbose);
 
-        let result = reset(&config, "all")?;
-        assert_eq!(result, default);
+        config.reset("all")?;
+        assert_eq!(config, default);
 
         assert_eq!(
-            reset(&config, "foo").unwrap_err().to_string(),
+            config.reset("foo").unwrap_err().to_string(),
             "No top level configuration property named: foo"
         );
 
         Ok(())
     }
 
-    #[test]
-    fn test_cli() -> Result<()> {
+    #[tokio::test]
+    async fn test_cli() -> Result<()> {
         use super::cli::*;
 
-        let mut config = Config {
-            ..Default::default()
-        };
+        run(Command {
+            action: Action::Get(Get { pointer: None }),
+        })
+        .await?;
 
-        run(
-            Command {
-                action: Action::Get(Get { pointer: None }),
-            },
-            &mut config,
-        )?;
+        run(Command {
+            action: Action::Set(Set {
+                pointer: "upgrade.confirm".to_string(),
+                value: "true".to_string(),
+            }),
+        })
+        .await?;
 
-        run(
-            Command {
-                action: Action::Set(Set {
-                    pointer: "upgrade.confirm".to_string(),
-                    value: "true".to_string(),
-                }),
-            },
-            &mut config,
-        )?;
+        run(Command {
+            action: Action::Reset(Reset {
+                property: "upgrade".to_string(),
+            }),
+        })
+        .await?;
 
-        run(
-            Command {
-                action: Action::Reset(Reset {
-                    property: "upgrade".to_string(),
-                }),
-            },
-            &mut config,
-        )?;
-
-        run(
-            Command {
-                action: Action::Dirs,
-            },
-            &mut config,
-        )?;
+        run(Command {
+            action: Action::Dirs,
+        })
+        .await?;
 
         Ok(())
     }

@@ -99,25 +99,24 @@ pub struct Context {
 }
 
 /// Run a command
-#[tracing::instrument(skip(documents, projects, config))]
+#[tracing::instrument(skip(documents, projects))]
 pub async fn run_command(
     command: Command,
     formats: &[String],
     context: &mut Context,
     documents: &mut documents::Documents,
     projects: &mut projects::Projects,
-    config: &mut config::Config,
 ) -> Result<()> {
     let result = match command {
         Command::List(command) => command.run(projects, documents).await,
-        Command::Open(command) => command.run(context, projects, documents, config).await,
+        Command::Open(command) => command.run(context, projects, documents).await,
         Command::Close(command) => command.run(projects, documents).await,
-        Command::Show(command) => command.run(projects, documents, config).await,
+        Command::Show(command) => command.run(projects, documents).await,
         Command::Documents(command) => command.run(documents).await,
-        Command::Projects(command) => command.run(projects, &config.projects),
-        Command::Plugins(command) => plugins::cli::run(command, &config.plugins).await,
-        Command::Config(command) => config::cli::run(command, config),
-        Command::Upgrade(command) => upgrade::cli::run(command, &config.upgrade).await,
+        Command::Projects(command) => command.run(projects).await,
+        Command::Plugins(command) => plugins::cli::run(command).await,
+        Command::Config(command) => config::cli::run(command).await,
+        Command::Upgrade(command) => upgrade::cli::run(command).await,
     };
     render::render(context.interactive, formats, result?)
 }
@@ -137,7 +136,7 @@ impl ListCommand {
         documents: &mut documents::Documents,
     ) -> display::Result {
         let mut value = HashMap::new();
-        value.insert("projects", projects.list()?);
+        value.insert("projects", projects.list().await?);
         value.insert("documents", documents.list().await?);
         display::value(value)
     }
@@ -172,12 +171,11 @@ impl OpenCommand {
         context: &mut Context,
         projects: &mut projects::Projects,
         documents: &mut documents::Documents,
-        config: &config::Config,
     ) -> display::Result {
         let Self { path, theme } = self;
 
         let path = if path.is_dir() {
-            let project = projects.open(&path, &config.projects, true)?;
+            let project = projects.open(&path, true).await?;
             match project.main_path {
                 Some(path) => path,
                 None => {
@@ -199,7 +197,11 @@ impl OpenCommand {
 
         // Append the theme query parameter if set
         let path = if let Some(theme) = theme {
-            format!("{path}?theme={theme}", path = path, theme = theme.to_ascii_lowercase())
+            format!(
+                "{path}?theme={theme}",
+                path = path,
+                theme = theme.to_ascii_lowercase()
+            )
         } else {
             path
         };
@@ -280,12 +282,11 @@ impl ShowCommand {
         self,
         projects: &mut projects::Projects,
         documents: &mut documents::Documents,
-        config: &config::Config,
     ) -> display::Result {
         let Self { path } = self;
 
         if path.is_dir() {
-            display::value(projects.open(&path, &config.projects, true)?)
+            display::value(projects.open(&path, true).await?)
         } else {
             display::value(documents.open(&path, None).await?)
         }
@@ -335,13 +336,12 @@ pub async fn main() -> Result<()> {
     };
 
     // Create a preliminary logging subscriber to be able to log any issues
-    // when reading the config.
+    // when reading the logging config.
     let prelim_subscriber_guard = logging::prelim();
-    let mut config = config::read()?;
+    let logging_config = config::lock().await.logging.clone();
     drop(prelim_subscriber_guard);
 
     // Create a logging config with local overrides
-    let logging_config = config.logging.clone();
     let logging_config = LoggingConfig {
         stderr: LoggingStdErrConfig {
             level: if debug {
@@ -391,7 +391,7 @@ pub async fn main() -> Result<()> {
     let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
         None
     } else {
-        Some(stencila::upgrade::upgrade_auto(&config.upgrade))
+        Some(stencila::upgrade::upgrade_auto())
     };
 
     // Use the desired display format, falling back to configured values
@@ -414,7 +414,6 @@ pub async fn main() -> Result<()> {
             &mut context,
             &mut documents,
             &mut projects,
-            &mut config,
         )
         .await
     } else {
@@ -433,7 +432,6 @@ pub async fn main() -> Result<()> {
                 &mut context,
                 &mut documents,
                 &mut projects,
-                &mut config,
             )
             .await
         }
@@ -446,7 +444,7 @@ pub async fn main() -> Result<()> {
 
     // Join the upgrade thread and log any errors
     if let Some(upgrade_thread) = upgrade_thread {
-        if let Err(_error) = upgrade_thread.join() {
+        if let Err(_error) = upgrade_thread.await.await {
             tracing::warn!("Error while attempting to join upgrade thread")
         }
     }
@@ -742,14 +740,13 @@ mod interact {
     }
 
     /// Run the interactive REPL
-    #[tracing::instrument(skip(documents, projects, config))]
+    #[tracing::instrument(skip(documents, projects))]
     pub async fn run(
         prefix: Vec<String>,
         formats: &[String],
         context: &mut Context,
         documents: &mut documents::Documents,
         projects: &mut projects::Projects,
-        config: &mut config::Config,
     ) -> Result<()> {
         let history_file = config::dir(true)?.join("history.txt");
 
@@ -807,8 +804,7 @@ mod interact {
                             };
 
                             if let Err(error) =
-                                run_command(command, &formats, context, documents, projects, config)
-                                    .await
+                                run_command(command, &formats, context, documents, projects).await
                             {
                                 print_error(error);
                             };

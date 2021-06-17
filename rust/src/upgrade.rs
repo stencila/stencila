@@ -83,16 +83,15 @@ const UPGRADE_FILE: &str = "cli-upgrade.txt";
 /// Because this function use values form the config file, requires
 /// that `feature = "config"` is enabled.
 #[cfg(feature = "config")]
-pub fn upgrade_auto(config: &config::UpgradeConfig) -> std::thread::JoinHandle<Result<()>> {
-    let config = config.clone();
-    thread::spawn(move || -> Result<()> {
-        let config::UpgradeConfig {
-            auto,
-            confirm,
-            plugins: include_plugins,
-            ..
-        } = config;
+pub async fn upgrade_auto() -> tokio::task::JoinHandle<Result<()>> {
+    let config::UpgradeConfig {
+        auto,
+        confirm,
+        plugins: include_plugins,
+        ..
+    } = crate::config::lock().await.upgrade.clone();
 
+    tokio::spawn(async move {
         // Go no further if auto upgrade is not enabled
         if auto == "off" {
             return Ok(());
@@ -110,9 +109,7 @@ pub fn upgrade_auto(config: &config::UpgradeConfig) -> std::thread::JoinHandle<R
         }
 
         // Attempt an upgrade
-        let runtime = tokio::runtime::Runtime::new()?;
-        runtime
-            .block_on(async move { upgrade(None, None, include_plugins, confirm, false).await })?;
+        upgrade(None, None, include_plugins, confirm, false).await?;
 
         // Record the time of the upgrade check, so another check
         // is not made within the `auto`.
@@ -208,7 +205,7 @@ pub mod cli {
     /// Note that the in-memory state of application and plugins is unchanged after this call
     /// (e.g. if called in interactive mode). A restart is required to upload both the new
     /// version and plugin versions.
-    pub async fn run(args: Args, _config: &config::UpgradeConfig) -> display::Result {
+    pub async fn run(args: Args) -> display::Result {
         let Args {
             to,
             plugins: include_plugins,
@@ -237,26 +234,22 @@ mod tests {
         upgrade(Some("100.0.0".to_string()), None, false, false, false).await
     }
 
-    #[test]
-    fn test_upgrade_auto() -> Result<()> {
-        let config = config::UpgradeConfig::default();
-        upgrade_auto(&config).join().expect("Failed")
+    #[tokio::test]
+    async fn test_upgrade_auto() -> Result<()> {
+        let handle = upgrade_auto().await;
+        handle.await?
     }
 
     /// This hangs so is currently ignored
     #[ignore]
     #[tokio::test]
     async fn test_cli() -> Result<()> {
-        let config = config::UpgradeConfig::default();
-        cli::run(
-            cli::Args {
-                to: None,
-                plugins: false,
-                confirm: false,
-                verbose: false,
-            },
-            &config,
-        )
+        cli::run(cli::Args {
+            to: None,
+            plugins: false,
+            confirm: false,
+            verbose: false,
+        })
         .await?;
 
         Ok(())

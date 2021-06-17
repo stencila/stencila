@@ -1,87 +1,83 @@
 use crate::prelude::*;
 use neon::prelude::*;
-use std::sync::{Mutex, MutexGuard};
 use stencila::{
-    config::{self, Config},
-    once_cell::sync::Lazy,
+    config::{self, Config, CONFIG},
+    serde_json,
+    tokio::sync::MutexGuard,
+    validator::Validate,
 };
 
-// A config object needs to be read on startup and then passed to various
-// functions in other modules on each invocation.
-// We want to avoid exposing that implementation detail in these bindings
-// so have this global mutable 😱 configuration object that gets
-// read when the module is loaded, updated in the functions below
-// and then passed on to other functions
-pub static CONFIG: Lazy<Mutex<Config>> =
-    Lazy::new(|| Mutex::new(config::read().expect("Unable to read config")));
-
-pub fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Config>> {
+/// Lock the global config store
+pub fn lock(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Config>> {
     match CONFIG.try_lock() {
         Ok(guard) => Ok(guard),
         Err(error) => cx.throw_error(format!(
-            "When attempting on obtain config: {}",
+            "When attempting to obtain config: {}",
             error.to_string()
         )),
     }
 }
 
-fn save_then_to_json(cx: FunctionContext, conf: Config) -> JsResult<JsString> {
-    let mut guard = CONFIG.lock().expect("Unable to lock config");
-    *guard = conf;
-    to_json(cx, guard.to_owned())
-}
-
+/// Get the config schema
 pub fn schema(cx: FunctionContext) -> JsResult<JsString> {
     let schema = config::schema();
     to_json_or_throw(cx, schema)
 }
 
-pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {
-    match config::read() {
-        Ok(conf) => save_then_to_json(cx, conf),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
+/// Get the entire global configuration object
+pub fn get(mut cx: FunctionContext) -> JsResult<JsString> {
+    let config = lock(&mut cx)?;
+    to_json(cx, config.clone())
 }
 
-pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+/// Set the entire global configuration object
+pub fn set(mut cx: FunctionContext) -> JsResult<JsString> {
     let json = cx.argument::<JsString>(0)?.value(&mut cx);
 
-    let conf = from_json::<Config>(&mut cx, &json)?;
-    match config::write(&conf) {
-        Ok(_) => Ok(cx.undefined()),
-        Err(error) => cx.throw_error(error.to_string()),
+    // Set the config from JSON and write to disk
+    let config = &mut *lock(&mut cx)?;
+    *config = from_json::<Config>(&mut cx, &json)?;
+    if let Err(error) = config.write() {
+        return cx.throw_error(error.to_string());
     }
+
+    to_json(cx, config.clone())
 }
 
+/// Validate a config
 pub fn validate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     let json = cx.argument::<JsString>(0)?.value(&mut cx);
 
-    let conf = from_json::<Config>(&mut cx, &json)?;
-    match config::validate(&conf) {
+    let config = from_json::<Config>(&mut cx, &json)?;
+    match config.validate() {
         Ok(_) => Ok(cx.boolean(true)),
-        Err(error) => cx.throw_error(error.to_string()),
+        Err(error) => {
+            cx.throw_error(serde_json::to_string(&error).expect("Unable to convert to JSON"))
+        }
     }
 }
 
-pub fn set(mut cx: FunctionContext) -> JsResult<JsString> {
-    let json = cx.argument::<JsString>(0)?.value(&mut cx);
-    let pointer = cx.argument::<JsString>(1)?.value(&mut cx);
-    let value = cx.argument::<JsString>(2)?.value(&mut cx);
+/// Set a property of the global config
+pub fn set_property(mut cx: FunctionContext) -> JsResult<JsString> {
+    let pointer = cx.argument::<JsString>(0)?.value(&mut cx);
+    let value = cx.argument::<JsString>(1)?.value(&mut cx);
 
-    let conf = from_json::<Config>(&mut cx, &json)?;
-    match config::set(&conf, &pointer, &value) {
-        Ok(conf) => save_then_to_json(cx, conf),
-        Err(error) => cx.throw_error(error.to_string()),
+    let config = &mut *lock(&mut cx)?;
+    if let Err(error) = config.set(&pointer, &value) {
+        return cx.throw_error(error.to_string());
     }
+
+    to_json(cx, config.clone())
 }
 
-pub fn reset(mut cx: FunctionContext) -> JsResult<JsString> {
-    let json = cx.argument::<JsString>(0)?.value(&mut cx);
-    let property = cx.argument::<JsString>(1)?.value(&mut cx);
+/// Reset a property of the global config
+pub fn reset_property(mut cx: FunctionContext) -> JsResult<JsString> {
+    let property = cx.argument::<JsString>(0)?.value(&mut cx);
 
-    let conf = from_json::<Config>(&mut cx, &json)?;
-    match config::reset(&conf, &property) {
-        Ok(conf) => save_then_to_json(cx, conf),
-        Err(error) => cx.throw_error(error.to_string()),
+    let config = &mut *lock(&mut cx)?;
+    if let Err(error) = config.reset(&property) {
+        return cx.throw_error(error.to_string());
     }
+
+    to_json(cx, config.clone())
 }

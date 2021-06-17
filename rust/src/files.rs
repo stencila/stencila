@@ -4,14 +4,12 @@ use crate::{
     utils::schemas,
 };
 use defaults::Defaults;
-use eyre::{bail, Result};
 use schemars::{schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
     collections::{btree_map::Entry, BTreeMap, BTreeSet},
     path::{Path, PathBuf},
-    sync::{mpsc, Arc, Mutex, MutexGuard},
     time::UNIX_EPOCH,
 };
 use strum::ToString;
@@ -86,7 +84,6 @@ impl File {
 
         let name = File::name(&path);
         let parent = File::parent(&path);
-        let format = FORMATS.match_path(&path);
 
         let (modified, size) = match path.metadata() {
             Ok(metadata) => {
@@ -102,10 +99,10 @@ impl File {
             Err(_) => (None, None),
         };
 
-        let children = if path.is_file() {
-            None
+        let (format, children) = if path.is_file() {
+            (FORMATS.match_path(&path), None)
         } else {
-            Some(BTreeSet::new())
+            (Format::directory(), Some(BTreeSet::new()))
         };
 
         File {
@@ -116,7 +113,6 @@ impl File {
             size,
             format,
             children,
-            ..Default::default()
         }
     }
 }
@@ -205,8 +201,8 @@ impl FileEvent {
 }
 
 /// A registry of `File`s within a `Project`
-#[derive(Debug, Default, JsonSchema, Serialize)]
-pub struct FileRegistry {
+#[derive(Clone, Debug, Default, JsonSchema, Serialize)]
+pub struct Files {
     /// The root path of the project
     #[serde(skip)]
     path: PathBuf,
@@ -232,14 +228,13 @@ pub struct FileRegistry {
     files_ignored: BTreeSet<PathBuf>,
 }
 
-impl FileRegistry {
+impl Files {
     const GITIGNORE_NAMES: [&'static str; 2] = [".ignore", ".gitignore"];
 
-    pub fn new(path: &Path) -> FileRegistry {
-        let (files, ignore_files) = FileRegistry::walk(path);
-        let path = path.into();
-        FileRegistry {
-            path,
+    pub fn new<P: AsRef<Path>>(path: P) -> Files {
+        let (files, ignore_files) = Files::walk(&path);
+        Files {
+            path: path.as_ref().to_path_buf(),
             files,
             ignore_files,
             ..Default::default()
@@ -247,7 +242,7 @@ impl FileRegistry {
     }
 
     /// Walk a path and collect file and Git ignore files from it
-    pub fn walk(path: &Path) -> (BTreeMap<PathBuf, File>, BTreeSet<PathBuf>) {
+    pub fn walk<P: AsRef<Path>>(path: P) -> (BTreeMap<PathBuf, File>, BTreeSet<PathBuf>) {
         // Build walker
         let walker = ignore::WalkBuilder::new(&path)
             // Respect .ignore files
@@ -283,7 +278,7 @@ impl FileRegistry {
         // Resolve `children` properties and `ignore_files` files
         let mut ignore_files = BTreeSet::new();
         for path in files.keys().cloned().collect::<Vec<PathBuf>>() {
-            if FileRegistry::is_ignore_file(&path) {
+            if Files::is_ignore_file(&path) {
                 ignore_files.insert(path.clone());
             }
 
@@ -304,7 +299,7 @@ impl FileRegistry {
     ///
     /// For example if a `.gitignore` file is added, removed, moved or modified.
     fn should_refresh(&mut self, path: &Path) -> bool {
-        FileRegistry::is_ignore_file(&path)
+        Files::is_ignore_file(&path)
     }
 
     /// Refresh the registry if it should be
@@ -320,7 +315,7 @@ impl FileRegistry {
     /// Is the file a Git ignore file?
     fn is_ignore_file(path: &Path) -> bool {
         let name = File::name(path);
-        FileRegistry::GITIGNORE_NAMES.contains(&name.as_str())
+        Files::GITIGNORE_NAMES.contains(&name.as_str())
     }
 
     /// Should a path be ignored?
@@ -384,7 +379,7 @@ impl FileRegistry {
 
     /// Refresh the file registry
     fn refresh(&mut self) {
-        *self = FileRegistry::new(self.path.as_path());
+        *self = Files::new(self.path.as_path());
 
         FileEvent::publish(
             &self.path,
@@ -414,12 +409,12 @@ impl FileRegistry {
             // already loaded files when getting individual file `created` events
             // or when walking subdirectories (e.g. when a zip file is extracted).
             // But there does not seem to be an easy, safe alternative.
-            let (files, ignore_files) = &mut FileRegistry::walk(path);
+            let (files, ignore_files) = &mut Files::walk(path);
             self.files.append(files);
             self.ignore_files.append(ignore_files);
         } else {
             // If it's a file, we may need to add it to the ignore files
-            if FileRegistry::is_ignore_file(path) {
+            if Files::is_ignore_file(path) {
                 self.ignore_files.insert(path.into());
             }
         }
@@ -557,132 +552,5 @@ impl FileRegistry {
             Some(file),
             &self.files,
         )
-    }
-}
-
-/// The set of `File`s within a `Project`
-#[derive(Debug, Default, Clone, JsonSchema, Serialize)]
-pub struct Files {
-    #[serde(flatten)]
-    pub registry: Arc<Mutex<FileRegistry>>,
-
-    #[serde(skip)]
-    pub watcher: Option<crossbeam_channel::Sender<()>>,
-}
-
-impl Files {
-    /// Load files from a folder
-    pub fn load<P: AsRef<Path>>(
-        folder: P,
-        watch: bool,
-        watch_exclude_patterns: Vec<String>,
-    ) -> Result<Files> {
-        let path = folder.as_ref().canonicalize()?;
-
-        // Create a registry of the files
-        let registry = Arc::new(Mutex::new(FileRegistry::new(&path)));
-
-        // Watch files and make updates as needed
-        let watcher = if watch {
-            let registry = Arc::clone(&registry);
-            let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
-            std::thread::spawn(move || -> Result<()> {
-                use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
-                use std::time::Duration;
-
-                let (watcher_sender, watcher_receiver) = mpsc::channel();
-                let mut watcher = watcher(watcher_sender, Duration::from_secs(1))?;
-                watcher.watch(&path, RecursiveMode::Recursive).unwrap();
-
-                let exclude_globs: Vec<glob::Pattern> = watch_exclude_patterns
-                    .iter()
-                    .filter_map(|pattern| match glob::Pattern::new(pattern) {
-                        Ok(glob) => Some(glob),
-                        Err(error) => {
-                            tracing::warn!(
-                                "Invalid watch exclude glob pattern; will ignore: {} : {}",
-                                pattern,
-                                error
-                            );
-                            None
-                        }
-                    })
-                    .collect();
-
-                let should_include = |event_path: &PathBuf| {
-                    if let Ok(event_path) = event_path.strip_prefix(&path) {
-                        for glob in &exclude_globs {
-                            if glob.matches(&event_path.display().to_string()) {
-                                return false;
-                            }
-                        }
-                    }
-                    true
-                };
-
-                let handle_event = |event| match event {
-                    DebouncedEvent::Create(path) => {
-                        if should_include(&path) {
-                            let registry = &mut *registry.lock().unwrap();
-                            registry.created(&path)
-                        }
-                    }
-                    DebouncedEvent::Remove(path) => {
-                        if should_include(&path) {
-                            let registry = &mut *registry.lock().unwrap();
-                            registry.removed(&path)
-                        }
-                    }
-                    DebouncedEvent::Rename(from, to) => {
-                        if should_include(&from) || should_include(&to) {
-                            let registry = &mut *registry.lock().unwrap();
-                            registry.renamed(&from, &to);
-                        }
-                    }
-                    DebouncedEvent::Write(path) => {
-                        if should_include(&path) {
-                            let registry = &mut *registry.lock().unwrap();
-                            registry.modified(&path)
-                        }
-                    }
-                    _ => {}
-                };
-
-                let project = path.display().to_string();
-                let span = tracing::info_span!("file_watch", project = project.as_str());
-                let _enter = span.enter();
-                tracing::debug!("Starting project file watch: {}", project);
-
-                loop {
-                    if let Err(crossbeam_channel::TryRecvError::Disconnected) =
-                        thread_receiver.try_recv()
-                    {
-                        tracing::debug!("Ending project file watch: {}", project);
-                        break;
-                    }
-                    match watcher_receiver.recv() {
-                        Ok(event) => handle_event(event),
-                        Err(error) => tracing::error!("Watch error: {:?}", error),
-                    }
-                }
-
-                Ok(())
-            });
-
-            Some(thread_sender)
-        } else {
-            None
-        };
-
-        let files = Files { registry, watcher };
-        Ok(files)
-    }
-
-    // Obtain the file registry
-    pub fn registry(&self) -> Result<MutexGuard<FileRegistry>> {
-        match self.registry.try_lock() {
-            Ok(registry) => Ok(registry),
-            Err(error) => bail!("Unable to get file registry: {}", error),
-        }
     }
 }

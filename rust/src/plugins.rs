@@ -2134,12 +2134,13 @@ pub mod cli {
         }
     }
 
-    pub async fn run(args: Command, config: &config::PluginsConfig) -> display::Result {
+    pub async fn run(args: Command) -> display::Result {
         let Command { action } = args;
+
         let config::PluginsConfig {
             aliases,
             installations,
-        } = config;
+        } = &crate::config::lock().await.plugins;
 
         let plugins = &mut *lock().await;
 
@@ -2251,67 +2252,45 @@ mod tests {
 
         use super::cli::*;
 
-        let config = config::PluginsConfig {
-            ..Default::default()
-        };
-
-        run(
-            Command {
-                action: Action::List,
-            },
-            &config,
-        )
+        run(Command {
+            action: Action::List,
+        })
         .await?;
 
-        run(
-            Command {
-                action: Action::Show(Show {
-                    plugin: "foo".to_string(),
-                }),
-            },
-            &config,
-        )
+        run(Command {
+            action: Action::Show(Show {
+                plugin: "foo".to_string(),
+            }),
+        })
         .await
         .expect_err("Expected an error!");
 
-        run(
-            Command {
-                action: Action::Install(Install {
-                    plugins: vec![],
-                    ..Default::default()
-                }),
-            },
-            &config,
-        )
+        run(Command {
+            action: Action::Install(Install {
+                plugins: vec![],
+                ..Default::default()
+            }),
+        })
         .await?;
 
-        run(
-            Command {
-                action: Action::Link(Link {
-                    path: "../foo".to_string(),
-                }),
-            },
-            &config,
-        )
+        run(Command {
+            action: Action::Link(Link {
+                path: "../foo".to_string(),
+            }),
+        })
         .await
         .expect_err("Expected an error!");
 
-        run(
-            Command {
-                action: Action::Upgrade(Upgrade {
-                    plugins: vec!["jesta".to_string()],
-                }),
-            },
-            &config,
-        )
+        run(Command {
+            action: Action::Upgrade(Upgrade {
+                plugins: vec!["jesta".to_string()],
+            }),
+        })
         .await?;
 
-        run(
-            Command {
-                action: Action::Uninstall(Uninstall { plugins: vec![] }),
-            },
-            &config,
-        )
+        run(Command {
+            action: Action::Uninstall(Uninstall { plugins: vec![] }),
+        })
         .await?;
 
         Ok(())
