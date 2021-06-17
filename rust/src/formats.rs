@@ -49,6 +49,17 @@ impl Format {
         }
     }
 
+    /// Create the special `directory` format used on `File` objects
+    /// that are directories
+    pub fn directory() -> Format {
+        Format {
+            name: "dir".into(),
+            binary: true,
+            preview: false,
+            type_: Some("Collection".into()),
+        }
+    }
+
     /// Create the special `unregistered` file format where all we
     /// have is the name e.g. from a file extension
     pub fn unregistered(name: &str) -> Format {
@@ -116,8 +127,8 @@ impl Default for Formats {
             Format::new("mp4", true, true, "VideoObject"),
             Format::new("ogv", true, true, "VideoObject"),
             Format::new("webm", true, true, "VideoObject"),
-            // Special `unknown` format which defines handling
-            // of file types that are not registered above
+            // Specials
+            Format::directory(),
             Format::unknown(),
         ];
 

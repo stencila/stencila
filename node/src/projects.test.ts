@@ -77,8 +77,12 @@ test('workflow: open and modify', async () => {
   )
 
   // Subscribe to the project
-  subscribe(folder, ['props'], (_topic, event) => projectEvents.push(event as ProjectEvent))
-  subscribe(folder, ['files'], (_topic, event) => fileEvents.push(event as FileEvent))
+  subscribe(folder, ['props'], (_topic, event) =>
+    projectEvents.push(event as ProjectEvent)
+  )
+  subscribe(folder, ['files'], (_topic, event) =>
+    fileEvents.push(event as FileEvent)
+  )
 
   // Modify the project.json file on disk
   fs.writeFileSync(
@@ -88,20 +92,24 @@ test('workflow: open and modify', async () => {
     })
   )
   // This timeout needs to be longer than the file watcher debouncing
-  await new Promise((resolve) => setTimeout(resolve, 1300))
-  expect(projectEvents).toEqual([
-    expect.objectContaining({
-      type: 'updated',
-      project: expect.objectContaining({
-        path: folder,
-        theme: 'wilmore',
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  expect(projectEvents).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        type: 'updated',
+        project: expect.objectContaining({
+          path: folder,
+          theme: 'wilmore',
+        }),
       }),
-    }),
-  ])
-  expect(fileEvents).toEqual([
-    expect.objectContaining({
-      type: 'created',
-      path: path.join(folder, 'project.json'),
-    }),
-  ])
+    ])
+  )
+  expect(fileEvents).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        type: 'created',
+        path: path.join(folder, 'project.json'),
+      }),
+    ])
+  )
 })

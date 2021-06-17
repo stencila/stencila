@@ -84,7 +84,6 @@ impl File {
 
         let name = File::name(&path);
         let parent = File::parent(&path);
-        let format = FORMATS.match_path(&path);
 
         let (modified, size) = match path.metadata() {
             Ok(metadata) => {
@@ -100,10 +99,10 @@ impl File {
             Err(_) => (None, None),
         };
 
-        let children = if path.is_file() {
-            None
+        let (format, children) = if path.is_file() {
+            (FORMATS.match_path(&path), None)
         } else {
-            Some(BTreeSet::new())
+            (Format::directory(), Some(BTreeSet::new()))
         };
 
         File {
