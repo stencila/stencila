@@ -11,12 +11,11 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 
 import fs from 'fs-extra'
+import yaml from 'js-yaml'
 import { flatten, flow, groupBy, sortBy, startCase, uniq } from 'lodash'
 import path from 'path'
 import { JsonSchema } from './JsonSchema'
-import log from './log'
 import { readSchemas } from './util/helpers'
-import yaml from 'js-yaml'
 
 /**
  * Run `build()` when this file is run as a Node script
@@ -38,7 +37,7 @@ let SCHEMAS: Record<string, JsonSchema>
  * Generate docs for each `public/*.schema.json` file.
  */
 async function build(): Promise<void> {
-  log.info('Building docs')
+  console.info('Building docs')
 
   // Read in all the schemas
   const schemas = await readSchemas()
