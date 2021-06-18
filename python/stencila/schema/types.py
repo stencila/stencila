@@ -1432,7 +1432,7 @@ class DatatableColumn(Thing):
     name: str # type: ignore
     """The name of the item."""
 
-    values: Array[Any]
+    values: Array["Node"]
     """The data values of the column."""
 
     validator: Optional["ArrayValidator"] = None
@@ -1442,7 +1442,7 @@ class DatatableColumn(Thing):
     def __init__(
         self,
         name: str,
-        values: Array[Any],
+        values: Array["Node"],
         alternateNames: Optional[Array[str]] = None,
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
@@ -4390,7 +4390,7 @@ GrantTypes = Union["Grant", "MonetaryGrant"]
 """
 Union type for valid inline content.
 """
-InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Quote", "Strong", "Subscript", "Superscript", "VideoObject", None, bool, int, float, Array[Any], Dict[str, Any], str]
+InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Quote", "Strong", "Subscript", "Superscript", "VideoObject", None, bool, int, float, Array["InlineContent"], Dict[str, Any], str]
 
 
 """
@@ -4414,7 +4414,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 """
 Union type for all schema nodes, including primitives and entities
 """
-Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Validator", "Variable", "VideoObject", "VolumeMount", None, bool, int, float, str, Dict[str, Any], Array[Any]]
+Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Validator", "Variable", "VideoObject", "VolumeMount", None, bool, int, float, str, Dict[str, Any], Array["Node"]]
 
 
 """

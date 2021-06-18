@@ -1588,7 +1588,7 @@ pub struct DatatableColumn {
     pub name: String,
 
     /// The data values of the column.
-    pub values: Array,
+    pub values: Vec<Node>,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -5364,7 +5364,7 @@ pub enum InlineContent {
     Boolean(Boolean),
     Integer(Integer),
     Number(Number),
-    Array(Array),
+    Vec<InlineContent>(Vec<InlineContent>),
     Object(Object),
     String(String),
 }
@@ -5494,7 +5494,7 @@ pub enum Node {
     Number(Number),
     String(String),
     Object(Object),
-    Array(Array),
+    Vec<Node>(Vec<Node>),
 }
 
 /// All type schemas that are derived from Thing
