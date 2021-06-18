@@ -1,13 +1,35 @@
 import {
   BlockContent,
-  blockContentTypes,
   Entity,
   InlineContent,
-  inlineContentTypes,
   Node,
   TypeMap,
   Types,
+  unions,
+  Unions,
 } from '../types'
+
+export type TypeMapGeneric<
+  T extends { type: string } & Record<string, unknown> = { type: string }
+> = { [key in T['type']]: key }
+
+type ExtractGeneric<Type> = Type extends TypeMap<infer X>
+  ? X
+  : Type extends TypeMapGeneric<infer Y>
+  ? Y
+  : never
+
+/**
+ * Type guard to determine whether a node belongs to a type map
+ *
+ * @template {TypeMap} T
+ * @param {T} typeMap
+ * @param {Node} node A Stencila schema node object
+ */
+export const isInTypeMap =
+  <T extends Partial<TypeMap | TypeMapGeneric>>(typeMap: T) =>
+  (node?: Node): node is ExtractGeneric<T> =>
+    isEntity(node) ? Object.keys(typeMap).includes(node.type) : false
 
 /**
  * Type guard to determine whether a node is a primitive type
@@ -36,17 +58,6 @@ export const isEntity = (node?: Node): node is Entity => {
 }
 
 /**
- * Returns a type guard to determine whether a node has a types
- * that is a member of the type map.
- *
- * e.g. isTypeOf('CreativeWork')(node)
- */
-export const isTypeOf =
-  <T extends Partial<TypeMap>>(typeMap: T) =>
-  (node?: Node): boolean =>
-    isEntity(node) && Object.keys(typeMap).includes(node.type)
-
-/**
  * A type guard to determine whether a node is of a specific type.
  *
  * e.g. `isA('Paragraph', node)`
@@ -68,12 +79,32 @@ export const isType =
     isA(type, node)
 
 /**
+ * A type guard to determine whether a node is a member of a union type.
+ *
+ * e.g. `isIn('MediaObjectTypes', node)`
+ */
+export const isIn = <K extends keyof Unions>(
+  type: K,
+  node: Node | undefined
+): node is Unions[K] => isEntity(node) && node.type in unions[type]
+
+/**
+ * Returns a type guard to determine whether a node is a member of a union type.
+ *
+ * e.g. `isMember('CreativeWorkTypes')(node)`
+ */
+export const isMember =
+  <K extends keyof Unions>(type: K) =>
+  (node?: Node): node is Unions[K] =>
+    isIn(type, node)
+
+/**
  * Type guard to determine whether a node is `InlineContent`.
  *
  * e.g. `nodes.filter(isInlineContent)`
  */
 export const isInlineContent = (node?: Node): node is InlineContent =>
-  isPrimitive(node) || isTypeOf(inlineContentTypes)(node)
+  isPrimitive(node) || isIn('InlineContent', node)
 
 /**
  * Type guard to determine whether a node is `BlockContent`.
@@ -81,4 +112,4 @@ export const isInlineContent = (node?: Node): node is InlineContent =>
  * e.g. `nodes.filter(isBlockContent)`
  */
 export const isBlockContent = (node?: Node): node is BlockContent =>
-  isTypeOf(blockContentTypes)(node)
+  isIn('BlockContent', node)

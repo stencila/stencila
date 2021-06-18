@@ -301,46 +301,72 @@ export const enumToType = (enu: (string | number)[]): string => {
 }
 
 /**
- * Generate Type Maps for TypeScript type guards and runtime validation
+ * Generate type maps for union types to be used for TypeScript type guards
+ * and runtime validation.
  */
 export const generateTypeMaps = async (): Promise<string> => {
-  const files = await readSchemas([
+  const unions = await readSchemas([
     path.join(__dirname, '..', '..', 'public', '*Types.schema.json'),
     path.join(__dirname, '..', '..', 'public', 'BlockContent.schema.json'),
     path.join(__dirname, '..', '..', 'public', 'InlineContent.schema.json'),
   ])
 
-  return (
-    `export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }\n` +
-    files
-      .map((file) => {
-        const { title = '' } = file
+  // `BlockContent` & `InlineContent` schema don't have a `*Types.schema.json` file
+  // This standardizes the type map names so that they all end with `Types`.
+  const schemaClass = (title: string): string =>
+    title?.endsWith('Types') ? title : `${title}Types`
 
-        // `BlockContent` & `InlineContent` schema dont have a `*Types.schema.json` file
-        // This standardizes the TypeMap names so that they all end with `Types`.
-        const schemaClass = title?.endsWith('Types') ? title : `${title}Types`
+  const unionTypes = unions
+    .map((schema) => {
+      const { title = '' } = schema
+      return `  ${title}: ${title}`
+    })
+    .join('\n')
 
-        return `
-      export const ${camelCase(
-        schemaClass
-      )}: TypeMap<Exclude<${title}, Primitives>> = {
-        ${
-          file.anyOf
-            ?.reduce((typeMap: string[], type) => {
-              const typeRef = type.$ref?.replace('.schema.json', '')
-              const typeName = JSON.stringify(typeRef)
+  const unionMaps = unions
+    .map((schema) => {
+      const { title = '' } = schema
+      return `  ${title}: ${camelCase(schemaClass(title))}`
+    })
+    .join(',\n')
 
-              return typeRef !== undefined
-                ? [...typeMap, `${typeName}: ${typeName},`]
-                : typeMap
-            }, [])
-            .join('\n') ?? ''
-        }
-        }
-      `
-      })
-      .join()
-  )
+  const typeMaps = unions
+    .map((schema) => {
+      const { title = '' } = schema
+      return `
+    export const ${camelCase(
+      schemaClass(title)
+    )}: TypeMap<Exclude<${title}, Primitives>> = {
+      ${
+        schema.anyOf
+          ?.reduce((typeMap: string[], type) => {
+            const typeRef = type.$ref?.replace('.schema.json', '')
+            const typeName = JSON.stringify(typeRef)
+
+            return typeRef !== undefined
+              ? [...typeMap, `${typeName}: ${typeName},`]
+              : typeMap
+          }, [])
+          .join('\n') ?? ''
+      }
+      }
+    `
+    })
+    .join()
+
+  return `
+  export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }
+
+  ${typeMaps}
+
+  export interface Unions {
+${unionTypes}
+  }
+
+  export const unions = {
+${unionMaps}
+  }
+`
 }
 
 /** Generate Type Definitions and Type Maps files */

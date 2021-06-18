@@ -3,14 +3,10 @@
 import {
   audioObject,
   blockContentTypes,
-  code,
-  codeChunk,
-  codeTypes,
   entity,
   imageObject,
   inlineContentTypes,
   mediaObject,
-  mediaObjectTypes,
   person,
 } from '../types'
 import {
@@ -18,9 +14,9 @@ import {
   isBlockContent,
   isEntity,
   isInlineContent,
+  isMember,
   isPrimitive,
   isType,
-  isTypeOf,
 } from './guards'
 
 const primitives = [
@@ -54,21 +50,21 @@ describe('isEntity', () => {
   })
 })
 
-describe('isTypeOf', () => {
-  const isTypeOfMediaObject = isTypeOf(mediaObjectTypes)
+describe('isMember', () => {
+  const isMedia = isMember('MediaObjectTypes')
 
   it('returns true for nodes of the type and its descendants', () => {
-    expect(isTypeOfMediaObject(mediaObject({ contentUrl: '' }))).toBe(true)
-    expect(isTypeOfMediaObject(audioObject({ contentUrl: '' }))).toBe(true)
-    expect(isTypeOfMediaObject(imageObject({ contentUrl: '' }))).toBe(true)
+    expect(isMedia(mediaObject({ contentUrl: '' }))).toBe(true)
+    expect(isMedia(audioObject({ contentUrl: '' }))).toBe(true)
+    expect(isMedia(imageObject({ contentUrl: '' }))).toBe(true)
   })
 
   it('returns false for nodes that are of an ancestor type', () => {
-    expect(isTypeOfMediaObject(entity())).toBe(false)
+    expect(isMedia(entity())).toBe(false)
   })
 
   it('returns false for unrelated node types', () => {
-    expect(isTypeOfMediaObject(person())).toBe(false)
+    expect(isMedia(person())).toBe(false)
   })
 
   test.each(primitives)('returns false for primitive value of "%s"', (node) => {
