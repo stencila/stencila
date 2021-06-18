@@ -84,9 +84,9 @@ export const isType =
  * e.g. `isIn('MediaObjectTypes', node)`
  */
 export const isIn = <K extends keyof Unions>(
-  type: K,
+  union: K,
   node: Node | undefined
-): node is Unions[K] => isEntity(node) && node.type in unions[type]
+): node is Unions[K] => isEntity(node) && node.type in unions[union]
 
 /**
  * Returns a type guard to determine whether a node is a member of a union type.
