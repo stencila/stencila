@@ -45,7 +45,6 @@
   "devDependencies": {
     "@semantic-release/exec": "5.0.0",
     "@stencila/dev-config": "2.0.15",
-    "@stencila/encoda": "0.117.0",
     "@stencila/logga": "4.0.0",
     "@stoplight/json-ref-resolver": "3.1.2",
     "@types/fs-extra": "9.0.11",
