@@ -33,20 +33,17 @@ properties:
     description: |
       URL that can be used to embed the media on a web page via a specific media player.
     type: string
-  format:
-    # We use the name "format" for this property because it is shorter, and does not
-    # clash with any other existing schema.org properties.
+  mediaType:
     '@id': schema:encodingFormat
     aliases:
-      - encoding
       - encodingFormat
-    description: |
-      Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    # We are more restrictive than https://schema.org/encodingFormat which
-    # expects either Text or URL for this property. We require a media type e.g. `text/html` or
-    # file extension alias e.g `html`
+    description: IANA media type (MIME type).
+    $comment: |
+      This property is more restrictive than https://schema.org/encodingFormat which
+      expects either Text or URL for this property. This schema expects a media type e.g. `text/html`
+      as listed at http://www.iana.org/assignments/media-types/media-types.xhtml.
     type: string
-    pattern: '^[a-z]+(\/[a-z\+\-]+)?$'
+    pattern: '^[a-z]+(\/[a-z\+\-]+)$'
 required:
   # `contentUrl` is required since it seems to make little sense to have a `MediaObject`
   # that does not have it

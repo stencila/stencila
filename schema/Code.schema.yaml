@@ -16,11 +16,9 @@ properties:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
-  format:
-    # See MediaObject for note on use of format vs encodingFormat.
+  mediaType:
     '@id': schema:encodingFormat
     aliases:
-      - encoding
       - encodingFormat
     description: Media type, typically expressed using a MIME format, of the code.
     $comment: |

@@ -112,11 +112,11 @@ pub struct Code {
     /// The text of the code.
     pub text: String,
 
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub format: Option<Box<String>>,
-
     /// The identifier for this item.
     pub id: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
 
     /// The programming language of the code.
     pub programming_language: Option<Box<String>>,
@@ -144,14 +144,14 @@ pub struct CodeBlock {
     /// A compilation directive giving the name of the variable to export into the content of the code block.
     pub export_from: Option<Box<String>>,
 
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub format: Option<Box<String>>,
-
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
     /// A compilation directive giving the name of the variable to import the content of the code block as.
     pub import_to: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
 
     /// The programming language of the code.
     pub programming_language: Option<Box<String>>,
@@ -197,9 +197,6 @@ pub struct CodeChunk {
     /// A compilation directive giving the name of the variable to export into the content of the code block.
     pub export_from: Option<Box<String>>,
 
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub format: Option<Box<String>>,
-
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
@@ -211,6 +208,9 @@ pub struct CodeChunk {
 
     /// A short label for the CodeChunk.
     pub label: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
 
     /// Outputs from executing the chunk.
     pub outputs: Option<Vec<Node>>,
@@ -244,11 +244,11 @@ pub struct CodeFragment {
     /// The text of the code.
     pub text: String,
 
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub format: Option<Box<String>>,
-
     /// The identifier for this item.
     pub id: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
 
     /// The programming language of the code.
     pub programming_language: Option<Box<String>>,
@@ -276,11 +276,11 @@ pub struct CodeExpression {
     /// Errors when compiling or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
 
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub format: Option<Box<String>>,
-
     /// The identifier for this item.
     pub id: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
 
     /// The value of the expression when it was last evaluated.
     #[serde(skip)]
@@ -1334,9 +1334,6 @@ pub struct MediaObject {
     /// URL that can be used to embed the media on a web page via a specific media player.
     pub embed_url: Option<Box<String>>,
 
-    /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<Box<String>>,
-
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
 
@@ -1367,6 +1364,9 @@ pub struct MediaObject {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
+
+    /// IANA media type (MIME type).
+    pub media_type: Option<Box<String>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -1460,9 +1460,6 @@ pub struct AudioObject {
     /// URL that can be used to embed the media on a web page via a specific media player.
     pub embed_url: Option<Box<String>>,
 
-    /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<Box<String>>,
-
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
 
@@ -1493,6 +1490,9 @@ pub struct AudioObject {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
+
+    /// IANA media type (MIME type).
+    pub media_type: Option<Box<String>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -1555,11 +1555,11 @@ pub struct AudioObjectSimple {
     /// URL that can be used to embed the media on a web page via a specific media player.
     pub embed_url: Option<Box<String>>,
 
-    /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<Box<String>>,
-
     /// The identifier for this item.
     pub id: Option<Box<String>>,
+
+    /// IANA media type (MIME type).
+    pub media_type: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
@@ -2126,9 +2126,6 @@ pub struct ImageObject {
     /// URL that can be used to embed the media on a web page via a specific media player.
     pub embed_url: Option<Box<String>>,
 
-    /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<Box<String>>,
-
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
 
@@ -2159,6 +2156,9 @@ pub struct ImageObject {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
+
+    /// IANA media type (MIME type).
+    pub media_type: Option<Box<String>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -2223,11 +2223,11 @@ pub struct ImageObjectSimple {
     /// URL that can be used to embed the media on a web page via a specific media player.
     pub embed_url: Option<Box<String>>,
 
-    /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<Box<String>>,
-
     /// The identifier for this item.
     pub id: Option<Box<String>>,
+
+    /// IANA media type (MIME type).
+    pub media_type: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
@@ -2258,11 +2258,11 @@ pub struct Include {
     /// The content to be included.
     pub content: Option<Vec<BlockContent>>,
 
-    /// Media type, typically expressed using a MIME format, of the source content.
-    pub format: Option<Box<String>>,
-
     /// The identifier for this item.
     pub id: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the source content.
+    pub media_type: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4339,9 +4339,6 @@ pub struct VideoObject {
     /// URL that can be used to embed the media on a web page via a specific media player.
     pub embed_url: Option<Box<String>>,
 
-    /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<Box<String>>,
-
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
 
@@ -4372,6 +4369,9 @@ pub struct VideoObject {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
+
+    /// IANA media type (MIME type).
+    pub media_type: Option<Box<String>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -4437,11 +4437,11 @@ pub struct VideoObjectSimple {
     /// URL that can be used to embed the media on a web page via a specific media player.
     pub embed_url: Option<Box<String>>,
 
-    /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<Box<String>>,
-
     /// The identifier for this item.
     pub id: Option<Box<String>>,
+
+    /// IANA media type (MIME type).
+    pub media_type: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,

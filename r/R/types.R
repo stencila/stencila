@@ -103,8 +103,8 @@ CiteGroup <- function(
 #'
 #' @name Code
 #' @param text The text of the code. \bold{Required}.
-#' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
 #' @return A `list` of class `Code`
@@ -112,8 +112,8 @@ CiteGroup <- function(
 #' @export
 Code <- function(
   text,
-  format,
   id,
+  mediaType,
   meta,
   programmingLanguage
 ){
@@ -123,7 +123,7 @@ Code <- function(
   )
   self$type <- as_scalar("Code")
   self[["text"]] <- check_property("Code", "text", TRUE, missing(text), "character", text)
-  self[["format"]] <- check_property("Code", "format", FALSE, missing(format), "character", format)
+  self[["mediaType"]] <- check_property("Code", "mediaType", FALSE, missing(mediaType), "character", mediaType)
   self[["programmingLanguage"]] <- check_property("Code", "programmingLanguage", FALSE, missing(programmingLanguage), "character", programmingLanguage)
   class(self) <- c(class(self), "Code")
   self
@@ -135,9 +135,9 @@ Code <- function(
 #' @name CodeBlock
 #' @param text The text of the code. \bold{Required}.
 #' @param exportFrom A compilation directive giving the name of the variable to export into the content of the code block.
-#' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
 #' @param importTo A compilation directive giving the name of the variable to import the content of the code block as.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
 #' @return A `list` of class `CodeBlock`
@@ -146,16 +146,16 @@ Code <- function(
 CodeBlock <- function(
   text,
   exportFrom,
-  format,
   id,
   importTo,
+  mediaType,
   meta,
   programmingLanguage
 ){
   self <- Code(
     text = text,
-    format = format,
     id = id,
+    mediaType = mediaType,
     meta = meta,
     programmingLanguage = programmingLanguage
   )
@@ -178,11 +178,11 @@ CodeBlock <- function(
 #' @param duration Duration in seconds of the last execution of the chunk.
 #' @param errors Errors when compiling or executing the chunk.
 #' @param exportFrom A compilation directive giving the name of the variable to export into the content of the code block.
-#' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
 #' @param importTo A compilation directive giving the name of the variable to import the content of the code block as.
 #' @param imports Software packages that the code chunk imports
 #' @param label A short label for the CodeChunk.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
 #' @param outputs Outputs from executing the chunk.
 #' @param programmingLanguage The programming language of the code.
@@ -220,11 +220,11 @@ CodeChunk <- function(
   duration,
   errors,
   exportFrom,
-  format,
   id,
   importTo,
   imports,
   label,
+  mediaType,
   meta,
   outputs,
   programmingLanguage,
@@ -234,9 +234,9 @@ CodeChunk <- function(
   self <- CodeBlock(
     text = text,
     exportFrom = exportFrom,
-    format = format,
     id = id,
     importTo = importTo,
+    mediaType = mediaType,
     meta = meta,
     programmingLanguage = programmingLanguage
   )
@@ -261,8 +261,8 @@ CodeChunk <- function(
 #'
 #' @name CodeFragment
 #' @param text The text of the code. \bold{Required}.
-#' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
 #' @return A `list` of class `CodeFragment`
@@ -270,15 +270,15 @@ CodeChunk <- function(
 #' @export
 CodeFragment <- function(
   text,
-  format,
   id,
+  mediaType,
   meta,
   programmingLanguage
 ){
   self <- Code(
     text = text,
-    format = format,
     id = id,
+    mediaType = mediaType,
     meta = meta,
     programmingLanguage = programmingLanguage
   )
@@ -294,8 +294,8 @@ CodeFragment <- function(
 #' @name CodeExpression
 #' @param text The text of the code. \bold{Required}.
 #' @param errors Errors when compiling or executing the chunk.
-#' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
 #' @param output The value of the expression when it was last evaluated.
 #' @param programmingLanguage The programming language of the code.
@@ -305,16 +305,16 @@ CodeFragment <- function(
 CodeExpression <- function(
   text,
   errors,
-  format,
   id,
+  mediaType,
   meta,
   output,
   programmingLanguage
 ){
   self <- CodeFragment(
     text = text,
-    format = format,
     id = id,
+    mediaType = mediaType,
     meta = meta,
     programmingLanguage = programmingLanguage
   )
@@ -1293,7 +1293,6 @@ Datatable <- function(
 #' @param description A description of the item.
 #' @param editors People who edited the `CreativeWork`.
 #' @param embedUrl URL that can be used to embed the media on a web page via a specific media player.
-#' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
 #' @param genre Genre of the creative work, broadcast channel or group.
@@ -1304,6 +1303,7 @@ Datatable <- function(
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param maintainers The people or organizations who maintain this CreativeWork.
+#' @param mediaType IANA media type (MIME type).
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
@@ -1333,7 +1333,6 @@ MediaObject <- function(
   description,
   editors,
   embedUrl,
-  format,
   fundedBy,
   funders,
   genre,
@@ -1344,6 +1343,7 @@ MediaObject <- function(
   keywords,
   licenses,
   maintainers,
+  mediaType,
   meta,
   name,
   parts,
@@ -1392,7 +1392,7 @@ MediaObject <- function(
   self[["bitrate"]] <- check_property("MediaObject", "bitrate", FALSE, missing(bitrate), "numeric", bitrate)
   self[["contentSize"]] <- check_property("MediaObject", "contentSize", FALSE, missing(contentSize), "numeric", contentSize)
   self[["embedUrl"]] <- check_property("MediaObject", "embedUrl", FALSE, missing(embedUrl), "character", embedUrl)
-  self[["format"]] <- check_property("MediaObject", "format", FALSE, missing(format), "character", format)
+  self[["mediaType"]] <- check_property("MediaObject", "mediaType", FALSE, missing(mediaType), "character", mediaType)
   class(self) <- c(class(self), "MediaObject")
   self
 }
@@ -1418,7 +1418,6 @@ MediaObject <- function(
 #' @param description A description of the item.
 #' @param editors People who edited the `CreativeWork`.
 #' @param embedUrl URL that can be used to embed the media on a web page via a specific media player.
-#' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
 #' @param genre Genre of the creative work, broadcast channel or group.
@@ -1429,6 +1428,7 @@ MediaObject <- function(
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param maintainers The people or organizations who maintain this CreativeWork.
+#' @param mediaType IANA media type (MIME type).
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
@@ -1460,7 +1460,6 @@ AudioObject <- function(
   description,
   editors,
   embedUrl,
-  format,
   fundedBy,
   funders,
   genre,
@@ -1471,6 +1470,7 @@ AudioObject <- function(
   keywords,
   licenses,
   maintainers,
+  mediaType,
   meta,
   name,
   parts,
@@ -1499,7 +1499,6 @@ AudioObject <- function(
     description = description,
     editors = editors,
     embedUrl = embedUrl,
-    format = format,
     fundedBy = fundedBy,
     funders = funders,
     genre = genre,
@@ -1510,6 +1509,7 @@ AudioObject <- function(
     keywords = keywords,
     licenses = licenses,
     maintainers = maintainers,
+    mediaType = mediaType,
     meta = meta,
     name = name,
     parts = parts,
@@ -2033,7 +2033,6 @@ Heading <- function(
 #' @param description A description of the item.
 #' @param editors People who edited the `CreativeWork`.
 #' @param embedUrl URL that can be used to embed the media on a web page via a specific media player.
-#' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
 #' @param genre Genre of the creative work, broadcast channel or group.
@@ -2044,6 +2043,7 @@ Heading <- function(
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param maintainers The people or organizations who maintain this CreativeWork.
+#' @param mediaType IANA media type (MIME type).
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
@@ -2075,7 +2075,6 @@ ImageObject <- function(
   description,
   editors,
   embedUrl,
-  format,
   fundedBy,
   funders,
   genre,
@@ -2086,6 +2085,7 @@ ImageObject <- function(
   keywords,
   licenses,
   maintainers,
+  mediaType,
   meta,
   name,
   parts,
@@ -2114,7 +2114,6 @@ ImageObject <- function(
     description = description,
     editors = editors,
     embedUrl = embedUrl,
-    format = format,
     fundedBy = fundedBy,
     funders = funders,
     genre = genre,
@@ -2125,6 +2124,7 @@ ImageObject <- function(
     keywords = keywords,
     licenses = licenses,
     maintainers = maintainers,
+    mediaType = mediaType,
     meta = meta,
     name = name,
     parts = parts,
@@ -2148,8 +2148,8 @@ ImageObject <- function(
 #' @name Include
 #' @param source The source of the content, a URL or file path, or the content itself. \bold{Required}.
 #' @param content The content to be included.
-#' @param format Media type, typically expressed using a MIME format, of the source content.
 #' @param id The identifier for this item.
+#' @param mediaType Media type, typically expressed using a MIME format, of the source content.
 #' @param meta Metadata associated with this item.
 #' @return A `list` of class `Include`
 #' @seealso \code{\link{Entity}}
@@ -2157,8 +2157,8 @@ ImageObject <- function(
 Include <- function(
   source,
   content,
-  format,
   id,
+  mediaType,
   meta
 ){
   self <- Entity(
@@ -2168,7 +2168,7 @@ Include <- function(
   self$type <- as_scalar("Include")
   self[["source"]] <- check_property("Include", "source", TRUE, missing(source), "character", source)
   self[["content"]] <- check_property("Include", "content", FALSE, missing(content), Array(BlockContent), content)
-  self[["format"]] <- check_property("Include", "format", FALSE, missing(format), "character", format)
+  self[["mediaType"]] <- check_property("Include", "mediaType", FALSE, missing(mediaType), "character", mediaType)
   class(self) <- c(class(self), "Include")
   self
 }
@@ -4244,7 +4244,6 @@ TupleValidator <- function(
 #' @param description A description of the item.
 #' @param editors People who edited the `CreativeWork`.
 #' @param embedUrl URL that can be used to embed the media on a web page via a specific media player.
-#' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
 #' @param genre Genre of the creative work, broadcast channel or group.
@@ -4255,6 +4254,7 @@ TupleValidator <- function(
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param maintainers The people or organizations who maintain this CreativeWork.
+#' @param mediaType IANA media type (MIME type).
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
@@ -4287,7 +4287,6 @@ VideoObject <- function(
   description,
   editors,
   embedUrl,
-  format,
   fundedBy,
   funders,
   genre,
@@ -4298,6 +4297,7 @@ VideoObject <- function(
   keywords,
   licenses,
   maintainers,
+  mediaType,
   meta,
   name,
   parts,
@@ -4327,7 +4327,6 @@ VideoObject <- function(
     description = description,
     editors = editors,
     embedUrl = embedUrl,
-    format = format,
     fundedBy = fundedBy,
     funders = funders,
     genre = genre,
@@ -4338,6 +4337,7 @@ VideoObject <- function(
     keywords = keywords,
     licenses = licenses,
     maintainers = maintainers,
+    mediaType = mediaType,
     meta = meta,
     name = name,
     parts = parts,
@@ -4512,7 +4512,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Node))
+Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array("Node"))
 
 
 #' All type schemas that are derived from Thing

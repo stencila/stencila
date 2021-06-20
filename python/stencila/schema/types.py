@@ -146,7 +146,7 @@ class Code(Entity):
     text: str
     """The text of the code."""
 
-    format: Optional[str] = None
+    mediaType: Optional[str] = None
     """Media type, typically expressed using a MIME format, of the code."""
 
     programmingLanguage: Optional[str] = None
@@ -156,8 +156,8 @@ class Code(Entity):
     def __init__(
         self,
         text: str,
-        format: Optional[str] = None,
         id: Optional[str] = None,
+        mediaType: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         programmingLanguage: Optional[str] = None
     ) -> None:
@@ -167,8 +167,8 @@ class Code(Entity):
         )
         if text is not None:
             self.text = text
-        if format is not None:
-            self.format = format
+        if mediaType is not None:
+            self.mediaType = mediaType
         if programmingLanguage is not None:
             self.programmingLanguage = programmingLanguage
 
@@ -191,16 +191,16 @@ the content of the code block as.
         self,
         text: str,
         exportFrom: Optional[str] = None,
-        format: Optional[str] = None,
         id: Optional[str] = None,
         importTo: Optional[str] = None,
+        mediaType: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         programmingLanguage: Optional[str] = None
     ) -> None:
         super().__init__(
             text=text,
-            format=format,
             id=id,
+            mediaType=mediaType,
             meta=meta,
             programmingLanguage=programmingLanguage
         )
@@ -257,11 +257,11 @@ class CodeChunk(CodeBlock):
         duration: Optional[float] = None,
         errors: Optional[Array["CodeError"]] = None,
         exportFrom: Optional[str] = None,
-        format: Optional[str] = None,
         id: Optional[str] = None,
         importTo: Optional[str] = None,
         imports: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
         label: Optional[str] = None,
+        mediaType: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         outputs: Optional[Array["Any"]] = None,
         programmingLanguage: Optional[str] = None,
@@ -271,9 +271,9 @@ class CodeChunk(CodeBlock):
         super().__init__(
             text=text,
             exportFrom=exportFrom,
-            format=format,
             id=id,
             importTo=importTo,
+            mediaType=mediaType,
             meta=meta,
             programmingLanguage=programmingLanguage
         )
@@ -307,15 +307,15 @@ class CodeFragment(Code):
     def __init__(
         self,
         text: str,
-        format: Optional[str] = None,
         id: Optional[str] = None,
+        mediaType: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         programmingLanguage: Optional[str] = None
     ) -> None:
         super().__init__(
             text=text,
-            format=format,
             id=id,
+            mediaType=mediaType,
             meta=meta,
             programmingLanguage=programmingLanguage
         )
@@ -336,16 +336,16 @@ class CodeExpression(CodeFragment):
         self,
         text: str,
         errors: Optional[Array["CodeError"]] = None,
-        format: Optional[str] = None,
         id: Optional[str] = None,
+        mediaType: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         output: Optional["Any"] = None,
         programmingLanguage: Optional[str] = None
     ) -> None:
         super().__init__(
             text=text,
-            format=format,
             id=id,
+            mediaType=mediaType,
             meta=meta,
             programmingLanguage=programmingLanguage
         )
@@ -1243,9 +1243,8 @@ class MediaObject(CreativeWork):
     """URL that can be used to embed the media on a web page via a specific media player.
 """
 
-    format: Optional[str] = None
-    """Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-"""
+    mediaType: Optional[str] = None
+    """IANA media type (MIME type)."""
 
 
     def __init__(
@@ -1266,7 +1265,6 @@ class MediaObject(CreativeWork):
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
-        format: Optional[str] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
@@ -1277,6 +1275,7 @@ class MediaObject(CreativeWork):
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
+        mediaType: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -1328,8 +1327,8 @@ class MediaObject(CreativeWork):
             self.contentSize = contentSize
         if embedUrl is not None:
             self.embedUrl = embedUrl
-        if format is not None:
-            self.format = format
+        if mediaType is not None:
+            self.mediaType = mediaType
 
 
 class AudioObject(MediaObject):
@@ -1361,7 +1360,6 @@ class AudioObject(MediaObject):
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
-        format: Optional[str] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
@@ -1372,6 +1370,7 @@ class AudioObject(MediaObject):
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
+        mediaType: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -1400,7 +1399,6 @@ class AudioObject(MediaObject):
             description=description,
             editors=editors,
             embedUrl=embedUrl,
-            format=format,
             fundedBy=fundedBy,
             funders=funders,
             genre=genre,
@@ -1411,6 +1409,7 @@ class AudioObject(MediaObject):
             keywords=keywords,
             licenses=licenses,
             maintainers=maintainers,
+            mediaType=mediaType,
             meta=meta,
             name=name,
             parts=parts,
@@ -1875,7 +1874,6 @@ class ImageObject(MediaObject):
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
-        format: Optional[str] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
@@ -1886,6 +1884,7 @@ class ImageObject(MediaObject):
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
+        mediaType: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -1914,7 +1913,6 @@ class ImageObject(MediaObject):
             description=description,
             editors=editors,
             embedUrl=embedUrl,
-            format=format,
             fundedBy=fundedBy,
             funders=funders,
             genre=genre,
@@ -1925,6 +1923,7 @@ class ImageObject(MediaObject):
             keywords=keywords,
             licenses=licenses,
             maintainers=maintainers,
+            mediaType=mediaType,
             meta=meta,
             name=name,
             parts=parts,
@@ -1953,7 +1952,7 @@ class Include(Entity):
     content: Optional[Array["BlockContent"]] = None
     """The content to be included."""
 
-    format: Optional[str] = None
+    mediaType: Optional[str] = None
     """Media type, typically expressed using a MIME format, of the source content."""
 
 
@@ -1961,8 +1960,8 @@ class Include(Entity):
         self,
         source: str,
         content: Optional[Array["BlockContent"]] = None,
-        format: Optional[str] = None,
         id: Optional[str] = None,
+        mediaType: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
@@ -1973,8 +1972,8 @@ class Include(Entity):
             self.source = source
         if content is not None:
             self.content = content
-        if format is not None:
-            self.format = format
+        if mediaType is not None:
+            self.mediaType = mediaType
 
 
 class IntegerValidator(Validator):
@@ -3935,7 +3934,6 @@ class VideoObject(MediaObject):
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
-        format: Optional[str] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
@@ -3946,6 +3944,7 @@ class VideoObject(MediaObject):
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
+        mediaType: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -3975,7 +3974,6 @@ class VideoObject(MediaObject):
             description=description,
             editors=editors,
             embedUrl=embedUrl,
-            format=format,
             fundedBy=fundedBy,
             funders=funders,
             genre=genre,
@@ -3986,6 +3984,7 @@ class VideoObject(MediaObject):
             keywords=keywords,
             licenses=licenses,
             maintainers=maintainers,
+            mediaType=mediaType,
             meta=meta,
             name=name,
             parts=parts,

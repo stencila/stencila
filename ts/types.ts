@@ -282,7 +282,7 @@ export const citeGroup = (props: Omit<CiteGroup, 'type'>): CiteGroup => ({
 export interface Code extends Entity {
   type: 'Code' | 'CodeBlock' | 'CodeChunk' | 'CodeExpression' | 'CodeFragment'
   text: string
-  format?: string
+  mediaType?: string
   programmingLanguage?: string
 }
 
@@ -758,7 +758,7 @@ export interface MediaObject extends CreativeWork {
   bitrate?: number
   contentSize?: number
   embedUrl?: string
-  format?: string
+  mediaType?: string
 }
 
 /**
@@ -1062,7 +1062,7 @@ export interface Include extends Entity {
   type: 'Include'
   source: string
   content?: Array<BlockContent>
-  format?: string
+  mediaType?: string
 }
 
 /**
