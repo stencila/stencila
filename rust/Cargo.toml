@@ -122,7 +122,7 @@ self_update = { version = "0.27.0", optional = true, features = [
 semver = { version = "1.0.3", optional = true }
 serde = { version = "1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "1.0.64", features = ["preserve_order"] }
-serde_with = "1.9.2"
+serde_with = "1.9.4"
 serde_yaml = { version = "0.8.17", optional = true }
 stencila-schema = "1.8.1"
 structopt = { version = "0.3.21", optional = true }
