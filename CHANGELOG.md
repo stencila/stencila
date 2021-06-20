@@ -1,3 +1,20 @@
+# [0.87.0](https://github.com/stencila/stencila/compare/v0.86.1...v0.87.0) (2021-06-20)
+
+
+### Bug Fixes
+
+* **dependencies:** update docusaurus monorepo to v2.0.0-beta.1 ([683a11b](https://github.com/stencila/stencila/commit/683a11b6dd155da2d865808689fd1a9540acfb57))
+* **dependencies:** update rust crate handlebars to 4.0.1 ([5c62381](https://github.com/stencila/stencila/commit/5c6238134e0cb53e5aa65f8818878bed7199e916))
+* **dependencies:** update rust crate jsonschema to 0.11.0 ([733c133](https://github.com/stencila/stencila/commit/733c1335a90b0d692279c094b87bdc2da26ee80f))
+* **dependencies:** update rust crate rand to 0.8.4 ([3e63c06](https://github.com/stencila/stencila/commit/3e63c06ffc6b92bbff826173c7fbac58cd965296))
+* **dependencies:** update rust crate serde_with to 1.9.4 ([994a00a](https://github.com/stencila/stencila/commit/994a00a86c4a19b58c6b32096c820e62c5ff2f80))
+* **Encode HTML:** Create content for Cite nodes as needed ([d60862e](https://github.com/stencila/stencila/commit/d60862e264f9645eb9d940e870ea538ff11da78d))
+
+
+### Features
+
+* **CLI:** Add serve command ([5faeb3b](https://github.com/stencila/stencila/commit/5faeb3b98cdd49a8a4a2d726254526b9daeb6c86))
+
 ## [0.86.1](https://github.com/stencila/stencila/compare/v0.86.0...v0.86.1) (2021-06-17)
 
 
