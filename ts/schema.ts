@@ -85,7 +85,7 @@ export async function build(cleanup = true): Promise<void> {
     .map((schema) => checkSchema(schemas, schema, types, properties, ids))
     .reduce((fails, ok) => (!ok ? fails + 1 : fails), 0)
   if (fails > 0) {
-    console.error(`Errors in ${fails} schemas, please see messages above`)
+    throw new Error(`Errors in ${fails} schemas, please see messages above`)
     // Exit with code 1 so that this fails on CI or elsewhere
     process.exit(1)
   }
@@ -144,7 +144,7 @@ const checkSchema = (
   let valid = true
   const { title, extends: extends_, description, status, properties } = schema
 
-  console.debug(`Checking type schema "${title}".`)
+  // console.debug(`Checking type schema "${title}".`)
   if (title === undefined) return true
 
   const error = (message: string): void => {
@@ -258,7 +258,7 @@ const processSchema = (
   schema: JsonSchema
 ): void => {
   const { $schema, $id, title, file, source, children, descendants } = schema
-  console.debug(`Processing type schema "${title}".`)
+  // console.debug(`Processing type schema "${title}".`)
 
   // If it's already got a children and descendants, then it's been processed.
   if (children !== undefined && descendants !== undefined) return
