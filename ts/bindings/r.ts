@@ -189,7 +189,11 @@ function anyOfToType(anyOf: JsonSchema[]): string {
     )
   if (types.length === 0) return ''
   if (types.length === 1) return types[0]
-  return `Union(${types.join(', ')})`
+  return `Union(${types
+    // This mapping avoids the recursive union type definition that will
+    // arise otherwise for the `Node` union type.
+    .map((type) => (type === 'Array(Node)' ? 'Array("Node")' : type))
+    .join(', ')})`
 }
 
 /**
