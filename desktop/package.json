@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "1.6.0",
-    "@sentry/electron": "2.4.1",
+    "@sentry/electron": "2.5.0",
     "@stencila/brand": "0.7.1",
     "@stencila/components": "0.33.0",
     "electron-squirrel-startup": "1.0.0",
