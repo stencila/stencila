@@ -326,15 +326,16 @@ export function unionSchemaToEnum(
 
   const variants = anyOf
     ?.map((schema) => {
-      const name = schemaToType(schema, context)
-      if (name === 'Null') return `    Null,\n`
+      const type = schemaToType(schema, context)
+      if (type === 'Null') return `    Null,\n`
       if (
         (title === 'InlineContent' || title === 'BlockContent') &&
-        isCreativeWorkContent(name)
+        isCreativeWorkContent(type)
       ) {
-        return `    ${name}(${name}Simple),\n`
+        return `    ${type}(${type}Simple),\n`
       }
-      return `    ${name}(${name}),\n`
+      const name = type === 'Vec<Node>' ? 'Array' : type
+      return `    ${name}(${type}),\n`
     })
     .join('')
 
@@ -432,6 +433,6 @@ function arrayToType(schema: JsonSchema, context: Context): string {
     ? anyOfToEnum(schema.items, context)
     : schema.items !== undefined
     ? schemaToType(schema.items, context)
-    : 'ANY'
-  return items === 'ANY' ? 'Array' : `Vec<${items}>`
+    : '?'
+  return `Vec<${items}>`
 }

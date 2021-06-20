@@ -1,58 +1,75 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import { blockContentTypes, inlineContentTypes, TypeMap } from '../types'
+import {
+  audioObject,
+  blockContentTypes,
+  entity,
+  imageObject,
+  inlineContentTypes,
+  mediaObject,
+  person,
+} from '../types'
 import {
   isA,
+  isBlockContent,
+  isEntity,
   isInlineContent,
-  isInlineEntity,
+  isMember,
   isPrimitive,
   isType,
-  nodeIs,
-  typeIs,
 } from './guards'
 
-const primitives = [null, true, false, NaN, 2, 'string']
+const primitives = [
+  null,
+  true,
+  false,
+  NaN,
+  2,
+  'string',
+  [],
+  [1, 2, 3],
+  {},
+  { 'not-type': 'foo' },
+]
 
-const typeMap = {
-  someType: 'someType',
-  myCustomType: 'myCustomType',
-} as unknown as TypeMap
-
-describe('typeIs', () => {
-  it('finds the given type', () => {
-    // @ts-ignore
-    expect(typeIs(typeMap)(typeMap.myCustomType)).toBe(true)
+describe('isPrimitive', () => {
+  test.each(primitives)('returns true for primitive value of "%s"', (node) => {
+    expect(isPrimitive(node)).toBe(true)
   })
 
-  it('returns false when queried type is not in the type map', () => {
-    expect(typeIs(typeMap)('otherType')).toBe(false)
+  test('it returns false for Object with type property', () =>
+    expect(isPrimitive({ type: 'Emphasis' })).toBe(false))
+})
+
+describe('isEntity', () => {
+  test('it returns true for any object with type property', () =>
+    expect(isEntity({ type: 'foo' })).toBe(true))
+
+  test.each(primitives)('returns false for primitive value of "%s"', (node) => {
+    expect(isEntity(node)).toBe(false)
   })
 })
 
-describe('nodeIs', () => {
-  test('it returns false for undefined values', () =>
-    // @ts-ignore
-    expect(nodeIs(typeMap)(undefined)).toBe(false))
+describe('isMember', () => {
+  const isMedia = isMember('MediaObjectTypes')
 
-  test.each(primitives)('returns false for primitive value of "%s"', (node) => {
-    expect(nodeIs(typeMap)(node)).toBe(false)
+  it('returns true for nodes of the type and its descendants', () => {
+    expect(isMedia(mediaObject({ contentUrl: '' }))).toBe(true)
+    expect(isMedia(audioObject({ contentUrl: '' }))).toBe(true)
+    expect(isMedia(imageObject({ contentUrl: '' }))).toBe(true)
   })
 
-  test('it returns false for empty Arrays', () =>
-    expect(nodeIs(typeMap)([])).toBe(false))
+  it('returns false for nodes that are of an ancestor type', () => {
+    expect(isMedia(entity())).toBe(false)
+  })
 
-  test('it returns false for Arrays with content', () =>
-    expect(nodeIs(typeMap)([{ type: 'someType' }])).toBe(false))
+  it('returns false for unrelated node types', () => {
+    expect(isMedia(person())).toBe(false)
+  })
 
-  test('it returns false for Objects without a "type" key', () =>
-    expect(nodeIs(typeMap)({ content: ['someContent'] })).toBe(false))
-
-  test('it returns false for Objects containing a "type" key not found in the typeMap', () =>
-    expect(nodeIs(typeMap)({ type: 'someOtherType' })).toBe(false))
-
-  test('it returns true for Objects containing a "type" key found in the typeMap', () =>
-    // @ts-ignore
-    expect(nodeIs(typeMap)({ type: typeMap.someType })).toBe(true))
+  test.each(primitives)('returns false for primitive value of "%s"', (node) => {
+    expect(isEntity(node)).toBe(false)
+  })
 })
 
 describe('isA', () => {
@@ -60,8 +77,7 @@ describe('isA', () => {
   const para = { type: 'Paragraph', content: [] }
 
   test('it returns false for undefined types', () => {
-    // This is a compile error too
-    // @ts-ignore
+    // @ts-expect-error
     expect(isA(person, 'Foo')).toBe(false)
   })
 
@@ -85,8 +101,7 @@ describe('isType', () => {
   const para = { type: 'Paragraph', content: [] }
 
   test('it returns false for undefined types', () => {
-    // This is a compile error too
-    // @ts-ignore
+    // @ts-expect-error
     expect(isType('Foo')(person)).toBe(false)
   })
 
@@ -97,42 +112,6 @@ describe('isType', () => {
   test('it returns false for the wrong type', () => {
     expect(isType('Person')(para)).toBe(false)
   })
-})
-
-describe('isPrimitive', () => {
-  test.each(primitives)('returns true for primitive value of "%s"', (node) => {
-    expect(isPrimitive(node)).toBe(true)
-  })
-
-  test('it returns false for empty Arrays', () =>
-    expect(isPrimitive([])).toBe(false))
-
-  test('it returns false for Arrays with content', () =>
-    expect(isPrimitive([{ type: 'someType' }])).toBe(false))
-
-  test('it returns false for Objects', () =>
-    expect(isPrimitive({ type: 'someOtherType' })).toBe(false))
-})
-
-describe('isInlineEntity', () => {
-  test.each(primitives)('returns false for primitive value of "%s"', (node) => {
-    expect(isInlineEntity(node)).toBe(false)
-  })
-
-  test('it returns false for empty Arrays', () =>
-    expect(isInlineEntity([])).toBe(false))
-
-  test('it returns false for Arrays with content', () =>
-    expect(isInlineEntity([{ type: 'someType' }])).toBe(false))
-
-  test('it returns false for Objects containing a "type" key not found in the typeMap', () =>
-    expect(isInlineEntity({ type: 'someOtherType' })).toBe(false))
-
-  test('it returns false for BlockContent type', () =>
-    expect(isInlineEntity({ type: 'Paragraph' })).toBe(false))
-
-  test('it returns true for Objects containing a "type" key found in the typeMap', () =>
-    expect(isInlineEntity({ type: 'CodeExpression' })).toBe(true))
 })
 
 describe('isInlineContent', () => {
@@ -151,6 +130,26 @@ describe('isInlineContent', () => {
     'returns true for InlineContent type of "%s"',
     (type) => {
       expect(isInlineContent({ type })).toBe(true)
+    }
+  )
+})
+
+describe('isBlockContent', () => {
+  test.each(primitives)('returns false for primitive value of "%s"', (type) => {
+    expect(isBlockContent(type)).toBe(false)
+  })
+
+  test.each(Object.values(blockContentTypes))(
+    'returns true for BlockContent type of "%s"',
+    (type) => {
+      expect(isBlockContent({ type })).toBe(true)
+    }
+  )
+
+  test.each(Object.values(inlineContentTypes))(
+    'returns false for InlineContent type of "%s"',
+    (type) => {
+      expect(isBlockContent({ type })).toBe(false)
     }
   )
 })

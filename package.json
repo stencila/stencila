@@ -171,6 +171,7 @@
             "rust/src/types.rs",
             "rust/Cargo.toml",
             "rust/Cargo.lock",
+            "ts/types.ts",
             ".vscode/settings.json"
           ]
         }

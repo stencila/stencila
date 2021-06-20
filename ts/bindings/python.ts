@@ -57,6 +57,7 @@ async function build(): Promise<void> {
   )}
 """Python classes for schema types."""
 
+# List is imported as Array to avoid conflict with the schema's List type
 from typing import Any, Dict, List as Array, Optional, Union
 from enum import Enum
 
@@ -212,12 +213,19 @@ export function unionGenerator(schema: JsonSchema): string {
 }
 
 /**
- * Convert a schema definition to a Python type
+ * Convert a schema definition to a Python type.
+ *
+ * To avoid cyclic type definitions in MyPy, the type `Node` is converted
+ * to a Python `Any`. See https://github.com/python/mypy/issues/731
  */
 function schemaToType(schema: JsonSchema): string {
   const { type, anyOf, allOf, $ref } = schema
 
-  if ($ref !== undefined) return `"${$ref.replace('.schema.json', '')}"`
+  if ($ref !== undefined) {
+    const title = $ref.replace('.schema.json', '')
+    return `"${title === 'Node' ? 'Any' : title}"`
+  }
+
   if (anyOf !== undefined) return anyOfToType(anyOf)
   if (allOf !== undefined) return allOfToType(allOf)
   if (schema.enum !== undefined) return enumToType(schema['@id'], schema.enum)

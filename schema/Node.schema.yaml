@@ -16,3 +16,5 @@ anyOf:
   - type: string
   - type: object
   - type: array
+    items:
+      $ref: Node
