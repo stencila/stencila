@@ -77,19 +77,17 @@ pub enum Command {
     Open(OpenCommand),
     Close(CloseCommand),
     Show(ShowCommand),
-    #[structopt(aliases = &["project"])]
-    Projects(projects::cli::Command),
 
     // Module-specific commands defined in the `stencila` library
+    #[structopt(aliases = &["project"])]
+    Projects(projects::cli::Command),
     #[structopt(aliases = &["document", "docs", "doc"])]
     Documents(documents::cli::Command),
-
     #[structopt(aliases = &["plugin"])]
     Plugins(plugins::cli::Command),
-
     Config(config::cli::Command),
-
     Upgrade(upgrade::cli::Args),
+    Serve(serve::cli::Command),
 }
 #[derive(Debug)]
 pub struct Context {
@@ -117,6 +115,7 @@ pub async fn run_command(
         Command::Plugins(command) => plugins::cli::run(command).await,
         Command::Config(command) => config::cli::run(command).await,
         Command::Upgrade(command) => upgrade::cli::run(command).await,
+        Command::Serve(command) => command.run(documents).await,
     };
     render::render(context.interactive, formats, result?)
 }
@@ -833,11 +832,11 @@ mod interact {
                     }
                 }
                 Err(ReadlineError::Interrupted) => {
-                    tracing::info!("Ctrl-C pressed, interrupting current command");
-                    // TODO
+                    tracing::info!("Ctrl+C pressed, use Ctrl+D to end session");
+                    // TODO Cancel the current tak, if it is cancellable
                 }
                 Err(ReadlineError::Eof) => {
-                    tracing::info!("Ctrl-D pressed, ending session");
+                    tracing::info!("Ctrl+D pressed, ending session");
                     break;
                 }
                 Err(error) => bail!(error),

@@ -748,6 +748,8 @@ pub mod config {
 
 #[cfg(feature = "cli")]
 pub mod cli {
+    use crate::cli::display;
+
     use super::*;
     use structopt::StructOpt;
 
@@ -757,7 +759,7 @@ pub mod cli {
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Args {
+    pub struct Command {
         /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
         #[structopt(env = "STENCILA_URL")]
         url: Option<String>,
@@ -771,28 +773,28 @@ pub mod cli {
         insecure: bool,
     }
 
-    pub async fn run(
-        args: Args,
-        documents: &mut Documents,
-        config: &config::ServeConfig,
-    ) -> Result<()> {
-        let Args { url, key, insecure } = args;
+    impl Command {
+        pub async fn run(self, documents: &mut Documents) -> display::Result {
+            let Command { url, key, insecure } = self;
 
-        let url = url.or_else(|| Some(config.url.clone()));
-        let key = key.or_else(|| config.key.clone());
-        let insecure = insecure || config.insecure;
+            let config = &crate::config::lock().await.serve;
 
-        super::serve(
-            documents,
-            url,
-            if insecure {
-                Some("insecure".to_string())
-            } else {
-                key
-            },
-        )
-        .await?;
+            let url = url.or_else(|| Some(config.url.clone()));
+            let key = key.or_else(|| config.key.clone());
+            let insecure = insecure || config.insecure;
 
-        Ok(())
+            super::serve(
+                documents,
+                url,
+                if insecure {
+                    Some("insecure".to_string())
+                } else {
+                    key
+                },
+            )
+            .await?;
+
+            display::nothing()
+        }
     }
 }
