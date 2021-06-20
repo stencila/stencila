@@ -10,32 +10,11 @@
 
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 
-import * as encoda from '@stencila/encoda'
 import fs from 'fs-extra'
+import yaml from 'js-yaml'
 import { flatten, flow, groupBy, sortBy, startCase, uniq } from 'lodash'
 import path from 'path'
 import { JsonSchema } from './JsonSchema'
-import log from './log'
-import {
-  Article,
-  article,
-  BlockContent,
-  codeBlock,
-  codeFragment,
-  emphasis,
-  heading,
-  InlineContent,
-  Link,
-  link,
-  list,
-  listItem,
-  Paragraph,
-  paragraph,
-  strong,
-  table,
-  tableCell,
-  tableRow,
-} from './types'
 import { readSchemas } from './util/helpers'
 
 /**
@@ -58,7 +37,7 @@ let SCHEMAS: Record<string, JsonSchema>
  * Generate docs for each `public/*.schema.json` file.
  */
 async function build(): Promise<void> {
-  log.info('Building docs')
+  console.info('Building docs')
 
   // Read in all the schemas
   const schemas = await readSchemas()
@@ -76,9 +55,9 @@ async function build(): Promise<void> {
     schemas.map(async (schema) => {
       const { title = '' } = schema
       const summaryArticle = schema2Article(schema)
-      await encoda.write(
-        summaryArticle,
-        path.join(DOCS_DEST_DIR, title2Path(title))
+      await fs.writeFile(
+        path.join(DOCS_DEST_DIR, title2Path(title)),
+        summaryArticle
       )
     })
   )
@@ -117,43 +96,28 @@ async function build(): Promise<void> {
   const indexPage = article({
     title: 'Index',
     content: [
-      paragraph({
-        content: [
-          'All the schemas in ',
-          link({
-            content: ['Stencila Schema'],
-            target: 'https://schema.stenci.la',
-          }),
-          ' by category.',
-        ],
-      }),
+      paragraph([
+        'All the schemas in ',
+        link('Stencila Schema', 'https://schema.stenci.la'),
+        ' by category.',
+      ]),
       ...Object.entries(groupedSchemas).reduce(
-        (prev: BlockContent[], [group, items]) => [
+        (prev: string[], [group, items]) => [
           ...prev,
-          heading({
-            content: [group],
-            depth: 2,
-          }),
-          list({
-            items: items.map((schema) => {
+          heading(group, 2),
+          list(
+            items.map((schema) => {
               const { title = 'Untitled' } = schema
-              return listItem({
-                content: [
-                  link({
-                    content: [startCase(title)],
-                    target: title2Path(title),
-                  }),
-                ],
-              })
+              return link(startCase(title), title2Path(title))
             }),
-            order: 'Unordered',
-          }),
+            'Unordered'
+          ),
         ],
         []
       ),
     ],
   })
-  await encoda.write(indexPage, path.join(DOCS_DEST_DIR, 'index.md'))
+  await fs.writeFile(path.join(DOCS_DEST_DIR, 'index.md'), indexPage)
 
   // Generate categories.json for use by Docusaurus
   const categories = Object.entries(groupedSchemas).map(
@@ -219,7 +183,7 @@ const intersperse = <T, S>(array: T[], separator: S): (T | S)[] =>
  * @param {JSON Schema object} content
  * @returns {(InlineContent)[]} An array of InlineContent
  */
-const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
+const schema2Inlines = (schema: JsonSchema): string[] => {
   const {
     type = '',
     format,
@@ -253,19 +217,11 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
     )
   if (anyOf !== undefined)
     return flatten(
-      intersperse(anyOf.map(schema2Inlines), [
-        ' ',
-        emphasis({ content: ['or'] }),
-        ' ',
-      ])
+      intersperse(anyOf.map(schema2Inlines), [' ', emphasis('or'), ' '])
     )
   if (allOf !== undefined)
     return flatten(
-      intersperse(allOf.map(schema2Inlines), [
-        ' ',
-        emphasis({ content: ['and'] }),
-        ' ',
-      ])
+      intersperse(allOf.map(schema2Inlines), [' ', emphasis('and'), ' '])
     )
   if ($ref !== undefined) return [ref2Link($ref)]
   if (parser !== undefined) return [`Parser '${parser}'`]
@@ -274,9 +230,9 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
 }
 
 /**
- * Create a summary documentation `Article` for a JSON Schema.
+ * Create a documentation article for a JSON Schema.
  */
-async function schema2Article(schema: JsonSchema): Promise<Article> {
+function schema2Article(schema: JsonSchema): string {
   const {
     category = 'Other',
     title = 'Untitled',
@@ -302,176 +258,107 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
 
   const commentContent =
     $comment !== undefined
-      ? (((await encoda.load($comment, 'md')) as Article)
-          .content as BlockContent[])
+      ? paragraph([$comment.replace(/\n/g, ' ')])
       : !id.startsWith('stencila:') && hasProperties
-      ? [
-          paragraph({
-            content: ['This type is an implementation of ', id2Link(id), '.'],
-          }),
-        ]
-      : []
+      ? paragraph(['This type is an implementation of ', id2Link(id), '.'])
+      : ''
 
   const statusNote =
     status !== 'stable'
       ? [
-          paragraph({
-            content: [
-              'This schema type is marked as ',
-              strong({ content: [status] }),
-              status === 'experimental' ? ' 🧪' : ' ⚠️',
-              ' and is subject to change.',
-            ],
-          }),
+          paragraph([
+            'This schema type is marked as ',
+            strong(status),
+            status === 'experimental' ? ' 🧪' : ' ⚠️',
+            ' and is subject to change.',
+          ]),
         ]
       : []
 
   let membersTable
   if (anyOf.length > 0) {
-    const tableHeader = tableRow({
-      cells: [
-        tableCell({ content: ['@id'] }),
-        tableCell({ content: ['Type'] }),
-        tableCell({ content: ['Description'] }),
-      ],
-      rowType: 'Header',
-    })
+    const tableHeader = tableRow(['@id', 'Type', 'Description'])
     const tableData = anyOf.map((memberSchema) => {
       let { $ref, '@id': id, description = '' } = memberSchema
       if ($ref !== undefined) {
         ;({ '@id': id, description = '' } = ref2Schema($ref))
       }
-      return tableRow({
-        cells: [
-          tableCell({ content: id !== undefined ? [id2Link(id)] : [] }),
-          tableCell({ content: schema2Inlines(memberSchema) }),
-          tableCell({ content: [description] }),
-        ],
-      })
+      return tableRow([
+        id !== undefined ? id2Link(id) : '',
+        schema2Inlines(memberSchema).join(''),
+        description,
+      ])
     })
-    membersTable = table({ rows: [tableHeader, ...tableData] })
+    membersTable = table([tableHeader, ...tableData])
   }
 
-  const notes: Paragraph[] = []
+  const notes: string[] = []
   let propertiesTable
   if (hasProperties) {
-    const tableHeader = tableRow({
-      cells: [
-        tableCell({ content: ['Name'] }),
-        tableCell({ content: ['@id'] }),
-        tableCell({ content: ['Type'] }),
-        tableCell({ content: ['Description'] }),
-        tableCell({ content: ['Inherited from'] }),
-      ],
-      rowType: 'Header',
-    })
-    const tableData = await Promise.all(
-      Object.entries(properties)
-        // Don't show the `type` property, it's not interesting
-        .filter(([name, _propSchema]) => name !== 'type')
-        .sort(([a], [b]) => requiredPropsFirst(required)(a, b))
-        .map(async ([name, propSchema]) => {
-          const {
-            '@id': id = '',
-            description = '',
-            from = '',
-            $comment,
-          } = propSchema
+    const tableHeader = tableRow([
+      'Name',
+      codeFragment('@id'),
+      'Type',
+      'Description',
+      'Inherited from',
+    ])
+    const tableData = Object.entries(properties)
+      // Don't show the `type` property, it's not interesting
+      .filter(([name, _propSchema]) => name !== 'type')
+      .sort(([a], [b]) => requiredPropsFirst(required)(a, b))
+      .map(([name, propSchema]) => {
+        const {
+          '@id': id = '',
+          description = '',
+          from = '',
+          $comment,
+        } = propSchema
 
-          let note: InlineContent[] = []
-          if ($comment !== undefined) {
-            const para = ((await encoda.load($comment, 'md')) as Article)
-              .content?.[0] as Paragraph
-            notes.push(
-              paragraph({
-                content: [strong({ content: [name] }), ' : ', ...para?.content],
-              })
-            )
-            note = [
-              ' See note ',
-              link({ content: [notes.length.toString()], target: '#notes' }),
-              '.',
-            ]
-          }
+        let note: string[] = []
+        if ($comment !== undefined) {
+          notes.push(
+            paragraph([strong(name), ' : ', $comment.replace(/\n/g, ' ')])
+          )
+          note = [' See note ', link(notes.length.toString(), '#notes'), '.']
+        }
 
-          return tableRow({
-            cells: [
-              tableCell({
-                content: [
-                  required.includes(name) ? strong({ content: [name] }) : name,
-                ],
-              }),
-              tableCell({ content: [id2Link(id)] }),
-              tableCell({ content: schema2Inlines(propSchema) }),
-              tableCell({ content: [description, ...note] }),
-              tableCell({ content: [title2Link(from)] }),
-            ],
-          })
-        })
-    )
-    propertiesTable = table({ rows: [tableHeader, ...tableData] })
+        return tableRow([
+          required.includes(name) ? strong(name) : name,
+          id2Link(id),
+          schema2Inlines(propSchema).join(''),
+          [description.replace(/\n/g, ' '), ...note].join(''),
+          title2Link(from),
+        ])
+      })
+    propertiesTable = table([tableHeader, ...tableData])
   }
 
   const availableAs = []
   if (id !== undefined) {
-    availableAs.push(
-      link({
-        content: ['JSON-LD'],
-        target: id2JsonldUrl(id),
-      })
-    )
+    availableAs.push(paragraph([link('JSON-LD', id2JsonldUrl(id))]))
   }
   if ($id !== undefined) {
-    availableAs.push(
-      link({
-        content: ['JSON Schema'],
-        target: $id,
-      })
-    )
+    availableAs.push(paragraph([link('JSON Schema', $id)]))
   }
   if (id !== undefined && hasProperties) {
     availableAs.push(
-      paragraph({
-        content: [
-          'Python ',
-          link({
-            content: [codeFragment({ text: `class ${title}` })],
-            target: id2PythonDocs(id),
-          }),
-        ],
-      }),
-      paragraph({
-        content: [
-          'TypeScript ',
-          link({
-            content: [codeFragment({ text: `interface ${title}` })],
-            target: id2TypeScriptDocs(id),
-          }),
-        ],
-      }),
-      paragraph({
-        content: [
-          'R ',
-          link({
-            content: [codeFragment({ text: `class ${title}` })],
-            target: id2RDocs(id),
-          }),
-        ],
-      }),
-      paragraph({
-        content: [
-          'Rust ',
-          link({
-            content: [codeFragment({ text: `struct ${title}` })],
-            target: id2RustDocs(id),
-          }),
-        ],
-      })
+      paragraph([
+        'Python ',
+        link(codeFragment(`class ${title}`), id2PythonDocs(id)),
+      ]),
+      paragraph([
+        'TypeScript ',
+        link(codeFragment(`interface ${title}`), id2TypeScriptDocs(id)),
+      ]),
+      paragraph(['R ', link(codeFragment(`class ${title}`), id2RDocs(id))]),
+      paragraph([
+        'Rust ',
+        link(codeFragment(`struct ${title}`), id2RustDocs(id)),
+      ])
     )
   }
 
   return article({
-    // @ts-expect-error Not valid properties but used for Docusaurus compatibility
     category: startCase(category),
     slug: `/schema/${title}`,
     custom_edit_url:
@@ -480,34 +367,34 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
         : `https://github.com/stencila/schema`,
     // Main article content
     content: [
-      heading({ content: [startCase(title)], depth: 1 }),
-      paragraph({ content: [strong({ content: [description] })] }),
+      heading(startCase(title), 1),
+      paragraph([strong(description)]),
 
       ...commentContent,
 
       ...statusNote,
 
       ...(membersTable !== undefined
-        ? [heading({ content: ['Members'], depth: 2 }), membersTable]
+        ? [heading('Members', 2), membersTable]
         : []),
 
       ...(propertiesTable !== undefined
-        ? [heading({ content: ['Properties'], depth: 2 }), propertiesTable]
+        ? [heading('Properties', 2), propertiesTable]
         : []),
 
       ...(notes.length > 0
         ? [
-            heading({ content: ['Notes'], depth: 2 }),
-            list({
-              order: 'Ascending',
-              items: [...notes.map((note) => listItem({ content: [note] }))],
-            }),
+            heading('Notes', 2),
+            list(
+              notes.map((note) => listItem([note])),
+              'Ascending'
+            ),
           ]
         : []),
 
       ...(examples !== undefined && examples.length > 0
         ? [
-            heading({ content: ['Examples'], depth: 2 }),
+            heading('Examples', 2),
             ...examples.map((example) =>
               codeBlock({
                 programmingLanguage: 'json',
@@ -519,66 +406,108 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
 
       ...(parent !== undefined || descendants.length > 0
         ? [
-            heading({ content: ['Related'], depth: 2 }),
-            list({
-              items: [
-                listItem({
-                  content: [
-                    paragraph({
-                      content: [
-                        'Parent: ',
-                        parent !== undefined ? title2Link(parent) : 'None',
-                      ],
-                    }),
-                  ],
-                }),
-                listItem({
-                  content: [
-                    paragraph({
-                      content: [
-                        'Descendants: ',
-                        ...(descendants.length !== 0
-                          ? intersperse(descendants.map(title2Link), ', ')
-                          : ['None']),
-                      ],
-                    }),
-                  ],
-                }),
-              ],
-            }),
+            heading('Related', 2),
+            list([
+              listItem([
+                paragraph([
+                  'Parent: ',
+                  parent !== undefined ? title2Link(parent) : 'None',
+                ]),
+              ]),
+              listItem([
+                paragraph([
+                  'Descendants: ',
+                  ...(descendants.length !== 0
+                    ? intersperse(descendants.map(title2Link), ', ')
+                    : ['None']),
+                ]),
+              ]),
+            ]),
           ]
         : []),
 
       ...(availableAs.length > 0
         ? [
-            heading({ content: ['Available as'], depth: 2 }),
-            list({
-              items: availableAs.map((item) =>
-                listItem({
-                  content: [item],
-                })
-              ),
-            }),
+            heading('Available as', 2),
+            list(availableAs.map((item) => listItem([item]))),
           ]
         : []),
 
       ...(file !== undefined && source !== undefined
         ? [
-            heading({ content: ['Source'], depth: 2 }),
-            paragraph({
-              content: [
-                'This documentation was generated from ',
-                link({
-                  content: [file],
-                  target: source,
-                }),
-                '.',
-              ],
-            }),
+            heading('Source', 2),
+            paragraph([
+              'This documentation was generated from ',
+              link(file, source),
+              '.',
+            ]),
           ]
         : []),
     ],
   })
+}
+
+// Functions for generating Markdown, same naming and similar
+// args (in some cases) as Schema constructor functions but generating
+// Markdown directly instead of using Encoda (which causes a somewhat
+// unwieldy circular dependency, albeit a dev dependency)
+
+function article(node: { content: string[]; [key: string]: unknown }): string {
+  const { content, ...rest } = node
+  return `---\n${yaml.dump(rest).trim()}\n---\n\n${content.join('')}\n`
+}
+
+function heading(content: string, depth: number): string {
+  return `${Array(depth).fill('#').join('')} ${content}\n\n`
+}
+
+function paragraph(content: string[]): string {
+  return `${content.join('')}\n\n`
+}
+
+function table(rows: string[]): string {
+  const [first, ...rest] = rows
+  return `${first}\n${first.replace(/[^|]/g, '-')}\n${rest.join('\n')}\n\n`
+}
+
+function tableRow(cells: string[]): string {
+  return cells.join(' | ')
+}
+
+function list(items: string[], ordering = 'Unordered'): string {
+  return ordering === 'Unordered'
+    ? `${items.map((item) => `- ${item.trim()}\n`).join('')}\n`
+    : `${items
+        .map((item, index) => `${index + 1}. ${item.trim()}\n`)
+        .join('')}\n`
+}
+
+function listItem(content: string[]): string {
+  return content.join('')
+}
+
+function codeBlock(node: {
+  text: string
+  programmingLanguage: string
+}): string {
+  const { programmingLanguage, text } = node
+  return `\`\`\`${programmingLanguage}\n${text}\n\`\`\`\n\n`
+}
+
+function emphasis(content: string): string {
+  return `_${content}_`
+}
+
+function strong(content: string): string {
+  return `**${content}**`
+}
+
+function codeFragment(text: string): string {
+  return `\`${text}\``
+}
+
+function link(content: string, target: string): string {
+  return `[${content}](${target})`
 }
 
 /**
@@ -595,11 +524,8 @@ function title2Path(title: string): string {
  *
  * @param title of the type e.g. "Article"
  */
-function title2Link(title: string): Link {
-  return link({
-    content: [title],
-    target: title2Path(title),
-  })
+function title2Link(title: string): string {
+  return link(title, title2Path(title))
 }
 
 /**
@@ -607,7 +533,7 @@ function title2Link(title: string): Link {
  *
  * @param ref e.g. "Article.schema.json"
  */
-const ref2Link = (ref: string): Link => {
+const ref2Link = (ref: string): string => {
   const title = ref.replace('.schema.json', '')
   return title2Link(title)
 }
@@ -625,7 +551,7 @@ const ref2Schema = (ref: string): JsonSchema => {
 /**
  * Generate a link for an @id, often to an external site
  */
-const id2Link = (id: string): Link => {
+const id2Link = (id: string): string => {
   const [context, name] = id.split(':')
   const target = (() => {
     switch (context) {
@@ -640,7 +566,7 @@ const id2Link = (id: string): Link => {
         return ''
     }
   })()
-  return link({ content: [id], target })
+  return link(id, target)
 }
 
 /**

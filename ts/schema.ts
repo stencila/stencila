@@ -12,7 +12,6 @@ import globby from 'globby'
 import yaml from 'js-yaml'
 import { cloneDeep } from 'lodash'
 import path from 'path'
-import log from './log'
 import { JsonSchema } from './JsonSchema'
 import { versionMajor } from './util/version'
 
@@ -68,7 +67,9 @@ export async function build(cleanup = true): Promise<void> {
         if (title === undefined || typeof title !== 'string')
           throw new Error(`Schema title is required in source file: ${file}`)
         if (file.split('.')[0] !== title)
-          log.warn(`Schema title differs to filename: "${title}" in ${file}`)
+          console.warn(
+            `Schema title differs to filename: "${title}" in ${file}`
+          )
         return [title, { ...schema, file }]
       })
     )
@@ -84,7 +85,7 @@ export async function build(cleanup = true): Promise<void> {
     .map((schema) => checkSchema(schemas, schema, types, properties, ids))
     .reduce((fails, ok) => (!ok ? fails + 1 : fails), 0)
   if (fails > 0) {
-    log.error(`Errors in ${fails} schemas, please see messages above`)
+    console.error(`Errors in ${fails} schemas, please see messages above`)
     // Exit with code 1 so that this fails on CI or elsewhere
     process.exit(1)
   }
@@ -143,11 +144,11 @@ const checkSchema = (
   let valid = true
   const { title, extends: extends_, description, status, properties } = schema
 
-  log.debug(`Checking type schema "${title}".`)
+  console.debug(`Checking type schema "${title}".`)
   if (title === undefined) return true
 
   const error = (message: string): void => {
-    log.error(message)
+    console.error(message)
     valid = false
   }
 
@@ -257,7 +258,7 @@ const processSchema = (
   schema: JsonSchema
 ): void => {
   const { $schema, $id, title, file, source, children, descendants } = schema
-  log.debug(`Processing type schema "${title}".`)
+  console.debug(`Processing type schema "${title}".`)
 
   // If it's already got a children and descendants, then it's been processed.
   if (children !== undefined && descendants !== undefined) return
