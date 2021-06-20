@@ -304,35 +304,103 @@ impl ToHtml for Cite {
         let content = match &self.content {
             Some(nodes) => nodes.to_html(context),
             None => {
+                // Get the list of references from the root nodes
                 let references = match context.root {
-                    Node::CreativeWork(work) => work.references.clone(),
                     Node::Article(article) => article.references.clone(),
-                    _ => None,
+                    Node::CreativeWork(work) => work.references.clone(),
+                    _ => {
+                        tracing::warn!("Unhandled root document type");
+                        None
+                    }
                 };
                 if let Some(references) = references {
-                    let _reference = references.iter().enumerate().find_map(
-                        |(index, reference)| match reference {
+                    // Find the reference that matches the `target`
+                    let reference = references
+                        .iter()
+                        .enumerate()
+                        .find_map(|(index, reference)| match reference {
+                            // A string reference so match against its index in the references list
                             CreativeWorkReferences::String(_) => {
                                 if self.target == format!("ref{}", index + 1)
                                     || self.target == format!("ref{}", index + 1)
                                 {
-                                    Some(reference)
+                                    Some((index, reference))
                                 } else {
                                     None
                                 }
                             }
+                            // A `CreativeWork` reference so match against its `id`/
                             CreativeWorkReferences::CreativeWorkTypes(work) => {
                                 if self.target == work.id().unwrap_or_default() {
-                                    Some(reference)
+                                    Some((index, reference))
                                 } else {
                                     None
                                 }
                             }
-                        },
-                    );
-                    format!(r#"<span class="todo">{:?}</span>"#, self.target)
+                        });
+                    // Create the content for the citation
+                    match reference {
+                        None => {
+                            tracing::warn!("When encoding citation was unable to find reference '{}' in root document", self.target);
+                            format!(r#"<span>{}</span>"#, self.target.clone())
+                        }
+                        Some((index, reference)) => {
+                            // Always have a numeric citation
+                            let mut content = format!(r#"<span>{}</span>"#, index + 1);
+                            // If a `CreativeWorkType` then add authors and year
+                            if let CreativeWorkReferences::CreativeWorkTypes(work) = reference {
+                                let (authors, date) = match &work {
+                                    CreativeWorkTypes::Article(article) => {
+                                        (article.authors.clone(), article.date_published.clone())
+                                    }
+                                    CreativeWorkTypes::CreativeWork(work) => {
+                                        (work.authors.clone(), work.date_published.clone())
+                                    }
+                                    _ => {
+                                        tracing::warn!("Unhandled root document type");
+                                        (None, None)
+                                    }
+                                };
+                                if let Some(authors) = authors {
+                                    let names: Vec<String> = authors
+                                        .iter()
+                                        .map(|author| match author {
+                                            CreativeWorkAuthors::Person(person) => {
+                                                match &person.family_names {
+                                                    Some(family_names) => family_names.join(" "),
+                                                    None => "Anonymous".to_string(),
+                                                }
+                                            }
+                                            CreativeWorkAuthors::Organization(org) => {
+                                                match &org.name {
+                                                    Some(name) => *name.clone(),
+                                                    None => "Anonymous".to_string(),
+                                                }
+                                            }
+                                        })
+                                        .collect();
+                                    let names = if authors.len() == 1 {
+                                        names.join("")
+                                    } else if authors.len() == 2 {
+                                        format!(r#"{} and {}"#, names[0], names[1])
+                                    } else {
+                                        format!(r#"{} et al"#, names[0])
+                                    };
+                                    content += &format!(r#"<span>{}</span>"#, names)
+                                }
+                                if let Some(date) = date {
+                                    if date.value.len() >= 4 {
+                                        let year = date.value[..4].to_string();
+                                        content += &format!(r#"<span>{}</span>"#, year)
+                                    }
+                                }
+                            }
+                            content
+                        }
+                    }
                 } else {
-                    self.target.clone()
+                    tracing::warn!("When encoding citation was unable to find references list in root document");
+                    format!(r#"<span>{}</span>"#, self.target.clone())
                 }
             }
         };
