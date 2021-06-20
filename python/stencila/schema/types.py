@@ -3,6 +3,7 @@
 # in the `schema` directory and run `npm run build:python` to regenerate it.
 """Python classes for schema types."""
 
+# List is imported as Array to avoid conflict with the schema's List type
 from typing import Any, Dict, List as Array, Optional, Union
 from enum import Enum
 
@@ -236,7 +237,7 @@ class CodeChunk(CodeBlock):
     label: Optional[str] = None
     """A short label for the CodeChunk."""
 
-    outputs: Optional[Array["Node"]] = None
+    outputs: Optional[Array["Any"]] = None
     """Outputs from executing the chunk."""
 
     reads: Optional[Array[str]] = None
@@ -262,7 +263,7 @@ class CodeChunk(CodeBlock):
         imports: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
         label: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        outputs: Optional[Array["Node"]] = None,
+        outputs: Optional[Array["Any"]] = None,
         programmingLanguage: Optional[str] = None,
         reads: Optional[Array[str]] = None,
         uses: Optional[Array[Union["Variable", str]]] = None
@@ -327,7 +328,7 @@ class CodeExpression(CodeFragment):
     errors: Optional[Array["CodeError"]] = None
     """Errors when compiling or executing the chunk."""
 
-    output: Optional["Node"] = None
+    output: Optional["Any"] = None
     """The value of the expression when it was last evaluated."""
 
 
@@ -338,7 +339,7 @@ class CodeExpression(CodeFragment):
         format: Optional[str] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        output: Optional["Node"] = None,
+        output: Optional["Any"] = None,
         programmingLanguage: Optional[str] = None
     ) -> None:
         super().__init__(
@@ -1432,7 +1433,7 @@ class DatatableColumn(Thing):
     name: str # type: ignore
     """The name of the item."""
 
-    values: Array["Node"]
+    values: Array["Any"]
     """The data values of the column."""
 
     validator: Optional["ArrayValidator"] = None
@@ -1442,7 +1443,7 @@ class DatatableColumn(Thing):
     def __init__(
         self,
         name: str,
-        values: Array["Node"],
+        values: Array["Any"],
         alternateNames: Optional[Array[str]] = None,
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
@@ -1586,7 +1587,7 @@ class BooleanValidator(Validator):
 class ConstantValidator(Validator):
     """A validator specifying a constant value that a node must have."""
 
-    value: Optional["Node"] = None
+    value: Optional["Any"] = None
     """The value that the node must have."""
 
 
@@ -1594,7 +1595,7 @@ class ConstantValidator(Validator):
         self,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        value: Optional["Node"] = None
+        value: Optional["Any"] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1607,7 +1608,7 @@ class ConstantValidator(Validator):
 class EnumValidator(Validator):
     """A schema specifying that a node must be one of several values."""
 
-    values: Optional[Array["Node"]] = None
+    values: Optional[Array["Any"]] = None
     """A node is valid if it is equal to any of these values."""
 
 
@@ -1615,7 +1616,7 @@ class EnumValidator(Validator):
         self,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        values: Optional[Array["Node"]] = None
+        values: Optional[Array["Any"]] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2085,7 +2086,7 @@ class ListItem(Thing):
     isChecked: Optional[bool] = None
     """A flag to indicate if this list item is checked."""
 
-    item: Optional["Node"] = None
+    item: Optional["Any"] = None
     """The item represented by this list item."""
 
     position: Optional[int] = None
@@ -2101,7 +2102,7 @@ class ListItem(Thing):
         identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
         images: Optional[Array[Union["ImageObject", str]]] = None,
         isChecked: Optional[bool] = None,
-        item: Optional["Node"] = None,
+        item: Optional["Any"] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         position: Optional[int] = None,
@@ -2467,7 +2468,7 @@ class Variable(Entity):
     validator: Optional["ValidatorTypes"] = None
     """The validator that the value is validated against."""
 
-    value: Optional["Node"] = None
+    value: Optional["Any"] = None
     """The value of the variable."""
 
 
@@ -2478,7 +2479,7 @@ class Variable(Entity):
         isReadonly: Optional[bool] = None,
         meta: Optional[Dict[str, Any]] = None,
         validator: Optional["ValidatorTypes"] = None,
-        value: Optional["Node"] = None
+        value: Optional["Any"] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2497,7 +2498,7 @@ class Variable(Entity):
 class Parameter(Variable):
     """A parameter that can be set and used in evaluated code."""
 
-    default: Optional["Node"] = None
+    default: Optional["Any"] = None
     """The default value of the parameter."""
 
     isExtensible: Optional[bool] = None
@@ -2513,7 +2514,7 @@ class Parameter(Variable):
     def __init__(
         self,
         name: str,
-        default: Optional["Node"] = None,
+        default: Optional["Any"] = None,
         id: Optional[str] = None,
         isExtensible: Optional[bool] = None,
         isReadonly: Optional[bool] = None,
@@ -2521,7 +2522,7 @@ class Parameter(Variable):
         isVariadic: Optional[bool] = None,
         meta: Optional[Dict[str, Any]] = None,
         validator: Optional["ValidatorTypes"] = None,
-        value: Optional["Node"] = None
+        value: Optional["Any"] = None
     ) -> None:
         super().__init__(
             name=name,
@@ -4414,7 +4415,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 """
 Union type for all schema nodes, including primitives and entities
 """
-Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Validator", "Variable", "VideoObject", "VolumeMount", None, bool, int, float, str, Dict[str, Any], Array["Node"]]
+Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Validator", "Variable", "VideoObject", "VolumeMount", None, bool, int, float, str, Dict[str, Any], Array["Any"]]
 
 
 """
