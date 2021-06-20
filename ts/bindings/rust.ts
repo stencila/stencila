@@ -334,7 +334,7 @@ export function unionSchemaToEnum(
       ) {
         return `    ${type}(${type}Simple),\n`
       }
-      let name = type === 'Vec<Node>' ? 'Array' : type
+      const name = type === 'Vec<Node>' ? 'Array' : type
       return `    ${name}(${type}),\n`
     })
     .join('')

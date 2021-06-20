@@ -2116,8 +2116,6 @@ export type InlineContent =
   | null
   | boolean
   | number
-  | Array<InlineContent>
-  | Object
   | string
 
 /**

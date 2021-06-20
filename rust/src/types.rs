@@ -5364,8 +5364,6 @@ pub enum InlineContent {
     Boolean(Boolean),
     Integer(Integer),
     Number(Number),
-    Vec<InlineContent>(Vec<InlineContent>),
-    Object(Object),
     String(String),
 }
 
@@ -5494,7 +5492,7 @@ pub enum Node {
     Number(Number),
     String(String),
     Object(Object),
-    Vec<Node>(Vec<Node>),
+    Array(Vec<Node>),
 }
 
 /// All type schemas that are derived from Thing

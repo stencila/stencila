@@ -30,8 +30,4 @@ anyOf:
   - type: boolean
   - type: integer
   - type: number
-  - type: array
-    items:
-      $ref: InlineContent
-  - type: object
   - type: string

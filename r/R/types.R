@@ -4484,7 +4484,7 @@ GrantTypes <- Union(Grant, MonetaryGrant)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-InlineContent <- Union(AudioObject, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Note, Quote, Strong, Subscript, Superscript, VideoObject, "NULL", "logical", "numeric", Array(InlineContent), "list", "character")
+InlineContent <- Union(AudioObject, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Note, Quote, Strong, Subscript, Superscript, VideoObject, "NULL", "logical", "numeric", "character")
 
 
 #' All type schemas that are derived from Mark
