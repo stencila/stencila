@@ -129,6 +129,12 @@ impl ToHtml for Node {
     }
 }
 
+impl ToHtml for Vec<Node> {
+    fn to_html(&self, context: &Context) -> String {
+        join(self, |item| item.to_html(context))
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Inline content
 ///////////////////////////////////////////////////////////////////////////////
@@ -136,7 +142,6 @@ impl ToHtml for Node {
 impl ToHtml for InlineContent {
     fn to_html(&self, context: &Context) -> String {
         match self {
-            InlineContent::Array(node) => node.to_html(context),
             InlineContent::AudioObject(node) => node.to_html(context),
             InlineContent::Boolean(node) => node.to_html(context),
             InlineContent::Cite(node) => node.to_html(context),
@@ -153,7 +158,6 @@ impl ToHtml for InlineContent {
             InlineContent::Note(node) => node.to_html(context),
             InlineContent::Null => null_to_html(),
             InlineContent::Number(node) => node.to_html(context),
-            InlineContent::Object(node) => node.to_html(context),
             InlineContent::Quote(node) => node.to_html(context),
             InlineContent::String(node) => node.to_html(context),
             InlineContent::Strong(node) => node.to_html(context),
@@ -504,15 +508,15 @@ impl ToHtml for VideoObjectSimple {
             self.content_url.clone()
         };
 
-        let format = match &self.format {
+        let media_type = match &self.media_type {
             None => String::new(),
-            Some(format) => format!(r#"type="{}""#, format),
+            Some(media_type) => format!(r#"type="{}""#, media_type),
         };
 
         format!(
-            r#"<video itemtype="http://schema.org/VideoObject" controls><source src="{src}" {format}></source></video>"#,
+            r#"<video itemtype="http://schema.org/VideoObject" controls><source src="{src}" {media_type}></source></video>"#,
             src = src,
-            format = format
+            media_type = media_type
         )
     }
 }
@@ -867,8 +871,7 @@ impl ToHtml for CreativeWorkContent {
     fn to_html(&self, context: &Context) -> String {
         match self {
             CreativeWorkContent::String(node) => node.to_html(context),
-            CreativeWorkContent::VecInlineContent(nodes) => nodes.to_html(context),
-            CreativeWorkContent::VecBlockContent(nodes) => nodes.to_html(context),
+            CreativeWorkContent::VecNode(nodes) => nodes.to_html(context),
         }
     }
 }

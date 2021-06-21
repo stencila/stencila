@@ -103,7 +103,6 @@ impl Compile for Node {
 impl Compile for InlineContent {
     fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
-            InlineContent::Array(node) => node.compile(context),
             InlineContent::AudioObject(node) => node.compile(context),
             InlineContent::Boolean(node) => node.compile(context),
             InlineContent::Cite(node) => node.compile(context),
@@ -120,7 +119,6 @@ impl Compile for InlineContent {
             InlineContent::Note(node) => node.compile(context),
             InlineContent::Null => Ok(()),
             InlineContent::Number(node) => node.compile(context),
-            InlineContent::Object(node) => node.compile(context),
             InlineContent::Quote(node) => node.compile(context),
             InlineContent::String(node) => node.compile(context),
             InlineContent::Strong(node) => node.compile(context),
@@ -295,8 +293,7 @@ impl Compile for CreativeWorkContent {
     fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
             CreativeWorkContent::String(node) => node.compile(context),
-            CreativeWorkContent::VecInlineContent(nodes) => nodes.compile(context),
-            CreativeWorkContent::VecBlockContent(nodes) => nodes.compile(context),
+            CreativeWorkContent::VecNode(nodes) => nodes.compile(context),
         }
     }
 }

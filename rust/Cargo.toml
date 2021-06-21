@@ -85,7 +85,7 @@ default = [
 ansi_term = "=0.12.1"
 async-trait = "=0.1.50"
 base64 = "=0.13.0"
-bollard = { version = "=0.10.1", optional = true }
+bollard = { version = "=0.11.0", optional = true }
 chrono = "=0.4.19"
 crossbeam-channel = "=0.5.1"
 defaults = "=0.2.0"
@@ -124,12 +124,12 @@ serde = { version = "=1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "=1.0.64", features = ["preserve_order"] }
 serde_with = "=1.9.4"
 serde_yaml = { version = "=0.8.17", optional = true }
-stencila-schema = "=1.8.1"
+stencila-schema = "=1.9.0"
 structopt = { version = "=0.3.21", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
 strum_macros = "=0.21.1"
 thiserror = "=1.0.25"
-tokio = { version = "=1.6.1", features = ["full"] }
+tokio = { version = "=1.7.1", features = ["full"] }
 tokio-tungstenite = { version = "=0.14.0", optional = true }
 toml = { version = "=0.5.8", optional = true }
 tracing = "=0.1.26"
