@@ -1,3 +1,12 @@
+## [0.87.2](https://github.com/stencila/stencila/compare/v0.87.1...v0.87.2) (2021-06-21)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/encoda to v0.117.1 ([faa1f52](https://github.com/stencila/stencila/commit/faa1f52cc235e5db272ce2620669b05a39c34bf5))
+* **Deps:** Pin all Rust dependencies for more reproducible builds ([bcc3f0c](https://github.com/stencila/stencila/commit/bcc3f0cd18d5472e363efc9796e51bb23bcf832e))
+* **Rust:** Upgrade dependencies ([1587395](https://github.com/stencila/stencila/commit/1587395a8c229b8339ffb914750683b754bba8c5))
+
 ## [0.87.1](https://github.com/stencila/stencila/compare/v0.87.0...v0.87.1) (2021-06-21)
 
 
