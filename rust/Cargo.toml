@@ -14,7 +14,7 @@ keywords = ["schema", "executable", "documents"]
 chrono = "0.4.19"
 defaults = "0.2.0"
 enum_dispatch = "0.3.7"
-serde = {version = "1.0.124", features = ["derive"] }
+serde = {version = "1.0.126", features = ["derive"] }
 serde_json = "1.0.64"
 serde_with = "1.9.1"
 
