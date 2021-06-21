@@ -4634,8 +4634,7 @@ pub enum CreativeWorkAuthors {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkContent {
-    VecBlockContent(Vec<BlockContent>),
-    VecInlineContent(Vec<InlineContent>),
+    VecNode(Vec<Node>),
     String(String),
 }
 

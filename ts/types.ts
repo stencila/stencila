@@ -4,7 +4,7 @@
 // Do not modify it by hand. Instead, modify the source `.schema.yaml` files
 // in the `schema` directory and run `npm run build:ts` to regenerate it.
 
-type Object = Record<string, unknown>
+type Object = Record<string, any>
 
 type Primitives =
   | undefined
@@ -610,7 +610,7 @@ export interface CreativeWork extends Thing {
   about?: Array<ThingTypes>
   authors?: Array<Person | Organization>
   comments?: Array<Comment>
-  content?: Array<BlockContent> | Array<InlineContent> | string
+  content?: Array<Node> | string
   dateAccepted?: Date
   dateCreated?: Date
   dateModified?: Date
