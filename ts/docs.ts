@@ -50,6 +50,9 @@ async function build(): Promise<void> {
     {}
   )
 
+  // Ensure output directory exists
+  fs.ensureDirSync(DOCS_DEST_DIR)
+
   // Generate articles for each schema
   await Promise.all(
     schemas.map(async (schema) => {
