@@ -2941,9 +2941,9 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.9.0"
+version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d9a3c64f69269217356ea74ee2fd27d567992a845ed00e0d0f2173beef41216"
+checksum = "1834d673ae9a4d8c8b9633aed3183f9f3acf56620369a836a77dcf58e4003197"
 dependencies = [
  "chrono",
  "defaults",
@@ -3191,9 +3191,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.7.1"
+version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fb2ed024293bb19f7a5dc54fe83bf86532a44c12a2bb8ba40d64a4509395ca2"
+checksum = "0a38d31d7831c6ed7aad00aa4c12d9375fd225a6dd77da1d25b707346319a975"
 dependencies = [
  "autocfg",
  "bytes",
