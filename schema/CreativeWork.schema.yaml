@@ -49,10 +49,7 @@ properties:
     anyOf:
       - type: array
         items:
-          $ref: BlockContent
-      - type: array
-        items:
-          $ref: InlineContent
+          $ref: Node
       - type: string
   dateCreated:
     '@id': schema:dateCreated
