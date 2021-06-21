@@ -1,3 +1,24 @@
+# [1.9.0](https://github.com/stencila/schema/compare/v1.8.1...v1.9.0) (2021-06-21)
+
+
+### Bug Fixes
+
+* **CreativeWork:** Allow an array of nodes ([a13cbfc](https://github.com/stencila/schema/commit/a13cbfc349b6a1b6d8931d15bbb77357c29c47ac))
+* **dependencies:** update rust crate serde to 1.0.126 ([371712e](https://github.com/stencila/schema/commit/371712e27b21e5b9d7a0dadf9578dba9633e6829))
+* **dependencies:** update rust crate serde_with to 1.9.4 ([ac06fd3](https://github.com/stencila/schema/commit/ac06fd30aa4ac3a42345acc973be8ca2e64b2b03))
+* **InlineContent:** Remove `Array` and `Object` from `InlineContent` ([a844439](https://github.com/stencila/schema/commit/a844439ad0be31d544b863f741d940ef1ba1fba2)), closes [/github.com/stencila/schema/pull/274#pullrequestreview-687650292](https://github.com//github.com/stencila/schema/pull/274/issues/pullrequestreview-687650292)
+* **Python:** Avoid generating recursive types ([eceb36a](https://github.com/stencila/schema/commit/eceb36af3e2310711859c62995c7378b19052b56))
+* **R bindings:** Avoid type recursion ([efdae5c](https://github.com/stencila/schema/commit/efdae5c434450301f8263b54396489db1a203f94))
+* **Rust bindings:** Fix name for Array ([e955f27](https://github.com/stencila/schema/commit/e955f271c4098132b97496d4df3ca42e872ccc28))
+* **Types:** Include Entity in Node union type ([e713276](https://github.com/stencila/schema/commit/e7132760a9924257336d483a0aa0ac29778cd019))
+* **TypeScript:** Reduce number, and simplify, type guards ([d348d17](https://github.com/stencila/schema/commit/d348d174be660384369d6fe9887bf82745d1b7aa))
+* **TypeScript bindings:** Revert to using any ([4d1b761](https://github.com/stencila/schema/commit/4d1b761e03bd258d3670f7caa2033cb0fbf90bc7))
+
+
+### Features
+
+* **Schema:** Rename property format to mediaType ([bfb10d6](https://github.com/stencila/schema/commit/bfb10d6cc89204fb0b6c3aa413ea867c51d95617))
+
 ## [1.8.1](https://github.com/stencila/schema/compare/v1.8.0...v1.8.1) (2021-06-06)
 
 
