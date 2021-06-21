@@ -2855,7 +2855,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.87.0"
+version = "0.87.1"
 dependencies = [
  "ansi_term 0.12.1",
  "async-trait",
@@ -2915,7 +2915,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.87.0"
+version = "0.87.1"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -2933,7 +2933,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.87.0"
+version = "0.87.1"
 dependencies = [
  "neon",
  "stencila",
@@ -2941,9 +2941,9 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.8.1"
+version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1834d673ae9a4d8c8b9633aed3183f9f3acf56620369a836a77dcf58e4003197"
+checksum = "7d9a3c64f69269217356ea74ee2fd27d567992a845ed00e0d0f2173beef41216"
 dependencies = [
  "chrono",
  "defaults",

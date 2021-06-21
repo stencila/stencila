@@ -1,3 +1,11 @@
+## [0.87.1](https://github.com/stencila/stencila/compare/v0.87.0...v0.87.1) (2021-06-21)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @sentry/electron to v2.5.0 ([230cb52](https://github.com/stencila/stencila/commit/230cb522ad09472ba667ec017ba5a45a69bd8d3d))
+* **dependencies:** update dependency i18next to v20.3.2 ([8e3b5d6](https://github.com/stencila/stencila/commit/8e3b5d675d424faebaa360827ccda4d743b411ec))
+
 # [0.87.0](https://github.com/stencila/stencila/compare/v0.86.1...v0.87.0) (2021-06-20)
 
 
