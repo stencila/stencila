@@ -1,5 +1,10 @@
 all: clean demos references build
 
+node_modules: package.json
+	npm install
+
+setup: node_modules
+
 # Start the development server
 # Generates fake CLI demo .cast files if necessary so
 # does not fail if these have not yet been created
