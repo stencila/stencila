@@ -27,10 +27,11 @@ const mimeTypes = {
   '.htm': 'text/html',
   '.json': 'application/json',
   '.css': 'text/css',
-  '.svg': 'application/svg+xml',
   '.ico': 'image/vnd.microsoft.icon',
+  '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
   '.map': 'text/plain',
 }
 
