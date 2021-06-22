@@ -45,7 +45,18 @@ type RequestHandler = Parameters<Protocol['registerBufferProtocol']>['1']
 
 export const requestHandler: RequestHandler = (req, next) => {
   const reqUrl = new URL(req.url)
-  let reqPath = path.resolve(reqUrl.pathname)
+
+  // If the path doesn't start with "/" then path.normalize will not
+  // resolve all '..' and could lead to path traversal attacks.
+  if (!reqUrl.pathname.startsWith('/')) {
+    return next({
+      mimeType: undefined,
+      charset: undefined,
+      data: undefined,
+    })
+  }
+
+  let reqPath = path.normalize(reqUrl.pathname)
 
   // This is necessary to avoid trying to resolve dynamic routes as file on the filesystem
   // TODO: Investigate a more refined way of detecting if we’re loading an asset or a route within the app.
@@ -53,11 +64,11 @@ export const requestHandler: RequestHandler = (req, next) => {
     reqPath = '/main_window/index.html'
   }
 
-  const reqFilename = path.basename(reqPath)
+  const reqFileName = path.basename(reqPath)
   const filePath = path.join(DIST_PATH, reqPath)
 
   fs.readFile(filePath, (err, data) => {
-    const mimeType = mime(reqFilename)
+    const mimeType = mime(reqFileName)
     if (!err && mimeType !== null) {
       next({
         mimeType: mimeType,
