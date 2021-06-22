@@ -485,6 +485,12 @@ export const FORMATS: Record<string, Format> = {
     "preview": true,
     "type": "VideoObject"
   },
+  "dir": {
+    "name": "dir",
+    "binary": true,
+    "preview": false,
+    "type": "Collection"
+  },
   "dockerfile": {
     "name": "dockerfile",
     "binary": false,
@@ -507,6 +513,12 @@ export const FORMATS: Record<string, Format> = {
     "binary": true,
     "preview": true,
     "type": "ImageObject"
+  },
+  "html": {
+    "name": "html",
+    "binary": false,
+    "preview": true,
+    "type": "Article"
   },
   "ipynb": {
     "name": "ipynb",
