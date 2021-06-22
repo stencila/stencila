@@ -8,7 +8,7 @@ all: $(patsubst %.md,%.cast,$(wildcard *.md))
 # Make a Demo Magic script from Markdown source
 %.sh: %.md
 	csplit --quiet --prefix temp $< /Script/6
-	npx encoda convert --from md temp01 --to demo-magic $@
+	npx encoda convert --from=md temp01 --to=dmagic $@
 	chmod +x $@
 .PRECIOUS: %.sh
 
