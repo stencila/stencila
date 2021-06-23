@@ -4,7 +4,7 @@ use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
 
 /// Encode a node to HTML
-pub fn encode_html(node: &Node) -> Result<String> {
+pub fn encode(node: &Node) -> Result<String> {
     let context = Context {
         root: node,
         data_uris: false,
@@ -17,7 +17,7 @@ pub fn encode_html(node: &Node) -> Result<String> {
 ///
 /// This function is mainly for developers to be able to preview the
 /// result of `encode_html`.
-pub fn encode_html_standalone(node: &Node, theme: Option<String>) -> Result<String> {
+pub fn encode_standalone(node: &Node, theme: Option<String>) -> Result<String> {
     Ok(format!(
         r#"<!DOCTYPE html>
 <html lang="en">
@@ -51,7 +51,7 @@ pub fn encode_html_standalone(node: &Node, theme: Option<String>) -> Result<Stri
     </body>
 </html>"#,
         theme = theme.unwrap_or_else(|| "wilmore".into()),
-        body = encode_html(node)?
+        body = encode(node)?
     ))
 }
 
@@ -1020,7 +1020,7 @@ mod tests {
             let json = fs::read_to_string(fixture_path)?;
             let article: Node = serde_json::from_str(&json)?;
 
-            let html = encode_html_standalone(&article, Some("elife".to_string()))?;
+            let html = encode_standalone(&article, Some("elife".to_string()))?;
 
             let snapshot_path = snapshots.join(format!(
                 "{}.html",
