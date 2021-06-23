@@ -165,6 +165,7 @@ jobs:
         displayName: 'Desktop: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
+          SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
 
       # Reduce the size of the Rust cache (and print summary) before storing it.
       - script: |
@@ -237,6 +238,7 @@ jobs:
         displayName: 'Desktop: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
+          SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
 
       - script: |
           sccache --stop-server
@@ -306,6 +308,7 @@ jobs:
         displayName: 'Desktop: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
+          SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
 
       - script: |
           sccache --stop-server
