@@ -6,15 +6,12 @@ import { openLauncherWindow } from './main/launcher/window'
 import * as localProtocol from './main/local-protocol'
 import { openOnboardingWindow } from './main/onboarding/window'
 import { initAppConfigStore } from './main/store/bootstrap'
+import { isReportErrorsEnabled } from './main/store/handlers'
 import { isFirstLaunch, setFirstLaunchState } from './main/utils/firstLaunch'
-import { getAppConfig, UnprotectedStoreKeys } from './main/store/handlers'
 import { enableCrashReports } from './preload/errors'
 
 initAppConfigStore()
-
-if (getAppConfig(UnprotectedStoreKeys.REPORT_ERRORS)) {
-  enableCrashReports()
-}
+enableCrashReports(isReportErrorsEnabled)
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -51,9 +48,9 @@ protocol.registerSchemesAsPrivileged([
     scheme: scheme,
     privileges: {
       standard: true,
-      secure: true
-    }
-  }
+      secure: true,
+    },
+  },
 ])
 
 if (process.env.NODE_ENV === 'development') {

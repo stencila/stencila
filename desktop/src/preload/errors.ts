@@ -1,17 +1,35 @@
-import { init } from '@sentry/electron'
+import * as Sentry from '@sentry/electron'
 import { LogEvent, LogLevel } from '@stencila/logga'
+import { version } from '../../package.json'
 
-export const enableCrashReports = () => {
+export const enableCrashReports = (
+  getCrashReportingSetting: () => boolean | Promise<boolean>
+) => {
   if (process.env.SENTRY_DSN && process.env.NODE_ENV === 'production') {
-    init({
+    Sentry.init({
+      // debug: true,
       dsn: process.env.SENTRY_DSN,
-      autoSessionTracking: false
+      tracesSampleRate: 1.0,
+      release: version,
+      beforeSend: async (event) => {
+        const reportingEnabled = await getCrashReportingSetting()
+
+        if (!reportingEnabled) {
+          return null
+        }
+
+        if (event.user?.ip_address) {
+          delete event.user.ip_address
+        }
+
+        return event
+      },
     })
   }
 }
 
-export const disableCrashReports = () => {
-  // TODO: Disable Sentry
+export const setUser = (id: string) => {
+  Sentry.setUser({ id })
 }
 
 export interface LogHandler extends LogEvent {
@@ -20,8 +38,5 @@ export interface LogHandler extends LogEvent {
 }
 
 export const captureError = (error: LogHandler) => {
-  // if (getAppConfig(UnprotectedStoreKeys.REPORT_ERRORS)) {
-  // TODO: Send errors to Sentry
-  console.log(error)
-  // }
+  Sentry.captureException(error)
 }

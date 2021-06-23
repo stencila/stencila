@@ -7,10 +7,9 @@ import { enableCrashReports } from './errors'
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld('api', { ...apis })
 
-ipcRenderer
-  .invoke(CHANNEL.GET_APP_CONFIG, 'REPORT_ERRORS')
-  .then(crashReportsEnabled => {
-    if (crashReportsEnabled || false) {
-      enableCrashReports()
-    }
-  })
+// This function needs to be able to run in both the `preload` and `web` contexts,
+// therefore it cannot rely on NodeJS apis.
+const isReportErrorsEnabled = () =>
+  ipcRenderer.invoke(CHANNEL.GET_APP_CONFIG, 'REPORT_ERRORS')
+
+enableCrashReports(isReportErrorsEnabled)

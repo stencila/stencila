@@ -33,6 +33,13 @@ npm run ui:start
 npm run start
 ```
 
+### Environment variables
+
+We use `.env` files for injection environment variables into the build.
+There is an `.env.example` file which you can duplicate and rename to `.env`.
+In the example file you will find all the available environment variables which
+you can override.
+
 ### Building binaries
 
 To build binaries use the following command. Note that the binaries will be tied

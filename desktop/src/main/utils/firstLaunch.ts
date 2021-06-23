@@ -1,7 +1,7 @@
 import {
   getAppConfig,
   setAppConfig,
-  UnprotectedStoreKeys
+  UnprotectedStoreKeys,
 } from '../store/handlers'
 
 /**
