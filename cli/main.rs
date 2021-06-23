@@ -77,6 +77,7 @@ pub enum Command {
     Open(OpenCommand),
     Close(CloseCommand),
     Show(ShowCommand),
+    Convert(ConvertCommand),
 
     // Module-specific commands defined in the `stencila` library
     #[structopt(aliases = &["project"])]
@@ -110,6 +111,7 @@ pub async fn run_command(
         Command::Open(command) => command.run(context, projects, documents).await,
         Command::Close(command) => command.run(projects, documents).await,
         Command::Show(command) => command.run(projects, documents).await,
+        Command::Convert(command) => command.run(documents).await,
         Command::Documents(command) => command.run(documents).await,
         Command::Projects(command) => command.run(projects).await,
         Command::Plugins(command) => plugins::cli::run(command).await,
@@ -291,6 +293,9 @@ impl ShowCommand {
         }
     }
 }
+
+/// Currently, `convert` just delegates to the `documents` module
+type ConvertCommand = documents::cli::Convert;
 
 /// Main entry point function
 #[tokio::main]

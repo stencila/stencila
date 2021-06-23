@@ -218,7 +218,8 @@ impl Document {
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the file extension.
     /// TODO: add project: Option<PathBuf> so that project can be explictly set
-    async fn open(path: PathBuf, format: Option<String>) -> Result<Document> {
+    async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
+        let path = path.as_ref();
         if path.is_dir() {
             bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
         }
@@ -243,7 +244,7 @@ impl Document {
 
         let mut document = Document {
             id,
-            path,
+            path: path.to_path_buf(),
             project,
             temporary: false,
             name,
@@ -306,10 +307,14 @@ impl Document {
     ///
     /// Note: this does not change the `path` or `format` of the current
     /// document.
-    #[cfg(ignore)]
-    fn save_as(&self, path: &str, format: Option<String>) -> Result<()> {
-        let mut file = fs::File::create(path)?;
-        file.write_all(self.dump(format)?.as_bytes())?;
+    async fn export<P: AsRef<Path>>(&self, path: P, format: Option<String>) -> Result<()> {
+        let format = format.or_else(|| {
+            path.as_ref()
+                .extension()
+                .map(|ext| ext.to_string_lossy().to_string())
+        });
+        let contents = self.dump(format).await?;
+        fs::write(path, contents)?;
         Ok(())
     }
 
@@ -888,7 +893,7 @@ pub mod cli {
     }
 
     impl Command {
-        pub async fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(self, documents: &mut Documents) -> display::Result {
             let Self { action } = self;
             match action {
                 Action::List(action) => action.run(documents).await,
@@ -1030,10 +1035,10 @@ pub mod cli {
     )]
     pub struct Convert {
         /// The path of the input document
-        pub input: String,
+        pub input: PathBuf,
 
         /// The path of the output document
-        pub output: String,
+        pub output: PathBuf,
 
         /// The format of the input (defaults to being inferred from the file extension or content type)
         #[structopt(short, long)]
@@ -1045,16 +1050,15 @@ pub mod cli {
     }
 
     impl Convert {
-        pub async fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(self, _documents: &mut Documents) -> display::Result {
             let Self {
                 input,
                 output,
                 from,
                 to,
             } = self;
-            let _document = documents.open(input, from.clone()).await?;
-            todo!("convert to {} as format {:?}", output, to);
-            #[allow(unreachable_code)]
+            let document = Document::open(input, from).await?;
+            document.export(output, to).await?;
             display::nothing()
         }
     }
