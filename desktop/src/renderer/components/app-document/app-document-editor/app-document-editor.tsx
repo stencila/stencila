@@ -15,7 +15,7 @@ import { selectDoc } from '../../../../renderer/store/documentPane/documentPaneS
 export class AppDocumentEditor {
   @Element() el: HTMLElement
 
-  private editorRef: HTMLStencilaEditorElement | null = null
+  private editorRef: HTMLStencilaEditorElement | undefined
 
   @Prop() documentId: EntityId
 
@@ -89,10 +89,6 @@ export class AppDocumentEditor {
     return this.subscribeToDocument()
   }
 
-  componentDidLoad() {
-    this.editorRef = this.el.querySelector('stencila-editor')
-  }
-
   disconnectedCallback() {
     this.unsubscribeFromDocument()
   }
@@ -102,6 +98,7 @@ export class AppDocumentEditor {
       <Host>
         <div class="app-document-editor">
           <stencila-editor
+            ref={(el) => (this.editorRef = el)}
             activeLanguage={this.fileFormatToLanguage()}
             contents={this.contents}
           ></stencila-editor>
