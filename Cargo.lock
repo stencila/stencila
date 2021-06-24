@@ -377,9 +377,9 @@ checksum = "ea221b5284a47e40033bf9b66f35f984ec0ea2931eb03505246cd27a963f981b"
 
 [[package]]
 name = "cpufeatures"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed00c67cb5d0a7d64a44f6ad2668db7e7530311dd53ea79bcd4fb022c64911c8"
+checksum = "66c99696f6c9dd7f35d486b9d04d7e6e202aa3e8c40d553f2fdf5e7e0c6a71ef"
 dependencies = [
  "libc",
 ]
@@ -2829,7 +2829,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.87.2"
+version = "0.87.3"
 dependencies = [
  "ansi_term 0.12.1",
  "async-trait",
@@ -2889,7 +2889,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.87.2"
+version = "0.87.3"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -2907,7 +2907,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.87.2"
+version = "0.87.3"
 dependencies = [
  "neon",
  "stencila",

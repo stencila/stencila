@@ -1,3 +1,11 @@
+## [0.87.3](https://github.com/stencila/stencila/compare/v0.87.2...v0.87.3) (2021-06-24)
+
+
+### Bug Fixes
+
+* **Desktop:** Fix error reporting integration ([b184490](https://github.com/stencila/stencila/commit/b184490df7d2f9e9523c16ddb6dc55ca824671f1))
+* **Desktop:** Fix loading of SVG assets over custom app protocol ([375d8c3](https://github.com/stencila/stencila/commit/375d8c366513219458c0780ed8821ffcbf012e60))
+
 ## [0.87.2](https://github.com/stencila/stencila/compare/v0.87.1...v0.87.2) (2021-06-21)
 
 
