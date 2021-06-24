@@ -3,7 +3,7 @@ use std::fs;
 use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
 
-/// Encode a node to HTML
+/// Encode a `Node` to a HTML document
 pub fn encode(node: &Node) -> Result<String> {
     let context = Context {
         root: node,

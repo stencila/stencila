@@ -1,7 +1,7 @@
 use eyre::Result;
 use stencila_schema::Node;
 
-/// Decode a `Node` from TOML
+/// Decode a TOML document to a `Node`
 pub fn decode(toml: &str) -> Result<Node> {
     Ok(toml::from_str::<Node>(toml)?)
 }
