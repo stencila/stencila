@@ -13,5 +13,7 @@ const isErrorReportingEnabled = () =>
 export default async () => {
   // Due to `nodeIntegration: false` and `contextIsolation: true`, Sentry needs
   // to be instantiated in both the `preload` script AND here, the `web` context.
-  enableCrashReports(isErrorReportingEnabled)
+  if (process.env.SENTRY_DSN && process.env.NODE_ENV === 'production') {
+    enableCrashReports(isErrorReportingEnabled)
+  }
 }

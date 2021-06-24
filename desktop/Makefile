@@ -7,7 +7,7 @@ lint: setup
 	npm run lint
 
 test: setup
-	npm run test
+	npm run test -- --ci
 
 build: setup
 	npm run ui:build

@@ -1,19 +1,18 @@
 import { newE2EPage } from '@stencil/core/testing'
 
-const electronMock = {
-  invoke: () => Promise.resolve('results'),
-  receive: () => Promise.resolve(),
-  send: () => Promise.resolve(),
-  remove: () => Promise.resolve(),
-  removeAll: () => Promise.resolve(),
-}
-
 describe('app-document-editor', () => {
-  it.skip('renders', async () => {
+  it('renders', async () => {
     const page = await newE2EPage({ failOnConsoleError: true })
 
-    window.api = electronMock
-    console.log(window)
+    await page.evaluateOnNewDocument(() => {
+      window.api = {
+        invoke: () => Promise.resolve('results'),
+        receive: () => Promise.resolve(),
+        send: () => Promise.resolve(),
+        remove: () => Promise.resolve(),
+        removeAll: () => Promise.resolve(),
+      }
+    })
 
     await page.setContent(
       '<app-document-editor documentId="test"></app-document-editor>'
