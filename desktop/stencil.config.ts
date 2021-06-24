@@ -23,11 +23,12 @@ export const config: Config = {
   ],
   rollupPlugins: {
     before: [
+      dotenv(),
       replace({
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+        'process.env.SENTRY_DSN': JSON.stringify(process.env.SENTRY_DSN),
         'process.type': JSON.stringify('renderer'),
       }),
-      dotenv(),
     ],
   },
   plugins: [
