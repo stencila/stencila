@@ -1,0 +1,50 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/headings.md
+
+---
+[
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 1"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 2"
+    ],
+    "depth": 2
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 3"
+    ],
+    "depth": 3
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 4"
+    ],
+    "depth": 4
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 5"
+    ],
+    "depth": 5
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 6"
+    ],
+    "depth": 6
+  }
+]

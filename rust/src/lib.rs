@@ -77,6 +77,9 @@ pub mod utils {
     pub mod schemas;
     pub mod urls;
     pub mod uuids;
+
+    #[cfg(test)]
+    pub mod tests;
 }
 
 // Re-export packages

@@ -1,0 +1,21 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/strong.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "A ",
+      {
+        "type": "Strong",
+        "content": [
+          "strongly"
+        ]
+      },
+      " emphasized word."
+    ]
+  }
+]
