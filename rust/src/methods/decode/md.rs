@@ -40,37 +40,95 @@ pub fn decode(md: &str) -> Result<Node> {
 pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
     use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 
-    let parser = Parser::new_ext(md, Options::all());
-
-    let mut inline_content: Vec<InlineContent> = Vec::new();
-    let mut inline_content_marks: Vec<usize> = Vec::new();
-
+    // Holds the last text node
     let mut text = String::new();
+    // Holds and manages inline content nodes
+    struct Inlines {
+        nodes: Vec<InlineContent>,
+        marks: Vec<usize>,
+    }
 
-    let mut block_content: Vec<BlockContent> = Vec::new();
+    impl Inlines {
+        fn clear(&mut self) {
+            self.nodes.clear();
+            self.marks.clear()
+        }
+
+        fn mark(&mut self) {
+            self.marks.push(self.nodes.len())
+        }
+
+        fn push(&mut self, node: InlineContent) {
+            self.nodes.push(node)
+        }
+
+        fn append(&mut self, nodes: &mut Vec<InlineContent>) {
+            self.nodes.append(nodes)
+        }
+
+        fn condense(mut nodes: Vec<InlineContent>) -> Vec<InlineContent> {
+            let mut index = 1;
+            while index < nodes.len() {
+                // FIXME: Avoid this clone?
+                let curr = nodes[index].clone();
+                let prev = &mut nodes[index - 1];
+                match (prev, curr) {
+                    (InlineContent::String(prev), InlineContent::String(curr)) => {
+                        if prev.ends_with(|chr: char| !chr.is_whitespace()) && curr == "\u{2029}" {
+                            prev.push(' ');
+                        } else {
+                            prev.push_str(&curr);
+                        }
+                        nodes.remove(index);
+                    }
+                    _ => index += 1,
+                }
+            }
+            nodes
+        }
+
+        fn take_tail(&mut self) -> Vec<InlineContent> {
+            let n = self.marks.pop().expect("Unable to pop marks!");
+            Inlines::condense(self.nodes.split_off(n))
+        }
+
+        fn take_all(&mut self) -> Vec<InlineContent> {
+            Inlines::condense(self.nodes.split_off(0))
+        }
+    }
+
+    let mut inlines = Inlines {
+        nodes: Vec::new(),
+        marks: Vec::new(),
+    };
+
+    // Holds the block content nodes
+    let mut blocks: Vec<BlockContent> = Vec::new();
+
+    let parser = Parser::new_ext(md, Options::all());
     for event in parser {
         match event {
             Event::Start(tag) => match tag {
-                Tag::Heading(_) => inline_content.clear(),
-                Tag::Paragraph => inline_content.clear(),
+                Tag::Heading(_) => inlines.clear(),
+                Tag::Paragraph => inlines.clear(),
                 Tag::CodeBlock(_) => (),
-                Tag::Emphasis => inline_content_marks.push(inline_content.len()),
-                Tag::Strong => inline_content_marks.push(inline_content.len()),
-                Tag::Strikethrough => inline_content_marks.push(inline_content.len()),
-                Tag::Link(_, _, _) => inline_content_marks.push(inline_content.len()),
+                Tag::Emphasis => inlines.mark(),
+                Tag::Strong => inlines.mark(),
+                Tag::Strikethrough => inlines.mark(),
+                Tag::Link(_, _, _) => inlines.mark(),
                 _ => println!("Start {:?}", tag),
             },
             Event::End(tag) => match tag {
-                Tag::Heading(depth) => block_content.push(BlockContent::Heading(Heading {
+                Tag::Heading(depth) => blocks.push(BlockContent::Heading(Heading {
                     depth: Some(Box::new(depth as i64)),
-                    content: inline_content.clone(),
+                    content: inlines.take_all(),
                     ..Default::default()
                 })),
-                Tag::Paragraph => block_content.push(BlockContent::Paragraph(Paragraph {
-                    content: inline_content.clone(),
+                Tag::Paragraph => blocks.push(BlockContent::Paragraph(Paragraph {
+                    content: inlines.take_all(),
                     ..Default::default()
                 })),
-                Tag::CodeBlock(kind) => block_content.push(BlockContent::CodeBlock(CodeBlock {
+                Tag::CodeBlock(kind) => blocks.push(BlockContent::CodeBlock(CodeBlock {
                     text: text.clone(),
                     programming_language: match kind {
                         CodeBlockKind::Fenced(lang) => Some(Box::new(lang.to_string())),
@@ -79,59 +137,44 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     ..Default::default()
                 })),
                 Tag::Emphasis => {
-                    let n = inline_content_marks
-                        .pop()
-                        .expect("Unbalanced start and end");
-                    let content = inline_content.split_off(n);
-                    inline_content.push(InlineContent::Emphasis(Emphasis {
+                    let content = inlines.take_tail();
+                    inlines.push(InlineContent::Emphasis(Emphasis {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Strong => {
-                    let n = inline_content_marks
-                        .pop()
-                        .expect("Unbalanced start and end");
-                    let content = inline_content.split_off(n);
-                    inline_content.push(InlineContent::Strong(Strong {
+                    let content = inlines.take_tail();
+                    inlines.push(InlineContent::Strong(Strong {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Strikethrough => {
-                    let n = inline_content_marks
-                        .pop()
-                        .expect("Unbalanced start and end");
-                    let content = inline_content.split_off(n);
-                    inline_content.push(InlineContent::Delete(Delete {
+                    let content = inlines.take_tail();
+                    inlines.push(InlineContent::Delete(Delete {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Link(_link_type, url, title) => {
-                    let n = inline_content_marks
-                        .pop()
-                        .expect("Unbalanced start and end");
-                    let content = inline_content.split_off(n);
-                    inline_content.push(InlineContent::Link(Link {
+                    let content = inlines.take_tail();
+                    inlines.push(InlineContent::Link(Link {
                         content,
                         target: url.to_string(),
                         title: Some(Box::new(title.to_string())),
                         ..Default::default()
                     }))
                 }
-                _ => println!(
-                    "End {:?} {:?} {:?}",
-                    tag, inline_content, inline_content_marks
-                ),
+                _ => (),
             },
             Event::Text(value) => {
                 let mut content = decode_inline_content(&value);
-                inline_content.append(&mut content);
+                inlines.append(&mut content);
                 text = value.to_string()
             }
             Event::Code(value) => {
-                inline_content.push(InlineContent::CodeFragment(CodeFragment {
+                inlines.push(InlineContent::CodeFragment(CodeFragment {
                     text: value.to_string(),
                     ..Default::default()
                 }));
@@ -143,12 +186,16 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 tracing::warn!("Unhandled Markdown element FootnoteReference {}", value);
             }
             Event::SoftBreak => {
-                tracing::warn!("Unhandled Markdown element SoftBreak");
+                // A soft line break event occurs between lines of a multi-line paragraph
+                // (between a `Text` event for each line). This inserts the Unicode soft break
+                // character so that, when inlines are condensed a space can be added if
+                // necessary.
+                inlines.push(InlineContent::String("\u{2029}".to_string()))
             }
             Event::HardBreak => {
                 tracing::warn!("Unhandled Markdown element HardBreak");
             }
-            Event::Rule => block_content.push(BlockContent::ThematicBreak(ThematicBreak {
+            Event::Rule => blocks.push(BlockContent::ThematicBreak(ThematicBreak {
                 ..Default::default()
             })),
             Event::TaskListMarker(value) => {
@@ -157,7 +204,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
         };
     }
 
-    block_content
+    blocks
 }
 
 /// Decode a string into a vector of `InlineContent` nodes
@@ -326,4 +373,18 @@ fn character(input: &str) -> IResult<&str, InlineContent> {
     map_res(take(1usize), |res: &str| -> Result<InlineContent> {
         Ok(InlineContent::String(String::from(res)))
     })(input)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::utils::tests::snapshot_content;
+    use insta::assert_json_snapshot;
+
+    #[test]
+    fn fragments() {
+        snapshot_content("fragments/md/*.md", |content| {
+            assert_json_snapshot!(decode_fragment(&content));
+        });
+    }
 }
