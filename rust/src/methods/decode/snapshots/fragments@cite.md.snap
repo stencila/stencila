@@ -1,0 +1,29 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/cite.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Narrative (in text) citations like ",
+      {
+        "type": "Cite",
+        "target": "smith"
+      },
+      ", ",
+      {
+        "type": "Cite",
+        "target": "jones"
+      },
+      ", and ",
+      {
+        "type": "Cite",
+        "target": "singh"
+      },
+      "."
+    ]
+  }
+]

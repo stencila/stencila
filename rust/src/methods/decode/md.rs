@@ -384,8 +384,9 @@ pub fn superscript(input: &str) -> IResult<&str, InlineContent> {
 /// Will greedily take as many characters as possible, excluding those that appear at the
 /// start of other inline parsers e.g. '$', '['
 fn string(input: &str) -> IResult<&str, InlineContent> {
+    const CHARS: &str = "@^~$[";
     map_res(
-        take_while1(|chr: char| chr != '^' && chr != '~' && chr != '$' && chr != '['),
+        take_while1(|chr: char| CHARS.contains(chr)),
         |res: &str| -> Result<InlineContent> { Ok(InlineContent::String(String::from(res))) },
     )(input)
 }
