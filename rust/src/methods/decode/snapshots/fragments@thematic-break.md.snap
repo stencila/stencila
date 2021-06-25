@@ -19,5 +19,23 @@ input_file: fixtures/fragments/md/thematic-break.md
     "content": [
       "Second theme."
     ]
+  },
+  {
+    "type": "ThematicBreak"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Third theme."
+    ]
+  },
+  {
+    "type": "ThematicBreak"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Fourth theme."
+    ]
   }
 ]
