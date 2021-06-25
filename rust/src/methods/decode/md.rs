@@ -116,7 +116,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 Tag::Strong => inlines.mark(),
                 Tag::Strikethrough => inlines.mark(),
                 Tag::Link(_, _, _) => inlines.mark(),
-                _ => println!("Start {:?}", tag),
+                _ => (),
             },
             Event::End(tag) => match tag {
                 Tag::Heading(depth) => blocks.push(BlockContent::Heading(Heading {
@@ -170,14 +170,24 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 }
                 Tag::Link(_link_type, url, title) => {
                     let content = inlines.take_tail();
+                    let title = {
+                        let title = title.to_string();
+                        if !title.is_empty() {
+                            Some(Box::new(title))
+                        } else {
+                            None
+                        }
+                    };
                     inlines.push(InlineContent::Link(Link {
                         content,
                         target: url.to_string(),
-                        title: Some(Box::new(title.to_string())),
+                        title,
                         ..Default::default()
                     }))
                 }
-                _ => (),
+                _ => {
+                    tracing::warn!("Unhandled Markdown tag {:?}", tag);
+                }
             },
             Event::Text(value) => {
                 // Accumulate to inline content after parsing
