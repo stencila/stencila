@@ -1,0 +1,21 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/code-blocks.md
+
+---
+[
+  {
+    "type": "CodeBlock",
+    "text": "Some plain text\n"
+  },
+  {
+    "type": "CodeBlock",
+    "text": "# Some Python code\n1 + 1\n",
+    "programmingLanguage": "python"
+  },
+  {
+    "type": "CodeBlock",
+    "text": "An indented code block\nin unspecified language.\n"
+  }
+]

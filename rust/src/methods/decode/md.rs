@@ -40,8 +40,8 @@ pub fn decode(md: &str) -> Result<Node> {
 pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
     use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 
-    // Holds the last text node
-    let mut text = String::new();
+    // Holds any text content
+    let mut texts = String::new();
     // Holds and manages inline content nodes
     struct Inlines {
         nodes: Vec<InlineContent>,
@@ -128,14 +128,25 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     content: inlines.take_all(),
                     ..Default::default()
                 })),
-                Tag::CodeBlock(kind) => blocks.push(BlockContent::CodeBlock(CodeBlock {
-                    text: text.clone(),
-                    programming_language: match kind {
-                        CodeBlockKind::Fenced(lang) => Some(Box::new(lang.to_string())),
-                        _ => None,
-                    },
-                    ..Default::default()
-                })),
+                Tag::CodeBlock(kind) => {
+                    let text = texts.clone();
+                    texts.clear();
+                    blocks.push(BlockContent::CodeBlock(CodeBlock {
+                        text,
+                        programming_language: match kind {
+                            CodeBlockKind::Fenced(lang) => {
+                                let lang = lang.to_string();
+                                if !lang.is_empty() {
+                                    Some(Box::new(lang))
+                                } else {
+                                    None
+                                }
+                            }
+                            _ => None,
+                        },
+                        ..Default::default()
+                    }))
+                }
                 Tag::Emphasis => {
                     let content = inlines.take_tail();
                     inlines.push(InlineContent::Emphasis(Emphasis {
@@ -169,9 +180,12 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 _ => (),
             },
             Event::Text(value) => {
+                // Accumulate to inline content after parsing
                 let mut content = decode_inline_content(&value);
                 inlines.append(&mut content);
-                text = value.to_string()
+
+                // Accumulate to text (needed for indented (unfenced) code blocks)
+                texts.push_str(&value.to_string())
             }
             Event::Code(value) => {
                 inlines.push(InlineContent::CodeFragment(CodeFragment {
