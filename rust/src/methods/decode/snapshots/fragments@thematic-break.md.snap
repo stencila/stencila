@@ -1,0 +1,23 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/thematic-break.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "First theme."
+    ]
+  },
+  {
+    "type": "ThematicBreak"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Second theme."
+    ]
+  }
+]

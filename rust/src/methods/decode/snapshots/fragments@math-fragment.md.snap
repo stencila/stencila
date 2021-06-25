@@ -1,0 +1,30 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/math-fragment.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Some math like ",
+      {
+        "type": "MathFragment",
+        "text": "\\pi"
+      },
+      ", and ",
+      {
+        "type": "MathFragment",
+        "text": "1+1"
+      },
+      "."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "But not $1 and $2."
+    ]
+  }
+]

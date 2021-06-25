@@ -1,0 +1,51 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/link.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "A ",
+      {
+        "type": "Link",
+        "content": [
+          "link"
+        ],
+        "target": "https://stenci.la",
+        "title": "Stencila"
+      },
+      "."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A ",
+      {
+        "type": "Link",
+        "content": [
+          "link"
+        ],
+        "target": ""
+      },
+      " with no target or title."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A ",
+      {
+        "type": "Link",
+        "content": [
+          "link"
+        ],
+        "target": "https://stenci.la"
+      },
+      " with no title."
+    ]
+  }
+]
