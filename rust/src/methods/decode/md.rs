@@ -4,7 +4,7 @@ use nom::{
     bytes::complete::{tag, take, take_until, take_while1},
     character::complete::{char, digit1, multispace0, multispace1},
     combinator::{map_res, not, peek},
-    multi::{fold_many0, separated_list0},
+    multi::{fold_many0, separated_list1},
     sequence::{delimited, preceded, tuple},
     IResult,
 };
@@ -40,69 +40,12 @@ pub fn decode(md: &str) -> Result<Node> {
 pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
     use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 
-    // Holds any text content
-    let mut texts = String::new();
-    // Holds and manages inline content nodes
-    struct Inlines {
-        nodes: Vec<InlineContent>,
-        marks: Vec<usize>,
-    }
-
-    impl Inlines {
-        fn clear(&mut self) {
-            self.nodes.clear();
-            self.marks.clear()
-        }
-
-        fn mark(&mut self) {
-            self.marks.push(self.nodes.len())
-        }
-
-        fn push(&mut self, node: InlineContent) {
-            self.nodes.push(node)
-        }
-
-        fn append(&mut self, nodes: &mut Vec<InlineContent>) {
-            self.nodes.append(nodes)
-        }
-
-        fn condense(mut nodes: Vec<InlineContent>) -> Vec<InlineContent> {
-            let mut index = 1;
-            while index < nodes.len() {
-                // FIXME: Avoid this clone?
-                let curr = nodes[index].clone();
-                let prev = &mut nodes[index - 1];
-                match (prev, curr) {
-                    (InlineContent::String(prev), InlineContent::String(curr)) => {
-                        if prev.ends_with(|chr: char| !chr.is_whitespace()) && curr == "\u{2029}" {
-                            prev.push(' ');
-                        } else {
-                            prev.push_str(&curr);
-                        }
-                        nodes.remove(index);
-                    }
-                    _ => index += 1,
-                }
-            }
-            nodes
-        }
-
-        fn take_tail(&mut self) -> Vec<InlineContent> {
-            let n = self.marks.pop().expect("Unable to pop marks!");
-            Inlines::condense(self.nodes.split_off(n))
-        }
-
-        fn take_all(&mut self) -> Vec<InlineContent> {
-            Inlines::condense(self.nodes.split_off(0))
-        }
-    }
-
     let mut inlines = Inlines {
+        text: String::new(),
         nodes: Vec::new(),
         marks: Vec::new(),
     };
 
-    // Holds the block content nodes
     let mut blocks: Vec<BlockContent> = Vec::new();
 
     let parser = Parser::new_ext(md, Options::all());
@@ -112,25 +55,24 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 Tag::Heading(_) => inlines.clear(),
                 Tag::Paragraph => inlines.clear(),
                 Tag::CodeBlock(_) => (),
-                Tag::Emphasis => inlines.mark(),
-                Tag::Strong => inlines.mark(),
-                Tag::Strikethrough => inlines.mark(),
-                Tag::Link(_, _, _) => inlines.mark(),
+                Tag::Emphasis => inlines.push_mark(),
+                Tag::Strong => inlines.push_mark(),
+                Tag::Strikethrough => inlines.push_mark(),
+                Tag::Link(_, _, _) => inlines.push_mark(),
                 _ => (),
             },
             Event::End(tag) => match tag {
                 Tag::Heading(depth) => blocks.push(BlockContent::Heading(Heading {
                     depth: Some(Box::new(depth as i64)),
-                    content: inlines.take_all(),
+                    content: inlines.pop_all(),
                     ..Default::default()
                 })),
                 Tag::Paragraph => blocks.push(BlockContent::Paragraph(Paragraph {
-                    content: inlines.take_all(),
+                    content: inlines.pop_all(),
                     ..Default::default()
                 })),
                 Tag::CodeBlock(kind) => {
-                    let text = texts.clone();
-                    texts.clear();
+                    let text = inlines.pop_text();
                     blocks.push(BlockContent::CodeBlock(CodeBlock {
                         text,
                         programming_language: match kind {
@@ -148,28 +90,28 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     }))
                 }
                 Tag::Emphasis => {
-                    let content = inlines.take_tail();
-                    inlines.push(InlineContent::Emphasis(Emphasis {
+                    let content = inlines.pop_tail();
+                    inlines.push_node(InlineContent::Emphasis(Emphasis {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Strong => {
-                    let content = inlines.take_tail();
-                    inlines.push(InlineContent::Strong(Strong {
+                    let content = inlines.pop_tail();
+                    inlines.push_node(InlineContent::Strong(Strong {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Strikethrough => {
-                    let content = inlines.take_tail();
-                    inlines.push(InlineContent::Delete(Delete {
+                    let content = inlines.pop_tail();
+                    inlines.push_node(InlineContent::Delete(Delete {
                         content,
                         ..Default::default()
                     }))
                 }
                 Tag::Link(_link_type, url, title) => {
-                    let content = inlines.take_tail();
+                    let content = inlines.pop_tail();
                     let title = {
                         let title = title.to_string();
                         if !title.is_empty() {
@@ -178,7 +120,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                             None
                         }
                     };
-                    inlines.push(InlineContent::Link(Link {
+                    inlines.push_node(InlineContent::Link(Link {
                         content,
                         target: url.to_string(),
                         title,
@@ -189,35 +131,31 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     tracing::warn!("Unhandled Markdown tag {:?}", tag);
                 }
             },
-            Event::Text(value) => {
-                // Accumulate to inline content after parsing
-                let mut content = decode_inline_content(&value);
-                inlines.append(&mut content);
-
-                // Accumulate to text (needed for indented (unfenced) code blocks)
-                texts.push_str(&value.to_string())
-            }
             Event::Code(value) => {
-                inlines.push(InlineContent::CodeFragment(CodeFragment {
+                inlines.push_node(InlineContent::CodeFragment(CodeFragment {
                     text: value.to_string(),
                     ..Default::default()
                 }));
+            }
+            Event::Text(value) => {
+                // Accumulate to text
+                inlines.push_text(&value.to_string())
+            }
+            Event::SoftBreak => {
+                // A soft line break event occurs between lines of a multi-line paragraph
+                // (between a `Text` event for each line). This inserts the Unicode soft break
+                // character so that, when inlines are decoded a space can be added if
+                // necessary.
+                inlines.push_text("\u{2029}")
+            }
+            Event::HardBreak => {
+                tracing::warn!("Unhandled Markdown element HardBreak");
             }
             Event::Html(value) => {
                 tracing::warn!("Unhandled Markdown element Html {}", value);
             }
             Event::FootnoteReference(value) => {
                 tracing::warn!("Unhandled Markdown element FootnoteReference {}", value);
-            }
-            Event::SoftBreak => {
-                // A soft line break event occurs between lines of a multi-line paragraph
-                // (between a `Text` event for each line). This inserts the Unicode soft break
-                // character so that, when inlines are condensed a space can be added if
-                // necessary.
-                inlines.push(InlineContent::String("\u{2029}".to_string()))
-            }
-            Event::HardBreak => {
-                tracing::warn!("Unhandled Markdown element HardBreak");
             }
             Event::Rule => blocks.push(BlockContent::ThematicBreak(ThematicBreak {
                 ..Default::default()
@@ -231,19 +169,81 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
     blocks
 }
 
-/// Decode a string into a vector of `InlineContent` nodes
-///
-/// This is the entry point into `nom` Markdown parsing functions.
-/// It is infallible in that if there is a parse error,
-/// the original input string is returned as the only item
-/// in the vector (with a warning).
-fn decode_inline_content(input: &str) -> Vec<InlineContent> {
-    match inline_content(input) {
-        Ok((_, content)) => content,
-        Err(error) => {
-            tracing::warn!("While parsing inline content: {}", error);
-            vec![InlineContent::String(String::from(input))]
+/// Stores and parses inline content
+struct Inlines {
+    text: String,
+    nodes: Vec<InlineContent>,
+    marks: Vec<usize>,
+}
+
+impl Inlines {
+    /// Clear all content (usually at the start of a block node)
+    fn clear(&mut self) {
+        self.text.clear();
+        self.nodes.clear();
+        self.marks.clear()
+    }
+
+    /// Push some text content so it can be processed later
+    ///
+    /// If the new text is a soft break and the existing text does not end
+    /// with whitespace, will add a single space.
+    fn push_text(&mut self, text: &str) {
+        if text == "\u{2029}" && !self.text.ends_with(|chr: char| chr.is_whitespace()) {
+            self.text.push(' ')
+        } else {
+            self.text.push_str(text)
         }
+    }
+
+    /// Pop all the text content (usually for use in a node e.g `CodeBlock`)
+    fn pop_text(&mut self) -> String {
+        self.text.split_off(0)
+    }
+
+    /// Parse the accumulated text into accumulated `InlineContent` nodes
+    ///
+    /// This is the entry point into `nom` Markdown parsing functions.
+    /// It is infallible in that if there is a parse error,
+    /// the original input string is returned as the only item
+    /// in the vector (with a warning).
+    fn parse_text(&mut self) {
+        if self.text.len() > 0 {
+            let text = self.pop_text();
+            let mut nodes = match inline_content(&text) {
+                Ok((_, content)) => content,
+                Err(error) => {
+                    tracing::warn!("While parsing inline content: {}", error);
+                    vec![InlineContent::String(String::from(text))]
+                }
+            };
+            self.nodes.append(&mut nodes)
+        }
+    }
+
+    /// Push a node
+    fn push_node(&mut self, node: InlineContent) {
+        self.parse_text();
+        self.nodes.push(node)
+    }
+
+    /// Push a mark (usually at the start of an inline node)
+    fn push_mark(&mut self) {
+        self.parse_text();
+        self.marks.push(self.nodes.len())
+    }
+
+    /// Pop the nodes since the last mark
+    fn pop_tail(&mut self) -> Vec<InlineContent> {
+        self.parse_text();
+        let n = self.marks.pop().expect("Unable to pop marks!");
+        self.nodes.split_off(n)
+    }
+
+    /// Pop all the nodes
+    fn pop_all(&mut self) -> Vec<InlineContent> {
+        self.parse_text();
+        self.nodes.split_off(0)
     }
 }
 
@@ -277,33 +277,7 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
     )(input)
 }
 
-/// Parse a string into a `CiteGroup` node
-///
-/// Simply collects several `Cite` notes into a `CiteGroup`.
-pub fn cite_group(input: &str) -> IResult<&str, InlineContent> {
-    map_res(
-        delimited(
-            char('['),
-            separated_list0(delimited(multispace0, tag(";"), multispace0), cite),
-            char(']'),
-        ),
-        |items: Vec<InlineContent>| -> Result<InlineContent> {
-            Ok(InlineContent::CiteGroup(CiteGroup {
-                items: items
-                    .iter()
-                    .filter_map(|item| match item {
-                        InlineContent::Cite(cite) => Some(cite),
-                        _ => None,
-                    })
-                    .cloned()
-                    .collect(),
-                ..Default::default()
-            }))
-        },
-    )(input)
-}
-
-/// Parse a string into a `Cite` node
+/// Parse a string into a narrative `Cite` node
 ///
 /// This attempts to follow Pandoc's citation handling as closely as possible
 /// (see https://pandoc.org/MANUAL.html#citations).
@@ -326,6 +300,44 @@ pub fn cite(input: &str) -> IResult<&str, InlineContent> {
                 target,
                 ..Default::default()
             }))
+        },
+    )(input)
+}
+
+/// Parse a string into a `CiteGroup` node or parenthetical `Cite` node.
+///
+/// If there is only one citation within square brackets then a parenthetical `Cite` node is
+/// returned. Otherwise, the `Cite` nodes are grouped into into a `CiteGroup`.
+pub fn cite_group(input: &str) -> IResult<&str, InlineContent> {
+    let cite = map_res(
+        preceded(char('@'), take_while1(|chr: char| chr.is_alphanumeric())),
+        |res: &str| -> Result<InlineContent> {
+            let target = res.into();
+            Ok(InlineContent::Cite(Cite {
+                target,
+                ..Default::default()
+            }))
+        },
+    );
+
+    map_res(
+        delimited(char('['), separated_list1(tag(";"), cite), char(']')),
+        |items: Vec<InlineContent>| -> Result<InlineContent> {
+            if items.len() == 1 {
+                Ok(items[0].clone())
+            } else {
+                Ok(InlineContent::CiteGroup(CiteGroup {
+                    items: items
+                        .iter()
+                        .filter_map(|item| match item {
+                            InlineContent::Cite(cite) => Some(cite),
+                            _ => None,
+                        })
+                        .cloned()
+                        .collect(),
+                    ..Default::default()
+                }))
+            }
         },
     )(input)
 }
