@@ -1,6 +1,6 @@
 [package]
 name = "stencila-cli"
-version = "0.87.3"
+version = "0.87.4"
 edition = "2018"
 
 [[bin]]

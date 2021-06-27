@@ -1,3 +1,13 @@
+## [0.87.4](https://github.com/stencila/stencila/compare/v0.87.3...v0.87.4) (2021-06-27)
+
+
+### Bug Fixes
+
+* **dependencies:** update docusaurus monorepo to v2.0.0-beta.2 ([f108c56](https://github.com/stencila/stencila/commit/f108c5669ad01a482f176ff63977688ce1178c5c))
+* **dependencies:** update rust crate reqwest to v0.11.4 ([6b048ef](https://github.com/stencila/stencila/commit/6b048efe564062568cd61987478ac8ef85646ad1))
+* **dependencies:** update rust crate termimad to v0.12.1 ([6bba6d6](https://github.com/stencila/stencila/commit/6bba6d6ae628678ca513484ee070cf10ed7ad820))
+* **dependencies:** update rust crate tracing-subscriber to v0.2.19 ([94d93f4](https://github.com/stencila/stencila/commit/94d93f4be9e011e095eb800b447edcbe6cbe818b))
+
 ## [0.87.3](https://github.com/stencila/stencila/compare/v0.87.2...v0.87.3) (2021-06-24)
 
 
