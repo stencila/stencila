@@ -1,0 +1,31 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/image.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "An image ",
+      {
+        "type": "ImageObject",
+        "contentUrl": "image.png"
+      },
+      "."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "An image with a title ",
+      {
+        "type": "ImageObject",
+        "contentUrl": "image.png",
+        "caption": "the title"
+      },
+      "."
+    ]
+  }
+]

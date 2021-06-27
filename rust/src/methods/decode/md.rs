@@ -10,8 +10,8 @@ use nom::{
 };
 use stencila_schema::{
     Article, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
-    InlineContent, Link, MathFragment, Node, Paragraph, QuoteBlock, Strong, Subscript, Superscript,
-    ThematicBreak,
+    ImageObjectSimple, InlineContent, Link, MathFragment, Node, Paragraph, QuoteBlock, Strong,
+    Subscript, Superscript, ThematicBreak,
 };
 
 /// Decode a Markdown document to a `Node`
@@ -68,8 +68,16 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 Tag::Strong => inlines.push_mark(),
                 Tag::Strikethrough => inlines.push_mark(),
                 Tag::Link(_, _, _) => inlines.push_mark(),
+                Tag::Image(_, _, _) => inlines.push_mark(),
 
-                _ => (),
+                // Currently unhandled
+                Tag::List(_) => (),
+                Tag::Item => (),
+                Tag::Table(_) => (),
+                Tag::TableHead => (),
+                Tag::TableRow => (),
+                Tag::TableCell => (),
+                Tag::FootnoteDefinition(_) => (),
             },
             Event::End(tag) => match tag {
                 // Block nodes with block content
@@ -149,10 +157,30 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                         ..Default::default()
                     }))
                 }
-
-                _ => {
-                    tracing::warn!("Unhandled Markdown tag {:?}", tag);
+                Tag::Image(_link_type, url, title) => {
+                    let title = {
+                        let title = title.to_string();
+                        if !title.is_empty() {
+                            Some(Box::new(title))
+                        } else {
+                            None
+                        }
+                    };
+                    inlines.push_node(InlineContent::ImageObject(ImageObjectSimple {
+                        content_url: url.to_string(),
+                        caption: title,
+                        ..Default::default()
+                    }))
                 }
+
+                // Currently unhandled
+                Tag::List(_)
+                | Tag::Item
+                | Tag::Table(_)
+                | Tag::TableHead
+                | Tag::TableRow
+                | Tag::TableCell
+                | Tag::FootnoteDefinition(_) => tracing::warn!("Unhandled Markdown tag {:?}", tag),
             },
             Event::Code(value) => {
                 inlines.push_node(InlineContent::CodeFragment(CodeFragment {
@@ -260,13 +288,13 @@ impl Inlines {
     /// the original input string is returned as the only item
     /// in the vector (with a warning).
     fn parse_text(&mut self) {
-        if self.text.len() > 0 {
+        if !self.text.is_empty() {
             let text = self.pop_text();
             let mut nodes = match inline_content(&text) {
                 Ok((_, content)) => content,
                 Err(error) => {
                     tracing::warn!("While parsing inline content: {}", error);
-                    vec![InlineContent::String(String::from(text))]
+                    vec![InlineContent::String(text)]
                 }
             };
             self.nodes.append(&mut nodes)
