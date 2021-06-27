@@ -321,7 +321,11 @@ pub fn cite_group(input: &str) -> IResult<&str, InlineContent> {
     );
 
     map_res(
-        delimited(char('['), separated_list1(tag(";"), cite), char(']')),
+        delimited(
+            char('['),
+            separated_list1(tuple((multispace0, tag(";"), multispace0)), cite),
+            char(']'),
+        ),
         |items: Vec<InlineContent>| -> Result<InlineContent> {
             if items.len() == 1 {
                 Ok(items[0].clone())

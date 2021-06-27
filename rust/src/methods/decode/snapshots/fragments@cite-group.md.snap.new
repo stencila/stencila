@@ -1,0 +1,46 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/cite-group.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "A group of citations like ",
+      {
+        "type": "CiteGroup",
+        "items": [
+          {
+            "type": "Cite",
+            "target": "vincent"
+          },
+          {
+            "type": "Cite",
+            "target": "van"
+          }
+        ]
+      },
+      " or ",
+      {
+        "type": "CiteGroup",
+        "items": [
+          {
+            "type": "Cite",
+            "target": "vincent"
+          },
+          {
+            "type": "Cite",
+            "target": "van"
+          },
+          {
+            "type": "Cite",
+            "target": "goh"
+          }
+        ]
+      },
+      "."
+    ]
+  }
+]
