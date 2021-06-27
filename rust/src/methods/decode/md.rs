@@ -10,7 +10,7 @@ use nom::{
 };
 use stencila_schema::{
     Article, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
-    InlineContent, Link, MathFragment, Node, Paragraph, Strong, Subscript, Superscript,
+    InlineContent, Link, MathFragment, Node, Paragraph, QuoteBlock, Strong, Subscript, Superscript,
     ThematicBreak,
 };
 
@@ -46,34 +46,54 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
         marks: Vec::new(),
     };
 
-    let mut blocks: Vec<BlockContent> = Vec::new();
+    let mut blocks = Blocks {
+        nodes: Vec::new(),
+        marks: Vec::new(),
+    };
 
     let parser = Parser::new_ext(md, Options::all());
     for event in parser {
         match event {
             Event::Start(tag) => match tag {
+                // Block nodes with block content
+                Tag::BlockQuote => blocks.push_mark(),
+
+                // Block nodes with inline content
                 Tag::Heading(_) => inlines.clear(),
                 Tag::Paragraph => inlines.clear(),
-                Tag::CodeBlock(_) => (),
+                Tag::CodeBlock(_) => inlines.clear(),
+
+                // Inline nodes with inline content
                 Tag::Emphasis => inlines.push_mark(),
                 Tag::Strong => inlines.push_mark(),
                 Tag::Strikethrough => inlines.push_mark(),
                 Tag::Link(_, _, _) => inlines.push_mark(),
+
                 _ => (),
             },
             Event::End(tag) => match tag {
-                Tag::Heading(depth) => blocks.push(BlockContent::Heading(Heading {
+                // Block nodes with block content
+                Tag::BlockQuote => {
+                    let content = blocks.pop_tail();
+                    blocks.push_node(BlockContent::QuoteBlock(QuoteBlock {
+                        content,
+                        ..Default::default()
+                    }))
+                }
+
+                // Block nodes with inline content
+                Tag::Heading(depth) => blocks.push_node(BlockContent::Heading(Heading {
                     depth: Some(Box::new(depth as i64)),
                     content: inlines.pop_all(),
                     ..Default::default()
                 })),
-                Tag::Paragraph => blocks.push(BlockContent::Paragraph(Paragraph {
+                Tag::Paragraph => blocks.push_node(BlockContent::Paragraph(Paragraph {
                     content: inlines.pop_all(),
                     ..Default::default()
                 })),
                 Tag::CodeBlock(kind) => {
                     let text = inlines.pop_text();
-                    blocks.push(BlockContent::CodeBlock(CodeBlock {
+                    blocks.push_node(BlockContent::CodeBlock(CodeBlock {
                         text,
                         programming_language: match kind {
                             CodeBlockKind::Fenced(lang) => {
@@ -89,6 +109,8 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                         ..Default::default()
                     }))
                 }
+
+                // Inline nodes with inline content
                 Tag::Emphasis => {
                     let content = inlines.pop_tail();
                     inlines.push_node(InlineContent::Emphasis(Emphasis {
@@ -127,6 +149,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                         ..Default::default()
                     }))
                 }
+
                 _ => {
                     tracing::warn!("Unhandled Markdown tag {:?}", tag);
                 }
@@ -137,6 +160,9 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     ..Default::default()
                 }));
             }
+            Event::Rule => blocks.push_node(BlockContent::ThematicBreak(ThematicBreak {
+                ..Default::default()
+            })),
             Event::Text(value) => {
                 // Accumulate to text
                 inlines.push_text(&value.to_string())
@@ -157,16 +183,42 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
             Event::FootnoteReference(value) => {
                 tracing::warn!("Unhandled Markdown element FootnoteReference {}", value);
             }
-            Event::Rule => blocks.push(BlockContent::ThematicBreak(ThematicBreak {
-                ..Default::default()
-            })),
             Event::TaskListMarker(value) => {
                 tracing::warn!("Unhandled Markdown element TaskListMarker {}", value);
             }
         };
     }
 
-    blocks
+    blocks.pop_all()
+}
+
+/// Stores block content
+struct Blocks {
+    nodes: Vec<BlockContent>,
+    marks: Vec<usize>,
+}
+
+impl Blocks {
+    /// Push a node
+    fn push_node(&mut self, node: BlockContent) {
+        self.nodes.push(node)
+    }
+
+    /// Push a mark (usually at the start of a block node)
+    fn push_mark(&mut self) {
+        self.marks.push(self.nodes.len())
+    }
+
+    /// Pop the nodes since the last mark
+    fn pop_tail(&mut self) -> Vec<BlockContent> {
+        let n = self.marks.pop().expect("Unable to pop marks!");
+        self.nodes.split_off(n)
+    }
+
+    /// Pop all the nodes
+    fn pop_all(&mut self) -> Vec<BlockContent> {
+        self.nodes.split_off(0)
+    }
 }
 
 /// Stores and parses inline content
