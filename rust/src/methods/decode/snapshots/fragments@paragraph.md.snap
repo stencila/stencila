@@ -1,7 +1,7 @@
 ---
 source: rust/src/methods/decode/md.rs
 expression: decode_fragment(&content)
-input_file: fixtures/fragments/md/paragraphs.md
+input_file: fixtures/fragments/md/paragraph.md
 
 ---
 [
