@@ -11,7 +11,8 @@ use nom::{
 use stencila_schema::{
     Article, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
     ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, MathFragment, Node,
-    Paragraph, QuoteBlock, Strong, Subscript, Superscript, ThematicBreak,
+    Paragraph, QuoteBlock, Strong, Subscript, Superscript, TableCell, TableCellContent, TableRow,
+    TableRowRowType, TableSimple, ThematicBreak,
 };
 
 /// Decode a Markdown document to a `Node`
@@ -51,6 +52,11 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
         marks: Vec::new(),
     };
 
+    let mut tables = Tables {
+        rows: Vec::new(),
+        cells: Vec::new(),
+    };
+
     let mut blocks = Blocks {
         nodes: Vec::new(),
         marks: Vec::new(),
@@ -60,10 +66,17 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
     for event in parser {
         match event {
             Event::Start(tag) => match tag {
-                // Block nodes with block content
+                // Block nodes with block content or special handling
                 Tag::BlockQuote => blocks.push_mark(),
                 Tag::List(_) => lists.push_mark(),
                 Tag::Item => {
+                    inlines.push_mark();
+                    blocks.push_mark()
+                }
+                Tag::Table(_) => (),
+                Tag::TableHead => (),
+                Tag::TableRow => (),
+                Tag::TableCell => {
                     inlines.push_mark();
                     blocks.push_mark()
                 }
@@ -81,10 +94,6 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 Tag::Image(_, _, _) => inlines.push_mark(),
 
                 // Currently unhandled
-                Tag::Table(_) => (),
-                Tag::TableHead => (),
-                Tag::TableRow => (),
-                Tag::TableCell => (),
                 Tag::FootnoteDefinition(_) => (),
             },
             Event::End(tag) => match tag {
@@ -128,6 +137,34 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     let content = Some(Box::new(ListItemContent::VecBlockContent(content)));
 
                     lists.push_item(ListItem {
+                        content,
+                        ..Default::default()
+                    })
+                }
+                Tag::Table(_) => blocks.push_node(BlockContent::Table(TableSimple {
+                    rows: tables.pop_rows(),
+                    ..Default::default()
+                })),
+                Tag::TableHead => tables.push_header(),
+                Tag::TableRow => tables.push_row(),
+                Tag::TableCell => {
+                    let inlines = inlines.pop_tail();
+                    let mut blocks = blocks.pop_tail();
+                    let content = if inlines.is_empty() && blocks.is_empty() {
+                        None
+                    } else if !inlines.is_empty() & blocks.is_empty() {
+                        Some(Box::new(TableCellContent::VecInlineContent(inlines)))
+                    } else if inlines.is_empty() & !blocks.is_empty() {
+                        Some(Box::new(TableCellContent::VecBlockContent(blocks)))
+                    } else {
+                        blocks.push(BlockContent::Paragraph(Paragraph {
+                            content: inlines,
+                            ..Default::default()
+                        }));
+                        Some(Box::new(TableCellContent::VecBlockContent(blocks)))
+                    };
+
+                    tables.push_cell(TableCell {
                         content,
                         ..Default::default()
                     })
@@ -218,11 +255,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 }
 
                 // Currently unhandled
-                Tag::Table(_)
-                | Tag::TableHead
-                | Tag::TableRow
-                | Tag::TableCell
-                | Tag::FootnoteDefinition(_) => tracing::warn!("Unhandled Markdown tag {:?}", tag),
+                Tag::FootnoteDefinition(_) => tracing::warn!("Unhandled Markdown tag {:?}", tag),
             },
             Event::Code(value) => {
                 inlines.push_node(InlineContent::CodeFragment(CodeFragment {
@@ -292,6 +325,8 @@ impl Blocks {
 }
 
 /// Stores list items
+///
+/// It is necessary to maintain marks to handle nested lists
 struct Lists {
     items: Vec<ListItem>,
     marks: Vec<usize>,
@@ -312,6 +347,43 @@ impl Lists {
     fn pop_tail(&mut self) -> Vec<ListItem> {
         let n = self.marks.pop().expect("Unable to pop marks!");
         self.items.split_off(n)
+    }
+}
+
+/// Stores table rows and cells
+struct Tables {
+    rows: Vec<TableRow>,
+    cells: Vec<TableCell>,
+}
+
+impl Tables {
+    /// Push a cell
+    fn push_cell(&mut self, cell: TableCell) {
+        self.cells.push(cell)
+    }
+
+    /// Pop cells into a pushed header row
+    fn push_header(&mut self) {
+        let cells = self.cells.split_off(0);
+        self.rows.push(TableRow {
+            cells,
+            row_type: Some(Box::new(TableRowRowType::Header)),
+            ..Default::default()
+        })
+    }
+
+    /// Pop cells into a pushed row
+    fn push_row(&mut self) {
+        let cells = self.cells.split_off(0);
+        self.rows.push(TableRow {
+            cells,
+            ..Default::default()
+        })
+    }
+
+    /// Pop all rows
+    fn pop_rows(&mut self) -> Vec<TableRow> {
+        self.rows.split_off(0)
     }
 }
 

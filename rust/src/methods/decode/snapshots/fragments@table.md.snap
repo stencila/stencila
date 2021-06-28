@@ -1,0 +1,83 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/table.md
+
+---
+[
+  {
+    "type": "Table",
+    "rows": [
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "content": [
+              "A"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "B"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "C"
+            ]
+          }
+        ],
+        "rowType": "Header"
+      },
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "content": [
+              "1"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "2"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "3"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "content": [
+              "4"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "5"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "6"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
