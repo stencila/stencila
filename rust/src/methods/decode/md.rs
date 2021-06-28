@@ -10,8 +10,8 @@ use nom::{
 };
 use stencila_schema::{
     Article, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
-    ImageObjectSimple, InlineContent, Link, MathFragment, Node, Paragraph, QuoteBlock, Strong,
-    Subscript, Superscript, ThematicBreak,
+    ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, MathFragment, Node,
+    Paragraph, QuoteBlock, Strong, Subscript, Superscript, ThematicBreak,
 };
 
 /// Decode a Markdown document to a `Node`
@@ -46,6 +46,11 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
         marks: Vec::new(),
     };
 
+    let mut lists = Lists {
+        items: Vec::new(),
+        marks: Vec::new(),
+    };
+
     let mut blocks = Blocks {
         nodes: Vec::new(),
         marks: Vec::new(),
@@ -57,6 +62,11 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
             Event::Start(tag) => match tag {
                 // Block nodes with block content
                 Tag::BlockQuote => blocks.push_mark(),
+                Tag::List(_) => lists.push_mark(),
+                Tag::Item => {
+                    inlines.push_mark();
+                    blocks.push_mark()
+                }
 
                 // Block nodes with inline content
                 Tag::Heading(_) => inlines.clear(),
@@ -71,8 +81,6 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 Tag::Image(_, _, _) => inlines.push_mark(),
 
                 // Currently unhandled
-                Tag::List(_) => (),
-                Tag::Item => (),
                 Tag::Table(_) => (),
                 Tag::TableHead => (),
                 Tag::TableRow => (),
@@ -87,6 +95,42 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                         content,
                         ..Default::default()
                     }))
+                }
+                Tag::List(start) => {
+                    let order = if start.is_some() {
+                        Some(Box::new(stencila_schema::ListOrder::Ascending))
+                    } else {
+                        None
+                    };
+
+                    let items = lists.pop_tail();
+
+                    blocks.push_node(BlockContent::List(List {
+                        order,
+                        items,
+                        ..Default::default()
+                    }))
+                }
+                Tag::Item => {
+                    let mut content = Vec::new();
+
+                    let inlines = inlines.pop_tail();
+                    if !inlines.is_empty() {
+                        content.push(BlockContent::Paragraph(Paragraph {
+                            content: inlines,
+                            ..Default::default()
+                        }))
+                    }
+
+                    let mut blocks = blocks.pop_tail();
+                    content.append(&mut blocks);
+
+                    let content = Some(Box::new(ListItemContent::VecBlockContent(content)));
+
+                    lists.push_item(ListItem {
+                        content,
+                        ..Default::default()
+                    })
                 }
 
                 // Block nodes with inline content
@@ -174,9 +218,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 }
 
                 // Currently unhandled
-                Tag::List(_)
-                | Tag::Item
-                | Tag::Table(_)
+                Tag::Table(_)
                 | Tag::TableHead
                 | Tag::TableRow
                 | Tag::TableCell
@@ -246,6 +288,30 @@ impl Blocks {
     /// Pop all the nodes
     fn pop_all(&mut self) -> Vec<BlockContent> {
         self.nodes.split_off(0)
+    }
+}
+
+/// Stores list items
+struct Lists {
+    items: Vec<ListItem>,
+    marks: Vec<usize>,
+}
+
+impl Lists {
+    /// Push a list item
+    fn push_item(&mut self, item: ListItem) {
+        self.items.push(item)
+    }
+
+    /// Push a mark at the start of a list
+    fn push_mark(&mut self) {
+        self.marks.push(self.items.len())
+    }
+
+    /// Pop the items since the last mark
+    fn pop_tail(&mut self) -> Vec<ListItem> {
+        let n = self.marks.pop().expect("Unable to pop marks!");
+        self.items.split_off(n)
     }
 }
 
