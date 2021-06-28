@@ -38,14 +38,15 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    condition: |
-      or(
-        contains(variables.changed, 'rust'),
-        contains(variables.changed, 'cli'),
-        contains(variables.changed, 'node'),
-        contains(variables.changed, 'desktop'),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-      )
+    condition: 'false'
+    ##condition: |
+    ##  or(
+    ##    contains(variables.changed, 'rust'),
+    ##    contains(variables.changed, 'cli'),
+    ##    contains(variables.changed, 'node'),
+    ##    contains(variables.changed, 'desktop'),
+    ##    startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    ##  )
     steps:
       # This is split into several steps even thought they often share the same
       # condition simply to improve visibility (ie. its quicker to discover where
@@ -184,11 +185,11 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    condition: |
-      or(
-        contains(variables.changed, 'rust'),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-      )
+    ##condition: |
+    ##  or(
+    ##    contains(variables.changed, 'rust'),
+    ##    startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    ##  )
     steps:
       - task: Cache@2
         inputs:
@@ -210,19 +211,19 @@ jobs:
           echo "##vso[task.setvariable variable=RUST_CACHING]true"
         displayName: 'Install build tools'
 
-      - script: make -C rust test
-        condition: contains(variables.changed, 'rust')
-        displayName: 'Rust: Test'
+      ##- script: make -C rust test
+      ##  condition: contains(variables.changed, 'rust')
+      ##  displayName: 'Rust: Test'
 
-      - script: |
-          set -e
-          cargo list | grep --quiet strip || cargo install cargo-strip
-          make -C cli build
-          bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        displayName: 'CLI: Build and publish'
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
+      ##- script: |
+      ##    set -e
+      ##    cargo list | grep --quiet strip || cargo install cargo-strip
+      ##    make -C cli build
+      ##    bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
+      ##  condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      ##  displayName: 'CLI: Build and publish'
+      ##  env:
+      ##    GITHUB_TOKEN: $(GITHUB_TOKEN)
 
       # Use Node.js 16.x for `node` and `desktop` builds
       - task: NodeTool@0
@@ -233,8 +234,8 @@ jobs:
       - script: |
           set -e
           make -C node build
-          make -C desktop publish
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+          make -C desktop build
+        ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
@@ -256,11 +257,11 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    condition: |
-      or(
-        contains(variables.changed, 'rust'),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-      )
+    ##condition: |
+    ##  or(
+    ##    contains(variables.changed, 'rust'),
+    ##    startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    ##  )
     steps:
       - task: Cache@2
         inputs:
@@ -282,18 +283,18 @@ jobs:
           echo ##vso[task.setvariable variable=RUST_CACHING]true
         displayName: 'Install build tools'
 
-      - script: make -C rust test
-        condition: contains(variables.changed, 'rust')
-        displayName: 'Rust: Test'
+      ##- script: make -C rust test
+      ##  condition: contains(variables.changed, 'rust')
+      ##  displayName: 'Rust: Test'
 
-      - script: |
-          cargo list | grep --quiet strip || cargo install cargo-strip
-          make -C cli build
-          bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-        displayName: 'CLI: Build and publish'
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
+      ##- script: |
+      ##    cargo list | grep --quiet strip || cargo install cargo-strip
+      ##    make -C cli build
+      ##    bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
+      ##  condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      ##  displayName: 'CLI: Build and publish'
+      ##  env:
+      ##    GITHUB_TOKEN: $(GITHUB_TOKEN)
 
       # Use Node.js 16.x for `node` and `desktop` builds
       - task: NodeTool@0
@@ -303,8 +304,8 @@ jobs:
 
       - script: |
           make -C node build
-          make -C desktop publish
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+          make -C desktop build
+        ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
