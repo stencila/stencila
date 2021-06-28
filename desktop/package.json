@@ -89,7 +89,15 @@
         "$comment": "The executableName seems to needs to be the same as the various `exe` and `bin` properties in the makers below",
         "executableName": "stencila-desktop",
         "appCategoryType": "public.app-category.productivity",
-        "icon": "./src/assets/icon/stencila"
+        "icon": "./src/assets/icon/stencila",
+        "appId": "stencila.desktop",
+        "osxSign": {
+          "identity": "Developer ID Application: Stencila Ltd. (K3PWLCZ5R6)",
+          "hardenedRuntime": true,
+          "entitlements": "entitlements.plist",
+          "entitlements-inherit": "entitlements.plist",
+          "signature-flags": "library"
+        }
       },
       "publishers": [
         {
