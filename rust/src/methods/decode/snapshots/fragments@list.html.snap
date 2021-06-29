@@ -1,0 +1,187 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: "decode_fragment(&content, Options::default())"
+input_file: fixtures/fragments/html/list.html
+
+---
+[
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "apple"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "pear"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "orange"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "first"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "second"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "third"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": "Ascending"
+  },
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "\n    nested\n    "
+            ]
+          },
+          {
+            "type": "List",
+            "items": [
+              {
+                "type": "ListItem",
+                "content": [
+                  {
+                    "type": "Paragraph",
+                    "content": [
+                      "\n        2a\n        "
+                    ]
+                  },
+                  {
+                    "type": "List",
+                    "items": [
+                      {
+                        "type": "ListItem",
+                        "content": [
+                          {
+                            "type": "Paragraph",
+                            "content": [
+                              "3a"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "ListItem",
+                "content": [
+                  {
+                    "type": "Paragraph",
+                    "content": [
+                      "2b"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "ListItem",
+                "content": [
+                  {
+                    "type": "Paragraph",
+                    "content": [
+                      "\n        2c\n        "
+                    ]
+                  },
+                  {
+                    "type": "List",
+                    "items": [
+                      {
+                        "type": "ListItem",
+                        "content": [
+                          {
+                            "type": "Paragraph",
+                            "content": [
+                              "\n            3b\n            "
+                            ]
+                          },
+                          {
+                            "type": "List",
+                            "items": [
+                              {
+                                "type": "ListItem",
+                                "content": [
+                                  {
+                                    "type": "Paragraph",
+                                    "content": [
+                                      "4a"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

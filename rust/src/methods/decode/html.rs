@@ -6,8 +6,8 @@ use kuchiki::{traits::*, NodeRef};
 use markup5ever::local_name;
 use stencila_schema::{
     Article, AudioObjectSimple, BlockContent, CodeChunk, CodeFragment, Delete, Emphasis,
-    ImageObjectSimple, InlineContent, Link, Node, NontextualAnnotation, Paragraph, Strong,
-    Subscript, Superscript, VideoObjectSimple,
+    ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
+    NontextualAnnotation, Paragraph, Strong, Subscript, Superscript, VideoObjectSimple,
 };
 
 // Public API structs and functions...
@@ -94,7 +94,6 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
         // with placeholder comments for types not implemented yet
         match element.name.local {
             // TODO: Claim
-            // TODO: CodeBlock
             local_name!("pre") => {
                 // Follows the recommendation of [HTML5 spec](https://html.spec.whatwg.org/#the-code-element)
                 // to "use the class attribute, e.g. by adding a class prefixed with "language-" to the element."
@@ -114,10 +113,23 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                     ..Default::default()
                 })]
             }
+            // TODO: CodeChunk
             // TODO: Collection
             // TODO: Figure
             // TODO: Heading
-            // TODO: List
+            local_name!("ul") | local_name!("ol") => {
+                let order = match element.name.local {
+                    local_name!("ol") => Some(Box::new(ListOrder::Ascending)),
+                    _ => None,
+                };
+                let items = decode_list_items(node, context);
+
+                vec![BlockContent::List(List {
+                    order,
+                    items,
+                    ..Default::default()
+                })]
+            }
             // TODO: MathBlock
             local_name!("p") => {
                 vec![BlockContent::Paragraph(Paragraph {
@@ -311,6 +323,27 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
         // Skip everything else
         vec![]
     }
+}
+
+/// Decode list items from a `<ul>` or `<ol>`.
+///
+/// Only `<li>` children (and their descendants) are returned.
+fn decode_list_items(node: &NodeRef, context: &Context) -> Vec<ListItem> {
+    node.children()
+        .filter_map(|child| {
+            if let Some(element) = child.as_element() {
+                if matches!(element.name.local, local_name!("li")) {
+                    let content = decode_blocks(&child, context);
+                    let content = Some(Box::new(ListItemContent::VecBlockContent(content)));
+                    return Some(ListItem {
+                        content,
+                        ..Default::default()
+                    });
+                }
+            }
+            None
+        })
+        .collect()
 }
 
 /// Accumulate all the text within a node, including text within descendant elements.
