@@ -5,8 +5,9 @@ use eyre::Result;
 use kuchiki::{traits::*, NodeRef};
 use markup5ever::local_name;
 use stencila_schema::{
-    Article, AudioObjectSimple, BlockContent, Delete, Emphasis, ImageObjectSimple, InlineContent,
-    Link, Node, NontextualAnnotation, Paragraph, Strong, Subscript, Superscript, VideoObjectSimple,
+    Article, AudioObjectSimple, BlockContent, CodeChunk, CodeFragment, Delete, Emphasis,
+    ImageObjectSimple, InlineContent, Link, Node, NontextualAnnotation, Paragraph, Strong,
+    Subscript, Superscript, VideoObjectSimple,
 };
 
 // Public API structs and functions...
@@ -94,7 +95,25 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
         match element.name.local {
             // TODO: Claim
             // TODO: CodeBlock
-            // TODO: CodeChunk
+            local_name!("pre") => {
+                // Follows the recommendation of [HTML5 spec](https://html.spec.whatwg.org/#the-code-element)
+                // to "use the class attribute, e.g. by adding a class prefixed with "language-" to the element."
+                let programming_language = if let Ok(code) = node.select_first("code") {
+                    code.attributes
+                        .borrow()
+                        .get(local_name!("class"))
+                        .map(|value| Box::new(value.replace("language-", "")))
+                } else {
+                    None
+                };
+                let text = collect_text(node);
+
+                vec![BlockContent::CodeChunk(CodeChunk {
+                    programming_language,
+                    text,
+                    ..Default::default()
+                })]
+            }
             // TODO: Collection
             // TODO: Figure
             // TODO: Heading
@@ -174,7 +193,20 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
             // TODO: Cite
             // TODO: CiteGroup
             // TODO: CodeExpression
-            // TODO: CodeFragment
+            local_name!("code") => {
+                // See note for `CodeBlock` on choice of attribute for decodiong `programming_language`
+                let programming_language = element
+                    .attributes
+                    .borrow()
+                    .get(local_name!("class"))
+                    .map(|value| Box::new(value.replace("language-", "")));
+                let text = collect_text(node);
+                vec![InlineContent::CodeFragment(CodeFragment {
+                    programming_language,
+                    text,
+                    ..Default::default()
+                })]
+            }
             local_name!("del") => {
                 vec![InlineContent::Delete(Delete {
                     content: decode_inlines(node, context),
@@ -278,6 +310,17 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
     } else {
         // Skip everything else
         vec![]
+    }
+}
+
+/// Accumulate all the text within a node, including text within descendant elements.
+fn collect_text(node: &NodeRef) -> String {
+    if let Some(text) = node.as_text() {
+        text.borrow().to_string()
+    } else {
+        node.children().fold(String::new(), |acc, child| {
+            [acc, collect_text(&child)].concat()
+        })
     }
 }
 

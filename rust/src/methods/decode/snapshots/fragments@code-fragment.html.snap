@@ -1,0 +1,31 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: "decode_fragment(&content, Options::default())"
+input_file: fixtures/fragments/html/code-fragment.html
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Some ",
+      {
+        "type": "CodeFragment",
+        "text": "code"
+      },
+      " in a paragraph."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "With a language ",
+      {
+        "type": "CodeFragment",
+        "text": "1 + 1",
+        "programmingLanguage": "python"
+      },
+      " specified."
+    ]
+  }
+]

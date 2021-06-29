@@ -1,0 +1,17 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: "decode_fragment(&content, Options::default())"
+input_file: fixtures/fragments/html/code-block.html
+
+---
+[
+  {
+    "type": "CodeChunk",
+    "text": "Code with no language"
+  },
+  {
+    "type": "CodeChunk",
+    "text": "# Some Python code\n1 + 1\n",
+    "programmingLanguage": "python"
+  }
+]
