@@ -34,6 +34,16 @@ pub mod methods {
     pub mod execute;
 }
 
+// Traits
+//
+// Helper traits for `Node` structs and vectors are useful across
+// methods and elsewhere
+
+pub mod traits {
+    mod to_vec_inline_content;
+    pub use to_vec_inline_content::ToVecInlineContent;
+}
+
 // Features
 //
 // Features that can be turned off

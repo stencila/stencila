@@ -1,3 +1,6 @@
+use crate::traits::ToVecInlineContent;
+
+use super::html;
 use eyre::Result;
 use nom::{
     branch::alt,
@@ -8,6 +11,9 @@ use nom::{
     sequence::{delimited, preceded, tuple},
     IResult,
 };
+use once_cell::sync::Lazy;
+use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
+use regex::Regex;
 use stencila_schema::{
     Article, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
     ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, MathFragment, Node,
@@ -39,12 +45,16 @@ pub fn decode(md: &str) -> Result<Node> {
 /// `Vec<BlockContent>`. Text is further parsed using `nom` based parsers
 /// to handle the elements that `pulldown_cmark` does not handle (e.g. math).
 pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
-    use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
-
     let mut inlines = Inlines {
+        active: false,
         text: String::new(),
         nodes: Vec::new(),
         marks: Vec::new(),
+    };
+
+    let mut html = Html {
+        html: String::new(),
+        tags: Vec::new(),
     };
 
     let mut lists = Lists {
@@ -68,12 +78,12 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
             Event::Start(tag) => match tag {
                 // Block nodes with block content or special handling
                 Tag::BlockQuote => blocks.push_mark(),
-                Tag::List(_) => lists.push_mark(),
+                Tag::List(..) => lists.push_mark(),
                 Tag::Item => {
                     inlines.push_mark();
                     blocks.push_mark()
                 }
-                Tag::Table(_) => (),
+                Tag::Table(..) => (),
                 Tag::TableHead => (),
                 Tag::TableRow => (),
                 Tag::TableCell => {
@@ -82,16 +92,16 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 }
 
                 // Block nodes with inline content
-                Tag::Heading(_) => inlines.clear(),
-                Tag::Paragraph => inlines.clear(),
-                Tag::CodeBlock(_) => inlines.clear(),
+                Tag::Heading(..) => inlines.clear_all(),
+                Tag::Paragraph => inlines.clear_all(),
+                Tag::CodeBlock(..) => inlines.clear_all(),
 
                 // Inline nodes with inline content
                 Tag::Emphasis => inlines.push_mark(),
                 Tag::Strong => inlines.push_mark(),
                 Tag::Strikethrough => inlines.push_mark(),
-                Tag::Link(_, _, _) => inlines.push_mark(),
-                Tag::Image(_, _, _) => inlines.push_mark(),
+                Tag::Link(..) => inlines.push_mark(),
+                Tag::Image(..) => inlines.push_mark(),
 
                 // Currently unhandled
                 Tag::FootnoteDefinition(_) => (),
@@ -267,8 +277,13 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 ..Default::default()
             })),
             Event::Text(value) => {
-                // Accumulate to text
-                inlines.push_text(&value.to_string())
+                // Text gets accumulated to HTML we're inside a tag, to inlines otherwise
+                let value = value.to_string();
+                if html.tags.is_empty() {
+                    inlines.push_text(&value)
+                } else {
+                    html.html.push_str(&value)
+                }
             }
             Event::SoftBreak => {
                 // A soft line break event occurs between lines of a multi-line paragraph
@@ -280,8 +295,15 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
             Event::HardBreak => {
                 tracing::warn!("Unhandled Markdown element HardBreak");
             }
-            Event::Html(value) => {
-                tracing::warn!("Unhandled Markdown element Html {}", value);
+            Event::Html(content) => {
+                let mut content = html.handle_html(&content.to_string());
+                if !content.is_empty() {
+                    if inlines.active {
+                        inlines.append_nodes(&mut content.to_vec_inline_content())
+                    } else {
+                        blocks.append_nodes(&mut content)
+                    }
+                }
             }
             Event::FootnoteReference(value) => {
                 tracing::warn!("Unhandled Markdown element FootnoteReference {}", value);
@@ -290,6 +312,10 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 tracing::warn!("Unhandled Markdown element TaskListMarker {}", value);
             }
         };
+    }
+
+    if !html.tags.is_empty() {
+        tracing::warn!("Unclosed HTML tags: {:?}", html.tags)
     }
 
     blocks.pop_all()
@@ -305,6 +331,11 @@ impl Blocks {
     /// Push a node
     fn push_node(&mut self, node: BlockContent) {
         self.nodes.push(node)
+    }
+
+    /// Append nodes
+    fn append_nodes(&mut self, nodes: &mut Vec<BlockContent>) {
+        self.nodes.append(nodes)
     }
 
     /// Push a mark (usually at the start of a block node)
@@ -389,17 +420,20 @@ impl Tables {
 
 /// Stores and parses inline content
 struct Inlines {
+    active: bool,
     text: String,
     nodes: Vec<InlineContent>,
     marks: Vec<usize>,
 }
 
 impl Inlines {
-    /// Clear all content (usually at the start of a block node)
-    fn clear(&mut self) {
+    /// Clear all content and mark as "active"
+    /// (usually at the start of a block node with inline content)
+    fn clear_all(&mut self) {
         self.text.clear();
         self.nodes.clear();
-        self.marks.clear()
+        self.marks.clear();
+        self.active = true;
     }
 
     /// Push some text content so it can be processed later
@@ -431,7 +465,7 @@ impl Inlines {
             let mut nodes = match inline_content(&text) {
                 Ok((_, content)) => content,
                 Err(error) => {
-                    tracing::warn!("While parsing inline content: {}", error);
+                    tracing::warn!("While parsing inline Markdown: {}", error);
                     vec![InlineContent::String(text)]
                 }
             };
@@ -443,6 +477,12 @@ impl Inlines {
     fn push_node(&mut self, node: InlineContent) {
         self.parse_text();
         self.nodes.push(node)
+    }
+
+    /// Append nodes
+    fn append_nodes(&mut self, nodes: &mut Vec<InlineContent>) {
+        self.parse_text();
+        self.nodes.append(nodes)
     }
 
     /// Push a mark (usually at the start of an inline node)
@@ -458,9 +498,10 @@ impl Inlines {
         self.nodes.split_off(n)
     }
 
-    /// Pop all the nodes
+    /// Pop all the nodes and mark as "inactive"
     fn pop_all(&mut self) -> Vec<InlineContent> {
         self.parse_text();
+        self.active = false;
         self.nodes.split_off(0)
     }
 }
@@ -632,6 +673,93 @@ fn character(input: &str) -> IResult<&str, InlineContent> {
     map_res(take(1usize), |res: &str| -> Result<InlineContent> {
         Ok(InlineContent::String(String::from(res)))
     })(input)
+}
+
+/// Stores and parses HTML content
+///
+/// Simply accumulates HTML until tags balance, at which point the HTML is parsed,
+/// with text content being parsed as Markdown by calling back to `decode_fragment`.
+struct Html {
+    html: String,
+    tags: Vec<String>,
+}
+
+impl Html {
+    /// Handle a HTML tag by either storing it or, if it balances previous tags, by
+    /// returning accumulated HTML for parsing
+    fn handle_html(&mut self, html: &str) -> Vec<BlockContent> {
+        // Regex to match tags at the start of the HTML
+        static START_REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r#"^<(/?)(\w+)[^/>]*?(/?)>"#).expect("Unable to create regex"));
+        static END_REGEX: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r#"<(/?)(\w+)[^/>]*?(/?)>\s*$"#).expect("Unable to create regex")
+        });
+
+        let start = START_REGEX.captures(&html);
+        let end = END_REGEX.captures(&html);
+
+        // Get opening and closing tags (if any)
+        let opens = if let Some(start) = start {
+            if start.get(1).unwrap().as_str() == "" && start.get(3).unwrap().as_str() == "" {
+                Some(start.get(2).unwrap().as_str().to_string())
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+        let closes = if let Some(end) = end {
+            let tag = end.get(2).unwrap().as_str();
+            if end.get(1).unwrap().as_str() == "/"
+                || end.get(3).unwrap().as_str() == "/"
+                || [
+                    // "Self-closing" elements (that can not have child nodes) should not be pushed
+                    // https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
+                    "area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link",
+                    "meta", "param", "source", "track", "wbr",
+                ]
+                .contains(&tag)
+            {
+                Some(tag.to_string())
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
+        // Update tags
+        match (opens, closes) {
+            (Some(opens), Some(closes)) => {
+                if opens != closes {
+                    self.tags.push(opens)
+                }
+            }
+            (Some(open), None) => self.tags.push(open),
+            (None, Some(close)) => {
+                if let Some(last) = self.tags.last() {
+                    if *last == close {
+                        self.tags.pop();
+                    }
+                }
+            }
+            (None, None) => {}
+        }
+
+        if self.tags.is_empty() {
+            let html = self.html.clone() + html;
+            self.html.clear();
+            html::decode_fragment(
+                &html,
+                html::Options {
+                    decode_markdown: true,
+                },
+            )
+        } else {
+            self.html.push_str(html);
+            vec![]
+        }
+    }
 }
 
 #[cfg(test)]

@@ -1,0 +1,103 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/html.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Inline HTML like ",
+      {
+        "type": "Superscript",
+        "content": [
+          "1"
+        ]
+      },
+      ", ",
+      {
+        "type": "Subscript",
+        "content": [
+          "2"
+        ]
+      },
+      ", ",
+      {
+        "type": "Emphasis",
+        "content": [
+          "3"
+        ]
+      },
+      ", ",
+      {
+        "type": "Strong",
+        "content": [
+          "4"
+        ]
+      },
+      " and ",
+      {
+        "type": "ImageObject",
+        "contentUrl": "image.png"
+      },
+      "."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A Markdown paragraph."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A HTML paragraph on one line."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A HTML paragraph on several lines."
+    ]
+  },
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "markdown"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "list within"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "a div"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

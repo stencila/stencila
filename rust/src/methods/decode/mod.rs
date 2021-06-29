@@ -28,7 +28,7 @@ pub async fn decode(content: &str, format: &str) -> Result<Node> {
     #[allow(unused_variables, unreachable_code)]
     Ok(match format {
         #[cfg(feature = "decode-html")]
-        "html" => html::decode(content)?,
+        "html" => html::decode(content, html::Options::default())?,
 
         #[cfg(feature = "decode-json")]
         "json" => json::decode(content)?,
