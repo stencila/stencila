@@ -1,8 +1,8 @@
 import { parse } from 'path'
 import { projects } from 'stencila'
 import { registerProjectHandlers, removeProjectHandlers } from '.'
-import { createWindow } from '../../app/window'
 import { registerDocumentHandlers, removeDocoumentHandlers } from '../document'
+import { createWindow } from '../window'
 
 const getProjectName = (path: string): string => parse(path).base
 

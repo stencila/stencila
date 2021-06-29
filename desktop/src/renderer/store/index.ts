@@ -7,7 +7,10 @@ import {
 import { createStore } from '@stencil/store'
 import { ThunkAction } from 'redux-thunk'
 import { documentPaneSlice } from './documentPane/documentPaneStore'
+import { NormalizedDocumentPaneStore } from './documentPane/documentPaneTypes'
+import { EditorStateStore } from './editorState/editorStateTypes'
 import { projectSlice } from './project/projectStore'
+import { NormalizedProjectStore } from './project/ProjectStoreTypes'
 
 // Placeholder for app config
 const App = {}
@@ -28,9 +31,14 @@ export const store = configureStore({
   }),
 })
 
-export const { state, onChange } = createStore({
+export const { state, onChange } = createStore<{
+  panes: NormalizedDocumentPaneStore
+  projects: NormalizedProjectStore
+  editors: EditorStateStore
+}>({
   panes: store.getState().panes,
   projects: store.getState().projects,
+  editors: {},
 })
 
 store.subscribe(() => {

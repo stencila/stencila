@@ -1,4 +1,4 @@
 :host {
-  @apply overflow-y-auto h-full w-full block;
+  @apply overflow-y-auto h-full w-full block px-4;
   border-color: var(--color-neutral-300);
 }
