@@ -38,14 +38,14 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    ##condition: |
-    ##  or(
-    ##    contains(variables.changed, 'rust'),
-    ##    contains(variables.changed, 'cli'),
-    ##    contains(variables.changed, 'node'),
-    ##    contains(variables.changed, 'desktop'),
-    ##    startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-    ##  )
+    condition: |
+      or(
+        contains(variables.changed, 'rust'),
+        contains(variables.changed, 'cli'),
+        contains(variables.changed, 'node'),
+        contains(variables.changed, 'desktop'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      )
     steps:
       # This is split into several steps even thought they often share the same
       # condition simply to improve visibility (ie. its quicker to discover where
@@ -149,8 +149,8 @@ jobs:
           set -e
           cargo list | grep --quiet strip || cargo install cargo-strip
           make -C cli build
-        ##  bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
-        ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+          bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
@@ -160,8 +160,8 @@ jobs:
           set -e
           make -C node build
           sudo apt-get install rpm
-          make -C desktop build
-        ##condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+          make -C desktop publish
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
           NODE_ENV: production
@@ -185,11 +185,11 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    ##condition: |
-    ##  or(
-    ##    contains(variables.changed, 'rust'),
-    ##    startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-    ##  )
+    condition: |
+      or(
+        contains(variables.changed, 'rust'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      )
     steps:
       - task: Cache@2
         inputs:
@@ -227,13 +227,12 @@ jobs:
           make -C cli build
           codesign -s "Stencila Ltd." target/release/stencila
           codesign --display --verbose=4 target/release/stencila
-        ##  bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
-        ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+          bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-      # Use Node.js 16.x for `node` and `desktop` builds
       - task: NodeTool@0
         inputs:
           versionSpec: '16.x'
@@ -242,8 +241,8 @@ jobs:
       - script: |
           set -e
           make -C node build
-          make -C desktop build
-        ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+          make -C desktop publish
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
           NODE_ENV: production
@@ -266,11 +265,11 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    ##condition: |
-    ##  or(
-    ##    contains(variables.changed, 'rust'),
-    ##    startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-    ##  )
+    condition: |
+      or(
+        contains(variables.changed, 'rust'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      )
     steps:
       - task: Cache@2
         inputs:
@@ -307,13 +306,12 @@ jobs:
           make -C cli build
           curl -sL --output signtool.exe https://raw.githubusercontent.com/StefanKert/azuredevops-codesigning-task/efbb9cca6911aa4542e13dd876d8c913df6ff25b/task/signtool.exe
           signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f $(certificate.secureFilePath) /p $(WINDOWS_CODESIGN_PASSWORD) target/release/stencila.exe
-        ##  bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
-        ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+          bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-      # Use Node.js 16.x for `node` and `desktop` builds
       - task: NodeTool@0
         inputs:
           versionSpec: '16.x'
@@ -321,8 +319,8 @@ jobs:
 
       - script: |
           make -C node build
-          make -C desktop build
-        ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+          make -C desktop publish
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
           NODE_ENV: production
