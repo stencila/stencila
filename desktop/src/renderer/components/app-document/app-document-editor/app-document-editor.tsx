@@ -1,9 +1,14 @@
 import { EntityId } from '@reduxjs/toolkit'
-import { Component, Element, h, Host, Prop, State, Watch } from '@stencil/core'
+import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
+import { option as O } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 import { DocumentEvent } from 'stencila'
 import { CHANNEL } from '../../../../preload/channels'
 import { state } from '../../../../renderer/store'
 import { selectDoc } from '../../../../renderer/store/documentPane/documentPaneSelectors'
+import { saveEditorState } from '../../../../renderer/store/editorState/editorStateActions'
+import { editorStateById } from '../../../../renderer/store/editorState/editorStateSelectors'
+import { EditorState } from '../../../../renderer/store/editorState/editorStateTypes'
 
 @Component({
   tag: 'app-document-editor',
@@ -20,38 +25,95 @@ export class AppDocumentEditor {
   @Prop() documentId: EntityId
 
   @Watch('documentId')
-  documentIdWatchHandler(newValue: string, prevValue: string) {
-    if (newValue !== prevValue) {
-      this.unsubscribeFromDocument(prevValue).then(() => {
-        this.subscribeToDocument(newValue)
+  async documentIdWatchHandler(newDocId: string, prevDocId: string) {
+    if (newDocId !== prevDocId) {
+      return this.saveDocState(prevDocId)
+        .then(() => this.unsubscribeFromDocument(prevDocId))
+        .then(() => this.subscribeToDocument(newDocId))
+    }
+  }
+
+  /**
+   * Persist internal editor state into global store.
+   * This allows us to keep history and other state on a per-document basis.
+   */
+  private saveDocState = async (
+    documentId: EntityId
+  ): Promise<EditorState | void> => {
+    if (this.editorRef) {
+      const editor = await this.editorRef.getRef()
+      return saveEditorState(documentId)({
+        id: documentId,
+        state: editor.state,
       })
     }
   }
 
-  @State() contents: string
+  /**
+   * Attempt to retrieve editor state from global store.
+   * If document is being opened for the first time, then read contents from disk instead.
+   */
+  private restoreOrCreateDocState = async (
+    documentId: EntityId
+  ): Promise<void> => {
+    pipe(
+      documentId,
+      editorStateById,
+      O.map(this.setDocState),
+      O.getOrElse(() => {
+        window.api
+          .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, documentId)
+          .then((contents) => {
+            if (typeof contents === 'string') {
+              this.editorRef?.setState(contents, {
+                language: this.fileFormatToLanguage(),
+              })
+            }
+          })
+      })
+    )
+  }
 
-  private subscribeToDocument = (documentId = this.documentId) => {
+  /**
+   * Completely replace editor state with given state, including the stored configuration,
+   * edit history, language, etc.
+   * Note that this is different to the `setDocContents` function.
+   */
+  private setDocState = (state: EditorState) => {
+    this.editorRef?.getRef().then((editor) => {
+      editor.setState(state.state)
+    })
+  }
+
+  /**
+   * Replace editor contents while preserving existing state (edit history, extensions, language, etc.)
+   */
+  private setDocContents = (contents: string) => {
+    this.editorRef?.setContents(contents)
+  }
+
+  private subscribeToDocument = (documentId: EntityId) => {
+    // Listen to file events and update contents
     window.api.receive(CHANNEL.GET_DOCUMENT_CONTENTS, (event) => {
       const { type, content } = event as DocumentEvent
       if (type === 'modified' && typeof content == 'string') {
-        this.contents = content
+        // TODO: Ask user if they want to update document contents
+        this.setDocContents(content)
       }
     })
 
-    window.api.receive(CHANNEL.SAVE_ACTIVE_DOCUMENT, () => {
-      this.saveDoc()
-    })
+    // Handle global file save events, both keyboard shortcut and File menu items
+    window.api.receive(CHANNEL.SAVE_ACTIVE_DOCUMENT, this.saveDoc)
 
-    return window.api
-      .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, documentId)
-      .then((contents) => {
-        if (typeof contents === 'string') {
-          this.contents = contents
-        }
+    this.restoreOrCreateDocState(documentId)
+      .then(() => this.editorRef?.getRef())
+      .then((editor) => {
+        // Return input focus to editor so that user can type into the editor right away
+        editor?.focus()
       })
   }
 
-  private unsubscribeFromDocument = (documentId = this.documentId) => {
+  private unsubscribeFromDocument = (documentId: EntityId) => {
     window.api.removeAll(CHANNEL.SAVE_ACTIVE_DOCUMENT)
     window.api.removeAll(CHANNEL.GET_DOCUMENT_CONTENTS)
 
@@ -86,11 +148,11 @@ export class AppDocumentEditor {
   }
 
   componentWillLoad() {
-    return this.subscribeToDocument()
+    return this.subscribeToDocument(this.documentId)
   }
 
   disconnectedCallback() {
-    this.unsubscribeFromDocument()
+    return this.unsubscribeFromDocument(this.documentId)
   }
 
   render() {
@@ -100,7 +162,7 @@ export class AppDocumentEditor {
           <stencila-editor
             ref={(el) => (this.editorRef = el)}
             activeLanguage={this.fileFormatToLanguage()}
-            contents={this.contents}
+            isControlled={true}
           ></stencila-editor>
         </div>
       </Host>
