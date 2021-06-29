@@ -8,11 +8,11 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "NODE_ENV=production electron-forge make",
+    "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "npm run ui:test",
-    "ui:build": "NODE_ENV=production stencil build",
+    "ui:build": "stencil build",
     "ui:start": "stencil build --dev --watch --serve",
     "ui:test": "stencil test --spec --e2e",
     "ui:test:watch": "stencil test --spec --e2e --watchAll",
@@ -84,81 +84,7 @@
     "uuid": "^3.4.0"
   },
   "config": {
-    "forge": {
-      "packagerConfig": {
-        "$comment": "The executableName seems to needs to be the same as the various `exe` and `bin` properties in the makers below",
-        "executableName": "stencila-desktop",
-        "appCategoryType": "public.app-category.productivity",
-        "icon": "./src/assets/icon/stencila"
-      },
-      "publishers": [
-        {
-          "name": "@electron-forge/publisher-github",
-          "config": {
-            "repository": {
-              "owner": "stencila",
-              "name": "stencila"
-            }
-          }
-        }
-      ],
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "icon": "",
-            "exe": "stencila-desktop.exe"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {
-            "name": "stencila-desktop",
-            "icon": "./src/assets/icon/stencila.png",
-            "productName": "Stencila",
-            "homepage": "https://stenci.la"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ],
-      "plugins": [
-        [
-          "@electron-forge/plugin-webpack",
-          {
-            "mainConfig": "./webpack.main.config.js",
-            "renderer": {
-              "config": "./webpack.renderer.config.js",
-              "entryPoints": [
-                {
-                  "html": "./src/renderer/index.html",
-                  "js": "./src/renderer/renderer.ts",
-                  "name": "main_window",
-                  "preload": {
-                    "js": "./src/preload/index.ts"
-                  }
-                }
-              ]
-            }
-          }
-        ],
-        [
-          "@electron-forge/plugin-electronegativity",
-          {
-            "isSarif": true,
-            "parserPlugins": []
-          }
-        ]
-      ]
-    }
+    "forge": "./forge.config.js"
   },
   "browserslist": [
     "Electron"
