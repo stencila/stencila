@@ -1,7 +1,7 @@
 import { BrowserWindow } from 'electron'
 import { registerConfigHandlers, removeConfigHandlers } from '.'
-import { createWindow } from '../../app/window'
 import { i18n } from '../../i18n'
+import { createWindow } from '../window'
 
 let settingsWindow: BrowserWindow | null
 

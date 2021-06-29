@@ -1,7 +1,7 @@
 import { BrowserWindow } from 'electron'
 import { registerLauncherHandlers, removeLauncherHandlers } from '.'
-import { createWindow } from '../../app/window'
 import { registerProjectHandlers } from '../project'
+import { createWindow } from '../window'
 
 let launcherWindow: BrowserWindow | null
 
@@ -20,7 +20,7 @@ export const openLauncherWindow = () => {
     maxWidth: 1200,
     minHeight: 350,
     minWidth: 600,
-    center: true
+    center: true,
   })
 
   launcherWindow.on('closed', () => {

@@ -1,6 +1,7 @@
 import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
-import { i18n } from '../i18n'
-import { scheme } from '../main/app-protocol'
+import { i18n } from '../../i18n'
+import { scheme } from '../app-protocol'
+import { hardenWindow } from './security'
 
 // declare const MAIN_WINDOW_WEBPACK_ENTRY: string
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
@@ -23,8 +24,8 @@ export const createWindow = (
       contextIsolation: true, // protect against prototype pollution
       enableRemoteModule: false,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      additionalArguments: [`storePath:${app.getPath('userData')}`]
-    }
+      additionalArguments: [`storePath:${app.getPath('userData')}`],
+    },
   })
 
   win.loadURL(
@@ -35,6 +36,8 @@ export const createWindow = (
     // Open the DevTools.
     win.webContents.openDevTools()
   }
+
+  hardenWindow(win)
 
   return win
 }
