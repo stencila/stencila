@@ -5,8 +5,8 @@ use eyre::Result;
 use kuchiki::{traits::*, NodeRef};
 use markup5ever::local_name;
 use stencila_schema::{
-    Article, BlockContent, Delete, Emphasis, ImageObjectSimple, InlineContent, Node,
-    NontextualAnnotation, Paragraph, Strong, Subscript, Superscript,
+    Article, AudioObjectSimple, BlockContent, Delete, Emphasis, ImageObjectSimple, InlineContent,
+    Node, NontextualAnnotation, Paragraph, Strong, Subscript, Superscript, VideoObjectSimple,
 };
 
 // Public API structs and functions...
@@ -114,7 +114,9 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
             // not their children
             local_name!("html")
             | local_name!("body")
+            | local_name!("article")
             | local_name!("main")
+            | local_name!("aside")
             | local_name!("div")
             | local_name!("section") => decode_blocks(node, context),
 
@@ -149,7 +151,10 @@ fn decode_inlines(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
         .collect()
 }
 
-/// Decode a HTML node into a zero or more `InlineContent` nodes
+/// Decode a HTML node into a zero or more `InlineContent` nodes.
+///
+/// This function should handle most of the HTML "Phrasing content"
+/// [elements](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#phrasing_content)
 fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
     if let Some(element) = node.as_element() {
         // Decode a HTML element
@@ -157,7 +162,15 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
         // The following are ordered alphabetically by the output node type
         // with placeholder comments for types not implemented yet
         match element.name.local {
-            // TODO: AudioObject
+            local_name!("audio") => {
+                let attrs = element.attributes.borrow();
+                let content_url = attrs.get(local_name!("src")).unwrap_or("").to_string();
+
+                vec![InlineContent::AudioObject(AudioObjectSimple {
+                    content_url,
+                    ..Default::default()
+                })]
+            }
             // TODO: Cite
             // TODO: CiteGroup
             // TODO: CodeExpression
@@ -180,6 +193,7 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
                 let caption = attrs
                     .get(local_name!("title"))
                     .map(|value| Box::new(value.to_string()));
+
                 vec![InlineContent::ImageObject(ImageObjectSimple {
                     content_url,
                     caption,
@@ -214,7 +228,26 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
                     ..Default::default()
                 })]
             }
-            // TODO: VideoObject
+            local_name!("video") => {
+                let (content_url, media_type) = if let Ok(source) = node.select_first("source") {
+                    let attrs = source.attributes.borrow();
+                    let content_url = attrs.get(local_name!("src")).unwrap_or("").to_string();
+                    let media_type = attrs
+                        .get(local_name!("type"))
+                        .map(|value| Box::new(value.to_string()));
+                    (content_url, media_type)
+                } else {
+                    let attrs = element.attributes.borrow();
+                    let content_url = attrs.get(local_name!("src")).unwrap_or("").to_string();
+                    (content_url, None)
+                };
+
+                vec![InlineContent::VideoObject(VideoObjectSimple {
+                    content_url,
+                    media_type,
+                    ..Default::default()
+                })]
+            }
 
             // Recurse into all other elements thereby ignoring them but
             // not their inline children
@@ -239,6 +272,15 @@ mod tests {
     use super::*;
     use crate::utils::tests::snapshot_content;
     use insta::assert_json_snapshot;
+
+    #[test]
+    fn articles() {
+        snapshot_content("articles/*.html", |content| {
+            assert_json_snapshot!(
+                decode(&content, Options::default()).expect("Unable to decode HTML")
+            );
+        });
+    }
 
     #[test]
     fn fragments() {

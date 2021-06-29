@@ -1,0 +1,35 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: "decode(&content, Options::default()).expect(\"Unable to decode HTML\")"
+input_file: fixtures/articles/simple.html
+
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "\n  A simple Markdown article for testing. When making changes please note that\n  test snapshots based on this fixture may need to be updated.\n"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "This is the methods section."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "The results include a table (Table 1)."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "This is the conclusion section."
+      ]
+    }
+  ]
+}

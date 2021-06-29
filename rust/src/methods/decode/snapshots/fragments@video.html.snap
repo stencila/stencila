@@ -1,0 +1,31 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: "decode_fragment(&content, Options::default())"
+input_file: fixtures/fragments/html/video.html
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "\n  Prefers to use `source` element:\n  ",
+      {
+        "type": "VideoObject",
+        "contentUrl": "video.mp4",
+        "mediaType": "video/mp4"
+      },
+      "\n"
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "\n  Falls back to using `src` on `video` element:\n  ",
+      {
+        "type": "VideoObject",
+        "contentUrl": "video.mp4"
+      },
+      "\n"
+    ]
+  }
+]
