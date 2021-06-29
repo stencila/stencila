@@ -287,14 +287,26 @@ jobs:
       ##  condition: contains(variables.changed, 'rust')
       ##  displayName: 'Rust: Test'
 
-      ##- script: |
-      ##    cargo list | grep --quiet strip || cargo install cargo-strip
-      ##    make -C cli build
-      ##    bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
-      ##  condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-      ##  displayName: 'CLI: Build and publish'
-      ##  env:
-      ##    GITHUB_TOKEN: $(GITHUB_TOKEN)
+      - task: DownloadSecureFile@1
+        name: certificate
+        displayName: 'Download code signing certificate'
+        inputs:
+          secureFile: 'SectigoCodeSigningCertificate.pfx'
+
+      - script: |
+          echo ##vso[task.setvariable variable=WINDOWS_CODESIGN_FILE]$(certificate.secureFilePath)
+        displayName: 'Set WINDOWS_CODESIGN_FILE env var'
+
+      - script: |
+          cargo list | grep --quiet strip || cargo install cargo-strip
+          make -C cli build
+          signtool sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f $(WINDOWS_CODESIGN_FILE) /p $(WINDOWS_CODESIGN_PASSWORD) target/release/stencila.exe
+        ##  bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
+        ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'CLI: Build and publish'
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+          WINDOWS_CODESIGN_PASSWORD: $(WINDOWS_CODESIGN_PASSWORD)
 
       # Use Node.js 16.x for `node` and `desktop` builds
       - task: NodeTool@0
@@ -310,6 +322,7 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
+          WINDOWS_CODESIGN_PASSWORD: $(WINDOWS_CODESIGN_PASSWORD)
 
       - script: |
           sccache --stop-server
