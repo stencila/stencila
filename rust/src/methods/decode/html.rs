@@ -2,10 +2,10 @@ use super::md;
 use crate::traits::ToVecInlineContent;
 use defaults::Defaults;
 use eyre::Result;
-use kuchiki::{traits::*, NodeRef};
+use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::local_name;
 use stencila_schema::{
-    Article, AudioObjectSimple, BlockContent, CodeChunk, CodeFragment, Delete, Emphasis,
+    Article, AudioObjectSimple, BlockContent, CodeChunk, CodeFragment, Delete, Emphasis, Heading,
     ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
     NontextualAnnotation, Paragraph, Strong, Subscript, Superscript, VideoObjectSimple,
 };
@@ -116,7 +116,26 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
             // TODO: CodeChunk
             // TODO: Collection
             // TODO: Figure
-            // TODO: Heading
+            local_name!("h1")
+            | local_name!("h2")
+            | local_name!("h3")
+            | local_name!("h4")
+            | local_name!("h5")
+            | local_name!("h6") => {
+                let id = get_id(element);
+                let depth = element
+                    .name
+                    .local
+                    .strip_prefix("h")
+                    .map(|depth| Box::new(depth.parse().unwrap_or(1)));
+                let content = decode_inlines(node, context);
+                vec![BlockContent::Heading(Heading {
+                    id,
+                    depth,
+                    content,
+                    ..Default::default()
+                })]
+            }
             local_name!("ul") | local_name!("ol") => {
                 let order = match element.name.local {
                     local_name!("ol") => Some(Box::new(ListOrder::Ascending)),
@@ -344,6 +363,15 @@ fn decode_list_items(node: &NodeRef, context: &Context) -> Vec<ListItem> {
             None
         })
         .collect()
+}
+
+/// Get the `id` attribute of an element (if any)
+fn get_id(element: &ElementData) -> Option<Box<String>> {
+    element
+        .attributes
+        .borrow()
+        .get(local_name!("id"))
+        .map(|id| Box::new(id.to_string()))
 }
 
 /// Accumulate all the text within a node, including text within descendant elements.

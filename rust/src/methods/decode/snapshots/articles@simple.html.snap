@@ -8,10 +8,26 @@ input_file: fixtures/articles/simple.html
   "type": "Article",
   "content": [
     {
+      "type": "Heading",
+      "content": [
+        "Introduction"
+      ],
+      "depth": 1,
+      "id": "introduction"
+    },
+    {
       "type": "Paragraph",
       "content": [
         "\n  A simple Markdown article for testing. When making changes please note that\n  test snapshots based on this fixture may need to be updated.\n"
       ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Methods"
+      ],
+      "depth": 1,
+      "id": "methods"
     },
     {
       "type": "Paragraph",
@@ -20,10 +36,26 @@ input_file: fixtures/articles/simple.html
       ]
     },
     {
+      "type": "Heading",
+      "content": [
+        "Results"
+      ],
+      "depth": 1,
+      "id": "results"
+    },
+    {
       "type": "Paragraph",
       "content": [
         "The results include a table (Table 1)."
       ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Discussion"
+      ],
+      "depth": 1,
+      "id": "discussion"
     },
     {
       "type": "Paragraph",
