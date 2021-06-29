@@ -218,7 +218,8 @@ jobs:
       - task: InstallAppleCertificate@2
         displayName: 'Install code signing certificate'
         inputs:
-          certSecureFile: 'AppleCodeSigningCertificate.cer'
+          certSecureFile: 'AppleCodeSigningCertificate.p12'
+          certPwd: $(APPLE_CODESIGN_PASSWORD)
 
       - script: |
           set -e
