@@ -1,0 +1,51 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: "decode_fragment(&content, Options::default())"
+input_file: fixtures/fragments/html/link.html
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "A ",
+      {
+        "type": "Link",
+        "content": [
+          "link"
+        ],
+        "target": "https://stenci.la",
+        "title": "Stencila"
+      },
+      "."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A ",
+      {
+        "type": "Link",
+        "content": [
+          "link"
+        ],
+        "target": ""
+      },
+      " with no target or title."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A ",
+      {
+        "type": "Link",
+        "content": [
+          "link"
+        ],
+        "target": "https://stenci.la"
+      },
+      " with no title."
+    ]
+  }
+]

@@ -6,7 +6,7 @@ use kuchiki::{traits::*, NodeRef};
 use markup5ever::local_name;
 use stencila_schema::{
     Article, AudioObjectSimple, BlockContent, Delete, Emphasis, ImageObjectSimple, InlineContent,
-    Node, NontextualAnnotation, Paragraph, Strong, Subscript, Superscript, VideoObjectSimple,
+    Link, Node, NontextualAnnotation, Paragraph, Strong, Subscript, Superscript, VideoObjectSimple,
 };
 
 // Public API structs and functions...
@@ -200,7 +200,21 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
                     ..Default::default()
                 })]
             }
-            // TODO: Link
+            local_name!("a") => {
+                let attrs = element.attributes.borrow();
+                let target = attrs.get(local_name!("href")).unwrap_or("").to_string();
+                let title = attrs
+                    .get(local_name!("title"))
+                    .map(|value| Box::new(value.to_string()));
+                let content = decode_inlines(node, context);
+
+                vec![InlineContent::Link(Link {
+                    target,
+                    title,
+                    content,
+                    ..Default::default()
+                })]
+            }
             // TODO: MathFragment
             local_name!("u") => {
                 vec![InlineContent::NontextualAnnotation(NontextualAnnotation {
