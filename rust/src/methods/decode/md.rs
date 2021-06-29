@@ -264,8 +264,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     }))
                 }
 
-                // Currently unhandled
-                Tag::FootnoteDefinition(_) => tracing::warn!("Unhandled Markdown tag {:?}", tag),
+                Tag::FootnoteDefinition(..) => tracing::debug!("Markdown footnote definitions are not yet handled")
             },
             Event::Code(value) => {
                 inlines.push_node(InlineContent::CodeFragment(CodeFragment {
@@ -293,7 +292,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 inlines.push_text("\u{2029}")
             }
             Event::HardBreak => {
-                tracing::warn!("Unhandled Markdown element HardBreak");
+                tracing::debug!("Markdown HardBreaks are not yet handled");
             }
             Event::Html(content) => {
                 let mut content = html.handle_html(&content.to_string());
@@ -305,11 +304,11 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     }
                 }
             }
-            Event::FootnoteReference(value) => {
-                tracing::warn!("Unhandled Markdown element FootnoteReference {}", value);
+            Event::FootnoteReference(..) => {
+                tracing::debug!("Markdown footnote references are not yet handled");
             }
-            Event::TaskListMarker(value) => {
-                tracing::warn!("Unhandled Markdown element TaskListMarker {}", value);
+            Event::TaskListMarker(..) => {
+                tracing::debug!("Markdown list markers are not yet handled");
             }
         };
     }
