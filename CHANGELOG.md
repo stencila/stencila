@@ -1,3 +1,16 @@
+# [0.88.0](https://github.com/stencila/stencila/compare/v0.87.4...v0.88.0) (2021-06-29)
+
+
+### Bug Fixes
+
+* **Preview:** Add horizontal padding to preview panel ([65532a5](https://github.com/stencila/stencila/commit/65532a581d6c32cdcd8f9d4e5cbee5f7479665f7))
+
+
+### Features
+
+* **Desktop:** Harden security based on best practices ([a210883](https://github.com/stencila/stencila/commit/a210883884c92851c2f5c0340756729c93aa00d2))
+* **Desktop:** Keep document history for each document ([77fcd7d](https://github.com/stencila/stencila/commit/77fcd7dcaf1210c5849ec895c2d5e030d5665e81))
+
 ## [0.87.4](https://github.com/stencila/stencila/compare/v0.87.3...v0.87.4) (2021-06-27)
 
 
