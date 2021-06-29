@@ -8,11 +8,11 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "NODE_ENV=production electron-forge make",
+    "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "npm run ui:test",
-    "ui:build": "NODE_ENV=production stencil build",
+    "ui:build": "stencil build",
     "ui:start": "stencil build --dev --watch --serve",
     "ui:test": "stencil test --spec --e2e",
     "ui:test:watch": "stencil test --spec --e2e --watchAll",

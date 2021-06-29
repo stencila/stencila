@@ -38,7 +38,6 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    condition: 'false'
     ##condition: |
     ##  or(
     ##    contains(variables.changed, 'rust'),
@@ -150,8 +149,8 @@ jobs:
           set -e
           cargo list | grep --quiet strip || cargo install cargo-strip
           make -C cli build
-          bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        ##  bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
+        ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
@@ -165,6 +164,7 @@ jobs:
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
+          NODE_ENV: production
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
 
@@ -228,7 +228,7 @@ jobs:
           codesign -s "Stencila Ltd." target/release/stencila
           codesign --display --verbose=4 target/release/stencila
         ##  bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
-        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
@@ -246,6 +246,7 @@ jobs:
         ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
+          NODE_ENV: production
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
 
@@ -324,6 +325,7 @@ jobs:
         ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
+          NODE_ENV: production
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
           WINDOWS_CODESIGN_FILE: $(certificate.secureFilePath)
