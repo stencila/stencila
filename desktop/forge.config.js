@@ -6,8 +6,6 @@
  * - https://github.com/felixrieseberg/windows95/blob/master/forge.config.js
  * - https://github.com/electron/fiddle/blob/master/forge.config.js
  */
-
-
 module.exports = {
   packagerConfig: {
     name: 'Stencila',

@@ -164,7 +164,6 @@ jobs:
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
-          NODE_ENV: production
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
 
@@ -245,7 +244,6 @@ jobs:
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
-          NODE_ENV: production
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
 
@@ -323,7 +321,6 @@ jobs:
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
-          NODE_ENV: production
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
           WINDOWS_CODESIGN_FILE: $(certificate.secureFilePath)
