@@ -303,6 +303,7 @@ jobs:
       - script: |
           cargo list | grep --quiet strip || cargo install cargo-strip
           make -C cli build
+          curl -sL --output signtool.exe https://raw.githubusercontent.com/StefanKert/azuredevops-codesigning-task/efbb9cca6911aa4542e13dd876d8c913df6ff25b/task/signtool.exe
           signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f $(WINDOWS_CODESIGN_FILE) /p $(WINDOWS_CODESIGN_PASSWORD) target/release/stencila.exe
         ##  bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
         ## condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
