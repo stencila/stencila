@@ -6,6 +6,12 @@ input_file: fixtures/fragments/md/table.md
 ---
 [
   {
+    "type": "Paragraph",
+    "content": [
+      "Regular table"
+    ]
+  },
+  {
     "type": "Table",
     "rows": [
       {
@@ -74,6 +80,63 @@ input_file: fixtures/fragments/md/table.md
             "type": "TableCell",
             "content": [
               "6"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Table with empty cells"
+    ]
+  },
+  {
+    "type": "Table",
+    "rows": [
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "content": [
+              "D"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "E"
+            ]
+          }
+        ],
+        "rowType": "Header"
+      },
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "content": [
+              "1"
+            ]
+          },
+          {
+            "type": "TableCell"
+          }
+        ]
+      },
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell"
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "2"
             ]
           }
         ]

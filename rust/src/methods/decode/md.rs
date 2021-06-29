@@ -159,19 +159,10 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 Tag::TableRow => tables.push_row(),
                 Tag::TableCell => {
                     let inlines = inlines.pop_tail();
-                    let mut blocks = blocks.pop_tail();
-                    let content = if inlines.is_empty() && blocks.is_empty() {
+                    let content = if inlines.is_empty() {
                         None
-                    } else if !inlines.is_empty() & blocks.is_empty() {
-                        Some(Box::new(TableCellContent::VecInlineContent(inlines)))
-                    } else if inlines.is_empty() & !blocks.is_empty() {
-                        Some(Box::new(TableCellContent::VecBlockContent(blocks)))
                     } else {
-                        blocks.push(BlockContent::Paragraph(Paragraph {
-                            content: inlines,
-                            ..Default::default()
-                        }));
-                        Some(Box::new(TableCellContent::VecBlockContent(blocks)))
+                        Some(Box::new(TableCellContent::VecInlineContent(inlines)))
                     };
 
                     tables.push_cell(TableCell {
@@ -264,7 +255,9 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     }))
                 }
 
-                Tag::FootnoteDefinition(..) => tracing::debug!("Markdown footnote definitions are not yet handled")
+                Tag::FootnoteDefinition(..) => {
+                    tracing::debug!("Markdown footnote definitions are not yet handled")
+                }
             },
             Event::Code(value) => {
                 inlines.push_node(InlineContent::CodeFragment(CodeFragment {
@@ -712,7 +705,7 @@ impl Html {
             if end.get(1).unwrap().as_str() == "/"
                 || end.get(3).unwrap().as_str() == "/"
                 || [
-                    // "Self-closing" elements (that can not have child nodes) should not be pushed
+                    // "Self-closing" elements (that can not have child nodes)
                     // https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
                     "area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link",
                     "meta", "param", "source", "track", "wbr",
