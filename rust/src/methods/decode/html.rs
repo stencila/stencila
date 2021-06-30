@@ -359,8 +359,18 @@ fn decode_list_items(node: &NodeRef, context: &Context) -> Vec<ListItem> {
         .filter_map(|child| {
             if let Some(element) = child.as_element() {
                 if matches!(element.name.local, local_name!("li")) {
-                    let content = decode_blocks(&child, context);
-                    let content = Some(Box::new(ListItemContent::VecBlockContent(content)));
+                    let blocks = decode_blocks(&child, context);
+                    let content = if !blocks.is_empty() {
+                        Some(Box::new(ListItemContent::VecBlockContent(blocks)))
+                    } else {
+                        let inlines = decode_inlines(&child, context);
+                        if !inlines.is_empty() {
+                            Some(Box::new(ListItemContent::VecInlineContent(inlines)))
+                        } else {
+                            None
+                        }
+                    };
+
                     return Some(ListItem {
                         content,
                         ..Default::default()

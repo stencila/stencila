@@ -189,5 +189,22 @@ input_file: fixtures/fragments/html/list.html
       }
     ],
     "order": "Unordered"
+  },
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Emphasis",
+            "content": [
+              "solo inline"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": "Ascending"
   }
 ]
