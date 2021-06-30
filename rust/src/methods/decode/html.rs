@@ -138,10 +138,10 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                 })]
             }
             local_name!("ul") | local_name!("ol") => {
-                let order = match element.name.local {
-                    local_name!("ol") => Some(Box::new(ListOrder::Ascending)),
-                    _ => None,
-                };
+                let order = Some(Box::new(match element.name.local {
+                    local_name!("ol") => ListOrder::Ascending,
+                    _ => ListOrder::Unordered,
+                }));
                 let items = decode_list_items(node, context);
 
                 vec![BlockContent::List(List {

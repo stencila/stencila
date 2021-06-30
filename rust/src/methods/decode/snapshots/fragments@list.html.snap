@@ -41,7 +41,8 @@ input_file: fixtures/fragments/html/list.html
           }
         ]
       }
-    ]
+    ],
+    "order": "Unordered"
   },
   {
     "type": "List",
@@ -120,7 +121,8 @@ input_file: fixtures/fragments/html/list.html
                           }
                         ]
                       }
-                    ]
+                    ],
+                    "order": "Unordered"
                   }
                 ]
               },
@@ -170,18 +172,22 @@ input_file: fixtures/fragments/html/list.html
                                   }
                                 ]
                               }
-                            ]
+                            ],
+                            "order": "Unordered"
                           }
                         ]
                       }
-                    ]
+                    ],
+                    "order": "Unordered"
                   }
                 ]
               }
-            ]
+            ],
+            "order": "Unordered"
           }
         ]
       }
-    ]
+    ],
+    "order": "Unordered"
   }
 ]
