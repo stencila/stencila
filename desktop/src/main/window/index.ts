@@ -1,12 +1,11 @@
 import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
 import { i18n } from '../../i18n'
+import { isDevelopment } from '../../preload/utils/env'
 import { scheme } from '../app-protocol'
 import { hardenWindow } from './security'
 
 // declare const MAIN_WINDOW_WEBPACK_ENTRY: string
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
-
-const isDevelopment = process.env.NODE_ENV === 'development'
 
 export const createWindow = (
   url: string,
@@ -32,7 +31,7 @@ export const createWindow = (
     isDevelopment ? `http://localhost:3333${url}` : `${scheme}://rse${url}`
   )
 
-  if (process.env.NODE_ENV === 'development') {
+  if (isDevelopment) {
     // Open the DevTools.
     win.webContents.openDevTools()
   }

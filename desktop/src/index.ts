@@ -7,6 +7,7 @@ import * as localProtocol from './main/local-protocol'
 import { openOnboardingWindow } from './main/onboarding/window'
 import { initAppConfigStore } from './main/store/bootstrap'
 import { isReportErrorsEnabled } from './main/store/handlers'
+import { isDevelopment } from './preload/utils/env'
 import { isFirstLaunch, setFirstLaunchState } from './main/utils/firstLaunch'
 import { enableCrashReports } from './preload/errors'
 
@@ -53,7 +54,7 @@ protocol.registerSchemesAsPrivileged([
   },
 ])
 
-if (process.env.NODE_ENV === 'development') {
+if (isDevelopment) {
   debug()
 }
 

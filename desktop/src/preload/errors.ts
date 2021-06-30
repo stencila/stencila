@@ -1,11 +1,12 @@
 import * as Sentry from '@sentry/electron'
 import { LogEvent, LogLevel } from '@stencila/logga'
 import { version } from '../../package.json'
+import { isProduction } from './utils/env'
 
 export const enableCrashReports = (
   getCrashReportingSetting: () => boolean | Promise<boolean>
 ) => {
-  if (process.env.SENTRY_DSN && process.env.NODE_ENV === 'production') {
+  if (process.env.SENTRY_DSN && isProduction) {
     Sentry.init({
       // debug: true,
       dsn: process.env.SENTRY_DSN,

@@ -26,7 +26,7 @@ module.exports = {
       appBundleId: 'stencila.desktop',
       appleId: process.env.APPLE_ID,
       appleIdPassword: process.env.APPLE_ID_PASSWORD,
-      ascProvider: 'K3PWLCZ5R6'
+      ascProvider: 'K3PWLCZ5R6',
     },
   },
   publishers: [
@@ -98,6 +98,7 @@ module.exports = {
     [
       '@electron-forge/plugin-electronegativity',
       {
+        electronVersion: '13',
         isSarif: true,
         parserPlugins: [],
       },

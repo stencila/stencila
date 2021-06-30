@@ -10,8 +10,10 @@ module.exports = {
   plugins: [
     ...plugins,
     new webpack.DefinePlugin({
-      'process.type': '"browser"'
-    })
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'process.env.SENTRY_DSN': JSON.stringify(process.env.SENTRY_DSN),
+      'process.type': '"browser"',
+    }),
   ],
   module: {
     rules: [
@@ -28,9 +30,9 @@ module.exports = {
           loader: '@marshallofsound/webpack-asset-relocator-loader',
           options: {
             outputAssetBase: 'native_modules',
-            debugLog: true
-          }
-        }
+            debugLog: true,
+          },
+        },
       },
       {
         test: /\.tsx?$/,
@@ -39,13 +41,13 @@ module.exports = {
           loader: 'ts-loader',
           options: {
             configFile: 'tsconfig.main.json',
-            transpileOnly: true
-          }
-        }
-      }
-    ]
+            transpileOnly: true,
+          },
+        },
+      },
+    ],
   },
   resolve: {
-    extensions: ['.js', '.mjs', '.ts', '.json']
-  }
+    extensions: ['.js', '.mjs', '.ts', '.json'],
+  },
 }

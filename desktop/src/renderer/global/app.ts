@@ -1,5 +1,6 @@
 import { CHANNEL } from '../../preload/channels'
 import { enableCrashReports } from '../../preload/errors'
+import { isProduction } from '../../preload/utils/env'
 
 const isErrorReportingEnabled = () =>
   window.api.invoke(CHANNEL.GET_APP_CONFIG, 'REPORT_ERRORS') as Promise<boolean>
@@ -13,7 +14,7 @@ const isErrorReportingEnabled = () =>
 export default async () => {
   // Due to `nodeIntegration: false` and `contextIsolation: true`, Sentry needs
   // to be instantiated in both the `preload` script AND here, the `web` context.
-  if (process.env.SENTRY_DSN && process.env.NODE_ENV === 'production') {
+  if (process.env.SENTRY_DSN && isProduction) {
     enableCrashReports(isErrorReportingEnabled)
   }
 }
