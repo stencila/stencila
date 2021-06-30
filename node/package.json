@@ -1,6 +1,6 @@
 {
   "name": "@stencila/stencila",
-  "version": "0.88.1",
+  "version": "0.88.2",
   "description": "Stencila in Node.js",
   "main": "dist/index.js",
   "author": "Nokome Bentley <nokome@stenci.la>",

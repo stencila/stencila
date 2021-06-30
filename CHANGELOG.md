@@ -1,3 +1,11 @@
+## [0.88.2](https://github.com/stencila/stencila/compare/v0.88.1...v0.88.2) (2021-06-30)
+
+
+### Bug Fixes
+
+* **Release:** Enable notarization for MacOS ([28decee](https://github.com/stencila/stencila/commit/28decee90b974a95cbabf816f266ebeb49aab288))
+* **Release:** Set the exe config option under Windows ([99d7ffe](https://github.com/stencila/stencila/commit/99d7ffec1c3360891d291e1e745a8800dd809047))
+
 ## [0.88.1](https://github.com/stencila/stencila/compare/v0.88.0...v0.88.1) (2021-06-30)
 
 
