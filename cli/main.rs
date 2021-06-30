@@ -295,6 +295,9 @@ impl ShowCommand {
 /// Main entry point function
 #[tokio::main]
 pub async fn main() -> Result<()> {
+    #[cfg(windows)]
+    ansi_term::enable_ansi_support();
+
     #[cfg(feature = "feedback")]
     {
         use ansi_term::Color::Red;
@@ -703,17 +706,16 @@ mod interact {
 
         help += &Yellow.paint("ABOUT:").to_string();
         help += r#"
-    Interactive mode allows you to interact with one or more of the CLIs
-    commands without having to restart the application. It is particularly
-    useful for exploring the structure of documents using `select`,
-    running code within them using `execute`, and inspecting variables
-    using `list` and `get`.
+    Interactive mode allows you to interact with the Stencila CLI
+    without having to restart it. This is particularly useful for
+    doing things like exploring the structure of documents using `query`,
+    or running code within them using `execute`.
 
     Interactive mode has the concept of a command prefix to save you having
     to retype the same command and its options. For example, to interactively
-    execute code within the context of a RMarkdown document:
+    query the structure of a Markdown document:
 
-        stencila execute report.Rmd --interact
+        stencila query report.Rmd --interact
 
     You can also print, set and clear the command prefix during the
     interactive session (see the shortcut keystrokes below).
