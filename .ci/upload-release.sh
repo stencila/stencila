@@ -28,13 +28,13 @@ if [ "${FILE_PATH##*.}" == "${TRIPLE_FORMAT##*.}" ]; then
     UPLOAD_PATH=$FILE_PATH
 else
     ARCHIVE_FORMAT="${TRIPLE_FORMAT#*.}"
-    UPLOAD_PATH="$FILE_PATH.$ARCHIVE_FORMAT"
+    UPLOAD_PATH="$PWD/$FILE_PATH.$ARCHIVE_FORMAT"
     echo "Will create archive $UPLOAD_PATH"
     if [ $ARCHIVE_FORMAT == "zip" ]; then
         if [ -x "$(command -v zip)" ]; then
-            (cd $(dirname $FILE_PATH) && zip -r - $(basename $FILE_PATH)) > $UPLOAD_PATH
+            (cd $(dirname $FILE_PATH) && zip -r $UPLOAD_PATH $(basename $FILE_PATH))
         else
-            7z.exe a -tzip -bb3 -mx=5 $UPLOAD_PATH $FILE_PATH
+            (cd $(dirname $FILE_PATH) && 7z.exe a -tzip -bb3 -mx=5 $UPLOAD_PATH $(basename $FILE_PATH))
         fi
     elif [ $ARCHIVE_FORMAT == "tar.gz" ]; then
         tar -C $(dirname $FILE_PATH) -czvf $UPLOAD_PATH $(basename $FILE_PATH)
