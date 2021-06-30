@@ -1,8 +1,8 @@
 /**
  * Electron Forge Configuration
- * 
+ *
  * See the following examples for guidance:
- * 
+ *
  * - https://github.com/felixrieseberg/windows95/blob/master/forge.config.js
  * - https://github.com/electron/fiddle/blob/master/forge.config.js
  */
@@ -18,7 +18,7 @@ module.exports = {
       identity: 'Developer ID Application: Stencila Ltd. (K3PWLCZ5R6)',
       'hardened-runtime': true,
       'gatekeeper-assess': false,
-      'entitlements': 'entitlements.plist',
+      entitlements: 'entitlements.plist',
       'entitlements-inherit': 'entitlements.plist',
       'signature-flags': 'library',
     },
@@ -41,6 +41,9 @@ module.exports = {
       name: '@electron-forge/maker-squirrel',
       platforms: ['win32'],
       config: {
+        // The `exe` setting is necessary to avoid "File not found: 'Stencila.exe'" error
+        // because it defaults to "name field in your app's package.json file with an added .exe extension"
+        exe: 'stencila-desktop.exe',
         certificateFile: process.env.WINDOWS_CODESIGN_FILE,
         certificatePassword: process.env.WINDOWS_CODESIGN_PASSWORD,
       },
