@@ -5,7 +5,7 @@ use eyre::Result;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::local_name;
 use stencila_schema::{
-    Article, AudioObjectSimple, BlockContent, CodeChunk, CodeFragment, Delete, Emphasis, Heading,
+    Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
     ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
     NontextualAnnotation, Paragraph, Strong, Subscript, Superscript, ThematicBreak,
     VideoObjectSimple,
@@ -108,7 +108,7 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                 };
                 let text = collect_text(node);
 
-                vec![BlockContent::CodeChunk(CodeChunk {
+                vec![BlockContent::CodeBlock(CodeBlock {
                     programming_language,
                     text,
                     ..Default::default()

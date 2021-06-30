@@ -6,11 +6,11 @@ input_file: fixtures/fragments/html/code-block.html
 ---
 [
   {
-    "type": "CodeChunk",
+    "type": "CodeBlock",
     "text": "Code with no language"
   },
   {
-    "type": "CodeChunk",
+    "type": "CodeBlock",
     "text": "# Some Python code\n1 + 1\n",
     "programmingLanguage": "python"
   }
