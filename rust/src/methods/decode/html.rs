@@ -7,7 +7,8 @@ use markup5ever::local_name;
 use stencila_schema::{
     Article, AudioObjectSimple, BlockContent, CodeChunk, CodeFragment, Delete, Emphasis, Heading,
     ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
-    NontextualAnnotation, Paragraph, Strong, Subscript, Superscript, VideoObjectSimple,
+    NontextualAnnotation, Paragraph, Strong, Subscript, Superscript, ThematicBreak,
+    VideoObjectSimple,
 };
 
 // Public API structs and functions...
@@ -158,7 +159,9 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
             }
             // TODO: QuoteBlock
             // TODO: Table
-            // TODO: ThematicBreak
+            local_name!("hr") => {
+                vec![BlockContent::ThematicBreak(ThematicBreak::default())]
+            }
 
             // Recurse into HTML block elems thereby ignoring them but
             // not their children
