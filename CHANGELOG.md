@@ -1,3 +1,10 @@
+# [0.89.0](https://github.com/stencila/stencila/compare/v0.88.2...v0.89.0) (2021-06-30)
+
+
+### Features
+
+* **Desktop:** Add prompt to auto-updating the Desktop client ([6f30c83](https://github.com/stencila/stencila/commit/6f30c8309dd204adb21431cf1403b1924ebf95f2)), closes [#933](https://github.com/stencila/stencila/issues/933)
+
 ## [0.88.2](https://github.com/stencila/stencila/compare/v0.88.1...v0.88.2) (2021-06-30)
 
 
