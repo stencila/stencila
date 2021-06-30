@@ -1,3 +1,10 @@
+## [0.89.1](https://github.com/stencila/stencila/compare/v0.89.0...v0.89.1) (2021-06-30)
+
+
+### Bug Fixes
+
+* **Desktop:** Inline env variables when building Renderer files ([f06b73d](https://github.com/stencila/stencila/commit/f06b73dc3d2b66314523c7287bd32c8fb7100d22))
+
 # [0.89.0](https://github.com/stencila/stencila/compare/v0.88.2...v0.89.0) (2021-06-30)
 
 
