@@ -336,10 +336,14 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
     } else if let Some(text) = node.as_text() {
         // Decode HTML text by optionally parsing it as a Markdown fragment
         // and unwrapping from `Vec<BlockContent>` to `Vec<InlineContent>`.
-        if context.options.decode_markdown {
-            md::decode_fragment(&text.borrow()).to_vec_inline_content()
+        if !text.borrow().is_empty() {
+            if context.options.decode_markdown {
+                md::decode_fragment(&text.borrow()).to_vec_inline_content()
+            } else {
+                vec![InlineContent::String(text.borrow().clone())]
+            }
         } else {
-            vec![InlineContent::String(text.borrow().clone())]
+            vec![]
         }
     } else {
         // Skip everything else
