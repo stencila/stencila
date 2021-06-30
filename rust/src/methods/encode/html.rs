@@ -202,10 +202,10 @@ atomic_to_html!(f64, "http://schema.org/Number");
 /// Encode a string to HTML
 ///
 /// This escapes characters so that the generated HTML can be safely interpolated
-/// within HTML.
+/// within HTML, including within quoted attributes.
 impl ToHtml for String {
     fn to_html(&self, _context: &Context) -> String {
-        html_escape::encode_text(self).into()
+        html_escape::encode_safe(self).into()
     }
 }
 
@@ -410,7 +410,7 @@ impl ToHtml for Cite {
         };
         format!(
             "<cite itemtype=\"http://schema.stenci.la/Cite\"><a href=\"#{target}\">{content}</a></cite>",
-            target = self.target,
+            target = self.target.to_html(context),
             content = content
         )
     }
@@ -438,11 +438,11 @@ impl ToHtml for CodeFragment {
     fn to_html(&self, context: &Context) -> String {
         let class = match &self.programming_language {
             None => String::new(),
-            Some(lang) => format!(r#"class="language-{}""#, lang),
+            Some(lang) => format!(r#"class="language-{}""#, lang.to_html(context)),
         };
 
         format!(
-            r#"<code itemtype="http://schema.stenci.la/Code" {class}>{text}</code>"#,
+            r#"<code itemtype="http://schema.stenci.la/CodeFragment" {class}>{text}</code>"#,
             class = class,
             text = self.text.to_html(context)
         )
@@ -467,7 +467,7 @@ impl ToHtml for Link {
     fn to_html(&self, context: &Context) -> String {
         format!(
             r#"<a itemtype="http://schema.stenci.la/Link" href="{target}">{content}</a>"#,
-            target = self.target,
+            target = self.target.to_html(context),
             content = self.content.to_html(context)
         )
     }
@@ -563,7 +563,7 @@ impl ToHtml for CodeBlock {
     fn to_html(&self, context: &Context) -> String {
         let class = match &self.programming_language {
             None => String::new(),
-            Some(lang) => format!(r#"class="language-{}""#, lang),
+            Some(lang) => format!(r#"class="language-{}""#, lang.to_html(context)),
         };
 
         format!(
