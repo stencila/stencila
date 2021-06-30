@@ -3,19 +3,19 @@ use maplit::hashmap;
 use stencila_schema::Node;
 
 #[cfg(feature = "decode-json")]
-mod json;
+pub mod json;
 
 #[cfg(feature = "decode-html")]
-mod html;
+pub mod html;
 
 #[cfg(feature = "decode-md")]
-mod md;
+pub mod md;
 
 #[cfg(feature = "decode-toml")]
-mod toml;
+pub mod toml;
 
 #[cfg(feature = "decode-yaml")]
-mod yaml;
+pub mod yaml;
 
 /// Decode a `Node` from string content.
 ///

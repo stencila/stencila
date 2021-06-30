@@ -3,19 +3,19 @@ use maplit::hashmap;
 use stencila_schema::Node;
 
 #[cfg(feature = "encode-json")]
-mod json;
+pub mod json;
 
 #[cfg(feature = "encode-html")]
-mod html;
+pub mod html;
 
 #[cfg(feature = "encode-md")]
-mod md;
+pub mod md;
 
 #[cfg(feature = "encode-toml")]
-mod toml;
+pub mod toml;
 
 #[cfg(feature = "encode-yaml")]
-mod yaml;
+pub mod yaml;
 
 /// Encode a `Node` to string content.
 ///
