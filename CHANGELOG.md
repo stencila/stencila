@@ -1,3 +1,10 @@
+## [0.88.1](https://github.com/stencila/stencila/compare/v0.88.0...v0.88.1) (2021-06-30)
+
+
+### Bug Fixes
+
+* **CLI:** Enable ANSII support on Windows ([9b076e9](https://github.com/stencila/stencila/commit/9b076e9e7371793f3f13ab57224ab82992158323))
+
 # [0.88.0](https://github.com/stencila/stencila/compare/v0.87.4...v0.88.0) (2021-06-29)
 
 
