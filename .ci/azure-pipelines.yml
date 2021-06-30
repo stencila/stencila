@@ -246,6 +246,8 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           SENTRY_DSN: $(SENTRY_DSN_DESKTOP)
+          APPLE_ID: $(APPLE_ID)
+          APPLE_ID_PASSWORD: $(APPLE_ID_PASSWORD)
 
       - script: |
           sccache --stop-server
