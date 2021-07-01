@@ -107,6 +107,7 @@ defaults = "=0.2.0"
 dirs-next = "=2.0.0"
 enum_dispatch = "=0.3.7"
 eyre = "=0.6.5"
+funty = "=1.1.0" # See https://stackoverflow.com/a/66202348/4625911
 futures = "=0.3.15"
 gitignore = "=1.0.7"
 glob = "=0.3.0"
