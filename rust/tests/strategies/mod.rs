@@ -4,8 +4,9 @@ use proptest::collection::{size_range, vec};
 use proptest::prelude::*;
 use proptest::strategy::Union;
 use stencila_schema::{
-    Article, BlockContent, CodeBlock, CodeFragment, Emphasis, Heading, InlineContent, Link, List,
-    ListItem, ListItemContent, ListOrder, Node, Paragraph, Strong, ThematicBreak,
+    Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Emphasis, Heading,
+    ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
+    Paragraph, Strong, ThematicBreak, VideoObjectSimple,
 };
 
 /// The degree of freedom when generating arbitrary nodes.
@@ -33,6 +34,54 @@ prop_compose! {
         )
     ) -> InlineContent {
         InlineContent::String(string)
+    }
+}
+
+prop_compose! {
+    /// Generate an arbitrary audio object
+    pub fn audio_object_simple(freedom: Freedom)(
+        content_url in match freedom {
+            Freedom::Nil => r"url",
+            Freedom::Low => r"[a-zA-Z0-9 \t\n]+",
+            Freedom::High => any::<String>()
+        }
+    ) -> InlineContent {
+        InlineContent::AudioObject(AudioObjectSimple{
+            content_url,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate an arbitrary image object
+    pub fn image_object_simple(freedom: Freedom)(
+        content_url in match freedom {
+            Freedom::Nil => r"url",
+            Freedom::Low => r"[a-zA-Z0-9 \t\n]+",
+            Freedom::High => any::<String>()
+        }
+    ) -> InlineContent {
+        InlineContent::ImageObject(ImageObjectSimple{
+            content_url,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate an arbitrary video object
+    pub fn video_object_simple(freedom: Freedom)(
+        content_url in match freedom {
+            Freedom::Nil => r"url",
+            Freedom::Low => r"[a-zA-Z0-9 \t\n]+",
+            Freedom::High => any::<String>()
+        }
+    ) -> InlineContent {
+        InlineContent::VideoObject(VideoObjectSimple{
+            content_url,
+            ..Default::default()
+        })
     }
 }
 
@@ -109,6 +158,9 @@ prop_compose! {
 /// we usually want to be interleaved between them).
 pub fn inline_content(freedom: Freedom) -> impl Strategy<Value = InlineContent> {
     Union::new(vec![
+        audio_object_simple(freedom).boxed(),
+        image_object_simple(freedom).boxed(),
+        video_object_simple(freedom).boxed(),
         code_fragment(freedom).boxed(),
         emphasis(freedom).boxed(),
         strong(freedom).boxed(),

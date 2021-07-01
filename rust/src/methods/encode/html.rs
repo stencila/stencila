@@ -298,7 +298,7 @@ impl ToHtml for AudioObjectSimple {
         };
         format!(
             r#"<audio itemtype="http://schema.org/AudioObject" controls src="{src}"></audio>"#,
-            src = src
+            src = src.to_html(context)
         )
     }
 }
@@ -458,7 +458,7 @@ impl ToHtml for ImageObjectSimple {
         };
         format!(
             r#"<img itemtype="http://schema.org/ImageObject" src="{src}" />"#,
-            src = src
+            src = src.to_html(context)
         )
     }
 }
@@ -510,12 +510,12 @@ impl ToHtml for VideoObjectSimple {
 
         let media_type = match &self.media_type {
             None => String::new(),
-            Some(media_type) => format!(r#"type="{}""#, media_type),
+            Some(media_type) => format!(r#"type="{}""#, media_type.to_html(context)),
         };
 
         format!(
             r#"<video itemtype="http://schema.org/VideoObject" controls><source src="{src}" {media_type}></source></video>"#,
-            src = src,
+            src = src.to_html(context),
             media_type = media_type
         )
     }
