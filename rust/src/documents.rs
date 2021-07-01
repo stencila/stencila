@@ -1,6 +1,11 @@
 use crate::{
     formats::{Format, FORMATS},
-    methods::{compile::compile, decode::decode, encode::encode},
+    methods::{
+        compile::compile,
+        decode::decode,
+        encode::encode,
+        reshape::{self, reshape},
+    },
     pubsub::publish,
     utils::{schemas, uuids},
 };
@@ -253,7 +258,9 @@ impl Document {
         };
 
         if document.format.binary {
-            document.update().await?;
+            if let Err(error) = document.update().await {
+                tracing::warn!("While updating document: {}", error)
+            }
         } else {
             document.read().await?;
         }
@@ -331,9 +338,11 @@ impl Document {
             None => return Ok(self.content.clone()),
         };
         if let Some(root) = &self.root {
-            return encode(root, &format).await;
+            encode(root, &format).await
+        } else {
+            tracing::warn!("Document has no root node");
+            Ok(String::new())
         }
-        bail!("Document has no root node")
     }
 
     /// Load content into the document
@@ -343,12 +352,6 @@ impl Document {
     /// - `content`: the content to load into the document
     /// - `format`: the format of the content; if not supplied assumed to be
     ///    the document's existing format.
-    ///
-    /// Publishes `encoded:` events for each of the formats subscribed to.
-    /// Sets `status` to `Unwritten`.
-    /// In the future, this will also trigger an `import()` to convert the `content`
-    /// into a Stencila `CreativeWork` nodes and set the document's `root` (from which
-    /// the conversions will be done).
     async fn load(&mut self, content: String, format: Option<String>) -> Result<()> {
         // Set the `content` and `status` of the document
         self.content = content;
@@ -357,19 +360,29 @@ impl Document {
             self.format = FORMATS.match_path(&format)
         }
 
-        self.update().await
+        if let Err(error) = self.update().await {
+            tracing::warn!("While updating document: {}", error)
+        }
+
+        Ok(())
     }
 
     /// Update the `root` node of the document and publish updated encodings
+    ///
+    /// Publishes `encoded:` events for each of the formats subscribed to.
+    /// Error results from this function (e.g. compile errors)
+    /// should generally not be bubbled up.
     async fn update(&mut self) -> Result<()> {
         tracing::debug!("Updating document '{}'", self.id);
 
         // Import the content into the `root` node of the document
         let mut root = if !self.format.binary {
-            decode(&self.content, &self.format.name).await?
+            // Non-binary content is decoded and reshaped
+            let node = decode(&self.content, &self.format.name).await?;
+            reshape(node, reshape::Options::default())?
         } else {
+            // Binary files are represented as a `Node` if possible.
             let content_url = self.path.display().to_string();
-
             match &self.format.type_ {
                 None => Node::Null,
                 Some(type_) => match type_.as_str() {
