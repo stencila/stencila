@@ -22,18 +22,28 @@ pub mod methods {
     pub mod read;
     pub mod write;
 
+    pub mod coerce;
+
     pub mod decode;
     pub mod encode;
-    #[cfg(feature = "format-html")]
-    pub mod encode_html;
 
     pub mod export;
     pub mod import;
 
-    pub mod validate;
+    pub mod reshape;
 
     pub mod compile;
     pub mod execute;
+}
+
+// Traits
+//
+// Helper traits for `Node` structs and vectors are useful across
+// methods and elsewhere
+
+pub mod traits {
+    mod to_vec_inline_content;
+    pub use to_vec_inline_content::ToVecInlineContent;
 }
 
 // Features
@@ -79,6 +89,9 @@ pub mod utils {
     pub mod schemas;
     pub mod urls;
     pub mod uuids;
+
+    #[cfg(test)]
+    pub mod tests;
 }
 
 // Re-export packages
@@ -90,7 +103,7 @@ pub use once_cell;
 pub use regex;
 pub use serde;
 pub use serde_json;
-#[cfg(feature = "format-yaml")]
+#[cfg(feature = "serde_yaml")]
 pub use serde_yaml;
 pub use strum;
 pub use tokio;

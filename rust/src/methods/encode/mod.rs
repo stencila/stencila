@@ -2,18 +2,45 @@ use eyre::{bail, Result};
 use maplit::hashmap;
 use stencila_schema::Node;
 
-// Allow these for when no features are enabled
-#[allow(unused_variables, unreachable_code)]
+#[cfg(feature = "encode-json")]
+pub mod json;
+
+#[cfg(feature = "encode-html")]
+pub mod html;
+
+#[cfg(feature = "encode-md")]
+pub mod md;
+
+#[cfg(feature = "encode-toml")]
+pub mod toml;
+
+#[cfg(feature = "encode-yaml")]
+pub mod yaml;
+
+/// Encode a `Node` to string content.
+///
+/// # Arguments
+///
+/// - `node`: the node to encode
+/// - `format`: the format of the content e.g. `json`, `md`
 pub async fn encode(node: &Node, format: &str) -> Result<String> {
+    // Allow these for when no features are enabled
+    #[allow(unused_variables, unreachable_code)]
     Ok(match format {
-        #[cfg(feature = "format-json")]
-        "json" => serde_json::to_string(node)?,
+        #[cfg(feature = "encode-html")]
+        "html" => html::encode(node)?,
 
-        #[cfg(feature = "format-yaml")]
-        "yaml" => serde_yaml::to_string(node)?,
+        #[cfg(feature = "encode-json")]
+        "json" => json::encode(node)?,
 
-        #[cfg(feature = "format-html")]
-        "html" => super::encode_html::encode_html(node)?,
+        #[cfg(feature = "encode-md")]
+        "md" => md::encode(node)?,
+
+        #[cfg(feature = "encode-toml")]
+        "toml" => toml::encode(node)?,
+
+        #[cfg(feature = "encode-yaml")]
+        "yaml" => yaml::encode(node)?,
 
         _ => {
             #[cfg(feature = "request")]
@@ -48,11 +75,11 @@ pub mod rpc {
     pub struct Params {
         pub node: Node,
 
-        pub format: Option<String>,
+        pub format: String,
     }
 
     pub async fn encode(params: Params) -> Result<String> {
         let Params { node, format } = params;
-        super::encode(&node, &format.unwrap_or_else(|| "json".to_string())).await
+        super::encode(&node, &format).await
     }
 }

@@ -228,19 +228,22 @@ mod tests {
     // GitHub API. They currently also have few assertions.
     // They use an artificially high `current_version` to avoid any binaries
     // from being downloaded.
+    // Currently ignoring them because they involve network requests. Mocking _may_ be
+    // useful here.
 
+    #[ignore]
     #[tokio::test]
     async fn test_upgrade() -> Result<()> {
         upgrade(Some("100.0.0".to_string()), None, false, false, false).await
     }
 
+    #[ignore]
     #[tokio::test]
     async fn test_upgrade_auto() -> Result<()> {
         let handle = upgrade_auto().await;
         handle.await?
     }
 
-    /// This hangs so is currently ignored
     #[ignore]
     #[tokio::test]
     async fn test_cli() -> Result<()> {

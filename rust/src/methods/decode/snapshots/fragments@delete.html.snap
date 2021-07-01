@@ -1,0 +1,21 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/html/delete.html
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Some ",
+      {
+        "type": "Delete",
+        "content": [
+          "deleted"
+        ]
+      },
+      " text."
+    ]
+  }
+]

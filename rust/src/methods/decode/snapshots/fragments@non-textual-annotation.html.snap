@@ -1,0 +1,20 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: "decode_fragment(&content, Options::default())"
+input_file: fixtures/fragments/html/non-textual-annotation.html
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Nontextual annotations like ",
+      {
+        "type": "NontextualAnnotation",
+        "content": [
+          "this"
+        ]
+      }
+    ]
+  }
+]

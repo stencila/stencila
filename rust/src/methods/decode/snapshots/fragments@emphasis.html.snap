@@ -1,0 +1,21 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/html/emphasis.html
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Some ",
+      {
+        "type": "Emphasis",
+        "content": [
+          "emphasized"
+        ]
+      },
+      " text."
+    ]
+  }
+]

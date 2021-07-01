@@ -1,0 +1,187 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/list.md
+
+---
+[
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "apple"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "pear"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "orange"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "first"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "second"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "third"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": "Ascending"
+  },
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "nested"
+            ]
+          },
+          {
+            "type": "List",
+            "items": [
+              {
+                "type": "ListItem",
+                "content": [
+                  {
+                    "type": "Paragraph",
+                    "content": [
+                      "2a"
+                    ]
+                  },
+                  {
+                    "type": "List",
+                    "items": [
+                      {
+                        "type": "ListItem",
+                        "content": [
+                          {
+                            "type": "Paragraph",
+                            "content": [
+                              "3a"
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "ListItem",
+                "content": [
+                  {
+                    "type": "Paragraph",
+                    "content": [
+                      "2b"
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "ListItem",
+                "content": [
+                  {
+                    "type": "Paragraph",
+                    "content": [
+                      "2c"
+                    ]
+                  },
+                  {
+                    "type": "List",
+                    "items": [
+                      {
+                        "type": "ListItem",
+                        "content": [
+                          {
+                            "type": "Paragraph",
+                            "content": [
+                              "3b"
+                            ]
+                          },
+                          {
+                            "type": "List",
+                            "items": [
+                              {
+                                "type": "ListItem",
+                                "content": [
+                                  {
+                                    "type": "Paragraph",
+                                    "content": [
+                                      "4a"
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

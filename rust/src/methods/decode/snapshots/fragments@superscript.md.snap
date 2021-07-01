@@ -1,0 +1,21 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/superscript.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Superscripts like CO",
+      {
+        "type": "Superscript",
+        "content": [
+          "2"
+        ]
+      },
+      "."
+    ]
+  }
+]

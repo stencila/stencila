@@ -3,8 +3,8 @@ use std::fs;
 use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
 
-/// Encode a node to HTML
-pub fn encode_html(node: &Node) -> Result<String> {
+/// Encode a `Node` to a HTML document
+pub fn encode(node: &Node) -> Result<String> {
     let context = Context {
         root: node,
         data_uris: false,
@@ -17,7 +17,7 @@ pub fn encode_html(node: &Node) -> Result<String> {
 ///
 /// This function is mainly for developers to be able to preview the
 /// result of `encode_html`.
-pub fn encode_html_standalone(node: &Node, theme: Option<String>) -> Result<String> {
+pub fn encode_standalone(node: &Node, theme: Option<String>) -> Result<String> {
     Ok(format!(
         r#"<!DOCTYPE html>
 <html lang="en">
@@ -51,7 +51,7 @@ pub fn encode_html_standalone(node: &Node, theme: Option<String>) -> Result<Stri
     </body>
 </html>"#,
         theme = theme.unwrap_or_else(|| "wilmore".into()),
-        body = encode_html(node)?
+        body = encode(node)?
     ))
 }
 
@@ -202,10 +202,10 @@ atomic_to_html!(f64, "http://schema.org/Number");
 /// Encode a string to HTML
 ///
 /// This escapes characters so that the generated HTML can be safely interpolated
-/// within HTML.
+/// within HTML, including within quoted attributes.
 impl ToHtml for String {
     fn to_html(&self, _context: &Context) -> String {
-        html_escape::encode_text(self).into()
+        html_escape::encode_safe(self).into()
     }
 }
 
@@ -298,7 +298,7 @@ impl ToHtml for AudioObjectSimple {
         };
         format!(
             r#"<audio itemtype="http://schema.org/AudioObject" controls src="{src}"></audio>"#,
-            src = src
+            src = src.to_html(context)
         )
     }
 }
@@ -410,7 +410,7 @@ impl ToHtml for Cite {
         };
         format!(
             "<cite itemtype=\"http://schema.stenci.la/Cite\"><a href=\"#{target}\">{content}</a></cite>",
-            target = self.target,
+            target = self.target.to_html(context),
             content = content
         )
     }
@@ -438,11 +438,11 @@ impl ToHtml for CodeFragment {
     fn to_html(&self, context: &Context) -> String {
         let class = match &self.programming_language {
             None => String::new(),
-            Some(lang) => format!(r#"class="language-{}""#, lang),
+            Some(lang) => format!(r#"class="language-{}""#, lang.to_html(context)),
         };
 
         format!(
-            r#"<code itemtype="http://schema.stenci.la/Code" {class}>{text}</code>"#,
+            r#"<code itemtype="http://schema.stenci.la/CodeFragment" {class}>{text}</code>"#,
             class = class,
             text = self.text.to_html(context)
         )
@@ -458,7 +458,7 @@ impl ToHtml for ImageObjectSimple {
         };
         format!(
             r#"<img itemtype="http://schema.org/ImageObject" src="{src}" />"#,
-            src = src
+            src = src.to_html(context)
         )
     }
 }
@@ -467,7 +467,7 @@ impl ToHtml for Link {
     fn to_html(&self, context: &Context) -> String {
         format!(
             r#"<a itemtype="http://schema.stenci.la/Link" href="{target}">{content}</a>"#,
-            target = self.target,
+            target = self.target.to_html(context),
             content = self.content.to_html(context)
         )
     }
@@ -510,12 +510,12 @@ impl ToHtml for VideoObjectSimple {
 
         let media_type = match &self.media_type {
             None => String::new(),
-            Some(media_type) => format!(r#"type="{}""#, media_type),
+            Some(media_type) => format!(r#"type="{}""#, media_type.to_html(context)),
         };
 
         format!(
             r#"<video itemtype="http://schema.org/VideoObject" controls><source src="{src}" {media_type}></source></video>"#,
-            src = src,
+            src = src.to_html(context),
             media_type = media_type
         )
     }
@@ -563,7 +563,7 @@ impl ToHtml for CodeBlock {
     fn to_html(&self, context: &Context) -> String {
         let class = match &self.programming_language {
             None => String::new(),
-            Some(lang) => format!(r#"class="language-{}""#, lang),
+            Some(lang) => format!(r#"class="language-{}""#, lang.to_html(context)),
         };
 
         format!(
@@ -1020,7 +1020,7 @@ mod tests {
             let json = fs::read_to_string(fixture_path)?;
             let article: Node = serde_json::from_str(&json)?;
 
-            let html = encode_html_standalone(&article, Some("elife".to_string()))?;
+            let html = encode_standalone(&article, Some("elife".to_string()))?;
 
             let snapshot_path = snapshots.join(format!(
                 "{}.html",

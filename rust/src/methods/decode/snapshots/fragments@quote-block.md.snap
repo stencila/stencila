@@ -1,0 +1,69 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/quote-block.md
+
+---
+[
+  {
+    "type": "QuoteBlock",
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "Simple, single line"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "QuoteBlock",
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "Multiple paragraphs"
+        ]
+      },
+      {
+        "type": "Paragraph",
+        "content": [
+          "The second paragraph"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "QuoteBlock",
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "Nested quote blocks"
+        ]
+      },
+      {
+        "type": "QuoteBlock",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "Inner"
+            ]
+          },
+          {
+            "type": "QuoteBlock",
+            "content": [
+              {
+                "type": "Paragraph",
+                "content": [
+                  "Inner inner"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

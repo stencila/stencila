@@ -1,0 +1,26 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/paragraph.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "First paragraph."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Second paragraph."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Third paragraph, split over multiple lines."
+    ]
+  }
+]

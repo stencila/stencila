@@ -17,7 +17,7 @@ The [`projects`](projects) folder contains projects with a variety of structures
 
 ## 📜 Articles
 
-The [`articles`](articles) folder contains [`Article`](https://schema.stenci.la/Article) documents having varying characteristics e.g.
+The [`articles`](articles) folder contains [`Article`](https://schema.stenci.la/Article) documents having varying characteristics and formats e.g.
 
 - [`elife-small.json`](articles/elife-small.json): A smallish eLife article useful for things like visual regression tests
 - [`elife-mid.json`](articles/elife-mid.json): A mid-sized eLife article with several figures and tables
@@ -28,10 +28,14 @@ Run `make -C articles` to update the article fixtures.
 
 ## 📷 Media
 
-The [`media`](media) folder contains node types that are derived from [`MediaObject`](https://schema.stenci.la/MediaObject) including [`ImageObject`](https://schema.stenci.la/ImageObject), [`AudioObject`](https://schema.stenci.la/AudioObject), and [`VideoObject`](https://schema.stenci.la/VideoObject).
+The [`media`](media) folder contains documents that are derived from [`MediaObject`](https://schema.stenci.la/MediaObject) including [`ImageObject`](https://schema.stenci.la/ImageObject), [`AudioObject`](https://schema.stenci.la/AudioObject), and [`VideoObject`](https://schema.stenci.la/VideoObject).
 
 - [`grapefruit.jpg`](media/grapefruit.jpg)
 - [`trex.mp3`](media/trex.mp3)
 - [`flower.mp4`](media/flower.mp4)
 
 All sample media files are from https://developer.mozilla.org/ and are in the public domain (Creative Commons CC-0).
+
+## 🍕 Fragments
+
+The [`fragments`](fragments) folder contains many small examples of parts of documents in a variety of formats. These are used in snapshot-based unit tests of decoding and encoding functions. Generally, each file should be focussed on one node type in one format.

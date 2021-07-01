@@ -28,7 +28,7 @@ use warp::{Filter, Reply};
 ///
 /// Listen on ws://0.0.0.0:1234,
 ///
-/// ```
+/// ```no_run
 /// # #![recursion_limit = "256"]
 /// use stencila::documents::Documents;
 /// use stencila::serve::serve;
@@ -101,7 +101,7 @@ struct Static;
 ///
 /// Listen on both http://127.0.0.1:9000 and ws://127.0.0.1:9000,
 ///
-/// ```
+/// ```no_run
 /// # #![recursion_limit = "256"]
 /// use std::sync::Arc;
 /// use tokio::sync::Mutex;

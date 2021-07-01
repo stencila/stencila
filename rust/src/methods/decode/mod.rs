@@ -2,15 +2,45 @@ use eyre::Result;
 use maplit::hashmap;
 use stencila_schema::Node;
 
-// Allow these for when no features are enabled
-#[allow(unused_variables, unreachable_code)]
-pub async fn decode(content: &str, format: &str) -> Result<Node> {
-    Ok(match format {
-        #[cfg(feature = "format-json")]
-        "json" => serde_json::from_str::<Node>(content)?,
+#[cfg(feature = "decode-json")]
+pub mod json;
 
-        #[cfg(feature = "format-yaml")]
-        "yaml" => serde_yaml::from_str::<Node>(content)?,
+#[cfg(feature = "decode-html")]
+pub mod html;
+
+#[cfg(feature = "decode-md")]
+pub mod md;
+
+#[cfg(feature = "decode-toml")]
+pub mod toml;
+
+#[cfg(feature = "decode-yaml")]
+pub mod yaml;
+
+/// Decode a `Node` from string content.
+///
+/// # Arguments
+///
+/// - `content`: the content to decode
+/// - `format`: the format of the content e.g. `json`, `md`
+pub async fn decode(content: &str, format: &str) -> Result<Node> {
+    // Allow these for when no features are enabled
+    #[allow(unused_variables, unreachable_code)]
+    Ok(match format {
+        #[cfg(feature = "decode-html")]
+        "html" => html::decode(content, html::Options::default())?,
+
+        #[cfg(feature = "decode-json")]
+        "json" => json::decode(content)?,
+
+        #[cfg(feature = "decode-md")]
+        "md" => md::decode(content)?,
+
+        #[cfg(feature = "decode-toml")]
+        "toml" => toml::decode(content)?,
+
+        #[cfg(feature = "decode-yaml")]
+        "yaml" => yaml::decode(content)?,
 
         _ => {
             #[cfg(feature = "request")]
@@ -38,11 +68,11 @@ pub mod rpc {
     pub struct Params {
         pub content: String,
 
-        pub format: Option<String>,
+        pub format: String,
     }
 
     pub async fn decode(params: Params) -> Result<Node> {
         let Params { content, format } = params;
-        super::decode(&content, &format.unwrap_or_else(|| "json".to_string())).await
+        super::decode(&content, &format).await
     }
 }

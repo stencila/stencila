@@ -1,0 +1,18 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: "decode_fragment(&content, Options::default())"
+input_file: fixtures/fragments/html/audio.html
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "\n  ",
+      {
+        "type": "AudioObject",
+        "contentUrl": "audio.mp3"
+      }
+    ]
+  }
+]

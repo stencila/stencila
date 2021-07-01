@@ -1,6 +1,11 @@
 use crate::{
     formats::{Format, FORMATS},
-    methods::{compile::compile, decode::decode, encode::encode},
+    methods::{
+        compile::compile,
+        decode::decode,
+        encode::encode,
+        reshape::{self, reshape},
+    },
     pubsub::publish,
     utils::{schemas, uuids},
 };
@@ -218,7 +223,8 @@ impl Document {
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the file extension.
     /// TODO: add project: Option<PathBuf> so that project can be explictly set
-    async fn open(path: PathBuf, format: Option<String>) -> Result<Document> {
+    async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
+        let path = path.as_ref();
         if path.is_dir() {
             bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
         }
@@ -243,7 +249,7 @@ impl Document {
 
         let mut document = Document {
             id,
-            path,
+            path: path.to_path_buf(),
             project,
             temporary: false,
             name,
@@ -252,7 +258,9 @@ impl Document {
         };
 
         if document.format.binary {
-            document.update().await?;
+            if let Err(error) = document.update().await {
+                tracing::warn!("While updating document: {}", error)
+            }
         } else {
             document.read().await?;
         }
@@ -306,10 +314,14 @@ impl Document {
     ///
     /// Note: this does not change the `path` or `format` of the current
     /// document.
-    #[cfg(ignore)]
-    fn save_as(&self, path: &str, format: Option<String>) -> Result<()> {
-        let mut file = fs::File::create(path)?;
-        file.write_all(self.dump(format)?.as_bytes())?;
+    async fn export<P: AsRef<Path>>(&self, path: P, format: Option<String>) -> Result<()> {
+        let format = format.or_else(|| {
+            path.as_ref()
+                .extension()
+                .map(|ext| ext.to_string_lossy().to_string())
+        });
+        let contents = self.dump(format).await?;
+        fs::write(path, contents)?;
         Ok(())
     }
 
@@ -326,9 +338,11 @@ impl Document {
             None => return Ok(self.content.clone()),
         };
         if let Some(root) = &self.root {
-            return encode(root, &format).await;
+            encode(root, &format).await
+        } else {
+            tracing::warn!("Document has no root node");
+            Ok(String::new())
         }
-        bail!("Document has no root node")
     }
 
     /// Load content into the document
@@ -338,12 +352,6 @@ impl Document {
     /// - `content`: the content to load into the document
     /// - `format`: the format of the content; if not supplied assumed to be
     ///    the document's existing format.
-    ///
-    /// Publishes `encoded:` events for each of the formats subscribed to.
-    /// Sets `status` to `Unwritten`.
-    /// In the future, this will also trigger an `import()` to convert the `content`
-    /// into a Stencila `CreativeWork` nodes and set the document's `root` (from which
-    /// the conversions will be done).
     async fn load(&mut self, content: String, format: Option<String>) -> Result<()> {
         // Set the `content` and `status` of the document
         self.content = content;
@@ -352,19 +360,29 @@ impl Document {
             self.format = FORMATS.match_path(&format)
         }
 
-        self.update().await
+        if let Err(error) = self.update().await {
+            tracing::warn!("While updating document: {}", error)
+        }
+
+        Ok(())
     }
 
     /// Update the `root` node of the document and publish updated encodings
+    ///
+    /// Publishes `encoded:` events for each of the formats subscribed to.
+    /// Error results from this function (e.g. compile errors)
+    /// should generally not be bubbled up.
     async fn update(&mut self) -> Result<()> {
         tracing::debug!("Updating document '{}'", self.id);
 
         // Import the content into the `root` node of the document
         let mut root = if !self.format.binary {
-            decode(&self.content, &self.format.name).await?
+            // Non-binary content is decoded and reshaped
+            let node = decode(&self.content, &self.format.name).await?;
+            reshape(node, reshape::Options::default())?
         } else {
+            // Binary files are represented as a `Node` if possible.
             let content_url = self.path.display().to_string();
-
             match &self.format.type_ {
                 None => Node::Null,
                 Some(type_) => match type_.as_str() {
@@ -888,7 +906,7 @@ pub mod cli {
     }
 
     impl Command {
-        pub async fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(self, documents: &mut Documents) -> display::Result {
             let Self { action } = self;
             match action {
                 Action::List(action) => action.run(documents).await,
@@ -1030,10 +1048,10 @@ pub mod cli {
     )]
     pub struct Convert {
         /// The path of the input document
-        pub input: String,
+        pub input: PathBuf,
 
         /// The path of the output document
-        pub output: String,
+        pub output: PathBuf,
 
         /// The format of the input (defaults to being inferred from the file extension or content type)
         #[structopt(short, long)]
@@ -1045,16 +1063,15 @@ pub mod cli {
     }
 
     impl Convert {
-        pub async fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(self, _documents: &mut Documents) -> display::Result {
             let Self {
                 input,
                 output,
                 from,
                 to,
             } = self;
-            let _document = documents.open(input, from.clone()).await?;
-            todo!("convert to {} as format {:?}", output, to);
-            #[allow(unreachable_code)]
+            let document = Document::open(input, from).await?;
+            document.export(output, to).await?;
             display::nothing()
         }
     }

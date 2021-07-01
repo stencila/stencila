@@ -1,0 +1,32 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: "decode_fragment(&content, Options::default())"
+input_file: fixtures/fragments/html/thematic-break.html
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "First theme."
+    ]
+  },
+  {
+    "type": "ThematicBreak"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Second theme."
+    ]
+  },
+  {
+    "type": "ThematicBreak"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Third theme."
+    ]
+  }
+]

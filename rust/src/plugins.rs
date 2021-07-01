@@ -2266,20 +2266,30 @@ mod tests {
         .expect_err("Expected an error!");
 
         run(Command {
-            action: Action::Install(Install {
-                plugins: vec![],
-                ..Default::default()
-            }),
-        })
-        .await?;
-
-        run(Command {
             action: Action::Link(Link {
                 path: "../foo".to_string(),
             }),
         })
         .await
         .expect_err("Expected an error!");
+
+        Ok(())
+    }
+
+    #[ignore]
+    #[tokio::test]
+    async fn test_cli_slow() -> Result<()> {
+        // Slow tests that are usually not run
+
+        use super::cli::*;
+
+        run(Command {
+            action: Action::Install(Install {
+                plugins: vec![],
+                ..Default::default()
+            }),
+        })
+        .await?;
 
         run(Command {
             action: Action::Upgrade(Upgrade {
