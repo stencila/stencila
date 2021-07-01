@@ -28,7 +28,7 @@ pub mod methods {
     pub mod export;
     pub mod import;
 
-    pub mod validate;
+    pub mod coerce;
 
     pub mod compile;
     pub mod execute;
