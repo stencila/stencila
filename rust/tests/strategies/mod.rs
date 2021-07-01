@@ -3,11 +3,7 @@ use itertools::interleave;
 use proptest::collection::{size_range, vec};
 use proptest::prelude::*;
 use proptest::strategy::Union;
-use stencila_schema::{
-    Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Emphasis, Heading,
-    ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
-    Paragraph, Strong, ThematicBreak, VideoObjectSimple,
-};
+use stencila_schema::*;
 
 /// The degree of freedom when generating arbitrary nodes.
 ///
@@ -113,11 +109,11 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a emphasis node with arbitrary content
-    pub fn emphasis(freedom: Freedom)(
+    /// Generate a delete node with arbitrary content
+    pub fn delete(freedom: Freedom)(
         content in string(freedom)
     ) -> InlineContent {
-        InlineContent::Emphasis(Emphasis{
+        InlineContent::Delete(Delete{
             content:vec![content],
             ..Default::default()
         })
@@ -125,11 +121,11 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a strong node with arbitrary content
-    pub fn strong(freedom: Freedom)(
+    /// Generate a emphasis node with arbitrary content
+    pub fn emphasis(freedom: Freedom)(
         content in string(freedom)
     ) -> InlineContent {
-        InlineContent::Strong(Strong{
+        InlineContent::Emphasis(Emphasis{
             content:vec![content],
             ..Default::default()
         })
@@ -154,6 +150,54 @@ prop_compose! {
     }
 }
 
+prop_compose! {
+    /// Generate a nontextual annotation node with arbitrary content
+    pub fn nontextual_annotation(freedom: Freedom)(
+        content in string(freedom)
+    ) -> InlineContent {
+        InlineContent::NontextualAnnotation(NontextualAnnotation{
+            content:vec![content],
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate a strong node with arbitrary content
+    pub fn strong(freedom: Freedom)(
+        content in string(freedom)
+    ) -> InlineContent {
+        InlineContent::Strong(Strong{
+            content:vec![content],
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate a subscript node with arbitrary content
+    pub fn subscript(freedom: Freedom)(
+        content in string(freedom)
+    ) -> InlineContent {
+        InlineContent::Subscript(Subscript{
+            content:vec![content],
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate a superscript node with arbitrary content
+    pub fn superscript(freedom: Freedom)(
+        content in string(freedom)
+    ) -> InlineContent {
+        InlineContent::Superscript(Superscript{
+            content:vec![content],
+            ..Default::default()
+        })
+    }
+}
+
 /// Generate one of the inline content node types excluding strings (which
 /// we usually want to be interleaved between them).
 pub fn inline_content(freedom: Freedom) -> impl Strategy<Value = InlineContent> {
@@ -162,9 +206,13 @@ pub fn inline_content(freedom: Freedom) -> impl Strategy<Value = InlineContent> 
         image_object_simple(freedom).boxed(),
         video_object_simple(freedom).boxed(),
         code_fragment(freedom).boxed(),
+        delete(freedom).boxed(),
         emphasis(freedom).boxed(),
-        strong(freedom).boxed(),
         link(freedom).boxed(),
+        nontextual_annotation(freedom).boxed(),
+        strong(freedom).boxed(),
+        subscript(freedom).boxed(),
+        superscript(freedom).boxed(),
     ])
 }
 
