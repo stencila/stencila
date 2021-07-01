@@ -22,13 +22,15 @@ pub mod methods {
     pub mod read;
     pub mod write;
 
+    pub mod coerce;
+
     pub mod decode;
     pub mod encode;
 
     pub mod export;
     pub mod import;
 
-    pub mod coerce;
+    pub mod reshape;
 
     pub mod compile;
     pub mod execute;
