@@ -517,8 +517,7 @@ impl Binary {
         for file in files {
             let path = dir.join(file);
             if path.exists() {
-                use std::os::unix::fs::PermissionsExt;
-                fs::set_permissions(path, fs::Permissions::from_mode(0o755))?;
+                crate::utils::fs::set_perms(path, 0o755)?;
             }
         }
         Ok(())
