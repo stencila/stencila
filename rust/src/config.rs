@@ -318,11 +318,13 @@ pub mod cli {
             Action::Dirs => {
                 let config_dir = dir(false)?.display().to_string();
                 let logs_dir = crate::logging::config::dir(false)?.display().to_string();
-                let plugins_dir = crate::plugins::config::dir(false)?.display().to_string();
+                let plugins_dir = crate::plugins::plugins_dir(false)?.display().to_string();
+                let binaries_dir = crate::binaries::binaries_dir().display().to_string();
                 let value = serde_json::json!({
                     "config": config_dir,
                     "logs": logs_dir,
-                    "plugins": plugins_dir
+                    "plugins": plugins_dir,
+                    "binaries": binaries_dir
                 });
                 display::value(value)
             }
