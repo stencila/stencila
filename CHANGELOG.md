@@ -1,3 +1,41 @@
+# [0.90.0](https://github.com/stencila/stencila/compare/v0.89.1...v0.90.0) (2021-07-02)
+
+
+### Bug Fixes
+
+* **Decode Markdown:** Handle soft breaks and clean code ([128ef58](https://github.com/stencila/stencila/commit/128ef58bbdf44fe5091c3ec529673492e541af0c))
+* **Dependencies:** Pin funty ([1705859](https://github.com/stencila/stencila/commit/17058592469267be09c30124b2b75ce995e2930c))
+* **Dependencies:** Upgrade to nom to avoid funty issue ([60252e8](https://github.com/stencila/stencila/commit/60252e885bc3b3c22ac1211c944be5dd3d7067bc))
+* **Documents:** Do not bubble up errors from from update mthod ([f8e55be](https://github.com/stencila/stencila/commit/f8e55be0d011b0fa4f4b173085cbb6d3880bf29a))
+* **HTML:** Always decode list ordering ([7859082](https://github.com/stencila/stencila/commit/78590821f974dc0ad9c43ce6bd745e12eeb4f100))
+* **HTML:** Decode to CodeBlock ([ac6b7a2](https://github.com/stencila/stencila/commit/ac6b7a26b3f88171fce6e642a9ba78073a3382da))
+* **HTML:** Escape attributes for media objects ([964e63d](https://github.com/stencila/stencila/commit/964e63def26b97a53b37b151724d7b9fada7bca6))
+* **HTML:** Escape attributes when encoding ([adc8f5f](https://github.com/stencila/stencila/commit/adc8f5fa0053e3dc336a8fc329651c0650f43e60))
+* **HTML:** Handle inline list item content ([d96d4ed](https://github.com/stencila/stencila/commit/d96d4edc703552184258c066859db78ace298093))
+* **HTML:** Ignore empty text when decoding ([92dbbd6](https://github.com/stencila/stencila/commit/92dbbd61229f503fb224f6ff83221966496a8dde))
+* **Markdown citations:** Allow for varying spaces around separator ([ac948b4](https://github.com/stencila/stencila/commit/ac948b4da2dd95505cdb0c4466ebc3e33f9300d8))
+* **Markdown citations:** Do not consume @ character ([c47540c](https://github.com/stencila/stencila/commit/c47540c239c12e472c6c9631ec91907e8d410770))
+* **Markdown code blocks:** Fix decoding ([b87af96](https://github.com/stencila/stencila/commit/b87af96faa7d3ab0e54e8cb0fda9118c901d90e5))
+* **Markdown links:** Handle no title correctly ([0a5d56b](https://github.com/stencila/stencila/commit/0a5d56bf78cce9055d19e268cd697eb0fc6fbb73))
+
+
+### Features
+
+* **Arkdown:** Add decoding of tables ([d9d6f17](https://github.com/stencila/stencila/commit/d9d6f172eeacfe3a934085dcfc6fbced1a4ea431))
+* **CLI:** Add `convert` command ([4a1006c](https://github.com/stencila/stencila/commit/4a1006c12f5f7ca132362a8bdfbdba6b56a6efc2))
+* **Decode Markdown:** Handle inline content extensions e.g. math, citations ([78ba852](https://github.com/stencila/stencila/commit/78ba8521912ea961d9fdcdb41ca721e5f434fbec))
+* **HTML:** Add decoding of audio and video elements ([a42e66b](https://github.com/stencila/stencila/commit/a42e66bef26fec2584e57a695732d3d9857c93b5))
+* **HTML:** Add decoding of code blocks and fragments ([14ec9f4](https://github.com/stencila/stencila/commit/14ec9f4c90bd17e95c865c9090f40d91ec91df1d))
+* **HTML:** Add decoding of headings ([3055c85](https://github.com/stencila/stencila/commit/3055c8592d9c0246cd7b40cff4b65a02777e6352))
+* **HTML:** Add decoding of inline nodes ([a3a1869](https://github.com/stencila/stencila/commit/a3a1869a640a0ef21179cc9e22200363c262911d))
+* **HTML:** Add decoding of links ([be2f19d](https://github.com/stencila/stencila/commit/be2f19d473a0aef2a397ef57d7d47eefdd4b1f01))
+* **HTML:** Add decoding of lists ([ace5a5d](https://github.com/stencila/stencila/commit/ace5a5d1e7ccda4ed95465ba8e0fd5df22dc8a7c))
+* **HTML:** Add decoding of thematic breaks ([be054df](https://github.com/stencila/stencila/commit/be054dfb57c204309b556bd8988e4845bd5f03b8))
+* **Markdown:** Add decoding of images ([a9cc803](https://github.com/stencila/stencila/commit/a9cc8035875fcaebe4a8d8522611a1debf2acf54))
+* **Markdown:** Add decoding of lists ([e750a77](https://github.com/stencila/stencila/commit/e750a77d345749b49645e338a245e6f6a7b8dc6c))
+* **Markdown:** Add decoding of quote blocks ([d03105b](https://github.com/stencila/stencila/commit/d03105b9b11ea61071a1f8cb7f9b431b876ef774))
+* **Markdown:** Decode HTML within Markdown ([15df781](https://github.com/stencila/stencila/commit/15df781b4220ebe43785a1aacc79f04e73b45016))
+
 ## [0.89.1](https://github.com/stencila/stencila/compare/v0.89.0...v0.89.1) (2021-06-30)
 
 

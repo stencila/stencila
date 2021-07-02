@@ -3214,7 +3214,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
-version = "0.89.1"
+version = "0.90.0"
 dependencies = [
  "ansi_term 0.12.1",
  "async-trait",
@@ -3281,7 +3281,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.89.1"
+version = "0.90.0"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -3299,7 +3299,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.89.1"
+version = "0.90.0"
 dependencies = [
  "neon",
  "stencila",
@@ -3896,9 +3896,9 @@ dependencies = [
 
 [[package]]
 name = "unicode-segmentation"
-version = "1.7.1"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb0d2e7be6ae3a5fa87eed5fb451aff96f2573d2694942e40543ae0bbe19c796"
+checksum = "8895849a949e7845e06bd6dc1aa51731a103c42707010a5b591c0038fb73385b"
 
 [[package]]
 name = "unicode-width"
