@@ -534,6 +534,21 @@ impl Binary {
         }
         Ok(())
     }
+
+    /// Uninstall a version, or all versions, of a binary
+    pub async fn uninstall(&mut self, version: Option<String>) -> Result<()> {
+        let dir = self.dir(version, false)?;
+        if dir.exists() {
+            fs::remove_dir_all(dir)?
+        } else {
+            tracing::warn!("No matching Stencila installed binary found")
+        }
+
+        // Always re-resolve after an uninstall
+        self.resolve();
+
+        Ok(())
+    }
 }
 
 type Binaries = HashMap<String, Binary>;
@@ -590,6 +605,7 @@ pub mod cli {
         List(List),
         Show(Show),
         Install(Install),
+        Uninstall(Uninstall),
         Run(Run),
     }
 
@@ -600,15 +616,16 @@ pub mod cli {
                 Action::List(action) => action.run().await,
                 Action::Show(action) => action.run().await,
                 Action::Install(action) => action.run().await,
+                Action::Uninstall(action) => action.run().await,
                 Action::Run(action) => action.run().await,
             }
         }
     }
 
-    /// List binaries and their supported versions
+    /// List registered binaries and their supported versions
     ///
     /// The returned list is a list of the binaries/versions
-    /// that Stencila knows how to install and use.
+    /// that Stencila knows how to use and/or install.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
@@ -632,14 +649,15 @@ pub mod cli {
         }
     }
 
-    /// Show information on a particular binary
+    /// Show information on a binary
     ///
     /// Searches for the binary on your path and in Stencila's "binaries"
     /// folder for versions that are installed. Use the `semver` argument
-    /// if you only want a result if the semantic version requirement is met.
+    /// if you only want to show the binary if the semantic version
+    /// requirement is met.
     ///
-    /// This command will work for binaries that are not registered as
-    /// "known" by Stencila (i.e. those not in `stencila binaries list`).
+    /// This command will work for binaries that are not registered
+    /// with Stencila (i.e. those not in `stencila binaries list`).
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
@@ -687,8 +705,9 @@ pub mod cli {
 
     /// Install a binary
     ///
-    /// This will install the latest version of the binary that meets any
-    /// semantic version requirement supplied in the Stencila "binaries" folder.
+    /// Installs the latest version of the binary, that also meets any
+    /// semantic version requirement supplied, into the Stencila "binaries"
+    /// folder.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
@@ -726,7 +745,46 @@ pub mod cli {
                 binary.install(semver, os, arch).await?;
                 tracing::info!("📦 Installed {}", name);
             } else {
-                tracing::info!("No registered binary with that name. See `stencila binaries list`.")
+                tracing::warn!(
+                    "No registered binary with that name. See `stencila binaries list`."
+                )
+            }
+
+            display::nothing()
+        }
+    }
+
+    /// Uninstall a binary
+    ///
+    /// Removes the binary (optionally, just a specific version) from the Stencila
+    /// "binaries" folder. No other installations of the binary on the system will
+    /// will be removed.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Uninstall {
+        /// The name of the binary (must be a registered binary name)
+        name: String,
+
+        /// The specific version of the binary to uninstall
+        ///
+        /// If this is not provided, all versions will be removed.
+        version: Option<String>,
+    }
+
+    impl Uninstall {
+        pub async fn run(self) -> display::Result {
+            let Self { name, version } = self;
+
+            if let Some(binary) = lock().await.get_mut(&name) {
+                binary.uninstall(version).await?;
+                tracing::info!("🗑️ Uninstalled {}", name);
+            } else {
+                tracing::warn!(
+                    "No registered binary with that name. See `stencila binaries list`."
+                )
             }
 
             display::nothing()
@@ -752,8 +810,8 @@ pub mod cli {
 
         /// Whether Stencila should automatically install the binary
         /// if it is not yet available
-        #[structopt(long)]
-        pub install: bool,
+        #[structopt(short, long)]
+        auto: bool,
 
         /// The arguments and options to pass to the binary
         #[structopt(raw(true))]
@@ -765,13 +823,13 @@ pub mod cli {
             let Self {
                 name,
                 semver,
-                install,
+                auto,
                 args,
             } = self;
 
             let output = if let Some(binary) = lock().await.get_mut(&name) {
                 binary.resolve();
-                binary.run(semver, &args, install).await?
+                binary.run(semver, &args, auto).await?
             } else {
                 bail!("Not a known binary")
             };
@@ -839,6 +897,13 @@ mod tests {
                     .len()
                     > 0
             );
+
+            cli::Uninstall {
+                name: name.clone(),
+                version: None,
+            }
+            .run()
+            .await?;
         }
 
         Ok(())
