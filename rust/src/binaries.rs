@@ -73,6 +73,18 @@ struct BinaryInstalls {
     version: Option<String>,
 }
 
+impl Clone for Binary {
+    fn clone(&self) -> Binary {
+        Binary {
+            name: self.name.clone(),
+            aliases: self.aliases.clone(),
+            installs: self.installs.clone(),
+            versions: self.versions.clone(),
+            ..Default::default()
+        }
+    }
+}
+
 impl Binary {
     pub fn new(name: &str, aliases: &[&str], versions: &[&str]) -> Binary {
         Binary {
@@ -635,13 +647,13 @@ pub mod cli {
     )]
     pub struct Show {
         /// The name of the binary e.g. pandoc
-        name: String,
+        pub name: String,
 
         /// The semantic version requirement for the binary e.g. >2
         ///
         /// If this is supplied and the binary does not meet the semver
         /// requirement nothing will be shown
-        semver: Option<String>,
+        pub semver: Option<String>,
     }
 
     impl Show {
@@ -652,13 +664,7 @@ pub mod cli {
 
             let binary = if let Some(binary) = binaries.get_mut(&name) {
                 binary.resolve();
-                Binary {
-                    name: binary.name.clone(),
-                    aliases: binary.aliases.clone(),
-                    installs: binary.installs.clone(),
-                    versions: binary.versions.clone(),
-                    ..Default::default()
-                }
+                binary.clone()
             } else {
                 let mut binary = Binary {
                     name,
@@ -690,18 +696,18 @@ pub mod cli {
     )]
     pub struct Install {
         /// The name of the binary (must be a registered binary name)
-        name: String,
+        pub name: String,
 
         /// The semantic version requirement (the most recent matching version will be installed)
-        semver: Option<String>,
+        pub semver: Option<String>,
 
         /// The operating system to install for (defaults to the current)
         #[structopt(short, long, possible_values = &OS_VALUES )]
-        os: Option<String>,
+        pub os: Option<String>,
 
         /// The architecture to install for (defaults to the current)
         #[structopt(short, long, possible_values = &ARCH_VALUES)]
-        arch: Option<String>,
+        pub arch: Option<String>,
     }
 
     const OS_VALUES: [&str; 3] = ["macos", "windows", "linux"];
@@ -739,19 +745,19 @@ pub mod cli {
     )]
     pub struct Run {
         /// The name of the binary e.g. node
-        name: String,
+        pub name: String,
 
         /// The semantic version requirement e.g. 16
-        semver: Option<String>,
+        pub semver: Option<String>,
 
         /// Whether Stencila should automatically install the binary
         /// if it is not yet available
         #[structopt(long)]
-        install: bool,
+        pub install: bool,
 
         /// The arguments and options to pass to the binary
         #[structopt(raw(true))]
-        args: Vec<String>,
+        pub args: Vec<String>,
     }
 
     impl Run {
@@ -776,5 +782,65 @@ pub mod cli {
 
             display::nothing()
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::utils::tests::skip_slow_tests;
+
+    /// End to end CLI test that install, show and uninstall
+    /// the latest version of each binary. Intended as a course
+    /// test of installation of each binary.
+    #[tokio::test]
+    async fn cli_install_run_uninstall() -> Result<()> {
+        if skip_slow_tests() {
+            return Ok(());
+        }
+
+        cli::List {}.run().await?;
+
+        let binaries = (*lock().await).clone();
+        for name in binaries.keys() {
+            eprintln!("Testing {}", name);
+
+            cli::Install {
+                name: name.clone(),
+                semver: None,
+                os: None,
+                arch: None,
+            }
+            .run()
+            .await?;
+
+            let display = cli::Show {
+                name: name.clone(),
+                semver: None,
+            }
+            .run()
+            .await?;
+
+            let value = if let Some(value) = display.value {
+                value
+            } else {
+                bail!("Expected value")
+            };
+            assert_eq!(
+                value.get("name"),
+                Some(&serde_json::Value::String(name.clone()))
+            );
+            assert!(
+                value
+                    .get("installs")
+                    .expect("To have installs")
+                    .as_array()
+                    .expect("To be array")
+                    .len()
+                    > 0
+            );
+        }
+
+        Ok(())
     }
 }
