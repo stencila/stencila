@@ -2,7 +2,7 @@ use crate::logging::config::LoggingConfig;
 use crate::plugins::config::PluginsConfig;
 use crate::serve::config::ServeConfig;
 use crate::upgrade::config::UpgradeConfig;
-use crate::{logging, plugins, projects, serve, telemetry, upgrade, utils::schemas};
+use crate::{binaries, logging, plugins, projects, serve, telemetry, upgrade, utils::schemas};
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use schemars::JsonSchema;
@@ -47,6 +47,9 @@ pub struct Config {
 
     #[validate]
     pub plugins: plugins::config::PluginsConfig,
+
+    #[validate]
+    pub binaries: binaries::config::BinariesConfig,
 
     #[validate]
     pub upgrade: upgrade::config::UpgradeConfig,

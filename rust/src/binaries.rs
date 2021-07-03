@@ -3,8 +3,9 @@ use eyre::{bail, Result};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::{
+    cmp::Ordering,
     collections::HashMap,
     env::{
         self,
@@ -36,6 +37,37 @@ pub fn binaries_dir() -> PathBuf {
     }
 }
 
+#[derive(Clone, Serialize)]
+struct BinaryInstallation {
+    /// The name of the binary
+    #[serde(skip)]
+    name: String,
+
+    /// The path the binary is installed to
+    path: PathBuf,
+
+    /// The version of the binary at the path
+    version: Option<String>,
+}
+
+impl BinaryInstallation {
+    /// Create an instance
+    pub fn new(name: String, path: PathBuf, version: Option<String>) -> BinaryInstallation {
+        BinaryInstallation {
+            name,
+            path,
+            version,
+        }
+    }
+
+    /// Run the binary
+    ///
+    /// Returns the output of the command
+    pub fn run(&self, args: &[String]) -> Result<Output> {
+        Ok(Command::new(&self.path).args(args).output()?)
+    }
+}
+
 #[derive(Defaults, Serialize)]
 struct Binary {
     /// The name of the binary
@@ -45,14 +77,14 @@ struct Binary {
     aliases: Vec<String>,
 
     /// Installations of the binary found locally
-    installs: Vec<BinaryInstalls>,
+    installations: Vec<BinaryInstallation>,
 
     /// Versions of the binary that this module supports
     /// installation of.
     ///
     /// Used to select a version to install based on semver
     /// requirements.
-    versions: Vec<String>,
+    installable: Vec<String>,
 
     /// The arguments used to
     #[serde(skip)]
@@ -64,28 +96,20 @@ struct Binary {
     version_regex: Regex,
 }
 
-#[derive(Clone, Serialize)]
-struct BinaryInstalls {
-    /// The path the binary is installed to
-    path: PathBuf,
-
-    /// The version of the binary at the path
-    version: Option<String>,
-}
-
 impl Clone for Binary {
     fn clone(&self) -> Binary {
         Binary {
             name: self.name.clone(),
             aliases: self.aliases.clone(),
-            installs: self.installs.clone(),
-            versions: self.versions.clone(),
+            installations: self.installations.clone(),
+            installable: self.installable.clone(),
             ..Default::default()
         }
     }
 }
 
 impl Binary {
+    /// Define a binary
     pub fn new(name: &str, aliases: &[&str], versions: &[&str]) -> Binary {
         Binary {
             name: name.to_string(),
@@ -93,7 +117,7 @@ impl Binary {
                 .iter()
                 .map(|s| String::from_str(s).unwrap())
                 .collect(),
-            versions: versions
+            installable: versions
                 .iter()
                 .map(|s| String::from_str(s).unwrap())
                 .collect(),
@@ -115,6 +139,27 @@ impl Binary {
         }
 
         Ok(dir)
+    }
+
+    /// Get the version of the binary at a path
+    ///
+    /// Parses the output of the command and adds a `0` patch semver part if
+    /// necessary.
+    pub fn version(&self, path: &Path) -> Option<String> {
+        let output = Command::new(path).args(&self.version_args).output();
+        if let Ok(output) = output {
+            let stdout = std::str::from_utf8(&output.stdout).unwrap_or("");
+            if let Some(version) = self.version_regex.captures(stdout).map(|captures| {
+                let mut parts: Vec<&str> = captures[0].split('.').collect();
+                while parts.len() < 3 {
+                    parts.push("0")
+                }
+                parts.join(".")
+            }) {
+                return Some(version);
+            }
+        }
+        None
     }
 
     /// Resolve the path and version of a binary
@@ -180,76 +225,44 @@ impl Binary {
 
         // Get version of each executable found
         tracing::debug!("Getting versions for paths {:?}", paths);
-        self.installs = paths
-            .map(|path| BinaryInstalls {
-                path: path.clone(),
-                version: self.version(&path),
+        let mut installs: Vec<BinaryInstallation> = paths
+            .map(|path| {
+                BinaryInstallation::new(self.name.clone(), path.clone(), self.version(&path))
             })
             .collect();
-    }
 
-    /// Run a command on the
-    ///
-    /// Returns the output of the command
-    pub async fn run(
-        &mut self,
-        semver: Option<String>,
-        args: &[String],
-        install: bool,
-    ) -> Result<Output> {
-        let path = if let Some(path) = self.installed(semver.clone())? {
-            path
-        } else if install {
-            self.install(semver.clone(), None, None).await?;
-            self.installed(semver)?.expect("That is is now installed")
-        } else {
-            bail!("Not suitable install of '{}' found", self.name)
-        };
-        self.exec(&path, args)
-    }
-
-    /// Execute the binary at the path
-    ///
-    /// Returns the output of the command
-    pub fn exec(&self, path: &Path, args: &[String]) -> Result<Output> {
-        Ok(Command::new(path).args(args).output()?)
-    }
-
-    /// Get the version of the binary at the path
-    ///
-    /// Parses the output of the command and adds a `0` pathc semver part if
-    /// necessary.
-    pub fn version(&self, path: &Path) -> Option<String> {
-        if let Ok(output) = self.exec(&path, &self.version_args) {
-            let stdout = std::str::from_utf8(&output.stdout).unwrap_or("");
-            if let Some(version) = self.version_regex.captures(stdout).map(|captures| {
-                let mut parts: Vec<&str> = captures[0].split('.').collect();
-                while parts.len() < 3 {
-                    parts.push("0")
-                }
-                parts.join(".")
-            }) {
-                return Some(version);
+        // Sort the installations by descending order of version so that
+        // the most recent version (meeting semver requirements) is returned by `installation()`.
+        installs.sort_by(|a, b| match (&a.version, &b.version) {
+            (Some(a), Some(b)) => {
+                let a = semver::Version::parse(&a).unwrap();
+                let b = semver::Version::parse(&b).unwrap();
+                a.partial_cmp(&b).unwrap_or(Ordering::Equal)
             }
-        }
-        None
+            (Some(..), None) => Ordering::Greater,
+            (None, Some(..)) => Ordering::Less,
+            (None, None) => Ordering::Equal,
+        });
+        installs.reverse();
+
+        self.installations = installs
     }
 
     /// Are any versions installed that match the semver requirement (if specified)
-    pub fn installed(&self, semver: Option<String>) -> Result<Option<PathBuf>> {
+    pub fn installation(&self, semver: Option<String>) -> Result<Option<BinaryInstallation>> {
         if let Some(semver) = semver {
             let semver = semver::VersionReq::parse(&semver)?;
-            for install in &self.installs {
+            for install in &self.installations {
                 if let Some(version) = &install.version {
                     let version = semver::Version::parse(&version)?;
                     if semver.matches(&version) {
-                        return Ok(Some(install.path.clone()));
+                        return Ok(Some(install.clone()));
                     }
                 }
             }
             Ok(None)
-        } else if let Some(install) = self.installs.first() {
-            Ok(Some(install.path.clone()))
+        } else if let Some(install) = self.installations.first() {
+            Ok(Some(install.clone()))
         } else {
             Ok(None)
         }
@@ -266,14 +279,14 @@ impl Binary {
         let semver = if let Some(semver) = semver {
             semver
         } else {
-            self.versions
+            self.installable
                 .first()
                 .expect("Always at least one version")
                 .clone()
         };
         let semver = semver::VersionReq::parse(&semver)?;
 
-        if let Some(version) = self.versions.iter().find_map(|version| {
+        if let Some(version) = self.installable.iter().find_map(|version| {
             match semver
                 .matches(&semver::Version::parse(&version).expect("Version to always be valid"))
             {
@@ -580,6 +593,67 @@ async fn lock() -> MutexGuard<'static, Binaries> {
     BINARIES.lock().await
 }
 
+/// Get a binary installation meeting semantic versioning requirements
+///
+/// If the binary is already available, or automatic installs are configured, returns
+/// a `BinaryInstallation` that can be used to run commands. Otherwise, errors
+/// with a message that the required binary is not yet installed, or failed to install.
+///
+/// This is a relatively expensive function even if the binary is already installed
+/// because if searches the file system and executes commands to get their version.
+/// For that reason you should probably using with a lazy static in the requiring module.
+async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
+    let binaries = &mut *lock().await;
+    let binary = if let Some(binary) = binaries.get_mut(name) {
+        binary
+    } else {
+        bail!("Unregistered binary '{}'. See `stencila binaries list` for registered binaries.")
+    };
+
+    binary.resolve();
+
+    let semver = if semver == "*" {
+        None
+    } else {
+        Some(semver.into())
+    };
+
+    if let Some(installation) = binary.installation(semver.clone())? {
+        return Ok(installation);
+    }
+
+    let config::BinariesConfig { auto } = crate::config::lock().await.binaries;
+    if auto {
+        binary.install(semver.clone(), None, None).await?;
+        if let Some(installation) = binary.installation(semver)? {
+            Ok(installation)
+        } else {
+            bail!("Failed to automatically install binary '{}'", name)
+        }
+    } else {
+        bail!("Required binary '{}' is not installed", name)
+    }
+}
+
+#[cfg(feature = "config")]
+pub mod config {
+    use super::*;
+    use defaults::Defaults;
+    use schemars::JsonSchema;
+    use validator::Validate;
+    /// Binaries
+    ///
+    /// Configuration settings for installation and management of third party binaries
+    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[serde(default)]
+    #[schemars(deny_unknown_fields)]
+    pub struct BinariesConfig {
+        /// Whether binaries should be automatically installed when they are required
+        #[def = "true"]
+        pub auto: bool,
+    }
+}
+
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
@@ -641,7 +715,7 @@ pub mod cli {
                 .map(|binary| {
                     serde_json::json!({
                         "name": binary.name.clone(),
-                        "versions": binary.versions.clone()
+                        "versions": binary.installable.clone()
                     })
                 })
                 .collect();
@@ -692,7 +766,7 @@ pub mod cli {
                 binary
             };
 
-            if binary.installed(semver)?.is_some() {
+            if binary.installation(semver)?.is_some() {
                 display::value(binary)
             } else {
                 tracing::info!(
@@ -745,9 +819,7 @@ pub mod cli {
                 binary.install(semver, os, arch).await?;
                 tracing::info!("📦 Installed {}", name);
             } else {
-                tracing::warn!(
-                    "No registered binary with that name. See `stencila binaries list`."
-                )
+                tracing::warn!("No registered binary with that name. See `stencila binaries list`.")
             }
 
             display::nothing()
@@ -766,12 +838,12 @@ pub mod cli {
     )]
     pub struct Uninstall {
         /// The name of the binary (must be a registered binary name)
-        name: String,
+        pub name: String,
 
         /// The specific version of the binary to uninstall
         ///
         /// If this is not provided, all versions will be removed.
-        version: Option<String>,
+        pub version: Option<String>,
     }
 
     impl Uninstall {
@@ -782,9 +854,7 @@ pub mod cli {
                 binary.uninstall(version).await?;
                 tracing::info!("🗑️ Uninstalled {}", name);
             } else {
-                tracing::warn!(
-                    "No registered binary with that name. See `stencila binaries list`."
-                )
+                tracing::warn!("No registered binary with that name. See `stencila binaries list`.")
             }
 
             display::nothing()
@@ -808,11 +878,6 @@ pub mod cli {
         /// The semantic version requirement e.g. 16
         pub semver: Option<String>,
 
-        /// Whether Stencila should automatically install the binary
-        /// if it is not yet available
-        #[structopt(short, long)]
-        auto: bool,
-
         /// The arguments and options to pass to the binary
         #[structopt(raw(true))]
         pub args: Vec<String>,
@@ -820,19 +885,10 @@ pub mod cli {
 
     impl Run {
         pub async fn run(self) -> display::Result {
-            let Self {
-                name,
-                semver,
-                auto,
-                args,
-            } = self;
+            let Self { name, semver, args } = self;
 
-            let output = if let Some(binary) = lock().await.get_mut(&name) {
-                binary.resolve();
-                binary.run(semver, &args, auto).await?
-            } else {
-                bail!("Not a known binary")
-            };
+            let installation = require(&name, &semver.unwrap_or("*".to_string())).await?;
+            let output = installation.run(&args)?;
 
             use std::io::Write;
             std::io::stdout().write_all(output.stdout.as_ref())?;
