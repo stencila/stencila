@@ -1,3 +1,24 @@
+# [0.91.0](https://github.com/stencila/stencila/compare/v0.90.0...v0.91.0) (2021-07-04)
+
+
+### Bug Fixes
+
+* **Binaries:** Set permissions in cross OS way ([5b69333](https://github.com/stencila/stencila/commit/5b69333b87541a4d425a1ffab07deb4280e671ca))
+* **dependencies:** update docusaurus monorepo to v2.0.0-beta.3 ([8425878](https://github.com/stencila/stencila/commit/8425878177c5de62b21cc8cf35df3317cd08663c))
+* **dependencies:** update rust crate structopt to v0.3.22 ([f66b84a](https://github.com/stencila/stencila/commit/f66b84a025b5b7bda131ad008dcda84bc770e04a))
+* **dependencies:** update rust crate termimad to v0.13.0 ([caa1be4](https://github.com/stencila/stencila/commit/caa1be42ea132fa78a36feb2101a651163223c12))
+* **dependencies:** update rust crate thiserror to v1.0.26 ([c3f36b1](https://github.com/stencila/stencila/commit/c3f36b1ecb0576a290c4a8edd7d618ced1f94c06))
+* **dependencies:** update rust crate tokio to v1.8.0 ([bafa3f0](https://github.com/stencila/stencila/commit/bafa3f0e6ff6f233398b6255705716a3c2001b34))
+* **dependencies:** update rust crate validator to v0.14.0 ([95567c4](https://github.com/stencila/stencila/commit/95567c44f3f31b8470e8530103d979a2380d3d5f))
+
+
+### Features
+
+* **Binaries:** Add binaries module for locating, running and installing  third party binaries ([83d390c](https://github.com/stencila/stencila/commit/83d390c950fab75fc63f391e3fcac3a383abd7d9))
+* **Binaries:** Add configuration option to enable, or not, automatic installs; add require function ([e2cd4eb](https://github.com/stencila/stencila/commit/e2cd4eb8a33bec8ffa29be662ebd30f0744eddb9))
+* **Binaries:** Add installation for Python ([98b5bdf](https://github.com/stencila/stencila/commit/98b5bdf916c72090eea99e244197777e00e79175))
+* **Binaries:** Add uninstall command ([4069af3](https://github.com/stencila/stencila/commit/4069af37c332757a5188809d13ac97dd020a89dc))
+
 # [0.90.0](https://github.com/stencila/stencila/compare/v0.89.1...v0.90.0) (2021-07-02)
 
 
