@@ -145,7 +145,7 @@ serde_json = { version = "=1.0.64", features = ["preserve_order"] }
 serde_with = "=1.9.4"
 serde_yaml = { version = "=0.8.17", optional = true }
 stencila-schema = "=1.9.0"
-structopt = { version = "=0.3.21", optional = true }
+structopt = { version = "=0.3.22", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
 strum_macros = "=0.21.1"
 thiserror = "=1.0.25"

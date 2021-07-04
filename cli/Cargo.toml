@@ -23,7 +23,7 @@ rust-embed = { version = "=5.9.0", features = ["compression"], optional = true }
 rustyline = { version = "=8.2.0", optional = true }
 rustyline-derive = { version = "=0.4.0", optional = true }
 stencila = { path = "../rust" }
-structopt = { version = "=0.3.21", features = ["wrap_help"] }
+structopt = { version = "=0.3.22", features = ["wrap_help"] }
 syntect = { version = "=4.5.0", optional = true }
 termimad = { version = "=0.12.1", optional = true }
 webbrowser = { version = "=0.5.5", optional = true }
