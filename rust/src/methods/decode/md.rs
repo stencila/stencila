@@ -761,14 +761,14 @@ mod tests {
     use insta::assert_json_snapshot;
 
     #[test]
-    fn articles() {
+    fn md_articles() {
         snapshot_content("articles/*.md", |content| {
             assert_json_snapshot!(decode(&content).expect("Unable to decode Markdown"));
         });
     }
 
     #[test]
-    fn fragments() {
+    fn md_fragments() {
         snapshot_content("fragments/md/*.md", |content| {
             assert_json_snapshot!(decode_fragment(&content));
         });
