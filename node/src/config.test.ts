@@ -71,7 +71,7 @@ test('setProperty', () => {
     setProperty('upgrade.auto', 'foo bar')
   } catch (error) {
     expect(error.toString()).toMatch(
-      `Error: ValidationErrors({\"upgrade\": Struct(ValidationErrors({\"auto\": Field([ValidationError { code: \"invalid_duration_string\", message: Some(\"Not a valid duration\"), params: {\"value\": String(\"foo bar\")} }])}))})`
+      `Error: upgrade.auto: Not a valid duration`
     )
   }
 })
