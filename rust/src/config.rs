@@ -2,7 +2,7 @@ use crate::logging::config::LoggingConfig;
 use crate::plugins::config::PluginsConfig;
 use crate::serve::config::ServeConfig;
 use crate::upgrade::config::UpgradeConfig;
-use crate::{logging, plugins, projects, serve, telemetry, upgrade, utils::schemas};
+use crate::{binaries, logging, plugins, projects, serve, telemetry, upgrade, utils::schemas};
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use schemars::JsonSchema;
@@ -47,6 +47,9 @@ pub struct Config {
 
     #[validate]
     pub plugins: plugins::config::PluginsConfig,
+
+    #[validate]
+    pub binaries: binaries::config::BinariesConfig,
 
     #[validate]
     pub upgrade: upgrade::config::UpgradeConfig,
@@ -318,11 +321,13 @@ pub mod cli {
             Action::Dirs => {
                 let config_dir = dir(false)?.display().to_string();
                 let logs_dir = crate::logging::config::dir(false)?.display().to_string();
-                let plugins_dir = crate::plugins::config::dir(false)?.display().to_string();
+                let plugins_dir = crate::plugins::plugins_dir(false)?.display().to_string();
+                let binaries_dir = crate::binaries::binaries_dir().display().to_string();
                 let value = serde_json::json!({
                     "config": config_dir,
                     "logs": logs_dir,
-                    "plugins": plugins_dir
+                    "plugins": plugins_dir,
+                    "binaries": binaries_dir
                 });
                 display::value(value)
             }

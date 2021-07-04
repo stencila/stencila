@@ -19,7 +19,7 @@ use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
-    fs,
+    env, fs,
     path::PathBuf,
     process::{Command, Stdio},
     sync::Arc,
@@ -28,6 +28,19 @@ use std::{
 use stencila_schema::Node;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator, VariantNames};
 use tokio::sync::{Mutex, MutexGuard};
+
+/// Get the directory within which plugins and their configurations are installed
+pub fn plugins_dir(ensure: bool) -> Result<PathBuf> {
+    let user_data_dir = dirs_next::data_dir().unwrap_or_else(|| env::current_dir().unwrap());
+    let dir = match env::consts::OS {
+        "macos" | "windows" => user_data_dir.join("Stencila").join("Plugins"),
+        _ => user_data_dir.join("stencila").join("plugins"),
+    };
+    if ensure {
+        fs::create_dir_all(&dir)?;
+    }
+    Ok(dir)
+}
 
 /// Plugin installation method
 ///
@@ -212,7 +225,7 @@ impl Plugin {
 
     /// Get the path of the plugin's directory
     pub fn dir(name: &str) -> Result<PathBuf> {
-        Ok(config::dir(false)?.join(name))
+        Ok(plugins_dir(false)?.join(name))
     }
 
     /// Get the path of the plugin's manifest file
@@ -461,7 +474,7 @@ impl Plugin {
             (owner.into(), name.into())
         };
 
-        let npm_prefix = config::dir(false)?;
+        let npm_prefix = plugins_dir(false)?;
         let node_modules = npm_prefix.join("node_modules");
         fs::create_dir_all(&node_modules)?;
 
@@ -738,7 +751,7 @@ impl Plugin {
         }
 
         // (Re)create the directory where the binary will be downloaded to
-        let install_dir = config::dir(false)?.join(&name);
+        let install_dir = plugins_dir(false)?.join(&name);
         fs::create_dir_all(&install_dir)?;
         let install_path = install_dir.join(&name);
 
@@ -1487,7 +1500,7 @@ impl Plugins {
         }
 
         // Add / update using any manifests that are stored locally in plugins directory
-        let dir = config::dir(true)?;
+        let dir = plugins_dir(true)?;
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
             let path = entry.path();
@@ -1873,22 +1886,7 @@ pub async fn delegate(method: Method, params: HashMap<String, serde_json::Value>
 pub mod config {
     use super::*;
     use defaults::Defaults;
-    use std::env;
     use validator::Validate;
-
-    /// Get the directory within which plugins and their configurations are installed
-    pub fn dir(ensure: bool) -> Result<PathBuf> {
-        let config = crate::config::dir(false)?;
-        let dir = match env::consts::OS {
-            "macos" | "windows" => config.join("Plugins"),
-            _ => config.join("plugins"),
-        };
-        if ensure {
-            fs::create_dir_all(&dir)?;
-        }
-        Ok(dir)
-    }
-
     /// Plugins
     ///
     /// Configuration settings for plugin installation and management

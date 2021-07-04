@@ -52,6 +52,10 @@ pub mod traits {
 
 #[cfg(feature = "cli")]
 pub mod cli;
+
+#[cfg(feature = "binaries")]
+pub mod binaries;
+
 #[cfg(feature = "plugins")]
 pub mod plugins;
 

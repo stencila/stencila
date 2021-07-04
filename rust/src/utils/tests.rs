@@ -37,3 +37,18 @@ pub fn snapshot_content<F: FnMut(&str)>(pattern: &str, mut func: F) {
         });
     });
 }
+
+/// Should slow tests be skipped?
+///
+/// Use at the start of slow tests to return early except on CI or when
+/// the env var `RUN_SLOW_TESTS` is set.
+///
+/// Inspired by https://github.com/rust-analyzer/rust-analyzer/pull/2491
+pub fn skip_slow_tests() -> bool {
+    if std::env::var("CI").is_err() && std::env::var("RUN_SLOW_TESTS").is_err() {
+        eprintln!("Skipping slow test");
+        true
+    } else {
+        false
+    }
+}
