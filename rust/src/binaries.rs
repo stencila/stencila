@@ -322,7 +322,11 @@ impl Binary {
             "chrome" => self.install_chrome(version, &os, &arch).await,
             "node" => self.install_node(version, &os, &arch).await,
             "pandoc" => self.install_pandoc(version, &os, &arch).await,
-            _ => bail!("Install not implemented for binary '{}'", self.name),
+            "python" => self.install_python(version, &os, &arch).await,
+            _ => bail!(
+                "Stencila is not able to install '{name}'.",
+                name = self.name
+            ),
         }
     }
 
@@ -412,6 +416,33 @@ impl Binary {
         let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 1, &dest)?;
         self.executable(&dest, &["bin/pandoc", "pandoc.exe"])?;
+
+        Ok(())
+    }
+
+    /// Install Python
+    ///
+    /// On Windows uses Pythons "embeddable" distributions intended for this purpose.
+    async fn install_python(&self, version: &str, os: &str, arch: &str) -> Result<()> {
+        let url = format!(
+            "https://www.python.org/ftp/python/{version}/python-{version}-embed-",
+            version = version
+        ) + match os {
+            "windows" => match arch {
+                "x86" => "win32.zip",
+                "x86_64" => "amd64.zip",
+                _ => bail!("Unhandled arch '{}", arch),
+            },
+            _ => bail!(
+                "Stencila is unable to install Python for operating system '{}'.",
+                os
+            ),
+        };
+
+        let archive = self.download(&url).await?;
+        let dest = self.dir(Some(version.into()), true)?;
+        self.extract(&archive, 0, &dest)?;
+        self.executable(&dest, &["bin/python3", "python3.exe"])?;
 
         Ok(())
     }
@@ -570,16 +601,21 @@ static BINARIES: Lazy<Mutex<Binaries>> = Lazy::new(|| {
     // Note: versions should be valid semver triples and listed in descending order!
     // The first version meeting semver requirements will be installed is necessary
     let binaries = vec![
+        // Chrome / Chromium
         // Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history
         // but only use triples ending in `.0` here and make sure there is a mapping in the
         // `install_chromium` function.
         Binary::new("chrome", &["chromium"], &["91.0.0"]),
+        // Node.js
         // Release list at https://nodejs.org/en/download/releases/
         Binary::new("node", &[], &["16.4.1"]),
+        // Pandoc
         // Release list at https://github.com/jgm/pandoc/releases
         // To avoid version parsing issues we map standard semver triples
         // to Pandoc's quads in the `install_pandoc` function and use only triples here.
         Binary::new("pandoc", &[], &["2.14.0"]),
+        // Python
+        Binary::new("python", &["python3"], &["3.9.6"]),
     ]
     .into_iter()
     .map(|binary| (binary.name.clone(), binary))
@@ -887,7 +923,7 @@ pub mod cli {
         pub async fn run(self) -> display::Result {
             let Self { name, semver, args } = self;
 
-            let installation = require(&name, &semver.unwrap_or("*".to_string())).await?;
+            let installation = require(&name, &semver.unwrap_or_else(|| "*".to_string())).await?;
             let output = installation.run(&args)?;
 
             use std::io::Write;
