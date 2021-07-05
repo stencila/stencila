@@ -1,4 +1,5 @@
 use crate::utils::schemas;
+use defaults::Defaults;
 use eyre::Result;
 use once_cell::sync::Lazy;
 use schemars::JsonSchema;
@@ -11,7 +12,7 @@ use std::{collections::HashMap, path::Path};
 /// Used to determine various application behaviors
 /// e.g. not reading binary formats into memory unnecessarily
 #[skip_serializing_none]
-#[derive(Clone, Debug, JsonSchema, Serialize)]
+#[derive(Clone, Debug, Defaults, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Format {
     /// The lowercase name of the format e.g. `md`, `docx`, `dockerfile`
@@ -32,6 +33,10 @@ pub struct Format {
     /// embedded in the data).
     #[serde(rename = "type")]
     pub type_: Option<String>,
+
+    /// Any additional extensions (other than it's name) that this format
+    /// should match against.
+    pub extensions: Vec<String>,
 }
 
 impl Format {
@@ -46,7 +51,21 @@ impl Format {
             } else {
                 Some(type_.to_string())
             },
+            ..Default::default()
         }
+    }
+
+    /// Create a new file format with mutliple matching extensions
+    pub fn new_extensions(
+        name: &str,
+        binary: bool,
+        preview: bool,
+        type_: &str,
+        extensions: &[&str],
+    ) -> Format {
+        let mut format = Format::new(name, binary, preview, type_);
+        format.extensions = extensions.iter().map(|s| s.to_string()).collect();
+        format
     }
 
     /// Create the special `directory` format used on `File` objects
@@ -57,6 +76,7 @@ impl Format {
             binary: true,
             preview: false,
             type_: Some("Collection".into()),
+            ..Default::default()
         }
     }
 
@@ -68,6 +88,7 @@ impl Format {
             binary: true,
             preview: false,
             type_: None,
+            ..Default::default()
         }
     }
 
@@ -111,7 +132,7 @@ impl Default for Formats {
             Format::new("md", false, true, "Article"),
             Format::new("odt", true, true, "Article"),
             Format::new("rmd", false, true, "Article"),
-            Format::new("tex", false, true, "Article"),
+            Format::new_extensions("latex", false, true, "Article", &["tex"]),
             Format::new("txt", false, true, "Article"),
             // Audio formats
             Format::new("flac", true, true, "AudioObject"),
@@ -153,18 +174,32 @@ impl Formats {
     /// Match a file path to a `Format`
     pub fn match_path<P: AsRef<Path>>(&self, path: &P) -> Format {
         let path = path.as_ref();
-        // Use file extension
+
+        // Get name from file extension, or filename if no extension
         let name = match path.extension() {
             Some(ext) => ext,
-            // Fallback to the filename if no extension
             None => match path.file_name() {
                 Some(name) => name,
                 // Fallback to the provided "path"
                 None => path.as_os_str(),
             },
         };
+        let name = name.to_string_lossy().to_string();
+        if let Some(format) = self.formats.get(&name.to_lowercase()) {
+            return format.clone();
+        }
 
-        self.match_name(&name.to_string_lossy().to_string())
+        // Try matching against "extra" extensions
+        if let Some(ext) = path.extension() {
+            let ext = ext.to_string_lossy().to_string();
+            for format in self.formats.values() {
+                if format.extensions.contains(&ext) {
+                    return format.clone();
+                }
+            }
+        }
+
+        Format::unregistered(&name)
     }
 }
 
