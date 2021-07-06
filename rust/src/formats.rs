@@ -27,13 +27,6 @@ pub struct Format {
     /// necessarily have a preview opened for it.
     pub preview: bool,
 
-    /// The type of `CreativeWork` that this format is expected to be.
-    /// This will be `None` for data serialization formats such as
-    /// JSON or YAML which have no expected type (the actual type is
-    /// embedded in the data).
-    #[serde(rename = "type")]
-    pub type_: Option<String>,
-
     /// Any additional extensions (other than it's name) that this format
     /// should match against.
     pub extensions: Vec<String>,
@@ -41,29 +34,18 @@ pub struct Format {
 
 impl Format {
     /// Create a new file format
-    pub fn new(name: &str, binary: bool, preview: bool, type_: &str) -> Format {
+    pub fn new(name: &str, binary: bool, preview: bool) -> Format {
         Format {
             name: name.into(),
             binary,
             preview,
-            type_: if type_.is_empty() {
-                None
-            } else {
-                Some(type_.to_string())
-            },
             ..Default::default()
         }
     }
 
     /// Create a new file format with mutliple matching extensions
-    pub fn new_extensions(
-        name: &str,
-        binary: bool,
-        preview: bool,
-        type_: &str,
-        extensions: &[&str],
-    ) -> Format {
-        let mut format = Format::new(name, binary, preview, type_);
+    pub fn new_extensions(name: &str, binary: bool, preview: bool, extensions: &[&str]) -> Format {
+        let mut format = Format::new(name, binary, preview);
         format.extensions = extensions.iter().map(|s| s.to_string()).collect();
         format
     }
@@ -75,7 +57,6 @@ impl Format {
             name: "dir".into(),
             binary: true,
             preview: false,
-            type_: Some("Collection".into()),
             ..Default::default()
         }
     }
@@ -87,7 +68,6 @@ impl Format {
             name: name.into(),
             binary: true,
             preview: false,
-            type_: None,
             ..Default::default()
         }
     }
@@ -112,42 +92,41 @@ impl Default for Formats {
         let formats = vec![
             // Data serialization formats. These may be used
             // to store documents so `preview: true`.
-            Format::new("json", false, true, ""),
-            Format::new("json5", false, true, ""),
-            Format::new("toml", false, true, ""),
-            Format::new("xml", false, true, ""),
-            Format::new("yaml", false, true, ""),
+            Format::new("json", false, true),
+            Format::new("json5", false, true),
+            Format::new("toml", false, true),
+            Format::new("xml", false, true),
+            Format::new("yaml", false, true),
             // Code formats
-            Format::new("dockerfile", false, false, ""),
-            Format::new("js", false, false, ""),
-            Format::new("makefile", false, false, ""),
-            Format::new("py", false, false, ""),
-            Format::new("r", false, false, ""),
-            Format::new("sh", false, false, ""),
-            Format::new("ts", false, false, ""),
+            Format::new("dockerfile", false, false),
+            Format::new("js", false, false),
+            Format::new("makefile", false, false),
+            Format::new("py", false, false),
+            Format::new("r", false, false),
+            Format::new("sh", false, false),
+            Format::new("ts", false, false),
             // Article formats
-            Format::new("docx", true, true, "Article"),
-            Format::new("html", false, true, "Article"),
-            Format::new("ipynb", false, true, "Article"),
-            Format::new("md", false, true, "Article"),
-            Format::new("odt", true, true, "Article"),
-            Format::new("rmd", false, true, "Article"),
-            Format::new_extensions("latex", false, true, "Article", &["tex"]),
-            Format::new("txt", false, true, "Article"),
+            Format::new("docx", true, true),
+            Format::new("html", false, true),
+            Format::new("ipynb", false, true),
+            Format::new("md", false, true),
+            Format::new("odt", true, true),
+            Format::new("rmd", false, true),
+            Format::new_extensions("latex", false, true, &["tex"]),
+            Format::new("txt", false, true),
             // Audio formats
-            Format::new("flac", true, true, "AudioObject"),
-            Format::new("mp3", true, true, "AudioObject"),
-            Format::new("ogg", true, true, "AudioObject"),
+            Format::new("flac", true, true),
+            Format::new("mp3", true, true),
+            Format::new("ogg", true, true),
             // Image formats
-            Format::new("gif", true, true, "ImageObject"),
-            Format::new("jpeg", true, true, "ImageObject"),
-            Format::new("jpg", true, true, "ImageObject"),
-            Format::new("png", true, true, "ImageObject"),
+            Format::new("gif", true, true),
+            Format::new_extensions("jpg", true, true, &["jpeg"]),
+            Format::new("png", true, true),
             // Video formats
-            Format::new("3gp", true, true, "VideoObject"),
-            Format::new("mp4", true, true, "VideoObject"),
-            Format::new("ogv", true, true, "VideoObject"),
-            Format::new("webm", true, true, "VideoObject"),
+            Format::new("3gp", true, true),
+            Format::new("mp4", true, true),
+            Format::new("ogv", true, true),
+            Format::new("webm", true, true),
             // Specials
             Format::directory(),
             Format::unknown(),
