@@ -19,12 +19,12 @@ properties:
   minItems:
     '@id': stencila:minItems
     description: An array node is valid if its size is greater than, or equal to, this value.
-    type: number
+    type: integer
     minimum: 0
   maxItems:
     '@id': stencila:maxItems
     description: An array node is valid if its size is less than, or equal to, this value.
-    type: number
+    type: integer
     minimum: 0
   uniqueItems:
     '@id': stencila:uniqueItems

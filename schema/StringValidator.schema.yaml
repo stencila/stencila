@@ -12,14 +12,14 @@ $comment: |
 properties:
   minLength:
     '@id': stencila:minLength
-    type: number
+    type: integer
     minimum: 0
     description: The minimum length for a string node.
     $comment: |
       A string is valid if its length is greater than, or exactly equal to, `minLength`.
   maxLength:
     '@id': stencila:maxLength
-    type: number
+    type: integer
     minimum: 0
     description: The maximum length for a string node.
     $comment: |
