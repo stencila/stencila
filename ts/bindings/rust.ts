@@ -60,6 +60,32 @@ const propertyTypes: Record<string, string> = {
   'StringValidator.max_length': 'u32',
 }
 
+// Types that should not get automatically boxed if the property is
+// optional.
+//
+// In addition to these Vec types are not boxed.
+// Reasons for not boxing:
+//  - no space saving advantage because less than or same size as Box (8 bytes)
+//  - ergonomics: properties that are optional but usually present
+const noBoxTypes = [
+  // Enums with no data
+  'CiteCitationMode',
+  'ClaimClaimType',
+  'ListOrder',
+  'NoteNoteType',
+  'SoftwareSessionStatus',
+  'TableCellCellType',
+  'TableRowRowType',
+  // Small primitives (8 bytes or less)
+  'Boolean',
+  'Integer',
+  'Number',
+  // Enums that have two alternative Vec variants
+  // and so are no larger than a Vec anyway.
+  'ListItemContent',
+  'TableCellContent',
+]
+
 // Properties that need to use a `Box` pointer to prevent circular references
 // (the "recursive type has infinite size" error) or because it is
 // memory efficient (especially for optional properties on deeply nested structs)
@@ -231,13 +257,7 @@ export function interfaceSchemaToStruct(
           // Optional properties are boxed to reduce the size allocated to the stack
           // but not if they are the same size (or smaller than) a Box (8 bytes) or,
           // for ergonomic reasons, a Vec (24 bytes).
-          (optional &&
-            !(
-              type === 'Boolean' ||
-              type === 'Integer' ||
-              type === 'Number' ||
-              type.startsWith('Vec<')
-            ))
+          (optional && !(noBoxTypes.includes(type) || type.startsWith('Vec')))
             ? `Box<${type}>`
             : type
       }
