@@ -1,3 +1,11 @@
+## [1.9.1](https://github.com/stencila/schema/compare/v1.9.0...v1.9.1) (2021-07-06)
+
+
+### Bug Fixes
+
+* **Array and string validators:** Use integer for property types where appropriate ([866423e](https://github.com/stencila/schema/commit/866423eefd32670dd66e73773cd5e3ac675740af))
+* **Rust:** Do not box primitive properties; allow overrides ([e817aaa](https://github.com/stencila/schema/commit/e817aaa2f59d90b5c46a6464cedd7d5ccab8717e))
+
 # [1.9.0](https://github.com/stencila/schema/compare/v1.8.1...v1.9.0) (2021-06-21)
 
 
