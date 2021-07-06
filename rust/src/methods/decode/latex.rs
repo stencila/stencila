@@ -9,6 +9,7 @@ pub async fn decode(latex: &str) -> Result<Node> {
         pandoc::Options {
             format: "latex".to_string(),
             is_file: false,
+            ..Default::default()
         },
     )
     .await

@@ -27,6 +27,9 @@ pub struct Options {
     /// Whether the content is a file system path or not
     #[def = "false"]
     pub is_file: bool,
+
+    /// Additional arguments to pass to Pandoc
+    pub args: Vec<String>,
 }
 
 /// Decode a document to a `Node`
@@ -89,13 +92,14 @@ async fn decode_pandoc(input: &str, options: &Options) -> Result<pandoc::Pandoc>
             .get_or_try_init(|| binaries::require("pandoc", "2.11"))
             .await?;
 
+        let args = vec![
+            format!("--from={}", options.format),
+            "--to=json".to_string(),
+        ];
+        let args = [args, options.args.clone()].concat();
+
         let mut command = binary.command();
-        command
-            .args(&[
-                format!("--from={}", options.format),
-                "--to=json".to_string(),
-            ])
-            .stdout(Stdio::piped());
+        command.args(&args).stdout(Stdio::piped());
 
         let child = if options.is_file {
             if !PathBuf::from(input).exists() {
@@ -213,7 +217,7 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
 
         pandoc::Block::CodeBlock(attrs, text) => {
             let id = get_id(attrs);
-            let programming_language = get_attr(attrs, "classes").map(|value| Box::new(value));
+            let programming_language = get_attr(attrs, "classes").map(Box::new);
             vec![BlockContent::CodeBlock(CodeBlock {
                 id,
                 programming_language,
@@ -608,6 +612,7 @@ mod tests {
                     Options {
                         format: "pandoc".to_string(),
                         is_file: false,
+                        ..Default::default()
                     },
                 )
                 .await

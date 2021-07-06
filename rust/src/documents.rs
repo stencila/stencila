@@ -224,7 +224,7 @@ impl Document {
     ///             the file extension.
     /// TODO: add project: Option<PathBuf> so that project can be explictly set
     async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
-        let path = path.as_ref();
+        let path = path.as_ref().canonicalize()?;
         if path.is_dir() {
             bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
         }
@@ -253,7 +253,7 @@ impl Document {
 
         let mut document = Document {
             id,
-            path: path.to_path_buf(),
+            path,
             project,
             temporary: false,
             name,
@@ -1108,7 +1108,8 @@ mod tests {
         let fixtures = &PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
             .join("fixtures")
-            .join("articles");
+            .join("articles")
+            .canonicalize()?;
 
         for file in vec!["elife-small.json", "elife-mid.json", "era-plotly.json"] {
             let doc = Document::open(fixtures.join(file), None).await?;
