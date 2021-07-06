@@ -41,13 +41,13 @@ pub fn binaries_dir() -> PathBuf {
 pub struct BinaryInstallation {
     /// The name of the binary
     #[serde(skip)]
-    name: String,
+    pub name: String,
 
     /// The path the binary is installed to
-    path: PathBuf,
+    pub path: PathBuf,
 
     /// The version of the binary at the path
-    version: Option<String>,
+    pub version: Option<String>,
 }
 
 impl BinaryInstallation {
