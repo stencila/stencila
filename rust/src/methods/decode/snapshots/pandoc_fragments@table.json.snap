@@ -1,0 +1,146 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/table.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Regular table"
+    ]
+  },
+  {
+    "type": "Table",
+    "rows": [
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "content": [
+              "A"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "B"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "C"
+            ]
+          }
+        ],
+        "rowType": "Header"
+      },
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "content": [
+              "1"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "2"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "3"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "content": [
+              "4"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "5"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "6"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Table with empty cells"
+    ]
+  },
+  {
+    "type": "Table",
+    "rows": [
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "content": [
+              "D"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "E"
+            ]
+          }
+        ],
+        "rowType": "Header"
+      },
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "content": [
+              "1"
+            ]
+          },
+          {
+            "type": "TableCell"
+          }
+        ]
+      },
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell"
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "2"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

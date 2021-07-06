@@ -1,0 +1,45 @@
+{
+  "pandoc-api-version": [
+    1,
+    22
+  ],
+  "meta": {},
+  "blocks": [
+    {
+      "t": "Para",
+      "c": [
+        {
+          "t": "Str",
+          "c": "Subscripts"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "like"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "H"
+        },
+        {
+          "t": "Subscript",
+          "c": [
+            {
+              "t": "Str",
+              "c": "2"
+            }
+          ]
+        },
+        {
+          "t": "Str",
+          "c": "0."
+        }
+      ]
+    }
+  ]
+}

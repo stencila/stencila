@@ -1,0 +1,38 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/thematic-break.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "First theme."
+    ]
+  },
+  {
+    "type": "ThematicBreak"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Second theme."
+    ]
+  },
+  {
+    "type": "ThematicBreak"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Third theme. _____"
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Fourth theme."
+    ]
+  }
+]

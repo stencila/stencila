@@ -1,0 +1,47 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/quote-block.json
+
+---
+[
+  {
+    "type": "QuoteBlock",
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "Simple, single line"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "QuoteBlock",
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "Multiple paragraphs"
+        ]
+      },
+      {
+        "type": "Paragraph",
+        "content": [
+          "The second paragraph"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "QuoteBlock",
+    "content": [
+      {
+        "type": "Paragraph",
+        "content": [
+          "Nested quote blocks > Inner >> Inner inner"
+        ]
+      }
+    ]
+  }
+]

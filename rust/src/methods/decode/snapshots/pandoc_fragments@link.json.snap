@@ -1,0 +1,51 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/link.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "A ",
+      {
+        "type": "Link",
+        "content": [
+          "link"
+        ],
+        "target": "https://stenci.la",
+        "title": "Stencila"
+      },
+      "."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A ",
+      {
+        "type": "Link",
+        "content": [
+          "link"
+        ],
+        "target": ""
+      },
+      " with no target or title."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A ",
+      {
+        "type": "Link",
+        "content": [
+          "link"
+        ],
+        "target": "https://stenci.la"
+      },
+      " with no title."
+    ]
+  }
+]

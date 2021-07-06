@@ -1,0 +1,21 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/subscript.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Subscripts like H",
+      {
+        "type": "Subscript",
+        "content": [
+          "2"
+        ]
+      },
+      "0."
+    ]
+  }
+]

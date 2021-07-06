@@ -1,0 +1,56 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/heading.json
+
+---
+[
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 1"
+    ],
+    "depth": 1,
+    "id": "heading-1"
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 2"
+    ],
+    "depth": 2,
+    "id": "heading-2"
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 3"
+    ],
+    "depth": 3,
+    "id": "heading-3"
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 4"
+    ],
+    "depth": 4,
+    "id": "heading-4"
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 5"
+    ],
+    "depth": 5,
+    "id": "heading-5"
+  },
+  {
+    "type": "Heading",
+    "content": [
+      "Heading 6"
+    ],
+    "depth": 6,
+    "id": "heading-6"
+  }
+]

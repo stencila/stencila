@@ -1,0 +1,71 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/html.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Inline HTML like 1, 2, 3, 4 and ."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A Markdown paragraph."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A HTML paragraph on one line."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A HTML paragraph on several lines."
+    ]
+  },
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "markdown"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "list within"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "a div"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": "Unordered"
+  }
+]

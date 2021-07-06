@@ -1,0 +1,56 @@
+{
+  "pandoc-api-version": [
+    1,
+    22
+  ],
+  "meta": {},
+  "blocks": [
+    {
+      "t": "Para",
+      "c": [
+        {
+          "t": "Str",
+          "c": "This"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "paragraph"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "has"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "some"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "RawInline",
+          "c": [
+            "markdown",
+            "raw _Markdown_ in it"
+          ]
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "inline."
+        }
+      ]
+    }
+  ]
+}

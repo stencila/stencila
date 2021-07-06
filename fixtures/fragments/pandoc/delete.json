@@ -1,0 +1,37 @@
+{
+  "pandoc-api-version": [
+    1,
+    22
+  ],
+  "meta": {},
+  "blocks": [
+    {
+      "t": "Para",
+      "c": [
+        {
+          "t": "Str",
+          "c": "Some"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Strikeout",
+          "c": [
+            {
+              "t": "Str",
+              "c": "deleted"
+            }
+          ]
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "text."
+        }
+      ]
+    }
+  ]
+}

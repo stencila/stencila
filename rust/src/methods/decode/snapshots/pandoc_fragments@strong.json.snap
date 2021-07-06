@@ -1,0 +1,21 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/strong.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "A ",
+      {
+        "type": "Strong",
+        "content": [
+          "strongly"
+        ]
+      },
+      " emphasized word."
+    ]
+  }
+]

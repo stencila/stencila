@@ -1,0 +1,21 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/delete.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Some ",
+      {
+        "type": "Delete",
+        "content": [
+          "deleted"
+        ]
+      },
+      " text."
+    ]
+  }
+]

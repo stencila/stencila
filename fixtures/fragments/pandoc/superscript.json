@@ -1,0 +1,45 @@
+{
+  "pandoc-api-version": [
+    1,
+    22
+  ],
+  "meta": {},
+  "blocks": [
+    {
+      "t": "Para",
+      "c": [
+        {
+          "t": "Str",
+          "c": "Superscripts"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "like"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "CO"
+        },
+        {
+          "t": "Superscript",
+          "c": [
+            {
+              "t": "Str",
+              "c": "2"
+            }
+          ]
+        },
+        {
+          "t": "Str",
+          "c": "."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/superscript.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Superscripts like CO",
+      {
+        "type": "Superscript",
+        "content": [
+          "2"
+        ]
+      },
+      "."
+    ]
+  }
+]

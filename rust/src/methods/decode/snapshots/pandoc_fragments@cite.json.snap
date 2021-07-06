@@ -1,0 +1,32 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/cite.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Narrative (in text) citations like ",
+      {
+        "type": "Cite",
+        "target": "smith",
+        "citationMode": "Narrative"
+      },
+      ", ",
+      {
+        "type": "Cite",
+        "target": "jones",
+        "citationMode": "Narrative"
+      },
+      ", and ",
+      {
+        "type": "Cite",
+        "target": "singh",
+        "citationMode": "Narrative"
+      },
+      "."
+    ]
+  }
+]

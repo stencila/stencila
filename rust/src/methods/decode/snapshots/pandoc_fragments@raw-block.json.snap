@@ -1,0 +1,7 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/raw-block.json
+
+---
+[]

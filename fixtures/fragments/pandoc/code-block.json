@@ -1,0 +1,44 @@
+{
+  "pandoc-api-version": [
+    1,
+    22
+  ],
+  "meta": {},
+  "blocks": [
+    {
+      "t": "CodeBlock",
+      "c": [
+        [
+          "",
+          [],
+          []
+        ],
+        "Some plain text"
+      ]
+    },
+    {
+      "t": "CodeBlock",
+      "c": [
+        [
+          "",
+          [
+            "python"
+          ],
+          []
+        ],
+        "# Some Python code\n1 + 1"
+      ]
+    },
+    {
+      "t": "CodeBlock",
+      "c": [
+        [
+          "",
+          [],
+          []
+        ],
+        "An indented code block\nin unspecified language."
+      ]
+    }
+  ]
+}
