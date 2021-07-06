@@ -30,7 +30,7 @@ interface Context {
   anonEnums: Record<string, string>
 }
 
-// Attributes to add to properties of some types
+// Custom attributes to add to particular properties
 const propertyAttributes: Record<string, string[]> = {
   'Date.value': ['#[def = "chrono::Utc::now().to_rfc3339()"]'],
   'PropertyValue.value': [
@@ -38,9 +38,26 @@ const propertyAttributes: Record<string, string[]> = {
   ],
 }
 
-// Manually defined types for properties of some types
-const propertyTypes: Record<string, [string, string]> = {
-  'Date.value': ['DateValue', 'String'],
+// Custom types for particular properties
+//
+// These custom property types are most often used to ensure only
+// as much memory is allocated as necessary, instead of using the
+// defaults e.g. `i32` for integers
+const propertyTypes: Record<string, string> = {
+  // Avoid the multiple strings definition that gets automatically generated
+  'Date.value': 'String',
+  // Expect depths to be 1 to 6, this allows for 0 to 255
+  'Heading.depth': 'u8',
+  // Expect column and row spans to be non-zero
+  'TableCell.colspan': 'u32',
+  'TableCell.rowspan': 'u32',
+  // Expect list items positions to be non-zero
+  'ListItem.position': 'u32',
+  // These validation related properties have a minimum of zero
+  'ArrayValidator.min_items': 'u32',
+  'ArrayValidator.max_items': 'u32',
+  'StringValidator.min_length': 'u32',
+  'StringValidator.max_length': 'u32',
 }
 
 // Properties that need to use a `Box` pointer to prevent circular references
@@ -133,14 +150,6 @@ use crate::prelude::*;
 ${structs}
 
 /*********************************************************************
- * Types for properties that are manually defined
- ********************************************************************/
-
-${Object.entries(propertyTypes).map(
-  ([_key, [name, type]]) => `type ${name} = ${type};\n`
-)}
-
-/*********************************************************************
  * Enums for struct properties which use JSON Schema 'enum' or 'anyOf'
  ********************************************************************/
 
@@ -207,22 +216,32 @@ export function interfaceSchemaToStruct(
 
       const propertyPath = `${title}.${name}`
 
-      let type =
-        propertyTypes[propertyPath]?.[0] ?? schemaToType(schema, context)
-
       const isPointer =
         pointerProperties.includes(propertyPath) ||
         pointerProperties.includes(`*.${name}`)
-      type = isPointer ? `Box<${type}>` : type
-
-      type = optional
-        ? `Option<${
-            isPointer || type.startsWith('Vec<') ? type : `Box<${type}>`
-          }>`
-        : type
 
       let attrs = propertyAttributes[propertyPath] ?? []
       if (isPointer) attrs = [...attrs, '#[serde(skip)]']
+
+      let type = propertyTypes[propertyPath]
+      if (type === undefined) {
+        type = schemaToType(schema, context)
+        type =
+          isPointer ||
+          // Optional properties are boxed to reduce the size allocated to the stack
+          // but not if they are the same size (or smaller than) a Box (8 bytes) or,
+          // for ergonomic reasons, a Vec (24 bytes).
+          (optional &&
+            !(
+              type === 'Boolean' ||
+              type === 'Integer' ||
+              type === 'Number' ||
+              type.startsWith('Vec<')
+            ))
+            ? `Box<${type}>`
+            : type
+      }
+      type = optional ? `Option<${type}>` : type
 
       return `    ${docComment(description)}
 ${attrs.map((attr) => `    ${attr}\n`).join('')}    pub ${snakeCase(
@@ -363,8 +382,8 @@ function schemaToType(schema: JsonSchema, context: Context): string {
 
   if (type === 'null') return 'Null'
   if (type === 'boolean') return 'Boolean'
-  if (type === 'number') return 'Number'
   if (type === 'integer') return 'Integer'
+  if (type === 'number') return 'Number'
   if (type === 'string') return 'String'
   if (type === 'array') return arrayToType(schema, context)
   if (type === 'object') return 'Object'
