@@ -38,16 +38,16 @@ pub fn binaries_dir() -> PathBuf {
 }
 
 #[derive(Clone, Serialize)]
-struct BinaryInstallation {
+pub struct BinaryInstallation {
     /// The name of the binary
     #[serde(skip)]
-    name: String,
+    pub name: String,
 
     /// The path the binary is installed to
-    path: PathBuf,
+    pub path: PathBuf,
 
     /// The version of the binary at the path
-    version: Option<String>,
+    pub version: Option<String>,
 }
 
 impl BinaryInstallation {
@@ -60,11 +60,16 @@ impl BinaryInstallation {
         }
     }
 
+    /// Get the command for the binary
+    pub fn command(&self) -> Command {
+        Command::new(&self.path)
+    }
+
     /// Run the binary
     ///
     /// Returns the output of the command
     pub fn run(&self, args: &[String]) -> Result<Output> {
-        Ok(Command::new(&self.path).args(args).output()?)
+        Ok(self.command().args(args).output()?)
     }
 }
 
@@ -638,7 +643,7 @@ async fn lock() -> MutexGuard<'static, Binaries> {
 /// This is a relatively expensive function even if the binary is already installed
 /// because if searches the file system and executes commands to get their version.
 /// For that reason you should probably using with a lazy static in the requiring module.
-async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
+pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
     let binaries = &mut *lock().await;
     let binary = if let Some(binary) = binaries.get_mut(name) {
         binary

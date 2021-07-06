@@ -1,0 +1,51 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/cite-group.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "A group of citations like ",
+      {
+        "type": "CiteGroup",
+        "items": [
+          {
+            "type": "Cite",
+            "target": "vincent",
+            "citationMode": "Parenthetical"
+          },
+          {
+            "type": "Cite",
+            "target": "van",
+            "citationMode": "Parenthetical"
+          }
+        ]
+      },
+      " or ",
+      {
+        "type": "CiteGroup",
+        "items": [
+          {
+            "type": "Cite",
+            "target": "vincent",
+            "citationMode": "Parenthetical"
+          },
+          {
+            "type": "Cite",
+            "target": "van",
+            "citationMode": "Parenthetical"
+          },
+          {
+            "type": "Cite",
+            "target": "goh",
+            "citationMode": "Parenthetical"
+          }
+        ]
+      },
+      "."
+    ]
+  }
+]

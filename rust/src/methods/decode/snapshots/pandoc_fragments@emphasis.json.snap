@@ -1,0 +1,34 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/emphasis.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Some ",
+      {
+        "type": "Emphasis",
+        "content": [
+          "emphasized"
+        ]
+      },
+      " text."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Alternative ",
+      {
+        "type": "Emphasis",
+        "content": [
+          "emphasized"
+        ]
+      },
+      " syntax."
+    ]
+  }
+]

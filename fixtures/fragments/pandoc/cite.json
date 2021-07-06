@@ -1,0 +1,143 @@
+{
+  "pandoc-api-version": [
+    1,
+    22
+  ],
+  "meta": {},
+  "blocks": [
+    {
+      "t": "Para",
+      "c": [
+        {
+          "t": "Str",
+          "c": "Narrative"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "(in"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "text)"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "citations"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "like"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Cite",
+          "c": [
+            [
+              {
+                "citationId": "smith",
+                "citationPrefix": [],
+                "citationSuffix": [],
+                "citationMode": {
+                  "t": "AuthorInText"
+                },
+                "citationNoteNum": 1,
+                "citationHash": 0
+              }
+            ],
+            [
+              {
+                "t": "Str",
+                "c": "@smith"
+              }
+            ]
+          ]
+        },
+        {
+          "t": "Str",
+          "c": ","
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Cite",
+          "c": [
+            [
+              {
+                "citationId": "jones",
+                "citationPrefix": [],
+                "citationSuffix": [],
+                "citationMode": {
+                  "t": "AuthorInText"
+                },
+                "citationNoteNum": 2,
+                "citationHash": 0
+              }
+            ],
+            [
+              {
+                "t": "Str",
+                "c": "@jones"
+              }
+            ]
+          ]
+        },
+        {
+          "t": "Str",
+          "c": ","
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "and"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Cite",
+          "c": [
+            [
+              {
+                "citationId": "singh",
+                "citationPrefix": [],
+                "citationSuffix": [],
+                "citationMode": {
+                  "t": "AuthorInText"
+                },
+                "citationNoteNum": 3,
+                "citationHash": 0
+              }
+            ],
+            [
+              {
+                "t": "Str",
+                "c": "@singh"
+              }
+            ]
+          ]
+        },
+        {
+          "t": "Str",
+          "c": "."
+        }
+      ]
+    }
+  ]
+}

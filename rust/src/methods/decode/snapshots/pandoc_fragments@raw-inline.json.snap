@@ -1,0 +1,14 @@
+---
+source: rust/src/methods/decode/pandoc.rs
+expression: json
+input_file: fixtures/fragments/pandoc/raw-inline.json
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "This paragraph has some  inline."
+    ]
+  }
+]

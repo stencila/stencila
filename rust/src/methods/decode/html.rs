@@ -409,7 +409,7 @@ mod tests {
     use insta::assert_json_snapshot;
 
     #[test]
-    fn articles() {
+    fn html_articles() {
         snapshot_content("articles/*.html", |content| {
             assert_json_snapshot!(
                 decode(&content, Options::default()).expect("Unable to decode HTML")
@@ -418,7 +418,7 @@ mod tests {
     }
 
     #[test]
-    fn fragments() {
+    fn html_fragments() {
         snapshot_content("fragments/html/*.html", |content| {
             assert_json_snapshot!(decode_fragment(&content, Options::default()));
         });

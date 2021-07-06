@@ -2179,6 +2179,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2386b4ebe91c2f7f51082d4cefa145d030e33a1842a96b12e4885cc3c01f7a55"
 
 [[package]]
+name = "pandoc_types"
+version = "0.3.3"
+source = "git+https://github.com/nokome/rust-pandoc-types?rev=fbebad98f05e40a519b2a11e58146809c24fa605#fbebad98f05e40a519b2a11e58146809c24fa605"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "parking_lot"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3279,6 +3288,7 @@ dependencies = [
  "nom",
  "notify",
  "once_cell",
+ "pandoc_types",
  "pathdiff",
  "pretty_assertions",
  "proptest",

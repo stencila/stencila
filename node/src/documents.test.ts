@@ -26,8 +26,7 @@ test('create', async () => {
       name: 'Unnamed',
       format: expect.objectContaining({
         name: 'md',
-        binary: false,
-        type: 'Article',
+        binary: false
       }),
     })
   )

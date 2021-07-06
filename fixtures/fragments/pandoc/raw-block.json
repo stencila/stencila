@@ -1,0 +1,16 @@
+{
+  "pandoc-api-version": [
+    1,
+    22
+  ],
+  "meta": {},
+  "blocks": [
+    {
+      "t": "RawBlock",
+      "c": [
+        "html",
+        "<div>\n    <span>Hello</span>\n</div>"
+      ]
+    }
+  ]
+}

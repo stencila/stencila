@@ -22,7 +22,7 @@ use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
-use stencila_schema::{AudioObject, ImageObject, Node, VideoObject};
+use stencila_schema::Node;
 use strum::ToString;
 use tokio::{sync::Mutex, task::JoinHandle};
 
@@ -224,7 +224,7 @@ impl Document {
     ///             the file extension.
     /// TODO: add project: Option<PathBuf> so that project can be explictly set
     async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
-        let path = path.as_ref();
+        let path = path.as_ref().canonicalize()?;
         if path.is_dir() {
             bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
         }
@@ -247,9 +247,13 @@ impl Document {
             Some(format) => FORMATS.match_path(&format),
         };
 
+        if format.name == "unknown" {
+            tracing::warn!("Unknown file format")
+        }
+
         let mut document = Document {
             id,
-            path: path.to_path_buf(),
+            path,
             project,
             temporary: false,
             name,
@@ -373,39 +377,21 @@ impl Document {
     /// Error results from this function (e.g. compile errors)
     /// should generally not be bubbled up.
     async fn update(&mut self) -> Result<()> {
-        tracing::debug!("Updating document '{}'", self.id);
+        tracing::debug!(
+            "Updating document '{}' at '{}'",
+            self.id,
+            self.path.display()
+        );
 
         // Import the content into the `root` node of the document
-        let mut root = if !self.format.binary {
-            // Non-binary content is decoded and reshaped
-            let node = decode(&self.content, &self.format.name).await?;
-            reshape(node, reshape::Options::default())?
+        let path = self.path.display().to_string();
+        let input = if self.format.binary {
+            &path
         } else {
-            // Binary files are represented as a `Node` if possible.
-            let content_url = self.path.display().to_string();
-            match &self.format.type_ {
-                None => Node::Null,
-                Some(type_) => match type_.as_str() {
-                    "AudioObject" => Node::AudioObject(AudioObject {
-                        content_url,
-                        ..Default::default()
-                    }),
-                    "ImageObject" => Node::ImageObject(ImageObject {
-                        content_url,
-                        ..Default::default()
-                    }),
-                    "VideoObject" => Node::VideoObject(VideoObject {
-                        content_url,
-                        ..Default::default()
-                    }),
-                    _ => bail!(
-                        "Unhandled binary document format '{}' type '{}'",
-                        self.format.name,
-                        type_
-                    ),
-                },
-            }
+            &self.content
         };
+        let node = decode(&input, &self.format.name).await?;
+        let mut root = reshape(node, reshape::Options::default())?;
 
         // Compile the `root` node and update document dependencies
         let _compilation = compile(&mut root, &self.path, &self.project)?;
@@ -1122,7 +1108,8 @@ mod tests {
         let fixtures = &PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
             .join("fixtures")
-            .join("articles");
+            .join("articles")
+            .canonicalize()?;
 
         for file in vec!["elife-small.json", "elife-mid.json", "era-plotly.json"] {
             let doc = Document::open(fixtures.join(file), None).await?;

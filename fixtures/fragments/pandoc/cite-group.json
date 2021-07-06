@@ -1,0 +1,157 @@
+{
+  "pandoc-api-version": [
+    1,
+    22
+  ],
+  "meta": {},
+  "blocks": [
+    {
+      "t": "Para",
+      "c": [
+        {
+          "t": "Str",
+          "c": "A"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "group"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "of"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "citations"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "like"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Cite",
+          "c": [
+            [
+              {
+                "citationId": "vincent",
+                "citationPrefix": [],
+                "citationSuffix": [],
+                "citationMode": {
+                  "t": "NormalCitation"
+                },
+                "citationNoteNum": 1,
+                "citationHash": 0
+              },
+              {
+                "citationId": "van",
+                "citationPrefix": [],
+                "citationSuffix": [],
+                "citationMode": {
+                  "t": "NormalCitation"
+                },
+                "citationNoteNum": 1,
+                "citationHash": 0
+              }
+            ],
+            [
+              {
+                "t": "Str",
+                "c": "[@vincent;@van]"
+              }
+            ]
+          ]
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Str",
+          "c": "or"
+        },
+        {
+          "t": "Space"
+        },
+        {
+          "t": "Cite",
+          "c": [
+            [
+              {
+                "citationId": "vincent",
+                "citationPrefix": [],
+                "citationSuffix": [],
+                "citationMode": {
+                  "t": "NormalCitation"
+                },
+                "citationNoteNum": 2,
+                "citationHash": 0
+              },
+              {
+                "citationId": "van",
+                "citationPrefix": [],
+                "citationSuffix": [
+                  {
+                    "t": "Space"
+                  }
+                ],
+                "citationMode": {
+                  "t": "NormalCitation"
+                },
+                "citationNoteNum": 2,
+                "citationHash": 0
+              },
+              {
+                "citationId": "goh",
+                "citationPrefix": [],
+                "citationSuffix": [],
+                "citationMode": {
+                  "t": "NormalCitation"
+                },
+                "citationNoteNum": 2,
+                "citationHash": 0
+              }
+            ],
+            [
+              {
+                "t": "Str",
+                "c": "[@vincent;"
+              },
+              {
+                "t": "Space"
+              },
+              {
+                "t": "Str",
+                "c": "@van"
+              },
+              {
+                "t": "Space"
+              },
+              {
+                "t": "Str",
+                "c": ";@goh]"
+              }
+            ]
+          ]
+        },
+        {
+          "t": "Str",
+          "c": "."
+        }
+      ]
+    }
+  ]
+}
