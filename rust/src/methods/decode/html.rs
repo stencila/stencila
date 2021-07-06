@@ -128,7 +128,7 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                     .name
                     .local
                     .strip_prefix("h")
-                    .map(|depth| Box::new(depth.parse().unwrap_or(1)));
+                    .map(|depth| depth.parse().unwrap_or(1));
                 let content = decode_inlines(node, context);
                 vec![BlockContent::Heading(Heading {
                     id,
@@ -138,10 +138,10 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                 })]
             }
             local_name!("ul") | local_name!("ol") => {
-                let order = Some(Box::new(match element.name.local {
+                let order = Some(match element.name.local {
                     local_name!("ol") => ListOrder::Ascending,
                     _ => ListOrder::Unordered,
-                }));
+                });
                 let items = decode_list_items(node, context);
 
                 vec![BlockContent::List(List {
@@ -361,11 +361,11 @@ fn decode_list_items(node: &NodeRef, context: &Context) -> Vec<ListItem> {
                 if matches!(element.name.local, local_name!("li")) {
                     let blocks = decode_blocks(&child, context);
                     let content = if !blocks.is_empty() {
-                        Some(Box::new(ListItemContent::VecBlockContent(blocks)))
+                        Some(ListItemContent::VecBlockContent(blocks))
                     } else {
                         let inlines = decode_inlines(&child, context);
                         if !inlines.is_empty() {
-                            Some(Box::new(ListItemContent::VecInlineContent(inlines)))
+                            Some(ListItemContent::VecInlineContent(inlines))
                         } else {
                             None
                         }

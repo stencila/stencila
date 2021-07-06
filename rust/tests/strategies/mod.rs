@@ -261,7 +261,7 @@ prop_compose! {
         content in vec_inline_content(freedom)
     ) -> BlockContent {
         BlockContent::Heading(Heading{
-            depth: Some(Box::new(depth as i64)),
+            depth: Some(depth as u8),
             content,
             ..Default::default()
         })
@@ -287,7 +287,7 @@ prop_compose! {
         items in vec(list_item(freedom), 1..5)
     ) -> BlockContent {
         BlockContent::List(List{
-            order: Some(Box::new(order)),
+            order: Some(order),
             items,
             ..Default::default()
         })
@@ -301,7 +301,7 @@ prop_compose! {
         content in vec(inline_content(freedom), 1..3)
     ) -> ListItem {
         ListItem{
-            content: Some(Box::new(ListItemContent::VecInlineContent(content))),
+            content: Some(ListItemContent::VecInlineContent(content)),
             ..Default::default()
         }
     }

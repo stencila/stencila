@@ -672,7 +672,7 @@ impl ToHtml for FigureSimple {
 impl ToHtml for Heading {
     fn to_html(&self, context: &Context) -> String {
         let depth = match &self.depth {
-            Some(depth) => **depth,
+            Some(depth) => *depth,
             None => 1,
         };
         format!(
@@ -686,17 +686,14 @@ impl ToHtml for Heading {
 impl ToHtml for List {
     fn to_html(&self, context: &Context) -> String {
         let tag = match &self.order {
-            Some(boxed) => match **boxed {
-                ListOrder::Ascending => "ol",
-                _ => "ul",
-            },
+            Some(ListOrder::Ascending) => "ol",
             _ => "ul",
         };
 
         let items = join(&self.items, |item| {
             let content = match &item.content {
                 None => String::new(),
-                Some(boxed) => match &**boxed {
+                Some(content) => match content {
                     ListItemContent::VecInlineContent(nodes) => nodes.to_html(context),
                     ListItemContent::VecBlockContent(nodes) => nodes.to_html(context),
                 },
@@ -773,7 +770,7 @@ impl ToHtml for TableSimple {
         let mut foot = Vec::new();
         for row in &self.rows {
             match &row.row_type {
-                Some(boxed) => match &**boxed {
+                Some(row_type) => match row_type {
                     TableRowRowType::Header => head.push(row),
                     TableRowRowType::Footer => foot.push(row),
                 },
@@ -818,7 +815,7 @@ fn table_rows_to_html(
 fn table_row_to_html(row: &TableRow, cell_type: TableCellCellType, context: &Context) -> String {
     let cells = join(&row.cells, |cell| {
         let cell_type = match &cell.cell_type {
-            Some(cell_type) => *cell_type.clone(),
+            Some(cell_type) => cell_type.clone(),
             None => cell_type.clone(),
         };
         let tag = match cell_type {
@@ -827,7 +824,7 @@ fn table_row_to_html(row: &TableRow, cell_type: TableCellCellType, context: &Con
         };
         let content = match &cell.content {
             None => String::new(),
-            Some(boxed) => match &**boxed {
+            Some(content) => match content {
                 TableCellContent::VecInlineContent(nodes) => nodes.to_html(context),
                 TableCellContent::VecBlockContent(nodes) => nodes.to_html(context),
             },

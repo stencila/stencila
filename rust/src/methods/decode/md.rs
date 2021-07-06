@@ -117,7 +117,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 }
                 Tag::List(start) => {
                     let order = if start.is_some() {
-                        Some(Box::new(stencila_schema::ListOrder::Ascending))
+                        Some(stencila_schema::ListOrder::Ascending)
                     } else {
                         None
                     };
@@ -144,7 +144,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     let mut blocks = blocks.pop_tail();
                     content.append(&mut blocks);
 
-                    let content = Some(Box::new(ListItemContent::VecBlockContent(content)));
+                    let content = Some(ListItemContent::VecBlockContent(content));
 
                     lists.push_item(ListItem {
                         content,
@@ -162,7 +162,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     let content = if inlines.is_empty() {
                         None
                     } else {
-                        Some(Box::new(TableCellContent::VecInlineContent(inlines)))
+                        Some(TableCellContent::VecInlineContent(inlines))
                     };
 
                     tables.push_cell(TableCell {
@@ -173,7 +173,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
 
                 // Block nodes with inline content
                 Tag::Heading(depth) => blocks.push_node(BlockContent::Heading(Heading {
-                    depth: Some(Box::new(depth as i64)),
+                    depth: Some(depth as u8),
                     content: inlines.pop_all(),
                     ..Default::default()
                 })),
@@ -390,7 +390,7 @@ impl Tables {
         let cells = self.cells.split_off(0);
         self.rows.push(TableRow {
             cells,
-            row_type: Some(Box::new(TableRowRowType::Header)),
+            row_type: Some(TableRowRowType::Header),
             ..Default::default()
         })
     }

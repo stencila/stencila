@@ -193,11 +193,9 @@ fn translate_blocks(elements: &[pandoc::Block], context: &Context) -> Vec<BlockC
 fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockContent> {
     match element {
         pandoc::Block::Header(depth, attrs, inlines) => {
-            let id = get_id(attrs);
-            let depth = Some(Box::new(*depth as i64));
             vec![BlockContent::Heading(Heading {
-                id,
-                depth,
+                id: get_id(attrs),
+                depth: Some(*depth as u8),
                 content: translate_inlines(inlines, context),
                 ..Default::default()
             })]
@@ -227,10 +225,10 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
         }
 
         pandoc::Block::OrderedList(.., items) | pandoc::Block::BulletList(items) => {
-            let order = Some(Box::new(match element {
+            let order = Some(match element {
                 pandoc::Block::OrderedList(..) => ListOrder::Ascending,
                 _ => ListOrder::Unordered,
-            }));
+            });
             let items = items
                 .iter()
                 .map(|blocks| {
@@ -238,7 +236,7 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
                     let content = if blocks.is_empty() {
                         None
                     } else {
-                        Some(Box::new(ListItemContent::VecBlockContent(blocks)))
+                        Some(ListItemContent::VecBlockContent(blocks))
                     };
                     ListItem {
                         content,
@@ -268,7 +266,7 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
                     let content = if blocks.is_empty() {
                         None
                     } else {
-                        Some(Box::new(ListItemContent::VecBlockContent(blocks)))
+                        Some(ListItemContent::VecBlockContent(blocks))
                     };
                     ListItem {
                         content,
@@ -294,7 +292,7 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
             let head: Vec<TableRow> = head
                 .1
                 .iter()
-                .map(|row| translate_row(row, context, Some(Box::new(TableRowRowType::Header))))
+                .map(|row| translate_row(row, context, Some(TableRowRowType::Header)))
                 .collect();
             let body: Vec<TableRow> = bodies
                 .iter()
@@ -302,9 +300,7 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
                     let intermediate_head: Vec<TableRow> = body
                         .2
                         .iter()
-                        .map(|row| {
-                            translate_row(row, context, Some(Box::new(TableRowRowType::Header)))
-                        })
+                        .map(|row| translate_row(row, context, Some(TableRowRowType::Header)))
                         .collect();
                     let intermediate_body: Vec<TableRow> = body
                         .3
@@ -317,7 +313,7 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
             let foot: Vec<TableRow> = foot
                 .1
                 .iter()
-                .map(|row| translate_row(row, context, Some(Box::new(TableRowRowType::Footer))))
+                .map(|row| translate_row(row, context, Some(TableRowRowType::Footer)))
                 .collect();
             let rows = [head, body, foot].concat();
 
@@ -363,7 +359,7 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
 fn translate_row(
     row: &pandoc::Row,
     context: &Context,
-    row_type: Option<Box<TableRowRowType>>,
+    row_type: Option<TableRowRowType>,
 ) -> TableRow {
     let cells = row
         .1
@@ -389,20 +385,20 @@ fn translate_cell(cell: &pandoc::Cell, context: &Context) -> TableCell {
     let content = match blocks.len() {
         0 => None,
         1 => match &blocks[0] {
-            BlockContent::Paragraph(paragraph) => Some(Box::new(
-                TableCellContent::VecInlineContent(paragraph.content.clone()),
+            BlockContent::Paragraph(paragraph) => Some(TableCellContent::VecInlineContent(
+                paragraph.content.clone(),
             )),
-            _ => Some(Box::new(TableCellContent::VecBlockContent(blocks))),
+            _ => Some(TableCellContent::VecBlockContent(blocks)),
         },
-        _ => Some(Box::new(TableCellContent::VecBlockContent(blocks))),
+        _ => Some(TableCellContent::VecBlockContent(blocks)),
     };
     let rowspan = match row_span {
         1 => None,
-        _ => Some(Box::new((*row_span) as i64)),
+        _ => Some((*row_span) as u32),
     };
     let colspan = match col_span {
         1 => None,
-        _ => Some(Box::new((*col_span) as i64)),
+        _ => Some((*col_span) as u32),
     };
     TableCell {
         content,
@@ -519,11 +515,11 @@ fn translate_inline(element: &pandoc::Inline, context: &Context) -> Vec<InlineCo
                 .map(|citation| {
                     // TODO: Use inlines and prefix and suffix (consider using Vec<InlineContent> for both
                     // and parsing out pagination)
-                    let citation_mode = Some(Box::new(match citation.citation_mode {
+                    let citation_mode = Some(match citation.citation_mode {
                         pandoc::CitationMode::NormalCitation => CiteCitationMode::Parenthetical,
                         pandoc::CitationMode::AuthorInText => CiteCitationMode::Narrative,
                         pandoc::CitationMode::SuppressAuthor => CiteCitationMode::NarrativeYear,
-                    }));
+                    });
                     Cite {
                         citation_mode,
                         target: citation.citation_id.clone(),
