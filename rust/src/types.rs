@@ -46,7 +46,7 @@ pub struct Cite {
     pub citation_intent: Option<Vec<CitationIntentEnumeration>>,
 
     /// Determines how the citation is shown within the surrounding text.
-    pub citation_mode: Option<Box<CiteCitationMode>>,
+    pub citation_mode: Option<CiteCitationMode>,
 
     /// Text to show before the citation.
     pub citation_prefix: Option<Box<String>>,
@@ -189,7 +189,7 @@ pub struct CodeChunk {
     pub declares: Option<Vec<CodeChunkDeclares>>,
 
     /// Duration in seconds of the last execution of the chunk.
-    pub duration: Option<Box<Number>>,
+    pub duration: Option<Number>,
 
     /// Errors when compiling or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
@@ -337,7 +337,7 @@ pub struct Date {
 
     /// The date as an ISO 8601 string.
     #[def = "chrono::Utc::now().to_rfc3339()"]
-    pub value: DateValue,
+    pub value: String,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
@@ -795,7 +795,7 @@ pub struct Claim {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Kind of the claim.
-    pub claim_type: Option<Box<ClaimClaimType>>,
+    pub claim_type: Option<ClaimClaimType>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -899,7 +899,7 @@ pub struct ClaimSimple {
     pub content: Vec<BlockContent>,
 
     /// Kind of the claim.
-    pub claim_type: Option<Box<ClaimClaimType>>,
+    pub claim_type: Option<ClaimClaimType>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
@@ -1299,7 +1299,7 @@ pub struct MediaObject {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Box<Number>>,
+    pub bitrate: Option<Number>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -1308,7 +1308,7 @@ pub struct MediaObject {
     pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Box<Number>>,
+    pub content_size: Option<Number>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Box<Date>>,
@@ -1422,7 +1422,7 @@ pub struct AudioObject {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Box<Number>>,
+    pub bitrate: Option<Number>,
 
     /// The caption for this audio recording.
     pub caption: Option<Box<String>>,
@@ -1434,7 +1434,7 @@ pub struct AudioObject {
     pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Box<Number>>,
+    pub content_size: Option<Number>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Box<Date>>,
@@ -1541,7 +1541,7 @@ pub struct AudioObjectSimple {
     pub content_url: String,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Box<Number>>,
+    pub bitrate: Option<Number>,
 
     /// The caption for this audio recording.
     pub caption: Option<Box<String>>,
@@ -1550,7 +1550,7 @@ pub struct AudioObjectSimple {
     pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Box<Number>>,
+    pub content_size: Option<Number>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
     pub embed_url: Option<Box<String>>,
@@ -1701,13 +1701,13 @@ pub struct ArrayValidator {
     pub items_validator: Option<Box<ValidatorTypes>>,
 
     /// An array node is valid if its size is less than, or equal to, this value.
-    pub max_items: Option<Box<Number>>,
+    pub max_items: Option<Integer>,
 
     /// An array node is valid if its size is greater than, or equal to, this value.
-    pub min_items: Option<Box<Number>>,
+    pub min_items: Option<Integer>,
 
     /// A flag to indicate that each value in the array should be unique.
-    pub unique_items: Option<Box<Boolean>>,
+    pub unique_items: Option<Boolean>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2053,7 +2053,7 @@ pub struct Heading {
     pub content: Vec<InlineContent>,
 
     /// The depth of the heading.
-    pub depth: Option<Box<Integer>>,
+    pub depth: Option<u8>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
@@ -2088,7 +2088,7 @@ pub struct ImageObject {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Box<Number>>,
+    pub bitrate: Option<Number>,
 
     /// The caption for this image.
     pub caption: Option<Box<String>>,
@@ -2100,7 +2100,7 @@ pub struct ImageObject {
     pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Box<Number>>,
+    pub content_size: Option<Number>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Box<Date>>,
@@ -2209,7 +2209,7 @@ pub struct ImageObjectSimple {
     pub content_url: String,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Box<Number>>,
+    pub bitrate: Option<Number>,
 
     /// The caption for this image.
     pub caption: Option<Box<String>>,
@@ -2218,7 +2218,7 @@ pub struct ImageObjectSimple {
     pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Box<Number>>,
+    pub content_size: Option<Number>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
     pub embed_url: Option<Box<String>>,
@@ -2346,7 +2346,7 @@ pub struct List {
     pub id: Option<Box<String>>,
 
     /// Type of ordering.
-    pub order: Option<Box<ListOrder>>,
+    pub order: Option<ListOrder>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2369,7 +2369,7 @@ pub struct ListItem {
     pub alternate_names: Option<Vec<String>>,
 
     /// The content of the list item.
-    pub content: Option<Box<ListItemContent>>,
+    pub content: Option<ListItemContent>,
 
     /// A description of the item.
     pub description: Option<Box<ThingDescription>>,
@@ -2384,7 +2384,7 @@ pub struct ListItem {
     pub images: Option<Vec<ThingImages>>,
 
     /// A flag to indicate if this list item is checked.
-    pub is_checked: Option<Box<Boolean>>,
+    pub is_checked: Option<Boolean>,
 
     /// The item represented by this list item.
     #[serde(skip)]
@@ -2394,7 +2394,7 @@ pub struct ListItem {
     pub name: Option<Box<String>>,
 
     /// The position of the item in a series or sequence of items.
-    pub position: Option<Box<Integer>>,
+    pub position: Option<u32>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -2510,7 +2510,7 @@ pub struct MonetaryGrant {
     pub alternate_names: Option<Vec<String>>,
 
     /// The amount of money.
-    pub amounts: Option<Box<Number>>,
+    pub amounts: Option<Number>,
 
     /// A description of the item.
     pub description: Option<Box<ThingDescription>>,
@@ -2586,7 +2586,7 @@ pub struct Note {
     pub id: Option<Box<String>>,
 
     /// Determines where the note content is displayed within the document.
-    pub note_type: Option<Box<NoteNoteType>>,
+    pub note_type: Option<NoteNoteType>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2606,22 +2606,22 @@ pub struct NumberValidator {
     pub type_: NumberValidator_,
 
     /// The exclusive upper limit for a numeric node.
-    pub exclusive_maximum: Option<Box<Number>>,
+    pub exclusive_maximum: Option<Number>,
 
     /// The exclusive lower limit for a numeric node.
-    pub exclusive_minimum: Option<Box<Number>>,
+    pub exclusive_minimum: Option<Number>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
     /// The inclusive upper limit for a numeric node.
-    pub maximum: Option<Box<Number>>,
+    pub maximum: Option<Number>,
 
     /// The inclusive lower limit for a numeric node.
-    pub minimum: Option<Box<Number>>,
+    pub minimum: Option<Number>,
 
     /// A number that a numeric node must be a multiple of.
-    pub multiple_of: Option<Box<Number>>,
+    pub multiple_of: Option<Number>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2736,7 +2736,7 @@ pub struct Variable {
     pub id: Option<Box<String>>,
 
     /// Whether or not a property is mutable. Default is false.
-    pub is_readonly: Option<Box<Boolean>>,
+    pub is_readonly: Option<Boolean>,
 
     /// The validator that the value is validated against.
     pub validator: Option<Box<ValidatorTypes>>,
@@ -2773,16 +2773,16 @@ pub struct Parameter {
     pub id: Option<Box<String>>,
 
     /// Indicates that this parameter is variadic and can accept multiple named arguments.
-    pub is_extensible: Option<Box<Boolean>>,
+    pub is_extensible: Option<Boolean>,
 
     /// Whether or not a property is mutable. Default is false.
-    pub is_readonly: Option<Box<Boolean>>,
+    pub is_readonly: Option<Boolean>,
 
     /// Is this parameter required, if not it should have a default or default is assumed to be null.
-    pub is_required: Option<Box<Boolean>>,
+    pub is_required: Option<Boolean>,
 
     /// Indicates that this parameter is variadic and can accept multiple arguments.
-    pub is_variadic: Option<Box<Boolean>>,
+    pub is_variadic: Option<Boolean>,
 
     /// The validator that the value is validated against.
     pub validator: Option<Box<ValidatorTypes>>,
@@ -3724,16 +3724,16 @@ pub struct SoftwareSession {
     pub alternate_names: Option<Vec<String>>,
 
     /// The maximum number of concurrent clients the session is limited to.
-    pub clients_limit: Option<Box<Number>>,
+    pub clients_limit: Option<Number>,
 
     /// The maximum number of concurrent clients requested for the session.
-    pub clients_request: Option<Box<Number>>,
+    pub clients_request: Option<Number>,
 
     /// The amount of CPU the session is limited to.
-    pub cpu_limit: Option<Box<Number>>,
+    pub cpu_limit: Option<Number>,
 
     /// The amount of CPU requested for the session.
-    pub cpu_request: Option<Box<Number>>,
+    pub cpu_request: Option<Number>,
 
     /// The date-time that the session ended.
     pub date_end: Option<Box<Date>>,
@@ -3745,10 +3745,10 @@ pub struct SoftwareSession {
     pub description: Option<Box<ThingDescription>>,
 
     /// The maximum duration (seconds) the session is limited to.
-    pub duration_limit: Option<Box<Number>>,
+    pub duration_limit: Option<Number>,
 
     /// The maximum duration (seconds) requested for the session.
-    pub duration_request: Option<Box<Number>>,
+    pub duration_request: Option<Number>,
 
     /// The software environment to execute this session in.
     pub environment: Option<Box<SoftwareEnvironment>>,
@@ -3763,28 +3763,28 @@ pub struct SoftwareSession {
     pub images: Option<Vec<ThingImages>>,
 
     /// The amount of memory that the session is limited to.
-    pub memory_limit: Option<Box<Number>>,
+    pub memory_limit: Option<Number>,
 
     /// The amount of memory requested for the session.
-    pub memory_request: Option<Box<Number>>,
+    pub memory_request: Option<Number>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
 
     /// The amount of network data transfer (GiB) that the session is limited to.
-    pub network_transfer_limit: Option<Box<Number>>,
+    pub network_transfer_limit: Option<Number>,
 
     /// The amount of network data transfer (GiB) requested for the session.
-    pub network_transfer_request: Option<Box<Number>>,
+    pub network_transfer_request: Option<Number>,
 
     /// The status of the session (starting, stopped, etc).
-    pub status: Option<Box<SoftwareSessionStatus>>,
+    pub status: Option<SoftwareSessionStatus>,
 
     /// The inactivity timeout (seconds) the session is limited to.
-    pub timeout_limit: Option<Box<Number>>,
+    pub timeout_limit: Option<Number>,
 
     /// The inactivity timeout (seconds) requested for the session.
-    pub timeout_request: Option<Box<Number>>,
+    pub timeout_request: Option<Number>,
 
     /// The URL of the item.
     pub url: Option<Box<String>>,
@@ -3939,10 +3939,10 @@ pub struct StringValidator {
     pub id: Option<Box<String>>,
 
     /// The maximum length for a string node.
-    pub max_length: Option<Box<Number>>,
+    pub max_length: Option<Integer>,
 
     /// The minimum length for a string node.
-    pub min_length: Option<Box<Number>>,
+    pub min_length: Option<Integer>,
 
     /// A regular expression that a string node must match.
     pub pattern: Option<Box<String>>,
@@ -4185,13 +4185,13 @@ pub struct TableCell {
     pub type_: TableCell_,
 
     /// Indicates whether the cell is a header or data.
-    pub cell_type: Option<Box<TableCellCellType>>,
+    pub cell_type: Option<TableCellCellType>,
 
     /// How many columns the cell extends.
-    pub colspan: Option<Box<Integer>>,
+    pub colspan: Option<u32>,
 
     /// Contents of the table cell.
-    pub content: Option<Box<TableCellContent>>,
+    pub content: Option<TableCellContent>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
@@ -4200,7 +4200,7 @@ pub struct TableCell {
     pub name: Option<Box<String>>,
 
     /// How many columns the cell extends.
-    pub rowspan: Option<Box<Integer>>,
+    pub rowspan: Option<u32>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4226,7 +4226,7 @@ pub struct TableRow {
     pub id: Option<Box<String>>,
 
     /// If present, indicates that all cells in this row should be treated as header cells.
-    pub row_type: Option<Box<TableRowRowType>>,
+    pub row_type: Option<TableRowRowType>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4301,7 +4301,7 @@ pub struct VideoObject {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Box<Number>>,
+    pub bitrate: Option<Number>,
 
     /// The caption for this video recording.
     pub caption: Option<Box<String>>,
@@ -4313,7 +4313,7 @@ pub struct VideoObject {
     pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Box<Number>>,
+    pub content_size: Option<Number>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Box<Date>>,
@@ -4423,7 +4423,7 @@ pub struct VideoObjectSimple {
     pub content_url: String,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Box<Number>>,
+    pub bitrate: Option<Number>,
 
     /// The caption for this video recording.
     pub caption: Option<Box<String>>,
@@ -4432,7 +4432,7 @@ pub struct VideoObjectSimple {
     pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Box<Number>>,
+    pub content_size: Option<Number>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
     pub embed_url: Option<Box<String>>,
@@ -4509,13 +4509,6 @@ pub enum VolumeMount_ {
 }
 
 impl_struct!(VolumeMount);
-
-/*********************************************************************
- * Types for properties that are manually defined
- ********************************************************************/
-
-type DateValue = String;
-
 
 /*********************************************************************
  * Enums for struct properties which use JSON Schema 'enum' or 'anyOf'

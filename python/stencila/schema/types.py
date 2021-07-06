@@ -1532,10 +1532,10 @@ class ArrayValidator(Validator):
     itemsValidator: Optional["ValidatorTypes"] = None
     """Another validator node specifying the constraints on all items in the array."""
 
-    maxItems: Optional[float] = None
+    maxItems: Optional[int] = None
     """An array node is valid if its size is less than, or equal to, this value."""
 
-    minItems: Optional[float] = None
+    minItems: Optional[int] = None
     """An array node is valid if its size is greater than, or equal to, this value."""
 
     uniqueItems: Optional[bool] = None
@@ -1547,9 +1547,9 @@ class ArrayValidator(Validator):
         contains: Optional["ValidatorTypes"] = None,
         id: Optional[str] = None,
         itemsValidator: Optional["ValidatorTypes"] = None,
-        maxItems: Optional[float] = None,
+        maxItems: Optional[int] = None,
         meta: Optional[Dict[str, Any]] = None,
-        minItems: Optional[float] = None,
+        minItems: Optional[int] = None,
         uniqueItems: Optional[bool] = None
     ) -> None:
         super().__init__(
@@ -3614,10 +3614,10 @@ Python2.3, .Net Framework 3.0).
 class StringValidator(Validator):
     """A schema specifying constraints on a string node."""
 
-    maxLength: Optional[float] = None
+    maxLength: Optional[int] = None
     """The maximum length for a string node."""
 
-    minLength: Optional[float] = None
+    minLength: Optional[int] = None
     """The minimum length for a string node."""
 
     pattern: Optional[str] = None
@@ -3627,9 +3627,9 @@ class StringValidator(Validator):
     def __init__(
         self,
         id: Optional[str] = None,
-        maxLength: Optional[float] = None,
+        maxLength: Optional[int] = None,
         meta: Optional[Dict[str, Any]] = None,
-        minLength: Optional[float] = None,
+        minLength: Optional[int] = None,
         pattern: Optional[str] = None
     ) -> None:
         super().__init__(
