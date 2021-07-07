@@ -60,6 +60,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
     let mut lists = Lists {
         items: Vec::new(),
         marks: Vec::new(),
+        is_checked: None,
     };
 
     let mut tables = Tables {
@@ -256,6 +257,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 }
 
                 Tag::FootnoteDefinition(..) => {
+                    // TODO: Handle footnote definitions
                     tracing::debug!("Markdown footnote definitions are not yet handled")
                 }
             },
@@ -298,11 +300,10 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 }
             }
             Event::FootnoteReference(..) => {
+                // TODO: Handle footnote references
                 tracing::debug!("Markdown footnote references are not yet handled");
             }
-            Event::TaskListMarker(..) => {
-                tracing::debug!("Markdown list markers are not yet handled");
-            }
+            Event::TaskListMarker(is_checked) => lists.is_checked = Some(is_checked),
         };
     }
 
@@ -351,14 +352,22 @@ impl Blocks {
 ///
 /// It is necessary to maintain marks to handle nested lists
 struct Lists {
+    /// Stack of list items
     items: Vec<ListItem>,
+
+    /// Marks in the stack indicating the start of a list
     marks: Vec<usize>,
+
+    /// Whether or not the current item has check box / is checked
+    is_checked: Option<bool>,
 }
 
 impl Lists {
     /// Push a list item
-    fn push_item(&mut self, item: ListItem) {
-        self.items.push(item)
+    fn push_item(&mut self, mut item: ListItem) {
+        item.is_checked = self.is_checked;
+        self.items.push(item);
+        self.is_checked = None;
     }
 
     /// Push a mark at the start of a list
@@ -368,8 +377,12 @@ impl Lists {
 
     /// Pop the items since the last mark
     fn pop_tail(&mut self) -> Vec<ListItem> {
-        let n = self.marks.pop().expect("Unable to pop marks!");
-        self.items.split_off(n)
+        if self.marks.is_empty() {
+            vec![]
+        } else {
+            let n = self.marks.pop().expect("Unable to pop marks!");
+            self.items.split_off(n)
+        }
     }
 }
 
@@ -486,8 +499,12 @@ impl Inlines {
     /// Pop the nodes since the last mark
     fn pop_tail(&mut self) -> Vec<InlineContent> {
         self.parse_text();
-        let n = self.marks.pop().expect("Unable to pop marks!");
-        self.nodes.split_off(n)
+        if self.marks.is_empty() {
+            vec![]
+        } else {
+            let n = self.marks.pop().expect("Unable to pop marks!");
+            self.nodes.split_off(n)
+        }
     }
 
     /// Pop all the nodes and mark as "inactive"
@@ -543,6 +560,7 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
 ///   - [ ] citation_suffix
 ///   - [ ] citation_intent
 pub fn cite(input: &str) -> IResult<&str, InlineContent> {
+    // TODO: Parse more properties of citations
     map_res(
         preceded(char('@'), take_while1(|chr: char| chr.is_alphanumeric())),
         |res: &str| -> Result<InlineContent> {

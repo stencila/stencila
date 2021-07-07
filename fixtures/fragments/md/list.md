@@ -13,3 +13,11 @@
   - 2c
     - 3b
       - 4a
+
+1. [ ] first
+2. [x] second
+3. [ ] third
+
+- [x] done
+- [ ] todo
+- [ ] still todo

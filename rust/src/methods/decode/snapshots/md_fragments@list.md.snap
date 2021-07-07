@@ -183,5 +183,88 @@ input_file: fixtures/fragments/md/list.md
         ]
       }
     ]
+  },
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "first"
+            ]
+          }
+        ],
+        "isChecked": false
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "second"
+            ]
+          }
+        ],
+        "isChecked": true
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "third"
+            ]
+          }
+        ],
+        "isChecked": false
+      }
+    ],
+    "order": "Ascending"
+  },
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "done"
+            ]
+          }
+        ],
+        "isChecked": true
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "todo"
+            ]
+          }
+        ],
+        "isChecked": false
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "still todo"
+            ]
+          }
+        ],
+        "isChecked": false
+      }
+    ]
   }
 ]
