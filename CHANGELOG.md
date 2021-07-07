@@ -1,3 +1,18 @@
+# [0.92.0](https://github.com/stencila/stencila/compare/v0.91.0...v0.92.0) (2021-07-07)
+
+
+### Bug Fixes
+
+* **DOCX:** Extract media files when decoding ([cbf8c01](https://github.com/stencila/stencila/commit/cbf8c0130b58e6003ef4f77314b3773ed7f1090f))
+* **Rust:** Update stencila-schema ([e59d3c5](https://github.com/stencila/stencila/commit/e59d3c5bde75fb051f0aae277c4d4cdd84a1b151))
+
+
+### Features
+
+* **DOCX & LaTeX:** Add decoding of Microsoft Word and LaTeX via Pandoc ([0b1da91](https://github.com/stencila/stencila/commit/0b1da9116f8fbe2720c8a92a8b048dd1daa31b6a))
+* **Formats:** Allow additional extensions for a format ([2c0ae5a](https://github.com/stencila/stencila/commit/2c0ae5aaa67da4276744ace6dc2cf006e66d6528))
+* **Markdown:** Decode list item check boxes ([9ff02c5](https://github.com/stencila/stencila/commit/9ff02c540914aaf27544da3ef93352e2fa37acbb))
+
 # [0.91.0](https://github.com/stencila/stencila/compare/v0.90.0...v0.91.0) (2021-07-04)
 
 
