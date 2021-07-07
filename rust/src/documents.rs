@@ -270,10 +270,8 @@ impl Document {
             if let Err(report) = document.update().await {
                 errors::push_report(report)
             }
-        } else {
-            if let Err(report) = document.read().await {
-                errors::push_report(report)
-            }
+        } else if let Err(report) = document.read().await {
+            errors::push_report(report)
         }
 
         Ok(document)

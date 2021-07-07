@@ -5,7 +5,7 @@ use schemars::{gen::SchemaSettings, JsonSchema};
 use serde::Serialize;
 use std::{
     collections::HashMap,
-    sync::{atomic::AtomicBool, Arc, Mutex},
+    sync::{atomic::AtomicBool, Mutex},
 };
 use thiserror::Error;
 
