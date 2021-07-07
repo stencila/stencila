@@ -12,16 +12,6 @@ export const getFileIcon = (file?: File, isCollapsed?: boolean): IconNames => {
     return isCollapsed ? 'folder' : 'folder-open'
   }
 
-  // Don't differentiate between media formats for now
-  switch (file.format.type) {
-    case 'AudioObject':
-      return 'mv'
-    case 'ImageObject':
-      return 'image'
-    case 'VideoObject':
-      return 'video'
-  }
-
   switch (file.format.name) {
     case 'csv':
       return 'layout-grid'
@@ -43,6 +33,19 @@ export const getFileIcon = (file?: File, isCollapsed?: boolean): IconNames => {
       return 'file-text'
     case 'md':
       return 'markdown'
+    case 'flac':
+    case 'mp3':
+    case 'ogg':
+      return 'mv'
+    case 'gif':
+    case 'jpg':
+    case 'png':
+      return 'image'
+    case '3gp':
+    case 'mp4':
+    case 'ogv':
+    case 'webm':
+      return 'video'
     default:
       return 'file-2'
   }
