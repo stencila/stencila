@@ -131,11 +131,13 @@ jobs:
         condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'node'))
         displayName: 'Node.js: Test'
 
-      # Desktop is tested if there are changes in the `rust`, `node`, or `desktop` folders
+      # Desktop is tested if there are changes in the `rust`, `node`, or `desktop` folders.
+      # Includes build of UI to check that compiles
       - script: |
           set -e
           make -C node build-debug
           make -C desktop test
+          npm run ui:build --prefix desktop
         condition: |
           or(
             contains(variables.changed, 'rust'),
