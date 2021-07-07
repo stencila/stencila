@@ -1,7 +1,6 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { option as O } from 'fp-ts'
-import { Document } from 'stencila'
-import { CHANNEL } from '../../../preload/channels'
+import { client } from '../../client'
 import { clearEditorState } from '../editorState/editorStateActions'
 import { store } from '../index'
 import { documentPaneActions } from './documentPaneStore'
@@ -10,12 +9,8 @@ export const initPane = (paneId: EntityId) => {
   store.dispatch(documentPaneActions.createPane({ paneId }))
 }
 
-export const addDocumentToPane = async (paneId: EntityId, docId: EntityId) => {
-  const document = (await window.api.invoke(
-    CHANNEL.OPEN_DOCUMENT,
-    docId
-  )) as Document
-
+export const addDocumentToPane = async (paneId: EntityId, path: string) => {
+  const document = (await client.documentsOpen(path)).unwrap()
   return store.dispatch(
     documentPaneActions.addDocToPane({
       paneId,

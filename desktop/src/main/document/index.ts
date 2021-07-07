@@ -7,10 +7,6 @@ import { rewriteHtml } from '../local-protocol'
 
 export const registerDocumentHandlers = () => {
   try {
-    ipcMain.handle(CHANNEL.OPEN_DOCUMENT, async (_event, filePath: string) => {
-      return documents.open(filePath)
-    })
-
     ipcMain.handle(
       CHANNEL.CLOSE_DOCUMENT,
       async (_event, documentId: string) => {
