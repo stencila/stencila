@@ -2180,8 +2180,9 @@ checksum = "2386b4ebe91c2f7f51082d4cefa145d030e33a1842a96b12e4885cc3c01f7a55"
 
 [[package]]
 name = "pandoc_types"
-version = "0.3.3"
-source = "git+https://github.com/nokome/rust-pandoc-types?rev=fbebad98f05e40a519b2a11e58146809c24fa605#fbebad98f05e40a519b2a11e58146809c24fa605"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6498bb7d873ae27bed0900373d70a0b2afe525c0195d6e30aa8e0b3cfcbaeb7a"
 dependencies = [
  "serde",
  "serde_json",
