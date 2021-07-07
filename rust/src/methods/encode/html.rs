@@ -1,4 +1,5 @@
 use eyre::Result;
+use html_escape::encode_double_quoted_attribute;
 use std::fs;
 use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
@@ -74,6 +75,17 @@ struct Context<'a> {
 /// of using `to_` for expensive conversions.
 trait ToHtml {
     fn to_html(&self, context: &Context) -> String;
+}
+
+/// Encode a HTML attribute, ensuring that the value is escaped correctly
+fn encode_attr(name: &str, value: &str) -> String {
+    [
+        name,
+        "=\"",
+        encode_double_quoted_attribute(&value).as_ref(),
+        "\"",
+    ]
+    .concat()
 }
 
 /// Encode a `Node` to HTML
@@ -289,17 +301,53 @@ fn file_uri_to_data_uri(url: &str) -> String {
     }
 }
 
+fn content_url_to_src_attr(content_url: &str, context: &Context) -> String {
+    let url = match context.data_uris {
+        true => file_uri_to_data_uri(content_url),
+        false => content_url.to_string(),
+    };
+    encode_attr("src", &url)
+}
+
 impl ToHtml for AudioObjectSimple {
     fn to_html(&self, context: &Context) -> String {
-        let src = if context.data_uris {
-            file_uri_to_data_uri(&self.content_url)
-        } else {
-            self.content_url.clone()
+        let src_attr = content_url_to_src_attr(&self.content_url, context);
+        [
+            "<audio itemtype=\"http://schema.org/AudioObject\" controls ",
+            &src_attr,
+            "/>",
+        ]
+        .concat()
+    }
+}
+
+impl ToHtml for ImageObjectSimple {
+    fn to_html(&self, context: &Context) -> String {
+        let src_attr = content_url_to_src_attr(&self.content_url, context);
+        [
+            "<img itemtype=\"http://schema.org/ImageObject\" ",
+            &src_attr,
+            "/>",
+        ]
+        .concat()
+    }
+}
+
+impl ToHtml for VideoObjectSimple {
+    fn to_html(&self, context: &Context) -> String {
+        let src_attr = content_url_to_src_attr(&self.content_url, context);
+        let type_attr = match &self.media_type {
+            Some(media_type) => encode_attr("type", &media_type),
+            None => "".to_string(),
         };
-        format!(
-            r#"<audio itemtype="http://schema.org/AudioObject" controls src="{src}"></audio>"#,
-            src = src.to_html(context)
-        )
+        [
+            "<video itemtype=\"http://schema.org/VideoObject\" controls><source ",
+            &src_attr,
+            " ",
+            &type_attr,
+            "></source></video>",
+        ]
+        .concat()
     }
 }
 
@@ -449,20 +497,6 @@ impl ToHtml for CodeFragment {
     }
 }
 
-impl ToHtml for ImageObjectSimple {
-    fn to_html(&self, context: &Context) -> String {
-        let src = if context.data_uris {
-            file_uri_to_data_uri(&self.content_url)
-        } else {
-            self.content_url.clone()
-        };
-        format!(
-            r#"<img itemtype="http://schema.org/ImageObject" src="{src}" />"#,
-            src = src.to_html(context)
-        )
-    }
-}
-
 impl ToHtml for Link {
     fn to_html(&self, context: &Context) -> String {
         format!(
@@ -496,27 +530,6 @@ impl ToHtml for Quote {
         format!(
             r#"<q itemtype="http://schema.stenci.la/Quote">{content}</q>"#,
             content = self.content.to_html(context)
-        )
-    }
-}
-
-impl ToHtml for VideoObjectSimple {
-    fn to_html(&self, context: &Context) -> String {
-        let src = if context.data_uris {
-            file_uri_to_data_uri(&self.content_url)
-        } else {
-            self.content_url.clone()
-        };
-
-        let media_type = match &self.media_type {
-            None => String::new(),
-            Some(media_type) => format!(r#"type="{}""#, media_type.to_html(context)),
-        };
-
-        format!(
-            r#"<video itemtype="http://schema.org/VideoObject" controls><source src="{src}" {media_type}></source></video>"#,
-            src = src.to_html(context),
-            media_type = media_type
         )
     }
 }
