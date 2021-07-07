@@ -1,3 +1,10 @@
+## [0.92.1](https://github.com/stencila/stencila/compare/v0.92.0...v0.92.1) (2021-07-07)
+
+
+### Bug Fixes
+
+* **Desktop:** Account for removal of format type ([2a590be](https://github.com/stencila/stencila/commit/2a590beb728cd5b4974a05ab18db717698208008))
+
 # [0.92.0](https://github.com/stencila/stencila/compare/v0.91.0...v0.92.0) (2021-07-07)
 
 
