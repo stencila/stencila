@@ -62,11 +62,14 @@ impl Format {
     }
 
     /// Create the special `unregistered` file format where all we
-    /// have is the name e.g. from a file extension
+    /// have is the name e.g. from a file extension.
     pub fn unregistered(name: &str) -> Format {
         Format {
             name: name.into(),
-            binary: true,
+            // Set binary to false so that any unregistered format
+            // will be at least shown in editor...
+            binary: false,
+            // ..but not have a preview
             preview: false,
             ..Default::default()
         }
