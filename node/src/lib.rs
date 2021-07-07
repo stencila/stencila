@@ -59,6 +59,8 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("loggingTest", logging::test)?;
 
     cx.export_function("errorsSchema", errors::schema)?;
+    cx.export_function("errorsStart", errors::start)?;
+    cx.export_function("errorsStop", errors::stop)?;
 
     Ok(())
 }
