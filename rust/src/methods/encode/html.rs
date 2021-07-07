@@ -1025,7 +1025,7 @@ mod tests {
         let articles = home.join("..").join("fixtures").join("articles");
         let snapshots = home.join("snapshots");
 
-        for file in vec!["elife-small.json", "elife-mid.json", "era-plotly.json"] {
+        for file in vec!["elife-small.json", "era-plotly.json"] {
             let fixture_path = &articles.join(file);
             let json = fs::read_to_string(fixture_path)?;
             let article: Node = serde_json::from_str(&json)?;

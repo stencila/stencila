@@ -1111,7 +1111,7 @@ mod tests {
             .join("articles")
             .canonicalize()?;
 
-        for file in vec!["elife-small.json", "elife-mid.json", "era-plotly.json"] {
+        for file in vec!["elife-small.json", "era-plotly.json"] {
             let doc = Document::open(fixtures.join(file), None).await?;
             assert!(doc.path.starts_with(fixtures));
             assert!(!doc.temporary);
