@@ -135,7 +135,7 @@ jobs:
       # Includes build of UI to check that compiles
       - script: |
           set -e
-          make -C node build-debug
+          make -C node build-debug build-ts
           make -C desktop test
           npm run ui:build --prefix desktop
         condition: |

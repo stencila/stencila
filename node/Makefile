@@ -15,6 +15,9 @@ lint:
 build-debug: setup
 	npm run build:rust:debug
 
+build-ts: setup
+	npm run build:ts
+
 build-types: build-debug
 	npm run build:types
 
