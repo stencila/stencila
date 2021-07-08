@@ -1,6 +1,7 @@
 use super::txt::ToTxt;
 use eyre::Result;
 use html_escape::encode_double_quoted_attribute;
+use std::cmp::min;
 use std::fs;
 use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
@@ -682,10 +683,22 @@ impl ToHtml for FigureSimple {
 }
 
 impl ToHtml for Heading {
+    /// Encode a `Heading` node to a `<h2>`, `<h3>` etc element.
+    ///
+    /// > Generally, it is a best practice to ensure that the beginning of a
+    /// > page's main content starts with a h1 element, and also to ensure
+    /// > that the page contains only one h1 element.
+    /// > From https://dequeuniversity.com/rules/axe/3.5/page-has-heading-one
+    ///
+    /// This codec follows that recommendation and reserves `<h1>` for the
+    /// `title` property of a creative work.
+    ///
+    /// In rare cases that there is no content in the heading, return an empty
+    /// text node to avoid the 'Heading tag found with no content' accessibility error.
     fn to_html(&self, context: &Context) -> String {
         let depth = match &self.depth {
-            Some(depth) => *depth,
-            None => 1,
+            Some(depth) => min(*depth + 1, 6),
+            None => 2,
         };
         format!(
             r#"<h{depth} itemtype="http://schema.stenci.la/Heading">{content}</h{depth}>"#,
@@ -926,7 +939,7 @@ impl ToHtml for Article {
             Some(desc) => {
                 let meta = (**desc).to_txt();
                 let heading = Heading {
-                    depth: Some(2),
+                    depth: Some(1),
                     content: vec![InlineContent::String("Abstract".to_string())],
                     ..Default::default()
                 }

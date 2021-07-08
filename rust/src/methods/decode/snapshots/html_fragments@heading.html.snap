@@ -8,6 +8,19 @@ input_file: fixtures/fragments/html/heading.html
   {
     "type": "Heading",
     "content": [
+      "Title of document"
+    ],
+    "depth": 1
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "The h1 tag is reserved for single use by the title. So a heading of depth 1 uses h2 etc"
+    ]
+  },
+  {
+    "type": "Heading",
+    "content": [
       "Heading 1"
     ],
     "depth": 1
@@ -39,13 +52,6 @@ input_file: fixtures/fragments/html/heading.html
       "Heading 5"
     ],
     "depth": 5
-  },
-  {
-    "type": "Heading",
-    "content": [
-      "Heading 6"
-    ],
-    "depth": 6
   },
   {
     "type": "Heading",
