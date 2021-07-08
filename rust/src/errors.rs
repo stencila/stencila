@@ -80,6 +80,13 @@ pub fn push_report(report: eyre::Report) {
     }
 }
 
+/// Record an error result
+pub fn attempt<T>(result: Result<T>) {
+    if let Err(report) = result {
+        push_report(report)
+    }
+}
+
 /// Stop collecting errors and return those collected
 pub fn stop() -> Vec<Error> {
     COLLECT.swap(false, std::sync::atomic::Ordering::Relaxed);

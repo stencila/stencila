@@ -1,5 +1,5 @@
 use crate::{
-    errors::{self, Error},
+    errors::{self, attempt, Error},
     formats::{Format, FORMATS},
     methods::{
         compile::compile,
@@ -265,13 +265,10 @@ impl Document {
             ..Default::default()
         };
 
-        // Optimistically update the document from the file
-        if document.format.binary {
-            if let Err(report) = document.update().await {
-                errors::push_report(report)
-            }
-        } else if let Err(report) = document.read().await {
-            errors::push_report(report)
+        // Attempt to update the document from the file
+        match document.format.binary {
+            true => attempt(document.update().await),
+            false => attempt(document.read().await),
         }
 
         Ok(document)
