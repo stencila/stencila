@@ -1,16 +1,17 @@
 import { Component, h, State } from '@stencil/core'
 import { i18n } from '../../../../i18n'
 import { CHANNEL } from '../../../../preload/channels'
+import { UnprotectedStoreKeys } from '../../../../preload/stores'
 
 @Component({
   tag: 'app-settings-general',
   styleUrl: 'app-settings-general.css',
-  scoped: true
+  scoped: true,
 })
 export class AppSettingsGeneral {
   @State() config: Record<string, unknown>
 
-  private updateSetting = (key: string) => (e: Event) => {
+  private updateSetting = (key: UnprotectedStoreKeys) => (e: Event) => {
     e.preventDefault()
     const target = e.target as HTMLInputElement
     const value = target.checked ?? target.value
@@ -37,7 +38,7 @@ export class AppSettingsGeneral {
               id="errorReporting"
               type="checkbox"
               defaultChecked={(this.config.REPORT_ERRORS as boolean) ?? false}
-              onChange={this.updateSetting('REPORT_ERRORS')}
+              onChange={this.updateSetting(UnprotectedStoreKeys.REPORT_ERRORS)}
             />
 
             <label htmlFor="errorReporting">

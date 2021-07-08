@@ -3,7 +3,7 @@ import { IpcRendererAPI } from '../preload/types'
 import { Channel, Handler, isChannel } from './channels'
 
 export const apis: IpcRendererAPI = {
-  invoke: (channel, data) => {
+  invoke: (channel: Channel, ...data: unknown[]) => {
     if (isChannel(channel)) {
       return ipcRenderer.invoke(channel, data)
     }

@@ -1,10 +1,5 @@
+import { UnprotectedStoreKeys } from '../../preload/stores'
 import { AppConfigStore, JSONValue, unprotectedStore } from './bootstrap'
-
-export enum UnprotectedStoreKeys {
-  USER_ID = 'USER_ID',
-  REPORT_ERRORS = 'REPORT_ERRORS',
-  FIRST_LAUNCH = 'FIRST_LAUNCH',
-}
 
 export const readAppConfig = () => {
   return unprotectedStore.state

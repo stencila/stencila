@@ -1,6 +1,7 @@
-import { CHANNEL } from '../preload/channels'
-
+import { array as A, option as O } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 import { Document, Error } from 'stencila'
+import { CHANNEL } from '../preload/channels'
 
 /**
  * The result of calling a function
@@ -15,7 +16,8 @@ export class Result<T> {
   errors?: Error[]
 
   constructor(value?: T, errors?: Error[]) {
-    ;(this.value = value), (this.errors = errors)
+    this.value = value
+    this.errors = errors
   }
 
   // Displays errors, returns the value if is defined, throws the
@@ -23,14 +25,23 @@ export class Result<T> {
   unwrap(): T {
     if (this.errors?.length ?? 0 > 0) console.error(this.errors)
     if (this.value !== undefined) return this.value
-    else
-      throw Error(this.errors?.[this.errors?.length]?.type ?? 'Unknown error')
+    else {
+      const errorType = pipe(
+        this.errors,
+        O.fromNullable,
+        O.chain((errors) => A.last(errors)),
+        O.map((error) => error.type),
+        O.getOrElse(() => 'Unknown error')
+      )
+
+      throw new Error(errorType)
+    }
   }
 }
 
 /**
  * Abstract base class for clients
- * 
+ *
  * Alternative clients need to implement the `call` method which
  * send the RPC request to the "server"
  */
@@ -46,10 +57,12 @@ abstract class Client {
  */
 export class ElectronClient extends Client {
   async call<T>(method: string, ...params: unknown[]): Promise<Result<T>> {
-    let { value, errors } = (await window.api.invoke(CHANNEL.RPC_CALL, {
+    const { value, errors } = await window.api.invoke(CHANNEL.RPC_CALL, {
       method,
       params,
-    })) as Result<T>
+    })
+
+    // @ts-ignore
     return new Result<T>(value, errors)
   }
 }

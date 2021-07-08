@@ -6,6 +6,7 @@ describe('app-document-editor', () => {
 
     await page.evaluateOnNewDocument(() => {
       window.api = {
+        // @ts-ignore
         invoke: () => Promise.resolve('results'),
         receive: () => Promise.resolve(),
         send: () => Promise.resolve(),

@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron'
-import { config, Plugin, plugins } from 'stencila'
+import { NormalizedPlugins } from '../../preload/types'
+import { config, plugins } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import { removeChannelHandlers } from '../utils/handler'
 import { CONFIG_CHANNEL } from './channels'
@@ -8,21 +9,16 @@ import { showSettings } from './window'
 export const getConfig = async () => {
   return {
     config: config.get(),
-    schema: config.schema()
+    schema: config.schema(),
   }
 }
 
-interface NormalizedPlugins {
-  entities: Record<string, Plugin>
-  ids: string[]
-}
-
-export const getPlugins = () => {
+export const getPlugins = (): NormalizedPlugins => {
   return plugins.list().reduce(
     (pluginObject: NormalizedPlugins, plugin) => {
       return {
         entities: { ...pluginObject.entities, [plugin.name]: plugin },
-        ids: [...pluginObject.ids, plugin.name]
+        ids: [...pluginObject.ids, plugin.name],
       }
     },
     { entities: {}, ids: [] }
@@ -32,7 +28,7 @@ export const getPlugins = () => {
 export const registerConfigHandlers = () => {
   try {
     ipcMain.handle(CHANNEL.OPEN_CONFIG_WINDOW, async () => {
-      return showSettings()
+      showSettings()
     })
 
     ipcMain.handle(CHANNEL.READ_CONFIG, async () => {
@@ -62,9 +58,9 @@ export const registerConfigHandlers = () => {
 
     ipcMain.handle(
       CHANNEL.REFRESH_PLUGINS,
-      async (_event, pluginList?: string[]) => {
+      async (_event, pluginList: string[] = []) => {
         return plugins.refresh(
-          pluginList ?? plugins.list().map(plugin => plugin.name)
+          pluginList ?? plugins.list().map((plugin) => plugin.name)
         )
       }
     )

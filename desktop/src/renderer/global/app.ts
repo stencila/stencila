@@ -1,9 +1,12 @@
 import { CHANNEL } from '../../preload/channels'
 import { enableCrashReports } from '../../preload/errors'
+import { UnprotectedStoreKeys } from '../../preload/stores'
 import { isProduction } from '../../preload/utils/env'
 
 const isErrorReportingEnabled = () =>
-  window.api.invoke(CHANNEL.GET_APP_CONFIG, 'REPORT_ERRORS') as Promise<boolean>
+  window.api
+    .invoke(CHANNEL.GET_APP_CONFIG, UnprotectedStoreKeys.REPORT_ERRORS)
+    .then((res) => (typeof res === 'boolean' ? res : false))
 
 /**
  * The code to be executed should be placed within a default function that is

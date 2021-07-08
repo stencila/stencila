@@ -1,19 +1,132 @@
-import { Channel, Handler } from './channels'
+import { EntityId } from '@reduxjs/toolkit'
+import { JSONSchema7 } from 'json-schema'
+import { Config, Plugin, plugins, Project, Result } from 'stencila'
+import { AppConfigStore, JSONValue } from '../main/store/bootstrap'
+import { Channel, CHANNEL, Handler } from './channels'
+import { UnprotectedStoreKeys } from './stores'
 
-declare global {
-  interface Window {
-    api: IpcRendererAPI
-  }
+export interface NormalizedPlugins {
+  entities: Record<string, Plugin>
+  ids: string[]
 }
 
-// type SELECT_DIRS = (channel: typeof CHANNEL.SELECT_DIRS) => Promise<number>
-// type READ_DIR = (channel: typeof CHANNEL.READ_DIR, path: string) => Promise<string[]>
-type INVOKE = (channel: Channel, ...args: unknown[]) => Promise<unknown>
+interface Invoke {
+  // Global
+  invoke(
+    channel: typeof CHANNEL.OPEN_LINK_IN_DEFAULT_BROWSER,
+    url: string
+  ): Promise<void>
 
-type Invoke = INVOKE
+  // Config
+  invoke(channel: typeof CHANNEL.OPEN_CONFIG_WINDOW): Promise<void>
 
-export interface IpcRendererAPI {
-  invoke: Invoke
+  invoke(channel: typeof CHANNEL.READ_CONFIG): Promise<{
+    config: Config
+    schema: JSONSchema7
+  }>
+
+  invoke(channel: typeof CHANNEL.READ_APP_CONFIG): Promise<AppConfigStore>
+
+  invoke(
+    channel: typeof CHANNEL.GET_APP_CONFIG,
+    key: UnprotectedStoreKeys
+  ): Promise<JSONValue>
+
+  invoke(
+    channel: typeof CHANNEL.SET_APP_CONFIG,
+    payload: { key: UnprotectedStoreKeys; value: JSONValue }
+  ): Promise<void>
+
+  // Plugins
+  invoke(channel: typeof CHANNEL.READ_PLUGINS): Promise<NormalizedPlugins>
+
+  invoke(
+    channel: typeof CHANNEL.LIST_AVAILABLE_PLUGINS
+  ): Promise<NormalizedPlugins>
+
+  invoke(
+    channel: typeof CHANNEL.INSTALL_PLUGIN,
+    ...args: Parameters<typeof plugins.install>
+  ): Promise<Plugin[]>
+
+  invoke(
+    channel: typeof CHANNEL.UNINSTALL_PLUGIN,
+    ...args: Parameters<typeof plugins.uninstall>
+  ): Promise<Plugin[]>
+
+  invoke(
+    channel: typeof CHANNEL.UPGRADE_PLUGIN,
+    ...args: Parameters<typeof plugins.uninstall>
+  ): Promise<Plugin[]>
+
+  invoke(
+    channel: typeof CHANNEL.REFRESH_PLUGINS,
+    ...args: Parameters<typeof plugins.refresh>
+  ): Promise<Plugin[]>
+  invoke(channel: typeof CHANNEL.REFRESH_PLUGINS): Promise<Plugin[]>
+
+  // Launcher
+  invoke(channel: typeof CHANNEL.OPEN_LAUNCHER_WINDOW): Promise<void>
+  invoke(channel: typeof CHANNEL.CLOSE_LAUNCHER_WINDOW): Promise<void>
+
+  // Onboarding
+  invoke(channel: typeof CHANNEL.OPEN_ONBOARDING_WINDOW): Promise<void>
+  invoke(channel: typeof CHANNEL.CLOSE_ONBOARDING_WINDOW): Promise<void>
+
+  // Projects
+  invoke(channel: typeof CHANNEL.SHOW_PROJECT_WINDOW): Promise<void>
+
+  invoke(
+    channel: typeof CHANNEL.OPEN_PROJECT,
+    directoryPath: string
+  ): Promise<void>
+
+  invoke(channel: typeof CHANNEL.SELECT_PROJECT_DIR): Promise<void>
+
+  invoke(
+    channel: typeof CHANNEL.GET_PROJECT_FILES,
+    path: string
+  ): Promise<Project>
+
+  // Documents
+  invoke(channel: typeof CHANNEL.CLOSE_DOCUMENT, path: string): Promise<void>
+
+  invoke(
+    channel: typeof CHANNEL.CLOSE_ACTIVE_DOCUMENT,
+    path: string
+  ): Promise<void>
+
+  invoke(
+    channel: typeof CHANNEL.GET_DOCUMENT_PREVIEW,
+    documentId: EntityId
+  ): Promise<string>
+
+  invoke(
+    channel: typeof CHANNEL.GET_DOCUMENT_CONTENTS,
+    documentId: EntityId
+  ): Promise<string>
+
+  invoke(
+    channel: typeof CHANNEL.SAVE_DOCUMENT,
+    payload: {
+      documentId: EntityId
+      content: string
+    }
+  ): Promise<void>
+
+  invoke(
+    channel: typeof CHANNEL.UNSUBSCRIBE_DOCUMENT,
+    payload: {
+      documentId: EntityId
+      topics: string[]
+    }
+  ): Promise<void>
+
+  // Fallback
+  invoke(channel: typeof CHANNEL.RPC_CALL, ...args: unknown[]): Promise<Result>
+}
+
+interface IpcRendererAPI extends Invoke {
   send(channel: Channel, ...args: unknown[]): void
   receive: (channel: Channel, func: Handler) => void
   remove: (channel: Channel, func: Handler) => void
@@ -21,4 +134,10 @@ export interface IpcRendererAPI {
 
   /** @return A function that removes this listener. */
   // on(channel: string, listener: (...args: unknown[]) => void): () => void;
+}
+
+declare global {
+  interface Window {
+    api: IpcRendererAPI
+  }
 }

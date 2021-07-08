@@ -25,11 +25,11 @@ export class AppDocumentPreview {
   @State() previewContents: string
 
   private subscribeToDocument = (documentId = this.documentId) => {
-    window.api.invoke(CHANNEL.DOCUMENT_GET_PREVIEW, documentId).then((html) => {
+    window.api.invoke(CHANNEL.GET_DOCUMENT_PREVIEW, documentId).then((html) => {
       this.previewContents = html as string
     })
 
-    window.api.receive(CHANNEL.DOCUMENT_GET_PREVIEW, (event) => {
+    window.api.receive(CHANNEL.GET_DOCUMENT_PREVIEW, (event) => {
       const e = event as DocumentEvent
       if (
         e.document.id === documentId &&
@@ -43,7 +43,7 @@ export class AppDocumentPreview {
   }
 
   private unsubscribeFromDocument = (documentId = this.documentId) => {
-    window.api.removeAll(CHANNEL.DOCUMENT_GET_PREVIEW)
+    window.api.removeAll(CHANNEL.GET_DOCUMENT_PREVIEW)
     return window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
       documentId,
       topics: ['encoded:html'],

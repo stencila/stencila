@@ -41,7 +41,7 @@ export const registerDocumentHandlers = () => {
     )
 
     ipcMain.handle(
-      CHANNEL.DOCUMENT_GET_PREVIEW,
+      CHANNEL.GET_DOCUMENT_PREVIEW,
       async (ipcEvent, documentId: string) => {
         documents.subscribe(
           documentId,
@@ -51,7 +51,7 @@ export const registerDocumentHandlers = () => {
               ...docEvent,
               content: rewriteHtml(docEvent.content ?? '')
             }
-            ipcEvent.sender.send(CHANNEL.DOCUMENT_GET_PREVIEW, event)
+            ipcEvent.sender.send(CHANNEL.GET_DOCUMENT_PREVIEW, event)
           }
         )
 

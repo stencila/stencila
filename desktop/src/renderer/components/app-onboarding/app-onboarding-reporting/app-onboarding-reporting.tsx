@@ -1,21 +1,22 @@
 import { Component, h } from '@stencil/core'
 import { href } from '@stencil/router'
-import { CHANNEL } from '../../../../preload/channels'
 import { i18n } from '../../../../i18n'
+import { CHANNEL } from '../../../../preload/channels'
+import { UnprotectedStoreKeys } from '../../../../preload/stores'
 import { OnboardingRouter } from '../onboardingRouter'
 
 @Component({
   tag: 'app-onboarding-reporting',
   styleUrl: 'app-onboarding-reporting.css',
-  scoped: false
+  scoped: false,
 })
 export class AppOnboardingReoporting {
   private enableReporting = (e: MouseEvent) => {
     e.preventDefault()
     window.api
       .invoke(CHANNEL.SET_APP_CONFIG, {
-        key: 'REPORT_ERRORS',
-        value: true
+        key: UnprotectedStoreKeys.REPORT_ERRORS,
+        value: true,
       })
       .then(() => {
         OnboardingRouter.push('/onboarding/end')
