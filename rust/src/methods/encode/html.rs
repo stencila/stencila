@@ -1,3 +1,4 @@
+use super::txt::ToTxt;
 use eyre::Result;
 use html_escape::encode_double_quoted_attribute;
 use std::fs;
@@ -912,27 +913,62 @@ impl ToHtml for CreativeWorkContent {
 
 impl ToHtml for Article {
     fn to_html(&self, context: &Context) -> String {
-        let Article { title, content, .. } = self;
-
-        let title = match title {
-            None => String::new(),
+        let title = match &self.title {
             Some(title) => {
                 let title = match &**title {
                     CreativeWorkTitle::String(title) => title.to_html(context),
                     CreativeWorkTitle::VecInlineContent(title) => title.to_html(context),
                 };
-                format!(r#"<h1 itemprop="headline">{title}</h1>"#, title = title)
+                ["<h1 itemprop=\"headline\">", &title, "</h1>"].concat()
             }
+            None => "".to_string(),
         };
 
-        let content = match content {
-            None => String::new(),
+        let abstract_ = match &self.description {
+            Some(desc) => {
+                let meta = (**desc).to_txt();
+                let heading = Heading {
+                    depth: Some(2),
+                    content: vec![InlineContent::String("Abstract".to_string())],
+                    ..Default::default()
+                }
+                .to_html(context);
+                let content = match &**desc {
+                    ThingDescription::String(string) => Paragraph {
+                        content: vec![InlineContent::String(string.clone())],
+                        ..Default::default()
+                    }
+                    .to_html(context),
+                    ThingDescription::VecInlineContent(inlines) => Paragraph {
+                        content: inlines.clone(),
+                        ..Default::default()
+                    }
+                    .to_html(context),
+                    ThingDescription::VecBlockContent(blocks) => blocks.to_html(context),
+                };
+                [
+                    "<section data-itemprop=\"description\">",
+                    "<meta itemprop=\"description\"",
+                    &encode_attr("content", &meta),
+                    ">",
+                    &heading,
+                    &content,
+                    "</section>",
+                ]
+                .concat()
+            }
+            None => "".to_string(),
+        };
+
+        let content = match &self.content {
             Some(content) => content.to_html(context),
+            None => "".to_string(),
         };
 
         [
             "<article itemtype=\"http://schema.org/Article\" itemscope data-itemscope=\"root\">",
             &title,
+            &abstract_,
             &content,
             "</article>",
         ]
