@@ -24,8 +24,11 @@ const generateHmac = (path: string) =>
 export const rewriteHtml = (html: string): string => {
   return html.replace(
     /(src=")file:\/\/(.*?)"/g,
-    (_match, prefix: string, path: string) =>
-      `${prefix}${scheme}://${path}?${generateHmac(path)}"`
+    (_match, prefix: string, path: string) => {
+      const pathname = encodeURI(path)
+      const hmac = generateHmac(path)
+      return `${prefix}${scheme}://${pathname}?${hmac}"`
+    }
   )
 }
 
@@ -37,7 +40,8 @@ type RequestHandler = Parameters<Protocol['registerFileProtocol']>['1']
  */
 export const requestHandler: RequestHandler = (request, callback) => {
   const { pathname, search } = new URL(request.url)
-  if (search.slice(1) == generateHmac(pathname))
-    callback({ statusCode: 200, path: pathname })
+  const path = decodeURI(pathname)
+  const hmac = generateHmac(path)
+  if (search.slice(1) == hmac) callback({ statusCode: 200, path })
   else callback({ statusCode: 403 })
 }

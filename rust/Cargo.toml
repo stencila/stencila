@@ -55,6 +55,7 @@ encode-json = []
 encode-html = ["html-escape"]
 encode-pandoc = ["binaries", "pandoc_types"]
 encode-toml = ["toml"]
+encode-txt = []
 encode-yaml = ["serde_yaml"]
 
 query-jsonptr = []
@@ -97,6 +98,7 @@ default = [
     "encode-html",
     "encode-json",
     "encode-toml",
+    "encode-txt",
     "encode-yaml",
     "query-jsonptr",
     "query-jmespath",
@@ -161,7 +163,7 @@ strum_macros = "=0.21.1"
 tar = { version = "=0.4.35", optional = true }
 tempfile = "3.2.0"
 thiserror = "=1.0.26"
-tokio = { version = "=1.8.0", features = ["full"] }
+tokio = { version = "=1.8.1", features = ["full"] }
 tokio-tungstenite = { version = "=0.14.0", optional = true }
 toml = { version = "=0.5.8", optional = true }
 tracing = "=0.1.26"

@@ -11,6 +11,9 @@ pub mod html;
 #[cfg(feature = "encode-toml")]
 pub mod toml;
 
+#[cfg(feature = "encode-txt")]
+pub mod txt;
+
 #[cfg(feature = "encode-yaml")]
 pub mod yaml;
 
@@ -32,6 +35,9 @@ pub async fn encode(node: &Node, format: &str) -> Result<String> {
 
         #[cfg(feature = "encode-toml")]
         "toml" => toml::encode(node)?,
+
+        #[cfg(feature = "encode-txt")]
+        "txt" => txt::encode(node)?,
 
         #[cfg(feature = "encode-yaml")]
         "yaml" => yaml::encode(node)?,

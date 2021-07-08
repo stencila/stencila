@@ -66,12 +66,10 @@ export class AppDocumentPreview {
           {getProjectTheme(state)}/styles.css');
         </style>
 
-        <article
+        <div
           class="app-document-preview"
-          itemtype="http://schema.org/Article"
-          data-itemscope="root"
           innerHTML={this.previewContents}
-        ></article>
+        ></div>
       </Host>
     )
   }

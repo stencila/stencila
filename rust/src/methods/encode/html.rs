@@ -1,4 +1,7 @@
+use super::txt::ToTxt;
 use eyre::Result;
+use html_escape::encode_double_quoted_attribute;
+use std::cmp::min;
 use std::fs;
 use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
@@ -47,7 +50,7 @@ pub fn encode_standalone(node: &Node, theme: Option<String>) -> Result<String> {
         </style>
     </head>
     <body>
-        <div data-itemscope="root">{body}</div>
+        {body}
     </body>
 </html>"#,
         theme = theme.unwrap_or_else(|| "wilmore".into()),
@@ -74,6 +77,33 @@ struct Context<'a> {
 /// of using `to_` for expensive conversions.
 trait ToHtml {
     fn to_html(&self, context: &Context) -> String;
+}
+
+macro_rules! slice_to_html {
+    ($type:ty) => {
+        impl ToHtml for $type {
+            fn to_html(&self, context: &Context) -> String {
+                self.iter()
+                    .map(|item| item.to_html(context))
+                    .collect::<Vec<String>>()
+                    .join("")
+            }
+        }
+    };
+}
+slice_to_html!([Node]);
+slice_to_html!([InlineContent]);
+slice_to_html!([BlockContent]);
+
+/// Encode a HTML attribute, ensuring that the value is escaped correctly
+fn encode_attr(name: &str, value: &str) -> String {
+    [
+        name,
+        "=\"",
+        encode_double_quoted_attribute(&value).as_ref(),
+        "\"",
+    ]
+    .concat()
 }
 
 /// Encode a `Node` to HTML
@@ -129,12 +159,6 @@ impl ToHtml for Node {
     }
 }
 
-impl ToHtml for Vec<Node> {
-    fn to_html(&self, context: &Context) -> String {
-        join(self, |item| item.to_html(context))
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // Inline content
 ///////////////////////////////////////////////////////////////////////////////
@@ -165,12 +189,6 @@ impl ToHtml for InlineContent {
             InlineContent::Superscript(node) => node.to_html(context),
             InlineContent::VideoObject(node) => node.to_html(context),
         }
-    }
-}
-
-impl ToHtml for Vec<InlineContent> {
-    fn to_html(&self, context: &Context) -> String {
-        join(self, |item| item.to_html(context))
     }
 }
 
@@ -289,17 +307,53 @@ fn file_uri_to_data_uri(url: &str) -> String {
     }
 }
 
+fn content_url_to_src_attr(content_url: &str, context: &Context) -> String {
+    let url = match context.data_uris {
+        true => file_uri_to_data_uri(content_url),
+        false => content_url.to_string(),
+    };
+    encode_attr("src", &url)
+}
+
 impl ToHtml for AudioObjectSimple {
     fn to_html(&self, context: &Context) -> String {
-        let src = if context.data_uris {
-            file_uri_to_data_uri(&self.content_url)
-        } else {
-            self.content_url.clone()
+        let src_attr = content_url_to_src_attr(&self.content_url, context);
+        [
+            "<audio itemtype=\"http://schema.org/AudioObject\" controls ",
+            &src_attr,
+            "></audio>",
+        ]
+        .concat()
+    }
+}
+
+impl ToHtml for ImageObjectSimple {
+    fn to_html(&self, context: &Context) -> String {
+        let src_attr = content_url_to_src_attr(&self.content_url, context);
+        [
+            "<img itemtype=\"http://schema.org/ImageObject\" ",
+            &src_attr,
+            "/>",
+        ]
+        .concat()
+    }
+}
+
+impl ToHtml for VideoObjectSimple {
+    fn to_html(&self, context: &Context) -> String {
+        let src_attr = content_url_to_src_attr(&self.content_url, context);
+        let type_attr = match &self.media_type {
+            Some(media_type) => encode_attr("type", &media_type),
+            None => "".to_string(),
         };
-        format!(
-            r#"<audio itemtype="http://schema.org/AudioObject" controls src="{src}"></audio>"#,
-            src = src.to_html(context)
-        )
+        [
+            "<video itemtype=\"http://schema.org/VideoObject\" controls><source ",
+            &src_attr,
+            " ",
+            &type_attr,
+            "></source></video>",
+        ]
+        .concat()
     }
 }
 
@@ -449,20 +503,6 @@ impl ToHtml for CodeFragment {
     }
 }
 
-impl ToHtml for ImageObjectSimple {
-    fn to_html(&self, context: &Context) -> String {
-        let src = if context.data_uris {
-            file_uri_to_data_uri(&self.content_url)
-        } else {
-            self.content_url.clone()
-        };
-        format!(
-            r#"<img itemtype="http://schema.org/ImageObject" src="{src}" />"#,
-            src = src.to_html(context)
-        )
-    }
-}
-
 impl ToHtml for Link {
     fn to_html(&self, context: &Context) -> String {
         format!(
@@ -500,27 +540,6 @@ impl ToHtml for Quote {
     }
 }
 
-impl ToHtml for VideoObjectSimple {
-    fn to_html(&self, context: &Context) -> String {
-        let src = if context.data_uris {
-            file_uri_to_data_uri(&self.content_url)
-        } else {
-            self.content_url.clone()
-        };
-
-        let media_type = match &self.media_type {
-            None => String::new(),
-            Some(media_type) => format!(r#"type="{}""#, media_type.to_html(context)),
-        };
-
-        format!(
-            r#"<video itemtype="http://schema.org/VideoObject" controls><source src="{src}" {media_type}></source></video>"#,
-            src = src.to_html(context),
-            media_type = media_type
-        )
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // Block content
 ///////////////////////////////////////////////////////////////////////////////
@@ -541,12 +560,6 @@ impl ToHtml for BlockContent {
             BlockContent::Table(node) => node.to_html(context),
             BlockContent::ThematicBreak(node) => node.to_html(context),
         }
-    }
-}
-
-impl ToHtml for Vec<BlockContent> {
-    fn to_html(&self, context: &Context) -> String {
-        join(self, |item| item.to_html(context))
     }
 }
 
@@ -670,10 +683,22 @@ impl ToHtml for FigureSimple {
 }
 
 impl ToHtml for Heading {
+    /// Encode a `Heading` node to a `<h2>`, `<h3>` etc element.
+    ///
+    /// > Generally, it is a best practice to ensure that the beginning of a
+    /// > page's main content starts with a h1 element, and also to ensure
+    /// > that the page contains only one h1 element.
+    /// > From https://dequeuniversity.com/rules/axe/3.5/page-has-heading-one
+    ///
+    /// This codec follows that recommendation and reserves `<h1>` for the
+    /// `title` property of a creative work.
+    ///
+    /// In rare cases that there is no content in the heading, return an empty
+    /// text node to avoid the 'Heading tag found with no content' accessibility error.
     fn to_html(&self, context: &Context) -> String {
         let depth = match &self.depth {
-            Some(depth) => *depth,
-            None => 1,
+            Some(depth) => min(*depth + 1, 6),
+            None => 2,
         };
         format!(
             r#"<h{depth} itemtype="http://schema.stenci.la/Heading">{content}</h{depth}>"#,
@@ -690,26 +715,50 @@ impl ToHtml for List {
             _ => "ul",
         };
 
-        let items = join(&self.items, |item| {
-            let content = match &item.content {
-                None => String::new(),
-                Some(content) => match content {
-                    ListItemContent::VecInlineContent(nodes) => nodes.to_html(context),
-                    ListItemContent::VecBlockContent(nodes) => nodes.to_html(context),
-                },
-            };
-
-            format!(
-                r#"<li itemtype="http://schema.org/ListItem">{content}</li>"#,
-                content = content
-            )
-        });
+        let items = join(&self.items, |item| item.to_html(context));
 
         format!(
             r#"<{tag} itemtype="http://schema.org/ItemList">{items}</{tag}>"#,
             tag = tag,
             items = items
         )
+    }
+}
+
+impl ToHtml for ListItem {
+    fn to_html(&self, context: &Context) -> String {
+        let checkbox = self.is_checked.map(|is_checked| match is_checked {
+            true => InlineContent::String("☑ ".to_string()),
+            false => InlineContent::String("☐ ".to_string()),
+        });
+        let content = match &self.content {
+            Some(content) => match content {
+                ListItemContent::VecInlineContent(inlines) => match checkbox {
+                    Some(checkbox) => [vec![checkbox], inlines.clone()].concat().to_html(context),
+                    None => inlines.to_html(context),
+                },
+                ListItemContent::VecBlockContent(blocks) => match checkbox {
+                    Some(checkbox) => {
+                        // Check box is only added is the first block is a paragraph
+                        if let Some(BlockContent::Paragraph(paragraph)) = blocks.first() {
+                            let mut paragraph = paragraph.clone();
+                            paragraph.content.insert(0, checkbox);
+                            [paragraph.to_html(context), blocks[1..].to_html(context)].concat()
+                        } else {
+                            blocks.to_html(context)
+                        }
+                    }
+                    None => blocks.to_html(context),
+                },
+            },
+            None => "".to_string(),
+        };
+        [
+            "<li itemtype=\"http://schema.org/ListItem\">",
+            &content,
+            "</li>",
+        ]
+        .concat()
     }
 }
 
@@ -875,40 +924,103 @@ impl ToHtml for CreativeWorkContent {
 
 impl ToHtml for Article {
     fn to_html(&self, context: &Context) -> String {
-        let Article { title, content, .. } = self;
-
-        let title = match title {
-            None => String::new(),
+        let title = match &self.title {
             Some(title) => {
                 let title = match &**title {
                     CreativeWorkTitle::String(title) => title.to_html(context),
                     CreativeWorkTitle::VecInlineContent(title) => title.to_html(context),
                 };
-                format!(r#"<h1 itemprop="headline">{title}</h1>"#, title = title)
+                ["<h1 itemprop=\"headline\">", &title, "</h1>"].concat()
             }
+            None => "".to_string(),
         };
 
-        let content = match content {
-            None => String::new(),
+        let abstract_ = match &self.description {
+            Some(desc) => {
+                let meta = (**desc).to_txt();
+                let heading = Heading {
+                    depth: Some(1),
+                    content: vec![InlineContent::String("Abstract".to_string())],
+                    ..Default::default()
+                }
+                .to_html(context);
+                let content = match &**desc {
+                    ThingDescription::String(string) => Paragraph {
+                        content: vec![InlineContent::String(string.clone())],
+                        ..Default::default()
+                    }
+                    .to_html(context),
+                    ThingDescription::VecInlineContent(inlines) => Paragraph {
+                        content: inlines.clone(),
+                        ..Default::default()
+                    }
+                    .to_html(context),
+                    ThingDescription::VecBlockContent(blocks) => blocks.to_html(context),
+                };
+                [
+                    "<section data-itemprop=\"description\">",
+                    "<meta itemprop=\"description\"",
+                    &encode_attr("content", &meta),
+                    ">",
+                    &heading,
+                    &content,
+                    "</section>",
+                ]
+                .concat()
+            }
+            None => "".to_string(),
+        };
+
+        let content = match &self.content {
             Some(content) => content.to_html(context),
+            None => "".to_string(),
         };
 
-        format!(
-            r#"<article itemtype="http://schema.org/Article" itemscope>{title}{content}</article>"#,
-            title = title,
-            content = content
-        )
+        [
+            "<article itemtype=\"http://schema.org/Article\" itemscope data-itemscope=\"root\">",
+            &title,
+            &abstract_,
+            &content,
+            "</article>",
+        ]
+        .concat()
     }
 }
 
+// For media objects, because their simple versions generate inline HTML, wrap them in
+// a <main data-itemscope="root">.
+
 impl ToHtml for AudioObject {
     fn to_html(&self, context: &Context) -> String {
-        let AudioObject { content_url, .. } = self;
         let simple = AudioObjectSimple {
-            content_url: content_url.clone(),
+            content_url: self.content_url.clone(),
             ..Default::default()
-        };
-        simple.to_html(context)
+        }
+        .to_html(context);
+        ["<main data-itemscope=\"root\">", &simple, "</main>"].concat()
+    }
+}
+
+impl ToHtml for ImageObject {
+    fn to_html(&self, context: &Context) -> String {
+        let simple = ImageObjectSimple {
+            content_url: self.content_url.clone(),
+            ..Default::default()
+        }
+        .to_html(context);
+        ["<main data-itemscope=\"root\">", &simple, "</main>"].concat()
+    }
+}
+
+impl ToHtml for VideoObject {
+    fn to_html(&self, context: &Context) -> String {
+        let simple = VideoObjectSimple {
+            media_type: self.media_type.clone(),
+            content_url: self.content_url.clone(),
+            ..Default::default()
+        }
+        .to_html(context);
+        ["<main data-itemscope=\"root\">", &simple, "</main>"].concat()
     }
 }
 
@@ -942,28 +1054,6 @@ impl ToHtml for Figure {
         let simple = FigureSimple {
             caption: caption.clone(),
             content: content.clone(),
-            ..Default::default()
-        };
-        simple.to_html(context)
-    }
-}
-
-impl ToHtml for ImageObject {
-    fn to_html(&self, context: &Context) -> String {
-        let ImageObject { content_url, .. } = self;
-        let simple = ImageObjectSimple {
-            content_url: content_url.clone(),
-            ..Default::default()
-        };
-        simple.to_html(context)
-    }
-}
-
-impl ToHtml for VideoObject {
-    fn to_html(&self, context: &Context) -> String {
-        let VideoObject { content_url, .. } = self;
-        let simple = VideoObjectSimple {
-            content_url: content_url.clone(),
             ..Default::default()
         };
         simple.to_html(context)
@@ -1012,7 +1102,7 @@ mod tests {
         let articles = home.join("..").join("fixtures").join("articles");
         let snapshots = home.join("snapshots");
 
-        for file in vec!["elife-small.json", "elife-mid.json", "era-plotly.json"] {
+        for file in vec!["elife-small.json", "era-plotly.json"] {
             let fixture_path = &articles.join(file);
             let json = fs::read_to_string(fixture_path)?;
             let article: Node = serde_json::from_str(&json)?;

@@ -4,6 +4,7 @@ use defaults::Defaults;
 use eyre::Result;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::local_name;
+use std::cmp::max;
 use stencila_schema::{
     Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
     ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
@@ -124,11 +125,12 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
             | local_name!("h5")
             | local_name!("h6") => {
                 let id = get_id(element);
-                let depth = element
-                    .name
-                    .local
-                    .strip_prefix("h")
-                    .map(|depth| depth.parse().unwrap_or(1));
+                let depth = element.name.local.strip_prefix("h").map(|depth| {
+                    // See the `Heading.to_html` for the rationale for
+                    // subtracting one from the depth
+                    let depth = depth.parse().unwrap_or(1);
+                    max(1, depth - 1)
+                });
                 let content = decode_inlines(node, context);
                 vec![BlockContent::Heading(Heading {
                     id,
