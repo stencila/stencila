@@ -48,7 +48,7 @@ pub fn encode_standalone(node: &Node, theme: Option<String>) -> Result<String> {
         </style>
     </head>
     <body>
-        <div data-itemscope="root">{body}</div>
+        {body}
     </body>
 </html>"#,
         theme = theme.unwrap_or_else(|| "wilmore".into()),
@@ -930,22 +930,50 @@ impl ToHtml for Article {
             Some(content) => content.to_html(context),
         };
 
-        format!(
-            r#"<article itemtype="http://schema.org/Article" itemscope>{title}{content}</article>"#,
-            title = title,
-            content = content
-        )
+        [
+            "<article itemtype=\"http://schema.org/Article\" itemscope data-itemscope=\"root\">",
+            &title,
+            &content,
+            "</article>",
+        ]
+        .concat()
     }
 }
 
+// For media objects, because their simple versions generate inline HTML, wrap them in
+// a <main data-itemscope="root">.
+
 impl ToHtml for AudioObject {
     fn to_html(&self, context: &Context) -> String {
-        let AudioObject { content_url, .. } = self;
         let simple = AudioObjectSimple {
-            content_url: content_url.clone(),
+            content_url: self.content_url.clone(),
             ..Default::default()
-        };
-        simple.to_html(context)
+        }
+        .to_html(context);
+        ["<main data-itemscope=\"root\">", &simple, "</main>"].concat()
+    }
+}
+
+impl ToHtml for ImageObject {
+    fn to_html(&self, context: &Context) -> String {
+        let simple = ImageObjectSimple {
+            content_url: self.content_url.clone(),
+            ..Default::default()
+        }
+        .to_html(context);
+        ["<main data-itemscope=\"root\">", &simple, "</main>"].concat()
+    }
+}
+
+impl ToHtml for VideoObject {
+    fn to_html(&self, context: &Context) -> String {
+        let simple = VideoObjectSimple {
+            media_type: self.media_type.clone(),
+            content_url: self.content_url.clone(),
+            ..Default::default()
+        }
+        .to_html(context);
+        ["<main data-itemscope=\"root\">", &simple, "</main>"].concat()
     }
 }
 
@@ -979,28 +1007,6 @@ impl ToHtml for Figure {
         let simple = FigureSimple {
             caption: caption.clone(),
             content: content.clone(),
-            ..Default::default()
-        };
-        simple.to_html(context)
-    }
-}
-
-impl ToHtml for ImageObject {
-    fn to_html(&self, context: &Context) -> String {
-        let ImageObject { content_url, .. } = self;
-        let simple = ImageObjectSimple {
-            content_url: content_url.clone(),
-            ..Default::default()
-        };
-        simple.to_html(context)
-    }
-}
-
-impl ToHtml for VideoObject {
-    fn to_html(&self, context: &Context) -> String {
-        let VideoObject { content_url, .. } = self;
-        let simple = VideoObjectSimple {
-            content_url: content_url.clone(),
             ..Default::default()
         };
         simple.to_html(context)
