@@ -1,3 +1,24 @@
+# [0.93.0](https://github.com/stencila/stencila/compare/v0.92.1...v0.93.0) (2021-07-08)
+
+
+### Bug Fixes
+
+* **Dependencies:** Upgrade tokio after cardo audit ([995f6fb](https://github.com/stencila/stencila/commit/995f6fb58bb521297f1030961cf577a63dd58eee))
+* **Desktop:** Handle paths with spaces and other percent encoded names ([fb642b6](https://github.com/stencila/stencila/commit/fb642b6b6f218284c21a63145fed3ce02e7b1e12))
+* **HTML:** Audio tag can not be self closing ([d785a10](https://github.com/stencila/stencila/commit/d785a1092621c34c0ea77dedd1c1562dba14dff9))
+* **HTML:** Do not escape forward slashes in media object src attributes ([6d58513](https://github.com/stencila/stencila/commit/6d58513e89cfe33a54246ef116c89853bef70a9c))
+* **HTML:** Only use data-itemscope once during encoding ([be7930b](https://github.com/stencila/stencila/commit/be7930b9c9aa4fe1697c53d67c061213c202b526))
+* **HTML:** Reserve h1 for document title ([c7ef80a](https://github.com/stencila/stencila/commit/c7ef80afb4a56f4c145db2bb938f66a877b65b20))
+* **Rust:** Upgrade pandoc-types ([5269f7f](https://github.com/stencila/stencila/commit/5269f7fd31153f00972deacd1f584ebc26ae0f57))
+* **Serve:** Enclose rewritten path in double quotes ([9e4892e](https://github.com/stencila/stencila/commit/9e4892eaa3766c57945763bdc1289302db451669))
+
+
+### Features
+
+* **HTML:** Encode article description ([fd35e16](https://github.com/stencila/stencila/commit/fd35e166fb615bf67e4c7e4436d62f900496093b))
+* **HTML:** Render list item checkboxes ([f2f93e9](https://github.com/stencila/stencila/commit/f2f93e9fd2884035ba6734009e8908028d28b017))
+* **Plain text:** Add encoding to plain text ([74b2442](https://github.com/stencila/stencila/commit/74b2442b51f34c16e4d6caa29491e3adf0979b0f))
+
 ## [0.92.1](https://github.com/stencila/stencila/compare/v0.92.0...v0.92.1) (2021-07-07)
 
 

@@ -1,6 +1,6 @@
 [package]
 name = "stencila-node"
-version = "0.92.1"
+version = "0.93.0"
 description = "Stencila in Node.js"
 authors = ["Nokome Bentley <nokome@stenci.la>"]
 license = "Apache-2.0"
