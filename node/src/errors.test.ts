@@ -12,8 +12,8 @@ test('workflow', async () => {
   }
   expect(error).toEqual(
     expect.objectContaining({
-      type: 'Unknown',
-      message: expect.stringContaining('No such file or directory'),
+      type: 'Unspecified',
+      message: expect.stringContaining('No such file or directory (os error 2)'),
     })
   )
 })

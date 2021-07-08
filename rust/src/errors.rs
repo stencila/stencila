@@ -46,9 +46,9 @@ pub enum Error {
     #[error("Plugin '{plugin}' is not yet installed")]
     PluginNotInstalled { plugin: String },
 
-    /// Another, unspecified, error type
-    #[error("An unknown error occurred")]
-    Unknown,
+    /// An error of unspecified type
+    #[error("{message}")]
+    Unspecified { message: String },
 }
 
 /// A global stack of errors that can be used have "sideband" errors i.e. those that
@@ -73,9 +73,10 @@ pub fn push_error(error: Error) {
 
 /// Push a error report
 pub fn push_report(report: eyre::Report) {
+    let message = report.to_string();
     match report.downcast::<Error>() {
         Ok(error) => push_error(error),
-        Err(_) => push_error(Error::Unknown),
+        Err(_) => push_error(Error::Unspecified { message }),
     }
 }
 
