@@ -141,7 +141,7 @@ impl ToHtml for Node {
     }
 }
 
-impl ToHtml for Vec<Node> {
+impl ToHtml for [Node] {
     fn to_html(&self, context: &Context) -> String {
         join(self, |item| item.to_html(context))
     }
@@ -180,7 +180,7 @@ impl ToHtml for InlineContent {
     }
 }
 
-impl ToHtml for Vec<InlineContent> {
+impl ToHtml for [InlineContent] {
     fn to_html(&self, context: &Context) -> String {
         join(self, |item| item.to_html(context))
     }
@@ -557,7 +557,7 @@ impl ToHtml for BlockContent {
     }
 }
 
-impl ToHtml for Vec<BlockContent> {
+impl ToHtml for [BlockContent] {
     fn to_html(&self, context: &Context) -> String {
         join(self, |item| item.to_html(context))
     }
@@ -703,26 +703,50 @@ impl ToHtml for List {
             _ => "ul",
         };
 
-        let items = join(&self.items, |item| {
-            let content = match &item.content {
-                None => String::new(),
-                Some(content) => match content {
-                    ListItemContent::VecInlineContent(nodes) => nodes.to_html(context),
-                    ListItemContent::VecBlockContent(nodes) => nodes.to_html(context),
-                },
-            };
-
-            format!(
-                r#"<li itemtype="http://schema.org/ListItem">{content}</li>"#,
-                content = content
-            )
-        });
+        let items = join(&self.items, |item| item.to_html(context));
 
         format!(
             r#"<{tag} itemtype="http://schema.org/ItemList">{items}</{tag}>"#,
             tag = tag,
             items = items
         )
+    }
+}
+
+impl ToHtml for ListItem {
+    fn to_html(&self, context: &Context) -> String {
+        let checkbox = self.is_checked.map(|is_checked| match is_checked {
+            true => InlineContent::String("☑ ".to_string()),
+            false => InlineContent::String("☐ ".to_string()),
+        });
+        let content = match &self.content {
+            Some(content) => match content {
+                ListItemContent::VecInlineContent(inlines) => match checkbox {
+                    Some(checkbox) => [vec![checkbox], inlines.clone()].concat().to_html(context),
+                    None => inlines.to_html(context),
+                },
+                ListItemContent::VecBlockContent(blocks) => match checkbox {
+                    Some(checkbox) => {
+                        // Check box is only added is the first block is a paragraph
+                        if let Some(BlockContent::Paragraph(paragraph)) = blocks.first() {
+                            let mut paragraph = paragraph.clone();
+                            paragraph.content.insert(0, checkbox);
+                            [paragraph.to_html(context), blocks[1..].to_html(context)].concat()
+                        } else {
+                            blocks.to_html(context)
+                        }
+                    }
+                    None => blocks.to_html(context),
+                },
+            },
+            None => "".to_string(),
+        };
+        [
+            "<li itemtype=\"http://schema.org/ListItem\">",
+            &content,
+            "</li>",
+        ]
+        .concat()
     }
 }
 
