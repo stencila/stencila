@@ -19,7 +19,7 @@ pub trait ToTxt {
     fn to_txt(&self) -> String;
 }
 
-macro_rules! vec_to_txt {
+macro_rules! slice_to_txt {
     ($type:ty) => {
         impl ToTxt for $type {
             fn to_txt(&self) -> String {
@@ -31,9 +31,9 @@ macro_rules! vec_to_txt {
         }
     };
 }
-vec_to_txt!([Node]);
-vec_to_txt!([InlineContent]);
-vec_to_txt!([BlockContent]);
+slice_to_txt!([Node]);
+slice_to_txt!([InlineContent]);
+slice_to_txt!([BlockContent]);
 
 macro_rules! content_to_txt {
     ($type:ty) => {

@@ -78,6 +78,22 @@ trait ToHtml {
     fn to_html(&self, context: &Context) -> String;
 }
 
+macro_rules! slice_to_html {
+    ($type:ty) => {
+        impl ToHtml for $type {
+            fn to_html(&self, context: &Context) -> String {
+                self.iter()
+                    .map(|item| item.to_html(context))
+                    .collect::<Vec<String>>()
+                    .join("")
+            }
+        }
+    };
+}
+slice_to_html!([Node]);
+slice_to_html!([InlineContent]);
+slice_to_html!([BlockContent]);
+
 /// Encode a HTML attribute, ensuring that the value is escaped correctly
 fn encode_attr(name: &str, value: &str) -> String {
     [
@@ -142,12 +158,6 @@ impl ToHtml for Node {
     }
 }
 
-impl ToHtml for [Node] {
-    fn to_html(&self, context: &Context) -> String {
-        join(self, |item| item.to_html(context))
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // Inline content
 ///////////////////////////////////////////////////////////////////////////////
@@ -178,12 +188,6 @@ impl ToHtml for InlineContent {
             InlineContent::Superscript(node) => node.to_html(context),
             InlineContent::VideoObject(node) => node.to_html(context),
         }
-    }
-}
-
-impl ToHtml for [InlineContent] {
-    fn to_html(&self, context: &Context) -> String {
-        join(self, |item| item.to_html(context))
     }
 }
 
@@ -555,12 +559,6 @@ impl ToHtml for BlockContent {
             BlockContent::Table(node) => node.to_html(context),
             BlockContent::ThematicBreak(node) => node.to_html(context),
         }
-    }
-}
-
-impl ToHtml for [BlockContent] {
-    fn to_html(&self, context: &Context) -> String {
-        join(self, |item| item.to_html(context))
     }
 }
 
