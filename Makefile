@@ -22,6 +22,14 @@ cover:
 	make -C rust cover
 	make -C node cover
 
+# Watch for changes, recompile and serve
+# Useful for things like quickly previewing changes in HTML encoding
+# After visiting login page, open browser at http://127.0.0.1:9000/fixtures/articles/elife-small.json for example.
+# Uses a fixed key to avoid having to relogin on each reload.
+# You can use --insecure if your prefer.
+watch-serve:
+	cargo watch -x 'run -- serve --debug --key=$(shell openssl rand -hex 12)'
+
 audit:
 	make -C rust audit
 	make -C node audit
