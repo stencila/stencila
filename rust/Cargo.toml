@@ -55,6 +55,7 @@ encode-json = []
 encode-html = ["html-escape"]
 encode-pandoc = ["binaries", "pandoc_types"]
 encode-toml = ["toml"]
+encode-txt = []
 encode-yaml = ["serde_yaml"]
 
 query-jsonptr = []
@@ -97,6 +98,7 @@ default = [
     "encode-html",
     "encode-json",
     "encode-toml",
+    "encode-txt",
     "encode-yaml",
     "query-jsonptr",
     "query-jmespath",

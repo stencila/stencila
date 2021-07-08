@@ -113,7 +113,6 @@ impl Default for Formats {
             Format::new("odt", true, true),
             Format::new("rmd", false, true),
             Format::new_extensions("latex", false, true, &["tex"]),
-            Format::new("txt", false, true),
             // Audio formats
             Format::new("flac", true, true),
             Format::new("mp3", true, true),
@@ -127,6 +126,8 @@ impl Default for Formats {
             Format::new("mp4", true, true),
             Format::new("ogv", true, true),
             Format::new("webm", true, true),
+            // Other
+            Format::new("txt", false, false),
             // Specials
             Format::directory(),
             Format::unknown(),
