@@ -315,7 +315,7 @@ impl ToHtml for AudioObjectSimple {
         [
             "<audio itemtype=\"http://schema.org/AudioObject\" controls ",
             &src_attr,
-            "/>",
+            "></audio>",
         ]
         .concat()
     }
