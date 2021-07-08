@@ -383,10 +383,11 @@ struct LoginParams {
 /// This view is intended for humans so it returns HTML responses telling the
 /// human if something failed with the login and what to do about it. Otherwise,
 /// it just sets a cookie and redirects them to the next page.
-#[allow(clippy::unnecessary_unwrap)]
 fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Response {
     let token = params.token;
     let next = params.next.unwrap_or_else(|| "/".to_string());
+
+    tracing::info!("GET login");
 
     fn redirect(next: String) -> warp::reply::Response {
         warp::reply::with_header(
@@ -439,6 +440,7 @@ async fn get_local(
     _claims: jwt::Claims,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
+    tracing::info!("GET (local) /{}", path);
 
     let cwd = std::env::current_dir().expect("Unable to get current working directory");
 
@@ -560,21 +562,21 @@ async fn get_handler(
 pub fn rewrite_html(body: &str, theme: &str, cwd: &Path) -> String {
     static REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r#""file://(.*?)""#).expect("Unable to create regex"));
+
     let body = REGEX.replace_all(body, |captures: &Captures| {
-        let path = match captures.get(1) {
-            Some(matc) => matc.as_str(),
-            // Redact the path if there is no first capture (should always be)
-            None => return r#""""#.to_string(),
-        };
+        let path = captures
+            .get(1)
+            .expect("To always have first capture")
+            .as_str();
         let path = match Path::new(path).canonicalize() {
             Ok(path) => path,
             // Redact the path if it can not be canonicalized
             Err(_) => return r#""""#.to_string(),
         };
         match path.strip_prefix(cwd) {
-            Ok(path) => format!("/~local/{}", path.display().to_string()),
+            Ok(path) => ["\"/~local/", &path.display().to_string(), "\""].concat(),
             // Redact the path if it is outside of the current directory
-            Err(_) => r#""""#.to_string(),
+            Err(_) => "\"\"".to_string(),
         }
     });
 
