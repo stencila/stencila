@@ -383,6 +383,7 @@ struct LoginParams {
 /// This view is intended for humans so it returns HTML responses telling the
 /// human if something failed with the login and what to do about it. Otherwise,
 /// it just sets a cookie and redirects them to the next page.
+#[allow(clippy::unnecessary_unwrap)]
 fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Response {
     let token = params.token;
     let next = params.next.unwrap_or_else(|| "/".to_string());
