@@ -42,7 +42,7 @@ export function dispatch(call: Call): Result {
     } catch {
       errors = [
         {
-          type: 'Unknown',
+          type: 'Unspecified',
           message: err.message,
         },
       ]
