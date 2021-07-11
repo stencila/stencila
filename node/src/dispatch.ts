@@ -1,42 +1,45 @@
-import { documents } from '.'
 import { Error } from './types'
-
 const addon = require('../index.node')
 
-// A call to one of the functions in this package
-//
-// For consistency, uses the property names `method` and `params`
-// as in a JSON-RPC request
-export interface Call {
-  method: string
-  params: unknown[]
+type AnyFunction = (...args: unknown[]) => any
+
+/**
+ * A result of a call to one of the function in this package
+ *
+ * The value type is `unknown` here, but inferred by the client methods.
+ */
+export type ResultSuccess<V = unknown> = {
+  ok: true
+  value: V
+  errors: Error[]
 }
 
-// A result of a call to one of the function in this package
-//
-// The value type is `unknown` here, but known by the client
-// methods.
-export interface Result {
-  value?: unknown
-  errors?: Error[]
+export type ResultFailure = {
+  ok: false
+  errors: Error[]
 }
 
-// Dispatch a call
-//
-// Catches any errors during the call, parses them into an object
-// and returns them as part of the `Result`.
-export function dispatch(call: Call): Result {
-  const { method, params } = call
-  const func = resolve(method)
+export type Result<V = unknown> = ResultSuccess<V> | ResultFailure
 
+/**
+ * Dispatch a call
+ *
+ * Catches any errors during the call, parses them into an object and returns
+ * them as part of the `Result`.
+ */
+export function dispatch<F extends AnyFunction>(
+  callback: F
+): Result<ReturnType<F>> {
   addon.errorsStart()
 
+  let ok = true
   let value
   let errors: Error[] = []
+
   try {
-    // @ts-ignore
-    value = func.apply(null, params)
+    value = callback()
   } catch (err) {
+    ok = false
     try {
       errors = [JSON.parse(err.message)]
     } catch {
@@ -54,13 +57,9 @@ export function dispatch(call: Call): Result {
     errors = [...sidebandErrors, ...errors]
   } catch {}
 
-  return { value, errors }
-}
-
-// Resolve a function from the `method` string of a call
-function resolve(method: string) {
-  switch (method) {
-    case 'documentsOpen':
-      return documents.open
+  if (ok) {
+    return { ok, value, errors }
+  } else {
+    return { ok, errors }
   }
 }

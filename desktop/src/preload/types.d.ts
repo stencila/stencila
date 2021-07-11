@@ -1,6 +1,6 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { JSONSchema7 } from 'json-schema'
-import { Config, Plugin, plugins, Project, Result } from 'stencila'
+import { Config, documents, Plugin, plugins, Project, Result } from 'stencila'
 import { AppConfigStore, JSONValue } from '../main/store/bootstrap'
 import { Channel, CHANNEL, Handler } from './channels'
 import { UnprotectedStoreKeys } from './stores'
@@ -9,6 +9,10 @@ export interface NormalizedPlugins {
   entities: Record<string, Plugin>
   ids: string[]
 }
+
+type InvokeResult<R extends (...args: any) => any> = Promise<
+  Result<ReturnType<R>>
+>
 
 interface Invoke {
   // Global
@@ -89,7 +93,15 @@ interface Invoke {
   ): Promise<Project>
 
   // Documents
-  invoke(channel: typeof CHANNEL.CLOSE_DOCUMENT, path: string): Promise<void>
+  invoke(
+    channel: typeof CHANNEL.DOCUMENTS_OPEN,
+    ...args: Parameters<typeof documents.open>
+  ): InvokeResult<typeof documents.open>
+
+  invoke(
+    channel: typeof CHANNEL.CLOSE_DOCUMENT,
+    ...args: Parameters<typeof documents.close>
+  ): Promise<ReturnType<typeof documents.close>>
 
   invoke(
     channel: typeof CHANNEL.CLOSE_ACTIVE_DOCUMENT,
@@ -121,9 +133,6 @@ interface Invoke {
       topics: string[]
     }
   ): Promise<void>
-
-  // Fallback
-  invoke(channel: typeof CHANNEL.RPC_CALL, ...args: unknown[]): Promise<Result>
 }
 
 interface IpcRendererAPI extends Invoke {
@@ -131,9 +140,6 @@ interface IpcRendererAPI extends Invoke {
   receive: (channel: Channel, func: Handler) => void
   remove: (channel: Channel, func: Handler) => void
   removeAll: (channel: Channel) => void
-
-  /** @return A function that removes this listener. */
-  // on(channel: string, listener: (...args: unknown[]) => void): () => void;
 }
 
 declare global {

@@ -1,12 +1,16 @@
 import { ipcMain } from 'electron'
-import { documents } from 'stencila'
+import { dispatch, documents } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
+import { rewriteHtml } from '../local-protocol'
 import { removeChannelHandlers } from '../utils/handler'
 import { DOCUMENT_CHANNEL } from './channel'
-import { rewriteHtml } from '../local-protocol'
 
 export const registerDocumentHandlers = () => {
   try {
+    ipcMain.handle(CHANNEL.DOCUMENTS_OPEN, async (_event, filePath: string) =>
+      dispatch(() => documents.open(filePath))
+    )
+
     ipcMain.handle(
       CHANNEL.CLOSE_DOCUMENT,
       async (_event, documentId: string) => {
@@ -49,8 +53,9 @@ export const registerDocumentHandlers = () => {
           (_topic, docEvent) => {
             const event = {
               ...docEvent,
-              content: rewriteHtml(docEvent.content ?? '')
+              content: rewriteHtml(docEvent.content ?? ''),
             }
+
             ipcEvent.sender.send(CHANNEL.GET_DOCUMENT_PREVIEW, event)
           }
         )
