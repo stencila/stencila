@@ -1,0 +1,60 @@
+---
+source: rust/src/methods/reshape.rs
+expression: article
+input_file: fixtures/articles/reshape-1.yaml
+
+---
+{
+  "type": "Article",
+  "authors": [
+    {
+      "type": "Person",
+      "emails": [
+        "john@example.org"
+      ],
+      "familyNames": [
+        "Smith"
+      ],
+      "givenNames": [
+        "John"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Jones"
+      ],
+      "givenNames": [
+        "Jane"
+      ],
+      "url": "https://example.org/jane"
+    }
+  ],
+  "content": [],
+  "dateModified": {
+    "type": "Date",
+    "value": "2021-07-02T00:00:00+00:00"
+  },
+  "description": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "First paragraph of abstract"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Second paragraph of abstract"
+      ]
+    }
+  ],
+  "keywords": [
+    "foo",
+    "bar",
+    "baz"
+  ],
+  "title": [
+    "The title"
+  ]
+}

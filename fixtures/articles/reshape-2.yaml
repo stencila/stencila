@@ -1,0 +1,39 @@
+type: Article
+content:
+  # Infer title from strong paragraph
+  - type: Paragraph
+    content:
+      - type: Strong
+        content:
+          - The title
+  # Infer authors from paragraph with superscripts
+  - type: Paragraph
+    content:
+        - Dr John James Smith
+        - type: Superscript
+          content: [1]
+        - '; Prof Jenny Anne Xang'
+        - type: Superscript
+          content: [2]
+  # Detect date
+  # Time / timezone needed so snapshot is not affected by local timezone
+  - type: Paragraph
+    content:
+      - 'Date: 2021-07-02 6am +06:00'
+  # Detect keywords
+  - type: Paragraph
+    content:
+      - 'Keywords: foo; bar; baz'
+  # Detect abstract
+  - type: Heading
+    depth: 1
+    content:
+      - Abstract
+  - type: Paragraph
+    content:
+      - Single paragraph of abstract
+  - type: QuoteBlock
+    content:
+      - type: Paragraph
+        content:
+          - A quote block to illustrate how this ends the abstract

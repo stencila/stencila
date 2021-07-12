@@ -116,5 +116,11 @@ input_file: fixtures/articles/simple.md
         "This is the conclusion section."
       ]
     }
-  ]
+  ],
+  "keywords": [
+    "text",
+    "fixture",
+    "Markdown"
+  ],
+  "title": "A simple Markdown article"
 }

@@ -473,7 +473,7 @@ async fn get_local(
         "content-type",
         warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
     );
-    return Ok(response);
+    Ok(response)
 }
 
 #[derive(Debug, Deserialize)]

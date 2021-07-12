@@ -4,10 +4,11 @@ use stencila_schema::*;
 /// Encode a `Node` to plain, unstructured text
 ///
 /// This is an an intentionally lossy encoding for when a
-/// plain text encoding of a node is needed. It just dumps
-/// the content of a node as one, possibly long, string.
+/// plain text encoding of a node is needed. The only structure
+/// is adds is placing two newlines after each `BlockContent`
+/// node. e.g. paragraphs, code blocks
 pub fn encode(node: &Node) -> Result<String> {
-    Ok(node.to_txt())
+    Ok(node.to_txt().trim().to_string())
 }
 
 /// A trait to encode a `Node` as plain text
@@ -26,7 +27,7 @@ macro_rules! slice_to_txt {
                 self.iter()
                     .map(|item| item.to_txt())
                     .collect::<Vec<String>>()
-                    .join("")
+                    .concat()
             }
         }
     };
@@ -35,7 +36,7 @@ slice_to_txt!([Node]);
 slice_to_txt!([InlineContent]);
 slice_to_txt!([BlockContent]);
 
-macro_rules! content_to_txt {
+macro_rules! inline_content_to_txt {
     ($type:ty) => {
         impl ToTxt for $type {
             fn to_txt(&self) -> String {
@@ -45,20 +46,56 @@ macro_rules! content_to_txt {
     };
 }
 
-content_to_txt!(Delete);
-content_to_txt!(Emphasis);
-content_to_txt!(Link);
-content_to_txt!(NontextualAnnotation);
-content_to_txt!(Note);
-content_to_txt!(Quote);
-content_to_txt!(Strong);
-content_to_txt!(Subscript);
-content_to_txt!(Superscript);
+inline_content_to_txt!(Delete);
+inline_content_to_txt!(Emphasis);
+inline_content_to_txt!(Link);
+inline_content_to_txt!(NontextualAnnotation);
+inline_content_to_txt!(Note);
+inline_content_to_txt!(Quote);
+inline_content_to_txt!(Strong);
+inline_content_to_txt!(Subscript);
+inline_content_to_txt!(Superscript);
 
-content_to_txt!(ClaimSimple);
-content_to_txt!(Paragraph);
-content_to_txt!(Heading);
-content_to_txt!(QuoteBlock);
+macro_rules! block_content_to_txt {
+    ($type:ty) => {
+        impl ToTxt for $type {
+            fn to_txt(&self) -> String {
+                [&self.content.to_txt(), "\n\n"].concat()
+            }
+        }
+    };
+}
+
+block_content_to_txt!(ClaimSimple);
+block_content_to_txt!(Paragraph);
+block_content_to_txt!(Heading);
+block_content_to_txt!(QuoteBlock);
+
+macro_rules! inline_text_to_txt {
+    ($type:ty) => {
+        impl ToTxt for $type {
+            fn to_txt(&self) -> String {
+                self.text.to_string()
+            }
+        }
+    };
+}
+
+inline_text_to_txt!(CodeFragment);
+inline_text_to_txt!(MathFragment);
+
+macro_rules! block_text_to_txt {
+    ($type:ty) => {
+        impl ToTxt for $type {
+            fn to_txt(&self) -> String {
+                [&self.text.to_string(), "\n\n"].concat()
+            }
+        }
+    };
+}
+
+block_text_to_txt!(CodeBlock);
+block_text_to_txt!(MathBlock);
 
 macro_rules! optional_content_to_txt {
     ($type:ty) => {
@@ -75,21 +112,6 @@ macro_rules! optional_content_to_txt {
 
 optional_content_to_txt!(Article);
 optional_content_to_txt!(Cite);
-
-macro_rules! text_to_txt {
-    ($type:ty) => {
-        impl ToTxt for $type {
-            fn to_txt(&self) -> String {
-                self.text.to_string()
-            }
-        }
-    };
-}
-
-text_to_txt!(CodeBlock);
-text_to_txt!(CodeFragment);
-text_to_txt!(MathBlock);
-text_to_txt!(MathFragment);
 
 /// Encode a `Node` to plain text
 impl ToTxt for Node {

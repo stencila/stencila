@@ -245,8 +245,8 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
                 })
                 .collect();
             vec![BlockContent::List(List {
-                order,
                 items,
+                order,
                 ..Default::default()
             })]
         }
@@ -318,9 +318,9 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
             let rows = [head, body, foot].concat();
 
             vec![BlockContent::Table(TableSimple {
-                id,
-                caption,
                 rows,
+                caption,
+                id,
                 ..Default::default()
             })]
         }
@@ -367,8 +367,8 @@ fn translate_row(
         .map(|cell| translate_cell(cell, context))
         .collect();
     TableRow {
-        row_type,
         cells,
+        row_type,
         ..Default::default()
     }
 }
@@ -401,9 +401,9 @@ fn translate_cell(cell: &pandoc::Cell, context: &Context) -> TableCell {
         _ => Some((*col_span) as u32),
     };
     TableCell {
+        colspan,
         content,
         rowspan,
-        colspan,
         ..Default::default()
     }
 }

@@ -110,8 +110,8 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                 let text = collect_text(node);
 
                 vec![BlockContent::CodeBlock(CodeBlock {
-                    programming_language,
                     text,
+                    programming_language,
                     ..Default::default()
                 })]
             }
@@ -133,9 +133,9 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                 });
                 let content = decode_inlines(node, context);
                 vec![BlockContent::Heading(Heading {
-                    id,
-                    depth,
                     content,
+                    depth,
+                    id,
                     ..Default::default()
                 })]
             }
@@ -147,8 +147,8 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                 let items = decode_list_items(node, context);
 
                 vec![BlockContent::List(List {
-                    order,
                     items,
+                    order,
                     ..Default::default()
                 })]
             }
@@ -238,8 +238,8 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
                     .map(|value| Box::new(value.replace("language-", "")));
                 let text = collect_text(node);
                 vec![InlineContent::CodeFragment(CodeFragment {
-                    programming_language,
                     text,
+                    programming_language,
                     ..Default::default()
                 })]
             }
@@ -277,9 +277,10 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
                 let content = decode_inlines(node, context);
 
                 vec![InlineContent::Link(Link {
+                    content,
                     target,
                     title,
-                    content,
+
                     ..Default::default()
                 })]
             }

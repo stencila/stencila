@@ -89,10 +89,7 @@ impl Response {
         Response {
             id,
             result,
-            error: match error {
-                Some(error) => Some(Error::server_error(&error.to_string())),
-                None => None,
-            },
+            error: error.map(|error| Error::server_error(&error.to_string())),
             ..Default::default()
         }
     }

@@ -1,7 +1,9 @@
 use super::txt::ToTxt;
 use eyre::Result;
-use html_escape::encode_double_quoted_attribute;
+use html_escape::{encode_double_quoted_attribute, encode_safe};
+use itertools::Itertools;
 use std::cmp::min;
+use std::collections::HashMap;
 use std::fs;
 use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
@@ -474,7 +476,7 @@ impl ToHtml for CiteGroup {
     fn to_html(&self, context: &Context) -> String {
         format!(
             r#"<span itemtype="http://schema.stenci.la/CiteGroup">{items}</span>"#,
-            items = join(&self.items, |cite| cite.to_html(context))
+            items = concat(&self.items, |cite| cite.to_html(context))
         )
     }
 }
@@ -645,7 +647,7 @@ impl ToHtml for CollectionSimple {
     fn to_html(&self, context: &Context) -> String {
         format!(
             r#"<ol itemtype="http://schema.org/Collection">{parts}</ol>"#,
-            parts = join(&self.parts, |part| part.to_html(context))
+            parts = concat(&self.parts, |part| part.to_html(context))
         )
     }
 }
@@ -715,7 +717,7 @@ impl ToHtml for List {
             _ => "ul",
         };
 
-        let items = join(&self.items, |item| item.to_html(context));
+        let items = concat(&self.items, |item| item.to_html(context));
 
         format!(
             r#"<{tag} itemtype="http://schema.org/ItemList">{items}</{tag}>"#,
@@ -856,13 +858,13 @@ fn table_rows_to_html(
     cell_type: TableCellCellType,
     context: &Context,
 ) -> String {
-    join(&rows, |row| {
+    concat(&rows, |row| {
         table_row_to_html(row, cell_type.clone(), context)
     })
 }
 
 fn table_row_to_html(row: &TableRow, cell_type: TableCellCellType, context: &Context) -> String {
-    let cells = join(&row.cells, |cell| {
+    let cells = concat(&row.cells, |cell| {
         let cell_type = match &cell.cell_type {
             Some(cell_type) => cell_type.clone(),
             None => cell_type.clone(),
@@ -935,15 +937,55 @@ impl ToHtml for Article {
             None => "".to_string(),
         };
 
+        // Create a map of organization name to Organization, in the order
+        // they appear in affiliations.
+        let orgs: HashMap<String, &Organization> = match &self.authors {
+            Some(authors) => authors
+                .iter()
+                .filter_map(|author| match author {
+                    CreativeWorkAuthors::Person(person) => {
+                        person.affiliations.as_ref().map(|orgs| {
+                            orgs.iter().filter_map(|org| {
+                                org.name.as_ref().map(|name| (*name.clone(), org))
+                            })
+                        })
+                    }
+                    _ => None,
+                })
+                .flatten()
+                .collect(),
+            None => HashMap::new(),
+        };
+        let orgs = orgs.values().cloned().collect();
+
+        let authors = match &self.authors {
+            Some(authors) => {
+                let authors = concat(authors, |author| match author {
+                    CreativeWorkAuthors::Person(person) => {
+                        author_person_to_html(person, Some(&orgs))
+                    }
+                    CreativeWorkAuthors::Organization(org) => author_org_to_html(org),
+                });
+                ["<ol data-itemprop=\"authors\">", &authors, "</ol>"].concat()
+            }
+            None => "".to_string(),
+        };
+
+        let affiliations = if !orgs.is_empty() {
+            #[cfg_attr(rustfmt, rustfmt_skip)]
+            [
+                "<ol data-itemprop=\"affiliations\">",
+                    &concat(&orgs, |org| affiliation_org_to_html(org)),
+                "</ol>",
+            ]
+            .concat()
+        } else {
+            "".to_string()
+        };
+
         let abstract_ = match &self.description {
             Some(desc) => {
                 let meta = (**desc).to_txt();
-                let heading = Heading {
-                    depth: Some(1),
-                    content: vec![InlineContent::String("Abstract".to_string())],
-                    ..Default::default()
-                }
-                .to_html(context);
                 let content = match &**desc {
                     ThingDescription::String(string) => Paragraph {
                         content: vec![InlineContent::String(string.clone())],
@@ -957,13 +999,12 @@ impl ToHtml for Article {
                     .to_html(context),
                     ThingDescription::VecBlockContent(blocks) => blocks.to_html(context),
                 };
+                #[cfg_attr(rustfmt, rustfmt_skip)]
                 [
                     "<section data-itemprop=\"description\">",
-                    "<meta itemprop=\"description\"",
-                    &encode_attr("content", &meta),
-                    ">",
-                    &heading,
-                    &content,
+                        "<h2>Abstract</h2>",
+                        "<meta itemprop=\"description\"", &encode_attr("content", &meta), ">",
+                        &content,
                     "</section>",
                 ]
                 .concat()
@@ -976,15 +1017,157 @@ impl ToHtml for Article {
             None => "".to_string(),
         };
 
+        #[cfg_attr(rustfmt, rustfmt_skip)]
         [
             "<article itemtype=\"http://schema.org/Article\" itemscope data-itemscope=\"root\">",
-            &title,
-            &abstract_,
-            &content,
+                &title,
+                &authors,
+                &affiliations,
+                &abstract_,
+                &content,
             "</article>",
         ]
         .concat()
     }
+}
+
+fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> String {
+    let name_string = if person.given_names.is_some() && person.family_names.is_some() {
+        [
+            person
+                .given_names
+                .as_ref()
+                .map_or("".to_string(), |vec| vec.join(" ")),
+            person
+                .family_names
+                .as_ref()
+                .map_or("".to_string(), |vec| vec.join(" ")),
+        ]
+        .join(" ")
+    } else {
+        person
+            .name
+            .as_ref()
+            .map_or("".to_string(), |name| *name.clone())
+    };
+    let name_string = match name_string.is_empty() {
+        true => "Anonymous".to_string(),
+        false => name_string,
+    };
+
+    // If there are given and/or family names then encode name as invisible `<meta>` tag,
+    // otherwise, as a visible `<span>`.
+    let name = if person.given_names.is_some() && person.family_names.is_some() {
+        #[cfg_attr(rustfmt, rustfmt_skip)]
+        [
+            "<meta itemprop=\"name\"", &encode_attr("content", &name_string), ">",
+        ]
+        .concat()
+    } else {
+        #[cfg_attr(rustfmt, rustfmt_skip)]
+        [
+            "<span itemprop=\"name\">", &encode_safe(&name_string), "</span>",
+        ]
+        .concat()
+    };
+
+    let given_names = match &person.given_names {
+        Some(names) => [
+            "<span data-itemprop=\"givenNames\">",
+            &concat(names, |name| {
+                ["<span itemprop=\"givenName\">", name, "</span>"].concat()
+            }),
+            "</span>",
+        ]
+        .concat(),
+        None => "".to_string(),
+    };
+
+    let family_names = match &person.family_names {
+        Some(names) => [
+            "<span data-itemprop=\"familyNames\">",
+            &concat(names, |name| {
+                ["<span itemprop=\"familyName\">", name, "</span>"].concat()
+            }),
+            "</span>",
+        ]
+        .concat(),
+        None => "".to_string(),
+    };
+
+    let emails = match &person.emails {
+        Some(emails) =>
+        {
+            #[cfg_attr(rustfmt, rustfmt_skip)]
+            [
+                "<span data-itemprop=\"emails\">",
+                &concat(emails, |email| {
+                    [
+                        "<a itemprop=\"email\"", &encode_attr("href", &["mailto:", email].concat()), ">",
+                            email,
+                        "</a>",
+                    ].concat()
+                }),
+                "</span>",
+            ]
+            .concat()
+        }
+        None => "".to_string(),
+    };
+
+    let affiliations = if let (Some(affiliations), Some(orgs)) = (&person.affiliations, orgs) {
+        #[cfg_attr(rustfmt, rustfmt_skip)]
+        [
+            "<span data-itemprop=\"affiliations\">",
+            &concat(affiliations, |affiliation| {
+                if let Some((index,..)) = orgs.iter().find_position(|org| {
+                    org.name == affiliation.name
+                }) {
+                    let position = (index+1).to_string();
+                    [
+                        "<a itemprop=\"affiliation\"", &encode_attr("href", &position), ">",
+                            &position,
+                        "</a>"
+                    ].concat()
+                } else {
+                    "".to_string()
+                }
+            }),
+            "</span>"
+        ].concat()
+    } else {
+        "".to_string()
+    };
+
+    #[cfg_attr(rustfmt, rustfmt_skip)]
+    [
+        "<li itemprop=\"author\" itemtype=\"http://schema.org/Person\" itemscope>",
+            &name,
+            &given_names,
+            &family_names,
+            &emails,
+            &affiliations,
+        "</li>",
+    ]
+    .concat()
+}
+
+fn author_org_to_html(_org: &Organization) -> String {
+    [
+        "<li itemprop=\"author\" itemtype=\"http://schema.org/Organization\" itemscope>",
+        // TODO
+        "</li>",
+    ]
+    .concat()
+}
+
+fn affiliation_org_to_html(org: &Organization) -> String {
+    // TODO Organization address etc
+    let name = org
+        .name
+        .as_ref()
+        .map_or("".to_string(), |boxed| *boxed.clone());
+    ["<li>", &name, "</li>"].concat()
 }
 
 // For media objects, because their simple versions generate inline HTML, wrap them in
@@ -1077,12 +1260,12 @@ impl ToHtml for Table {
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Iterate over a vector of node, call a string generating function on each item
-/// and join the strings
-pub fn join<T, F>(vec: &[T], func: F) -> String
+/// and concatenate the strings
+pub fn concat<T, F>(vec: &[T], func: F) -> String
 where
     F: FnMut(&T) -> String,
 {
-    vec.iter().map(func).collect::<Vec<String>>().join("")
+    vec.iter().map(func).collect::<Vec<String>>().concat()
 }
 
 ///////////////////////////////////////////////////////////////////////////////

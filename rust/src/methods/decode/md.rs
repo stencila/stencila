@@ -1,7 +1,6 @@
-use crate::traits::ToVecInlineContent;
-
 use super::html;
-use eyre::Result;
+use crate::{methods::coerce::coerce, traits::ToVecInlineContent};
+use eyre::{bail, Result};
 use nom::{
     branch::alt,
     bytes::complete::{tag, take, take_until, take_while1},
@@ -26,14 +25,49 @@ use stencila_schema::{
 /// Intended for decoding an entire document, this function extracts
 /// YAML front matter, parses the Markdown, and returns a `Node::Article` variant.
 pub fn decode(md: &str) -> Result<Node> {
-    let content = decode_fragment(md);
-
-    let article = Article {
-        content: Some(content),
-        ..Default::default()
+    let (md, mut node) = if let Some((end, node)) = decode_frontmatter(&md)? {
+        (&md[end..], node)
+    } else {
+        (md, Node::Article(Article::default()))
     };
 
-    Ok(Node::Article(article))
+    let content = decode_fragment(md);
+    if !content.is_empty() {
+        let content = Some(content);
+        match &mut node {
+            Node::Article(article) => article.content = content,
+            _ => bail!("Unsupported node type {:?}", node),
+        }
+    }
+
+    Ok(node)
+}
+
+/// Decode any front matter in a Markdown document into a `Node`
+///
+/// Any front matter will be coerced into a `Node`, defaulting to the
+/// `Node::Article` variant, if `type` is not defined.
+/// If there is no front matter detected, will return `None`.
+pub fn decode_frontmatter(md: &str) -> Result<Option<(usize, Node)>> {
+    static REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new("^-{3,}((.|\\n)*)?\\n-{3,}").expect("Unable to create regex"));
+
+    if let Some(captures) = REGEX.captures(md) {
+        let yaml = captures[1].trim().to_string();
+        if yaml.is_empty() {
+            return Ok(None);
+        }
+
+        let mut value: serde_json::Value = serde_yaml::from_str(&yaml)?;
+        if value.get("type").is_none() {
+            value["type"] = serde_json::Value::String("Article".to_string());
+        };
+
+        let node = coerce(value)?;
+        Ok(Some((captures[0].len(), node)))
+    } else {
+        Ok(None)
+    }
 }
 
 /// Decode a Markdown fragment to a vector of `BlockContent`
@@ -126,8 +160,9 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     let items = lists.pop_tail();
 
                     blocks.push_node(BlockContent::List(List {
-                        order,
                         items,
+                        order,
+
                         ..Default::default()
                     }))
                 }
@@ -777,6 +812,23 @@ mod tests {
     use super::*;
     use crate::utils::tests::snapshot_content;
     use insta::assert_json_snapshot;
+
+    #[test]
+    fn md_frontmatter() -> Result<()> {
+        assert!(decode_frontmatter("")?.is_none());
+        assert!(decode_frontmatter("--")?.is_none());
+        assert!(decode_frontmatter("---")?.is_none());
+        assert!(decode_frontmatter("---\n---\n")?.is_none());
+
+        let (end, node) = decode_frontmatter("---\ntitle: The title\n---")?.unwrap();
+        assert!(end == 24);
+        if let Node::Article(_) = node {
+        } else {
+            bail!("Expected an article")
+        }
+
+        Ok(())
+    }
 
     #[test]
     fn md_articles() {

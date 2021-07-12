@@ -1,3 +1,11 @@
+---
+title: A simple Markdown article
+keywords:
+    - text 
+    - fixture
+    - Markdown
+---
+
 # Introduction
 
 A simple Markdown article for testing. When making changes please note that test snapshots based on this fixture may need to be updated.

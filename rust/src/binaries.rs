@@ -173,15 +173,13 @@ impl Binary {
         let mut dirs: Vec<PathBuf> = Vec::new();
         if let Ok(dir) = self.dir(None, false) {
             if let Ok(entries) = fs::read_dir(dir) {
-                for entry in entries {
-                    if let Ok(entry) = entry {
-                        let path = entry.path();
-                        if path.is_dir() {
-                            // Search for binary in top level (Windows)
-                            dirs.push(path.clone());
-                            // Search for binary in `bin` (MacOS & Linux convention)
-                            dirs.push(path.join("bin"))
-                        }
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.is_dir() {
+                        // Search for binary in top level (Windows)
+                        dirs.push(path.clone());
+                        // Search for binary in `bin` (MacOS & Linux convention)
+                        dirs.push(path.join("bin"))
                     }
                 }
             }
