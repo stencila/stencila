@@ -5,10 +5,10 @@ import { Channel, Handler, isChannel } from './channels'
 export const apis: IpcRendererAPI = {
   // TODO: Refine type definitions to remove `@ts-ignore`
   // @ts-ignore
-  invoke: (...args) => {
+  invoke: (...args: [Channel, ...unknown]) => {
     const channel = args[0]
     if (isChannel(channel)) {
-      return ipcRenderer.invoke(...args)
+      return ipcRenderer.invoke.apply(null, args)
     }
     return Promise.reject(`Invalid channel ${channel}`)
   },

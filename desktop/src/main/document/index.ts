@@ -8,7 +8,7 @@ import { DOCUMENT_CHANNEL } from './channel'
 export const registerDocumentHandlers = () => {
   try {
     ipcMain.handle(CHANNEL.DOCUMENTS_OPEN, async (_event, filePath: string) =>
-      dispatch(() => documents.open(filePath))
+      dispatch.documents.open(filePath)
     )
 
     ipcMain.handle(
