@@ -320,6 +320,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "chrono-tz"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2554a3155fec064362507487171dcc4edc3df60cb10f3a1fb10ed8094822b120"
+dependencies = [
+ "chrono",
+ "parse-zoneinfo",
+]
+
+[[package]]
 name = "clap"
 version = "2.33.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -687,6 +697,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bde03329ae10e79ede66c9ce4dc930aa8599043b0743008548680f25b91502d6"
 dependencies = [
  "dtoa",
+]
+
+[[package]]
+name = "dtparse"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13276c5dbd7f365e00efe6631242772fe6615e1899df84d1f6ce3ae7b48209f6"
+dependencies = [
+ "chrono",
+ "chrono-tz",
+ "lazy_static",
+ "num-traits",
+ "rust_decimal",
 ]
 
 [[package]]
@@ -1227,6 +1250,24 @@ name = "httpdate"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6456b8a6c8f33fee7d958fcd1b60d55b11940a79e63ae87013e6d22e26034440"
+
+[[package]]
+name = "human_name"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c9181cebb078dfbcfa418f451e855fc7c57c9c8c793fe607525cd8c1da4bd3b5"
+dependencies = [
+ "libc",
+ "phf",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "smallstr",
+ "smallvec",
+ "unicode-normalization",
+ "unicode-segmentation",
+ "unidecode",
+]
 
 [[package]]
 name = "humantime"
@@ -2215,6 +2256,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "parse-zoneinfo"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c705f256449c60da65e11ff6626e0c16a0a0b96aaa348de61376b249bc340f41"
+dependencies = [
+ "regex",
+]
+
+[[package]]
 name = "pathdiff"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2790,6 +2840,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust_decimal"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a93c95e3d5c1d997e6e4ba9bda898f4e1d73934cd05510c972f10087d0ef00c1"
+dependencies = [
+ "byteorder",
+ "lazy_static",
+ "num",
+ "serde",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3231,6 +3293,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "smallstr"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e922794d168678729ffc7e07182721a14219c65814e66e91b839a272fe5ae4f"
+dependencies = [
+ "smallvec",
+]
+
+[[package]]
 name = "smallvec"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3276,6 +3347,7 @@ dependencies = [
  "crossbeam-channel",
  "defaults",
  "dirs-next",
+ "dtparse",
  "enum_dispatch",
  "eyre",
  "flate2",
@@ -3284,6 +3356,7 @@ dependencies = [
  "glob",
  "handlebars",
  "html-escape",
+ "human_name",
  "humantime",
  "ignore",
  "insta",
@@ -3975,6 +4048,12 @@ name = "unicode-xid"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ccb82d61f80a663efe1f787a51b16b5a51e3314d6ac365b08639f52387b33f3"
+
+[[package]]
+name = "unidecode"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "402bb19d8e03f1d1a7450e2bd613980869438e0666331be3e073089124aa1adc"
 
 [[package]]
 name = "untrusted"

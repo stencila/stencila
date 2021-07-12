@@ -42,12 +42,14 @@ upgrade = ["self_update"]
 
 config = ["humantime", "toml", "validator"]
 
+decode-date = ["dtparse"]
 decode-docx = ["decode-pandoc"]
 decode-json = []
 decode-html = ["kuchiki", "markup5ever"]
 decode-md = ["pulldown-cmark", "nom", "decode-html"]
 decode-latex = ["decode-pandoc"]
 decode-pandoc = ["binaries", "pandoc_types"]
+decode-person = ["human_name"]
 decode-toml = ["toml"]
 decode-yaml = ["serde_yaml"]
 
@@ -87,12 +89,14 @@ default = [
     "plugins-r",
     "upgrade",
     "config",
+    "decode-date",
     "decode-docx",
     "decode-html",
     "decode-json",
     "decode-latex",
     "decode-md",
     "decode-pandoc",
+    "decode-person",
     "decode-toml",
     "decode-yaml",
     "encode-html",
@@ -115,6 +119,7 @@ chrono = "=0.4.19"
 crossbeam-channel = "=0.5.1"
 defaults = "=0.2.0"
 dirs-next = "=2.0.0"
+dtparse = { version = "=1.2.0", optional = true }
 enum_dispatch = "=0.3.7"
 eyre = "=0.6.5"
 flate2 = { version = "=1.0.20", optional = true }
@@ -123,6 +128,7 @@ gitignore = "=1.0.7"
 glob = "=0.3.0"
 handlebars = { version = "=4.1.0", optional = true }
 html-escape = { version = "=0.2.9", optional = true }
+human_name = { version = "=1.0.2", optional = true }
 humantime = { version = "=2.1.0", optional = true }
 ignore = "=0.4.18"
 itertools = "0.10.1"

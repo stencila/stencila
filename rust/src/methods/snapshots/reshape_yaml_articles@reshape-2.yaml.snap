@@ -1,0 +1,48 @@
+---
+source: rust/src/methods/reshape.rs
+expression: article
+input_file: fixtures/articles/reshape-2.yaml
+
+---
+{
+  "type": "Article",
+  "authors": [
+    {
+      "type": "Person",
+      "name": "superscripted"
+    }
+  ],
+  "content": [
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "A quote block to illustrate how this ends the abstract"
+          ]
+        }
+      ]
+    }
+  ],
+  "dateModified": {
+    "type": "Date",
+    "value": "2021-07-02T00:00:00+00:00"
+  },
+  "description": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "Single paragraph of abstract"
+      ]
+    }
+  ],
+  "keywords": [
+    "foo",
+    " bar",
+    " baz"
+  ],
+  "title": [
+    "The title"
+  ]
+}

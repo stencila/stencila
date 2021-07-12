@@ -2,6 +2,8 @@ use eyre::Result;
 use maplit::hashmap;
 use stencila_schema::{AudioObject, ImageObject, Node, VideoObject};
 
+#[cfg(feature = "decode-date")]
+pub mod date;
 #[cfg(feature = "decode-docx")]
 pub mod docx;
 
@@ -20,6 +22,9 @@ pub mod latex;
 #[cfg(feature = "decode-pandoc")]
 pub mod pandoc;
 
+#[cfg(feature = "decode-person")]
+pub mod person;
+
 #[cfg(feature = "decode-toml")]
 pub mod toml;
 
@@ -37,6 +42,9 @@ pub async fn decode(content: &str, format: &str) -> Result<Node> {
     // Allow these for when no features are enabled
     #[allow(unused_variables, unreachable_code)]
     Ok(match format {
+        #[cfg(feature = "decode-date")]
+        "date" => date::decode(content)?,
+
         #[cfg(feature = "decode-docx")]
         "docx" => docx::decode(content).await?,
 
@@ -51,6 +59,9 @@ pub async fn decode(content: &str, format: &str) -> Result<Node> {
 
         #[cfg(feature = "decode-pandoc")]
         "pandoc" => pandoc::decode(content, pandoc::Options::default()).await?,
+
+        #[cfg(feature = "decode-person")]
+        "person" => person::decode(content)?,
 
         #[cfg(feature = "decode-md")]
         "md" => md::decode(content)?,

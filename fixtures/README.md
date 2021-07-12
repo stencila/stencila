@@ -1,5 +1,9 @@
 # Fixtures
 
+Author: Noo
+
+Date: 2 July 2021 00:00:00 +00:00
+
 This folder contains some examples of content that can be opened using Stencila including [`projects`](projects), [`articles`](articles), and [`media`](media) files. They are used in automated and manual testing. Be careful when changing files since that will probably break tests that rely upon them.
 
 Note the Stencila converter plugin, [`encoda`](https://github.com/stencila/encoda), has a more complete set of fixtures. The fixtures here are not intended for testing conversion and do not necessarily encompass the entire range of document node types. Rather, they are to test the interfaces developed in this repository handle alternative files types as expected.

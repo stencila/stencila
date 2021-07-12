@@ -383,20 +383,22 @@ impl Document {
             self.path.display()
         );
 
-        // Import the content into the `root` node of the document
+        // Decode the content into the `root` node of the document
         let path = self.path.display().to_string();
         let input = if self.format.binary {
             &path
         } else {
             &self.content
         };
-        let node = decode(&input, &self.format.name).await?;
-        let mut root = reshape(node, reshape::Options::default())?;
+        let mut root = decode(&input, &self.format.name).await?;
 
-        // Compile the `root` node and update document dependencies
+        // Reshape the `root` according to preferences
+        reshape(&mut root, reshape::Options::default())?;
+
+        // Compile the `root` and update document dependencies
         let _compilation = compile(&mut root, &self.path, &self.project)?;
 
-        // Encode the `root` node into each of the formats for which there are subscriptions
+        // Encode the `root` into each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {
             if let Some(format) = subscription.strip_prefix("encoded:") {
                 tracing::debug!("Encoding document '{}' to '{}'", self.id, format);

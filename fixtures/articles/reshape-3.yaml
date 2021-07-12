@@ -1,0 +1,21 @@
+type: Article
+content:
+  # Meta data in unusual order
+
+  # Infer date
+  # Time / timezone needed so snapshot is not affected by local timezone
+  - type: Paragraph
+    content:
+      - 07/02/2021 12pm +12:00
+  # Detect title
+  - type: Paragraph
+    content:
+      - 'Title: The title'
+  # Detect single keyword
+  - type: Paragraph
+    content:
+      - 'keyword - foo'
+  # Detect author
+  - type: Paragraph
+    content:
+      - 'Authors: John Smith'

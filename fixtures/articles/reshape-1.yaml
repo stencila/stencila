@@ -1,0 +1,31 @@
+type: Article
+content:
+  # Infer title from heading
+  - type: Heading
+    depth: 1
+    content:
+      - The title
+  # Detect authors
+  - type: Paragraph
+    content:
+      - 'Authors: John Smith Jr <john@example.org> and Prof Jane Jones (https://example.org/jane)'
+  # Infer date
+  # Time / timezone needed so snapshot is not affected by local timezone
+  - type: Paragraph
+    content:
+      - 2 July 2021 00:00:00 +00:00
+  # Detect keywords
+  - type: Paragraph
+    content:
+      - 'Keywords: foo, bar, baz'
+  # Detect abstract
+  - type: Heading
+    depth: 1
+    content:
+      - Abstract
+  - type: Paragraph
+    content:
+      - First paragraph of abstract
+  - type: Paragraph
+    content:
+      - Second paragraph of abstract
