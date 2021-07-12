@@ -943,13 +943,13 @@ impl ToHtml for Article {
             Some(authors) => authors
                 .iter()
                 .filter_map(|author| match author {
-                    CreativeWorkAuthors::Person(person) => match &person.affiliations {
-                        Some(orgs) => Some(orgs.iter().filter_map(|org| match &org.name {
-                            Some(name) => Some((*name.clone(), org)),
-                            None => None,
-                        })),
-                        None => None,
-                    },
+                    CreativeWorkAuthors::Person(person) => {
+                        person.affiliations.as_ref().map(|orgs| {
+                            orgs.iter().filter_map(|org| {
+                                org.name.as_ref().map(|name| (*name.clone(), org))
+                            })
+                        })
+                    }
                     _ => None,
                 })
                 .flatten()

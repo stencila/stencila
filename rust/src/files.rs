@@ -107,11 +107,11 @@ impl File {
 
         File {
             path,
-            parent,
             name,
             modified,
             size,
             format,
+            parent,
             children,
         }
     }

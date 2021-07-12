@@ -6,6 +6,7 @@ use stencila_schema::Node;
 pub mod json;
 
 #[cfg(feature = "encode-html")]
+#[allow(clippy::deprecated_cfg_attr)]
 pub mod html;
 
 #[cfg(feature = "encode-toml")]

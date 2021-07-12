@@ -126,8 +126,8 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     let items = lists.pop_tail();
 
                     blocks.push_node(BlockContent::List(List {
-                        order,
-                        items,
+                        items,order,
+                        
                         ..Default::default()
                     }))
                 }
