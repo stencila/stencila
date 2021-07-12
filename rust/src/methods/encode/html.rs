@@ -1066,7 +1066,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
     } else {
         #[cfg_attr(rustfmt, rustfmt_skip)]
         [
-            "<span itemprop=\"name\">", &encode_safe(&name_string), ">",
+            "<span itemprop=\"name\">", &encode_safe(&name_string), "</span>",
         ]
         .concat()
     };
