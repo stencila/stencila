@@ -1,3 +1,23 @@
+# [0.94.0](https://github.com/stencila/stencila/compare/v0.93.0...v0.94.0) (2021-07-12)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate handlebars to v4.1.0 ([31e0a11](https://github.com/stencila/stencila/commit/31e0a11c9b98dc2a004ae0317cf14118de8c1ca0))
+* **dependencies:** update rust crate termimad to v0.14.0 ([093d15c](https://github.com/stencila/stencila/commit/093d15c20e7a34c6e4780d6482f5535bdb240b28))
+* **dependencies:** update rust crate tokio-tungstenite to v0.15.0 ([9d78457](https://github.com/stencila/stencila/commit/9d784578948d27431a1a14c4d84c4b39b1aa3e55))
+* **HTML:** Add encoding of authors and their affiliations ([1da7dea](https://github.com/stencila/stencila/commit/1da7dea6e3f666b0de238987e65a7334f30bc792))
+* **HTML:** Close name span ([6c28c7a](https://github.com/stencila/stencila/commit/6c28c7a1295e4d2d554a70c9fe1bdb8f6252aa1a))
+* **Markdown:** Add parsing of YAML frontmatter ([8716dbd](https://github.com/stencila/stencila/commit/8716dbda07a3c55475d0ffa694984619247566b4))
+* **Plain text:** Encode with newlines between blocks ([d57018a](https://github.com/stencila/stencila/commit/d57018a8dc21c3a2e75202fc4e9fee456cbdc02e))
+* **Plain text:** Trim whitespace ([7a888ea](https://github.com/stencila/stencila/commit/7a888eaa916da9eec7719205cac58851eff9227c))
+* **Reshape:** Add ampersand to separators ([88f561b](https://github.com/stencila/stencila/commit/88f561b77d5a1709294d3eaec8b1e0095e2af8bb))
+
+
+### Features
+
+* **Reshape:** Add initial implementaion of reshaping ([b52308f](https://github.com/stencila/stencila/commit/b52308f1414f0f969a5025314eb4386733d61734))
+
 # [0.93.0](https://github.com/stencila/stencila/compare/v0.92.1...v0.93.0) (2021-07-08)
 
 
