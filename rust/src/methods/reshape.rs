@@ -213,7 +213,7 @@ fn detect_authors(
         Regex::new("^(?:A|a)uthors?\\b(?:[^\\w]*)?(.*)").expect("Unable to create regex")
     });
     static SPLIT_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new("\\s*;|(and)\\s*").expect("Unable to create regex"));
+        Lazy::new(|| Regex::new("\\s*;|(and)|&\\s*").expect("Unable to create regex"));
 
     if let BlockContent::Paragraph(paragraph) = &blocks[index] {
         let txt = paragraph.to_txt();
