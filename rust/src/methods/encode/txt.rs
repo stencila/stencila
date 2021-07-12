@@ -8,7 +8,7 @@ use stencila_schema::*;
 /// is adds is placing two newlines after each `BlockContent`
 /// node. e.g. paragraphs, code blocks
 pub fn encode(node: &Node) -> Result<String> {
-    Ok(node.to_txt())
+    Ok(node.to_txt().trim().to_string())
 }
 
 /// A trait to encode a `Node` as plain text
