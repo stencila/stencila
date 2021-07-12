@@ -1,11 +1,11 @@
-import { CHANNEL } from '../../preload/channels'
 import { enableCrashReports } from '../../preload/errors'
 import { UnprotectedStoreKeys } from '../../preload/stores'
 import { isProduction } from '../../preload/utils/env'
+import { client } from '../client'
 
 const isErrorReportingEnabled = () =>
-  window.api
-    .invoke(CHANNEL.GET_APP_CONFIG, UnprotectedStoreKeys.REPORT_ERRORS)
+  client.config.ui
+    .get(UnprotectedStoreKeys.REPORT_ERRORS)
     .then((res) => (typeof res === 'boolean' ? res : false))
 
 /**

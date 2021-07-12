@@ -1,12 +1,12 @@
 import { Component, h, State } from '@stencil/core'
-import { CHANNEL } from '../../../../preload/channels'
-import { getAvailablePlugins, pluginStore } from './pluginStore'
 import { i18n } from '../../../../i18n'
+import { client } from '../../../client'
+import { getAvailablePlugins, pluginStore } from './pluginStore'
 
 @Component({
   tag: 'app-settings-plugins',
   styleUrl: 'app-settings-plugins.css',
-  scoped: true
+  scoped: true,
 })
 export class AppSettingsPlugins {
   @State() plugins: Plugin[] = []
@@ -20,7 +20,7 @@ export class AppSettingsPlugins {
   private checkForUpdates = () => {
     this.inProgress = true
 
-    window.api.invoke(CHANNEL.REFRESH_PLUGINS).finally(() => {
+    client.plugins.refresh().finally(() => {
       this.inProgress = false
     })
   }
@@ -38,7 +38,7 @@ export class AppSettingsPlugins {
             {i18n.t('settings.plugins.checkUpdates')}
           </stencila-button>
         </div>
-        {pluginStore.plugins.ids.map(pluginName => (
+        {pluginStore.plugins.ids.map((pluginName) => (
           <app-settings-plugin-card
             pluginName={pluginName}
           ></app-settings-plugin-card>

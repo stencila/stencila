@@ -1,22 +1,20 @@
 import { Component, h } from '@stencil/core'
 import { i18n } from '../../../../i18n'
-import { CHANNEL } from '../../../../preload/channels'
+import { client } from '../../../client'
 
 @Component({
   tag: 'app-onboarding-end',
   styleUrl: 'app-onboarding-end.css',
-  scoped: false
+  scoped: false,
 })
 export class AppOnboardingEnd {
   private openLinkInBrowser = (url: string) => (e: MouseEvent) => {
     e.preventDefault()
-    window.api.invoke(CHANNEL.OPEN_LINK_IN_DEFAULT_BROWSER, url)
+    client.app.utils.openLinkInBrowser(url)
   }
 
   private nextHandler = () => {
-    window.api
-      .invoke(CHANNEL.OPEN_LAUNCHER_WINDOW)
-      .finally(() => window.api.invoke(CHANNEL.CLOSE_ONBOARDING_WINDOW))
+    client.launcher.open().finally(client.onboarding.close)
   }
 
   render() {

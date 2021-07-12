@@ -1,6 +1,6 @@
 import { Component, h, State } from '@stencil/core'
 import Logo from '@stencila/brand/dist/logos/stencilaLogo.svg'
-import { CHANNEL } from '../../../preload/channels'
+import { client } from '../../client'
 import { fetchRecentProjects } from '../../store/project/projectActions'
 
 @Component({
@@ -11,15 +11,10 @@ import { fetchRecentProjects } from '../../store/project/projectActions'
 export class AppLauncher {
   @State() recentProjects: string[] = []
 
-  private selectFiles = () => {
-    window.api.invoke(CHANNEL.SELECT_PROJECT_DIR)
-  }
-
-  private openProject = (path: string) => (e: Event) => {
+  private openProject = (path: string) => async (e: Event) => {
     e.preventDefault()
-    window.api.invoke(CHANNEL.OPEN_PROJECT, path).then(() => {
-      window.api.invoke(CHANNEL.CLOSE_LAUNCHER_WINDOW)
-    })
+    await client.projects.open(path)
+    client.launcher.close()
   }
 
   componentWillLoad() {
@@ -36,7 +31,7 @@ export class AppLauncher {
             <stencila-button
               size="small"
               fill={true}
-              onClick={this.selectFiles}
+              onClick={client.projects.openUsingPicker}
             >
               Open folder…
             </stencila-button>

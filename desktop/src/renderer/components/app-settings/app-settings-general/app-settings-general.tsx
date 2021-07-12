@@ -1,7 +1,7 @@
 import { Component, h, State } from '@stencil/core'
 import { i18n } from '../../../../i18n'
-import { CHANNEL } from '../../../../preload/channels'
 import { UnprotectedStoreKeys } from '../../../../preload/stores'
+import { client } from '../../../client'
 
 @Component({
   tag: 'app-settings-general',
@@ -16,13 +16,12 @@ export class AppSettingsGeneral {
     const target = e.target as HTMLInputElement
     const value = target.checked ?? target.value
 
-    window.api.invoke(CHANNEL.SET_APP_CONFIG, { key, value })
+    client.config.ui.set({ key, value })
   }
 
   async componentWillLoad() {
     // TODO: Subscribe to config change events
-    const config = await window.api.invoke(CHANNEL.READ_APP_CONFIG)
-    this.config = config as Record<string, unknown>
+    this.config = await client.config.ui.getAll()
   }
 
   render() {

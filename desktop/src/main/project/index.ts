@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron'
-import { projects } from 'stencila'
+import { dispatch, projects } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import { removeChannelHandlers } from '../utils/handler'
 import { PROJECT_CHANNEL } from './channels'
@@ -8,13 +8,6 @@ import { openProjectWindow } from './window'
 
 export const registerProjectHandlers = () => {
   try {
-    ipcMain.handle(
-      CHANNEL.SHOW_PROJECT_WINDOW,
-      async (_event, directoryPath: string) => {
-        openProjectWindow(directoryPath)
-      }
-    )
-
     ipcMain.handle(CHANNEL.SELECT_PROJECT_DIR, async () => {
       openProject()
     })
@@ -29,11 +22,18 @@ export const registerProjectHandlers = () => {
     ipcMain.handle(
       CHANNEL.GET_PROJECT_FILES,
       async (ipcEvent, directoryPath: string) => {
-        const project = projects.open(directoryPath)
-        projects.subscribe(project.path, ['files'], (_topic, fileEvent) => {
-          ipcEvent.sender.send(CHANNEL.GET_PROJECT_FILES, fileEvent)
-        })
-        return project
+        const result = dispatch.projects.open(directoryPath)
+        if (result.ok) {
+          projects.subscribe(
+            result.value.path,
+            ['files'],
+            (_topic, fileEvent) => {
+              ipcEvent.sender.send(CHANNEL.GET_PROJECT_FILES, fileEvent)
+            }
+          )
+        }
+
+        return result
       }
     )
   } catch {

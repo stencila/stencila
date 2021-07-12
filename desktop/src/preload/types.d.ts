@@ -1,18 +1,24 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { JSONSchema7 } from 'json-schema'
-import { Config, documents, Plugin, plugins, Project, Result } from 'stencila'
+import {
+  Config,
+  dispatch,
+  documents,
+  Plugin,
+  plugins,
+  projects,
+  Result,
+} from 'stencila'
 import { AppConfigStore, JSONValue } from '../main/store/bootstrap'
 import { Channel, CHANNEL, Handler } from './channels'
 import { UnprotectedStoreKeys } from './stores'
+
+export { JSONValue } from '../main/store/bootstrap'
 
 export interface NormalizedPlugins {
   entities: Record<string, Plugin>
   ids: string[]
 }
-
-type InvokeResult<R extends (...args: any) => any> = Promise<
-  Result<ReturnType<R>>
->
 
 interface Invoke {
   // Global
@@ -78,8 +84,6 @@ interface Invoke {
   invoke(channel: typeof CHANNEL.CLOSE_ONBOARDING_WINDOW): Promise<void>
 
   // Projects
-  invoke(channel: typeof CHANNEL.SHOW_PROJECT_WINDOW): Promise<void>
-
   invoke(
     channel: typeof CHANNEL.OPEN_PROJECT,
     directoryPath: string
@@ -90,13 +94,13 @@ interface Invoke {
   invoke(
     channel: typeof CHANNEL.GET_PROJECT_FILES,
     path: string
-  ): Promise<Project>
+  ): Promise<ReturnType<typeof projects.open>>
 
   // Documents
   invoke(
     channel: typeof CHANNEL.DOCUMENTS_OPEN,
-    ...args: Parameters<typeof documents.open>
-  ): InvokeResult<typeof documents.open>
+    ...args: Parameters<typeof dispatch.documents.open>
+  ): Promise<ReturnType<typeof dispatch.documents.open>>
 
   invoke(
     channel: typeof CHANNEL.CLOSE_DOCUMENT,
@@ -111,12 +115,12 @@ interface Invoke {
   invoke(
     channel: typeof CHANNEL.GET_DOCUMENT_PREVIEW,
     documentId: EntityId
-  ): Promise<string>
+  ): Promise<Result<string>>
 
   invoke(
     channel: typeof CHANNEL.GET_DOCUMENT_CONTENTS,
     documentId: EntityId
-  ): Promise<string>
+  ): Promise<Result<string>>
 
   invoke(
     channel: typeof CHANNEL.SAVE_DOCUMENT,
@@ -124,7 +128,7 @@ interface Invoke {
       documentId: EntityId
       content: string
     }
-  ): Promise<void>
+  ): Promise<ReturnType<typeof documents.write>>
 
   invoke(
     channel: typeof CHANNEL.UNSUBSCRIBE_DOCUMENT,
@@ -135,7 +139,7 @@ interface Invoke {
   ): Promise<void>
 }
 
-interface IpcRendererAPI extends Invoke {
+export interface IpcRendererAPI extends Invoke {
   send(channel: Channel, ...args: unknown[]): void
   receive: (channel: Channel, func: Handler) => void
   remove: (channel: Channel, func: Handler) => void

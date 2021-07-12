@@ -40,7 +40,7 @@ export const registerDocumentHandlers = () => {
         // Use `dump` to get document content, rather than `read`, to avoid
         // (a) a re-read of the file (that is done on open) (b) re-encoding for
         // each subscriber.
-        return documents.dump(documentId)
+        return dispatch.documents.dump(documentId)
       }
     )
 
@@ -70,7 +70,7 @@ export const registerDocumentHandlers = () => {
         _event,
         { documentId, content }: { documentId: string; content: string }
       ) => {
-        documents.write(documentId, content)
+        return dispatch.documents.write(documentId, content)
       }
     )
   } catch {

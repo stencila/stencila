@@ -1,7 +1,7 @@
 import { Component, h } from '@stencil/core'
 import { href } from '@stencil/router'
+import { client } from '../../../client'
 import { i18n } from '../../../../i18n'
-import { CHANNEL } from '../../../../preload/channels'
 import { UnprotectedStoreKeys } from '../../../../preload/stores'
 import { OnboardingRouter } from '../onboardingRouter'
 
@@ -13,8 +13,8 @@ import { OnboardingRouter } from '../onboardingRouter'
 export class AppOnboardingReoporting {
   private enableReporting = (e: MouseEvent) => {
     e.preventDefault()
-    window.api
-      .invoke(CHANNEL.SET_APP_CONFIG, {
+    client.config.ui
+      .set({
         key: UnprotectedStoreKeys.REPORT_ERRORS,
         value: true,
       })

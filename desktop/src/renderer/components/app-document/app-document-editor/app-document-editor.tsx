@@ -2,6 +2,7 @@ import { EntityId } from '@reduxjs/toolkit'
 import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
 import { option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
+import { client } from '../../../client'
 import { DocumentEvent } from 'stencila'
 import { CHANNEL } from '../../../../preload/channels'
 import { state } from '../../../../renderer/store'
@@ -61,15 +62,11 @@ export class AppDocumentEditor {
       editorStateById,
       O.map(this.setDocState),
       O.getOrElse(() => {
-        window.api
-          .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, documentId)
-          .then((contents) => {
-            if (typeof contents === 'string') {
-              this.editorRef?.setState(contents, {
-                language: this.fileFormatToLanguage(),
-              })
-            }
+        client.documents.contents(documentId).then(({ value }) => {
+          this.editorRef?.setState(value, {
+            language: this.fileFormatToLanguage(),
           })
+        })
       })
     )
   }
@@ -117,7 +114,7 @@ export class AppDocumentEditor {
     window.api.removeAll(CHANNEL.SAVE_ACTIVE_DOCUMENT)
     window.api.removeAll(CHANNEL.GET_DOCUMENT_CONTENTS)
 
-    return window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
+    return client.documents.unsubscribe({
       documentId,
       topics: ['modified'],
     })
@@ -137,7 +134,7 @@ export class AppDocumentEditor {
     this.editorRef
       ?.getContents()
       .then(({ text }) => {
-        window.api.invoke(CHANNEL.SAVE_DOCUMENT, {
+        client.documents.write({
           documentId: this.documentId,
           content: text,
         })
