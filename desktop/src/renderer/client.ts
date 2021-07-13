@@ -1,15 +1,15 @@
 import { EntityId } from '@reduxjs/toolkit'
-import { Result, ResultFailure } from 'stencila'
+import type { Result, ResultFailure, ResultSuccess } from 'stencila'
 import { CHANNEL } from '../preload/channels'
 import { UnprotectedStoreKeys } from '../preload/stores'
-import { JSONValue } from '../preload/types'
+import type { JSONValue } from '../preload/types'
 
 /**
  * Custom Error instance thrown by `unwrapOrThrow`.
  * Allows for matching against this error type, and having custom handler logic.
  */
 export class RPCError extends Error {
-  errors: ResultFailure['errors']
+  public errors: ResultFailure['errors']
 
   constructor(
     errors: ResultFailure['errors'],
@@ -46,7 +46,7 @@ export class RPCError extends Error {
  *    }
  *  })
  */
-const unwrapOrThrow = <R>(result: Result<R>) => {
+const unwrapOrThrow = <V>(result: Result<V>): ResultSuccess<V> => {
   if (result.ok) {
     return result
   } else {
@@ -69,12 +69,12 @@ export const client = {
   },
   config: {
     global: {
-      getAll: () => window.api.invoke(CHANNEL.READ_CONFIG),
+      getAll: () => window.api.invoke(CHANNEL.READ_CONFIG).then(unwrapOrThrow),
     },
     ui: {
       getAll: () => window.api.invoke(CHANNEL.READ_APP_CONFIG),
       get: (key: UnprotectedStoreKeys) =>
-        window.api.invoke(CHANNEL.GET_APP_CONFIG, key),
+        window.api.invoke(CHANNEL.GET_APP_CONFIG, key).then(unwrapOrThrow),
       set: ({ key, value }: { key: UnprotectedStoreKeys; value: JSONValue }) =>
         window.api.invoke(CHANNEL.SET_APP_CONFIG, {
           key,
@@ -110,25 +110,35 @@ export const client = {
       documentId: EntityId
       topics: string[]
     }) =>
-      window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, { documentId, topics }),
+      window.api
+        .invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, { documentId, topics })
+        .then(unwrapOrThrow),
     write: ({
       documentId,
       content,
     }: {
       documentId: EntityId
       content: string
-    }) => window.api.invoke(CHANNEL.SAVE_DOCUMENT, { documentId, content }),
+    }) =>
+      window.api
+        .invoke(CHANNEL.SAVE_DOCUMENT, { documentId, content })
+        .then(unwrapOrThrow),
   },
   projects: {
-    open: (path: string) => window.api.invoke(CHANNEL.OPEN_PROJECT, path),
+    open: (path: string) =>
+      window.api.invoke(CHANNEL.OPEN_PROJECT, path).then(unwrapOrThrow),
+    contents: (path: string) =>
+      window.api.invoke(CHANNEL.GET_PROJECT_FILES, path).then(unwrapOrThrow),
     openUsingPicker: () => window.api.invoke(CHANNEL.SELECT_PROJECT_DIR),
   },
   plugins: {
-    install: (name: string) => window.api.invoke(CHANNEL.INSTALL_PLUGIN, name),
+    install: (name: string) =>
+      window.api.invoke(CHANNEL.INSTALL_PLUGIN, name).then(unwrapOrThrow),
     uninstall: (name: string) =>
-      window.api.invoke(CHANNEL.UNINSTALL_PLUGIN, name),
-    list: () => window.api.invoke(CHANNEL.LIST_AVAILABLE_PLUGINS),
+      window.api.invoke(CHANNEL.UNINSTALL_PLUGIN, name).then(unwrapOrThrow),
+    list: () =>
+      window.api.invoke(CHANNEL.LIST_AVAILABLE_PLUGINS).then(unwrapOrThrow),
     refresh: (plugins: string[] = []) =>
-      window.api.invoke(CHANNEL.REFRESH_PLUGINS, plugins),
+      window.api.invoke(CHANNEL.REFRESH_PLUGINS, plugins).then(unwrapOrThrow),
   },
 }

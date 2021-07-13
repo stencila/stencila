@@ -17,7 +17,10 @@ type Settings = {
 export class AppSettingsAdvanced {
   @State() settings: Settings | undefined
 
-  private readConfig = () => client.config.global.getAll() as Promise<Settings>
+  private readConfig = () =>
+    client.config.global.getAll().then(({ value }) => {
+      return value as Settings
+    })
 
   async componentWillLoad() {
     this.settings = await this.readConfig()

@@ -1,5 +1,6 @@
 import { UnprotectedStoreKeys } from '../../preload/stores'
-import { AppConfigStore, JSONValue, unprotectedStore } from './bootstrap'
+import { AppConfigStore, JSONValue } from '../../preload/types'
+import { unprotectedStore } from './bootstrap'
 
 export const readAppConfig = () => {
   return unprotectedStore.state

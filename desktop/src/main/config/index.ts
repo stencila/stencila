@@ -1,36 +1,34 @@
 import { ipcMain } from 'electron'
-import { config, plugins } from 'stencila'
+import { config, dispatch, plugins, Result } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import { NormalizedPlugins } from '../../preload/types'
 import { removeChannelHandlers } from '../utils/handler'
+import { valueToSuccessResult } from '../utils/rpc'
 import { CONFIG_CHANNEL } from './channels'
-import { showSettings } from './window'
 
-export const getConfig = async () => {
-  return {
+const getConfig = async () => {
+  return valueToSuccessResult({
     config: config.get(),
     schema: config.schema(),
-  }
+  })
 }
 
-export const getPlugins = (): NormalizedPlugins => {
-  return plugins.list().reduce(
-    (pluginObject: NormalizedPlugins, plugin) => {
-      return {
-        entities: { ...pluginObject.entities, [plugin.name]: plugin },
-        ids: [...pluginObject.ids, plugin.name],
-      }
-    },
-    { entities: {}, ids: [] }
+const getPlugins = (): Result<NormalizedPlugins> => {
+  return valueToSuccessResult(
+    plugins.list().reduce(
+      (pluginObject: NormalizedPlugins, plugin) => {
+        return {
+          entities: { ...pluginObject.entities, [plugin.name]: plugin },
+          ids: [...pluginObject.ids, plugin.name],
+        }
+      },
+      { entities: {}, ids: [] }
+    )
   )
 }
 
 export const registerConfigHandlers = () => {
   try {
-    ipcMain.handle(CHANNEL.OPEN_CONFIG_WINDOW, async () => {
-      showSettings()
-    })
-
     ipcMain.handle(CHANNEL.READ_CONFIG, async () => {
       return getConfig()
     })
@@ -45,21 +43,21 @@ export const registerConfigHandlers = () => {
     })
 
     ipcMain.handle(CHANNEL.INSTALL_PLUGIN, async (_event, name) => {
-      return plugins.install(name)
+      return dispatch.plugins.install(name)
     })
 
     ipcMain.handle(CHANNEL.UNINSTALL_PLUGIN, async (_event, name) => {
-      return plugins.uninstall(name)
+      return dispatch.plugins.uninstall(name)
     })
 
     ipcMain.handle(CHANNEL.UPGRADE_PLUGIN, async (_event, name) => {
-      return plugins.upgrade(name)
+      return dispatch.plugins.upgrade(name)
     })
 
     ipcMain.handle(
       CHANNEL.REFRESH_PLUGINS,
       async (_event, pluginList: string[]) => {
-        return plugins.refresh(
+        return dispatch.plugins.refresh(
           pluginList ?? plugins.list().map((plugin) => plugin.name)
         )
       }

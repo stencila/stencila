@@ -23,7 +23,10 @@ export const getAvailablePlugins = async (pluginList?: string[]) => {
     await client.plugins.refresh(pluginList)
   }
 
-  const plugins = await client.plugins.list()
-  pluginStore.plugins = plugins
+  const plugins = await client.plugins.list().then(({ value }) => {
+    pluginStore.plugins = value
+    return value
+  })
+
   return plugins
 }

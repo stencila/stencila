@@ -2,7 +2,6 @@ import { EntityId } from '@reduxjs/toolkit'
 import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
 import { option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
-import { client } from '../../../client'
 import { DocumentEvent } from 'stencila'
 import { CHANNEL } from '../../../../preload/channels'
 import { state } from '../../../../renderer/store'
@@ -10,6 +9,7 @@ import { selectDoc } from '../../../../renderer/store/documentPane/documentPaneS
 import { saveEditorState } from '../../../../renderer/store/editorState/editorStateActions'
 import { editorStateById } from '../../../../renderer/store/editorState/editorStateSelectors'
 import { EditorState } from '../../../../renderer/store/editorState/editorStateTypes'
+import { client } from '../../../client'
 
 @Component({
   tag: 'app-document-editor',

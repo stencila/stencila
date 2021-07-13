@@ -14,9 +14,7 @@ export const registerDocumentHandlers = () => {
     ipcMain.handle(
       CHANNEL.CLOSE_DOCUMENT,
       async (_event, documentId: string) => {
-        try {
-          documents.close(documentId)
-        } catch (e) {}
+        return dispatch.documents.close(documentId)
       }
     )
 
@@ -26,7 +24,7 @@ export const registerDocumentHandlers = () => {
         _event,
         { documentId, topics }: { documentId: string; topics: string[] }
       ) => {
-        documents.unsubscribe(documentId, topics)
+        return dispatch.documents.unsubscribe(documentId, topics)
       }
     )
 
@@ -60,7 +58,17 @@ export const registerDocumentHandlers = () => {
           }
         )
 
-        return rewriteHtml(documents.dump(documentId, 'html'))
+        const results = dispatch.documents.dump(documentId, 'html')
+
+        if (results.ok) {
+          return {
+            ok: results.ok,
+            value: rewriteHtml(results.value),
+            errors: results.errors,
+          }
+        } else {
+          return results
+        }
       }
     )
 

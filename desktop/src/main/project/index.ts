@@ -2,6 +2,7 @@ import { ipcMain } from 'electron'
 import { dispatch, projects } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import { removeChannelHandlers } from '../utils/handler'
+import { valueToSuccessResult } from '../utils/rpc'
 import { PROJECT_CHANNEL } from './channels'
 import { openProject } from './handlers'
 import { openProjectWindow } from './window'
@@ -16,6 +17,7 @@ export const registerProjectHandlers = () => {
       CHANNEL.OPEN_PROJECT,
       async (_event, directoryPath: string) => {
         openProjectWindow(directoryPath)
+        return valueToSuccessResult()
       }
     )
 
