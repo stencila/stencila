@@ -28,4 +28,8 @@ a {
   stencila-icon {
     @apply pr-1;
   }
+
+  & > * {
+    @apply align-middle;
+  }
 }

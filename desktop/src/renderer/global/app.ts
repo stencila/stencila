@@ -6,7 +6,7 @@ import { client } from '../client'
 const isErrorReportingEnabled = () =>
   client.config.ui
     .get(UnprotectedStoreKeys.REPORT_ERRORS)
-    .then((res) => (typeof res === 'boolean' ? res : false))
+    .then(({ value }) => (typeof value === 'boolean' ? value : false))
 
 /**
  * The code to be executed should be placed within a default function that is

@@ -64,7 +64,9 @@ export const client = {
   app: {
     utils: {
       openLinkInBrowser: (url: string) =>
-        window.api.invoke(CHANNEL.OPEN_LINK_IN_DEFAULT_BROWSER, url),
+        window.api
+          .invoke(CHANNEL.OPEN_LINK_IN_DEFAULT_BROWSER, url)
+          .then(unwrapOrThrow),
     },
   },
   config: {
@@ -72,36 +74,47 @@ export const client = {
       getAll: () => window.api.invoke(CHANNEL.READ_CONFIG).then(unwrapOrThrow),
     },
     ui: {
-      getAll: () => window.api.invoke(CHANNEL.READ_APP_CONFIG),
+      getAll: () =>
+        window.api.invoke(CHANNEL.READ_APP_CONFIG).then(unwrapOrThrow),
       get: (key: UnprotectedStoreKeys) =>
-        window.api.invoke(CHANNEL.GET_APP_CONFIG, key).then(unwrapOrThrow),
+        window.api
+          .invoke(CHANNEL.GET_APP_CONFIG, key)
+          .then((res) => unwrapOrThrow(res as Result<JSONValue>)),
       set: ({ key, value }: { key: UnprotectedStoreKeys; value: JSONValue }) =>
-        window.api.invoke(CHANNEL.SET_APP_CONFIG, {
-          key,
-          value,
-        }),
+        window.api
+          .invoke(CHANNEL.SET_APP_CONFIG, {
+            key,
+            value,
+          })
+          .then(unwrapOrThrow),
     },
   },
   onboarding: {
-    open: () => window.api.invoke(CHANNEL.OPEN_ONBOARDING_WINDOW),
-    close: () => window.api.invoke(CHANNEL.CLOSE_ONBOARDING_WINDOW),
+    open: () =>
+      window.api.invoke(CHANNEL.OPEN_ONBOARDING_WINDOW).then(unwrapOrThrow),
+    close: () =>
+      window.api.invoke(CHANNEL.CLOSE_ONBOARDING_WINDOW).then(unwrapOrThrow),
   },
   launcher: {
-    open: () => window.api.invoke(CHANNEL.OPEN_LAUNCHER_WINDOW),
-    close: () => window.api.invoke(CHANNEL.CLOSE_LAUNCHER_WINDOW),
+    open: () =>
+      window.api.invoke(CHANNEL.OPEN_LAUNCHER_WINDOW).then(unwrapOrThrow),
+    close: () =>
+      window.api.invoke(CHANNEL.CLOSE_LAUNCHER_WINDOW).then(unwrapOrThrow),
   },
   documents: {
     open: (path: string, format?: string) =>
       window.api
         .invoke(CHANNEL.DOCUMENTS_OPEN, path, format)
+        .then((d) => d)
         .then(unwrapOrThrow),
     contents: (docId: EntityId) =>
       window.api
-        .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, docId)
+        .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, docId.toString())
+        .then((r) => r)
         .then(unwrapOrThrow),
     preview: (docId: EntityId) =>
       window.api
-        .invoke(CHANNEL.GET_DOCUMENT_PREVIEW, docId)
+        .invoke(CHANNEL.GET_DOCUMENT_PREVIEW, docId.toString())
         .then(unwrapOrThrow),
     unsubscribe: ({
       documentId,
@@ -111,7 +124,7 @@ export const client = {
       topics: string[]
     }) =>
       window.api
-        .invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, { documentId, topics })
+        .invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, documentId.toString(), topics)
         .then(unwrapOrThrow),
     write: ({
       documentId,
@@ -121,15 +134,16 @@ export const client = {
       content: string
     }) =>
       window.api
-        .invoke(CHANNEL.SAVE_DOCUMENT, { documentId, content })
+        .invoke(CHANNEL.SAVE_DOCUMENT, documentId.toString(), content)
         .then(unwrapOrThrow),
   },
   projects: {
     open: (path: string) =>
-      window.api.invoke(CHANNEL.OPEN_PROJECT, path).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.OPEN_PROJECT_WINDOW, path).then(unwrapOrThrow),
     contents: (path: string) =>
       window.api.invoke(CHANNEL.GET_PROJECT_FILES, path).then(unwrapOrThrow),
-    openUsingPicker: () => window.api.invoke(CHANNEL.SELECT_PROJECT_DIR),
+    openUsingPicker: () =>
+      window.api.invoke(CHANNEL.SELECT_PROJECT_DIR).then(unwrapOrThrow),
   },
   plugins: {
     install: (name: string) =>

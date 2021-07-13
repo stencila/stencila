@@ -1,4 +1,6 @@
+import { ipcMain, IpcMainInvokeEvent } from 'electron'
 import { Result } from 'stencila'
+import { InvokeTypes } from '../../preload/types'
 
 export function valueToSuccessResult<V>(
   value?: V,
@@ -13,4 +15,15 @@ export function valueToSuccessResult(
     value,
     errors: errors ?? [],
   }
+}
+
+export function handle<F extends InvokeTypes>(
+  channel: F['channel'],
+  listener: (ipcEvent: IpcMainInvokeEvent, ...args: F['args']) => F['result']
+): void
+export function handle<F extends InvokeTypes>(
+  channel: F['channel'],
+  listener: (ipcEvent: IpcMainInvokeEvent, args: F['args']) => F['result']
+): void {
+  ipcMain.handle(channel, listener)
 }

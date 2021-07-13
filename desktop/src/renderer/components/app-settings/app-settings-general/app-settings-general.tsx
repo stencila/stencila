@@ -20,8 +20,9 @@ export class AppSettingsGeneral {
   }
 
   async componentWillLoad() {
-    // TODO: Subscribe to config change events
-    this.config = await client.config.ui.getAll()
+    return client.config.ui.getAll().then(({ value }) => {
+      this.config = value
+    })
   }
 
   render() {

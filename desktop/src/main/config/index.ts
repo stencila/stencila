@@ -1,9 +1,17 @@
-import { ipcMain } from 'electron'
 import { config, dispatch, plugins, Result } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
-import { NormalizedPlugins } from '../../preload/types'
+import {
+  NormalizedPlugins,
+  PluginsInstall,
+  PluginsList,
+  PluginsRead,
+  PluginsRefresh,
+  PluginsUninstall,
+  PluginsUpgrade,
+  ReadConfig,
+} from '../../preload/types'
 import { removeChannelHandlers } from '../utils/handler'
-import { valueToSuccessResult } from '../utils/rpc'
+import { handle, valueToSuccessResult } from '../utils/rpc'
 import { CONFIG_CHANNEL } from './channels'
 
 const getConfig = async () => {
@@ -29,34 +37,32 @@ const getPlugins = (): Result<NormalizedPlugins> => {
 
 export const registerConfigHandlers = () => {
   try {
-    ipcMain.handle(CHANNEL.READ_CONFIG, async () => {
-      return getConfig()
-    })
+    handle<ReadConfig>(CHANNEL.READ_CONFIG, async () => getConfig())
 
-    ipcMain.handle(CHANNEL.READ_PLUGINS, async () => {
+    handle<PluginsRead>(CHANNEL.READ_PLUGINS, async () => {
       return getPlugins()
     })
 
-    ipcMain.handle(CHANNEL.LIST_AVAILABLE_PLUGINS, async () => {
+    handle<PluginsList>(CHANNEL.LIST_AVAILABLE_PLUGINS, async () => {
       plugins.refresh([])
       return getPlugins()
     })
 
-    ipcMain.handle(CHANNEL.INSTALL_PLUGIN, async (_event, name) => {
+    handle<PluginsInstall>(CHANNEL.INSTALL_PLUGIN, async (_event, name) => {
       return dispatch.plugins.install(name)
     })
 
-    ipcMain.handle(CHANNEL.UNINSTALL_PLUGIN, async (_event, name) => {
+    handle<PluginsUninstall>(CHANNEL.UNINSTALL_PLUGIN, async (_event, name) => {
       return dispatch.plugins.uninstall(name)
     })
 
-    ipcMain.handle(CHANNEL.UPGRADE_PLUGIN, async (_event, name) => {
+    handle<PluginsUpgrade>(CHANNEL.UPGRADE_PLUGIN, async (_event, name) => {
       return dispatch.plugins.upgrade(name)
     })
 
-    ipcMain.handle(
+    handle<PluginsRefresh>(
       CHANNEL.REFRESH_PLUGINS,
-      async (_event, pluginList: string[]) => {
+      async (_event, pluginList) => {
         return dispatch.plugins.refresh(
           pluginList ?? plugins.list().map((plugin) => plugin.name)
         )

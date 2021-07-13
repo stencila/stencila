@@ -1,17 +1,23 @@
-import { ipcMain } from 'electron'
 import { CHANNEL } from '../../preload/channels'
+import {
+  OnboardingWindowClose,
+  OnboardingWindowOpen,
+} from '../../preload/types'
 import { removeChannelHandlers } from '../utils/handler'
+import { handle, valueToSuccessResult } from '../utils/rpc'
 import { ONBOARDING_CHANNEL } from './channels'
 import { closeOnboardingWindow, openOnboardingWindow } from './window'
 
 export const registerOnboardingHandlers = () => {
   try {
-    ipcMain.handle(CHANNEL.OPEN_ONBOARDING_WINDOW, async () => {
-      return openOnboardingWindow()
+    handle<OnboardingWindowOpen>(CHANNEL.OPEN_ONBOARDING_WINDOW, async () => {
+      openOnboardingWindow()
+      return valueToSuccessResult()
     })
 
-    ipcMain.handle(CHANNEL.CLOSE_ONBOARDING_WINDOW, async () => {
-      return closeOnboardingWindow()
+    handle<OnboardingWindowClose>(CHANNEL.CLOSE_ONBOARDING_WINDOW, async () => {
+      closeOnboardingWindow()
+      return valueToSuccessResult()
     })
   } catch {
     // Handlers likely already registered

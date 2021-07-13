@@ -1,29 +1,36 @@
-import { ipcMain } from 'electron'
 import { dispatch, projects } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
+import {
+  ProjectsOpen,
+  ProjectsOpenUsingFilePicker,
+  ProjectsWindowOpen,
+} from '../../preload/types'
 import { removeChannelHandlers } from '../utils/handler'
-import { valueToSuccessResult } from '../utils/rpc'
+import { handle, valueToSuccessResult } from '../utils/rpc'
 import { PROJECT_CHANNEL } from './channels'
 import { openProject } from './handlers'
 import { openProjectWindow } from './window'
 
 export const registerProjectHandlers = () => {
   try {
-    ipcMain.handle(CHANNEL.SELECT_PROJECT_DIR, async () => {
-      openProject()
-    })
+    handle<ProjectsOpenUsingFilePicker>(
+      CHANNEL.SELECT_PROJECT_DIR,
+      async () => {
+        return openProject().then(() => valueToSuccessResult())
+      }
+    )
 
-    ipcMain.handle(
-      CHANNEL.OPEN_PROJECT,
-      async (_event, directoryPath: string) => {
+    handle<ProjectsWindowOpen>(
+      CHANNEL.OPEN_PROJECT_WINDOW,
+      async (_event, directoryPath) => {
         openProjectWindow(directoryPath)
         return valueToSuccessResult()
       }
     )
 
-    ipcMain.handle(
+    handle<ProjectsOpen>(
       CHANNEL.GET_PROJECT_FILES,
-      async (ipcEvent, directoryPath: string) => {
+      async (ipcEvent, directoryPath) => {
         const result = dispatch.projects.open(directoryPath)
         if (result.ok) {
           projects.subscribe(

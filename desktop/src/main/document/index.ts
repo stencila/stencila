@@ -1,36 +1,41 @@
-import { ipcMain } from 'electron'
 import { dispatch, documents } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
+import {
+  DocumentsClose,
+  DocumentsDump,
+  DocumentsOpen,
+  DocumentsPreview,
+  DocumentsUnsubscribe,
+  DocumentsWrite,
+} from '../../preload/types'
 import { rewriteHtml } from '../local-protocol'
 import { removeChannelHandlers } from '../utils/handler'
+import { handle } from '../utils/rpc'
 import { DOCUMENT_CHANNEL } from './channel'
 
 export const registerDocumentHandlers = () => {
   try {
-    ipcMain.handle(CHANNEL.DOCUMENTS_OPEN, async (_event, filePath: string) =>
+    handle<DocumentsOpen>(CHANNEL.DOCUMENTS_OPEN, async (_event, filePath) =>
       dispatch.documents.open(filePath)
     )
 
-    ipcMain.handle(
+    handle<DocumentsClose>(
       CHANNEL.CLOSE_DOCUMENT,
-      async (_event, documentId: string) => {
+      async (_event, documentId) => {
         return dispatch.documents.close(documentId)
       }
     )
 
-    ipcMain.handle(
+    handle<DocumentsUnsubscribe>(
       CHANNEL.UNSUBSCRIBE_DOCUMENT,
-      async (
-        _event,
-        { documentId, topics }: { documentId: string; topics: string[] }
-      ) => {
+      async (_event, documentId, topics) => {
         return dispatch.documents.unsubscribe(documentId, topics)
       }
     )
 
-    ipcMain.handle(
+    handle<DocumentsDump>(
       CHANNEL.GET_DOCUMENT_CONTENTS,
-      async (ipcEvent, documentId: string) => {
+      async (ipcEvent, documentId) => {
         documents.subscribe(documentId, ['modified'], (_topic, docEvent) => {
           ipcEvent.sender.send(CHANNEL.GET_DOCUMENT_CONTENTS, docEvent)
         })
@@ -42,9 +47,9 @@ export const registerDocumentHandlers = () => {
       }
     )
 
-    ipcMain.handle(
+    handle<DocumentsPreview>(
       CHANNEL.GET_DOCUMENT_PREVIEW,
-      async (ipcEvent, documentId: string) => {
+      async (ipcEvent, documentId) => {
         documents.subscribe(
           documentId,
           ['encoded:html'],
@@ -72,12 +77,9 @@ export const registerDocumentHandlers = () => {
       }
     )
 
-    ipcMain.handle(
+    handle<DocumentsWrite>(
       CHANNEL.SAVE_DOCUMENT,
-      async (
-        _event,
-        { documentId, content }: { documentId: string; content: string }
-      ) => {
+      async (_event, documentId, content) => {
         return dispatch.documents.write(documentId, content)
       }
     )
