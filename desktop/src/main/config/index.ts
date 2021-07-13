@@ -11,7 +11,7 @@ import {
   ReadConfig,
 } from '../../preload/types'
 import { removeChannelHandlers } from '../utils/handler'
-import { handle, valueToSuccessResult } from '../utils/rpc'
+import { handle, valueToSuccessResult } from '../utils/ipc'
 import { CONFIG_CHANNEL } from './channels'
 
 const getConfig = async () => {
@@ -37,31 +37,31 @@ const getPlugins = (): Result<NormalizedPlugins> => {
 
 export const registerConfigHandlers = () => {
   try {
-    handle<ReadConfig>(CHANNEL.READ_CONFIG, async () => getConfig())
+    handle<ReadConfig>(CHANNEL.CONFIG_READ, async () => getConfig())
 
     handle<PluginsRead>(CHANNEL.READ_PLUGINS, async () => {
       return getPlugins()
     })
 
-    handle<PluginsList>(CHANNEL.LIST_AVAILABLE_PLUGINS, async () => {
+    handle<PluginsList>(CHANNEL.PLUGINS_LIST, async () => {
       plugins.refresh([])
       return getPlugins()
     })
 
-    handle<PluginsInstall>(CHANNEL.INSTALL_PLUGIN, async (_event, name) => {
+    handle<PluginsInstall>(CHANNEL.PLUGINS_INSTALL, async (_event, name) => {
       return dispatch.plugins.install(name)
     })
 
-    handle<PluginsUninstall>(CHANNEL.UNINSTALL_PLUGIN, async (_event, name) => {
+    handle<PluginsUninstall>(CHANNEL.PLUGINS_UNINSTALL, async (_event, name) => {
       return dispatch.plugins.uninstall(name)
     })
 
-    handle<PluginsUpgrade>(CHANNEL.UPGRADE_PLUGIN, async (_event, name) => {
+    handle<PluginsUpgrade>(CHANNEL.PLUGIN_UPGRADE, async (_event, name) => {
       return dispatch.plugins.upgrade(name)
     })
 
     handle<PluginsRefresh>(
-      CHANNEL.REFRESH_PLUGINS,
+      CHANNEL.PLUGINS_REFRESH,
       async (_event, pluginList) => {
         return dispatch.plugins.refresh(
           pluginList ?? plugins.list().map((plugin) => plugin.name)

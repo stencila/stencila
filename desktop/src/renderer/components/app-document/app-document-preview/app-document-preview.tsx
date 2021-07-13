@@ -30,7 +30,7 @@ export class AppDocumentPreview {
       this.previewContents = value
     })
 
-    window.api.receive(CHANNEL.GET_DOCUMENT_PREVIEW, (event) => {
+    window.api.receive(CHANNEL.DOCUMENTS_PREVIEW, (event) => {
       const e = event as DocumentEvent
       if (
         e.document.id === documentId &&
@@ -44,7 +44,7 @@ export class AppDocumentPreview {
   }
 
   private unsubscribeFromDocument = (documentId = this.documentId) => {
-    window.api.removeAll(CHANNEL.GET_DOCUMENT_PREVIEW)
+    window.api.removeAll(CHANNEL.DOCUMENTS_PREVIEW)
     return client.documents.unsubscribe({
       documentId,
       topics: ['encoded:html'],

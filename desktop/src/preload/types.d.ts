@@ -54,7 +54,7 @@ export type CaptureError = InvokeType<
 
 // Config
 export type ReadConfig = InvokeType<
-  typeof CHANNEL.READ_CONFIG,
+  typeof CHANNEL.CONFIG_READ,
   () => {
     config: Config
     schema: JSONSchema7
@@ -62,17 +62,17 @@ export type ReadConfig = InvokeType<
 >
 
 export type ReadAppConfig = InvokeType<
-  typeof CHANNEL.READ_APP_CONFIG,
+  typeof CHANNEL.CONFIG_APP_READ,
   () => AppConfigStore
 >
 
 export type GetAppConfig = InvokeType<
-  typeof CHANNEL.GET_APP_CONFIG,
+  typeof CHANNEL.CONFIG_APP_GET,
   (key: UnprotectedStoreKeys) => InvokeResult<JSONValue>
 >
 
 export type SetAppConfig = InvokeType<
-  typeof CHANNEL.SET_APP_CONFIG,
+  typeof CHANNEL.CONFIG_APP_SET,
   (payload: { key: UnprotectedStoreKeys; value: JSONValue }) => void
 >
 
@@ -83,63 +83,63 @@ export type PluginsRead = InvokeType<
 >
 
 export type PluginsList = InvokeType<
-  typeof CHANNEL.LIST_AVAILABLE_PLUGINS,
+  typeof CHANNEL.PLUGINS_LIST,
   () => NormalizedPlugins
 >
 
 export type PluginsInstall = InvokeType<
-  typeof CHANNEL.INSTALL_PLUGIN,
+  typeof CHANNEL.PLUGINS_INSTALL,
   typeof dispatch.plugins.install
 >
 
 export type PluginsUninstall = InvokeType<
-  typeof CHANNEL.UNINSTALL_PLUGIN,
+  typeof CHANNEL.PLUGINS_UNINSTALL,
   typeof dispatch.plugins.uninstall
 >
 
 export type PluginsUpgrade = InvokeType<
-  typeof CHANNEL.UPGRADE_PLUGIN,
+  typeof CHANNEL.PLUGIN_UPGRADE,
   typeof dispatch.plugins.upgrade
 >
 
 export type PluginsRefresh = InvokeType<
-  typeof CHANNEL.REFRESH_PLUGINS,
+  typeof CHANNEL.PLUGINS_REFRESH,
   typeof dispatch.plugins.refresh
 >
 
 // Launcher
 export type LauncherWindowOpen = InvokeType<
-  typeof CHANNEL.OPEN_LAUNCHER_WINDOW,
+  typeof CHANNEL.LAUNCHER_WINDOW_OPEN,
   () => void
 >
 export type LauncherWindowClose = InvokeType<
-  typeof CHANNEL.CLOSE_LAUNCHER_WINDOW,
+  typeof CHANNEL.LAUNCHER_WINDOW_CLOSE,
   () => void
 >
 
 // Onboarding
 export type OnboardingWindowOpen = InvokeType<
-  typeof CHANNEL.OPEN_ONBOARDING_WINDOW,
+  typeof CHANNEL.ONBOARDING_WINDOW_OPEN,
   () => void
 >
 export type OnboardingWindowClose = InvokeType<
-  typeof CHANNEL.CLOSE_ONBOARDING_WINDOW,
+  typeof CHANNEL.ONBOARDING_WINDOW_CLOSE,
   () => void
 >
 
 // Projects
 export type ProjectsWindowOpen = InvokeType<
-  typeof CHANNEL.OPEN_PROJECT_WINDOW,
+  typeof CHANNEL.PROJECTS_WINDOW_OPEN,
   (directoryPath: string) => void
 >
 
 export type ProjectsOpenUsingFilePicker = InvokeType<
-  typeof CHANNEL.SELECT_PROJECT_DIR,
+  typeof CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER,
   () => void
 >
 
 export type ProjectsOpen = InvokeType<
-  typeof CHANNEL.GET_PROJECT_FILES,
+  typeof CHANNEL.PROJECTS_OPEN,
   typeof dispatch.projects.open
 >
 
@@ -150,32 +150,32 @@ export type DocumentsOpen = InvokeType<
 >
 
 export type DocumentsClose = InvokeType<
-  typeof CHANNEL.CLOSE_DOCUMENT,
+  typeof CHANNEL.DOCUMENTS_CLOSE,
   typeof dispatch.documents.close
 >
 
 export type DocumentsCloseActive = InvokeType<
-  typeof CHANNEL.CLOSE_ACTIVE_DOCUMENT,
+  typeof CHANNEL.DOCUMENTS_CLOSE_ACTIVE,
   (path: string) => void
 >
 
 export type DocumentsPreview = InvokeType<
-  typeof CHANNEL.GET_DOCUMENT_PREVIEW,
+  typeof CHANNEL.DOCUMENTS_PREVIEW,
   typeof dispatch.documents.dump
 >
 
 export type DocumentsDump = InvokeType<
-  typeof CHANNEL.GET_DOCUMENT_CONTENTS,
+  typeof CHANNEL.DOCUMENTS_DUMP,
   typeof dispatch.documents.dump
 >
 
 export type DocumentsWrite = InvokeType<
-  typeof CHANNEL.SAVE_DOCUMENT,
+  typeof CHANNEL.DOCUMENTS_WRITE,
   typeof dispatch.documents.write
 >
 
 export type DocumentsUnsubscribe = InvokeType<
-  typeof CHANNEL.UNSUBSCRIBE_DOCUMENT,
+  typeof CHANNEL.DOCUMENTS_UNSUBSCRIBE,
   typeof dispatch.documents.unsubscribe
 >
 

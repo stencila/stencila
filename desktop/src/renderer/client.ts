@@ -71,18 +71,18 @@ export const client = {
   },
   config: {
     global: {
-      getAll: () => window.api.invoke(CHANNEL.READ_CONFIG).then(unwrapOrThrow),
+      getAll: () => window.api.invoke(CHANNEL.CONFIG_READ).then(unwrapOrThrow),
     },
     ui: {
       getAll: () =>
-        window.api.invoke(CHANNEL.READ_APP_CONFIG).then(unwrapOrThrow),
+        window.api.invoke(CHANNEL.CONFIG_APP_READ).then(unwrapOrThrow),
       get: (key: UnprotectedStoreKeys) =>
         window.api
-          .invoke(CHANNEL.GET_APP_CONFIG, key)
+          .invoke(CHANNEL.CONFIG_APP_GET, key)
           .then((res) => unwrapOrThrow(res as Result<JSONValue>)),
       set: ({ key, value }: { key: UnprotectedStoreKeys; value: JSONValue }) =>
         window.api
-          .invoke(CHANNEL.SET_APP_CONFIG, {
+          .invoke(CHANNEL.CONFIG_APP_SET, {
             key,
             value,
           })
@@ -91,15 +91,15 @@ export const client = {
   },
   onboarding: {
     open: () =>
-      window.api.invoke(CHANNEL.OPEN_ONBOARDING_WINDOW).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.ONBOARDING_WINDOW_OPEN).then(unwrapOrThrow),
     close: () =>
-      window.api.invoke(CHANNEL.CLOSE_ONBOARDING_WINDOW).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.ONBOARDING_WINDOW_CLOSE).then(unwrapOrThrow),
   },
   launcher: {
     open: () =>
-      window.api.invoke(CHANNEL.OPEN_LAUNCHER_WINDOW).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.LAUNCHER_WINDOW_OPEN).then(unwrapOrThrow),
     close: () =>
-      window.api.invoke(CHANNEL.CLOSE_LAUNCHER_WINDOW).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.LAUNCHER_WINDOW_CLOSE).then(unwrapOrThrow),
   },
   documents: {
     open: (path: string, format?: string) =>
@@ -109,12 +109,12 @@ export const client = {
         .then(unwrapOrThrow),
     contents: (docId: EntityId) =>
       window.api
-        .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, docId.toString())
+        .invoke(CHANNEL.DOCUMENTS_DUMP, docId.toString())
         .then((r) => r)
         .then(unwrapOrThrow),
     preview: (docId: EntityId) =>
       window.api
-        .invoke(CHANNEL.GET_DOCUMENT_PREVIEW, docId.toString())
+        .invoke(CHANNEL.DOCUMENTS_PREVIEW, docId.toString())
         .then(unwrapOrThrow),
     unsubscribe: ({
       documentId,
@@ -124,7 +124,7 @@ export const client = {
       topics: string[]
     }) =>
       window.api
-        .invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, documentId.toString(), topics)
+        .invoke(CHANNEL.DOCUMENTS_UNSUBSCRIBE, documentId.toString(), topics)
         .then(unwrapOrThrow),
     write: ({
       documentId,
@@ -134,25 +134,25 @@ export const client = {
       content: string
     }) =>
       window.api
-        .invoke(CHANNEL.SAVE_DOCUMENT, documentId.toString(), content)
+        .invoke(CHANNEL.DOCUMENTS_WRITE, documentId.toString(), content)
         .then(unwrapOrThrow),
   },
   projects: {
     open: (path: string) =>
-      window.api.invoke(CHANNEL.OPEN_PROJECT_WINDOW, path).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.PROJECTS_WINDOW_OPEN, path).then(unwrapOrThrow),
     contents: (path: string) =>
-      window.api.invoke(CHANNEL.GET_PROJECT_FILES, path).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.PROJECTS_OPEN, path).then(unwrapOrThrow),
     openUsingPicker: () =>
-      window.api.invoke(CHANNEL.SELECT_PROJECT_DIR).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER).then(unwrapOrThrow),
   },
   plugins: {
     install: (name: string) =>
-      window.api.invoke(CHANNEL.INSTALL_PLUGIN, name).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.PLUGINS_INSTALL, name).then(unwrapOrThrow),
     uninstall: (name: string) =>
-      window.api.invoke(CHANNEL.UNINSTALL_PLUGIN, name).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.PLUGINS_UNINSTALL, name).then(unwrapOrThrow),
     list: () =>
-      window.api.invoke(CHANNEL.LIST_AVAILABLE_PLUGINS).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.PLUGINS_LIST).then(unwrapOrThrow),
     refresh: (plugins: string[] = []) =>
-      window.api.invoke(CHANNEL.REFRESH_PLUGINS, plugins).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.PLUGINS_REFRESH, plugins).then(unwrapOrThrow),
   },
 }

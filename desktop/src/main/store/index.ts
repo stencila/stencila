@@ -1,21 +1,21 @@
 import { CHANNEL } from '../../preload/channels'
 import { GetAppConfig, ReadAppConfig, SetAppConfig } from '../../preload/types'
-import { handle, valueToSuccessResult } from '../utils/rpc'
+import { handle, valueToSuccessResult } from '../utils/ipc'
 import { getAppConfig, readAppConfig, setAppConfig } from './handlers'
 
 export const registerAppConfigStoreHandlers = () => {
-  handle<ReadAppConfig>(CHANNEL.READ_APP_CONFIG, async () => {
+  handle<ReadAppConfig>(CHANNEL.CONFIG_APP_READ, async () => {
     const config = readAppConfig()
     return valueToSuccessResult({ ...config })
   })
 
   // @ts-expect-error
-  handle<GetAppConfig>(CHANNEL.GET_APP_CONFIG, async (_event, key) => {
+  handle<GetAppConfig>(CHANNEL.CONFIG_APP_GET, async (_event, key) => {
     return valueToSuccessResult(getAppConfig(key))
   })
 
   handle<SetAppConfig>(
-    CHANNEL.SET_APP_CONFIG,
+    CHANNEL.CONFIG_APP_SET,
     async (_event, { key, value }) => {
       return valueToSuccessResult(setAppConfig(key)(value))
     }

@@ -6,7 +6,7 @@ import {
   ProjectsWindowOpen,
 } from '../../preload/types'
 import { removeChannelHandlers } from '../utils/handler'
-import { handle, valueToSuccessResult } from '../utils/rpc'
+import { handle, valueToSuccessResult } from '../utils/ipc'
 import { PROJECT_CHANNEL } from './channels'
 import { openProject } from './handlers'
 import { openProjectWindow } from './window'
@@ -14,14 +14,14 @@ import { openProjectWindow } from './window'
 export const registerProjectHandlers = () => {
   try {
     handle<ProjectsOpenUsingFilePicker>(
-      CHANNEL.SELECT_PROJECT_DIR,
+      CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER,
       async () => {
         return openProject().then(() => valueToSuccessResult())
       }
     )
 
     handle<ProjectsWindowOpen>(
-      CHANNEL.OPEN_PROJECT_WINDOW,
+      CHANNEL.PROJECTS_WINDOW_OPEN,
       async (_event, directoryPath) => {
         openProjectWindow(directoryPath)
         return valueToSuccessResult()
@@ -29,7 +29,7 @@ export const registerProjectHandlers = () => {
     )
 
     handle<ProjectsOpen>(
-      CHANNEL.GET_PROJECT_FILES,
+      CHANNEL.PROJECTS_OPEN,
       async (ipcEvent, directoryPath) => {
         const result = dispatch.projects.open(directoryPath)
         if (result.ok) {
@@ -37,7 +37,7 @@ export const registerProjectHandlers = () => {
             result.value.path,
             ['files'],
             (_topic, fileEvent) => {
-              ipcEvent.sender.send(CHANNEL.GET_PROJECT_FILES, fileEvent)
+              ipcEvent.sender.send(CHANNEL.PROJECTS_OPEN, fileEvent)
             }
           )
         }

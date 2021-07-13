@@ -4,18 +4,18 @@ import {
   OnboardingWindowOpen,
 } from '../../preload/types'
 import { removeChannelHandlers } from '../utils/handler'
-import { handle, valueToSuccessResult } from '../utils/rpc'
+import { handle, valueToSuccessResult } from '../utils/ipc'
 import { ONBOARDING_CHANNEL } from './channels'
 import { closeOnboardingWindow, openOnboardingWindow } from './window'
 
 export const registerOnboardingHandlers = () => {
   try {
-    handle<OnboardingWindowOpen>(CHANNEL.OPEN_ONBOARDING_WINDOW, async () => {
+    handle<OnboardingWindowOpen>(CHANNEL.ONBOARDING_WINDOW_OPEN, async () => {
       openOnboardingWindow()
       return valueToSuccessResult()
     })
 
-    handle<OnboardingWindowClose>(CHANNEL.CLOSE_ONBOARDING_WINDOW, async () => {
+    handle<OnboardingWindowClose>(CHANNEL.ONBOARDING_WINDOW_CLOSE, async () => {
       closeOnboardingWindow()
       return valueToSuccessResult()
     })

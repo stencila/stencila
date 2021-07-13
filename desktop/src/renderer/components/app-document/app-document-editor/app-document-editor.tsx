@@ -91,7 +91,7 @@ export class AppDocumentEditor {
 
   private subscribeToDocument = (documentId: EntityId) => {
     // Listen to file events and update contents
-    window.api.receive(CHANNEL.GET_DOCUMENT_CONTENTS, (event) => {
+    window.api.receive(CHANNEL.DOCUMENTS_DUMP, (event) => {
       const { type, content } = event as DocumentEvent
       if (type === 'modified' && typeof content == 'string') {
         // TODO: Ask user if they want to update document contents
@@ -100,7 +100,7 @@ export class AppDocumentEditor {
     })
 
     // Handle global file save events, both keyboard shortcut and File menu items
-    window.api.receive(CHANNEL.SAVE_ACTIVE_DOCUMENT, this.saveDoc)
+    window.api.receive(CHANNEL.DOCUMENT_WRITE_ACTIVE, this.saveDoc)
 
     this.restoreOrCreateDocState(documentId)
       .then(() => this.editorRef?.getRef())
@@ -111,8 +111,8 @@ export class AppDocumentEditor {
   }
 
   private unsubscribeFromDocument = (documentId: EntityId) => {
-    window.api.removeAll(CHANNEL.SAVE_ACTIVE_DOCUMENT)
-    window.api.removeAll(CHANNEL.GET_DOCUMENT_CONTENTS)
+    window.api.removeAll(CHANNEL.DOCUMENT_WRITE_ACTIVE)
+    window.api.removeAll(CHANNEL.DOCUMENTS_DUMP)
 
     return client.documents.unsubscribe({
       documentId,

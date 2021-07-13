@@ -10,7 +10,7 @@ import {
 } from '../../preload/types'
 import { rewriteHtml } from '../local-protocol'
 import { removeChannelHandlers } from '../utils/handler'
-import { handle } from '../utils/rpc'
+import { handle } from '../utils/ipc'
 import { DOCUMENT_CHANNEL } from './channel'
 
 export const registerDocumentHandlers = () => {
@@ -20,24 +20,24 @@ export const registerDocumentHandlers = () => {
     )
 
     handle<DocumentsClose>(
-      CHANNEL.CLOSE_DOCUMENT,
+      CHANNEL.DOCUMENTS_CLOSE,
       async (_event, documentId) => {
         return dispatch.documents.close(documentId)
       }
     )
 
     handle<DocumentsUnsubscribe>(
-      CHANNEL.UNSUBSCRIBE_DOCUMENT,
+      CHANNEL.DOCUMENTS_UNSUBSCRIBE,
       async (_event, documentId, topics) => {
         return dispatch.documents.unsubscribe(documentId, topics)
       }
     )
 
     handle<DocumentsDump>(
-      CHANNEL.GET_DOCUMENT_CONTENTS,
+      CHANNEL.DOCUMENTS_DUMP,
       async (ipcEvent, documentId) => {
         documents.subscribe(documentId, ['modified'], (_topic, docEvent) => {
-          ipcEvent.sender.send(CHANNEL.GET_DOCUMENT_CONTENTS, docEvent)
+          ipcEvent.sender.send(CHANNEL.DOCUMENTS_DUMP, docEvent)
         })
 
         // Use `dump` to get document content, rather than `read`, to avoid
@@ -48,7 +48,7 @@ export const registerDocumentHandlers = () => {
     )
 
     handle<DocumentsPreview>(
-      CHANNEL.GET_DOCUMENT_PREVIEW,
+      CHANNEL.DOCUMENTS_PREVIEW,
       async (ipcEvent, documentId) => {
         documents.subscribe(
           documentId,
@@ -59,7 +59,7 @@ export const registerDocumentHandlers = () => {
               content: rewriteHtml(docEvent.content ?? ''),
             }
 
-            ipcEvent.sender.send(CHANNEL.GET_DOCUMENT_PREVIEW, event)
+            ipcEvent.sender.send(CHANNEL.DOCUMENTS_PREVIEW, event)
           }
         )
 
@@ -78,7 +78,7 @@ export const registerDocumentHandlers = () => {
     )
 
     handle<DocumentsWrite>(
-      CHANNEL.SAVE_DOCUMENT,
+      CHANNEL.DOCUMENTS_WRITE,
       async (_event, documentId, content) => {
         return dispatch.documents.write(documentId, content)
       }
