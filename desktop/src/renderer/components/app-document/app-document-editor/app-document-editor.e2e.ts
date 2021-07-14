@@ -7,16 +7,16 @@ describe('app-document-editor', () => {
     await page.evaluateOnNewDocument(() => {
       window.api = {
         // @ts-ignore
-        invoke: () => Promise.resolve('results'),
-        receive: () => Promise.resolve(),
+        invoke: () => Promise.resolve({ value: 'value', ok: true, errors: [] }),
         send: () => Promise.resolve(),
+        receive: () => Promise.resolve(),
         remove: () => Promise.resolve(),
         removeAll: () => Promise.resolve(),
       }
     })
 
     await page.setContent(
-      '<app-document-editor documentId="test"></app-document-editor>'
+      '<app-document-editor document-id="test"></app-document-editor>'
     )
 
     const element = await page.find('app-document-editor')
