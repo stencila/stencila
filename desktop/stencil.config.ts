@@ -2,6 +2,8 @@ import replace from '@rollup/plugin-replace'
 import { Config } from '@stencil/core'
 import { postcss } from '@stencil/postcss'
 import dotenv from 'rollup-plugin-dotenv'
+import os from 'os'
+import { sep } from 'path'
 
 // https://stenciljs.com/docs/config
 
@@ -28,6 +30,8 @@ export const config: Config = {
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         'process.env.SENTRY_DSN': JSON.stringify(process.env.SENTRY_DSN),
         'process.type': JSON.stringify('renderer'),
+        'process.env.OS': JSON.stringify(os.type()),
+        'process.env.OS_PATH_SEPARATOR': JSON.stringify(sep),
       }),
     ],
   },

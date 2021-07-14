@@ -2,6 +2,10 @@ import { Component, h, State } from '@stencil/core'
 import Logo from '@stencila/brand/dist/logos/stencilaLogo.svg'
 import { client } from '../../client'
 import { fetchRecentProjects } from '../../store/project/projectActions'
+import { userOSPathSeparator } from '../../utils/env'
+
+const projectDirName = (path: string): string | undefined =>
+  path.split(userOSPathSeparator).pop()
 
 @Component({
   tag: 'app-launcher',
@@ -48,17 +52,25 @@ export class AppLauncher {
           <div class="recentProjects">
             <h2>Recent projects</h2>
             <ul>
-              {this.recentProjects.map((projectPath) => (
-                <li>
-                  <a
-                    onClick={this.openProject(projectPath)}
-                    class="recentProjectItem"
-                  >
-                    <stencila-icon icon="folder"></stencila-icon>
-                    {projectPath}
-                  </a>
-                </li>
-              ))}
+              {this.recentProjects.map((projectPath) => {
+                const projectName = projectDirName(projectPath)
+                return (
+                  <li>
+                    <a
+                      onClick={this.openProject(projectPath)}
+                      class="recentProjectItem"
+                    >
+                      <stencila-icon icon="folder"></stencila-icon>
+                      <div class="meta">
+                        <h3 class="name" title={projectName ?? projectPath}>
+                          {projectName ?? projectPath}
+                        </h3>
+                        {projectName && <h4 class="path">{projectPath}</h4>}
+                      </div>
+                    </a>
+                  </li>
+                )
+              })}
             </ul>
           </div>
         </main>
