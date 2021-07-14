@@ -49,6 +49,7 @@
     "Pyla",
     "Rscript",
     "Stencila",
+    "canonicalize",
     "concat",
     "inlines",
     "itemprop",

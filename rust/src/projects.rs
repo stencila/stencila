@@ -265,7 +265,7 @@ impl Project {
 
         // Resolve the main file path first as some of the other project properties
         // may be defined there (e.g. in the YAML header of a Markdown file)
-        self.main_path = (|| {
+        let main_path = (|| {
             // Check that there is a file with the specified main path
             if let Some(main) = &self.main {
                 let main_path = self.path.join(main);
@@ -304,6 +304,10 @@ impl Project {
 
             None
         })();
+
+        // Canonicalize the main file path so, amongst other things, it can be matched to
+        // project documents. If the file does not exist, will be none
+        self.main_path = main_path.map(|path| path.canonicalize().ok().unwrap_or_default());
 
         // Name defaults to the name of the project's folder
         self.name = self
