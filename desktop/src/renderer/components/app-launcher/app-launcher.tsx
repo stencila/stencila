@@ -27,11 +27,13 @@ export class AppLauncher {
 
   render() {
     return (
-      <div class="app-home">
-        <img src={Logo} class="logo" />
-
+      <div class="app-launcher">
         <main>
           <div class="launcherActions">
+            <div class="logo">
+              <img src={Logo} />
+            </div>
+
             <stencila-button
               size="small"
               fill={true}

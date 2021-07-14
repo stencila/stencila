@@ -14,11 +14,11 @@ export const openLauncherWindow = () => {
   }
 
   launcherWindow = createWindow(launcherUrl, {
-    height: 430,
-    width: 860,
-    maxHeight: 860,
-    maxWidth: 1200,
-    minHeight: 350,
+    height: 380,
+    width: 760,
+    maxHeight: 380,
+    maxWidth: 960,
+    minHeight: 260,
     minWidth: 600,
     center: true,
   })

@@ -1,23 +1,24 @@
-.app-home {
-  @apply text-center;
+.app-launcher {
+  @apply h-full text-center;
 }
 
 main {
-  @apply px-4 flex justify-center;
+  @apply h-full p-8 flex justify-start;
 }
 
 .launcherActions {
   @apply flex flex-col items-stretch;
   flex-basis: 30%;
+  max-width: 16rem;
 }
 
 .recentProjects {
-  @apply border-0 border-l border-solid ml-4 text-left  px-4;
+  @apply border-0 border-l border-solid ml-8 pl-8 text-left;
   border-color: var(--color-neutral-100);
   flex-basis: 70%;
 
   h2 {
-    color: var(--color-neutral-500) ;
+    color: var(--color-neutral-500);
   }
 
   ul {
@@ -67,8 +68,11 @@ main {
 }
 
 .logo {
-  width: 200px;
-  @apply my-8;
+  @apply h-8 mb-4 text-left;
+
+  img {
+    @apply h-full w-auto;
+  }
 }
 
 stencila-button {
