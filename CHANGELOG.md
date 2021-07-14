@@ -1,3 +1,20 @@
+# [0.96.0](https://github.com/stencila/stencila/compare/v0.95.0...v0.96.0) (2021-07-14)
+
+
+### Bug Fixes
+
+* **Formats:** Unregistered formats have binary false ([37d13a8](https://github.com/stencila/stencila/commit/37d13a86e07d78028d9ff6305445da645d9a1415))
+* **Node.js:** Add message to error types; update all types ([f7f53ff](https://github.com/stencila/stencila/commit/f7f53ffc2321faade200d4bb0daa379a70134cfd))
+
+
+### Features
+
+* **Desktop:** Surface errors to users as notifications ([04e42df](https://github.com/stencila/stencila/commit/04e42df3489e44e278370181eed728a24eea9049))
+* **Formats:** Add a known property to formats ([979c86c](https://github.com/stencila/stencila/commit/979c86c6846b711f207b41fe96967662aa3a35ee))
+* **Launcher:** Make project names more prominent ([aeb68fe](https://github.com/stencila/stencila/commit/aeb68fe9c097feb8074f9db97547ad68619a85cf))
+* **Node.js:** Add dispatch function to handle RPC calls ([a36d396](https://github.com/stencila/stencila/commit/a36d396c9efd5339fc6454d46492322597dd4dcb))
+* **Node.js:** Export dispatch function variants ([06e202b](https://github.com/stencila/stencila/commit/06e202bccbbda10b8b5abcc636c4188c99c6f279))
+
 # [0.95.0](https://github.com/stencila/stencila/compare/v0.94.0...v0.95.0) (2021-07-14)
 
 
