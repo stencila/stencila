@@ -2,7 +2,7 @@ import { EntityId } from '@reduxjs/toolkit'
 import type { Result, ResultFailure, ResultSuccess } from 'stencila'
 import { CHANNEL } from '../preload/channels'
 import { UnprotectedStoreKeys } from '../preload/stores'
-import type { JSONValue } from '../preload/types'
+import { JSONValue } from '../preload/types'
 
 /**
  * Custom Error instance thrown by `unwrapOrThrow`.
@@ -11,12 +11,9 @@ import type { JSONValue } from '../preload/types'
 export class RPCError extends Error {
   public errors: ResultFailure['errors']
 
-  constructor(
-    errors: ResultFailure['errors'],
-    ...params: (string | undefined)[]
-  ) {
+  constructor(errors: ResultFailure['errors']) {
     // Pass remaining arguments (including vendor specific ones) to parent constructor
-    super(...params)
+    super(errors[0]?.message ?? errors[0]?.type ?? 'RPC Error')
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
     if (Error.captureStackTrace) {
@@ -54,7 +51,7 @@ const unwrapOrThrow = <V>(result: Result<V>): ResultSuccess<V> => {
   }
 }
 
-export const isRPCError = (error: Error): error is RPCError => {
+export const isRPCError = (error: unknown): error is RPCError => {
   return error instanceof RPCError
 }
 
@@ -105,7 +102,6 @@ export const client = {
     open: (path: string, format?: string) =>
       window.api
         .invoke(CHANNEL.DOCUMENTS_OPEN, path, format)
-        .then((d) => d)
         .then(unwrapOrThrow),
     contents: (docId: EntityId) =>
       window.api
@@ -143,15 +139,16 @@ export const client = {
     contents: (path: string) =>
       window.api.invoke(CHANNEL.PROJECTS_OPEN, path).then(unwrapOrThrow),
     openUsingPicker: () =>
-      window.api.invoke(CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER).then(unwrapOrThrow),
+      window.api
+        .invoke(CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER)
+        .then(unwrapOrThrow),
   },
   plugins: {
     install: (name: string) =>
       window.api.invoke(CHANNEL.PLUGINS_INSTALL, name).then(unwrapOrThrow),
     uninstall: (name: string) =>
       window.api.invoke(CHANNEL.PLUGINS_UNINSTALL, name).then(unwrapOrThrow),
-    list: () =>
-      window.api.invoke(CHANNEL.PLUGINS_LIST).then(unwrapOrThrow),
+    list: () => window.api.invoke(CHANNEL.PLUGINS_LIST).then(unwrapOrThrow),
     refresh: (plugins: string[] = []) =>
       window.api.invoke(CHANNEL.PLUGINS_REFRESH, plugins).then(unwrapOrThrow),
   },

@@ -2,6 +2,7 @@ import { enableCrashReports } from '../../preload/errors'
 import { UnprotectedStoreKeys } from '../../preload/stores'
 import { isProduction } from '../../preload/utils/env'
 import { client } from '../client'
+import { showUnhandledErrors } from '../utils/errors'
 
 const isErrorReportingEnabled = () =>
   client.config.ui
@@ -20,4 +21,5 @@ export default async () => {
   if (process.env.SENTRY_DSN && isProduction) {
     enableCrashReports(isErrorReportingEnabled)
   }
+  showUnhandledErrors()
 }

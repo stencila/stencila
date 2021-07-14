@@ -10,6 +10,7 @@ import { saveEditorState } from '../../../../renderer/store/editorState/editorSt
 import { editorStateById } from '../../../../renderer/store/editorState/editorStateSelectors'
 import { EditorState } from '../../../../renderer/store/editorState/editorStateTypes'
 import { client } from '../../../client'
+import { errorToast } from '../../../utils/errors'
 
 @Component({
   tag: 'app-document-editor',
@@ -140,7 +141,7 @@ export class AppDocumentEditor {
         })
       })
       .catch((err) => {
-        console.log(err)
+        errorToast(err)
       })
   }
 

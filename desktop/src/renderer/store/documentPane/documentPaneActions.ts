@@ -1,5 +1,6 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { option as O } from 'fp-ts'
+import { errorToast } from '../../../renderer/utils/errors'
 import { client } from '../../client'
 import { clearEditorState } from '../editorState/editorStateActions'
 import { store } from '../index'
@@ -10,14 +11,18 @@ export const initPane = (paneId: EntityId) => {
 }
 
 export const addDocumentToPane = async (paneId: EntityId, path: string) => {
-  const { value } = await client.documents.open(path)
+  try {
+    const { value } = await client.documents.open(path)
 
-  return store.dispatch(
-    documentPaneActions.addDocToPane({
-      paneId,
-      view: { type: 'editor', ...value },
-    })
-  )
+    return store.dispatch(
+      documentPaneActions.addDocToPane({
+        paneId,
+        view: { type: 'editor', ...value },
+      })
+    )
+  } catch (err) {
+    errorToast(err)
+  }
 }
 
 export const closeDocument = (paneId: EntityId, docId: EntityId) => {
