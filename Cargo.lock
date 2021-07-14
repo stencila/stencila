@@ -3,6 +3,16 @@
 version = 3
 
 [[package]]
+name = "Inflector"
+version = "0.11.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe438c63458706e03479442743baae6c88256498e6431708f6dfc520a26515d3"
+dependencies = [
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3339,6 +3349,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 name = "stencila"
 version = "0.94.0"
 dependencies = [
+ "Inflector",
  "ansi_term 0.12.1",
  "async-trait",
  "base64 0.13.0",
@@ -3439,9 +3450,9 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.9.1"
+version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d946bd93999d2835dba8c0d86bd2ba3f76f4eba166e4a342222b0847097a979d"
+checksum = "e76545c3806717a77ccb1e4589b098dc3af89ec1b5cfa0b9af31f8cb7ba415f6"
 dependencies = [
  "chrono",
  "defaults",

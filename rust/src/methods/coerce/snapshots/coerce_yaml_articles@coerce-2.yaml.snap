@@ -1,0 +1,46 @@
+---
+source: rust/src/methods/coerce/mod.rs
+expression: node
+input_file: fixtures/articles/coerce-2.yaml
+
+---
+{
+  "type": "Article",
+  "alternateNames": [
+    "jim"
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Smith"
+      ],
+      "givenNames": [
+        "John"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Doe"
+      ],
+      "givenNames": [
+        "Jane"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Pan"
+      ],
+      "givenNames": [
+        "Peter"
+      ]
+    }
+  ],
+  "keywords": [
+    "foo",
+    "bar",
+    "baz"
+  ]
+}

@@ -111,6 +111,7 @@ default = [
 ]
 
 [dependencies]
+Inflector = "0.11.4"
 ansi_term = "=0.12.1"
 async-trait = "=0.1.50"
 base64 = "=0.13.0"
@@ -162,7 +163,7 @@ serde = { version = "=1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "=1.0.64", features = ["preserve_order"] }
 serde_with = "=1.9.4"
 serde_yaml = { version = "=0.8.17", optional = true }
-stencila-schema = "=1.9.1"
+stencila-schema = "=1.10.0"
 structopt = { version = "=0.3.22", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
 strum_macros = "=0.21.1"
