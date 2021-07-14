@@ -1,8 +1,12 @@
 import { Component, h } from '@stencil/core'
 import { Route } from '@stencil/router'
-import { store } from '../../../store'
-import { initPane } from '../../../store/documentPane/documentPaneActions'
+import { state, store } from '../../../store'
+import {
+  addDocumentToActivePane,
+  initPane,
+} from '../../../store/documentPane/documentPaneActions'
 import { fetchProject } from '../../../store/project/projectActions'
+import { getProjectMainFilePath } from '../../../store/project/projectSelectors'
 import { ProjectRouter } from '../projectRouter'
 import { listenForFileEvents, removeFileEventListener } from './projectEvents'
 
@@ -14,13 +18,18 @@ const rootPaneId = 1
   scoped: true,
 })
 export class AppProjectRoot {
-  componentWillLoad() {
+  async componentWillLoad() {
     const projectPath = decodeURI(
       window.location.pathname.replace('/project', '')
     )
     initPane(rootPaneId)
-    store.dispatch(fetchProject(projectPath))
+    await store.dispatch(fetchProject(projectPath))
     listenForFileEvents(projectPath)
+
+    const mainFile = getProjectMainFilePath(state)
+    if (mainFile) {
+      addDocumentToActivePane(mainFile)
+    }
   }
 
   disconnectedCallback() {
