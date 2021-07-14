@@ -60,7 +60,7 @@ class UploadCommand(Command):
 
 setup(
     name="stencila-schema",
-    version="1.9.1",
+    version="1.10.0",
     description="",
     long_description=long_description,
     long_description_content_type="text/markdown",

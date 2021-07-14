@@ -1,3 +1,16 @@
+# [1.10.0](https://github.com/stencila/schema/compare/v1.9.1...v1.10.0) (2021-07-14)
+
+
+### Bug Fixes
+
+* **CreativeWork:** Use semicolon separated items for authors, add csi for genre ([56a3bb6](https://github.com/stencila/schema/commit/56a3bb6c66cdb4df0af773af8c218510289b5aba))
+* **Primitves:** Refer to internal schema for primitives ([54a8264](https://github.com/stencila/schema/commit/54a8264575abd9e16ae6bcba549b7610518bd932))
+
+
+### Features
+
+* **Rust:** Include map of schemas in crate ([4b82b26](https://github.com/stencila/schema/commit/4b82b26e406850d73f964ed74acdd04ddba156dd))
+
 ## [1.9.1](https://github.com/stencila/schema/compare/v1.9.0...v1.9.1) (2021-07-06)
 
 
