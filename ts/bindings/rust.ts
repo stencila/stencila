@@ -8,6 +8,7 @@ import { pascalCase, snakeCase } from 'change-case'
 import fs from 'fs-extra'
 import path from 'path'
 import { JsonSchema } from '../JsonSchema'
+import { jsonSchemas } from '../util'
 import {
   filterEnumSchemas,
   filterInterfaceSchemas,
@@ -21,6 +22,11 @@ import {
  */
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 if (require.main) build()
+
+async function build() {
+  await buildTypes()
+  await buildSchemas()
+}
 
 // Code generation context
 interface Context {
@@ -136,7 +142,7 @@ function isCreativeWorkContent(title: string): boolean {
 /**
  * Generate `../../rust/types.rs` from schemas.
  */
-async function build(): Promise<void> {
+async function buildTypes(): Promise<void> {
   const schemas = await readSchemas()
   initializeGlobals(schemas)
 
@@ -474,4 +480,66 @@ function arrayToType(schema: JsonSchema, context: Context): string {
     ? schemaToType(schema.items, context)
     : '?'
   return `Vec<${items}>`
+}
+
+/**
+ * Create a Rust HashMap containing the schemas for each struct type so that
+ * they can be used at runtime.
+ *
+ * To reduce memory consumption, only keeps needed properties when
+ * serializing.
+ */
+async function buildSchemas() {
+  const schemas = Object.entries(await jsonSchemas())
+    .map(([name, schema]) => {
+      let {
+        // Drop these...
+        '@id': id,
+        extends: extends_,
+        category,
+        role,
+        status,
+        description,
+        $comment,
+        file,
+        children,
+        descendants,
+        $schema,
+        $id,
+        source,
+        // Keep these...
+        properties,
+        ...rest
+      } = schema
+      if (properties !== undefined) {
+        const stripped: { [key: string]: JsonSchema } = {}
+        for (const [name, subschema] of Object.entries(properties)) {
+          const {
+            // Drop these...
+            description,
+            $comment,
+            '@id': id,
+            from,
+            isArray,
+            isPlural,
+            // Keep the rest...
+            ...rest
+          } = subschema
+          // No need to write some properties in Rust
+          if (name !== 'type' && name !== 'meta') stripped[name] = rest
+        }
+        properties = stripped
+      }
+      return `    ("${name}", r#"${JSON.stringify({ ...rest, properties })}"#),`
+    })
+    .join('\n')
+
+  await fs.writeFile(
+    path.join(__dirname, '..', '..', 'rust', 'src', 'schemas.rs'),
+    `
+pub const SCHEMAS: &[(&str, &str)] = &[
+${schemas}
+];
+`
+  )
 }
