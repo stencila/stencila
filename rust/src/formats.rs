@@ -25,9 +25,9 @@ pub struct Format {
     /// e.g. not to be displayed in a text / code editor
     pub binary: bool,
 
-    /// Whether or not previews should be generated for files of
-    /// this format. e.g. a `.py` is not binary, but should not
-    /// necessarily have a preview opened for it.
+    /// Whether HTML previews are normally supported for documents of
+    /// this format. See also `Document.previewable` which indicates whether
+    /// a HTML preview is supported for a particular document.
     pub preview: bool,
 
     /// Any additional extensions (other than it's name) that this format

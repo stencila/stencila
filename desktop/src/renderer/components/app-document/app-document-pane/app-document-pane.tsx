@@ -40,7 +40,7 @@ export class AppDocumentPane {
           O.map(selectDoc(state)),
           O.map((activeDocument) => {
             const isEditable = !activeDocument?.format.binary
-            const isPreviewable = activeDocument?.format.preview
+            const isPreviewable = activeDocument?.previewable
             const paneCount = isEditable && isPreviewable ? 2 : 1
 
             return (

@@ -141,6 +141,20 @@ pub struct Document {
     #[schemars(schema_with = "Document::schema_format")]
     format: Format,
 
+    /// Whether a HTML preview of the document is supported
+    ///
+    /// This is determined by the type of the `root` node of the document.
+    /// Will be `true` if the `root` is a type for which HTML previews are
+    /// implemented e.g. `Article`, `ImageObject` and `false` if the `root`
+    /// is `None`, or of some other type e.g. `Entity`.
+    ///
+    /// This flag is intended for dynamically determining whether to open
+    /// a preview panel for a document by default. Regardless of its value,
+    /// a user should be able to open a preview panel, in HTML or some other
+    /// format, for any document.
+    #[def = "false"]
+    previewable: bool,
+
     /// The current UTF8 string content of the document.
     ///
     /// When a document is `read()` from a file the `content` is the content
@@ -369,7 +383,7 @@ impl Document {
         self.update().await
     }
 
-    /// Update the `root` node of the document and publish updated encodings
+    /// Update the `root` (and associated properties) of the document and publish updated encodings
     ///
     /// Publishes `encoded:` events for each of the formats subscribed to.
     /// Error results from this function (e.g. compile errors)
@@ -414,6 +428,16 @@ impl Document {
                 }
             }
         }
+
+        // Determine if the document is preview-able, based on the type of the root
+        // This list of types should be updated as HTML encoding is implemented for each.
+        self.previewable = matches!(
+            root,
+            Node::Article(..)
+                | Node::ImageObject(..)
+                | Node::AudioObject(..)
+                | Node::VideoObject(..)
+        );
 
         // Now that we're done borrowing the root node for encoding to
         // different formats, store it.

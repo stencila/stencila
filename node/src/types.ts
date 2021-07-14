@@ -17,7 +17,7 @@ export interface Format {
    */
   binary: boolean
   /**
-   * Whether or not previews should be generated for files of this format. e.g. a `.py` is not binary, but should not necessarily have a preview opened for it.
+   * Whether HTML previews are normally supported for documents of this format. See also `Document.previewable` which indicates whether a HTML preview is supported for a particular document.
    */
   preview: boolean
   /**
@@ -66,6 +66,14 @@ export interface Document {
    * On initialization, this is inferred, if possible, from the file name extension of the document's `path`. However, it may change whilst the document is open in memory (e.g. if the `load` function sets a different format).
    */
   format: Format
+  /**
+   * Whether a HTML preview of the document is supported
+   *
+   * This is determined by the type of the `root` node of the document. Will be `true` if the `root` is a type for which HTML previews are implemented e.g. `Article`, `ImageObject` and `false` if the `root` is `None`, or of some other type e.g. `Entity`.
+   *
+   * This flag is intended for dynamically determining whether to open a preview panel for a document by default. Regardless of its value, a user should be able to open a preview panel, in HTML or some other format, for any document.
+   */
+  previewable: boolean
   /**
    * Keeps track of the number of subscribers to each of the document's topic channels. Events will only be published on channels that have at least one subscriber.
    *
@@ -697,7 +705,7 @@ export const FORMATS: Record<string, Format> = {
     "known": true,
     "name": "txt",
     "binary": false,
-    "preview": true,
+    "preview": false,
     "extensions": []
   },
   "webm": {
