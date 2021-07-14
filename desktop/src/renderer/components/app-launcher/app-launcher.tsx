@@ -27,26 +27,47 @@ export class AppLauncher {
 
   render() {
     return (
-      <div class="app-home">
-        <img src={Logo} class="logo" />
-
+      <div class="app-launcher">
         <main>
           <div class="launcherActions">
-            <stencila-button
-              size="small"
-              fill={true}
-              onClick={client.projects.openUsingPicker}
-            >
-              Open folder…
-            </stencila-button>
+            <div class="primaryActions">
+              <div class="logo">
+                <img src={Logo} />
+              </div>
 
-            <stencila-button size="small" fill={true} disabled={true}>
-              New document
-            </stencila-button>
+              <stencila-button
+                size="small"
+                fill={true}
+                onClick={client.projects.openUsingPicker}
+              >
+                Open folder…
+              </stencila-button>
 
-            <stencila-button size="small" fill={true} disabled={true}>
-              New project
-            </stencila-button>
+              <stencila-button size="small" fill={true} disabled={true}>
+                New document
+              </stencila-button>
+
+              <stencila-button size="small" fill={true} disabled={true}>
+                New project
+              </stencila-button>
+            </div>
+
+            <div class="secondaryActions">
+              <stencila-button
+                icon="settings-3"
+                iconOnly={true}
+                minimal={true}
+                size="small"
+                color="neutral"
+                tooltip="Settings"
+                onClick={e => {
+                  e.preventDefault()
+                  client.config.window.open()
+                }}
+              >
+                Settings
+              </stencila-button>
+            </div>
           </div>
 
           <div class="recentProjects">

@@ -44,6 +44,7 @@ export namespace Components {
     }
     interface AppProjectSidebarFile {
         "filePath": string;
+        "isMain": boolean;
     }
     interface AppProjectSidebarFiles {
         "projectDir": string;
@@ -268,6 +269,7 @@ declare namespace LocalJSX {
     }
     interface AppProjectSidebarFile {
         "filePath"?: string;
+        "isMain"?: boolean;
     }
     interface AppProjectSidebarFiles {
         "projectDir"?: string;

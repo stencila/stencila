@@ -13,7 +13,7 @@ export const fetchRecentProjects = (): string[] => {
   try {
     const parsedPaths = JSON.parse(paths)
     if (Array.isArray(parsedPaths)) {
-      return parsedPaths.slice(0, 9)
+      return parsedPaths.slice(0, 6)
     } else {
       return []
     }
