@@ -1,3 +1,14 @@
+# [0.97.0](https://github.com/stencila/stencila/compare/v0.96.0...v0.97.0) (2021-07-14)
+
+
+### Features
+
+* **Desktop:** Highlight project main file in file tree ([26ef357](https://github.com/stencila/stencila/commit/26ef357a388d38ed71e9d92189368fba2b8b5c40))
+* **Desktop:** If project has main file, open it on project launch ([705b894](https://github.com/stencila/stencila/commit/705b8944df788f1fdd6b2a364f527e97284f4dd4))
+* **Document Tabs:** Adjust position of close icon based on user OS ([45969c0](https://github.com/stencila/stencila/commit/45969c0b240c78f5d2f43d3cefc50ee23b42aae3))
+* **Launcher:** Add button for opening Settings window ([84acb95](https://github.com/stencila/stencila/commit/84acb952108d4f161fef0805977e271cbc51c1c0))
+* **Launcher:** Refine design of Project Launcher window ([692c4e6](https://github.com/stencila/stencila/commit/692c4e6957a51f51efb01fa8f2c4a03103181cbd))
+
 # [0.96.0](https://github.com/stencila/stencila/compare/v0.95.0...v0.96.0) (2021-07-14)
 
 
