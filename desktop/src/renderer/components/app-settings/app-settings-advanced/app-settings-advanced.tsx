@@ -1,5 +1,5 @@
 import { Component, h, State } from '@stencil/core'
-import { CHANNEL } from '../../../../preload/channels'
+import { client } from '../../../client'
 import { ConfigSchema } from '../../utils/forms/elements/types'
 import { build } from '../../utils/forms/formBuilder'
 
@@ -12,13 +12,15 @@ type Settings = {
 @Component({
   tag: 'app-settings-advanced',
   styleUrl: 'app-settings-advanced.css',
-  scoped: true
+  scoped: true,
 })
 export class AppSettingsAdvanced {
   @State() settings: Settings | undefined
 
   private readConfig = () =>
-    (window.api.invoke(CHANNEL.READ_CONFIG) as unknown) as Promise<Settings>
+    client.config.global.getAll().then(({ value }) => {
+      return value as Settings
+    })
 
   async componentWillLoad() {
     this.settings = await this.readConfig()

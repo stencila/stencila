@@ -3,12 +3,8 @@ import { IpcRendererAPI } from '../preload/types'
 import { Channel, Handler, isChannel } from './channels'
 
 export const apis: IpcRendererAPI = {
-  invoke: (channel, data) => {
-    if (isChannel(channel)) {
-      return ipcRenderer.invoke(channel, data)
-    }
-    return Promise.reject(`Invalid channel ${channel}`)
-  },
+  // TODO: Refine type definitions to enable guarding against valid channels
+  invoke: ipcRenderer.invoke,
   send: (channel: Channel, data: unknown) => {
     if (isChannel(channel)) {
       ipcRenderer.send(channel, data)
@@ -28,5 +24,5 @@ export const apis: IpcRendererAPI = {
   },
   removeAll: (channel: Channel) => {
     ipcRenderer.removeAllListeners(channel)
-  }
+  },
 }

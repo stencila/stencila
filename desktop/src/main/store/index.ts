@@ -1,33 +1,23 @@
-import { ipcMain } from 'electron'
 import { CHANNEL } from '../../preload/channels'
-import { JSONValue } from './bootstrap'
-import {
-  getAppConfig,
-  readAppConfig,
-  setAppConfig,
-  UnprotectedStoreKeys
-} from './handlers'
+import { GetAppConfig, ReadAppConfig, SetAppConfig } from '../../preload/types'
+import { handle, valueToSuccessResult } from '../utils/ipc'
+import { getAppConfig, readAppConfig, setAppConfig } from './handlers'
 
 export const registerAppConfigStoreHandlers = () => {
-  ipcMain.handle(CHANNEL.READ_APP_CONFIG, () => {
+  handle<ReadAppConfig>(CHANNEL.CONFIG_APP_READ, async () => {
     const config = readAppConfig()
-    return { ...config }
+    return valueToSuccessResult({ ...config })
   })
 
-  ipcMain.handle(
-    CHANNEL.GET_APP_CONFIG,
-    (_event, key: UnprotectedStoreKeys) => {
-      return getAppConfig(key)
-    }
-  )
+  // @ts-expect-error
+  handle<GetAppConfig>(CHANNEL.CONFIG_APP_GET, async (_event, key) => {
+    return valueToSuccessResult(getAppConfig(key))
+  })
 
-  ipcMain.handle(
-    CHANNEL.SET_APP_CONFIG,
-    (
-      _event,
-      { key, value }: { key: UnprotectedStoreKeys; value: JSONValue }
-    ) => {
-      return setAppConfig(key)(value)
+  handle<SetAppConfig>(
+    CHANNEL.CONFIG_APP_SET,
+    async (_event, { key, value }) => {
+      return valueToSuccessResult(setAppConfig(key)(value))
     }
   )
 }

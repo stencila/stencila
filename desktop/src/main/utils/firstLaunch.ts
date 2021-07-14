@@ -1,8 +1,5 @@
-import {
-  getAppConfig,
-  setAppConfig,
-  UnprotectedStoreKeys,
-} from '../store/handlers'
+import { UnprotectedStoreKeys } from '../../preload/stores'
+import { getAppConfig, setAppConfig } from '../store/handlers'
 
 /**
  * Checks whether the app is being launched for the first time

@@ -1,4 +1,5 @@
 use crate::{
+    errors::{self, attempt, Error},
     formats::{Format, FORMATS},
     methods::{
         compile::compile,
@@ -136,7 +137,7 @@ pub struct Document {
     /// On initialization, this is inferred, if possible, from the file name extension
     /// of the document's `path`. However, it may change whilst the document is
     /// open in memory (e.g. if the `load` function sets a different format).
-    #[def = "Format::unknown()"]
+    #[def = "Format::unknown(\"unknown\")"]
     #[schemars(schema_with = "Document::schema_format")]
     format: Format,
 
@@ -247,8 +248,11 @@ impl Document {
             Some(format) => FORMATS.match_path(&format),
         };
 
-        if format.name == "unknown" {
-            tracing::warn!("Unknown file format")
+        // Warn the user about unknown formats
+        if !format.known {
+            errors::push_error(Error::UnknownFormat {
+                format: format.name.clone(),
+            })
         }
 
         let mut document = Document {
@@ -261,12 +265,10 @@ impl Document {
             ..Default::default()
         };
 
-        if document.format.binary {
-            if let Err(error) = document.update().await {
-                tracing::warn!("While updating document: {}", error)
-            }
-        } else {
-            document.read().await?;
+        // Attempt to update the document from the file
+        match document.format.binary {
+            true => attempt(document.update().await),
+            false => attempt(document.read().await),
         }
 
         Ok(document)
@@ -364,11 +366,7 @@ impl Document {
             self.format = FORMATS.match_path(&format)
         }
 
-        if let Err(error) = self.update().await {
-            tracing::warn!("While updating document: {}", error)
-        }
-
-        Ok(())
+        self.update().await
     }
 
     /// Update the `root` node of the document and publish updated encodings

@@ -1,6 +1,6 @@
 import { createStore } from '@stencil/store'
 import { Plugin } from 'stencila'
-import { CHANNEL } from '../../../../preload/channels'
+import { client } from '../../../client'
 
 interface PluginStore {
   plugins: {
@@ -12,20 +12,21 @@ interface PluginStore {
 const defaultStore: PluginStore = {
   plugins: {
     entities: {},
-    ids: []
-  }
+    ids: [],
+  },
 }
 
 export const { state: pluginStore, onChange } = createStore(defaultStore)
 
 export const getAvailablePlugins = async (pluginList?: string[]) => {
   if (pluginList) {
-    await window.api.invoke(CHANNEL.REFRESH_PLUGINS, pluginList)
+    await client.plugins.refresh(pluginList)
   }
 
-  const plugins = (await window.api.invoke(
-    CHANNEL.LIST_AVAILABLE_PLUGINS
-  )) as any
-  pluginStore.plugins = plugins
+  const plugins = await client.plugins.list().then(({ value }) => {
+    pluginStore.plugins = value
+    return value
+  })
+
   return plugins
 }

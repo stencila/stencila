@@ -10,6 +10,6 @@ contextBridge.exposeInMainWorld('api', { ...apis })
 // This function needs to be able to run in both the `preload` and `web` contexts,
 // therefore it cannot rely on NodeJS apis.
 const isReportErrorsEnabled = () =>
-  ipcRenderer.invoke(CHANNEL.GET_APP_CONFIG, 'REPORT_ERRORS')
+  ipcRenderer.invoke(CHANNEL.CONFIG_APP_GET, 'REPORT_ERRORS')
 
 enableCrashReports(isReportErrorsEnabled)

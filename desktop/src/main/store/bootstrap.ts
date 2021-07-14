@@ -2,18 +2,7 @@ import { createStore, ObservableMap } from '@stencil/store'
 import { app } from 'electron'
 import fs from 'fs'
 import path from 'path'
-
-export type JSONValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JSONValue[]
-  | { [key: string]: JSONValue }
-
-export interface AppConfigStore {
-  [key: string]: JSONValue
-}
+import { AppConfigStore } from '../../preload/types'
 
 const storeName = 'storeUnprotected.json'
 const userDataPath = app.getPath('userData')
@@ -31,7 +20,7 @@ export const readUnprotectedStore = (): AppConfigStore => {
 }
 
 const defaultConfigStore: AppConfigStore = {
-  REPORT_ERRORS: false
+  REPORT_ERRORS: false,
 }
 
 export let unprotectedStore: ObservableMap<AppConfigStore>

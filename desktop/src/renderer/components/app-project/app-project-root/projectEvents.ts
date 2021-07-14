@@ -11,12 +11,12 @@ import {
 import { projectActions } from '../../../store/project/projectStore'
 
 export const listenForFileEvents = (_projectId: string) => {
-  window.api.receive(CHANNEL.GET_PROJECT_FILES, (event) => {
+  window.api.receive(CHANNEL.PROJECTS_OPEN, (event) => {
     const e = event as FileEvent
     store.dispatch(projectActions.updateProjectFiles(e.files))
   })
 
-  window.api.receive(CHANNEL.CLOSE_ACTIVE_DOCUMENT, () => {
+  window.api.receive(CHANNEL.DOCUMENTS_CLOSE_ACTIVE, () => {
     pipe(
       AP.sequenceT(O.Apply)(selectPaneId(state), selectActiveView(state)),
       O.map(([paneId, viewId]) => {
@@ -27,6 +27,6 @@ export const listenForFileEvents = (_projectId: string) => {
 }
 
 export const removeFileEventListener = () => {
-  window.api.removeAll(CHANNEL.GET_PROJECT_FILES)
-  window.api.removeAll(CHANNEL.CLOSE_ACTIVE_DOCUMENT)
+  window.api.removeAll(CHANNEL.PROJECTS_OPEN)
+  window.api.removeAll(CHANNEL.DOCUMENTS_CLOSE_ACTIVE)
 }

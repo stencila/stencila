@@ -1,7 +1,11 @@
 import { Component, h, State } from '@stencil/core'
 import Logo from '@stencila/brand/dist/logos/stencilaLogo.svg'
-import { CHANNEL } from '../../../preload/channels'
+import { client } from '../../client'
 import { fetchRecentProjects } from '../../store/project/projectActions'
+import { userOSPathSeparator } from '../../utils/env'
+
+const projectDirName = (path: string): string | undefined =>
+  path.split(userOSPathSeparator).pop()
 
 @Component({
   tag: 'app-launcher',
@@ -11,15 +15,10 @@ import { fetchRecentProjects } from '../../store/project/projectActions'
 export class AppLauncher {
   @State() recentProjects: string[] = []
 
-  private selectFiles = () => {
-    window.api.invoke(CHANNEL.SELECT_PROJECT_DIR)
-  }
-
-  private openProject = (path: string) => (e: Event) => {
+  private openProject = (path: string) => async (e: Event) => {
     e.preventDefault()
-    window.api.invoke(CHANNEL.OPEN_PROJECT, path).then(() => {
-      window.api.invoke(CHANNEL.CLOSE_LAUNCHER_WINDOW)
-    })
+    await client.projects.open(path)
+    client.launcher.close()
   }
 
   componentWillLoad() {
@@ -36,7 +35,7 @@ export class AppLauncher {
             <stencila-button
               size="small"
               fill={true}
-              onClick={this.selectFiles}
+              onClick={client.projects.openUsingPicker}
             >
               Open folder…
             </stencila-button>
@@ -53,17 +52,25 @@ export class AppLauncher {
           <div class="recentProjects">
             <h2>Recent projects</h2>
             <ul>
-              {this.recentProjects.map((projectPath) => (
-                <li>
-                  <a
-                    onClick={this.openProject(projectPath)}
-                    class="recentProjectItem"
-                  >
-                    <stencila-icon icon="folder"></stencila-icon>
-                    {projectPath}
-                  </a>
-                </li>
-              ))}
+              {this.recentProjects.map((projectPath) => {
+                const projectName = projectDirName(projectPath)
+                return (
+                  <li>
+                    <a
+                      onClick={this.openProject(projectPath)}
+                      class="recentProjectItem"
+                    >
+                      <stencila-icon icon="folder"></stencila-icon>
+                      <div class="meta">
+                        <h3 class="name" title={projectName ?? projectPath}>
+                          {projectName ?? projectPath}
+                        </h3>
+                        {projectName && <h4 class="path">{projectPath}</h4>}
+                      </div>
+                    </a>
+                  </li>
+                )
+              })}
             </ul>
           </div>
         </main>

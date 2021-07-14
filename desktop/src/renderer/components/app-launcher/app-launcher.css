@@ -13,34 +13,56 @@ main {
 
 .recentProjects {
   @apply border-0 border-l border-solid ml-4 text-left  px-4;
-  border-color: var(--color-neutral-300);
+  border-color: var(--color-neutral-100);
   flex-basis: 70%;
+
+  h2 {
+    color: var(--color-neutral-500) ;
+  }
 
   ul {
     @apply list-none p-0 m-0;
   }
 
   li {
-    @apply overflow-ellipsis overflow-hidden max-w-full -ml-2;
+    @apply overflow-ellipsis overflow-hidden max-w-full -ml-2 mb-1;
+  }
+}
 
-    a {
-      &,
-      &:link,
-      &:visited {
-        @apply block px-2 text-sm whitespace-nowrap rounded no-underline align-bottom leading-none max-w-full overflow-hidden overflow-ellipsis cursor-pointer;
-        color: var(--color-neutral-800);
-        padding-bottom: 0.375rem;
-        padding-top: 0.375rem;
-      }
+.recentProjectItem {
+  &,
+  &:link,
+  &:visited {
+    @apply flex flex-row items-center px-2 text-sm whitespace-nowrap rounded no-underline leading-none max-w-full overflow-hidden overflow-ellipsis cursor-pointer;
+    color: var(--color-key);
+    padding-bottom: 0.375rem;
+    padding-top: 0.375rem;
+  }
 
-      &:hover {
-        background: var(--color-neutral-300);
-      }
+  &:hover {
+    background: var(--color-neutral-50);
+  }
 
-      stencila-icon {
-        @apply pr-1;
-      }
+  .meta {
+    @apply align-middle;
+    color: var(--color-key);
+
+    & > * {
+      @apply align-middle;
     }
+  }
+
+  stencila-icon {
+    @apply pr-2 flex-initial;
+  }
+
+  .name {
+    @apply text-sm leading-none truncate inline-block m-0;
+  }
+
+  .path {
+    @apply text-xs leading-none truncate font-normal m-0 mt-px;
+    color: var(--color-neutral-600);
   }
 }
 

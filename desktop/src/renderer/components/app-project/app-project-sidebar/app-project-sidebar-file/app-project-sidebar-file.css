@@ -4,7 +4,7 @@
 
 ul {
   @apply list-none p-0 pl-4 m-0;
-  color: var(--color-neutral-400);
+  color: var(--color-neutral-50);
 }
 
 li {
@@ -16,16 +16,20 @@ a {
   &:link,
   &:visited {
     @apply block px-1 text-sm whitespace-nowrap rounded no-underline align-bottom leading-none max-w-full overflow-hidden overflow-ellipsis;
-    color: var(--color-neutral-400);
+    color: var(--color-neutral-50);
     padding-bottom: 0.375rem;
     padding-top: 0.375rem;
   }
 
   &:hover {
-    background: var(--color-neutral-700);
+    background: var(--color-neutral-600);
   }
 
   stencila-icon {
     @apply pr-1;
+  }
+
+  & > * {
+    @apply align-middle;
   }
 }

@@ -1,6 +1,6 @@
 .projectWindow {
   @apply flex flex-row max-h-screen overflow-hidden min-h-screen;
-  background-color: var(--color-neutral-800);
+  background-color: var(--color-neutral-700);
 
   main {
     @apply w-full max-h-screen overflow-auto;

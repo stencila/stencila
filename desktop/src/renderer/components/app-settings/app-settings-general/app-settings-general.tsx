@@ -1,27 +1,28 @@
 import { Component, h, State } from '@stencil/core'
 import { i18n } from '../../../../i18n'
-import { CHANNEL } from '../../../../preload/channels'
+import { UnprotectedStoreKeys } from '../../../../preload/stores'
+import { client } from '../../../client'
 
 @Component({
   tag: 'app-settings-general',
   styleUrl: 'app-settings-general.css',
-  scoped: true
+  scoped: true,
 })
 export class AppSettingsGeneral {
   @State() config: Record<string, unknown>
 
-  private updateSetting = (key: string) => (e: Event) => {
+  private updateSetting = (key: UnprotectedStoreKeys) => (e: Event) => {
     e.preventDefault()
     const target = e.target as HTMLInputElement
     const value = target.checked ?? target.value
 
-    window.api.invoke(CHANNEL.SET_APP_CONFIG, { key, value })
+    client.config.ui.set({ key, value })
   }
 
   async componentWillLoad() {
-    // TODO: Subscribe to config change events
-    const config = await window.api.invoke(CHANNEL.READ_APP_CONFIG)
-    this.config = config as Record<string, unknown>
+    return client.config.ui.getAll().then(({ value }) => {
+      this.config = value
+    })
   }
 
   render() {
@@ -37,7 +38,7 @@ export class AppSettingsGeneral {
               id="errorReporting"
               type="checkbox"
               defaultChecked={(this.config.REPORT_ERRORS as boolean) ?? false}
-              onChange={this.updateSetting('REPORT_ERRORS')}
+              onChange={this.updateSetting(UnprotectedStoreKeys.REPORT_ERRORS)}
             />
 
             <label htmlFor="errorReporting">

@@ -1,9 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
-import {
-  getAppConfig,
-  setAppConfig,
-  UnprotectedStoreKeys,
-} from '../store/handlers'
+import { UnprotectedStoreKeys } from '../../preload/stores'
+import { getAppConfig, setAppConfig } from '../store/handlers'
 
 /**
  * Assign the user a random, non-identifiable id.

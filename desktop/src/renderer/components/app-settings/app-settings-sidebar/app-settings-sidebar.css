@@ -28,7 +28,7 @@ a:visited {
   &:hover {
     @apply block no-underline;
     color: var(--color-stock);
-    background-color: var(--color-neutral-700);
+    background-color: var(--color-neutral-600);
   }
 
   &.disabled {

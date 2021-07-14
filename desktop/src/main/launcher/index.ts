@@ -1,17 +1,20 @@
-import { ipcMain } from 'electron'
 import { CHANNEL } from '../../preload/channels'
+import { LauncherWindowClose, LauncherWindowOpen } from '../../preload/types'
 import { removeChannelHandlers } from '../utils/handler'
+import { handle, valueToSuccessResult } from '../utils/ipc'
 import { LAUNCHER_CHANNEL } from './channels'
 import { closeLauncherWindow, openLauncherWindow } from './window'
 
 export const registerLauncherHandlers = () => {
   try {
-    ipcMain.handle(CHANNEL.OPEN_LAUNCHER_WINDOW, async () => {
+    handle<LauncherWindowOpen>(CHANNEL.LAUNCHER_WINDOW_OPEN, async () => {
       openLauncherWindow()
+      return valueToSuccessResult()
     })
 
-    ipcMain.handle(CHANNEL.CLOSE_LAUNCHER_WINDOW, async () => {
+    handle<LauncherWindowClose>(CHANNEL.LAUNCHER_WINDOW_CLOSE, async () => {
       closeLauncherWindow()
+      return valueToSuccessResult()
     })
   } catch {
     // Handlers likely already registered

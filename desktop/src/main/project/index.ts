@@ -1,39 +1,48 @@
-import { ipcMain } from 'electron'
-import { projects } from 'stencila'
+import { dispatch, projects } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
+import {
+  ProjectsOpen,
+  ProjectsOpenUsingFilePicker,
+  ProjectsWindowOpen,
+} from '../../preload/types'
 import { removeChannelHandlers } from '../utils/handler'
+import { handle, valueToSuccessResult } from '../utils/ipc'
 import { PROJECT_CHANNEL } from './channels'
 import { openProject } from './handlers'
 import { openProjectWindow } from './window'
 
 export const registerProjectHandlers = () => {
   try {
-    ipcMain.handle(
-      CHANNEL.SHOW_PROJECT_WINDOW,
-      async (_event, directoryPath: string) => {
-        openProjectWindow(directoryPath)
+    handle<ProjectsOpenUsingFilePicker>(
+      CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER,
+      async () => {
+        return openProject().then(() => valueToSuccessResult())
       }
     )
 
-    ipcMain.handle(CHANNEL.SELECT_PROJECT_DIR, async () => {
-      openProject()
-    })
-
-    ipcMain.handle(
-      CHANNEL.OPEN_PROJECT,
-      async (_event, directoryPath: string) => {
+    handle<ProjectsWindowOpen>(
+      CHANNEL.PROJECTS_WINDOW_OPEN,
+      async (_event, directoryPath) => {
         openProjectWindow(directoryPath)
+        return valueToSuccessResult()
       }
     )
 
-    ipcMain.handle(
-      CHANNEL.GET_PROJECT_FILES,
-      async (ipcEvent, directoryPath: string) => {
-        const project = projects.open(directoryPath)
-        projects.subscribe(project.path, ['files'], (_topic, fileEvent) => {
-          ipcEvent.sender.send(CHANNEL.GET_PROJECT_FILES, fileEvent)
-        })
-        return project
+    handle<ProjectsOpen>(
+      CHANNEL.PROJECTS_OPEN,
+      async (ipcEvent, directoryPath) => {
+        const result = dispatch.projects.open(directoryPath)
+        if (result.ok) {
+          projects.subscribe(
+            result.value.path,
+            ['files'],
+            (_topic, fileEvent) => {
+              ipcEvent.sender.send(CHANNEL.PROJECTS_OPEN, fileEvent)
+            }
+          )
+        }
+
+        return result
       }
     )
   } catch {

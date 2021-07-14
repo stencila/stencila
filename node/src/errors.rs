@@ -2,14 +2,14 @@ use neon::{
     context::{Context, FunctionContext},
     handle::Managed,
     result::JsResult,
-    types::JsString,
+    types::{JsString, JsUndefined},
 };
 use stencila::{
     errors::{self, Error},
     eyre, serde_json,
 };
 
-use crate::{prelude::to_json_or_throw, pubsub::bridging_subscriber};
+use crate::prelude::{to_json, to_json_or_throw};
 
 /// Get the module's schemas
 pub fn schema(cx: FunctionContext) -> JsResult<JsString> {
@@ -17,29 +17,43 @@ pub fn schema(cx: FunctionContext) -> JsResult<JsString> {
     to_json_or_throw(cx, schemas)
 }
 
-/// Publish a detailed error (including string `message` and other fields)
-/// under the `errors` pubsub topic and throw a simple JavaScript error
-/// with a message string
+/// Start collecting errors
+pub fn start(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    errors::start();
+    Ok(cx.undefined())
+}
+
+/// Stop collecting errors and return them as a JSON array
+pub fn stop(cx: FunctionContext) -> JsResult<JsString> {
+    let errors: Vec<serde_json::Value> = errors::stop()
+        .iter()
+        .map(|error| error_to_json(error))
+        .collect();
+    to_json(cx, errors)
+}
+
+/// Throw an error as JSON
 pub fn throw_error<T>(mut cx: FunctionContext, error: eyre::Report) -> JsResult<T>
 where
     T: Managed,
 {
     let message = error.to_string();
-
-    let error = match error.downcast_ref::<Error>() {
-        Some(error) => error,
-        None => &Error::Unknown,
+    let value = match error.downcast_ref::<Error>() {
+        Some(error) => error_to_json(error),
+        None => error_to_json(&Error::Unspecified { message }),
     };
-    let error = match serde_json::to_value(error) {
+    let json = serde_json::to_string_pretty(&value).expect("To always be able to stringify");
+    cx.throw_error(json)
+}
+
+/// Convert an error to a JSON value so that it can be reconstituted in JavaScript
+fn error_to_json(error: &Error) -> serde_json::Value {
+    let message = error.to_string();
+    match serde_json::to_value(error) {
         Ok(serde_json::Value::Object(mut value)) => {
-            value.insert("message".into(), serde_json::Value::String(message.clone()));
+            value.insert("message".into(), serde_json::Value::String(message));
             serde_json::Value::Object(value)
         }
         _ => serde_json::json!({ "message": message }),
-    };
-    // Send the error to the "errors" topic
-    bridging_subscriber("errors".into(), error);
-
-    // Throw it as a Javascript error
-    cx.throw_error(message)
+    }
 }

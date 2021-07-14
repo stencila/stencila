@@ -1,75 +1,86 @@
-import { ipcMain } from 'electron'
-import { documents } from 'stencila'
+import { dispatch, documents } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
-import { removeChannelHandlers } from '../utils/handler'
-import { DOCUMENT_CHANNEL } from './channel'
+import {
+  DocumentsClose,
+  DocumentsDump,
+  DocumentsOpen,
+  DocumentsPreview,
+  DocumentsUnsubscribe,
+  DocumentsWrite,
+} from '../../preload/types'
 import { rewriteHtml } from '../local-protocol'
+import { removeChannelHandlers } from '../utils/handler'
+import { handle } from '../utils/ipc'
+import { DOCUMENT_CHANNEL } from './channel'
 
 export const registerDocumentHandlers = () => {
   try {
-    ipcMain.handle(CHANNEL.OPEN_DOCUMENT, async (_event, filePath: string) => {
-      return documents.open(filePath)
-    })
+    handle<DocumentsOpen>(CHANNEL.DOCUMENTS_OPEN, async (_event, filePath) =>
+      dispatch.documents.open(filePath)
+    )
 
-    ipcMain.handle(
-      CHANNEL.CLOSE_DOCUMENT,
-      async (_event, documentId: string) => {
-        try {
-          documents.close(documentId)
-        } catch (e) {}
+    handle<DocumentsClose>(
+      CHANNEL.DOCUMENTS_CLOSE,
+      async (_event, documentId) => {
+        return dispatch.documents.close(documentId)
       }
     )
 
-    ipcMain.handle(
-      CHANNEL.UNSUBSCRIBE_DOCUMENT,
-      async (
-        _event,
-        { documentId, topics }: { documentId: string; topics: string[] }
-      ) => {
-        documents.unsubscribe(documentId, topics)
+    handle<DocumentsUnsubscribe>(
+      CHANNEL.DOCUMENTS_UNSUBSCRIBE,
+      async (_event, documentId, topics) => {
+        return dispatch.documents.unsubscribe(documentId, topics)
       }
     )
 
-    ipcMain.handle(
-      CHANNEL.GET_DOCUMENT_CONTENTS,
-      async (ipcEvent, documentId: string) => {
+    handle<DocumentsDump>(
+      CHANNEL.DOCUMENTS_DUMP,
+      async (ipcEvent, documentId) => {
         documents.subscribe(documentId, ['modified'], (_topic, docEvent) => {
-          ipcEvent.sender.send(CHANNEL.GET_DOCUMENT_CONTENTS, docEvent)
+          ipcEvent.sender.send(CHANNEL.DOCUMENTS_DUMP, docEvent)
         })
 
         // Use `dump` to get document content, rather than `read`, to avoid
         // (a) a re-read of the file (that is done on open) (b) re-encoding for
         // each subscriber.
-        return documents.dump(documentId)
+        return dispatch.documents.dump(documentId)
       }
     )
 
-    ipcMain.handle(
-      CHANNEL.DOCUMENT_GET_PREVIEW,
-      async (ipcEvent, documentId: string) => {
+    handle<DocumentsPreview>(
+      CHANNEL.DOCUMENTS_PREVIEW,
+      async (ipcEvent, documentId) => {
         documents.subscribe(
           documentId,
           ['encoded:html'],
           (_topic, docEvent) => {
             const event = {
               ...docEvent,
-              content: rewriteHtml(docEvent.content ?? '')
+              content: rewriteHtml(docEvent.content ?? ''),
             }
-            ipcEvent.sender.send(CHANNEL.DOCUMENT_GET_PREVIEW, event)
+
+            ipcEvent.sender.send(CHANNEL.DOCUMENTS_PREVIEW, event)
           }
         )
 
-        return rewriteHtml(documents.dump(documentId, 'html'))
+        const results = dispatch.documents.dump(documentId, 'html')
+
+        if (results.ok) {
+          return {
+            ok: results.ok,
+            value: rewriteHtml(results.value),
+            errors: results.errors,
+          }
+        } else {
+          return results
+        }
       }
     )
 
-    ipcMain.handle(
-      CHANNEL.SAVE_DOCUMENT,
-      async (
-        _event,
-        { documentId, content }: { documentId: string; content: string }
-      ) => {
-        documents.write(documentId, content)
+    handle<DocumentsWrite>(
+      CHANNEL.DOCUMENTS_WRITE,
+      async (_event, documentId, content) => {
+        return dispatch.documents.write(documentId, content)
       }
     )
   } catch {

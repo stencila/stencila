@@ -5,6 +5,10 @@
  */
 export interface Format {
   /**
+   * Whether or not this is a known format (ie.e. not automatically created)
+   */
+  known: boolean
+  /**
    * The lowercase name of the format e.g. `md`, `docx`, `dockerfile`
    */
   name: string
@@ -452,8 +456,14 @@ export interface Config {
  */
 export type Error =
   | {
+      type: 'UnknownFormat'
+      format: string
+      message: string
+    }
+  | {
       type: 'UndelegatableMethod'
       method: Method
+      message: string
     }
   | {
       type: 'UndelegatableCall'
@@ -461,14 +471,16 @@ export type Error =
       params: {
         [k: string]: unknown
       }
+      message: string
     }
   | {
       type: 'PluginNotInstalled'
       plugin: string
+      message: string
     }
   | {
-      type: 'Unknown'
-      [k: string]: unknown
+      type: 'Unspecified'
+      message: string
     }
 /**
  * An enumeration of all methods
@@ -489,54 +501,63 @@ export type Method =
 
 export const FORMATS: Record<string, Format> = {
   "3gp": {
+    "known": true,
     "name": "3gp",
     "binary": true,
     "preview": true,
     "extensions": []
   },
   "dir": {
+    "known": true,
     "name": "dir",
     "binary": true,
     "preview": false,
     "extensions": []
   },
   "dockerfile": {
+    "known": true,
     "name": "dockerfile",
     "binary": false,
     "preview": false,
     "extensions": []
   },
   "docx": {
+    "known": true,
     "name": "docx",
     "binary": true,
     "preview": true,
     "extensions": []
   },
   "flac": {
+    "known": true,
     "name": "flac",
     "binary": true,
     "preview": true,
     "extensions": []
   },
   "gif": {
+    "known": true,
     "name": "gif",
     "binary": true,
     "preview": true,
     "extensions": []
   },
   "html": {
+    "known": true,
     "name": "html",
     "binary": false,
     "preview": true,
     "extensions": []
   },
   "ipynb": {
+    "known": true,
     "name": "ipynb",
     "binary": false,
     "preview": true,
     "extensions": []
   },
   "jpg": {
+    "known": true,
     "name": "jpg",
     "binary": true,
     "preview": true,
@@ -545,24 +566,28 @@ export const FORMATS: Record<string, Format> = {
     ]
   },
   "js": {
+    "known": true,
     "name": "js",
     "binary": false,
     "preview": false,
     "extensions": []
   },
   "json": {
+    "known": true,
     "name": "json",
     "binary": false,
     "preview": true,
     "extensions": []
   },
   "json5": {
+    "known": true,
     "name": "json5",
     "binary": false,
     "preview": true,
     "extensions": []
   },
   "latex": {
+    "known": true,
     "name": "latex",
     "binary": false,
     "preview": true,
@@ -571,114 +596,126 @@ export const FORMATS: Record<string, Format> = {
     ]
   },
   "makefile": {
+    "known": true,
     "name": "makefile",
     "binary": false,
     "preview": false,
     "extensions": []
   },
   "md": {
+    "known": true,
     "name": "md",
     "binary": false,
     "preview": true,
     "extensions": []
   },
   "mp3": {
+    "known": true,
     "name": "mp3",
     "binary": true,
     "preview": true,
     "extensions": []
   },
   "mp4": {
+    "known": true,
     "name": "mp4",
     "binary": true,
     "preview": true,
     "extensions": []
   },
   "odt": {
+    "known": true,
     "name": "odt",
     "binary": true,
     "preview": true,
     "extensions": []
   },
   "ogg": {
+    "known": true,
     "name": "ogg",
     "binary": true,
     "preview": true,
     "extensions": []
   },
   "ogv": {
+    "known": true,
     "name": "ogv",
     "binary": true,
     "preview": true,
     "extensions": []
   },
   "png": {
+    "known": true,
     "name": "png",
     "binary": true,
     "preview": true,
     "extensions": []
   },
   "py": {
+    "known": true,
     "name": "py",
     "binary": false,
     "preview": false,
     "extensions": []
   },
   "r": {
+    "known": true,
     "name": "r",
     "binary": false,
     "preview": false,
     "extensions": []
   },
   "rmd": {
+    "known": true,
     "name": "rmd",
     "binary": false,
     "preview": true,
     "extensions": []
   },
   "sh": {
+    "known": true,
     "name": "sh",
     "binary": false,
     "preview": false,
     "extensions": []
   },
   "toml": {
+    "known": true,
     "name": "toml",
     "binary": false,
     "preview": true,
     "extensions": []
   },
   "ts": {
+    "known": true,
     "name": "ts",
     "binary": false,
     "preview": false,
     "extensions": []
   },
   "txt": {
+    "known": true,
     "name": "txt",
     "binary": false,
     "preview": true,
     "extensions": []
   },
-  "unknown": {
-    "name": "unknown",
-    "binary": true,
-    "preview": false,
-    "extensions": []
-  },
   "webm": {
+    "known": true,
     "name": "webm",
     "binary": true,
     "preview": true,
     "extensions": []
   },
   "xml": {
+    "known": true,
     "name": "xml",
     "binary": false,
     "preview": true,
     "extensions": []
   },
   "yaml": {
+    "known": true,
     "name": "yaml",
     "binary": false,
     "preview": true,

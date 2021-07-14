@@ -65,7 +65,7 @@ export class AppProjectSidebarFile {
             <stencila-icon
               icon={getFileIcon(file, this.isCollapsed)}
             ></stencila-icon>
-            {file?.name}
+            <span>{file?.name}</span>
           </a>
           {!this.isCollapsed && file?.children && (
             <ul>

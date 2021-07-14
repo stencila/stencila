@@ -1,9 +1,13 @@
-import { CHANNEL } from '../../preload/channels'
 import { enableCrashReports } from '../../preload/errors'
+import { UnprotectedStoreKeys } from '../../preload/stores'
 import { isProduction } from '../../preload/utils/env'
+import { client } from '../client'
+import { showUnhandledErrors } from '../utils/errors'
 
 const isErrorReportingEnabled = () =>
-  window.api.invoke(CHANNEL.GET_APP_CONFIG, 'REPORT_ERRORS') as Promise<boolean>
+  client.config.ui
+    .get(UnprotectedStoreKeys.REPORT_ERRORS)
+    .then(({ value }) => (typeof value === 'boolean' ? value : false))
 
 /**
  * The code to be executed should be placed within a default function that is
@@ -17,4 +21,5 @@ export default async () => {
   if (process.env.SENTRY_DSN && isProduction) {
     enableCrashReports(isErrorReportingEnabled)
   }
+  showUnhandledErrors()
 }

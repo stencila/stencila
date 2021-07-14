@@ -1,9 +1,12 @@
-use std::collections::HashMap;
-
 use crate::methods::Method;
 use eyre::Result;
+use once_cell::sync::Lazy;
 use schemars::{gen::SchemaSettings, JsonSchema};
 use serde::Serialize;
+use std::{
+    collections::HashMap,
+    sync::{atomic::AtomicBool, Mutex},
+};
 use thiserror::Error;
 
 /// An enumeration of custom errors returned by this library
@@ -15,6 +18,10 @@ use thiserror::Error;
 #[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
 pub enum Error {
+    /// The user attempted to open a document with an unknown format
+    #[error("Unknown format '{format}'")]
+    UnknownFormat { format: String },
+
     /// The user attempted to call a method that is not implemented internally
     /// and so must be delegated to a plugin. However, none of the registered
     /// plugins implement this method. It may be that the user needs to do
@@ -39,9 +46,51 @@ pub enum Error {
     #[error("Plugin '{plugin}' is not yet installed")]
     PluginNotInstalled { plugin: String },
 
-    /// Another, unspecified, error type
-    #[error("An unknown error occurred")]
-    Unknown,
+    /// An error of unspecified type
+    #[error("{message}")]
+    Unspecified { message: String },
+}
+
+/// A global stack of errors that can be used have "sideband" errors i.e. those that
+/// do not cause a function to return early and are not part of the `Result` of a function.
+pub static ERRORS: Lazy<Mutex<Vec<Error>>> = Lazy::new(|| Mutex::new(Vec::new()));
+
+/// A flag to indicate if errors are being collected
+static COLLECT: AtomicBool = AtomicBool::new(false);
+
+/// Start collecting errors
+pub fn start() {
+    ERRORS.lock().expect("To be able to get lock").clear();
+    COLLECT.swap(true, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// Push an error
+pub fn push_error(error: Error) {
+    if COLLECT.load(std::sync::atomic::Ordering::Relaxed) {
+        ERRORS.lock().expect("To be able to get lock").push(error);
+    }
+}
+
+/// Push a error report
+pub fn push_report(report: eyre::Report) {
+    let message = report.to_string();
+    match report.downcast::<Error>() {
+        Ok(error) => push_error(error),
+        Err(_) => push_error(Error::Unspecified { message }),
+    }
+}
+
+/// Record an error result
+pub fn attempt<T>(result: Result<T>) {
+    if let Err(report) = result {
+        push_report(report)
+    }
+}
+
+/// Stop collecting errors and return those collected
+pub fn stop() -> Vec<Error> {
+    COLLECT.swap(false, std::sync::atomic::Ordering::Relaxed);
+    ERRORS.lock().expect("To be able to get lock").split_off(0)
 }
 
 /// Get JSON Schema for the `Error` enum.

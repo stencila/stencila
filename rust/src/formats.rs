@@ -15,6 +15,9 @@ use std::{collections::HashMap, path::Path};
 #[derive(Clone, Debug, Defaults, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Format {
+    /// Whether or not this is a known format (ie.e. not automatically created)
+    pub known: bool,
+
     /// The lowercase name of the format e.g. `md`, `docx`, `dockerfile`
     pub name: String,
 
@@ -36,6 +39,7 @@ impl Format {
     /// Create a new file format
     pub fn new(name: &str, binary: bool, preview: bool) -> Format {
         Format {
+            known: true,
             name: name.into(),
             binary,
             preview,
@@ -54,6 +58,7 @@ impl Format {
     /// that are directories
     pub fn directory() -> Format {
         Format {
+            known: true,
             name: "dir".into(),
             binary: true,
             preview: false,
@@ -61,21 +66,19 @@ impl Format {
         }
     }
 
-    /// Create the special `unregistered` file format where all we
-    /// have is the name e.g. from a file extension
-    pub fn unregistered(name: &str) -> Format {
+    /// Create the special `unknown` file format where all we
+    /// have is the name e.g. from a file extension.
+    pub fn unknown(name: &str) -> Format {
         Format {
+            known: false,
             name: name.into(),
-            binary: true,
+            // Set binary to false so that any unregistered format
+            // will be at least shown in editor...
+            binary: false,
+            // ..but not have a preview
             preview: false,
             ..Default::default()
         }
-    }
-
-    /// Create the special `unknown` file format where we do not
-    /// even know the name.
-    pub fn unknown() -> Format {
-        Format::unregistered("unknown")
     }
 }
 
@@ -130,7 +133,6 @@ impl Default for Formats {
             Format::new("txt", false, false),
             // Specials
             Format::directory(),
-            Format::unknown(),
         ];
 
         let formats = formats
@@ -147,7 +149,7 @@ impl Formats {
     pub fn match_name(&self, name: &str) -> Format {
         match self.formats.get(&name.to_lowercase()) {
             Some(format) => format.clone(),
-            None => Format::unregistered(name),
+            None => Format::unknown(name),
         }
     }
 
@@ -179,7 +181,7 @@ impl Formats {
             }
         }
 
-        Format::unregistered(&name)
+        Format::unknown(&name)
     }
 }
 

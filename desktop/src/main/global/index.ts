@@ -1,16 +1,15 @@
-import { ipcMain, shell } from 'electron'
-import { captureError, LogHandler } from '../../preload/errors'
+import { shell } from 'electron'
 import { CHANNEL } from '../../preload/channels'
+import { captureError } from '../../preload/errors'
+import { CaptureError, OpenLink } from '../../preload/types'
+import { handle, valueToSuccessResult } from '../utils/ipc'
 
 export const registerGlobalHandlers = () => {
-  ipcMain.handle(
-    CHANNEL.OPEN_LINK_IN_DEFAULT_BROWSER,
-    (_event, link: string) => {
-      shell.openExternal(link)
-    }
+  handle<OpenLink>(CHANNEL.OPEN_LINK_IN_DEFAULT_BROWSER, (_event, link) =>
+    shell.openExternal(link).then(() => valueToSuccessResult())
   )
 
-  ipcMain.handle(CHANNEL.CAPTURE_ERROR, (_event, payload: LogHandler) => {
-    captureError(payload)
+  handle<CaptureError>(CHANNEL.CAPTURE_ERROR, async (_event, payload) => {
+    return valueToSuccessResult(captureError(payload))
   })
 }

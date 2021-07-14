@@ -37,7 +37,7 @@ pub struct File {
     /// Usually this is the lower cased filename extension (if any)
     /// but may also be normalized. May be more convenient,
     /// and usually more available, than the `media_type` property.
-    #[def = "Format::unknown()"]
+    #[def = "Format::unknown(\"unknown\")"]
     #[schemars(schema_with = "File::schema_format")]
     pub format: Format,
 

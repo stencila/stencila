@@ -1,11 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import { normalize } from 'normalizr'
-import { CHANNEL } from '../../../preload/channels'
+import { client } from '../../client'
 import { projectEntity } from './entities'
 import { ProjectStoreEntities } from './ProjectStoreTypes'
 
 const StoreKeys = {
-  recentProjects: 'recentProjects'
+  recentProjects: 'recentProjects',
 }
 
 export const fetchRecentProjects = (): string[] => {
@@ -34,11 +34,14 @@ const saveRecentProjects = (path: string) => {
 export const fetchProject = createAsyncThunk(
   'projects/fetchProject',
   async (path: string) => {
-    const data = await window.api.invoke(CHANNEL.GET_PROJECT_FILES, path)
+    const { value } = await client.projects.contents(path)
 
     saveRecentProjects(path)
 
-    const normalized = normalize<any, ProjectStoreEntities>(data, projectEntity)
+    const normalized = normalize<any, ProjectStoreEntities>(
+      value,
+      projectEntity
+    )
 
     return normalized
   }
