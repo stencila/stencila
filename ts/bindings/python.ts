@@ -61,6 +61,13 @@ async function build(): Promise<void> {
 from typing import Any, Dict, List as Array, Optional, Union
 from enum import Enum
 
+Null = None
+Boolean = bool
+Number = float
+Integer = int
+String = str
+Object = Dict[str, Any]
+
 ${globalsCode}
 
 ${classesCode}
@@ -223,20 +230,22 @@ function schemaToType(schema: JsonSchema): string {
 
   if ($ref !== undefined) {
     const title = $ref.replace('.schema.json', '')
-    return `"${title === 'Node' ? 'Any' : title}"`
+    if (title === 'Null') return 'None'
+    else if (title === 'Node') return 'Any'
+    else return `"${title}"`
   }
 
   if (anyOf !== undefined) return anyOfToType(anyOf)
   if (allOf !== undefined) return allOfToType(allOf)
   if (schema.enum !== undefined) return enumToType(schema['@id'], schema.enum)
 
-  if (type === 'null') return 'None'
-  if (type === 'boolean') return 'bool'
-  if (type === 'number') return 'float'
-  if (type === 'integer') return 'int'
-  if (type === 'string') return 'str'
+  if (type === 'null') return 'Null'
+  if (type === 'boolean') return 'Boolean'
+  if (type === 'number') return 'Number'
+  if (type === 'integer') return 'Integer'
+  if (type === 'string') return 'String'
   if (type === 'array') return arrayToType(schema)
-  if (type === 'object') return 'Dict[str, Any]'
+  if (type === 'object') return 'Object'
 
   throw new Error(`Unhandled schema: ${JSON.stringify(schema)}`)
 }

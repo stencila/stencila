@@ -3,6 +3,7 @@
  */
 
 import fs from 'fs-extra'
+import { JSONSchema7TypeName } from 'json-schema'
 import path from 'path'
 import { JsonSchema } from '../JsonSchema'
 import {
@@ -159,9 +160,26 @@ function docComment(description: string, tags: string[] = []): string {
  * Convert a schema definition to a R class
  */
 function schemaToType(schema: JsonSchema): string {
-  const { type, anyOf, allOf, $ref } = schema
+  let { type, anyOf, allOf, $ref } = schema
 
-  if ($ref !== undefined) return `${$ref.replace('.schema.json', '')}`
+  if ($ref !== undefined) {
+    const name = $ref.replace('.schema.json', '')
+    if (
+      [
+        'Null',
+        'Boolean',
+        'Integer',
+        'Number',
+        'String',
+        'Array',
+        'Object',
+      ].includes(name)
+    ) {
+      type = name.toLowerCase() as JSONSchema7TypeName
+    } else {
+      return `${name}`
+    }
+  }
   if (anyOf !== undefined) return anyOfToType(anyOf)
   if (allOf !== undefined) return allOfToType(allOf)
   if (schema.enum !== undefined) return enumToType(schema.enum)

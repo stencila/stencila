@@ -23,7 +23,7 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 if (require.main) build()
 
-async function build() {
+async function build(): Promise<void> {
   await buildTypes()
   await buildSchemas()
 }
@@ -489,7 +489,7 @@ function arrayToType(schema: JsonSchema, context: Context): string {
  * To reduce memory consumption, only keeps needed properties when
  * serializing.
  */
-async function buildSchemas() {
+async function buildSchemas(): Promise<void> {
   const schemas = Object.entries(await jsonSchemas())
     .map(([name, schema]) => {
       let {

@@ -5484,7 +5484,7 @@ pub enum Node {
     Number(Number),
     String(String),
     Object(Object),
-    Array(Vec<Node>),
+    Array(Array),
 }
 
 /// All type schemas that are derived from Thing

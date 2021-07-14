@@ -26,8 +26,8 @@ anyOf:
   - $ref: VideoObject
   # Primitive types in the order that coercion from
   # string should be attempted (for example by Ajv, or by serde_json).
-  - type: 'null'
-  - type: boolean
-  - type: integer
-  - type: number
-  - type: string
+  - $ref: 'Null'
+  - $ref: Boolean
+  - $ref: Integer
+  - $ref: Number
+  - $ref: String

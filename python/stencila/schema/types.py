@@ -7,6 +7,13 @@
 from typing import Any, Dict, List as Array, Optional, Union
 from enum import Enum
 
+Null = None
+Boolean = bool
+Number = float
+Integer = int
+String = str
+Object = Dict[str, Any]
+
 ECitationMode = Enum("CitationMode", ["Parenthetical", "Narrative", "NarrativeAuthor", "NarrativeYear", "normal", "suppressAuthor"])
 
 EClaimType = Enum("ClaimType", ["Statement", "Theorem", "Lemma", "Proof", "Postulate", "Hypothesis", "Proposition", "Corollary"])
@@ -27,17 +34,17 @@ class Entity:
     The most simple compound (ie. non-atomic like `number`, `string` etc) type.
     """
 
-    id: Optional[str] = None
+    id: Optional[String] = None
     """The identifier for this item."""
 
-    meta: Optional[Dict[str, Any]] = None
+    meta: Optional[Object] = None
     """Metadata associated with this item."""
 
 
     def __init__(
         self,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
 
@@ -51,7 +58,7 @@ class Entity:
 class Cite(Entity):
     """A reference to a CreativeWork that is cited in another CreativeWork."""
 
-    target: str
+    target: String
     """The target of the citation (URL or reference ID)."""
 
     citationIntent: Optional[Array["CitationIntentEnumeration"]] = None
@@ -60,22 +67,22 @@ class Cite(Entity):
     citationMode: Optional["ECitationMode"] = None
     """Determines how the citation is shown within the surrounding text."""
 
-    citationPrefix: Optional[str] = None
+    citationPrefix: Optional[String] = None
     """Text to show before the citation."""
 
-    citationSuffix: Optional[str] = None
+    citationSuffix: Optional[String] = None
     """Text to show after the citation."""
 
     content: Optional[Array["InlineContent"]] = None
     """Optional structured content/text of this citation."""
 
-    pageEnd: Optional[Union[int, str]] = None
+    pageEnd: Optional[Union[Integer, String]] = None
     """The page on which the work ends; for example "138" or "xvi"."""
 
-    pageStart: Optional[Union[int, str]] = None
+    pageStart: Optional[Union[Integer, String]] = None
     """The page on which the work starts; for example "135" or "xiii"."""
 
-    pagination: Optional[str] = None
+    pagination: Optional[String] = None
     """Any description of pages that is not separated into pageStart and pageEnd;
 for example, "1-6, 9, 55".
 """
@@ -83,17 +90,17 @@ for example, "1-6, 9, 55".
 
     def __init__(
         self,
-        target: str,
+        target: String,
         citationIntent: Optional[Array["CitationIntentEnumeration"]] = None,
         citationMode: Optional["ECitationMode"] = None,
-        citationPrefix: Optional[str] = None,
-        citationSuffix: Optional[str] = None,
+        citationPrefix: Optional[String] = None,
+        citationSuffix: Optional[String] = None,
         content: Optional[Array["InlineContent"]] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        pageEnd: Optional[Union[int, str]] = None,
-        pageStart: Optional[Union[int, str]] = None,
-        pagination: Optional[str] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
+        pageEnd: Optional[Union[Integer, String]] = None,
+        pageStart: Optional[Union[Integer, String]] = None,
+        pagination: Optional[String] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -129,8 +136,8 @@ class CiteGroup(Entity):
     def __init__(
         self,
         items: Array["Cite"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -143,23 +150,23 @@ class CiteGroup(Entity):
 class Code(Entity):
     """Base type for code nodes e.g. CodeBlock, CodeExpression."""
 
-    text: str
+    text: String
     """The text of the code."""
 
-    mediaType: Optional[str] = None
+    mediaType: Optional[String] = None
     """Media type, typically expressed using a MIME format, of the code."""
 
-    programmingLanguage: Optional[str] = None
+    programmingLanguage: Optional[String] = None
     """The programming language of the code."""
 
 
     def __init__(
         self,
-        text: str,
-        id: Optional[str] = None,
-        mediaType: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        programmingLanguage: Optional[str] = None
+        text: String,
+        id: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None,
+        programmingLanguage: Optional[String] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -176,12 +183,12 @@ class Code(Entity):
 class CodeBlock(Code):
     """A code block."""
 
-    exportFrom: Optional[str] = None
+    exportFrom: Optional[String] = None
     """A compilation directive giving the name of the variable to export
 into the content of the code block.
 """
 
-    importTo: Optional[str] = None
+    importTo: Optional[String] = None
     """A compilation directive giving the name of the variable to import
 the content of the code block as.
 """
@@ -189,13 +196,13 @@ the content of the code block as.
 
     def __init__(
         self,
-        text: str,
-        exportFrom: Optional[str] = None,
-        id: Optional[str] = None,
-        importTo: Optional[str] = None,
-        mediaType: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        programmingLanguage: Optional[str] = None
+        text: String,
+        exportFrom: Optional[String] = None,
+        id: Optional[String] = None,
+        importTo: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None,
+        programmingLanguage: Optional[String] = None
     ) -> None:
         super().__init__(
             text=text,
@@ -213,60 +220,60 @@ the content of the code block as.
 class CodeChunk(CodeBlock):
     """A executable chunk of code."""
 
-    alters: Optional[Array[str]] = None
+    alters: Optional[Array[String]] = None
     """Names of variables that the code chunk alters."""
 
-    assigns: Optional[Array[Union["Variable", str]]] = None
+    assigns: Optional[Array[Union["Variable", String]]] = None
     """Variables that the code chunk assigns to."""
 
-    caption: Optional[Union[Array["BlockContent"], str]] = None
+    caption: Optional[Union[Array["BlockContent"], String]] = None
     """A caption for the CodeChunk."""
 
-    declares: Optional[Array[Union["Variable", "Function", str]]] = None
+    declares: Optional[Array[Union["Variable", "Function", String]]] = None
     """Variables that the code chunk declares."""
 
-    duration: Optional[float] = None
+    duration: Optional[Number] = None
     """Duration in seconds of the last execution of the chunk."""
 
     errors: Optional[Array["CodeError"]] = None
     """Errors when compiling or executing the chunk."""
 
-    imports: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None
+    imports: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", String]]] = None
     """Software packages that the code chunk imports"""
 
-    label: Optional[str] = None
+    label: Optional[String] = None
     """A short label for the CodeChunk."""
 
-    outputs: Optional[Array["Any"]] = None
+    outputs: Optional[Array[Any]] = None
     """Outputs from executing the chunk."""
 
-    reads: Optional[Array[str]] = None
+    reads: Optional[Array[String]] = None
     """Filesystem paths that this code chunk reads from."""
 
-    uses: Optional[Array[Union["Variable", str]]] = None
+    uses: Optional[Array[Union["Variable", String]]] = None
     """Names of variables that the code chunk uses (but does not alter)."""
 
 
     def __init__(
         self,
-        text: str,
-        alters: Optional[Array[str]] = None,
-        assigns: Optional[Array[Union["Variable", str]]] = None,
-        caption: Optional[Union[Array["BlockContent"], str]] = None,
-        declares: Optional[Array[Union["Variable", "Function", str]]] = None,
-        duration: Optional[float] = None,
+        text: String,
+        alters: Optional[Array[String]] = None,
+        assigns: Optional[Array[Union["Variable", String]]] = None,
+        caption: Optional[Union[Array["BlockContent"], String]] = None,
+        declares: Optional[Array[Union["Variable", "Function", String]]] = None,
+        duration: Optional[Number] = None,
         errors: Optional[Array["CodeError"]] = None,
-        exportFrom: Optional[str] = None,
-        id: Optional[str] = None,
-        importTo: Optional[str] = None,
-        imports: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
-        label: Optional[str] = None,
-        mediaType: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        outputs: Optional[Array["Any"]] = None,
-        programmingLanguage: Optional[str] = None,
-        reads: Optional[Array[str]] = None,
-        uses: Optional[Array[Union["Variable", str]]] = None
+        exportFrom: Optional[String] = None,
+        id: Optional[String] = None,
+        importTo: Optional[String] = None,
+        imports: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", String]]] = None,
+        label: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None,
+        outputs: Optional[Array[Any]] = None,
+        programmingLanguage: Optional[String] = None,
+        reads: Optional[Array[String]] = None,
+        uses: Optional[Array[Union["Variable", String]]] = None
     ) -> None:
         super().__init__(
             text=text,
@@ -306,11 +313,11 @@ class CodeFragment(Code):
 
     def __init__(
         self,
-        text: str,
-        id: Optional[str] = None,
-        mediaType: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        programmingLanguage: Optional[str] = None
+        text: String,
+        id: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None,
+        programmingLanguage: Optional[String] = None
     ) -> None:
         super().__init__(
             text=text,
@@ -328,19 +335,19 @@ class CodeExpression(CodeFragment):
     errors: Optional[Array["CodeError"]] = None
     """Errors when compiling or executing the chunk."""
 
-    output: Optional["Any"] = None
+    output: Optional[Any] = None
     """The value of the expression when it was last evaluated."""
 
 
     def __init__(
         self,
-        text: str,
+        text: String,
         errors: Optional[Array["CodeError"]] = None,
-        id: Optional[str] = None,
-        mediaType: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        output: Optional["Any"] = None,
-        programmingLanguage: Optional[str] = None
+        id: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None,
+        output: Optional[Any] = None,
+        programmingLanguage: Optional[String] = None
     ) -> None:
         super().__init__(
             text=text,
@@ -360,23 +367,23 @@ class CodeError(Entity):
     An error that occurred when parsing, compiling or executing a Code node.
     """
 
-    errorMessage: str
+    errorMessage: String
     """The error message or brief description of the error."""
 
-    errorType: Optional[str] = None
+    errorType: Optional[String] = None
     """The type of error e.g. "SyntaxError", "ZeroDivisionError"."""
 
-    stackTrace: Optional[str] = None
+    stackTrace: Optional[String] = None
     """Stack trace leading up to the error."""
 
 
     def __init__(
         self,
-        errorMessage: str,
-        errorType: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        stackTrace: Optional[str] = None
+        errorMessage: String,
+        errorType: Optional[String] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
+        stackTrace: Optional[String] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -393,15 +400,15 @@ class CodeError(Entity):
 class Date(Entity):
     """A date encoded as a ISO 8601 string."""
 
-    value: str
+    value: String
     """The date as an ISO 8601 string."""
 
 
     def __init__(
         self,
-        value: str,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        value: String,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -424,8 +431,8 @@ class Mark(Entity):
     def __init__(
         self,
         content: Array["InlineContent"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -441,8 +448,8 @@ class Delete(Mark):
     def __init__(
         self,
         content: Array["InlineContent"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             content=content,
@@ -458,8 +465,8 @@ class Emphasis(Mark):
     def __init__(
         self,
         content: Array["InlineContent"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             content=content,
@@ -472,35 +479,35 @@ class Emphasis(Mark):
 class Thing(Entity):
     """The most generic type of item."""
 
-    alternateNames: Optional[Array[str]] = None
+    alternateNames: Optional[Array[String]] = None
     """Alternate names (aliases) for the item."""
 
-    description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None
+    description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None
     """A description of the item."""
 
-    identifiers: Optional[Array[Union["PropertyValue", str]]] = None
+    identifiers: Optional[Array[Union["PropertyValue", String]]] = None
     """Any kind of identifier for any kind of Thing."""
 
-    images: Optional[Array[Union["ImageObject", str]]] = None
+    images: Optional[Array[Union["ImageObject", String]]] = None
     """Images of the item."""
 
-    name: Optional[str] = None
+    name: Optional[String] = None
     """The name of the item."""
 
-    url: Optional[str] = None
+    url: Optional[String] = None
     """The URL of the item."""
 
 
     def __init__(
         self,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -526,28 +533,28 @@ class Brand(Thing):
     group, or similar.
     """
 
-    name: str # type: ignore
+    name: String # type: ignore
     """The name of the item."""
 
-    logo: Optional[Union["ImageObject", str]] = None
+    logo: Optional[Union["ImageObject", String]] = None
     """A logo associated with the brand."""
 
-    reviews: Optional[Array[str]] = None
+    reviews: Optional[Array[String]] = None
     """Reviews of the brand."""
 
 
     def __init__(
         self,
-        name: str,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        logo: Optional[Union["ImageObject", str]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        reviews: Optional[Array[str]] = None,
-        url: Optional[str] = None
+        name: String,
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        logo: Optional[Union["ImageObject", String]] = None,
+        meta: Optional[Object] = None,
+        reviews: Optional[Array[String]] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             name=name,
@@ -570,31 +577,31 @@ class Brand(Thing):
 class ContactPoint(Thing):
     """A contact point, usually within an organization."""
 
-    availableLanguages: Optional[Array[str]] = None
+    availableLanguages: Optional[Array[String]] = None
     """Languages (human not programming) in which it is possible to communicate
 with the organization/department etc.
 """
 
-    emails: Optional[Array[str]] = None
+    emails: Optional[Array[String]] = None
     """Email address for correspondence."""
 
-    telephoneNumbers: Optional[Array[str]] = None
+    telephoneNumbers: Optional[Array[String]] = None
     """Telephone numbers for the contact point."""
 
 
     def __init__(
         self,
-        alternateNames: Optional[Array[str]] = None,
-        availableLanguages: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        emails: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        telephoneNumbers: Optional[Array[str]] = None,
-        url: Optional[str] = None
+        alternateNames: Optional[Array[String]] = None,
+        availableLanguages: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        emails: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        telephoneNumbers: Optional[Array[String]] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -629,7 +636,7 @@ class CreativeWork(Thing):
     comments: Optional[Array["Comment"]] = None
     """Comments about this creative work."""
 
-    content: Optional[Union[Array["Any"], str]] = None
+    content: Optional[Union[Array[Any], String]] = None
     """The structured content of this creative work c.f. property `text`."""
 
     dateAccepted: Optional["Date"] = None
@@ -656,19 +663,19 @@ class CreativeWork(Thing):
     funders: Optional[Array[Union["Person", "Organization"]]] = None
     """People or organizations that funded the `CreativeWork`."""
 
-    genre: Optional[Array[str]] = None
+    genre: Optional[Array[String]] = None
     """Genre of the creative work, broadcast channel or group."""
 
     isPartOf: Optional["CreativeWorkTypes"] = None
     """An item or other CreativeWork that this CreativeWork is a part of.
 """
 
-    keywords: Optional[Array[str]] = None
+    keywords: Optional[Array[String]] = None
     """Keywords or tags used to describe this content.
 Multiple entries in a keywords list are typically delimited by commas.
 """
 
-    licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None
+    licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None
     """License documents that applies to this content, typically indicated by URL.
 """
 
@@ -684,54 +691,54 @@ such as Articles, Datatables, Tables and more.
     """A publisher of the CreativeWork.
 """
 
-    references: Optional[Array[Union["CreativeWorkTypes", str]]] = None
+    references: Optional[Array[Union["CreativeWorkTypes", String]]] = None
     """References to other creative works, such as another publication,
 web page, scholarly article, etc.
 """
 
-    text: Optional[str] = None
+    text: Optional[String] = None
     """The textual content of this creative work."""
 
-    title: Optional[Union[Array["InlineContent"], str]] = None
+    title: Optional[Union[Array["InlineContent"], String]] = None
     """The title of the creative work."""
 
-    version: Optional[Union[str, float]] = None
+    version: Optional[Union[String, Number]] = None
     """The version of the creative work."""
 
 
     def __init__(
         self,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -797,13 +804,13 @@ class Article(CreativeWork):
     content: Optional[Array["BlockContent"]] = None # type: ignore
     """The structured content of this article."""
 
-    pageEnd: Optional[Union[int, str]] = None
+    pageEnd: Optional[Union[Integer, String]] = None
     """The page on which the article ends; for example "138" or "xvi"."""
 
-    pageStart: Optional[Union[int, str]] = None
+    pageStart: Optional[Union[Integer, String]] = None
     """The page on which the article starts; for example "135" or "xiii"."""
 
-    pagination: Optional[str] = None
+    pagination: Optional[String] = None
     """Any description of pages that is not separated into pageStart and pageEnd;
 for example, "1-6, 9, 55".
 """
@@ -812,7 +819,7 @@ for example, "1-6, 9, 55".
     def __init__(
         self,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["BlockContent"]] = None,
@@ -821,30 +828,30 @@ for example, "1-6, 9, 55".
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        pageEnd: Optional[Union[int, str]] = None,
-        pageStart: Optional[Union[int, str]] = None,
-        pagination: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        pageEnd: Optional[Union[Integer, String]] = None,
+        pageStart: Optional[Union[Integer, String]] = None,
+        pagination: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -897,7 +904,7 @@ class Claim(CreativeWork):
     claimType: Optional["EClaimType"] = None
     """Kind of the claim."""
 
-    label: Optional[str] = None
+    label: Optional[String] = None
     """A short label for the claim."""
 
 
@@ -905,7 +912,7 @@ class Claim(CreativeWork):
         self,
         content: Array["BlockContent"],
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         claimType: Optional["EClaimType"] = None,
         comments: Optional[Array["Comment"]] = None,
@@ -914,28 +921,28 @@ class Claim(CreativeWork):
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        label: Optional[str] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        label: Optional[String] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -990,35 +997,35 @@ such as Articles, Datatables, Tables and more.
         self,
         parts: Array["CreativeWorkTypes"],
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             parts=parts,
@@ -1060,7 +1067,7 @@ such as Articles, Datatables, Tables and more.
 class Comment(CreativeWork):
     """A comment on an item, e.g on a Article, or SoftwareSourceCode."""
 
-    commentAspect: Optional[str] = None
+    commentAspect: Optional[String] = None
     """The part or facet of the item that is being commented on."""
 
     parentItem: Optional["Comment"] = None
@@ -1070,38 +1077,38 @@ class Comment(CreativeWork):
     def __init__(
         self,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        commentAspect: Optional[str] = None,
+        commentAspect: Optional[String] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parentItem: Optional["Comment"] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -1153,36 +1160,36 @@ class Datatable(CreativeWork):
         self,
         columns: Array["DatatableColumn"],
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -1227,64 +1234,64 @@ class MediaObject(CreativeWork):
     page or a downloadable dataset.
     """
 
-    contentUrl: str
+    contentUrl: String
     """URL for the actual bytes of the media object, for example the image file or video file.
 """
 
-    bitrate: Optional[float] = None
+    bitrate: Optional[Number] = None
     """Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
 """
 
-    contentSize: Optional[float] = None
+    contentSize: Optional[Number] = None
     """File size in megabits (Mbit, Mb).
 """
 
-    embedUrl: Optional[str] = None
+    embedUrl: Optional[String] = None
     """URL that can be used to embed the media on a web page via a specific media player.
 """
 
-    mediaType: Optional[str] = None
+    mediaType: Optional[String] = None
     """IANA media type (MIME type)."""
 
 
     def __init__(
         self,
-        contentUrl: str,
+        contentUrl: String,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        bitrate: Optional[float] = None,
+        bitrate: Optional[Number] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
-        contentSize: Optional[float] = None,
+        content: Optional[Union[Array[Any], String]] = None,
+        contentSize: Optional[Number] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
-        embedUrl: Optional[str] = None,
+        embedUrl: Optional[String] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        mediaType: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -1334,53 +1341,53 @@ class MediaObject(CreativeWork):
 class AudioObject(MediaObject):
     """An audio file"""
 
-    caption: Optional[str] = None
+    caption: Optional[String] = None
     """The caption for this audio recording."""
 
-    transcript: Optional[str] = None
+    transcript: Optional[String] = None
     """The transcript of this audio recording."""
 
 
     def __init__(
         self,
-        contentUrl: str,
+        contentUrl: String,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        bitrate: Optional[float] = None,
-        caption: Optional[str] = None,
+        bitrate: Optional[Number] = None,
+        caption: Optional[String] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
-        contentSize: Optional[float] = None,
+        content: Optional[Union[Array[Any], String]] = None,
+        contentSize: Optional[Number] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
-        embedUrl: Optional[str] = None,
+        embedUrl: Optional[String] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        mediaType: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        transcript: Optional[str] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        transcript: Optional[String] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             contentUrl=contentUrl,
@@ -1429,10 +1436,10 @@ class AudioObject(MediaObject):
 class DatatableColumn(Thing):
     """A column of data within a Datatable."""
 
-    name: str # type: ignore
+    name: String # type: ignore
     """The name of the item."""
 
-    values: Array["Any"]
+    values: Array[Any]
     """The data values of the column."""
 
     validator: Optional["ArrayValidator"] = None
@@ -1441,15 +1448,15 @@ class DatatableColumn(Thing):
 
     def __init__(
         self,
-        name: str,
-        values: Array["Any"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        url: Optional[str] = None,
+        name: String,
+        values: Array[Any],
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
+        url: Optional[String] = None,
         validator: Optional["ArrayValidator"] = None
     ) -> None:
         super().__init__(
@@ -1473,24 +1480,24 @@ class DatatableColumn(Thing):
 class DefinedTerm(Thing):
     """A word, name, acronym, phrase, etc. with a formal definition."""
 
-    name: str # type: ignore
+    name: String # type: ignore
     """The name of the item."""
 
-    termCode: Optional[str] = None
+    termCode: Optional[String] = None
     """A code that identifies this DefinedTerm within a DefinedTermSet"""
 
 
     def __init__(
         self,
-        name: str,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        termCode: Optional[str] = None,
-        url: Optional[str] = None
+        name: String,
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
+        termCode: Optional[String] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             name=name,
@@ -1513,8 +1520,8 @@ class Validator(Entity):
 
     def __init__(
         self,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1532,25 +1539,25 @@ class ArrayValidator(Validator):
     itemsValidator: Optional["ValidatorTypes"] = None
     """Another validator node specifying the constraints on all items in the array."""
 
-    maxItems: Optional[int] = None
+    maxItems: Optional[Integer] = None
     """An array node is valid if its size is less than, or equal to, this value."""
 
-    minItems: Optional[int] = None
+    minItems: Optional[Integer] = None
     """An array node is valid if its size is greater than, or equal to, this value."""
 
-    uniqueItems: Optional[bool] = None
+    uniqueItems: Optional[Boolean] = None
     """A flag to indicate that each value in the array should be unique."""
 
 
     def __init__(
         self,
         contains: Optional["ValidatorTypes"] = None,
-        id: Optional[str] = None,
+        id: Optional[String] = None,
         itemsValidator: Optional["ValidatorTypes"] = None,
-        maxItems: Optional[int] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        minItems: Optional[int] = None,
-        uniqueItems: Optional[bool] = None
+        maxItems: Optional[Integer] = None,
+        meta: Optional[Object] = None,
+        minItems: Optional[Integer] = None,
+        uniqueItems: Optional[Boolean] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1573,8 +1580,8 @@ class BooleanValidator(Validator):
 
     def __init__(
         self,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1586,15 +1593,15 @@ class BooleanValidator(Validator):
 class ConstantValidator(Validator):
     """A validator specifying a constant value that a node must have."""
 
-    value: Optional["Any"] = None
+    value: Optional[Any] = None
     """The value that the node must have."""
 
 
     def __init__(
         self,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        value: Optional["Any"] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
+        value: Optional[Any] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1607,15 +1614,15 @@ class ConstantValidator(Validator):
 class EnumValidator(Validator):
     """A schema specifying that a node must be one of several values."""
 
-    values: Optional[Array["Any"]] = None
+    values: Optional[Array[Any]] = None
     """A node is valid if it is equal to any of these values."""
 
 
     def __init__(
         self,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        values: Optional[Array["Any"]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
+        values: Optional[Array[Any]] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1633,14 +1640,14 @@ class Enumeration(Thing):
 
     def __init__(
         self,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -1661,48 +1668,48 @@ class Figure(CreativeWork):
     and labels for them.
     """
 
-    caption: Optional[Union[Array["BlockContent"], str]] = None
+    caption: Optional[Union[Array["BlockContent"], String]] = None
     """A caption for the figure."""
 
-    label: Optional[str] = None
+    label: Optional[String] = None
     """A short label for the figure."""
 
 
     def __init__(
         self,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        caption: Optional[Union[Array["BlockContent"], str]] = None,
+        caption: Optional[Union[Array["BlockContent"], String]] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        label: Optional[str] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        label: Optional[String] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -1749,7 +1756,7 @@ class Function(Entity):
     certain type.
     """
 
-    name: Optional[str] = None
+    name: Optional[String] = None
     """The name of the function."""
 
     parameters: Optional[Array["Parameter"]] = None
@@ -1761,9 +1768,9 @@ class Function(Entity):
 
     def __init__(
         self,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parameters: Optional[Array["Parameter"]] = None,
         returns: Optional["ValidatorTypes"] = None
     ) -> None:
@@ -1791,16 +1798,16 @@ class Grant(Thing):
 
     def __init__(
         self,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         fundedItems: Optional[Array["Thing"]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         sponsors: Optional[Array[Union["Person", "Organization"]]] = None,
-        url: Optional[str] = None
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -1824,16 +1831,16 @@ class Heading(Entity):
     content: Array["InlineContent"]
     """Content of the heading."""
 
-    depth: Optional[int] = None
+    depth: Optional[Integer] = None
     """The depth of the heading."""
 
 
     def __init__(
         self,
         content: Array["InlineContent"],
-        depth: Optional[int] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        depth: Optional[Integer] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1848,7 +1855,7 @@ class Heading(Entity):
 class ImageObject(MediaObject):
     """An image file."""
 
-    caption: Optional[str] = None
+    caption: Optional[String] = None
     """The caption for this image."""
 
     thumbnail: Optional["ImageObject"] = None
@@ -1857,44 +1864,44 @@ class ImageObject(MediaObject):
 
     def __init__(
         self,
-        contentUrl: str,
+        contentUrl: String,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        bitrate: Optional[float] = None,
-        caption: Optional[str] = None,
+        bitrate: Optional[Number] = None,
+        caption: Optional[String] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
-        contentSize: Optional[float] = None,
+        content: Optional[Union[Array[Any], String]] = None,
+        contentSize: Optional[Number] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
-        embedUrl: Optional[str] = None,
+        embedUrl: Optional[String] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        mediaType: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
         thumbnail: Optional["ImageObject"] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             contentUrl=contentUrl,
@@ -1946,23 +1953,23 @@ class Include(Entity):
     content.
     """
 
-    source: str
+    source: String
     """The source of the content, a URL or file path, or the content itself."""
 
     content: Optional[Array["BlockContent"]] = None
     """The content to be included."""
 
-    mediaType: Optional[str] = None
+    mediaType: Optional[String] = None
     """Media type, typically expressed using a MIME format, of the source content."""
 
 
     def __init__(
         self,
-        source: str,
+        source: String,
         content: Optional[Array["BlockContent"]] = None,
-        id: Optional[str] = None,
-        mediaType: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1981,8 +1988,8 @@ class IntegerValidator(Validator):
 
     def __init__(
         self,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2000,36 +2007,36 @@ class Link(Entity):
     content: Array["InlineContent"]
     """The textual content of the link."""
 
-    target: str
+    target: String
     """The target of the link."""
 
-    exportFrom: Optional[str] = None
+    exportFrom: Optional[String] = None
     """A compilation directive giving the name of the variable to export
 to the link target.
 """
 
-    importTo: Optional[str] = None
+    importTo: Optional[String] = None
     """A compilation directive giving the name of the variable to import
 the link target as.
 """
 
-    relation: Optional[str] = None
+    relation: Optional[String] = None
     """The relation between the target and the current thing."""
 
-    title: Optional[str] = None
+    title: Optional[String] = None
     """A title for the link."""
 
 
     def __init__(
         self,
         content: Array["InlineContent"],
-        target: str,
-        exportFrom: Optional[str] = None,
-        id: Optional[str] = None,
-        importTo: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        relation: Optional[str] = None,
-        title: Optional[str] = None
+        target: String,
+        exportFrom: Optional[String] = None,
+        id: Optional[String] = None,
+        importTo: Optional[String] = None,
+        meta: Optional[Object] = None,
+        relation: Optional[String] = None,
+        title: Optional[String] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2062,8 +2069,8 @@ class List(Entity):
     def __init__(
         self,
         items: Array["ListItem"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
         order: Optional["EItemListOrder"] = None
     ) -> None:
         super().__init__(
@@ -2082,30 +2089,30 @@ class ListItem(Thing):
     content: Optional[Union[Array["BlockContent"], Array["InlineContent"]]] = None
     """The content of the list item."""
 
-    isChecked: Optional[bool] = None
+    isChecked: Optional[Boolean] = None
     """A flag to indicate if this list item is checked."""
 
-    item: Optional["Any"] = None
+    item: Optional[Any] = None
     """The item represented by this list item."""
 
-    position: Optional[int] = None
+    position: Optional[Integer] = None
     """The position of the item in a series or sequence of items."""
 
 
     def __init__(
         self,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         content: Optional[Union[Array["BlockContent"], Array["InlineContent"]]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        isChecked: Optional[bool] = None,
-        item: Optional["Any"] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        position: Optional[int] = None,
-        url: Optional[str] = None
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        isChecked: Optional[Boolean] = None,
+        item: Optional[Any] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        position: Optional[Integer] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -2130,23 +2137,23 @@ class ListItem(Thing):
 class Math(Entity):
     """A mathematical variable or equation."""
 
-    text: str
+    text: String
     """The text of the equation in the language."""
 
-    errors: Optional[Array[str]] = None
+    errors: Optional[Array[String]] = None
     """Errors that occurred when parsing the math equation."""
 
-    mathLanguage: Optional[str] = None
+    mathLanguage: Optional[String] = None
     """The language used for the equation e.g tex, mathml, asciimath."""
 
 
     def __init__(
         self,
-        text: str,
-        errors: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        mathLanguage: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        text: String,
+        errors: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        mathLanguage: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2163,18 +2170,18 @@ class Math(Entity):
 class MathBlock(Math):
     """A block of math, e.g an equation, to be treated as block content."""
 
-    label: Optional[str] = None
+    label: Optional[String] = None
     """A short label for the math block."""
 
 
     def __init__(
         self,
-        text: str,
-        errors: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        label: Optional[str] = None,
-        mathLanguage: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        text: String,
+        errors: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        label: Optional[String] = None,
+        mathLanguage: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             text=text,
@@ -2194,11 +2201,11 @@ class MathFragment(Math):
 
     def __init__(
         self,
-        text: str,
-        errors: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        mathLanguage: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        text: String,
+        errors: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        mathLanguage: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             text=text,
@@ -2213,7 +2220,7 @@ class MathFragment(Math):
 class MonetaryGrant(Grant):
     """A monetary grant."""
 
-    amounts: Optional[float] = None
+    amounts: Optional[Number] = None
     """The amount of money."""
 
     funders: Optional[Array[Union["Person", "Organization"]]] = None
@@ -2223,18 +2230,18 @@ class MonetaryGrant(Grant):
 
     def __init__(
         self,
-        alternateNames: Optional[Array[str]] = None,
-        amounts: Optional[float] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        alternateNames: Optional[Array[String]] = None,
+        amounts: Optional[Number] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         fundedItems: Optional[Array["Thing"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         sponsors: Optional[Array[Union["Person", "Organization"]]] = None,
-        url: Optional[str] = None
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -2260,8 +2267,8 @@ class NontextualAnnotation(Mark):
     def __init__(
         self,
         content: Array["InlineContent"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             content=content,
@@ -2286,8 +2293,8 @@ class Note(Entity):
     def __init__(
         self,
         content: Array["BlockContent"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
         noteType: Optional["ENoteType"] = None
     ) -> None:
         super().__init__(
@@ -2303,31 +2310,31 @@ class Note(Entity):
 class NumberValidator(Validator):
     """A validator specifying the constraints on a numeric node."""
 
-    exclusiveMaximum: Optional[float] = None
+    exclusiveMaximum: Optional[Number] = None
     """The exclusive upper limit for a numeric node."""
 
-    exclusiveMinimum: Optional[float] = None
+    exclusiveMinimum: Optional[Number] = None
     """The exclusive lower limit for a numeric node."""
 
-    maximum: Optional[float] = None
+    maximum: Optional[Number] = None
     """The inclusive upper limit for a numeric node."""
 
-    minimum: Optional[float] = None
+    minimum: Optional[Number] = None
     """The inclusive lower limit for a numeric node."""
 
-    multipleOf: Optional[float] = None
+    multipleOf: Optional[Number] = None
     """A number that a numeric node must be a multiple of."""
 
 
     def __init__(
         self,
-        exclusiveMaximum: Optional[float] = None,
-        exclusiveMinimum: Optional[float] = None,
-        id: Optional[str] = None,
-        maximum: Optional[float] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        minimum: Optional[float] = None,
-        multipleOf: Optional[float] = None
+        exclusiveMaximum: Optional[Number] = None,
+        exclusiveMinimum: Optional[Number] = None,
+        id: Optional[String] = None,
+        maximum: Optional[Number] = None,
+        meta: Optional[Object] = None,
+        minimum: Optional[Number] = None,
+        multipleOf: Optional[Number] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2348,7 +2355,7 @@ class NumberValidator(Validator):
 class Organization(Thing):
     """An organization such as a school, NGO, corporation, club, etc."""
 
-    address: Optional[Union["PostalAddress", str]] = None
+    address: Optional[Union["PostalAddress", String]] = None
     """Postal address for the organization.
 """
 
@@ -2368,11 +2375,11 @@ class Organization(Thing):
     """Organization(s) or person(s) funding the organization.
 """
 
-    legalName: Optional[str] = None
+    legalName: Optional[String] = None
     """Legal name for the Organization. Should only include letters and spaces.
 """
 
-    logo: Optional[Union["ImageObject", str]] = None
+    logo: Optional[Union["ImageObject", String]] = None
     """The logo of the organization."""
 
     members: Optional[Array[Union["Organization", "Person"]]] = None
@@ -2386,23 +2393,23 @@ class Organization(Thing):
 
     def __init__(
         self,
-        address: Optional[Union["PostalAddress", str]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        address: Optional[Union["PostalAddress", String]] = None,
+        alternateNames: Optional[Array[String]] = None,
         brands: Optional[Array["Brand"]] = None,
         contactPoints: Optional[Array["ContactPoint"]] = None,
         departments: Optional[Array["Organization"]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         funders: Optional[Array[Union["Organization", "Person"]]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        legalName: Optional[str] = None,
-        logo: Optional[Union["ImageObject", str]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        legalName: Optional[String] = None,
+        logo: Optional[Union["ImageObject", String]] = None,
         members: Optional[Array[Union["Organization", "Person"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parentOrganization: Optional["Organization"] = None,
-        url: Optional[str] = None
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -2444,8 +2451,8 @@ class Paragraph(Entity):
     def __init__(
         self,
         content: Array["InlineContent"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2458,27 +2465,27 @@ class Paragraph(Entity):
 class Variable(Entity):
     """A variable representing a name / value pair."""
 
-    name: str
+    name: String
     """The name of the variable."""
 
-    isReadonly: Optional[bool] = None
+    isReadonly: Optional[Boolean] = None
     """Whether or not a property is mutable. Default is false."""
 
     validator: Optional["ValidatorTypes"] = None
     """The validator that the value is validated against."""
 
-    value: Optional["Any"] = None
+    value: Optional[Any] = None
     """The value of the variable."""
 
 
     def __init__(
         self,
-        name: str,
-        id: Optional[str] = None,
-        isReadonly: Optional[bool] = None,
-        meta: Optional[Dict[str, Any]] = None,
+        name: String,
+        id: Optional[String] = None,
+        isReadonly: Optional[Boolean] = None,
+        meta: Optional[Object] = None,
         validator: Optional["ValidatorTypes"] = None,
-        value: Optional["Any"] = None
+        value: Optional[Any] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2497,31 +2504,31 @@ class Variable(Entity):
 class Parameter(Variable):
     """A parameter that can be set and used in evaluated code."""
 
-    default: Optional["Any"] = None
+    default: Optional[Any] = None
     """The default value of the parameter."""
 
-    isExtensible: Optional[bool] = None
+    isExtensible: Optional[Boolean] = None
     """Indicates that this parameter is variadic and can accept multiple named arguments."""
 
-    isRequired: Optional[bool] = None
+    isRequired: Optional[Boolean] = None
     """Is this parameter required, if not it should have a default or default is assumed to be null."""
 
-    isVariadic: Optional[bool] = None
+    isVariadic: Optional[Boolean] = None
     """Indicates that this parameter is variadic and can accept multiple arguments."""
 
 
     def __init__(
         self,
-        name: str,
-        default: Optional["Any"] = None,
-        id: Optional[str] = None,
-        isExtensible: Optional[bool] = None,
-        isReadonly: Optional[bool] = None,
-        isRequired: Optional[bool] = None,
-        isVariadic: Optional[bool] = None,
-        meta: Optional[Dict[str, Any]] = None,
+        name: String,
+        default: Optional[Any] = None,
+        id: Optional[String] = None,
+        isExtensible: Optional[Boolean] = None,
+        isReadonly: Optional[Boolean] = None,
+        isRequired: Optional[Boolean] = None,
+        isVariadic: Optional[Boolean] = None,
+        meta: Optional[Object] = None,
         validator: Optional["ValidatorTypes"] = None,
-        value: Optional["Any"] = None
+        value: Optional[Any] = None
     ) -> None:
         super().__init__(
             name=name,
@@ -2550,17 +2557,17 @@ class Periodical(CreativeWork):
     dateStart: Optional["Date"] = None
     """The date this Periodical was first published."""
 
-    issns: Optional[Array[str]] = None
+    issns: Optional[Array[String]] = None
     """The International Standard Serial Number(s) (ISSN) that identifies this serial publication."""
 
 
     def __init__(
         self,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateEnd: Optional["Date"] = None,
@@ -2568,28 +2575,28 @@ class Periodical(CreativeWork):
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
         dateStart: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        issns: Optional[Array[str]] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        issns: Optional[Array[String]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -2635,16 +2642,16 @@ class Periodical(CreativeWork):
 class Person(Thing):
     """A person (alive, dead, undead, or fictional)."""
 
-    address: Optional[Union["PostalAddress", str]] = None
+    address: Optional[Union["PostalAddress", String]] = None
     """Postal address for the person."""
 
     affiliations: Optional[Array["Organization"]] = None
     """Organizations that the person is affiliated with."""
 
-    emails: Optional[Array[str]] = None
+    emails: Optional[Array[String]] = None
     """Email addresses for the person."""
 
-    familyNames: Optional[Array[str]] = None
+    familyNames: Optional[Array[String]] = None
     """Family name. In the U.S., the last name of a person."""
 
     funders: Optional[Array[Union["Organization", "Person"]]] = None
@@ -2652,46 +2659,46 @@ class Person(Thing):
 some kind of financial contribution.
 """
 
-    givenNames: Optional[Array[str]] = None
+    givenNames: Optional[Array[String]] = None
     """Given name. In the U.S., the first name of a person."""
 
-    honorificPrefix: Optional[str] = None
+    honorificPrefix: Optional[String] = None
     """An honorific prefix preceding a person's name such as Dr/Mrs/Mr."""
 
-    honorificSuffix: Optional[str] = None
+    honorificSuffix: Optional[String] = None
     """An honorific suffix after a person's name such as MD/PhD/MSCSW."""
 
-    jobTitle: Optional[str] = None
+    jobTitle: Optional[String] = None
     """The job title of the person (for example, Financial Manager)."""
 
     memberOf: Optional[Array["Organization"]] = None
     """An organization (or program membership) to which this person belongs."""
 
-    telephoneNumbers: Optional[Array[str]] = None
+    telephoneNumbers: Optional[Array[String]] = None
     """Telephone numbers for the person."""
 
 
     def __init__(
         self,
-        address: Optional[Union["PostalAddress", str]] = None,
+        address: Optional[Union["PostalAddress", String]] = None,
         affiliations: Optional[Array["Organization"]] = None,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        emails: Optional[Array[str]] = None,
-        familyNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        emails: Optional[Array[String]] = None,
+        familyNames: Optional[Array[String]] = None,
         funders: Optional[Array[Union["Organization", "Person"]]] = None,
-        givenNames: Optional[Array[str]] = None,
-        honorificPrefix: Optional[str] = None,
-        honorificSuffix: Optional[str] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        jobTitle: Optional[str] = None,
+        givenNames: Optional[Array[String]] = None,
+        honorificPrefix: Optional[String] = None,
+        honorificSuffix: Optional[String] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        jobTitle: Optional[String] = None,
         memberOf: Optional[Array["Organization"]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        telephoneNumbers: Optional[Array[str]] = None,
-        url: Optional[str] = None
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        telephoneNumbers: Optional[Array[String]] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -2730,44 +2737,44 @@ some kind of financial contribution.
 class PostalAddress(ContactPoint):
     """A physical mailing address."""
 
-    addressCountry: Optional[str] = None
+    addressCountry: Optional[String] = None
     """The country."""
 
-    addressLocality: Optional[str] = None
+    addressLocality: Optional[String] = None
     """The locality in which the street address is, and which is in the region."""
 
-    addressRegion: Optional[str] = None
+    addressRegion: Optional[String] = None
     """The region in which the locality is, and which is in the country."""
 
-    postOfficeBoxNumber: Optional[str] = None
+    postOfficeBoxNumber: Optional[String] = None
     """The post office box number."""
 
-    postalCode: Optional[str] = None
+    postalCode: Optional[String] = None
     """The postal code."""
 
-    streetAddress: Optional[str] = None
+    streetAddress: Optional[String] = None
     """The street address."""
 
 
     def __init__(
         self,
-        addressCountry: Optional[str] = None,
-        addressLocality: Optional[str] = None,
-        addressRegion: Optional[str] = None,
-        alternateNames: Optional[Array[str]] = None,
-        availableLanguages: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        emails: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        postOfficeBoxNumber: Optional[str] = None,
-        postalCode: Optional[str] = None,
-        streetAddress: Optional[str] = None,
-        telephoneNumbers: Optional[Array[str]] = None,
-        url: Optional[str] = None
+        addressCountry: Optional[String] = None,
+        addressLocality: Optional[String] = None,
+        addressRegion: Optional[String] = None,
+        alternateNames: Optional[Array[String]] = None,
+        availableLanguages: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        emails: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        postOfficeBoxNumber: Optional[String] = None,
+        postalCode: Optional[String] = None,
+        streetAddress: Optional[String] = None,
+        telephoneNumbers: Optional[Array[String]] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -2805,26 +2812,26 @@ class Product(Thing):
     brands: Optional[Array["Brand"]] = None
     """Brands that the product is labelled with."""
 
-    logo: Optional[Union["ImageObject", str]] = None
+    logo: Optional[Union["ImageObject", String]] = None
     """The logo of the product."""
 
-    productID: Optional[str] = None
+    productID: Optional[String] = None
     """Product identification code."""
 
 
     def __init__(
         self,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         brands: Optional[Array["Brand"]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        logo: Optional[Union["ImageObject", str]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        productID: Optional[str] = None,
-        url: Optional[str] = None
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        logo: Optional[Union["ImageObject", String]] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        productID: Optional[String] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -2847,25 +2854,25 @@ class Product(Thing):
 class PropertyValue(Thing):
     """A property-value pair."""
 
-    value: Union[bool, int, float, str]
+    value: Union[Boolean, Integer, Number, String]
     """The value of the property."""
 
-    propertyID: Optional[str] = None
+    propertyID: Optional[String] = None
     """A commonly used identifier for the characteristic represented by the property."""
 
 
     def __init__(
         self,
-        value: Union[bool, int, float, str],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        propertyID: Optional[str] = None,
-        url: Optional[str] = None
+        value: Union[Boolean, Integer, Number, String],
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        propertyID: Optional[String] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -2889,16 +2896,16 @@ class PublicationIssue(CreativeWork):
     publication volume, often numbered.
     """
 
-    issueNumber: Optional[Union[int, str]] = None
+    issueNumber: Optional[Union[Integer, String]] = None
     """Identifies the issue of publication; for example, "iii" or "2"."""
 
-    pageEnd: Optional[Union[int, str]] = None
+    pageEnd: Optional[Union[Integer, String]] = None
     """The page on which the issue ends; for example "138" or "xvi"."""
 
-    pageStart: Optional[Union[int, str]] = None
+    pageStart: Optional[Union[Integer, String]] = None
     """The page on which the issue starts; for example "135" or "xiii"."""
 
-    pagination: Optional[str] = None
+    pagination: Optional[String] = None
     """Any description of pages that is not separated into pageStart and pageEnd;
 for example, "1-6, 9, 55".
 """
@@ -2907,40 +2914,40 @@ for example, "1-6, 9, 55".
     def __init__(
         self,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        issueNumber: Optional[Union[int, str]] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        issueNumber: Optional[Union[Integer, String]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        pageEnd: Optional[Union[int, str]] = None,
-        pageStart: Optional[Union[int, str]] = None,
-        pagination: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        pageEnd: Optional[Union[Integer, String]] = None,
+        pageStart: Optional[Union[Integer, String]] = None,
+        pagination: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -2991,18 +2998,18 @@ class PublicationVolume(CreativeWork):
     multi-volume work.
     """
 
-    pageEnd: Optional[Union[int, str]] = None
+    pageEnd: Optional[Union[Integer, String]] = None
     """The page on which the volume ends; for example "138" or "xvi"."""
 
-    pageStart: Optional[Union[int, str]] = None
+    pageStart: Optional[Union[Integer, String]] = None
     """The page on which the volume starts; for example "135" or "xiii"."""
 
-    pagination: Optional[str] = None
+    pagination: Optional[String] = None
     """Any description of pages that is not separated into pageStart and pageEnd;
 for example, "1-6, 9, 55".
 """
 
-    volumeNumber: Optional[Union[int, str]] = None
+    volumeNumber: Optional[Union[Integer, String]] = None
     """Identifies the volume of publication or multi-part work; for example, "iii" or "2".
 """
 
@@ -3010,40 +3017,40 @@ for example, "1-6, 9, 55".
     def __init__(
         self,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        pageEnd: Optional[Union[int, str]] = None,
-        pageStart: Optional[Union[int, str]] = None,
-        pagination: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        pageEnd: Optional[Union[Integer, String]] = None,
+        pageStart: Optional[Union[Integer, String]] = None,
+        pagination: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None,
-        volumeNumber: Optional[Union[int, str]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None,
+        volumeNumber: Optional[Union[Integer, String]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -3091,16 +3098,16 @@ for example, "1-6, 9, 55".
 class Quote(Mark):
     """Inline, quoted content."""
 
-    cite: Optional[Union["Cite", str]] = None
+    cite: Optional[Union["Cite", String]] = None
     """The source of the quote."""
 
 
     def __init__(
         self,
         content: Array["InlineContent"],
-        cite: Optional[Union["Cite", str]] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        cite: Optional[Union["Cite", String]] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             content=content,
@@ -3117,16 +3124,16 @@ class QuoteBlock(Entity):
     content: Array["BlockContent"]
     """The content of the quote."""
 
-    cite: Optional[Union["Cite", str]] = None
+    cite: Optional[Union["Cite", String]] = None
     """The source of the quote."""
 
 
     def __init__(
         self,
         content: Array["BlockContent"],
-        cite: Optional[Union["Cite", str]] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        cite: Optional[Union["Cite", String]] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -3144,45 +3151,45 @@ class Review(CreativeWork):
     itemReviewed: Optional["Thing"] = None
     """The item that is being reviewed."""
 
-    reviewAspect: Optional[str] = None
+    reviewAspect: Optional[String] = None
     """The part or facet of the item that is being reviewed."""
 
 
     def __init__(
         self,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         itemReviewed: Optional["Thing"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        reviewAspect: Optional[str] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        reviewAspect: Optional[String] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -3231,45 +3238,45 @@ class SoftwareApplication(CreativeWork):
 are not included in the application distribution.
 """
 
-    softwareVersion: Optional[str] = None
+    softwareVersion: Optional[String] = None
     """Version of the software."""
 
 
     def __init__(
         self,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         softwareRequirements: Optional[Array["SoftwareApplication"]] = None,
-        softwareVersion: Optional[str] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        softwareVersion: Optional[String] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -3313,7 +3320,7 @@ are not included in the application distribution.
 class SoftwareEnvironment(Thing):
     """A computational environment."""
 
-    name: str # type: ignore
+    name: String # type: ignore
     """The name of the item."""
 
     adds: Optional[Array["SoftwareSourceCode"]] = None
@@ -3328,17 +3335,17 @@ class SoftwareEnvironment(Thing):
 
     def __init__(
         self,
-        name: str,
+        name: String,
         adds: Optional[Array["SoftwareSourceCode"]] = None,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         extends: Optional[Array["SoftwareEnvironment"]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
         removes: Optional[Array["SoftwareSourceCode"]] = None,
-        url: Optional[str] = None
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             name=name,
@@ -3366,16 +3373,16 @@ class SoftwareSession(Thing):
     resource requirements and status.
     """
 
-    clientsLimit: Optional[float] = None
+    clientsLimit: Optional[Number] = None
     """The maximum number of concurrent clients the session is limited to."""
 
-    clientsRequest: Optional[float] = None
+    clientsRequest: Optional[Number] = None
     """The maximum number of concurrent clients requested for the session."""
 
-    cpuLimit: Optional[float] = None
+    cpuLimit: Optional[Number] = None
     """The amount of CPU the session is limited to."""
 
-    cpuRequest: Optional[float] = None
+    cpuRequest: Optional[Number] = None
     """The amount of CPU requested for the session."""
 
     dateEnd: Optional["Date"] = None
@@ -3384,34 +3391,34 @@ class SoftwareSession(Thing):
     dateStart: Optional["Date"] = None
     """The date-time that the session began."""
 
-    durationLimit: Optional[float] = None
+    durationLimit: Optional[Number] = None
     """The maximum duration (seconds) the session is limited to."""
 
-    durationRequest: Optional[float] = None
+    durationRequest: Optional[Number] = None
     """The maximum duration (seconds) requested for the session."""
 
     environment: Optional["SoftwareEnvironment"] = None
     """The software environment to execute this session in."""
 
-    memoryLimit: Optional[float] = None
+    memoryLimit: Optional[Number] = None
     """The amount of memory that the session is limited to."""
 
-    memoryRequest: Optional[float] = None
+    memoryRequest: Optional[Number] = None
     """The amount of memory requested for the session."""
 
-    networkTransferLimit: Optional[float] = None
+    networkTransferLimit: Optional[Number] = None
     """The amount of network data transfer (GiB) that the session is limited to."""
 
-    networkTransferRequest: Optional[float] = None
+    networkTransferRequest: Optional[Number] = None
     """The amount of network data transfer (GiB) requested for the session."""
 
     status: Optional["ESessionStatus"] = None
     """The status of the session (starting, stopped, etc)."""
 
-    timeoutLimit: Optional[float] = None
+    timeoutLimit: Optional[Number] = None
     """The inactivity timeout (seconds) the session is limited to."""
 
-    timeoutRequest: Optional[float] = None
+    timeoutRequest: Optional[Number] = None
     """The inactivity timeout (seconds) requested for the session."""
 
     volumeMounts: Optional[Array["VolumeMount"]] = None
@@ -3420,30 +3427,30 @@ class SoftwareSession(Thing):
 
     def __init__(
         self,
-        alternateNames: Optional[Array[str]] = None,
-        clientsLimit: Optional[float] = None,
-        clientsRequest: Optional[float] = None,
-        cpuLimit: Optional[float] = None,
-        cpuRequest: Optional[float] = None,
+        alternateNames: Optional[Array[String]] = None,
+        clientsLimit: Optional[Number] = None,
+        clientsRequest: Optional[Number] = None,
+        cpuLimit: Optional[Number] = None,
+        cpuRequest: Optional[Number] = None,
         dateEnd: Optional["Date"] = None,
         dateStart: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        durationLimit: Optional[float] = None,
-        durationRequest: Optional[float] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        durationLimit: Optional[Number] = None,
+        durationRequest: Optional[Number] = None,
         environment: Optional["SoftwareEnvironment"] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        memoryLimit: Optional[float] = None,
-        memoryRequest: Optional[float] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        networkTransferLimit: Optional[float] = None,
-        networkTransferRequest: Optional[float] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        memoryLimit: Optional[Number] = None,
+        memoryRequest: Optional[Number] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        networkTransferLimit: Optional[Number] = None,
+        networkTransferRequest: Optional[Number] = None,
         status: Optional["ESessionStatus"] = None,
-        timeoutLimit: Optional[float] = None,
-        timeoutRequest: Optional[float] = None,
-        url: Optional[str] = None,
+        timeoutLimit: Optional[Number] = None,
+        timeoutRequest: Optional[Number] = None,
+        url: Optional[String] = None,
         volumeMounts: Optional[Array["VolumeMount"]] = None
     ) -> None:
         super().__init__(
@@ -3498,25 +3505,25 @@ class SoftwareSourceCode(CreativeWork):
     code snippet samples, scripts, templates.
     """
 
-    codeRepository: Optional[str] = None
+    codeRepository: Optional[String] = None
     """Link to the repository where the un-compiled, human readable code and related
 code is located.
 """
 
-    codeSampleType: Optional[str] = None
+    codeSampleType: Optional[String] = None
     """What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
 """
 
-    programmingLanguage: Optional[str] = None
+    programmingLanguage: Optional[String] = None
     """The computer programming language.
 """
 
-    runtimePlatform: Optional[Array[str]] = None
+    runtimePlatform: Optional[Array[String]] = None
     """Runtime platform or script interpreter dependencies (Example - Java v1,
 Python2.3, .Net Framework 3.0).
 """
 
-    softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None
+    softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", String]]] = None
     """Dependency requirements for the software."""
 
     targetProducts: Optional[Array["SoftwareApplication"]] = None
@@ -3527,42 +3534,42 @@ Python2.3, .Net Framework 3.0).
     def __init__(
         self,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        codeRepository: Optional[str] = None,
-        codeSampleType: Optional[str] = None,
+        codeRepository: Optional[String] = None,
+        codeSampleType: Optional[String] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
-        programmingLanguage: Optional[str] = None,
+        programmingLanguage: Optional[String] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        runtimePlatform: Optional[Array[str]] = None,
-        softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        runtimePlatform: Optional[Array[String]] = None,
+        softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", String]]] = None,
         targetProducts: Optional[Array["SoftwareApplication"]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -3614,23 +3621,23 @@ Python2.3, .Net Framework 3.0).
 class StringValidator(Validator):
     """A schema specifying constraints on a string node."""
 
-    maxLength: Optional[int] = None
+    maxLength: Optional[Integer] = None
     """The maximum length for a string node."""
 
-    minLength: Optional[int] = None
+    minLength: Optional[Integer] = None
     """The minimum length for a string node."""
 
-    pattern: Optional[str] = None
+    pattern: Optional[String] = None
     """A regular expression that a string node must match."""
 
 
     def __init__(
         self,
-        id: Optional[str] = None,
-        maxLength: Optional[int] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        minLength: Optional[int] = None,
-        pattern: Optional[str] = None
+        id: Optional[String] = None,
+        maxLength: Optional[Integer] = None,
+        meta: Optional[Object] = None,
+        minLength: Optional[Integer] = None,
+        pattern: Optional[String] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -3650,8 +3657,8 @@ class Strong(Mark):
     def __init__(
         self,
         content: Array["InlineContent"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             content=content,
@@ -3667,8 +3674,8 @@ class Subscript(Mark):
     def __init__(
         self,
         content: Array["InlineContent"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             content=content,
@@ -3684,8 +3691,8 @@ class Superscript(Mark):
     def __init__(
         self,
         content: Array["InlineContent"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             content=content,
@@ -3702,10 +3709,10 @@ class Table(CreativeWork):
     """Rows of cells in the table.
 """
 
-    caption: Optional[Union[Array["BlockContent"], str]] = None
+    caption: Optional[Union[Array["BlockContent"], String]] = None
     """A caption for the table."""
 
-    label: Optional[str] = None
+    label: Optional[String] = None
     """A short label for the table."""
 
 
@@ -3713,38 +3720,38 @@ class Table(CreativeWork):
         self,
         rows: Array["TableRow"],
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        caption: Optional[Union[Array["BlockContent"], str]] = None,
+        caption: Optional[Union[Array["BlockContent"], String]] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
+        content: Optional[Union[Array[Any], String]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        label: Optional[str] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        label: Optional[String] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -3793,29 +3800,29 @@ class TableCell(Entity):
     cellType: Optional["ECellType"] = None
     """Indicates whether the cell is a header or data."""
 
-    colspan: Optional[int] = None
+    colspan: Optional[Integer] = None
     """How many columns the cell extends.
 """
 
     content: Optional[Union[Array["BlockContent"], Array["InlineContent"]]] = None
     """Contents of the table cell."""
 
-    name: Optional[str] = None
+    name: Optional[String] = None
     """The name of the cell."""
 
-    rowspan: Optional[int] = None
+    rowspan: Optional[Integer] = None
     """How many columns the cell extends."""
 
 
     def __init__(
         self,
         cellType: Optional["ECellType"] = None,
-        colspan: Optional[int] = None,
+        colspan: Optional[Integer] = None,
         content: Optional[Union[Array["BlockContent"], Array["InlineContent"]]] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        rowspan: Optional[int] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        rowspan: Optional[Integer] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -3847,8 +3854,8 @@ class TableRow(Entity):
     def __init__(
         self,
         cells: Array["TableCell"],
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
+        id: Optional[String] = None,
+        meta: Optional[Object] = None,
         rowType: Optional["ERowType"] = None
     ) -> None:
         super().__init__(
@@ -3869,8 +3876,8 @@ class ThematicBreak(Entity):
 
     def __init__(
         self,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        id: Optional[String] = None,
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -3890,9 +3897,9 @@ class TupleValidator(Validator):
 
     def __init__(
         self,
-        id: Optional[str] = None,
+        id: Optional[String] = None,
         items: Optional[Array["ValidatorTypes"]] = None,
-        meta: Optional[Dict[str, Any]] = None
+        meta: Optional[Object] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -3905,57 +3912,57 @@ class TupleValidator(Validator):
 class VideoObject(MediaObject):
     """A video file."""
 
-    caption: Optional[str] = None
+    caption: Optional[String] = None
     """The caption for this video recording."""
 
     thumbnail: Optional["ImageObject"] = None
     """Thumbnail image of this video recording."""
 
-    transcript: Optional[str] = None
+    transcript: Optional[String] = None
     """The transcript of this video recording."""
 
 
     def __init__(
         self,
-        contentUrl: str,
+        contentUrl: String,
         about: Optional[Array["ThingTypes"]] = None,
-        alternateNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        bitrate: Optional[float] = None,
-        caption: Optional[str] = None,
+        bitrate: Optional[Number] = None,
+        caption: Optional[String] = None,
         comments: Optional[Array["Comment"]] = None,
-        content: Optional[Union[Array["Any"], str]] = None,
-        contentSize: Optional[float] = None,
+        content: Optional[Union[Array[Any], String]] = None,
+        contentSize: Optional[Number] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
         editors: Optional[Array["Person"]] = None,
-        embedUrl: Optional[str] = None,
+        embedUrl: Optional[String] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        genre: Optional[Array[str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
+        genre: Optional[Array[String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        keywords: Optional[Array[String]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
         maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
-        mediaType: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
+        mediaType: Optional[String] = None,
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        text: Optional[str] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", String]]] = None,
+        text: Optional[String] = None,
         thumbnail: Optional["ImageObject"] = None,
-        title: Optional[Union[Array["InlineContent"], str]] = None,
-        transcript: Optional[str] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
+        title: Optional[Union[Array["InlineContent"], String]] = None,
+        transcript: Optional[String] = None,
+        url: Optional[String] = None,
+        version: Optional[Union[String, Number]] = None
     ) -> None:
         super().__init__(
             contentUrl=contentUrl,
@@ -4006,33 +4013,33 @@ class VideoObject(MediaObject):
 class VolumeMount(Thing):
     """Describes a volume mount from a host to container."""
 
-    mountDestination: str
+    mountDestination: String
     """The mount location inside the container."""
 
-    mountOptions: Optional[Array[str]] = None
+    mountOptions: Optional[Array[String]] = None
     """A list of options to use when applying the mount."""
 
-    mountSource: Optional[str] = None
+    mountSource: Optional[String] = None
     """The mount source directory on the host."""
 
-    mountType: Optional[str] = None
+    mountType: Optional[String] = None
     """The type of mount."""
 
 
     def __init__(
         self,
-        mountDestination: str,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        mountOptions: Optional[Array[str]] = None,
-        mountSource: Optional[str] = None,
-        mountType: Optional[str] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        mountDestination: String,
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        meta: Optional[Object] = None,
+        mountOptions: Optional[Array[String]] = None,
+        mountSource: Optional[String] = None,
+        mountType: Optional[String] = None,
+        name: Optional[String] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -4390,7 +4397,7 @@ GrantTypes = Union["Grant", "MonetaryGrant"]
 """
 Union type for valid inline content.
 """
-InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Quote", "Strong", "Subscript", "Superscript", "VideoObject", None, bool, int, float, str]
+InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Quote", "Strong", "Subscript", "Superscript", "VideoObject", None, "Boolean", "Integer", "Number", "String"]
 
 
 """
@@ -4414,7 +4421,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 """
 Union type for all schema nodes, including primitives and entities
 """
-Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Validator", "Variable", "VideoObject", "VolumeMount", None, bool, int, float, str, Dict[str, Any], Array["Any"]]
+Node = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Validator", "Variable", "VideoObject", "VolumeMount", None, "Boolean", "Integer", "Number", "String", "Object", "Array"]
 
 
 """

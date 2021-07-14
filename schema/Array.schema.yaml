@@ -4,5 +4,3 @@ category: data
 status: stable
 description: A value comprised of several other values.
 type: array
-items:
-  $ref: Node

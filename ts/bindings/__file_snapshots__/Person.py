@@ -1,16 +1,16 @@
 class Person(Thing):
     """A person (alive, dead, undead, or fictional)."""
 
-    address: Optional[Union["PostalAddress", str]] = None
+    address: Optional[Union["PostalAddress", String]] = None
     """Postal address for the person."""
 
     affiliations: Optional[Array["Organization"]] = None
     """Organizations that the person is affiliated with."""
 
-    emails: Optional[Array[str]] = None
+    emails: Optional[Array[String]] = None
     """Email addresses for the person."""
 
-    familyNames: Optional[Array[str]] = None
+    familyNames: Optional[Array[String]] = None
     """Family name. In the U.S., the last name of a person."""
 
     funders: Optional[Array[Union["Organization", "Person"]]] = None
@@ -18,46 +18,46 @@ class Person(Thing):
 some kind of financial contribution.
 """
 
-    givenNames: Optional[Array[str]] = None
+    givenNames: Optional[Array[String]] = None
     """Given name. In the U.S., the first name of a person."""
 
-    honorificPrefix: Optional[str] = None
+    honorificPrefix: Optional[String] = None
     """An honorific prefix preceding a person's name such as Dr/Mrs/Mr."""
 
-    honorificSuffix: Optional[str] = None
+    honorificSuffix: Optional[String] = None
     """An honorific suffix after a person's name such as MD/PhD/MSCSW."""
 
-    jobTitle: Optional[str] = None
+    jobTitle: Optional[String] = None
     """The job title of the person (for example, Financial Manager)."""
 
     memberOf: Optional[Array["Organization"]] = None
     """An organization (or program membership) to which this person belongs."""
 
-    telephoneNumbers: Optional[Array[str]] = None
+    telephoneNumbers: Optional[Array[String]] = None
     """Telephone numbers for the person."""
 
 
     def __init__(
         self,
-        address: Optional[Union["PostalAddress", str]] = None,
+        address: Optional[Union["PostalAddress", String]] = None,
         affiliations: Optional[Array["Organization"]] = None,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
-        emails: Optional[Array[str]] = None,
-        familyNames: Optional[Array[str]] = None,
+        alternateNames: Optional[Array[String]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], String]] = None,
+        emails: Optional[Array[String]] = None,
+        familyNames: Optional[Array[String]] = None,
         funders: Optional[Array[Union["Organization", "Person"]]] = None,
-        givenNames: Optional[Array[str]] = None,
-        honorificPrefix: Optional[str] = None,
-        honorificSuffix: Optional[str] = None,
-        id: Optional[str] = None,
-        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
-        images: Optional[Array[Union["ImageObject", str]]] = None,
-        jobTitle: Optional[str] = None,
+        givenNames: Optional[Array[String]] = None,
+        honorificPrefix: Optional[String] = None,
+        honorificSuffix: Optional[String] = None,
+        id: Optional[String] = None,
+        identifiers: Optional[Array[Union["PropertyValue", String]]] = None,
+        images: Optional[Array[Union["ImageObject", String]]] = None,
+        jobTitle: Optional[String] = None,
         memberOf: Optional[Array["Organization"]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        telephoneNumbers: Optional[Array[str]] = None,
-        url: Optional[str] = None
+        meta: Optional[Object] = None,
+        name: Optional[String] = None,
+        telephoneNumbers: Optional[Array[String]] = None,
+        url: Optional[String] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,

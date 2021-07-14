@@ -4,24 +4,36 @@
 // Do not modify it by hand. Instead, modify the source `.schema.yaml` files
 // in the `schema` directory and run `npm run build:ts` to regenerate it.
 
-type Object = Record<string, any>
-
+type Null = null
+type Boolean = boolean
+type Integer = number
+type Number = number
+type String = string
+type Object = Record<string, unknown>
 type Primitives =
   | undefined
   | null
   | boolean
   | number
   | string
-  | Array<Node>
+  | Array<unknown>
   | Object
 
+// Remove properties from an Object if their value is undefined
+const compact = <O extends object>(o: O): O =>
+  Object.entries(o).reduce(
+    (compactedO: O, [k, v]) =>
+      v === undefined ? compactedO : { ...compactedO, [k]: v },
+    {} as O
+  )
+
 export interface Types {
-  Array: Array<Node>
+  Array: Array<unknown>
   ArrayValidator: ArrayValidator
   Article: Article
   AudioObject: AudioObject
   BlockContent: BlockContent
-  Boolean: boolean
+  Boolean: Boolean
   BooleanValidator: BooleanValidator
   Brand: Brand
   CitationIntentEnumeration: CitationIntentEnumeration
@@ -63,6 +75,7 @@ export interface Types {
   ImageObject: ImageObject
   Include: Include
   InlineContent: InlineContent
+  Integer: Integer
   IntegerValidator: IntegerValidator
   Link: Link
   List: List
@@ -79,8 +92,8 @@ export interface Types {
   Node: Node
   NontextualAnnotation: NontextualAnnotation
   Note: Note
-  Null: null
-  Number: number
+  Null: Null
+  Number: Number
   NumberValidator: NumberValidator
   Object: Object
   Organization: Organization
@@ -100,7 +113,7 @@ export interface Types {
   SoftwareEnvironment: SoftwareEnvironment
   SoftwareSession: SoftwareSession
   SoftwareSourceCode: SoftwareSourceCode
-  String: string
+  String: String
   StringValidator: StringValidator
   Strong: Strong
   Subscript: Subscript
@@ -119,14 +132,6 @@ export interface Types {
   VideoObject: VideoObject
   VolumeMount: VolumeMount
 }
-
-// Remove properties from an Object if their values is undefined
-const compact = <O extends object>(o: O): O =>
-  Object.entries(o).reduce(
-    (compactedO: O, [k, v]) =>
-      v === undefined ? compactedO : { ...compactedO, [k]: v },
-    {} as O
-  )
 
 /**
  * The most simple compound (ie. non-atomic like `number`, `string` etc) type.
@@ -212,7 +217,7 @@ export interface Entity {
     | 'Variable'
     | 'VideoObject'
     | 'VolumeMount'
-  id?: string
+  id?: String
   meta?: Object
 }
 
@@ -231,7 +236,7 @@ export const entity = (props: Omit<Entity, 'type'> = {}): Entity => ({
  */
 export interface Cite extends Entity {
   type: 'Cite'
-  target: string
+  target: String
   citationIntent?: Array<CitationIntentEnumeration>
   citationMode?:
     | 'Parenthetical'
@@ -240,12 +245,12 @@ export interface Cite extends Entity {
     | 'NarrativeYear'
     | 'normal'
     | 'suppressAuthor'
-  citationPrefix?: string
-  citationSuffix?: string
+  citationPrefix?: String
+  citationSuffix?: String
   content?: Array<InlineContent>
-  pageEnd?: number | string
-  pageStart?: number | string
-  pagination?: string
+  pageEnd?: Integer | String
+  pageStart?: Integer | String
+  pagination?: String
 }
 
 /**
@@ -281,9 +286,9 @@ export const citeGroup = (props: Omit<CiteGroup, 'type'>): CiteGroup => ({
  */
 export interface Code extends Entity {
   type: 'Code' | 'CodeBlock' | 'CodeChunk' | 'CodeExpression' | 'CodeFragment'
-  text: string
-  mediaType?: string
-  programmingLanguage?: string
+  text: String
+  mediaType?: String
+  programmingLanguage?: String
 }
 
 /**
@@ -301,8 +306,8 @@ export const code = (props: Omit<Code, 'type'>): Code => ({
  */
 export interface CodeBlock extends Code {
   type: 'CodeBlock' | 'CodeChunk'
-  exportFrom?: string
-  importTo?: string
+  exportFrom?: String
+  importTo?: String
 }
 
 /**
@@ -320,17 +325,17 @@ export const codeBlock = (props: Omit<CodeBlock, 'type'>): CodeBlock => ({
  */
 export interface CodeChunk extends CodeBlock {
   type: 'CodeChunk'
-  alters?: Array<string>
-  assigns?: Array<Variable | string>
-  caption?: Array<BlockContent> | string
-  declares?: Array<Variable | Function | string>
-  duration?: number
+  alters?: Array<String>
+  assigns?: Array<Variable | String>
+  caption?: Array<BlockContent> | String
+  declares?: Array<Variable | Function | String>
+  duration?: Number
   errors?: Array<CodeError>
-  imports?: Array<SoftwareSourceCode | SoftwareApplication | string>
-  label?: string
+  imports?: Array<SoftwareSourceCode | SoftwareApplication | String>
+  label?: String
   outputs?: Array<Node>
-  reads?: Array<string>
-  uses?: Array<Variable | string>
+  reads?: Array<String>
+  uses?: Array<Variable | String>
 }
 
 /**
@@ -388,9 +393,9 @@ export const codeExpression = (
  */
 export interface CodeError extends Entity {
   type: 'CodeError'
-  errorMessage: string
-  errorType?: string
-  stackTrace?: string
+  errorMessage: String
+  errorType?: String
+  stackTrace?: String
 }
 
 /**
@@ -408,7 +413,7 @@ export const codeError = (props: Omit<CodeError, 'type'>): CodeError => ({
  */
 export interface Date extends Entity {
   type: 'Date'
-  value: string
+  value: String
 }
 
 /**
@@ -523,12 +528,12 @@ export interface Thing extends Entity {
     | 'Table'
     | 'VideoObject'
     | 'VolumeMount'
-  alternateNames?: Array<string>
-  description?: Array<BlockContent> | Array<InlineContent> | string
-  identifiers?: Array<PropertyValue | string>
-  images?: Array<ImageObject | string>
-  name?: string
-  url?: string
+  alternateNames?: Array<String>
+  description?: Array<BlockContent> | Array<InlineContent> | String
+  identifiers?: Array<PropertyValue | String>
+  images?: Array<ImageObject | String>
+  name?: String
+  url?: String
 }
 
 /**
@@ -547,9 +552,9 @@ export const thing = (props: Omit<Thing, 'type'> = {}): Thing => ({
  */
 export interface Brand extends Thing {
   type: 'Brand'
-  name: string
-  logo?: ImageObject | string
-  reviews?: Array<string>
+  name: String
+  logo?: ImageObject | String
+  reviews?: Array<String>
 }
 
 /**
@@ -567,9 +572,9 @@ export const brand = (props: Omit<Brand, 'type'>): Brand => ({
  */
 export interface ContactPoint extends Thing {
   type: 'ContactPoint' | 'PostalAddress'
-  availableLanguages?: Array<string>
-  emails?: Array<string>
-  telephoneNumbers?: Array<string>
+  availableLanguages?: Array<String>
+  emails?: Array<String>
+  telephoneNumbers?: Array<String>
 }
 
 /**
@@ -610,7 +615,7 @@ export interface CreativeWork extends Thing {
   about?: Array<ThingTypes>
   authors?: Array<Person | Organization>
   comments?: Array<Comment>
-  content?: Array<Node> | string
+  content?: Array<Node> | String
   dateAccepted?: Date
   dateCreated?: Date
   dateModified?: Date
@@ -619,17 +624,17 @@ export interface CreativeWork extends Thing {
   editors?: Array<Person>
   fundedBy?: Array<Grant | MonetaryGrant>
   funders?: Array<Person | Organization>
-  genre?: Array<string>
+  genre?: Array<String>
   isPartOf?: CreativeWorkTypes
-  keywords?: Array<string>
-  licenses?: Array<CreativeWorkTypes | string>
+  keywords?: Array<String>
+  licenses?: Array<CreativeWorkTypes | String>
   maintainers?: Array<Person | Organization>
   parts?: Array<CreativeWorkTypes>
   publisher?: Person | Organization
-  references?: Array<CreativeWorkTypes | string>
-  text?: string
-  title?: Array<InlineContent> | string
-  version?: string | number
+  references?: Array<CreativeWorkTypes | String>
+  text?: String
+  title?: Array<InlineContent> | String
+  version?: String | Number
 }
 
 /**
@@ -650,9 +655,9 @@ export const creativeWork = (
 export interface Article extends CreativeWork {
   type: 'Article'
   content?: Array<BlockContent>
-  pageEnd?: number | string
-  pageStart?: number | string
-  pagination?: string
+  pageEnd?: Integer | String
+  pageStart?: Integer | String
+  pagination?: String
 }
 
 /**
@@ -680,7 +685,7 @@ export interface Claim extends CreativeWork {
     | 'Hypothesis'
     | 'Proposition'
     | 'Corollary'
-  label?: string
+  label?: String
 }
 
 /**
@@ -716,7 +721,7 @@ export const collection = (props: Omit<Collection, 'type'>): Collection => ({
  */
 export interface Comment extends CreativeWork {
   type: 'Comment'
-  commentAspect?: string
+  commentAspect?: String
   parentItem?: Comment
 }
 
@@ -754,11 +759,11 @@ export const datatable = (props: Omit<Datatable, 'type'>): Datatable => ({
  */
 export interface MediaObject extends CreativeWork {
   type: 'MediaObject' | 'AudioObject' | 'ImageObject' | 'VideoObject'
-  contentUrl: string
-  bitrate?: number
-  contentSize?: number
-  embedUrl?: string
-  mediaType?: string
+  contentUrl: String
+  bitrate?: Number
+  contentSize?: Number
+  embedUrl?: String
+  mediaType?: String
 }
 
 /**
@@ -776,8 +781,8 @@ export const mediaObject = (props: Omit<MediaObject, 'type'>): MediaObject => ({
  */
 export interface AudioObject extends MediaObject {
   type: 'AudioObject'
-  caption?: string
-  transcript?: string
+  caption?: String
+  transcript?: String
 }
 
 /**
@@ -795,7 +800,7 @@ export const audioObject = (props: Omit<AudioObject, 'type'>): AudioObject => ({
  */
 export interface DatatableColumn extends Thing {
   type: 'DatatableColumn'
-  name: string
+  name: String
   values: Array<Node>
   validator?: ArrayValidator
 }
@@ -817,8 +822,8 @@ export const datatableColumn = (
  */
 export interface DefinedTerm extends Thing {
   type: 'DefinedTerm'
-  name: string
-  termCode?: string
+  name: String
+  termCode?: String
 }
 
 /**
@@ -864,9 +869,9 @@ export interface ArrayValidator extends Validator {
   type: 'ArrayValidator'
   contains?: ValidatorTypes
   itemsValidator?: ValidatorTypes
-  maxItems?: number
-  minItems?: number
-  uniqueItems?: boolean
+  maxItems?: Integer
+  minItems?: Integer
+  uniqueItems?: Boolean
 }
 
 /**
@@ -964,8 +969,8 @@ export const enumeration = (
  */
 export interface Figure extends CreativeWork {
   type: 'Figure'
-  caption?: Array<BlockContent> | string
-  label?: string
+  caption?: Array<BlockContent> | String
+  label?: String
 }
 
 /**
@@ -983,7 +988,7 @@ export const figure = (props: Omit<Figure, 'type'> = {}): Figure => ({
  */
 export interface Function extends Entity {
   type: 'Function'
-  name?: string
+  name?: String
   parameters?: Array<Parameter>
   returns?: ValidatorTypes
 }
@@ -1023,7 +1028,7 @@ export const grant = (props: Omit<Grant, 'type'> = {}): Grant => ({
 export interface Heading extends Entity {
   type: 'Heading'
   content: Array<InlineContent>
-  depth?: number
+  depth?: Integer
 }
 
 /**
@@ -1041,7 +1046,7 @@ export const heading = (props: Omit<Heading, 'type'>): Heading => ({
  */
 export interface ImageObject extends MediaObject {
   type: 'ImageObject'
-  caption?: string
+  caption?: String
   thumbnail?: ImageObject
 }
 
@@ -1060,9 +1065,9 @@ export const imageObject = (props: Omit<ImageObject, 'type'>): ImageObject => ({
  */
 export interface Include extends Entity {
   type: 'Include'
-  source: string
+  source: String
   content?: Array<BlockContent>
-  mediaType?: string
+  mediaType?: String
 }
 
 /**
@@ -1100,11 +1105,11 @@ export const integerValidator = (
 export interface Link extends Entity {
   type: 'Link'
   content: Array<InlineContent>
-  target: string
-  exportFrom?: string
-  importTo?: string
-  relation?: string
-  title?: string
+  target: String
+  exportFrom?: String
+  importTo?: String
+  relation?: String
+  title?: String
 }
 
 /**
@@ -1142,9 +1147,9 @@ export const list = (props: Omit<List, 'type'>): List => ({
 export interface ListItem extends Thing {
   type: 'ListItem'
   content?: Array<BlockContent> | Array<InlineContent>
-  isChecked?: boolean
+  isChecked?: Boolean
   item?: Node
-  position?: number
+  position?: Integer
 }
 
 /**
@@ -1162,9 +1167,9 @@ export const listItem = (props: Omit<ListItem, 'type'> = {}): ListItem => ({
  */
 export interface Math extends Entity {
   type: 'Math' | 'MathBlock' | 'MathFragment'
-  text: string
-  errors?: Array<string>
-  mathLanguage?: string
+  text: String
+  errors?: Array<String>
+  mathLanguage?: String
 }
 
 /**
@@ -1182,7 +1187,7 @@ export const math = (props: Omit<Math, 'type'>): Math => ({
  */
 export interface MathBlock extends Math {
   type: 'MathBlock'
-  label?: string
+  label?: String
 }
 
 /**
@@ -1219,7 +1224,7 @@ export const mathFragment = (
  */
 export interface MonetaryGrant extends Grant {
   type: 'MonetaryGrant'
-  amounts?: number
+  amounts?: Number
   funders?: Array<Person | Organization>
 }
 
@@ -1278,11 +1283,11 @@ export const note = (props: Omit<Note, 'type'>): Note => ({
  */
 export interface NumberValidator extends Validator {
   type: 'NumberValidator'
-  exclusiveMaximum?: number
-  exclusiveMinimum?: number
-  maximum?: number
-  minimum?: number
-  multipleOf?: number
+  exclusiveMaximum?: Number
+  exclusiveMinimum?: Number
+  maximum?: Number
+  minimum?: Number
+  multipleOf?: Number
 }
 
 /**
@@ -1302,13 +1307,13 @@ export const numberValidator = (
  */
 export interface Organization extends Thing {
   type: 'Organization'
-  address?: PostalAddress | string
+  address?: PostalAddress | String
   brands?: Array<Brand>
   contactPoints?: Array<ContactPoint>
   departments?: Array<Organization>
   funders?: Array<Organization | Person>
-  legalName?: string
-  logo?: ImageObject | string
+  legalName?: String
+  logo?: ImageObject | String
   members?: Array<Organization | Person>
   parentOrganization?: Organization
 }
@@ -1348,8 +1353,8 @@ export const paragraph = (props: Omit<Paragraph, 'type'>): Paragraph => ({
  */
 export interface Variable extends Entity {
   type: 'Variable' | 'Parameter'
-  name: string
-  isReadonly?: boolean
+  name: String
+  isReadonly?: Boolean
   validator?: ValidatorTypes
   value?: Node
 }
@@ -1370,9 +1375,9 @@ export const variable = (props: Omit<Variable, 'type'>): Variable => ({
 export interface Parameter extends Variable {
   type: 'Parameter'
   default?: Node
-  isExtensible?: boolean
-  isRequired?: boolean
-  isVariadic?: boolean
+  isExtensible?: Boolean
+  isRequired?: Boolean
+  isVariadic?: Boolean
 }
 
 /**
@@ -1392,7 +1397,7 @@ export interface Periodical extends CreativeWork {
   type: 'Periodical'
   dateEnd?: Date
   dateStart?: Date
-  issns?: Array<string>
+  issns?: Array<String>
 }
 
 /**
@@ -1412,17 +1417,17 @@ export const periodical = (
  */
 export interface Person extends Thing {
   type: 'Person'
-  address?: PostalAddress | string
+  address?: PostalAddress | String
   affiliations?: Array<Organization>
-  emails?: Array<string>
-  familyNames?: Array<string>
+  emails?: Array<String>
+  familyNames?: Array<String>
   funders?: Array<Organization | Person>
-  givenNames?: Array<string>
-  honorificPrefix?: string
-  honorificSuffix?: string
-  jobTitle?: string
+  givenNames?: Array<String>
+  honorificPrefix?: String
+  honorificSuffix?: String
+  jobTitle?: String
   memberOf?: Array<Organization>
-  telephoneNumbers?: Array<string>
+  telephoneNumbers?: Array<String>
 }
 
 /**
@@ -1440,12 +1445,12 @@ export const person = (props: Omit<Person, 'type'> = {}): Person => ({
  */
 export interface PostalAddress extends ContactPoint {
   type: 'PostalAddress'
-  addressCountry?: string
-  addressLocality?: string
-  addressRegion?: string
-  postOfficeBoxNumber?: string
-  postalCode?: string
-  streetAddress?: string
+  addressCountry?: String
+  addressLocality?: String
+  addressRegion?: String
+  postOfficeBoxNumber?: String
+  postalCode?: String
+  streetAddress?: String
 }
 
 /**
@@ -1467,8 +1472,8 @@ export const postalAddress = (
 export interface Product extends Thing {
   type: 'Product'
   brands?: Array<Brand>
-  logo?: ImageObject | string
-  productID?: string
+  logo?: ImageObject | String
+  productID?: String
 }
 
 /**
@@ -1486,8 +1491,8 @@ export const product = (props: Omit<Product, 'type'> = {}): Product => ({
  */
 export interface PropertyValue extends Thing {
   type: 'PropertyValue'
-  value: boolean | number | string
-  propertyID?: string
+  value: Boolean | Integer | Number | String
+  propertyID?: String
 }
 
 /**
@@ -1508,10 +1513,10 @@ export const propertyValue = (
  */
 export interface PublicationIssue extends CreativeWork {
   type: 'PublicationIssue'
-  issueNumber?: number | string
-  pageEnd?: number | string
-  pageStart?: number | string
-  pagination?: string
+  issueNumber?: Integer | String
+  pageEnd?: Integer | String
+  pageStart?: Integer | String
+  pagination?: String
 }
 
 /**
@@ -1531,10 +1536,10 @@ export const publicationIssue = (
  */
 export interface PublicationVolume extends CreativeWork {
   type: 'PublicationVolume'
-  pageEnd?: number | string
-  pageStart?: number | string
-  pagination?: string
-  volumeNumber?: number | string
+  pageEnd?: Integer | String
+  pageStart?: Integer | String
+  pagination?: String
+  volumeNumber?: Integer | String
 }
 
 /**
@@ -1554,7 +1559,7 @@ export const publicationVolume = (
  */
 export interface Quote extends Mark {
   type: 'Quote'
-  cite?: Cite | string
+  cite?: Cite | String
 }
 
 /**
@@ -1573,7 +1578,7 @@ export const quote = (props: Omit<Quote, 'type'>): Quote => ({
 export interface QuoteBlock extends Entity {
   type: 'QuoteBlock'
   content: Array<BlockContent>
-  cite?: Cite | string
+  cite?: Cite | String
 }
 
 /**
@@ -1592,7 +1597,7 @@ export const quoteBlock = (props: Omit<QuoteBlock, 'type'>): QuoteBlock => ({
 export interface Review extends CreativeWork {
   type: 'Review'
   itemReviewed?: Thing
-  reviewAspect?: string
+  reviewAspect?: String
 }
 
 /**
@@ -1611,7 +1616,7 @@ export const review = (props: Omit<Review, 'type'> = {}): Review => ({
 export interface SoftwareApplication extends CreativeWork {
   type: 'SoftwareApplication'
   softwareRequirements?: Array<SoftwareApplication>
-  softwareVersion?: string
+  softwareVersion?: String
 }
 
 /**
@@ -1631,7 +1636,7 @@ export const softwareApplication = (
  */
 export interface SoftwareEnvironment extends Thing {
   type: 'SoftwareEnvironment'
-  name: string
+  name: String
   adds?: Array<SoftwareSourceCode>
   extends?: Array<SoftwareEnvironment>
   removes?: Array<SoftwareSourceCode>
@@ -1655,19 +1660,19 @@ export const softwareEnvironment = (
  */
 export interface SoftwareSession extends Thing {
   type: 'SoftwareSession'
-  clientsLimit?: number
-  clientsRequest?: number
-  cpuLimit?: number
-  cpuRequest?: number
+  clientsLimit?: Number
+  clientsRequest?: Number
+  cpuLimit?: Number
+  cpuRequest?: Number
   dateEnd?: Date
   dateStart?: Date
-  durationLimit?: number
-  durationRequest?: number
+  durationLimit?: Number
+  durationRequest?: Number
   environment?: SoftwareEnvironment
-  memoryLimit?: number
-  memoryRequest?: number
-  networkTransferLimit?: number
-  networkTransferRequest?: number
+  memoryLimit?: Number
+  memoryRequest?: Number
+  networkTransferLimit?: Number
+  networkTransferRequest?: Number
   status?:
     | 'Unknown'
     | 'Starting'
@@ -1675,8 +1680,8 @@ export interface SoftwareSession extends Thing {
     | 'Stopping'
     | 'Stopped'
     | 'Failed'
-  timeoutLimit?: number
-  timeoutRequest?: number
+  timeoutLimit?: Number
+  timeoutRequest?: Number
   volumeMounts?: Array<VolumeMount>
 }
 
@@ -1697,12 +1702,12 @@ export const softwareSession = (
  */
 export interface SoftwareSourceCode extends CreativeWork {
   type: 'SoftwareSourceCode'
-  codeRepository?: string
-  codeSampleType?: string
-  programmingLanguage?: string
-  runtimePlatform?: Array<string>
+  codeRepository?: String
+  codeSampleType?: String
+  programmingLanguage?: String
+  runtimePlatform?: Array<String>
   softwareRequirements?: Array<
-    SoftwareSourceCode | SoftwareApplication | string
+    SoftwareSourceCode | SoftwareApplication | String
   >
   targetProducts?: Array<SoftwareApplication>
 }
@@ -1724,9 +1729,9 @@ export const softwareSourceCode = (
  */
 export interface StringValidator extends Validator {
   type: 'StringValidator'
-  maxLength?: number
-  minLength?: number
-  pattern?: string
+  maxLength?: Integer
+  minLength?: Integer
+  pattern?: String
 }
 
 /**
@@ -1798,8 +1803,8 @@ export const superscript = (props: Omit<Superscript, 'type'>): Superscript => ({
 export interface Table extends CreativeWork {
   type: 'Table'
   rows: Array<TableRow>
-  caption?: Array<BlockContent> | string
-  label?: string
+  caption?: Array<BlockContent> | String
+  label?: String
 }
 
 /**
@@ -1818,10 +1823,10 @@ export const table = (props: Omit<Table, 'type'>): Table => ({
 export interface TableCell extends Entity {
   type: 'TableCell'
   cellType?: 'Data' | 'Header'
-  colspan?: number
+  colspan?: Integer
   content?: Array<BlockContent> | Array<InlineContent>
-  name?: string
-  rowspan?: number
+  name?: String
+  rowspan?: Integer
 }
 
 /**
@@ -1897,9 +1902,9 @@ export const tupleValidator = (
  */
 export interface VideoObject extends MediaObject {
   type: 'VideoObject'
-  caption?: string
+  caption?: String
   thumbnail?: ImageObject
-  transcript?: string
+  transcript?: String
 }
 
 /**
@@ -1917,10 +1922,10 @@ export const videoObject = (props: Omit<VideoObject, 'type'>): VideoObject => ({
  */
 export interface VolumeMount extends Thing {
   type: 'VolumeMount'
-  mountDestination: string
-  mountOptions?: Array<string>
-  mountSource?: string
-  mountType?: string
+  mountDestination: String
+  mountOptions?: Array<String>
+  mountSource?: String
+  mountType?: String
 }
 
 /**
@@ -2113,10 +2118,11 @@ export type InlineContent =
   | Subscript
   | Superscript
   | VideoObject
-  | null
-  | boolean
-  | number
-  | string
+  | Null
+  | Boolean
+  | Integer
+  | Number
+  | String
 
 /**
  * All type schemas that are derived from Mark
@@ -2228,12 +2234,13 @@ export type Node =
   | Variable
   | VideoObject
   | VolumeMount
-  | null
-  | boolean
-  | number
-  | string
+  | Null
+  | Boolean
+  | Integer
+  | Number
+  | String
   | Object
-  | Array<Node>
+  | Array<unknown>
 
 /**
  * All type schemas that are derived from Thing
