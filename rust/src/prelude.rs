@@ -80,10 +80,7 @@ macro_rules! impl_struct {
             }
 
             fn id(&self) -> Option<String> {
-                match &self.id {
-                    None => None,
-                    Some(id) => Some(*id.clone()),
-                }
+                self.id.as_ref().map(|id| *id.clone())
             }
         }
     };
