@@ -25,11 +25,8 @@ properties:
   authors:
     '@id': schema:author
     description: The authors of this creative work.
-    # This first type:array allows for wrapping of objects into an array
-    # during `coerce()`
-    type: array
     allOf:
-      - parser: csi
+      - parser: scsi
       - type: array
         items:
           anyOf:
@@ -113,17 +110,17 @@ properties:
   genre:
     '@id': schema:genre
     description: Genre of the creative work, broadcast channel or group.
-    type: array
-    items:
-      type: string
+    allOf:
+      - parser: csi
+      - type: array
+        items:
+          type: string
   keywords:
     '@id': schema:keywords
     description: |
       Keywords or tags used to describe this content.
       Multiple entries in a keywords list are typically delimited by commas.
     allOf:
-      # Allow for a comma separated list of keywords to be decoded to
-      # an array of strings
       - parser: csi
       - type: array
         items:
