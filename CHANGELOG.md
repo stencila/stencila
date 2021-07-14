@@ -1,3 +1,10 @@
+# [0.95.0](https://github.com/stencila/stencila/compare/v0.94.0...v0.95.0) (2021-07-14)
+
+
+### Features
+
+* **Coerce:** Implement coerce method ([80bc2c7](https://github.com/stencila/stencila/commit/80bc2c73fef6491d298e3137365b421dc0cafafa))
+
 # [0.94.0](https://github.com/stencila/stencila/compare/v0.93.0...v0.94.0) (2021-07-12)
 
 
