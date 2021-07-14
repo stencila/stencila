@@ -1,0 +1,7 @@
+type: Article
+# Authors as a list
+authors: John Smith; Doe, Jane & Peter Pan
+# Keywords as a comma separated list
+keywords: foo, bar, baz
+# Kebab cased, singular, property name; single value for array
+alternate_names: jim

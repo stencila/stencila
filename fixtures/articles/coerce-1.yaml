@@ -1,0 +1,27 @@
+type: Article
+# Property alias `author`; single value instead of array; string instead of `Person` object
+author: John Smith
+# Property alias `date`; non-ISO date (with timezone to make independent of local timezone)
+date: 11 July 2021 00+00
+# Single keyword
+keyword: foo
+content:
+  # Paragraph's required `content` should default to an empty array
+  - type: Paragraph
+  # These primitive inline content nodes should not be coerced
+  - type: Paragraph
+    content:
+      - A string
+      - null
+      - true
+      - 0
+      - 42
+      - 3.14
+  # The content of this list item should not be coerce
+  - type: List
+    items:
+      - type: ListItem
+        content:
+          - type: Strong
+            content:
+              - A string

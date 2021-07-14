@@ -1,0 +1,60 @@
+---
+source: rust/src/methods/coerce/mod.rs
+expression: node
+input_file: fixtures/articles/coerce-1.yaml
+
+---
+{
+  "type": "Article",
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Smith"
+      ],
+      "givenNames": [
+        "John"
+      ]
+    }
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": []
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A string",
+        null,
+        true,
+        0,
+        42,
+        3.14
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Strong",
+              "content": [
+                "A string"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2021-07-11T00:00:00+00:00"
+  },
+  "keywords": [
+    "foo"
+  ]
+}
