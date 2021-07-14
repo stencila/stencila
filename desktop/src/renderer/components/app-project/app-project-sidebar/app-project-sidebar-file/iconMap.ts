@@ -1,10 +1,22 @@
 import { IconNames } from '@stencila/components'
 import { File } from 'stencila'
 
-export const getFileIcon = (file?: File, isCollapsed?: boolean): IconNames => {
+export const getFileIcon = (
+  file?: File,
+  isCollapsed?: boolean,
+  isMain?: boolean
+): IconNames => {
   // Generic file fallback
+  if (isMain) {
+    return 'bookmark'
+  }
+
   if (!file) {
     return 'file-2'
+  }
+
+  if (file.name.toLowerCase() === 'project.json') {
+    return 'settings-3'
   }
 
   // Handle folders

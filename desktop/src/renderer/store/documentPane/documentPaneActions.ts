@@ -1,9 +1,11 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { option as O } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 import { errorToast } from '../../../renderer/utils/errors'
 import { client } from '../../client'
 import { clearEditorState } from '../editorState/editorStateActions'
-import { store } from '../index'
+import { state, store } from '../index'
+import { selectPaneId } from './documentPaneSelectors'
 import { documentPaneActions } from './documentPaneStore'
 
 export const initPane = (paneId: EntityId) => {
@@ -24,6 +26,13 @@ export const addDocumentToPane = async (paneId: EntityId, path: string) => {
     errorToast(err)
   }
 }
+
+export const addDocumentToActivePane = async (path: string) =>
+  pipe(
+    state,
+    selectPaneId,
+    O.map((paneId) => addDocumentToPane(paneId, path))
+  )
 
 export const closeDocument = (paneId: EntityId, docId: EntityId) => {
   store.dispatch(

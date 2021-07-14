@@ -1,6 +1,9 @@
 import { Component, h, Host, Prop } from '@stencil/core'
 import { state } from '../../../../store'
-import { selectProjectRootFiles } from '../../../../store/project/projectSelectors'
+import {
+  getProjectMainFilePath,
+  selectProjectRootFiles,
+} from '../../../../store/project/projectSelectors'
 
 @Component({
   tag: 'app-project-sidebar-files',
@@ -13,6 +16,8 @@ export class AppProjectSidebarFiles {
 
   render() {
     const files = selectProjectRootFiles(state)
+    const mainFilePath = getProjectMainFilePath(state)
+
     return (
       <Host class="customScrollbar">
         <div class="app-project-sidebar-files">
@@ -21,6 +26,7 @@ export class AppProjectSidebarFiles {
               {files.map((filePath) => (
                 <app-project-sidebar-file
                   filePath={filePath}
+                  isMain={mainFilePath === filePath}
                   key={filePath}
                 ></app-project-sidebar-file>
               ))}

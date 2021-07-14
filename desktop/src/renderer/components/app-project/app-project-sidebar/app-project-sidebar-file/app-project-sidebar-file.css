@@ -32,4 +32,8 @@ a {
   & > * {
     @apply align-middle;
   }
+
+  &.isMain {
+    @apply font-extrabold;
+  }
 }

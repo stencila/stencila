@@ -1,10 +1,7 @@
 import { Component, h, Host, Prop, State } from '@stencil/core'
-import { option as O } from 'fp-ts'
-import { pipe } from 'fp-ts/function'
 import { File } from 'stencila'
 import { state } from '../../../../store'
-import { addDocumentToPane } from '../../../../store/documentPane/documentPaneActions'
-import { selectPaneId } from '../../../../store/documentPane/documentPaneSelectors'
+import { addDocumentToActivePane } from '../../../../store/documentPane/documentPaneActions'
 import { selectProjectFile } from '../../../../store/project/projectSelectors'
 import { getFileIcon } from './iconMap'
 
@@ -17,18 +14,13 @@ export class AppProjectSidebarFile {
   @Prop()
   filePath: string
 
+  @Prop()
+  isMain: boolean = false
+
   @State()
   isCollapsed = true
 
   private file: File | undefined
-
-  setActiveFile = (path: string) => {
-    pipe(
-      state,
-      selectPaneId,
-      O.map((paneId) => addDocumentToPane(paneId, path))
-    )
-  }
 
   private clickHandler = (e: MouseEvent) => {
     e.preventDefault()
@@ -36,7 +28,7 @@ export class AppProjectSidebarFile {
     if (this.file?.children) {
       this.isCollapsed = !this.isCollapsed
     } else {
-      this.setActiveFile(this.filePath)
+      addDocumentToActivePane(this.filePath)
     }
   }
 
@@ -59,11 +51,12 @@ export class AppProjectSidebarFile {
             class={{
               isDir,
               isFile: !isDir,
+              isMain: this.isMain,
             }}
             onClick={this.clickHandler}
           >
             <stencila-icon
-              icon={getFileIcon(file, this.isCollapsed)}
+              icon={getFileIcon(file, this.isCollapsed, this.isMain)}
             ></stencila-icon>
             <span>{file?.name}</span>
           </a>

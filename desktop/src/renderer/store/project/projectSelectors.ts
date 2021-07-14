@@ -44,3 +44,8 @@ export const getProjectTheme = (state: RootState): string => {
   const project = state.projects.entities.projects[id]
   return project?.theme ?? 'stencila'
 }
+
+export const getProjectMainFilePath = (state: RootState): string | undefined => {
+  const id = state.projects.ids[0] ?? ''
+  return state.projects.entities.projects[id]?.mainPath
+}
