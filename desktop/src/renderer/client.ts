@@ -67,6 +67,10 @@ export const client = {
     },
   },
   config: {
+    window: {
+      open: () =>
+        window.api.invoke(CHANNEL.CONFIG_WINDOW_OPEN).then(unwrapOrThrow),
+    },
     global: {
       getAll: () => window.api.invoke(CHANNEL.CONFIG_READ).then(unwrapOrThrow),
     },
@@ -106,7 +110,6 @@ export const client = {
     contents: (docId: EntityId) =>
       window.api
         .invoke(CHANNEL.DOCUMENTS_DUMP, docId.toString())
-        .then((r) => r)
         .then(unwrapOrThrow),
     preview: (docId: EntityId) =>
       window.api

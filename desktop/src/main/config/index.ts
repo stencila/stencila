@@ -1,10 +1,10 @@
 import { config, dispatch, plugins, Result } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import {
+  ConfigWindowOpen,
   NormalizedPlugins,
   PluginsInstall,
   PluginsList,
-  PluginsRead,
   PluginsRefresh,
   PluginsUninstall,
   PluginsUpgrade,
@@ -13,6 +13,7 @@ import {
 import { removeChannelHandlers } from '../utils/handler'
 import { handle, valueToSuccessResult } from '../utils/ipc'
 import { CONFIG_CHANNEL } from './channels'
+import { showSettings } from './window'
 
 const getConfig = async () => {
   return valueToSuccessResult({
@@ -37,11 +38,12 @@ const getPlugins = (): Result<NormalizedPlugins> => {
 
 export const registerConfigHandlers = () => {
   try {
-    handle<ReadConfig>(CHANNEL.CONFIG_READ, async () => getConfig())
-
-    handle<PluginsRead>(CHANNEL.READ_PLUGINS, async () => {
-      return getPlugins()
+    handle<ConfigWindowOpen>(CHANNEL.CONFIG_WINDOW_OPEN, async () => {
+      showSettings()
+      return valueToSuccessResult()
     })
+
+    handle<ReadConfig>(CHANNEL.CONFIG_READ, async () => getConfig())
 
     handle<PluginsList>(CHANNEL.PLUGINS_LIST, async () => {
       plugins.refresh([])
@@ -52,9 +54,12 @@ export const registerConfigHandlers = () => {
       return dispatch.plugins.install(name)
     })
 
-    handle<PluginsUninstall>(CHANNEL.PLUGINS_UNINSTALL, async (_event, name) => {
-      return dispatch.plugins.uninstall(name)
-    })
+    handle<PluginsUninstall>(
+      CHANNEL.PLUGINS_UNINSTALL,
+      async (_event, name) => {
+        return dispatch.plugins.uninstall(name)
+      }
+    )
 
     handle<PluginsUpgrade>(CHANNEL.PLUGIN_UPGRADE, async (_event, name) => {
       return dispatch.plugins.upgrade(name)

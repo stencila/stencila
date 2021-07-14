@@ -7,9 +7,19 @@ main {
 }
 
 .launcherActions {
-  @apply flex flex-col items-stretch;
+  @apply flex flex-col items-stretch justify-between;
   flex-basis: 30%;
   max-width: 16rem;
+}
+
+.primaryActions {
+  stencila-button {
+    @apply block mb-4;
+  }
+}
+
+.secondaryActions {
+  @apply text-left pt-4;
 }
 
 .recentProjects {
@@ -73,10 +83,6 @@ main {
   img {
     @apply h-full w-auto;
   }
-}
-
-stencila-button {
-  @apply block mb-4;
 }
 
 h2 {

@@ -53,6 +53,11 @@ export type CaptureError = InvokeType<
 >
 
 // Config
+export type ConfigWindowOpen = InvokeType<
+  typeof CHANNEL.CONFIG_WINDOW_OPEN,
+  () => void
+>
+
 export type ReadConfig = InvokeType<
   typeof CHANNEL.CONFIG_READ,
   () => {
@@ -77,11 +82,6 @@ export type SetAppConfig = InvokeType<
 >
 
 // Plugins
-export type PluginsRead = InvokeType<
-  typeof CHANNEL.READ_PLUGINS,
-  () => NormalizedPlugins
->
-
 export type PluginsList = InvokeType<
   typeof CHANNEL.PLUGINS_LIST,
   () => NormalizedPlugins
@@ -182,11 +182,11 @@ export type DocumentsUnsubscribe = InvokeType<
 type InvokeTypes =
   | OpenLink
   | CaptureError
+  | ConfigWindowOpen
   | ReadConfig
   | ReadAppConfig
   | GetAppConfig
   | SetAppConfig
-  | PluginsRead
   | PluginsList
   | PluginsInstall
   | PluginsUninstall
@@ -235,6 +235,11 @@ interface Invoke {
 
   // Config
   invoke(
+    channel: ConfigWindowOpen['channel'],
+    ...args: ConfigWindowOpen['args']
+  ): ConfigWindowOpen['result']
+
+  invoke(
     channel: ReadConfig['channel'],
     ...args: ReadConfig['args']
   ): ReadConfig['result']
@@ -255,11 +260,6 @@ interface Invoke {
   ): SetAppConfig['result']
 
   // Plugins
-  invoke(
-    channel: PluginsRead['channel'],
-    ...args: PluginsRead['args']
-  ): PluginsRead['result']
-
   invoke(
     channel: PluginsList['channel'],
     ...args: PluginsList['args']
