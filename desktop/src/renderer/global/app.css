@@ -36,7 +36,7 @@ body {
 /* @see https://github.com/alesgenova/split-me#styling */
 split-me {
   @apply w-full;
-  --divider-color: var(--color-neutral-300);
+  --divider-color: var(--color-neutral-100);
   --phantom-divider-thickness: 0.25rem;
   --divider-shadow: none;
   --divider-thickness: 0.125rem;

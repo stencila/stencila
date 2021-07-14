@@ -3,7 +3,7 @@
 
 .title {
   @apply flex justify-between items-center mb-4;
-  color: var(--color-neutral-700);
+  color: var(--color-key);
 
   h1 {
     @apply inline m-0 text-lg pr-4;
@@ -16,7 +16,7 @@ fieldset {
 
 .helpText {
   @apply text-sm mt-1;
-  color: var(--color-neutral-700);
+  color: var(--color-neutral-600);
 }
 
 input {

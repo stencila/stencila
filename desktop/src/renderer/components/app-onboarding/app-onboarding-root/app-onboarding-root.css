@@ -4,13 +4,13 @@ app-onboarding-root {
 
 .app-onboarding > stencila-icon {
   @apply text-6xl p-4 rounded-lg;
-  color: var(--color-neutral-800);
-  background: var(--color-neutral-300);
+  color: var(--color-neutral-600);
+  background: var(--color-neutral-50);
 }
 
 h1 {
   @apply text-2xl mt-8 mb-2;
-  color: var(--color-neutral-700);
+  color: var(--color-key);
 }
 
 p {
@@ -28,7 +28,7 @@ stencila-button {
 
 .skipSection {
   @apply text-sm;
-  color: var(--color-neutral-700);
+  color: var(--color-neutral-600);
 }
 
 .logo {
