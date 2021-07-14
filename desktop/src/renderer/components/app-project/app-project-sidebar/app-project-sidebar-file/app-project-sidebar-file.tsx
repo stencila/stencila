@@ -57,6 +57,7 @@ export class AppProjectSidebarFile {
           >
             <stencila-icon
               icon={getFileIcon(file, this.isCollapsed, this.isMain)}
+              iconStyle="fill"
             ></stencila-icon>
             <span>{file?.name}</span>
           </a>
