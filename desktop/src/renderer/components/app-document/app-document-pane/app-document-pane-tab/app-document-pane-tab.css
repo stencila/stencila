@@ -32,10 +32,17 @@
       @apply opacity-100;
     }
   }
-}
 
-li {
-  @apply flex list-none align-middle flex-row flex-nowrap items-center;
+  li {
+    @apply flex list-none align-middle flex-row flex-nowrap items-center;
+  }
+
+  &.userOS-Linux,
+  &.userOS-Windows_NT {
+    li {
+      @apply flex-row-reverse;
+    }
+  }
 }
 
 stencila-icon {

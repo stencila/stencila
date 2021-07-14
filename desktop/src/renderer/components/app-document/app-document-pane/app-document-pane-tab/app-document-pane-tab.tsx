@@ -6,6 +6,7 @@ import {
   setActiveDocument,
 } from '../../../../store/documentPane/documentPaneActions'
 import { selectDoc } from '../../../../store/documentPane/documentPaneSelectors'
+import { userOS } from '../../../../utils/env'
 
 @Component({
   tag: 'app-document-pane-tab',
@@ -32,7 +33,13 @@ export class AppDocumentPaneTab {
 
   render() {
     return (
-      <Host class={{ isActive: this.isActive }} onClick={this.activateDoc}>
+      <Host
+        class={{
+          isActive: this.isActive,
+          [`userOS-${userOS ?? 'unknown'}`]: true,
+        }}
+        onClick={this.activateDoc}
+      >
         <li>
           <stencila-icon icon="close" onClick={this.closeDoc}></stencila-icon>
           <a href="#">{selectDoc(state)(this.viewId)?.name}</a>
