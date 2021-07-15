@@ -1,3 +1,12 @@
+## [0.97.2](https://github.com/stencila/stencila/compare/v0.97.1...v0.97.2) (2021-07-15)
+
+
+### Bug Fixes
+
+* **Build:** Statically link lzma-sys crate ([9a54d70](https://github.com/stencila/stencila/commit/9a54d7043078ab2750b97582e32cbd3b871e15cb))
+* **Documents:** Watch parent folder; read and update binary files ([72fd25f](https://github.com/stencila/stencila/commit/72fd25f417e9e5741fa20ea0c8fb58bba80f0e0c))
+* **Projects:** Canonicalize the main path of a project ([b575478](https://github.com/stencila/stencila/commit/b575478017f8b4bd78c34fb7739c368b95bba306))
+
 ## [0.97.1](https://github.com/stencila/stencila/compare/v0.97.0...v0.97.1) (2021-07-15)
 
 
