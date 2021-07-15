@@ -14,6 +14,12 @@ variables:
   CARGO_HOME: $(RUST_CACHE)/.cargo
   SCCACHE_DIR: $(RUST_CACHE)/sccache
   SCCACHE_CACHE_SIZE: 1G
+  
+  # Settings for Rust build
+  #
+  # Statically link the lzma-sys crate. See https://github.com/stencila/stencila/issues/1038
+  LZMA_API_STATIC: 1
+
 
 jobs:
   # Create variables indicating whether or not there are changes in
