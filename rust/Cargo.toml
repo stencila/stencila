@@ -42,6 +42,8 @@ upgrade = ["self_update"]
 
 config = ["humantime", "toml", "validator"]
 
+import-github = []
+
 decode-date = ["dtparse"]
 decode-docx = ["decode-pandoc"]
 decode-json = []
@@ -89,6 +91,7 @@ default = [
     "plugins-r",
     "upgrade",
     "config",
+    "import-github",
     "decode-date",
     "decode-docx",
     "decode-html",

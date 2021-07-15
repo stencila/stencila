@@ -9,6 +9,7 @@ pub mod documents;
 pub mod files;
 pub mod formats;
 pub mod projects;
+pub mod sources;
 
 // Methods
 //
@@ -19,17 +20,12 @@ pub mod methods {
     pub mod prelude;
     pub use prelude::*;
 
-    pub mod read;
-    pub mod write;
-
-    pub mod coerce;
+    pub mod import;
 
     pub mod decode;
     pub mod encode;
 
-    pub mod export;
-    pub mod import;
-
+    pub mod coerce;
     pub mod reshape;
 
     pub mod compile;

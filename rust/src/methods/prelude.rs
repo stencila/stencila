@@ -9,19 +9,14 @@ use strum::{Display, EnumString, EnumVariantNames};
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 pub enum Method {
-    Read,
-    Write,
-
+    Import,
+    Export,
+    
     Decode,
     Encode,
 
-    Validate,
-
-    Upcast,
-    Downcast,
-
-    Import,
-    Export,
+    Coerce,
+    Reshape,
 
     Compile,
     Build,
