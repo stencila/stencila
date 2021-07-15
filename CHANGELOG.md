@@ -1,3 +1,11 @@
+## [0.97.1](https://github.com/stencila/stencila/compare/v0.97.0...v0.97.1) (2021-07-15)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @sentry/electron to v2.5.1 ([09204b6](https://github.com/stencila/stencila/commit/09204b6db2c88b2bab0dbd702da61f108496aff1))
+* **Documents:** Add `previewable` property to indicate whether preview panel should be opened by default ([9830da3](https://github.com/stencila/stencila/commit/9830da3be8bffc73601d7b3780ee72acd50e80c1))
+
 # [0.97.0](https://github.com/stencila/stencila/compare/v0.96.0...v0.97.0) (2021-07-14)
 
 
