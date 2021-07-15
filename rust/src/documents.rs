@@ -279,27 +279,28 @@ impl Document {
             ..Default::default()
         };
 
-        // Attempt to update the document from the file
-        match document.format.binary {
-            true => attempt(document.update().await),
-            false => attempt(document.read().await),
-        }
+        // Attempt to read the document from the file
+        attempt(document.read().await);
 
         Ok(document)
     }
 
-    /// Read the document from the file system and return its content.
+    /// Read the document from the file system, update it and return its content.
     ///
-    /// Sets `status` to `Synced`. Will error if the document's format
-    /// is binary.
+    /// Sets `status` to `Synced`. For binary files, does not actually read the content
+    /// but will update the document nonetheless (possibly delegating the actual read
+    /// to a binary or plugin)
     async fn read(&mut self) -> Result<String> {
-        if self.format.binary {
-            bail!("Content should not be read from binary files")
-        }
-        let content = fs::read_to_string(&self.path)?;
-        self.load(content, None).await?;
+        let content = if !self.format.binary {
+            let content = fs::read_to_string(&self.path)?;
+            self.load(content.clone(), None).await?;
+            content
+        } else {
+            self.update().await?;
+            "".to_string()
+        };
         self.status = DocumentStatus::Synced;
-        Ok(self.content.clone())
+        Ok(content)
     }
 
     /// Write the document to the file system, optionally load new `content`
@@ -661,9 +662,11 @@ impl DocumentHandler {
     /// It is necessary to have a file watcher that is separate from a project directory watcher
     /// for documents that are opened independent of a project (a.k.a. orphan documents).
     ///
-    /// Unfortunately this watcher is unable to recognize renames of the file (because it is only
-    /// watching a single file, not a directory). Thus any rename events must be detected and acted
-    /// upon at the project level (if any, i.e if the document is part of a project).
+    /// It is also necessary for this watcher to be on the parent folder of the document
+    /// (which, for some documents may be concurrent with the watcher for the project) and to filter
+    /// events related to the file. That is necessary because some events are otherwise
+    /// not captured e.g. file renames (delete and then create) and file writes by some software
+    /// (e.g. LibreOffice deletes and then creates a file instead of just writing it).
     fn watch(
         id: String,
         path: PathBuf,
@@ -671,6 +674,8 @@ impl DocumentHandler {
     ) -> (crossbeam_channel::Sender<()>, JoinHandle<()>) {
         let (thread_sender, thread_receiver) = crossbeam_channel::bounded(1);
         let (async_sender, mut async_receiver) = tokio::sync::mpsc::channel(100);
+
+        let path_cloned = path.clone();
 
         // Standard thread to run blocking sync file watcher
         std::thread::spawn(move || -> Result<()> {
@@ -681,7 +686,8 @@ impl DocumentHandler {
                 watcher_sender,
                 Duration::from_millis(DocumentHandler::WATCHER_DELAY_MILLIS),
             )?;
-            watcher.watch(&path, RecursiveMode::NonRecursive)?;
+            let parent = path.parent().unwrap_or(&path);
+            watcher.watch(&parent, RecursiveMode::NonRecursive)?;
 
             // Event checking timeout. Can be quite long since only want to check
             // whether we can end this thread.
@@ -727,11 +733,26 @@ impl DocumentHandler {
 
         // Async task to handle events
         let handler = tokio::spawn(async move {
+            let mut document_path = path_cloned;
             tracing::debug!("Starting document handler");
             while let Some(event) = async_receiver.recv().await {
                 match event {
-                    DebouncedEvent::Remove(path) => document.lock().await.deleted(path),
-                    DebouncedEvent::Write(path) => document.lock().await.modified(path).await,
+                    DebouncedEvent::Create(path) | DebouncedEvent::Write(path) => {
+                        if path == document_path {
+                            document.lock().await.modified(path).await
+                        }
+                    }
+                    DebouncedEvent::Remove(path) => {
+                        if path == document_path {
+                            document.lock().await.deleted(path)
+                        }
+                    }
+                    DebouncedEvent::Rename(from, to) => {
+                        if from == document_path {
+                            document_path = to.clone();
+                            document.lock().await.renamed(from, to)
+                        }
+                    }
                     _ => {}
                 }
             }
