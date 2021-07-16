@@ -1,3 +1,12 @@
+## [0.97.3](https://github.com/stencila/stencila/compare/v0.97.2...v0.97.3) (2021-07-16)
+
+
+### Bug Fixes
+
+* **Desktop:** Only remove IPC handlers if no windows require them ([1b39bba](https://github.com/stencila/stencila/commit/1b39bba37cb82f85c314387a55c4d8b5a02439d3))
+* **Editor:** Correctly set editor state after previewing media files ([1ed4d8e](https://github.com/stencila/stencila/commit/1ed4d8e198e355fa9a4837a2fc85bb226ef16132))
+* **Errors:** Report unhandled errors ([29f9748](https://github.com/stencila/stencila/commit/29f97481b42b2ac4ae138b86cea82d935ac4e8d6))
+
 ## [0.97.2](https://github.com/stencila/stencila/compare/v0.97.1...v0.97.2) (2021-07-15)
 
 
