@@ -3,10 +3,12 @@ use std::path::Path;
 use crate::{files::File, sources::Source};
 use eyre::{Result};
 
+#[cfg(feature = "import-elife")]
+pub mod elife;
 #[cfg(feature = "import-github")]
 pub mod github;
 
-/// Import files from a source
+/// Import files from a source into a project
 ///
 /// # Arguments
 ///
@@ -16,12 +18,16 @@ pub mod github;
 ///
 /// # Returns
 ///
-/// A list of files imported from the source
+/// A list of files imported from the source.
 pub async fn import(project: &Path, source: &Source, destination: Option<String>) -> Result<Vec<File>> {
     // Allow these for when no features are enabled
     #[allow(unused_variables, unreachable_code)]
-    Ok(match source {
+    let files = match source {
+        #[cfg(feature = "import-elife")]
+        Source::Elife(source) => elife::import(project, source, destination).await?,
+
         #[cfg(feature = "import-github")]
-        Source::GitHub(source) => github::import(project, source, destination)?,
-    })
+        Source::GitHub(source) => github::import(project, source, destination).await?,
+    };
+    Ok(files)
 }
