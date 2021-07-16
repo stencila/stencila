@@ -145,7 +145,7 @@ export class AppDocumentEditor {
       })
   }
 
-  componentWillLoad() {
+  componentDidLoad() {
     return this.subscribeToDocument(this.documentId)
   }
 

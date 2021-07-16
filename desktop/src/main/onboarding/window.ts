@@ -1,8 +1,8 @@
 import { BrowserWindow } from 'electron'
-import { registerOnboardingHandlers, removeOnboaringHandlers } from '.'
+import { onboardingHandlers } from '.'
 import { i18n } from '../../i18n'
-import { registerConfigHandlers, removeConfigHandlers } from '../config'
-import { registerLauncherHandlers, removeLauncherHandlers } from '../launcher'
+import { configHandlers } from '../config'
+import { launcherHandlers } from '../launcher'
 import { createWindow } from '../window'
 
 let onboardingWindow: BrowserWindow | null
@@ -23,17 +23,21 @@ export const openOnboardingWindow = () => {
     center: true,
   })
 
+  // The ID needs to be stored separately from the window object. Otherwise an error
+  // is thrown because the time remove handlers are called the window object is already destroyed.
+  const windowId = onboardingWindow.id
+
   onboardingWindow.on('closed', () => {
-    removeLauncherHandlers()
-    removeConfigHandlers()
-    removeOnboaringHandlers()
+    launcherHandlers.remove(windowId)
+    configHandlers.remove(windowId)
+    onboardingHandlers.remove(windowId)
     onboardingWindow = null
   })
 
   onboardingWindow.webContents.on('did-finish-load', () => {
-    registerLauncherHandlers()
-    registerConfigHandlers()
-    registerOnboardingHandlers()
+    launcherHandlers.register(windowId)
+    configHandlers.register(windowId)
+    onboardingHandlers.register(windowId)
     onboardingWindow?.show()
   })
 
