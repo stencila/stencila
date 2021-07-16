@@ -1,4 +1,5 @@
 import { Toast } from '@stencila/components'
+import { captureError } from '../../../preload/errors'
 import { isRPCError } from '../../client'
 
 const toastController = Toast.toastController({
@@ -26,6 +27,7 @@ export const errorToast = (error: unknown) => {
 
 export const showUnhandledErrors = () => {
   window.onunhandledrejection = (e: PromiseRejectionEvent) => {
+    captureError(e)
     errorToast(e.reason)
   }
 }
