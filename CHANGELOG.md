@@ -1,3 +1,10 @@
+## [0.97.4](https://github.com/stencila/stencila/compare/v0.97.3...v0.97.4) (2021-07-16)
+
+
+### Bug Fixes
+
+* **Types:** Fix CaptureError IPC call type signature ([3bcfff1](https://github.com/stencila/stencila/commit/3bcfff1d5d87762f175b35c48788ca1676b0f9c0))
+
 ## [0.97.3](https://github.com/stencila/stencila/compare/v0.97.2...v0.97.3) (2021-07-16)
 
 
