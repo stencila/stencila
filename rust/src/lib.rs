@@ -86,6 +86,7 @@ pub mod telemetry;
 
 pub mod utils {
     pub mod fs;
+    pub mod http;
     pub mod schemas;
     pub mod urls;
     pub mod uuids;
