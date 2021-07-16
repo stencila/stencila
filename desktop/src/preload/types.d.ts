@@ -49,7 +49,7 @@ export type OpenLink = InvokeType<
 
 export type CaptureError = InvokeType<
   typeof CHANNEL.CAPTURE_ERROR,
-  (payload: LogHandler) => void
+  (payload: Error | PromiseRejectionEvent) => void
 >
 
 // Config
