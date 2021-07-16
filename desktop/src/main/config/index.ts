@@ -10,7 +10,7 @@ import {
   PluginsUpgrade,
   ReadConfig,
 } from '../../preload/types'
-import { removeChannelHandlers } from '../utils/handler'
+import { makeHandlers, removeChannelHandlers } from '../utils/handler'
 import { handle, valueToSuccessResult } from '../utils/ipc'
 import { CONFIG_CHANNEL } from './channels'
 import { showSettings } from './window'
@@ -36,48 +36,46 @@ const getPlugins = (): Result<NormalizedPlugins> => {
   )
 }
 
-export const registerConfigHandlers = () => {
-  try {
-    handle<ConfigWindowOpen>(CHANNEL.CONFIG_WINDOW_OPEN, async () => {
-      showSettings()
-      return valueToSuccessResult()
-    })
+const registerConfigHandlers = () => {
+  handle<ConfigWindowOpen>(CHANNEL.CONFIG_WINDOW_OPEN, async () => {
+    showSettings()
+    return valueToSuccessResult()
+  })
 
-    handle<ReadConfig>(CHANNEL.CONFIG_READ, async () => getConfig())
+  handle<ReadConfig>(CHANNEL.CONFIG_READ, async () => getConfig())
 
-    handle<PluginsList>(CHANNEL.PLUGINS_LIST, async () => {
-      plugins.refresh([])
-      return getPlugins()
-    })
+  handle<PluginsList>(CHANNEL.PLUGINS_LIST, async () => {
+    plugins.refresh([])
+    return getPlugins()
+  })
 
-    handle<PluginsInstall>(CHANNEL.PLUGINS_INSTALL, async (_event, name) => {
-      return dispatch.plugins.install(name)
-    })
+  handle<PluginsInstall>(CHANNEL.PLUGINS_INSTALL, async (_event, name) => {
+    return dispatch.plugins.install(name)
+  })
 
-    handle<PluginsUninstall>(
-      CHANNEL.PLUGINS_UNINSTALL,
-      async (_event, name) => {
-        return dispatch.plugins.uninstall(name)
-      }
-    )
+  handle<PluginsUninstall>(CHANNEL.PLUGINS_UNINSTALL, async (_event, name) => {
+    return dispatch.plugins.uninstall(name)
+  })
 
-    handle<PluginsUpgrade>(CHANNEL.PLUGIN_UPGRADE, async (_event, name) => {
-      return dispatch.plugins.upgrade(name)
-    })
+  handle<PluginsUpgrade>(CHANNEL.PLUGIN_UPGRADE, async (_event, name) => {
+    return dispatch.plugins.upgrade(name)
+  })
 
-    handle<PluginsRefresh>(
-      CHANNEL.PLUGINS_REFRESH,
-      async (_event, pluginList) => {
-        return dispatch.plugins.refresh(
-          pluginList ?? plugins.list().map((plugin) => plugin.name)
-        )
-      }
-    )
-  } catch {
-    // Handlers likely already registered
-  }
+  handle<PluginsRefresh>(
+    CHANNEL.PLUGINS_REFRESH,
+    async (_event, pluginList) => {
+      return dispatch.plugins.refresh(
+        pluginList ?? plugins.list().map((plugin) => plugin.name)
+      )
+    }
+  )
 }
 
-export const removeConfigHandlers = () => {
+const removeConfigHandlers = () => {
   removeChannelHandlers(CONFIG_CHANNEL)
 }
+
+export const configHandlers = makeHandlers(
+  registerConfigHandlers,
+  removeConfigHandlers
+)

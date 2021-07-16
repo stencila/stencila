@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron'
-import { registerConfigHandlers, removeConfigHandlers } from '.'
+import { configHandlers } from '.'
 import { i18n } from '../../i18n'
 import { createWindow } from '../window'
 
@@ -18,13 +18,17 @@ export const showSettings = () => {
     title: i18n.t('settings.title'),
   })
 
+  // The ID needs to be stored separately from the window object. Otherwise an error
+  // is thrown because the time remove handlers are called the window object is already destroyed.
+  const windowId = settingsWindow.id
+
   settingsWindow.on('closed', () => {
-    removeConfigHandlers()
+    configHandlers.remove(windowId)
     settingsWindow = null
   })
 
   settingsWindow.webContents.on('did-finish-load', () => {
-    registerConfigHandlers()
+    configHandlers.register(windowId)
     settingsWindow?.show()
   })
 

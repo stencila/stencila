@@ -1,7 +1,7 @@
 import { BrowserWindow } from 'electron'
-import { registerLauncherHandlers, removeLauncherHandlers } from '.'
-import { registerConfigHandlers, removeConfigHandlers } from '../config'
-import { registerProjectHandlers } from '../project'
+import { launcherHandlers } from '.'
+import { configHandlers } from '../config'
+import { projectHandlers } from '../project'
 import { createWindow } from '../window'
 
 let launcherWindow: BrowserWindow | null
@@ -24,16 +24,20 @@ export const openLauncherWindow = () => {
     center: true,
   })
 
+  // The ID needs to be stored separately from the window object. Otherwise an error
+  // is thrown because the time remove handlers are called the window object is already destroyed.
+  const windowId = launcherWindow.id
+
   launcherWindow.on('closed', () => {
-    removeLauncherHandlers()
-    removeConfigHandlers()
+    launcherHandlers.remove(windowId)
+    configHandlers.remove(windowId)
     launcherWindow = null
   })
 
   launcherWindow.webContents.on('did-finish-load', () => {
-    registerConfigHandlers()
-    registerProjectHandlers()
-    registerLauncherHandlers()
+    configHandlers.register(windowId)
+    projectHandlers.register(windowId)
+    launcherHandlers.register(windowId)
     launcherWindow?.show()
   })
 
@@ -44,5 +48,4 @@ export const openLauncherWindow = () => {
 
 export const closeLauncherWindow = () => {
   launcherWindow?.close()
-  launcherWindow = null
 }

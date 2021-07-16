@@ -1,9 +1,11 @@
 import { CHANNEL } from '../../preload/channels'
 import { GetAppConfig, ReadAppConfig, SetAppConfig } from '../../preload/types'
+import { makeHandlers, removeChannelHandlers } from '../utils/handler'
 import { handle, valueToSuccessResult } from '../utils/ipc'
+import { UNPROTECTED_STORE_CHANNEL } from './channels'
 import { getAppConfig, readAppConfig, setAppConfig } from './handlers'
 
-export const registerAppConfigStoreHandlers = () => {
+const registerAppConfigStoreHandlers = () => {
   handle<ReadAppConfig>(CHANNEL.CONFIG_APP_READ, async () => {
     const config = readAppConfig()
     return valueToSuccessResult({ ...config })
@@ -21,3 +23,12 @@ export const registerAppConfigStoreHandlers = () => {
     }
   )
 }
+
+const removeAppConfigStoreHandlers = () => {
+  removeChannelHandlers(UNPROTECTED_STORE_CHANNEL)
+}
+
+export const appStoreHandlers = makeHandlers(
+  registerAppConfigStoreHandlers,
+  removeAppConfigStoreHandlers
+)

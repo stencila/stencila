@@ -1,7 +1,7 @@
 import { parse } from 'path'
 import { projects } from 'stencila'
-import { registerProjectHandlers, removeProjectHandlers } from '.'
-import { registerDocumentHandlers, removeDocoumentHandlers } from '../document'
+import { projectHandlers } from '.'
+import { documentHandlers } from '../document'
 import { createWindow } from '../window'
 
 const getProjectName = (path: string): string => parse(path).base
@@ -18,15 +18,20 @@ export const openProjectWindow = (directoryPath: string) => {
     title: getProjectName(directoryPath),
   })
 
+  // The ID needs to be stored separately from the window object. Otherwise an error
+  // is thrown because the time remove handlers are called the window object is already destroyed.
+  const windowId = projectWindow.id
+
   projectWindow.on('closed', () => {
     projects.close(directoryPath)
-    removeProjectHandlers()
-    removeDocoumentHandlers()
+
+    projectHandlers.remove(windowId)
+    documentHandlers.remove(windowId)
   })
 
   projectWindow.webContents.on('did-finish-load', () => {
-    registerProjectHandlers()
-    registerDocumentHandlers()
+    projectHandlers.register(windowId)
+    documentHandlers.register(windowId)
     projectWindow?.show()
   })
 
