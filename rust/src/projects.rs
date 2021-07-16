@@ -2,7 +2,7 @@ use crate::cli::display;
 use crate::files::{File, FileEvent, Files};
 use crate::methods::import::import;
 use crate::pubsub::publish;
-use crate::sources::{self, Source, SourceDestination};
+use crate::sources::{self, Source, SourceDestination, SourceTrait};
 use crate::utils::schemas;
 use eyre::{bail, Result};
 use notify::DebouncedEvent;
@@ -365,21 +365,26 @@ impl Project {
         source: &str,
         destination: Option<String>,
         name: Option<String>,
+        error_on_existing: bool,
     ) -> Result<Source> {
         // Resolve the source
         let source = sources::resolve(source)?;
 
         // Add the source (if not already a source in the project)
-        let mut name = name.unwrap_or_else(|| source.to_string().to_lowercase());
+        let mut name = name.unwrap_or_else(|| source.default_name());
         if let Some(sources) = &mut self.sources {
             for source_dest in sources.iter() {
                 if source == source_dest.source && destination == source_dest.destination {
-                    bail!(
-                        "The same source / destination combination already exists for this project"
-                    )
+                    if error_on_existing {
+                        bail!(
+                            "The same source / destination combination already exists for this project"
+                        )
+                    } else {
+                        return Ok(source);
+                    }
                 }
                 if name == source_dest.name {
-                    name += "_"
+                    name += "-"
                 }
             }
             sources.push(SourceDestination {
@@ -419,11 +424,31 @@ impl Project {
     /// Import a source into the project
     pub async fn import_source(
         &mut self,
-        source: &str,
+        name_or_id: &str,
+        name: Option<String>,
         destination: Option<String>,
     ) -> Result<Vec<File>> {
+        // Attempt to find a source with a matching name
+        let source = if let Some(sources) = &self.sources {
+            sources.iter().find_map(|source_dest| {
+                if source_dest.name == name_or_id {
+                    Some(source_dest.source.clone())
+                } else {
+                    None
+                }
+            })
+        } else {
+            None
+        };
+
         // Add the source
-        let source = self.add_source(source, destination.clone(), None).await?;
+        let source = match source {
+            Some(source) => source,
+            None => {
+                self.add_source(name_or_id, destination.clone(), name, false)
+                    .await?
+            }
+        };
 
         // Import the source
         let files = import(&self.path, &source, destination).await?;
