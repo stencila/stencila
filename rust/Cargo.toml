@@ -44,17 +44,18 @@ config = ["humantime", "toml", "validator"]
 
 decode-date = ["dtparse"]
 decode-docx = ["decode-pandoc"]
-decode-json = []
 decode-html = ["kuchiki", "markup5ever"]
-decode-md = ["pulldown-cmark", "nom", "decode-html"]
+decode-json = []
 decode-latex = ["decode-pandoc"]
+decode-md = ["pulldown-cmark", "nom", "decode-html"]
 decode-pandoc = ["binaries", "pandoc_types"]
 decode-person = ["human_name"]
 decode-toml = ["toml"]
 decode-yaml = ["serde_yaml"]
 
-encode-json = []
 encode-html = ["html-escape"]
+encode-json = []
+encode-md = []
 encode-pandoc = ["binaries", "pandoc_types"]
 encode-toml = ["toml"]
 encode-txt = []
@@ -101,6 +102,7 @@ default = [
     "decode-yaml",
     "encode-html",
     "encode-json",
+    "encode-md",
     "encode-toml",
     "encode-txt",
     "encode-yaml",

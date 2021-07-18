@@ -9,6 +9,9 @@ pub mod json;
 #[allow(clippy::deprecated_cfg_attr)]
 pub mod html;
 
+#[cfg(feature = "encode-md")]
+pub mod md;
+
 #[cfg(feature = "encode-toml")]
 pub mod toml;
 
@@ -33,6 +36,9 @@ pub async fn encode(node: &Node, format: &str) -> Result<String> {
 
         #[cfg(feature = "encode-json")]
         "json" => json::encode(node)?,
+
+        #[cfg(feature = "encode-md")]
+        "md" => md::encode(node)?,
 
         #[cfg(feature = "encode-toml")]
         "toml" => toml::encode(node)?,
