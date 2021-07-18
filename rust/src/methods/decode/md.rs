@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use super::html;
 use crate::{methods::coerce::coerce, traits::ToVecInlineContent};
 use eyre::{bail, Result};
@@ -14,10 +16,10 @@ use once_cell::sync::Lazy;
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use regex::Regex;
 use stencila_schema::{
-    Article, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
-    ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, MathFragment, Node,
-    Paragraph, QuoteBlock, Strong, Subscript, Superscript, TableCell, TableCellContent, TableRow,
-    TableRowRowType, TableSimple, ThematicBreak,
+    Article, AudioObjectSimple, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment, Delete,
+    Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent,
+    MathFragment, Node, Paragraph, QuoteBlock, Strong, Subscript, Superscript, TableCell,
+    TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
 };
 
 /// Decode a Markdown document to a `Node`
@@ -218,7 +220,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     ..Default::default()
                 })),
                 Tag::CodeBlock(kind) => {
-                    let text = inlines.pop_text();
+                    let text = inlines.pop_text().trim_end_matches('\n').to_string();
                     blocks.push_node(BlockContent::CodeBlock(CodeBlock {
                         text,
                         programming_language: match kind {
@@ -284,11 +286,32 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                             None
                         }
                     };
-                    inlines.push_node(InlineContent::ImageObject(ImageObjectSimple {
-                        content_url: url.to_string(),
-                        caption: title,
-                        ..Default::default()
-                    }))
+
+                    let extension = PathBuf::from(&url.to_string()).extension().map_or_else(
+                        || "".to_string(),
+                        |ext| ext.to_string_lossy().to_string().to_ascii_lowercase(),
+                    );
+                    let media_object = match extension.as_str() {
+                        "flac" | "mp3" | "ogg" => InlineContent::AudioObject(AudioObjectSimple {
+                            content_url: url.to_string(),
+                            caption: title,
+                            ..Default::default()
+                        }),
+                        "3gp" | "mp4" | "ogv" | "webm" => {
+                            InlineContent::VideoObject(VideoObjectSimple {
+                                content_url: url.to_string(),
+                                caption: title,
+                                ..Default::default()
+                            })
+                        }
+                        _ => InlineContent::ImageObject(ImageObjectSimple {
+                            content_url: url.to_string(),
+                            caption: title,
+                            ..Default::default()
+                        }),
+                    };
+
+                    inlines.push_node(media_object)
                 }
 
                 Tag::FootnoteDefinition(..) => {
@@ -676,13 +699,18 @@ pub fn math(input: &str) -> IResult<&str, InlineContent> {
 /// Parse a string into a `Subscript` node
 pub fn subscript(input: &str) -> IResult<&str, InlineContent> {
     map_res(
-        delimited(char('~'), take_until("~"), char('~')),
+        delimited(
+            // Only match single tilde, because doubles are for `Delete`
+            tuple((char('~'), peek(not(char('~'))))),
+            take_until("~"),
+            char('~'),
+        ),
         |res: &str| -> Result<InlineContent> {
             Ok(InlineContent::Subscript(Subscript {
                 content: vec![InlineContent::String(res.into())],
                 ..Default::default()
             }))
-        },
+        }
     )(input)
 }
 
