@@ -594,7 +594,8 @@ impl Inlines {
     /// Push a mark (usually at the start of an inline node)
     fn push_mark(&mut self) {
         self.parse_text();
-        self.marks.push(self.nodes.len())
+        self.marks.push(self.nodes.len());
+        self.active = true;
     }
 
     /// Pop the nodes since the last mark

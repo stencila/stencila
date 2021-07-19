@@ -297,6 +297,23 @@ input_file: fixtures/fragments/md/list.md
             ]
           }
         ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "an item with HTML ",
+              {
+                "type": "NontextualAnnotation",
+                "content": [
+                  "underlined"
+                ]
+              }
+            ]
+          }
+        ]
       }
     ]
   }
