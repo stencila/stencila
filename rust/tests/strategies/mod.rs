@@ -239,9 +239,10 @@ prop_compose! {
     /// but always having strings interspersed by other inline content (to separate them
     /// so that they do not get decoded as a single string).
     ///
-    /// Always starts and ends with a string.  For Markdown compatibility, ensures that nodes
-    /// such as `Strong` and `Emphasis` are surrounded by spaces and that there is no
-    /// leading or trailing blank strings.
+    /// Restrictions:
+    ///   - Always starts and ends with a string.
+    ///   - Ensures that nodes such as `Strong` and `Emphasis` are surrounded by spaces (for Markdown).
+    ///   - No leading or trailing blank strings (for Markdown).
     pub fn vec_inline_content(freedom: Freedom)(length in 1usize..10)(
         strings in vec(string(freedom), size_range(length + 1)),
         others in vec(inline_content(freedom), size_range(length))
@@ -393,9 +394,25 @@ pub fn block_content(freedom: Freedom) -> impl Strategy<Value = BlockContent> {
 }
 
 prop_compose! {
+    /// Generate a vector of block content of arbitrary length and content
+    ///
+    /// Restrictions:
+    ///  - Does not start with a thematic break (unrealistic, and in Markdown can
+    ///    be confused with YAML frontmatter)
+    pub fn vec_block_content(freedom: Freedom)(length in 1usize..10)(
+        blocks in vec(block_content(freedom), size_range(length)).prop_filter(
+            "Vector of block content should not start with thematic break",
+            |blocks| !matches!(blocks[0], BlockContent::ThematicBreak(..))
+        )
+    ) -> Vec<BlockContent> {
+        blocks
+    }
+}
+
+prop_compose! {
     /// Generate an article with arbitrary content (and in the future, other properties)
     pub fn article(freedom: Freedom)(
-        content in vec(block_content(freedom), 1..10)
+        content in vec_block_content(freedom)
     ) -> Node {
         Node::Article(Article{content: Some(content), ..Default::default()})
     }

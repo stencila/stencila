@@ -27,10 +27,16 @@ use stencila_schema::{
 /// Intended for decoding an entire document, this function extracts
 /// YAML front matter, parses the Markdown, and returns a `Node::Article` variant.
 pub fn decode(md: &str) -> Result<Node> {
-    let (md, mut node) = if let Some((end, node)) = decode_frontmatter(&md)? {
-        (&md[end..], node)
-    } else {
-        (md, Node::Article(Article::default()))
+    let (end, node) = decode_frontmatter(&md)?;
+
+    let md = match end {
+        Some(end) => &md[end..],
+        None => md,
+    };
+
+    let mut node = match node {
+        Some(node) => node,
+        None => Node::Article(Article::default()),
     };
 
     let content = decode_fragment(md);
@@ -50,25 +56,45 @@ pub fn decode(md: &str) -> Result<Node> {
 /// Any front matter will be coerced into a `Node`, defaulting to the
 /// `Node::Article` variant, if `type` is not defined.
 /// If there is no front matter detected, will return `None`.
-pub fn decode_frontmatter(md: &str) -> Result<Option<(usize, Node)>> {
+pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
     static REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new("^-{3,}((.|\\n)*)?\\n-{3,}").expect("Unable to create regex"));
 
     if let Some(captures) = REGEX.captures(md) {
+        let end = Some(captures[0].len());
+
         let yaml = captures[1].trim().to_string();
         if yaml.is_empty() {
-            return Ok(None);
+            return Ok((end, None));
         }
 
-        let mut value: serde_json::Value = serde_yaml::from_str(&yaml)?;
-        if value.get("type").is_none() {
-            value["type"] = serde_json::Value::String("Article".to_string());
+        let node = match serde_yaml::from_str(&yaml) {
+            Ok(serde_json::Value::Object(mut node)) => {
+                if node.get("type").is_none() {
+                    node.insert(
+                        "type".to_string(),
+                        serde_json::Value::String("Article".to_string()),
+                    );
+                }
+                serde_json::Value::Object(node)
+            }
+            Ok(_) => {
+                tracing::warn!("YAML frontmatter is not an object, will be ignored");
+                return Ok((end, None));
+            }
+            Err(error) => {
+                tracing::warn!(
+                    "Error while parsing YAML frontmatter, will be ignored {}",
+                    error
+                );
+                return Ok((end, None));
+            }
         };
 
-        let node = coerce(value)?;
-        Ok(Some((captures[0].len(), node)))
+        let node = coerce(node)?;
+        Ok((end, Some(node)))
     } else {
-        Ok(None)
+        Ok((None, None))
     }
 }
 
@@ -710,7 +736,7 @@ pub fn subscript(input: &str) -> IResult<&str, InlineContent> {
                 content: vec![InlineContent::String(res.into())],
                 ..Default::default()
             }))
-        }
+        },
     )(input)
 }
 
@@ -840,17 +866,21 @@ mod tests {
     use super::*;
     use crate::utils::tests::snapshot_content;
     use insta::assert_json_snapshot;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn md_frontmatter() -> Result<()> {
-        assert!(decode_frontmatter("")?.is_none());
-        assert!(decode_frontmatter("--")?.is_none());
-        assert!(decode_frontmatter("---")?.is_none());
-        assert!(decode_frontmatter("---\n---\n")?.is_none());
+        assert!(decode_frontmatter("")?.0.is_none());
+        assert!(decode_frontmatter("--")?.0.is_none());
+        assert!(decode_frontmatter("---")?.0.is_none());
 
-        let (end, node) = decode_frontmatter("---\ntitle: The title\n---")?.unwrap();
-        assert!(end == 24);
-        if let Node::Article(_) = node {
+        let (end, node) = decode_frontmatter("---\n---\n")?;
+        assert_eq!(end, Some(7));
+        assert!(node.is_none());
+
+        let (end, node) = decode_frontmatter("---\ntitle: The title\n---")?;
+        assert!(end == Some(24));
+        if let Some(Node::Article(_)) = node {
         } else {
             bail!("Expected an article")
         }
