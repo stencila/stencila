@@ -188,7 +188,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     let order = if start.is_some() {
                         Some(stencila_schema::ListOrder::Ascending)
                     } else {
-                        None
+                        Some(stencila_schema::ListOrder::Unordered)
                     };
 
                     let items = lists.pop_tail();

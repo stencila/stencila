@@ -41,7 +41,8 @@ input_file: fixtures/fragments/md/list.md
           }
         ]
       }
-    ]
+    ],
+    "order": "Unordered"
   },
   {
     "type": "List",
@@ -120,7 +121,8 @@ input_file: fixtures/fragments/md/list.md
                           }
                         ]
                       }
-                    ]
+                    ],
+                    "order": "Unordered"
                   }
                 ]
               },
@@ -170,19 +172,23 @@ input_file: fixtures/fragments/md/list.md
                                   }
                                 ]
                               }
-                            ]
+                            ],
+                            "order": "Unordered"
                           }
                         ]
                       }
-                    ]
+                    ],
+                    "order": "Unordered"
                   }
                 ]
               }
-            ]
+            ],
+            "order": "Unordered"
           }
         ]
       }
-    ]
+    ],
+    "order": "Unordered"
   },
   {
     "type": "List",
@@ -315,6 +321,7 @@ input_file: fixtures/fragments/md/list.md
           }
         ]
       }
-    ]
+    ],
+    "order": "Unordered"
   }
 ]
