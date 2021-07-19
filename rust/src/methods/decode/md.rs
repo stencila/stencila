@@ -1,7 +1,10 @@
 use std::path::PathBuf;
 
 use super::html;
-use crate::{methods::coerce::coerce, traits::ToVecInlineContent};
+use crate::{
+    methods::{coerce::coerce, encode::txt::ToTxt},
+    traits::ToVecInlineContent,
+};
 use eyre::{bail, Result};
 use nom::{
     branch::alt,
@@ -16,10 +19,11 @@ use once_cell::sync::Lazy;
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use regex::Regex;
 use stencila_schema::{
-    Article, AudioObjectSimple, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment, Delete,
-    Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent,
-    MathFragment, Node, Paragraph, QuoteBlock, Strong, Subscript, Superscript, TableCell,
-    TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
+    Article, AudioObjectSimple, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment,
+    CreativeWorkContent, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List,
+    ListItem, ListItemContent, MathFragment, Node, Paragraph, QuoteBlock, Strong, Subscript,
+    Superscript, TableCell, TableCellContent, TableRow, TableRowRowType, TableSimple,
+    ThematicBreak, VideoObjectSimple,
 };
 
 /// Decode a Markdown document to a `Node`
@@ -140,6 +144,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
         match event {
             Event::Start(tag) => match tag {
                 // Block nodes with block content or special handling
+                // (these should all pop the mark when they end)
                 Tag::BlockQuote => blocks.push_mark(),
                 Tag::List(..) => lists.push_mark(),
                 Tag::Item => {
@@ -160,6 +165,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 Tag::CodeBlock(..) => inlines.clear_all(),
 
                 // Inline nodes with inline content
+                // (these should all pop the mark when they end)
                 Tag::Emphasis => inlines.push_mark(),
                 Tag::Strong => inlines.push_mark(),
                 Tag::Strikethrough => inlines.push_mark(),
@@ -304,6 +310,15 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     }))
                 }
                 Tag::Image(_link_type, url, title) => {
+                    let content = inlines.pop_tail();
+                    let content = if content.is_empty() {
+                        None
+                    } else {
+                        // Content is reduced to a string. Media object do not often have other, more
+                        // complicated, Markdown content in any case.
+                        let txt = content.to_txt();
+                        Some(Box::new(CreativeWorkContent::String(txt)))
+                    };
                     let title = {
                         let title = title.to_string();
                         if !title.is_empty() {
@@ -312,25 +327,27 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                             None
                         }
                     };
-
                     let extension = PathBuf::from(&url.to_string()).extension().map_or_else(
                         || "".to_string(),
                         |ext| ext.to_string_lossy().to_string().to_ascii_lowercase(),
                     );
                     let media_object = match extension.as_str() {
                         "flac" | "mp3" | "ogg" => InlineContent::AudioObject(AudioObjectSimple {
+                            content,
                             content_url: url.to_string(),
                             caption: title,
                             ..Default::default()
                         }),
                         "3gp" | "mp4" | "ogv" | "webm" => {
                             InlineContent::VideoObject(VideoObjectSimple {
+                                content,
                                 content_url: url.to_string(),
                                 caption: title,
                                 ..Default::default()
                             })
                         }
                         _ => InlineContent::ImageObject(ImageObjectSimple {
+                            content,
                             content_url: url.to_string(),
                             caption: title,
                             ..Default::default()
@@ -355,7 +372,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 ..Default::default()
             })),
             Event::Text(value) => {
-                // Text gets accumulated to HTML we're inside a tag, to inlines otherwise
+                // Text gets accumulated to HTML when we're inside a tag, to inlines otherwise
                 let value = value.to_string();
                 if html.tags.is_empty() {
                     inlines.push_text(&value)

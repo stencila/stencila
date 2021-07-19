@@ -264,6 +264,39 @@ input_file: fixtures/fragments/md/list.md
           }
         ],
         "isChecked": false
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "an item with an image ",
+              {
+                "type": "ImageObject",
+                "contentUrl": "image.png"
+              },
+              ", see!"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "an item with ",
+              {
+                "type": "Emphasis",
+                "content": [
+                  "emphasis"
+                ]
+              }
+            ]
+          }
+        ]
       }
     ]
   }

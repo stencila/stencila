@@ -27,5 +27,17 @@ input_file: fixtures/fragments/md/image.md
       },
       "."
     ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "An image with some content ",
+      {
+        "type": "ImageObject",
+        "contentUrl": "image.png",
+        "content": "some content"
+      },
+      "."
+    ]
   }
 ]

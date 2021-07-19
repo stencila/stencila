@@ -21,3 +21,6 @@
 - [x] done
 - [ ] todo
 - [ ] still todo
+
+- an item with an image ![](image.png), see!
+- an item with _emphasis_
