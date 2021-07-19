@@ -5,7 +5,7 @@ use eyre::Result;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::local_name;
 use std::cmp::max;
-use stencila_schema::{Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node, NontextualAnnotation, Paragraph, Quote, Strong, Subscript, Superscript, ThematicBreak, VideoObjectSimple};
+use stencila_schema::{Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node, NontextualAnnotation, Paragraph, Quote, QuoteBlock, Strong, Subscript, Superscript, ThematicBreak, VideoObjectSimple};
 
 // Public API structs and functions...
 
@@ -154,7 +154,12 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                     ..Default::default()
                 })]
             }
-            // TODO: QuoteBlock
+            local_name!("blockquote") => {
+                vec![BlockContent::QuoteBlock(QuoteBlock {
+                    content: decode_blocks(node, context),
+                    ..Default::default()
+                })]
+            }
             // TODO: Table
             local_name!("hr") => {
                 vec![BlockContent::ThematicBreak(ThematicBreak::default())]

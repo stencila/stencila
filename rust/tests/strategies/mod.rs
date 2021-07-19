@@ -379,6 +379,24 @@ prop_compose! {
     }
 }
 
+prop_compose! {
+    /// Generate a quote block with arbitrary block content.
+    /// Does no allow for quote blocks (because that would be a recursive
+    /// strategy), or lists or thematic breaks (because they need filtering, see below)
+    pub fn quote_block(freedom: Freedom)(
+        content in vec(Union::new(vec![
+            code_block(freedom).boxed(),
+            heading(freedom).boxed(),
+            paragraph(freedom).boxed(),
+        ]), 1..4)
+    ) -> BlockContent {
+        BlockContent::QuoteBlock(QuoteBlock{
+            content,
+            ..Default::default()
+        })
+    }
+}
+
 /// Generate a thematic break
 pub fn thematic_break() -> impl Strategy<Value = BlockContent> {
     Just(BlockContent::ThematicBreak(ThematicBreak::default()))
@@ -391,6 +409,7 @@ pub fn block_content(freedom: Freedom) -> impl Strategy<Value = BlockContent> {
         heading(freedom).boxed(),
         list(freedom).boxed(),
         paragraph(freedom).boxed(),
+        quote_block(freedom).boxed(),
         thematic_break().boxed(),
     ])
 }

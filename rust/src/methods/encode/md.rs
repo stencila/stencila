@@ -195,6 +195,23 @@ impl ToMd for ListItem {
     }
 }
 
+impl ToMd for QuoteBlock {
+    fn to_md(&self) -> String {
+        let content: Vec<String> = self
+            .content
+            .iter()
+            .map(|block| {
+                block
+                    .to_md()
+                    .split('\n')
+                    .map(|line| ["> ", line].concat())
+                    .join("\n")
+            })
+            .collect();
+        [content.join("\n"), "\n\n".to_string()].concat()
+    }
+}
+
 impl ToMd for ThematicBreak {
     fn to_md(&self) -> String {
         "---\n\n".to_string()
@@ -231,7 +248,7 @@ impl ToMd for Node {
             Node::Number(node) => node.to_string(),
             Node::Paragraph(node) => node.to_md(),
             Node::Quote(node) => node.to_md(),
-            //Node::QuoteBlock(node) => node.to_md(),
+            Node::QuoteBlock(node) => node.to_md(),
             Node::String(node) => node.to_string(),
             Node::Strong(node) => node.to_md(),
             Node::Subscript(node) => node.to_md(),
@@ -278,7 +295,7 @@ impl ToMd for BlockContent {
             BlockContent::List(node) => node.to_md(),
             //BlockContent::MathBlock(node) => node.to_md(),
             BlockContent::Paragraph(node) => node.to_md(),
-            //BlockContent::QuoteBlock(node) => node.to_md(),
+            BlockContent::QuoteBlock(node) => node.to_md(),
             BlockContent::ThematicBreak(node) => node.to_md(),
             _ => "".to_string(),
         }
