@@ -1783,6 +1783,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "minidom"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "332592c2149fc7dd40a64fc9ef6f0d65607284b474cef9817d1fc8c7e7b3608e"
+dependencies = [
+ "quick-xml",
+]
+
+[[package]]
 name = "minimad"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3379,6 +3388,7 @@ dependencies = [
  "maplit",
  "markup5ever",
  "mime_guess",
+ "minidom",
  "nanoid",
  "nom",
  "notify",

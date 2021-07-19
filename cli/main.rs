@@ -13,7 +13,7 @@ use stencila::{
     },
     plugins, projects,
     regex::Regex,
-    serde_json, serde_yaml, serve,
+    serde_json, serde_yaml, serve, sources,
     strum::VariantNames,
     tokio, tracing, upgrade,
 };
@@ -85,6 +85,8 @@ pub enum Command {
     Projects(projects::cli::Command),
     #[structopt(aliases = &["document", "docs", "doc"])]
     Documents(documents::cli::Command),
+    #[structopt(aliases = &["source"])]
+    Sources(sources::cli::Command),
     #[structopt(aliases = &["plugin"])]
     Plugins(plugins::cli::Command),
     #[structopt(aliases = &["binary"])]
@@ -117,6 +119,7 @@ pub async fn run_command(
         Command::Convert(command) => command.run(documents).await,
         Command::Documents(command) => command.run(documents).await,
         Command::Projects(command) => command.run(projects).await,
+        Command::Sources(command) => command.run(projects).await,
         Command::Plugins(command) => plugins::cli::run(command).await,
         Command::Binaries(command) => command.run().await,
         Command::Config(command) => config::cli::run(command).await,
@@ -162,8 +165,7 @@ impl ListCommand {
 )]
 pub struct OpenCommand {
     /// The file or folder to open
-    #[structopt(default_value = ".")]
-    path: PathBuf,
+    path: Option<PathBuf>,
 
     /// The theme to use to view the document
     #[structopt(short, long)]
@@ -179,12 +181,17 @@ impl OpenCommand {
     ) -> display::Result {
         let Self { path, theme } = self;
 
-        let path = if path.is_dir() {
-            let project = projects.open(&path, true).await?;
+        let (is_project, path) = match path {
+            Some(path) => (path.is_dir(), path),
+            None => (true, std::env::current_dir()?),
+        };
+
+        let path = if is_project {
+            let project = projects.open(Some(path), true).await?;
             match project.main_path {
                 Some(path) => path,
                 None => {
-                    tracing::info!("Project has no main project to display");
+                    tracing::info!("Project has no main document to display");
                     return display::nothing();
                 }
             }
@@ -278,8 +285,7 @@ impl CloseCommand {
 )]
 pub struct ShowCommand {
     /// The file or folder to close
-    #[structopt(default_value = ".")]
-    path: PathBuf,
+    path: Option<PathBuf>,
 }
 
 impl ShowCommand {
@@ -290,11 +296,13 @@ impl ShowCommand {
     ) -> display::Result {
         let Self { path } = self;
 
-        if path.is_dir() {
-            display::value(projects.open(&path, true).await?)
-        } else {
-            display::value(documents.open(&path, None).await?)
+        if let Some(path) = &path {
+            if path.is_file() {
+                return display::value(documents.open(&path, None).await?);
+            }
         }
+
+        display::value(projects.open(path, true).await?)
     }
 }
 

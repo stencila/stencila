@@ -1,6 +1,8 @@
 use crate::cli::display;
 use crate::files::{File, FileEvent, Files};
+use crate::methods::import::import;
 use crate::pubsub::publish;
+use crate::sources::{self, Source, SourceDestination, SourceTrait};
 use crate::utils::schemas;
 use eyre::{bail, Result};
 use notify::DebouncedEvent;
@@ -8,6 +10,7 @@ use regex::Regex;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use std::string::ToString;
 use std::sync::Arc;
 use std::time::Duration;
 use std::{
@@ -94,6 +97,9 @@ pub struct Project {
     /// configuration settings.
     theme: Option<String>,
 
+    /// A list of project sources and their destination within the project
+    pub sources: Option<Vec<SourceDestination>>,
+
     /// Glob patterns for paths to be excluded from file watching
     ///
     /// As a performance optimization, paths that match these patterns are
@@ -103,7 +109,8 @@ pub struct Project {
     watch_exclude_patterns: Option<Vec<String>>,
 
     // The following properties are derived from the filesystem
-    // and should never be read from, or written to, the `project.json` file
+    // and should never be read from, or written to, the `project.json` file.
+    // The `write` method excludes them writing.
     /// The filesystem path of the project folder
     #[serde(skip_deserializing)]
     #[schemars(schema_with = "Project::schema_path")]
@@ -230,13 +237,20 @@ impl Project {
             self.update(updates).await
         }
 
+        // Redact derived properties
+        let mut value = serde_json::to_value(&self)?;
+        let map = value.as_object_mut().expect("Should always be an object");
+        map.remove("path");
+        map.remove("imagePath");
+        map.remove("mainPath");
+        map.remove("files");
+        let json = serde_json::to_string_pretty(map)?;
+
         let path = &self.path;
         if !path.exists() {
             fs::create_dir_all(path)?;
         }
-
         let file = Project::file(path);
-        let json = serde_json::to_string_pretty(self)?;
         fs::write(file, json)?;
 
         Ok(())
@@ -343,6 +357,103 @@ impl Project {
         let hb = Handlebars::new();
         let md = hb.render_template(template.trim(), self)?;
         Ok(md)
+    }
+
+    /// Add a source to the project
+    pub async fn add_source(
+        &mut self,
+        source: &str,
+        destination: Option<String>,
+        name: Option<String>,
+        error_on_existing: bool,
+    ) -> Result<Source> {
+        // Resolve the source
+        let source = sources::resolve(source)?;
+
+        // Add the source (if not already a source in the project)
+        let mut name = name.unwrap_or_else(|| source.default_name());
+        if let Some(sources) = &mut self.sources {
+            for source_dest in sources.iter() {
+                if source == source_dest.source && destination == source_dest.destination {
+                    if error_on_existing {
+                        bail!(
+                            "The same source / destination combination already exists for this project"
+                        )
+                    } else {
+                        return Ok(source);
+                    }
+                }
+                if name == source_dest.name {
+                    name += "-"
+                }
+            }
+            sources.push(SourceDestination {
+                name,
+                source: source.clone(),
+                destination,
+            })
+        } else {
+            self.sources = Some(vec![SourceDestination {
+                name,
+                source: source.clone(),
+                destination,
+            }])
+        }
+        self.write(None).await?;
+
+        Ok(source)
+    }
+
+    /// Remove a source from the project
+    pub async fn remove_source(&mut self, name: &str) -> Result<()> {
+        if let Some(sources) = &mut self.sources {
+            let len = sources.len();
+            sources.retain(|source_dest| source_dest.name != name);
+            if sources.len() == len {
+                tracing::warn!("Project has no sources with name '{}'", name)
+            } else {
+                self.write(None).await?;
+            }
+        } else {
+            tracing::warn!("Project has no sources")
+        }
+
+        Ok(())
+    }
+
+    /// Import a source into the project
+    pub async fn import_source(
+        &mut self,
+        name_or_id: &str,
+        name: Option<String>,
+        destination: Option<String>,
+    ) -> Result<Vec<File>> {
+        // Attempt to find a source with a matching name
+        let source = if let Some(sources) = &self.sources {
+            sources.iter().find_map(|source_dest| {
+                if source_dest.name == name_or_id {
+                    Some(source_dest.source.clone())
+                } else {
+                    None
+                }
+            })
+        } else {
+            None
+        };
+
+        // Add the source
+        let source = match source {
+            Some(source) => source,
+            None => {
+                self.add_source(name_or_id, destination.clone(), name, false)
+                    .await?
+            }
+        };
+
+        // Import the source
+        let files = import(&self.path, &source, destination).await?;
+
+        Ok(files)
     }
 }
 
@@ -583,8 +694,27 @@ pub struct Projects {
 }
 
 impl Projects {
+    /// Create a new project
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Get the path of the current project, falling back to the current working directory
+    ///
+    /// Searches up the directory tree for a `project.json`, returning the parent of the
+    /// first one found. If none is found returns the current working directory.
+    pub fn current_path() -> Result<PathBuf> {
+        let current = std::env::current_dir()?;
+        let mut dir = current.clone();
+        loop {
+            if dir.join(Project::FILE_NAME).exists() {
+                return Ok(dir);
+            }
+            match dir.parent() {
+                Some(parent) => dir = parent.to_path_buf(),
+                None => return Ok(current),
+            }
+        }
     }
 
     /// List documents that are currently open
@@ -606,8 +736,11 @@ impl Projects {
     }
 
     /// Open a project
-    pub async fn open<P: AsRef<Path>>(&mut self, path: P, watch: bool) -> Result<Project> {
-        let path = path.as_ref().canonicalize()?;
+    pub async fn open<P: AsRef<Path>>(&mut self, path: Option<P>, watch: bool) -> Result<Project> {
+        let path = match path {
+            Some(path) => path.as_ref().canonicalize()?,
+            None => Projects::current_path()?,
+        };
 
         let handler = match self.registry.entry(path.clone()) {
             Entry::Occupied(entry) => entry.into_mut(),
@@ -618,6 +751,11 @@ impl Projects {
         };
 
         Ok(handler.project.lock().await.clone())
+    }
+
+    /// Open the current project
+    pub async fn current(&mut self, watch: bool) -> Result<Project> {
+        self.open::<PathBuf>(None, watch).await
     }
 
     /// Get a project
@@ -724,7 +862,7 @@ pub mod cli {
     }
 
     impl Command {
-        pub async fn run(&self, projects: &mut Projects) -> display::Result {
+        pub async fn run(self, projects: &mut Projects) -> display::Result {
             let Self { action } = self;
             match action {
                 Action::Init(action) => action.run().await,
@@ -782,13 +920,12 @@ pub mod cli {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Open {
-        /// The path of the project folder
-        #[structopt(default_value = ".")]
-        pub folder: PathBuf,
+        /// The path of the project folder (defaults to the current project)
+        pub folder: Option<PathBuf>,
     }
 
     impl Open {
-        pub async fn run(&self, projects: &mut Projects) -> display::Result {
+        pub async fn run(self, projects: &mut Projects) -> display::Result {
             let Self { folder } = self;
             let Project { name, .. } = projects.open(folder, true).await?;
             display::value(name)
@@ -822,13 +959,12 @@ pub mod cli {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Show {
-        /// The path of the project folder
-        #[structopt(default_value = ".")]
-        pub folder: PathBuf,
+        /// The path of the project folder (defaults to the current project)
+        pub folder: Option<PathBuf>,
     }
 
     impl Show {
-        pub async fn run(&self, projects: &mut Projects) -> display::Result {
+        pub async fn run(self, projects: &mut Projects) -> display::Result {
             let Self { folder } = self;
             let project = projects.open(folder, false).await?;
             let content = project.show()?;
@@ -838,7 +974,7 @@ pub mod cli {
 
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Get JSON Schemas for documents and associated types",
+        about = "Get JSON schemas for projects and associated types",
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Schemas {}

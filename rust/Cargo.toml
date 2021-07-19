@@ -42,6 +42,9 @@ upgrade = ["self_update"]
 
 config = ["humantime", "toml", "validator"]
 
+import-elife = ["minidom"]
+import-github = []
+
 decode-date = ["dtparse"]
 decode-docx = ["decode-pandoc"]
 decode-html = ["kuchiki", "markup5ever"]
@@ -90,6 +93,8 @@ default = [
     "plugins-r",
     "upgrade",
     "config",
+    "import-elife",
+    "import-github",
     "decode-date",
     "decode-docx",
     "decode-html",
@@ -142,6 +147,7 @@ kuchiki = { version = "=0.8.1", optional = true }
 maplit = "=1.0.2"
 markup5ever = { version = "=0.10.1", optional = true }
 mime_guess = "=2.0.3"
+minidom = { version = "=0.13.0", optional = true }
 nanoid = "=0.4.0"
 nom = { version = "=7.0.0-alpha1", optional = true }
 notify = { version = "=4.0.17", optional = true }

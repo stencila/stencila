@@ -37,7 +37,7 @@ pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
     let path = &cx.argument::<JsString>(0)?.value(&mut cx);
     let projects = &mut *lock(&mut cx)?;
-    let result = RUNTIME.block_on(async { projects.open(path, true).await });
+    let result = RUNTIME.block_on(async { projects.open(Some(path), true).await });
     to_json_or_throw(cx, result)
 }
 
