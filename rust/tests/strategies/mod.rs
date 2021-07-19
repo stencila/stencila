@@ -399,10 +399,30 @@ prop_compose! {
     /// Restrictions:
     ///  - Does not start with a thematic break (unrealistic, and in Markdown can
     ///    be confused with YAML frontmatter)
+    ///  - List of same ordering can not be adjacent to each other (in Markdown they
+    ///    get decoded as the same list)
     pub fn vec_block_content(freedom: Freedom)(length in 1usize..10)(
         blocks in vec(block_content(freedom), size_range(length)).prop_filter(
             "Vector of block content should not start with thematic break",
-            |blocks| !matches!(blocks[0], BlockContent::ThematicBreak(..))
+            |blocks| {
+                for index in 0..blocks.len() {
+                    if index == 0 && matches!(blocks[0], BlockContent::ThematicBreak(..)) {
+                        return false
+                    } else if index > 0 {
+                        if let (BlockContent::List(prev), BlockContent::List(curr)) = (&blocks[index-1], &blocks[index]) {
+                            match (&prev.order, &curr.order) {
+                                (None, None) |
+                                (Some(ListOrder::Ascending), Some(ListOrder::Ascending)) |
+                                (Some(ListOrder::Unordered), Some(ListOrder::Unordered)) => {
+                                    return false
+                                },
+                                _ => ()
+                            }
+                        }
+                    }
+                }
+                true
+            }
         )
     ) -> Vec<BlockContent> {
         blocks
