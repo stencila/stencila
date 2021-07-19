@@ -54,7 +54,7 @@
     "copy-webpack-plugin": "9.0.1",
     "cross-env": "7.0.3",
     "csp-html-webpack-plugin": "5.1.0",
-    "css-loader": "5.2.6",
+    "css-loader": "6.2.0",
     "dotenv-webpack": "7.0.3",
     "electron": "13.1.6",
     "eslint": "7.30.0",
