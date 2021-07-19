@@ -126,12 +126,11 @@ impl ToMd for List {
                         "- ".to_string()
                     },
                     item.to_md(),
-                    "\n".to_string(),
                 ]
                 .concat()
             })
             .collect();
-        [items.concat(), "\n".to_string()].concat()
+        [items.join("\n"), "\n\n".to_string()].concat()
     }
 }
 

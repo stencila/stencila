@@ -22,5 +22,8 @@
 - [ ] todo
 - [ ] still todo
 
+A paragraph to keep the previous and following lists separate (otherwise they get merged).
+
 - an item with an image ![](image.png), see!
 - an item with _emphasis_
+- an item with HTML <u>underlined</u>

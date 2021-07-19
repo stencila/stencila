@@ -270,7 +270,19 @@ input_file: fixtures/fragments/md/list.md
           }
         ],
         "isChecked": false
-      },
+      }
+    ],
+    "order": "Unordered"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A paragraph to keep the previous and following lists separate (otherwise they get merged)."
+    ]
+  },
+  {
+    "type": "List",
+    "items": [
       {
         "type": "ListItem",
         "content": [
