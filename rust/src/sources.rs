@@ -50,17 +50,23 @@ pub fn resolve(id: &str) -> Result<Source> {
     )
 }
 
+/// A source-destination combination
+///
+/// Each source by destination combination should be unique to a project.
+/// It is possible to have the same source being imported to multiple
+/// destinations within a project and for multiple sources to used the same
+/// destination (e.g. the root directory of the project).
 #[skip_serializing_none]
 #[derive(PartialEq, Clone, Debug, JsonSchema, Deserialize, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct SourceDestination {
-    /// The name of this source / destination.
+    /// The name of this source-destination.
     ///
     /// A unique identifier within the project, mainly for convenient
     /// removal or re-import from the command line.
     pub name: String,
 
-    /// The source
+    /// The source from which files will be imported
     pub source: Source,
 
     /// The destination path within the project
@@ -151,7 +157,7 @@ impl SourceTrait for GitHub {
 
 /// Get JSON Schemas for this modules
 pub fn schemas() -> Result<serde_json::Value> {
-    let schemas = serde_json::Value::Array(vec![schemas::generate::<Source>()?]);
+    let schemas = serde_json::Value::Array(vec![schemas::generate::<SourceDestination>()?]);
     Ok(schemas)
 }
 

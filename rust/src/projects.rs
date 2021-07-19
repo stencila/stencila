@@ -98,6 +98,7 @@ pub struct Project {
     theme: Option<String>,
 
     /// A list of project sources and their destination within the project
+    #[schemars(schema_with = "Project::schema_sources")]
     pub sources: Option<Vec<SourceDestination>>,
 
     /// Glob patterns for paths to be excluded from file watching
@@ -135,6 +136,11 @@ impl Project {
     /// due to `skip_deserializing`
     fn schema_path(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
         schemas::typescript("string", true)
+    }
+
+    /// Generate the JSON Schema for the `source` property to avoid duplicated types
+    fn schema_sources(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("SourceDestination[]", false)
     }
 
     /// Generate the JSON Schema for the `file` property to avoid duplicated

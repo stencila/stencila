@@ -11,6 +11,7 @@ mod plugins;
 mod prelude;
 mod projects;
 mod pubsub;
+mod sources;
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
@@ -35,6 +36,8 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
 
     cx.export_function("formatsSchemas", formats::schemas)?;
     cx.export_function("formatsFormats", formats::formats)?;
+
+    cx.export_function("sourcesSchemas", sources::schemas)?;
 
     cx.export_function("pluginsSchema", plugins::schema)?;
     cx.export_function("pluginsList", plugins::list)?;
