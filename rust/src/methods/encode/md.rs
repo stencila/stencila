@@ -50,6 +50,12 @@ impl ToMd for NontextualAnnotation {
     }
 }
 
+impl ToMd for Quote {
+    fn to_md(&self) -> String {
+        ["<q>", &self.content.to_md(), "</q>"].concat()
+    }
+}
+
 macro_rules! delimited_inline_text_to_md {
     ($type:ty, $delimiter:expr) => {
         impl ToMd for $type {
@@ -224,7 +230,7 @@ impl ToMd for Node {
             Node::Null => "null".to_string(),
             Node::Number(node) => node.to_string(),
             Node::Paragraph(node) => node.to_md(),
-            //Node::Quote(node) => node.to_md(),
+            Node::Quote(node) => node.to_md(),
             //Node::QuoteBlock(node) => node.to_md(),
             Node::String(node) => node.to_string(),
             Node::Strong(node) => node.to_md(),
@@ -252,7 +258,7 @@ impl ToMd for InlineContent {
             InlineContent::Null => "null".to_string(),
             InlineContent::Number(node) => node.to_string(),
             InlineContent::MathFragment(node) => node.to_md(),
-            //InlineContent::Quote(node) => node.to_md(),
+            InlineContent::Quote(node) => node.to_md(),
             InlineContent::String(node) => node.to_string(),
             InlineContent::Strong(node) => node.to_md(),
             InlineContent::Subscript(node) => node.to_md(),

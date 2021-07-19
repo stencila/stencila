@@ -181,6 +181,18 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a quote node with arbitrary content
+    pub fn quote(freedom: Freedom)(
+        content in string(freedom)
+    ) -> InlineContent {
+        InlineContent::Quote(Quote{
+            content:vec![content],
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
     /// Generate a strong node with arbitrary content
     pub fn strong(freedom: Freedom)(
         content in string_no_whitespace(freedom)
@@ -228,6 +240,7 @@ pub fn inline_content(freedom: Freedom) -> impl Strategy<Value = InlineContent> 
         emphasis(freedom).boxed(),
         link(freedom).boxed(),
         nontextual_annotation(freedom).boxed(),
+        quote(freedom).boxed(),
         strong(freedom).boxed(),
         subscript(freedom).boxed(),
         superscript(freedom).boxed(),
