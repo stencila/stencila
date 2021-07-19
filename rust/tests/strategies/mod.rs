@@ -255,7 +255,7 @@ prop_compose! {
     /// Restrictions:
     ///   - Always starts and ends with a string.
     ///   - Ensures that nodes such as `Strong` and `Emphasis` are surrounded by spaces (for Markdown).
-    ///   - No leading or trailing blank strings (for Markdown).
+    ///   - No leading or trailing whitespace (for Markdown).
     pub fn vec_inline_content(freedom: Freedom)(length in 1usize..10)(
         strings in vec(string(freedom), size_range(length + 1)),
         others in vec(inline_content(freedom), size_range(length))
@@ -280,15 +280,15 @@ prop_compose! {
 
             if index == 0 {
                 if let InlineContent::String(string) = &mut content[index] {
-                    if string.trim().is_empty() {
-                        *string = "Unblanked".to_string();
+                    if string.starts_with(char::is_whitespace) {
+                        string.insert(0, 'A')
                     }
                 }
             }
             if index == content.len() - 1 {
                 if let InlineContent::String(string) = &mut content[index] {
-                    if string.trim().is_empty() {
-                        *string = ".".to_string();
+                    if string.ends_with(char::is_whitespace) {
+                        string.push('.')
                     }
                 }
             }
