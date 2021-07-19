@@ -7,15 +7,15 @@ input_file: fixtures/fragments/md/code-block.md
 [
   {
     "type": "CodeBlock",
-    "text": "Some plain text\n"
+    "text": "Some plain text"
   },
   {
     "type": "CodeBlock",
-    "text": "# Some Python code\n1 + 1\n",
+    "text": "# Some Python code\n1 + 1",
     "programmingLanguage": "python"
   },
   {
     "type": "CodeBlock",
-    "text": "An indented code block\nin unspecified language.\n"
+    "text": "An indented code block\nin unspecified language."
   }
 ]

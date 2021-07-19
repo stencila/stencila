@@ -98,6 +98,7 @@ input_file: fixtures/fragments/md/html.md
           }
         ]
       }
-    ]
+    ],
+    "order": "Unordered"
   }
 ]

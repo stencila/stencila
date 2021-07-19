@@ -21,3 +21,23 @@
 - [x] done
 - [ ] todo
 - [ ] still todo
+
+A paragraph to keep the previous and following lists separate (otherwise they get merged).
+
+- an item with an image ![](image.png), see!
+- an item with _emphasis_
+- an item with HTML <u>underlined</u>
+
+A list with multiple paragraphs in each item
+
+- para 1a
+  
+  para 1b
+
+  para 1c
+
+- para 2a
+  
+  para 2b
+
+- para 3

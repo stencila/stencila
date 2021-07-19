@@ -59,4 +59,14 @@ proptest! {
         )
     }
 
+    #[test]
+    fn md(input in article(Freedom::Nil)) {
+        let content = encode::md::encode(&input).unwrap();
+        let output = decode::md::decode(&content).unwrap();
+        assert_eq!(
+            serde_json::to_value(&input).unwrap(),
+            serde_json::to_value(&output).unwrap()
+        )
+    }
+
 }

@@ -1,5 +1,10 @@
+use std::path::PathBuf;
+
 use super::html;
-use crate::{methods::coerce::coerce, traits::ToVecInlineContent};
+use crate::{
+    methods::{coerce::coerce, encode::txt::ToTxt},
+    traits::ToVecInlineContent,
+};
 use eyre::{bail, Result};
 use nom::{
     branch::alt,
@@ -14,10 +19,11 @@ use once_cell::sync::Lazy;
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use regex::Regex;
 use stencila_schema::{
-    Article, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
-    ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, MathFragment, Node,
-    Paragraph, QuoteBlock, Strong, Subscript, Superscript, TableCell, TableCellContent, TableRow,
-    TableRowRowType, TableSimple, ThematicBreak,
+    Article, AudioObjectSimple, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment,
+    CreativeWorkContent, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List,
+    ListItem, ListItemContent, MathFragment, Node, Paragraph, QuoteBlock, Strong, Subscript,
+    Superscript, TableCell, TableCellContent, TableRow, TableRowRowType, TableSimple,
+    ThematicBreak, VideoObjectSimple,
 };
 
 /// Decode a Markdown document to a `Node`
@@ -25,10 +31,16 @@ use stencila_schema::{
 /// Intended for decoding an entire document, this function extracts
 /// YAML front matter, parses the Markdown, and returns a `Node::Article` variant.
 pub fn decode(md: &str) -> Result<Node> {
-    let (md, mut node) = if let Some((end, node)) = decode_frontmatter(&md)? {
-        (&md[end..], node)
-    } else {
-        (md, Node::Article(Article::default()))
+    let (end, node) = decode_frontmatter(&md)?;
+
+    let md = match end {
+        Some(end) => &md[end..],
+        None => md,
+    };
+
+    let mut node = match node {
+        Some(node) => node,
+        None => Node::Article(Article::default()),
     };
 
     let content = decode_fragment(md);
@@ -48,25 +60,45 @@ pub fn decode(md: &str) -> Result<Node> {
 /// Any front matter will be coerced into a `Node`, defaulting to the
 /// `Node::Article` variant, if `type` is not defined.
 /// If there is no front matter detected, will return `None`.
-pub fn decode_frontmatter(md: &str) -> Result<Option<(usize, Node)>> {
+pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
     static REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new("^-{3,}((.|\\n)*)?\\n-{3,}").expect("Unable to create regex"));
 
     if let Some(captures) = REGEX.captures(md) {
+        let end = Some(captures[0].len());
+
         let yaml = captures[1].trim().to_string();
         if yaml.is_empty() {
-            return Ok(None);
+            return Ok((end, None));
         }
 
-        let mut value: serde_json::Value = serde_yaml::from_str(&yaml)?;
-        if value.get("type").is_none() {
-            value["type"] = serde_json::Value::String("Article".to_string());
+        let node = match serde_yaml::from_str(&yaml) {
+            Ok(serde_json::Value::Object(mut node)) => {
+                if node.get("type").is_none() {
+                    node.insert(
+                        "type".to_string(),
+                        serde_json::Value::String("Article".to_string()),
+                    );
+                }
+                serde_json::Value::Object(node)
+            }
+            Ok(_) => {
+                tracing::warn!("YAML frontmatter is not an object, will be ignored");
+                return Ok((end, None));
+            }
+            Err(error) => {
+                tracing::warn!(
+                    "Error while parsing YAML frontmatter, will be ignored {}",
+                    error
+                );
+                return Ok((end, None));
+            }
         };
 
-        let node = coerce(value)?;
-        Ok(Some((captures[0].len(), node)))
+        let node = coerce(node)?;
+        Ok((end, Some(node)))
     } else {
-        Ok(None)
+        Ok((None, None))
     }
 }
 
@@ -112,6 +144,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
         match event {
             Event::Start(tag) => match tag {
                 // Block nodes with block content or special handling
+                // (these should all pop the mark when they end)
                 Tag::BlockQuote => blocks.push_mark(),
                 Tag::List(..) => lists.push_mark(),
                 Tag::Item => {
@@ -132,6 +165,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 Tag::CodeBlock(..) => inlines.clear_all(),
 
                 // Inline nodes with inline content
+                // (these should all pop the mark when they end)
                 Tag::Emphasis => inlines.push_mark(),
                 Tag::Strong => inlines.push_mark(),
                 Tag::Strikethrough => inlines.push_mark(),
@@ -154,7 +188,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     let order = if start.is_some() {
                         Some(stencila_schema::ListOrder::Ascending)
                     } else {
-                        None
+                        Some(stencila_schema::ListOrder::Unordered)
                     };
 
                     let items = lists.pop_tail();
@@ -218,7 +252,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     ..Default::default()
                 })),
                 Tag::CodeBlock(kind) => {
-                    let text = inlines.pop_text();
+                    let text = inlines.pop_text().trim_end_matches('\n').to_string();
                     blocks.push_node(BlockContent::CodeBlock(CodeBlock {
                         text,
                         programming_language: match kind {
@@ -276,6 +310,15 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     }))
                 }
                 Tag::Image(_link_type, url, title) => {
+                    let content = inlines.pop_tail();
+                    let content = if content.is_empty() {
+                        None
+                    } else {
+                        // Content is reduced to a string. Media object do not often have other, more
+                        // complicated, Markdown content in any case.
+                        let txt = content.to_txt();
+                        Some(Box::new(CreativeWorkContent::String(txt)))
+                    };
                     let title = {
                         let title = title.to_string();
                         if !title.is_empty() {
@@ -284,11 +327,34 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                             None
                         }
                     };
-                    inlines.push_node(InlineContent::ImageObject(ImageObjectSimple {
-                        content_url: url.to_string(),
-                        caption: title,
-                        ..Default::default()
-                    }))
+                    let extension = PathBuf::from(&url.to_string()).extension().map_or_else(
+                        || "".to_string(),
+                        |ext| ext.to_string_lossy().to_string().to_ascii_lowercase(),
+                    );
+                    let media_object = match extension.as_str() {
+                        "flac" | "mp3" | "ogg" => InlineContent::AudioObject(AudioObjectSimple {
+                            content,
+                            content_url: url.to_string(),
+                            caption: title,
+                            ..Default::default()
+                        }),
+                        "3gp" | "mp4" | "ogv" | "webm" => {
+                            InlineContent::VideoObject(VideoObjectSimple {
+                                content,
+                                content_url: url.to_string(),
+                                caption: title,
+                                ..Default::default()
+                            })
+                        }
+                        _ => InlineContent::ImageObject(ImageObjectSimple {
+                            content,
+                            content_url: url.to_string(),
+                            caption: title,
+                            ..Default::default()
+                        }),
+                    };
+
+                    inlines.push_node(media_object)
                 }
 
                 Tag::FootnoteDefinition(..) => {
@@ -306,7 +372,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 ..Default::default()
             })),
             Event::Text(value) => {
-                // Text gets accumulated to HTML we're inside a tag, to inlines otherwise
+                // Text gets accumulated to HTML when we're inside a tag, to inlines otherwise
                 let value = value.to_string();
                 if html.tags.is_empty() {
                     inlines.push_text(&value)
@@ -528,7 +594,8 @@ impl Inlines {
     /// Push a mark (usually at the start of an inline node)
     fn push_mark(&mut self) {
         self.parse_text();
-        self.marks.push(self.nodes.len())
+        self.marks.push(self.nodes.len());
+        self.active = true;
     }
 
     /// Pop the nodes since the last mark
@@ -676,7 +743,12 @@ pub fn math(input: &str) -> IResult<&str, InlineContent> {
 /// Parse a string into a `Subscript` node
 pub fn subscript(input: &str) -> IResult<&str, InlineContent> {
     map_res(
-        delimited(char('~'), take_until("~"), char('~')),
+        delimited(
+            // Only match single tilde, because doubles are for `Delete`
+            tuple((char('~'), peek(not(char('~'))))),
+            take_until("~"),
+            char('~'),
+        ),
         |res: &str| -> Result<InlineContent> {
             Ok(InlineContent::Subscript(Subscript {
                 content: vec![InlineContent::String(res.into())],
@@ -812,17 +884,21 @@ mod tests {
     use super::*;
     use crate::utils::tests::snapshot_content;
     use insta::assert_json_snapshot;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn md_frontmatter() -> Result<()> {
-        assert!(decode_frontmatter("")?.is_none());
-        assert!(decode_frontmatter("--")?.is_none());
-        assert!(decode_frontmatter("---")?.is_none());
-        assert!(decode_frontmatter("---\n---\n")?.is_none());
+        assert!(decode_frontmatter("")?.0.is_none());
+        assert!(decode_frontmatter("--")?.0.is_none());
+        assert!(decode_frontmatter("---")?.0.is_none());
 
-        let (end, node) = decode_frontmatter("---\ntitle: The title\n---")?.unwrap();
-        assert!(end == 24);
-        if let Node::Article(_) = node {
+        let (end, node) = decode_frontmatter("---\n---\n")?;
+        assert_eq!(end, Some(7));
+        assert!(node.is_none());
+
+        let (end, node) = decode_frontmatter("---\ntitle: The title\n---")?;
+        assert!(end == Some(24));
+        if let Some(Node::Article(_)) = node {
         } else {
             bail!("Expected an article")
         }
