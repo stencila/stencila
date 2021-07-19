@@ -352,26 +352,15 @@ prop_compose! {
 }
 
 prop_compose! {
-    /// Generate a list item with arbitrary inline content.
+    /// Generate a list item with arbitrary block content.
     /// Unable to use block_content strategy here because that causes infinite recursion.
-    /// Instead, currently, allow for an single paragraph
-    // TODO: allow for alternative numbers of paragraphs
     pub fn list_item(freedom: Freedom)(
-        content in vec_inline_content(freedom)
+        content in vec(Union::new(vec![
+            paragraph(freedom).boxed(),
+        ]), 1..2)
     ) -> ListItem {
-        let content = Some(
-            ListItemContent::VecBlockContent(vec![
-                BlockContent::Paragraph(
-                    Paragraph{
-                        content,
-                        ..Default::default()
-                    }
-                )
-            ])
-        );
-
         ListItem{
-            content,
+            content: Some(ListItemContent::VecBlockContent(content)),
             ..Default::default()
         }
     }

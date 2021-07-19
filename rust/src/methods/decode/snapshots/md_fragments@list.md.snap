@@ -335,5 +335,68 @@ input_file: fixtures/fragments/md/list.md
       }
     ],
     "order": "Unordered"
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "A list with multiple paragraphs in each item"
+    ]
+  },
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "para 1a"
+            ]
+          },
+          {
+            "type": "Paragraph",
+            "content": [
+              "para 1b"
+            ]
+          },
+          {
+            "type": "Paragraph",
+            "content": [
+              "para 1c"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "para 2a"
+            ]
+          },
+          {
+            "type": "Paragraph",
+            "content": [
+              "para 2b"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "para 3"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": "Unordered"
   }
 ]

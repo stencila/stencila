@@ -1,4 +1,5 @@
 use eyre::Result;
+use itertools::Itertools;
 use stencila_schema::*;
 
 /// Encode a `Node` to Markdown
@@ -119,18 +120,41 @@ impl ToMd for List {
             .iter()
             .enumerate()
             .map(|(index, item)| {
-                [
-                    if ordered {
-                        (index + 1).to_string() + ". "
-                    } else {
-                        "- ".to_string()
-                    },
-                    item.to_md(),
-                ]
-                .concat()
+                let bullet = if ordered {
+                    (index + 1).to_string() + ". "
+                } else {
+                    "- ".to_string()
+                };
+                item.to_md()
+                    .split('\n')
+                    .enumerate()
+                    .map(|(index, line)| {
+                        if index == 0 {
+                            [bullet.clone(), line.to_string()].concat()
+                        } else if line.trim().is_empty() {
+                            String::new()
+                        } else {
+                            ["  ", line].concat()
+                        }
+                    })
+                    .join("\n")
             })
             .collect();
-        [items.join("\n"), "\n\n".to_string()].concat()
+
+        // Keep lists tight if no items have internal newlines
+        let mut tight = true;
+        for item in &items {
+            if item.trim().contains('\n') {
+                tight = false;
+                break;
+            }
+        }
+        let items = items
+            .iter()
+            .map(|item| item.trim())
+            .join(if tight { "\n" } else { "\n\n" });
+
+        [items, "\n\n".to_string()].concat()
     }
 }
 
@@ -140,7 +164,7 @@ impl ToMd for ListItem {
             true => InlineContent::String("[x] ".to_string()),
             false => InlineContent::String("[ ] ".to_string()),
         });
-        let content = match &self.content {
+        match &self.content {
             Some(content) => match content {
                 ListItemContent::VecInlineContent(inlines) => match checkbox {
                     Some(checkbox) => [vec![checkbox], inlines.clone()].concat().to_md(),
@@ -161,8 +185,7 @@ impl ToMd for ListItem {
                 },
             },
             None => "".to_string(),
-        };
-        content.trim_end_matches('\n').to_string()
+        }
     }
 }
 
