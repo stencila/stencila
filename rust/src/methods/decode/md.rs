@@ -650,7 +650,7 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
 /// Parse a string into a narrative `Cite` node
 ///
 /// This attempts to follow Pandoc's citation handling as closely as possible
-/// (see https://pandoc.org/MANUAL.html#citations).
+/// (see <https://pandoc.org/MANUAL.html#citations>).
 ///
 /// The following properties of a `Cite` are parsed:
 ///   - [x] target
@@ -720,7 +720,7 @@ pub fn cite_group(input: &str) -> IResult<&str, InlineContent> {
 /// Parse a string into an `InlineContent` node
 ///
 /// This attempts to follow Pandoc's match parsing as closely as possible
-/// (see https://pandoc.org/MANUAL.html#math).
+/// (see <https://pandoc.org/MANUAL.html#math>).
 pub fn math(input: &str) -> IResult<&str, InlineContent> {
     map_res(
         delimited(

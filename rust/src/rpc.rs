@@ -30,7 +30,7 @@ pub struct GenericRequest<P> {
 
 /// A JSON-RPC 2.0 request
 ///
-/// @see {@link https://www.jsonrpc.org/specification#request_object}
+/// See <https://www.jsonrpc.org/specification#request_object>.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "method", rename_all = "lowercase")]
 pub enum Request {
@@ -60,7 +60,7 @@ impl Request {
 
 /// A JSON-RPC 2.0 response
 ///
-/// @see {@link https://www.jsonrpc.org/specification#response_object}
+/// See <https://www.jsonrpc.org/specification#response_object>.
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Response {
     /// A string specifying the version of the JSON-RPC protocol.
@@ -108,7 +108,7 @@ impl Default for Response {
 
 /// A JSON-RPC 2.0 error
 ///
-/// @see {@link https://www.jsonrpc.org/specification#error_object}
+/// See <https://www.jsonrpc.org/specification#error_object>.
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Error {
     /// A number that indicates the error type that ocurred

@@ -314,7 +314,7 @@ async fn get_static(
 ///
 /// Uses 64 bytes because this is the maximum size possible for JWT signing keys.
 /// Using a large key for JWT signing reduces the probability of brute force attacks.
-/// See https://auth0.com/blog/brute-forcing-hs256-is-possible-the-importance-of-using-strong-keys-to-sign-jwts/.
+/// See <https://auth0.com/blog/brute-forcing-hs256-is-possible-the-importance-of-using-strong-keys-to-sign-jwts/>.
 pub fn generate_key() -> String {
     use rand::Rng;
     const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\

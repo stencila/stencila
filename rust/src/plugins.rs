@@ -1899,7 +1899,7 @@ pub mod config {
         pub installations: Vec<PluginInstallation>,
 
         /// The local plugin aliases that extends and/or override those in the
-        /// global aliases at https://github.com/stencila/stencila/blob/master/plugins.json
+        /// global aliases at <https://github.com/stencila/stencila/blob/master/plugins.json>
         pub aliases: HashMap<String, String>,
     }
 }

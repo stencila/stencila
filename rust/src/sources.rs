@@ -87,13 +87,13 @@ impl SourceTrait for Elife {
 
         let article = if let Some(captures) = SIMPLE_REGEX.captures(id) {
             Some(captures[1].parse().unwrap_or_default())
-        } else if let Some(captures) = URL_REGEX.captures(id) {
-            Some(captures[1].parse().unwrap_or_default())
         } else {
-            None
+            URL_REGEX
+                .captures(id)
+                .map(|captures| captures[1].parse().unwrap_or_default())
         };
 
-        article.map(|article| return Source::Elife(Elife { article }))
+        article.map(|article| Source::Elife(Elife { article }))
     }
 
     fn default_name(&self) -> String {
@@ -133,14 +133,14 @@ impl SourceTrait for GitHub {
                 name: captures[2].to_string(),
                 path: captures.get(3).map(|group| group.as_str().to_string()),
             }))
-        } else if let Some(captures) = URL_REGEX.captures(id) {
-            Some(Source::GitHub(GitHub {
-                owner: captures[1].to_string(),
-                name: captures[2].to_string(),
-                path: captures.get(3).map(|group| group.as_str().to_string()),
-            }))
         } else {
-            None
+            URL_REGEX.captures(id).map(|captures| {
+                Source::GitHub(GitHub {
+                    owner: captures[1].to_string(),
+                    name: captures[2].to_string(),
+                    path: captures.get(3).map(|group| group.as_str().to_string()),
+                })
+            })
         }
     }
 
