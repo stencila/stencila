@@ -1,3 +1,25 @@
+# [0.98.0](https://github.com/stencila/stencila/compare/v0.97.4...v0.98.0) (2021-07-19)
+
+
+### Bug Fixes
+
+* **HTML & Markdown:** Support encoding and decoding of quote blocks ([55b3e78](https://github.com/stencila/stencila/commit/55b3e781a12c44c11d14bbf568e5b905ca0b7d88))
+* **Markdown:** Decode media object content ([8dc5191](https://github.com/stencila/stencila/commit/8dc51914362e2300bff245e6363cfcfc32443d5f))
+* **Markdown:** Differentiate media files; trim code block text; improve subscript parsing ([1be17c4](https://github.com/stencila/stencila/commit/1be17c4aeb0f60bed4e964f6a14a4fee7a90ba73))
+* **Markdown:** Fix handling of inline HTML elements ([a385f1d](https://github.com/stencila/stencila/commit/a385f1d18f0bb74b56bb0f215fa420d0efda376b))
+* **Markdown:** Improve decoding of YAML frontmatter ([2495384](https://github.com/stencila/stencila/commit/2495384635afb48d5e0135f3b9d8402fa655f3c1))
+* **Markdown:** Improve encoding of lists ([4e11257](https://github.com/stencila/stencila/commit/4e112576c435d306454575f02d281c39defb585f))
+
+
+### Features
+
+* **Elife:** Add eLife article source ([fcd34a5](https://github.com/stencila/stencila/commit/fcd34a5cfbc968c8c34dda4c83d87f21a584fba8))
+* **HTML & Markdown:** Support decoding of inline quote nodes ([d87d90b](https://github.com/stencila/stencila/commit/d87d90babb1b5623072490adef8a0ecbd66c231c))
+* **Markdown:** Initial implementation of encoding to Markdown ([87bea25](https://github.com/stencila/stencila/commit/87bea251b81c8f603168eac3e5552d8e706e56f0))
+* **Sources:** Add project sources and CLI subcommand for managing them ([536aa83](https://github.com/stencila/stencila/commit/536aa83ac011ebb30e730be4374d395d7a32d390))
+* **Sources:** Improve matching and naming of project sources ([66f0f48](https://github.com/stencila/stencila/commit/66f0f488bc842ea0d4cbaa23bb28f413e86c2215))
+* **Utilities:** Add download function ([7acba07](https://github.com/stencila/stencila/commit/7acba07c5a6fcb53300c07df1cb56886d74ff63d))
+
 ## [0.97.4](https://github.com/stencila/stencila/compare/v0.97.3...v0.97.4) (2021-07-16)
 
 

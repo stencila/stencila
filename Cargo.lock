@@ -1167,7 +1167,7 @@ dependencies = [
  "headers-core",
  "http",
  "mime",
- "sha-1 0.9.6",
+ "sha-1 0.9.7",
  "time",
 ]
 
@@ -3223,9 +3223,9 @@ dependencies = [
 
 [[package]]
 name = "sha-1"
-version = "0.9.6"
+version = "0.9.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c4cfa741c5832d0ef7fab46cabed29c2aae926db0b11bb2069edd8db5e64e16"
+checksum = "1a0c8611594e2ab4ebbf06ec7cbbf0a99450b8570e96cbf5188b5d5f6ef18d81"
 dependencies = [
  "block-buffer 0.9.0",
  "cfg-if 1.0.0",
@@ -3356,7 +3356,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
-version = "0.97.4"
+version = "0.98.0"
 dependencies = [
  "Inflector",
  "ansi_term 0.12.1",
@@ -3434,7 +3434,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.97.4"
+version = "0.98.0"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -3452,7 +3452,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.97.4"
+version = "0.98.0"
 dependencies = [
  "neon",
  "stencila",
@@ -3974,7 +3974,7 @@ dependencies = [
  "input_buffer",
  "log",
  "rand 0.8.4",
- "sha-1 0.9.6",
+ "sha-1 0.9.7",
  "url",
  "utf-8",
 ]
@@ -3992,7 +3992,7 @@ dependencies = [
  "httparse",
  "log",
  "rand 0.8.4",
- "sha-1 0.9.6",
+ "sha-1 0.9.7",
  "thiserror",
  "url",
  "utf-8",
