@@ -171,6 +171,7 @@ serde = { version = "=1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "=1.0.64", features = ["preserve_order"] }
 serde_with = "=1.9.4"
 serde_yaml = { version = "=0.8.17", optional = true }
+slug = "=0.1.4"
 stencila-schema = "=1.10.0"
 structopt = { version = "=0.3.22", optional = true }
 strum = { version = "=0.21", features = ["derive"] }

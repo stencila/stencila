@@ -10,6 +10,7 @@ use regex::Regex;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use slug::slugify;
 use std::string::ToString;
 use std::sync::Arc;
 use std::time::Duration;
@@ -99,7 +100,7 @@ pub struct Project {
 
     /// A list of project sources and their destination within the project
     #[schemars(schema_with = "Project::schema_sources")]
-    pub sources: Option<Vec<SourceDestination>>,
+    pub sources: Option<HashMap<String, SourceDestination>>,
 
     /// Glob patterns for paths to be excluded from file watching
     ///
@@ -371,40 +372,61 @@ impl Project {
         source: &str,
         destination: Option<String>,
         name: Option<String>,
-        error_on_existing: bool,
     ) -> Result<Source> {
         // Resolve the source
         let source = sources::resolve(source)?;
 
-        // Add the source (if not already a source in the project)
-        let mut name = name.unwrap_or_else(|| source.default_name());
-        if let Some(sources) = &mut self.sources {
-            for source_dest in sources.iter() {
-                if source == source_dest.source && destination == source_dest.destination {
-                    if error_on_existing {
-                        bail!(
-                            "The same source / destination combination already exists for this project"
-                        )
-                    } else {
-                        return Ok(source);
+        // Ensure that the name is unique
+        let name = if let Some(name) = name {
+            if let Some(sources) = &self.sources {
+                if sources.contains_key(&name) {
+                    bail!("A source with with name already exists; please use a different name")
+                }
+            }
+            name
+        } else {
+            let mut name = source.default_name();
+            if let Some(sources) = &self.sources {
+                if sources.contains_key(&name) {
+                    if let Some(destination) = destination.as_ref() {
+                        name = [name, "-".to_string(), slugify(destination)].concat();
                     }
                 }
-                if name == source_dest.name {
+                while sources.contains_key(&name) {
                     name += "-"
                 }
             }
-            sources.push(SourceDestination {
+            name
+        };
+
+        // Add the source (if not already a source in the project)
+        if let Some(sources) = &mut self.sources {
+            for (name, source_dest) in sources.iter() {
+                if source == source_dest.source && destination == source_dest.destination {
+                    bail!(
+                        "The source/destination combination already exists ('{}'); perhaps remove it or use a different destination?",
+                        name
+                    )
+                }
+            }
+            sources.insert(
                 name,
-                source: source.clone(),
-                destination,
-            })
+                SourceDestination {
+                    source: source.clone(),
+                    destination,
+                },
+            );
         } else {
-            self.sources = Some(vec![SourceDestination {
+            let mut sources = HashMap::new();
+            sources.insert(
                 name,
-                source: source.clone(),
-                destination,
-            }])
-        }
+                SourceDestination {
+                    source: source.clone(),
+                    destination,
+                },
+            );
+            self.sources = Some(sources)
+        };
         self.write(None).await?;
 
         Ok(source)
@@ -414,7 +436,7 @@ impl Project {
     pub async fn remove_source(&mut self, name: &str) -> Result<()> {
         if let Some(sources) = &mut self.sources {
             let len = sources.len();
-            sources.retain(|source_dest| source_dest.name != name);
+            sources.remove(name);
             if sources.len() == len {
                 tracing::warn!("Project has no sources with name '{}'", name)
             } else {
@@ -430,30 +452,39 @@ impl Project {
     /// Import a source into the project
     pub async fn import_source(
         &mut self,
-        name_or_id: &str,
-        name: Option<String>,
+        name_or_identifier: &str,
         destination: Option<String>,
     ) -> Result<Vec<File>> {
-        // Attempt to find a source with a matching name
-        let source = if let Some(sources) = &self.sources {
-            sources.iter().find_map(|source_dest| {
-                if source_dest.name == name_or_id {
-                    Some(source_dest.source.clone())
-                } else {
-                    None
-                }
-            })
+        // Attempt to find a source with matching name
+        let mut source = if let Some(sources) = &self.sources {
+            if let Some(source_dest) = sources.get(name_or_identifier) {
+                Some(source_dest.source.clone())
+            } else {
+                None
+            }
         } else {
             None
         };
 
-        // Add the source
-        let source = match source {
-            Some(source) => source,
-            None => {
-                self.add_source(name_or_id, destination.clone(), name, false)
-                    .await?
+        // Attempt to find an existing entry with matching source/destination combination
+        if source.is_none() {
+            if let Some(sources) = &self.sources {
+                let source_from = sources::resolve(name_or_identifier)?;
+                for source_dest in sources.values() {
+                    if source_dest.source == source_from || source_dest.destination == destination {
+                        source = Some(source_from);
+                        break;
+                    }
+                }
             }
+        }
+
+        // Add the source if necessary
+        let source = if let Some(source) = source {
+            source
+        } else {
+            self.add_source(name_or_identifier, destination.clone(), None)
+                .await?
         };
 
         // Import the source

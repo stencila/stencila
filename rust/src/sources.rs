@@ -60,12 +60,6 @@ pub fn resolve(id: &str) -> Result<Source> {
 #[derive(PartialEq, Clone, Debug, JsonSchema, Deserialize, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct SourceDestination {
-    /// The name of this source-destination.
-    ///
-    /// A unique identifier within the project, mainly for convenient
-    /// removal or re-import from the command line.
-    pub name: String,
-
     /// The source from which files will be imported
     pub source: Source,
 
@@ -244,7 +238,7 @@ pub mod cli {
                 name,
             } = self;
             let mut project = projects.current(false).await?;
-            let files = project.add_source(&source, destination, name, true).await?;
+            let files = project.add_source(&source, destination, name).await?;
             display::value(files)
         }
     }
@@ -283,17 +277,17 @@ pub mod cli {
         pub source: String,
 
         /// The path to import the source to
-        pub path: Option<String>,
-
-        /// The name to give the source (if not already a project source)
-        pub name: Option<String>,
+        pub destination: Option<String>,
     }
 
     impl Import {
         pub async fn run(self, projects: &mut Projects) -> display::Result {
-            let Self { source, path, name } = self;
+            let Self {
+                source,
+                destination,
+            } = self;
             let mut project = projects.current(false).await?;
-            let files = project.import_source(&source, path, name).await?;
+            let files = project.import_source(&source, destination).await?;
             display::value(files)
         }
     }

@@ -263,12 +263,6 @@ export interface FileEvent {
  */
 export interface SourceDestination {
   /**
-   * The name of this source-destination.
-   *
-   * A unique identifier within the project, mainly for convenient removal or re-import from the command line.
-   */
-  name: string
-  /**
    * The source from which files will be imported
    */
   source:
