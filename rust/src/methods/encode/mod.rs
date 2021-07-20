@@ -2,15 +2,24 @@ use eyre::{bail, Result};
 use maplit::hashmap;
 use stencila_schema::Node;
 
-#[cfg(feature = "encode-json")]
-pub mod json;
+#[cfg(feature = "encode-docx")]
+pub mod docx;
 
 #[cfg(feature = "encode-html")]
 #[allow(clippy::deprecated_cfg_attr)]
 pub mod html;
 
+#[cfg(feature = "encode-json")]
+pub mod json;
+
+#[cfg(feature = "encode-latex")]
+pub mod latex;
+
 #[cfg(feature = "encode-md")]
 pub mod md;
+
+#[cfg(feature = "encode-pandoc")]
+pub mod pandoc;
 
 #[cfg(feature = "encode-toml")]
 pub mod toml;
@@ -21,24 +30,34 @@ pub mod txt;
 #[cfg(feature = "encode-yaml")]
 pub mod yaml;
 
-/// Encode a `Node` to string content.
+/// Encode a `Node` to content in a particular format
 ///
 /// # Arguments
 ///
 /// - `node`: the node to encode
+/// - `output`: the destination path, if applicable
 /// - `format`: the format of the content e.g. `json`, `md`
-pub async fn encode(node: &Node, format: &str) -> Result<String> {
+pub async fn encode(node: &Node, output: &str, format: &str) -> Result<String> {
     // Allow these for when no features are enabled
     #[allow(unused_variables, unreachable_code)]
     Ok(match format {
+        #[cfg(feature = "decode-docx")]
+        "docx" => docx::encode(node, output).await?,
+
         #[cfg(feature = "encode-html")]
         "html" => html::encode(node)?,
 
         #[cfg(feature = "encode-json")]
         "json" => json::encode(node)?,
 
+        #[cfg(feature = "encode-latex")]
+        "latex" => latex::encode(node).await?,
+
         #[cfg(feature = "encode-md")]
         "md" => md::encode(node)?,
+
+        #[cfg(feature = "encode-pandoc")]
+        "pandoc" => pandoc::encode(node, output, pandoc::Options::default()).await?,
 
         #[cfg(feature = "encode-toml")]
         "toml" => toml::encode(node)?,
@@ -81,12 +100,16 @@ pub mod rpc {
     #[derive(Debug, Serialize, Deserialize)]
     pub struct Params {
         pub node: Node,
-
+        pub output: String,
         pub format: String,
     }
 
     pub async fn encode(params: Params) -> Result<String> {
-        let Params { node, format } = params;
-        super::encode(&node, &format).await
+        let Params {
+            node,
+            output,
+            format,
+        } = params;
+        super::encode(&node, &output, &format).await
     }
 }

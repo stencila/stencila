@@ -56,8 +56,10 @@ decode-person = ["human_name"]
 decode-toml = ["toml"]
 decode-yaml = ["serde_yaml"]
 
+encode-docx = ["encode-pandoc"]
 encode-html = ["html-escape"]
 encode-json = []
+encode-latex = ["encode-pandoc"]
 encode-md = []
 encode-pandoc = ["binaries", "pandoc_types"]
 encode-toml = ["toml"]
@@ -105,9 +107,12 @@ default = [
     "decode-person",
     "decode-toml",
     "decode-yaml",
+    "encode-docx",
     "encode-html",
     "encode-json",
+    "encode-latex",
     "encode-md",
+    "encode-pandoc",
     "encode-toml",
     "encode-txt",
     "encode-yaml",

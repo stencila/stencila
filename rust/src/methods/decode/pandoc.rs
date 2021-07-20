@@ -14,19 +14,12 @@ use stencila_schema::{
     TableSimple, ThematicBreak,
 };
 use tokio::sync::OnceCell;
-
-static PANDOC: OnceCell<BinaryInstallation> = OnceCell::const_new();
-
 /// Decoding options for the `decode` and `decode_fragment` functions
 #[derive(Clone, Defaults)]
 pub struct Options {
     /// The format of the input
     #[def = "\"pandoc\".to_string()"]
     pub format: String,
-
-    /// Whether the content is a file system path or not
-    #[def = "false"]
-    pub is_file: bool,
 
     /// Additional arguments to pass to Pandoc
     pub args: Vec<String>,
@@ -37,8 +30,77 @@ pub struct Options {
 /// Intended for decoding an entire document into an `Article`
 /// (and, in the future, potentially other types).
 pub async fn decode(input: &str, options: Options) -> Result<Node> {
-    let pandoc = decode_pandoc(input, &options).await?;
+    let pandoc = decode_input(input, &options).await?;
+    decode_pandoc(pandoc, &options)
+}
 
+/// Decode a fragment to a vector of `BlockContent`
+///
+/// Intended for decoding a fragment of a larger document (e.g. from some Latex in
+/// a Markdown document). Ignores any meta data e.g. title
+pub async fn decode_fragment(input: &str, options: Options) -> Result<Vec<BlockContent>> {
+    if input.is_empty() {
+        return Ok(vec![]);
+    }
+
+    let pandoc = decode_input(input, &options).await?;
+    let context = Context {
+        options: options.clone(),
+    };
+    Ok(translate_blocks(&pandoc.1, &context))
+}
+
+static PANDOC: OnceCell<BinaryInstallation> = OnceCell::const_new();
+
+pub async fn require_pandoc() -> Result<&'static BinaryInstallation> {
+    PANDOC
+        .get_or_try_init(|| binaries::require("pandoc", "2.11"))
+        .await
+}
+
+/// Decode some content (either a string or file path) to a Pandoc document
+///
+/// Calls Pandoc binary to convert the content to Pandoc JSON which is then deserialized to
+/// a Pandoc element tree which is translated to a Stencila node tree.
+///
+/// The version of Pandoc required is partially based on compatibility with the `pandoc_types`
+/// crate. Some recent changes to pandoc to Pandoc types used by Pandoc (from https://pandoc.org/releases.html):
+///
+///   pandoc 2.11 (2020-10-11) : pandoc-types 1.22
+///   pandoc 2.10 (2020-06-29) : pandoc-types 1.21
+async fn decode_input(input: &str, options: &Options) -> Result<pandoc::Pandoc> {
+    let json = if options.format == "pandoc" {
+        input.to_string()
+    } else {
+        let binary = require_pandoc().await?;
+
+        let mut command = binary.command();
+        command.args(["--from", &options.format, "--to", "json"]);
+        command.args(&options.args);
+        command.stdout(Stdio::piped());
+
+        let child = if let Some(path) = input.strip_prefix("file://") {
+            if !PathBuf::from(path).exists() {
+                bail!("File does not exists: {}", path)
+            }
+            command.arg(path).spawn()?
+        } else {
+            let mut child = command.stdin(Stdio::piped()).spawn()?;
+            if let Some(mut stdin) = child.stdin.take() {
+                stdin.write_all(input.as_ref())?;
+            }
+            child
+        };
+
+        let result = child.wait_with_output()?;
+        std::str::from_utf8(result.stdout.as_ref())?.to_string()
+    };
+
+    Ok(serde_json::from_str(&json)?)
+}
+
+/// Decode a Pandoc document to a `Node`
+pub fn decode_pandoc(pandoc: pandoc::Pandoc, options: &Options) -> Result<Node> {
     let context = Context {
         options: options.clone(),
     };
@@ -53,73 +115,6 @@ pub async fn decode(input: &str, options: Options) -> Result<Node> {
     };
 
     Ok(Node::Article(article))
-}
-
-/// Decode a fragment to a vector of `BlockContent`
-///
-/// Intended for decoding a fragment of a larger document (e.g. from some Latex in
-/// a Markdown document). Ignores any meta data e.g. title
-pub async fn decode_fragment(input: &str, options: Options) -> Result<Vec<BlockContent>> {
-    if input.is_empty() {
-        return Ok(vec![]);
-    }
-
-    let pandoc = decode_pandoc(input, &options).await?;
-
-    let context = Context {
-        options: options.clone(),
-    };
-
-    Ok(translate_blocks(&pandoc.1, &context))
-}
-
-/// Decode some content (either a string or file path) to a Pandoc document
-///
-/// Calls Pandoc binary to convert the content to Pandoc JSON which is then deserialized to
-/// a Pandoc element tree which is translated to a Stencila node tree.
-///
-/// The version of Pandoc required is partially based on compatibility with the `pandoc_types`
-/// crate. Some recent changes to pandoc to Pandoc types used by Pandoc (from https://pandoc.org/releases.html):
-///
-///   pandoc 2.11 (2020-10-11) : pandoc-types 1.22
-///   pandoc 2.10 (2020-06-29) : pandoc-types 1.21
-async fn decode_pandoc(input: &str, options: &Options) -> Result<pandoc::Pandoc> {
-    // Get the Pandoc JSON
-    let json = if options.format == "pandoc" {
-        input.to_string()
-    } else {
-        let binary = PANDOC
-            .get_or_try_init(|| binaries::require("pandoc", "2.11"))
-            .await?;
-
-        let args = vec![
-            format!("--from={}", options.format),
-            "--to=json".to_string(),
-        ];
-        let args = [args, options.args.clone()].concat();
-
-        let mut command = binary.command();
-        command.args(&args).stdout(Stdio::piped());
-
-        let child = if options.is_file {
-            if !PathBuf::from(input).exists() {
-                bail!("File does not exists: {}", input)
-            }
-            command.arg(input).spawn()?
-        } else {
-            let mut child = command.stdin(Stdio::piped()).spawn()?;
-            if let Some(mut stdin) = child.stdin.take() {
-                stdin.write_all(input.as_ref())?;
-            }
-            child
-        };
-
-        let output = child.wait_with_output()?;
-
-        std::str::from_utf8(output.stdout.as_ref())?.to_string()
-    };
-
-    Ok(serde_json::from_str(&json)?)
 }
 
 /// Translate Pandoc meta data into an `Article` node
@@ -607,7 +602,6 @@ mod tests {
                     &content,
                     Options {
                         format: "pandoc".to_string(),
-                        is_file: false,
                         ..Default::default()
                     },
                 )

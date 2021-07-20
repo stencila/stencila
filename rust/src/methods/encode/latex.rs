@@ -2,10 +2,11 @@ use super::pandoc;
 use eyre::Result;
 use stencila_schema::Node;
 
-/// Decode a LaTeX document to a `Node`
-pub async fn decode(latex: &str) -> Result<Node> {
-    pandoc::decode(
-        latex,
+/// Encode a `Node` to a LaTeX string
+pub async fn encode(node: &Node) -> Result<String> {
+    pandoc::encode(
+        node,
+        "string://",
         pandoc::Options {
             format: "latex".to_string(),
             ..Default::default()

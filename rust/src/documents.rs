@@ -325,7 +325,8 @@ impl Document {
         Ok(())
     }
 
-    /// Save the document to another file, possibly in another format
+    /// Write the document to the file system, as an another file, possibly in
+    /// another format.
     ///
     /// # Arguments
     ///
@@ -333,21 +334,34 @@ impl Document {
     /// - `format`: the format to dump the content as; if not supplied assumed to be
     ///    the document's existing format.
     ///
-    /// Note: this does not change the `path` or `format` of the current
+    /// Note: this does not change the `path`, `format` or `status` of the current
     /// document.
-    async fn export<P: AsRef<Path>>(&self, path: P, format: Option<String>) -> Result<()> {
-        let format = format.or_else(|| {
-            path.as_ref()
-                .extension()
-                .map(|ext| ext.to_string_lossy().to_string())
+    async fn write_as<P: AsRef<Path>>(&self, path: P, format: Option<String>) -> Result<()> {
+        let path = path.as_ref();
+        let format = format.unwrap_or_else(|| {
+            path.extension().map_or_else(
+                || self.format.name.clone(),
+                |ext| ext.to_string_lossy().to_string(),
+            )
         });
-        let contents = self.dump(format).await?;
-        fs::write(path, contents)?;
+        let output = ["file://", &path.display().to_string()].concat();
+
+        let content = if let Some(root) = &self.root {
+            encode(root, &output, &format).await?
+        } else {
+            tracing::warn!("Document has no root node");
+            "".to_string()
+        };
+
+        if !content.starts_with("file://") {
+            fs::write(path, content)?;
+        }
+
         Ok(())
     }
 
     /// Dump the document's content to a string in its current, or
-    /// a different, format
+    /// alternative, format.
     ///
     /// # Arguments
     ///
@@ -358,8 +372,9 @@ impl Document {
             Some(format) => format,
             None => return Ok(self.content.clone()),
         };
+
         if let Some(root) = &self.root {
-            encode(root, &format).await
+            encode(root, "string://", &format).await
         } else {
             tracing::warn!("Document has no root node");
             Ok(String::new())
@@ -415,7 +430,7 @@ impl Document {
         for subscription in self.subscriptions.keys() {
             if let Some(format) = subscription.strip_prefix("encoded:") {
                 tracing::debug!("Encoding document '{}' to '{}'", self.id, format);
-                match encode(&root, format).await {
+                match encode(&root, "string://", format).await {
                     Ok(content) => {
                         self.publish(
                             DocumentEventType::Encoded,
@@ -1102,7 +1117,7 @@ pub mod cli {
                 to,
             } = self;
             let document = Document::open(input, from).await?;
-            document.export(output, to).await?;
+            document.write_as(output, to).await?;
             display::nothing()
         }
     }
