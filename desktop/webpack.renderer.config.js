@@ -15,6 +15,7 @@ module.exports = {
   module: {
     rules,
   },
+  output: { chunkFilename: 'main_window/[name].chunk.js', publicPath: '/' },
   plugins: [
     ...plugins,
     new webpack.DefinePlugin({
