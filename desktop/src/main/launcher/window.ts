@@ -28,6 +28,10 @@ export const openLauncherWindow = () => {
   // is thrown because the time remove handlers are called the window object is already destroyed.
   const windowId = launcherWindow.id
 
+  configHandlers.register(windowId)
+  projectHandlers.register(windowId)
+  launcherHandlers.register(windowId)
+
   launcherWindow.on('closed', () => {
     launcherHandlers.remove(windowId)
     configHandlers.remove(windowId)
@@ -35,9 +39,6 @@ export const openLauncherWindow = () => {
   })
 
   launcherWindow.webContents.on('did-finish-load', () => {
-    configHandlers.register(windowId)
-    projectHandlers.register(windowId)
-    launcherHandlers.register(windowId)
     launcherWindow?.show()
   })
 

@@ -27,6 +27,10 @@ export const openOnboardingWindow = () => {
   // is thrown because the time remove handlers are called the window object is already destroyed.
   const windowId = onboardingWindow.id
 
+  launcherHandlers.register(windowId)
+  configHandlers.register(windowId)
+  onboardingHandlers.register(windowId)
+
   onboardingWindow.on('closed', () => {
     launcherHandlers.remove(windowId)
     configHandlers.remove(windowId)
@@ -35,9 +39,6 @@ export const openOnboardingWindow = () => {
   })
 
   onboardingWindow.webContents.on('did-finish-load', () => {
-    launcherHandlers.register(windowId)
-    configHandlers.register(windowId)
-    onboardingHandlers.register(windowId)
     onboardingWindow?.show()
   })
 

@@ -22,13 +22,14 @@ export const showSettings = () => {
   // is thrown because the time remove handlers are called the window object is already destroyed.
   const windowId = settingsWindow.id
 
+  configHandlers.register(windowId)
+
   settingsWindow.on('closed', () => {
     configHandlers.remove(windowId)
     settingsWindow = null
   })
 
   settingsWindow.webContents.on('did-finish-load', () => {
-    configHandlers.register(windowId)
     settingsWindow?.show()
   })
 
