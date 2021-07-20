@@ -22,6 +22,9 @@ export const openProjectWindow = (directoryPath: string) => {
   // is thrown because the time remove handlers are called the window object is already destroyed.
   const windowId = projectWindow.id
 
+  projectHandlers.register(windowId)
+  documentHandlers.register(windowId)
+
   projectWindow.on('closed', () => {
     projects.close(directoryPath)
 
@@ -30,8 +33,6 @@ export const openProjectWindow = (directoryPath: string) => {
   })
 
   projectWindow.webContents.on('did-finish-load', () => {
-    projectHandlers.register(windowId)
-    documentHandlers.register(windowId)
     projectWindow?.show()
   })
 
