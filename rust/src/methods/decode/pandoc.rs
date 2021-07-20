@@ -1,5 +1,6 @@
 use crate::{
     binaries::{self, BinaryInstallation},
+    formats::{format_type, FormatType},
     methods::coerce::coerce,
 };
 use defaults::Defaults;
@@ -7,11 +8,11 @@ use eyre::{bail, Result};
 use pandoc_types::definition as pandoc;
 use std::{collections::HashMap, io::Write, path::PathBuf, process::Stdio};
 use stencila_schema::{
-    Article, BlockContent, Cite, CiteCitationMode, CiteGroup, CodeBlock, CodeFragment, Delete,
-    Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent,
-    ListOrder, MathFragment, Node, NontextualAnnotation, Paragraph, Quote, QuoteBlock, Strong,
-    Subscript, Superscript, TableCaption, TableCell, TableCellContent, TableRow, TableRowRowType,
-    TableSimple, ThematicBreak,
+    Article, AudioObjectSimple, BlockContent, Cite, CiteCitationMode, CiteGroup, CodeBlock,
+    CodeFragment, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List,
+    ListItem, ListItemContent, ListOrder, MathFragment, Node, NontextualAnnotation, Paragraph,
+    Quote, QuoteBlock, Strong, Subscript, Superscript, TableCaption, TableCell, TableCellContent,
+    TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
 };
 use tokio::sync::OnceCell;
 /// Decoding options for the `decode` and `decode_fragment` functions
@@ -492,16 +493,34 @@ fn translate_inline(element: &pandoc::Inline, context: &Context) -> Vec<InlineCo
             })]
         }
         pandoc::Inline::Image(attrs, _inlines, target) => {
-            // TODO: Return audio or video depending upon the file extension
             // TODO: Translate inlines as content. Perhaps wait for possible change
             // of `ImageObject.content` to `Vec<InlineContent>`.
+
             let pandoc::Target(url, title) = target;
-            vec![InlineContent::ImageObject(ImageObjectSimple {
-                id: get_id(attrs),
-                caption: get_string_prop(title),
-                content_url: url.clone(),
-                ..Default::default()
-            })]
+            let id = get_id(attrs);
+            let caption = get_string_prop(title);
+            let content_url = url.clone();
+
+            match format_type(&content_url) {
+                FormatType::Audio => vec![InlineContent::AudioObject(AudioObjectSimple {
+                    content_url,
+                    caption,
+                    id,
+                    ..Default::default()
+                })],
+                FormatType::Video => vec![InlineContent::VideoObject(VideoObjectSimple {
+                    content_url,
+                    caption,
+                    id,
+                    ..Default::default()
+                })],
+                _ => vec![InlineContent::ImageObject(ImageObjectSimple {
+                    content_url,
+                    caption,
+                    id,
+                    ..Default::default()
+                })],
+            }
         }
 
         pandoc::Inline::Cite(citations, _inlines) => {

@@ -187,6 +187,36 @@ impl Formats {
 
 pub static FORMATS: Lazy<Formats> = Lazy::new(Formats::default);
 
+pub enum FormatType {
+    Audio,
+    Image,
+    Video,
+    Unknown,
+}
+
+/// Match a file path to a `FormatType`
+pub fn format_type(path: &str) -> FormatType {
+    let path = Path::new(path);
+
+    // Get name from file extension, or filename if no extension
+    let name = match path.extension() {
+        Some(ext) => ext,
+        None => match path.file_name() {
+            Some(name) => name,
+            // Fallback to the provided "path"
+            None => path.as_os_str(),
+        },
+    };
+    let name = name.to_str().unwrap();
+
+    match name {
+        "flac" | "mp3" | "ogg" => FormatType::Audio,
+        "gif" | "jpg" | "png" => FormatType::Image,
+        "3gp" | "mp4" | "ogv" | "webm" => FormatType::Video,
+        _ => FormatType::Unknown,
+    }
+}
+
 /// Get JSON Schemas for this modules
 pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![schemas::generate::<Format>()?]);

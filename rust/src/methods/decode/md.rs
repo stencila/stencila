@@ -1,10 +1,7 @@
 use std::path::PathBuf;
 
 use super::html;
-use crate::{
-    methods::{coerce::coerce, encode::txt::ToTxt},
-    traits::ToVecInlineContent,
-};
+use crate::{formats::{FormatType, format_type}, methods::{coerce::coerce, encode::txt::ToTxt}, traits::ToVecInlineContent};
 use eyre::{bail, Result};
 use nom::{
     branch::alt,
@@ -331,14 +328,14 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                         || "".to_string(),
                         |ext| ext.to_string_lossy().to_string().to_ascii_lowercase(),
                     );
-                    let media_object = match extension.as_str() {
-                        "flac" | "mp3" | "ogg" => InlineContent::AudioObject(AudioObjectSimple {
+                    let media_object = match format_type(extension.as_str()) {
+                        FormatType::Audio => InlineContent::AudioObject(AudioObjectSimple {
                             content,
                             content_url: url.to_string(),
                             caption: title,
                             ..Default::default()
                         }),
-                        "3gp" | "mp4" | "ogv" | "webm" => {
+                        FormatType::Video => {
                             InlineContent::VideoObject(VideoObjectSimple {
                                 content,
                                 content_url: url.to_string(),
