@@ -2,7 +2,6 @@ import { IpcMainInvokeEvent } from 'electron'
 import { JSONSchema7 } from 'json-schema'
 import { Config, dispatch, Plugin, Result } from 'stencila'
 import { Channel, CHANNEL, Handler } from './channels'
-import { LogHandler } from './errors'
 import { UnprotectedStoreKeys } from './stores'
 
 type EntityId = number | string
@@ -50,6 +49,11 @@ export type OpenLink = InvokeType<
 export type CaptureError = InvokeType<
   typeof CHANNEL.CAPTURE_ERROR,
   (payload: Error | PromiseRejectionEvent) => void
+>
+
+export type GetAppVersion = InvokeType<
+  typeof CHANNEL.GET_APP_VERSION,
+  () => string
 >
 
 // Config
@@ -182,6 +186,7 @@ export type DocumentsUnsubscribe = InvokeType<
 type InvokeTypes =
   | OpenLink
   | CaptureError
+  | GetAppVersion
   | ConfigWindowOpen
   | ReadConfig
   | ReadAppConfig
@@ -232,6 +237,11 @@ interface Invoke {
     channel: CaptureError['channel'],
     ...args: CaptureError['args']
   ): CaptureError['result']
+
+  invoke(
+    channel: GetAppVersion['channel'],
+    ...args: GetAppVersion['args']
+  ): GetAppVersion['result']
 
   // Config
   invoke(

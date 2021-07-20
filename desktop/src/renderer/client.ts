@@ -59,6 +59,8 @@ export const isRPCError = (error: unknown): error is RPCError => {
 
 export const client = {
   app: {
+    version: () =>
+      window.api.invoke(CHANNEL.GET_APP_VERSION).then(unwrapOrThrow),
     utils: {
       openLinkInBrowser: (url: string) =>
         window.api

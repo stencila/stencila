@@ -13,6 +13,8 @@ const projectDirName = (path: string): string | undefined =>
   scoped: true,
 })
 export class AppLauncher {
+  private appVersion: string
+
   @State() recentProjects: string[] = []
 
   private openProject = (path: string) => async (e: Event) => {
@@ -23,6 +25,9 @@ export class AppLauncher {
 
   componentWillLoad() {
     this.recentProjects = fetchRecentProjects()
+    return client.app.version().then(({ value }) => {
+      this.appVersion = value
+    })
   }
 
   render() {
@@ -60,13 +65,15 @@ export class AppLauncher {
                 size="small"
                 color="neutral"
                 tooltip="Settings"
-                onClick={e => {
+                onClick={(e) => {
                   e.preventDefault()
                   client.config.window.open()
                 }}
               >
                 Settings
               </stencila-button>
+
+              <p class="appVersion">v{this.appVersion}</p>
             </div>
           </div>
 
