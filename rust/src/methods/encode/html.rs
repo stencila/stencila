@@ -716,14 +716,18 @@ impl ToHtml for List {
             Some(ListOrder::Ascending) => "ol",
             _ => "ul",
         };
-
         let items = concat(&self.items, |item| item.to_html(context));
 
-        format!(
-            r#"<{tag} itemtype="http://schema.org/ItemList">{items}</{tag}>"#,
-            tag = tag,
-            items = items
-        )
+        [
+            "<",
+            tag,
+            " itemtype=\"http://schema.org/ItemList\">",
+            &items,
+            "</",
+            tag,
+            ">",
+        ]
+        .concat()
     }
 }
 
