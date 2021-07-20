@@ -1,3 +1,11 @@
+## [0.98.1](https://github.com/stencila/stencila/compare/v0.98.0...v0.98.1) (2021-07-20)
+
+
+### Bug Fixes
+
+* **Desktop:** Fix periodic failure to open project window ([39e2ccf](https://github.com/stencila/stencila/commit/39e2ccf8e7d0a49e78656650688c247488dab409))
+* **Desktop:** Race condition when loading window & calling IPC method ([80f02df](https://github.com/stencila/stencila/commit/80f02dfa5306586610cd2e02eac3ff6f66f44f71))
+
 # [0.98.0](https://github.com/stencila/stencila/compare/v0.97.4...v0.98.0) (2021-07-19)
 
 
