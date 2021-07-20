@@ -141,14 +141,11 @@ macro_rules! inline_media_to_pandoc_image {
                 pandoc::Inline::Image(
                     attrs_empty(),
                     Vec::new(), // TODO: content or caption here
-                    pandoc::Target(
-                        self.content_url.clone(),
-                        "".to_string(),
-                    ),
+                    pandoc::Target(self.content_url.clone(), "".to_string()),
                 )
             }
         }
-    }
+    };
 }
 
 inline_media_to_pandoc_image!(AudioObjectSimple);
@@ -258,7 +255,34 @@ impl ToPandoc for Heading {
     }
 }
 
-unimplemented_to_pandoc!(List);
+impl ToPandoc for List {
+    fn to_pandoc_block(&self) -> pandoc::Block {
+        let items = self
+            .items
+            .iter()
+            .map(|item| match &item.content {
+                Some(content) => match content {
+                    ListItemContent::VecInlineContent(inlines) => {
+                        vec![pandoc::Block::Para(inlines.to_pandoc_inlines())]
+                    }
+                    ListItemContent::VecBlockContent(blocks) => blocks.to_pandoc_blocks(),
+                },
+                None => Vec::new(),
+            })
+            .collect();
+        match &self.order {
+            Some(ListOrder::Ascending) => pandoc::Block::OrderedList(
+                pandoc::ListAttributes(
+                    1,
+                    pandoc::ListNumberStyle::Decimal,
+                    pandoc::ListNumberDelim::DefaultDelim,
+                ),
+                items,
+            ),
+            _ => pandoc::Block::BulletList(items),
+        }
+    }
+}
 
 unimplemented_to_pandoc!(MathBlock);
 
@@ -325,7 +349,9 @@ impl ToPandoc for Node {
         match self {
             Node::Article(node) => node.to_pandoc(),
             _ => {
-                unimplemented!("Encoding via Pandoc is not currently supported for nodes of this type")
+                unimplemented!(
+                    "Encoding via Pandoc is not currently supported for nodes of this type"
+                )
             }
         }
     }

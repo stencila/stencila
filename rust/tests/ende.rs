@@ -69,4 +69,14 @@ proptest! {
         )
     }
 
+    #[test]
+    fn pandoc(input in article(Freedom::Nil)) {
+        let pandoc = encode::pandoc::encode_node(&input).unwrap();
+        let output = decode::pandoc::decode_pandoc(pandoc, &decode::pandoc::Options::default()).unwrap();
+        assert_eq!(
+            serde_json::to_value(&input).unwrap(),
+            serde_json::to_value(&output).unwrap()
+        )
+    }
+
 }
