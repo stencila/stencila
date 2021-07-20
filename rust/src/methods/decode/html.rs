@@ -5,7 +5,7 @@ use eyre::Result;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::local_name;
 use std::cmp::max;
-use stencila_schema::{Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node, NontextualAnnotation, Paragraph, Quote, QuoteBlock, Strong, Subscript, Superscript, ThematicBreak, VideoObjectSimple};
+use stencila_schema::{Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node, NontextualAnnotation, Paragraph, Quote, QuoteBlock, Strong, Subscript, Superscript, TableCell, TableCellContent, TableRow, TableSimple, ThematicBreak, VideoObjectSimple};
 
 // Public API structs and functions...
 
@@ -160,7 +160,13 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                     ..Default::default()
                 })]
             }
-            // TODO: Table
+            local_name!("table") => {
+                let rows = decode_table_rows(node, context);
+                vec![BlockContent::Table(TableSimple {
+                    rows,
+                    ..Default::default()
+                })]
+            }
             local_name!("hr") => {
                 vec![BlockContent::ThematicBreak(ThematicBreak::default())]
             }
@@ -389,6 +395,55 @@ fn decode_list_items(node: &NodeRef, context: &Context) -> Vec<ListItem> {
         })
         .collect()
 }
+
+/// Decode table rows from `<tr>` elements.
+fn decode_table_rows(node: &NodeRef, context: &Context) -> Vec<TableRow> {
+    node.descendants()
+        .filter_map(|child| {
+            if let Some(element) = child.as_element() {
+                if matches!(element.name.local, local_name!("tr")) {
+                    let cells = decode_table_cells(&child, context);
+                    return Some(TableRow {
+                        cells,
+                        ..Default::default()
+                    });
+                }
+            }
+            None
+        })
+        .collect()
+}
+
+/// Decode table cells from a `<td>` or `<th> elements.
+fn decode_table_cells(node: &NodeRef, context: &Context) -> Vec<TableCell> {
+    node.children()
+        .filter_map(|child| {
+            if let Some(element) = child.as_element() {
+                if matches!(element.name.local, local_name!("td") | local_name!("th")) {
+                    let blocks = decode_blocks(&child, context);
+                    let content = if blocks.len() > 1 {
+                        Some(TableCellContent::VecBlockContent(blocks))
+                    } else if let Some(BlockContent::Paragraph(para)) = blocks.first() {
+                        Some(TableCellContent::VecInlineContent(para.content.clone()))
+                    } else {
+                        let inlines = decode_inlines(&child, context);
+                        if !inlines.is_empty() {
+                            Some(TableCellContent::VecInlineContent(inlines))
+                        } else {
+                            None
+                        }
+                    };
+                    return Some(TableCell {
+                        content,
+                        ..Default::default()
+                    });
+                }
+            }
+            None
+        })
+        .collect()
+}
+
 
 /// Get the `id` attribute of an element (if any)
 fn get_id(element: &ElementData) -> Option<Box<String>> {
