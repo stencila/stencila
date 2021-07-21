@@ -9,21 +9,26 @@ use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
 
 /// Encode a `Node` to a HTML document
-pub fn encode(node: &Node) -> Result<String> {
+pub fn encode(node: &Node, data_uris: bool, theme: &str) -> Result<String> {
     let context = Context {
         root: node,
-        data_uris: false,
+        data_uris,
     };
+
     let html = node.to_html(&context);
-    Ok(html)
+
+    if !theme.is_empty() {
+        Ok(standalone(&html, theme))
+    } else {
+        Ok(html)
+    }
 }
 
-/// Encode a node to standalone HTML with a given theme
-///
-/// This function is mainly for developers to be able to preview the
-/// result of `encode_html`.
-pub fn encode_standalone(node: &Node, theme: Option<String>) -> Result<String> {
-    Ok(format!(
+/// Make some HTMl standalone
+pub fn standalone(html: &str, theme: &str) -> String {
+    let theme = if theme.is_empty() { "stencila" } else { &theme };
+
+    format!(
         r#"<!DOCTYPE html>
 <html lang="en">
     <head>
@@ -52,12 +57,12 @@ pub fn encode_standalone(node: &Node, theme: Option<String>) -> Result<String> {
         </style>
     </head>
     <body>
-        {body}
+        {html}
     </body>
 </html>"#,
-        theme = theme.unwrap_or_else(|| "wilmore".into()),
-        body = encode(node)?
-    ))
+        theme = theme,
+        html = html
+    )
 }
 
 /// The encoding context.
@@ -1294,7 +1299,7 @@ mod tests {
             let json = fs::read_to_string(fixture_path)?;
             let article: Node = serde_json::from_str(&json)?;
 
-            let html = encode_standalone(&article, Some("elife".to_string()))?;
+            let html = encode(&article, false, "elife")?;
 
             let snapshot_path = snapshots.join(format!(
                 "{}.html",

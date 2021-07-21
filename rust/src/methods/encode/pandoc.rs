@@ -1,4 +1,3 @@
-use defaults::Defaults;
 use eyre::Result;
 use pandoc_types::definition as pandoc;
 use std::{collections::HashMap, io::Write, process::Stdio};
@@ -6,20 +5,10 @@ use stencila_schema::*;
 
 use crate::methods::decode::pandoc::require_pandoc;
 
-#[derive(Clone, Defaults)]
-pub struct Options {
-    /// The format of the output
-    #[def = "\"pandoc\".to_string()"]
-    pub format: String,
-
-    /// Additional arguments to pass to Pandoc
-    pub args: Vec<String>,
-}
-
 /// Encode a `Node` to a document via Pandoc
-pub async fn encode(node: &Node, output: &str, options: Options) -> Result<String> {
+pub async fn encode(node: &Node, output: &str, format: &str, args: &[String]) -> Result<String> {
     let pandoc = encode_node(node)?;
-    encode_pandoc(pandoc, output, &options).await
+    encode_pandoc(pandoc, output, format, args).await
 }
 
 /// Encode a `Node` to a Pandoc document
@@ -30,17 +19,17 @@ pub fn encode_node(node: &Node) -> Result<pandoc::Pandoc> {
 /// Encode a Pandoc document to desired format.
 ///
 /// Calls Pandoc binary to convert the Pandoc JSON to the desired format.
-async fn encode_pandoc(doc: pandoc::Pandoc, output: &str, options: &Options) -> Result<String> {
+async fn encode_pandoc(doc: pandoc::Pandoc, output: &str, format: &str, args: &[String]) -> Result<String> {
     let json = serde_json::to_string(&doc)?;
 
-    if options.format == "pandoc" {
+    if format == "pandoc" {
         Ok(json)
     } else {
         let binary = require_pandoc().await?;
 
         let mut command = binary.command();
-        command.args(["--from", "json", "--to", &options.format]);
-        command.args(&options.args);
+        command.args(["--from", "json", "--to", format]);
+        command.args(args);
         if let Some(path) = output.strip_prefix("file://") {
             command.args(["--output", path]);
         }

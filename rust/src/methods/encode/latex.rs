@@ -4,13 +4,5 @@ use stencila_schema::Node;
 
 /// Encode a `Node` to a LaTeX string
 pub async fn encode(node: &Node) -> Result<String> {
-    pandoc::encode(
-        node,
-        "string://",
-        pandoc::Options {
-            format: "latex".to_string(),
-            ..Default::default()
-        },
-    )
-    .await
+    pandoc::encode(node, "string://", "latex", &[]).await
 }

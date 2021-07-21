@@ -10,13 +10,5 @@ pub async fn encode(node: &Node, output: &str) -> Result<String> {
         output
     };
 
-    pandoc::encode(
-        node,
-        &["file://", path].concat(),
-        pandoc::Options {
-            format: "docx".to_string(),
-            ..Default::default()
-        },
-    )
-    .await
+    pandoc::encode(node, &["file://", path].concat(), "docx", &[]).await
 }
