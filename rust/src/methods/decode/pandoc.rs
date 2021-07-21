@@ -1,5 +1,5 @@
 use crate::{
-    binaries::{self, BinaryInstallation},
+    binaries,
     formats::{format_type, FormatType},
     methods::coerce::coerce,
 };
@@ -14,7 +14,11 @@ use stencila_schema::{
     Quote, QuoteBlock, Strong, Subscript, Superscript, TableCaption, TableCell, TableCellContent,
     TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
 };
-use tokio::sync::OnceCell;
+
+/// The semver requirement for Pandoc
+/// Used on the `decode::pandoc` module as well.
+pub const PANDOC_SEMVER: &str = "2.11";
+
 /// Decoding options for the `decode` and `decode_fragment` functions
 #[derive(Clone, Defaults)]
 pub struct Options {
@@ -51,14 +55,6 @@ pub async fn decode_fragment(input: &str, options: Options) -> Result<Vec<BlockC
     Ok(translate_blocks(&pandoc.1, &context))
 }
 
-static PANDOC: OnceCell<BinaryInstallation> = OnceCell::const_new();
-
-pub async fn require_pandoc() -> Result<&'static BinaryInstallation> {
-    PANDOC
-        .get_or_try_init(|| binaries::require("pandoc", "2.11"))
-        .await
-}
-
 /// Decode some content (either a string or file path) to a Pandoc document
 ///
 /// Calls Pandoc binary to convert the content to Pandoc JSON which is then deserialized to
@@ -73,7 +69,7 @@ async fn decode_input(input: &str, options: &Options) -> Result<pandoc::Pandoc> 
     let json = if options.format == "pandoc" {
         input.to_string()
     } else {
-        let binary = require_pandoc().await?;
+        let binary = binaries::require("pandoc", PANDOC_SEMVER).await?;
 
         let mut command = binary.command();
         command.args(["--from", &options.format, "--to", "json"]);

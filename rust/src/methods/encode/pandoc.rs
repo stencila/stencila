@@ -1,9 +1,8 @@
+use crate::{binaries, methods::decode::pandoc::PANDOC_SEMVER};
 use eyre::Result;
 use pandoc_types::definition as pandoc;
 use std::{collections::HashMap, io::Write, process::Stdio};
 use stencila_schema::*;
-
-use crate::methods::decode::pandoc::require_pandoc;
 
 /// Encode a `Node` to a document via Pandoc
 pub async fn encode(node: &Node, output: &str, format: &str, args: &[String]) -> Result<String> {
@@ -19,13 +18,18 @@ pub fn encode_node(node: &Node) -> Result<pandoc::Pandoc> {
 /// Encode a Pandoc document to desired format.
 ///
 /// Calls Pandoc binary to convert the Pandoc JSON to the desired format.
-async fn encode_pandoc(doc: pandoc::Pandoc, output: &str, format: &str, args: &[String]) -> Result<String> {
+async fn encode_pandoc(
+    doc: pandoc::Pandoc,
+    output: &str,
+    format: &str,
+    args: &[String],
+) -> Result<String> {
     let json = serde_json::to_string(&doc)?;
 
     if format == "pandoc" {
         Ok(json)
     } else {
-        let binary = require_pandoc().await?;
+        let binary = binaries::require("pandoc", PANDOC_SEMVER).await?;
 
         let mut command = binary.command();
         command.args(["--from", "json", "--to", format]);
