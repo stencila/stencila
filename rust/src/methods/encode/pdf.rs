@@ -1,7 +1,8 @@
 use super::html;
-use crate::utils::browser;
-use chromiumoxide::cdp::browser_protocol::page::PrintToPdfParamsBuilder;
-use eyre::Result;
+use crate::binaries;
+use chromiumoxide::{cdp::browser_protocol::page::PrintToPdfParamsBuilder, Browser, BrowserConfig};
+use eyre::{bail, Result};
+use futures::StreamExt;
 use stencila_schema::Node;
 
 /// Encode a `Node` to a PDF document
@@ -9,14 +10,33 @@ pub async fn encode(node: &Node, output: &str, theme: &str) -> Result<String> {
     let path = if let Some(path) = output.strip_prefix("file://") {
         path
     } else {
-        output
+        bail!("Can only encode to a file://")
     };
 
     let html = html::encode(node, true, theme)?;
 
-    let page = browser::page().await?;
+    let chrome = binaries::require("chrome", "*").await?;
+
+    let config = BrowserConfig::builder()
+        .chrome_executable(chrome.path)
+        .build()
+        .expect("Should build config");
+
+    let (browser, mut handler) = Browser::launch(config).await?;
+    tokio::task::spawn(async move {
+        loop {
+            let _ = handler.next().await.unwrap();
+        }
+    });
+
     let params = PrintToPdfParamsBuilder::default().build();
-    page.set_content(html).await?.save_pdf(params, path).await?;
+    browser
+        .new_page("about:blank")
+        .await?
+        .set_content(html)
+        .await?
+        .save_pdf(params, path)
+        .await?;
 
     Ok(["file://", path].concat())
 }
