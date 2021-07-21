@@ -85,6 +85,7 @@ pub mod telemetry;
 // Usually just small functions that are often wrappers around other crates.
 
 pub mod utils {
+    pub mod browser;
     pub mod fs;
     pub mod http;
     pub mod schemas;

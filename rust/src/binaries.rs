@@ -37,7 +37,7 @@ pub fn binaries_dir() -> PathBuf {
     }
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct BinaryInstallation {
     /// The name of the binary
     #[serde(skip)]

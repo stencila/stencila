@@ -21,6 +21,9 @@ pub mod md;
 #[cfg(feature = "encode-pandoc")]
 pub mod pandoc;
 
+#[cfg(feature = "encode-pdf")]
+pub mod pdf;
+
 #[cfg(feature = "encode-toml")]
 pub mod toml;
 
@@ -37,7 +40,7 @@ pub mod yaml;
 /// - `node`: the node to encode
 /// - `output`: the destination path, if applicable
 /// - `format`: the format of the content e.g. `json`, `md`
-pub async fn encode(node: &Node, output: &str, format: &str) -> Result<String> {
+pub async fn encode(node: &Node, output: &str, format: &str, theme: &str) -> Result<String> {
     // Allow these for when no features are enabled
     #[allow(unused_variables, unreachable_code)]
     Ok(match format {
@@ -45,7 +48,7 @@ pub async fn encode(node: &Node, output: &str, format: &str) -> Result<String> {
         "docx" => docx::encode(node, output).await?,
 
         #[cfg(feature = "encode-html")]
-        "html" => html::encode(node)?,
+        "html" => html::encode(node, false, theme)?,
 
         #[cfg(feature = "encode-json")]
         "json" => json::encode(node)?,
@@ -57,7 +60,10 @@ pub async fn encode(node: &Node, output: &str, format: &str) -> Result<String> {
         "md" => md::encode(node)?,
 
         #[cfg(feature = "encode-pandoc")]
-        "pandoc" => pandoc::encode(node, output, pandoc::Options::default()).await?,
+        "pandoc" => pandoc::encode(node, output, "pandoc", &[]).await?,
+
+        #[cfg(feature = "encode-pdf")]
+        "pdf" => pdf::encode(node, output, theme).await?,
 
         #[cfg(feature = "encode-toml")]
         "toml" => toml::encode(node)?,
@@ -110,6 +116,6 @@ pub mod rpc {
             output,
             format,
         } = params;
-        super::encode(&node, &output, &format).await
+        super::encode(&node, &output, &format, "").await
     }
 }
