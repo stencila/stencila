@@ -51,7 +51,7 @@ proptest! {
 
     #[test]
     fn html(input in article(Freedom::Max)) {
-        let content = encode::html::encode(&input).unwrap();
+        let content = encode::html::encode(&input, false, "").unwrap();
         let output = decode::html::decode(&content, decode::html::Options::default()).unwrap();
         assert_eq!(
             serde_json::to_value(&input).unwrap(),
