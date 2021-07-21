@@ -4,7 +4,7 @@ use crate::{
     methods::{
         compile::compile,
         decode::decode,
-        encode::encode,
+        encode::{self, encode},
         reshape::{self, reshape},
     },
     pubsub::publish,
@@ -350,11 +350,14 @@ impl Document {
                 |ext| ext.to_string_lossy().to_string(),
             )
         });
-        let theme = theme.unwrap_or_default();
         let output = ["file://", &path.display().to_string()].concat();
 
         let content = if let Some(root) = &self.root {
-            encode(root, &output, &format, &theme).await?
+            let mut options = encode::Options::default();
+            if let Some(theme) = theme {
+                options.theme = theme
+            }
+            encode(root, &output, &format, Some(options)).await?
         } else {
             tracing::warn!("Document has no root node");
             "".to_string()
@@ -381,7 +384,7 @@ impl Document {
         };
 
         if let Some(root) = &self.root {
-            encode(root, "string://", &format, "").await
+            encode(root, "string://", &format, None).await
         } else {
             tracing::warn!("Document has no root node");
             Ok(String::new())
@@ -437,7 +440,7 @@ impl Document {
         for subscription in self.subscriptions.keys() {
             if let Some(format) = subscription.strip_prefix("encoded:") {
                 tracing::debug!("Encoding document '{}' to '{}'", self.id, format);
-                match encode(&root, "string://", format, "").await {
+                match encode(&root, "string://", format, None).await {
                     Ok(content) => {
                         self.publish(
                             DocumentEventType::Encoded,

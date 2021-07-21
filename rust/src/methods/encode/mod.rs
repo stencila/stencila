@@ -1,3 +1,4 @@
+use defaults::Defaults;
 use eyre::{bail, Result};
 use maplit::hashmap;
 use stencila_schema::Node;
@@ -33,14 +34,50 @@ pub mod txt;
 #[cfg(feature = "encode-yaml")]
 pub mod yaml;
 
+/// Common encoding options
+///
+/// Functions (including in plugins) are encouraged to respect these options
+/// but are not required to. Indeed, some options do not apply for some formats.
+/// For example, a PDF is always `standalone` (so if that option is set to `false` is it will be ignored).
+/// Futhermore, some combinations of options are ineffectual e.g. a `theme` when `standalone: false`
+#[derive(Clone, Debug, Defaults)]
+pub struct Options {
+    /// Whether to ensure that the encoded document is standalone
+    #[def = "false"]
+    pub standalone: bool,
+
+    /// Whether to bundle local media files into the encoded document
+    ///
+    /// Some formats (e.g. DOCX, PDF) always bundle. For HTML,
+    /// bundling means including media as data URIs rather than
+    /// links to files.
+    #[def = "false"]
+    pub bundle: bool,
+
+    /// The theme to apply to the encoded document
+    #[def = "\"stencila\".to_string()"]
+    pub theme: String,
+}
+
 /// Encode a `Node` to content in a particular format
 ///
 /// # Arguments
 ///
 /// - `node`: the node to encode
-/// - `output`: the destination path, if applicable
-/// - `format`: the format of the content e.g. `json`, `md`
-pub async fn encode(node: &Node, output: &str, format: &str, theme: &str) -> Result<String> {
+/// - `output`: the destination file path (if applicable for the format)
+/// - `format`: the format of the content (e.g. `json`, `md`)
+/// - `options`: any additional options
+///
+/// # Returns
+///
+/// The encoded content, or if a file was written, a file:// URL with the
+/// path of the file (which should equal the `output` argument).
+pub async fn encode(
+    node: &Node,
+    output: &str,
+    format: &str,
+    options: Option<Options>,
+) -> Result<String> {
     // Allow these for when no features are enabled
     #[allow(unused_variables, unreachable_code)]
     Ok(match format {
@@ -48,7 +85,7 @@ pub async fn encode(node: &Node, output: &str, format: &str, theme: &str) -> Res
         "docx" => docx::encode(node, output).await?,
 
         #[cfg(feature = "encode-html")]
-        "html" => html::encode(node, false, theme)?,
+        "html" => html::encode(node, options)?,
 
         #[cfg(feature = "encode-json")]
         "json" => json::encode(node)?,
@@ -63,7 +100,7 @@ pub async fn encode(node: &Node, output: &str, format: &str, theme: &str) -> Res
         "pandoc" => pandoc::encode(node, output, "pandoc", &[]).await?,
 
         #[cfg(feature = "encode-pdf")]
-        "pdf" => pdf::encode(node, output, theme).await?,
+        "pdf" => pdf::encode(node, output, options).await?,
 
         #[cfg(feature = "encode-toml")]
         "toml" => toml::encode(node)?,
@@ -116,6 +153,6 @@ pub mod rpc {
             output,
             format,
         } = params;
-        super::encode(&node, &output, &format, "").await
+        super::encode(&node, &output, &format, None).await
     }
 }

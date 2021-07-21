@@ -1,4 +1,5 @@
 use super::txt::ToTxt;
+use super::Options;
 use eyre::Result;
 use html_escape::{encode_double_quoted_attribute, encode_safe};
 use itertools::Itertools;
@@ -9,23 +10,26 @@ use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
 
 /// Encode a `Node` to a HTML document
-pub fn encode(node: &Node, data_uris: bool, theme: &str) -> Result<String> {
-    let context = Context {
-        root: node,
-        data_uris,
-    };
+pub fn encode(node: &Node, options: Option<Options>) -> Result<String> {
+    let Options {
+        bundle,
+        theme,
+        standalone,
+    } = options.unwrap_or_default();
+
+    let context = Context { root: node, bundle };
 
     let html = node.to_html(&context);
 
-    if !theme.is_empty() {
-        Ok(standalone(&html, theme))
+    if standalone {
+        Ok(wrap_standalone(&html, &theme))
     } else {
         Ok(html)
     }
 }
 
-/// Make some HTMl standalone
-pub fn standalone(html: &str, theme: &str) -> String {
+/// Wrap generated HTML so that it is standalone
+pub fn wrap_standalone(html: &str, theme: &str) -> String {
     let theme = if theme.is_empty() { "stencila" } else { &theme };
 
     format!(
@@ -75,7 +79,7 @@ struct Context<'a> {
 
     /// Whether <img>, <audio> and <video> elements should
     /// use dataURIs
-    data_uris: bool,
+    bundle: bool,
 }
 
 /// Trait for encoding a node as HTML
@@ -315,7 +319,7 @@ fn file_uri_to_data_uri(url: &str) -> String {
 }
 
 fn content_url_to_src_attr(content_url: &str, context: &Context) -> String {
-    let url = match context.data_uris {
+    let url = match context.bundle {
         true => file_uri_to_data_uri(content_url),
         false => content_url.to_string(),
     };
@@ -1299,7 +1303,7 @@ mod tests {
             let json = fs::read_to_string(fixture_path)?;
             let article: Node = serde_json::from_str(&json)?;
 
-            let html = encode(&article, false, "elife")?;
+            let html = encode(&article, None)?;
 
             let snapshot_path = snapshots.join(format!(
                 "{}.html",
