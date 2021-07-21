@@ -50,6 +50,62 @@ input_file: fixtures/articles/simple.html
       ]
     },
     {
+      "type": "Table",
+      "rows": [
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                "Group"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "Value"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                "A"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "1.1"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                "B"
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                "2.2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "type": "Heading",
       "content": [
         "Discussion"
