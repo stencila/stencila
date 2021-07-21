@@ -52,7 +52,7 @@ proptest! {
     #[test]
     fn html(input in article(Freedom::Max)) {
         let content = encode::html::encode(&input, None).unwrap();
-        let output = decode::html::decode(&content, decode::html::Options::default()).unwrap();
+        let output = decode::html::decode(&content, false).unwrap();
         assert_eq!(
             serde_json::to_value(&input).unwrap(),
             serde_json::to_value(&output).unwrap()
@@ -74,7 +74,7 @@ proptest! {
     #[test]
     fn pandoc(input in article(Freedom::Min)) {
         let pandoc = encode::pandoc::encode_node(&input).unwrap();
-        let output = decode::pandoc::decode_pandoc(pandoc, &decode::pandoc::Options::default()).unwrap();
+        let output = decode::pandoc::decode_pandoc(pandoc).unwrap();
         assert_eq!(
             serde_json::to_value(&input).unwrap(),
             serde_json::to_value(&output).unwrap()

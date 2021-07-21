@@ -422,13 +422,14 @@ impl Document {
         );
 
         // Decode the content into the `root` node of the document
-        let path = self.path.display().to_string();
-        let input = if self.format.binary {
-            &path
+        let format = &self.format.name;
+        let mut root = if self.format.binary {
+            let path = self.path.display().to_string();
+            let input = ["file://", &path].concat();
+            decode(&input, format).await?
         } else {
-            &self.content
+            decode(&self.content, format).await?
         };
-        let mut root = decode(&input, &self.format.name).await?;
 
         // Reshape the `root` according to preferences
         reshape(&mut root, reshape::Options::default())?;

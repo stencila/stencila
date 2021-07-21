@@ -1,7 +1,7 @@
+use crate::formats::{format_type, FormatType};
 use eyre::Result;
 use maplit::hashmap;
 use stencila_schema::{AudioObject, ImageObject, Node, VideoObject};
-use crate::formats::{format_type, FormatType};
 
 #[cfg(feature = "decode-date")]
 pub mod date;
@@ -50,7 +50,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "docx" => docx::decode(input).await?,
 
         #[cfg(feature = "decode-html")]
-        "html" => html::decode(input, html::Options::default())?,
+        "html" => html::decode(input, false)?,
 
         #[cfg(feature = "decode-json")]
         "json" => json::decode(input)?,
@@ -59,7 +59,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "latex" => latex::decode(input).await?,
 
         #[cfg(feature = "decode-pandoc")]
-        "pandoc" => pandoc::decode(input, pandoc::Options::default()).await?,
+        "pandoc" => pandoc::decode(input, "pandoc", &[]).await?,
 
         #[cfg(feature = "decode-person")]
         "person" => person::decode(input)?,

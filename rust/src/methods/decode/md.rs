@@ -1,7 +1,11 @@
 use std::path::PathBuf;
 
 use super::html;
-use crate::{formats::{FormatType, format_type}, methods::{coerce::coerce, encode::txt::ToTxt}, traits::ToVecInlineContent};
+use crate::{
+    formats::{format_type, FormatType},
+    methods::{coerce::coerce, encode::txt::ToTxt},
+    traits::ToVecInlineContent,
+};
 use eyre::{bail, Result};
 use nom::{
     branch::alt,
@@ -335,14 +339,12 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                             caption: title,
                             ..Default::default()
                         }),
-                        FormatType::Video => {
-                            InlineContent::VideoObject(VideoObjectSimple {
-                                content,
-                                content_url: url.to_string(),
-                                caption: title,
-                                ..Default::default()
-                            })
-                        }
+                        FormatType::Video => InlineContent::VideoObject(VideoObjectSimple {
+                            content,
+                            content_url: url.to_string(),
+                            caption: title,
+                            ..Default::default()
+                        }),
                         _ => InlineContent::ImageObject(ImageObjectSimple {
                             content,
                             content_url: url.to_string(),
@@ -863,12 +865,7 @@ impl Html {
         if self.tags.is_empty() {
             let html = self.html.clone() + html;
             self.html.clear();
-            html::decode_fragment(
-                &html,
-                html::Options {
-                    decode_markdown: true,
-                },
-            )
+            html::decode_fragment(&html, true)
         } else {
             self.html.push_str(html);
             vec![]

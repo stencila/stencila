@@ -1,5 +1,5 @@
 use super::pandoc;
-use eyre::Result;
+use eyre::{bail, Result};
 use stencila_schema::Node;
 
 /// Decode a DOCX file to a `Node`
@@ -10,7 +10,7 @@ pub async fn decode(input: &str) -> Result<Node> {
     let path = if let Some(path) = input.strip_prefix("file://") {
         path
     } else {
-        input
+        bail!("Can only decode a file:// input")
     };
 
     // TODO: Resolve the project's .stencila dir
@@ -18,10 +18,8 @@ pub async fn decode(input: &str) -> Result<Node> {
 
     pandoc::decode(
         &["file://", path].concat(),
-        pandoc::Options {
-            format: "docx".to_string(),
-            args: vec!["--extract-media".to_string(), media],
-        },
+        "docx",
+        &["--extract-media".to_string(), media],
     )
     .await
 }

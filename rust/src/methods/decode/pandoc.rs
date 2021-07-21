@@ -3,7 +3,6 @@ use crate::{
     formats::{format_type, FormatType},
     methods::coerce::coerce,
 };
-use defaults::Defaults;
 use eyre::{bail, Result};
 use pandoc_types::definition as pandoc;
 use std::{collections::HashMap, io::Write, path::PathBuf, process::Stdio};
@@ -19,39 +18,30 @@ use stencila_schema::{
 /// Used on the `decode::pandoc` module as well.
 pub const PANDOC_SEMVER: &str = "2.11";
 
-/// Decoding options for the `decode` and `decode_fragment` functions
-#[derive(Clone, Defaults)]
-pub struct Options {
-    /// The format of the input
-    #[def = "\"pandoc\".to_string()"]
-    pub format: String,
-
-    /// Additional arguments to pass to Pandoc
-    pub args: Vec<String>,
-}
-
 /// Decode a document to a `Node`
 ///
 /// Intended for decoding an entire document into an `Article`
 /// (and, in the future, potentially other types).
-pub async fn decode(input: &str, options: Options) -> Result<Node> {
-    let pandoc = decode_input(input, &options).await?;
-    decode_pandoc(pandoc, &options)
+pub async fn decode(input: &str, format: &str, args: &[String]) -> Result<Node> {
+    let pandoc = decode_input(input, format, args).await?;
+    decode_pandoc(pandoc)
 }
 
 /// Decode a fragment to a vector of `BlockContent`
 ///
 /// Intended for decoding a fragment of a larger document (e.g. from some Latex in
 /// a Markdown document). Ignores any meta data e.g. title
-pub async fn decode_fragment(input: &str, options: Options) -> Result<Vec<BlockContent>> {
+pub async fn decode_fragment(
+    input: &str,
+    format: &str,
+    args: &[String],
+) -> Result<Vec<BlockContent>> {
     if input.is_empty() {
         return Ok(vec![]);
     }
 
-    let pandoc = decode_input(input, &options).await?;
-    let context = Context {
-        options: options.clone(),
-    };
+    let pandoc = decode_input(input, format, args).await?;
+    let context = Context {};
     Ok(translate_blocks(&pandoc.1, &context))
 }
 
@@ -65,15 +55,15 @@ pub async fn decode_fragment(input: &str, options: Options) -> Result<Vec<BlockC
 ///
 ///   pandoc 2.11 (2020-10-11) : pandoc-types 1.22
 ///   pandoc 2.10 (2020-06-29) : pandoc-types 1.21
-async fn decode_input(input: &str, options: &Options) -> Result<pandoc::Pandoc> {
-    let json = if options.format == "pandoc" {
+async fn decode_input(input: &str, format: &str, args: &[String]) -> Result<pandoc::Pandoc> {
+    let json = if format == "pandoc" {
         input.to_string()
     } else {
         let binary = binaries::require("pandoc", PANDOC_SEMVER).await?;
 
         let mut command = binary.command();
-        command.args(["--from", &options.format, "--to", "json"]);
-        command.args(&options.args);
+        command.args(["--from", format, "--to", "json"]);
+        command.args(args);
         command.stdout(Stdio::piped());
 
         let child = if let Some(path) = input.strip_prefix("file://") {
@@ -97,11 +87,8 @@ async fn decode_input(input: &str, options: &Options) -> Result<pandoc::Pandoc> 
 }
 
 /// Decode a Pandoc document to a `Node`
-pub fn decode_pandoc(pandoc: pandoc::Pandoc, options: &Options) -> Result<Node> {
-    let context = Context {
-        options: options.clone(),
-    };
-
+pub fn decode_pandoc(pandoc: pandoc::Pandoc) -> Result<Node> {
+    let context = Context {};
     let mut article = translate_meta(pandoc.0, &context)?;
 
     let content = translate_blocks(&pandoc.1, &context);
@@ -166,10 +153,7 @@ fn translate_meta_value(value: &pandoc::MetaValue, context: &Context) -> serde_j
 }
 
 /// Decoding context
-struct Context {
-    #[allow(dead_code)]
-    options: Options,
-}
+struct Context {}
 
 /// Translate a vector of Pandoc `Block` elements to a vector of `BlockContent` nodes
 fn translate_blocks(elements: &[pandoc::Block], context: &Context) -> Vec<BlockContent> {
@@ -612,17 +596,8 @@ mod tests {
     fn pandoc_fragments() {
         let runtime = tokio::runtime::Runtime::new().unwrap();
         snapshot_content("fragments/pandoc/*.json", |content| {
-            let json = runtime.block_on(async {
-                decode_fragment(
-                    &content,
-                    Options {
-                        format: "pandoc".to_string(),
-                        ..Default::default()
-                    },
-                )
-                .await
-                .unwrap()
-            });
+            let json =
+                runtime.block_on(async { decode_fragment(&content, "pandoc", &[]).await.unwrap() });
             assert_json_snapshot!(json);
         });
     }
