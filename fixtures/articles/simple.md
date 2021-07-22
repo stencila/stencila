@@ -1,9 +1,9 @@
 ---
 title: A simple Markdown article
 keywords:
-    - text 
-    - fixture
-    - Markdown
+  - text
+  - fixture
+  - Markdown
 ---
 
 # Introduction
@@ -18,10 +18,10 @@ This is the methods section.
 
 The results include a table (Table 1).
 
-|Group|Value|
-|-----|-----|
-|A    |1.1  |
-|B    |2.2  |
+| Group | Value |
+| ----- | ----- |
+| A     | 1.1   |
+| B     | 2.2   |
 
 # Discussion
 
