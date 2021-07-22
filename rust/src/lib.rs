@@ -39,7 +39,9 @@ pub mod methods {
 
 pub mod traits {
     mod to_vec_inline_content;
-    pub use to_vec_inline_content::ToVecInlineContent;
+    pub use to_vec_inline_content::*;
+    mod to_vec_block_content;
+    pub use to_vec_block_content::*;
 }
 
 // Features

@@ -1,9 +1,6 @@
 ---
-title: A simple Markdown article
-keywords:
-  - text
-  - fixture
-  - Markdown
+title: A simple R Markdown article
+keywords: text, fixture, Markdown
 ---
 
 # Introduction
@@ -25,4 +22,9 @@ The results include a table (Table 1).
 
 # Discussion
 
-This is the conclusion section.
+This is the discussion section.
+
+```r
+# Some R code
+a <- 1
+```

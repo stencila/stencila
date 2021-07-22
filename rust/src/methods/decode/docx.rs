@@ -1,24 +1,25 @@
-use std::path::PathBuf;
-
 use super::pandoc;
-use eyre::Result;
+use eyre::{bail, Result};
 use stencila_schema::Node;
 
 /// Decode a DOCX file to a `Node`
 ///
 /// If the document contains media (e.g images) these will be extracted
-/// to a sibling folder with `.media` extension. This folder needs to be a sibling
-/// to ensure it is not outside of the project (for security reasons). This does mean
-/// however that the folder gets polluted unnecessarily with this folder.
+/// in to the project cache.
 pub async fn decode(input: &str) -> Result<Node> {
-    let media = PathBuf::from(input).canonicalize()?.display().to_string() + ".media";
+    let path = if let Some(path) = input.strip_prefix("file://") {
+        path
+    } else {
+        bail!("Can only decode a file:// input")
+    };
+
+    // TODO: Resolve the project's .stencila dir
+    let media = ".stencila/cache".to_string();
+
     pandoc::decode(
-        input,
-        pandoc::Options {
-            format: "docx".to_string(),
-            is_file: true,
-            args: vec![format!("--extract-media={media}", media = media)],
-        },
+        &["file://", path].concat(),
+        "docx",
+        &["--extract-media".to_string(), media],
     )
     .await
 }

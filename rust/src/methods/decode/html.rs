@@ -1,27 +1,21 @@
 use super::md;
 use crate::traits::ToVecInlineContent;
-use defaults::Defaults;
 use eyre::Result;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::local_name;
 use std::cmp::max;
-use stencila_schema::{Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node, NontextualAnnotation, Paragraph, Quote, QuoteBlock, Strong, Subscript, Superscript, ThematicBreak, VideoObjectSimple};
-
-// Public API structs and functions...
-
-/// Decoding options for the `decode` and `decode_fragment` functions
-#[derive(Defaults)]
-pub struct Options {
-    /// Attempt to decode text content as Markdown
-    #[def = "false"]
-    pub decode_markdown: bool,
-}
+use stencila_schema::{
+    Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
+    ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
+    NontextualAnnotation, Paragraph, Quote, QuoteBlock, Strong, Subscript, Superscript, TableCell,
+    TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
+};
 
 /// Decode a HTML document to a `Node`
 ///
 /// Intended for decoding an entire document into an `Article`.
-pub fn decode(html: &str, options: Options) -> Result<Node> {
-    let content = decode_fragment(html, options);
+pub fn decode(html: &str, decode_text_as_markdown: bool) -> Result<Node> {
+    let content = decode_fragment(html, decode_text_as_markdown);
 
     let article = Article {
         content: Some(content),
@@ -39,12 +33,14 @@ pub fn decode(html: &str, options: Options) -> Result<Node> {
 /// If any block content is present in the fragment then that will be returned.
 /// Otherwise, if the fragment only consists of inline content a vector with
 /// a single paragraph containing that content will be returned.
-pub fn decode_fragment(html: &str, options: Options) -> Vec<BlockContent> {
+pub fn decode_fragment(html: &str, decode_text_as_markdown: bool) -> Vec<BlockContent> {
     if html.is_empty() {
         return vec![];
     }
 
-    let context = Context { options };
+    let context = Context {
+        decode_text_as_markdown,
+    };
     let document = kuchiki::parse_html().one(html);
 
     let content = decode_blocks(&document, &context);
@@ -67,7 +63,7 @@ pub fn decode_fragment(html: &str, options: Options) -> Vec<BlockContent> {
 
 /// Decoding context
 struct Context {
-    options: Options,
+    decode_text_as_markdown: bool,
 }
 
 /// Decode the children of a HTML node into a vector of `BlockContent`
@@ -160,7 +156,36 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                     ..Default::default()
                 })]
             }
-            // TODO: Table
+            local_name!("table") => {
+                let mut rows = vec![];
+                for child in node.children() {
+                    if let Some(element) = child.as_element() {
+                        match element.name.local {
+                            local_name!("thead") => rows.append(&mut decode_table_rows(
+                                &child,
+                                &Some(TableRowRowType::Header),
+                                context,
+                            )),
+                            local_name!("tbody") => {
+                                rows.append(&mut decode_table_rows(&child, &None, context))
+                            }
+                            local_name!("tfoot") => rows.append(&mut decode_table_rows(
+                                &child,
+                                &Some(TableRowRowType::Footer),
+                                context,
+                            )),
+                            local_name!("tr") => {
+                                rows.push(decode_table_row(&child, &None, context))
+                            }
+                            _ => (),
+                        };
+                    }
+                }
+                vec![BlockContent::Table(TableSimple {
+                    rows,
+                    ..Default::default()
+                })]
+            }
             local_name!("hr") => {
                 vec![BlockContent::ThematicBreak(ThematicBreak::default())]
             }
@@ -182,7 +207,7 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
         // Decode HTML non-whitespace text by optionally parsing it as a
         // Markdown fragment
         if !text.borrow().trim().is_empty() {
-            if context.options.decode_markdown {
+            if context.decode_text_as_markdown {
                 md::decode_fragment(&text.borrow())
             } else {
                 vec![BlockContent::Paragraph(Paragraph {
@@ -345,7 +370,7 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
         // Decode HTML text by optionally parsing it as a Markdown fragment
         // and unwrapping from `Vec<BlockContent>` to `Vec<InlineContent>`.
         if !text.borrow().is_empty() {
-            if context.options.decode_markdown {
+            if context.decode_text_as_markdown {
                 md::decode_fragment(&text.borrow()).to_vec_inline_content()
             } else {
                 vec![InlineContent::String(text.borrow().clone())]
@@ -390,6 +415,68 @@ fn decode_list_items(node: &NodeRef, context: &Context) -> Vec<ListItem> {
         .collect()
 }
 
+/// Decode table rows from `<tr>` children elements.
+fn decode_table_rows(
+    node: &NodeRef,
+    row_type: &Option<TableRowRowType>,
+    context: &Context,
+) -> Vec<TableRow> {
+    node.children()
+        .filter_map(|child| {
+            if let Some(element) = child.as_element() {
+                if matches!(element.name.local, local_name!("tr")) {
+                    return Some(decode_table_row(&child, row_type, context));
+                }
+            }
+            None
+        })
+        .collect()
+}
+
+/// Decode a table row from a `<tr>` element.
+fn decode_table_row(
+    node: &NodeRef,
+    row_type: &Option<TableRowRowType>,
+    context: &Context,
+) -> TableRow {
+    let cells = decode_table_cells(&node, context);
+    TableRow {
+        row_type: row_type.clone(),
+        cells,
+        ..Default::default()
+    }
+}
+
+/// Decode table cells from a `<td>` or `<th> elements.
+fn decode_table_cells(node: &NodeRef, context: &Context) -> Vec<TableCell> {
+    node.children()
+        .filter_map(|child| {
+            if let Some(element) = child.as_element() {
+                if matches!(element.name.local, local_name!("td") | local_name!("th")) {
+                    let blocks = decode_blocks(&child, context);
+                    let content = if blocks.len() > 1 {
+                        Some(TableCellContent::VecBlockContent(blocks))
+                    } else if let Some(BlockContent::Paragraph(para)) = blocks.first() {
+                        Some(TableCellContent::VecInlineContent(para.content.clone()))
+                    } else {
+                        let inlines = decode_inlines(&child, context);
+                        if !inlines.is_empty() {
+                            Some(TableCellContent::VecInlineContent(inlines))
+                        } else {
+                            None
+                        }
+                    };
+                    return Some(TableCell {
+                        content,
+                        ..Default::default()
+                    });
+                }
+            }
+            None
+        })
+        .collect()
+}
+
 /// Get the `id` attribute of an element (if any)
 fn get_id(element: &ElementData) -> Option<Box<String>> {
     element
@@ -419,16 +506,14 @@ mod tests {
     #[test]
     fn html_articles() {
         snapshot_content("articles/*.html", |content| {
-            assert_json_snapshot!(
-                decode(&content, Options::default()).expect("Unable to decode HTML")
-            );
+            assert_json_snapshot!(decode(&content, false).expect("Unable to decode HTML"));
         });
     }
 
     #[test]
     fn html_fragments() {
         snapshot_content("fragments/html/*.html", |content| {
-            assert_json_snapshot!(decode_fragment(&content, Options::default()));
+            assert_json_snapshot!(decode_fragment(&content, false));
         });
     }
 }

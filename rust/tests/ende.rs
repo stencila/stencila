@@ -22,7 +22,7 @@ proptest! {
     #![proptest_config(ProptestConfig::with_cases(5))]
 
     #[test]
-    fn json(input in node(Freedom::High)) {
+    fn json(input in node(Freedom::Max)) {
         let content = encode::json::encode(&input).unwrap();
         let output = decode::json::decode(&content).unwrap();
         assert_eq!(
@@ -32,7 +32,7 @@ proptest! {
     }
 
     #[test]
-    fn yaml(input in node(Freedom::High)) {
+    fn yaml(input in node(Freedom::Max)) {
         let content = encode::yaml::encode(&input).unwrap();
         let output = decode::yaml::decode(&content).unwrap();
         assert_eq!(
@@ -50,9 +50,9 @@ proptest! {
     #![proptest_config(ProptestConfig::with_cases(100))]
 
     #[test]
-    fn html(input in article(Freedom::High)) {
-        let content = encode::html::encode(&input).unwrap();
-        let output = decode::html::decode(&content, decode::html::Options::default()).unwrap();
+    fn html(input in article(Freedom::Max)) {
+        let content = encode::html::encode(&input, None).unwrap();
+        let output = decode::html::decode(&content, false).unwrap();
         assert_eq!(
             serde_json::to_value(&input).unwrap(),
             serde_json::to_value(&output).unwrap()
@@ -60,9 +60,19 @@ proptest! {
     }
 
     #[test]
-    fn md(input in article(Freedom::Nil)) {
+    fn md(input in article(Freedom::Min)) {
         let content = encode::md::encode(&input).unwrap();
         let output = decode::md::decode(&content).unwrap();
+        assert_eq!(
+            serde_json::to_value(&input).unwrap(),
+            serde_json::to_value(&output).unwrap()
+        )
+    }
+
+    #[test]
+    fn pandoc(input in article(Freedom::Min)) {
+        let pandoc = encode::pandoc::encode_node(&input).unwrap();
+        let output = decode::pandoc::decode_pandoc(pandoc).unwrap();
         assert_eq!(
             serde_json::to_value(&input).unwrap(),
             serde_json::to_value(&output).unwrap()

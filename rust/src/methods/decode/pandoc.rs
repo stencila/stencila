@@ -1,75 +1,47 @@
 use crate::{
-    binaries::{self, BinaryInstallation},
+    binaries,
+    formats::{format_type, FormatType},
     methods::coerce::coerce,
 };
-use defaults::Defaults;
 use eyre::{bail, Result};
 use pandoc_types::definition as pandoc;
 use std::{collections::HashMap, io::Write, path::PathBuf, process::Stdio};
 use stencila_schema::{
-    Article, BlockContent, Cite, CiteCitationMode, CiteGroup, CodeBlock, CodeFragment, Delete,
-    Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent,
-    ListOrder, MathFragment, Node, NontextualAnnotation, Paragraph, Quote, QuoteBlock, Strong,
-    Subscript, Superscript, TableCaption, TableCell, TableCellContent, TableRow, TableRowRowType,
-    TableSimple, ThematicBreak,
+    Article, AudioObjectSimple, BlockContent, Cite, CiteCitationMode, CiteGroup, CodeBlock,
+    CodeFragment, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List,
+    ListItem, ListItemContent, ListOrder, MathFragment, Node, NontextualAnnotation, Paragraph,
+    Quote, QuoteBlock, Strong, Subscript, Superscript, TableCaption, TableCell, TableCellContent,
+    TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
 };
-use tokio::sync::OnceCell;
 
-static PANDOC: OnceCell<BinaryInstallation> = OnceCell::const_new();
-
-/// Decoding options for the `decode` and `decode_fragment` functions
-#[derive(Clone, Defaults)]
-pub struct Options {
-    /// The format of the input
-    #[def = "\"pandoc\".to_string()"]
-    pub format: String,
-
-    /// Whether the content is a file system path or not
-    #[def = "false"]
-    pub is_file: bool,
-
-    /// Additional arguments to pass to Pandoc
-    pub args: Vec<String>,
-}
+/// The semver requirement for Pandoc
+/// Used on the `decode::pandoc` module as well.
+pub const PANDOC_SEMVER: &str = "2.11";
 
 /// Decode a document to a `Node`
 ///
 /// Intended for decoding an entire document into an `Article`
 /// (and, in the future, potentially other types).
-pub async fn decode(input: &str, options: Options) -> Result<Node> {
-    let pandoc = decode_pandoc(input, &options).await?;
-
-    let context = Context {
-        options: options.clone(),
-    };
-
-    let mut article = translate_meta(pandoc.0, &context)?;
-
-    let content = translate_blocks(&pandoc.1, &context);
-    article.content = if content.is_empty() {
-        None
-    } else {
-        Some(content)
-    };
-
-    Ok(Node::Article(article))
+pub async fn decode(input: &str, format: &str, args: &[String]) -> Result<Node> {
+    let pandoc = decode_input(input, format, args).await?;
+    decode_pandoc(pandoc)
 }
 
 /// Decode a fragment to a vector of `BlockContent`
 ///
 /// Intended for decoding a fragment of a larger document (e.g. from some Latex in
 /// a Markdown document). Ignores any meta data e.g. title
-pub async fn decode_fragment(input: &str, options: Options) -> Result<Vec<BlockContent>> {
+pub async fn decode_fragment(
+    input: &str,
+    format: &str,
+    args: &[String],
+) -> Result<Vec<BlockContent>> {
     if input.is_empty() {
         return Ok(vec![]);
     }
 
-    let pandoc = decode_pandoc(input, &options).await?;
-
-    let context = Context {
-        options: options.clone(),
-    };
-
+    let pandoc = decode_input(input, format, args).await?;
+    let context = Context {};
     Ok(translate_blocks(&pandoc.1, &context))
 }
 
@@ -83,29 +55,22 @@ pub async fn decode_fragment(input: &str, options: Options) -> Result<Vec<BlockC
 ///
 ///   pandoc 2.11 (2020-10-11) : pandoc-types 1.22
 ///   pandoc 2.10 (2020-06-29) : pandoc-types 1.21
-async fn decode_pandoc(input: &str, options: &Options) -> Result<pandoc::Pandoc> {
-    // Get the Pandoc JSON
-    let json = if options.format == "pandoc" {
+async fn decode_input(input: &str, format: &str, args: &[String]) -> Result<pandoc::Pandoc> {
+    let json = if format == "pandoc" {
         input.to_string()
     } else {
-        let binary = PANDOC
-            .get_or_try_init(|| binaries::require("pandoc", "2.11"))
-            .await?;
-
-        let args = vec![
-            format!("--from={}", options.format),
-            "--to=json".to_string(),
-        ];
-        let args = [args, options.args.clone()].concat();
+        let binary = binaries::require("pandoc", PANDOC_SEMVER).await?;
 
         let mut command = binary.command();
-        command.args(&args).stdout(Stdio::piped());
+        command.args(["--from", format, "--to", "json"]);
+        command.args(args);
+        command.stdout(Stdio::piped());
 
-        let child = if options.is_file {
-            if !PathBuf::from(input).exists() {
-                bail!("File does not exists: {}", input)
+        let child = if let Some(path) = input.strip_prefix("file://") {
+            if !PathBuf::from(path).exists() {
+                bail!("File does not exists: {}", path)
             }
-            command.arg(input).spawn()?
+            command.arg(path).spawn()?
         } else {
             let mut child = command.stdin(Stdio::piped()).spawn()?;
             if let Some(mut stdin) = child.stdin.take() {
@@ -114,12 +79,26 @@ async fn decode_pandoc(input: &str, options: &Options) -> Result<pandoc::Pandoc>
             child
         };
 
-        let output = child.wait_with_output()?;
-
-        std::str::from_utf8(output.stdout.as_ref())?.to_string()
+        let result = child.wait_with_output()?;
+        std::str::from_utf8(result.stdout.as_ref())?.to_string()
     };
 
     Ok(serde_json::from_str(&json)?)
+}
+
+/// Decode a Pandoc document to a `Node`
+pub fn decode_pandoc(pandoc: pandoc::Pandoc) -> Result<Node> {
+    let context = Context {};
+    let mut article = translate_meta(pandoc.0, &context)?;
+
+    let content = translate_blocks(&pandoc.1, &context);
+    article.content = if content.is_empty() {
+        None
+    } else {
+        Some(content)
+    };
+
+    Ok(Node::Article(article))
 }
 
 /// Translate Pandoc meta data into an `Article` node
@@ -174,10 +153,7 @@ fn translate_meta_value(value: &pandoc::MetaValue, context: &Context) -> serde_j
 }
 
 /// Decoding context
-struct Context {
-    #[allow(dead_code)]
-    options: Options,
-}
+struct Context {}
 
 /// Translate a vector of Pandoc `Block` elements to a vector of `BlockContent` nodes
 fn translate_blocks(elements: &[pandoc::Block], context: &Context) -> Vec<BlockContent> {
@@ -497,16 +473,34 @@ fn translate_inline(element: &pandoc::Inline, context: &Context) -> Vec<InlineCo
             })]
         }
         pandoc::Inline::Image(attrs, _inlines, target) => {
-            // TODO: Return audio or video depending upon the file extension
             // TODO: Translate inlines as content. Perhaps wait for possible change
             // of `ImageObject.content` to `Vec<InlineContent>`.
+
             let pandoc::Target(url, title) = target;
-            vec![InlineContent::ImageObject(ImageObjectSimple {
-                id: get_id(attrs),
-                caption: get_string_prop(title),
-                content_url: url.clone(),
-                ..Default::default()
-            })]
+            let id = get_id(attrs);
+            let caption = get_string_prop(title);
+            let content_url = url.clone();
+
+            match format_type(&content_url) {
+                FormatType::Audio => vec![InlineContent::AudioObject(AudioObjectSimple {
+                    content_url,
+                    caption,
+                    id,
+                    ..Default::default()
+                })],
+                FormatType::Video => vec![InlineContent::VideoObject(VideoObjectSimple {
+                    content_url,
+                    caption,
+                    id,
+                    ..Default::default()
+                })],
+                _ => vec![InlineContent::ImageObject(ImageObjectSimple {
+                    content_url,
+                    caption,
+                    id,
+                    ..Default::default()
+                })],
+            }
         }
 
         pandoc::Inline::Cite(citations, _inlines) => {
@@ -602,18 +596,8 @@ mod tests {
     fn pandoc_fragments() {
         let runtime = tokio::runtime::Runtime::new().unwrap();
         snapshot_content("fragments/pandoc/*.json", |content| {
-            let json = runtime.block_on(async {
-                decode_fragment(
-                    &content,
-                    Options {
-                        format: "pandoc".to_string(),
-                        is_file: false,
-                        ..Default::default()
-                    },
-                )
-                .await
-                .unwrap()
-            });
+            let json =
+                runtime.block_on(async { decode_fragment(&content, "pandoc", &[]).await.unwrap() });
             assert_json_snapshot!(json);
         });
     }

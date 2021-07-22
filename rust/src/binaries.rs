@@ -16,7 +16,7 @@ use std::{
     process::{Command, Output},
     str::FromStr,
 };
-use tokio::sync::{Mutex, MutexGuard};
+use tokio::sync::Mutex;
 
 ///! A module for locating, running and installing third party binaries.
 ///!
@@ -37,7 +37,7 @@ pub fn binaries_dir() -> PathBuf {
     }
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct BinaryInstallation {
     /// The name of the binary
     #[serde(skip)]
@@ -165,6 +165,14 @@ impl Binary {
             }
         }
         None
+    }
+
+    /// Clear any cached requires of this binary
+    async fn clear(&self) {
+        REQUIRES
+            .lock()
+            .await
+            .retain(|_, installation| installation.name != self.name);
     }
 
     /// Resolve the path and version of a binary
@@ -306,7 +314,8 @@ impl Binary {
             )
         }
 
-        // Always re-resolve after an install
+        // Always clear any cached requires and re-resolve after an install
+        self.clear().await;
         self.resolve();
 
         Ok(())
@@ -591,16 +600,15 @@ impl Binary {
             tracing::warn!("No matching Stencila installed binary found")
         }
 
-        // Always re-resolve after an uninstall
+        // Always clear cached requires and re-resolve after an uninstall
+        self.clear().await;
         self.resolve();
 
         Ok(())
     }
 }
 
-type Binaries = HashMap<String, Binary>;
-
-static BINARIES: Lazy<Mutex<Binaries>> = Lazy::new(|| {
+static BINARIES: Lazy<Mutex<HashMap<String, Binary>>> = Lazy::new(|| {
     // Note: versions should be valid semver triples and listed in descending order!
     // The first version meeting semver requirements will be installed is necessary
     let binaries = vec![
@@ -627,22 +635,29 @@ static BINARIES: Lazy<Mutex<Binaries>> = Lazy::new(|| {
     Mutex::new(binaries)
 });
 
-/// Lock the global binaries store
-async fn lock() -> MutexGuard<'static, Binaries> {
-    BINARIES.lock().await
-}
+/// A cache used to memoize calls to require
+static REQUIRES: Lazy<Mutex<HashMap<String, BinaryInstallation>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
 
-/// Get a binary installation meeting semantic versioning requirements
+/// Get a binary installation meeting semantic versioning requirements.
 ///
 /// If the binary is already available, or automatic installs are configured, returns
 /// a `BinaryInstallation` that can be used to run commands. Otherwise, errors
 /// with a message that the required binary is not yet installed, or failed to install.
 ///
-/// This is a relatively expensive function even if the binary is already installed
+/// This is a relatively expensive function, even if the binary is already installed,
 /// because if searches the file system and executes commands to get their version.
-/// For that reason you should probably using with a lazy static in the requiring module.
+/// Therefore, this function memoizes installations found for each `name` and `semver`.
+/// Each cached result is removed if the binary is installed or uninstalled.
 pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
-    let binaries = &mut *lock().await;
+    let name_semver = [name, "@", semver].concat();
+
+    let installations = &mut *REQUIRES.lock().await;
+    if let Some(installation) = installations.get(&name_semver) {
+        return Ok(installation.clone());
+    }
+
+    let binaries = &mut *BINARIES.lock().await;
     let binary = if let Some(binary) = binaries.get_mut(name) {
         binary
     } else {
@@ -658,6 +673,7 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
     };
 
     if let Some(installation) = binary.installation(semver.clone())? {
+        installations.insert(name_semver, installation.clone());
         return Ok(installation);
     }
 
@@ -665,6 +681,7 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
     if auto {
         binary.install(semver.clone(), None, None).await?;
         if let Some(installation) = binary.installation(semver)? {
+            installations.insert(name_semver, installation.clone());
             Ok(installation)
         } else {
             bail!("Failed to automatically install binary '{}'", name)
@@ -748,7 +765,7 @@ pub mod cli {
 
     impl List {
         pub async fn run(self) -> display::Result {
-            let binaries = &*lock().await;
+            let binaries = &*BINARIES.lock().await;
             let list: Vec<serde_json::Value> = binaries
                 .values()
                 .map(|binary| {
@@ -791,9 +808,7 @@ pub mod cli {
         pub async fn run(self) -> display::Result {
             let Self { name, semver } = self;
 
-            let binaries = &mut *lock().await;
-
-            let binary = if let Some(binary) = binaries.get_mut(&name) {
+            let binary = if let Some(binary) = BINARIES.lock().await.get_mut(&name) {
                 binary.resolve();
                 binary.clone()
             } else {
@@ -854,7 +869,7 @@ pub mod cli {
                 arch,
             } = self;
 
-            if let Some(binary) = lock().await.get_mut(&name) {
+            if let Some(binary) = BINARIES.lock().await.get_mut(&name) {
                 binary.install(semver, os, arch).await?;
                 tracing::info!("📦 Installed {}", name);
             } else {
@@ -889,7 +904,7 @@ pub mod cli {
         pub async fn run(self) -> display::Result {
             let Self { name, version } = self;
 
-            if let Some(binary) = lock().await.get_mut(&name) {
+            if let Some(binary) = BINARIES.lock().await.get_mut(&name) {
                 binary.uninstall(version).await?;
                 tracing::info!("🗑️ Uninstalled {}", name);
             } else {
@@ -954,7 +969,7 @@ mod tests {
 
         cli::List {}.run().await?;
 
-        let binaries = (*lock().await).clone();
+        let binaries = (*BINARIES.lock().await).clone();
         for name in binaries.keys() {
             eprintln!("Testing {}", name);
 

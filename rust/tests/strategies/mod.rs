@@ -12,18 +12,19 @@ use stencila_schema::*;
 #[allow(dead_code)]
 #[derive(Copy, Clone)]
 pub enum Freedom {
-    Nil,
+    Min,
     Low,
     High,
+    Max,
 }
 
 prop_compose! {
     /// Generate an arbitrary inline string
     pub fn string(freedom: Freedom)(
         string in (match freedom {
-            Freedom::Nil => r"string",
+            Freedom::Min => r"string",
             Freedom::Low => r"[A-Za-z0-9 ]+",
-            Freedom::High => any::<String>(),
+            _ => any::<String>(),
         }).prop_filter(
             "Inline strings should not be empty",
             |string| !string.is_empty()
@@ -37,7 +38,7 @@ prop_compose! {
     /// Generate an arbitrary inline string with no spaces
     pub fn string_no_whitespace(freedom: Freedom)(
         string in match freedom {
-            Freedom::Nil => r"string",
+            Freedom::Min => r"string",
             _ => r"[A-Za-z0-9]+",
         }
     ) -> InlineContent {
@@ -51,9 +52,9 @@ prop_compose! {
     /// to decode to a `AudioObject`.
     pub fn audio_object_simple(freedom: Freedom)(
         content_url in match freedom {
-            Freedom::Nil => r"url\.mp3",
+            Freedom::Min => r"url\.mp3",
             Freedom::Low => r"[A-Za-z0-9-_]+\.(flac|mp3|ogg)",
-            Freedom::High => r"\PC*\.(flac|mp3|ogg)",
+            _ => r"\PC*\.(flac|mp3|ogg)",
         }
     ) -> InlineContent {
         InlineContent::AudioObject(AudioObjectSimple{
@@ -69,9 +70,9 @@ prop_compose! {
     /// to decode to a `ImageObject`.
     pub fn image_object_simple(freedom: Freedom)(
         content_url in match freedom {
-            Freedom::Nil => r"url\.png",
+            Freedom::Min => r"url\.png",
             Freedom::Low => r"[A-Za-z0-9-_]\.(gif|jpg|jpeg|png)",
-            Freedom::High => r"\PC*\.(gif|jpg|jpeg|png)",
+            _ => r"\PC*\.(gif|jpg|jpeg|png)",
         }
     ) -> InlineContent {
         InlineContent::ImageObject(ImageObjectSimple{
@@ -87,9 +88,9 @@ prop_compose! {
     /// to decode to a `VideoObject`.
     pub fn video_object_simple(freedom: Freedom)(
         content_url in match freedom {
-            Freedom::Nil => r"url\.mp4",
+            Freedom::Min => r"url\.mp4",
             Freedom::Low => r"[A-Za-z0-9-_]\.(3gp|mp4|ogv|webm)",
-            Freedom::High => r"\PC*\.(3gp|mp4|ogv|webm)",
+            _ => r"\PC*\.(3gp|mp4|ogv|webm)",
         }
     ) -> InlineContent {
         InlineContent::VideoObject(VideoObjectSimple{
@@ -103,14 +104,14 @@ prop_compose! {
     /// Generate a code fragment node with arbitrary text and programming language
     pub fn code_fragment(freedom: Freedom)(
         text in match freedom {
-            Freedom::Nil => r"text",
+            Freedom::Min => r"text",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
-            Freedom::High => any::<String>()
+            _ => any::<String>()
         },
         programming_language in match freedom {
-            Freedom::Nil => "",
+            Freedom::Min => "",
             Freedom::Low => r"[A-Za-z0-9-]+",
-            Freedom::High => any::<String>()
+            _ => any::<String>()
         }
     ) -> InlineContent {
         let programming_language = if programming_language.is_empty() {
@@ -154,9 +155,9 @@ prop_compose! {
     /// Generate a link with arbitrary target and content
     pub fn link(freedom: Freedom)(
         target in match freedom {
-            Freedom::Nil => r"target",
+            Freedom::Min => r"target",
             Freedom::Low => r"[A-Za-z0-9-]*",
-            Freedom::High => any::<String>()
+            _ => any::<String>()
         },
         content in string(freedom)
     ) -> InlineContent {
@@ -256,7 +257,13 @@ prop_compose! {
     ///   - Always starts and ends with a string.
     ///   - Ensures that nodes such as `Strong` and `Emphasis` are surrounded by spaces (for Markdown).
     ///   - No leading or trailing whitespace (for Markdown).
-    pub fn vec_inline_content(freedom: Freedom)(length in 1usize..10)(
+    pub fn vec_inline_content(freedom: Freedom)(
+        length in 1usize..(match freedom {
+            Freedom::Min => 1,
+            Freedom::Low => 5,
+            _ => 10,
+        } + 1)
+    )(
         strings in vec(string(freedom), size_range(length + 1)),
         others in vec(inline_content(freedom), size_range(length))
     ) -> Vec<InlineContent> {
@@ -301,14 +308,14 @@ prop_compose! {
     /// Generate a code block node with arbitrary text and programming language
     pub fn code_block(freedom: Freedom)(
         text in match freedom {
-            Freedom::Nil => r"text",
+            Freedom::Min => r"text",
             Freedom::Low => r"[A-Za-z0-9-_ \t\n]*",
-            Freedom::High => any::<String>()
+            _ => any::<String>()
         },
         programming_language in match freedom {
-            Freedom::Nil => "",
+            Freedom::Min => "",
             Freedom::Low => r"[A-Za-z0-9-]*",
-            Freedom::High => any::<String>()
+            _ => any::<String>()
         }
     ) -> BlockContent {
         let programming_language = if programming_language.is_empty() {
@@ -354,7 +361,11 @@ prop_compose! {
     /// Generate a list with arbitrary items and order
     pub fn list(freedom: Freedom)(
         order in prop_oneof![Just(ListOrder::Ascending), Just(ListOrder::Unordered)],
-        items in vec(list_item(freedom), 1..5)
+        items in vec(list_item(freedom), 1..(match freedom {
+            Freedom::Min => 1,
+            Freedom::Low => 3,
+            _ => 5,
+        } + 1))
     ) -> BlockContent {
         BlockContent::List(List{
             order: Some(order),
@@ -367,10 +378,16 @@ prop_compose! {
 prop_compose! {
     /// Generate a list item with arbitrary block content.
     /// Unable to use block_content strategy here because that causes infinite recursion.
+    /// Be careful increasing the length of content as that can slow down test
+    /// significantly (given that this is an inner "loop").
     pub fn list_item(freedom: Freedom)(
         content in vec(Union::new(vec![
             paragraph(freedom).boxed(),
-        ]), 1..2)
+        ]), 1..(match freedom {
+            Freedom::Min => 1,
+            Freedom::Low => 2,
+            _ => 3,
+        } + 1))
     ) -> ListItem {
         ListItem{
             content: Some(ListItemContent::VecBlockContent(content)),
@@ -388,12 +405,66 @@ prop_compose! {
             code_block(freedom).boxed(),
             heading(freedom).boxed(),
             paragraph(freedom).boxed(),
-        ]), 1..4)
+        ]), 1..(match freedom {
+            Freedom::Min => 1,
+            Freedom::Low => 3,
+            _ => 5,
+        } + 1))
     ) -> BlockContent {
         BlockContent::QuoteBlock(QuoteBlock{
             content,
             ..Default::default()
         })
+    }
+}
+
+prop_compose! {
+    /// Generate a table.
+    pub fn table(freedom: Freedom)(
+        head in vec(table_row(freedom, Some(TableRowRowType::Header)), 1..(match freedom {
+            Freedom::Max => 3,
+            // Markdown only supports a single header row
+            _ => 1,
+        } + 1)),
+        body in vec(table_row(freedom, None), 1..(match freedom {
+            Freedom::Min => 1,
+            Freedom::Low => 5,
+            _ => 10,
+        } + 1))
+    ) -> BlockContent {
+        BlockContent::Table(TableSimple{
+            rows: [head, body].concat(),
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
+    /// Generate a table row.
+    pub fn table_row(freedom: Freedom, row_type: Option<TableRowRowType>)(
+        cells in vec(table_cell(freedom), 1..(match freedom {
+            Freedom::Min => 1,
+            Freedom::Low => 5,
+            _ => 10,
+        } + 1))
+    ) -> TableRow {
+        TableRow{
+            row_type: row_type.clone(),
+            cells,
+            ..Default::default()
+        }
+    }
+}
+
+prop_compose! {
+    /// Generate a table cell.
+    pub fn table_cell(freedom: Freedom)(
+        content in string(freedom)
+    ) -> TableCell {
+        TableCell{
+            content: Some(TableCellContent::VecInlineContent(vec![content])),
+            ..Default::default()
+        }
     }
 }
 
@@ -410,6 +481,7 @@ pub fn block_content(freedom: Freedom) -> impl Strategy<Value = BlockContent> {
         list(freedom).boxed(),
         paragraph(freedom).boxed(),
         quote_block(freedom).boxed(),
+        table(freedom).boxed(),
         thematic_break().boxed(),
     ])
 }
@@ -422,7 +494,13 @@ prop_compose! {
     ///    be confused with YAML frontmatter)
     ///  - List of same ordering can not be adjacent to each other (in Markdown they
     ///    get decoded as the same list)
-    pub fn vec_block_content(freedom: Freedom)(length in 1usize..10)(
+    pub fn vec_block_content(freedom: Freedom)(
+        length in 1usize..(match freedom {
+            Freedom::Min => 1,
+            Freedom::Low => 5,
+            _ => 10,
+        } + 1)
+    )(
         blocks in vec(block_content(freedom), size_range(length)).prop_filter(
             "Vector of block content should not start with thematic break",
             |blocks| {

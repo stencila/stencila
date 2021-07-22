@@ -3,12 +3,11 @@ use stencila_schema::{
 };
 
 pub trait ToVecInlineContent {
-    /// Coerce to a vector of inline content
     fn to_vec_inline_content(&self) -> Vec<InlineContent>;
 }
 
 impl ToVecInlineContent for BlockContent {
-    /// Coerce a `BlockContent` node into a vector of `InlineContent` as lossless-ly as possible
+    /// Coerce a `BlockContent` node into a vector of `InlineContent` nodes as lossless-ly as possible
     fn to_vec_inline_content(&self) -> Vec<InlineContent> {
         match self {
             // Block content types that have inline content that can be used directly
@@ -65,7 +64,7 @@ impl ToVecInlineContent for BlockContent {
 }
 
 impl ToVecInlineContent for Vec<BlockContent> {
-    /// Coerce a vector of `BlockContent` node into a vector of `InlineContent`
+    /// Coerce a vector of `BlockContent` nodes into a vector of `InlineContent` nodes
     fn to_vec_inline_content(&self) -> Vec<InlineContent> {
         self.iter()
             .flat_map(|item| item.to_vec_inline_content())

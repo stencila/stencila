@@ -4,7 +4,7 @@ use crate::{
     methods::{
         compile::compile,
         decode::decode,
-        encode::encode,
+        encode::{self, encode},
         reshape::{self, reshape},
     },
     pubsub::publish,
@@ -325,29 +325,53 @@ impl Document {
         Ok(())
     }
 
-    /// Save the document to another file, possibly in another format
+    /// Write the document to the file system, as an another file, possibly in
+    /// another format.
     ///
     /// # Arguments
     ///
     /// - `path`: the path for the new file.
     /// - `format`: the format to dump the content as; if not supplied assumed to be
     ///    the document's existing format.
+    /// - `theme`: theme to apply to the new document (HTML and PDF only).
     ///
-    /// Note: this does not change the `path` or `format` of the current
+    /// Note: this does not change the `path`, `format` or `status` of the current
     /// document.
-    async fn export<P: AsRef<Path>>(&self, path: P, format: Option<String>) -> Result<()> {
-        let format = format.or_else(|| {
-            path.as_ref()
-                .extension()
-                .map(|ext| ext.to_string_lossy().to_string())
+    async fn write_as<P: AsRef<Path>>(
+        &self,
+        path: P,
+        format: Option<String>,
+        theme: Option<String>,
+    ) -> Result<()> {
+        let path = path.as_ref();
+        let format = format.unwrap_or_else(|| {
+            path.extension().map_or_else(
+                || self.format.name.clone(),
+                |ext| ext.to_string_lossy().to_string(),
+            )
         });
-        let contents = self.dump(format).await?;
-        fs::write(path, contents)?;
+        let output = ["file://", &path.display().to_string()].concat();
+
+        let content = if let Some(root) = &self.root {
+            let mut options = encode::Options::default();
+            if let Some(theme) = theme {
+                options.theme = theme
+            }
+            encode(root, &output, &format, Some(options)).await?
+        } else {
+            tracing::warn!("Document has no root node");
+            "".to_string()
+        };
+
+        if !content.starts_with("file://") {
+            fs::write(path, content)?;
+        }
+
         Ok(())
     }
 
     /// Dump the document's content to a string in its current, or
-    /// a different, format
+    /// alternative, format.
     ///
     /// # Arguments
     ///
@@ -358,8 +382,9 @@ impl Document {
             Some(format) => format,
             None => return Ok(self.content.clone()),
         };
+
         if let Some(root) = &self.root {
-            encode(root, &format).await
+            encode(root, "string://", &format, None).await
         } else {
             tracing::warn!("Document has no root node");
             Ok(String::new())
@@ -397,13 +422,14 @@ impl Document {
         );
 
         // Decode the content into the `root` node of the document
-        let path = self.path.display().to_string();
-        let input = if self.format.binary {
-            &path
+        let format = &self.format.name;
+        let mut root = if self.format.binary {
+            let path = self.path.display().to_string();
+            let input = ["file://", &path].concat();
+            decode(&input, format).await?
         } else {
-            &self.content
+            decode(&self.content, format).await?
         };
-        let mut root = decode(&input, &self.format.name).await?;
 
         // Reshape the `root` according to preferences
         reshape(&mut root, reshape::Options::default())?;
@@ -415,7 +441,7 @@ impl Document {
         for subscription in self.subscriptions.keys() {
             if let Some(format) = subscription.strip_prefix("encoded:") {
                 tracing::debug!("Encoding document '{}' to '{}'", self.id, format);
-                match encode(&root, format).await {
+                match encode(&root, "string://", format, None).await {
                     Ok(content) => {
                         self.publish(
                             DocumentEventType::Encoded,
@@ -1091,6 +1117,10 @@ pub mod cli {
         /// The format of the output (defaults to being inferred from the file extension)
         #[structopt(short, long)]
         to: Option<String>,
+
+        /// The theme to apply to the output (only for HTML and PDF)
+        #[structopt(short = "e", long)]
+        theme: Option<String>,
     }
 
     impl Convert {
@@ -1100,9 +1130,10 @@ pub mod cli {
                 output,
                 from,
                 to,
+                theme,
             } = self;
             let document = Document::open(input, from).await?;
-            document.export(output, to).await?;
+            document.write_as(output, to, theme).await?;
             display::nothing()
         }
     }

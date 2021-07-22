@@ -53,13 +53,18 @@ decode-latex = ["decode-pandoc"]
 decode-md = ["pulldown-cmark", "nom", "decode-html"]
 decode-pandoc = ["binaries", "pandoc_types"]
 decode-person = ["human_name"]
+decode-rmd = ["decode-md"]
 decode-toml = ["toml"]
 decode-yaml = ["serde_yaml"]
 
+encode-docx = ["encode-pandoc"]
 encode-html = ["html-escape"]
 encode-json = []
+encode-latex = ["encode-pandoc"]
 encode-md = []
 encode-pandoc = ["binaries", "pandoc_types"]
+encode-pdf = ["chromiumoxide"]
+encode-rmd = ["encode-md"]
 encode-toml = ["toml"]
 encode-txt = []
 encode-yaml = ["serde_yaml"]
@@ -103,11 +108,17 @@ default = [
     "decode-md",
     "decode-pandoc",
     "decode-person",
+    "decode-rmd",
     "decode-toml",
     "decode-yaml",
+    "encode-docx",
     "encode-html",
     "encode-json",
+    "encode-latex",
     "encode-md",
+    "encode-pandoc",
+    "encode-pdf",
+    "encode-rmd",
     "encode-toml",
     "encode-txt",
     "encode-yaml",
@@ -123,6 +134,7 @@ ansi_term = "=0.12.1"
 async-trait = "=0.1.50"
 base64 = "=0.13.0"
 bollard = { version = "=0.11.0", optional = true }
+chromiumoxide = { version = "=0.3.1", optional = true, features = ["tokio-runtime"] }
 chrono = "=0.4.19"
 crossbeam-channel = "=0.5.1"
 defaults = "=0.2.0"
