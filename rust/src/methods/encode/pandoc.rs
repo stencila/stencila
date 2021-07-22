@@ -228,7 +228,13 @@ unimplemented_to_pandoc!(ClaimSimple);
 
 impl ToPandoc for CodeBlock {
     fn to_pandoc_block(&self) -> pandoc::Block {
-        pandoc::Block::CodeBlock(attrs_empty(), self.text.clone())
+        let id = self.id.as_ref().map_or("".to_string(), |id| *id.clone());
+        let classes = self
+            .programming_language
+            .as_ref()
+            .map_or(vec![], |lang| vec![*lang.clone()]);
+        let attrs = pandoc::Attr(id, classes, vec![]);
+        pandoc::Block::CodeBlock(attrs, self.text.clone())
     }
 }
 
