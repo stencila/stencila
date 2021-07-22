@@ -346,7 +346,7 @@ impl Plugin {
         // if possible.
         let plugin = plugins.plugins.get(name);
 
-        // If the plugin hasn't been refreshed for a while then do that
+        // If the plugin hasn't been refreshed for a while then fetch it's manifest
         let plugin = if let Some(plugin) = plugin {
             if Utc::now()
                 > plugin
@@ -1228,17 +1228,19 @@ impl Plugin {
         let latest = Plugin::load(&json)?;
 
         let mut plugin = if let Some(plugin) = plugin {
-            // This plugin is previously known. if it is installed and
-            // the latest version is greater than the current then, indicate
-            // it can be upgraded using `next`, otherwise just use the latest version.
-            if plugin.installation.is_some()
-                && Version::parse(&latest.software_version)?
-                    > Version::parse(&plugin.software_version)?
-            {
+            // This plugin is previously known.
+            if plugin.installation.is_some() {
+                // Installed, so if the latest version is greater than the current then, indicate
+                // it can be upgraded using `next`, otherwise return current manifest as is
                 let mut plugin = plugin.clone();
-                plugin.next = Some(Box::new(latest));
+                if Version::parse(&latest.software_version)?
+                    > Version::parse(&plugin.software_version)?
+                {
+                    plugin.next = Some(Box::new(latest));
+                }
                 plugin
             } else {
+                // No installed so return latest manifest
                 latest
             }
         } else {
