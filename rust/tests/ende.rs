@@ -70,7 +70,6 @@ proptest! {
         )
     }
 
-    #[ignore]
     #[test]
     fn pandoc(input in article(Freedom::Min)) {
         let pandoc = encode::pandoc::encode_node(&input).unwrap();

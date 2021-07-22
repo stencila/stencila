@@ -1,4 +1,4 @@
-use crate::{binaries, methods::decode::pandoc::PANDOC_SEMVER};
+use crate::{binaries, methods::decode::pandoc::PANDOC_SEMVER, traits::ToVecBlockContent};
 use eyre::Result;
 use pandoc_types::definition as pandoc;
 use std::{collections::HashMap, io::Write, process::Stdio};
@@ -297,7 +297,44 @@ impl ToPandoc for ThematicBreak {
     }
 }
 
-unimplemented_to_pandoc!(TableSimple);
+impl ToPandoc for TableSimple {
+    fn to_pandoc_block(&self) -> pandoc::Block {
+        let rows = self
+            .rows
+            .iter()
+            .map(|row| {
+                let cells = row
+                    .cells
+                    .iter()
+                    .map(|cell| {
+                        let blocks = match &cell.content {
+                            None => Vec::new(),
+                            Some(content) => match content {
+                                TableCellContent::VecInlineContent(inlines) => {
+                                    inlines.to_vec_block_content().to_pandoc_blocks()
+                                }
+                                TableCellContent::VecBlockContent(blocks) => {
+                                    blocks.to_pandoc_blocks()
+                                }
+                            },
+                        };
+                        pandoc::Cell(attrs_empty(), pandoc::Alignment::AlignDefault, 1, 1, blocks)
+                    })
+                    .collect();
+                pandoc::Row(attrs_empty(), cells)
+            })
+            .collect();
+
+        pandoc::Block::Table(
+            attrs_empty(),
+            pandoc::Caption(None, vec![]),
+            vec![],
+            pandoc::TableHead(attrs_empty(), vec![]),
+            vec![pandoc::TableBody(attrs_empty(), 1, vec![], rows)],
+            pandoc::TableFoot(attrs_empty(), vec![]),
+        )
+    }
+}
 
 impl ToPandoc for BlockContent {
     fn to_pandoc_block(&self) -> pandoc::Block {
