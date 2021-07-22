@@ -1,6 +1,7 @@
 import { Component, h } from '@stencil/core'
 import { Route } from '@stencil/router'
 import { Router } from '../../router'
+import { configEventListener, initConfigStore } from '../../store/appConfig'
 
 @Component({
   tag: 'app-root',
@@ -8,6 +9,11 @@ import { Router } from '../../router'
   scoped: true,
 })
 export class AppRoot {
+  componentWillLoad() {
+    initConfigStore()
+    configEventListener()
+  }
+
   render() {
     return (
       <Router.Switch>

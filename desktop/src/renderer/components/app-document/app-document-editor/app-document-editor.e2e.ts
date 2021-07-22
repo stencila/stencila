@@ -1,6 +1,6 @@
 import { newE2EPage } from '@stencil/core/testing'
 
-describe('app-document-editor', () => {
+describe.skip('app-document-editor', () => {
   it('renders', async () => {
     const page = await newE2EPage({ failOnConsoleError: true })
 
