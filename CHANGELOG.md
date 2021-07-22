@@ -1,3 +1,28 @@
+# [0.99.0](https://github.com/stencila/stencila/compare/v0.98.1...v0.99.0) (2021-07-22)
+
+
+### Bug Fixes
+
+* **Markdown, HTML, Pandoc:** Handle table headers ([adc92a0](https://github.com/stencila/stencila/commit/adc92a0b9bc024c73be203f4569f11d9d64bf891))
+* **Pandoc:** Differentiate media type when decoding images ([5013f9a](https://github.com/stencila/stencila/commit/5013f9a7a2e8af1cd5b99ee87182d92d66b4a27c))
+* **Pandoc:** Encode code chunk programming language ([fecd60b](https://github.com/stencila/stencila/commit/fecd60bb449569156ce691db707856cd8c96dc8a))
+* **Plugins:** Do not overwrite the manifest of the installed version ([4bcaa34](https://github.com/stencila/stencila/commit/4bcaa34dd804d9f91675407e247e285c14def797)), closes [#1050](https://github.com/stencila/stencila/issues/1050)
+
+
+### Features
+
+* **HTML:** Initial implementation of decoding for tables ([a47a31b](https://github.com/stencila/stencila/commit/a47a31b27305f09c92f5acf6c7409a6307261963))
+* **Pandoc:** Add support for encoding to various formats via Pandoc ([75ee4eb](https://github.com/stencila/stencila/commit/75ee4ebe3cb6e13e43c7a17159482a745223bd98))
+* **Pandoc:** Encode lists ([18463a4](https://github.com/stencila/stencila/commit/18463a4f05bb2d7a1bda4aa305a63c383b12dba2))
+* **Pandoc:** Implement encoding of simple tables ([3dc9e44](https://github.com/stencila/stencila/commit/3dc9e44db80579944bb81056445158fefc90741c))
+* **PDF:** Add encoding to PDFs ([b9f83a8](https://github.com/stencila/stencila/commit/b9f83a8fecd423e043b05afd21acb585aae8e6fb))
+
+
+### Performance Improvements
+
+* **Binaries:** Memoize require calls ([3a1e243](https://github.com/stencila/stencila/commit/3a1e2434a12867fbf0589de8ca3ed65fb0a35ea2))
+* **HTML:** Use concat instead of format when encoding lists ([7984768](https://github.com/stencila/stencila/commit/7984768c874a83d32d3bd545c2bc6454a51952a7))
+
 ## [0.98.1](https://github.com/stencila/stencila/compare/v0.98.0...v0.98.1) (2021-07-20)
 
 
