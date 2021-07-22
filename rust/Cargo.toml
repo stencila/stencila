@@ -53,6 +53,7 @@ decode-latex = ["decode-pandoc"]
 decode-md = ["pulldown-cmark", "nom", "decode-html"]
 decode-pandoc = ["binaries", "pandoc_types"]
 decode-person = ["human_name"]
+decode-rmd = ["decode-md"]
 decode-toml = ["toml"]
 decode-yaml = ["serde_yaml"]
 
@@ -63,6 +64,7 @@ encode-latex = ["encode-pandoc"]
 encode-md = []
 encode-pandoc = ["binaries", "pandoc_types"]
 encode-pdf = ["chromiumoxide"]
+encode-rmd = ["encode-md"]
 encode-toml = ["toml"]
 encode-txt = []
 encode-yaml = ["serde_yaml"]
@@ -106,6 +108,7 @@ default = [
     "decode-md",
     "decode-pandoc",
     "decode-person",
+    "decode-rmd",
     "decode-toml",
     "decode-yaml",
     "encode-docx",
@@ -115,6 +118,7 @@ default = [
     "encode-md",
     "encode-pandoc",
     "encode-pdf",
+    "encode-rmd",
     "encode-toml",
     "encode-txt",
     "encode-yaml",

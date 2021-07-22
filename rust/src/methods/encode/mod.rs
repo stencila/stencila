@@ -25,6 +25,9 @@ pub mod pandoc;
 #[cfg(feature = "encode-pdf")]
 pub mod pdf;
 
+#[cfg(feature = "encode-rmd")]
+pub mod rmd;
+
 #[cfg(feature = "encode-toml")]
 pub mod toml;
 
@@ -101,6 +104,9 @@ pub async fn encode(
 
         #[cfg(feature = "encode-pdf")]
         "pdf" => pdf::encode(node, output, options).await?,
+
+        #[cfg(feature = "encode-rmd")]
+        "rmd" => rmd::encode(node)?,
 
         #[cfg(feature = "encode-toml")]
         "toml" => toml::encode(node)?,

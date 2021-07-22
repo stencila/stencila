@@ -17,6 +17,9 @@ pub mod html;
 #[cfg(feature = "decode-md")]
 pub mod md;
 
+#[cfg(feature = "decode-rmd")]
+pub mod rmd;
+
 #[cfg(feature = "decode-latex")]
 pub mod latex;
 
@@ -66,6 +69,9 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
 
         #[cfg(feature = "decode-md")]
         "md" => md::decode(input)?,
+
+        #[cfg(feature = "decode-rmd")]
+        "rmd" => rmd::decode(input)?,
 
         #[cfg(feature = "decode-toml")]
         "toml" => toml::decode(input)?,
