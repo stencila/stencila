@@ -59,7 +59,6 @@ proptest! {
         )
     }
 
-    #[ignore]
     #[test]
     fn md(input in article(Freedom::Min)) {
         let content = encode::md::encode(&input).unwrap();

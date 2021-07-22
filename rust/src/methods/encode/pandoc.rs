@@ -299,39 +299,41 @@ impl ToPandoc for ThematicBreak {
 
 impl ToPandoc for TableSimple {
     fn to_pandoc_block(&self) -> pandoc::Block {
-        let rows = self
-            .rows
-            .iter()
-            .map(|row| {
-                let cells = row
-                    .cells
-                    .iter()
-                    .map(|cell| {
-                        let blocks = match &cell.content {
-                            None => Vec::new(),
-                            Some(content) => match content {
-                                TableCellContent::VecInlineContent(inlines) => {
-                                    inlines.to_vec_block_content().to_pandoc_blocks()
-                                }
-                                TableCellContent::VecBlockContent(blocks) => {
-                                    blocks.to_pandoc_blocks()
-                                }
-                            },
-                        };
-                        pandoc::Cell(attrs_empty(), pandoc::Alignment::AlignDefault, 1, 1, blocks)
-                    })
-                    .collect();
-                pandoc::Row(attrs_empty(), cells)
-            })
-            .collect();
+        let mut head = vec![];
+        let mut body = vec![];
+        let mut foot = vec![];
+        for row in &self.rows {
+            let cells = row
+                .cells
+                .iter()
+                .map(|cell| {
+                    let blocks = match &cell.content {
+                        None => Vec::new(),
+                        Some(content) => match content {
+                            TableCellContent::VecInlineContent(inlines) => {
+                                inlines.to_vec_block_content().to_pandoc_blocks()
+                            }
+                            TableCellContent::VecBlockContent(blocks) => blocks.to_pandoc_blocks(),
+                        },
+                    };
+                    pandoc::Cell(attrs_empty(), pandoc::Alignment::AlignDefault, 1, 1, blocks)
+                })
+                .collect();
+            let pandoc_row = pandoc::Row(attrs_empty(), cells);
+            match row.row_type {
+                Some(TableRowRowType::Header) => head.push(pandoc_row),
+                Some(TableRowRowType::Footer) => foot.push(pandoc_row),
+                _ => body.push(pandoc_row),
+            }
+        }
 
         pandoc::Block::Table(
             attrs_empty(),
             pandoc::Caption(None, vec![]),
             vec![],
-            pandoc::TableHead(attrs_empty(), vec![]),
-            vec![pandoc::TableBody(attrs_empty(), 1, vec![], rows)],
-            pandoc::TableFoot(attrs_empty(), vec![]),
+            pandoc::TableHead(attrs_empty(), head),
+            vec![pandoc::TableBody(attrs_empty(), 1, vec![], body)],
+            pandoc::TableFoot(attrs_empty(), foot),
         )
     }
 }

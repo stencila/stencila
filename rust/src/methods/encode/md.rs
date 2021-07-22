@@ -1,5 +1,6 @@
 use eyre::Result;
 use itertools::Itertools;
+use std::cmp::max;
 use stencila_schema::*;
 
 /// Encode a `Node` to Markdown
@@ -212,6 +213,68 @@ impl ToMd for QuoteBlock {
     }
 }
 
+impl ToMd for TableSimple {
+    fn to_md(&self) -> String {
+        let mut column_widths: Vec<usize> = Vec::new();
+        let mut rows: Vec<Vec<String>> = Vec::new();
+        for row in &self.rows {
+            let mut cells: Vec<String> = Vec::new();
+            for (column, cell) in row.cells.iter().enumerate() {
+                let content = match &cell.content {
+                    None => "".to_string(),
+                    Some(content) => match content {
+                        TableCellContent::VecInlineContent(inlines) => inlines.to_md(),
+                        TableCellContent::VecBlockContent(blocks) => blocks.to_md(),
+                    },
+                };
+                let width = content.len();
+                match column_widths.get_mut(column) {
+                    Some(column_width) => {
+                        if width > *column_width {
+                            *column_width = width
+                        }
+                    }
+                    None => column_widths.push(max(3, width)),
+                }
+                cells.push(content);
+            }
+            rows.push(cells);
+        }
+
+        let row_to_md = |cells: &[String]| -> String {
+            cells
+                .iter()
+                .enumerate()
+                .map(|(column, content)| {
+                    format!("{:width$}", content, width = column_widths[column])
+                })
+                .join(" | ")
+        };
+
+        let (first, rest) = if rows.len() == 1 {
+            (
+                row_to_md(&vec!["".to_string(); column_widths.len()]),
+                row_to_md(&rows[0]),
+            )
+        } else {
+            (
+                row_to_md(&rows[0]),
+                rows[1..].iter().map(|row| row_to_md(row)).join(" |\n| "),
+            )
+        };
+
+        let dashes = column_widths
+            .iter()
+            .map(|width| "-".repeat(*width))
+            .join(" | ");
+
+        [
+            "| ", &first, " |\n", "| ", &dashes, " |\n", "| ", &rest, " |\n\n",
+        ]
+        .concat()
+    }
+}
+
 impl ToMd for ThematicBreak {
     fn to_md(&self) -> String {
         "---\n\n".to_string()
@@ -296,6 +359,7 @@ impl ToMd for BlockContent {
             //BlockContent::MathBlock(node) => node.to_md(),
             BlockContent::Paragraph(node) => node.to_md(),
             BlockContent::QuoteBlock(node) => node.to_md(),
+            BlockContent::Table(node) => node.to_md(),
             BlockContent::ThematicBreak(node) => node.to_md(),
             _ => "".to_string(),
         }

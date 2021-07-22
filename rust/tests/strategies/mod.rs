@@ -421,14 +421,19 @@ prop_compose! {
 prop_compose! {
     /// Generate a table.
     pub fn table(freedom: Freedom)(
-        rows in vec(table_row(freedom), 1..(match freedom {
+        head in vec(table_row(freedom, Some(TableRowRowType::Header)), 1..(match freedom {
+            Freedom::Max => 3,
+            // Markdown only supports a single header row
+            _ => 1,
+        } + 1)),
+        body in vec(table_row(freedom, None), 1..(match freedom {
             Freedom::Min => 1,
             Freedom::Low => 5,
             _ => 10,
         } + 1))
     ) -> BlockContent {
         BlockContent::Table(TableSimple{
-            rows,
+            rows: [head, body].concat(),
             ..Default::default()
         })
     }
@@ -436,7 +441,7 @@ prop_compose! {
 
 prop_compose! {
     /// Generate a table row.
-    pub fn table_row(freedom: Freedom)(
+    pub fn table_row(freedom: Freedom, row_type: Option<TableRowRowType>)(
         cells in vec(table_cell(freedom), 1..(match freedom {
             Freedom::Min => 1,
             Freedom::Low => 5,
@@ -444,6 +449,7 @@ prop_compose! {
         } + 1))
     ) -> TableRow {
         TableRow{
+            row_type: row_type.clone(),
             cells,
             ..Default::default()
         }

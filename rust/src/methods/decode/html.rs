@@ -8,7 +8,7 @@ use stencila_schema::{
     Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
     ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
     NontextualAnnotation, Paragraph, Quote, QuoteBlock, Strong, Subscript, Superscript, TableCell,
-    TableCellContent, TableRow, TableSimple, ThematicBreak, VideoObjectSimple,
+    TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
 };
 
 /// Decode a HTML document to a `Node`
@@ -157,7 +157,30 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                 })]
             }
             local_name!("table") => {
-                let rows = decode_table_rows(node, context);
+                let mut rows = vec![];
+                for child in node.children() {
+                    if let Some(element) = child.as_element() {
+                        match element.name.local {
+                            local_name!("thead") => rows.append(&mut decode_table_rows(
+                                &child,
+                                &Some(TableRowRowType::Header),
+                                context,
+                            )),
+                            local_name!("tbody") => {
+                                rows.append(&mut decode_table_rows(&child, &None, context))
+                            }
+                            local_name!("tfoot") => rows.append(&mut decode_table_rows(
+                                &child,
+                                &Some(TableRowRowType::Footer),
+                                context,
+                            )),
+                            local_name!("tr") => {
+                                rows.push(decode_table_row(&child, &None, context))
+                            }
+                            _ => (),
+                        };
+                    }
+                }
                 vec![BlockContent::Table(TableSimple {
                     rows,
                     ..Default::default()
@@ -392,22 +415,36 @@ fn decode_list_items(node: &NodeRef, context: &Context) -> Vec<ListItem> {
         .collect()
 }
 
-/// Decode table rows from `<tr>` elements.
-fn decode_table_rows(node: &NodeRef, context: &Context) -> Vec<TableRow> {
-    node.descendants()
+/// Decode table rows from `<tr>` children elements.
+fn decode_table_rows(
+    node: &NodeRef,
+    row_type: &Option<TableRowRowType>,
+    context: &Context,
+) -> Vec<TableRow> {
+    node.children()
         .filter_map(|child| {
             if let Some(element) = child.as_element() {
                 if matches!(element.name.local, local_name!("tr")) {
-                    let cells = decode_table_cells(&child, context);
-                    return Some(TableRow {
-                        cells,
-                        ..Default::default()
-                    });
+                    return Some(decode_table_row(&child, row_type, context));
                 }
             }
             None
         })
         .collect()
+}
+
+/// Decode a table row from a `<tr>` element.
+fn decode_table_row(
+    node: &NodeRef,
+    row_type: &Option<TableRowRowType>,
+    context: &Context,
+) -> TableRow {
+    let cells = decode_table_cells(&node, context);
+    TableRow {
+        row_type: row_type.clone(),
+        cells,
+        ..Default::default()
+    }
 }
 
 /// Decode table cells from a `<td>` or `<th> elements.

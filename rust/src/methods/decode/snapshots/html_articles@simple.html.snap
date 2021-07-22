@@ -1,6 +1,6 @@
 ---
 source: rust/src/methods/decode/html.rs
-expression: "decode(&content, Options::default()).expect(\"Unable to decode HTML\")"
+expression: "decode(&content, false).expect(\"Unable to decode HTML\")"
 input_file: fixtures/articles/simple.html
 
 ---
@@ -67,7 +67,8 @@ input_file: fixtures/articles/simple.html
                 "Value"
               ]
             }
-          ]
+          ],
+          "rowType": "Header"
         },
         {
           "type": "TableRow",
