@@ -20,6 +20,15 @@ main {
 
 .secondaryActions {
   @apply text-left pt-4;
+
+  & > *:not(:first-child) {
+    @apply ml-2;
+  }
+}
+
+.appVersion {
+  @apply inline-block text-xs;
+  color: var(--color-neutral-500);
 }
 
 .recentProjects {

@@ -1,6 +1,7 @@
 import { Component, h, State } from '@stencil/core'
 import { i18n } from '../../../../i18n'
 import { UnprotectedStoreKeys } from '../../../../preload/stores'
+import { AppConfigStore } from '../../../../preload/types'
 import { client } from '../../../client'
 
 @Component({
@@ -9,7 +10,7 @@ import { client } from '../../../client'
   scoped: true,
 })
 export class AppSettingsGeneral {
-  @State() config: Record<string, unknown>
+  @State() config: AppConfigStore
 
   private updateSetting = (key: UnprotectedStoreKeys) => (e: Event) => {
     e.preventDefault()

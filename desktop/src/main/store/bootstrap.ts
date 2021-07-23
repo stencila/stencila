@@ -8,6 +8,12 @@ const storeName = 'storeUnprotected.json'
 const userDataPath = app.getPath('userData')
 export const unprotectedStorePath = path.join(userDataPath, storeName)
 
+export const defaultConfigStore: AppConfigStore = {
+  REPORT_ERRORS: false,
+  EDITOR_LINE_NUMBERS: true,
+  EDITOR_LINE_WRAPPING: true,
+}
+
 export const readUnprotectedStore = (): AppConfigStore => {
   try {
     const contents = fs.readFileSync(unprotectedStorePath)
@@ -16,14 +22,26 @@ export const readUnprotectedStore = (): AppConfigStore => {
     // TODO: Log error re. possibly corrupted config
   }
 
-  return {}
+  return defaultConfigStore
 }
 
-const defaultConfigStore: AppConfigStore = {
-  REPORT_ERRORS: false,
+const initAppConfigStore = () => {
+  let config = defaultConfigStore
+  if (fs.existsSync(unprotectedStorePath)) {
+    config = readUnprotectedStore()
+  }
+
+  const store = createStore<AppConfigStore>(config)
+
+  store.on('set', () => {
+    writeUnprotectedStore(store.state)
+  })
+
+  return store
 }
 
-export let unprotectedStore: ObservableMap<AppConfigStore>
+export let unprotectedStore: ObservableMap<AppConfigStore> =
+  initAppConfigStore()
 
 export const writeUnprotectedStore = (store: AppConfigStore): void => {
   fs.writeFileSync(unprotectedStorePath, JSON.stringify(store))
@@ -31,19 +49,4 @@ export const writeUnprotectedStore = (store: AppConfigStore): void => {
 
 export const resetUnprotectedStore = (): void => {
   fs.writeFileSync(unprotectedStorePath, JSON.stringify(defaultConfigStore))
-}
-
-export const initAppConfigStore = () => {
-  let config = defaultConfigStore
-  if (fs.existsSync(unprotectedStorePath)) {
-    config = readUnprotectedStore()
-  }
-
-  unprotectedStore = createStore<AppConfigStore>(config)
-
-  unprotectedStore.on('set', () => {
-    writeUnprotectedStore(unprotectedStore.state)
-  })
-
-  return unprotectedStore
 }

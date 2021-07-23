@@ -1,18 +1,14 @@
 import { app, BrowserWindow, protocol } from 'electron'
 import { debug } from './debug'
-import { main } from './main'
+import { prepare, main } from './main'
 import { requestHandler, scheme } from './main/app-protocol'
 import { openLauncherWindow } from './main/launcher/window'
 import * as localProtocol from './main/local-protocol'
 import { openOnboardingWindow } from './main/onboarding/window'
-import { initAppConfigStore } from './main/store/bootstrap'
-import { isReportErrorsEnabled } from './main/store/handlers'
-import { isDevelopment } from './preload/utils/env'
 import { isFirstLaunch, setFirstLaunchState } from './main/utils/firstLaunch'
-import { enableCrashReports } from './preload/errors'
+import { isDevelopment } from './preload/utils/env'
 
-initAppConfigStore()
-enableCrashReports(isReportErrorsEnabled)
+prepare()
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {

@@ -2,7 +2,7 @@ import { EntityId } from '@reduxjs/toolkit'
 import type { Result, ResultFailure, ResultSuccess } from 'stencila'
 import { CHANNEL } from '../preload/channels'
 import { UnprotectedStoreKeys } from '../preload/stores'
-import { JSONValue } from '../preload/types'
+import { AppConfigStore } from '../preload/types'
 
 /**
  * Custom Error instance thrown by `unwrapOrThrow`.
@@ -59,6 +59,8 @@ export const isRPCError = (error: unknown): error is RPCError => {
 
 export const client = {
   app: {
+    version: () =>
+      window.api.invoke(CHANNEL.GET_APP_VERSION).then(unwrapOrThrow),
     utils: {
       openLinkInBrowser: (url: string) =>
         window.api
@@ -77,11 +79,22 @@ export const client = {
     ui: {
       getAll: () =>
         window.api.invoke(CHANNEL.CONFIG_APP_READ).then(unwrapOrThrow),
-      get: (key: UnprotectedStoreKeys) =>
+      get: <K extends UnprotectedStoreKeys>(key: K) =>
         window.api
           .invoke(CHANNEL.CONFIG_APP_GET, key)
-          .then((res) => unwrapOrThrow(res as Result<JSONValue>)),
-      set: ({ key, value }: { key: UnprotectedStoreKeys; value: JSONValue }) =>
+          .then(
+            (res) =>
+              unwrapOrThrow(res as any) as unknown as ResultSuccess<
+                AppConfigStore[K]
+              >
+          ),
+      set: <K extends UnprotectedStoreKeys>({
+        key,
+        value,
+      }: {
+        key: K
+        value: AppConfigStore[K]
+      }) =>
         window.api
           .invoke(CHANNEL.CONFIG_APP_SET, {
             key,

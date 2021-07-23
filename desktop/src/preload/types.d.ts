@@ -2,7 +2,6 @@ import { IpcMainInvokeEvent } from 'electron'
 import { JSONSchema7 } from 'json-schema'
 import { Config, dispatch, Plugin, Result } from 'stencila'
 import { Channel, CHANNEL, Handler } from './channels'
-import { LogHandler } from './errors'
 import { UnprotectedStoreKeys } from './stores'
 
 type EntityId = number | string
@@ -16,7 +15,11 @@ export type JSONValue =
   | { [key: string]: JSONValue }
 
 export interface AppConfigStore {
-  [key: string]: JSONValue
+  USER_ID?: string
+  REPORT_ERRORS: boolean
+  FIRST_LAUNCH?: boolean | undefined
+  EDITOR_LINE_WRAPPING: boolean
+  EDITOR_LINE_NUMBERS: boolean
 }
 
 export interface NormalizedPlugins {
@@ -52,6 +55,11 @@ export type CaptureError = InvokeType<
   (payload: Error | PromiseRejectionEvent) => void
 >
 
+export type GetAppVersion = InvokeType<
+  typeof CHANNEL.GET_APP_VERSION,
+  () => string
+>
+
 // Config
 export type ConfigWindowOpen = InvokeType<
   typeof CHANNEL.CONFIG_WINDOW_OPEN,
@@ -73,12 +81,15 @@ export type ReadAppConfig = InvokeType<
 
 export type GetAppConfig = InvokeType<
   typeof CHANNEL.CONFIG_APP_GET,
-  (key: UnprotectedStoreKeys) => InvokeResult<JSONValue>
+  <K extends UnprotectedStoreKeys>(key: K) => AppConfigStore[K]
 >
 
 export type SetAppConfig = InvokeType<
   typeof CHANNEL.CONFIG_APP_SET,
-  (payload: { key: UnprotectedStoreKeys; value: JSONValue }) => void
+  <K extends UnprotectedStoreKeys>(payload: {
+    key: K
+    value: AppConfigStore[K]
+  }) => void
 >
 
 // Plugins
@@ -182,6 +193,7 @@ export type DocumentsUnsubscribe = InvokeType<
 type InvokeTypes =
   | OpenLink
   | CaptureError
+  | GetAppVersion
   | ConfigWindowOpen
   | ReadConfig
   | ReadAppConfig
@@ -232,6 +244,11 @@ interface Invoke {
     channel: CaptureError['channel'],
     ...args: CaptureError['args']
   ): CaptureError['result']
+
+  invoke(
+    channel: GetAppVersion['channel'],
+    ...args: GetAppVersion['args']
+  ): GetAppVersion['result']
 
   // Config
   invoke(

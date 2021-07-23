@@ -10,6 +10,7 @@ import { saveEditorState } from '../../../../renderer/store/editorState/editorSt
 import { editorStateById } from '../../../../renderer/store/editorState/editorStateSelectors'
 import { EditorState } from '../../../../renderer/store/editorState/editorStateTypes'
 import { client } from '../../../client'
+import { configState } from '../../../store/appConfig'
 import { errorToast } from '../../../utils/errors'
 
 @Component({
@@ -43,10 +44,10 @@ export class AppDocumentEditor {
     documentId: EntityId
   ): Promise<EditorState | void> => {
     if (this.editorRef) {
-      const editor = await this.editorRef.getRef()
+      const editorState = await this.editorRef.getState()
       return saveEditorState(documentId)({
         id: documentId,
-        state: editor.state,
+        state: editorState,
       })
     }
   }
@@ -64,9 +65,7 @@ export class AppDocumentEditor {
       O.map(this.setDocState),
       O.getOrElse(() => {
         client.documents.contents(documentId).then(({ value }) => {
-          this.editorRef?.setState(value, {
-            language: this.fileFormatToLanguage(),
-          })
+          this.editorRef?.setStateFromString(value)
         })
       })
     )
@@ -78,9 +77,7 @@ export class AppDocumentEditor {
    * Note that this is different to the `setDocContents` function.
    */
   private setDocState = (state: EditorState) => {
-    this.editorRef?.getRef().then((editor) => {
-      editor.setState(state.state)
-    })
+    this.editorRef?.setState(state.state)
   }
 
   /**
@@ -160,7 +157,8 @@ export class AppDocumentEditor {
           <stencila-editor
             ref={(el) => (this.editorRef = el)}
             activeLanguage={this.fileFormatToLanguage()}
-            isControlled={true}
+            lineNumbers={configState.EDITOR_LINE_NUMBERS}
+            lineWrapping={configState.EDITOR_LINE_WRAPPING}
           ></stencila-editor>
         </div>
       </Host>

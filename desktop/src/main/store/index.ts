@@ -11,7 +11,6 @@ const registerAppConfigStoreHandlers = () => {
     return valueToSuccessResult({ ...config })
   })
 
-  // @ts-expect-error
   handle<GetAppConfig>(CHANNEL.CONFIG_APP_GET, async (_event, key) => {
     return valueToSuccessResult(getAppConfig(key))
   })

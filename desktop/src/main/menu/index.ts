@@ -3,6 +3,12 @@ import { showSettings } from '../config/window'
 import { openLauncherWindow } from '../launcher/window'
 import { openOnboardingWindow } from '../onboarding/window'
 import { openProject } from '../project/handlers'
+import {
+  isLineNumbersEnabled,
+  isLineWrappingEnabled,
+  toggleLineNumbers,
+  toggleLineWrapping,
+} from '../store/handlers'
 import { checkForUpdates } from '../utils/update'
 import { closeActiveTab, saveActiveDoc } from '../window/windowUtils'
 
@@ -115,6 +121,23 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
       { role: 'zoomOut' },
       { type: 'separator' },
       { role: 'togglefullscreen' },
+    ],
+  },
+  {
+    label: 'Editor',
+    submenu: [
+      {
+        label: 'Wrap Lines',
+        click: toggleLineWrapping,
+        checked: isLineWrappingEnabled(),
+        type: 'checkbox',
+      },
+      {
+        label: 'Line Numbers',
+        click: toggleLineNumbers,
+        checked: isLineNumbersEnabled(),
+        type: 'checkbox',
+      },
     ],
   },
   // { role: 'windowMenu' }
