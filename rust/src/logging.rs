@@ -1,5 +1,4 @@
 use crate::pubsub::publish;
-use defaults::Defaults;
 use eyre::Result;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -58,9 +57,9 @@ pub enum LoggingFormat {
     Json,
 }
 
-#[cfg(feature = "config")]
 pub mod config {
     use super::*;
+    use defaults::Defaults;
     use std::fs;
     use std::{env, path::PathBuf};
 

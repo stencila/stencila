@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::{files::File, sources::Source};
-use eyre::{Result};
+use eyre::{bail, Result};
 
 #[cfg(feature = "import-elife")]
 pub mod elife;
@@ -19,15 +19,16 @@ pub mod github;
 /// # Returns
 ///
 /// A list of files imported from the source.
+#[allow(unused_variables, unreachable_code, unreachable_patterns)]
 pub async fn import(project: &Path, source: &Source, destination: Option<String>) -> Result<Vec<File>> {
-    // Allow these for when no features are enabled
-    #[allow(unused_variables, unreachable_code)]
     let files = match source {
         #[cfg(feature = "import-elife")]
         Source::Elife(source) => elife::import(project, source, destination).await?,
 
         #[cfg(feature = "import-github")]
         Source::GitHub(source) => github::import(project, source, destination).await?,
+
+        _ => bail!("Unable to encode to import source {:?}", source)
     };
     Ok(files)
 }

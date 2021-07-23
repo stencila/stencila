@@ -719,7 +719,6 @@ async fn respond(request: Request) -> Response {
     }
 }
 
-#[cfg(feature = "config")]
 pub mod config {
     use defaults::Defaults;
     use schemars::JsonSchema;

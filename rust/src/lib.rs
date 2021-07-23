@@ -25,7 +25,10 @@ pub mod methods {
     pub mod decode;
     pub mod encode;
 
+    #[cfg(feature = "coerce")]
     pub mod coerce;
+
+    #[cfg(feature = "reshape")]
     pub mod reshape;
 
     pub mod compile;
@@ -60,9 +63,6 @@ pub mod plugins;
 #[cfg(feature = "upgrade")]
 pub mod upgrade;
 
-#[cfg(feature = "config")]
-pub mod config;
-
 #[cfg(feature = "request")]
 pub mod request;
 
@@ -75,8 +75,9 @@ pub mod jwt;
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod rpc;
 
-// Internal messaging etc
+// Internal configuration, messaging etc
 
+pub mod config;
 pub mod errors;
 pub mod logging;
 pub mod pubsub;
@@ -106,7 +107,6 @@ pub use once_cell;
 pub use regex;
 pub use serde;
 pub use serde_json;
-#[cfg(feature = "serde_yaml")]
 pub use serde_yaml;
 pub use strum;
 pub use tokio;

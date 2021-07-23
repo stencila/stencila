@@ -5,7 +5,6 @@ use crate::{
         compile::compile,
         decode::decode,
         encode::{self, encode},
-        reshape::{self, reshape},
     },
     pubsub::publish,
     utils::{schemas, uuids},
@@ -431,8 +430,12 @@ impl Document {
             decode(&self.content, format).await?
         };
 
-        // Reshape the `root` according to preferences
-        reshape(&mut root, reshape::Options::default())?;
+        #[cfg(feature = "reshape")]
+        {
+            // Reshape the `root` according to preferences
+            use crate::methods::reshape::{self, reshape};
+            reshape(&mut root, reshape::Options::default())?;
+        }
 
         // Compile the `root` and update document dependencies
         let _compilation = compile(&mut root, &self.path, &self.project)?;
@@ -491,13 +494,16 @@ impl Document {
     /// Query the document
     ///
     /// Returns a JSON value. Returns `null` if the query does not select anything.
+    #[allow(unreachable_code)]
     fn query(&self, query: &str, lang: &str) -> Result<serde_json::Value> {
         let result = match lang {
+            #[cfg(feature = "query-jmespath")]
             "jmespath" => {
                 let expr = jmespatch::compile(query)?;
                 let result = expr.search(&self.root)?;
                 serde_json::to_value(result)?
             }
+            #[cfg(feature = "query-jsonptr")]
             "jsonptr" => {
                 let data = serde_json::to_value(&self.root)?;
                 let result = data.pointer(query);

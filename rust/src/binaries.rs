@@ -691,7 +691,6 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
     }
 }
 
-#[cfg(feature = "config")]
 pub mod config {
     use super::*;
     use defaults::Defaults;

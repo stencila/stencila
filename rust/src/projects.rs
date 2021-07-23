@@ -1,4 +1,3 @@
-use crate::cli::display;
 use crate::files::{File, FileEvent, Files};
 use crate::methods::import::import;
 use crate::pubsub::publish;
@@ -830,7 +829,6 @@ pub fn schemas() -> Result<serde_json::Value> {
     Ok(schemas)
 }
 
-#[cfg(feature = "config")]
 pub mod config {
     use super::*;
     use defaults::Defaults;
@@ -872,6 +870,7 @@ pub mod config {
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
+    use crate::cli::display;
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]

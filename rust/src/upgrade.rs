@@ -82,7 +82,7 @@ const UPGRADE_FILE: &str = "cli-upgrade.txt";
 ///
 /// Because this function use values form the config file, requires
 /// that `feature = "config"` is enabled.
-#[cfg(feature = "config")]
+
 pub async fn upgrade_auto() -> tokio::task::JoinHandle<Result<()>> {
     let config::UpgradeConfig {
         auto,
@@ -120,7 +120,6 @@ pub async fn upgrade_auto() -> tokio::task::JoinHandle<Result<()>> {
     })
 }
 
-#[cfg(feature = "config")]
 pub mod config {
     use defaults::Defaults;
     use schemars::JsonSchema;

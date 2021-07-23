@@ -1884,7 +1884,6 @@ pub async fn delegate(method: Method, params: HashMap<String, serde_json::Value>
     Ok(node)
 }
 
-#[cfg(feature = "config")]
 pub mod config {
     use super::*;
     use defaults::Defaults;

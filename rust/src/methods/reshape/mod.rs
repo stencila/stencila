@@ -1,4 +1,6 @@
-use crate::methods::decode::date::decode_date_maybe;
+use super::decode::date::decode_date_maybe;
+use super::decode::person::decode_person;
+use super::encode::txt::ToTxt;
 use defaults::Defaults;
 use eyre::Result;
 use once_cell::sync::Lazy;
@@ -7,9 +9,6 @@ use stencila_schema::{
     Article, BlockContent, CreativeWorkAuthors, CreativeWorkTitle, Date, InlineContent, Node,
     Paragraph, Person, ThingDescription,
 };
-
-use super::decode::person::decode_person;
-use super::encode::txt::ToTxt;
 
 /// Reshaping options
 #[derive(Defaults)]

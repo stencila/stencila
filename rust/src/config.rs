@@ -1,8 +1,4 @@
-use crate::logging::config::LoggingConfig;
-use crate::plugins::config::PluginsConfig;
-use crate::serve::config::ServeConfig;
-use crate::upgrade::config::UpgradeConfig;
-use crate::{binaries, logging, plugins, projects, serve, telemetry, upgrade, utils::schemas};
+use crate::{logging, projects, telemetry, utils::schemas};
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use schemars::JsonSchema;
@@ -42,17 +38,21 @@ pub struct Config {
     #[validate]
     pub telemetry: telemetry::config::TelemetryConfig,
 
+    #[cfg(feature = "serve")]
     #[validate]
-    pub serve: serve::config::ServeConfig,
+    pub serve: crate::serve::config::ServeConfig,
 
+    #[cfg(feature = "plugins")]
     #[validate]
-    pub plugins: plugins::config::PluginsConfig,
+    pub plugins: crate::plugins::config::PluginsConfig,
 
+    #[cfg(feature = "binaries")]
     #[validate]
-    pub binaries: binaries::config::BinariesConfig,
+    pub binaries: crate::binaries::config::BinariesConfig,
 
+    #[cfg(feature = "upgrade")]
     #[validate]
-    pub upgrade: upgrade::config::UpgradeConfig,
+    pub upgrade: crate::upgrade::config::UpgradeConfig,
 }
 
 impl Config {
@@ -194,10 +194,18 @@ impl Config {
     pub fn reset(&mut self, property: &str) -> Result<()> {
         match property {
             "all" => *self = Config::default(),
-            "logging" => self.logging = LoggingConfig::default(),
-            "plugins" => self.plugins = PluginsConfig::default(),
-            "serve" => self.serve = ServeConfig::default(),
-            "upgrade" => self.upgrade = UpgradeConfig::default(),
+
+            "logging" => self.logging = crate::logging::config::LoggingConfig::default(),
+
+            #[cfg(feature = "plugins")]
+            "plugins" => self.plugins = crate::plugins::config::PluginsConfig::default(),
+
+            #[cfg(feature = "serve")]
+            "serve" => self.serve = crate::serve::config::ServeConfig::default(),
+
+            #[cfg(feature = "upgrade")]
+            "upgrade" => self.upgrade = crate::upgrade::config::UpgradeConfig::default(),
+
             _ => bail!("No top level configuration property named: {}", property),
         }
 
@@ -341,8 +349,6 @@ pub mod cli {
 
 #[cfg(test)]
 mod tests {
-    use serde_json::json;
-
     use super::*;
 
     #[test]
@@ -368,10 +374,6 @@ mod tests {
 
         serde_json::from_value::<Config>(config.get(None)?)?;
 
-        serde_json::from_value::<ServeConfig>(config.get(Some("serve".to_string()))?)?;
-
-        serde_json::from_value::<UpgradeConfig>(config.get(Some("upgrade".to_string()))?)?;
-
         assert_eq!(
             config
                 .get(Some("foo.bar".to_string()))
@@ -383,6 +385,7 @@ mod tests {
         Ok(())
     }
 
+    #[cfg(feature = "upgrade")]
     #[test]
     fn test_set() -> Result<()> {
         let mut config = Config {
@@ -403,9 +406,10 @@ mod tests {
         Ok(())
     }
 
+    #[cfg(feature = "upgrade")]
     #[test]
     fn test_reset() -> Result<()> {
-        let mut config: Config = serde_json::from_value(json!({
+        let mut config: Config = serde_json::from_value(serde_json::json!({
             "upgrade": {
                 "auto": "off",
                 "verbose": true,
@@ -432,6 +436,7 @@ mod tests {
         Ok(())
     }
 
+    #[cfg(feature = "cli")]
     #[tokio::test]
     async fn test_cli() -> Result<()> {
         use super::cli::*;

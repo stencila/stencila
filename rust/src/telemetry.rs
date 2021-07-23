@@ -4,7 +4,6 @@
 ///! in the future may also include functionality around OpenTelemetry
 ///! or similar for monitoring of worker processes.
 
-#[cfg(feature = "config")]
 pub mod config {
     use defaults::Defaults;
     use schemars::JsonSchema;

@@ -21,6 +21,7 @@ proptest! {
     // following formats the number of test cases is minimal
     #![proptest_config(ProptestConfig::with_cases(5))]
 
+    #[cfg(all(feature="encode-json", feature="decode-json"))]
     #[test]
     fn json(input in node(Freedom::Max)) {
         let content = encode::json::encode(&input).unwrap();
@@ -31,6 +32,7 @@ proptest! {
         )
     }
 
+    #[cfg(all(feature="encode-yaml", feature="decode-yaml"))]
     #[test]
     fn yaml(input in node(Freedom::Max)) {
         let content = encode::yaml::encode(&input).unwrap();
@@ -49,6 +51,7 @@ proptest! {
     // we reduce the number of test cases from the default of 256
     #![proptest_config(ProptestConfig::with_cases(100))]
 
+    #[cfg(all(feature="encode-html", feature="decode-html"))]
     #[test]
     fn html(input in article(Freedom::Max)) {
         let content = encode::html::encode(&input, None).unwrap();
@@ -59,6 +62,7 @@ proptest! {
         )
     }
 
+    #[cfg(all(feature="encode-md", feature="decode-md"))]
     #[test]
     fn md(input in article(Freedom::Min)) {
         let content = encode::md::encode(&input).unwrap();
@@ -69,6 +73,7 @@ proptest! {
         )
     }
 
+    #[cfg(all(feature="encode-pandoc", feature="decode-pandoc"))]
     #[test]
     fn pandoc(input in article(Freedom::Min)) {
         let pandoc = encode::pandoc::encode_node(&input).unwrap();
