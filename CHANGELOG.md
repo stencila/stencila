@@ -1,3 +1,11 @@
+# [0.100.0](https://github.com/stencila/stencila/compare/v0.99.0...v0.100.0) (2021-07-23)
+
+
+### Features
+
+* **Desktop:** Print app version in Launcher window ([f3b3d61](https://github.com/stencila/stencila/commit/f3b3d61c5a0492fee3236c7f44d639cf224f58d9))
+* **Editor:** Expose settings for toggling line wrapping & line numbers ([a7d2b77](https://github.com/stencila/stencila/commit/a7d2b77bc7ce41cee768b1f97706436ca5006850))
+
 # [0.99.0](https://github.com/stencila/stencila/compare/v0.98.1...v0.99.0) (2021-07-22)
 
 
