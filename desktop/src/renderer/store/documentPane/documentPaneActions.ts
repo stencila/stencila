@@ -14,12 +14,12 @@ export const initPane = (paneId: EntityId) => {
 
 export const addDocumentToPane = async (paneId: EntityId, path: string) => {
   try {
-    const { value } = await client.documents.open(path)
+    const { value: doc } = await client.documents.open(path)
 
     return store.dispatch(
       documentPaneActions.addDocToPane({
         paneId,
-        view: { type: 'editor', ...value },
+        doc,
       })
     )
   } catch (err) {

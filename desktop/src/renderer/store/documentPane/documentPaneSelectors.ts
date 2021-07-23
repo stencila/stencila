@@ -12,7 +12,7 @@ export const selectPaneViews = (state: RootState) => (paneId: EntityId) => {
 }
 
 export const selectDoc = (state: RootState) => (docId: EntityId) => {
-  return state.panes.entities.views[docId]
+  return state.panes.entities.documents[docId]
 }
 
 export const selectActiveView = (state: RootState): O.Option<EntityId> => {

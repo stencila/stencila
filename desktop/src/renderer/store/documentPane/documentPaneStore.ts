@@ -1,17 +1,15 @@
 import { createSlice, EntityId, PayloadAction } from '@reduxjs/toolkit'
 import { array as A, option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
-import {
-  DocumentPane,
-  NormalizedDocumentPaneStore,
-  PaneView,
-} from './documentPaneTypes'
+import { Document } from 'stencila'
+import { DocumentPane, NormalizedDocumentPaneStore } from './documentPaneTypes'
 
 const initialState: NormalizedDocumentPaneStore = {
   activePane: O.none,
   entities: {
     panes: {},
-    views: {},
+    layouts: {},
+    documents: {},
   },
   ids: [],
 }
@@ -45,16 +43,16 @@ export const documentPaneSlice = createSlice({
     },
     addDocToPane: (
       state,
-      { payload }: PayloadAction<{ paneId: EntityId; view: PaneView }>
+      { payload }: PayloadAction<{ paneId: EntityId; doc: Document }>
     ) => {
       const pane = state.entities.panes[payload.paneId]
       if (pane) {
-        if (!pane.views.includes(payload.view.id)) {
-          pane.views = [...pane.views, payload.view.id]
+        if (!pane.views.includes(payload.doc.id)) {
+          pane.views = [...pane.views, payload.doc.id]
 
-          state.entities.views[payload.view.id] = payload.view
+          state.entities.documents[payload.doc.id] = payload.doc
         }
-        pane.activeView = O.some(payload.view.id)
+        pane.activeView = O.some(payload.doc.id)
       }
       return state
     },
