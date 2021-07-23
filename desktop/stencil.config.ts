@@ -46,4 +46,11 @@ export const config: Config = {
       ],
     }),
   ],
+  testing: {
+    transform: {
+      '^.+\\.(ts|tsx|jsx|js)$':
+        './node_modules/@stencil/core/testing/jest-preprocessor.js',
+    },
+    testRegex: '/src/.*\\.spec\\.(ts|tsx|js)$',
+  },
 }
