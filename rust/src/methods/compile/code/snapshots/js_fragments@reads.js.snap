@@ -1,0 +1,18 @@
+---
+source: rust/src/methods/compile/code/js.rs
+expression: compile(&code)
+input_file: fixtures/fragments/js/reads.js
+
+---
+{
+  "imports_packages": [
+    "fs",
+    "fs"
+  ],
+  "reads_files": [
+    "path1",
+    "path2",
+    "path3",
+    "path4"
+  ]
+}

@@ -14,6 +14,20 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
     function: [(import)(identifier)] @function (#match? @function "^import|require$")
     arguments: (arguments (string) @module)
 )
+
+(call_expression
+    function: [
+        (
+            (identifier) @function (#match? @function "^readFile")
+        )
+        (
+            member_expression
+                object: (identifier)
+                property: (property_identifier)  @function (#match? @function "^readFile")
+        )
+    ]
+    arguments: (arguments (string) @module)
+)
 "#,
     )
 });
@@ -28,6 +42,7 @@ pub fn compile(code: &str) -> CodeAnalysis {
         match pattern {
             0 => imports_packages.push(remove_quotes(&captures[0].text)),
             1 => imports_packages.push(remove_quotes(&captures[1].text)),
+            2 => reads_files.push(remove_quotes(&captures[1].text)),
             _ => (),
         }
     }
