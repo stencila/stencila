@@ -14,6 +14,10 @@ export namespace Components {
     interface AppDocumentPane {
         "paneId": EntityId;
     }
+    interface AppDocumentPaneActionBar {
+        "docId": EntityId;
+        "paneId": EntityId;
+    }
     interface AppDocumentPaneEmpty {
     }
     interface AppDocumentPaneTab {
@@ -79,6 +83,12 @@ declare global {
     var HTMLAppDocumentPaneElement: {
         prototype: HTMLAppDocumentPaneElement;
         new (): HTMLAppDocumentPaneElement;
+    };
+    interface HTMLAppDocumentPaneActionBarElement extends Components.AppDocumentPaneActionBar, HTMLStencilElement {
+    }
+    var HTMLAppDocumentPaneActionBarElement: {
+        prototype: HTMLAppDocumentPaneActionBarElement;
+        new (): HTMLAppDocumentPaneActionBarElement;
     };
     interface HTMLAppDocumentPaneEmptyElement extends Components.AppDocumentPaneEmpty, HTMLStencilElement {
     }
@@ -209,6 +219,7 @@ declare global {
     interface HTMLElementTagNameMap {
         "app-document-editor": HTMLAppDocumentEditorElement;
         "app-document-pane": HTMLAppDocumentPaneElement;
+        "app-document-pane-action-bar": HTMLAppDocumentPaneActionBarElement;
         "app-document-pane-empty": HTMLAppDocumentPaneEmptyElement;
         "app-document-pane-tab": HTMLAppDocumentPaneTabElement;
         "app-document-pane-tabs": HTMLAppDocumentPaneTabsElement;
@@ -237,6 +248,10 @@ declare namespace LocalJSX {
         "documentId"?: EntityId;
     }
     interface AppDocumentPane {
+        "paneId": EntityId;
+    }
+    interface AppDocumentPaneActionBar {
+        "docId": EntityId;
         "paneId": EntityId;
     }
     interface AppDocumentPaneEmpty {
@@ -294,6 +309,7 @@ declare namespace LocalJSX {
     interface IntrinsicElements {
         "app-document-editor": AppDocumentEditor;
         "app-document-pane": AppDocumentPane;
+        "app-document-pane-action-bar": AppDocumentPaneActionBar;
         "app-document-pane-empty": AppDocumentPaneEmpty;
         "app-document-pane-tab": AppDocumentPaneTab;
         "app-document-pane-tabs": AppDocumentPaneTabs;
@@ -323,6 +339,7 @@ declare module "@stencil/core" {
         interface IntrinsicElements {
             "app-document-editor": LocalJSX.AppDocumentEditor & JSXBase.HTMLAttributes<HTMLAppDocumentEditorElement>;
             "app-document-pane": LocalJSX.AppDocumentPane & JSXBase.HTMLAttributes<HTMLAppDocumentPaneElement>;
+            "app-document-pane-action-bar": LocalJSX.AppDocumentPaneActionBar & JSXBase.HTMLAttributes<HTMLAppDocumentPaneActionBarElement>;
             "app-document-pane-empty": LocalJSX.AppDocumentPaneEmpty & JSXBase.HTMLAttributes<HTMLAppDocumentPaneEmptyElement>;
             "app-document-pane-tab": LocalJSX.AppDocumentPaneTab & JSXBase.HTMLAttributes<HTMLAppDocumentPaneTabElement>;
             "app-document-pane-tabs": LocalJSX.AppDocumentPaneTabs & JSXBase.HTMLAttributes<HTMLAppDocumentPaneTabsElement>;

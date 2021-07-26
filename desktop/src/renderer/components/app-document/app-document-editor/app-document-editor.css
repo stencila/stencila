@@ -2,7 +2,11 @@
   @apply block h-full overflow-hidden;
 
   stencila-editor {
-    @apply w-full h-full max-h-full;
+    /* Height of the editor action bar (layout toggle button, etc.) */
+    --ui-chrome-height: 1.75rem;
+
+    @apply w-full max-h-full;
+    height: calc(100% - var(--ui-chrome-height));
     --border-width: 0;
 
     .cm-editor,

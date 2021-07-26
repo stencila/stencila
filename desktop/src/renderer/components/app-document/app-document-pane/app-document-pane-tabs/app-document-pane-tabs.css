@@ -7,5 +7,15 @@
 }
 
 .documentPaneTabs {
-  @apply p-0 m-0 h-full w-full flex flex-nowrap overflow-x-auto;
+  @apply p-0 pl-px m-0 h-full w-full flex flex-nowrap overflow-x-auto relative;
+  background-color: var(--color-neutral-50);
+
+  /* Add a bottom border which runs behind the individual tabs.
+  * This allows to obscure sections of this border from the active tab.
+  */
+  &::before {
+    @apply block w-full absolute left-0 bottom-0;
+    border-bottom: 1px solid var(--color-neutral-200);
+    content: '';
+  }
 }

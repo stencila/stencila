@@ -5,8 +5,12 @@ import { pipe } from 'fp-ts/function'
 import { IResizeEvent } from 'split-me/dist/types/components/split-me/interfaces'
 import { state } from '../../../store'
 import {
+  isEditPaneOpen,
+  isPreviewPaneOpen,
+} from '../../../store/documentPane/documentPaneActions'
+import {
   selectActiveView,
-  selectDoc,
+  selectView,
 } from '../../../store/documentPane/documentPaneSelectors'
 
 @Component({
@@ -37,32 +41,38 @@ export class AppDocumentPane {
 
         {pipe(
           activeDocumentId,
-          O.map(selectDoc(state)),
-          O.map((activeDocument) => {
-            const isEditable = !activeDocument?.format.binary
-            const isPreviewable = activeDocument?.previewable
-            const paneCount = isEditable && isPreviewable ? 2 : 1
+          O.map(selectView(state)(this.paneId)),
+          O.map(({ view, layout }) => {
+            if (!view || !layout) {
+              return
+            }
+
+            const isEditPaneVisible = isEditPaneOpen(layout)
+            const isPreviewPaneVisible = isPreviewPaneOpen(layout)
 
             return (
               <div class="documentPaneContents">
+                <app-document-pane-action-bar
+                  docId={view.id}
+                  paneId={this.paneId}
+                ></app-document-pane-action-bar>
+
                 <split-me
-                  n={paneCount}
-                  sizes={
-                    this.splitSizes ?? A.makeBy(paneCount, () => 1 / paneCount)
-                  }
-                  minSizes={A.makeBy(paneCount, () => 0.05)}
+                  n={layout.moduleCount}
+                  sizes={this.splitSizes ?? layout.sizes}
+                  minSizes={A.makeBy(layout.moduleCount, () => 0.05)}
                   d="horizontal"
                 >
-                  {isEditable ? (
+                  {isEditPaneVisible ? (
                     <app-document-editor
-                      documentId={activeDocument?.id}
+                      documentId={view.id}
                       slot="0"
                     ></app-document-editor>
                   ) : null}
-                  {isPreviewable ? (
+                  {isPreviewPaneVisible ? (
                     <app-document-preview
-                      documentId={activeDocument?.id}
-                      slot={isEditable ? `1` : `0`}
+                      documentId={view.id}
+                      slot={isEditPaneVisible ? `1` : `0`}
                     ></app-document-preview>
                   ) : null}
                 </split-me>
