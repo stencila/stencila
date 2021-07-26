@@ -36,6 +36,10 @@ Please run formatting, linting and testing before contributing code e.g.
 make format lint test
 ```
 
+### Testing
+
+There are tests in `src/*.test.ts` files. Note that most of these tests are aimed at picking up regressions in the API of this package, and not of the correctness of the wrapped Rust code for which tests exists in `../rust`.
+
 ### Project Layout
 
 This project was bootstrapped by [create-neon](https://www.npmjs.com/package/create-neon). Its directory structure is something like:

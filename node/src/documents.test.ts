@@ -9,6 +9,7 @@ import {
   subscribe,
   unsubscribe,
   write,
+  writeAs,
 } from './documents'
 import { DocumentEvent } from './types'
 
@@ -30,6 +31,28 @@ test('create', async () => {
       }),
     })
   )
+})
+
+/**
+ * Test of a workflow involving creating a new document and then
+ * saving it as other files in same and other formats.
+ */
+test('workfow-create-write-as', async () => {
+  const doc = create('json');
+  expect(doc).toEqual(
+    expect.objectContaining({
+      temporary: true,
+      name: 'Unnamed',
+    })
+  )
+
+  const path1 = tmp.fileSync({ postfix: '.json' }).name
+  writeAs(doc.id, path1)
+  fs.existsSync(path1)
+
+  const path2 = tmp.fileSync({ postfix: '.markdown' }).name
+  writeAs(doc.id, path2, "md")
+  fs.existsSync(path2)
 })
 
 /**
@@ -166,3 +189,4 @@ test('workflow-open-modify', async () => {
 
   fs.unlinkSync(path)
 })
+

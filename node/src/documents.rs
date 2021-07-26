@@ -88,6 +88,23 @@ pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     to_undefined_or_throw(cx, result)
 }
 
+/// Write a document to another path / format
+pub fn write_as(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let id = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let path = cx.argument::<JsString>(1)?.value(&mut cx);
+    let format = cx.argument::<JsString>(2)?.value(&mut cx);
+    let format = if format.is_empty() {
+        None
+    } else {
+        Some(format)
+    };
+    let theme = cx.argument::<JsString>(3)?.value(&mut cx);
+    let theme = if theme.is_empty() { None } else { Some(theme) };
+    let documents = &mut *obtain(&mut cx)?;
+    let result = RUNTIME.block_on(async { documents.write_as(id, &path, format, theme).await });
+    to_undefined_or_throw(cx, result)
+}
+
 /// Dump a document
 pub fn dump(mut cx: FunctionContext) -> JsResult<JsString> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);

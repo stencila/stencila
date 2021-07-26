@@ -22,6 +22,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("documentsGet", documents::get)?;
     cx.export_function("documentsRead", documents::read)?;
     cx.export_function("documentsWrite", documents::write)?;
+    cx.export_function("documentsWriteAs", documents::write_as)?;
     cx.export_function("documentsDump", documents::dump)?;
     cx.export_function("documentsLoad", documents::load)?;
     cx.export_function("documentsSubscribe", documents::subscribe)?;

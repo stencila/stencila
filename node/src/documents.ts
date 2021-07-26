@@ -75,6 +75,23 @@ export function write(id: string, content: string): string {
 }
 
 /**
+ * Write the content of a document to the file system.
+ *
+ * @param id Id of the document
+ * @param path Path of the new document
+ * @param format Format of the new document (inferred from path if not supplied)
+ * @param theme Theme for the new document (only applies to some formats e.g. HTML, PDF)
+ */
+export function writeAs(
+  id: string,
+  path: string,
+  format: string = '',
+  theme: string = ''
+): string {
+  return addon.documentsWriteAs(id, path, format, theme)
+}
+
+/**
  * Dump the current content of a document without reading it
  * from the file system. The inverse of `load()`.
  *
@@ -134,7 +151,7 @@ export function unsubscribe(id: string, topics: string[]): void {
 
 /**
  * Close a document.
- * 
+ *
  * This will drop the document from memory and stop any
  * associated file watching thread.
  *

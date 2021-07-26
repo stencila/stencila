@@ -911,6 +911,20 @@ impl Documents {
         self.get(&id)?.lock().await.write(content, None).await
     }
 
+    pub async fn write_as(
+        &mut self,
+        id: &str,
+        path: &str,
+        format: Option<String>,
+        theme: Option<String>,
+    ) -> Result<()> {
+        self.get(&id)?
+            .lock()
+            .await
+            .write_as(path, format, theme)
+            .await
+    }
+
     pub async fn dump(&mut self, id: &str, format: Option<String>) -> Result<String> {
         self.get(&id)?.lock().await.dump(format).await
     }
