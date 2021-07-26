@@ -78,7 +78,7 @@
     "@reduxjs/toolkit": "1.6.0",
     "@sentry/electron": "2.5.1",
     "@stencila/brand": "0.7.1",
-    "@stencila/components": "0.37.0",
+    "@stencila/components": "0.38.0",
     "@stencila/schema": "1.10.0",
     "electron-squirrel-startup": "1.0.0",
     "fp-ts": "2.10.5",

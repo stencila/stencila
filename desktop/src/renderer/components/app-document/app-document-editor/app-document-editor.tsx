@@ -118,6 +118,15 @@ export class AppDocumentEditor {
     })
   }
 
+  /**
+   * Function to call whenever the contents of the editor change.
+   */
+  private onDocChange = () => {
+    this.editorRef
+      ?.getContents()
+      .then((contents) => client.documents.load(this.documentId, contents.text))
+  }
+
   private fileFormatToLanguage = (): string => {
     const file = selectDoc(state)(this.documentId)
     switch (file?.format?.name) {
@@ -159,6 +168,7 @@ export class AppDocumentEditor {
             activeLanguage={this.fileFormatToLanguage()}
             lineNumbers={configState.EDITOR_LINE_NUMBERS}
             lineWrapping={configState.EDITOR_LINE_WRAPPING}
+            contentChangeHandler={this.onDocChange}
           ></stencila-editor>
         </div>
       </Host>

@@ -180,6 +180,11 @@ export type DocumentsDump = InvokeType<
   typeof dispatch.documents.dump
 >
 
+export type DocumentsLoad = InvokeType<
+  typeof CHANNEL.DOCUMENTS_LOAD,
+  typeof dispatch.documents.load
+>
+
 export type DocumentsWrite = InvokeType<
   typeof CHANNEL.DOCUMENTS_WRITE,
   typeof dispatch.documents.write
@@ -216,6 +221,7 @@ type InvokeTypes =
   | DocumentsCloseActive
   | DocumentsPreview
   | DocumentsDump
+  | DocumentsLoad
   | DocumentsWrite
   | DocumentsUnsubscribe
 
@@ -366,6 +372,11 @@ interface Invoke {
     channel: DocumentsDump['channel'],
     ...args: DocumentsDump['args']
   ): DocumentsDump['result']
+
+  invoke(
+    channel: DocumentsLoad['channel'],
+    ...args: DocumentsLoad['args']
+  ): DocumentsLoad['result']
 
   invoke(
     channel: DocumentsWrite['channel'],
