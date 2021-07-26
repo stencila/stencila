@@ -22,9 +22,38 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 
 (call
     function: (identifier) @function (#match? @function "^read\.")
-    arguments: (
-        arguments value: (string) @path
-    )
+    arguments: [
+        (
+            arguments
+                .
+                value: (string) @arg
+        )
+        (
+            arguments
+                name: (identifier) @arg_name
+                .
+                value: (string) @arg_value
+        )
+    ]
+)
+
+(call
+    function: (identifier) @function (#match? @function "^write\.")
+    arguments: [
+        (
+            arguments
+                .
+                value: (identifier) @arg
+                .
+                value: (string) @arg
+        )
+        (
+            arguments
+                name: (identifier) @arg_name
+                .
+                value: (string) @arg_value
+        )
+    ]
 )
 "#,
     )
@@ -32,15 +61,15 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 
 /// Compile some R code
 pub fn compile(code: &str) -> CodeAnalysis {
-    let mut imports_packages: Vec<String> = Vec::new();
-    let mut reads_files: Vec<String> = Vec::new();
+    let mut imports_packages = Vec::new();
+    let mut reads_files = Vec::new();
+    let mut writes_files = Vec::new();
 
     for capture in COMPILER.query(code) {
         let (pattern, captures) = capture;
         match pattern {
             0 => {
                 let args = captures_as_args_map(captures);
-                println!("{:?}", args);
                 if let Some(package) = args.get("0").or_else(|| args.get("package")) {
                     if let Some(is_char) = args.get("character.only") {
                         if is_char.starts_with('T') && !is_quoted(package) {
@@ -53,14 +82,22 @@ pub fn compile(code: &str) -> CodeAnalysis {
                 }
             }
             1 => {
-                let path = remove_quotes(&captures[1].text);
-                reads_files.push(path)
+                let args = captures_as_args_map(captures);
+                if let Some(package) = args.get("0").or_else(|| args.get("file")) {
+                    reads_files.push(remove_quotes(package))
+                }
+            }
+            2 => {
+                let args = captures_as_args_map(captures);
+                if let Some(package) = args.get("1").or_else(|| args.get("file")) {
+                    writes_files.push(remove_quotes(package))
+                }
             }
             _ => (),
         }
     }
 
-    code_analysis(imports_packages, reads_files)
+    code_analysis(imports_packages, reads_files, writes_files)
 }
 
 #[cfg(test)]

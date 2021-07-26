@@ -18,19 +18,18 @@ def open_func():
     open("path8")
 
 
+# The following should be detected as writes
+
+open("write", "w")
+open("write", mode="w")
+open(file="write", mode="a")
+
 # The following should be ignored
 
-# Write mode so ignore
-open("ignore", "w")  # is a write, don't include
-open("ignore", mode="w")
-open(file="ignore", mode="w")
-
-# Variable mode, don't know if read or write, so ignore
-mode = None
-open("ignore", mode)
-
-# Don't know the actual file name since it's a variable, don't include
 var = None
 open(var)
 open(var.y)
 open(var["y"])
+
+mode = None
+open("ignore", mode)

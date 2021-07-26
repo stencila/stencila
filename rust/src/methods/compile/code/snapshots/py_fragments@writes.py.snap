@@ -1,23 +1,20 @@
 ---
 source: rust/src/methods/compile/code/py.rs
 expression: compile(&code)
-input_file: fixtures/fragments/py/reads.py
+input_file: fixtures/fragments/py/writes.py
 
 ---
 {
   "reads_files": [
+    "read",
+    "read",
+    "read"
+  ],
+  "writes_files": [
     "path1",
     "path2",
     "path3",
     "path4",
-    "path5",
-    "path6",
-    "path7",
-    "path8"
-  ],
-  "writes_files": [
-    "write",
-    "write",
-    "write"
+    "path5"
   ]
 }

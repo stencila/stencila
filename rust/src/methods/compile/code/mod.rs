@@ -28,9 +28,16 @@ pub struct CodeAnalysis {
 
     /// A list of files that the code reads
     reads_files: Option<Vec<String>>,
+
+    /// A list of files that the code writes
+    writes_files: Option<Vec<String>>,
 }
 
-fn code_analysis(imports_packages: Vec<String>, reads_files: Vec<String>) -> CodeAnalysis {
+fn code_analysis(
+    imports_packages: Vec<String>,
+    reads_files: Vec<String>,
+    writes_files: Vec<String>,
+) -> CodeAnalysis {
     let imports_packages = match imports_packages.is_empty() {
         false => Some(imports_packages),
         true => None,
@@ -41,9 +48,15 @@ fn code_analysis(imports_packages: Vec<String>, reads_files: Vec<String>) -> Cod
         true => None,
     };
 
+    let writes_files = match writes_files.is_empty() {
+        false => Some(writes_files),
+        true => None,
+    };
+
     CodeAnalysis {
         imports_packages,
         reads_files,
+        writes_files,
     }
 }
 

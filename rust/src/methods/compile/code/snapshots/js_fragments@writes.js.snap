@@ -1,0 +1,17 @@
+---
+source: rust/src/methods/compile/code/js.rs
+expression: compile(&code)
+input_file: fixtures/fragments/js/writes.js
+
+---
+{
+  "imports_packages": [
+    "fs",
+    "fs"
+  ],
+  "writes_files": [
+    "path1",
+    "path2",
+    "path3"
+  ]
+}
