@@ -43,15 +43,11 @@ pub fn compile(code: &str) -> CodeAnalysis {
                 println!("{:?}", args);
                 if let Some(package) = args.get("0").or_else(|| args.get("package")) {
                     if let Some(is_char) = args.get("character.only") {
-                        if is_char.starts_with('T') {
-                            if !is_quoted(package) {
-                                continue;
-                            }
-                        }
-                    } else {
-                        if is_quoted(package) {
+                        if is_char.starts_with('T') && !is_quoted(package) {
                             continue;
                         }
+                    } else if is_quoted(package) {
+                        continue;
                     }
                     imports_packages.push(remove_quotes(package))
                 }

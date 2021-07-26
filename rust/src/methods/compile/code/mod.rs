@@ -71,6 +71,7 @@ pub fn compile(code: &str, language: &str) -> Result<CodeAnalysis> {
 }
 
 pub(crate) struct Capture {
+    #[allow(dead_code)]
     /// The index of the capture in the pattern
     index: u32,
 
