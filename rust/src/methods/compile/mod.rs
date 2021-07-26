@@ -5,6 +5,9 @@ use std::{
 };
 use stencila_schema::*;
 
+#[cfg(feature = "compile-code")]
+pub mod code;
+
 /// Compile a node
 pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<Context> {
     let mut context = Context {
@@ -235,7 +238,6 @@ compile_nothing!(
     // Nodes that may need to be compiled but are here to
     // have an explicit no-op implementation
     CodeBlock,
-    CodeChunk,
     CodeExpression,
     CodeFragment,
     Datatable,
@@ -304,6 +306,15 @@ impl Compile for ListItemContent {
             ListItemContent::VecInlineContent(nodes) => nodes.compile(context),
             ListItemContent::VecBlockContent(nodes) => nodes.compile(context),
         }
+    }
+}
+
+impl Compile for CodeChunk {
+    fn compile(&mut self, _context: &mut Context) -> Result<()> {
+        if let Some(lang) = self.programming_language.as_deref() {
+            code::compile(&self.text, &lang)?;
+        }
+        Ok(())
     }
 }
 

@@ -36,6 +36,8 @@ use stencila::{config, serve, tracing};
 
 ## 🛠️ Develop
 
+### Getting started
+
 Get started by cloning this repository and installing Cargo plugins (for linting, code coverage etc):
 
 ```sh
@@ -49,3 +51,44 @@ If you are contributing code please run formatting, linting and tests before sub
 ```sh
 make format lint test
 ```
+
+To reduce compile times, we recommend using [`sccache`](https://github.com/mozilla/sccache), e.g
+
+```sh
+cargo install sccache
+export RUSTC_WRAPPER=sccache
+```
+
+### Testing
+
+We make extensive use of Rust feature flags. The main benefit of this is reduced compile times during development. To take advantage of this use the Cargo options `--no-default-features` (to turn off all the default features) and `--features` (to turn on the features that you are currently working on).
+
+For example, if you are working on the compilation of R code chunks, instead of compiling and running the relevant using tests like this:
+
+```sh
+cargo test compile::code::r
+```
+
+You should get faster compile times using this:
+
+```sh
+cargo test --no-default-features --features=compile-code-r compile::code::r
+```
+
+### Language queries
+
+When developing `tree-sitter` language queries for the `methods::compile::code` module, the `tree-sitter` CLI is very useful.
+
+1. Install and setup `tree-sitter` (this is a [good guide](https://dcreager.net/tree-sitter/getting-started/) to that.)
+
+2. Parse fixture files to glean the structure of the AST for the language e.g.
+
+    ```sh
+    tree-sitter parse ../fixtures/fragments/r/imports.R
+    ```
+
+3. Create a query (or part of a larger query) and test it against the query files e.g.
+
+    ```sh
+    tree-sitter query query.txt ../fixtures/fragments/r/imports.R
+    ```

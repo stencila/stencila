@@ -1,0 +1,14 @@
+---
+source: rust/src/methods/compile/code/py.rs
+expression: compile(&code)
+input_file: fixtures/fragments/py/imports.py
+
+---
+{
+  "imports_packages": [
+    "module_1",
+    "module_2",
+    "module_3",
+    "module_4"
+  ]
+}

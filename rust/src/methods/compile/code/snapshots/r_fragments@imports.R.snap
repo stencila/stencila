@@ -1,0 +1,15 @@
+---
+source: rust/src/methods/compile/code/r.rs
+expression: compile(&code)
+input_file: fixtures/fragments/r/imports.R
+
+---
+{
+  "imports_packages": [
+    "pkg1",
+    "pkg2",
+    "pkg3",
+    "pkg3",
+    "pkg4"
+  ]
+}

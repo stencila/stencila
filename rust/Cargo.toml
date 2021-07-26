@@ -71,22 +71,31 @@ coerce = ["decode-date", "decode-person"]
 
 reshape = ["decode-date", "decode-person", "encode-txt"]
 
+compile-code = ["tree-sitter"]
+compile-code-js = ["compile-code", "tree-sitter-javascript"]
+compile-code-py = ["compile-code", "tree-sitter-python"]
+compile-code-r = ["compile-code", "tree-sitter-r"]
+
 query-jsonptr = []
 query-jmespath = ["jmespatch"]
 
 default = [
     "cli",
+    
     "serve",
     "serve-stdio",
     "serve-http",
     "serve-ws",
     "serve-static",
+    
     "request",
     "request-docker",
     "request-http",
     "request-stdio",
     "request-ws",
+    
     "binaries",
+    
     "plugins",
     "plugins-binary",
     "plugins-docker",
@@ -94,9 +103,12 @@ default = [
     "plugins-javascript",
     "plugins-python",
     "plugins-r",
+    
     "upgrade",
+    
     "import-elife",
     "import-github",
+    
     "decode-date",
     "decode-docx",
     "decode-html",
@@ -108,6 +120,7 @@ default = [
     "decode-rmd",
     "decode-toml",
     "decode-yaml",
+    
     "encode-docx",
     "encode-html",
     "encode-json",
@@ -119,8 +132,15 @@ default = [
     "encode-toml",
     "encode-txt",
     "encode-yaml",
+    
     "coerce",
     "reshape",
+
+    "compile-code",
+    "compile-code-js",
+    "compile-code-py",
+    "compile-code-r",
+    
     "query-jsonptr",
     "query-jmespath"
 ]
@@ -196,6 +216,10 @@ tracing-appender = "=0.1.2"
 tracing-error = "=0.1.2"
 tracing-serde = "=0.1.2"
 tracing-subscriber = "=0.2.19"
+tree-sitter = { version = "=0.19.5", optional = true }
+tree-sitter-javascript = { version = "=0.19.0", optional = true }
+tree-sitter-python = { version = "=0.19.0", optional = true }
+tree-sitter-r = { git = "https://github.com/nokome/tree-sitter-r", optional = true }
 url = "=2.2.2"
 validator = { version = "=0.14.0", features = ["derive"] }
 warp = { version = "=0.3.1", optional = true }
@@ -204,6 +228,11 @@ xz2 = { version = "=0.1.6", optional = true }
 zip = { version = "=0.5.13", optional = true }
 
 [dev-dependencies]
+criterion = "0.3.4"
 insta = { version = "1.7.1", features = ["glob"] }
 pretty_assertions = "0.7.2"
 proptest = "1.0.0"
+
+[[bench]]
+name = "compile_code"
+harness = false
