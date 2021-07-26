@@ -8,6 +8,15 @@ use stencila::{
     tokio::runtime::Runtime,
 };
 
+/// If a string is empty then return `None`, otherwise `Some(text)`
+pub fn not_empty_or_none(text: &str) -> Option<String> {
+    if text.is_empty() {
+        None
+    } else {
+        Some(text.into())
+    }
+}
+
 /// Convert a result to an `undefined` if it is OK, otherwise throw an error.
 pub fn to_undefined_or_throw(
     mut cx: FunctionContext,

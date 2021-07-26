@@ -36,6 +36,18 @@ export function open(path: string): Project {
 }
 
 /**
+ * Close a project.
+ *
+ * This will drop the project from memory and stop any
+ * associated file watching thread.
+ *
+ * @param path Path to the project folder
+ */
+export function close(path: string): void {
+  addon.projectsClose(path)
+}
+
+/**
  * Write a project's `project.json` file with new settings.
  *
  * Note that some of the properties of a project are derived
@@ -48,6 +60,50 @@ export function open(path: string): Project {
  */
 export function write(path: string, updates: Project) {
   addon.projectsWrite(path, toJSON(updates))
+}
+
+/**
+ * Add a source to a project
+ *
+ * @param path Path to the project folder
+ * @param source A URL or identifier for the source e.g. github:stencila/test
+ * @param destination The destination for the source within the project folder
+ * @param name The name for the source
+ */
+export function addSource(
+  path: string,
+  source: string,
+  destination?: string,
+  name?: string
+) {
+  addon.projectsAddSource(path, source, destination ?? '', name ?? '')
+}
+
+/**
+ * Remove a source from a project
+ *
+ * @param name The name of the source
+ */
+ export function removeSource(
+  path: string,
+  name: string
+) {
+  addon.projectsRemoveSource(path, name)
+}
+
+/**
+ * Import a new or existing source into a project
+ *
+ * @param path Path to the project folder
+ * @param nameOrIdentifier Name of an existing source or an identifier for a new source
+ * @param destination The destination for the source within the project folder
+ */
+ export function importSource(
+  path: string,
+  nameOrIdentifier: string,
+  destination?: string
+) {
+  addon.projectsImportSource(path, nameOrIdentifier, destination ?? '')
 }
 
 /**
@@ -82,16 +138,4 @@ export function unsubscribe(path: string, topics: string[]): void {
   for (const topic of topics) {
     pubsub.unsubscribe(`projects:${path}:${topic}`)
   }
-}
-
-/**
- * Close a project.
- *
- * This will drop the project from memory and stop any
- * associated file watching thread.
- *
- * @param path Path to the project folder
- */
-export function close(path: string): void {
-  addon.projectsClose(path)
 }

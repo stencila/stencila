@@ -803,11 +803,6 @@ impl Projects {
         }
     }
 
-    /// Write a project
-    pub async fn write<P: AsRef<Path>>(&mut self, path: P, updates: Option<Project>) -> Result<()> {
-        self.get(&path)?.lock().await.write(updates).await
-    }
-
     /// Close a project
     pub fn close<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
         let path = path.as_ref().canonicalize()?;

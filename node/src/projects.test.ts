@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import tmp from 'tmp'
-import { open, schemas, subscribe, write } from './projects'
+import { addSource, importSource, open, removeSource, schemas, subscribe, write } from './projects'
 import { FileEvent, ProjectEvent } from './types'
 
 /**
@@ -130,4 +130,20 @@ test('workflow: open and modify', async () => {
       }),
     ])
   )
+})
+
+
+/**
+ * Test of a workflow involving adding and removing sources
+ */
+test('workflow: sources', async () => {
+  const folder = tmp.dirSync().name
+  open(folder)
+
+  addSource(folder, 'elife://60912', 'article.xml', 'source-1')
+
+  importSource(folder, 'source-1')
+  expect(fs.existsSync(path.join(folder, 'article.xml')))
+
+  removeSource(folder, 'source-1')
 })
