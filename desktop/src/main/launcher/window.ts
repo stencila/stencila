@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron'
 import { launcherHandlers } from '.'
 import { configHandlers } from '../config'
+import { registerBaseMenu } from '../menu'
 import { projectHandlers } from '../project'
 import { createWindow } from '../window'
 
@@ -40,6 +41,10 @@ export const openLauncherWindow = () => {
 
   launcherWindow.webContents.on('did-finish-load', () => {
     launcherWindow?.show()
+  })
+
+  launcherWindow.on('focus', () => {
+    registerBaseMenu()
   })
 
   launcherWindow?.loadURL(launcherUrl)
