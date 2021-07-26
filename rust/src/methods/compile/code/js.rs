@@ -1,4 +1,4 @@
-use super::{Compiler, SoftwareSourceAnalysis};
+use super::{CodeAnalysis, Compiler, code_analysis, remove_quotes};
 use once_cell::sync::Lazy;
 
 /// Compiler for JavaScript
@@ -19,18 +19,20 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some JavaScript code
-pub fn compile(code: &str) -> SoftwareSourceAnalysis {
-    let mut imports_packages: Vec<String> = vec![];
+pub fn compile(code: &str) -> CodeAnalysis {
+    let mut imports_packages: Vec<String> = Vec::new();
+    let mut reads_files: Vec<String> = Vec::new();
+
     for capture in COMPILER.query(code) {
         let (pattern, captures) = capture;
         match pattern {
-            0 => imports_packages.push(captures[0].clone()),
-            1 => imports_packages.push(captures[1].clone()),
+            0 => imports_packages.push(remove_quotes(&captures[0].text)),
+            1 => imports_packages.push(remove_quotes(&captures[1].text)),
             _ => (),
         }
     }
 
-    SoftwareSourceAnalysis { imports_packages }
+    code_analysis(imports_packages, reads_files)
 }
 
 #[cfg(test)]

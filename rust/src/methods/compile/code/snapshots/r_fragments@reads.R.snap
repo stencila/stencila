@@ -1,0 +1,13 @@
+---
+source: rust/src/methods/compile/code/r.rs
+expression: compile(&code)
+input_file: fixtures/fragments/r/reads.R
+
+---
+{
+  "reads_files": [
+    "path1",
+    "path2",
+    "path3"
+  ]
+}

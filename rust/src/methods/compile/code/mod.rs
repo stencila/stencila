@@ -1,12 +1,13 @@
-use std::sync::Mutex;
+use std::{collections::HashMap, sync::Mutex};
 
 ///! Functions etc for compiling programming languages in `CodeChunk` and `CodeExpression` nodes.
 ///!
 ///! Uses `tree-sitter` to parse source code into a abstract syntax tree which is then used to
-///! derive properties of a `SoftwareSourceAnalysis`.
+///! derive properties of a `CodeAnalysis`.
 use defaults::Defaults;
 use eyre::{bail, Result};
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 use tree_sitter::{Language, Parser, Query, QueryCursor};
 
 #[cfg(feature = "compile-code-js")]
@@ -18,9 +19,32 @@ mod py;
 #[cfg(feature = "compile-code-r")]
 mod r;
 
+/// The results of a semantic analysis of a `CodeChunk` or `CodeExpression`
+#[skip_serializing_none]
 #[derive(Clone, Defaults, Serialize)]
-pub struct SoftwareSourceAnalysis {
-    imports_packages: Vec<String>,
+pub struct CodeAnalysis {
+    /// A list of modules/packages that the code imports
+    imports_packages: Option<Vec<String>>,
+
+    /// A list of files that the code reads
+    reads_files: Option<Vec<String>>,
+}
+
+fn code_analysis(imports_packages: Vec<String>, reads_files: Vec<String>) -> CodeAnalysis {
+    let imports_packages = match imports_packages.is_empty() {
+        false => Some(imports_packages),
+        true => None,
+    };
+
+    let reads_files = match reads_files.is_empty() {
+        false => Some(reads_files),
+        true => None,
+    };
+
+    CodeAnalysis {
+        imports_packages,
+        reads_files,
+    }
 }
 
 /// Compile code in a particular language
@@ -32,8 +56,8 @@ pub struct SoftwareSourceAnalysis {
 ///
 /// # Returns
 ///
-/// A `SoftwareSourceAnalysis` summarizing the semantic analysis of the code.
-pub fn compile(code: &str, language: &str) -> Result<SoftwareSourceAnalysis> {
+/// A `CodeAnalysis` summarizing the semantic analysis of the code.
+pub fn compile(code: &str, language: &str) -> Result<CodeAnalysis> {
     let analysis = match language {
         #[cfg(feature = "compile-code-js")]
         "js" | "javascript" => js::compile(code),
@@ -44,6 +68,54 @@ pub fn compile(code: &str, language: &str) -> Result<SoftwareSourceAnalysis> {
         _ => bail!("Unable to compile programming language '{}'", language),
     };
     Ok(analysis)
+}
+
+pub(crate) struct Capture {
+    /// The index of the capture in the pattern
+    index: u32,
+
+    /// The name of the capture in the pattern
+    name: String,
+
+    /// The captured text
+    text: String,
+}
+
+/// Convert a vector of `Capture`s into a
+pub(crate) fn captures_as_args_map(captures: Vec<Capture>) -> HashMap<String, String> {
+    let mut map = HashMap::new();
+
+    let mut index = 0;
+    let mut name = String::new();
+    for capture in captures {
+        match capture.name.as_str() {
+            "arg" => {
+                map.insert(index.to_string(), capture.text);
+                index += 1;
+            }
+            "arg_name" => {
+                name = capture.text;
+            }
+            "arg_value" => {
+                map.insert(name.clone(), capture.text);
+            }
+            _ => {}
+        }
+    }
+
+    map
+}
+
+pub(crate) fn is_quoted(text: &str) -> bool {
+    (text.starts_with('"') && text.ends_with('"'))
+        || (text.starts_with('\'') && text.ends_with('\''))
+}
+
+/// Remove single and double quotes from text
+///
+/// Useful for "unquoting" captured string literals.
+pub(crate) fn remove_quotes(text: &str) -> String {
+    text.replace(&['\"', '\''][..], "")
 }
 
 /// A compiler for a particular language
@@ -87,7 +159,7 @@ impl Compiler {
     ///
     /// A vector of `(pattern, captures)` enumerating the matches for
     /// patterns in the query.
-    fn query(&self, code: &str) -> Vec<(usize, Vec<String>)> {
+    fn query(&self, code: &str) -> Vec<(usize, Vec<Capture>)> {
         let code = code.as_bytes();
         let tree = self
             .parser
@@ -102,18 +174,21 @@ impl Compiler {
             node.utf8_text(code).unwrap_or_default()
         });
 
+        let capture_names = self.query.capture_names();
         matches
             .map(|query_match| {
                 let pattern = query_match.pattern_index;
-                let captures: Vec<String> = query_match
+                let captures = query_match
                     .captures
                     .iter()
-                    .map(|capture| {
-                        capture
+                    .map(|capture| Capture {
+                        index: capture.index,
+                        name: capture_names[capture.index as usize].clone(),
+                        text: capture
                             .node
                             .utf8_text(code)
                             .expect("Should be able to get text")
-                            .to_string()
+                            .to_string(),
                     })
                     .collect();
                 (pattern, captures)

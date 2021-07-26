@@ -1,4 +1,6 @@
-use super::{Compiler, SoftwareSourceAnalysis};
+use super::{
+    captures_as_args_map, code_analysis, is_quoted, remove_quotes, CodeAnalysis, Compiler,
+};
 use once_cell::sync::Lazy;
 
 /// Compiler for R
@@ -8,13 +10,14 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
         r#"
 (call
     function: (identifier) @function (#match? @function "^library|require$")
-    arguments: [
-        (
-            arguments
-                value: [(identifier)(string)] @package
-                ((identifier) @argname [(true)(false)] @argval)*
-        )
-    ]
+    arguments:(
+        arguments
+            ([(identifier)(string)] @arg)*
+            (
+                (identifier) @arg_name
+                [(true)(false)] @arg_value
+            )*
+    )
 )
 
 (call
@@ -28,41 +31,40 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some R code
-pub fn compile(code: &str) -> SoftwareSourceAnalysis {
-    let mut imports_packages: Vec<String> = vec![];
+pub fn compile(code: &str) -> CodeAnalysis {
+    let mut imports_packages: Vec<String> = Vec::new();
+    let mut reads_files: Vec<String> = Vec::new();
+
     for capture in COMPILER.query(code) {
         let (pattern, captures) = capture;
         match pattern {
             0 => {
-                let package = &captures[1];
-                let package = if package.starts_with(&['\"', '\''][..]) {
-                    package.replace(&['\"', '\''][..], "")
-                } else {
-                    // If the package is an identifier, not a string, then `character.only` option
-                    // must be false, or unset.
-                    let mut ok = true;
-                    let mut index = 3;
-                    while index < captures.len() {
-                        if captures[index - 1] == "character.only"
-                            && captures[index].starts_with('T')
-                        {
-                            ok = false
+                let args = captures_as_args_map(captures);
+                println!("{:?}", args);
+                if let Some(package) = args.get("0").or_else(|| args.get("package")) {
+                    if let Some(is_char) = args.get("character.only") {
+                        if is_char.starts_with('T') {
+                            if !is_quoted(package) {
+                                continue;
+                            }
                         }
-                        index += 1;
+                    } else {
+                        if is_quoted(package) {
+                            continue;
+                        }
                     }
-                    if !ok {
-                        continue;
-                    }
-
-                    package.clone()
-                };
-                imports_packages.push(package)
+                    imports_packages.push(remove_quotes(package))
+                }
+            }
+            1 => {
+                let path = remove_quotes(&captures[1].text);
+                reads_files.push(path)
             }
             _ => (),
         }
     }
 
-    SoftwareSourceAnalysis { imports_packages }
+    code_analysis(imports_packages, reads_files)
 }
 
 #[cfg(test)]
