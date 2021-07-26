@@ -456,11 +456,9 @@ impl Project {
     ) -> Result<Vec<File>> {
         // Attempt to find a source with matching name
         let mut source = if let Some(sources) = &self.sources {
-            if let Some(source_dest) = sources.get(name_or_identifier) {
-                Some(source_dest.source.clone())
-            } else {
-                None
-            }
+            sources
+                .get(name_or_identifier)
+                .map(|source_dest| source_dest.source.clone())
         } else {
             None
         };
