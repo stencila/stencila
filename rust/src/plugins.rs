@@ -1441,11 +1441,10 @@ struct MethodImplem {
     plugin: String,
 
     /// The plugin's JSON Schema which describes the method
-    schema: Box<serde_json::Value>,
+    schema: serde_json::Value,
 
-    /// The plugin's JSON Schema compiled
-    #[allow(dead_code)]
-    compiled_schema: JSONSchema<'static>,
+    /// The plugin's JSON Schema compiled for faster validation
+    compiled_schema: JSONSchema,
 }
 
 /// A record of a plugin instance
@@ -1532,26 +1531,15 @@ impl Plugins {
                 Some(value) => value.to_string(),
             };
 
-            // The `JSONSchema::compile` function used below wants a reference to a `serde_json::Value`
-            // with a lifetime. This is the only way I could figure out how to do that.
-            // The `schema_box_droppable` is stored and dropped as part of `unload_plugin` to avoid
-            // memory leaks.
-            // See https://doc.rust-lang.org/std/boxed/struct.Box.html#method.leak about `Box::leak` and
-            // `Box::from_raw`.
-            let schema_box = Box::new(feature.clone());
-            let schema_static_ref: &'static serde_json::Value = Box::leak(schema_box.clone());
-            #[allow(unsafe_code)]
-            let schema_box_droppable = unsafe { Box::from_raw(Box::into_raw(schema_box)) };
-
             // Compile the JSON Schema for this feature
-            match JSONSchema::compile(schema_static_ref) {
+            match JSONSchema::compile(feature) {
                 Ok(compiled_schema) => {
                     self.methods
                         .entry(title)
                         .or_insert_with(Vec::new)
                         .push(MethodImplem {
                             plugin: name.into(),
-                            schema: schema_box_droppable,
+                            schema: feature.clone(),
                             compiled_schema,
                         });
                 }
