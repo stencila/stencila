@@ -5,10 +5,9 @@ import { Document } from 'stencila'
 export type PaneModule = 'editor' | 'preview'
 
 export type PaneLayout = {
+  id: EntityId
   modules: PaneModule[]
   orientation: 'horizontal' | 'vertical'
-  // TODO: Derive these values
-  moduleCount: number
   sizes: number[]
 }
 

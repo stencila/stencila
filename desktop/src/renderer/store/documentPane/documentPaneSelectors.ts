@@ -1,8 +1,9 @@
-import { EntityId } from '@reduxjs/toolkit'
+import { createSelector, EntityId } from '@reduxjs/toolkit'
 import { array as A, option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { RootState } from '..'
 import { makeLayoutId } from './documentPaneStore'
+import { NormalizedDocumentPaneStore } from './documentPaneTypes'
 
 export const selectPaneId = (state: RootState): O.Option<EntityId> => {
   return state.panes.activePane
@@ -43,3 +44,8 @@ export const selectPane = (state: RootState) => {
     O.chain(O.fromNullable)
   )
 }
+
+export const selectLayoutModuleCount = createSelector(
+  (panes: NormalizedDocumentPaneStore) => panes.entities.layouts,
+  (layouts) => (layoutId: EntityId) => layouts[layoutId]?.modules.length ?? 0
+)

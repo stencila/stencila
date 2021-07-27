@@ -10,6 +10,7 @@ import {
 } from '../../../store/documentPane/documentPaneActions'
 import {
   selectActiveView,
+  selectLayoutModuleCount,
   selectView,
 } from '../../../store/documentPane/documentPaneSelectors'
 
@@ -49,6 +50,7 @@ export class AppDocumentPane {
 
             const isEditPaneVisible = isEditPaneOpen(layout)
             const isPreviewPaneVisible = isPreviewPaneOpen(layout)
+            const moduleCount = selectLayoutModuleCount(state.panes)(layout.id)
 
             return (
               <div class="documentPaneContents">
@@ -58,21 +60,23 @@ export class AppDocumentPane {
                 ></app-document-pane-action-bar>
 
                 <split-me
-                  n={layout.moduleCount}
+                  n={moduleCount}
                   sizes={this.splitSizes ?? layout.sizes}
-                  minSizes={A.makeBy(layout.moduleCount, () => 0.05)}
-                  d="horizontal"
+                  minSizes={A.makeBy(moduleCount, () => 0.05)}
+                  d={layout.orientation}
                 >
                   {isEditPaneVisible ? (
                     <app-document-editor
                       documentId={view.id}
                       slot="0"
+                      key="editor"
                     ></app-document-editor>
                   ) : null}
                   {isPreviewPaneVisible ? (
                     <app-document-preview
                       documentId={view.id}
                       slot={isEditPaneVisible ? `1` : `0`}
+                      key="preview"
                     ></app-document-preview>
                   ) : null}
                 </split-me>

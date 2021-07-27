@@ -68,8 +68,6 @@ export const documentPaneSlice = createSlice({
           const newModules: PaneModule[] = [...prevModules, payload.module]
 
           state.entities.layouts[payload.layoutId]!.modules = newModules
-          state.entities.layouts[payload.layoutId]!.moduleCount =
-            newModules.length
         }
         // Otherwise remove the module from the pane
         else if (!payload.isVisible) {
@@ -78,8 +76,6 @@ export const documentPaneSlice = createSlice({
           )
 
           state.entities.layouts[payload.layoutId]!.modules = newModules
-          state.entities.layouts[payload.layoutId]!.moduleCount =
-            newModules.length
         }
       }
     },
@@ -107,9 +103,9 @@ export const documentPaneSlice = createSlice({
           const layoutId = makeLayoutId(payload.paneId)(payload.doc.id)
 
           state.entities.layouts[layoutId] = {
+            id: layoutId,
             orientation: 'horizontal',
             modules,
-            moduleCount,
             sizes: A.makeBy(moduleCount, () => 1 / moduleCount),
           }
         }

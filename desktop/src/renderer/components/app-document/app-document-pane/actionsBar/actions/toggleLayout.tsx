@@ -11,39 +11,33 @@ import {
   setPreviewPaneVisibility,
 } from '../../../../../store/documentPane/documentPaneActions'
 import { selectView } from '../../../../../store/documentPane/documentPaneSelectors'
-import { makeLayoutId } from '../../../../../store/documentPane/documentPaneStore'
 import { PaneLayout } from '../../../../../store/documentPane/documentPaneTypes'
 
-const cycleLayout =
-  (view?: Document, layout?: PaneLayout) =>
-  (paneId: EntityId, viewId: EntityId) =>
-  (e: Event) => {
-    e.preventDefault()
-    if (!view || !layout) {
-      return
-    }
-
-    const layoutId = makeLayoutId(paneId)(viewId)
-
-    const editable = isEditable(view)
-    const previewable = isPreviewable(view)
-    const isPreviewOpen = isPreviewPaneOpen(layout)
-    const isEditorOpen = isEditPaneOpen(layout)
-
-    if (previewable && isPreviewOpen && editable && isEditorOpen) {
-      setPreviewPaneVisibility(layoutId, false)
-    } else if (previewable && !isPreviewOpen && editable && isEditorOpen) {
-      setEditorPaneVisibility(layoutId, false)
-      setPreviewPaneVisibility(layoutId, true)
-    } else if (previewable && editable) {
-      setEditorPaneVisibility(layoutId, true)
-      setPreviewPaneVisibility(layoutId, true)
-    } else if (previewable) {
-      setPreviewPaneVisibility(layoutId, true)
-    } else if (editable) {
-      setEditorPaneVisibility(layoutId, true)
-    }
+const cycleLayout = (view?: Document, layout?: PaneLayout) => (e: Event) => {
+  e.preventDefault()
+  if (!view || !layout) {
+    return
   }
+
+  const editable = isEditable(view)
+  const previewable = isPreviewable(view)
+  const isPreviewOpen = isPreviewPaneOpen(layout)
+  const isEditorOpen = isEditPaneOpen(layout)
+
+  if (previewable && isPreviewOpen && editable && isEditorOpen) {
+    setPreviewPaneVisibility(layout.id, false)
+  } else if (previewable && !isPreviewOpen && editable && isEditorOpen) {
+    setEditorPaneVisibility(layout.id, false)
+    setPreviewPaneVisibility(layout.id, true)
+  } else if (previewable && editable) {
+    setEditorPaneVisibility(layout.id, true)
+    setPreviewPaneVisibility(layout.id, true)
+  } else if (previewable) {
+    setPreviewPaneVisibility(layout.id, true)
+  } else if (editable) {
+    setEditorPaneVisibility(layout.id, true)
+  }
+}
 
 const hasNextLayout = (view: Document): boolean => {
   return isPreviewable(view) && isEditable(view) ? true : false
@@ -70,7 +64,7 @@ export const TogglePaneLayoutButton: FunctionalComponent<Props> = ({
       minimal={true}
       size="xsmall"
       tooltip="Toggle layout"
-      onClick={cycleLayout(view, layout)(paneId, viewId)}
+      onClick={cycleLayout(view, layout)}
     >
       Toggle layout
     </stencila-button>
