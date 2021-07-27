@@ -1,3 +1,12 @@
+## [0.102.1](https://github.com/stencila/stencila/compare/v0.102.0...v0.102.1) (2021-07-27)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @reduxjs/toolkit to v1.6.1 ([bfca95c](https://github.com/stencila/stencila/commit/bfca95ce6e19428d3b6cc11ee6bd099d195df15e))
+* **dependencies:** update dependency i18next to v20.3.5 ([6dbf329](https://github.com/stencila/stencila/commit/6dbf3299ce1729cc2be98ee13d019038bea7208e))
+* **dependencies:** update dependency uuid to v8 ([63cfb77](https://github.com/stencila/stencila/commit/63cfb771b3d5df8f40d1c02a22e117be5d0e188e))
+
 # [0.102.0](https://github.com/stencila/stencila/compare/v0.101.0...v0.102.0) (2021-07-27)
 
 
