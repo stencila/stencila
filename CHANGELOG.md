@@ -1,3 +1,16 @@
+# [0.102.0](https://github.com/stencila/stencila/compare/v0.101.0...v0.102.0) (2021-07-27)
+
+
+### Features
+
+* **Editor:** Toggle visibility of editor and preview sections ([3ddb7b6](https://github.com/stencila/stencila/commit/3ddb7b6e4bfb544eb972ca798b79db933c98a0f2))
+* **Preview:** Add auto-updating document previews ([5ea9e4a](https://github.com/stencila/stencila/commit/5ea9e4a470c12d8a999d8be332a0096b1c656ccf))
+
+
+### Performance Improvements
+
+* **Preview:** Debounce live document preview generation for better UX ([87dd76d](https://github.com/stencila/stencila/commit/87dd76d432419832735b7bb288355521a8b95076))
+
 # [0.101.0](https://github.com/stencila/stencila/compare/v0.100.0...v0.101.0) (2021-07-27)
 
 
