@@ -1,7 +1,7 @@
 use crate::formats::{format_type, FormatType};
 use eyre::Result;
 use maplit::hashmap;
-use stencila_schema::{AudioObject, ImageObject, Node, VideoObject};
+use stencila_schema::Node;
 
 #[cfg(feature = "decode-date")]
 pub mod date;
@@ -35,6 +35,9 @@ pub mod toml;
 #[cfg(feature = "decode-yaml")]
 pub mod yaml;
 
+pub mod code;
+pub mod media;
+
 /// Decode content in a particular format to a `Node`.
 ///
 /// # Arguments
@@ -43,6 +46,8 @@ pub mod yaml;
 ///            for binary formats, the path to the file
 /// - `format`: the format of the content e.g. `json`, `md`
 pub async fn decode(input: &str, format: &str) -> Result<Node> {
+    tracing::debug!("Decoding string of length {} and format '{}'", input.len(), format);
+
     // Allow these for when no features are enabled
     #[allow(unused_variables, unreachable_code)]
     Ok(match format {
@@ -79,36 +84,29 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         #[cfg(feature = "decode-yaml")]
         "yaml" => yaml::decode(input)?,
 
-        _ => match format_type(format) {
-            // Media formats are currently dealt with here rather in own module
-            FormatType::Audio => Node::AudioObject(AudioObject {
-                content_url: input.to_string(),
-                ..Default::default()
-            }),
-            FormatType::Image => Node::ImageObject(ImageObject {
-                content_url: input.to_string(),
-                ..Default::default()
-            }),
-            FormatType::Video => Node::VideoObject(VideoObject {
-                content_url: input.to_string(),
-                ..Default::default()
-            }),
+        _ => {
+            let format_type = format_type(format);
+            match format_type {
+                FormatType::AudioObject | FormatType::ImageObject | FormatType::VideoObject => {
+                    media::decode(input, format_type)?
+                }
+                FormatType::SoftwareSourceCode => code::decode(input, format)?,
+                _ => {
+                    #[cfg(feature = "request")]
+                    return crate::plugins::delegate(
+                        super::Method::Decode,
+                        hashmap! {
+                            "innput".to_string() => serde_json::to_value(input)?,
+                            "format".to_string() => serde_json::to_value(format)?
+                        },
+                    )
+                    .await;
 
-            _ => {
-                #[cfg(feature = "request")]
-                return crate::plugins::delegate(
-                    super::Method::Decode,
-                    hashmap! {
-                        "innput".to_string() => serde_json::to_value(input)?,
-                        "format".to_string() => serde_json::to_value(format)?
-                    },
-                )
-                .await;
-
-                #[cfg(not(feature = "request"))]
-                eyre::bail!("Unable to decode format \"{}\"", format)
+                    #[cfg(not(feature = "request"))]
+                    eyre::bail!("Unable to decode format \"{}\"", format)
+                }
             }
-        },
+        }
     })
 }
 

@@ -24,15 +24,16 @@ mod r;
 #[derive(Clone, Defaults, Serialize)]
 pub struct CodeAnalysis {
     /// A list of modules/packages that the code imports
-    imports_packages: Option<Vec<String>>,
+    pub imports_packages: Option<Vec<String>>,
 
     /// A list of files that the code reads
-    reads_files: Option<Vec<String>>,
+    pub reads_files: Option<Vec<String>>,
 
     /// A list of files that the code writes
-    writes_files: Option<Vec<String>>,
+    pub writes_files: Option<Vec<String>>
 }
 
+/// Construct a `CodeAnalysis` object
 fn code_analysis(
     imports_packages: Vec<String>,
     reads_files: Vec<String>,
@@ -120,6 +121,7 @@ pub(crate) fn captures_as_args_map(captures: Vec<Capture>) -> HashMap<String, St
     map
 }
 
+/// Whether or not the text is quoted
 pub(crate) fn is_quoted(text: &str) -> bool {
     (text.starts_with('"') && text.ends_with('"'))
         || (text.starts_with('\'') && text.ends_with('\''))

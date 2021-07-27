@@ -333,13 +333,13 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                         |ext| ext.to_string_lossy().to_string().to_ascii_lowercase(),
                     );
                     let media_object = match format_type(extension.as_str()) {
-                        FormatType::Audio => InlineContent::AudioObject(AudioObjectSimple {
+                        FormatType::AudioObject => InlineContent::AudioObject(AudioObjectSimple {
                             content,
                             content_url: url.to_string(),
                             caption: title,
                             ..Default::default()
                         }),
-                        FormatType::Video => InlineContent::VideoObject(VideoObjectSimple {
+                        FormatType::VideoObject => InlineContent::VideoObject(VideoObjectSimple {
                             content,
                             content_url: url.to_string(),
                             caption: title,

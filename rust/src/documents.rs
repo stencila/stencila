@@ -168,6 +168,14 @@ pub struct Document {
     #[serde(skip)]
     root: Option<Node>,
 
+    /// A list of files that this document is dependant upon
+    /// usually because they are embedded, included, or read by it.
+    input_files: Option<Vec<PathBuf>>,
+
+    /// A list of files that are dependant upon this document
+    /// usually because they are written by it.
+    output_files: Option<Vec<PathBuf>>,
+
     /// The set of unique subscriptions to this document
     ///
     /// Keeps track of the number of subscribers to each of the document's
@@ -543,8 +551,14 @@ impl Document {
             reshape(&mut root, reshape::Options::default())?;
         }
 
-        // Compile the `root` and update document dependencies
-        let _compilation = compile(&mut root, &self.path, &self.project)?;
+        // Compile the `root` and update document intra- and inter- dependencies
+        let compilation = compile(&mut root, &self.path, &self.project)?;
+        if !compilation.input_files.is_empty() {
+            self.input_files = Some(compilation.input_files.into_iter().collect())
+        }
+        if !compilation.output_files.is_empty() {
+            self.output_files = Some(compilation.output_files.into_iter().collect())
+        }
 
         // Encode the `root` into each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {
