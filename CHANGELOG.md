@@ -1,3 +1,19 @@
+# [0.101.0](https://github.com/stencila/stencila/compare/v0.100.0...v0.101.0) (2021-07-27)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate futures to v0.3.16 ([4ff1108](https://github.com/stencila/stencila/commit/4ff1108a29c6582053a9d57f19c344c7fbd8a7e9))
+* **dependencies:** update rust crate jsonschema to v0.12.0 ([7033502](https://github.com/stencila/stencila/commit/703350283d9171ff8f69371a0b168b78cdba9729))
+* **dependencies:** update rust crate tokio to v1.9.0 ([2333d82](https://github.com/stencila/stencila/commit/2333d82d58f637889cd82469dd8e04051ffb07ca))
+* **Plugins:** Necessary changes for upgraded `jsonschema` Rust crate ([80241d4](https://github.com/stencila/stencila/commit/80241d43b59b568e5f1ff15fd03701eeb4877305))
+
+
+### Features
+
+* **Node.js:** Add functions for managing project sources ([fee45df](https://github.com/stencila/stencila/commit/fee45dff372366431f13796cea87636a903b10b2))
+* **Node.js:** Expose `documents.writeAs` function ([07e08e8](https://github.com/stencila/stencila/commit/07e08e8fd25bef9e74562ae35edf28398c00580d))
+
 # [0.100.0](https://github.com/stencila/stencila/compare/v0.99.0...v0.100.0) (2021-07-23)
 
 
