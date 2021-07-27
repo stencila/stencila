@@ -1,16 +1,8 @@
 :host {
-  @apply inline-block list-none h-full text-xs text-center pl-1 pr-4 py-2 leading-none flex-1 border;
+  @apply inline-block list-none h-full border border-solid border-t-0 border-l-0 border-b border-r text-xs text-center pl-1 pr-4 py-2 leading-none flex-1 flex-grow-0 border z-10;
   background: var(--color-neutral-50);
   color: var(--color-key);
-  border-bottom-width: 1px;
-  border-bottom-style: solid;
-  border-bottom-color: var(--color-neutral-200);
-
-  &:not(:last-of-type) {
-    border-right-width: 1px;
-    border-right-style: solid;
-    border-color: var(--color-neutral-200);
-  }
+  border-color: var(--color-neutral-200);
 
   &.isActive {
     background: var(--color-stock);

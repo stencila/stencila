@@ -1,20 +1,27 @@
 import { createSlice, EntityId, PayloadAction } from '@reduxjs/toolkit'
 import { array as A, option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
+import { Document } from 'stencila'
 import {
   DocumentPane,
   NormalizedDocumentPaneStore,
-  PaneView,
+  PaneModule,
 } from './documentPaneTypes'
 
 const initialState: NormalizedDocumentPaneStore = {
   activePane: O.none,
   entities: {
     panes: {},
+    layouts: {},
     views: {},
   },
   ids: [],
 }
+
+export const makeLayoutId =
+  (paneId: EntityId) =>
+  (viewId: EntityId): string =>
+    `${paneId}-${viewId}`
 
 export const documentPaneSlice = createSlice({
   name: 'documentPanes',
@@ -43,18 +50,66 @@ export const documentPaneSlice = createSlice({
         }
       }
     },
+    setPaneModuleVisibility: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{
+        layoutId: EntityId
+        module: PaneModule
+        isVisible: boolean
+      }>
+    ) => {
+      const prevLayout = state.entities.layouts[payload.layoutId]
+      const prevModules = prevLayout?.modules
+      if (prevLayout && prevModules) {
+        // If module is not already part of the pane, add it
+        if (payload.isVisible && !prevModules.includes(payload.module)) {
+          const newModules: PaneModule[] = [...prevModules, payload.module]
+
+          state.entities.layouts[payload.layoutId]!.modules = newModules
+        }
+        // Otherwise remove the module from the pane
+        else if (!payload.isVisible) {
+          const newModules: PaneModule[] = prevModules.filter(
+            (module) => module !== payload.module
+          )
+
+          state.entities.layouts[payload.layoutId]!.modules = newModules
+        }
+      }
+    },
     addDocToPane: (
       state,
-      { payload }: PayloadAction<{ paneId: EntityId; view: PaneView }>
+      { payload }: PayloadAction<{ paneId: EntityId; doc: Document }>
     ) => {
       const pane = state.entities.panes[payload.paneId]
       if (pane) {
-        if (!pane.views.includes(payload.view.id)) {
-          pane.views = [...pane.views, payload.view.id]
+        if (!pane.views.includes(payload.doc.id)) {
+          pane.views = [...pane.views, payload.doc.id]
+          state.entities.views[payload.doc.id] = payload.doc
 
-          state.entities.views[payload.view.id] = payload.view
+          const modules: PaneModule[] = []
+
+          if (!payload.doc.format.binary) {
+            modules.push('editor')
+          }
+
+          if (payload.doc.previewable) {
+            modules.push('preview')
+          }
+
+          const moduleCount = modules.length
+          const layoutId = makeLayoutId(payload.paneId)(payload.doc.id)
+
+          state.entities.layouts[layoutId] = {
+            id: layoutId,
+            orientation: 'horizontal',
+            modules,
+            sizes: A.makeBy(moduleCount, () => 1 / moduleCount),
+          }
         }
-        pane.activeView = O.some(payload.view.id)
+        pane.activeView = O.some(payload.doc.id)
       }
       return state
     },

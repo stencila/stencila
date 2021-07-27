@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron'
 import { configHandlers } from '.'
 import { i18n } from '../../i18n'
+import { registerBaseMenu } from '../menu'
 import { createWindow } from '../window'
 
 let settingsWindow: BrowserWindow | null
@@ -8,6 +9,11 @@ let settingsWindow: BrowserWindow | null
 const settingsUrl = '/settings'
 
 export const showSettings = () => {
+  if (settingsWindow) {
+    settingsWindow.show()
+    return settingsWindow
+  }
+
   settingsWindow = createWindow(settingsUrl, {
     width: 800,
     height: 800,
@@ -31,6 +37,10 @@ export const showSettings = () => {
 
   settingsWindow.webContents.on('did-finish-load', () => {
     settingsWindow?.show()
+  })
+
+  settingsWindow.on('focus', () => {
+    registerBaseMenu()
   })
 
   settingsWindow?.loadURL(settingsUrl)

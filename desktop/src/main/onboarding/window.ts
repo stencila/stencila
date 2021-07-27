@@ -3,6 +3,7 @@ import { onboardingHandlers } from '.'
 import { i18n } from '../../i18n'
 import { configHandlers } from '../config'
 import { launcherHandlers } from '../launcher'
+import { registerBaseMenu } from '../menu'
 import { createWindow } from '../window'
 
 let onboardingWindow: BrowserWindow | null
@@ -40,6 +41,10 @@ export const openOnboardingWindow = () => {
 
   onboardingWindow.webContents.on('did-finish-load', () => {
     onboardingWindow?.show()
+  })
+
+  onboardingWindow.on('focus', () => {
+    registerBaseMenu()
   })
 
   onboardingWindow?.loadURL(onboardingUrl)

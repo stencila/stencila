@@ -124,6 +124,10 @@ export const client = {
       window.api
         .invoke(CHANNEL.DOCUMENTS_DUMP, docId.toString())
         .then(unwrapOrThrow),
+    load: (docId: EntityId, contents: string) =>
+      window.api
+        .invoke(CHANNEL.DOCUMENTS_LOAD, docId.toString(), contents)
+        .then(unwrapOrThrow),
     preview: (docId: EntityId) =>
       window.api
         .invoke(CHANNEL.DOCUMENTS_PREVIEW, docId.toString())

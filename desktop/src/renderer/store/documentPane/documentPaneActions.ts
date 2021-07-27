@@ -1,12 +1,24 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
+import { Document } from 'stencila'
 import { errorToast } from '../../../renderer/utils/errors'
 import { client } from '../../client'
 import { clearEditorState } from '../editorState/editorStateActions'
 import { state, store } from '../index'
 import { selectPaneId } from './documentPaneSelectors'
 import { documentPaneActions } from './documentPaneStore'
+import { PaneLayout } from './documentPaneTypes'
+
+export const isPreviewable = (doc: Document) => doc.previewable
+
+export const isPreviewPaneOpen = (layout: PaneLayout) =>
+  layout.modules.includes('preview')
+
+export const isEditable = (doc: Document) => doc.format.binary === false
+
+export const isEditPaneOpen = (layout: PaneLayout) =>
+  layout.modules.includes('editor')
 
 export const initPane = (paneId: EntityId) => {
   store.dispatch(documentPaneActions.createPane({ paneId }))
@@ -14,12 +26,12 @@ export const initPane = (paneId: EntityId) => {
 
 export const addDocumentToPane = async (paneId: EntityId, path: string) => {
   try {
-    const { value } = await client.documents.open(path)
+    const { value: doc } = await client.documents.open(path)
 
     return store.dispatch(
       documentPaneActions.addDocToPane({
         paneId,
-        view: { type: 'editor', ...value },
+        doc,
       })
     )
   } catch (err) {
@@ -53,6 +65,32 @@ export const setActiveDocument = (paneId: EntityId, docId: EntityId) => {
     documentPaneActions.updatePane({
       id: paneId,
       changes: { activeView: O.some(docId) },
+    })
+  )
+}
+
+export const setPreviewPaneVisibility = (
+  layoutId: EntityId,
+  isVisible: boolean
+) => {
+  store.dispatch(
+    documentPaneActions.setPaneModuleVisibility({
+      layoutId,
+      module: 'preview',
+      isVisible,
+    })
+  )
+}
+
+export const setEditorPaneVisibility = (
+  layoutId: EntityId,
+  isVisible: boolean
+) => {
+  store.dispatch(
+    documentPaneActions.setPaneModuleVisibility({
+      layoutId,
+      module: 'editor',
+      isVisible,
     })
   )
 }

@@ -1,5 +1,6 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
+import { debounce } from 'debounce'
 import { option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { DocumentEvent } from 'stencila'
@@ -118,6 +119,21 @@ export class AppDocumentEditor {
     })
   }
 
+  /**
+   * The number of milliseconds to wait between consecutive calls of the document update handler.
+   * Allows us to avoid generating too many previews as the user is typing, and degrading performance.
+   */
+  onDocChangeTimeout = 300
+
+  /**
+   * Function to call whenever the contents of the editor change.
+   */
+  private onDocChange = debounce(() => {
+    this.editorRef
+      ?.getContents()
+      .then((contents) => client.documents.load(this.documentId, contents.text))
+  }, this.onDocChangeTimeout)
+
   private fileFormatToLanguage = (): string => {
     const file = selectDoc(state)(this.documentId)
     switch (file?.format?.name) {
@@ -159,6 +175,7 @@ export class AppDocumentEditor {
             activeLanguage={this.fileFormatToLanguage()}
             lineNumbers={configState.EDITOR_LINE_NUMBERS}
             lineWrapping={configState.EDITOR_LINE_WRAPPING}
+            contentChangeHandler={this.onDocChange}
           ></stencila-editor>
         </div>
       </Host>

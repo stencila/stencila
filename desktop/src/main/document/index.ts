@@ -3,6 +3,7 @@ import { CHANNEL } from '../../preload/channels'
 import {
   DocumentsClose,
   DocumentsDump,
+  DocumentsLoad,
   DocumentsOpen,
   DocumentsPreview,
   DocumentsUnsubscribe,
@@ -43,6 +44,13 @@ const registerDocumentHandlers = () => {
       // (a) a re-read of the file (that is done on open) (b) re-encoding for
       // each subscriber.
       return dispatch.documents.dump(documentId)
+    }
+  )
+
+  handle<DocumentsLoad>(
+    CHANNEL.DOCUMENTS_LOAD,
+    async (_ipcEvent, documentId, contents) => {
+      return dispatch.documents.load(documentId, contents)
     }
   )
 

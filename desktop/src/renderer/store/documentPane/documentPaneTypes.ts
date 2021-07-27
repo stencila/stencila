@@ -2,15 +2,14 @@ import { EntityId } from '@reduxjs/toolkit'
 import { option as O } from 'fp-ts'
 import { Document } from 'stencila'
 
-type DocumentEditor = {
-  type: 'editor'
-} & Document
+export type PaneModule = 'editor' | 'preview'
 
-type DocumentPreview = {
-  type: 'preview'
-} & Document
-
-export type PaneView = DocumentEditor | DocumentPreview
+export type PaneLayout = {
+  id: EntityId
+  modules: PaneModule[]
+  orientation: 'horizontal' | 'vertical'
+  sizes: number[]
+}
 
 export type DocumentPane = {
   id: EntityId
@@ -22,7 +21,8 @@ export type NormalizedDocumentPaneStore = {
   activePane: O.Option<EntityId>
   entities: {
     panes: Record<EntityId, DocumentPane>
-    views: Record<EntityId, PaneView>
+    layouts: Record<EntityId, PaneLayout>
+    views: Record<EntityId, Document>
   }
   ids: EntityId[]
 }
