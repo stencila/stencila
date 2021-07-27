@@ -6,6 +6,8 @@ foo <- function () {
     write.delim(data, file = "path3")
 }
 
+write.table(head(data), file = "path4")
+
 # These should be ignored
 
 write.table(data, ignore)

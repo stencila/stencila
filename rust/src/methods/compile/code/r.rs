@@ -43,7 +43,7 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
         (
             arguments
                 .
-                value: (identifier) @arg
+                value: (_) @arg
                 .
                 value: (string) @arg
         )

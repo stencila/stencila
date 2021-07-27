@@ -8,6 +8,7 @@ input_file: fixtures/fragments/r/writes.R
   "writes_files": [
     "path1",
     "path2",
-    "path3"
+    "path3",
+    "path4"
   ]
 }
