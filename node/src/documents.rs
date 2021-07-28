@@ -62,6 +62,7 @@ pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
 /// Get a document
 pub fn get(mut cx: FunctionContext) -> JsResult<JsString> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
+
     let documents = &mut *obtain(&mut cx)?;
     let document = match documents.get(id) {
         Ok(document) => document,
@@ -69,6 +70,26 @@ pub fn get(mut cx: FunctionContext) -> JsResult<JsString> {
     };
     let result = RUNTIME.block_on(async { document.lock().await.clone() });
     to_json(cx, result)
+}
+
+/// Alter a document's properties
+pub fn alter(mut cx: FunctionContext) -> JsResult<JsString> {
+    let id = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let path = not_empty_or_none(&cx.argument::<JsString>(1)?.value(&mut cx));
+    let format = not_empty_or_none(&cx.argument::<JsString>(2)?.value(&mut cx));
+
+    let documents = &mut *obtain(&mut cx)?;
+    let result = RUNTIME.block_on(async {
+        match documents.get(id) {
+            Ok(document) => {
+                let document = &mut *document.lock().await;
+                document.alter(path, format)?;
+                Ok(document.clone())
+            }
+            Err(error) => Err(error),
+        }
+    });
+    to_json_or_throw(cx, result)
 }
 
 /// Read a document

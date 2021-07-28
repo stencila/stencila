@@ -20,6 +20,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("documentsCreate", documents::create)?;
     cx.export_function("documentsOpen", documents::open)?;
     cx.export_function("documentsGet", documents::get)?;
+    cx.export_function("documentsAlter", documents::alter)?;
     cx.export_function("documentsRead", documents::read)?;
     cx.export_function("documentsWrite", documents::write)?;
     cx.export_function("documentsWriteAs", documents::write_as)?;
