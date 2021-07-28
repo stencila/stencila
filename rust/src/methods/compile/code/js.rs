@@ -1,4 +1,5 @@
-use super::{code_analysis, remove_quotes, CodeAnalysis, Compiler};
+use super::{remove_quotes, Compiler};
+use crate::graphs::{Address, Relation};
 use once_cell::sync::Lazy;
 
 /// Compiler for JavaScript
@@ -47,23 +48,18 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some JavaScript code
-pub fn compile(code: &str) -> CodeAnalysis {
-    let mut imports_packages = Vec::new();
-    let mut reads_files = Vec::new();
-    let mut writes_files = Vec::new();
-
-    for capture in COMPILER.query(code) {
-        let (pattern, captures) = capture;
-        match pattern {
-            0 => imports_packages.push(remove_quotes(&captures[0].text)),
-            1 => imports_packages.push(remove_quotes(&captures[1].text)),
-            2 => reads_files.push(remove_quotes(&captures[1].text)),
-            3 => writes_files.push(remove_quotes(&captures[1].text)),
-            _ => (),
-        }
-    }
-
-    code_analysis(imports_packages, reads_files, writes_files)
+pub fn compile(code: &str) -> Vec<(Relation, Address)> {
+    COMPILER
+        .query(code)
+        .iter()
+        .filter_map(|(pattern, captures)| match pattern {
+            0 => Some((Relation::UsesModule, remove_quotes(&captures[0].text))),
+            1 => Some((Relation::UsesModule, remove_quotes(&captures[1].text))),
+            2 => Some((Relation::ReadsFile, remove_quotes(&captures[1].text))),
+            3 => Some((Relation::WritesFile, remove_quotes(&captures[1].text))),
+            _ => None,
+        })
+        .collect()
 }
 
 #[cfg(test)]

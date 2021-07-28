@@ -1,13 +1,10 @@
-use std::{collections::HashMap, sync::Mutex};
-
 ///! Functions etc for compiling programming languages in `CodeChunk` and `CodeExpression` nodes.
 ///!
 ///! Uses `tree-sitter` to parse source code into a abstract syntax tree which is then used to
 ///! derive properties of a `CodeAnalysis`.
-use defaults::Defaults;
+use super::Context;
 use eyre::{bail, Result};
-use serde::Serialize;
-use serde_with::skip_serializing_none;
+use std::{collections::HashMap, sync::Mutex};
 use tree_sitter::{Language, Parser, Query, QueryCursor};
 
 #[cfg(feature = "compile-code-js")]
@@ -19,60 +16,18 @@ mod py;
 #[cfg(feature = "compile-code-r")]
 mod r;
 
-/// The results of a semantic analysis of a `CodeChunk` or `CodeExpression`
-#[skip_serializing_none]
-#[derive(Clone, Defaults, Serialize)]
-pub struct CodeAnalysis {
-    /// A list of modules/packages that the code imports
-    pub imports_packages: Option<Vec<String>>,
-
-    /// A list of files that the code reads
-    pub reads_files: Option<Vec<String>>,
-
-    /// A list of files that the code writes
-    pub writes_files: Option<Vec<String>>
-}
-
-/// Construct a `CodeAnalysis` object
-fn code_analysis(
-    imports_packages: Vec<String>,
-    reads_files: Vec<String>,
-    writes_files: Vec<String>,
-) -> CodeAnalysis {
-    let imports_packages = match imports_packages.is_empty() {
-        false => Some(imports_packages),
-        true => None,
-    };
-
-    let reads_files = match reads_files.is_empty() {
-        false => Some(reads_files),
-        true => None,
-    };
-
-    let writes_files = match writes_files.is_empty() {
-        false => Some(writes_files),
-        true => None,
-    };
-
-    CodeAnalysis {
-        imports_packages,
-        reads_files,
-        writes_files,
-    }
-}
-
 /// Compile code in a particular language
 ///
 /// # Arguments
 ///
 /// - `code`: the code to compile
 /// - `language`: the language that the code is in
-///
-/// # Returns
-///
-/// A `CodeAnalysis` summarizing the semantic analysis of the code.
-pub fn compile(code: &str, language: &str) -> Result<CodeAnalysis> {
-    let analysis = match language {
+pub fn compile(
+    code: &str,
+    language: &str,
+    context: &mut Context,
+) -> Result<()> {
+    let relations = match language {
         #[cfg(feature = "compile-code-js")]
         "js" | "javascript" => js::compile(code),
         #[cfg(feature = "compile-code-py")]
@@ -81,9 +36,16 @@ pub fn compile(code: &str, language: &str) -> Result<CodeAnalysis> {
         "r" => r::compile(code),
         _ => bail!("Unable to compile programming language '{}'", language),
     };
-    Ok(analysis)
+
+    // Contextualize the relations
+    for (relation, object) in relations {
+        context.relations.push(("".to_string(), relation, object))
+    }
+    
+    Ok(())
 }
 
+/// A capture resulting from a `tree-sitter` query
 pub(crate) struct Capture {
     #[allow(dead_code)]
     /// The index of the capture in the pattern

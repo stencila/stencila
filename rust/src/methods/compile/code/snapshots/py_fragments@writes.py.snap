@@ -4,17 +4,37 @@ expression: compile(&code)
 input_file: fixtures/fragments/py/writes.py
 
 ---
-{
-  "reads_files": [
-    "read",
-    "read",
+[
+  [
+    "WritesFile",
+    "path1"
+  ],
+  [
+    "WritesFile",
+    "path2"
+  ],
+  [
+    "WritesFile",
+    "path3"
+  ],
+  [
+    "WritesFile",
+    "path4"
+  ],
+  [
+    "WritesFile",
+    "path5"
+  ],
+  [
+    "ReadsFile",
     "read"
   ],
-  "writes_files": [
-    "path1",
-    "path2",
-    "path3",
-    "path4",
-    "path5"
+  [
+    "ReadsFile",
+    "read"
+  ],
+  [
+    "ReadsFile",
+    "read"
   ]
-}
+]

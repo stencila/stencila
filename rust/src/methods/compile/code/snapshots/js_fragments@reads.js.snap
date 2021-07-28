@@ -4,15 +4,29 @@ expression: compile(&code)
 input_file: fixtures/fragments/js/reads.js
 
 ---
-{
-  "imports_packages": [
-    "fs",
+[
+  [
+    "UsesModule",
     "fs"
   ],
-  "reads_files": [
-    "path1",
-    "path2",
-    "path3",
+  [
+    "UsesModule",
+    "fs"
+  ],
+  [
+    "ReadsFile",
+    "path1"
+  ],
+  [
+    "ReadsFile",
+    "path2"
+  ],
+  [
+    "ReadsFile",
+    "path3"
+  ],
+  [
+    "ReadsFile",
     "path4"
   ]
-}
+]

@@ -4,14 +4,25 @@ expression: compile(&code)
 input_file: fixtures/fragments/js/writes.js
 
 ---
-{
-  "imports_packages": [
-    "fs",
+[
+  [
+    "UsesModule",
     "fs"
   ],
-  "writes_files": [
-    "path1",
-    "path2",
+  [
+    "UsesModule",
+    "fs"
+  ],
+  [
+    "WritesFile",
+    "path1"
+  ],
+  [
+    "WritesFile",
+    "path2"
+  ],
+  [
+    "WritesFile",
     "path3"
   ]
-}
+]

@@ -4,11 +4,21 @@ expression: compile(&code)
 input_file: fixtures/fragments/r/writes.R
 
 ---
-{
-  "writes_files": [
-    "path1",
-    "path2",
-    "path3",
+[
+  [
+    "WritesFile",
+    "path1"
+  ],
+  [
+    "WritesFile",
+    "path2"
+  ],
+  [
+    "WritesFile",
+    "path3"
+  ],
+  [
+    "WritesFile",
     "path4"
   ]
-}
+]

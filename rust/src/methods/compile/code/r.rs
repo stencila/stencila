@@ -1,6 +1,6 @@
-use super::{
-    captures_as_args_map, code_analysis, is_quoted, remove_quotes, CodeAnalysis, Compiler,
-};
+use crate::graphs::{Address, Relation};
+
+use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
 use once_cell::sync::Lazy;
 
 /// Compiler for R
@@ -60,44 +60,41 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some R code
-pub fn compile(code: &str) -> CodeAnalysis {
-    let mut imports_packages = Vec::new();
-    let mut reads_files = Vec::new();
-    let mut writes_files = Vec::new();
-
-    for capture in COMPILER.query(code) {
-        let (pattern, captures) = capture;
-        match pattern {
+pub fn compile(code: &str) -> Vec<(Relation, Address)> {
+    COMPILER
+        .query(code)
+        .into_iter()
+        .filter_map(|(pattern, captures)| match pattern {
             0 => {
                 let args = captures_as_args_map(captures);
-                if let Some(package) = args.get("0").or_else(|| args.get("package")) {
-                    if let Some(is_char) = args.get("character.only") {
-                        if is_char.starts_with('T') && !is_quoted(package) {
-                            continue;
+                args.get("0")
+                    .or_else(|| args.get("package"))
+                    .and_then(|package| {
+                        if let Some(is_char) = args.get("character.only") {
+                            if is_char.starts_with('T') && !is_quoted(package) {
+                                return None;
+                            }
+                        } else if is_quoted(package) {
+                            return None;
                         }
-                    } else if is_quoted(package) {
-                        continue;
-                    }
-                    imports_packages.push(remove_quotes(package))
-                }
+                        Some((Relation::UsesModule, remove_quotes(package)))
+                    })
             }
             1 => {
                 let args = captures_as_args_map(captures);
-                if let Some(package) = args.get("0").or_else(|| args.get("file")) {
-                    reads_files.push(remove_quotes(package))
-                }
+                args.get("0")
+                    .or_else(|| args.get("file"))
+                    .map(|file| (Relation::ReadsFile, remove_quotes(file)))
             }
             2 => {
                 let args = captures_as_args_map(captures);
-                if let Some(package) = args.get("1").or_else(|| args.get("file")) {
-                    writes_files.push(remove_quotes(package))
-                }
+                args.get("1")
+                    .or_else(|| args.get("file"))
+                    .map(|file| (Relation::WritesFile, remove_quotes(file)))
             }
-            _ => (),
-        }
-    }
-
-    code_analysis(imports_packages, reads_files, writes_files)
+            _ => None,
+        })
+        .collect()
 }
 
 #[cfg(test)]

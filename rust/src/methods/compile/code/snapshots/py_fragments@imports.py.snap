@@ -4,11 +4,21 @@ expression: compile(&code)
 input_file: fixtures/fragments/py/imports.py
 
 ---
-{
-  "imports_packages": [
-    "module_1",
-    "module_2",
-    "module_3",
+[
+  [
+    "UsesModule",
+    "module_1"
+  ],
+  [
+    "UsesModule",
+    "module_2"
+  ],
+  [
+    "UsesModule",
+    "module_3"
+  ],
+  [
+    "UsesModule",
     "module_4"
   ]
-}
+]

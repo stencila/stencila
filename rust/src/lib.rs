@@ -8,6 +8,7 @@
 pub mod documents;
 pub mod files;
 pub mod formats;
+pub mod graphs;
 pub mod projects;
 pub mod sources;
 

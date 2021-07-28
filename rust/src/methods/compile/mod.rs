@@ -1,7 +1,8 @@
+use crate::graphs::{Address, Relation};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use std::{
-    collections::{BTreeMap, HashSet},
+    collections::BTreeMap,
     path::{Path, PathBuf},
 };
 use stencila_schema::*;
@@ -32,11 +33,8 @@ pub struct Context {
     /// Used to restrict any file links to be within the project
     project: PathBuf,
 
-    /// Files that the document is dependant upon e.g. images, data
-    pub input_files: HashSet<PathBuf>,
-
-    /// Files that the document creates e.g. summaries, plots
-    pub output_files: HashSet<PathBuf>,
+    /// Relations within the document
+    pub relations: Vec<(Address, Relation, Address)>,
 }
 
 /// Trait for compiling a node
@@ -279,7 +277,6 @@ compile_content!(
     Figure,
     FigureSimple,
     Heading,
-    Link,
     NontextualAnnotation,
     Note,
     Paragraph,
@@ -309,6 +306,21 @@ impl Compile for ListItemContent {
             ListItemContent::VecInlineContent(nodes) => nodes.compile(context),
             ListItemContent::VecBlockContent(nodes) => nodes.compile(context),
         }
+    }
+}
+
+/// Compile a `Link` to add its `target` to the list of included files
+impl Compile for Link {
+    fn compile(&mut self, context: &mut Context) -> Result<()> {
+        let target = self.target.clone();
+        let relation = if target.starts_with("http://") || target.starts_with("https://") {
+            ("".to_string(), Relation::LinksUrl, target)
+        } else {
+            ("".to_string(), Relation::LinksFile, target)
+        };
+        context.relations.push(relation);
+
+        Ok(())
     }
 }
 
@@ -350,8 +362,11 @@ fn compile_content_url(content_url: &str, context: &mut Context) -> Result<Strin
         )
     }
 
-    // Add the media file to the file_inputs
-    context.input_files.insert(path.clone());
+    context.relations.push((
+        "".to_string(),
+        Relation::IncludesFile,
+        path.display().to_string(),
+    ));
 
     Ok(format!("file://{}", path.display()))
 }
@@ -380,26 +395,10 @@ compile_media_object!(
     VideoObjectSimple
 );
 
-/// A `Compile` implementation for executable code node types having
-/// `text` and `programming_language`
-fn compile_code(text: &str, lang: &str, context: &mut Context) -> Result<()> {
-    let analysis = code::compile(text, lang)?;
-
-    // Add any files read and written to inputs and outputs
-    for file in analysis.reads_files.unwrap_or_default() {
-        context.input_files.insert(file.into());
-    }
-    for file in analysis.writes_files.unwrap_or_default() {
-        context.output_files.insert(file.into());
-    }
-
-    Ok(())
-}
-
 impl Compile for CodeChunk {
     fn compile(&mut self, context: &mut Context) -> Result<()> {
         if let Some(lang) = self.programming_language.as_deref() {
-            compile_code(&self.text, lang, context)
+            code::compile(&self.text, lang, context)
         } else {
             Ok(())
         }
@@ -409,7 +408,7 @@ impl Compile for CodeChunk {
 impl Compile for CodeExpression {
     fn compile(&mut self, context: &mut Context) -> Result<()> {
         if let Some(lang) = self.programming_language.as_deref() {
-            compile_code(&self.text, lang, context)
+            code::compile(&self.text, lang, context)
         } else {
             Ok(())
         }
@@ -421,7 +420,7 @@ impl Compile for SoftwareSourceCode {
         if let (Some(text), Some(lang)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
-            compile_code(text, lang, context)
+            code::compile(text, lang, context)
         } else {
             Ok(())
         }

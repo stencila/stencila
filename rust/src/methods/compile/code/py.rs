@@ -1,6 +1,6 @@
-use super::{
-    captures_as_args_map, code_analysis, is_quoted, remove_quotes, CodeAnalysis, Compiler,
-};
+use crate::graphs::{Address, Relation};
+
+use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
 use once_cell::sync::Lazy;
 
 /// Compiler for Python
@@ -37,43 +37,40 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some Python code
-pub fn compile(code: &str) -> CodeAnalysis {
-    let mut imports_packages = Vec::new();
-    let mut reads_files = Vec::new();
-    let mut writes_files = Vec::new();
-
-    for capture in COMPILER.query(code) {
-        let (pattern, captures) = capture;
-        match pattern {
-            0 => imports_packages.push(captures[0].text.clone()),
-            1 => imports_packages.push(captures[0].text.clone()),
+pub fn compile(code: &str) -> Vec<(Relation, Address)> {
+    COMPILER
+        .query(code)
+        .into_iter()
+        .filter_map(|(pattern, captures)| match pattern {
+            0 => Some((Relation::UsesModule, captures[0].text.clone())),
+            1 => Some((Relation::UsesModule, captures[0].text.clone())),
             2 => {
                 let args = captures_as_args_map(captures);
                 if let Some(file) = args.get("0").or_else(|| args.get("file")) {
                     if !is_quoted(file) {
-                        continue;
+                        return None;
                     }
                     let file = remove_quotes(&file);
                     if let Some(mode) = args.get("1").or_else(|| args.get("mode")) {
                         if !is_quoted(mode) {
-                            continue;
+                            return None;
                         }
                         let mode = remove_quotes(mode);
-                        if mode.starts_with('r') {
-                            reads_files.push(file)
-                        } else if mode.starts_with('w') || mode.starts_with('a') {
-                            writes_files.push(file)
+                        if mode.starts_with('w') || mode.starts_with('a') {
+                            Some((Relation::WritesFile, file))
+                        } else {
+                            Some((Relation::ReadsFile, file))
                         }
                     } else {
-                        reads_files.push(file)
+                        Some((Relation::ReadsFile, file))
                     }
+                } else {
+                    None
                 }
             }
-            _ => (),
-        }
-    }
-
-    code_analysis(imports_packages, reads_files, writes_files)
+            _ => None,
+        })
+        .collect()
 }
 
 #[cfg(test)]

@@ -4,12 +4,25 @@ expression: compile(&code)
 input_file: fixtures/fragments/r/imports.R
 
 ---
-{
-  "imports_packages": [
-    "pkg1",
-    "pkg2",
-    "pkg3",
-    "pkg3",
+[
+  [
+    "UsesModule",
+    "pkg1"
+  ],
+  [
+    "UsesModule",
+    "pkg2"
+  ],
+  [
+    "UsesModule",
+    "pkg3"
+  ],
+  [
+    "UsesModule",
+    "pkg3"
+  ],
+  [
+    "UsesModule",
     "pkg4"
   ]
-}
+]
