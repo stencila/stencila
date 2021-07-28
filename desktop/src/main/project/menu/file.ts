@@ -1,7 +1,7 @@
 import { MenuItemConstructorOptions } from 'electron'
 import { showSettings } from '../../config/window'
 import { isWindows } from '../../menu/utils'
-import { closeActiveTab } from '../../window/windowUtils'
+import { closeActiveTab, saveActiveDoc } from '../../window/windowUtils'
 import { openProject } from '../handlers'
 
 export const projectFileMenu: MenuItemConstructorOptions = {
@@ -13,6 +13,14 @@ export const projectFileMenu: MenuItemConstructorOptions = {
       click: () => {
         openProject()
       },
+    },
+    { type: 'separator' },
+    {
+      label: 'Save',
+      click: () => {
+        saveActiveDoc()
+      },
+      accelerator: 'CommandOrControl+s',
     },
     { type: 'separator' },
     {
