@@ -32,6 +32,7 @@ export class AppDocumentPaneTabs {
               isActive={this.isActive(docId)}
               viewId={docId}
               paneId={this.paneId}
+              key={docId}
             ></app-document-pane-tab>
           ))}
         </ul>
