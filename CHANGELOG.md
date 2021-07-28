@@ -1,3 +1,10 @@
+# [0.103.0](https://github.com/stencila/stencila/compare/v0.102.1...v0.103.0) (2021-07-28)
+
+
+### Features
+
+* **Documents:** Allow alteration of path and format of a document ([ef420aa](https://github.com/stencila/stencila/commit/ef420aa81c8613e46d22154323c8d382f5f1cf4b))
+
 ## [0.102.1](https://github.com/stencila/stencila/compare/v0.102.0...v0.102.1) (2021-07-27)
 
 
