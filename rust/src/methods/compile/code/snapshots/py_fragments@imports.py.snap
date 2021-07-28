@@ -6,19 +6,31 @@ input_file: fixtures/fragments/py/imports.py
 ---
 [
   [
-    "UsesModule",
-    "module_1"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module_1"
+    }
   ],
   [
-    "UsesModule",
-    "module_2"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module_2"
+    }
   ],
   [
-    "UsesModule",
-    "module_3"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module_3"
+    }
   ],
   [
-    "UsesModule",
-    "module_4"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module_4"
+    }
   ]
 ]

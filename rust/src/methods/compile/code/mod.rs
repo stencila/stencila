@@ -2,8 +2,7 @@
 ///!
 ///! Uses `tree-sitter` to parse source code into a abstract syntax tree which is then used to
 ///! derive properties of a `CodeAnalysis`.
-use super::Context;
-use eyre::{bail, Result};
+use crate::graphs::{Resource, Triple};
 use std::{collections::HashMap, sync::Mutex};
 use tree_sitter::{Language, Parser, Query, QueryCursor};
 
@@ -17,16 +16,7 @@ mod py;
 mod r;
 
 /// Compile code in a particular language
-///
-/// # Arguments
-///
-/// - `code`: the code to compile
-/// - `language`: the language that the code is in
-pub fn compile(
-    code: &str,
-    language: &str,
-    context: &mut Context,
-) -> Result<()> {
+pub fn compile(resource: &Resource, code: &str, language: &str) -> Vec<Triple> {
     let relations = match language {
         #[cfg(feature = "compile-code-js")]
         "js" | "javascript" => js::compile(code),
@@ -34,15 +24,12 @@ pub fn compile(
         "py" | "python" => py::compile(code),
         #[cfg(feature = "compile-code-r")]
         "r" => r::compile(code),
-        _ => bail!("Unable to compile programming language '{}'", language),
+        _ => Vec::new(),
     };
-
-    // Contextualize the relations
-    for (relation, object) in relations {
-        context.relations.push(("".to_string(), relation, object))
-    }
-    
-    Ok(())
+    relations
+        .into_iter()
+        .map(|(relation, to)| (resource.clone(), relation, to))
+        .collect()
 }
 
 /// A capture resulting from a `tree-sitter` query

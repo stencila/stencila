@@ -1,6 +1,7 @@
 use crate::{
     errors::attempt,
     formats::{Format, FORMATS},
+    graphs::Triple,
     methods::{
         compile::compile,
         decode::decode,
@@ -168,13 +169,12 @@ pub struct Document {
     #[serde(skip)]
     root: Option<Node>,
 
-    /// A list of files that this document is dependant upon
-    /// usually because they are embedded, included, or read by it.
-    input_files: Option<Vec<PathBuf>>,
-
-    /// A list of files that are dependant upon this document
-    /// usually because they are written by it.
-    output_files: Option<Vec<PathBuf>>,
+    /// A list of relations associated with this document
+    ///
+    /// Relations may be external (e.g. this document links to
+    /// another file) or internal (e.g. the second code chunk uses a variable
+    /// defined in the first code chunk).
+    pub relations: Option<Vec<Triple>>,
 
     /// The set of unique subscriptions to this document
     ///
@@ -279,8 +279,7 @@ impl Document {
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the path's file extension.
     /// TODO: add project: Option<PathBuf> so that project can be explictly set
-    async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
-        // Canonicalize and ensure the path exists
+    pub async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
         let path = path.as_ref().canonicalize()?;
 
         // Create a new document with unique id
@@ -553,11 +552,8 @@ impl Document {
 
         // Compile the `root` and update document intra- and inter- dependencies
         let compilation = compile(&mut root, &self.path, &self.project)?;
-        if !compilation.input_files.is_empty() {
-            self.input_files = Some(compilation.input_files.into_iter().collect())
-        }
-        if !compilation.output_files.is_empty() {
-            self.output_files = Some(compilation.output_files.into_iter().collect())
+        if !compilation.relations.is_empty() {
+            self.relations = Some(compilation.relations);
         }
 
         // Encode the `root` into each of the formats for which there are subscriptions

@@ -1,5 +1,5 @@
 use super::{remove_quotes, Compiler};
-use crate::graphs::{Address, Relation};
+use crate::graphs::{Relation, Resource};
 use once_cell::sync::Lazy;
 
 /// Compiler for JavaScript
@@ -48,15 +48,27 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some JavaScript code
-pub fn compile(code: &str) -> Vec<(Relation, Address)> {
+pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
     COMPILER
         .query(code)
         .iter()
         .filter_map(|(pattern, captures)| match pattern {
-            0 => Some((Relation::UsesModule, remove_quotes(&captures[0].text))),
-            1 => Some((Relation::UsesModule, remove_quotes(&captures[1].text))),
-            2 => Some((Relation::ReadsFile, remove_quotes(&captures[1].text))),
-            3 => Some((Relation::WritesFile, remove_quotes(&captures[1].text))),
+            0 => Some((
+                Relation::Uses,
+                Resource::Module(remove_quotes(&captures[0].text)),
+            )),
+            1 => Some((
+                Relation::Uses,
+                Resource::Module(remove_quotes(&captures[1].text)),
+            )),
+            2 => Some((
+                Relation::Reads,
+                Resource::File(remove_quotes(&captures[1].text)),
+            )),
+            3 => Some((
+                Relation::Writes,
+                Resource::File(remove_quotes(&captures[1].text)),
+            )),
             _ => None,
         })
         .collect()

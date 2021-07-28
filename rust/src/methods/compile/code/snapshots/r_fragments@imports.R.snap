@@ -6,23 +6,38 @@ input_file: fixtures/fragments/r/imports.R
 ---
 [
   [
-    "UsesModule",
-    "pkg1"
+    "uses",
+    {
+      "type": "Module",
+      "id": "pkg1"
+    }
   ],
   [
-    "UsesModule",
-    "pkg2"
+    "uses",
+    {
+      "type": "Module",
+      "id": "pkg2"
+    }
   ],
   [
-    "UsesModule",
-    "pkg3"
+    "uses",
+    {
+      "type": "Module",
+      "id": "pkg3"
+    }
   ],
   [
-    "UsesModule",
-    "pkg3"
+    "uses",
+    {
+      "type": "Module",
+      "id": "pkg3"
+    }
   ],
   [
-    "UsesModule",
-    "pkg4"
+    "uses",
+    {
+      "type": "Module",
+      "id": "pkg4"
+    }
   ]
 ]

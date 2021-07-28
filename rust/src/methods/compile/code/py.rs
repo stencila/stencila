@@ -1,6 +1,5 @@
-use crate::graphs::{Address, Relation};
-
 use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
+use crate::graphs::{Relation, Resource};
 use once_cell::sync::Lazy;
 
 /// Compiler for Python
@@ -37,13 +36,13 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some Python code
-pub fn compile(code: &str) -> Vec<(Relation, Address)> {
+pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
     COMPILER
         .query(code)
         .into_iter()
         .filter_map(|(pattern, captures)| match pattern {
-            0 => Some((Relation::UsesModule, captures[0].text.clone())),
-            1 => Some((Relation::UsesModule, captures[0].text.clone())),
+            0 => Some((Relation::Uses, Resource::Module(captures[0].text.clone()))),
+            1 => Some((Relation::Uses, Resource::Module(captures[0].text.clone()))),
             2 => {
                 let args = captures_as_args_map(captures);
                 if let Some(file) = args.get("0").or_else(|| args.get("file")) {
@@ -57,12 +56,12 @@ pub fn compile(code: &str) -> Vec<(Relation, Address)> {
                         }
                         let mode = remove_quotes(mode);
                         if mode.starts_with('w') || mode.starts_with('a') {
-                            Some((Relation::WritesFile, file))
+                            Some((Relation::Writes, Resource::File(file)))
                         } else {
-                            Some((Relation::ReadsFile, file))
+                            Some((Relation::Reads, Resource::File(file)))
                         }
                     } else {
-                        Some((Relation::ReadsFile, file))
+                        Some((Relation::Reads, Resource::File(file)))
                     }
                 } else {
                     None

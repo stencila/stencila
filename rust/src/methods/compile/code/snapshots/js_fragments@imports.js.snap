@@ -6,51 +6,87 @@ input_file: fixtures/fragments/js/imports.js
 ---
 [
   [
-    "UsesModule",
-    "module-1"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-1"
+    }
   ],
   [
-    "UsesModule",
-    "module-2"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-2"
+    }
   ],
   [
-    "UsesModule",
-    "module-3"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-3"
+    }
   ],
   [
-    "UsesModule",
-    "module-4"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-4"
+    }
   ],
   [
-    "UsesModule",
-    "module-5"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-5"
+    }
   ],
   [
-    "UsesModule",
-    "module-6"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-6"
+    }
   ],
   [
-    "UsesModule",
-    "module-7"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-7"
+    }
   ],
   [
-    "UsesModule",
-    "module-8"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-8"
+    }
   ],
   [
-    "UsesModule",
-    "module-9"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-9"
+    }
   ],
   [
-    "UsesModule",
-    "module-10"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-10"
+    }
   ],
   [
-    "UsesModule",
-    "module-11"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-11"
+    }
   ],
   [
-    "UsesModule",
-    "module-12"
+    "uses",
+    {
+      "type": "Module",
+      "id": "module-12"
+    }
   ]
 ]

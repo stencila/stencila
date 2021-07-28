@@ -6,35 +6,59 @@ input_file: fixtures/fragments/py/writes.py
 ---
 [
   [
-    "WritesFile",
-    "path1"
+    "writes",
+    {
+      "type": "File",
+      "id": "path1"
+    }
   ],
   [
-    "WritesFile",
-    "path2"
+    "writes",
+    {
+      "type": "File",
+      "id": "path2"
+    }
   ],
   [
-    "WritesFile",
-    "path3"
+    "writes",
+    {
+      "type": "File",
+      "id": "path3"
+    }
   ],
   [
-    "WritesFile",
-    "path4"
+    "writes",
+    {
+      "type": "File",
+      "id": "path4"
+    }
   ],
   [
-    "WritesFile",
-    "path5"
+    "writes",
+    {
+      "type": "File",
+      "id": "path5"
+    }
   ],
   [
-    "ReadsFile",
-    "read"
+    "reads",
+    {
+      "type": "File",
+      "id": "read"
+    }
   ],
   [
-    "ReadsFile",
-    "read"
+    "reads",
+    {
+      "type": "File",
+      "id": "read"
+    }
   ],
   [
-    "ReadsFile",
-    "read"
+    "reads",
+    {
+      "type": "File",
+      "id": "read"
+    }
   ]
 ]
