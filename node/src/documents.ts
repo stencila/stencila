@@ -58,11 +58,11 @@ export function get(id: string): Document {
 
 /**
  * Alter properties of a document.
- * 
+ *
  * If a `path` is provided then the document's `name`, `format`, `status` and `temporary`
- * flag will be updated (`temporary` will be set to `true` and `status` to `unwritten`
+ * flag will be updated (`temporary` will be set to `false` and `status` to `unwritten`
  * immediately after the call).
- * 
+ *
  * If `format` is provided, only the `format` property of the document will be updated.
  * If the provided `format` string is not registered then the document's `Format` object
  * may be `known: false`.
