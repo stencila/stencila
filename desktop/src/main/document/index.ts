@@ -1,8 +1,13 @@
+import { BrowserWindow, dialog, SaveDialogReturnValue } from 'electron'
 import { dispatch, documents } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import {
+  DocumentsAlter,
   DocumentsClose,
+  DocumentsCreate,
+  DocumentsCreateFilePath,
   DocumentsDump,
+  DocumentsGet,
   DocumentsLoad,
   DocumentsOpen,
   DocumentsPreview,
@@ -11,12 +16,16 @@ import {
 } from '../../preload/types'
 import { rewriteHtml } from '../local-protocol'
 import { makeHandlers, removeChannelHandlers } from '../utils/handler'
-import { handle } from '../utils/ipc'
+import { handle, valueToSuccessResult } from '../utils/ipc'
 import { DOCUMENT_CHANNEL } from './channel'
 
 const registerDocumentHandlers = () => {
   handle<DocumentsOpen>(CHANNEL.DOCUMENTS_OPEN, async (_event, filePath) =>
     dispatch.documents.open(filePath)
+  )
+
+  handle<DocumentsCreate>(CHANNEL.DOCUMENTS_CREATE, async (_event, format) =>
+    dispatch.documents.create(format)
   )
 
   handle<DocumentsClose>(
@@ -54,6 +63,10 @@ const registerDocumentHandlers = () => {
     }
   )
 
+  handle<DocumentsGet>(CHANNEL.DOCUMENTS_GET, async (_event, documentId) =>
+    dispatch.documents.get(documentId)
+  )
+
   handle<DocumentsPreview>(
     CHANNEL.DOCUMENTS_PREVIEW,
     async (ipcEvent, documentId) => {
@@ -84,6 +97,36 @@ const registerDocumentHandlers = () => {
     CHANNEL.DOCUMENTS_WRITE,
     async (_event, documentId, content) => {
       return dispatch.documents.write(documentId, content)
+    }
+  )
+
+  handle<DocumentsAlter>(
+    CHANNEL.DOCUMENTS_ALTER,
+    async (_event, documentId, path, format) => {
+      return dispatch.documents.alter(documentId, path, format)
+    }
+  )
+
+  handle<DocumentsCreateFilePath>(
+    CHANNEL.DOCUMENTS_CREATE_FILE_PATH,
+    async (event) => {
+      const win = BrowserWindow.fromWebContents(event.sender) ?? undefined
+      let file: SaveDialogReturnValue
+
+      // Conditional check required to satisfy TypeScript function overload
+      if (win) {
+        file = await dialog.showSaveDialog(win, {
+          securityScopedBookmarks: true,
+          showsTagField: false,
+        })
+      } else {
+        file = await dialog.showSaveDialog({
+          securityScopedBookmarks: true,
+          showsTagField: false,
+        })
+      }
+
+      return valueToSuccessResult(file.filePath)
     }
   )
 }
