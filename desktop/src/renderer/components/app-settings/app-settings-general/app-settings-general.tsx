@@ -38,7 +38,7 @@ export class AppSettingsGeneral {
             <input
               id="errorReporting"
               type="checkbox"
-              defaultChecked={(this.config.REPORT_ERRORS as boolean) ?? false}
+              defaultChecked={this.config.REPORT_ERRORS ?? false}
               onChange={this.updateSetting(UnprotectedStoreKeys.REPORT_ERRORS)}
             />
 

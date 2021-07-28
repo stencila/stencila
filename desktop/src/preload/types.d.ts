@@ -20,6 +20,7 @@ export interface AppConfigStore {
   FIRST_LAUNCH?: boolean | undefined
   EDITOR_LINE_WRAPPING: boolean
   EDITOR_LINE_NUMBERS: boolean
+  EDITOR_NEW_FILE_SYNTAX: string
 }
 
 export interface NormalizedPlugins {

@@ -57,6 +57,8 @@ export namespace Components {
     }
     interface AppSettingsAdvanced {
     }
+    interface AppSettingsEditor {
+    }
     interface AppSettingsGeneral {
     }
     interface AppSettingsPluginCard {
@@ -180,6 +182,12 @@ declare global {
         prototype: HTMLAppSettingsAdvancedElement;
         new (): HTMLAppSettingsAdvancedElement;
     };
+    interface HTMLAppSettingsEditorElement extends Components.AppSettingsEditor, HTMLStencilElement {
+    }
+    var HTMLAppSettingsEditorElement: {
+        prototype: HTMLAppSettingsEditorElement;
+        new (): HTMLAppSettingsEditorElement;
+    };
     interface HTMLAppSettingsGeneralElement extends Components.AppSettingsGeneral, HTMLStencilElement {
     }
     var HTMLAppSettingsGeneralElement: {
@@ -235,6 +243,7 @@ declare global {
         "app-project-sidebar-files": HTMLAppProjectSidebarFilesElement;
         "app-root": HTMLAppRootElement;
         "app-settings-advanced": HTMLAppSettingsAdvancedElement;
+        "app-settings-editor": HTMLAppSettingsEditorElement;
         "app-settings-general": HTMLAppSettingsGeneralElement;
         "app-settings-plugin-card": HTMLAppSettingsPluginCardElement;
         "app-settings-plugins": HTMLAppSettingsPluginsElement;
@@ -293,6 +302,8 @@ declare namespace LocalJSX {
     }
     interface AppSettingsAdvanced {
     }
+    interface AppSettingsEditor {
+    }
     interface AppSettingsGeneral {
     }
     interface AppSettingsPluginCard {
@@ -325,6 +336,7 @@ declare namespace LocalJSX {
         "app-project-sidebar-files": AppProjectSidebarFiles;
         "app-root": AppRoot;
         "app-settings-advanced": AppSettingsAdvanced;
+        "app-settings-editor": AppSettingsEditor;
         "app-settings-general": AppSettingsGeneral;
         "app-settings-plugin-card": AppSettingsPluginCard;
         "app-settings-plugins": AppSettingsPlugins;
@@ -355,6 +367,7 @@ declare module "@stencil/core" {
             "app-project-sidebar-files": LocalJSX.AppProjectSidebarFiles & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFilesElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
             "app-settings-advanced": LocalJSX.AppSettingsAdvanced & JSXBase.HTMLAttributes<HTMLAppSettingsAdvancedElement>;
+            "app-settings-editor": LocalJSX.AppSettingsEditor & JSXBase.HTMLAttributes<HTMLAppSettingsEditorElement>;
             "app-settings-general": LocalJSX.AppSettingsGeneral & JSXBase.HTMLAttributes<HTMLAppSettingsGeneralElement>;
             "app-settings-plugin-card": LocalJSX.AppSettingsPluginCard & JSXBase.HTMLAttributes<HTMLAppSettingsPluginCardElement>;
             "app-settings-plugins": LocalJSX.AppSettingsPlugins & JSXBase.HTMLAttributes<HTMLAppSettingsPluginsElement>;

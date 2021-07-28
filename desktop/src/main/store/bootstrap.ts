@@ -12,6 +12,7 @@ export const defaultConfigStore: AppConfigStore = {
   REPORT_ERRORS: false,
   EDITOR_LINE_NUMBERS: true,
   EDITOR_LINE_WRAPPING: true,
+  EDITOR_NEW_FILE_SYNTAX: 'md',
 }
 
 export const readUnprotectedStore = (): AppConfigStore => {

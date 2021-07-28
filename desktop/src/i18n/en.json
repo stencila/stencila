@@ -45,6 +45,19 @@
           "help": "Help us improve the application by enabling automatic error reporting.\nReports only contain information helpful in reproducing and solving errors, and do not contain any personally identifiable information"
         }
       },
+      "editor": {
+        "title": "Editor",
+        "newFileDefault": {
+          "label": "Default syntax",
+          "help": "Syntax to use for newly created files"
+        },
+        "lineWrap": {
+          "label": "Wrap lines to editor width"
+        },
+        "lineNumbers": {
+          "label": "Show Line Numbers"
+        }
+      },
       "plugins": {
         "checkUpdates": "Check for Updates",
         "title": "Plugins",

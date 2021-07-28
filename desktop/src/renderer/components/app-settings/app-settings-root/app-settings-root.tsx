@@ -23,6 +23,10 @@ export class AppSettings {
               <app-settings-advanced></app-settings-advanced>
             </Route>
 
+            <Route path="/settings/editor">
+              <app-settings-editor></app-settings-editor>
+            </Route>
+
             <Route path="/settings/plugins">
               <app-settings-plugins></app-settings-plugins>
             </Route>
