@@ -10,6 +10,7 @@ import { selectDoc } from '../../../../renderer/store/documentPane/documentPaneS
 import { saveEditorState } from '../../../../renderer/store/editorState/editorStateActions'
 import { editorStateById } from '../../../../renderer/store/editorState/editorStateSelectors'
 import { EditorState } from '../../../../renderer/store/editorState/editorStateTypes'
+import { saveDocument } from '../../../actions/documentActions'
 import { client } from '../../../client'
 import { configState } from '../../../store/appConfig'
 import { errorToast } from '../../../utils/errors'
@@ -148,10 +149,7 @@ export class AppDocumentEditor {
     this.editorRef
       ?.getContents()
       .then(({ text }) => {
-        client.documents.write({
-          documentId: this.documentId,
-          content: text,
-        })
+        saveDocument(this.documentId, text)
       })
       .catch((err) => {
         errorToast(err)

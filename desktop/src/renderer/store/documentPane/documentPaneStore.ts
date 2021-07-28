@@ -5,7 +5,7 @@ import { Document } from 'stencila'
 import {
   DocumentPane,
   NormalizedDocumentPaneStore,
-  PaneModule,
+  PaneModule
 } from './documentPaneTypes'
 
 const initialState: NormalizedDocumentPaneStore = {
@@ -113,6 +113,13 @@ export const documentPaneSlice = createSlice({
       }
       return state
     },
+    updateDoc: (
+      state,
+      { payload }: PayloadAction<{ doc: Document }>
+    ) => {
+      state.entities.views[payload.doc.id] = payload.doc
+      return state
+    },
     removeDocFromPane: (
       state,
       { payload }: PayloadAction<{ paneId: EntityId; docId: EntityId }>
@@ -145,6 +152,8 @@ export const documentPaneSlice = createSlice({
             O.alt(() => A.lookup(docIndex - 1)(pane.views))
           )
         }
+
+        // TODO: If document is not present in any other panes, remove from store
       }
 
       return state
