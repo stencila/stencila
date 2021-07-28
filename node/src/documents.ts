@@ -57,6 +57,25 @@ export function get(id: string): Document {
 }
 
 /**
+ * Alter properties of a document.
+ * 
+ * If a `path` is provided then the document's `name`, `format`, `status` and `temporary`
+ * flag will be updated (`temporary` will be set to `true` and `status` to `unwritten`
+ * immediately after the call).
+ * 
+ * If `format` is provided, only the `format` property of the document will be updated.
+ * If the provided `format` string is not registered then the document's `Format` object
+ * may be `known: false`.
+ *
+ * @param id Id of the document
+ * @param path A new path of the document
+ * @param format The name of the new format for the document.
+ */
+ export function alter(id: string, path?: string, format?: string): Document {
+  return fromJSON<Document>(addon.documentsAlter(id, path ?? '', format ?? ''))
+}
+
+/**
  * Read a document from the file system.
  *
  * @param id Id of the document

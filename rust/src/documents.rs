@@ -1,5 +1,5 @@
 use crate::{
-    errors::{self, attempt, Error},
+    errors::attempt,
     formats::{Format, FORMATS},
     methods::{
         compile::compile,
@@ -232,56 +232,69 @@ impl Document {
     ///
     /// # Arguments
     ///
-    /// - `path`: the path of the file to create the document from
+    /// - `path`: The path of the file to create the document from
     ///
     /// - `format`: The format of the document. If `None` will be inferred from
-    ///             the file extension.
+    ///             the path's file extension.
     /// TODO: add project: Option<PathBuf> so that project can be explictly set
     async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
+        // Canonicalize and ensure the path exists
         let path = path.as_ref().canonicalize()?;
-        if path.is_dir() {
-            bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
-        }
 
-        let id = uuids::generate(uuids::Family::Document);
-
-        let project = path
-            .parent()
-            .expect("Unable to get path parent")
-            .to_path_buf();
-
-        let name = path
-            .file_name()
-            .map(|os_str| os_str.to_string_lossy())
-            .unwrap_or_else(|| "Untitled".into())
-            .into();
-
-        let format = match format {
-            None => FORMATS.match_path(&path),
-            Some(format) => FORMATS.match_path(&format),
-        };
-
-        // Warn the user about unknown formats
-        if !format.known {
-            errors::push_error(Error::UnknownFormat {
-                format: format.name.clone(),
-            })
-        }
-
+        // Create a new document with unique id
         let mut document = Document {
-            id,
-            path,
-            project,
-            temporary: false,
-            name,
-            format,
+            id: uuids::generate(uuids::Family::Document),
             ..Default::default()
         };
+
+        // Apply path and format arguments
+        document.alter(Some(path), format)?;
 
         // Attempt to read the document from the file
         attempt(document.read().await);
 
         Ok(document)
+    }
+
+    /// Alter properties of the document
+    ///
+    /// # Arguments
+    ///
+    /// - `path`: The path of document's file
+    ///
+    /// - `format`: The format of the document. If `None` will be inferred from
+    ///             the path's file extension.
+    pub fn alter<P: AsRef<Path>>(&mut self, path: Option<P>, format: Option<String>) -> Result<()> {
+        if let Some(path) = &path {
+            let path = path.as_ref();
+
+            if path.is_dir() {
+                bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
+            }
+
+            self.project = path
+                .parent()
+                .expect("Unable to get path parent")
+                .to_path_buf();
+
+            self.name = path
+                .file_name()
+                .map(|os_str| os_str.to_string_lossy())
+                .unwrap_or_else(|| "Untitled".into())
+                .into();
+
+            self.path = path.to_path_buf();
+            self.temporary = false;
+            self.status = DocumentStatus::Unwritten;
+        }
+
+        if let Some(format) = format {
+            self.format = FORMATS.match_path(&format);
+        } else if let Some(path) = path {
+            self.format = FORMATS.match_path(&path);
+        };
+
+        Ok(())
     }
 
     /// Read the document from the file system, update it and return its content.

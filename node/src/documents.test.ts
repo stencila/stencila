@@ -1,6 +1,7 @@
 import fs from 'fs'
 import tmp from 'tmp'
 import {
+  alter,
   close,
   create,
   get,
@@ -34,10 +35,50 @@ test('create', async () => {
 })
 
 /**
- * Test of a workflow involving creating a new document and then
- * saving it as other files in same and other formats.
+ * Test of a workflow involving creating a temporary document
+ * and then specifying its format, and then later its path.
  */
-test('workfow-create-write-as', async () => {
+ test('workflow-create-alter', async () => {
+  const doc = create();
+  expect(doc).toEqual(
+    expect.objectContaining({
+      temporary: true,
+      name: 'Unnamed',
+      format: expect.objectContaining({
+        name: "txt"
+      }),
+      status: 'synced'
+    })
+  )
+
+  expect(alter(doc.id, undefined, "md")).toEqual(
+    expect.objectContaining({
+      temporary: true,
+      name: 'Unnamed',
+      format: expect.objectContaining({
+        name: "md"
+      }),
+      status: 'synced'
+    }),
+  )
+
+  expect(alter(doc.id, "myfile.tex")).toEqual(
+    expect.objectContaining({
+      temporary: false,
+      name: 'myfile.tex',
+      format: expect.objectContaining({
+        name: "latex"
+      }),
+      status: 'unwritten'
+    })
+  )
+})
+
+/**
+ * Test of a workflow involving creating a new document and then
+ * saving it as other files, in same, and other formats.
+ */
+test('workflow-create-write-as', async () => {
   const doc = create('json');
   expect(doc).toEqual(
     expect.objectContaining({
