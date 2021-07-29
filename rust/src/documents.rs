@@ -215,6 +215,7 @@ impl Document {
             .to_path_buf();
 
         let format = FORMATS.match_path(&format.unwrap_or_else(|| "txt".to_string()));
+        let previewable = format.preview;
 
         Document {
             id,
@@ -224,6 +225,7 @@ impl Document {
             status: DocumentStatus::Synced,
             name: "Unnamed".into(),
             format,
+            previewable,
             ..Default::default()
         }
     }
@@ -248,7 +250,7 @@ impl Document {
         };
 
         // Apply path and format arguments
-        document.alter(Some(path), format)?;
+        document.alter(Some(path), format).await?;
 
         // Attempt to read the document from the file
         attempt(document.read().await);
@@ -264,7 +266,7 @@ impl Document {
     ///
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the path's file extension.
-    pub fn alter<P: AsRef<Path>>(&mut self, path: Option<P>, format: Option<String>) -> Result<()> {
+    pub async fn alter<P: AsRef<Path>>(&mut self, path: Option<P>, format: Option<String>) -> Result<()> {
         if let Some(path) = &path {
             let path = path.as_ref();
 
@@ -295,6 +297,8 @@ impl Document {
         };
 
         self.previewable = self.format.preview;
+
+        self.update().await?;
 
         Ok(())
     }

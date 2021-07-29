@@ -83,7 +83,7 @@ pub fn alter(mut cx: FunctionContext) -> JsResult<JsString> {
         match documents.get(id) {
             Ok(document) => {
                 let document = &mut *document.lock().await;
-                document.alter(path, format)?;
+                document.alter(path, format).await?;
                 Ok(document.clone())
             }
             Err(error) => Err(error),
