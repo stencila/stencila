@@ -1,4 +1,5 @@
 import { Component, h, State } from '@stencil/core'
+import { FileFormatUtils } from '@stencila/components'
 import { i18n } from '../../../../i18n'
 import { UnprotectedStoreKeys } from '../../../../preload/stores'
 import { AppConfigStore } from '../../../../preload/types'
@@ -45,24 +46,15 @@ export class AppSettingsEditor {
                 UnprotectedStoreKeys.EDITOR_NEW_FILE_SYNTAX
               )}
             >
-              <option
-                value="md"
-                selected={this.config.EDITOR_NEW_FILE_SYNTAX === 'md'}
-              >
-                Markdown
-              </option>
-              <option
-                value="rmd"
-                selected={this.config.EDITOR_NEW_FILE_SYNTAX === 'rmd'}
-              >
-                RMD
-              </option>
-              <option
-                value="r"
-                selected={this.config.EDITOR_NEW_FILE_SYNTAX === 'r'}
-              >
-                R
-              </option>
+              {Object.values(FileFormatUtils.fileFormatMap).map((format) => (
+                <option
+                  value={format.ext ?? format.name}
+                  selected={this.config.EDITOR_NEW_FILE_SYNTAX === format.name}
+                  key={format.name}
+                >
+                  {format.name}
+                </option>
+              ))}
             </select>
 
             <p class="helpText">
