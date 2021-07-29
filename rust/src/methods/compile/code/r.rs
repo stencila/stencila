@@ -76,7 +76,7 @@ pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
                         } else if is_quoted(package) {
                             return None;
                         }
-                        Some((Relation::Uses, Resource::Module(remove_quotes(package))))
+                        Some((Relation::Uses, Resource::Module("r".to_string(), remove_quotes(package))))
                     })
             }
             1 => {

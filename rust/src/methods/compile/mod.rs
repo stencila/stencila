@@ -15,6 +15,7 @@ pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<Context> 
     let mut context = Context {
         path: PathBuf::from(path),
         project: PathBuf::from(project),
+        path_within_project: path.display().to_string(),
         ..Default::default()
     };
     node.compile("", &mut context)?;
@@ -33,13 +34,17 @@ pub struct Context {
     /// Used to restrict any file links to be within the project
     project: PathBuf,
 
+    /// The path of the document relative to the project it is in
+    /// Used to store in relations
+    path_within_project: String,
+
     /// Relations within the document
     pub relations: Vec<Triple>,
 }
 
 /// Trait for compiling a node
 trait Compile {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()>;
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()>;
 }
 
 // The following `impl Compile` for enums try to include all variants so that
@@ -49,55 +54,55 @@ trait Compile {
 
 /// Compile a `Node`
 impl Compile for Node {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         match self {
-            Node::Array(node) => node.compile(route, context),
-            Node::Article(node) => node.compile(route, context),
-            Node::AudioObject(node) => node.compile(route, context),
-            Node::Boolean(node) => node.compile(route, context),
-            Node::Cite(node) => node.compile(route, context),
-            Node::CiteGroup(node) => node.compile(route, context),
-            Node::Claim(node) => node.compile(route, context),
-            Node::CodeBlock(node) => node.compile(route, context),
-            Node::CodeChunk(node) => node.compile(route, context),
-            Node::CodeExpression(node) => node.compile(route, context),
-            Node::CodeFragment(node) => node.compile(route, context),
-            Node::Collection(node) => node.compile(route, context),
-            Node::Comment(node) => node.compile(route, context),
-            Node::CreativeWork(node) => node.compile(route, context),
-            Node::Datatable(node) => node.compile(route, context),
-            Node::Delete(node) => node.compile(route, context),
-            Node::Emphasis(node) => node.compile(route, context),
-            Node::Figure(node) => node.compile(route, context),
-            Node::Heading(node) => node.compile(route, context),
-            Node::ImageObject(node) => node.compile(route, context),
-            Node::Integer(node) => node.compile(route, context),
-            Node::Link(node) => node.compile(route, context),
-            Node::List(node) => node.compile(route, context),
-            Node::MathBlock(node) => node.compile(route, context),
-            Node::MathFragment(node) => node.compile(route, context),
-            Node::MediaObject(node) => node.compile(route, context),
-            Node::NontextualAnnotation(node) => node.compile(route, context),
-            Node::Note(node) => node.compile(route, context),
+            Node::Array(node) => node.compile(address, context),
+            Node::Article(node) => node.compile(address, context),
+            Node::AudioObject(node) => node.compile(address, context),
+            Node::Boolean(node) => node.compile(address, context),
+            Node::Cite(node) => node.compile(address, context),
+            Node::CiteGroup(node) => node.compile(address, context),
+            Node::Claim(node) => node.compile(address, context),
+            Node::CodeBlock(node) => node.compile(address, context),
+            Node::CodeChunk(node) => node.compile(address, context),
+            Node::CodeExpression(node) => node.compile(address, context),
+            Node::CodeFragment(node) => node.compile(address, context),
+            Node::Collection(node) => node.compile(address, context),
+            Node::Comment(node) => node.compile(address, context),
+            Node::CreativeWork(node) => node.compile(address, context),
+            Node::Datatable(node) => node.compile(address, context),
+            Node::Delete(node) => node.compile(address, context),
+            Node::Emphasis(node) => node.compile(address, context),
+            Node::Figure(node) => node.compile(address, context),
+            Node::Heading(node) => node.compile(address, context),
+            Node::ImageObject(node) => node.compile(address, context),
+            Node::Integer(node) => node.compile(address, context),
+            Node::Link(node) => node.compile(address, context),
+            Node::List(node) => node.compile(address, context),
+            Node::MathBlock(node) => node.compile(address, context),
+            Node::MathFragment(node) => node.compile(address, context),
+            Node::MediaObject(node) => node.compile(address, context),
+            Node::NontextualAnnotation(node) => node.compile(address, context),
+            Node::Note(node) => node.compile(address, context),
             Node::Null => Ok(()),
-            Node::Number(node) => node.compile(route, context),
-            Node::Object(node) => node.compile(route, context),
-            Node::Paragraph(node) => node.compile(route, context),
-            Node::Periodical(node) => node.compile(route, context),
-            Node::PublicationIssue(node) => node.compile(route, context),
-            Node::PublicationVolume(node) => node.compile(route, context),
-            Node::Quote(node) => node.compile(route, context),
-            Node::QuoteBlock(node) => node.compile(route, context),
-            Node::Review(node) => node.compile(route, context),
-            Node::SoftwareApplication(node) => node.compile(route, context),
-            Node::SoftwareSourceCode(node) => node.compile(route, context),
-            Node::String(node) => node.compile(route, context),
-            Node::Strong(node) => node.compile(route, context),
-            Node::Subscript(node) => node.compile(route, context),
-            Node::Superscript(node) => node.compile(route, context),
-            Node::Table(node) => node.compile(route, context),
-            Node::ThematicBreak(node) => node.compile(route, context),
-            Node::VideoObject(node) => node.compile(route, context),
+            Node::Number(node) => node.compile(address, context),
+            Node::Object(node) => node.compile(address, context),
+            Node::Paragraph(node) => node.compile(address, context),
+            Node::Periodical(node) => node.compile(address, context),
+            Node::PublicationIssue(node) => node.compile(address, context),
+            Node::PublicationVolume(node) => node.compile(address, context),
+            Node::Quote(node) => node.compile(address, context),
+            Node::QuoteBlock(node) => node.compile(address, context),
+            Node::Review(node) => node.compile(address, context),
+            Node::SoftwareApplication(node) => node.compile(address, context),
+            Node::SoftwareSourceCode(node) => node.compile(address, context),
+            Node::String(node) => node.compile(address, context),
+            Node::Strong(node) => node.compile(address, context),
+            Node::Subscript(node) => node.compile(address, context),
+            Node::Superscript(node) => node.compile(address, context),
+            Node::Table(node) => node.compile(address, context),
+            Node::ThematicBreak(node) => node.compile(address, context),
+            Node::VideoObject(node) => node.compile(address, context),
             _ => {
                 tracing::debug!("Compile is not implemented for {:?}", self);
                 Ok(())
@@ -107,74 +112,74 @@ impl Compile for Node {
 }
 
 impl Compile for InlineContent {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         match self {
-            InlineContent::AudioObject(node) => node.compile(route, context),
-            InlineContent::Boolean(node) => node.compile(route, context),
-            InlineContent::Cite(node) => node.compile(route, context),
-            InlineContent::CiteGroup(node) => node.compile(route, context),
-            InlineContent::CodeExpression(node) => node.compile(route, context),
-            InlineContent::CodeFragment(node) => node.compile(route, context),
-            InlineContent::Delete(node) => node.compile(route, context),
-            InlineContent::Emphasis(node) => node.compile(route, context),
-            InlineContent::ImageObject(node) => node.compile(route, context),
-            InlineContent::Integer(node) => node.compile(route, context),
-            InlineContent::Link(node) => node.compile(route, context),
-            InlineContent::MathFragment(node) => node.compile(route, context),
-            InlineContent::NontextualAnnotation(node) => node.compile(route, context),
-            InlineContent::Note(node) => node.compile(route, context),
+            InlineContent::AudioObject(node) => node.compile(address, context),
+            InlineContent::Boolean(node) => node.compile(address, context),
+            InlineContent::Cite(node) => node.compile(address, context),
+            InlineContent::CiteGroup(node) => node.compile(address, context),
+            InlineContent::CodeExpression(node) => node.compile(address, context),
+            InlineContent::CodeFragment(node) => node.compile(address, context),
+            InlineContent::Delete(node) => node.compile(address, context),
+            InlineContent::Emphasis(node) => node.compile(address, context),
+            InlineContent::ImageObject(node) => node.compile(address, context),
+            InlineContent::Integer(node) => node.compile(address, context),
+            InlineContent::Link(node) => node.compile(address, context),
+            InlineContent::MathFragment(node) => node.compile(address, context),
+            InlineContent::NontextualAnnotation(node) => node.compile(address, context),
+            InlineContent::Note(node) => node.compile(address, context),
             InlineContent::Null => Ok(()),
-            InlineContent::Number(node) => node.compile(route, context),
-            InlineContent::Quote(node) => node.compile(route, context),
-            InlineContent::String(node) => node.compile(route, context),
-            InlineContent::Strong(node) => node.compile(route, context),
-            InlineContent::Subscript(node) => node.compile(route, context),
-            InlineContent::Superscript(node) => node.compile(route, context),
-            InlineContent::VideoObject(node) => node.compile(route, context),
+            InlineContent::Number(node) => node.compile(address, context),
+            InlineContent::Quote(node) => node.compile(address, context),
+            InlineContent::String(node) => node.compile(address, context),
+            InlineContent::Strong(node) => node.compile(address, context),
+            InlineContent::Subscript(node) => node.compile(address, context),
+            InlineContent::Superscript(node) => node.compile(address, context),
+            InlineContent::VideoObject(node) => node.compile(address, context),
         }
     }
 }
 
 impl Compile for BlockContent {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         match self {
-            BlockContent::Claim(node) => node.compile(route, context),
-            BlockContent::CodeBlock(node) => node.compile(route, context),
-            BlockContent::CodeChunk(node) => node.compile(route, context),
-            BlockContent::Collection(node) => node.compile(route, context),
-            BlockContent::Figure(node) => node.compile(route, context),
-            BlockContent::Heading(node) => node.compile(route, context),
-            BlockContent::List(node) => node.compile(route, context),
-            BlockContent::MathBlock(node) => node.compile(route, context),
-            BlockContent::Paragraph(node) => node.compile(route, context),
-            BlockContent::QuoteBlock(node) => node.compile(route, context),
-            BlockContent::Table(node) => node.compile(route, context),
-            BlockContent::ThematicBreak(node) => node.compile(route, context),
+            BlockContent::Claim(node) => node.compile(address, context),
+            BlockContent::CodeBlock(node) => node.compile(address, context),
+            BlockContent::CodeChunk(node) => node.compile(address, context),
+            BlockContent::Collection(node) => node.compile(address, context),
+            BlockContent::Figure(node) => node.compile(address, context),
+            BlockContent::Heading(node) => node.compile(address, context),
+            BlockContent::List(node) => node.compile(address, context),
+            BlockContent::MathBlock(node) => node.compile(address, context),
+            BlockContent::Paragraph(node) => node.compile(address, context),
+            BlockContent::QuoteBlock(node) => node.compile(address, context),
+            BlockContent::Table(node) => node.compile(address, context),
+            BlockContent::ThematicBreak(node) => node.compile(address, context),
         }
     }
 }
 
 impl Compile for CreativeWorkTypes {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         match self {
-            CreativeWorkTypes::Article(node) => node.compile(route, context),
-            CreativeWorkTypes::AudioObject(node) => node.compile(route, context),
-            CreativeWorkTypes::Claim(node) => node.compile(route, context),
-            CreativeWorkTypes::Collection(node) => node.compile(route, context),
-            CreativeWorkTypes::Comment(node) => node.compile(route, context),
-            CreativeWorkTypes::CreativeWork(node) => node.compile(route, context),
-            CreativeWorkTypes::Datatable(node) => node.compile(route, context),
-            CreativeWorkTypes::Figure(node) => node.compile(route, context),
-            CreativeWorkTypes::ImageObject(node) => node.compile(route, context),
-            CreativeWorkTypes::MediaObject(node) => node.compile(route, context),
-            CreativeWorkTypes::Periodical(node) => node.compile(route, context),
-            CreativeWorkTypes::PublicationIssue(node) => node.compile(route, context),
-            CreativeWorkTypes::PublicationVolume(node) => node.compile(route, context),
-            CreativeWorkTypes::Review(node) => node.compile(route, context),
-            CreativeWorkTypes::SoftwareApplication(node) => node.compile(route, context),
-            CreativeWorkTypes::SoftwareSourceCode(node) => node.compile(route, context),
-            CreativeWorkTypes::Table(node) => node.compile(route, context),
-            CreativeWorkTypes::VideoObject(node) => node.compile(route, context),
+            CreativeWorkTypes::Article(node) => node.compile(address, context),
+            CreativeWorkTypes::AudioObject(node) => node.compile(address, context),
+            CreativeWorkTypes::Claim(node) => node.compile(address, context),
+            CreativeWorkTypes::Collection(node) => node.compile(address, context),
+            CreativeWorkTypes::Comment(node) => node.compile(address, context),
+            CreativeWorkTypes::CreativeWork(node) => node.compile(address, context),
+            CreativeWorkTypes::Datatable(node) => node.compile(address, context),
+            CreativeWorkTypes::Figure(node) => node.compile(address, context),
+            CreativeWorkTypes::ImageObject(node) => node.compile(address, context),
+            CreativeWorkTypes::MediaObject(node) => node.compile(address, context),
+            CreativeWorkTypes::Periodical(node) => node.compile(address, context),
+            CreativeWorkTypes::PublicationIssue(node) => node.compile(address, context),
+            CreativeWorkTypes::PublicationVolume(node) => node.compile(address, context),
+            CreativeWorkTypes::Review(node) => node.compile(address, context),
+            CreativeWorkTypes::SoftwareApplication(node) => node.compile(address, context),
+            CreativeWorkTypes::SoftwareSourceCode(node) => node.compile(address, context),
+            CreativeWorkTypes::Table(node) => node.compile(address, context),
+            CreativeWorkTypes::VideoObject(node) => node.compile(address, context),
         }
     }
 }
@@ -185,9 +190,9 @@ impl<T> Compile for Option<T>
 where
     T: Compile,
 {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         if let Some(value) = self {
-            value.compile(route, context)
+            value.compile(address, context)
         } else {
             Ok(())
         }
@@ -198,8 +203,8 @@ impl<T> Compile for Box<T>
 where
     T: Compile,
 {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
-        (**self).compile(route, context)
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+        (**self).compile(address, context)
     }
 }
 
@@ -207,9 +212,9 @@ impl<T> Compile for Vec<T>
 where
     T: Compile,
 {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         for (index, item) in self.iter_mut().enumerate() {
-            item.compile(&[route, ".", &index.to_string()].concat(), context)?
+            item.compile(&[address, ".", &index.to_string()].concat(), context)?
         }
         Ok(())
     }
@@ -220,7 +225,7 @@ macro_rules! compile_nothing {
     ( $( $type:ty ),* ) => {
         $(
             impl Compile for $type {
-                fn compile(&mut self, _route: &str, _compilation: &mut Context) -> Result<()> {Ok(())}
+                fn compile(&mut self, _address: &str, _compilation: &mut Context) -> Result<()> {Ok(())}
             }
         )*
     };
@@ -257,8 +262,8 @@ macro_rules! compile_content {
     ( $( $type:ty ),* ) => {
         $(
             impl Compile for $type {
-                fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
-                    self.content.compile(&[route, ".content"].concat(), context)
+                fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+                    self.content.compile(&[address, ".content"].concat(), context)
                 }
             }
         )*
@@ -292,35 +297,37 @@ compile_content!(
 // Implementations for `content` property enums
 
 impl Compile for CreativeWorkContent {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         match self {
-            CreativeWorkContent::String(node) => node.compile(route, context),
-            CreativeWorkContent::VecNode(nodes) => nodes.compile(route, context),
+            CreativeWorkContent::String(node) => node.compile(address, context),
+            CreativeWorkContent::VecNode(nodes) => nodes.compile(address, context),
         }
     }
 }
 
 impl Compile for ListItemContent {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         match self {
-            ListItemContent::VecInlineContent(nodes) => nodes.compile(route, context),
-            ListItemContent::VecBlockContent(nodes) => nodes.compile(route, context),
+            ListItemContent::VecInlineContent(nodes) => nodes.compile(address, context),
+            ListItemContent::VecBlockContent(nodes) => nodes.compile(address, context),
         }
     }
 }
 
 /// Compile a `Link` to add its `target` to the list of included files
 impl Compile for Link {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         let target = self.target.clone();
         let resource = if target.starts_with("http://") || target.starts_with("https://") {
             Resource::Url(target)
         } else {
             Resource::File(target)
         };
-        context
-            .relations
-            .push((Resource::Link(route.to_string()), Relation::Links, resource));
+        context.relations.push((
+            Resource::Link(context.path_within_project.clone(), address.to_string()),
+            Relation::Links,
+            resource,
+        ));
 
         Ok(())
     }
@@ -372,11 +379,11 @@ macro_rules! compile_media_object {
     ( $( $type:ty ),* ) => {
         $(
             impl Compile for $type {
-                fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+                fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
                     let url = compile_content_url(&self.content_url, context)?;
 
                     context.relations.push((
-                        Resource::Embed(route.to_string()),
+                        Resource::Embed(context.path_within_project.clone(), address.to_string()),
                         Relation::Embeds,
                         Resource::File(url.clone()),
                     ));
@@ -401,10 +408,13 @@ compile_media_object!(
 );
 
 impl Compile for CodeChunk {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         if let Some(lang) = self.programming_language.as_deref() {
-            let mut relations =
-                code::compile(&Resource::CodeChunk(route.to_string()), &self.text, lang);
+            let mut relations = code::compile(
+                &Resource::CodeChunk(context.path_within_project.clone(), address.to_string()),
+                &self.text,
+                lang,
+            );
             context.relations.append(&mut relations)
         }
         Ok(())
@@ -412,10 +422,10 @@ impl Compile for CodeChunk {
 }
 
 impl Compile for CodeExpression {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         if let Some(lang) = self.programming_language.as_deref() {
             let mut relations = code::compile(
-                &Resource::CodeExpression(route.to_string()),
+                &Resource::CodeExpression(context.path_within_project.clone(), address.to_string()),
                 &self.text,
                 lang,
             );
@@ -426,12 +436,15 @@ impl Compile for CodeExpression {
 }
 
 impl Compile for SoftwareSourceCode {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, _address: &str, context: &mut Context) -> Result<()> {
         if let (Some(text), Some(lang)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
-            let mut relations =
-                code::compile(&Resource::SoftwareSourceCode(route.to_string()), text, lang);
+            let mut relations = code::compile(
+                &Resource::SoftwareSourceCode(context.path_within_project.clone()),
+                text,
+                lang,
+            );
             context.relations.append(&mut relations)
         }
         Ok(())
@@ -441,33 +454,33 @@ impl Compile for SoftwareSourceCode {
 // Custom implementations where necessary for other types
 
 impl Compile for CiteGroup {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
-        self.items.compile(route, context)
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+        self.items.compile(address, context)
     }
 }
 
 impl Compile for Collection {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
-        self.parts.compile(route, context)
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+        self.parts.compile(address, context)
     }
 }
 
 impl Compile for CollectionSimple {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
-        self.parts.compile(route, context)
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+        self.parts.compile(address, context)
     }
 }
 
 impl Compile for List {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
-        self.items.compile(route, context)
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+        self.items.compile(address, context)
     }
 }
 
 impl Compile for ListItem {
-    fn compile(&mut self, route: &str, context: &mut Context) -> Result<()> {
-        self.item.compile(route, context)?;
-        self.content.compile(route, context)?;
+    fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+        self.item.compile(address, context)?;
+        self.content.compile(address, context)?;
         Ok(())
     }
 }

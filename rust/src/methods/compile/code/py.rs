@@ -41,8 +41,8 @@ pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
         .query(code)
         .into_iter()
         .filter_map(|(pattern, captures)| match pattern {
-            0 => Some((Relation::Uses, Resource::Module(captures[0].text.clone()))),
-            1 => Some((Relation::Uses, Resource::Module(captures[0].text.clone()))),
+            0 => Some((Relation::Uses, Resource::Module("python".to_string(), captures[0].text.clone()))),
+            1 => Some((Relation::Uses, Resource::Module("python".to_string(), captures[0].text.clone()))),
             2 => {
                 let args = captures_as_args_map(captures);
                 if let Some(file) = args.get("0").or_else(|| args.get("file")) {

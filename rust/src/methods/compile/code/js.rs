@@ -55,11 +55,11 @@ pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
         .filter_map(|(pattern, captures)| match pattern {
             0 => Some((
                 Relation::Uses,
-                Resource::Module(remove_quotes(&captures[0].text)),
+                Resource::Module("javascript".to_string(), remove_quotes(&captures[0].text)),
             )),
             1 => Some((
                 Relation::Uses,
-                Resource::Module(remove_quotes(&captures[1].text)),
+                Resource::Module("javascript".to_string(), remove_quotes(&captures[1].text)),
             )),
             2 => Some((
                 Relation::Reads,
