@@ -48,8 +48,8 @@
       "editor": {
         "title": "Editor",
         "newFileDefault": {
-          "label": "Default syntax",
-          "help": "Syntax to use for newly created files"
+          "label": "Default format",
+          "help": "File format to use for newly created files"
         },
         "lineWrap": {
           "label": "Wrap lines to editor width"

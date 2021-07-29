@@ -49,7 +49,10 @@ export class AppSettingsEditor {
               {Object.values(FileFormatUtils.fileFormatMap).map((format) => (
                 <option
                   value={format.ext ?? format.name}
-                  selected={this.config.EDITOR_NEW_FILE_SYNTAX === format.name}
+                  selected={
+                    this.config.EDITOR_NEW_FILE_SYNTAX === format.ext ||
+                    this.config.EDITOR_NEW_FILE_SYNTAX === format.name
+                  }
                   key={format.name}
                 >
                   {format.name}
