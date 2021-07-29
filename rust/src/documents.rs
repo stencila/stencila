@@ -294,6 +294,8 @@ impl Document {
             self.format = FORMATS.match_path(&path);
         };
 
+        self.previewable = self.format.preview;
+
         Ok(())
     }
 
