@@ -1,5 +1,6 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
+import { FileFormatUtils } from '@stencila/components'
 import { debounce } from 'debounce'
 import { option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
@@ -10,6 +11,7 @@ import { selectDoc } from '../../../../renderer/store/documentPane/documentPaneS
 import { saveEditorState } from '../../../../renderer/store/editorState/editorStateActions'
 import { editorStateById } from '../../../../renderer/store/editorState/editorStateSelectors'
 import { EditorState } from '../../../../renderer/store/editorState/editorStateTypes'
+import { alterDocument, saveDocument } from '../../../actions/documentActions'
 import { client } from '../../../client'
 import { configState } from '../../../store/appConfig'
 import { errorToast } from '../../../utils/errors'
@@ -134,6 +136,12 @@ export class AppDocumentEditor {
       .then((contents) => client.documents.load(this.documentId, contents.text))
   }, this.onDocChangeTimeout)
 
+  private onSetLanguage = (e: CustomEvent<FileFormatUtils.FileFormat>) => {
+    if (e.detail.ext) {
+      alterDocument(this.documentId, undefined, e.detail.ext)
+    }
+  }
+
   private fileFormatToLanguage = (): string => {
     const file = selectDoc(state)(this.documentId)
     switch (file?.format?.name) {
@@ -148,10 +156,7 @@ export class AppDocumentEditor {
     this.editorRef
       ?.getContents()
       .then(({ text }) => {
-        client.documents.write({
-          documentId: this.documentId,
-          content: text,
-        })
+        saveDocument(this.documentId, text)
       })
       .catch((err) => {
         errorToast(err)
@@ -176,6 +181,7 @@ export class AppDocumentEditor {
             lineNumbers={configState.EDITOR_LINE_NUMBERS}
             lineWrapping={configState.EDITOR_LINE_WRAPPING}
             contentChangeHandler={this.onDocChange}
+            onSetLanguage={this.onSetLanguage}
           ></stencila-editor>
         </div>
       </Host>

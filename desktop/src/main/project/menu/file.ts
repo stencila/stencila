@@ -1,18 +1,38 @@
 import { MenuItemConstructorOptions } from 'electron'
 import { showSettings } from '../../config/window'
 import { isWindows } from '../../menu/utils'
-import { closeActiveTab } from '../../window/windowUtils'
+import {
+  closeActiveTab,
+  createNewDocument,
+  saveActiveDoc,
+} from '../../window/windowUtils'
 import { openProject } from '../handlers'
 
 export const projectFileMenu: MenuItemConstructorOptions = {
   label: 'File',
   submenu: [
     {
+      label: 'New File',
+      accelerator: 'CommandOrControl+N',
+      click: () => {
+        createNewDocument()
+      },
+    },
+    { type: 'separator' },
+    {
       label: 'Open…',
       accelerator: 'CommandOrControl+o',
       click: () => {
         openProject()
       },
+    },
+    { type: 'separator' },
+    {
+      label: 'Save',
+      click: () => {
+        saveActiveDoc()
+      },
+      accelerator: 'CommandOrControl+s',
     },
     { type: 'separator' },
     {

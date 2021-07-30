@@ -71,19 +71,10 @@ export class AppSettingsSidebar {
           </li>
 
           <li>
-            <stencila-tooltip text="Coming soon!">
-              <a
-                {...href('/settings/')}
-                class={{ disabled: true }}
-                onClick={(e) => {
-                  e.preventDefault()
-                  ;(e.currentTarget as HTMLAnchorElement).blur()
-                }}
-              >
-                <stencila-icon icon="file-edit"></stencila-icon>
-                Editor
-              </a>
-            </stencila-tooltip>
+            <a {...href('/settings/editor')}>
+              <stencila-icon icon="file-edit"></stencila-icon>
+              Editor
+            </a>
           </li>
 
           <li>

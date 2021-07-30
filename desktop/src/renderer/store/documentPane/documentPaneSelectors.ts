@@ -17,6 +17,12 @@ export const selectDoc = (state: RootState) => (docId: EntityId) => {
   return state.panes.entities.views[docId]
 }
 
+export const isTemporaryDocument =
+  (state: RootState) =>
+  (viewId: EntityId): boolean => {
+    return state.panes.entities.views[viewId]?.temporary ?? false
+  }
+
 export const selectLayout = (state: RootState) => (layoutId: EntityId) => {
   return state.panes.entities.layouts[layoutId]
 }

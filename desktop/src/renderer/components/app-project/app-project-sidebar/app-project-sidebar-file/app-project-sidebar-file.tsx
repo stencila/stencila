@@ -1,7 +1,7 @@
 import { Component, h, Host, Prop, State } from '@stencil/core'
 import { File } from 'stencila'
 import { state } from '../../../../store'
-import { addDocumentToActivePane } from '../../../../store/documentPane/documentPaneActions'
+import { openDocumentInActivePane } from '../../../../store/documentPane/documentPaneActions'
 import { selectProjectFile } from '../../../../store/project/projectSelectors'
 import { getFileIcon } from './iconMap'
 
@@ -28,7 +28,7 @@ export class AppProjectSidebarFile {
     if (this.file?.children) {
       this.isCollapsed = !this.isCollapsed
     } else {
-      addDocumentToActivePane(this.filePath)
+      openDocumentInActivePane(this.filePath)
     }
   }
 

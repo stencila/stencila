@@ -1,6 +1,3 @@
-.settingsGeneral {
-}
-
 .title {
   @apply flex justify-between items-center mb-4;
   color: var(--color-key);
@@ -11,7 +8,12 @@
 }
 
 fieldset {
-  @apply border-0 m-0 p-0 align-middle;
+  @apply border-0 m-0 mt-4 p-0 align-middle;
+}
+
+label {
+  @apply font-bold mt-4 mb-1 text-sm;
+  color: var(--color-neutral-700);
 }
 
 .helpText {
@@ -20,9 +22,13 @@ fieldset {
 }
 
 input {
-  @apply m-0 mr-2;
+  @apply mt-1 text-lg;
 
   &[type='checkbox'] {
     @apply mr-2;
   }
+}
+
+select {
+  @apply block mt-1;
 }

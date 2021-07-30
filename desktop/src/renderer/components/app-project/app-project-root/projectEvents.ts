@@ -3,7 +3,10 @@ import { pipe } from 'fp-ts/function'
 import { FileEvent } from 'stencila'
 import { CHANNEL } from '../../../../preload/channels'
 import { state, store } from '../../../store'
-import { closeDocument } from '../../../store/documentPane/documentPaneActions'
+import {
+  closeDocument,
+  createNewDocument,
+} from '../../../store/documentPane/documentPaneActions'
 import {
   selectActiveView,
   selectPaneId,
@@ -15,6 +18,8 @@ export const listenForFileEvents = (_projectId: string) => {
     const e = event as FileEvent
     store.dispatch(projectActions.updateProjectFiles(e.files))
   })
+
+  window.api.receive(CHANNEL.DOCUMENTS_CREATE, createNewDocument)
 
   window.api.receive(CHANNEL.DOCUMENTS_CLOSE_ACTIVE, () => {
     pipe(

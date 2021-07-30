@@ -1,6 +1,7 @@
 import { app, BrowserWindow, protocol } from 'electron'
+import installExtension, { REDUX_DEVTOOLS } from 'electron-devtools-installer'
 import { debug } from './debug'
-import { prepare, main } from './main'
+import { main, prepare } from './main'
 import { requestHandler, scheme } from './main/app-protocol'
 import { openLauncherWindow } from './main/launcher/window'
 import * as localProtocol from './main/local-protocol'
@@ -52,6 +53,17 @@ protocol.registerSchemesAsPrivileged([
 
 if (isDevelopment) {
   debug()
+
+  app.whenReady().then(() => {
+    installExtension(REDUX_DEVTOOLS, {
+      loadExtensionOptions: { allowFileAccess: true },
+      forceDownload: false,
+    })
+      .then((name: string) => console.log(`Added Extension: ${name}`))
+      .catch((err: unknown) =>
+        console.log('Failed to install dev tools extension: ', err)
+      )
+  })
 }
 
 // This method will be called when Electron has finished

@@ -215,6 +215,7 @@ impl Document {
             .to_path_buf();
 
         let format = FORMATS.match_path(&format.unwrap_or_else(|| "txt".to_string()));
+        let previewable = format.preview;
 
         Document {
             id,
@@ -224,6 +225,7 @@ impl Document {
             status: DocumentStatus::Synced,
             name: "Unnamed".into(),
             format,
+            previewable,
             ..Default::default()
         }
     }
@@ -248,7 +250,7 @@ impl Document {
         };
 
         // Apply path and format arguments
-        document.alter(Some(path), format)?;
+        document.alter(Some(path), format).await?;
 
         // Attempt to read the document from the file
         attempt(document.read().await);
@@ -264,7 +266,11 @@ impl Document {
     ///
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the path's file extension.
-    pub fn alter<P: AsRef<Path>>(&mut self, path: Option<P>, format: Option<String>) -> Result<()> {
+    pub async fn alter<P: AsRef<Path>>(
+        &mut self,
+        path: Option<P>,
+        format: Option<String>,
+    ) -> Result<()> {
         if let Some(path) = &path {
             let path = path.as_ref();
 
@@ -293,6 +299,12 @@ impl Document {
         } else if let Some(path) = path {
             self.format = FORMATS.match_path(&path);
         };
+
+        self.previewable = self.format.preview;
+
+        // Given that the `format` may have changed, it is necessary
+        // to update the `root` of the document
+        self.update().await?;
 
         Ok(())
     }
@@ -439,8 +451,11 @@ impl Document {
             let path = self.path.display().to_string();
             let input = ["file://", &path].concat();
             decode(&input, format).await?
-        } else {
+        } else if !self.content.is_empty() {
             decode(&self.content, format).await?
+        } else {
+            self.root = None;
+            return Ok(());
         };
 
         #[cfg(feature = "reshape")]

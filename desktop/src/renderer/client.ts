@@ -120,6 +120,14 @@ export const client = {
       window.api
         .invoke(CHANNEL.DOCUMENTS_OPEN, path, format)
         .then(unwrapOrThrow),
+    alter: (docId: EntityId, path?: string, format?: string) =>
+      window.api
+        .invoke(CHANNEL.DOCUMENTS_ALTER, docId.toString(), path, format)
+        .then(unwrapOrThrow),
+    create: (format?: string) =>
+      window.api.invoke(CHANNEL.DOCUMENTS_CREATE, format).then(unwrapOrThrow),
+    createFilePath: () =>
+      window.api.invoke(CHANNEL.DOCUMENTS_CREATE_FILE_PATH).then(unwrapOrThrow),
     contents: (docId: EntityId) =>
       window.api
         .invoke(CHANNEL.DOCUMENTS_DUMP, docId.toString())
@@ -127,6 +135,10 @@ export const client = {
     load: (docId: EntityId, contents: string) =>
       window.api
         .invoke(CHANNEL.DOCUMENTS_LOAD, docId.toString(), contents)
+        .then(unwrapOrThrow),
+    get: (docId: EntityId) =>
+      window.api
+        .invoke(CHANNEL.DOCUMENTS_GET, docId.toString())
         .then(unwrapOrThrow),
     preview: (docId: EntityId) =>
       window.api

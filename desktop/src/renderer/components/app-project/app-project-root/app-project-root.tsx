@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core'
 import { Route } from '@stencil/router'
 import { state, store } from '../../../store'
 import {
-  addDocumentToActivePane,
+  openDocumentInActivePane,
   initPane,
 } from '../../../store/documentPane/documentPaneActions'
 import { fetchProject } from '../../../store/project/projectActions'
@@ -28,7 +28,7 @@ export class AppProjectRoot {
 
     const mainFile = getProjectMainFilePath(state)
     if (mainFile) {
-      addDocumentToActivePane(mainFile)
+      openDocumentInActivePane(mainFile)
     }
   }
 

@@ -20,6 +20,7 @@ export interface AppConfigStore {
   FIRST_LAUNCH?: boolean | undefined
   EDITOR_LINE_WRAPPING: boolean
   EDITOR_LINE_NUMBERS: boolean
+  EDITOR_NEW_FILE_SYNTAX: string
 }
 
 export interface NormalizedPlugins {
@@ -160,6 +161,21 @@ export type DocumentsOpen = InvokeType<
   typeof dispatch.documents.open
 >
 
+export type DocumentsAlter = InvokeType<
+  typeof CHANNEL.DOCUMENTS_ALTER,
+  typeof dispatch.documents.alter
+>
+
+export type DocumentsCreate = InvokeType<
+  typeof CHANNEL.DOCUMENTS_CREATE,
+  typeof dispatch.documents.create
+>
+
+export type DocumentsCreateFilePath = InvokeType<
+  typeof CHANNEL.DOCUMENTS_CREATE_FILE_PATH,
+  () => string | null
+>
+
 export type DocumentsClose = InvokeType<
   typeof CHANNEL.DOCUMENTS_CLOSE,
   typeof dispatch.documents.close
@@ -185,9 +201,19 @@ export type DocumentsLoad = InvokeType<
   typeof dispatch.documents.load
 >
 
+export type DocumentsGet = InvokeType<
+  typeof CHANNEL.DOCUMENTS_GET,
+  typeof dispatch.documents.get
+>
+
 export type DocumentsWrite = InvokeType<
   typeof CHANNEL.DOCUMENTS_WRITE,
   typeof dispatch.documents.write
+>
+
+export type DocumentsWriteAs = InvokeType<
+  typeof CHANNEL.DOCUMENTS_WRITE_AS,
+  typeof dispatch.documents.writeAs
 >
 
 export type DocumentsUnsubscribe = InvokeType<
@@ -217,12 +243,17 @@ type InvokeTypes =
   | ProjectsOpenUsingFilePicker
   | ProjectsOpen
   | DocumentsOpen
+  | DocumentsAlter
+  | DocumentsCreate
+  | DocumentsCreateFilePath
   | DocumentsClose
   | DocumentsCloseActive
   | DocumentsPreview
   | DocumentsDump
   | DocumentsLoad
+  | DocumentsGet
   | DocumentsWrite
+  | DocumentsWriteAs
   | DocumentsUnsubscribe
 
 // -----------------------------------------------------------------------------
@@ -354,6 +385,21 @@ interface Invoke {
   ): DocumentsOpen['result']
 
   invoke(
+    channel: DocumentsAlter['channel'],
+    ...args: DocumentsAlter['args']
+  ): DocumentsAlter['result']
+
+  invoke(
+    channel: DocumentsCreate['channel'],
+    ...args: DocumentsCreate['args']
+  ): DocumentsCreate['result']
+
+  invoke(
+    channel: DocumentsCreateFilePath['channel'],
+    ...args: DocumentsCreateFilePath['args']
+  ): DocumentsCreateFilePath['result']
+
+  invoke(
     channel: DocumentsClose['channel'],
     ...args: DocumentsClose['args']
   ): DocumentsClose['result']
@@ -379,9 +425,19 @@ interface Invoke {
   ): DocumentsLoad['result']
 
   invoke(
+    channel: DocumentsGet['channel'],
+    ...args: DocumentsGet['args']
+  ): DocumentsGet['result']
+
+  invoke(
     channel: DocumentsWrite['channel'],
     ...args: DocumentsWrite['args']
   ): DocumentsWrite['result']
+
+  invoke(
+    channel: DocumentsWriteAs['channel'],
+    documentId: string
+  ): DocumentsWriteAs['result']
 
   invoke(
     channel: DocumentsUnsubscribe['channel'],
