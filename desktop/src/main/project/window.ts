@@ -3,6 +3,7 @@ import { projects } from 'stencila'
 import { projectHandlers } from '.'
 import { documentHandlers } from '../document'
 import { createWindow } from '../window'
+import { onUiLoaded } from '../window/windowUtils'
 import { registerProjectMenu } from './menu'
 
 const getProjectName = (path: string): string => parse(path).base
@@ -33,15 +34,15 @@ export const openProjectWindow = (directoryPath: string) => {
     documentHandlers.remove(windowId)
   })
 
-  projectWindow.webContents.on('did-finish-load', () => {
-    projectWindow?.show()
+  onUiLoaded(projectWindow.webContents)(() => {
+    projectWindow.show()
   })
 
   projectWindow.on('focus', () => {
     registerProjectMenu()
   })
 
-  projectWindow?.loadURL(projectUrl)
+  projectWindow.loadURL(projectUrl)
 
   return projectWindow
 }

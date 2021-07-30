@@ -3,6 +3,7 @@ import { configHandlers } from '.'
 import { i18n } from '../../i18n'
 import { registerBaseMenu } from '../menu'
 import { createWindow } from '../window'
+import { onUiLoaded } from '../window/windowUtils'
 
 let settingsWindow: BrowserWindow | null
 
@@ -35,7 +36,7 @@ export const showSettings = () => {
     settingsWindow = null
   })
 
-  settingsWindow.webContents.on('did-finish-load', () => {
+  onUiLoaded(settingsWindow.webContents)(() => {
     settingsWindow?.show()
   })
 

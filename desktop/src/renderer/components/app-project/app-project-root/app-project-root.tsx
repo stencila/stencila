@@ -2,8 +2,8 @@ import { Component, h } from '@stencil/core'
 import { Route } from '@stencil/router'
 import { state, store } from '../../../store'
 import {
-  openDocumentInActivePane,
   initPane,
+  openDocumentInActivePane
 } from '../../../store/documentPane/documentPaneActions'
 import { fetchProject } from '../../../store/project/projectActions'
 import { getProjectMainFilePath } from '../../../store/project/projectSelectors'
