@@ -55,7 +55,7 @@
           "label": "Wrap lines to editor width"
         },
         "lineNumbers": {
-          "label": "Show Line Numbers"
+          "label": "Show line numbers"
         }
       },
       "plugins": {
