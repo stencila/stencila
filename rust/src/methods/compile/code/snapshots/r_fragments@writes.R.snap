@@ -6,6 +6,13 @@ input_file: fixtures/fragments/r/writes.R
 ---
 [
   [
+    "uses",
+    {
+      "type": "Variable",
+      "id": "data"
+    }
+  ],
+  [
     "writes",
     {
       "type": "File",
@@ -20,6 +27,13 @@ input_file: fixtures/fragments/r/writes.R
     }
   ],
   [
+    "assigns",
+    {
+      "type": "Function",
+      "id": "foo"
+    }
+  ],
+  [
     "writes",
     {
       "type": "File",
@@ -31,6 +45,13 @@ input_file: fixtures/fragments/r/writes.R
     {
       "type": "File",
       "id": "path4"
+    }
+  ],
+  [
+    "uses",
+    {
+      "type": "Variable",
+      "id": "ignore"
     }
   ]
 ]

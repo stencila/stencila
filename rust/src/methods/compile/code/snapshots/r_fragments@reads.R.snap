@@ -13,10 +13,24 @@ input_file: fixtures/fragments/r/reads.R
     }
   ],
   [
+    "assigns",
+    {
+      "type": "Variable",
+      "id": "data"
+    }
+  ],
+  [
     "reads",
     {
       "type": "File",
       "id": "path2"
+    }
+  ],
+  [
+    "assigns",
+    {
+      "type": "Function",
+      "id": "foo"
     }
   ],
   [

@@ -1,0 +1,50 @@
+---
+source: rust/src/methods/compile/code/r.rs
+expression: compile(&code)
+input_file: fixtures/fragments/r/assigns.R
+
+---
+[
+  [
+    "assigns",
+    {
+      "type": "Variable",
+      "id": "var1"
+    }
+  ],
+  [
+    "assigns",
+    {
+      "type": "Variable",
+      "id": "var2"
+    }
+  ],
+  [
+    "assigns",
+    {
+      "type": "Function",
+      "id": "fun1"
+    }
+  ],
+  [
+    "assigns",
+    {
+      "type": "Variable",
+      "id": "var3"
+    }
+  ],
+  [
+    "assigns",
+    {
+      "type": "Variable",
+      "id": "var4"
+    }
+  ],
+  [
+    "assigns",
+    {
+      "type": "Variable",
+      "id": "var5"
+    }
+  ]
+]

@@ -1,6 +1,10 @@
 use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
 use crate::graphs::{Relation, Resource};
+use itertools::Itertools;
 use once_cell::sync::Lazy;
+
+mod ignores;
+use ignores::USES_IGNORE_FUNCTIONS;
 
 /// Compiler for R
 static COMPILER: Lazy<Compiler> = Lazy::new(|| {
@@ -54,17 +58,29 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
         )
     ]
 )
+
+(program [
+    (left_assignment name: (identifier) @identifer value: (_) @value)
+    (equals_assignment name: (identifier) @identifer value: (_) @value)
+])
+(super_assignment name: (identifier) @identifer  value: (_) @value)
+
+((identifier) @identifer)
+
 "#,
     )
 });
 
 /// Compile some R code
 pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
-    COMPILER
-        .query(code)
+    let code = code.as_bytes();
+    let tree = COMPILER.parse(code);
+    let captures = COMPILER.query(code, &tree);
+    captures
         .into_iter()
         .filter_map(|(pattern, captures)| match pattern {
             0 => {
+                // Imports a package using `library` or `require`
                 let args = captures_as_args_map(captures);
                 args.get("0")
                     .or_else(|| args.get("package"))
@@ -76,23 +92,102 @@ pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
                         } else if is_quoted(package) {
                             return None;
                         }
-                        Some((Relation::Uses, Resource::Module("r".to_string(), remove_quotes(package))))
+                        Some((
+                            Relation::Uses,
+                            Resource::Module(["r/", &remove_quotes(package)].concat()),
+                        ))
                     })
             }
             1 => {
+                // Reads a file
                 let args = captures_as_args_map(captures);
                 args.get("0")
                     .or_else(|| args.get("file"))
                     .map(|file| (Relation::Reads, Resource::File(remove_quotes(file))))
             }
             2 => {
+                // Writes a file
                 let args = captures_as_args_map(captures);
                 args.get("1")
                     .or_else(|| args.get("file"))
                     .map(|file| (Relation::Writes, Resource::File(remove_quotes(file))))
             }
+            3 | 4 => {
+                // Assigns a variable or function at the program root
+                let id = captures[0].text.clone();
+                let resource = match captures[1].node.kind() {
+                    "function_definition" => Resource::Function(id),
+                    _ => Resource::Variable(id),
+                };
+                Some((Relation::Assigns, resource))
+            }
+            5 => {
+                // Uses a function or variable
+                let node = captures[0].node;
+                let id = captures[0].text.clone();
+
+                let mut parent = node.parent();
+                while let Some(parent_node) = parent {
+                    match parent_node.kind() {
+                        // Skip identifiers that are the `name` of an assignment
+                        "left_assignment" | "equals_assignment" | "super_assignment" => {
+                            if let Some(name) = parent_node.child_by_field_name("name") {
+                                if name == node {
+                                    return None;
+                                }
+                            }
+                        }
+                        // Skip identifiers that are the `name` of a function call argument
+                        "arguments" => {
+                            let mut cursor = node.walk();
+                            for name in parent_node.children_by_field_name("name", &mut cursor) {
+                                if name == node {
+                                    return None;
+                                }
+                            }
+                        }
+                        // Skip identifiers that are the `name` of a for loop, or that refer to it
+                        "for" => {
+                            if let Some(name) = parent_node.child_by_field_name("name") {
+                                if name == node || name.utf8_text(code).unwrap() == id {
+                                    return None;
+                                }
+                            }
+                        }
+                        // Skip package identifiers
+                        "call" => {
+                            if let Some(function) = parent_node.child_by_field_name("function") {
+                                let name = function.utf8_text(code).unwrap();
+                                if name == "library" || name == "require" {
+                                    return None;
+                                }
+                            }
+                        }
+                        // Skip identifiers within a function definition
+                        "function_definition" => return None,
+                        _ => {}
+                    }
+                    parent = parent_node.parent();
+                }
+
+                let resource = match node.parent() {
+                    Some(parent_node) => match parent_node.kind() {
+                        "call" => {
+                            if USES_IGNORE_FUNCTIONS.contains(&id.as_str()) {
+                                return None;
+                            }
+                            Resource::Function(id)
+                        }
+                        _ => Resource::Variable(id),
+                    },
+                    None => Resource::Symbol(id),
+                };
+
+                Some((Relation::Uses, resource))
+            }
             _ => None,
         })
+        .unique()
         .collect()
 }
 

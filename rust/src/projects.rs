@@ -1,5 +1,7 @@
 use crate::config::CONFIG;
+use crate::documents::Document;
 use crate::files::{File, FileEvent, Files};
+use crate::graphs::{Graph, Resource};
 use crate::methods::import::import;
 use crate::pubsub::publish;
 use crate::sources::{self, Source, SourceDestination, SourceTrait};
@@ -131,6 +133,10 @@ pub struct Project {
     #[serde(skip_deserializing)]
     #[schemars(schema_with = "Project::schema_files")]
     files: Files,
+
+    /// The project's dependency graph
+    #[serde(skip)]
+    graph: Graph,
 }
 
 impl Project {
@@ -344,6 +350,43 @@ impl Project {
         self.theme = self.theme.clone().or_else(|| Some(config.theme.clone()));
 
         ProjectEvent::publish(self, ProjectEventType::Updated)
+    }
+
+    /// Compile a project
+    ///
+    /// Starts at the main document and walks over any related file
+    pub async fn compile(&mut self) -> Result<&mut Project> {
+        #[async_recursion::async_recursion]
+        async fn walk(path: &Path, graph: &mut Graph) -> Result<()> {
+            if !path.exists() {
+                return Ok(());
+            }
+
+            let document = Document::open(path, None).await?;
+            if let Some(relations) = document.relations {
+                for triple in relations {
+                    let to = triple.2.clone();
+
+                    graph.add_triple(triple);
+
+                    match to {
+                        Resource::File(path) => {
+                            walk(&PathBuf::from(path), graph).await?;
+                        }
+                        _ => (),
+                    }
+                }
+            }
+            Ok(())
+        }
+
+        let mut graph = Graph::new();
+        if let Some(path) = self.main_path.as_deref() {
+            walk(path, &mut graph).await?;
+        }
+        self.graph = graph;
+
+        Ok(self)
     }
 
     /// Show a project
@@ -891,6 +934,7 @@ pub mod cli {
         Open(Open),
         Close(Close),
         Show(Show),
+        Graph(Graph),
         Schemas(Schemas),
     }
 
@@ -903,6 +947,7 @@ pub mod cli {
                 Action::Open(action) => action.run().await,
                 Action::Close(action) => action.run().await,
                 Action::Show(action) => action.run().await,
+                Action::Graph(action) => action.run(projects).await,
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -1002,6 +1047,46 @@ pub mod cli {
             let project = PROJECTS.open(folder, false).await?;
             let content = project.show()?;
             display::new("md", &content, Some(project))
+        }
+    }
+
+    /// Output a dependency graph for a project
+    ///
+    /// When using the DOT format, if you have GraphViz and ImageMagick installed
+    /// you can view the graph by piping the output to them. For example, to
+    /// view a graph of the current project:
+    ///
+    /// ```sh
+    /// stencila projects graph --format dot | dot -Tpng | display
+    /// ```
+    ///
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Graph {
+        /// The path of the project folder (defaults to the current project)
+        folder: Option<PathBuf>,
+
+        /// The format to output the graph as
+        #[structopt(long, short, default_value = "cyto", possible_values = &GRAPH_FORMATS)]
+        format: String,
+    }
+
+    const GRAPH_FORMATS: [&str; 2] = ["cyto", "dot"];
+
+    impl Graph {
+        pub async fn run(self, projects: &mut Projects) -> display::Result {
+            let Self { folder, format } = self;
+            let project = &mut projects.open(folder, false).await?;
+            project.compile().await?;
+            let content = match format.as_str() {
+                "cyto" => project.graph.to_cyto(),
+                "dot" => project.graph.to_dot(),
+                _ => bail!("Unknown graph format '{}'", format),
+            };
+            display::content("", &content)
         }
     }
 

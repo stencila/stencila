@@ -9,84 +9,84 @@ input_file: fixtures/fragments/js/imports.js
     "uses",
     {
       "type": "Module",
-      "id": "module-1"
+      "id": "javascript/module-1"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module-2"
+      "id": "javascript/module-2"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module-3"
+      "id": "javascript/module-3"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module-4"
+      "id": "javascript/module-4"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module-5"
+      "id": "javascript/module-5"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module-6"
+      "id": "javascript/module-6"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module-7"
+      "id": "javascript/module-7"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module-8"
+      "id": "javascript/module-8"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module-9"
+      "id": "javascript/module-9"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module-10"
+      "id": "javascript/module-10"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module-11"
+      "id": "javascript/module-11"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module-12"
+      "id": "javascript/module-12"
     }
   ]
 ]

@@ -37,12 +37,20 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 
 /// Compile some Python code
 pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
-    COMPILER
-        .query(code)
+    let code = code.as_bytes();
+    let tree = COMPILER.parse(code);
+    let captures = COMPILER.query(code, &tree);
+    captures
         .into_iter()
         .filter_map(|(pattern, captures)| match pattern {
-            0 => Some((Relation::Uses, Resource::Module("python".to_string(), captures[0].text.clone()))),
-            1 => Some((Relation::Uses, Resource::Module("python".to_string(), captures[0].text.clone()))),
+            0 => Some((
+                Relation::Uses,
+                Resource::Module(["python/", &captures[0].text].concat()),
+            )),
+            1 => Some((
+                Relation::Uses,
+                Resource::Module(["python/", &captures[0].text].concat()),
+            )),
             2 => {
                 let args = captures_as_args_map(captures);
                 if let Some(file) = args.get("0").or_else(|| args.get("file")) {

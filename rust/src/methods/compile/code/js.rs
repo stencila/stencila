@@ -49,17 +49,19 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 
 /// Compile some JavaScript code
 pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
-    COMPILER
-        .query(code)
+    let code = code.as_bytes();
+    let tree = COMPILER.parse(code);
+    let captures = COMPILER.query(code, &tree);
+    captures
         .iter()
         .filter_map(|(pattern, captures)| match pattern {
             0 => Some((
                 Relation::Uses,
-                Resource::Module("javascript".to_string(), remove_quotes(&captures[0].text)),
+                Resource::Module(["javascript/", &remove_quotes(&captures[0].text)].concat()),
             )),
             1 => Some((
                 Relation::Uses,
-                Resource::Module("javascript".to_string(), remove_quotes(&captures[1].text)),
+                Resource::Module(["javascript/", &remove_quotes(&captures[1].text)].concat()),
             )),
             2 => Some((
                 Relation::Reads,

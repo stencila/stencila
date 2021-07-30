@@ -42,6 +42,12 @@ pub struct Context {
     pub relations: Vec<Triple>,
 }
 
+impl Context {
+    pub fn resource_id(&self, address: &str) -> String {
+        [&self.path_within_project, address].concat()
+    }
+}
+
 /// Trait for compiling a node
 trait Compile {
     fn compile(&mut self, address: &str, context: &mut Context) -> Result<()>;
@@ -324,7 +330,7 @@ impl Compile for Link {
             Resource::File(target)
         };
         context.relations.push((
-            Resource::Link(context.path_within_project.clone(), address.to_string()),
+            Resource::Link([&context.path_within_project, "&", &address].concat()),
             Relation::Links,
             resource,
         ));
@@ -383,7 +389,7 @@ macro_rules! compile_media_object {
                     let url = compile_content_url(&self.content_url, context)?;
 
                     context.relations.push((
-                        Resource::Embed(context.path_within_project.clone(), address.to_string()),
+                        Resource::Embed(context.resource_id(address)),
                         Relation::Embeds,
                         Resource::File(url.clone()),
                     ));
@@ -411,7 +417,7 @@ impl Compile for CodeChunk {
     fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         if let Some(lang) = self.programming_language.as_deref() {
             let mut relations = code::compile(
-                &Resource::CodeChunk(context.path_within_project.clone(), address.to_string()),
+                &Resource::CodeChunk(context.resource_id(address)),
                 &self.text,
                 lang,
             );
@@ -425,7 +431,7 @@ impl Compile for CodeExpression {
     fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         if let Some(lang) = self.programming_language.as_deref() {
             let mut relations = code::compile(
-                &Resource::CodeExpression(context.path_within_project.clone(), address.to_string()),
+                &Resource::CodeExpression(context.resource_id(address)),
                 &self.text,
                 lang,
             );

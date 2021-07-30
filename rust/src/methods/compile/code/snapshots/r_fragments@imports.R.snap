@@ -9,35 +9,42 @@ input_file: fixtures/fragments/r/imports.R
     "uses",
     {
       "type": "Module",
-      "id": "pkg1"
+      "id": "r/pkg1"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "pkg2"
+      "id": "r/pkg2"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "pkg3"
+      "id": "r/pkg3"
+    }
+  ],
+  [
+    "assigns",
+    {
+      "type": "Function",
+      "id": "foo"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "pkg3"
+      "id": "r/pkg4"
     }
   ],
   [
-    "uses",
+    "assigns",
     {
-      "type": "Module",
-      "id": "pkg4"
+      "type": "Variable",
+      "id": "pkg_var"
     }
   ]
 ]

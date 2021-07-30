@@ -33,7 +33,7 @@ pub fn compile(resource: &Resource, code: &str, language: &str) -> Vec<Triple> {
 }
 
 /// A capture resulting from a `tree-sitter` query
-pub(crate) struct Capture {
+pub(crate) struct Capture<'tree> {
     #[allow(dead_code)]
     /// The index of the capture in the pattern
     index: u32,
@@ -41,8 +41,22 @@ pub(crate) struct Capture {
     /// The name of the capture in the pattern
     name: String,
 
+    /// The captured node
+    node: tree_sitter::Node<'tree>,
+
     /// The captured text
     text: String,
+}
+
+impl<'tree> Capture<'tree> {
+    pub fn new(index: u32, name: String, node: tree_sitter::Node<'tree>, text: String) -> Capture {
+        Capture {
+            index,
+            name,
+            node,
+            text,
+        }
+    }
 }
 
 /// Convert a vector of `Capture`s into a
@@ -114,7 +128,24 @@ impl Compiler {
         Compiler { parser, query }
     }
 
-    /// Parse and query some code
+    /// Parse some code and return a tree
+    ///
+    /// # Arguments
+    ///
+    /// - `code`: the code to parse
+    ///
+    /// # Returns
+    ///
+    /// The parsed syntax tree.
+    fn parse(&self, code: &[u8]) -> tree_sitter::Tree {
+        self.parser
+            .lock()
+            .expect("Unable to lock parser")
+            .parse(code, None)
+            .expect("Should be a tree result")
+    }
+
+    /// Query a
     ///
     /// # Arguments
     ///
@@ -124,18 +155,13 @@ impl Compiler {
     ///
     /// A vector of `(pattern, captures)` enumerating the matches for
     /// patterns in the query.
-    fn query(&self, code: &str) -> Vec<(usize, Vec<Capture>)> {
-        let code = code.as_bytes();
-        let tree = self
-            .parser
-            .lock()
-            .expect("Unable to lock parser")
-            .parse(code, None)
-            .expect("Should be a tree result");
-        let root = tree.root_node();
-
+    fn query<'tree>(
+        &self,
+        code: &[u8],
+        tree: &'tree tree_sitter::Tree,
+    ) -> Vec<(usize, Vec<Capture<'tree>>)> {
         let mut cursor = QueryCursor::new();
-        let matches = cursor.matches(&self.query, root, |node| {
+        let matches = cursor.matches(&self.query, tree.root_node(), |node| {
             node.utf8_text(code).unwrap_or_default()
         });
 
@@ -146,14 +172,17 @@ impl Compiler {
                 let captures = query_match
                     .captures
                     .iter()
-                    .map(|capture| Capture {
-                        index: capture.index,
-                        name: capture_names[capture.index as usize].clone(),
-                        text: capture
-                            .node
-                            .utf8_text(code)
-                            .expect("Should be able to get text")
-                            .to_string(),
+                    .map(|capture| {
+                        Capture::new(
+                            capture.index,
+                            capture_names[capture.index as usize].clone(),
+                            capture.node,
+                            capture
+                                .node
+                                .utf8_text(code)
+                                .expect("Should be able to get text")
+                                .to_string(),
+                        )
                     })
                     .collect();
                 (pattern, captures)

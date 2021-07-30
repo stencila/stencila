@@ -9,28 +9,28 @@ input_file: fixtures/fragments/py/imports.py
     "uses",
     {
       "type": "Module",
-      "id": "module_1"
+      "id": "python/module_1"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module_2"
+      "id": "python/module_2"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module_3"
+      "id": "python/module_3"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "module_4"
+      "id": "python/module_4"
     }
   ]
 ]
