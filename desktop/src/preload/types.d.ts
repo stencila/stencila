@@ -150,6 +150,11 @@ export type ProjectsOpenUsingFilePicker = InvokeType<
   () => void
 >
 
+export type ProjectsNew = InvokeType<
+  typeof CHANNEL.PROJECTS_NEW,
+  () => void
+>
+
 export type ProjectsOpen = InvokeType<
   typeof CHANNEL.PROJECTS_OPEN,
   typeof dispatch.projects.open
@@ -241,6 +246,7 @@ type InvokeTypes =
   | OnboardingWindowClose
   | ProjectsWindowOpen
   | ProjectsOpenUsingFilePicker
+  | ProjectsNew
   | ProjectsOpen
   | DocumentsOpen
   | DocumentsAlter
@@ -372,6 +378,11 @@ interface Invoke {
     channel: ProjectsOpenUsingFilePicker['channel'],
     ...args: ProjectsOpenUsingFilePicker['args']
   ): ProjectsOpenUsingFilePicker['result']
+
+  invoke(
+    channel: ProjectsNew['channel'],
+    ...args: ProjectsNew['args']
+  ): ProjectsNew['result']
 
   invoke(
     channel: ProjectsOpen['channel'],
