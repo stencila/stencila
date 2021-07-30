@@ -3700,9 +3700,9 @@ checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
 
 [[package]]
 name = "socket2"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e3dfc207c526015c632472a77be09cf1b6e46866581aecae5cc38fb4235dea2"
+checksum = "765f090f0e423d2b55843402a07915add955e7d60657db13707a159727326cad"
 dependencies = [
  "libc",
  "winapi 0.3.9",
@@ -3728,7 +3728,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
-version = "0.103.0"
+version = "0.104.0"
 dependencies = [
  "Inflector",
  "ansi_term 0.12.1",
@@ -3808,7 +3808,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.103.0"
+version = "0.104.0"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -3826,7 +3826,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.103.0"
+version = "0.104.0"
 dependencies = [
  "neon",
  "stencila",
@@ -4865,9 +4865,9 @@ dependencies = [
 
 [[package]]
 name = "xml-rs"
-version = "0.8.3"
+version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b07db065a5cf61a7e4ba64f29e67db906fb1787316516c4e6e5ff0fea1efcd8a"
+checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
 
 [[package]]
 name = "xz2"

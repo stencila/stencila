@@ -1,3 +1,23 @@
+# [0.104.0](https://github.com/stencila/stencila/compare/v0.103.0...v0.104.0) (2021-07-30)
+
+
+### Bug Fixes
+
+* **Documents:** Set previewable flag based on format ([153018a](https://github.com/stencila/stencila/commit/153018aa2da1d11a1c62e7d4f1e5ba165f844a54))
+* **Documents:** Set root to null if no content ([472c1e8](https://github.com/stencila/stencila/commit/472c1e8376b5acd47feda7d7540cbc39bba545a7))
+* **Menu:** Re-add "Save" menu item to Project windows ([5bf0ffe](https://github.com/stencila/stencila/commit/5bf0ffebf2ce925c2ab35c0557292ec87330f2d6))
+* **Previews:** Regenerate Document preview when altering format ([44f3a87](https://github.com/stencila/stencila/commit/44f3a87af4dc8c9820ca13e088de02d5b0f2edc5))
+* **Settings:** Fix reloading of chosen syntax from user config store ([4705abf](https://github.com/stencila/stencila/commit/4705abf6234d8dc03e6d420f8573c8670fa919f5))
+* **Settings:** Path user config file with any missing default values ([ca8c43a](https://github.com/stencila/stencila/commit/ca8c43a402f5285a4d10d8930f2326f9105f5c8c))
+
+
+### Features
+
+* **Desktop:** Add ability to create new empty documents ([7deb8b1](https://github.com/stencila/stencila/commit/7deb8b101bb8a1d4eb70e14439b0f31d99b2e93a))
+* **Documents:** Add additional Document call IPC handlers to Desktop ([48154e2](https://github.com/stencila/stencila/commit/48154e2a67566d2e53bca17ec8abb53b7cf14080))
+* **Editor:** Update internal Document format when changing language ([31168d4](https://github.com/stencila/stencila/commit/31168d42a085bc1921c3a840fa4f73c3128f9ba9))
+* **Settings:** Expose editor settings in UI ([50e3d87](https://github.com/stencila/stencila/commit/50e3d8710ab2ccde4ddc798d680ded92c1a2f248))
+
 # [0.103.0](https://github.com/stencila/stencila/compare/v0.102.1...v0.103.0) (2021-07-28)
 
 
