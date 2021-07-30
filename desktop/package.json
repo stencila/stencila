@@ -55,7 +55,7 @@
     "copy-webpack-plugin": "9.0.1",
     "cross-env": "7.0.3",
     "csp-html-webpack-plugin": "5.1.0",
-    "css-loader": "5.2.7",
+    "css-loader": "6.2.0",
     "dotenv-webpack": "7.0.3",
     "electron": "13.1.7",
     "electron-devtools-installer": "github:rwwagner90/electron-devtools-installer",
