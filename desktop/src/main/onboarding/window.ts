@@ -12,6 +12,11 @@ let onboardingWindow: BrowserWindow | null
 const onboardingUrl = '/onboarding'
 
 export const openOnboardingWindow = () => {
+  if (onboardingWindow) {
+    onboardingWindow.show()
+    return onboardingWindow
+  }
+
   onboardingWindow = createWindow(onboardingUrl, {
     width: 800,
     height: 600,
