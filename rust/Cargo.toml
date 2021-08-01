@@ -176,7 +176,7 @@ self_update = { version = "=0.27.0", optional = true, features = [
     "compression-zip-deflate",
 ] }
 semver = { version = "=1.0.4", optional = true }
-serde = { version = "=1.0.126", features = ["derive", "rc"] }
+serde = { version = "=1.0.127", features = ["derive", "rc"] }
 serde_json = { version = "=1.0.64", features = ["preserve_order"] }
 serde_with = "=1.9.4"
 serde_yaml = "=0.8.17"
