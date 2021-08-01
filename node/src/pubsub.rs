@@ -7,7 +7,7 @@ use stencila::{
 };
 
 /// The Neon event queue to which published events will be sent
-static QUEUE: OnceCell<EventQueue> = OnceCell::new();
+static CHANNEL: OnceCell<Channel> = OnceCell::new();
 
 /// A JavaScript subscription
 #[derive(Debug)]
@@ -38,9 +38,9 @@ pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let topic = cx.argument::<JsString>(0)?.value(&mut cx);
     let subscriber = cx.argument::<JsFunction>(1)?.root(&mut cx);
 
-    let queue = cx.queue();
-    if QUEUE.set(queue).is_err() {
-        // Ignore because it just means queue was already set
+    let channel = cx.channel();
+    if CHANNEL.set(channel).is_err() {
+        // Ignore because it just means channel was already set
     }
 
     let mut subscriptions = obtain(&mut cx)?;
@@ -77,7 +77,7 @@ pub fn publish(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 pub fn bridging_subscriber(topic: String, data: serde_json::Value) {
     // If the queue is not set then it means that there are
     // no subscribers and so no need to do anything
-    if let Some(queue) = QUEUE.get() {
+    if let Some(queue) = CHANNEL.get() {
         queue.send(move |mut cx| {
             let subscriptions = &*SUBSCRIPTIONS
                 .lock()
