@@ -1,3 +1,20 @@
+## [0.104.1](https://github.com/stencila/stencila/compare/v0.104.0...v0.104.1) (2021-08-01)
+
+
+### Bug Fixes
+
+* **dependencies:** update docusaurus monorepo to v2.0.0-beta.4 ([b9c5680](https://github.com/stencila/stencila/commit/b9c568034f454c64d166ce522d5ca8c298277e73))
+* **dependencies:** update rust crate async-trait to v0.1.51 ([d53ed76](https://github.com/stencila/stencila/commit/d53ed76fc2ebcf642f9d7a80c7cc046d4a7e92c4))
+* **dependencies:** update rust crate handlebars to v4.1.1 ([aba4f44](https://github.com/stencila/stencila/commit/aba4f44a508ff061fab8d0cc0acf2f1b11b62a48))
+* **dependencies:** update rust crate jsonschema to v0.12.1 ([06966c9](https://github.com/stencila/stencila/commit/06966c916a68434bc87491c37d58391e261f5c9a))
+* **dependencies:** update rust crate neon to v0.9.0 ([897ee88](https://github.com/stencila/stencila/commit/897ee88cee4ca9a712d68a9b293a0bd3165fb490))
+* **dependencies:** update rust crate rust-embed to v6 ([ed6f2e9](https://github.com/stencila/stencila/commit/ed6f2e917ccd73db2b5475bc9efd78e81157b739))
+* **dependencies:** update rust crate semver to v1.0.4 ([80a1eb1](https://github.com/stencila/stencila/commit/80a1eb1e4c22bf6c95527ceb3e2cc6f70ed7977b))
+* **dependencies:** update rust crate serde to v1.0.127 ([d8502a6](https://github.com/stencila/stencila/commit/d8502a6ae6cc3569587ae4e5de929ab14d51534a))
+* **dependencies:** update rust crate serde_json to v1.0.66 ([1970155](https://github.com/stencila/stencila/commit/197015547c64feec0e856a3e4366d1a525a845b3))
+* **dependencies:** update rust crate which to v4.2.2 ([ca82078](https://github.com/stencila/stencila/commit/ca8207835df29b9895e158a3b90ec534defb6222))
+* **Serve:** Update for API change to `rust-embed` ([d108850](https://github.com/stencila/stencila/commit/d108850e2d7797839d0dd589830c7e4fc55ca1be))
+
 # [0.104.0](https://github.com/stencila/stencila/compare/v0.103.0...v0.104.0) (2021-07-30)
 
 

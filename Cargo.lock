@@ -3622,9 +3622,9 @@ dependencies = [
 
 [[package]]
 name = "sharded-slab"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "79c719719ee05df97490f80a45acfc99e5a30ce98a1e4fb67aee422745ae14e3"
+checksum = "ef79578eaf1846837727db975d587f15f6d8abd3900f4aa58e3fa6ae0fd9e4d1"
 dependencies = [
  "lazy_static",
 ]
@@ -3742,7 +3742,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
-version = "0.104.0"
+version = "0.104.1"
 dependencies = [
  "Inflector",
  "ansi_term 0.12.1",
@@ -3822,7 +3822,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.104.0"
+version = "0.104.1"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -3840,7 +3840,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.104.0"
+version = "0.104.1"
 dependencies = [
  "neon",
  "stencila",
