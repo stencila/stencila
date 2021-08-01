@@ -1082,9 +1082,9 @@ checksum = "e88a8acf291dafb59c2d96e8f59828f3838bb1a70398823ade51a84de6a6deed"
 
 [[package]]
 name = "fancy-regex"
-version = "0.6.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a3371ac125221b609ce0cf587a53fbb624fb56267bbe85cf1929350043bf360"
+checksum = "9d6b8560a05112eb52f04b00e5d3790c0dd75d9d980eb8a122fb23b92a623ccf"
 dependencies = [
  "bit-set",
  "regex",
@@ -1880,9 +1880,9 @@ dependencies = [
 
 [[package]]
 name = "jsonschema"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f01f50858625f330e746a8a6cc549be4acd5c5b1afd11a058c12a380cd11c95"
+checksum = "033569cfbdf25f87a5d74cb373efa466cd7a2c069338e62d6944615c7995dd47"
 dependencies = [
  "ahash",
  "base64 0.13.0",
