@@ -299,7 +299,7 @@ async fn get_static(
     };
     let mime = mime_guess::from_path(path).first_or_octet_stream();
 
-    let mut res = warp::reply::Response::new(asset.into());
+    let mut res = warp::reply::Response::new(asset.data.into());
     res.headers_mut().insert(
         "content-type",
         HeaderValue::from_str(mime.as_ref()).unwrap(),
