@@ -6,5 +6,5 @@ use stencila_schema::Node;
 /// TOML is not recommended for large complex documents and encoding
 /// may fail with the error "values must be emitted before tables".
 pub fn encode(node: &Node) -> Result<String> {
-    Ok(toml::to_string::<Node>(&node)?)
+    Ok(toml::to_string::<Node>(node)?)
 }

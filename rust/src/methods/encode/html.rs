@@ -354,7 +354,7 @@ impl ToHtml for VideoObjectSimple {
     fn to_html(&self, context: &Context) -> String {
         let src_attr = content_url_to_src_attr(&self.content_url, context);
         let type_attr = match &self.media_type {
-            Some(media_type) => encode_attr("type", &media_type),
+            Some(media_type) => encode_attr("type", media_type),
             None => "".to_string(),
         };
         [
@@ -871,7 +871,7 @@ fn table_rows_to_html(
     cell_type: TableCellCellType,
     context: &Context,
 ) -> String {
-    concat(&rows, |row| {
+    concat(rows, |row| {
         table_row_to_html(row, cell_type.clone(), context)
     })
 }

@@ -116,7 +116,7 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
             | local_name!("h5")
             | local_name!("h6") => {
                 let id = get_id(element);
-                let depth = element.name.local.strip_prefix("h").map(|depth| {
+                let depth = element.name.local.strip_prefix('h').map(|depth| {
                     // See the `Heading.to_html` for the rationale for
                     // subtracting one from the depth
                     let depth = depth.parse().unwrap_or(1);
@@ -439,7 +439,7 @@ fn decode_table_row(
     row_type: &Option<TableRowRowType>,
     context: &Context,
 ) -> TableRow {
-    let cells = decode_table_cells(&node, context);
+    let cells = decode_table_cells(node, context);
     TableRow {
         row_type: row_type.clone(),
         cells,

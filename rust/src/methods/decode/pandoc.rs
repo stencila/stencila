@@ -138,13 +138,13 @@ fn translate_meta_value(value: &pandoc::MetaValue, context: &Context) -> serde_j
         pandoc::MetaValue::MetaBool(bool) => serde_json::Value::Bool(*bool),
         pandoc::MetaValue::MetaString(string) => serde_json::Value::String(string.clone()),
         pandoc::MetaValue::MetaInlines(inlines) => serde_json::Value::Array(
-            translate_inlines(&inlines, context)
+            translate_inlines(inlines, context)
                 .iter()
                 .map(|inline| serde_json::to_value(inline).expect("Can serialize to JSON value"))
                 .collect(),
         ),
         pandoc::MetaValue::MetaBlocks(blocks) => serde_json::Value::Array(
-            translate_blocks(&blocks, context)
+            translate_blocks(blocks, context)
                 .iter()
                 .map(|block| serde_json::to_value(block).expect("Can serialize to JSON value"))
                 .collect(),
@@ -159,7 +159,7 @@ struct Context {}
 fn translate_blocks(elements: &[pandoc::Block], context: &Context) -> Vec<BlockContent> {
     elements
         .iter()
-        .flat_map(|child| translate_block(&child, context))
+        .flat_map(|child| translate_block(child, context))
         .collect()
 }
 
@@ -388,7 +388,7 @@ fn translate_cell(cell: &pandoc::Cell, context: &Context) -> TableCell {
 fn translate_inlines(elements: &[pandoc::Inline], context: &Context) -> Vec<InlineContent> {
     let mut inlines: Vec<InlineContent> = elements
         .iter()
-        .flat_map(|child| translate_inline(&child, context))
+        .flat_map(|child| translate_inline(child, context))
         .collect();
 
     let mut index = 1;

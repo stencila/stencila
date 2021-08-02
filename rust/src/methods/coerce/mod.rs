@@ -171,7 +171,7 @@ fn coerce_to_schema(value: &mut JsonValue, schema: &JsonSchema) {
     // large `anyOf` or `allOf`) so for efficiency handle, and
     // return from that, first
     if let Some(schema) = &schema.ref_ {
-        return coerce_to_type(value, &schema);
+        return coerce_to_type(value, schema);
     }
 
     if let Some(type_) = &schema.type_ {
@@ -184,13 +184,13 @@ fn coerce_to_schema(value: &mut JsonValue, schema: &JsonSchema) {
                 return coerce_to_boolean(value);
             }
             "integer" => {
-                return coerce_to_integer_schema(value, &schema);
+                return coerce_to_integer_schema(value, schema);
             }
             "number" => {
-                return coerce_to_number_schema(value, &schema);
+                return coerce_to_number_schema(value, schema);
             }
             "string" => {
-                return coerce_to_string_schema(value, &schema);
+                return coerce_to_string_schema(value, schema);
             }
             _ => {}
         }
@@ -210,7 +210,7 @@ fn coerce_to_schema(value: &mut JsonValue, schema: &JsonSchema) {
 
     // Assume that either `object` or `array` type, but not both
     if schema.properties.is_some() {
-        coerce_to_object_schema(value, &schema);
+        coerce_to_object_schema(value, schema);
     } else if schema.items.is_some() {
         coerce_to_array_schema(value, schema)
     }
@@ -234,17 +234,17 @@ fn valid_for_schema(value: &JsonValue, schema: &JsonSchema) -> bool {
     } else if type_ == "boolean" {
         matches!(value, JsonValue::Bool(_))
     } else if type_ == "integer" {
-        valid_for_integer_schema(value, &schema)
+        valid_for_integer_schema(value, schema)
     } else if type_ == "number" {
-        valid_for_number_schema(value, &schema)
+        valid_for_number_schema(value, schema)
     } else if type_ == "string" {
-        valid_for_string_schema(value, &schema)
+        valid_for_string_schema(value, schema)
     } else if schema.properties.is_some() {
-        valid_for_object_schema(value, &schema)
+        valid_for_object_schema(value, schema)
     } else if schema.items.is_some() {
         valid_for_array_schema(value, schema)
     } else if let Some(schema) = &schema.ref_ {
-        valid_for_type(value, &schema)
+        valid_for_type(value, schema)
     } else if let Some(any_of) = schema.any_of.as_ref() {
         valid_for_any_of(value, any_of)
     } else if let Some(all_of) = schema.all_of.as_ref() {

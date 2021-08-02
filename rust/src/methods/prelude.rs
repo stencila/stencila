@@ -11,7 +11,7 @@ use strum::{Display, EnumString, EnumVariantNames};
 pub enum Method {
     Import,
     Export,
-    
+
     Decode,
     Encode,
 

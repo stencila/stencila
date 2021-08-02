@@ -32,7 +32,7 @@ use stencila_schema::{
 /// Intended for decoding an entire document, this function extracts
 /// YAML front matter, parses the Markdown, and returns a `Node::Article` variant.
 pub fn decode(md: &str) -> Result<Node> {
-    let (end, node) = decode_frontmatter(&md)?;
+    let (end, node) = decode_frontmatter(md)?;
 
     let md = match end {
         Some(end) => &md[end..],
@@ -635,7 +635,7 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
         |mut vec: Vec<InlineContent>, node| {
             if let InlineContent::String(string) = &node {
                 match vec.last_mut() {
-                    Some(InlineContent::String(last)) => last.push_str(&string),
+                    Some(InlineContent::String(last)) => last.push_str(string),
                     _ => vec.push(node),
                 }
             } else {
@@ -811,8 +811,8 @@ impl Html {
             Regex::new(r#"<(/?)(\w+)[^/>]*?(/?)>\s*$"#).expect("Unable to create regex")
         });
 
-        let start = START_REGEX.captures(&html);
-        let end = END_REGEX.captures(&html);
+        let start = START_REGEX.captures(html);
+        let end = END_REGEX.captures(html);
 
         // Get opening and closing tags (if any)
         let opens = if let Some(start) = start {

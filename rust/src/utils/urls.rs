@@ -7,7 +7,7 @@ pub fn parse(url: &str) -> Result<url::Url> {
         format!("http://127.0.0.1{}", url)
     } else {
         let re = Regex::new("https?|wss?").unwrap();
-        match re.captures(&url) {
+        match re.captures(url) {
             Some(_) => url.to_string(),
             None => format!("http://{}", url),
         }

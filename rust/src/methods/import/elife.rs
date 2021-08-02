@@ -63,7 +63,8 @@ pub async fn import(
                         let relative_path = [
                             media_dir,
                             "/",
-                            &href.replace(&format!("elife-{}-", article), "")
+                            &href
+                                .replace(&format!("elife-{}-", article), "")
                                 .replace(".tif", ".jpg"),
                         ]
                         .concat();

@@ -20,7 +20,11 @@ pub mod github;
 ///
 /// A list of files imported from the source.
 #[allow(unused_variables, unreachable_code, unreachable_patterns)]
-pub async fn import(project: &Path, source: &Source, destination: Option<String>) -> Result<Vec<File>> {
+pub async fn import(
+    project: &Path,
+    source: &Source,
+    destination: Option<String>,
+) -> Result<Vec<File>> {
     let files = match source {
         #[cfg(feature = "import-elife")]
         Source::Elife(source) => elife::import(project, source, destination).await?,
@@ -28,7 +32,7 @@ pub async fn import(project: &Path, source: &Source, destination: Option<String>
         #[cfg(feature = "import-github")]
         Source::GitHub(source) => github::import(project, source, destination).await?,
 
-        _ => bail!("Unable to encode to import source {:?}", source)
+        _ => bail!("Unable to encode to import source {:?}", source),
     };
     Ok(files)
 }

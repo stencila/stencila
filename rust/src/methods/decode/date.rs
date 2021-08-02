@@ -54,10 +54,19 @@ mod tests {
 
     #[test]
     fn test_decoding() {
-        // Adding timezone avoids failures due to different local time on 
+        // Adding timezone avoids failures due to different local time on
         // test host machines.
-        assert_eq!(&decode_date("11 Jul 2021; 12 am +00:00").value, "2021-07-11T00:00:00+00:00");
-        assert_eq!(&decode_date("July 11 2021; 6 am +06:00").value, "2021-07-11T00:00:00+00:00");
-        assert_eq!(&decode_date("2021-07-11; 13:00 +13:00").value, "2021-07-11T00:00:00+00:00");
+        assert_eq!(
+            &decode_date("11 Jul 2021; 12 am +00:00").value,
+            "2021-07-11T00:00:00+00:00"
+        );
+        assert_eq!(
+            &decode_date("July 11 2021; 6 am +06:00").value,
+            "2021-07-11T00:00:00+00:00"
+        );
+        assert_eq!(
+            &decode_date("2021-07-11; 13:00 +13:00").value,
+            "2021-07-11T00:00:00+00:00"
+        );
     }
 }

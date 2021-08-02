@@ -247,8 +247,8 @@ impl Binary {
         // the most recent version (meeting semver requirements) is returned by `installation()`.
         installs.sort_by(|a, b| match (&a.version, &b.version) {
             (Some(a), Some(b)) => {
-                let a = semver::Version::parse(&a).unwrap();
-                let b = semver::Version::parse(&b).unwrap();
+                let a = semver::Version::parse(a).unwrap();
+                let b = semver::Version::parse(b).unwrap();
                 a.partial_cmp(&b).unwrap_or(Ordering::Equal)
             }
             (Some(..), None) => Ordering::Greater,
@@ -266,7 +266,7 @@ impl Binary {
             let semver = semver::VersionReq::parse(&semver)?;
             for install in &self.installations {
                 if let Some(version) = &install.version {
-                    let version = semver::Version::parse(&version)?;
+                    let version = semver::Version::parse(version)?;
                     if semver.matches(&version) {
                         return Ok(Some(install.clone()));
                     }
@@ -300,7 +300,7 @@ impl Binary {
 
         if let Some(version) = self.installable.iter().find_map(|version| {
             match semver
-                .matches(&semver::Version::parse(&version).expect("Version to always be valid"))
+                .matches(&semver::Version::parse(version).expect("Version to always be valid"))
             {
                 true => Some(version),
                 false => None,
@@ -462,7 +462,7 @@ impl Binary {
 
     /// Download a URL (usually an archive) to a temporary, but optionally cached, file
     async fn download(&self, url: &str) -> Result<PathBuf> {
-        let url_parsed = url::Url::parse(&url)?;
+        let url_parsed = url::Url::parse(url)?;
         let filename = url_parsed
             .path_segments()
             .expect("No segments in URL")

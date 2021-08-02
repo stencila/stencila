@@ -480,7 +480,7 @@ async fn get_handler(
 
     let cwd = std::env::current_dir().expect("Unable to get current working directory");
 
-    let path = Path::new(path.strip_prefix("/").unwrap_or(path));
+    let path = Path::new(path.strip_prefix('/').unwrap_or(path));
     let path = match cwd.join(path).canonicalize() {
         Ok(path) => path,
         Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
@@ -496,7 +496,7 @@ async fn get_handler(
     let format = params.format.unwrap_or_else(|| "html".into());
     let theme = params.theme.unwrap_or_else(|| "wilmore".into());
 
-    match DOCUMENTS.lock().await.open(path, None).await {
+    match DOCUMENTS.open(path, None).await {
         Ok(document) => {
             let content = match document.dump(Some(format.clone())).await {
                 Ok(content) => content,

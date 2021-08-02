@@ -334,7 +334,7 @@ impl Plugin {
         // Parse the spec to get it's parts.
         // If there is no matching plugin then we'll attempt to use these parts
         // to install using each of the installation methods.
-        let (owner, name, version) = Plugin::spec_to_parts(&spec);
+        let (owner, name, version) = Plugin::spec_to_parts(spec);
 
         // Attempt to convert the parsed name using aliases
         let aliases = Plugin::merge_aliases(&plugins.aliases, aliases);
@@ -354,7 +354,7 @@ impl Plugin {
                     + Duration::from_std(humantime::parse_duration("1 day")?)?
             {
                 // Load the plugin's latest manifest from its URL
-                let url = match plugins.registry.get::<str>(&name) {
+                let url = match plugins.registry.get::<str>(name) {
                     None => bail!("No plugin registered with alias or name '{}'", name),
                     Some(url) => url,
                 };
@@ -436,7 +436,7 @@ impl Plugin {
                 .expect("Unable to create regex")
         });
         for url in &self.install_url {
-            if let Some(captures) = REGEX.captures(&url) {
+            if let Some(captures) = REGEX.captures(url) {
                 return Some((
                     captures.get(1).map_or("", |matc| matc.as_str()).into(),
                     captures.get(2).map_or("", |matc| matc.as_str()).into(),
@@ -546,7 +546,7 @@ impl Plugin {
             Regex::new(r"^https?://pypi.org/project/([\w\-\.]+)").expect("Unable to create regex")
         });
         for url in &self.install_url {
-            if let Some(captures) = REGEX.captures(&url) {
+            if let Some(captures) = REGEX.captures(url) {
                 return Some(captures.get(1).map_or("", |matc| matc.as_str()).into());
             }
         }
@@ -627,7 +627,7 @@ impl Plugin {
                 .expect("Unable to create regex")
         });
         for url in &self.install_url {
-            if let Some(captures) = REGEX.captures(&url) {
+            if let Some(captures) = REGEX.captures(url) {
                 return Some(captures.get(1).map_or("", |matc| matc.as_str()).into());
             }
         }
@@ -706,7 +706,7 @@ impl Plugin {
                 .expect("Unable to create regex")
         });
         for url in &self.install_url {
-            if let Some(captures) = REGEX.captures(&url) {
+            if let Some(captures) = REGEX.captures(url) {
                 return Some((
                     captures.get(1).map_or("", |matc| matc.as_str()).into(),
                     captures.get(2).map_or("", |matc| matc.as_str()).into(),
@@ -818,7 +818,7 @@ impl Plugin {
                 Regex::new(r"^https?://hub.docker.com/r/([a-z]+)/([a-z]+)")
                     .expect("Unable to create regex")
             });
-            if let Some(captures) = REGEX.captures(&url) {
+            if let Some(captures) = REGEX.captures(url) {
                 return Some((
                     captures.get(1).map_or("", |matc| matc.as_str()).into(),
                     captures.get(2).map_or("", |matc| matc.as_str()).into(),
@@ -1206,7 +1206,7 @@ impl Plugin {
         plugins: &mut Plugins,
     ) -> Result<()> {
         let aliases = Plugin::merge_aliases(&plugins.aliases, aliases);
-        let name = Plugin::alias_to_name(&alias, &aliases);
+        let name = Plugin::alias_to_name(alias, &aliases);
 
         let plugin = plugins.plugins.get(&name);
 
@@ -1375,7 +1375,7 @@ impl Plugin {
                 };
 
                 let bin = match bin {
-                    serde_json::Value::String(bin) => &bin,
+                    serde_json::Value::String(bin) => bin,
                     serde_json::Value::Object(obj) => {
                         match obj.get(name) {
                             Some(bin) => bin.as_str().ok_or_else(|| eyre!("The `{}` property of the `bin` property of the `package.json` file for plugin '{}' should be a string", name, name))?,
@@ -1578,7 +1578,7 @@ impl Plugins {
             .plugins
             .iter()
             .map(|(name, plugin)| Plugin {
-                alias: Some(Plugin::name_to_alias(&name, &aliases)),
+                alias: Some(Plugin::name_to_alias(name, &aliases)),
                 ..plugin.clone()
             })
             .collect::<Vec<Plugin>>();
@@ -2072,7 +2072,7 @@ pub mod cli {
 
             let content = match method {
                 None => plugins.display_methods()?,
-                Some(method) => plugins.display_method(&method)?,
+                Some(method) => plugins.display_method(method)?,
             };
             display::content("md", &content)
         }
@@ -2184,7 +2184,7 @@ pub mod cli {
             Action::Upgrade(action) => {
                 let Upgrade { plugins: list } = action;
 
-                Plugin::upgrade_list(list, &installations, aliases, plugins).await?;
+                Plugin::upgrade_list(list, installations, aliases, plugins).await?;
                 display::nothing()
             }
             Action::Uninstall(action) => {

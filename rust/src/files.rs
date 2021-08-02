@@ -299,12 +299,12 @@ impl Files {
     ///
     /// For example if a `.gitignore` file is added, removed, moved or modified.
     fn should_refresh(&mut self, path: &Path) -> bool {
-        Files::is_ignore_file(&path)
+        Files::is_ignore_file(path)
     }
 
     /// Refresh the registry if it should be
     fn did_refresh(&mut self, path: &Path) -> bool {
-        if self.should_refresh(&path) {
+        if self.should_refresh(path) {
             self.refresh();
             true
         } else {
@@ -334,7 +334,7 @@ impl Files {
         for ignore_file_path in &self.ignore_files {
             if let Some(ignore_file_dir) = ignore_file_path.parent() {
                 if path.starts_with(ignore_file_dir) {
-                    if let Ok(ignore_file) = gitignore::File::new(&ignore_file_path) {
+                    if let Ok(ignore_file) = gitignore::File::new(ignore_file_path) {
                         if ignore_file.is_excluded(path).unwrap_or(false) {
                             self.files_ignored.insert(path.into());
                             return true;
@@ -468,8 +468,8 @@ impl Files {
                 // all it's descendants. Move the file from old to new path.
                 let mut file = entry.remove();
                 file.path = new_path.into();
-                file.name = File::name(&new_path);
-                file.parent = File::parent(&new_path);
+                file.name = File::name(new_path);
+                file.parent = File::parent(new_path);
                 file.format = FORMATS.match_path(&new_path);
                 rename_children(&mut self.files, &mut file, old_path, new_path);
                 self.files.insert(new_path.into(), file.clone());

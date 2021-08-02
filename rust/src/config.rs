@@ -172,8 +172,8 @@ impl Config {
     pub fn set(&mut self, pointer: &str, value: &str) -> Result<()> {
         // Serialize self to a JSON value and set property
         let mut config = serde_json::to_value(&self)?;
-        if let Some(property) = config.pointer_mut(Config::json_pointer(&pointer).as_str()) {
-            let value = match serde_json::from_str(&value) {
+        if let Some(property) = config.pointer_mut(Config::json_pointer(pointer).as_str()) {
+            let value = match serde_json::from_str(value) {
                 Ok(value) => value,
                 Err(_) => serde_json::Value::String(value.into()),
             };
