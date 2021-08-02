@@ -1,15 +1,8 @@
-use crate::{
-    errors::attempt,
-    formats::{Format, FORMATS},
-    graphs::Triple,
-    methods::{
+use crate::{errors::attempt, formats::{Format, FORMATS}, graphs::Triple, methods::{
         compile::compile,
         decode::decode,
         encode::{self, encode},
-    },
-    pubsub::publish,
-    utils::{schemas, uuids},
-};
+    }, pubsub::publish, utils::{hash::{file_to_sha256, str_to_sha256}, schemas, uuids}};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use notify::DebouncedEvent;
@@ -497,6 +490,17 @@ impl Document {
         self.update(decode_content).await
     }
 
+    /// Get the SHA-256 of the document
+    ///
+    /// For text-based documents, returns the SHA-256 of the document's `content`.
+    /// For binary documents, returns the SHA-256 of the document's file.
+    pub async fn sha256(&self) -> Result<String> {
+        match self.format.binary {
+            true => Ok(str_to_sha256(&self.content)),
+            false => file_to_sha256(&self.path),
+        }
+    }
+
     /// Update the `root` (and associated properties) of the document and publish updated encodings
     ///
     /// Publishes `encoded:` events for each of the formats subscribed to.
@@ -551,7 +555,7 @@ impl Document {
         }
 
         // Compile the `root` and update document intra- and inter- dependencies
-        let compilation = compile(&mut root, &self.path, &self.project)?;
+        let compilation = compile(&mut root, &self.path, &self.project).await?;
         if !compilation.relations.is_empty() {
             self.relations = Some(compilation.relations);
         }
