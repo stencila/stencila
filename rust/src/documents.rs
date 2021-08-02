@@ -12,6 +12,7 @@ use crate::{
 use defaults::Defaults;
 use eyre::{bail, Result};
 use notify::DebouncedEvent;
+use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -827,7 +828,7 @@ impl DocumentHandler {
 }
 
 /// An in-memory store of documents
-#[derive(Clone, Debug, Default)]
+#[derive(Debug, Default)]
 pub struct Documents {
     /// A mapping of file paths to open documents
     registry: HashMap<String, DocumentHandler>,
@@ -935,6 +936,9 @@ impl Documents {
     }
 }
 
+/// A global documents store
+pub static DOCUMENTS: Lazy<Mutex<Documents>> = Lazy::new(|| Mutex::new(Documents::new()));
+
 /// Get JSON Schemas for this modules
 pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![
@@ -976,15 +980,15 @@ pub mod cli {
     }
 
     impl Command {
-        pub async fn run(self, documents: &mut Documents) -> display::Result {
+        pub async fn run(self) -> display::Result {
             let Self { action } = self;
             match action {
-                Action::List(action) => action.run(documents).await,
-                Action::Open(action) => action.run(documents).await,
-                Action::Close(action) => action.run(documents).await,
-                Action::Show(action) => action.run(documents).await,
-                Action::Query(action) => action.run(documents).await,
-                Action::Convert(action) => action.run(documents).await,
+                Action::List(action) => action.run().await,
+                Action::Open(action) => action.run().await,
+                Action::Close(action) => action.run().await,
+                Action::Show(action) => action.run().await,
+                Action::Query(action) => action.run().await,
+                Action::Convert(action) => action.run().await,
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -998,8 +1002,8 @@ pub mod cli {
     pub struct List {}
 
     impl List {
-        pub async fn run(&self, documents: &mut Documents) -> display::Result {
-            let list = documents.list().await?;
+        pub async fn run(&self) -> display::Result {
+            let list = DOCUMENTS.lock().await.list().await?;
             display::value(list)
         }
     }
@@ -1017,9 +1021,9 @@ pub mod cli {
     }
 
     impl Open {
-        pub async fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(&self) -> display::Result {
             let Self { file } = self;
-            documents.open(file, None).await?;
+            DOCUMENTS.lock().await.open(file, None).await?;
             display::nothing()
         }
     }
@@ -1037,9 +1041,9 @@ pub mod cli {
     }
 
     impl Close {
-        pub async fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(&self) -> display::Result {
             let Self { file } = self;
-            documents.close(file).await?;
+            DOCUMENTS.lock().await.close(file).await?;
             display::nothing()
         }
     }
@@ -1060,9 +1064,9 @@ pub mod cli {
     }
 
     impl Show {
-        pub async fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(&self) -> display::Result {
             let Self { file, format } = self;
-            let document = documents.open(file, format.clone()).await?;
+            let document = DOCUMENTS.lock().await.open(file, format.clone()).await?;
             display::value(document)
         }
     }
@@ -1097,14 +1101,14 @@ pub mod cli {
     const QUERY_LANGS: [&str; 2] = ["jmespath", "jsonptr"];
 
     impl Query {
-        pub async fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(&self) -> display::Result {
             let Self {
                 file,
                 format,
                 query,
                 lang,
             } = self;
-            let document = documents.open(file, format.clone()).await?;
+            let document = DOCUMENTS.lock().await.open(file, format.clone()).await?;
             let result = document.query(query, lang)?;
             display::value(result)
         }
@@ -1137,7 +1141,7 @@ pub mod cli {
     }
 
     impl Convert {
-        pub async fn run(self, _documents: &mut Documents) -> display::Result {
+        pub async fn run(self) -> display::Result {
             let Self {
                 input,
                 output,

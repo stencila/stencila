@@ -4,7 +4,8 @@ use std::{collections::HashMap, path::PathBuf};
 use stencila::{
     binaries,
     cli::display,
-    config, documents,
+    config,
+    documents::{self, DOCUMENTS},
     eyre::{bail, Error, Result},
     logging::{
         self,
@@ -104,27 +105,26 @@ pub struct Context {
 }
 
 /// Run a command
-#[tracing::instrument(skip(documents))]
+#[tracing::instrument]
 pub async fn run_command(
     command: Command,
     formats: &[String],
     context: &mut Context,
-    documents: &mut documents::Documents,
 ) -> Result<()> {
     let result = match command {
-        Command::List(command) => command.run(documents).await,
-        Command::Open(command) => command.run(context, documents).await,
-        Command::Close(command) => command.run(documents).await,
-        Command::Show(command) => command.run(documents).await,
-        Command::Convert(command) => command.run(documents).await,
-        Command::Documents(command) => command.run(documents).await,
+        Command::List(command) => command.run().await,
+        Command::Open(command) => command.run(context).await,
+        Command::Close(command) => command.run().await,
+        Command::Show(command) => command.run().await,
+        Command::Convert(command) => command.run().await,
+        Command::Documents(command) => command.run().await,
         Command::Projects(command) => command.run().await,
         Command::Sources(command) => command.run().await,
         Command::Plugins(command) => plugins::cli::run(command).await,
         Command::Binaries(command) => command.run().await,
         Command::Config(command) => config::cli::run(command).await,
         Command::Upgrade(command) => upgrade::cli::run(command).await,
-        Command::Serve(command) => command.run(documents).await,
+        Command::Serve(command) => command.run().await,
     };
     render::render(context.interactive, formats, result?)
 }
@@ -138,10 +138,10 @@ pub async fn run_command(
 pub struct ListCommand {}
 
 impl ListCommand {
-    pub async fn run(self, documents: &mut documents::Documents) -> display::Result {
+    pub async fn run(self) -> display::Result {
         let mut value = HashMap::new();
         value.insert("projects", PROJECTS.lock().await.list().await?);
-        value.insert("documents", documents.list().await?);
+        value.insert("documents", DOCUMENTS.lock().await.list().await?);
         display::value(value)
     }
 }
@@ -169,11 +169,7 @@ pub struct OpenCommand {
 }
 
 impl OpenCommand {
-    pub async fn run(
-        self,
-        context: &mut Context,
-        documents: &mut documents::Documents,
-    ) -> display::Result {
+    pub async fn run(self, context: &mut Context) -> display::Result {
         let Self { path, theme } = self;
 
         let (is_project, path) = match path {
@@ -191,7 +187,7 @@ impl OpenCommand {
                 }
             }
         } else {
-            let document = documents.open(&path, None).await?;
+            let document = DOCUMENTS.lock().await.open(&path, None).await?;
             document.path
         };
 
@@ -224,9 +220,9 @@ impl OpenCommand {
         if !context.serving {
             context.serving = true;
             if context.interactive {
-                serve::serve_background(documents, None, Some(key))?
+                serve::serve_background(None, Some(key))?
             } else {
-                serve::serve(documents, None, Some(key)).await?;
+                serve::serve(None, Some(key)).await?;
             }
         }
 
@@ -252,13 +248,13 @@ pub struct CloseCommand {
 }
 
 impl CloseCommand {
-    pub async fn run(self, documents: &mut documents::Documents) -> display::Result {
+    pub async fn run(self) -> display::Result {
         let Self { path } = self;
 
         if path.is_dir() {
             PROJECTS.lock().await.close(&path)?;
         } else {
-            documents.close(&path).await?;
+            DOCUMENTS.lock().await.close(&path).await?;
         }
 
         display::nothing()
@@ -280,12 +276,12 @@ pub struct ShowCommand {
 }
 
 impl ShowCommand {
-    pub async fn run(self, documents: &mut documents::Documents) -> display::Result {
+    pub async fn run(self) -> display::Result {
         let Self { path } = self;
 
         if let Some(path) = &path {
             if path.is_file() {
-                return display::value(documents.open(&path, None).await?);
+                return display::value(DOCUMENTS.lock().await.open(&path, None).await?);
             }
         }
 
@@ -387,9 +383,6 @@ pub async fn main() -> Result<()> {
         stencila::pubsub::subscribe("progress", feedback::progress_subscriber)?;
     }
 
-    // Create document store
-    let mut documents = documents::Documents::new();
-
     // If not explicitly upgrading then run an upgrade check in the background
     let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
         None
@@ -411,7 +404,7 @@ pub async fn main() -> Result<()> {
 
     // Get the result of running the command
     let result = if let Some(command) = command {
-        run_command(command, &formats, &mut context, &mut documents).await
+        run_command(command, &formats, &mut context).await
     } else {
         #[cfg(feature = "interact")]
         {
@@ -422,7 +415,7 @@ pub async fn main() -> Result<()> {
                 // Remove the global args which can not be applied to each interactive line
                 .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
                 .collect();
-            interact::run(prefix, &formats, &mut context, &mut documents).await
+            interact::run(prefix, &formats, &mut context).await
         }
         #[cfg(not(feature = "interact"))]
         {
@@ -728,13 +721,8 @@ mod interact {
     }
 
     /// Run the interactive REPL
-    #[tracing::instrument(skip(documents))]
-    pub async fn run(
-        prefix: Vec<String>,
-        formats: &[String],
-        context: &mut Context,
-        documents: &mut documents::Documents,
-    ) -> Result<()> {
+    #[tracing::instrument]
+    pub async fn run(prefix: Vec<String>, formats: &[String], context: &mut Context) -> Result<()> {
         let history_file = config::dir(true)?.join("history.txt");
 
         let mut rl = interact_editor::new();
@@ -790,9 +778,7 @@ mod interact {
                                 formats.into()
                             };
 
-                            if let Err(error) =
-                                run_command(command, &formats, context, documents).await
-                            {
+                            if let Err(error) = run_command(command, &formats, context).await {
                                 print_error(error);
                             };
                         }

@@ -1,15 +1,11 @@
 use crate::prelude::*;
 use neon::prelude::*;
-use std::sync::{Mutex, MutexGuard};
 use stencila::{
-    documents::{self, Documents},
-    once_cell::sync::Lazy,
+    documents::{self, Documents, DOCUMENTS},
+    tokio::sync::MutexGuard,
 };
 
-/// A global documents store
-static DOCUMENTS: Lazy<Mutex<Documents>> = Lazy::new(|| Mutex::new(Documents::new()));
-
-/// Obtain the documents store
+/// Lock the global documents store
 fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Documents>> {
     match DOCUMENTS.try_lock() {
         Ok(guard) => Ok(guard),

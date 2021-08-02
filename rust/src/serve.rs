@@ -1,5 +1,5 @@
 use crate::{
-    documents::Documents,
+    documents::DOCUMENTS,
     jwt,
     rpc::{Error, Protocol, Request, Response},
     utils::urls,
@@ -13,8 +13,7 @@ use reqwest::{header::HeaderValue, StatusCode};
 use rust_embed::RustEmbed;
 use serde::Deserialize;
 use std::str::FromStr;
-use std::{env, fmt::Debug, path::Path, sync::Arc};
-use tokio::sync::Mutex;
+use std::{env, fmt::Debug, path::Path};
 use warp::{Filter, Reply};
 
 /// Serve JSON-RPC requests at a URL
@@ -30,17 +29,11 @@ use warp::{Filter, Reply};
 ///
 /// ```no_run
 /// # #![recursion_limit = "256"]
-/// use stencila::documents::Documents;
 /// use stencila::serve::serve;
 ///
-/// let mut documents = Documents::default();
-/// serve(&mut documents, Some("ws://0.0.0.0:1234".to_string()), None);
+/// serve(Some("ws://0.0.0.0:1234".to_string()), None);
 /// ```
-pub async fn serve(
-    documents: &mut Documents,
-    url: Option<String>,
-    key: Option<String>,
-) -> Result<()> {
+pub async fn serve(url: Option<String>, key: Option<String>) -> Result<()> {
     let url = urls::parse(
         url.unwrap_or_else(|| "ws://127.0.0.1:9000".to_string())
             .as_str(),
@@ -49,21 +42,15 @@ pub async fn serve(
     let address = url.host().unwrap().to_string();
     let port = url.port_or_known_default();
 
-    let documents = Arc::new(Mutex::new(documents.clone()));
-    serve_on(documents, Some(protocol), Some(address), port, key).await
+    serve_on(Some(protocol), Some(address), port, key).await
 }
 
 /// Run a server on another thread.
 #[tracing::instrument]
-pub fn serve_background(
-    documents: &mut Documents,
-    url: Option<String>,
-    key: Option<String>,
-) -> Result<()> {
+pub fn serve_background(url: Option<String>, key: Option<String>) -> Result<()> {
     // Spawn a thread, start a runtime in it, and serve using that runtime.
     // Any errors within the thread are logged because we can't return a
     // `Result` from the thread to the caller of this function.
-    let mut documents = documents.clone();
     std::thread::spawn(move || {
         let _span = tracing::trace_span!("serve_in_background");
 
@@ -74,7 +61,7 @@ pub fn serve_background(
                 return;
             }
         };
-        match runtime.block_on(async { serve(&mut documents, url, key).await }) {
+        match runtime.block_on(async { serve(url, key).await }) {
             Ok(_) => {}
             Err(error) => tracing::error!("{}", error.to_string()),
         };
@@ -103,14 +90,10 @@ struct Static;
 ///
 /// ```no_run
 /// # #![recursion_limit = "256"]
-/// use std::sync::Arc;
-/// use tokio::sync::Mutex;
-/// use stencila::documents::Documents;
 /// use stencila::rpc::Protocol;
 /// use stencila::serve::serve_on;
 ///
 /// serve_on(
-///     Arc::new(Mutex::new(Documents::default())),
 ///     Some(Protocol::Ws),
 ///     Some("127.0.0.1".to_string()),
 ///     Some(9000),
@@ -118,7 +101,6 @@ struct Static;
 /// );
 /// ```
 pub async fn serve_on(
-    documents: Arc<Mutex<Documents>>,
     protocol: Option<Protocol>,
     address: Option<String>,
     port: Option<u16>,
@@ -200,13 +182,6 @@ pub async fn serve_on(
 
             let authorize = || jwt_filter(key.clone());
 
-            fn with_documents(
-                documents: Arc<Mutex<Documents>>,
-            ) -> impl Filter<Extract = (Arc<Mutex<Documents>>,), Error = std::convert::Infallible> + Clone
-            {
-                warp::any().map(move || documents.clone())
-            }
-
             let local = warp::get()
                 .and(warp::path("~local"))
                 .and(warp::path::tail())
@@ -214,7 +189,6 @@ pub async fn serve_on(
                 .and_then(get_local);
 
             let get = warp::get()
-                .and(with_documents(documents))
                 .and(warp::path::full())
                 .and(warp::query::<GetParams>())
                 .and(authorize())
@@ -494,9 +468,8 @@ struct GetParams {
 /// returned (which, in the background will request the document as JSON). Otherwise,
 /// will attempt to determine the desired format from the `Accept` header and convert the
 /// document to that.
-#[tracing::instrument(skip(documents))]
+#[tracing::instrument]
 async fn get_handler(
-    documents: Arc<Mutex<Documents>>,
     path: warp::path::FullPath,
     params: GetParams,
     _claims: jwt::Claims,
@@ -522,17 +495,9 @@ async fn get_handler(
     let format = params.format.unwrap_or_else(|| "html".into());
     let theme = params.theme.unwrap_or_else(|| "wilmore".into());
 
-    let mut documents = documents.lock().await;
-    match documents.open(path, None).await {
+    match DOCUMENTS.lock().await.open(path, None).await {
         Ok(document) => {
-            let content = match documents
-                .get(&document.id)
-                .unwrap()
-                .lock()
-                .await
-                .dump(Some(format.clone()))
-                .await
-            {
+            let content = match document.dump(Some(format.clone())).await {
                 Ok(content) => content,
                 Err(error) => {
                     return error_response(
@@ -783,7 +748,7 @@ pub mod cli {
     }
 
     impl Command {
-        pub async fn run(self, documents: &mut Documents) -> display::Result {
+        pub async fn run(self) -> display::Result {
             let Command { url, key, insecure } = self;
 
             let config = &crate::config::lock().await.serve;
@@ -793,7 +758,6 @@ pub mod cli {
             let insecure = insecure || config.insecure;
 
             super::serve(
-                documents,
                 url,
                 if insecure {
                     Some("insecure".to_string())
