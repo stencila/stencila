@@ -126,7 +126,7 @@ pub async fn run_command(
         Command::Upgrade(command) => upgrade::cli::run(command).await,
         Command::Serve(command) => command.run().await,
     };
-    render::render(context.interactive, formats, result?)
+    render::render(formats, result?)
 }
 
 /// List all open project and documents.
@@ -538,7 +538,7 @@ mod render {
     use syntect::util::as_24_bit_terminal_escaped;
 
     // Display the result of a command prettily
-    pub fn render(interactive: bool, formats: &[String], display: Display) -> Result<()> {
+    pub fn render(formats: &[String], display: Display) -> Result<()> {
         let Display {
             content,
             format,
@@ -556,7 +556,7 @@ mod render {
                 if format == preference {
                     return match format.as_str() {
                         "md" => print(format, content),
-                        _ => highlight(interactive, format, content),
+                        _ => highlight(format, content),
                     };
                 }
             }
@@ -568,7 +568,7 @@ mod render {
                         .ok(),
                     _ => None,
                 } {
-                    return highlight(interactive, preference, &content);
+                    return highlight(preference, &content);
                 }
             }
         }
@@ -577,11 +577,11 @@ mod render {
         if let (Some(content), Some(format)) = (content, format) {
             match format.as_str() {
                 "md" => return print(format, content),
-                _ => return highlight(interactive, format, content),
+                _ => return highlight(format, content),
             };
         } else if let Some(value) = value {
             let json = serde_json::to_string_pretty(&value)?;
-            return highlight(interactive, "json", &json);
+            return highlight("json", &json);
         }
 
         Ok(())
@@ -595,16 +595,8 @@ mod render {
     }
 
     // Apply syntax highlighting and print to terminal
-    pub fn highlight(interactive: bool, format: &str, content: &str) -> Result<()> {
-        if !interactive {
-            println!("{}", content);
-            return Ok(());
-        }
-
-        // Loading syntaxes and themes is slow. The following lazily loads both once.
-        // This is fine in interactive mode because subsequent calls of this function
-        // do not need to load again. However, for normal usage it is still slow.
-        // TODO: Only bake in a subset of syntaxes and themes. See the following for examples of this
+    pub fn highlight(format: &str, content: &str) -> Result<()> {
+        // TODO: Only bake in a subset of syntaxes and themes? See the following for examples of this
         // https://github.com/ducaale/xh/blob/master/build.rs
         // https://github.com/sharkdp/bat/blob/0b44aa6f68ab967dd5d74b7e02d306f2b8388928/src/assets.rs
         static SYNTAXES: Lazy<SyntaxSet> = Lazy::new(SyntaxSet::load_defaults_newlines);
@@ -614,7 +606,7 @@ mod render {
             .find_syntax_by_extension(format)
             .unwrap_or_else(|| SYNTAXES.find_syntax_by_extension("txt").unwrap());
 
-        let mut highlighter = HighlightLines::new(syntax, &THEMES.themes["base16-eighties.dark"]);
+        let mut highlighter = HighlightLines::new(syntax, &THEMES.themes["Solarized (light)"]);
         for line in content.lines() {
             let ranges: Vec<(Style, &str)> = highlighter.highlight(line, &SYNTAXES);
             let escaped = as_24_bit_terminal_escaped(&ranges[..], false);
