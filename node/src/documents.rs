@@ -9,7 +9,7 @@ pub fn schemas(cx: FunctionContext) -> JsResult<JsString> {
 }
 
 /// List documents
-pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
+pub fn list(cx: FunctionContext) -> JsResult<JsString> {
     let result = RUNTIME.block_on(async { DOCUMENTS.list().await });
     to_json_or_throw(cx, result)
 }
@@ -51,7 +51,7 @@ pub fn get(mut cx: FunctionContext) -> JsResult<JsString> {
                 let document = &mut *document.lock().await;
                 Ok(document.clone())
             }
-            Err(error) => return Err(error),
+            Err(error) => Err(error),
         }
     });
     to_json_or_throw(cx, result)

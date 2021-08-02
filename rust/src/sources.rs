@@ -206,7 +206,7 @@ pub mod cli {
 
     impl List {
         pub async fn run(&self) -> display::Result {
-            let project = PROJECTS.lock().await.current(false).await?;
+            let project = PROJECTS.current(false).await?;
             display::value(project.sources)
         }
     }
@@ -237,7 +237,7 @@ pub mod cli {
                 destination,
                 name,
             } = self;
-            let mut project = PROJECTS.lock().await.current(false).await?;
+            let mut project = PROJECTS.current(false).await?;
             let files = project.add_source(&source, destination, name).await?;
             display::value(files)
         }
@@ -260,7 +260,7 @@ pub mod cli {
     impl Remove {
         pub async fn run(self) -> display::Result {
             let Self { name } = self;
-            let mut project = PROJECTS.lock().await.current(false).await?;
+            let mut project = PROJECTS.current(false).await?;
             project.remove_source(&name).await?;
             display::nothing()
         }
@@ -286,7 +286,7 @@ pub mod cli {
                 source,
                 destination,
             } = self;
-            let mut project = PROJECTS.lock().await.current(false).await?;
+            let mut project = PROJECTS.current(false).await?;
             let files = project.import_source(&source, destination).await?;
             display::value(files)
         }

@@ -16,7 +16,7 @@ use std::string::ToString;
 use std::sync::Arc;
 use std::time::Duration;
 use std::{
-    collections::{hash_map::Entry, HashMap},
+    collections::HashMap,
     fs,
     path::{Path, PathBuf},
 };
@@ -726,7 +726,7 @@ impl ProjectHandler {
 #[derive(Debug, Default)]
 pub struct Projects {
     /// The projects, stored by absolute path
-    pub registry: HashMap<PathBuf, ProjectHandler>,
+    pub registry: Mutex<HashMap<PathBuf, ProjectHandler>>,
 }
 
 impl Projects {
@@ -759,7 +759,7 @@ impl Projects {
     pub async fn list(&self) -> Result<Vec<String>> {
         let cwd = std::env::current_dir()?;
         let mut paths = Vec::new();
-        for project in self.registry.values() {
+        for project in self.registry.lock().await.values() {
             let path = &project.project.lock().await.path;
             let path = match pathdiff::diff_paths(path, &cwd) {
                 Some(path) => path,
@@ -772,33 +772,32 @@ impl Projects {
     }
 
     /// Open a project
-    pub async fn open<P: AsRef<Path>>(&mut self, path: Option<P>, watch: bool) -> Result<Project> {
+    pub async fn open<P: AsRef<Path>>(&self, path: Option<P>, watch: bool) -> Result<Project> {
         let path = match path {
             Some(path) => path.as_ref().canonicalize()?,
             None => Projects::current_path()?,
         };
 
-        let handler = match self.registry.entry(path.clone()) {
-            Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => match ProjectHandler::open(path, watch).await {
-                Ok(handler) => entry.insert(handler),
-                Err(error) => return Err(error),
-            },
-        };
+        if let Some(handler) = self.registry.lock().await.get(&path) {
+            return Ok(handler.project.lock().await.clone())
+        }
 
-        Ok(handler.project.lock().await.clone())
+        let project = Project::open(&path).await?;
+        let handler = ProjectHandler::new(project.clone(), watch).await;
+        self.registry.lock().await.insert(path.clone(), handler);
+        Ok(project)
     }
 
     /// Open the current project
-    pub async fn current(&mut self, watch: bool) -> Result<Project> {
+    pub async fn current(&self, watch: bool) -> Result<Project> {
         self.open::<PathBuf>(None, watch).await
     }
 
     /// Get a project
-    pub fn get<P: AsRef<Path>>(&mut self, path: P) -> Result<Arc<Mutex<Project>>> {
+    pub async fn get<P: AsRef<Path>>(&self, path: P) -> Result<Arc<Mutex<Project>>> {
         let path = path.as_ref().canonicalize()?;
 
-        if let Some(handler) = self.registry.get(&path) {
+        if let Some(handler) = self.registry.lock().await.get(&path) {
             Ok(handler.project.clone())
         } else {
             bail!("No project with path {}", path.display())
@@ -806,15 +805,15 @@ impl Projects {
     }
 
     /// Close a project
-    pub fn close<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
+    pub async fn close<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         let path = path.as_ref().canonicalize()?;
-        self.registry.remove(&path);
+        self.registry.lock().await.remove(&path);
         Ok(())
     }
 }
 
-/// A global projects store
-pub static PROJECTS: Lazy<Mutex<Projects>> = Lazy::new(|| Mutex::new(Projects::new()));
+/// The global projects store
+pub static PROJECTS: Lazy<Projects> = Lazy::new(Projects::new);
 
 /// Get JSON Schemas for this modules
 pub fn schemas() -> Result<serde_json::Value> {
@@ -942,7 +941,7 @@ pub mod cli {
 
     impl List {
         pub async fn run(&self) -> display::Result {
-            let list = PROJECTS.lock().await.list().await?;
+            let list = PROJECTS.list().await?;
             display::value(list)
         }
     }
@@ -961,7 +960,7 @@ pub mod cli {
     impl Open {
         pub async fn run(self) -> display::Result {
             let Self { folder } = self;
-            let Project { name, .. } = PROJECTS.lock().await.open(folder, true).await?;
+            let Project { name, .. } = PROJECTS.open(folder, true).await?;
             display::value(name)
         }
     }
@@ -981,7 +980,7 @@ pub mod cli {
     impl Close {
         pub async fn run(&self) -> display::Result {
             let Self { folder } = self;
-            PROJECTS.lock().await.close(folder)?;
+            PROJECTS.close(folder).await?;
             display::nothing()
         }
     }
@@ -1000,7 +999,7 @@ pub mod cli {
     impl Show {
         pub async fn run(self) -> display::Result {
             let Self { folder } = self;
-            let project = PROJECTS.lock().await.open(folder, false).await?;
+            let project = PROJECTS.open(folder, false).await?;
             let content = project.show()?;
             display::new("md", &content, Some(project))
         }

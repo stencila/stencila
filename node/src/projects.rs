@@ -1,20 +1,6 @@
 use crate::prelude::*;
 use neon::prelude::*;
-use stencila::{
-    projects::{self, Project, Projects, PROJECTS},
-    tokio::sync::MutexGuard,
-};
-
-/// Lock the global projects store
-pub fn lock(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Projects>> {
-    match PROJECTS.try_lock() {
-        Ok(guard) => Ok(guard),
-        Err(error) => cx.throw_error(format!(
-            "When attempting to lock projects: {}",
-            error.to_string()
-        )),
-    }
-}
+use stencila::projects::{self, Project, PROJECTS};
 
 /// Get schemas
 pub fn schemas(cx: FunctionContext) -> JsResult<JsString> {
@@ -23,36 +9,34 @@ pub fn schemas(cx: FunctionContext) -> JsResult<JsString> {
 }
 
 /// List projects
-pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
-    let projects = &*lock(&mut cx)?;
-    let result = RUNTIME.block_on(async { projects.list().await });
+pub fn list(cx: FunctionContext) -> JsResult<JsString> {
+    let result = RUNTIME.block_on(async { PROJECTS.list().await });
     to_json_or_throw(cx, result)
 }
 
 /// Open a project
 pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
     let path = &cx.argument::<JsString>(0)?.value(&mut cx);
-    let projects = &mut *lock(&mut cx)?;
-    let result = RUNTIME.block_on(async { projects.open(Some(path), true).await });
+
+    let result = RUNTIME.block_on(async { PROJECTS.open(Some(path), true).await });
     to_json_or_throw(cx, result)
 }
 
 /// Close a project
 pub fn close(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let path = &cx.argument::<JsString>(0)?.value(&mut cx);
-    let projects = &mut *lock(&mut cx)?;
-    to_undefined_or_throw(cx, projects.close(path))
+
+    to_undefined_or_throw(cx, RUNTIME.block_on(async { PROJECTS.close(path).await }))
 }
 
 /// Write a project
 pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let path = &cx.argument::<JsString>(0)?.value(&mut cx);
     let updates = &cx.argument::<JsString>(1)?.value(&mut cx);
-    let updates = from_json::<Project>(&mut cx, &updates)?;
+    let updates = from_json::<Project>(&mut cx, updates)?;
 
-    let projects = &mut *lock(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match projects.get(&path) {
+        match PROJECTS.get(&path).await {
             Ok(project) => project.lock().await.write(Some(updates)).await,
             Err(error) => Err(error),
         }
@@ -67,9 +51,8 @@ pub fn add_source(mut cx: FunctionContext) -> JsResult<JsString> {
     let destination = not_empty_or_none(&cx.argument::<JsString>(2)?.value(&mut cx));
     let name = not_empty_or_none(&cx.argument::<JsString>(3)?.value(&mut cx));
 
-    let projects = &mut *lock(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match projects.get(&path) {
+        match PROJECTS.get(&path).await {
             Ok(project) => {
                 project
                     .lock()
@@ -88,9 +71,8 @@ pub fn remove_source(mut cx: FunctionContext) -> JsResult<JsString> {
     let path = &cx.argument::<JsString>(0)?.value(&mut cx);
     let name = &cx.argument::<JsString>(1)?.value(&mut cx);
 
-    let projects = &mut *lock(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match projects.get(&path) {
+        match PROJECTS.get(&path).await {
             Ok(project) => project.lock().await.remove_source(name).await,
             Err(error) => Err(error),
         }
@@ -104,9 +86,8 @@ pub fn import_source(mut cx: FunctionContext) -> JsResult<JsString> {
     let name_or_identifier = &cx.argument::<JsString>(1)?.value(&mut cx);
     let destination = not_empty_or_none(&cx.argument::<JsString>(2)?.value(&mut cx));
 
-    let projects = &mut *lock(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match projects.get(&path) {
+        match PROJECTS.get(&path).await {
             Ok(project) => {
                 project
                     .lock()
