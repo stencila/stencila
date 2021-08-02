@@ -73,7 +73,7 @@ pub fn from_json<'a, Type>(cx: &mut FunctionContext, json: &'a str) -> Result<Ty
 where
     Type: Deserialize<'a>,
 {
-    match serde_json::from_str::<Type>(&json) {
+    match serde_json::from_str::<Type>(json) {
         Ok(value) => Ok(value),
         Err(error) => cx.throw_error(error.to_string()),
     }

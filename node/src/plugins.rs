@@ -40,7 +40,7 @@ pub fn install(mut cx: FunctionContext) -> JsResult<JsString> {
     let spec = &cx.argument::<JsString>(0)?.value(&mut cx);
 
     let config = &config::lock(&mut cx)?;
-    let installs = &installations(&mut cx, 1, &config)?;
+    let installs = &installations(&mut cx, 1, config)?;
     let aliases = &config.plugins.aliases;
     let plugins = &mut *lock(&mut cx)?;
 
