@@ -4,7 +4,7 @@ use std::{collections::HashMap, path::PathBuf};
 use stencila::{
     binaries,
     cli::display,
-    config,
+    config::{self, CONFIG},
     documents::{self, DOCUMENTS},
     eyre::{bail, Error, Result},
     logging::{
@@ -340,7 +340,7 @@ pub async fn main() -> Result<()> {
     // Create a preliminary logging subscriber to be able to log any issues
     // when reading the logging config.
     let prelim_subscriber_guard = logging::prelim();
-    let logging_config = config::lock().await.logging.clone();
+    let logging_config = CONFIG.lock().await.logging.clone();
     drop(prelim_subscriber_guard);
 
     // Create a logging config with local overrides

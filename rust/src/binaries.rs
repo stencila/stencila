@@ -1,3 +1,4 @@
+use crate::config::CONFIG;
 use defaults::Defaults;
 use eyre::{bail, Result};
 use itertools::Itertools;
@@ -677,7 +678,7 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
         return Ok(installation);
     }
 
-    let config::BinariesConfig { auto } = crate::config::lock().await.binaries;
+    let config::BinariesConfig { auto } = CONFIG.lock().await.binaries;
     if auto {
         binary.install(semver.clone(), None, None).await?;
         if let Some(installation) = binary.installation(semver)? {

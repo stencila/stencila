@@ -22,12 +22,11 @@ use std::{
     env, fs,
     path::PathBuf,
     process::{Command, Stdio},
-    sync::Arc,
     thread,
 };
 use stencila_schema::Node;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator, VariantNames};
-use tokio::sync::{Mutex, MutexGuard};
+use tokio::sync::Mutex;
 
 /// Get the directory within which plugins and their configurations are installed
 pub fn plugins_dir(ensure: bool) -> Result<PathBuf> {
@@ -1852,13 +1851,8 @@ impl Plugins {
 /// functions in other modules on each invocation (for delegation to each plugin).
 /// However, this proved complicated for things like delegating method calls from
 /// within documents. For that reason, we introduced this global.
-pub static PLUGINS: Lazy<Arc<Mutex<Plugins>>> =
-    Lazy::new(|| Arc::new(Mutex::new(Plugins::load().expect("Unable to load plugins"))));
-
-/// Lock the global plugins store
-pub async fn lock() -> MutexGuard<'static, Plugins> {
-    PLUGINS.lock().await
-}
+pub static PLUGINS: Lazy<Mutex<Plugins>> =
+    Lazy::new(|| Mutex::new(Plugins::load().expect("Unable to load plugins")));
 
 /// Delegate a method call to a plugin
 ///
@@ -1866,8 +1860,7 @@ pub async fn lock() -> MutexGuard<'static, Plugins> {
 /// `PLUGINS` store, delegates a call to it and transforms
 /// the result into a `Node`.
 pub async fn delegate(method: Method, params: HashMap<String, serde_json::Value>) -> Result<Node> {
-    let mut plugins = lock().await;
-    let value = plugins.delegate(method, params).await?;
+    let value = PLUGINS.lock().await.delegate(method, params).await?;
     let node = serde_json::from_value(value)?;
     Ok(node)
 }
@@ -1895,9 +1888,8 @@ pub mod config {
 
 #[cfg(feature = "cli")]
 pub mod cli {
-    use crate::cli::display;
-
     use super::*;
+    use crate::{cli::display, config::CONFIG};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -2127,9 +2119,9 @@ pub mod cli {
         let config::PluginsConfig {
             aliases,
             installations,
-        } = &crate::config::lock().await.plugins;
+        } = &CONFIG.lock().await.plugins;
 
-        let plugins = &mut *lock().await;
+        let plugins = &mut *PLUGINS.lock().await;
 
         match action {
             Action::List => {

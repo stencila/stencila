@@ -1,4 +1,5 @@
 use crate::{
+    config::CONFIG,
     documents::DOCUMENTS,
     jwt,
     rpc::{Error, Protocol, Request, Response},
@@ -751,7 +752,7 @@ pub mod cli {
         pub async fn run(self) -> display::Result {
             let Command { url, key, insecure } = self;
 
-            let config = &crate::config::lock().await.serve;
+            let config = &CONFIG.lock().await.serve;
 
             let url = url.or_else(|| Some(config.url.clone()));
             let key = key.or_else(|| config.key.clone());

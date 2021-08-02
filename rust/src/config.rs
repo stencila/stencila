@@ -7,8 +7,7 @@ use std::env;
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
-use std::sync::Arc;
-use tokio::sync::{Mutex, MutexGuard};
+use tokio::sync::Mutex;
 use validator::Validate;
 
 /// Get the directory where configuration data is stored
@@ -219,13 +218,8 @@ impl Config {
 /// functions in other modules.
 /// However, this proved complicated for things like `Project` and `Document`
 /// file watching threads when they need access to the current config.
-pub static CONFIG: Lazy<Arc<Mutex<Config>>> =
-    Lazy::new(|| Arc::new(Mutex::new(Config::load().expect("Unable to read config"))));
-
-/// Lock the global config store
-pub async fn lock() -> MutexGuard<'static, Config> {
-    CONFIG.lock().await
-}
+pub static CONFIG: Lazy<Mutex<Config>> =
+    Lazy::new(|| Mutex::new(Config::load().expect("Unable to read config")));
 
 /// Get the JSON Schema for the configuration
 pub fn schema() -> Result<serde_json::Value> {
@@ -308,7 +302,7 @@ pub mod cli {
     pub async fn run(args: Command) -> display::Result {
         let Command { action } = args;
 
-        let config = &mut *lock().await;
+        let config = &mut *CONFIG.lock().await;
 
         match action {
             Action::Get(action) => {

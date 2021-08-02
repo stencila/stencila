@@ -1,3 +1,4 @@
+use crate::config::CONFIG;
 use crate::files::{File, FileEvent, Files};
 use crate::methods::import::import;
 use crate::pubsub::publish;
@@ -282,7 +283,7 @@ impl Project {
 
         let files = &self.files.files;
 
-        let config = &crate::config::lock().await.projects;
+        let config = &CONFIG.lock().await.projects;
 
         // Resolve the main file path first as some of the other project properties
         // may be defined there (e.g. in the YAML header of a Markdown file)
@@ -538,7 +539,7 @@ impl ProjectHandler {
 
         // Watch exclude patterns default to the configured defaults.
         // Note that this project setting can not be updated while it is being watched.
-        let config = &crate::config::lock().await.projects;
+        let config = &CONFIG.lock().await.projects;
         let watch_exclude_patterns = project
             .watch_exclude_patterns
             .clone()

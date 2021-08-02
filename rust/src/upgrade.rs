@@ -1,4 +1,7 @@
-use crate::plugins;
+use crate::{
+    config::CONFIG,
+    plugins::{Plugin, PLUGINS},
+};
 use chrono::{DateTime, Duration, Utc};
 use eyre::{bail, eyre, Result};
 use std::{fs, thread};
@@ -63,7 +66,7 @@ pub async fn upgrade(
     .map_err(|_| eyre!("Error joining thread"))??;
 
     if include_plugins {
-        plugins::Plugin::upgrade_all(&mut *plugins::lock().await).await?;
+        Plugin::upgrade_all(&mut *PLUGINS.lock().await).await?;
     }
 
     Ok(())
@@ -89,7 +92,7 @@ pub async fn upgrade_auto() -> tokio::task::JoinHandle<Result<()>> {
         confirm,
         plugins: include_plugins,
         ..
-    } = crate::config::lock().await.upgrade.clone();
+    } = CONFIG.lock().await.upgrade.clone();
 
     tokio::spawn(async move {
         // Go no further if auto upgrade is not enabled
