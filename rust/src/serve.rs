@@ -525,7 +525,14 @@ async fn get_handler(
     let mut documents = documents.lock().await;
     match documents.open(path, None).await {
         Ok(document) => {
-            let content = match documents.dump(&document.id, Some(format.clone())).await {
+            let content = match documents
+                .get(&document.id)
+                .unwrap()
+                .lock()
+                .await
+                .dump(Some(format.clone()))
+                .await
+            {
                 Ok(content) => content,
                 Err(error) => {
                     return error_response(

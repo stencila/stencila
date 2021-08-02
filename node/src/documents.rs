@@ -95,8 +95,14 @@ pub fn alter(mut cx: FunctionContext) -> JsResult<JsString> {
 /// Read a document
 pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
+
     let documents = &mut *obtain(&mut cx)?;
-    let result = RUNTIME.block_on(async { documents.read(id).await });
+    let result = RUNTIME.block_on(async {
+        match documents.get(id) {
+            Ok(document) => document.lock().await.read().await,
+            Err(error) => Err(error),
+        }
+    });
     to_string_or_throw(cx, result)
 }
 
@@ -104,8 +110,14 @@ pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let content = cx.argument::<JsString>(1)?.value(&mut cx);
+
     let documents = &mut *obtain(&mut cx)?;
-    let result = RUNTIME.block_on(async { documents.write(id, Some(content)).await });
+    let result = RUNTIME.block_on(async {
+        match documents.get(id) {
+            Ok(document) => document.lock().await.write(Some(content), None).await,
+            Err(error) => Err(error),
+        }
+    });
     to_undefined_or_throw(cx, result)
 }
 
@@ -121,8 +133,14 @@ pub fn write_as(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     };
     let theme = cx.argument::<JsString>(3)?.value(&mut cx);
     let theme = if theme.is_empty() { None } else { Some(theme) };
+
     let documents = &mut *obtain(&mut cx)?;
-    let result = RUNTIME.block_on(async { documents.write_as(id, &path, format, theme).await });
+    let result = RUNTIME.block_on(async {
+        match documents.get(id) {
+            Ok(document) => document.lock().await.write_as(path, format, theme).await,
+            Err(error) => Err(error),
+        }
+    });
     to_undefined_or_throw(cx, result)
 }
 
@@ -135,8 +153,14 @@ pub fn dump(mut cx: FunctionContext) -> JsResult<JsString> {
     } else {
         Some(format)
     };
+
     let documents = &mut *obtain(&mut cx)?;
-    let result = RUNTIME.block_on(async { documents.dump(id, format).await });
+    let result = RUNTIME.block_on(async {
+        match documents.get(id) {
+            Ok(document) => document.lock().await.dump(format).await,
+            Err(error) => Err(error),
+        }
+    });
     to_string_or_throw(cx, result)
 }
 
@@ -144,8 +168,14 @@ pub fn dump(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn load(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let content = cx.argument::<JsString>(1)?.value(&mut cx);
+
     let documents = &mut *obtain(&mut cx)?;
-    let result = RUNTIME.block_on(async { documents.load(id, content).await });
+    let result = RUNTIME.block_on(async {
+        match documents.get(id) {
+            Ok(document) => document.lock().await.load(content, None).await,
+            Err(error) => Err(error),
+        }
+    });
     to_undefined_or_throw(cx, result)
 }
 
@@ -153,8 +183,14 @@ pub fn load(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
+
     let documents = &mut *obtain(&mut cx)?;
-    let result = RUNTIME.block_on(async { documents.subscribe(id, topic).await });
+    let result = RUNTIME.block_on(async {
+        match documents.get(id) {
+            Ok(document) => document.lock().await.subscribe(topic),
+            Err(error) => Err(error),
+        }
+    });
     to_undefined_or_throw(cx, result)
 }
 
@@ -162,14 +198,21 @@ pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 pub fn unsubscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
+
     let documents = &mut *obtain(&mut cx)?;
-    let result = RUNTIME.block_on(async { documents.unsubscribe(id, topic).await });
+    let result = RUNTIME.block_on(async {
+        match documents.get(id) {
+            Ok(document) => document.lock().await.unsubscribe(topic),
+            Err(error) => Err(error),
+        }
+    });
     to_undefined_or_throw(cx, result)
 }
 
 /// Close a document
 pub fn close(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
+
     let documents = &mut *obtain(&mut cx)?;
     let result = RUNTIME.block_on(async { documents.close(id).await });
     to_undefined_or_throw(cx, result)

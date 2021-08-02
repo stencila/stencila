@@ -184,6 +184,7 @@ pub struct Document {
     subscriptions: HashMap<String, u32>,
 }
 
+#[allow(unused)]
 impl Document {
     /// Generate the JSON Schema for the `format` property to avoid duplicated
     /// inline type.
@@ -314,7 +315,7 @@ impl Document {
     /// Sets `status` to `Synced`. For binary files, does not actually read the content
     /// but will update the document nonetheless (possibly delegating the actual read
     /// to a binary or plugin)
-    async fn read(&mut self) -> Result<String> {
+    pub async fn read(&mut self) -> Result<String> {
         let content = if !self.format.binary {
             let content = fs::read_to_string(&self.path)?;
             self.load(content.clone(), None).await?;
@@ -337,7 +338,7 @@ impl Document {
     ///    the document's existing format.
     ///
     /// Sets `status` to `Synced`.
-    async fn write(&mut self, content: Option<String>, format: Option<String>) -> Result<()> {
+    pub async fn write(&mut self, content: Option<String>, format: Option<String>) -> Result<()> {
         if let Some(content) = content {
             self.load(content, format).await?;
         }
@@ -361,7 +362,7 @@ impl Document {
     ///
     /// Note: this does not change the `path`, `format` or `status` of the current
     /// document.
-    async fn write_as<P: AsRef<Path>>(
+    pub async fn write_as<P: AsRef<Path>>(
         &self,
         path: P,
         format: Option<String>,
@@ -401,7 +402,7 @@ impl Document {
     ///
     /// - `format`: the format to dump the content as; if not supplied assumed to be
     ///    the document's existing format.
-    async fn dump(&self, format: Option<String>) -> Result<String> {
+    pub async fn dump(&self, format: Option<String>) -> Result<String> {
         let format = match format {
             Some(format) => format,
             None => return Ok(self.content.clone()),
@@ -422,7 +423,7 @@ impl Document {
     /// - `content`: the content to load into the document
     /// - `format`: the format of the content; if not supplied assumed to be
     ///    the document's existing format.
-    async fn load(&mut self, content: String, format: Option<String>) -> Result<()> {
+    pub async fn load(&mut self, content: String, format: Option<String>) -> Result<()> {
         // Set the `content` and `status` of the document
         self.content = content;
         self.status = DocumentStatus::Unwritten;
@@ -504,26 +505,11 @@ impl Document {
         Ok(())
     }
 
-    /// Add a subscriber to one of the document's topics
-    #[allow(clippy::unnecessary_wraps)]
-    fn subscribe(&mut self, topic: &str) -> Result<()> {
-        match self.subscriptions.entry(topic.into()) {
-            Entry::Occupied(mut entry) => {
-                let subscribers = entry.get_mut();
-                *subscribers += 1;
-            }
-            Entry::Vacant(entry) => {
-                entry.insert(1);
-            }
-        }
-        Ok(())
-    }
-
     /// Query the document
     ///
     /// Returns a JSON value. Returns `null` if the query does not select anything.
     #[allow(unreachable_code)]
-    fn query(&self, query: &str, lang: &str) -> Result<serde_json::Value> {
+    pub fn query(&self, query: &str, lang: &str) -> Result<serde_json::Value> {
         let result = match lang {
             #[cfg(feature = "query-jmespath")]
             "jmespath" => {
@@ -545,9 +531,24 @@ impl Document {
         Ok(result)
     }
 
+    /// Add a subscriber to one of the document's topics
+    #[allow(clippy::unnecessary_wraps)]
+    pub fn subscribe(&mut self, topic: &str) -> Result<()> {
+        match self.subscriptions.entry(topic.into()) {
+            Entry::Occupied(mut entry) => {
+                let subscribers = entry.get_mut();
+                *subscribers += 1;
+            }
+            Entry::Vacant(entry) => {
+                entry.insert(1);
+            }
+        }
+        Ok(())
+    }
+
     /// Remove a subscriber to one of the document's topics
     #[allow(clippy::unnecessary_wraps)]
-    fn unsubscribe(&mut self, topic: &str) -> Result<()> {
+    pub fn unsubscribe(&mut self, topic: &str) -> Result<()> {
         match self.subscriptions.entry(topic.into()) {
             Entry::Occupied(mut entry) => {
                 let subscribers = entry.get_mut();
@@ -833,6 +834,7 @@ pub struct Documents {
 }
 
 impl Documents {
+    /// Create a new documents store
     pub fn new() -> Self {
         Self::default()
     }
@@ -923,50 +925,13 @@ impl Documents {
         Ok(())
     }
 
+    /// Get a document that has previously been opened
     pub fn get(&mut self, id: &str) -> Result<Arc<Mutex<Document>>> {
         if let Some(handler) = self.registry.get(id) {
             Ok(handler.document.clone())
         } else {
             bail!("No document with id {}", id)
         }
-    }
-
-    pub async fn read(&mut self, id: &str) -> Result<String> {
-        self.get(&id)?.lock().await.read().await
-    }
-
-    pub async fn write(&mut self, id: &str, content: Option<String>) -> Result<()> {
-        self.get(&id)?.lock().await.write(content, None).await
-    }
-
-    pub async fn write_as(
-        &mut self,
-        id: &str,
-        path: &str,
-        format: Option<String>,
-        theme: Option<String>,
-    ) -> Result<()> {
-        self.get(&id)?
-            .lock()
-            .await
-            .write_as(path, format, theme)
-            .await
-    }
-
-    pub async fn dump(&mut self, id: &str, format: Option<String>) -> Result<String> {
-        self.get(&id)?.lock().await.dump(format).await
-    }
-
-    pub async fn load(&mut self, id: &str, content: String) -> Result<()> {
-        self.get(&id)?.lock().await.load(content, None).await
-    }
-
-    pub async fn subscribe(&mut self, id: &str, topic: &str) -> Result<()> {
-        self.get(&id)?.lock().await.subscribe(topic)
-    }
-
-    pub async fn unsubscribe(&mut self, id: &str, topic: &str) -> Result<()> {
-        self.get(&id)?.lock().await.unsubscribe(topic)
     }
 }
 
