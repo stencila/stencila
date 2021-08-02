@@ -1,3 +1,17 @@
+# [0.105.0](https://github.com/stencila/stencila/compare/v0.104.1...v0.105.0) (2021-08-02)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency fp-ts to v2.11.1 ([1def782](https://github.com/stencila/stencila/commit/1def7829262eceaac1ea71f72b668be5c43ae815))
+* **Onboarding:** Don't create new Onboarding window if it exists already ([57a2f5b](https://github.com/stencila/stencila/commit/57a2f5bdffb9c8cd4434439e2fefc16111d019b1))
+* **Settings:** Standardize spelling of settings items ([7fddc8e](https://github.com/stencila/stencila/commit/7fddc8eb5ead1d68bd785e6b92839ddf9500c8f0))
+
+
+### Features
+
+* **Desktop:** Enable "New Project" workflow ([431f3c5](https://github.com/stencila/stencila/commit/431f3c56ae2645d264875c77ccc39f896e5946c4))
+
 ## [0.104.1](https://github.com/stencila/stencila/compare/v0.104.0...v0.104.1) (2021-08-01)
 
 
