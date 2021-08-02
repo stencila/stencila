@@ -141,7 +141,7 @@ impl ListCommand {
     pub async fn run(self) -> display::Result {
         let mut value = HashMap::new();
         value.insert("projects", PROJECTS.lock().await.list().await?);
-        value.insert("documents", DOCUMENTS.lock().await.list().await?);
+        value.insert("documents", DOCUMENTS.list().await?);
         display::value(value)
     }
 }
@@ -187,7 +187,7 @@ impl OpenCommand {
                 }
             }
         } else {
-            let document = DOCUMENTS.lock().await.open(&path, None).await?;
+            let document = DOCUMENTS.open(&path, None).await?;
             document.path
         };
 
@@ -254,7 +254,7 @@ impl CloseCommand {
         if path.is_dir() {
             PROJECTS.lock().await.close(&path)?;
         } else {
-            DOCUMENTS.lock().await.close(&path).await?;
+            DOCUMENTS.close(&path).await?;
         }
 
         display::nothing()
@@ -281,7 +281,7 @@ impl ShowCommand {
 
         if let Some(path) = &path {
             if path.is_file() {
-                return display::value(DOCUMENTS.lock().await.open(&path, None).await?);
+                return display::value(DOCUMENTS.open(&path, None).await?);
             }
         }
 

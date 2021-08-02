@@ -1,20 +1,6 @@
 use crate::prelude::*;
 use neon::prelude::*;
-use stencila::{
-    documents::{self, Documents, DOCUMENTS},
-    tokio::sync::MutexGuard,
-};
-
-/// Lock the global documents store
-fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Documents>> {
-    match DOCUMENTS.try_lock() {
-        Ok(guard) => Ok(guard),
-        Err(error) => cx.throw_error(format!(
-            "When attempting on obtain documents: {}",
-            error.to_string()
-        )),
-    }
-}
+use stencila::documents::{self, DOCUMENTS};
 
 /// Get the module's schemas
 pub fn schemas(cx: FunctionContext) -> JsResult<JsString> {
@@ -24,8 +10,7 @@ pub fn schemas(cx: FunctionContext) -> JsResult<JsString> {
 
 /// List documents
 pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
-    let documents = &*obtain(&mut cx)?;
-    let result = RUNTIME.block_on(async { documents.list().await });
+    let result = RUNTIME.block_on(async { DOCUMENTS.list().await });
     to_json_or_throw(cx, result)
 }
 
@@ -37,8 +22,9 @@ pub fn create(mut cx: FunctionContext) -> JsResult<JsString> {
     } else {
         Some(format)
     };
-    let documents = &mut *obtain(&mut cx)?;
-    to_json_or_throw(cx, documents.create(format))
+
+    let result = RUNTIME.block_on(async { DOCUMENTS.create(format).await });
+    to_json_or_throw(cx, result)
 }
 
 /// Open a document
@@ -50,8 +36,8 @@ pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
     } else {
         Some(format)
     };
-    let documents = &mut *obtain(&mut cx)?;
-    let result = RUNTIME.block_on(async { documents.open(path, format).await });
+
+    let result = RUNTIME.block_on(async { DOCUMENTS.open(path, format).await });
     to_json_or_throw(cx, result)
 }
 
@@ -59,13 +45,16 @@ pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn get(mut cx: FunctionContext) -> JsResult<JsString> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
 
-    let documents = &mut *obtain(&mut cx)?;
-    let document = match documents.get(id) {
-        Ok(document) => document,
-        Err(error) => return cx.throw_error(error.to_string()),
-    };
-    let result = RUNTIME.block_on(async { document.lock().await.clone() });
-    to_json(cx, result)
+    let result = RUNTIME.block_on(async {
+        match DOCUMENTS.get(id).await {
+            Ok(document) => {
+                let document = &mut *document.lock().await;
+                Ok(document.clone())
+            }
+            Err(error) => return Err(error),
+        }
+    });
+    to_json_or_throw(cx, result)
 }
 
 /// Alter a document's properties
@@ -74,9 +63,8 @@ pub fn alter(mut cx: FunctionContext) -> JsResult<JsString> {
     let path = not_empty_or_none(&cx.argument::<JsString>(1)?.value(&mut cx));
     let format = not_empty_or_none(&cx.argument::<JsString>(2)?.value(&mut cx));
 
-    let documents = &mut *obtain(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match documents.get(id) {
+        match DOCUMENTS.get(id).await {
             Ok(document) => {
                 let document = &mut *document.lock().await;
                 document.alter(path, format).await?;
@@ -92,9 +80,8 @@ pub fn alter(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
 
-    let documents = &mut *obtain(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match documents.get(id) {
+        match DOCUMENTS.get(id).await {
             Ok(document) => document.lock().await.read().await,
             Err(error) => Err(error),
         }
@@ -107,9 +94,8 @@ pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let content = cx.argument::<JsString>(1)?.value(&mut cx);
 
-    let documents = &mut *obtain(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match documents.get(id) {
+        match DOCUMENTS.get(id).await {
             Ok(document) => document.lock().await.write(Some(content), None).await,
             Err(error) => Err(error),
         }
@@ -130,9 +116,8 @@ pub fn write_as(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let theme = cx.argument::<JsString>(3)?.value(&mut cx);
     let theme = if theme.is_empty() { None } else { Some(theme) };
 
-    let documents = &mut *obtain(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match documents.get(id) {
+        match DOCUMENTS.get(id).await {
             Ok(document) => document.lock().await.write_as(path, format, theme).await,
             Err(error) => Err(error),
         }
@@ -150,9 +135,8 @@ pub fn dump(mut cx: FunctionContext) -> JsResult<JsString> {
         Some(format)
     };
 
-    let documents = &mut *obtain(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match documents.get(id) {
+        match DOCUMENTS.get(id).await {
             Ok(document) => document.lock().await.dump(format).await,
             Err(error) => Err(error),
         }
@@ -165,9 +149,8 @@ pub fn load(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let content = cx.argument::<JsString>(1)?.value(&mut cx);
 
-    let documents = &mut *obtain(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match documents.get(id) {
+        match DOCUMENTS.get(id).await {
             Ok(document) => document.lock().await.load(content, None).await,
             Err(error) => Err(error),
         }
@@ -180,9 +163,8 @@ pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
 
-    let documents = &mut *obtain(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match documents.get(id) {
+        match DOCUMENTS.get(id).await {
             Ok(document) => document.lock().await.subscribe(topic),
             Err(error) => Err(error),
         }
@@ -195,9 +177,8 @@ pub fn unsubscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
 
-    let documents = &mut *obtain(&mut cx)?;
     let result = RUNTIME.block_on(async {
-        match documents.get(id) {
+        match DOCUMENTS.get(id).await {
             Ok(document) => document.lock().await.unsubscribe(topic),
             Err(error) => Err(error),
         }
@@ -209,7 +190,6 @@ pub fn unsubscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 pub fn close(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
 
-    let documents = &mut *obtain(&mut cx)?;
-    let result = RUNTIME.block_on(async { documents.close(id).await });
+    let result = RUNTIME.block_on(async { DOCUMENTS.close(id).await });
     to_undefined_or_throw(cx, result)
 }

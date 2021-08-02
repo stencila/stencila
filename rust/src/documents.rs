@@ -831,7 +831,7 @@ impl DocumentHandler {
 #[derive(Debug, Default)]
 pub struct Documents {
     /// A mapping of file paths to open documents
-    registry: HashMap<String, DocumentHandler>,
+    registry: Mutex<HashMap<String, DocumentHandler>>,
 }
 
 impl Documents {
@@ -846,7 +846,7 @@ impl Documents {
     pub async fn list(&self) -> Result<Vec<String>> {
         let cwd = std::env::current_dir()?;
         let mut paths = Vec::new();
-        for document in self.registry.values() {
+        for document in self.registry.lock().await.values() {
             let path = &document.document.lock().await.path;
             let path = match pathdiff::diff_paths(path, &cwd) {
                 Some(path) => path,
@@ -859,10 +859,14 @@ impl Documents {
     }
 
     /// Create a new empty document
-    pub fn create(&mut self, format: Option<String>) -> Result<Document> {
+    pub async fn create(&self, format: Option<String>) -> Result<Document> {
         let document = Document::new(format);
         let handler = DocumentHandler::new(document.clone(), false);
-        self.registry.insert(document.id.clone(), handler);
+
+        self.registry
+            .lock()
+            .await
+            .insert(document.id.clone(), handler);
         Ok(document)
     }
 
@@ -875,14 +879,10 @@ impl Documents {
     ///
     /// If the document has already been opened, it will not be re-opened, but rather the existing
     /// in-memory instance will be returned.
-    pub async fn open<P: AsRef<Path>>(
-        &mut self,
-        path: P,
-        format: Option<String>,
-    ) -> Result<Document> {
+    pub async fn open<P: AsRef<Path>>(&self, path: P, format: Option<String>) -> Result<Document> {
         let path = Path::new(path.as_ref()).canonicalize()?;
 
-        for handler in self.registry.values() {
+        for handler in self.registry.lock().await.values() {
             let document = handler.document.lock().await;
             if document.path == path {
                 return Ok(document.clone());
@@ -891,7 +891,11 @@ impl Documents {
 
         let document = Document::open(path, format).await?;
         let handler = DocumentHandler::new(document.clone(), true);
-        self.registry.insert(document.id.clone(), handler);
+        self.registry
+            .lock()
+            .await
+            .insert(document.id.clone(), handler);
+
         Ok(document)
     }
 
@@ -904,16 +908,16 @@ impl Documents {
     /// If `id_or_path` matches an existing document `id` then that document will
     /// be closed. Otherwise a search will be done and the first document with a matching
     /// path will be closed.
-    pub async fn close<P: AsRef<Path>>(&mut self, id_or_path: P) -> Result<()> {
+    pub async fn close<P: AsRef<Path>>(&self, id_or_path: P) -> Result<()> {
         let id_or_path_path = id_or_path.as_ref();
         let id_or_path_string = id_or_path_path.to_string_lossy().to_string();
         let mut id_to_remove = String::new();
 
-        if self.registry.contains_key(&id_or_path_string) {
+        if self.registry.lock().await.contains_key(&id_or_path_string) {
             id_to_remove = id_or_path_string
         } else {
             let path = id_or_path_path.canonicalize()?;
-            for handler in self.registry.values() {
+            for handler in self.registry.lock().await.values() {
                 let document = handler.document.lock().await;
                 if document.path == path {
                     id_to_remove = document.id.clone();
@@ -921,14 +925,14 @@ impl Documents {
                 }
             }
         };
-        self.registry.remove(&id_to_remove);
+        self.registry.lock().await.remove(&id_to_remove);
 
         Ok(())
     }
 
     /// Get a document that has previously been opened
-    pub fn get(&mut self, id: &str) -> Result<Arc<Mutex<Document>>> {
-        if let Some(handler) = self.registry.get(id) {
+    pub async fn get(&self, id: &str) -> Result<Arc<Mutex<Document>>> {
+        if let Some(handler) = self.registry.lock().await.get(id) {
             Ok(handler.document.clone())
         } else {
             bail!("No document with id {}", id)
@@ -936,8 +940,8 @@ impl Documents {
     }
 }
 
-/// A global documents store
-pub static DOCUMENTS: Lazy<Mutex<Documents>> = Lazy::new(|| Mutex::new(Documents::new()));
+/// The global documents store
+pub static DOCUMENTS: Lazy<Documents> = Lazy::new(Documents::new);
 
 /// Get JSON Schemas for this modules
 pub fn schemas() -> Result<serde_json::Value> {
@@ -1003,7 +1007,7 @@ pub mod cli {
 
     impl List {
         pub async fn run(&self) -> display::Result {
-            let list = DOCUMENTS.lock().await.list().await?;
+            let list = DOCUMENTS.list().await?;
             display::value(list)
         }
     }
@@ -1023,7 +1027,7 @@ pub mod cli {
     impl Open {
         pub async fn run(&self) -> display::Result {
             let Self { file } = self;
-            DOCUMENTS.lock().await.open(file, None).await?;
+            DOCUMENTS.open(file, None).await?;
             display::nothing()
         }
     }
@@ -1043,7 +1047,7 @@ pub mod cli {
     impl Close {
         pub async fn run(&self) -> display::Result {
             let Self { file } = self;
-            DOCUMENTS.lock().await.close(file).await?;
+            DOCUMENTS.close(file).await?;
             display::nothing()
         }
     }
@@ -1066,7 +1070,7 @@ pub mod cli {
     impl Show {
         pub async fn run(&self) -> display::Result {
             let Self { file, format } = self;
-            let document = DOCUMENTS.lock().await.open(file, format.clone()).await?;
+            let document = DOCUMENTS.open(file, format.clone()).await?;
             display::value(document)
         }
     }
@@ -1108,7 +1112,7 @@ pub mod cli {
                 query,
                 lang,
             } = self;
-            let document = DOCUMENTS.lock().await.open(file, format.clone()).await?;
+            let document = DOCUMENTS.open(file, format.clone()).await?;
             let result = document.query(query, lang)?;
             display::value(result)
         }
@@ -1171,9 +1175,8 @@ pub mod cli {
 
 #[cfg(test)]
 mod tests {
-    use maplit::hashmap;
-
     use super::*;
+    use maplit::hashmap;
 
     #[test]
     fn document_new() {
