@@ -140,7 +140,7 @@ pub struct ListCommand {}
 impl ListCommand {
     pub async fn run(self) -> display::Result {
         let mut value = HashMap::new();
-        value.insert("projects", PROJECTS.lock().await.list().await?);
+        value.insert("projects", PROJECTS.list().await?);
         value.insert("documents", DOCUMENTS.list().await?);
         display::value(value)
     }
@@ -178,7 +178,7 @@ impl OpenCommand {
         };
 
         let path = if is_project {
-            let project = PROJECTS.lock().await.open(Some(path), true).await?;
+            let project = PROJECTS.open(Some(path), true).await?;
             match project.main_path {
                 Some(path) => path,
                 None => {
@@ -252,7 +252,7 @@ impl CloseCommand {
         let Self { path } = self;
 
         if path.is_dir() {
-            PROJECTS.lock().await.close(&path)?;
+            PROJECTS.close(&path).await?;
         } else {
             DOCUMENTS.close(&path).await?;
         }
@@ -285,7 +285,7 @@ impl ShowCommand {
             }
         }
 
-        display::value(PROJECTS.lock().await.open(path, true).await?)
+        display::value(PROJECTS.open(path, true).await?)
     }
 }
 
@@ -555,8 +555,8 @@ mod render {
             if let (Some(content), Some(format)) = (content, format) {
                 if format == preference {
                     return match format.as_str() {
-                        "md" => print(&format, &content),
-                        _ => highlight(interactive, &format, &content),
+                        "md" => print(format, content),
+                        _ => highlight(interactive, format, content),
                     };
                 }
             }
@@ -568,7 +568,7 @@ mod render {
                         .ok(),
                     _ => None,
                 } {
-                    return highlight(interactive, &preference, &content);
+                    return highlight(interactive, preference, &content);
                 }
             }
         }
@@ -576,8 +576,8 @@ mod render {
         // Fallback to displaying content if available, otherwise value as JSON.
         if let (Some(content), Some(format)) = (content, format) {
             match format.as_str() {
-                "md" => return print(&format, &content),
-                _ => return highlight(interactive, &format, &content),
+                "md" => return print(format, content),
+                _ => return highlight(interactive, format, content),
             };
         } else if let Some(value) = value {
             let json = serde_json::to_string_pretty(&value)?;
