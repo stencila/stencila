@@ -75,6 +75,14 @@ You should get faster compile times using this:
 cargo test --no-default-features --features=compile-code-r compile::code::r
 ```
 
+### Benchmarking
+
+Run benchmarks using,
+
+```sh
+cargo bench
+```
+
 ### Language queries
 
 When developing `tree-sitter` language queries for the `methods::compile::code` module, the `tree-sitter` CLI is very useful.
