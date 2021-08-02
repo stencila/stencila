@@ -48,12 +48,12 @@ export class AppLauncher {
                 Open folder…
               </stencila-button>
 
-              <stencila-button size="small" fill={true} disabled={true}>
-                New document
+              <stencila-button size="small" fill={true} onClick={client.projects.new}>
+                New project…
               </stencila-button>
 
               <stencila-button size="small" fill={true} disabled={true}>
-                New project
+                New document
               </stencila-button>
             </div>
 

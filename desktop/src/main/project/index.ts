@@ -1,14 +1,15 @@
 import { dispatch, projects } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import {
+  ProjectsNew,
   ProjectsOpen,
   ProjectsOpenUsingFilePicker,
-  ProjectsWindowOpen,
+  ProjectsWindowOpen
 } from '../../preload/types'
 import { makeHandlers, removeChannelHandlers } from '../utils/handler'
 import { handle, valueToSuccessResult } from '../utils/ipc'
 import { PROJECT_CHANNEL } from './channels'
-import { openProject } from './handlers'
+import { newProject, openProject } from './handlers'
 import { openProjectWindow } from './window'
 
 const registerProjectHandlers = () => {
@@ -16,6 +17,13 @@ const registerProjectHandlers = () => {
     CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER,
     async () => {
       return openProject().then(() => valueToSuccessResult())
+    }
+  )
+
+  handle<ProjectsNew>(
+    CHANNEL.PROJECTS_NEW,
+    async () => {
+      return newProject().then(() => valueToSuccessResult())
     }
   )
 

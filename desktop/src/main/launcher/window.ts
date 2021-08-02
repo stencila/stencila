@@ -4,6 +4,7 @@ import { configHandlers } from '../config'
 import { registerBaseMenu } from '../menu'
 import { projectHandlers } from '../project'
 import { createWindow } from '../window'
+import { onUiLoaded } from '../window/windowUtils'
 
 let launcherWindow: BrowserWindow | null
 
@@ -39,7 +40,7 @@ export const openLauncherWindow = () => {
     launcherWindow = null
   })
 
-  launcherWindow.webContents.on('did-finish-load', () => {
+  onUiLoaded(launcherWindow.webContents)(() => {
     launcherWindow?.show()
   })
 

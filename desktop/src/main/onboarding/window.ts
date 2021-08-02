@@ -5,12 +5,18 @@ import { configHandlers } from '../config'
 import { launcherHandlers } from '../launcher'
 import { registerBaseMenu } from '../menu'
 import { createWindow } from '../window'
+import { onUiLoaded } from '../window/windowUtils'
 
 let onboardingWindow: BrowserWindow | null
 
 const onboardingUrl = '/onboarding'
 
 export const openOnboardingWindow = () => {
+  if (onboardingWindow) {
+    onboardingWindow.show()
+    return onboardingWindow
+  }
+
   onboardingWindow = createWindow(onboardingUrl, {
     width: 800,
     height: 600,
@@ -39,7 +45,7 @@ export const openOnboardingWindow = () => {
     onboardingWindow = null
   })
 
-  onboardingWindow.webContents.on('did-finish-load', () => {
+  onUiLoaded(onboardingWindow.webContents)(() => {
     onboardingWindow?.show()
   })
 

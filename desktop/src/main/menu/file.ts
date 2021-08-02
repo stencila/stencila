@@ -6,12 +6,12 @@ import { isWindows } from './utils'
 export const baseFileMenu: MenuItemConstructorOptions = {
   label: 'File',
   submenu: [
-    // { label: 'New' },
-    // { type: 'separator' },
     {
       label: 'Open…',
       accelerator: 'CommandOrControl+o',
-      click: openProject,
+      click: () => {
+        openProject()
+      },
     },
     { type: 'separator' },
     {

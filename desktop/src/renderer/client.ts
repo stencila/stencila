@@ -174,6 +174,8 @@ export const client = {
       window.api
         .invoke(CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER)
         .then(unwrapOrThrow),
+    new: () =>
+      window.api.invoke(CHANNEL.PROJECTS_NEW).then(unwrapOrThrow),
   },
   plugins: {
     install: (name: string) =>

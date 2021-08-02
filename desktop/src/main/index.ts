@@ -1,6 +1,7 @@
 import { enableCrashReports } from '../preload/errors'
 import { globalHandlers } from './global'
 import { launcherHandlers } from './launcher'
+import { registerBaseMenu } from './menu'
 import { appStoreHandlers } from './store'
 import { isReportErrorsEnabled } from './store/handlers'
 import { setErrorReportingId } from './utils/errors'
@@ -24,4 +25,5 @@ export const main = () => {
   appStoreHandlers.register(null)
   globalHandlers.register(null)
   launcherHandlers.register(null)
+  registerBaseMenu()
 }
