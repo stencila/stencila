@@ -158,7 +158,7 @@ pub fn schemas() -> Result<serde_json::Value> {
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
-    use crate::{cli::display, projects::Projects};
+    use crate::{cli::display, projects::PROJECTS};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -185,13 +185,13 @@ pub mod cli {
     }
 
     impl Command {
-        pub async fn run(self, projects: &mut Projects) -> display::Result {
+        pub async fn run(self) -> display::Result {
             let Self { action } = self;
             match action {
-                Action::List(action) => action.run(projects).await,
-                Action::Add(action) => action.run(projects).await,
-                Action::Remove(action) => action.run(projects).await,
-                Action::Import(action) => action.run(projects).await,
+                Action::List(action) => action.run().await,
+                Action::Add(action) => action.run().await,
+                Action::Remove(action) => action.run().await,
+                Action::Import(action) => action.run().await,
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -205,8 +205,8 @@ pub mod cli {
     pub struct List {}
 
     impl List {
-        pub async fn run(&self, projects: &mut Projects) -> display::Result {
-            let project = projects.current(false).await?;
+        pub async fn run(&self) -> display::Result {
+            let project = PROJECTS.lock().await.current(false).await?;
             display::value(project.sources)
         }
     }
@@ -231,13 +231,13 @@ pub mod cli {
     }
 
     impl Add {
-        pub async fn run(self, projects: &mut Projects) -> display::Result {
+        pub async fn run(self) -> display::Result {
             let Self {
                 source,
                 destination,
                 name,
             } = self;
-            let mut project = projects.current(false).await?;
+            let mut project = PROJECTS.lock().await.current(false).await?;
             let files = project.add_source(&source, destination, name).await?;
             display::value(files)
         }
@@ -258,9 +258,9 @@ pub mod cli {
     }
 
     impl Remove {
-        pub async fn run(self, projects: &mut Projects) -> display::Result {
+        pub async fn run(self) -> display::Result {
             let Self { name } = self;
-            let mut project = projects.current(false).await?;
+            let mut project = PROJECTS.lock().await.current(false).await?;
             project.remove_source(&name).await?;
             display::nothing()
         }
@@ -281,12 +281,12 @@ pub mod cli {
     }
 
     impl Import {
-        pub async fn run(self, projects: &mut Projects) -> display::Result {
+        pub async fn run(self) -> display::Result {
             let Self {
                 source,
                 destination,
             } = self;
-            let mut project = projects.current(false).await?;
+            let mut project = PROJECTS.lock().await.current(false).await?;
             let files = project.import_source(&source, destination).await?;
             display::value(files)
         }

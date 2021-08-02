@@ -11,7 +11,8 @@ use stencila::{
         config::{LoggingConfig, LoggingStdErrConfig},
         LoggingFormat, LoggingLevel,
     },
-    plugins, projects,
+    plugins,
+    projects::{self, PROJECTS},
     regex::Regex,
     serde_json, serde_yaml, serve, sources,
     strum::VariantNames,
@@ -103,23 +104,22 @@ pub struct Context {
 }
 
 /// Run a command
-#[tracing::instrument(skip(documents, projects))]
+#[tracing::instrument(skip(documents))]
 pub async fn run_command(
     command: Command,
     formats: &[String],
     context: &mut Context,
     documents: &mut documents::Documents,
-    projects: &mut projects::Projects,
 ) -> Result<()> {
     let result = match command {
-        Command::List(command) => command.run(projects, documents).await,
-        Command::Open(command) => command.run(context, projects, documents).await,
-        Command::Close(command) => command.run(projects, documents).await,
-        Command::Show(command) => command.run(projects, documents).await,
+        Command::List(command) => command.run(documents).await,
+        Command::Open(command) => command.run(context, documents).await,
+        Command::Close(command) => command.run(documents).await,
+        Command::Show(command) => command.run(documents).await,
         Command::Convert(command) => command.run(documents).await,
         Command::Documents(command) => command.run(documents).await,
-        Command::Projects(command) => command.run(projects).await,
-        Command::Sources(command) => command.run(projects).await,
+        Command::Projects(command) => command.run().await,
+        Command::Sources(command) => command.run().await,
         Command::Plugins(command) => plugins::cli::run(command).await,
         Command::Binaries(command) => command.run().await,
         Command::Config(command) => config::cli::run(command).await,
@@ -138,13 +138,9 @@ pub async fn run_command(
 pub struct ListCommand {}
 
 impl ListCommand {
-    pub async fn run(
-        self,
-        projects: &mut projects::Projects,
-        documents: &mut documents::Documents,
-    ) -> display::Result {
+    pub async fn run(self, documents: &mut documents::Documents) -> display::Result {
         let mut value = HashMap::new();
-        value.insert("projects", projects.list().await?);
+        value.insert("projects", PROJECTS.lock().await.list().await?);
         value.insert("documents", documents.list().await?);
         display::value(value)
     }
@@ -176,7 +172,6 @@ impl OpenCommand {
     pub async fn run(
         self,
         context: &mut Context,
-        projects: &mut projects::Projects,
         documents: &mut documents::Documents,
     ) -> display::Result {
         let Self { path, theme } = self;
@@ -187,7 +182,7 @@ impl OpenCommand {
         };
 
         let path = if is_project {
-            let project = projects.open(Some(path), true).await?;
+            let project = PROJECTS.lock().await.open(Some(path), true).await?;
             match project.main_path {
                 Some(path) => path,
                 None => {
@@ -257,15 +252,11 @@ pub struct CloseCommand {
 }
 
 impl CloseCommand {
-    pub async fn run(
-        self,
-        projects: &mut projects::Projects,
-        documents: &mut documents::Documents,
-    ) -> display::Result {
+    pub async fn run(self, documents: &mut documents::Documents) -> display::Result {
         let Self { path } = self;
 
         if path.is_dir() {
-            projects.close(&path)?;
+            PROJECTS.lock().await.close(&path)?;
         } else {
             documents.close(&path).await?;
         }
@@ -289,11 +280,7 @@ pub struct ShowCommand {
 }
 
 impl ShowCommand {
-    pub async fn run(
-        self,
-        projects: &mut projects::Projects,
-        documents: &mut documents::Documents,
-    ) -> display::Result {
+    pub async fn run(self, documents: &mut documents::Documents) -> display::Result {
         let Self { path } = self;
 
         if let Some(path) = &path {
@@ -302,7 +289,7 @@ impl ShowCommand {
             }
         }
 
-        display::value(projects.open(path, true).await?)
+        display::value(PROJECTS.lock().await.open(path, true).await?)
     }
 }
 
@@ -403,9 +390,6 @@ pub async fn main() -> Result<()> {
     // Create document store
     let mut documents = documents::Documents::new();
 
-    // Initialize projects
-    let mut projects = projects::Projects::new();
-
     // If not explicitly upgrading then run an upgrade check in the background
     let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
         None
@@ -427,14 +411,7 @@ pub async fn main() -> Result<()> {
 
     // Get the result of running the command
     let result = if let Some(command) = command {
-        run_command(
-            command,
-            &formats,
-            &mut context,
-            &mut documents,
-            &mut projects,
-        )
-        .await
+        run_command(command, &formats, &mut context, &mut documents).await
     } else {
         #[cfg(feature = "interact")]
         {
@@ -445,14 +422,7 @@ pub async fn main() -> Result<()> {
                 // Remove the global args which can not be applied to each interactive line
                 .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
                 .collect();
-            interact::run(
-                prefix,
-                &formats,
-                &mut context,
-                &mut documents,
-                &mut projects,
-            )
-            .await
+            interact::run(prefix, &formats, &mut context, &mut documents).await
         }
         #[cfg(not(feature = "interact"))]
         {
@@ -758,13 +728,12 @@ mod interact {
     }
 
     /// Run the interactive REPL
-    #[tracing::instrument(skip(documents, projects))]
+    #[tracing::instrument(skip(documents))]
     pub async fn run(
         prefix: Vec<String>,
         formats: &[String],
         context: &mut Context,
         documents: &mut documents::Documents,
-        projects: &mut projects::Projects,
     ) -> Result<()> {
         let history_file = config::dir(true)?.join("history.txt");
 
@@ -822,7 +791,7 @@ mod interact {
                             };
 
                             if let Err(error) =
-                                run_command(command, &formats, context, documents, projects).await
+                                run_command(command, &formats, context, documents).await
                             {
                                 print_error(error);
                             };

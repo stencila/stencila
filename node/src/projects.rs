@@ -1,15 +1,11 @@
 use crate::prelude::*;
 use neon::prelude::*;
-use std::sync::{Mutex, MutexGuard};
 use stencila::{
-    once_cell::sync::Lazy,
-    projects::{self, Project, Projects},
+    projects::{self, Project, Projects, PROJECTS},
+    tokio::sync::MutexGuard,
 };
 
-/// A global projects store
-pub static PROJECTS: Lazy<Mutex<Projects>> = Lazy::new(|| Mutex::new(Projects::default()));
-
-/// Lock the projects store
+/// Lock the global projects store
 pub fn lock(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Projects>> {
     match PROJECTS.try_lock() {
         Ok(guard) => Ok(guard),

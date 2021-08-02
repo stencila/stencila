@@ -5,6 +5,7 @@ use crate::sources::{self, Source, SourceDestination, SourceTrait};
 use crate::utils::schemas;
 use eyre::{bail, Result};
 use notify::DebouncedEvent;
+use once_cell::sync::Lazy;
 use regex::Regex;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
@@ -728,7 +729,7 @@ pub struct Projects {
 }
 
 impl Projects {
-    /// Create a new project
+    /// Create a new projects store
     pub fn new() -> Self {
         Self::default()
     }
@@ -811,6 +812,9 @@ impl Projects {
     }
 }
 
+/// A global projects store
+pub static PROJECTS: Lazy<Mutex<Projects>> = Lazy::new(|| Mutex::new(Projects::new()));
+
 /// Get JSON Schemas for this modules
 pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![
@@ -891,14 +895,14 @@ pub mod cli {
     }
 
     impl Command {
-        pub async fn run(self, projects: &mut Projects) -> display::Result {
+        pub async fn run(self) -> display::Result {
             let Self { action } = self;
             match action {
                 Action::Init(action) => action.run().await,
-                Action::List(action) => action.run(projects).await,
-                Action::Open(action) => action.run(projects).await,
-                Action::Close(action) => action.run(projects),
-                Action::Show(action) => action.run(projects).await,
+                Action::List(action) => action.run().await,
+                Action::Open(action) => action.run().await,
+                Action::Close(action) => action.run().await,
+                Action::Show(action) => action.run().await,
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -936,8 +940,8 @@ pub mod cli {
     pub struct List {}
 
     impl List {
-        pub async fn run(&self, projects: &mut Projects) -> display::Result {
-            let list = projects.list().await?;
+        pub async fn run(&self) -> display::Result {
+            let list = PROJECTS.lock().await.list().await?;
             display::value(list)
         }
     }
@@ -954,9 +958,9 @@ pub mod cli {
     }
 
     impl Open {
-        pub async fn run(self, projects: &mut Projects) -> display::Result {
+        pub async fn run(self) -> display::Result {
             let Self { folder } = self;
-            let Project { name, .. } = projects.open(folder, true).await?;
+            let Project { name, .. } = PROJECTS.lock().await.open(folder, true).await?;
             display::value(name)
         }
     }
@@ -974,9 +978,9 @@ pub mod cli {
     }
 
     impl Close {
-        pub fn run(&self, projects: &mut Projects) -> display::Result {
+        pub async fn run(&self) -> display::Result {
             let Self { folder } = self;
-            projects.close(folder)?;
+            PROJECTS.lock().await.close(folder)?;
             display::nothing()
         }
     }
@@ -993,9 +997,9 @@ pub mod cli {
     }
 
     impl Show {
-        pub async fn run(self, projects: &mut Projects) -> display::Result {
+        pub async fn run(self) -> display::Result {
             let Self { folder } = self;
-            let project = projects.open(folder, false).await?;
+            let project = PROJECTS.lock().await.open(folder, false).await?;
             let content = project.show()?;
             display::new("md", &content, Some(project))
         }
