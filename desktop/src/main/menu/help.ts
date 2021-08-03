@@ -1,7 +1,7 @@
 import { MenuItemConstructorOptions } from 'electron'
 import { openOnboardingWindow } from '../onboarding/window'
 import { checkForUpdates } from '../utils/update'
-import { isMac } from './utils'
+import { isMac, isWindows } from './utils'
 
 export const baseHelpMenu: MenuItemConstructorOptions = {
   role: 'help',
@@ -33,12 +33,16 @@ export const baseHelpMenu: MenuItemConstructorOptions = {
       },
     },
     { type: 'separator' },
-    {
-      label: 'Check for Updates…',
-      click: () => {
-        checkForUpdates()
-      },
-    },
+    ...(isMac || isWindows
+      ? [
+          {
+            label: 'Check for Updates…',
+            click: () => {
+              checkForUpdates()
+            },
+          },
+        ]
+      : []),
     {
       label: 'Setup…',
       click: openOnboardingWindow,

@@ -1,5 +1,6 @@
 import { MenuItemConstructorOptions } from 'electron'
 import { openLauncherWindow } from '../launcher/window'
+import { showLogs } from '../logging/window'
 import { isMac } from './utils'
 
 export const baseWindowMenu: MenuItemConstructorOptions = {
@@ -23,5 +24,21 @@ export const baseWindowMenu: MenuItemConstructorOptions = {
           { role: 'window' as const },
         ]
       : [{ role: 'close' as const }]),
+    { type: 'separator' },
+    {
+      label: 'Advanced',
+      submenu: [
+        {
+          label: 'Debug Logs',
+          click: () => {
+            showLogs()
+          },
+        },
+        { type: 'separator' },
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+      ],
+    },
   ],
 }

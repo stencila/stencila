@@ -1,0 +1,13 @@
+.title {
+  @apply flex justify-between items-center py-4 px-3 sticky z-10 top-0 bg-white;
+  color: var(--color-key);
+
+  h1 {
+    @apply inline m-0 text-lg pr-4;
+  }
+}
+
+h2 {
+  @apply text-base font-normal pl-3;
+  color: var(--color-neutral-500);
+}

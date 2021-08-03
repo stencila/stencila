@@ -29,6 +29,10 @@ export class AppRoot {
           <app-settings-root></app-settings-root>
         </Route>
 
+        <Route path={/^\/logs\/?/}>
+          <app-logs-root></app-logs-root>
+        </Route>
+
         <Route path={/^\/onboarding\/?/}>
           <app-onboarding-root></app-onboarding-root>
         </Route>

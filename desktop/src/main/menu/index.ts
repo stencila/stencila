@@ -6,7 +6,7 @@ import { baseViewMenu } from './view'
 import { baseWindowMenu } from './window'
 
 const template: (MenuItemConstructorOptions | MenuItem)[] = [
-  baseAppMenu,
+  ...baseAppMenu,
   baseFileMenu,
   baseViewMenu,
   baseWindowMenu,

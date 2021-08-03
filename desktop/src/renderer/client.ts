@@ -67,6 +67,9 @@ export const client = {
           .invoke(CHANNEL.OPEN_LINK_IN_DEFAULT_BROWSER, url)
           .then(unwrapOrThrow),
     },
+    logs: {
+      get: () => window.api.invoke(CHANNEL.LOGS_GET).then(unwrapOrThrow),
+    },
   },
   config: {
     window: {
@@ -174,8 +177,7 @@ export const client = {
       window.api
         .invoke(CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER)
         .then(unwrapOrThrow),
-    new: () =>
-      window.api.invoke(CHANNEL.PROJECTS_NEW).then(unwrapOrThrow),
+    new: () => window.api.invoke(CHANNEL.PROJECTS_NEW).then(unwrapOrThrow),
   },
   plugins: {
     install: (name: string) =>

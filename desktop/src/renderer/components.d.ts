@@ -7,6 +7,7 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { EntityId } from "@reduxjs/toolkit";
 import { O } from "fp-ts";
+import { LogMessage } from "electron-log";
 export namespace Components {
     interface AppDocumentEditor {
         "documentId": EntityId;
@@ -33,6 +34,13 @@ export namespace Components {
         "documentId": EntityId;
     }
     interface AppLauncher {
+    }
+    interface AppLogsItem {
+        "logMessage": LogMessage;
+    }
+    interface AppLogsList {
+    }
+    interface AppLogsRoot {
     }
     interface AppOnboardingEnd {
     }
@@ -121,6 +129,24 @@ declare global {
     var HTMLAppLauncherElement: {
         prototype: HTMLAppLauncherElement;
         new (): HTMLAppLauncherElement;
+    };
+    interface HTMLAppLogsItemElement extends Components.AppLogsItem, HTMLStencilElement {
+    }
+    var HTMLAppLogsItemElement: {
+        prototype: HTMLAppLogsItemElement;
+        new (): HTMLAppLogsItemElement;
+    };
+    interface HTMLAppLogsListElement extends Components.AppLogsList, HTMLStencilElement {
+    }
+    var HTMLAppLogsListElement: {
+        prototype: HTMLAppLogsListElement;
+        new (): HTMLAppLogsListElement;
+    };
+    interface HTMLAppLogsRootElement extends Components.AppLogsRoot, HTMLStencilElement {
+    }
+    var HTMLAppLogsRootElement: {
+        prototype: HTMLAppLogsRootElement;
+        new (): HTMLAppLogsRootElement;
     };
     interface HTMLAppOnboardingEndElement extends Components.AppOnboardingEnd, HTMLStencilElement {
     }
@@ -233,6 +259,9 @@ declare global {
         "app-document-pane-tabs": HTMLAppDocumentPaneTabsElement;
         "app-document-preview": HTMLAppDocumentPreviewElement;
         "app-launcher": HTMLAppLauncherElement;
+        "app-logs-item": HTMLAppLogsItemElement;
+        "app-logs-list": HTMLAppLogsListElement;
+        "app-logs-root": HTMLAppLogsRootElement;
         "app-onboarding-end": HTMLAppOnboardingEndElement;
         "app-onboarding-plugins": HTMLAppOnboardingPluginsElement;
         "app-onboarding-reporting": HTMLAppOnboardingReportingElement;
@@ -278,6 +307,13 @@ declare namespace LocalJSX {
         "documentId"?: EntityId;
     }
     interface AppLauncher {
+    }
+    interface AppLogsItem {
+        "logMessage": LogMessage;
+    }
+    interface AppLogsList {
+    }
+    interface AppLogsRoot {
     }
     interface AppOnboardingEnd {
     }
@@ -326,6 +362,9 @@ declare namespace LocalJSX {
         "app-document-pane-tabs": AppDocumentPaneTabs;
         "app-document-preview": AppDocumentPreview;
         "app-launcher": AppLauncher;
+        "app-logs-item": AppLogsItem;
+        "app-logs-list": AppLogsList;
+        "app-logs-root": AppLogsRoot;
         "app-onboarding-end": AppOnboardingEnd;
         "app-onboarding-plugins": AppOnboardingPlugins;
         "app-onboarding-reporting": AppOnboardingReporting;
@@ -357,6 +396,9 @@ declare module "@stencil/core" {
             "app-document-pane-tabs": LocalJSX.AppDocumentPaneTabs & JSXBase.HTMLAttributes<HTMLAppDocumentPaneTabsElement>;
             "app-document-preview": LocalJSX.AppDocumentPreview & JSXBase.HTMLAttributes<HTMLAppDocumentPreviewElement>;
             "app-launcher": LocalJSX.AppLauncher & JSXBase.HTMLAttributes<HTMLAppLauncherElement>;
+            "app-logs-item": LocalJSX.AppLogsItem & JSXBase.HTMLAttributes<HTMLAppLogsItemElement>;
+            "app-logs-list": LocalJSX.AppLogsList & JSXBase.HTMLAttributes<HTMLAppLogsListElement>;
+            "app-logs-root": LocalJSX.AppLogsRoot & JSXBase.HTMLAttributes<HTMLAppLogsRootElement>;
             "app-onboarding-end": LocalJSX.AppOnboardingEnd & JSXBase.HTMLAttributes<HTMLAppOnboardingEndElement>;
             "app-onboarding-plugins": LocalJSX.AppOnboardingPlugins & JSXBase.HTMLAttributes<HTMLAppOnboardingPluginsElement>;
             "app-onboarding-reporting": LocalJSX.AppOnboardingReporting & JSXBase.HTMLAttributes<HTMLAppOnboardingReportingElement>;

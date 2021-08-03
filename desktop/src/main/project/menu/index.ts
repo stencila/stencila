@@ -8,7 +8,7 @@ import { projectEditorMenu } from './editor'
 import { projectFileMenu } from './file'
 
 const template: (MenuItemConstructorOptions | MenuItem)[] = [
-  baseAppMenu,
+  ...baseAppMenu,
   projectFileMenu,
   projectEditMenu,
   baseViewMenu,

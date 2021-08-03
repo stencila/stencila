@@ -1,0 +1,33 @@
+:host {
+  @apply text-xs px-2 py-1 w-full flex justify-between flex-row overflow-auto;
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-top-color: var(--color-neutral-200);
+  color: var(--color-neutral-700);
+  background-color: var(--color-neutral-50);
+  border-top-color: var(--color-neutral-200);
+
+  &.warn {
+    color: var(--color-warn-800);
+    background-color: var(--color-warn-50);
+    border-top-color: var(--color-warn-200);
+  }
+
+  &.error {
+    color: var(--color-danger-700);
+    background-color: var(--color-danger-50);
+    border-top-color: var(--color-danger-200);
+  }
+
+  stencila-icon {
+    @apply pr-2;
+  }
+
+  .meta {
+    @apply pl-2 flex-shrink-0;
+  }
+
+  code {
+    word-break: break-word;
+  }
+}

@@ -36,6 +36,11 @@
         "next": "Finish setup"
       }
     },
+    "logs": {
+      "title": "Application Logs",
+      "clear": "Clear logs",
+      "empty": "Nothing has been logged yet"
+    },
     "settings": {
       "title": "Settings",
       "general": {
