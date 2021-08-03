@@ -137,26 +137,32 @@ pub struct Project {
 
     /// The project's dependency graph
     #[serde(skip_deserializing)]
-    #[schemars(skip)]
+    #[schemars(schema_with = "Project::schema_graph")]
     graph: Graph,
 }
 
 impl Project {
     /// Generate the JSON Schema for the `path` property to avoid optionality
     /// due to `skip_deserializing`
-    fn schema_path(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+    fn schema_path(_generator: &mut SchemaGenerator) -> Schema {
         schemas::typescript("string", true)
     }
 
     /// Generate the JSON Schema for the `source` property to avoid duplicated types
-    fn schema_sources(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+    fn schema_sources(_generator: &mut SchemaGenerator) -> Schema {
         schemas::typescript("SourceDestination[]", false)
     }
 
     /// Generate the JSON Schema for the `file` property to avoid duplicated
     /// inline type and optionality due to `skip_deserializing`
-    fn schema_files(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+    fn schema_files(_generator: &mut SchemaGenerator) -> Schema {
         schemas::typescript("Record<string, File>", true)
+    }
+
+    /// Generate the JSON Schema for the `graph` property to point to
+    /// our custom `Graph` schema
+    fn schema_graph(_generator: &mut SchemaGenerator) -> Schema {
+        schemas::typescript("Graph", true)
     }
 
     /// The name of the project's manifest file within the project directory

@@ -177,6 +177,7 @@ pub struct Document {
     /// Relations may be external (e.g. this document links to
     /// another file) or internal (e.g. the second code chunk uses a variable
     /// defined in the first code chunk).
+    #[schemars(schema_with = "Document::schema_relations")]
     pub relations: Option<Vec<Triple>>,
 
     /// The set of unique subscriptions to this document
@@ -202,6 +203,12 @@ impl Document {
     /// inline type.
     fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
         schemas::typescript("Format", true)
+    }
+
+    /// Generate the JSON Schema for the `relations` property to avoid duplicated
+    /// inline types.
+    fn schema_relations(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("Triple[]", false)
     }
 
     /// Create a new empty document.

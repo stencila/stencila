@@ -6,6 +6,7 @@ mod config;
 mod documents;
 mod errors;
 mod formats;
+mod graphs;
 mod logging;
 mod plugins;
 mod prelude;
@@ -41,6 +42,8 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
 
     cx.export_function("formatsSchemas", formats::schemas)?;
     cx.export_function("formatsFormats", formats::formats)?;
+
+    cx.export_function("graphsSchemas", graphs::schemas)?;
 
     cx.export_function("sourcesSchemas", sources::schemas)?;
 

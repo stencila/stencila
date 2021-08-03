@@ -1,11 +1,15 @@
+use crate::utils::schemas;
+use eyre::Result;
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use strum::{Display, EnumString};
 
+/// A resource in a dependency graph (the nodes of the graph)
 #[derive(Debug, Clone, PartialEq, Eq, Hash, EnumString, JsonSchema, Serialize, Deserialize)]
 #[serde(tag = "type", content = "id")]
+#[schemars(deny_unknown_fields)]
 pub enum Resource {
     // Within-code resources
     Symbol(String),
@@ -35,6 +39,7 @@ pub enum Resource {
     Url(String),
 }
 
+/// The relation between two resources in a dependency graph (the edges of the graph)
 #[derive(
     Debug, Display, Clone, PartialEq, Eq, Hash, EnumString, JsonSchema, Serialize, Deserialize,
 )]
@@ -50,12 +55,13 @@ pub enum Relation {
     Writes,
 }
 
-/// The direction to represent the relation from subject to object.
+/// The direction to represent the flow of information from subject to object.
 pub enum Direction {
     From,
     To,
 }
 
+/// Get the the `Direction` for a `Relation`
 pub fn direction(relation: &Relation) -> Direction {
     match relation {
         Relation::Assigns => Direction::To,
@@ -69,8 +75,10 @@ pub fn direction(relation: &Relation) -> Direction {
     }
 }
 
+/// A subject-relation-object triple
 pub type Triple = (Resource, Relation, Resource);
 
+/// A project dependency graph
 #[derive(Debug, Default, Clone, Serialize)]
 pub struct Graph {
     /// The graph itself
@@ -196,4 +204,70 @@ impl Graph {
             edges = edges
         )
     }
+}
+
+/// Get JSON Schemas for this modules
+pub fn schemas() -> Result<serde_json::Value> {
+    let schemas = serde_json::Value::Array(vec![
+        schemas::generate::<Resource>()?,
+        schemas::generate::<Relation>()?,
+        serde_json::json!({
+            "$id": "Triple",
+            "title": "Triple",
+            "description": "A subject-relation-object triple",
+            "type" : "array",
+            "items": [
+                {
+                    "tsType": "Resource"
+                },
+                {
+                    "tsType": "Relation"
+                },
+                {
+                    "tsType": "Resource"
+                }
+            ],
+            "minItems": 3,
+            "maxItems": 3
+        }),
+        serde_json::json!({
+            "$id": "Graph",
+            "title": "Graph",
+            "description": "A project dependency graph",
+            "type" : "object",
+            "required": ["nodes", "edges"],
+            "properties": {
+                "nodes": {
+                    "description": "The resources in the graph",
+                    "type": "array",
+                    "items": {
+                        "tsType": "Resource",
+                        "isRequired": true
+                    }
+                },
+                "edges": {
+                    "description": "The relations between resources in the graph",
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "tsType": "Relation"
+                            }
+                        ],
+                        "minItems": 3,
+                        "maxItems": 3
+                    }
+                }
+            },
+            "additionalProperties": false
+        }),
+    ]);
+    Ok(schemas)
 }
