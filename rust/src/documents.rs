@@ -1,8 +1,18 @@
-use crate::{errors::attempt, formats::{Format, FORMATS}, graphs::Triple, methods::{
+use crate::{
+    errors::attempt,
+    formats::{Format, FORMATS},
+    graphs::Triple,
+    methods::{
         compile::compile,
         decode::decode,
         encode::{self, encode},
-    }, pubsub::publish, utils::{hash::{file_to_sha256, str_to_sha256}, schemas, uuids}};
+    },
+    pubsub::publish,
+    utils::{
+        hash::{file_to_sha256, str_to_sha256},
+        schemas, uuids,
+    },
+};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use notify::DebouncedEvent;
@@ -160,7 +170,7 @@ pub struct Document {
 
     /// The root Stencila Schema node of the document
     #[serde(skip)]
-    root: Option<Node>,
+    pub root: Option<Node>,
 
     /// A list of relations associated with this document
     ///
@@ -494,7 +504,7 @@ impl Document {
     ///
     /// For text-based documents, returns the SHA-256 of the document's `content`.
     /// For binary documents, returns the SHA-256 of the document's file.
-    pub async fn sha256(&self) -> Result<String> {
+    pub fn sha256(&self) -> Result<String> {
         match self.format.binary {
             true => Ok(str_to_sha256(&self.content)),
             false => file_to_sha256(&self.path),

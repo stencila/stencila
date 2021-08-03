@@ -46,7 +46,11 @@ pub mod media;
 ///            for binary formats, the path to the file
 /// - `format`: the format of the content e.g. `json`, `md`
 pub async fn decode(input: &str, format: &str) -> Result<Node> {
-    tracing::debug!("Decoding string of length {} and format '{}'", input.len(), format);
+    tracing::debug!(
+        "Decoding string of length {} and format '{}'",
+        input.len(),
+        format
+    );
 
     // Allow these for when no features are enabled
     #[allow(unused_variables, unreachable_code)]

@@ -6,7 +6,7 @@ use stencila_schema::{Node, SoftwareSourceCode};
 pub fn decode(text: &str, programming_language: &str) -> Result<Node> {
     let programming_language = match programming_language.is_empty() {
         true => None,
-        false => Some(Box::new(programming_language.to_string()))
+        false => Some(Box::new(programming_language.to_string())),
     };
     Ok(Node::SoftwareSourceCode(SoftwareSourceCode {
         text: Some(Box::new(text.to_string())),

@@ -564,6 +564,7 @@ impl ToHtml for BlockContent {
             BlockContent::Collection(node) => node.to_html(context),
             BlockContent::Figure(node) => node.to_html(context),
             BlockContent::Heading(node) => node.to_html(context),
+            BlockContent::Include(node) => node.to_html(context),
             BlockContent::List(node) => node.to_html(context),
             BlockContent::MathBlock(node) => node.to_html(context),
             BlockContent::Paragraph(node) => node.to_html(context),
@@ -716,6 +717,21 @@ impl ToHtml for Heading {
             depth = depth,
             content = self.content.to_html(context)
         )
+    }
+}
+
+impl ToHtml for Include {
+    fn to_html(&self, context: &Context) -> String {
+        let content = self
+            .content
+            .as_ref()
+            .map_or_else(|| "".to_string(), |content| content.to_html(context));
+        [
+            "<div itemtype=\"http://schema.stenci.la/Include\">",
+            &content,
+            "</div>",
+        ]
+        .concat()
     }
 }
 

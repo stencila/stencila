@@ -50,6 +50,10 @@ impl ToVecInlineContent for BlockContent {
 
             // Types that have block content to coerce
             BlockContent::Claim(claim) => claim.content.to_vec_inline_content(),
+            BlockContent::Include(include) => match &include.content {
+                Some(content) => content.to_vec_inline_content(),
+                None => Vec::new(),
+            },
 
             // Types that have no direct analogue, or are not implemented yet
             // TODO: Implement for other types

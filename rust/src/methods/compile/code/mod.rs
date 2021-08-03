@@ -2,7 +2,7 @@
 ///!
 ///! Uses `tree-sitter` to parse source code into a abstract syntax tree which is then used to
 ///! derive properties of a `CodeAnalysis`.
-use crate::graphs::{Resource, Triple};
+use crate::graphs::{Relation, Resource, Triple};
 use std::{collections::HashMap, sync::Mutex};
 use tree_sitter::{Language, Parser, Query, QueryCursor};
 
@@ -16,7 +16,8 @@ mod py;
 mod r;
 
 /// Compile code in a particular language
-pub fn compile(resource: &Resource, code: &str, language: &str) -> Vec<Triple> {
+pub fn compile(document: &str, subject: &Resource, code: &str, language: &str) -> Vec<Triple> {
+    // Get the list of relations
     let relations = match language {
         #[cfg(feature = "compile-code-js")]
         "js" | "javascript" => js::compile(code),
@@ -26,9 +27,41 @@ pub fn compile(resource: &Resource, code: &str, language: &str) -> Vec<Triple> {
         "r" => r::compile(code),
         _ => Vec::new(),
     };
+
+    // Normalize the relations, so that `Assign`s are namespace within the document
+    // and `Uses`s refer correctly to the local or imported symbols
     relations
-        .into_iter()
-        .map(|(relation, to)| (resource.clone(), relation, to))
+        .iter()
+        .filter_map(|(relation, object)| match relation {
+            Relation::Assigns => {
+                let object = match object {
+                    Resource::Variable(symbol) => {
+                        Resource::Variable([document, "@", symbol].concat())
+                    }
+                    Resource::Function(symbol) => {
+                        Resource::Function([document, "@", symbol].concat())
+                    }
+                    _ => object.clone(),
+                };
+                Some((subject.clone(), relation.clone(), object))
+            }
+            Relation::Uses => {
+                if relations.contains(&(Relation::Assigns, object.clone())) {
+                    return None;
+                }
+                let object = match object {
+                    Resource::Variable(symbol) => {
+                        Resource::Variable([document, "@", symbol].concat())
+                    }
+                    Resource::Function(symbol) => {
+                        Resource::Function([document, "@", symbol].concat())
+                    }
+                    _ => object.clone(),
+                };
+                Some((subject.clone(), relation.clone(), object))
+            }
+            _ => Some((subject.clone(), relation.clone(), object.clone())),
+        })
         .collect()
 }
 

@@ -254,6 +254,8 @@ impl ToPandoc for Heading {
     }
 }
 
+unimplemented_to_pandoc!(Include);
+
 impl ToPandoc for List {
     fn to_pandoc_block(&self) -> pandoc::Block {
         let items = self
@@ -353,6 +355,7 @@ impl ToPandoc for BlockContent {
             BlockContent::Collection(node) => node.to_pandoc_block(),
             BlockContent::Figure(node) => node.to_pandoc_block(),
             BlockContent::Heading(node) => node.to_pandoc_block(),
+            BlockContent::Include(node) => node.to_pandoc_block(),
             BlockContent::List(node) => node.to_pandoc_block(),
             BlockContent::MathBlock(node) => node.to_pandoc_block(),
             BlockContent::Paragraph(node) => node.to_pandoc_block(),
