@@ -1,6 +1,6 @@
 ---
 source: rust/src/methods/compile/code/r.rs
-expression: compile(&code)
+expression: "compile(path, code)"
 input_file: fixtures/fragments/r/assigns.R
 
 ---
@@ -9,42 +9,48 @@ input_file: fixtures/fragments/r/assigns.R
     "assigns",
     {
       "type": "Variable",
-      "id": "var1"
+      "path": "fragments/r/assigns.R",
+      "name": "var1"
     }
   ],
   [
     "assigns",
     {
       "type": "Variable",
-      "id": "var2"
+      "path": "fragments/r/assigns.R",
+      "name": "var2"
     }
   ],
   [
     "assigns",
     {
       "type": "Function",
-      "id": "fun1"
+      "path": "fragments/r/assigns.R",
+      "name": "fun1"
     }
   ],
   [
     "assigns",
     {
       "type": "Variable",
-      "id": "var3"
+      "path": "fragments/r/assigns.R",
+      "name": "var3"
     }
   ],
   [
     "assigns",
     {
       "type": "Variable",
-      "id": "var4"
+      "path": "fragments/r/assigns.R",
+      "name": "var4"
     }
   ],
   [
     "assigns",
     {
       "type": "Variable",
-      "id": "var5"
+      "path": "fragments/r/assigns.R",
+      "name": "var5"
     }
   ]
 ]

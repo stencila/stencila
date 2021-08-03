@@ -7,36 +7,114 @@ use std::collections::HashMap;
 use strum::{Display, EnumString};
 
 /// A resource in a dependency graph (the nodes of the graph)
-#[derive(Debug, Clone, PartialEq, Eq, Hash, EnumString, JsonSchema, Serialize, Deserialize)]
-#[serde(tag = "type", content = "id")]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, EnumString, JsonSchema, Serialize)]
+#[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
 pub enum Resource {
     // Within-code resources
-    Symbol(String),
-    Variable(String),
-    Function(String),
+    Variable(resources::Variable),
+    Function(resources::Function),
 
     // Within-document resources
     // Store the relative path (within project) and address (within document)
     // of the resource.
-    Include(String),
-    Link(String),
-    Embed(String),
-    CodeChunk(String),
-    CodeExpression(String),
+    Include(resources::Id),
+    Link(resources::Id),
+    Embed(resources::Id),
+    CodeChunk(resources::Id),
+    CodeExpression(resources::Id),
 
     // Within-project resources
     // Store the relative path (within project) of the resource
-    File(String),
-    SoftwareSourceCode(String),
-    AudioObject(String),
-    ImageObject(String),
-    VideoObject(String),
+    File(resources::File),
 
     // External resources
     // Store unique identifier for resource
-    Module(String),
-    Url(String),
+    Module(resources::Module),
+    Url(resources::Url),
+}
+
+pub mod resources {
+    use super::*;
+
+    pub type Variable = PathName;
+    pub type Function = PathName;
+
+    pub type Include = Id;
+    pub type Link = Id;
+    pub type Embed = Id;
+    pub type CodeChunk = Id;
+    pub type CodeExpression = Id;
+
+    pub type Url = Id;
+
+    #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    pub struct Id {
+        pub id: String,
+    }
+
+    impl Id {
+        pub fn new(id: &str) -> Id {
+            Id { id: id.into() }
+        }
+
+        pub fn label(&self) -> String {
+            self.id.clone()
+        }
+    }
+
+    #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    pub struct File {
+        pub path: String,
+    }
+
+    impl File {
+        pub fn label(&self) -> String {
+            self.path.clone()
+        }
+    }
+
+    pub fn file(path: &str) -> Resource {
+        Resource::File(File { path: path.into() })
+    }
+
+    #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    pub struct Module {
+        pub language: String,
+        pub name: String,
+    }
+
+    impl Module {
+        pub fn label(&self) -> String {
+            [&self.language, ":", &self.name].concat()
+        }
+    }
+
+    pub fn module(language: &str, name: &str) -> Resource {
+        Resource::Module(Module {
+            language: language.into(),
+            name: name.into(),
+        })
+    }
+
+    #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    pub struct PathName {
+        pub path: String,
+        pub name: String,
+    }
+
+    impl PathName {
+        pub fn new(path: &str, name: &str) -> PathName {
+            PathName {
+                path: path.into(),
+                name: name.into(),
+            }
+        }
+
+        pub fn label(&self) -> String {
+            [&self.path, "@", &self.name].concat()
+        }
+    }
 }
 
 /// The relation between two resources in a dependency graph (the edges of the graph)
@@ -138,24 +216,21 @@ impl Graph {
             .iter()
             .map(|(resource, node)| {
                 let (shape, fill_color, label) = match resource {
-                    Resource::Symbol(id) => ("diamond", "#adebbc", id.as_str()),
-                    Resource::Variable(id) => ("diamond", "#adebbc", id.as_str()),
-                    Resource::Function(id) => ("diamond", "#adebbc", id.as_str()),
+                    Resource::Variable(resource) => ("diamond", "#adebbc", resource.label()),
+                    Resource::Function(resource) => ("ellipse", "#adebbc", resource.label()),
 
-                    Resource::Include(id) => ("diamond", "#adebbc", id.as_str()),
-                    Resource::Link(id) => ("diamond", "#adebbc", id.as_str()),
-                    Resource::Embed(id) => ("house", "#adebbc", id.as_str()),
-                    Resource::CodeChunk(id) => ("parallelogram", "#adebbc", id.as_str()),
-                    Resource::CodeExpression(id) => ("parallelogram", "#d6ebad", id.as_str()),
+                    Resource::Include(resource) => ("diamond", "#adebbc", resource.label()),
+                    Resource::Link(resource) => ("diamond", "#adebbc", resource.label()),
+                    Resource::Embed(resource) => ("house", "#adebbc", resource.label()),
+                    Resource::CodeChunk(resource) => ("parallelogram", "#adebbc", resource.label()),
+                    Resource::CodeExpression(resource) => {
+                        ("parallelogram", "#d6ebad", resource.label())
+                    }
 
-                    Resource::File(id) => ("note", "#adc8eb", id.as_str()),
-                    Resource::SoftwareSourceCode(id) => ("box", "#adebbc", id.as_str()),
-                    Resource::AudioObject(id) => ("box", "#adebbc", id.as_str()),
-                    Resource::ImageObject(id) => ("box", "#adebbc", id.as_str()),
-                    Resource::VideoObject(id) => ("box", "#adebbc", id.as_str()),
+                    Resource::File(resource) => ("note", "#adc8eb", resource.label()),
 
-                    Resource::Module(id) => ("invhouse", "#adebbc", id.as_str()),
-                    Resource::Url(id) => ("box", "#adebbc", id.as_str()),
+                    Resource::Module(resource) => ("invhouse", "#adebbc", resource.label()),
+                    Resource::Url(resource) => ("box", "#adebbc", resource.label()),
                 };
 
                 format!(

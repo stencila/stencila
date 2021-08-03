@@ -33,7 +33,10 @@ pub fn snapshot_content<F: FnMut(&str, &str)>(pattern: &str, mut func: F) {
     settings.bind(|| {
         insta::_macro_support::glob_exec(&fixtures(), pattern, |path| {
             let content = read_to_string(path).unwrap();
-            let path = path.display().to_string();
+            let path = pathdiff::diff_paths(path, fixtures())
+                .unwrap()
+                .display()
+                .to_string();
             func(&path, &content)
         });
     });

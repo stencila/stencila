@@ -1,6 +1,6 @@
 ---
 source: rust/src/methods/compile/code/r.rs
-expression: compile(&code)
+expression: "compile(path, code)"
 input_file: fixtures/fragments/r/writes.R
 
 ---
@@ -9,49 +9,52 @@ input_file: fixtures/fragments/r/writes.R
     "uses",
     {
       "type": "Variable",
-      "id": "data"
+      "path": "fragments/r/writes.R",
+      "name": "data"
     }
   ],
   [
     "writes",
     {
       "type": "File",
-      "id": "path1"
+      "path": "path1"
     }
   ],
   [
     "writes",
     {
       "type": "File",
-      "id": "path2"
+      "path": "path2"
     }
   ],
   [
     "assigns",
     {
       "type": "Function",
-      "id": "foo"
+      "path": "fragments/r/writes.R",
+      "name": "foo"
     }
   ],
   [
     "writes",
     {
       "type": "File",
-      "id": "path3"
+      "path": "path3"
     }
   ],
   [
     "writes",
     {
       "type": "File",
-      "id": "path4"
+      "path": "path4"
     }
   ],
   [
     "uses",
     {
       "type": "Variable",
-      "id": "ignore"
+      "path": "fragments/r/writes.R",
+      "name": "ignore"
     }
   ]
 ]

@@ -1,6 +1,6 @@
 ---
 source: rust/src/methods/compile/code/js.rs
-expression: compile(&code)
+expression: "compile(path, code)"
 input_file: fixtures/fragments/js/imports.js
 
 ---
@@ -9,84 +9,96 @@ input_file: fixtures/fragments/js/imports.js
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-1"
+      "language": "javascript",
+      "name": "module-1"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-2"
+      "language": "javascript",
+      "name": "module-2"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-3"
+      "language": "javascript",
+      "name": "module-3"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-4"
+      "language": "javascript",
+      "name": "module-4"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-5"
+      "language": "javascript",
+      "name": "module-5"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-6"
+      "language": "javascript",
+      "name": "module-6"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-7"
+      "language": "javascript",
+      "name": "module-7"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-8"
+      "language": "javascript",
+      "name": "module-8"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-9"
+      "language": "javascript",
+      "name": "module-9"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-10"
+      "language": "javascript",
+      "name": "module-10"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-11"
+      "language": "javascript",
+      "name": "module-11"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "javascript/module-12"
+      "language": "javascript",
+      "name": "module-12"
     }
   ]
 ]

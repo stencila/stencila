@@ -1,6 +1,6 @@
 use crate::{
     documents::DOCUMENTS,
-    graphs::{Relation, Resource, Triple},
+    graphs::{resources, Relation, Resource, Triple},
     traits::ToVecBlockContent,
 };
 use async_trait::async_trait;
@@ -343,14 +343,16 @@ impl Compile for ListItemContent {
 #[async_trait]
 impl Compile for Link {
     async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        let target = self.target.clone();
-        let resource = if target.starts_with("http://") || target.starts_with("https://") {
-            Resource::Url(target)
+        let resource = if self.target.starts_with("http://") || self.target.starts_with("https://")
+        {
+            Resource::Url(resources::Url::new(&self.target))
         } else {
-            Resource::File(target)
+            resources::file(&self.target)
         };
         context.relations.push((
-            Resource::Link([&context.path_within_project, "&", address].concat()),
+            Resource::Link(resources::Link::new(
+                &[&context.path_within_project, "&", address].concat(),
+            )),
             Relation::Links,
             resource,
         ));
@@ -410,9 +412,9 @@ macro_rules! compile_media_object {
                     let url = compile_content_url(&self.content_url, context)?;
 
                     context.relations.push((
-                        Resource::Embed(context.resource_id(address)),
+                        Resource::Embed(resources::Embed::new(&context.resource_id(address))),
                         Relation::Embeds,
-                        Resource::File(url.clone()),
+                        resources::file(&url),
                     ));
 
                     self.content_url = url;
@@ -438,9 +440,10 @@ compile_media_object!(
 impl Compile for CodeChunk {
     async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         if let Some(lang) = self.programming_language.as_deref() {
-            let document = context.path_within_project.clone();
-            let resource = Resource::CodeChunk(context.resource_id(address));
-            let mut relations = code::compile(&document, &resource, &self.text, lang);
+            let path = context.path_within_project.clone();
+            let subject =
+                Resource::CodeChunk(resources::CodeChunk::new(&context.resource_id(address)));
+            let mut relations = code::compile(&path, &subject, &self.text, lang);
             context.relations.append(&mut relations)
         }
         Ok(())
@@ -451,9 +454,11 @@ impl Compile for CodeChunk {
 impl Compile for CodeExpression {
     async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         if let Some(lang) = self.programming_language.as_deref() {
-            let document = context.path_within_project.clone();
-            let resource = Resource::CodeExpression(context.resource_id(address));
-            let mut relations = code::compile(&document, &resource, &self.text, lang);
+            let path = context.path_within_project.clone();
+            let subject = Resource::CodeExpression(resources::CodeExpression::new(
+                &context.resource_id(address),
+            ));
+            let mut relations = code::compile(&path, &subject, &self.text, lang);
             context.relations.append(&mut relations)
         }
         Ok(())
@@ -466,9 +471,9 @@ impl Compile for SoftwareSourceCode {
         if let (Some(text), Some(lang)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
-            let document = context.path_within_project.clone();
-            let resource = Resource::SoftwareSourceCode(document.clone());
-            let mut relations = code::compile(&document, &resource, text, lang);
+            let path = context.path_within_project.clone();
+            let subject = resources::file(&path);
+            let mut relations = code::compile(&path, &subject, text, lang);
             context.relations.append(&mut relations)
         }
         Ok(())
@@ -490,9 +495,9 @@ impl Compile for Include {
         //self.sha256 = Some(Box::new(document.sha256()?));
 
         context.relations.push((
-            Resource::Include(context.resource_id(address)),
+            Resource::Include(resources::Include::new(&context.resource_id(address))),
             Relation::Includes,
-            Resource::File(self.source.clone()),
+            resources::file(&self.source),
         ));
 
         Ok(())

@@ -1,5 +1,5 @@
 use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
-use crate::graphs::{Relation, Resource};
+use crate::graphs::{resources, Relation, Resource};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 
@@ -72,10 +72,11 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some R code
-pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
+pub fn compile(path: &str, code: &str) -> Vec<(Relation, Resource)> {
     let code = code.as_bytes();
     let tree = COMPILER.parse(code);
     let captures = COMPILER.query(code, &tree);
+
     captures
         .into_iter()
         .filter_map(|(pattern, captures)| match pattern {
@@ -94,7 +95,7 @@ pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
                         }
                         Some((
                             Relation::Uses,
-                            Resource::Module(["r/", &remove_quotes(package)].concat()),
+                            resources::module("r", &remove_quotes(package)),
                         ))
                     })
             }
@@ -103,28 +104,30 @@ pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
                 let args = captures_as_args_map(captures);
                 args.get("0")
                     .or_else(|| args.get("file"))
-                    .map(|file| (Relation::Reads, Resource::File(remove_quotes(file))))
+                    .map(|file| (Relation::Reads, resources::file(&remove_quotes(file))))
             }
             2 => {
                 // Writes a file
                 let args = captures_as_args_map(captures);
                 args.get("1")
                     .or_else(|| args.get("file"))
-                    .map(|file| (Relation::Writes, Resource::File(remove_quotes(file))))
+                    .map(|file| (Relation::Writes, resources::file(&remove_quotes(file))))
             }
             3 | 4 => {
                 // Assigns a variable or function at the program root
-                let id = captures[0].text.clone();
+                let name = captures[0].text.clone();
                 let resource = match captures[1].node.kind() {
-                    "function_definition" => Resource::Function(id),
-                    _ => Resource::Variable(id),
+                    "function_definition" => {
+                        Resource::Function(resources::Function::new(path, &name))
+                    }
+                    _ => Resource::Variable(resources::Variable::new(path, &name)),
                 };
                 Some((Relation::Assigns, resource))
             }
             5 => {
                 // Uses a function or variable
                 let node = captures[0].node;
-                let id = captures[0].text.clone();
+                let symbol = captures[0].text.clone();
 
                 let mut parent = node.parent();
                 while let Some(parent_node) = parent {
@@ -149,7 +152,7 @@ pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
                         // Skip identifiers that are the `name` of a for loop, or that refer to it
                         "for" => {
                             if let Some(name) = parent_node.child_by_field_name("name") {
-                                if name == node || name.utf8_text(code).unwrap() == id {
+                                if name == node || name.utf8_text(code).unwrap() == symbol {
                                     return None;
                                 }
                             }
@@ -173,14 +176,14 @@ pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
                 let resource = match node.parent() {
                     Some(parent_node) => match parent_node.kind() {
                         "call" => {
-                            if USES_IGNORE_FUNCTIONS.contains(&id.as_str()) {
+                            if USES_IGNORE_FUNCTIONS.contains(&symbol.as_str()) {
                                 return None;
                             }
-                            Resource::Function(id)
+                            Resource::Function(resources::Function::new(path, &symbol))
                         }
-                        _ => Resource::Variable(id),
+                        _ => Resource::Variable(resources::Variable::new(path, &symbol)),
                     },
-                    None => Resource::Symbol(id),
+                    None => Resource::Variable(resources::Variable::new(path, &symbol)),
                 };
 
                 Some((Relation::Uses, resource))
@@ -199,8 +202,8 @@ mod tests {
 
     #[test]
     fn r_fragments() {
-        snapshot_content("fragments/r/*.R", |code| {
-            assert_json_snapshot!(compile(&code));
+        snapshot_content("fragments/r/*.R", |path, code| {
+            assert_json_snapshot!(compile(path, code));
         });
     }
 }

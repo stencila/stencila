@@ -1,6 +1,6 @@
 ---
 source: rust/src/methods/compile/code/r.rs
-expression: compile(&code)
+expression: "compile(path, code)"
 input_file: fixtures/fragments/r/imports.R
 
 ---
@@ -9,42 +9,48 @@ input_file: fixtures/fragments/r/imports.R
     "uses",
     {
       "type": "Module",
-      "id": "r/pkg1"
+      "language": "r",
+      "name": "pkg1"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "r/pkg2"
+      "language": "r",
+      "name": "pkg2"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "r/pkg3"
+      "language": "r",
+      "name": "pkg3"
     }
   ],
   [
     "assigns",
     {
       "type": "Function",
-      "id": "foo"
+      "path": "fragments/r/imports.R",
+      "name": "foo"
     }
   ],
   [
     "uses",
     {
       "type": "Module",
-      "id": "r/pkg4"
+      "language": "r",
+      "name": "pkg4"
     }
   ],
   [
     "assigns",
     {
       "type": "Variable",
-      "id": "pkg_var"
+      "path": "fragments/r/imports.R",
+      "name": "pkg_var"
     }
   ]
 ]

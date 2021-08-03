@@ -1,5 +1,6 @@
 use super::{remove_quotes, Compiler};
-use crate::graphs::{Relation, Resource};
+use crate::graphs::{resources, Relation, Resource};
+use itertools::Itertools;
 use once_cell::sync::Lazy;
 
 /// Compiler for JavaScript
@@ -48,31 +49,33 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some JavaScript code
-pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
+pub fn compile(path: &str, code: &str) -> Vec<(Relation, Resource)> {
     let code = code.as_bytes();
     let tree = COMPILER.parse(code);
     let captures = COMPILER.query(code, &tree);
+
     captures
         .iter()
         .filter_map(|(pattern, captures)| match pattern {
             0 => Some((
                 Relation::Uses,
-                Resource::Module(["javascript/", &remove_quotes(&captures[0].text)].concat()),
+                resources::module("javascript", &remove_quotes(&captures[0].text)),
             )),
             1 => Some((
                 Relation::Uses,
-                Resource::Module(["javascript/", &remove_quotes(&captures[1].text)].concat()),
+                resources::module("javascript", &remove_quotes(&captures[1].text)),
             )),
             2 => Some((
                 Relation::Reads,
-                Resource::File(remove_quotes(&captures[1].text)),
+                resources::file(&remove_quotes(&captures[1].text)),
             )),
             3 => Some((
                 Relation::Writes,
-                Resource::File(remove_quotes(&captures[1].text)),
+                resources::file(&remove_quotes(&captures[1].text)),
             )),
             _ => None,
         })
+        .unique()
         .collect()
 }
 
@@ -84,8 +87,8 @@ mod tests {
 
     #[test]
     fn js_fragments() {
-        snapshot_content("fragments/js/*.js", |code| {
-            assert_json_snapshot!(compile(&code));
+        snapshot_content("fragments/js/*.js", |path, code| {
+            assert_json_snapshot!(compile(path, code));
         });
     }
 }

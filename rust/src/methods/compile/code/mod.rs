@@ -2,7 +2,7 @@
 ///!
 ///! Uses `tree-sitter` to parse source code into a abstract syntax tree which is then used to
 ///! derive properties of a `CodeAnalysis`.
-use crate::graphs::{Relation, Resource, Triple};
+use crate::graphs::{Resource, Triple};
 use std::{collections::HashMap, sync::Mutex};
 use tree_sitter::{Language, Parser, Query, QueryCursor};
 
@@ -16,52 +16,20 @@ mod py;
 mod r;
 
 /// Compile code in a particular language
-pub fn compile(document: &str, subject: &Resource, code: &str, language: &str) -> Vec<Triple> {
-    // Get the list of relations
-    let relations = match language {
+pub fn compile(path: &str, subject: &Resource, code: &str, language: &str) -> Vec<Triple> {
+    let pairs = match language {
         #[cfg(feature = "compile-code-js")]
-        "js" | "javascript" => js::compile(code),
+        "js" | "javascript" => js::compile(path, code),
         #[cfg(feature = "compile-code-py")]
-        "py" | "python" => py::compile(code),
+        "py" | "python" => py::compile(path, code),
         #[cfg(feature = "compile-code-r")]
-        "r" => r::compile(code),
+        "r" => r::compile(path, code),
         _ => Vec::new(),
     };
 
-    // Normalize the relations, so that `Assign`s are namespace within the document
-    // and `Uses`s refer correctly to the local or imported symbols
-    relations
-        .iter()
-        .filter_map(|(relation, object)| match relation {
-            Relation::Assigns => {
-                let object = match object {
-                    Resource::Variable(symbol) => {
-                        Resource::Variable([document, "@", symbol].concat())
-                    }
-                    Resource::Function(symbol) => {
-                        Resource::Function([document, "@", symbol].concat())
-                    }
-                    _ => object.clone(),
-                };
-                Some((subject.clone(), relation.clone(), object))
-            }
-            Relation::Uses => {
-                if relations.contains(&(Relation::Assigns, object.clone())) {
-                    return None;
-                }
-                let object = match object {
-                    Resource::Variable(symbol) => {
-                        Resource::Variable([document, "@", symbol].concat())
-                    }
-                    Resource::Function(symbol) => {
-                        Resource::Function([document, "@", symbol].concat())
-                    }
-                    _ => object.clone(),
-                };
-                Some((subject.clone(), relation.clone(), object))
-            }
-            _ => Some((subject.clone(), relation.clone(), object.clone())),
-        })
+    pairs
+        .into_iter()
+        .map(|pair| (subject.clone(), pair.0, pair.1))
         .collect()
 }
 

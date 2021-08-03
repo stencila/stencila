@@ -383,8 +383,8 @@ impl Project {
                     let (subject, .., object) = triple;
                     for resource in [subject, object] {
                         match resource {
-                            Resource::File(path) => {
-                                walk(project, &PathBuf::from(path), graph).await?;
+                            Resource::File(file) => {
+                                walk(project, &PathBuf::from(file.path.clone()), graph).await?;
                             }
                             _ => (),
                         }

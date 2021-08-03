@@ -1,5 +1,6 @@
 use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
-use crate::graphs::{Relation, Resource};
+use crate::graphs::{resources, Relation, Resource};
+use itertools::Itertools;
 use once_cell::sync::Lazy;
 
 /// Compiler for Python
@@ -36,20 +37,21 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some Python code
-pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
+pub fn compile(path: &str, code: &str) -> Vec<(Relation, Resource)> {
     let code = code.as_bytes();
     let tree = COMPILER.parse(code);
     let captures = COMPILER.query(code, &tree);
+
     captures
         .into_iter()
         .filter_map(|(pattern, captures)| match pattern {
             0 => Some((
                 Relation::Uses,
-                Resource::Module(["python/", &captures[0].text].concat()),
+                resources::module("python", &captures[0].text),
             )),
             1 => Some((
                 Relation::Uses,
-                Resource::Module(["python/", &captures[0].text].concat()),
+                resources::module("python", &captures[0].text),
             )),
             2 => {
                 let args = captures_as_args_map(captures);
@@ -57,19 +59,19 @@ pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
                     if !is_quoted(file) {
                         return None;
                     }
-                    let file = remove_quotes(file);
+                    let path = remove_quotes(file);
                     if let Some(mode) = args.get("1").or_else(|| args.get("mode")) {
                         if !is_quoted(mode) {
                             return None;
                         }
                         let mode = remove_quotes(mode);
                         if mode.starts_with('w') || mode.starts_with('a') {
-                            Some((Relation::Writes, Resource::File(file)))
+                            Some((Relation::Writes, resources::file(&path)))
                         } else {
-                            Some((Relation::Reads, Resource::File(file)))
+                            Some((Relation::Reads, resources::file(&path)))
                         }
                     } else {
-                        Some((Relation::Reads, Resource::File(file)))
+                        Some((Relation::Reads, resources::file(&path)))
                     }
                 } else {
                     None
@@ -77,6 +79,7 @@ pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
             }
             _ => None,
         })
+        .unique()
         .collect()
 }
 
@@ -88,8 +91,8 @@ mod tests {
 
     #[test]
     fn py_fragments() {
-        snapshot_content("fragments/py/*.py", |code| {
-            assert_json_snapshot!(compile(&code));
+        snapshot_content("fragments/py/*.py", |path, code| {
+            assert_json_snapshot!(compile(path, code));
         });
     }
 }
