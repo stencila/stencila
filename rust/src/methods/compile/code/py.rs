@@ -57,7 +57,7 @@ pub fn compile(code: &str) -> Vec<(Relation, Resource)> {
                     if !is_quoted(file) {
                         return None;
                     }
-                    let file = remove_quotes(&file);
+                    let file = remove_quotes(file);
                     if let Some(mode) = args.get("1").or_else(|| args.get("mode")) {
                         if !is_quoted(mode) {
                             return None;

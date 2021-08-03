@@ -17,6 +17,6 @@ pub fn decode(input: &str, format: FormatType) -> Result<Node> {
             content_url: input.to_string(),
             ..Default::default()
         }),
-        _ => unreachable!()
+        _ => unreachable!(),
     })
 }
