@@ -1,3 +1,10 @@
+# [0.106.0](https://github.com/stencila/stencila/compare/v0.105.0...v0.106.0) (2021-08-03)
+
+
+### Features
+
+* **CLI:** Highlight output in non-interactive mode ([0d39278](https://github.com/stencila/stencila/commit/0d392782326fd0d82ff6a3f1de293ac7cb965d7b))
+
 # [0.105.0](https://github.com/stencila/stencila/compare/v0.104.1...v0.105.0) (2021-08-02)
 
 
