@@ -1,0 +1,14 @@
+.logsWindow {
+  @apply flex flex-row max-h-screen overflow-hidden min-h-screen;
+  background-color: var(--color-stock);
+
+  main {
+    @apply w-full;
+    max-height: 100vh;
+    overflow: auto;
+
+    & > * {
+      @apply block mx-auto;
+    }
+  }
+}

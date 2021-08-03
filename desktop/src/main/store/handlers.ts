@@ -1,7 +1,7 @@
-import { webContents } from 'electron'
 import { CHANNEL } from '../../preload/channels'
 import { UnprotectedStoreKeys } from '../../preload/stores'
 import { AppConfigStore } from '../../preload/types'
+import { sendToAllWindows } from '../utils/ipc'
 import { defaultConfigStore, unprotectedStore } from './bootstrap'
 
 export const readAppConfig = () => {
@@ -22,9 +22,7 @@ export const setAppConfig =
     // Inform all open windows of the configuration change.
     // Each window should register a listener for the `CHANNEL.CONFIG_APP_SET` and
     // react as needed to the changes.
-    webContents.getAllWebContents().forEach((wc) => {
-      wc.send(CHANNEL.CONFIG_APP_SET, { key, value })
-    })
+    sendToAllWindows(CHANNEL.CONFIG_APP_SET, { key, value })
   }
 
 export const updateAppConfig = (newStore: AppConfigStore) => {

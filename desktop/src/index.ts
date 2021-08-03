@@ -1,6 +1,5 @@
 import { app, BrowserWindow, protocol } from 'electron'
 import installExtension, { REDUX_DEVTOOLS } from 'electron-devtools-installer'
-import { debug } from './debug'
 import { main, prepare } from './main'
 import { requestHandler, scheme } from './main/app-protocol'
 import { openLauncherWindow } from './main/launcher/window'
@@ -52,8 +51,6 @@ protocol.registerSchemesAsPrivileged([
 ])
 
 if (isDevelopment) {
-  debug()
-
   app.whenReady().then(() => {
     installExtension(REDUX_DEVTOOLS, {
       loadExtensionOptions: { allowFileAccess: true },

@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron'
+import log from 'electron-log'
 import { IpcRendererAPI } from '../preload/types'
 import { Channel, Handler, isChannel } from './channels'
 
@@ -25,4 +26,5 @@ export const apis: IpcRendererAPI = {
   removeAll: (channel: Channel) => {
     ipcRenderer.removeAllListeners(channel)
   },
+  log,
 }

@@ -1,3 +1,4 @@
+import { enableLogging } from '../preload/logging'
 import { enableCrashReports } from '../preload/errors'
 import { globalHandlers } from './global'
 import { launcherHandlers } from './launcher'
@@ -12,6 +13,7 @@ import { checkForUpdates } from './utils/update'
  * It should configure critical elements which are needed prior to the creation of the main window.
  */
 export const prepare = () => {
+  enableLogging()
   enableCrashReports(isReportErrorsEnabled)
   setErrorReportingId()
 }

@@ -1,4 +1,5 @@
 import { IpcMainInvokeEvent } from 'electron'
+import log, { LogMessage } from 'electron-log'
 import { JSONSchema7 } from 'json-schema'
 import { Config, dispatch, Plugin, Result } from 'stencila'
 import { Channel, CHANNEL, Handler } from './channels'
@@ -59,6 +60,17 @@ export type CaptureError = InvokeType<
 export type GetAppVersion = InvokeType<
   typeof CHANNEL.GET_APP_VERSION,
   () => string
+>
+
+// Logs
+export type LogsWindowOpen = InvokeType<
+  typeof CHANNEL.LOGS_WINDOW_OPEN,
+  () => void
+>
+
+export type LogsGet = InvokeType<
+  typeof CHANNEL.LOGS_GET,
+  () => LogMessage[]
 >
 
 // Config
@@ -150,10 +162,7 @@ export type ProjectsOpenUsingFilePicker = InvokeType<
   () => void
 >
 
-export type ProjectsNew = InvokeType<
-  typeof CHANNEL.PROJECTS_NEW,
-  () => void
->
+export type ProjectsNew = InvokeType<typeof CHANNEL.PROJECTS_NEW, () => void>
 
 export type ProjectsOpen = InvokeType<
   typeof CHANNEL.PROJECTS_OPEN,
@@ -230,6 +239,8 @@ type InvokeTypes =
   | OpenLink
   | CaptureError
   | GetAppVersion
+  | LogsWindowOpen
+  | LogsGet
   | ConfigWindowOpen
   | ReadConfig
   | ReadAppConfig
@@ -292,6 +303,17 @@ interface Invoke {
     channel: GetAppVersion['channel'],
     ...args: GetAppVersion['args']
   ): GetAppVersion['result']
+
+  // Logs
+  invoke(
+    channel: LogsWindowOpen['channel'],
+    ...args: LogsWindowOpen['args']
+  ): LogsWindowOpen['result']
+
+  invoke(
+    channel: LogsGet['channel'],
+    ...args: LogsGet['args']
+  ): LogsGet['result']
 
   // Config
   invoke(
@@ -461,6 +483,7 @@ export interface IpcRendererAPI extends Invoke {
   receive: (channel: Channel, func: Handler) => void
   remove: (channel: Channel, func: Handler) => void
   removeAll: (channel: Channel) => void
+  log: typeof log
 }
 
 declare global {

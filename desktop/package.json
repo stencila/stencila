@@ -83,6 +83,7 @@
     "@stencila/components": "0.39.0",
     "@stencila/schema": "1.10.0",
     "debounce": "1.2.1",
+    "electron-log": "^4.4.1",
     "electron-squirrel-startup": "1.0.0",
     "fp-ts": "2.11.1",
     "i18next": "20.3.5",
