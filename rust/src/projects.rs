@@ -1,5 +1,6 @@
 use crate::config::CONFIG;
-use crate::documents::Document;
+use crate::documents::DOCUMENTS;
+use crate::errors::attempt;
 use crate::files::{File, FileEvent, Files};
 use crate::graphs::{Graph, Resource};
 use crate::methods::import::import;
@@ -135,7 +136,8 @@ pub struct Project {
     files: Files,
 
     /// The project's dependency graph
-    #[serde(skip)]
+    #[serde(skip_deserializing)]
+    #[schemars(skip)]
     graph: Graph,
 }
 
@@ -349,6 +351,9 @@ impl Project {
         // Theme defaults to the configured default
         self.theme = self.theme.clone().or_else(|| Some(config.theme.clone()));
 
+        // Compile the project
+        attempt(self.compile().await);
+
         ProjectEvent::publish(self, ProjectEventType::Updated)
     }
 
@@ -357,23 +362,26 @@ impl Project {
     /// Starts at the main document and walks over any related file
     pub async fn compile(&mut self) -> Result<&mut Project> {
         #[async_recursion::async_recursion]
-        async fn walk(path: &Path, graph: &mut Graph) -> Result<()> {
+        async fn walk(project: &Path, path: &Path, graph: &mut Graph) -> Result<()> {
+            let path = project.join(path);
+
             if !path.exists() {
                 return Ok(());
             }
 
-            let document = Document::open(path, None).await?;
+            let document = DOCUMENTS.open(path, None).await?;
             if let Some(relations) = document.relations {
-                for triple in relations {
-                    let to = triple.2.clone();
+                for triple in &relations {
+                    graph.add_triple(triple.clone());
 
-                    graph.add_triple(triple);
-
-                    match to {
-                        Resource::File(path) => {
-                            walk(&PathBuf::from(path), graph).await?;
+                    let (subject, .., object) = triple;
+                    for resource in [subject, object] {
+                        match resource {
+                            Resource::File(path) => {
+                                walk(project, &PathBuf::from(path), graph).await?;
+                            }
+                            _ => (),
                         }
-                        _ => (),
                     }
                 }
             }
@@ -382,7 +390,7 @@ impl Project {
 
         let mut graph = Graph::new();
         if let Some(path) = self.main_path.as_deref() {
-            walk(path, &mut graph).await?;
+            walk(&self.path, path, &mut graph).await?;
         }
         self.graph = graph;
 
@@ -947,7 +955,7 @@ pub mod cli {
                 Action::Open(action) => action.run().await,
                 Action::Close(action) => action.run().await,
                 Action::Show(action) => action.run().await,
-                Action::Graph(action) => action.run(projects).await,
+                Action::Graph(action) => action.run().await,
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -1070,23 +1078,24 @@ pub mod cli {
         folder: Option<PathBuf>,
 
         /// The format to output the graph as
-        #[structopt(long, short, default_value = "cyto", possible_values = &GRAPH_FORMATS)]
+        #[structopt(long, short, default_value = "dot", possible_values = &GRAPH_FORMATS)]
         format: String,
     }
 
-    const GRAPH_FORMATS: [&str; 2] = ["cyto", "dot"];
+    const GRAPH_FORMATS: [&str; 3] = ["dot", "json", "yaml"];
 
     impl Graph {
-        pub async fn run(self, projects: &mut Projects) -> display::Result {
+        pub async fn run(self) -> display::Result {
             let Self { folder, format } = self;
-            let project = &mut projects.open(folder, false).await?;
+            let project = &mut PROJECTS.open(folder, false).await?;
             project.compile().await?;
             let content = match format.as_str() {
-                "cyto" => project.graph.to_cyto(),
                 "dot" => project.graph.to_dot(),
+                "json" => serde_json::to_string_pretty(&project.graph)?,
+                "yaml" => serde_yaml::to_string(&project.graph)?,
                 _ => bail!("Unknown graph format '{}'", format),
             };
-            display::content("", &content)
+            display::content(&format, &content)
         }
     }
 

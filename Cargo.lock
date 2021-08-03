@@ -2815,6 +2815,8 @@ checksum = "4a13a2fa9d0b63e5f22328828741e523766fff0ee9e779316902290dff3f824f"
 dependencies = [
  "fixedbitset",
  "indexmap",
+ "serde",
+ "serde_derive",
 ]
 
 [[package]]
@@ -4024,6 +4026,7 @@ name = "stencila-cli"
 version = "0.109.2"
 dependencies = [
  "ansi_term 0.12.1",
+ "atty",
  "color-eyre",
  "exitcode",
  "linya",
@@ -4047,9 +4050,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.10.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4107c3439de08442fa4fe1862d4b3e897b47e1968d3f14a61ef405891570332f"
+version = "1.10.0"
 dependencies = [
  "chrono",
  "defaults",
