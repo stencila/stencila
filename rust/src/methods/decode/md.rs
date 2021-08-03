@@ -902,14 +902,14 @@ mod tests {
 
     #[test]
     fn md_articles() {
-        snapshot_content("articles/*.md", |content| {
+        snapshot_content("articles/*.md", |_path, content| {
             assert_json_snapshot!(decode(&content).expect("Unable to decode Markdown"));
         });
     }
 
     #[test]
     fn md_fragments() {
-        snapshot_content("fragments/md/*.md", |content| {
+        snapshot_content("fragments/md/*.md", |_path, content| {
             assert_json_snapshot!(decode_fragment(&content));
         });
     }

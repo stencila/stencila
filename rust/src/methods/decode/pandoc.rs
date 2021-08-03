@@ -595,7 +595,7 @@ mod tests {
     #[test]
     fn pandoc_fragments() {
         let runtime = tokio::runtime::Runtime::new().unwrap();
-        snapshot_content("fragments/pandoc/*.json", |content| {
+        snapshot_content("fragments/pandoc/*.json", |_path, content| {
             let json =
                 runtime.block_on(async { decode_fragment(&content, "pandoc", &[]).await.unwrap() });
             assert_json_snapshot!(json);
