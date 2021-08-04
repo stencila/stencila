@@ -31,6 +31,8 @@
 
   &.userOS-Linux,
   &.userOS-Windows_NT {
+    @apply pr-1 pl-4;
+
     li {
       @apply flex-row-reverse;
     }
