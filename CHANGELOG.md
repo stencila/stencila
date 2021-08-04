@@ -1,3 +1,15 @@
+# [0.107.0](https://github.com/stencila/stencila/compare/v0.106.0...v0.107.0) (2021-08-04)
+
+
+### Bug Fixes
+
+* **Desktop:** Fix crash on non Mac operating systems ([008adc1](https://github.com/stencila/stencila/commit/008adc178252f23dd38c7fbf330f36a647728957)), closes [#1059](https://github.com/stencila/stencila/issues/1059)
+
+
+### Features
+
+* **Desktop:** Add ability to view session logs in app ([bea03bb](https://github.com/stencila/stencila/commit/bea03bbcbc081c941715de4d559e76ba0dad1e15))
+
 # [0.106.0](https://github.com/stencila/stencila/compare/v0.105.0...v0.106.0) (2021-08-03)
 
 
