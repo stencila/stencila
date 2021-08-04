@@ -244,6 +244,17 @@ impl Graph {
             .map(|(resource, node)| {
                 let index = node.index();
 
+                let path = match resource {
+                    Resource::Symbol(symbol) => symbol.path.clone(),
+                    Resource::Node(node) => node.path.clone(),
+                    Resource::File(file) => file.path.clone(),
+                    _ => PathBuf::new(),
+                };
+                let path = pathdiff::diff_paths(&path, base_path)
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_string();
+
                 let (shape, fill_color, label) = match resource {
                     Resource::Symbol(symbol) => ("diamond", "#efb8b8", symbol.name.clone()),
                     Resource::Node(node) => (
@@ -251,18 +262,18 @@ impl Graph {
                         "#efe0b8",
                         format!("{}\\n{}", node.kind, node.address),
                     ),
-                    Resource::File(file) => {
-                        ("note", "#d1efb8", file.path.to_string_lossy().to_string())
-                    }
+                    Resource::File(..) => ("note", "#d1efb8", path.clone()),
                     Resource::Source(source) => ("house", "#efb8d4", source.name.clone()),
                     Resource::Module(module) => ("invhouse", "#b8efed", module.name.clone()),
                     Resource::Url(url) => ("box", "#cab8ef", url.url.clone()),
                 };
 
                 let node = match resource {
-                    Resource::File(..) => {
-                        format!(r#"  n{index} [style=invis]"#, index = index,)
-                    }
+                    Resource::File(..) => format!(
+                        r#"  n{index} [shape="point", style="invis" label="{label}"]"#,
+                        index = index,
+                        label = label
+                    ),
                     _ => format!(
                         r#"  n{index} [shape="{shape}" fillcolor="{fill_color}" label="{label}"]"#,
                         index = index,
@@ -271,17 +282,6 @@ impl Graph {
                         label = label.replace('\"', "\\\"")
                     ),
                 };
-
-                let path = match resource {
-                    Resource::Symbol(symbol) => symbol.path.clone(),
-                    Resource::Node(node) => node.path.clone(),
-                    Resource::File(file) => file.path.clone(),
-                    _ => PathBuf::new(),
-                };
-                let path = pathdiff::diff_paths(path, base_path)
-                    .unwrap_or_default()
-                    .to_string_lossy()
-                    .to_string();
 
                 (path, node)
             })
