@@ -8,137 +8,145 @@ input_file: fixtures/fragments/r/uses.R
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var1"
+      "name": "var1",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Function",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "fun1"
+      "name": "fun1",
+      "kind": "function"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var2"
+      "name": "var2",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var3"
+      "name": "var3",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Function",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "fun2"
+      "name": "fun2",
+      "kind": "function"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var4"
+      "name": "var4",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var5"
+      "name": "var5",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var6"
+      "name": "var6",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var7"
+      "name": "var7",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var8"
+      "name": "var8",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var9"
+      "name": "var9",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var10"
+      "name": "var10",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var11"
+      "name": "var11",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var12"
+      "name": "var12",
+      "kind": "variable"
     }
   ],
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "var13"
+      "name": "var13",
+      "kind": "variable"
     }
   ],
   [
     "assigns",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/uses.R",
-      "name": "assign"
-    }
-  ],
-  [
-    "assigns",
-    {
-      "type": "Function",
-      "path": "fragments/r/uses.R",
-      "name": "assign"
+      "name": "assign",
+      "kind": "variable"
     }
   ]
 ]

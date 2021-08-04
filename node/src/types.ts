@@ -258,63 +258,67 @@ export interface FileEvent {
 export type Resource =
   | {
       type: 'Symbol'
-      id: string
+      /**
+       * The path of the file that the symbol is defined in
+       */
+      path: string
+      /**
+       * The name/identifier of the symbol
+       */
+      name: string
+      /**
+       * The kind of the object that the symbol refers to
+       *
+       * Should be used as a hint only, and as such is excluded from equality and hash functions.
+       */
+      kind: string
     }
   | {
-      type: 'Variable'
-      id: string
-    }
-  | {
-      type: 'Function'
-      id: string
-    }
-  | {
-      type: 'Include'
-      id: string
-    }
-  | {
-      type: 'Link'
-      id: string
-    }
-  | {
-      type: 'Embed'
-      id: string
-    }
-  | {
-      type: 'CodeChunk'
-      id: string
-    }
-  | {
-      type: 'CodeExpression'
-      id: string
+      type: 'Node'
+      /**
+       * The path of the file that the node is defined in
+       */
+      path: string
+      /**
+       * The address of the node
+       */
+      address: string
+      /**
+       * The type of node e.g. "CodeChunk"
+       */
+      kind: string
     }
   | {
       type: 'File'
-      id: string
+      /**
+       * The path of the file
+       */
+      path: string
     }
   | {
-      type: 'SoftwareSourceCode'
-      id: string
-    }
-  | {
-      type: 'AudioObject'
-      id: string
-    }
-  | {
-      type: 'ImageObject'
-      id: string
-    }
-  | {
-      type: 'VideoObject'
-      id: string
+      type: 'Source'
+      /**
+       * The name of the project source
+       */
+      name: string
     }
   | {
       type: 'Module'
-      id: string
+      /**
+       * The programming language of the module
+       */
+      language: string
+      /**
+       * The name of the module
+       */
+      name: string
     }
   | {
       type: 'Url'
-      id: string
+      /**
+       * The URL of the external resource
+       */
+      url: string
     }
 
 /**

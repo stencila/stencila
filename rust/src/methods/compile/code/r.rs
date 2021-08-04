@@ -117,10 +117,8 @@ pub fn compile(path: &str, code: &str) -> Vec<(Relation, Resource)> {
                 // Assigns a variable or function at the program root
                 let name = captures[0].text.clone();
                 let resource = match captures[1].node.kind() {
-                    "function_definition" => {
-                        Resource::Function(resources::Function::new(path, &name))
-                    }
-                    _ => Resource::Variable(resources::Variable::new(path, &name)),
+                    "function_definition" => resources::symbol(path, &name, "function"),
+                    _ => resources::symbol(path, &name, "variable"),
                 };
                 Some((Relation::Assigns, resource))
             }
@@ -179,11 +177,11 @@ pub fn compile(path: &str, code: &str) -> Vec<(Relation, Resource)> {
                             if USES_IGNORE_FUNCTIONS.contains(&symbol.as_str()) {
                                 return None;
                             }
-                            Resource::Function(resources::Function::new(path, &symbol))
+                            resources::symbol(path, &symbol, "function")
                         }
-                        _ => Resource::Variable(resources::Variable::new(path, &symbol)),
+                        _ => resources::symbol(path, &symbol, "variable"),
                     },
-                    None => Resource::Variable(resources::Variable::new(path, &symbol)),
+                    None => resources::symbol(path, &symbol, ""),
                 };
 
                 Some((Relation::Uses, resource))

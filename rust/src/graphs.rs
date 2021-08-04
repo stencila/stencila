@@ -1,4 +1,5 @@
 use crate::utils::schemas;
+use derivative::Derivative;
 use eyre::Result;
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
 use schemars::JsonSchema;
@@ -9,62 +10,94 @@ use strum::{Display, EnumString};
 /// A resource in a dependency graph (the nodes of the graph)
 #[derive(Debug, Clone, PartialEq, Eq, Hash, EnumString, JsonSchema, Serialize)]
 #[serde(tag = "type")]
-#[schemars(deny_unknown_fields)]
 pub enum Resource {
-    // Within-code resources
-    Variable(resources::Variable),
-    Function(resources::Function),
+    /// A symbol within code, within a project file
+    Symbol(resources::Symbol),
 
-    // Within-document resources
-    // Store the relative path (within project) and address (within document)
-    // of the resource.
-    Include(resources::Id),
-    Link(resources::Id),
-    Embed(resources::Id),
-    CodeChunk(resources::Id),
-    CodeExpression(resources::Id),
+    /// A node within a project file
+    Node(resources::Node),
 
-    // Within-project resources
-    // Store the relative path (within project) of the resource
+    /// A file within the project
     File(resources::File),
 
-    // External resources
-    // Store unique identifier for resource
+    /// A declared project `Source`
+    Source(resources::Source),
+
+    /// A programming language module, usually part of an external package
     Module(resources::Module),
+
+    /// A URL to a remote resource
     Url(resources::Url),
 }
 
 pub mod resources {
     use super::*;
+    #[derive(Debug, Clone, Default, Derivative, JsonSchema, Serialize)]
+    #[derivative(PartialEq, Eq, Hash)]
+    #[schemars(deny_unknown_fields)]
+    pub struct Symbol {
+        /// The path of the file that the symbol is defined in
+        pub path: String,
 
-    pub type Variable = PathName;
-    pub type Function = PathName;
+        /// The name/identifier of the symbol
+        pub name: String,
 
-    pub type Include = Id;
-    pub type Link = Id;
-    pub type Embed = Id;
-    pub type CodeChunk = Id;
-    pub type CodeExpression = Id;
-
-    pub type Url = Id;
-
-    #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
-    pub struct Id {
-        pub id: String,
+        /// The kind of the object that the symbol refers to
+        ///
+        /// Should be used as a hint only, and as such is excluded from
+        /// equality and hash functions.
+        #[derivative(PartialEq = "ignore")]
+        #[derivative(Hash = "ignore")]
+        pub kind: String,
     }
 
-    impl Id {
-        pub fn new(id: &str) -> Id {
-            Id { id: id.into() }
-        }
-
+    impl Symbol {
         pub fn label(&self) -> String {
-            self.id.clone()
+            [&self.path, "@", &self.name].concat()
         }
     }
 
+    /// Create a new `Symbol` resource
+    pub fn symbol(path: &str, name: &str, kind: &str) -> Resource {
+        Resource::Symbol(Symbol {
+            path: path.into(),
+            name: name.into(),
+            kind: kind.into(),
+        })
+    }
+
     #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    #[schemars(deny_unknown_fields)]
+    pub struct Node {
+        /// The path of the file that the node is defined in
+        pub path: String,
+
+        /// The address of the node
+        pub address: String,
+
+        /// The type of node e.g. "CodeChunk"
+        pub kind: String,
+    }
+
+    impl Node {
+        pub fn label(&self) -> String {
+            [&self.path, "&", &self.address].concat()
+        }
+    }
+
+    /// Create a new `Symbol` resource
+    pub fn node(path: &str, address: &str, kind: &str) -> Resource {
+        Resource::Node(Node {
+            path: path.into(),
+            address: address.into(),
+            kind: kind.into(),
+        })
+    }
+
+    #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    #[schemars(deny_unknown_fields)]
     pub struct File {
+        /// The path of the file
         pub path: String,
     }
 
@@ -74,13 +107,36 @@ pub mod resources {
         }
     }
 
+    /// Create a new `File` resource
     pub fn file(path: &str) -> Resource {
         Resource::File(File { path: path.into() })
     }
 
     #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    #[schemars(deny_unknown_fields)]
+    pub struct Source {
+        /// The name of the project source
+        pub name: String,
+    }
+
+    impl Source {
+        pub fn label(&self) -> String {
+            self.name.clone()
+        }
+    }
+
+    /// Create a new `Source` resource
+    pub fn source(name: &str) -> Resource {
+        Resource::Source(Source { name: name.into() })
+    }
+
+    #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    #[schemars(deny_unknown_fields)]
     pub struct Module {
+        /// The programming language of the module
         pub language: String,
+
+        /// The name of the module
         pub name: String,
     }
 
@@ -90,6 +146,7 @@ pub mod resources {
         }
     }
 
+    /// Create a new `Module` resource
     pub fn module(language: &str, name: &str) -> Resource {
         Resource::Module(Module {
             language: language.into(),
@@ -98,22 +155,21 @@ pub mod resources {
     }
 
     #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
-    pub struct PathName {
-        pub path: String,
-        pub name: String,
+    #[schemars(deny_unknown_fields)]
+    pub struct Url {
+        /// The URL of the external resource
+        pub url: String,
     }
 
-    impl PathName {
-        pub fn new(path: &str, name: &str) -> PathName {
-            PathName {
-                path: path.into(),
-                name: name.into(),
-            }
-        }
-
+    impl Url {
         pub fn label(&self) -> String {
-            [&self.path, "@", &self.name].concat()
+            self.url.clone()
         }
+    }
+
+    /// Create a new `Url` resource
+    pub fn url(url: &str) -> Resource {
+        Resource::Url(Url { url: url.into() })
     }
 }
 
@@ -216,21 +272,12 @@ impl Graph {
             .iter()
             .map(|(resource, node)| {
                 let (shape, fill_color, label) = match resource {
-                    Resource::Variable(resource) => ("diamond", "#adebbc", resource.label()),
-                    Resource::Function(resource) => ("ellipse", "#adebbc", resource.label()),
-
-                    Resource::Include(resource) => ("diamond", "#adebbc", resource.label()),
-                    Resource::Link(resource) => ("diamond", "#adebbc", resource.label()),
-                    Resource::Embed(resource) => ("house", "#adebbc", resource.label()),
-                    Resource::CodeChunk(resource) => ("parallelogram", "#adebbc", resource.label()),
-                    Resource::CodeExpression(resource) => {
-                        ("parallelogram", "#d6ebad", resource.label())
-                    }
-
-                    Resource::File(resource) => ("note", "#adc8eb", resource.label()),
-
-                    Resource::Module(resource) => ("invhouse", "#adebbc", resource.label()),
-                    Resource::Url(resource) => ("box", "#adebbc", resource.label()),
+                    Resource::Symbol(resource) => ("diamond", "#efb8b8", resource.label()),
+                    Resource::Node(resource) => ("house", "#efe0b8", resource.label()),
+                    Resource::File(resource) => ("note", "#d1efb8", resource.label()),
+                    Resource::Source(resource) => ("ellipse", "#efb8d4", resource.label()),
+                    Resource::Module(resource) => ("invhouse", "#b8efed", resource.label()),
+                    Resource::Url(resource) => ("box", "#cab8ef", resource.label()),
                 };
 
                 format!(

@@ -8,49 +8,55 @@ input_file: fixtures/fragments/r/assigns.R
   [
     "assigns",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/assigns.R",
-      "name": "var1"
+      "name": "var1",
+      "kind": "variable"
     }
   ],
   [
     "assigns",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/assigns.R",
-      "name": "var2"
+      "name": "var2",
+      "kind": "variable"
     }
   ],
   [
     "assigns",
     {
-      "type": "Function",
+      "type": "Symbol",
       "path": "fragments/r/assigns.R",
-      "name": "fun1"
+      "name": "fun1",
+      "kind": "function"
     }
   ],
   [
     "assigns",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/assigns.R",
-      "name": "var3"
+      "name": "var3",
+      "kind": "variable"
     }
   ],
   [
     "assigns",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/assigns.R",
-      "name": "var4"
+      "name": "var4",
+      "kind": "variable"
     }
   ],
   [
     "assigns",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/assigns.R",
-      "name": "var5"
+      "name": "var5",
+      "kind": "variable"
     }
   ]
 ]

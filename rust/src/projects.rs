@@ -365,7 +365,8 @@ impl Project {
 
     /// Compile a project
     ///
-    /// Starts at the main document and walks over any related file
+    /// Starts at the main document and walks over related files (linked to, imported from etc)
+    /// building up the graph. Also adds sources and their relations to files.
     pub async fn compile(&mut self) -> Result<&mut Project> {
         #[async_recursion::async_recursion]
         async fn walk(project: &Path, path: &Path, graph: &mut Graph) -> Result<()> {

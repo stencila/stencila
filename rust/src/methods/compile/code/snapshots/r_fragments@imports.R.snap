@@ -32,9 +32,10 @@ input_file: fixtures/fragments/r/imports.R
   [
     "assigns",
     {
-      "type": "Function",
+      "type": "Symbol",
       "path": "fragments/r/imports.R",
-      "name": "foo"
+      "name": "foo",
+      "kind": "function"
     }
   ],
   [
@@ -48,9 +49,10 @@ input_file: fixtures/fragments/r/imports.R
   [
     "assigns",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/imports.R",
-      "name": "pkg_var"
+      "name": "pkg_var",
+      "kind": "variable"
     }
   ]
 ]

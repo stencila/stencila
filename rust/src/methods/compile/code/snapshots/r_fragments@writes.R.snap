@@ -8,9 +8,10 @@ input_file: fixtures/fragments/r/writes.R
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/writes.R",
-      "name": "data"
+      "name": "data",
+      "kind": "variable"
     }
   ],
   [
@@ -30,9 +31,10 @@ input_file: fixtures/fragments/r/writes.R
   [
     "assigns",
     {
-      "type": "Function",
+      "type": "Symbol",
       "path": "fragments/r/writes.R",
-      "name": "foo"
+      "name": "foo",
+      "kind": "function"
     }
   ],
   [
@@ -52,9 +54,10 @@ input_file: fixtures/fragments/r/writes.R
   [
     "uses",
     {
-      "type": "Variable",
+      "type": "Symbol",
       "path": "fragments/r/writes.R",
-      "name": "ignore"
+      "name": "ignore",
+      "kind": "variable"
     }
   ]
 ]
