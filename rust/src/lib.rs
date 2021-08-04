@@ -92,6 +92,7 @@ pub mod utils {
     pub mod fs;
     pub mod hash;
     pub mod http;
+    pub mod path;
     pub mod schemas;
     pub mod urls;
     pub mod uuids;

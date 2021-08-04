@@ -1,7 +1,7 @@
 use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
 use crate::{
     graphs::{resources, Relation, Resource},
-    utils::fs::merge_paths,
+    utils::path::merge,
 };
 use itertools::Itertools;
 use once_cell::sync::Lazy;
@@ -51,7 +51,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
         .filter_map(|(pattern, captures)| match pattern {
             0 | 1 => {
                 let module = &captures[0].text;
-                let path = merge_paths(path, [module, ".py"].concat());
+                let path = merge(path, [module, ".py"].concat());
                 let object = match path.exists() {
                     true => resources::file(&path),
                     false => resources::module("python", module),
@@ -64,7 +64,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     if !is_quoted(file) {
                         return None;
                     }
-                    let path = merge_paths(path, remove_quotes(file));
+                    let path = merge(path, remove_quotes(file));
                     if let Some(mode) = args.get("1").or_else(|| args.get("mode")) {
                         if !is_quoted(mode) {
                             return None;

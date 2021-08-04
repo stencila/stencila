@@ -2,7 +2,7 @@ use crate::{
     documents::DOCUMENTS,
     graphs::{resources, Relation, Triple},
     traits::ToVecBlockContent,
-    utils::fs::merge_paths,
+    utils::path::merge,
 };
 use async_trait::async_trait;
 use defaults::Defaults;
@@ -349,7 +349,7 @@ impl Compile for Link {
         let object = if target.starts_with("http://") || target.starts_with("https://") {
             resources::url(target)
         } else {
-            resources::file(&merge_paths(&context.path, target))
+            resources::file(&merge(&context.path, target))
         };
 
         context.relations.push((subject, Relation::Links, object));
@@ -479,7 +479,7 @@ impl Compile for Include {
     async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         let subject = resources::node(&context.path, address, &self.type_name());
 
-        let path = merge_paths(&context.path, &self.source);
+        let path = merge(&context.path, &self.source);
         let format = self.media_type.as_deref().cloned();
         let document = DOCUMENTS.open(&path, format).await?;
         self.content = document

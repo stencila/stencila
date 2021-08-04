@@ -3,7 +3,7 @@ use std::path::Path;
 use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
 use crate::{
     graphs::{resources, Relation, Resource},
-    utils::fs::merge_paths,
+    utils::path::merge,
 };
 use itertools::Itertools;
 use once_cell::sync::Lazy;
@@ -110,7 +110,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 args.get("0").or_else(|| args.get("file")).map(|file| {
                     (
                         Relation::Reads,
-                        resources::file(&merge_paths(path, remove_quotes(file))),
+                        resources::file(&merge(path, remove_quotes(file))),
                     )
                 })
             }
@@ -120,7 +120,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 args.get("1").or_else(|| args.get("file")).map(|file| {
                     (
                         Relation::Writes,
-                        resources::file(&merge_paths(path, remove_quotes(file))),
+                        resources::file(&merge(path, remove_quotes(file))),
                     )
                 })
             }

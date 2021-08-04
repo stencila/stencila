@@ -1,23 +1,7 @@
 ///! File system utilities, particularly functionality that requires
 ///! alternative implementations for alternative operating systems.
 use eyre::Result;
-use std::{
-    fs, os,
-    path::{Path, PathBuf},
-};
-
-/// Merge paths
-///
-/// Differs from `path.join()` in that it joins the parent of `path1`, not `path1` itself.
-pub fn merge_paths<P1: AsRef<Path>, P2: AsRef<Path>>(path1: P1, path2: P2) -> PathBuf {
-    let path1 = path1.as_ref();
-    let path2 = path2.as_ref();
-    if let Some(parent) = path1.parent() {
-        parent.join(path2)
-    } else {
-        path1.join(path2)
-    }
-}
+use std::{fs, os, path::Path};
 
 /// Set permissions on a file
 pub fn set_perms<File: AsRef<Path>>(path: File, mode: u32) -> Result<()> {

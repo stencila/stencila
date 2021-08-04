@@ -3,7 +3,7 @@ use std::path::Path;
 use super::{remove_quotes, Compiler};
 use crate::{
     graphs::{resources, Relation, Resource},
-    utils::fs::merge_paths,
+    utils::path::merge,
 };
 use itertools::Itertools;
 use once_cell::sync::Lazy;
@@ -72,7 +72,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 .clone();
                 let module = remove_quotes(&module);
                 let object = if module.starts_with("./") {
-                    resources::file(&merge_paths(path, &[&module, ".js"].concat()))
+                    resources::file(&merge(path, &[&module, ".js"].concat()))
                 } else {
                     resources::module("javascript", &module)
                 };
@@ -80,11 +80,11 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
             }
             2 => Some((
                 Relation::Reads,
-                resources::file(&merge_paths(path, remove_quotes(&captures[1].text))),
+                resources::file(&merge(path, remove_quotes(&captures[1].text))),
             )),
             3 => Some((
                 Relation::Writes,
-                resources::file(&merge_paths(path, remove_quotes(&captures[1].text))),
+                resources::file(&merge(path, remove_quotes(&captures[1].text))),
             )),
             _ => None,
         })
