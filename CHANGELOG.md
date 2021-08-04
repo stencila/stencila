@@ -1,3 +1,10 @@
+## [0.107.1](https://github.com/stencila/stencila/compare/v0.107.0...v0.107.1) (2021-08-04)
+
+
+### Bug Fixes
+
+* **Tabs:** Fix spacing around tab close icon on Linux & Windows ([cb0b9aa](https://github.com/stencila/stencila/commit/cb0b9aa0eeacbefc4c83c5e8ea014ba697dd28b9))
+
 # [0.107.0](https://github.com/stencila/stencila/compare/v0.106.0...v0.107.0) (2021-08-04)
 
 
