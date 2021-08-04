@@ -51,12 +51,6 @@ pub mod resources {
         pub kind: String,
     }
 
-    impl Symbol {
-        pub fn label(&self) -> String {
-            [&self.path, "@", &self.name].concat()
-        }
-    }
-
     /// Create a new `Symbol` resource
     pub fn symbol(path: &str, name: &str, kind: &str) -> Resource {
         Resource::Symbol(Symbol {
@@ -79,12 +73,6 @@ pub mod resources {
         pub kind: String,
     }
 
-    impl Node {
-        pub fn label(&self) -> String {
-            [&self.path, "&", &self.address].concat()
-        }
-    }
-
     /// Create a new `Symbol` resource
     pub fn node(path: &str, address: &str, kind: &str) -> Resource {
         Resource::Node(Node {
@@ -101,12 +89,6 @@ pub mod resources {
         pub path: String,
     }
 
-    impl File {
-        pub fn label(&self) -> String {
-            self.path.clone()
-        }
-    }
-
     /// Create a new `File` resource
     pub fn file(path: &str) -> Resource {
         Resource::File(File { path: path.into() })
@@ -117,12 +99,6 @@ pub mod resources {
     pub struct Source {
         /// The name of the project source
         pub name: String,
-    }
-
-    impl Source {
-        pub fn label(&self) -> String {
-            self.name.clone()
-        }
     }
 
     /// Create a new `Source` resource
@@ -140,12 +116,6 @@ pub mod resources {
         pub name: String,
     }
 
-    impl Module {
-        pub fn label(&self) -> String {
-            [&self.language, ":", &self.name].concat()
-        }
-    }
-
     /// Create a new `Module` resource
     pub fn module(language: &str, name: &str) -> Resource {
         Resource::Module(Module {
@@ -159,12 +129,6 @@ pub mod resources {
     pub struct Url {
         /// The URL of the external resource
         pub url: String,
-    }
-
-    impl Url {
-        pub fn label(&self) -> String {
-            self.url.clone()
-        }
     }
 
     /// Create a new `Url` resource
@@ -271,22 +235,67 @@ impl Graph {
             .indices
             .iter()
             .map(|(resource, node)| {
+                let index = node.index();
+
                 let (shape, fill_color, label) = match resource {
-                    Resource::Symbol(resource) => ("diamond", "#efb8b8", resource.label()),
-                    Resource::Node(resource) => ("house", "#efe0b8", resource.label()),
-                    Resource::File(resource) => ("note", "#d1efb8", resource.label()),
-                    Resource::Source(resource) => ("ellipse", "#efb8d4", resource.label()),
-                    Resource::Module(resource) => ("invhouse", "#b8efed", resource.label()),
-                    Resource::Url(resource) => ("box", "#cab8ef", resource.label()),
+                    Resource::Symbol(symbol) => ("diamond", "#efb8b8", symbol.name.clone()),
+                    Resource::Node(node) => (
+                        "box",
+                        "#efe0b8",
+                        format!("{}\\n{}", node.kind, node.address),
+                    ),
+                    Resource::File(file) => ("note", "#d1efb8", file.path.clone()),
+                    Resource::Source(source) => ("house", "#efb8d4", source.name.clone()),
+                    Resource::Module(module) => ("invhouse", "#b8efed", module.name.clone()),
+                    Resource::Url(url) => ("box", "#cab8ef", url.url.clone()),
                 };
 
-                format!(
-                    r#"  n{id} [shape="{shape}" fillcolor="{fill_color}" label="{label}"]"#,
-                    id = node.index(),
-                    shape = shape,
-                    fill_color = fill_color,
-                    label = label.replace('\"', "\\\"")
-                )
+                let node = match resource {
+                    Resource::File(..) => {
+                        format!(r#"  n{index} [style=invis]"#, index = index,)
+                    }
+                    _ => format!(
+                        r#"  n{index} [shape="{shape}" fillcolor="{fill_color}" label="{label}"]"#,
+                        index = index,
+                        shape = shape,
+                        fill_color = fill_color,
+                        label = label.replace('\"', "\\\"")
+                    ),
+                };
+
+                let path = match resource {
+                    Resource::Symbol(symbol) => symbol.path.clone(),
+                    Resource::Node(node) => node.path.clone(),
+                    Resource::File(file) => file.path.clone(),
+                    _ => "".to_string(),
+                };
+
+                (path, node)
+            })
+            .collect::<Vec<(String, String)>>();
+
+        let mut clusters: HashMap<String, Vec<String>> = HashMap::new();
+        for (path, node) in nodes {
+            clusters.entry(path).or_default().push(node)
+        }
+
+        let path_to_cluster = |path: &str| clusters.keys().position(|key| key == path).unwrap_or(0);
+
+        let subgraphs = clusters
+            .iter()
+            .enumerate()
+            .map(|(index, (label, nodes))| {
+                if label.is_empty() {
+                    nodes.join("\n")
+                } else {
+                    [
+                        &format!("  subgraph cluster{} {{\n", index),
+                        &format!("    label=\"{}\" fillcolor=\"#d1efb8\"\n  ", label),
+                        &nodes.join("\n  "),
+                        "\n  }",
+                    ]
+                    .concat()
+                }
             })
             .collect::<Vec<String>>()
             .join("\n");
@@ -299,11 +308,25 @@ impl Graph {
                     self.graph.edge_endpoints(edge),
                     self.graph.edge_weight(edge),
                 ) {
+                    let ltail = if let Some(Resource::File(file)) = self.graph.node_weight(from) {
+                        format!(" ltail=\"cluster{}\"", path_to_cluster(&file.path))
+                    } else {
+                        "".to_string()
+                    };
+
+                    let lhead = if let Some(Resource::File(file)) = self.graph.node_weight(to) {
+                        format!(" lhead=\"cluster{}\"", path_to_cluster(&file.path))
+                    } else {
+                        "".to_string()
+                    };
+
                     Some(format!(
-                        r#"  n{from} -> n{to} [label="{label}"]"#,
+                        r#"  n{from} -> n{to} [label="{label}"{ltail}{lhead}]"#,
                         from = from.index(),
                         to = to.index(),
-                        label = relation.to_string().replace('\"', "\\\"")
+                        ltail = ltail,
+                        lhead = lhead,
+                        label = relation.to_string(),
                     ))
                 } else {
                     None
@@ -314,15 +337,16 @@ impl Graph {
 
         format!(
             r#"digraph {{
-  node [style="filled" fontname=Helvetica fontsize=11]
+  graph [rankdir=LR compound=true fontname=Helvetica fontsize=12 labeljust=l color=gray]
+  node [style=filled fontname=Helvetica fontsize=11]
   edge [fontname=Helvetica fontsize=10]
 
-{nodes}
+{subgraphs}
 
 {edges}
 }}
 "#,
-            nodes = nodes,
+            subgraphs = subgraphs,
             edges = edges
         )
     }
