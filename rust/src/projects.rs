@@ -381,14 +381,12 @@ impl Project {
                 for triple in &relations {
                     graph.add_triple(triple.clone());
 
-                    let (subject, .., object) = triple;
-                    for resource in [subject, object] {
-                        match resource {
-                            Resource::File(file) => {
-                                walk(project, &PathBuf::from(file.path.clone()), graph).await?;
-                            }
-                            _ => (),
+                    let (.., object) = triple;
+                    match object {
+                        Resource::File(file) => {
+                            walk(project, &PathBuf::from(file.path.clone()), graph).await?;
                         }
+                        _ => (),
                     }
                 }
             }
