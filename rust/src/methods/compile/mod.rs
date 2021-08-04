@@ -2,10 +2,11 @@ use crate::{
     documents::DOCUMENTS,
     graphs::{resources, Relation, Triple},
     traits::ToVecBlockContent,
+    utils::fs::merge_paths,
 };
 use async_trait::async_trait;
 use defaults::Defaults;
-use eyre::{bail, Result};
+use eyre::Result;
 use std::{
     collections::BTreeMap,
     path::{Path, PathBuf},
@@ -20,7 +21,6 @@ pub async fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<Con
     let mut context = Context {
         path: PathBuf::from(path),
         project: PathBuf::from(project),
-        path_within_project: path.strip_prefix(project).unwrap().display().to_string(),
         ..Default::default()
     };
     node.compile("", &mut context).await?;
@@ -343,18 +343,16 @@ impl Compile for ListItemContent {
 #[async_trait]
 impl Compile for Link {
     async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+        let subject = resources::node(&context.path, address, &self.type_name());
+
         let target = &self.target;
-        let resource = if target.starts_with("http://") || target.starts_with("https://") {
+        let object = if target.starts_with("http://") || target.starts_with("https://") {
             resources::url(target)
         } else {
-            resources::file(target)
+            resources::file(&merge_paths(&context.path, target))
         };
 
-        context.relations.push((
-            resources::node(&context.path_within_project, address, &self.type_name()),
-            Relation::Links,
-            resource,
-        ));
+        context.relations.push((subject, Relation::Links, object));
 
         Ok(())
     }
@@ -365,9 +363,9 @@ impl Compile for Link {
 /// If the `content_url` property is  a `file://` URL (implicitly
 /// or explicitly) then resolves the file path, records it as
 /// a file dependency, and returns an absolute `file://` URL.
-fn compile_content_url(content_url: &str, context: &mut Context) -> Result<String> {
+fn compile_content_url(content_url: &str, context: &mut Context) -> String {
     if content_url.starts_with("http://") || content_url.starts_with("https://") {
-        return Ok(content_url.into());
+        return content_url.into();
     }
 
     // Extract the path
@@ -390,7 +388,7 @@ fn compile_content_url(content_url: &str, context: &mut Context) -> Result<Strin
 
     // Assert that the path is within the project
     if path.strip_prefix(&context.project).is_err() {
-        bail!(
+        tracing::warn!(
             "Document contains a link to a file outside of its project: '{}'. Resolved path '{}' is outside of project path '{}'",
             content_url,
             path.display(),
@@ -398,7 +396,7 @@ fn compile_content_url(content_url: &str, context: &mut Context) -> Result<Strin
         )
     }
 
-    Ok(format!("file://{}", path.display()))
+    format!("file://{}", path.display())
 }
 
 /// A `Compile` implementation for `MediaObject` node types
@@ -408,13 +406,16 @@ macro_rules! compile_media_object {
             #[async_trait]
             impl Compile for $type {
                 async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-                    let url = compile_content_url(&self.content_url, context)?;
+                    let subject = resources::node(&context.path, address, &self.type_name());
 
-                    context.relations.push((
-                        resources::node(&context.path_within_project, address, &self.type_name()),
-                        Relation::Embeds,
-                        resources::file(&url),
-                    ));
+                    let url = compile_content_url(&self.content_url, context);
+                    let object = if url.starts_with("http") {
+                        resources::url(&url)
+                    } else {
+                        resources::file(&Path::new(&url))
+                    };
+
+                    context.relations.push((subject, Relation::Embeds, object));
 
                     self.content_url = url;
 
@@ -439,9 +440,8 @@ compile_media_object!(
 impl Compile for CodeChunk {
     async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         if let Some(lang) = self.programming_language.as_deref() {
-            let path = context.path_within_project.clone();
-            let subject = resources::node(&path, address, &self.type_name());
-            let mut relations = code::compile(&path, &subject, &self.text, lang);
+            let subject = resources::node(&context.path, address, &self.type_name());
+            let mut relations = code::compile(&context.path, &subject, &self.text, lang);
             context.relations.append(&mut relations)
         }
         Ok(())
@@ -452,9 +452,8 @@ impl Compile for CodeChunk {
 impl Compile for CodeExpression {
     async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
         if let Some(lang) = self.programming_language.as_deref() {
-            let path = context.path_within_project.clone();
-            let subject = resources::node(&path, address, &self.type_name());
-            let mut relations = code::compile(&path, &subject, &self.text, lang);
+            let subject = resources::node(&context.path, address, &self.type_name());
+            let mut relations = code::compile(&context.path, &subject, &self.text, lang);
             context.relations.append(&mut relations)
         }
         Ok(())
@@ -467,9 +466,8 @@ impl Compile for SoftwareSourceCode {
         if let (Some(text), Some(lang)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
-            let path = context.path_within_project.clone();
-            let subject = resources::file(&path);
-            let mut relations = code::compile(&path, &subject, text, lang);
+            let subject = resources::file(&context.path);
+            let mut relations = code::compile(&context.path, &subject, text, lang);
             context.relations.append(&mut relations)
         }
         Ok(())
@@ -479,22 +477,22 @@ impl Compile for SoftwareSourceCode {
 #[async_trait]
 impl Compile for Include {
     async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        // TODO canonicalize and check path
-        let path = context.path.parent().unwrap().join(&self.source);
-        let format = self.media_type.as_deref().cloned();
+        let subject = resources::node(&context.path, address, &self.type_name());
 
-        let document = DOCUMENTS.open(path, format).await?;
+        let path = merge_paths(&context.path, &self.source);
+        let format = self.media_type.as_deref().cloned();
+        let document = DOCUMENTS.open(&path, format).await?;
         self.content = document
             .root
             .as_ref()
             .map(|root| root.to_vec_block_content());
         //self.sha256 = Some(Box::new(document.sha256()?));
 
-        context.relations.push((
-            resources::node(&context.path_within_project, address, &self.type_name()),
-            Relation::Includes,
-            resources::file(&self.source),
-        ));
+        let object = resources::file(&path);
+
+        context
+            .relations
+            .push((subject, Relation::Includes, object));
 
         Ok(())
     }

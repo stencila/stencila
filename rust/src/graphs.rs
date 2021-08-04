@@ -4,11 +4,14 @@ use eyre::Result;
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 use strum::{Display, EnumString};
 
 /// A resource in a dependency graph (the nodes of the graph)
-#[derive(Debug, Clone, PartialEq, Eq, Hash, EnumString, JsonSchema, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
 #[serde(tag = "type")]
 pub enum Resource {
     /// A symbol within code, within a project file
@@ -31,13 +34,15 @@ pub enum Resource {
 }
 
 pub mod resources {
+    use std::path::{Path, PathBuf};
+
     use super::*;
-    #[derive(Debug, Clone, Default, Derivative, JsonSchema, Serialize)]
+    #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
     #[derivative(PartialEq, Eq, Hash)]
     #[schemars(deny_unknown_fields)]
     pub struct Symbol {
         /// The path of the file that the symbol is defined in
-        pub path: String,
+        pub path: PathBuf,
 
         /// The name/identifier of the symbol
         pub name: String,
@@ -52,19 +57,19 @@ pub mod resources {
     }
 
     /// Create a new `Symbol` resource
-    pub fn symbol(path: &str, name: &str, kind: &str) -> Resource {
+    pub fn symbol(path: &Path, name: &str, kind: &str) -> Resource {
         Resource::Symbol(Symbol {
-            path: path.into(),
+            path: path.to_path_buf(),
             name: name.into(),
             kind: kind.into(),
         })
     }
 
-    #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
     #[schemars(deny_unknown_fields)]
     pub struct Node {
         /// The path of the file that the node is defined in
-        pub path: String,
+        pub path: PathBuf,
 
         /// The address of the node
         pub address: String,
@@ -74,27 +79,29 @@ pub mod resources {
     }
 
     /// Create a new `Symbol` resource
-    pub fn node(path: &str, address: &str, kind: &str) -> Resource {
+    pub fn node(path: &Path, address: &str, kind: &str) -> Resource {
         Resource::Node(Node {
-            path: path.into(),
+            path: path.to_path_buf(),
             address: address.into(),
             kind: kind.into(),
         })
     }
 
-    #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
     #[schemars(deny_unknown_fields)]
     pub struct File {
         /// The path of the file
-        pub path: String,
+        pub path: PathBuf,
     }
 
     /// Create a new `File` resource
-    pub fn file(path: &str) -> Resource {
-        Resource::File(File { path: path.into() })
+    pub fn file(path: &Path) -> Resource {
+        Resource::File(File {
+            path: path.to_path_buf(),
+        })
     }
 
-    #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
     #[schemars(deny_unknown_fields)]
     pub struct Source {
         /// The name of the project source
@@ -106,7 +113,7 @@ pub mod resources {
         Resource::Source(Source { name: name.into() })
     }
 
-    #[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
     #[schemars(deny_unknown_fields)]
     pub struct Module {
         /// The programming language of the module
@@ -230,7 +237,7 @@ impl Graph {
     }
 
     /// Convert the graph to a visualization nodes and edges
-    pub fn to_dot(&self) -> String {
+    pub fn to_dot(&self, base_path: &Path) -> String {
         let nodes = self
             .indices
             .iter()
@@ -244,7 +251,9 @@ impl Graph {
                         "#efe0b8",
                         format!("{}\\n{}", node.kind, node.address),
                     ),
-                    Resource::File(file) => ("note", "#d1efb8", file.path.clone()),
+                    Resource::File(file) => {
+                        ("note", "#d1efb8", file.path.to_string_lossy().to_string())
+                    }
                     Resource::Source(source) => ("house", "#efb8d4", source.name.clone()),
                     Resource::Module(module) => ("invhouse", "#b8efed", module.name.clone()),
                     Resource::Url(url) => ("box", "#cab8ef", url.url.clone()),
@@ -267,8 +276,12 @@ impl Graph {
                     Resource::Symbol(symbol) => symbol.path.clone(),
                     Resource::Node(node) => node.path.clone(),
                     Resource::File(file) => file.path.clone(),
-                    _ => "".to_string(),
+                    _ => PathBuf::new(),
                 };
+                let path = pathdiff::diff_paths(path, base_path)
+                    .unwrap_or_default()
+                    .to_string_lossy()
+                    .to_string();
 
                 (path, node)
             })
@@ -279,7 +292,17 @@ impl Graph {
             clusters.entry(path).or_default().push(node)
         }
 
-        let path_to_cluster = |path: &str| clusters.keys().position(|key| key == path).unwrap_or(0);
+        let path_to_cluster = |path: &Path| {
+            clusters
+                .keys()
+                .position(|key| {
+                    *key == pathdiff::diff_paths(path, base_path)
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .to_string()
+                })
+                .unwrap_or(0)
+        };
 
         let subgraphs = clusters
             .iter()

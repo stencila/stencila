@@ -2,8 +2,8 @@
 ///!
 ///! Uses `tree-sitter` to parse source code into a abstract syntax tree which is then used to
 ///! derive properties of a `CodeAnalysis`.
-use crate::graphs::{Resource, Triple};
-use std::{collections::HashMap, sync::Mutex};
+use crate::graphs::{Relation, Resource, Triple};
+use std::{collections::HashMap, path::Path, sync::Mutex};
 use tree_sitter::{Language, Parser, Query, QueryCursor};
 
 #[cfg(feature = "compile-code-js")]
@@ -16,7 +16,7 @@ mod py;
 mod r;
 
 /// Compile code in a particular language
-pub fn compile(path: &str, subject: &Resource, code: &str, language: &str) -> Vec<Triple> {
+pub fn compile(path: &Path, subject: &Resource, code: &str, language: &str) -> Vec<Triple> {
     let pairs = match language {
         #[cfg(feature = "compile-code-js")]
         "js" | "javascript" => js::compile(path, code),
@@ -27,10 +27,19 @@ pub fn compile(path: &str, subject: &Resource, code: &str, language: &str) -> Ve
         _ => Vec::new(),
     };
 
-    pairs
-        .into_iter()
-        .map(|pair| (subject.clone(), pair.0, pair.1))
-        .collect()
+    // Translate pairs into triples and remove any `Uses` of locally assigned variables
+    let mut triples = Vec::with_capacity(pairs.len());
+    for (relation, object) in pairs {
+        if matches!(relation, Relation::Uses) {
+            if triples.contains(&(subject.clone(), Relation::Assigns, object.clone())) {
+                continue;
+            }
+        }
+
+        let triple = (subject.clone(), relation, object);
+        triples.push(triple)
+    }
+    triples
 }
 
 /// A capture resulting from a `tree-sitter` query

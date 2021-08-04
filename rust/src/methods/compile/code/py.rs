@@ -1,7 +1,11 @@
 use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
-use crate::graphs::{resources, Relation, Resource};
+use crate::{
+    graphs::{resources, Relation, Resource},
+    utils::fs::merge_paths,
+};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
+use std::path::Path;
 
 /// Compiler for Python
 static COMPILER: Lazy<Compiler> = Lazy::new(|| {
@@ -37,7 +41,7 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some Python code
-pub fn compile(path: &str, code: &str) -> Vec<(Relation, Resource)> {
+pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
     let code = code.as_bytes();
     let tree = COMPILER.parse(code);
     let captures = COMPILER.query(code, &tree);
@@ -45,21 +49,22 @@ pub fn compile(path: &str, code: &str) -> Vec<(Relation, Resource)> {
     captures
         .into_iter()
         .filter_map(|(pattern, captures)| match pattern {
-            0 => Some((
-                Relation::Uses,
-                resources::module("python", &captures[0].text),
-            )),
-            1 => Some((
-                Relation::Uses,
-                resources::module("python", &captures[0].text),
-            )),
+            0 | 1 => {
+                let module = &captures[0].text;
+                let path = merge_paths(path, [module, ".py"].concat());
+                let object = match path.exists() {
+                    true => resources::file(&path),
+                    false => resources::module("python", module),
+                };
+                Some((Relation::Uses, object))
+            }
             2 => {
                 let args = captures_as_args_map(captures);
                 if let Some(file) = args.get("0").or_else(|| args.get("file")) {
                     if !is_quoted(file) {
                         return None;
                     }
-                    let path = remove_quotes(file);
+                    let path = merge_paths(path, remove_quotes(file));
                     if let Some(mode) = args.get("1").or_else(|| args.get("mode")) {
                         if !is_quoted(mode) {
                             return None;
@@ -88,11 +93,12 @@ mod tests {
     use super::*;
     use crate::utils::tests::snapshot_content;
     use insta::assert_json_snapshot;
+    use std::path::PathBuf;
 
     #[test]
     fn py_fragments() {
         snapshot_content("fragments/py/*.py", |path, code| {
-            assert_json_snapshot!(compile(path, code));
+            assert_json_snapshot!(compile(&PathBuf::from(path), code));
         });
     }
 }

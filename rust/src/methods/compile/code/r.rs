@@ -1,5 +1,10 @@
+use std::path::Path;
+
 use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
-use crate::graphs::{resources, Relation, Resource};
+use crate::{
+    graphs::{resources, Relation, Resource},
+    utils::fs::merge_paths,
+};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 
@@ -72,7 +77,7 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some R code
-pub fn compile(path: &str, code: &str) -> Vec<(Relation, Resource)> {
+pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
     let code = code.as_bytes();
     let tree = COMPILER.parse(code);
     let captures = COMPILER.query(code, &tree);
@@ -102,16 +107,22 @@ pub fn compile(path: &str, code: &str) -> Vec<(Relation, Resource)> {
             1 => {
                 // Reads a file
                 let args = captures_as_args_map(captures);
-                args.get("0")
-                    .or_else(|| args.get("file"))
-                    .map(|file| (Relation::Reads, resources::file(&remove_quotes(file))))
+                args.get("0").or_else(|| args.get("file")).map(|file| {
+                    (
+                        Relation::Reads,
+                        resources::file(&merge_paths(path, remove_quotes(file))),
+                    )
+                })
             }
             2 => {
                 // Writes a file
                 let args = captures_as_args_map(captures);
-                args.get("1")
-                    .or_else(|| args.get("file"))
-                    .map(|file| (Relation::Writes, resources::file(&remove_quotes(file))))
+                args.get("1").or_else(|| args.get("file")).map(|file| {
+                    (
+                        Relation::Writes,
+                        resources::file(&merge_paths(path, remove_quotes(file))),
+                    )
+                })
             }
             3 | 4 => {
                 // Assigns a variable or function at the program root
@@ -197,11 +208,12 @@ mod tests {
     use super::*;
     use crate::utils::tests::snapshot_content;
     use insta::assert_json_snapshot;
+    use std::path::PathBuf;
 
     #[test]
     fn r_fragments() {
         snapshot_content("fragments/r/*.R", |path, code| {
-            assert_json_snapshot!(compile(path, code));
+            assert_json_snapshot!(compile(&PathBuf::from(path), code));
         });
     }
 }

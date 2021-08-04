@@ -1,6 +1,6 @@
 ---
 source: rust/src/methods/compile/code/js.rs
-expression: "compile(path, code)"
+expression: "compile(&PathBuf::from(path), code)"
 input_file: fixtures/fragments/js/reads.js
 
 ---
@@ -17,28 +17,28 @@ input_file: fixtures/fragments/js/reads.js
     "reads",
     {
       "type": "File",
-      "path": "path1"
+      "path": "fragments/js/path1"
     }
   ],
   [
     "reads",
     {
       "type": "File",
-      "path": "path2"
+      "path": "fragments/js/path2"
     }
   ],
   [
     "reads",
     {
       "type": "File",
-      "path": "path3"
+      "path": "fragments/js/path3"
     }
   ],
   [
     "reads",
     {
       "type": "File",
-      "path": "path4"
+      "path": "fragments/js/path4"
     }
   ]
 ]

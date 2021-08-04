@@ -1095,7 +1095,7 @@ pub mod cli {
             let project = &mut PROJECTS.open(folder, false).await?;
             project.compile().await?;
             let content = match format.as_str() {
-                "dot" => project.graph.to_dot(),
+                "dot" => project.graph.to_dot(&project.path),
                 "json" => serde_json::to_string_pretty(&project.graph)?,
                 "yaml" => serde_yaml::to_string(&project.graph)?,
                 _ => bail!("Unknown graph format '{}'", format),

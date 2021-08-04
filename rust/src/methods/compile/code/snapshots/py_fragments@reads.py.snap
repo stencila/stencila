@@ -1,6 +1,6 @@
 ---
 source: rust/src/methods/compile/code/py.rs
-expression: "compile(path, code)"
+expression: "compile(&PathBuf::from(path), code)"
 input_file: fixtures/fragments/py/reads.py
 
 ---
@@ -9,63 +9,63 @@ input_file: fixtures/fragments/py/reads.py
     "reads",
     {
       "type": "File",
-      "path": "path1"
+      "path": "fragments/py/path1"
     }
   ],
   [
     "reads",
     {
       "type": "File",
-      "path": "path2"
+      "path": "fragments/py/path2"
     }
   ],
   [
     "reads",
     {
       "type": "File",
-      "path": "path3"
+      "path": "fragments/py/path3"
     }
   ],
   [
     "reads",
     {
       "type": "File",
-      "path": "path4"
+      "path": "fragments/py/path4"
     }
   ],
   [
     "reads",
     {
       "type": "File",
-      "path": "path5"
+      "path": "fragments/py/path5"
     }
   ],
   [
     "reads",
     {
       "type": "File",
-      "path": "path6"
+      "path": "fragments/py/path6"
     }
   ],
   [
     "reads",
     {
       "type": "File",
-      "path": "path7"
+      "path": "fragments/py/path7"
     }
   ],
   [
     "reads",
     {
       "type": "File",
-      "path": "path8"
+      "path": "fragments/py/path8"
     }
   ],
   [
     "writes",
     {
       "type": "File",
-      "path": "write"
+      "path": "fragments/py/write"
     }
   ]
 ]

@@ -1,5 +1,10 @@
+use std::path::Path;
+
 use super::{remove_quotes, Compiler};
-use crate::graphs::{resources, Relation, Resource};
+use crate::{
+    graphs::{resources, Relation, Resource},
+    utils::fs::merge_paths,
+};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 
@@ -49,7 +54,7 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 });
 
 /// Compile some JavaScript code
-pub fn compile(path: &str, code: &str) -> Vec<(Relation, Resource)> {
+pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
     let code = code.as_bytes();
     let tree = COMPILER.parse(code);
     let captures = COMPILER.query(code, &tree);
@@ -57,21 +62,29 @@ pub fn compile(path: &str, code: &str) -> Vec<(Relation, Resource)> {
     captures
         .iter()
         .filter_map(|(pattern, captures)| match pattern {
-            0 => Some((
-                Relation::Uses,
-                resources::module("javascript", &remove_quotes(&captures[0].text)),
-            )),
-            1 => Some((
-                Relation::Uses,
-                resources::module("javascript", &remove_quotes(&captures[1].text)),
-            )),
+            0 | 1 => {
+                let module = match pattern {
+                    0 => &captures[0],
+                    1 => &captures[1],
+                    _ => unreachable!(),
+                }
+                .text
+                .clone();
+                let module = remove_quotes(&module);
+                let object = if module.starts_with("./") {
+                    resources::file(&merge_paths(path, &[&module, ".js"].concat()))
+                } else {
+                    resources::module("javascript", &module)
+                };
+                Some((Relation::Uses, object))
+            }
             2 => Some((
                 Relation::Reads,
-                resources::file(&remove_quotes(&captures[1].text)),
+                resources::file(&merge_paths(path, remove_quotes(&captures[1].text))),
             )),
             3 => Some((
                 Relation::Writes,
-                resources::file(&remove_quotes(&captures[1].text)),
+                resources::file(&merge_paths(path, remove_quotes(&captures[1].text))),
             )),
             _ => None,
         })
@@ -84,11 +97,12 @@ mod tests {
     use super::*;
     use crate::utils::tests::snapshot_content;
     use insta::assert_json_snapshot;
+    use std::path::PathBuf;
 
     #[test]
     fn js_fragments() {
         snapshot_content("fragments/js/*.js", |path, code| {
-            assert_json_snapshot!(compile(path, code));
+            assert_json_snapshot!(compile(&PathBuf::from(path), code));
         });
     }
 }

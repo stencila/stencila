@@ -1,6 +1,6 @@
 ---
 source: rust/src/methods/compile/code/r.rs
-expression: "compile(path, code)"
+expression: "compile(&PathBuf::from(path), code)"
 input_file: fixtures/fragments/r/reads.R
 
 ---
@@ -9,7 +9,7 @@ input_file: fixtures/fragments/r/reads.R
     "reads",
     {
       "type": "File",
-      "path": "path1"
+      "path": "fragments/r/path1"
     }
   ],
   [
@@ -25,7 +25,7 @@ input_file: fixtures/fragments/r/reads.R
     "reads",
     {
       "type": "File",
-      "path": "path2"
+      "path": "fragments/r/path2"
     }
   ],
   [
@@ -41,7 +41,7 @@ input_file: fixtures/fragments/r/reads.R
     "reads",
     {
       "type": "File",
-      "path": "path3"
+      "path": "fragments/r/path3"
     }
   ]
 ]
