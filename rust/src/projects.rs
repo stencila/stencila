@@ -384,7 +384,7 @@ impl Project {
                     let (.., object) = triple;
                     match object {
                         Resource::File(file) => {
-                            walk(project, &PathBuf::from(file.path.clone()), graph).await?;
+                            walk(project, &file.path, graph).await?;
                         }
                         _ => (),
                     }

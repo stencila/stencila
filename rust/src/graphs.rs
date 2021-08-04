@@ -296,10 +296,10 @@ impl Graph {
             clusters
                 .keys()
                 .position(|key| {
-                    *key == pathdiff::diff_paths(path, base_path)
+                    key == pathdiff::diff_paths(path, base_path)
                         .unwrap_or_default()
-                        .to_string_lossy()
-                        .to_string()
+                        .to_str()
+                        .unwrap_or_default()
                 })
                 .unwrap_or(0)
         };
