@@ -369,11 +369,12 @@ impl Project {
     /// building up the graph. Also adds sources and their relations to files.
     pub async fn compile(&mut self) -> Result<&mut Project> {
         #[async_recursion::async_recursion]
-        async fn walk(project: &Path, path: &Path, graph: &mut Graph) -> Result<()> {
-            let path = project.join(path);
-
-            if !path.exists() {
+        async fn walk(visited: &mut Vec<PathBuf>, path: &Path, graph: &mut Graph) -> Result<()> {
+            let path_buf = path.to_path_buf();
+            if visited.contains(&path_buf) || !path.exists() {
                 return Ok(());
+            } else {
+                visited.push(path_buf);
             }
 
             let document = DOCUMENTS.open(path, None).await?;
@@ -384,7 +385,7 @@ impl Project {
                     let (.., object) = triple;
                     match object {
                         Resource::File(file) => {
-                            walk(project, &file.path, graph).await?;
+                            walk(visited, &file.path, graph).await?;
                         }
                         _ => (),
                     }
@@ -395,7 +396,7 @@ impl Project {
 
         let mut graph = Graph::new();
         if let Some(path) = self.main_path.as_deref() {
-            walk(&self.path, path, &mut graph).await?;
+            walk(&mut Vec::new(), path, &mut graph).await?;
         }
         self.graph = graph;
 
@@ -1093,7 +1094,6 @@ pub mod cli {
         pub async fn run(self) -> display::Result {
             let Self { folder, format } = self;
             let project = &mut PROJECTS.open(folder, false).await?;
-            project.compile().await?;
             let content = match format.as_str() {
                 "dot" => project.graph.to_dot(&project.path),
                 "json" => serde_json::to_string_pretty(&project.graph)?,
