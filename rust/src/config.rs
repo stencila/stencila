@@ -1,12 +1,10 @@
 use crate::{logging, projects, telemetry, utils::schemas};
+use defaults::Defaults;
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::env;
-use std::fs;
-use std::io::Write;
-use std::path::PathBuf;
+use std::{env, fs, io::Write, path::PathBuf};
 use tokio::sync::Mutex;
 use validator::Validate;
 
@@ -49,9 +47,31 @@ pub struct Config {
     #[validate]
     pub binaries: crate::binaries::config::BinariesConfig,
 
+    pub editors: EditorsConfig,
+
     #[cfg(feature = "upgrade")]
     #[validate]
     pub upgrade: crate::upgrade::config::UpgradeConfig,
+}
+
+/// Editors
+///
+/// Configuration settings for document editors.
+#[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize)]
+#[serde(default, rename_all = "camelCase")]
+#[schemars(deny_unknown_fields)]
+pub struct EditorsConfig {
+    /// Default format for new documents
+    #[def = "\"md\".to_string()"]
+    pub default_format: String,
+
+    /// Show line numbers
+    #[def = "false"]
+    pub line_numbers: bool,
+
+    /// Enable wrapping of lines
+    #[def = "true"]
+    pub line_wrapping: bool,
 }
 
 impl Config {

@@ -475,6 +475,23 @@ export interface Config {
     auto?: boolean
   }
   /**
+   * Configuration settings for document editors.
+   */
+  editors?: {
+    /**
+     * Default format for new documents
+     */
+    defaultFormat?: string
+    /**
+     * Show line numbers
+     */
+    lineNumbers?: boolean
+    /**
+     * Enable wrapping of lines
+     */
+    lineWrapping?: boolean
+  }
+  /**
    * Configuration settings used when upgrading the application (and optionally plugins) automatically, in the background. These settings are NOT used as defaults when using the CLI `upgrade` command directly.
    */
   upgrade?: {
