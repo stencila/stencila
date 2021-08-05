@@ -128,7 +128,7 @@ pub struct Document {
 
     /// The name of the document
     ///
-    /// Usually the filename from the `path` but "Unnamed"
+    /// Usually the filename from the `path` but "Untitled"
     /// for temporary documents.
     name: String,
 
@@ -215,8 +215,16 @@ impl Document {
         };
         let previewable = format.preview;
 
-        let (path, temporary) = match path {
-            Some(path) => (path, false),
+        let (path, name, temporary) = match path {
+            Some(path) => {
+                let name = path
+                    .file_name()
+                    .map(|os_str| os_str.to_string_lossy())
+                    .unwrap_or_else(|| "Untitled".into())
+                    .into();
+
+                (path, name, false)
+            }
             None => {
                 let path = env::temp_dir().join(
                     [
@@ -229,7 +237,10 @@ impl Document {
                 if !path.exists() {
                     fs::write(path.clone(), "").expect("Unable to write temporary file");
                 }
-                (path, true)
+
+                let name = "Untitled".into();
+
+                (path, name, true)
             }
         };
 
@@ -244,7 +255,7 @@ impl Document {
             project,
             temporary,
             status: DocumentStatus::Synced,
-            name: "Unnamed".into(),
+            name,
             format,
             previewable,
             ..Default::default()
@@ -360,10 +371,21 @@ impl Document {
     /// Sets `status` to `Synced`.
     pub async fn write(&mut self, content: Option<String>, format: Option<String>) -> Result<()> {
         if let Some(content) = content {
-            self.load(content, format).await?;
+            self.load(content, format.clone()).await?;
         }
 
-        fs::write(&self.path, self.content.as_bytes())?;
+        let content_to_write = if let Some(input_format) = format.as_ref() {
+            let input_format = FORMATS.match_path(&input_format);
+            if input_format.name != self.format.name {
+                self.dump(None).await?
+            } else {
+                self.content.clone()
+            }
+        } else {
+            self.content.clone()
+        };
+
+        fs::write(&self.path, content_to_write.as_bytes())?;
         self.status = DocumentStatus::Synced;
         self.last_write = Some(Instant::now());
 
@@ -879,7 +901,7 @@ impl Documents {
 
     /// Create a new empty document
     pub async fn create(&self, path: Option<String>, format: Option<String>) -> Result<Document> {
-        let path = path.and_then(|path| PathBuf::from(path).canonicalize().ok());
+        let path = path.map(PathBuf::from);
 
         let document = Document::new(path, format);
         let handler = DocumentHandler::new(document.clone(), false);

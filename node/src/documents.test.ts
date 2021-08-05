@@ -18,14 +18,14 @@ test('create', async () => {
   expect(create()).toEqual(
     expect.objectContaining({
       temporary: true,
-      name: 'Unnamed',
+      name: 'Untitled',
     })
   )
 
   expect(create(undefined, 'md')).toEqual(
     expect.objectContaining({
       temporary: true,
-      name: 'Unnamed',
+      name: 'Untitled',
       format: expect.objectContaining({
         name: 'md',
         binary: false
@@ -43,7 +43,7 @@ test('create', async () => {
   expect(doc).toEqual(
     expect.objectContaining({
       temporary: true,
-      name: 'Unnamed',
+      name: 'Untitled',
       format: expect.objectContaining({
         name: "txt"
       }),
@@ -54,7 +54,7 @@ test('create', async () => {
   expect(alter(doc.id, undefined, "md")).toEqual(
     expect.objectContaining({
       temporary: true,
-      name: 'Unnamed',
+      name: 'Untitled',
       format: expect.objectContaining({
         name: "md"
       }),
@@ -83,7 +83,7 @@ test('workflow-create-write-as', async () => {
   expect(doc).toEqual(
     expect.objectContaining({
       temporary: true,
-      name: 'Unnamed',
+      name: 'Untitled',
     })
   )
 

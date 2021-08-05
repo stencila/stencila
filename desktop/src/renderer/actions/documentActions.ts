@@ -14,17 +14,18 @@ export const alterDocument = async (
   return doc
 }
 
-export const saveDocument = async (docId: EntityId, content: string) => {
+export const saveDocument = async (docId: EntityId, content: string, format?: string) => {
   if (isTemporaryDocument(state)(docId)) {
-    const { value: filePath } = await client.documents.createFilePath()
+    const { value: file } = await client.documents.createFilePath()
 
-    if (!filePath) return
+    if (file.canceled) return
 
-    const doc = await alterDocument(docId, filePath)
+    const doc = await alterDocument(docId, file.filePath)
 
     client.documents.write({
       documentId: docId,
       content,
+      format
     })
 
     return updateDocument(doc)
@@ -32,6 +33,7 @@ export const saveDocument = async (docId: EntityId, content: string) => {
     client.documents.write({
       documentId: docId,
       content,
+      format
     })
   }
 }

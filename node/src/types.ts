@@ -57,7 +57,7 @@ export interface Document {
   /**
    * The name of the document
    *
-   * Usually the filename from the `path` but "Unnamed" for temporary documents.
+   * Usually the filename from the `path` but "Untitled" for temporary documents.
    */
   name: string
   /**

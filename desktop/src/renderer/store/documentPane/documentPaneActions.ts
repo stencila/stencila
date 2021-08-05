@@ -30,8 +30,8 @@ export const createNewDocument = async () => {
     UnprotectedStoreKeys.EDITOR_NEW_FILE_SYNTAX
   )
 
-  createDocument(undefined, format).then(({ value }) => {
-    addDocumentToActivePane(value)
+  createDocument(undefined, format).then(({ value: doc }) => {
+    addDocumentToActivePane(doc)
   })
 }
 

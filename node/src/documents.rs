@@ -84,10 +84,11 @@ pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let content = cx.argument::<JsString>(1)?.value(&mut cx);
+    let format = not_empty_or_none(&cx.argument::<JsString>(2)?.value(&mut cx));
 
     let result = RUNTIME.block_on(async {
         match DOCUMENTS.get(id).await {
-            Ok(document) => document.lock().await.write(Some(content), None).await,
+            Ok(document) => document.lock().await.write(Some(content), format).await,
             Err(error) => Err(error),
         }
     });
@@ -139,10 +140,11 @@ pub fn dump(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn load(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let content = cx.argument::<JsString>(1)?.value(&mut cx);
+    let format = not_empty_or_none(&cx.argument::<JsString>(2)?.value(&mut cx));
 
     let result = RUNTIME.block_on(async {
         match DOCUMENTS.get(id).await {
-            Ok(document) => document.lock().await.load(content, None).await,
+            Ok(document) => document.lock().await.load(content, format).await,
             Err(error) => Err(error),
         }
     });

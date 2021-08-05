@@ -1,10 +1,10 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { Component, h, Host, Prop, State, Watch } from '@stencil/core'
-import { client } from '../../../client'
 import { DocumentEvent } from 'stencila'
 import { CHANNEL } from '../../../../preload/channels'
 import { state } from '../../../../renderer/store'
 import { getProjectTheme } from '../../../../renderer/store/project/projectSelectors'
+import { client } from '../../../client'
 
 @Component({
   tag: 'app-document-preview',
@@ -26,8 +26,8 @@ export class AppDocumentPreview {
   @State() previewContents: string
 
   private subscribeToDocument = (documentId = this.documentId) => {
-    client.documents.preview(documentId).then(({ value }) => {
-      this.previewContents = value
+    client.documents.preview(documentId).then(({ value: contents }) => {
+      this.previewContents = contents
     })
 
     window.api.receive(CHANNEL.DOCUMENTS_PREVIEW, (event) => {
