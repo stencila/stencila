@@ -28,11 +28,13 @@ export function list(): string[] {
 /**
  * Create a new empty document, optionally specifying its format.
  *
- * @param format Format of the document
+ * @param path Path of the document. If `undefined` will be set to a temporary path.
+ * @param format Format of the document. If `undefined` will be inferred from
+ *               the file extension of `path`.
  * @return A document
  */
-export function create(format?: string): Document {
-  return fromJSON<Document>(addon.documentsCreate(format ?? ''))
+export function create(path?: string, format?: string): Document {
+  return fromJSON<Document>(addon.documentsCreate(path ?? '', format ?? ''))
 }
 
 /**
@@ -40,7 +42,7 @@ export function create(format?: string): Document {
  *
  * @param path Path to the document's file
  * @param format Format of the document. If `undefined` will be inferred from
- *               the file extension.
+ *               the file extension of `path`.
  * @return A document
  */
 export function open(path: string, format?: string): Document {
@@ -68,8 +70,8 @@ export function get(id: string): Document {
  * may be `known: false`.
  *
  * @param id Id of the document
- * @param path A new path of the document
- * @param format The name of the new format for the document.
+ * @param path A new path for the document
+ * @param format A new format for the document
  */
  export function alter(id: string, path?: string, format?: string): Document {
   return fromJSON<Document>(addon.documentsAlter(id, path ?? '', format ?? ''))

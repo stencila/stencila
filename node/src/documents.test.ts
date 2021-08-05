@@ -22,7 +22,7 @@ test('create', async () => {
     })
   )
 
-  expect(create('md')).toEqual(
+  expect(create(undefined, 'md')).toEqual(
     expect.objectContaining({
       temporary: true,
       name: 'Unnamed',
@@ -79,7 +79,7 @@ test('create', async () => {
  * saving it as other files, in same, and other formats.
  */
 test('workflow-create-write-as', async () => {
-  const doc = create('json');
+  const doc = create(undefined, 'json');
   expect(doc).toEqual(
     expect.objectContaining({
       temporary: true,

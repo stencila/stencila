@@ -197,33 +197,52 @@ impl Document {
     ///
     /// # Arguments
     ///
+    /// - `path`: The path of the document; defaults to a temporary path.
     /// - `format`: The format of the document; defaults to plain text.
     ///
     /// This function is intended to be used by editors when creating
-    /// a new document. The created document will be `temporary: true`
-    /// and have a temporary file path.
-    fn new(format: Option<String>) -> Document {
+    /// a new document. If the `path` is not specified, the created document
+    /// will be `temporary: true` and have a temporary file path.
+    fn new(path: Option<PathBuf>, format: Option<String>) -> Document {
         let id = uuids::generate(uuids::Family::Document);
 
-        let path = env::temp_dir().join(uuids::generate(uuids::Family::File));
-        // Ensure that the file exists
-        if !path.exists() {
-            fs::write(path.clone(), "").expect("Unable to write temporary file");
-        }
+        let format = if let Some(format) = format {
+            FORMATS.match_path(&format)
+        } else if let Some(path) = path.as_ref() {
+            FORMATS.match_path(path)
+        } else {
+            FORMATS.match_name("txt")
+        };
+        let previewable = format.preview;
+
+        let (path, temporary) = match path {
+            Some(path) => (path, false),
+            None => {
+                let path = env::temp_dir().join(
+                    [
+                        uuids::generate(uuids::Family::File),
+                        format.extensions.first().cloned().unwrap_or_default(),
+                    ]
+                    .concat(),
+                );
+                // Ensure that the file exists
+                if !path.exists() {
+                    fs::write(path.clone(), "").expect("Unable to write temporary file");
+                }
+                (path, true)
+            }
+        };
 
         let project = path
             .parent()
             .expect("Unable to get path parent")
             .to_path_buf();
 
-        let format = FORMATS.match_path(&format.unwrap_or_else(|| "txt".to_string()));
-        let previewable = format.preview;
-
         Document {
             id,
             path,
             project,
-            temporary: true,
+            temporary,
             status: DocumentStatus::Synced,
             name: "Unnamed".into(),
             format,
@@ -859,8 +878,10 @@ impl Documents {
     }
 
     /// Create a new empty document
-    pub async fn create(&self, format: Option<String>) -> Result<Document> {
-        let document = Document::new(format);
+    pub async fn create(&self, path: Option<String>, format: Option<String>) -> Result<Document> {
+        let path = path.and_then(|path| PathBuf::from(path).canonicalize().ok());
+
+        let document = Document::new(path, format);
         let handler = DocumentHandler::new(document.clone(), false);
 
         self.registry
@@ -1180,7 +1201,7 @@ mod tests {
 
     #[test]
     fn document_new() {
-        let doc = Document::new(None);
+        let doc = Document::new(None, None);
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
@@ -1189,7 +1210,7 @@ mod tests {
         assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
 
-        let doc = Document::new(Some("md".to_string()));
+        let doc = Document::new(None, Some("md".to_string()));
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
