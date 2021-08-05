@@ -150,15 +150,15 @@ pub mod resources {
 )]
 #[serde(rename_all = "camelCase")]
 pub enum Relation {
-    Assigns,
-    Converts(bool),
-    Embeds,
-    Imports(bool),
-    Includes,
-    Links,
-    Reads,
-    Uses,
-    Writes,
+    Assign,
+    Convert(bool),
+    Embed,
+    Import(bool),
+    Include,
+    Link,
+    Read,
+    Use,
+    Write,
 }
 
 /// The direction to represent the flow of information from subject to object
@@ -170,15 +170,15 @@ pub enum Direction {
 /// Get the the `Direction` for a `Relation`
 pub fn direction(relation: &Relation) -> Direction {
     match relation {
-        Relation::Assigns => Direction::To,
-        Relation::Converts(..) => Direction::To,
-        Relation::Embeds => Direction::From,
-        Relation::Imports(..) => Direction::To,
-        Relation::Includes => Direction::From,
-        Relation::Links => Direction::To,
-        Relation::Reads => Direction::From,
-        Relation::Uses => Direction::From,
-        Relation::Writes => Direction::To,
+        Relation::Assign => Direction::To,
+        Relation::Convert(..) => Direction::To,
+        Relation::Embed => Direction::From,
+        Relation::Import(..) => Direction::To,
+        Relation::Include => Direction::From,
+        Relation::Link => Direction::To,
+        Relation::Read => Direction::From,
+        Relation::Use => Direction::From,
+        Relation::Write => Direction::To,
     }
 }
 
@@ -349,7 +349,7 @@ impl Graph {
                     self.graph.edge_weight(edge),
                 ) {
                     let style = match relation {
-                        Relation::Converts(active) | Relation::Imports(active) => {
+                        Relation::Convert(active) | Relation::Import(active) => {
                             if *active {
                                 "solid"
                             } else {

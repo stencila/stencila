@@ -99,7 +99,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                             return None;
                         }
                         Some((
-                            Relation::Uses,
+                            Relation::Use,
                             resources::module("r", &remove_quotes(package)),
                         ))
                     })
@@ -109,7 +109,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 let args = captures_as_args_map(captures);
                 args.get("0").or_else(|| args.get("file")).map(|file| {
                     (
-                        Relation::Reads,
+                        Relation::Read,
                         resources::file(&merge(path, remove_quotes(file))),
                     )
                 })
@@ -119,7 +119,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 let args = captures_as_args_map(captures);
                 args.get("1").or_else(|| args.get("file")).map(|file| {
                     (
-                        Relation::Writes,
+                        Relation::Write,
                         resources::file(&merge(path, remove_quotes(file))),
                     )
                 })
@@ -131,7 +131,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     "function_definition" => resources::symbol(path, &name, "function"),
                     _ => resources::symbol(path, &name, "variable"),
                 };
-                Some((Relation::Assigns, resource))
+                Some((Relation::Assign, resource))
             }
             5 => {
                 // Uses a function or variable
@@ -195,7 +195,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     None => resources::symbol(path, &symbol, ""),
                 };
 
-                Some((Relation::Uses, resource))
+                Some((Relation::Use, resource))
             }
             _ => None,
         })

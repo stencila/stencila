@@ -56,7 +56,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     true => resources::file(&path),
                     false => resources::module("python", module),
                 };
-                Some((Relation::Uses, object))
+                Some((Relation::Use, object))
             }
             2 => {
                 let args = captures_as_args_map(captures);
@@ -71,12 +71,12 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                         }
                         let mode = remove_quotes(mode);
                         if mode.starts_with('w') || mode.starts_with('a') {
-                            Some((Relation::Writes, resources::file(&path)))
+                            Some((Relation::Write, resources::file(&path)))
                         } else {
-                            Some((Relation::Reads, resources::file(&path)))
+                            Some((Relation::Read, resources::file(&path)))
                         }
                     } else {
-                        Some((Relation::Reads, resources::file(&path)))
+                        Some((Relation::Read, resources::file(&path)))
                     }
                 } else {
                     None

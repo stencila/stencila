@@ -33,7 +33,7 @@ impl Conversion {
     pub fn triple(&self, project: &Path) -> Triple {
         (
             resources::file(&project.join(&self.input)),
-            Relation::Converts(self.active),
+            Relation::Convert(self.active),
             resources::file(&project.join(&self.output)),
         )
     }

@@ -30,8 +30,8 @@ pub fn compile(path: &Path, subject: &Resource, code: &str, language: &str) -> V
     // Translate pairs into triples and remove any `Uses` of locally assigned variables
     let mut triples = Vec::with_capacity(pairs.len());
     for (relation, object) in pairs {
-        if matches!(relation, Relation::Uses)
-            && triples.contains(&(subject.clone(), Relation::Assigns, object.clone()))
+        if matches!(relation, Relation::Use)
+            && triples.contains(&(subject.clone(), Relation::Assign, object.clone()))
         {
             continue;
         }

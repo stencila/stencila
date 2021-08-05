@@ -352,7 +352,7 @@ impl Compile for Link {
             resources::file(&merge(&context.path, target))
         };
 
-        context.relations.push((subject, Relation::Links, object));
+        context.relations.push((subject, Relation::Link, object));
 
         Ok(())
     }
@@ -415,7 +415,7 @@ macro_rules! compile_media_object {
                         resources::file(&Path::new(&url))
                     };
 
-                    context.relations.push((subject, Relation::Embeds, object));
+                    context.relations.push((subject, Relation::Embed, object));
 
                     self.content_url = url;
 
@@ -490,9 +490,7 @@ impl Compile for Include {
 
         let object = resources::file(&path);
 
-        context
-            .relations
-            .push((subject, Relation::Includes, object));
+        context.relations.push((subject, Relation::Include, object));
 
         Ok(())
     }

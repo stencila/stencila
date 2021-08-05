@@ -124,7 +124,7 @@ impl SourceDestination {
                 .map(|file| {
                     (
                         resources::source(name),
-                        Relation::Imports(self.active),
+                        Relation::Import(self.active),
                         resources::file(&project.join(file)),
                     )
                 })

@@ -76,14 +76,14 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 } else {
                     resources::module("javascript", &module)
                 };
-                Some((Relation::Uses, object))
+                Some((Relation::Use, object))
             }
             2 => Some((
-                Relation::Reads,
+                Relation::Read,
                 resources::file(&merge(path, remove_quotes(&captures[1].text))),
             )),
             3 => Some((
-                Relation::Writes,
+                Relation::Write,
                 resources::file(&merge(path, remove_quotes(&captures[1].text))),
             )),
             _ => None,
