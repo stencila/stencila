@@ -80,7 +80,7 @@ export type ReadConfig = InvokeType<
   typeof CHANNEL.CONFIG_READ,
   () => {
     config: Config
-    schema: JSONSchema7
+    schemas: JSONSchema7[]
   }
 >
 

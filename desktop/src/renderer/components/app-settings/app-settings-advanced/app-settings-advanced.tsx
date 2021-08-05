@@ -1,12 +1,11 @@
-import { Component, h, State } from '@stencil/core'
+import { Component, Config, h, State } from '@stencil/core'
+import { JSONSchema7 } from 'stencila/node_modules/@types/json-schema'
 import { client } from '../../../client'
-import { ConfigSchema } from '../../utils/forms/elements/types'
 import { build } from '../../utils/forms/formBuilder'
 
-type Config = Record<string, unknown>
 type Settings = {
   config: Config
-  schema: ConfigSchema
+  schemas: JSONSchema7[]
 }
 
 @Component({
@@ -29,7 +28,7 @@ export class AppSettingsAdvanced {
   render() {
     return (
       <form class="settingsAdvanced">
-        {this.settings && build(this.settings.schema)}
+        {this.settings && this.settings.schemas.map((schema) => build(schema))}
       </form>
     )
   }
