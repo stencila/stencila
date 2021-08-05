@@ -125,10 +125,9 @@ fn sizes() {
     sizeof!(bool);
     sizeof!(i64);
     sizeof!(f64);
+    sizeof!(String);
     sizeof!(Vec<Primitive>);
     sizeof!(BTreeMap<String, Primitive>);
-    sizeof!(String);
-    sizeof!(Option<Box<String>>);
     println!("----------------------------------------------");
 
     println!("");
@@ -141,6 +140,7 @@ fn sizes() {
     sizeof!(CollectionSimple);
     sizeof!(FigureSimple);
     sizeof!(Heading);
+    sizeof!(Include);
     sizeof!(List);
     sizeof!(MathBlock);
     sizeof!(Paragraph);
@@ -171,5 +171,14 @@ fn sizes() {
     sizeof!(SoftwareSourceCode);
     sizeof!(Table);
     sizeof!(VideoObject);
+    println!("----------------------------------------------");
+
+    println!("");
+    println!("----------------------------------------------");
+    println!("Reference");
+    println!("----------------------------------------------");
+    sizeof!(String);
+    sizeof!(Option<String>);
+    sizeof!(Option<Box<String>>);
     println!("----------------------------------------------");
 }
