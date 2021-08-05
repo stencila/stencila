@@ -127,8 +127,10 @@ export const client = {
       window.api
         .invoke(CHANNEL.DOCUMENTS_ALTER, docId.toString(), path, format)
         .then(unwrapOrThrow),
-    create: (format?: string) =>
-      window.api.invoke(CHANNEL.DOCUMENTS_CREATE, format).then(unwrapOrThrow),
+    create: (path?: string, format?: string) =>
+      window.api
+        .invoke(CHANNEL.DOCUMENTS_CREATE, path, format)
+        .then(unwrapOrThrow),
     createFilePath: () =>
       window.api.invoke(CHANNEL.DOCUMENTS_CREATE_FILE_PATH).then(unwrapOrThrow),
     contents: (docId: EntityId) =>

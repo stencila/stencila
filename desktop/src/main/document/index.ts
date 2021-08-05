@@ -24,8 +24,8 @@ const registerDocumentHandlers = () => {
     dispatch.documents.open(filePath)
   )
 
-  handle<DocumentsCreate>(CHANNEL.DOCUMENTS_CREATE, async (_event, format) =>
-    dispatch.documents.create(format)
+  handle<DocumentsCreate>(CHANNEL.DOCUMENTS_CREATE, async (_event, path, format) =>
+    dispatch.documents.create(path, format)
   )
 
   handle<DocumentsClose>(
