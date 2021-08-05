@@ -352,7 +352,10 @@ export interface SourceDestination {
   /**
    * The source from which files will be imported
    */
-  source:
+  source?:
+    | {
+        type: 'Null'
+      }
     | {
         type: 'Elife'
         /**
@@ -380,7 +383,13 @@ export interface SourceDestination {
    */
   destination?: string
   /**
-   * A list of file paths associated with the source, relative to the project root
+   * Whether or not the source is active
+   *
+   * If the source is active an import job will be created for it each time the project is updated.
+   */
+  active?: boolean
+  /**
+   * A list of file paths currently associated with the source, relative to the project root
    */
   files?: string[]
 }

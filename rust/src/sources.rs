@@ -32,9 +32,14 @@ pub trait SourceTrait {
 
 /// A project source
 #[enum_dispatch(SourceTrait)]
-#[derive(PartialEq, Clone, Debug, ToString, EnumIter, JsonSchema, Deserialize, Serialize)]
+#[derive(
+    PartialEq, Clone, Debug, Defaults, ToString, EnumIter, JsonSchema, Deserialize, Serialize,
+)]
+#[def = "Null(Null{})"]
 #[serde(tag = "type")]
 pub enum Source {
+    /// A null variant that exists only so that we can define a default source
+    Null(Null),
     Elife(Elife),
     GitHub(GitHub),
 }
@@ -61,7 +66,8 @@ pub fn resolve(id: &str) -> Result<Source> {
 /// destinations within a project and for multiple sources to used the same
 /// destination (e.g. the root directory of the project).
 #[skip_serializing_none]
-#[derive(PartialEq, Clone, Debug, JsonSchema, Deserialize, Serialize)]
+#[derive(PartialEq, Clone, Debug, Defaults, JsonSchema, Deserialize, Serialize)]
+#[serde(default)]
 #[schemars(deny_unknown_fields)]
 pub struct SourceDestination {
     /// The source from which files will be imported
@@ -70,7 +76,15 @@ pub struct SourceDestination {
     /// The destination path within the project
     pub destination: Option<String>,
 
-    /// A list of file paths associated with the source, relative to the project root
+    /// Whether or not the source is active
+    ///
+    /// If the source is active an import job will be created for it
+    /// each time the project is updated.
+    #[def = "true"]
+    active: bool,
+
+    /// A list of file paths currently associated with the source,
+    /// relative to the project root
     pub files: Option<Vec<String>>,
 }
 
@@ -80,7 +94,7 @@ impl SourceDestination {
         SourceDestination {
             source,
             destination,
-            files: None,
+            ..Default::default()
         }
     }
 
@@ -114,6 +128,20 @@ impl SourceDestination {
                 .collect(),
             None => Vec::new(),
         }
+    }
+}
+
+#[derive(PartialEq, Clone, Debug, Defaults, JsonSchema, Deserialize, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct Null {}
+
+impl SourceTrait for Null {
+    fn resolve(&self, _id: &str) -> Option<Source> {
+        None
+    }
+
+    fn default_name(&self) -> String {
+        "null".to_string()
     }
 }
 
