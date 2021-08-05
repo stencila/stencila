@@ -171,7 +171,7 @@ pub fn direction(relation: &Relation) -> Direction {
     match relation {
         Relation::Assigns => Direction::To,
         Relation::Embeds => Direction::From,
-        Relation::Imports => Direction::From,
+        Relation::Imports => Direction::To,
         Relation::Includes => Direction::From,
         Relation::Links => Direction::To,
         Relation::Reads => Direction::From,
@@ -210,6 +210,14 @@ impl Graph {
         }
     }
 
+    /// Add a resource to the graph
+    pub fn add_resource(&mut self, resource: Resource) {
+        if self.indices.get(&resource).is_none() {
+            let index = self.graph.add_node(resource.clone());
+            self.indices.insert(resource, index);
+        }
+    }
+
     /// Add a triple to the graph
     pub fn add_triple(&mut self, (subject, relation, object): Triple) {
         let subject = if let Some(index) = self.indices.get(&subject) {
@@ -234,6 +242,13 @@ impl Graph {
         };
 
         self.graph.add_edge(from, to, relation);
+    }
+
+    /// Add a set of triples to the graph
+    pub fn add_triples(&mut self, triples: Vec<Triple>) {
+        triples
+            .into_iter()
+            .for_each(|triple| self.add_triple(triple))
     }
 
     /// Convert the graph to a visualization nodes and edges

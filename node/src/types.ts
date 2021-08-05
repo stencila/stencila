@@ -379,6 +379,10 @@ export interface SourceDestination {
    * The destination path within the project
    */
   destination?: string
+  /**
+   * A list of file paths associated with the source, relative to the project root
+   */
+  files?: string[]
 }
 
 /**

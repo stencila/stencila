@@ -1,4 +1,7 @@
-use crate::utils::schemas;
+use crate::{
+    graphs::{resources, Relation, Triple},
+    utils::schemas,
+};
 use async_trait::async_trait;
 use defaults::Defaults;
 use enum_dispatch::enum_dispatch;
@@ -8,6 +11,7 @@ use regex::Regex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use std::{fs, path::Path};
 use strum::{EnumIter, IntoEnumIterator, ToString};
 
 /// Trait for project sources. This allows us to use `enum_dispatch` to
@@ -65,6 +69,52 @@ pub struct SourceDestination {
 
     /// The destination path within the project
     pub destination: Option<String>,
+
+    /// A list of file paths associated with the source, relative to the project root
+    pub files: Option<Vec<String>>,
+}
+
+impl SourceDestination {
+    /// Create a new `SourceDestination`
+    pub fn new(source: Source, destination: Option<String>) -> SourceDestination {
+        SourceDestination {
+            source,
+            destination,
+            files: None,
+        }
+    }
+
+    /// Read a `SourceDestination` from a JSON file
+    pub fn read<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
+        let path = path.as_ref();
+        if !path.exists() {
+            bail!("Project source file does not exist: {}", path.display())
+        }
+        let path = path.canonicalize()?;
+
+        let json = fs::read_to_string(path)?;
+        *self = serde_json::from_str(&json)?;
+
+        Ok(())
+    }
+
+    /// Generate a set of graph triples describing relation between the source
+    /// and it's associated files.
+    pub fn triples(&self, name: &str, project: &Path) -> Vec<Triple> {
+        match &self.files {
+            Some(files) => files
+                .into_iter()
+                .map(|file| {
+                    (
+                        resources::source(name),
+                        Relation::Imports,
+                        resources::file(&project.join(file)),
+                    )
+                })
+                .collect(),
+            None => Vec::new(),
+        }
+    }
 }
 
 #[skip_serializing_none]
