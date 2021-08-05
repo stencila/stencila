@@ -151,8 +151,9 @@ pub mod resources {
 #[serde(rename_all = "camelCase")]
 pub enum Relation {
     Assigns,
+    Converts(bool),
     Embeds,
-    Imports,
+    Imports(bool),
     Includes,
     Links,
     Reads,
@@ -160,7 +161,7 @@ pub enum Relation {
     Writes,
 }
 
-/// The direction to represent the flow of information from subject to object.
+/// The direction to represent the flow of information from subject to object
 pub enum Direction {
     From,
     To,
@@ -170,8 +171,9 @@ pub enum Direction {
 pub fn direction(relation: &Relation) -> Direction {
     match relation {
         Relation::Assigns => Direction::To,
+        Relation::Converts(..) => Direction::To,
         Relation::Embeds => Direction::From,
-        Relation::Imports => Direction::To,
+        Relation::Imports(..) => Direction::To,
         Relation::Includes => Direction::From,
         Relation::Links => Direction::To,
         Relation::Reads => Direction::From,
@@ -346,6 +348,17 @@ impl Graph {
                     self.graph.edge_endpoints(edge),
                     self.graph.edge_weight(edge),
                 ) {
+                    let style = match relation {
+                        Relation::Converts(active) | Relation::Imports(active) => {
+                            if *active {
+                                "solid"
+                            } else {
+                                "dashed"
+                            }
+                        }
+                        _ => "solid",
+                    };
+
                     let ltail = if let Some(Resource::File(file)) = self.graph.node_weight(from) {
                         format!(" ltail=\"cluster{}\"", path_to_cluster(&file.path))
                     } else {
@@ -359,12 +372,13 @@ impl Graph {
                     };
 
                     Some(format!(
-                        r#"  n{from} -> n{to} [label="{label}"{ltail}{lhead}]"#,
+                        r#"  n{from} -> n{to} [label="{label}" style="{style}"{ltail}{lhead}]"#,
                         from = from.index(),
                         to = to.index(),
+                        label = relation.to_string(),
+                        style = style,
                         ltail = ltail,
                         lhead = lhead,
-                        label = relation.to_string(),
                     ))
                 } else {
                     None

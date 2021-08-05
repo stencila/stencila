@@ -99,6 +99,8 @@ impl SourceDestination {
     }
 
     /// Read a `SourceDestination` from a JSON file
+    ///
+    /// Only changes the properties that are NOT saved in the project.json file.
     pub fn read<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
         let path = path.as_ref();
         if !path.exists() {
@@ -107,8 +109,9 @@ impl SourceDestination {
         let path = path.canonicalize()?;
 
         let json = fs::read_to_string(path)?;
-        *self = serde_json::from_str(&json)?;
+        let source: SourceDestination = serde_json::from_str(&json)?;
 
+        self.files = source.files;
         Ok(())
     }
 
@@ -117,11 +120,11 @@ impl SourceDestination {
     pub fn triples(&self, name: &str, project: &Path) -> Vec<Triple> {
         match &self.files {
             Some(files) => files
-                .into_iter()
+                .iter()
                 .map(|file| {
                     (
                         resources::source(name),
-                        Relation::Imports,
+                        Relation::Imports(self.active),
                         resources::file(&project.join(file)),
                     )
                 })

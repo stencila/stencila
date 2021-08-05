@@ -1,4 +1,5 @@
 use crate::config::CONFIG;
+use crate::conversions::Conversion;
 use crate::documents::DOCUMENTS;
 use crate::errors::attempt;
 use crate::files::{File, FileEvent, Files};
@@ -106,6 +107,9 @@ pub struct Project {
     #[schemars(schema_with = "Project::schema_sources")]
     pub sources: Option<HashMap<String, SourceDestination>>,
 
+    /// A list of file conversions
+    conversions: Option<Vec<Conversion>>,
+
     /// Glob patterns for paths to be excluded from file watching
     ///
     /// As a performance optimization, paths that match these patterns are
@@ -206,7 +210,7 @@ impl Project {
             for (name, source) in sources.iter_mut() {
                 let source_file = Project::storage(&path)
                     .join("sources")
-                    .join([&name, ".json"].concat());
+                    .join([name, ".json"].concat());
                 if source_file.exists() {
                     source.read(source_file)?
                 }
@@ -433,11 +437,18 @@ impl Project {
             walk(&mut Vec::new(), path, &mut graph).await?;
         }
 
-        // Add sources, and associated files
+        // Add sources and relations with associated files
         if let Some(sources) = self.sources.as_ref() {
             for (name, source) in sources {
                 graph.add_resource(resources::source(name));
                 graph.add_triples(source.triples(name, &self.path))
+            }
+        }
+
+        // Add relation for each conversion
+        if let Some(conversions) = self.conversions.as_ref() {
+            for conversion in conversions {
+                graph.add_triple(conversion.triple(&self.path))
             }
         }
 
