@@ -3,12 +3,12 @@ import {
   validate,
   set,
   resetProperty,
-  schema,
+  schemas,
   setProperty,
 } from './config'
 
 test('schema', () => {
-  expect(schema()).toEqual(
+  expect(schemas()[0]).toEqual(
     expect.objectContaining({
       $schema: 'https://json-schema.org/draft/2019-09/schema',
       $id: 'Config',

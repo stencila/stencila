@@ -23,7 +23,7 @@ const addon = require('./index.node')
     'projectsSchemas',
     'sourcesSchemas',
     'pluginsSchema',
-    'configSchema',
+    'configSchemas',
     'errorsSchema',
   ].reduce((prev: JSONSchema4[], name: string) => {
     const json = addon[name]()
