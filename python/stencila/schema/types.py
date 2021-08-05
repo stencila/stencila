@@ -1948,19 +1948,19 @@ class ImageObject(MediaObject):
 
 
 class Include(Entity):
-    """
-    A directive to include content from an external source (e.g. file, URL) or
-    content.
-    """
+    """Include content from an external source (e.g. file, URL)."""
 
     source: String
-    """The source of the content, a URL or file path, or the content itself."""
+    """The external source of the content, a file path or URL."""
 
     content: Optional[Array["BlockContent"]] = None
-    """The content to be included."""
+    """The structured content decoded from the source."""
 
     mediaType: Optional[String] = None
-    """Media type, typically expressed using a MIME format, of the source content."""
+    """Media type of the source content."""
+
+    sha256: Optional[String] = None
+    """The SHA-256 hash of the content of `source`."""
 
 
     def __init__(
@@ -1969,7 +1969,8 @@ class Include(Entity):
         content: Optional[Array["BlockContent"]] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
-        meta: Optional[Object] = None
+        meta: Optional[Object] = None,
+        sha256: Optional[String] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1981,6 +1982,8 @@ class Include(Entity):
             self.content = content
         if mediaType is not None:
             self.mediaType = mediaType
+        if sha256 is not None:
+            self.sha256 = sha256
 
 
 class IntegerValidator(Validator):
@@ -4343,7 +4346,7 @@ class CitationIntentEnumeration(Enum):
 """
 Union type for valid block content.
 """
-BlockContent = Union["Claim", "CodeBlock", "CodeChunk", "Collection", "Figure", "Heading", "List", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
+BlockContent = Union["Claim", "CodeBlock", "CodeChunk", "Collection", "Figure", "Heading", "Include", "List", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
 
 
 """

@@ -1061,13 +1061,14 @@ export const imageObject = (props: Omit<ImageObject, 'type'>): ImageObject => ({
 })
 
 /**
- * A directive to include content from an external source (e.g. file, URL) or content.
+ * Include content from an external source (e.g. file, URL).
  */
 export interface Include extends Entity {
   type: 'Include'
   source: String
   content?: Array<BlockContent>
   mediaType?: String
+  sha256?: String
 }
 
 /**
@@ -1948,6 +1949,7 @@ export type BlockContent =
   | Collection
   | Figure
   | Heading
+  | Include
   | List
   | MathBlock
   | Paragraph
@@ -2981,6 +2983,7 @@ export const blockContentTypes: TypeMap<Exclude<BlockContent, Primitives>> = {
   Collection: 'Collection',
   Figure: 'Figure',
   Heading: 'Heading',
+  Include: 'Include',
   List: 'List',
   MathBlock: 'MathBlock',
   Paragraph: 'Paragraph',

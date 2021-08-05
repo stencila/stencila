@@ -9,6 +9,7 @@ anyOf:
   - $ref: Collection
   - $ref: Figure
   - $ref: Heading
+  - $ref: Include
   - $ref: List
   - $ref: MathBlock
   - $ref: Paragraph

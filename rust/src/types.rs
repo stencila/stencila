@@ -2243,7 +2243,7 @@ pub enum ImageObjectSimple_ {
 
 impl_struct!(ImageObjectSimple);
 
-/// A directive to include content from an external source (e.g. file, URL) or content.
+/// Include content from an external source (e.g. file, URL).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
@@ -2252,17 +2252,20 @@ pub struct Include {
     #[def = "Include_::Include"]
     pub type_: Include_,
 
-    /// The source of the content, a URL or file path, or the content itself.
+    /// The external source of the content, a file path or URL.
     pub source: String,
 
-    /// The content to be included.
+    /// The structured content decoded from the source.
     pub content: Option<Vec<BlockContent>>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
-    /// Media type, typically expressed using a MIME format, of the source content.
+    /// Media type of the source content.
     pub media_type: Option<Box<String>>,
+
+    /// The SHA-256 hash of the content of `source`.
+    pub sha256: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -5155,6 +5158,7 @@ pub enum BlockContent {
     Collection(CollectionSimple),
     Figure(FigureSimple),
     Heading(Heading),
+    Include(Include),
     List(List),
     MathBlock(MathBlock),
     Paragraph(Paragraph),

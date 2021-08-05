@@ -1,31 +1,38 @@
 title: Include
 '@id': stencila:Include
-category: other
-description: |
-  A directive to include content from an external source (e.g. file, URL) or content.
+category: text
+description: Include content from an external source (e.g. file, URL).
 role: secondary
 status: unstable
 extends: Entity
 properties:
   source:
     '@id': stencila:source
-    description: The source of the content, a URL or file path, or the content itself.
+    description: The external source of the content, a file path or URL.
     type: string
   mediaType:
     '@id': schema:encodingFormat
     aliases:
       - encodingFormat
-    description: Media type, typically expressed using a MIME format, of the source content.
+    description: Media type of the source content.
     type: string
+    $comment: |
+      Typically expressed using a file name extensions (e.g. `md`) or a
+      MIME type (e.g. `text/md`).
+  sha256:
+    '@id': schema:sha256
+    description: The SHA-256 hash of the content of `source`.
+    type: string
+    $comment: |
+      Used to determine whether it is necessary to update the `content` property.
   content:
     '@id': stencila:content
-    description: The content to be included.
-    $comment: |
-      Currently assumes that included content will be block content.
-      This presumes that there will be limited instance where a user would
-      want to use an `Include` node to transclude inline content.
+    description: The structured content decoded from the source.
     type: array
     items:
       $ref: BlockContent
+    $comment: |
+      Assumes that included content will be block content i.e. that there will be limited
+      instances where a user would want to use an `Include` node to transclude inline content.
 required:
   - source
