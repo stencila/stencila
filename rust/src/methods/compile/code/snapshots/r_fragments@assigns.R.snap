@@ -1,62 +1,62 @@
 ---
 source: rust/src/methods/compile/code/r.rs
-expression: "compile(path, code)"
+expression: "compile(&PathBuf::from(path), code)"
 input_file: fixtures/fragments/r/assigns.R
 
 ---
 [
   [
-    "assigns",
+    "assign",
     {
       "type": "Symbol",
       "path": "fragments/r/assigns.R",
       "name": "var1",
-      "kind": "variable"
+      "kind": "Number"
     }
   ],
   [
-    "assigns",
+    "assign",
     {
       "type": "Symbol",
       "path": "fragments/r/assigns.R",
       "name": "var2",
-      "kind": "variable"
+      "kind": "Number"
     }
   ],
   [
-    "assigns",
+    "assign",
     {
       "type": "Symbol",
       "path": "fragments/r/assigns.R",
       "name": "fun1",
-      "kind": "function"
+      "kind": "Function"
     }
   ],
   [
-    "assigns",
+    "assign",
     {
       "type": "Symbol",
       "path": "fragments/r/assigns.R",
       "name": "var3",
-      "kind": "variable"
+      "kind": "Number"
     }
   ],
   [
-    "assigns",
+    "assign",
     {
       "type": "Symbol",
       "path": "fragments/r/assigns.R",
       "name": "var4",
-      "kind": "variable"
+      "kind": "Number"
     }
   ],
   [
-    "assigns",
+    "assign",
     {
       "type": "Symbol",
       "path": "fragments/r/assigns.R",
       "name": "var5",
-      "kind": "variable"
+      "kind": ""
     }
   ]
 ]

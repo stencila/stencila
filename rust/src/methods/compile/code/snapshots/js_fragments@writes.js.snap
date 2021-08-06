@@ -6,7 +6,7 @@ input_file: fixtures/fragments/js/writes.js
 ---
 [
   [
-    "uses",
+    "use",
     {
       "type": "Module",
       "language": "javascript",
@@ -14,21 +14,21 @@ input_file: fixtures/fragments/js/writes.js
     }
   ],
   [
-    "writes",
+    "write",
     {
       "type": "File",
       "path": "fragments/js/path1"
     }
   ],
   [
-    "writes",
+    "write",
     {
       "type": "File",
       "path": "fragments/js/path2"
     }
   ],
   [
-    "writes",
+    "write",
     {
       "type": "File",
       "path": "fragments/js/path3"

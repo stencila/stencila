@@ -6,39 +6,39 @@ input_file: fixtures/fragments/r/reads.R
 ---
 [
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/r/path1"
     }
   ],
   [
-    "assigns",
+    "assign",
     {
       "type": "Symbol",
       "path": "fragments/r/reads.R",
       "name": "data",
-      "kind": "variable"
+      "kind": "Datatable"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/r/path2"
     }
   ],
   [
-    "assigns",
+    "assign",
     {
       "type": "Symbol",
       "path": "fragments/r/reads.R",
       "name": "foo",
-      "kind": "function"
+      "kind": "Function"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/r/path3"

@@ -6,58 +6,58 @@ input_file: fixtures/fragments/r/writes.R
 ---
 [
   [
-    "uses",
+    "use",
     {
       "type": "Symbol",
       "path": "fragments/r/writes.R",
       "name": "data",
-      "kind": "variable"
+      "kind": ""
     }
   ],
   [
-    "writes",
+    "write",
     {
       "type": "File",
       "path": "fragments/r/path1"
     }
   ],
   [
-    "writes",
+    "write",
     {
       "type": "File",
       "path": "fragments/r/path2"
     }
   ],
   [
-    "assigns",
+    "assign",
     {
       "type": "Symbol",
       "path": "fragments/r/writes.R",
       "name": "foo",
-      "kind": "function"
+      "kind": "Function"
     }
   ],
   [
-    "writes",
+    "write",
     {
       "type": "File",
       "path": "fragments/r/path3"
     }
   ],
   [
-    "writes",
+    "write",
     {
       "type": "File",
       "path": "fragments/r/path4"
     }
   ],
   [
-    "uses",
+    "use",
     {
       "type": "Symbol",
       "path": "fragments/r/writes.R",
       "name": "ignore",
-      "kind": "variable"
+      "kind": ""
     }
   ]
 ]

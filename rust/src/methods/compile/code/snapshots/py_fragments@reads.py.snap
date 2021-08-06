@@ -6,63 +6,63 @@ input_file: fixtures/fragments/py/reads.py
 ---
 [
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/py/path1"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/py/path2"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/py/path3"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/py/path4"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/py/path5"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/py/path6"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/py/path7"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/py/path8"
     }
   ],
   [
-    "writes",
+    "write",
     {
       "type": "File",
       "path": "fragments/py/write"

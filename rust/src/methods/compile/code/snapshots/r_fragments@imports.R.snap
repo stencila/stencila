@@ -1,12 +1,12 @@
 ---
 source: rust/src/methods/compile/code/r.rs
-expression: "compile(path, code)"
+expression: "compile(&PathBuf::from(path), code)"
 input_file: fixtures/fragments/r/imports.R
 
 ---
 [
   [
-    "uses",
+    "use",
     {
       "type": "Module",
       "language": "r",
@@ -14,7 +14,7 @@ input_file: fixtures/fragments/r/imports.R
     }
   ],
   [
-    "uses",
+    "use",
     {
       "type": "Module",
       "language": "r",
@@ -22,7 +22,7 @@ input_file: fixtures/fragments/r/imports.R
     }
   ],
   [
-    "uses",
+    "use",
     {
       "type": "Module",
       "language": "r",
@@ -30,16 +30,16 @@ input_file: fixtures/fragments/r/imports.R
     }
   ],
   [
-    "assigns",
+    "assign",
     {
       "type": "Symbol",
       "path": "fragments/r/imports.R",
       "name": "foo",
-      "kind": "function"
+      "kind": "Function"
     }
   ],
   [
-    "uses",
+    "use",
     {
       "type": "Module",
       "language": "r",
@@ -47,12 +47,12 @@ input_file: fixtures/fragments/r/imports.R
     }
   ],
   [
-    "assigns",
+    "assign",
     {
       "type": "Symbol",
       "path": "fragments/r/imports.R",
       "name": "pkg_var",
-      "kind": "variable"
+      "kind": "String"
     }
   ]
 ]

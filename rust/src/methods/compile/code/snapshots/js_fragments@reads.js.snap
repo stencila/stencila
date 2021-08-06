@@ -6,7 +6,7 @@ input_file: fixtures/fragments/js/reads.js
 ---
 [
   [
-    "uses",
+    "use",
     {
       "type": "Module",
       "language": "javascript",
@@ -14,28 +14,28 @@ input_file: fixtures/fragments/js/reads.js
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/js/path1"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/js/path2"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/js/path3"
     }
   ],
   [
-    "reads",
+    "read",
     {
       "type": "File",
       "path": "fragments/js/path4"
