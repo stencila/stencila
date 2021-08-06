@@ -141,6 +141,24 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var14",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var15",
+      "kind": ""
+    }
+  ],
+  [
     "assign",
     {
       "type": "Symbol",

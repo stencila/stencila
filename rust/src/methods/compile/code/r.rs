@@ -169,6 +169,13 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                                 }
                             }
                         }
+                        // Skip identifiers that are an `attribute`
+                        "dollar" => {
+                            // The second child of the `dollar` should be ignored
+                            if Some(node) == parent_node.child(2) {
+                                return None;
+                            }
+                        }
                         // Skip identifiers that are the `name` of a for loop, or that refer to it
                         "for" => {
                             if let Some(name) = parent_node.child_by_field_name("name") {

@@ -18,6 +18,12 @@ for (ignore in var11) {
 
 median(var13, ignore=1, ignore='a')
 
+# Ignore property identifiers
+
+var14$ignore
+var14$ignore$ignore
+var14$ignore(var15)
+
 # Ignore identfiers used in functions
 
 function () {
