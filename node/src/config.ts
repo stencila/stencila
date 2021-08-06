@@ -7,13 +7,12 @@ import { Config } from './types'
 const addon = require('../index.node')
 
 /**
- * Get the JSON schema for the configuration object.
+ * Get the JSON Schemas associated with the `config` module.
  *
- * @returns A JSON Schema v7 object describing the properties of
- *          the configuration object
+ * @returns An array of JSON Schema v7 objects
  */
-export function schema(): JSONSchema7 {
-  return fromJSON<JSONSchema7>(addon.configSchema())
+export function schemas(): JSONSchema7[] {
+  return fromJSON<JSONSchema7[]>(addon.configSchemas())
 }
 
 /**

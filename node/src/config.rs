@@ -20,7 +20,7 @@ pub fn lock(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Config>>
 
 /// Get the config schema
 pub fn schema(cx: FunctionContext) -> JsResult<JsString> {
-    let schema = config::schema();
+    let schema = config::schemas();
     to_json_or_throw(cx, schema)
 }
 

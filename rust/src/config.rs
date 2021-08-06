@@ -1,12 +1,10 @@
-use crate::{logging, projects, telemetry, utils::schemas};
+use crate::{logging, projects, pubsub::publish, telemetry, utils::schemas};
+use defaults::Defaults;
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
-use schemars::JsonSchema;
+use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
-use std::env;
-use std::fs;
-use std::io::Write;
-use std::path::PathBuf;
+use std::{env, fs, io::Write, path::PathBuf};
 use tokio::sync::Mutex;
 use validator::Validate;
 
@@ -22,6 +20,42 @@ pub fn dir(ensure: bool) -> Result<PathBuf> {
         fs::create_dir_all(&dir)?;
     }
     Ok(dir)
+}
+
+#[derive(Debug, JsonSchema, Serialize)]
+#[serde(rename_all = "lowercase")]
+enum ConfigEventType {
+    Set,
+    Reset,
+}
+
+/// An event associated with changes to the configuration
+#[derive(Debug, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+struct ConfigEvent {
+    /// The type of event
+    #[serde(rename = "type")]
+    type_: ConfigEventType,
+
+    /// The configuration at the time of the event
+    #[schemars(schema_with = "ConfigEvent::schema_config")]
+    config: Config,
+}
+
+impl ConfigEvent {
+    /// Generate the JSON Schema for the `config` property to avoid nesting
+    fn schema_config(_generator: &mut SchemaGenerator) -> Schema {
+        schemas::typescript("Config", true)
+    }
+
+    /// Publish an event.
+    pub fn publish(type_: ConfigEventType, config: &Config) {
+        let event = ConfigEvent {
+            type_,
+            config: config.clone(),
+        };
+        publish("config", &event)
+    }
 }
 
 #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
@@ -49,9 +83,31 @@ pub struct Config {
     #[validate]
     pub binaries: crate::binaries::config::BinariesConfig,
 
+    pub editors: EditorsConfig,
+
     #[cfg(feature = "upgrade")]
     #[validate]
     pub upgrade: crate::upgrade::config::UpgradeConfig,
+}
+
+/// Editors
+///
+/// Configuration settings for document editors.
+#[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize)]
+#[serde(default, rename_all = "camelCase")]
+#[schemars(deny_unknown_fields)]
+pub struct EditorsConfig {
+    /// Default format for new documents
+    #[def = "\"md\".to_string()"]
+    pub default_format: String,
+
+    /// Show line numbers
+    #[def = "false"]
+    pub line_numbers: bool,
+
+    /// Enable wrapping of lines
+    #[def = "true"]
+    pub line_wrapping: bool,
 }
 
 impl Config {
@@ -129,10 +185,10 @@ impl Config {
 
         if let Err(errors) = config.validate() {
             tracing::error!(
-            "Invalid config file; use `stencila config set`, `stencila config reset` or edit {} to fix.\n\n{}",
-            config_file.display(),
-            serde_json::to_string_pretty(&errors)?
-        )
+                "Invalid config file; use `stencila config set`, `stencila config reset` or edit {} to fix.\n\n{}",
+                config_file.display(),
+                serde_json::to_string_pretty(&errors)?
+            )
         }
 
         Ok(config)
@@ -185,6 +241,7 @@ impl Config {
         // Now deserialize self from the JSON value
         *self = serde_json::from_value(config)?;
 
+        ConfigEvent::publish(ConfigEventType::Set, self);
         self.write()
     }
 
@@ -208,6 +265,7 @@ impl Config {
             _ => bail!("No top level configuration property named: {}", property),
         }
 
+        ConfigEvent::publish(ConfigEventType::Reset, self);
         self.write()
     }
 }
@@ -222,8 +280,12 @@ pub static CONFIG: Lazy<Mutex<Config>> =
     Lazy::new(|| Mutex::new(Config::load().expect("Unable to read config")));
 
 /// Get the JSON Schema for the configuration
-pub fn schema() -> Result<serde_json::Value> {
-    schemas::generate::<Config>()
+pub fn schemas() -> Result<serde_json::Value> {
+    let schemas = serde_json::Value::Array(vec![
+        schemas::generate::<Config>()?,
+        schemas::generate::<ConfigEvent>()?,
+    ]);
+    Ok(schemas)
 }
 
 /// CLI options for the `config` command
@@ -260,10 +322,10 @@ pub mod cli {
         Dirs,
 
         #[structopt(
-            about = "Get the JSON Schema for the configuration",
+            about = "Get JSON Schemas for configuration and associated types",
             setting = structopt::clap::AppSettings::ColoredHelp
         )]
-        Schema,
+        Schemas,
     }
 
     #[derive(Debug, StructOpt)]
@@ -333,8 +395,8 @@ pub mod cli {
                 });
                 display::value(value)
             }
-            Action::Schema => {
-                let value = schema()?;
+            Action::Schemas => {
+                let value = schemas()?;
                 display::value(value)
             }
         }

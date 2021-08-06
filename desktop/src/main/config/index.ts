@@ -18,7 +18,7 @@ import { showSettings } from './window'
 const getConfig = async () => {
   return valueToSuccessResult({
     config: config.get(),
-    schema: config.schema(),
+    schemas: config.schemas(),
   })
 }
 
