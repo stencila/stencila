@@ -150,16 +150,23 @@ pub mod resources {
 )]
 #[serde(rename_all = "camelCase")]
 pub enum Relation {
-    Assign,
+    Assign(Range),
     Convert(bool),
     Embed,
     Import(bool),
     Include,
     Link,
-    Read,
-    Use,
-    Write,
+    Read(Range),
+    Use(Range),
+    Write(Range),
 }
+
+/// The two dimensional range that a relation is defined within some code
+/// or a spreadsheet.
+pub type Range = (usize, usize, usize, usize);
+
+/// A null range that can be used in places that
+pub const NULL_RANGE: Range = (0, 0, 0, 0);
 
 /// The direction to represent the flow of information from subject to object
 pub enum Direction {
@@ -170,15 +177,15 @@ pub enum Direction {
 /// Get the the `Direction` for a `Relation`
 pub fn direction(relation: &Relation) -> Direction {
     match relation {
-        Relation::Assign => Direction::To,
+        Relation::Assign(..) => Direction::To,
         Relation::Convert(..) => Direction::To,
         Relation::Embed => Direction::From,
         Relation::Import(..) => Direction::To,
         Relation::Include => Direction::From,
         Relation::Link => Direction::To,
-        Relation::Read => Direction::From,
-        Relation::Use => Direction::From,
-        Relation::Write => Direction::To,
+        Relation::Read(..) => Direction::From,
+        Relation::Use(..) => Direction::From,
+        Relation::Write(..) => Direction::To,
     }
 }
 
@@ -360,15 +367,16 @@ impl Graph {
                     self.graph.edge_endpoints(edge),
                     self.graph.edge_weight(edge),
                 ) {
-                    let style = match relation {
-                        Relation::Convert(active) | Relation::Import(active) => {
-                            if *active {
-                                "solid"
-                            } else {
-                                "dashed"
-                            }
-                        }
-                        _ => "solid",
+                    let (label, style) = match relation {
+                        Relation::Convert(active) | Relation::Import(active) => (
+                            relation.to_string(),
+                            if *active { "solid" } else { "dashed" },
+                        ),
+                        Relation::Assign(range)
+                        | Relation::Use(range)
+                        | Relation::Read(range)
+                        | Relation::Write(range) => (format!("{} L{}", relation, range.0), "solid"),
+                        _ => (relation.to_string(), "solid"),
                     };
 
                     let ltail = if let Some(Resource::File(file)) = self.graph.node_weight(from) {
@@ -387,7 +395,7 @@ impl Graph {
                         r#"  n{from} -> n{to} [label="{label}" style="{style}"{ltail}{lhead}]"#,
                         from = from.index(),
                         to = to.index(),
-                        label = relation.to_string(),
+                        label = label,
                         style = style,
                         ltail = ltail,
                         lhead = lhead,

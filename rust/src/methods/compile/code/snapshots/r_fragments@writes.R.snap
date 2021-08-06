@@ -6,7 +6,14 @@ input_file: fixtures/fragments/r/writes.R
 ---
 [
   [
-    "use",
+    {
+      "use": [
+        0,
+        10,
+        0,
+        14
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/writes.R",
@@ -15,21 +22,58 @@ input_file: fixtures/fragments/r/writes.R
     }
   ],
   [
-    "write",
+    {
+      "write": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/r/path1"
     }
   ],
   [
-    "write",
+    {
+      "use": [
+        2,
+        12,
+        2,
+        16
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "write": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/r/path2"
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        4,
+        0,
+        4,
+        3
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/writes.R",
@@ -38,21 +82,106 @@ input_file: fixtures/fragments/r/writes.R
     }
   ],
   [
-    "write",
+    {
+      "write": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/r/path3"
     }
   ],
   [
-    "write",
+    {
+      "use": [
+        8,
+        17,
+        8,
+        21
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "write": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/r/path4"
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        12,
+        12,
+        12,
+        16
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        12,
+        18,
+        12,
+        24
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "ignore",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        14,
+        10,
+        14,
+        14
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        14,
+        23,
+        14,
+        29
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/writes.R",

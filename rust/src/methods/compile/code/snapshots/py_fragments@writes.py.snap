@@ -6,7 +6,14 @@ input_file: fixtures/fragments/py/writes.py
 ---
 [
   [
-    "assign",
+    {
+      "assign": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/writes.py",
@@ -15,14 +22,28 @@ input_file: fixtures/fragments/py/writes.py
     }
   ],
   [
-    "write",
+    {
+      "write": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/py/path1"
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/writes.py",
@@ -31,14 +52,28 @@ input_file: fixtures/fragments/py/writes.py
     }
   ],
   [
-    "write",
+    {
+      "write": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/py/path2"
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/writes.py",
@@ -47,21 +82,42 @@ input_file: fixtures/fragments/py/writes.py
     }
   ],
   [
-    "write",
+    {
+      "write": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/py/path3"
     }
   ],
   [
-    "write",
+    {
+      "write": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/py/path4"
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/writes.py",
@@ -70,14 +126,28 @@ input_file: fixtures/fragments/py/writes.py
     }
   ],
   [
-    "write",
+    {
+      "write": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/py/path5"
     }
   ],
   [
-    "read",
+    {
+      "read": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/py/read"

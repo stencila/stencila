@@ -6,7 +6,14 @@ input_file: fixtures/fragments/py/uses.py
 ---
 [
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -15,7 +22,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -24,7 +38,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -33,7 +54,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -42,7 +70,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -51,7 +86,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -60,7 +102,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -69,7 +118,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -78,7 +134,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -87,7 +150,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -96,7 +166,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -105,7 +182,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -114,7 +198,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -123,7 +214,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -132,7 +230,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -141,7 +246,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -150,7 +262,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -159,7 +278,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -168,7 +294,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -177,7 +310,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",
@@ -186,7 +326,14 @@ input_file: fixtures/fragments/py/uses.py
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/py/uses.py",

@@ -2,7 +2,7 @@ use std::path::Path;
 
 use super::{remove_quotes, Compiler};
 use crate::{
-    graphs::{resources, Relation, Resource},
+    graphs::{resources, Relation, Resource, NULL_RANGE},
     utils::path::merge,
 };
 use itertools::Itertools;
@@ -119,19 +119,19 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 } else {
                     resources::module("javascript", &module)
                 };
-                Some((Relation::Use, object))
+                Some((Relation::Use(NULL_RANGE), object))
             }
             2 => {
                 // Reads a file
                 Some((
-                    Relation::Read,
+                    Relation::Read(NULL_RANGE),
                     resources::file(&merge(path, remove_quotes(&captures[1].text))),
                 ))
             }
             3 => {
                 // Writes a file
                 Some((
-                    Relation::Write,
+                    Relation::Write(NULL_RANGE),
                     resources::file(&merge(path, remove_quotes(&captures[1].text))),
                 ))
             }
@@ -151,11 +151,13 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     5 => "Function",
                     _ => unreachable!(),
                 };
-                Some((Relation::Assign, resources::symbol(path, &name, kind)))
+                Some((
+                    Relation::Assign(NULL_RANGE),
+                    resources::symbol(path, &name, kind),
+                ))
             }
             _ => None,
         })
-        .unique()
         .collect()
 }
 

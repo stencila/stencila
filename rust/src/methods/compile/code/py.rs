@@ -1,6 +1,6 @@
 use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
 use crate::{
-    graphs::{resources, Relation, Resource},
+    graphs::{resources, Relation, Resource, NULL_RANGE},
     utils::path::merge,
 };
 use itertools::Itertools;
@@ -76,7 +76,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     true => resources::file(&path),
                     false => resources::module("python", module),
                 };
-                Some((Relation::Use, object))
+                Some((Relation::Use(NULL_RANGE), object))
             }
             2 => {
                 // Opens a file for reading or writing
@@ -92,12 +92,12 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                         }
                         let mode = remove_quotes(mode);
                         if mode.starts_with('w') || mode.starts_with('a') {
-                            Some((Relation::Write, resources::file(&path)))
+                            Some((Relation::Write(NULL_RANGE), resources::file(&path)))
                         } else {
-                            Some((Relation::Read, resources::file(&path)))
+                            Some((Relation::Read(NULL_RANGE), resources::file(&path)))
                         }
                     } else {
-                        Some((Relation::Read, resources::file(&path)))
+                        Some((Relation::Read(NULL_RANGE), resources::file(&path)))
                     }
                 } else {
                     None
@@ -120,7 +120,10 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     4 => "Function",
                     _ => unreachable!(),
                 };
-                Some((Relation::Assign, resources::symbol(path, &name, kind)))
+                Some((
+                    Relation::Assign(NULL_RANGE),
+                    resources::symbol(path, &name, kind),
+                ))
             }
             5 => {
                 // Uses an identifier assigned elsewhere
@@ -194,11 +197,13 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     parent = parent_node.parent();
                 }
 
-                Some((Relation::Use, resources::symbol(path, &symbol, "")))
+                Some((
+                    Relation::Use(NULL_RANGE),
+                    resources::symbol(path, &symbol, ""),
+                ))
             }
             _ => None,
         })
-        .unique()
         .collect()
 }
 

@@ -1,9 +1,4 @@
-use crate::{
-    documents::DOCUMENTS,
-    graphs::{resources, Relation, Triple},
-    traits::ToVecBlockContent,
-    utils::path::merge,
-};
+use crate::{documents::DOCUMENTS, graphs::{NULL_RANGE, Relation, Triple, resources}, traits::ToVecBlockContent, utils::path::merge};
 use async_trait::async_trait;
 use defaults::Defaults;
 use eyre::Result;
@@ -452,7 +447,9 @@ impl Compile for Parameter {
         };
         let object = resources::symbol(&context.path, &self.name, kind);
 
-        context.relations.push((subject, Relation::Assign, object));
+        context
+            .relations
+            .push((subject, Relation::Assign(NULL_RANGE), object));
         Ok(())
     }
 }

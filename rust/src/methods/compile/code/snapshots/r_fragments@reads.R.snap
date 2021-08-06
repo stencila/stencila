@@ -6,14 +6,28 @@ input_file: fixtures/fragments/r/reads.R
 ---
 [
   [
-    "read",
+    {
+      "read": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/r/path1"
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        4,
+        0,
+        4,
+        4
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/reads.R",
@@ -22,14 +36,28 @@ input_file: fixtures/fragments/r/reads.R
     }
   ],
   [
-    "read",
+    {
+      "read": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/r/path2"
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        7,
+        0,
+        7,
+        3
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/reads.R",
@@ -38,7 +66,14 @@ input_file: fixtures/fragments/r/reads.R
     }
   ],
   [
-    "read",
+    {
+      "read": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/r/path3"

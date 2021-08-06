@@ -2,7 +2,7 @@ use std::path::Path;
 
 use super::{captures_as_args_map, child_text, is_quoted, remove_quotes, Compiler};
 use crate::{
-    graphs::{resources, Relation, Resource},
+    graphs::{resources, Relation, Resource, NULL_RANGE},
     utils::path::merge,
 };
 use itertools::Itertools;
@@ -99,7 +99,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                             return None;
                         }
                         Some((
-                            Relation::Use,
+                            Relation::Use(NULL_RANGE),
                             resources::module("r", &remove_quotes(package)),
                         ))
                     })
@@ -109,7 +109,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 let args = captures_as_args_map(captures);
                 args.get("0").or_else(|| args.get("file")).map(|file| {
                     (
-                        Relation::Read,
+                        Relation::Read(NULL_RANGE),
                         resources::file(&merge(path, remove_quotes(file))),
                     )
                 })
@@ -119,13 +119,14 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 let args = captures_as_args_map(captures);
                 args.get("1").or_else(|| args.get("file")).map(|file| {
                     (
-                        Relation::Write,
+                        Relation::Write(NULL_RANGE),
                         resources::file(&merge(path, remove_quotes(file))),
                     )
                 })
             }
             3 | 4 => {
                 // Assigns a symbol at the top level of the module
+                let range = captures[0].range;
                 let name = captures[0].text.clone();
                 let value = captures[1].node;
                 let kind = match value.kind() {
@@ -142,11 +143,15 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     },
                     _ => "",
                 };
-                Some((Relation::Assign, resources::symbol(path, &name, kind)))
+                Some((
+                    Relation::Assign(range),
+                    resources::symbol(path, &name, kind),
+                ))
             }
             5 => {
                 // Uses a function or variable
                 let node = captures[0].node;
+                let range = captures[0].range;
                 let symbol = captures[0].text.clone();
 
                 let mut parent = node.parent();
@@ -215,11 +220,10 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     None => resources::symbol(path, &symbol, ""),
                 };
 
-                Some((Relation::Use, resource))
+                Some((Relation::Use(range), resource))
             }
             _ => None,
         })
-        .unique()
         .collect()
 }
 

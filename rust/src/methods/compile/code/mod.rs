@@ -2,7 +2,7 @@
 ///!
 ///! Uses `tree-sitter` to parse source code into a abstract syntax tree which is then used to
 ///! derive properties of a `CodeAnalysis`.
-use crate::graphs::{Relation, Resource, Triple};
+use crate::graphs::{Range, Relation, Resource, Triple};
 use std::{collections::HashMap, path::Path, sync::Mutex};
 use tree_sitter::{Language, Parser, Query, QueryCursor};
 
@@ -28,16 +28,22 @@ pub fn compile(path: &Path, subject: &Resource, code: &str, language: &str) -> V
     };
 
     // Translate pairs into triples and remove any `Uses` of locally assigned variables
-    let mut triples = Vec::with_capacity(pairs.len());
+    let mut triples: Vec<Triple> = Vec::with_capacity(pairs.len());
     for (relation, object) in pairs {
-        if matches!(relation, Relation::Use)
-            && triples.contains(&(subject.clone(), Relation::Assign, object.clone()))
-        {
+        let mut include = true;
+        if matches!(relation, Relation::Use(..)) {
+            for (.., other_relation, other_object) in &triples {
+                if matches!(other_relation, Relation::Assign(..)) && *other_object == object {
+                    include = false;
+                    break;
+                }
+            }
+        }
+        if !include {
             continue;
         }
 
-        let triple = (subject.clone(), relation, object);
-        triples.push(triple)
+        triples.push((subject.clone(), relation, object))
     }
     triples
 }
@@ -54,16 +60,26 @@ pub(crate) struct Capture<'tree> {
     /// The captured node
     node: tree_sitter::Node<'tree>,
 
+    /// The captured range
+    range: Range,
+
     /// The captured text
     text: String,
 }
 
 impl<'tree> Capture<'tree> {
-    pub fn new(index: u32, name: String, node: tree_sitter::Node<'tree>, text: String) -> Capture {
+    pub fn new(
+        index: u32,
+        name: String,
+        node: tree_sitter::Node<'tree>,
+        range: Range,
+        text: String,
+    ) -> Capture {
         Capture {
             index,
             name,
             node,
+            range,
             text,
         }
     }
@@ -197,10 +213,13 @@ impl Compiler {
                     .captures
                     .iter()
                     .map(|capture| {
+                        let start = capture.node.start_position();
+                        let end = capture.node.end_position();
                         Capture::new(
                             capture.index,
                             capture_names[capture.index as usize].clone(),
                             capture.node,
+                            (start.row, start.column, end.row, end.column),
                             capture
                                 .node
                                 .utf8_text(code)

@@ -6,7 +6,14 @@ input_file: fixtures/fragments/r/uses.R
 ---
 [
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -15,7 +22,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        1,
+        0,
+        1,
+        4
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -24,7 +38,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        2,
+        0,
+        2,
+        4
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -33,7 +54,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        2,
+        7,
+        2,
+        11
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -42,7 +70,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        3,
+        0,
+        3,
+        4
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -51,7 +86,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        3,
+        5,
+        3,
+        9
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -60,7 +102,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        3,
+        11,
+        3,
+        15
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -69,7 +118,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        4,
+        0,
+        4,
+        4
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -78,7 +134,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        4,
+        5,
+        4,
+        9
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -87,7 +150,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        6,
+        4,
+        6,
+        8
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -96,7 +166,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        6,
+        11,
+        6,
+        15
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -105,7 +182,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        7,
+        14,
+        7,
+        19
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -114,7 +198,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        12,
+        15,
+        12,
+        20
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -123,7 +214,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        13,
+        4,
+        13,
+        9
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -132,7 +230,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        18,
+        7,
+        18,
+        12
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -141,7 +246,14 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        22,
+        0,
+        22,
+        5
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -150,7 +262,46 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        23,
+        0,
+        23,
+        5
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var14",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        24,
+        0,
+        24,
+        5
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var14",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        24,
+        13,
+        24,
+        18
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
@@ -159,12 +310,67 @@ input_file: fixtures/fragments/r/uses.R
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        34,
+        0,
+        34,
+        6
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/uses.R",
       "name": "assign",
       "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        35,
+        0,
+        35,
+        6
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "assign",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        36,
+        0,
+        36,
+        6
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "assign",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        37,
+        0,
+        37,
+        6
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "assign",
+      "kind": "Function"
     }
   ]
 ]

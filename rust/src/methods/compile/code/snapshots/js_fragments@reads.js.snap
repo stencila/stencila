@@ -6,7 +6,14 @@ input_file: fixtures/fragments/js/reads.js
 ---
 [
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Module",
       "language": "javascript",
@@ -14,7 +21,14 @@ input_file: fixtures/fragments/js/reads.js
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/js/reads.js",
@@ -23,21 +37,42 @@ input_file: fixtures/fragments/js/reads.js
     }
   ],
   [
-    "read",
+    {
+      "read": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/js/path1"
     }
   ],
   [
-    "read",
+    {
+      "read": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/js/path2"
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/js/reads.js",
@@ -46,14 +81,28 @@ input_file: fixtures/fragments/js/reads.js
     }
   ],
   [
-    "read",
+    {
+      "read": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/js/path3"
     }
   ],
   [
-    "read",
+    {
+      "read": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "File",
       "path": "fragments/js/path4"

@@ -6,7 +6,14 @@ input_file: fixtures/fragments/py/imports.py
 ---
 [
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Module",
       "language": "python",
@@ -14,7 +21,14 @@ input_file: fixtures/fragments/py/imports.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Module",
       "language": "python",
@@ -22,7 +36,14 @@ input_file: fixtures/fragments/py/imports.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Module",
       "language": "python",
@@ -30,7 +51,14 @@ input_file: fixtures/fragments/py/imports.py
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Module",
       "language": "python",

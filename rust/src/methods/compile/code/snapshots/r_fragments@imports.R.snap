@@ -6,7 +6,14 @@ input_file: fixtures/fragments/r/imports.R
 ---
 [
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Module",
       "language": "r",
@@ -14,7 +21,14 @@ input_file: fixtures/fragments/r/imports.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Module",
       "language": "r",
@@ -22,7 +36,14 @@ input_file: fixtures/fragments/r/imports.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Module",
       "language": "r",
@@ -30,7 +51,14 @@ input_file: fixtures/fragments/r/imports.R
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        8,
+        0,
+        8,
+        3
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/imports.R",
@@ -39,7 +67,14 @@ input_file: fixtures/fragments/r/imports.R
     }
   ],
   [
-    "use",
+    {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
     {
       "type": "Module",
       "language": "r",
@@ -47,7 +82,14 @@ input_file: fixtures/fragments/r/imports.R
     }
   ],
   [
-    "assign",
+    {
+      "assign": [
+        16,
+        0,
+        16,
+        7
+      ]
+    },
     {
       "type": "Symbol",
       "path": "fragments/r/imports.R",
