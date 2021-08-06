@@ -1,3 +1,11 @@
+# [0.109.0](https://github.com/stencila/stencila/compare/v0.108.0...v0.109.0) (2021-08-06)
+
+
+### Features
+
+* **Config:** Add config settings for editors ([9106e25](https://github.com/stencila/stencila/commit/9106e25aacb14ac46e0d5f917b15e2ff1cf84774))
+* **Config:** Publish events when config is set or reset ([62ab17a](https://github.com/stencila/stencila/commit/62ab17a958b671e55ada33b2b8fcce8c2c709d63))
+
 # [0.108.0](https://github.com/stencila/stencila/compare/v0.107.1...v0.108.0) (2021-08-06)
 
 
