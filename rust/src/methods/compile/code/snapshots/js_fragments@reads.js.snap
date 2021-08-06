@@ -9,9 +9,24 @@ input_file: fixtures/fragments/js/reads.js
     {
       "use": [
         0,
+        15,
         0,
-        0,
-        0
+        19
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "fs"
+    }
+  ],
+  [
+    {
+      "use": [
+        1,
+        27,
+        1,
+        31
       ]
     },
     {
@@ -23,10 +38,10 @@ input_file: fixtures/fragments/js/reads.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        3,
+        4,
+        3,
+        8
       ]
     },
     {
@@ -39,10 +54,10 @@ input_file: fixtures/fragments/js/reads.js
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        3,
+        23,
+        3,
+        30
       ]
     },
     {
@@ -53,10 +68,10 @@ input_file: fixtures/fragments/js/reads.js
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        4,
+        13,
+        4,
+        20
       ]
     },
     {
@@ -67,10 +82,10 @@ input_file: fixtures/fragments/js/reads.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        6,
+        9,
+        6,
+        17
       ]
     },
     {
@@ -83,10 +98,10 @@ input_file: fixtures/fragments/js/reads.js
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        7,
+        14,
+        7,
+        21
       ]
     },
     {
@@ -97,10 +112,10 @@ input_file: fixtures/fragments/js/reads.js
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        8,
+        17,
+        8,
+        24
       ]
     },
     {

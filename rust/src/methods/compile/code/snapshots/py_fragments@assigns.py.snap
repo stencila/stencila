@@ -11,7 +11,7 @@ input_file: fixtures/fragments/py/assigns.py
         0,
         0,
         0,
-        0
+        4
       ]
     },
     {
@@ -24,10 +24,10 @@ input_file: fixtures/fragments/py/assigns.py
   [
     {
       "assign": [
+        1,
         0,
-        0,
-        0,
-        0
+        1,
+        4
       ]
     },
     {
@@ -40,10 +40,10 @@ input_file: fixtures/fragments/py/assigns.py
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        3,
+        4,
+        3,
+        8
       ]
     },
     {
@@ -56,10 +56,10 @@ input_file: fixtures/fragments/py/assigns.py
   [
     {
       "assign": [
+        4,
         0,
-        0,
-        0,
-        0
+        4,
+        4
       ]
     },
     {
@@ -72,10 +72,10 @@ input_file: fixtures/fragments/py/assigns.py
   [
     {
       "assign": [
+        6,
         0,
-        0,
-        0,
-        0
+        6,
+        4
       ]
     },
     {
@@ -88,10 +88,10 @@ input_file: fixtures/fragments/py/assigns.py
   [
     {
       "assign": [
+        7,
         0,
-        0,
-        0,
-        0
+        7,
+        4
       ]
     },
     {
@@ -104,10 +104,10 @@ input_file: fixtures/fragments/py/assigns.py
   [
     {
       "assign": [
+        8,
         0,
-        0,
-        0,
-        0
+        8,
+        4
       ]
     },
     {
@@ -120,10 +120,10 @@ input_file: fixtures/fragments/py/assigns.py
   [
     {
       "assign": [
+        9,
         0,
-        0,
-        0,
-        0
+        9,
+        4
       ]
     },
     {
@@ -136,10 +136,10 @@ input_file: fixtures/fragments/py/assigns.py
   [
     {
       "assign": [
+        10,
         0,
-        0,
-        0,
-        0
+        10,
+        4
       ]
     },
     {
@@ -152,10 +152,10 @@ input_file: fixtures/fragments/py/assigns.py
   [
     {
       "assign": [
+        11,
         0,
-        0,
-        0,
-        0
+        11,
+        4
       ]
     },
     {
@@ -168,10 +168,10 @@ input_file: fixtures/fragments/py/assigns.py
   [
     {
       "assign": [
+        12,
         0,
-        0,
-        0,
-        0
+        12,
+        4
       ]
     },
     {

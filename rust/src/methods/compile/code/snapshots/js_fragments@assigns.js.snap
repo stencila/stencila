@@ -11,7 +11,7 @@ input_file: fixtures/fragments/js/assigns.js
         0,
         0,
         0,
-        0
+        4
       ]
     },
     {
@@ -24,10 +24,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        1,
+        4,
+        1,
+        8
       ]
     },
     {
@@ -40,10 +40,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        2,
+        4,
+        2,
+        8
       ]
     },
     {
@@ -56,10 +56,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        3,
+        6,
+        3,
+        10
       ]
     },
     {
@@ -72,10 +72,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        4,
+        13,
+        4,
+        17
       ]
     },
     {
@@ -88,10 +88,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        6,
+        6,
+        6,
+        10
       ]
     },
     {
@@ -104,10 +104,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        7,
+        6,
+        7,
+        10
       ]
     },
     {
@@ -120,10 +120,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        8,
+        6,
+        8,
+        10
       ]
     },
     {
@@ -136,10 +136,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        9,
+        6,
+        9,
+        10
       ]
     },
     {
@@ -152,10 +152,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        10,
+        6,
+        10,
+        11
       ]
     },
     {
@@ -168,10 +168,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        11,
+        6,
+        11,
+        11
       ]
     },
     {
@@ -184,10 +184,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        12,
+        6,
+        12,
+        11
       ]
     },
     {
@@ -200,10 +200,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        14,
+        9,
+        14,
+        13
       ]
     },
     {
@@ -216,10 +216,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        15,
+        6,
+        15,
+        10
       ]
     },
     {
@@ -232,10 +232,10 @@ input_file: fixtures/fragments/js/assigns.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        16,
+        16,
+        16,
+        20
       ]
     },
     {

@@ -11,7 +11,7 @@ input_file: fixtures/fragments/py/uses.py
         0,
         0,
         0,
-        0
+        4
       ]
     },
     {
@@ -24,10 +24,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
+        1,
         0,
-        0,
-        0,
-        0
+        1,
+        4
       ]
     },
     {
@@ -40,10 +40,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        1,
+        7,
+        1,
+        11
       ]
     },
     {
@@ -56,10 +56,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
+        2,
         0,
-        0,
-        0,
-        0
+        2,
+        4
       ]
     },
     {
@@ -72,10 +72,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
+        3,
         0,
-        0,
-        0,
-        0
+        3,
+        4
       ]
     },
     {
@@ -88,10 +88,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        3,
+        5,
+        3,
+        9
       ]
     },
     {
@@ -104,10 +104,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        3,
+        11,
+        3,
+        15
       ]
     },
     {
@@ -120,10 +120,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
+        4,
         0,
-        0,
-        0,
-        0
+        4,
+        4
       ]
     },
     {
@@ -136,10 +136,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        4,
+        5,
+        4,
+        9
       ]
     },
     {
@@ -152,10 +152,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        6,
+        3,
+        6,
+        7
       ]
     },
     {
@@ -168,10 +168,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        6,
+        10,
+        6,
+        14
       ]
     },
     {
@@ -184,10 +184,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        7,
+        13,
+        7,
+        18
       ]
     },
     {
@@ -200,10 +200,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        11,
+        14,
+        11,
+        19
       ]
     },
     {
@@ -216,10 +216,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        12,
+        4,
+        12,
+        9
       ]
     },
     {
@@ -232,10 +232,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        16,
+        5,
+        16,
+        10
       ]
     },
     {
@@ -248,10 +248,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
+        21,
         0,
-        0,
-        0,
-        0
+        21,
+        5
       ]
     },
     {
@@ -264,10 +264,42 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
+        22,
         0,
+        22,
+        5
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var14",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        23,
         0,
-        0,
-        0
+        23,
+        5
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var14",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        23,
+        13,
+        23,
+        18
       ]
     },
     {
@@ -280,10 +312,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
+        27,
         0,
-        0,
-        0,
-        0
+        27,
+        4
       ]
     },
     {
@@ -296,10 +328,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        27,
+        5,
+        27,
+        10
       ]
     },
     {
@@ -312,10 +344,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        31,
+        4,
+        31,
+        8
       ]
     },
     {
@@ -328,10 +360,10 @@ input_file: fixtures/fragments/py/uses.py
   [
     {
       "assign": [
+        38,
         0,
-        0,
-        0,
-        0
+        38,
+        6
       ]
     },
     {

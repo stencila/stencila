@@ -9,9 +9,24 @@ input_file: fixtures/fragments/js/writes.js
     {
       "use": [
         0,
+        15,
         0,
-        0,
-        0
+        19
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "fs"
+    }
+  ],
+  [
+    {
+      "use": [
+        1,
+        28,
+        1,
+        32
       ]
     },
     {
@@ -23,10 +38,10 @@ input_file: fixtures/fragments/js/writes.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        3,
+        4,
+        3,
+        8
       ]
     },
     {
@@ -39,10 +54,10 @@ input_file: fixtures/fragments/js/writes.js
   [
     {
       "write": [
-        0,
-        0,
-        0,
-        0
+        3,
+        24,
+        3,
+        31
       ]
     },
     {
@@ -53,10 +68,10 @@ input_file: fixtures/fragments/js/writes.js
   [
     {
       "write": [
-        0,
-        0,
-        0,
-        0
+        4,
+        14,
+        4,
+        21
       ]
     },
     {
@@ -67,10 +82,10 @@ input_file: fixtures/fragments/js/writes.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        6,
+        9,
+        6,
+        18
       ]
     },
     {
@@ -83,10 +98,10 @@ input_file: fixtures/fragments/js/writes.js
   [
     {
       "write": [
-        0,
-        0,
-        0,
-        0
+        7,
+        15,
+        7,
+        22
       ]
     },
     {

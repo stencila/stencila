@@ -9,9 +9,9 @@ input_file: fixtures/fragments/py/imports.py
     {
       "use": [
         0,
+        7,
         0,
-        0,
-        0
+        15
       ]
     },
     {
@@ -23,10 +23,10 @@ input_file: fixtures/fragments/py/imports.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        1,
+        5,
+        1,
+        13
       ]
     },
     {
@@ -38,10 +38,10 @@ input_file: fixtures/fragments/py/imports.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        2,
+        5,
+        2,
+        13
       ]
     },
     {
@@ -53,10 +53,10 @@ input_file: fixtures/fragments/py/imports.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        3,
+        5,
+        3,
+        13
       ]
     },
     {

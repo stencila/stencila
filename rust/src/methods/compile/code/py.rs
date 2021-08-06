@@ -3,7 +3,6 @@ use crate::{
     graphs::{resources, Relation, Resource, NULL_RANGE},
     utils::path::merge,
 };
-use itertools::Itertools;
 use once_cell::sync::Lazy;
 use std::path::Path;
 
@@ -70,13 +69,14 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
         .filter_map(|(pattern, captures)| match pattern {
             0 | 1 => {
                 // Imports a module
+                let range = captures[0].range;
                 let module = &captures[0].text;
                 let path = merge(path, [module, ".py"].concat());
                 let object = match path.exists() {
                     true => resources::file(&path),
                     false => resources::module("python", module),
                 };
-                Some((Relation::Use(NULL_RANGE), object))
+                Some((Relation::Use(range), object))
             }
             2 => {
                 // Opens a file for reading or writing
@@ -105,6 +105,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
             }
             3 | 4 => {
                 // Assigns a symbol at the top level of the module
+                let range = captures[0].range;
                 let name = captures[0].text.clone();
                 let kind = match pattern {
                     3 => match captures[1].node.kind() {
@@ -121,13 +122,14 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     _ => unreachable!(),
                 };
                 Some((
-                    Relation::Assign(NULL_RANGE),
+                    Relation::Assign(range),
                     resources::symbol(path, &name, kind),
                 ))
             }
             5 => {
                 // Uses an identifier assigned elsewhere
                 let node = captures[0].node;
+                let range = captures[0].range;
                 let symbol = captures[0].text.clone();
 
                 if USE_IGNORE.contains(&symbol.as_str()) {
@@ -198,7 +200,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 }
 
                 Some((
-                    Relation::Use(NULL_RANGE),
+                    Relation::Use(range),
                     resources::symbol(path, &symbol, ""),
                 ))
             }

@@ -11,7 +11,7 @@ input_file: fixtures/fragments/py/writes.py
         0,
         0,
         0,
-        0
+        4
       ]
     },
     {
@@ -38,10 +38,10 @@ input_file: fixtures/fragments/py/writes.py
   [
     {
       "assign": [
+        2,
         0,
-        0,
-        0,
-        0
+        2,
+        4
       ]
     },
     {
@@ -68,10 +68,10 @@ input_file: fixtures/fragments/py/writes.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        4,
+        12,
+        4,
+        16
       ]
     },
     {
@@ -112,10 +112,10 @@ input_file: fixtures/fragments/py/writes.py
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        10,
+        4,
+        10,
+        13
       ]
     },
     {
@@ -151,6 +151,66 @@ input_file: fixtures/fragments/py/writes.py
     {
       "type": "File",
       "path": "fragments/py/read"
+    }
+  ],
+  [
+    {
+      "read": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/read"
+    }
+  ],
+  [
+    {
+      "read": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/read"
+    }
+  ],
+  [
+    {
+      "assign": [
+        22,
+        0,
+        22,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/writes.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        23,
+        5,
+        23,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/writes.py",
+      "name": "var2",
+      "kind": ""
     }
   ]
 ]

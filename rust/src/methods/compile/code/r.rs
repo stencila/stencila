@@ -1,12 +1,10 @@
-use std::path::Path;
-
 use super::{captures_as_args_map, child_text, is_quoted, remove_quotes, Compiler};
 use crate::{
     graphs::{resources, Relation, Resource, NULL_RANGE},
     utils::path::merge,
 };
-use itertools::Itertools;
 use once_cell::sync::Lazy;
+use std::path::Path;
 
 mod ignores;
 use ignores::USE_IGNORE;

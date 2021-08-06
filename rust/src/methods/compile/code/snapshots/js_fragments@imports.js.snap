@@ -8,10 +8,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        2,
+        26,
+        2,
+        36
       ]
     },
     {
@@ -23,10 +23,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        3,
+        22,
+        3,
+        32
       ]
     },
     {
@@ -38,10 +38,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        4,
+        24,
+        4,
+        34
       ]
     },
     {
@@ -53,10 +53,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        5,
+        33,
+        5,
+        43
       ]
     },
     {
@@ -68,10 +68,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        6,
+        34,
+        6,
+        44
       ]
     },
     {
@@ -83,10 +83,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        7,
+        43,
+        7,
+        53
       ]
     },
     {
@@ -98,10 +98,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        8,
+        39,
+        8,
+        49
       ]
     },
     {
@@ -113,10 +113,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        9,
+        37,
+        9,
+        47
       ]
     },
     {
@@ -128,10 +128,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        10,
+        7,
+        10,
+        17
       ]
     },
     {
@@ -143,10 +143,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        11,
+        4,
+        11,
+        11
       ]
     },
     {
@@ -159,10 +159,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        11,
+        21,
+        11,
+        32
       ]
     },
     {
@@ -174,10 +174,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        14,
+        4,
+        14,
+        17
       ]
     },
     {
@@ -190,10 +190,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        14,
+        28,
+        14,
+        39
       ]
     },
     {
@@ -205,10 +205,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        15,
+        4,
+        15,
+        9
       ]
     },
     {
@@ -221,10 +221,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        15,
+        20,
+        15,
+        31
       ]
     },
     {
@@ -236,10 +236,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        19,
+        6,
+        19,
+        9
       ]
     },
     {
@@ -252,10 +252,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        21,
+        6,
+        21,
+        13
       ]
     },
     {
@@ -268,10 +268,10 @@ input_file: fixtures/fragments/js/imports.js
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        22,
+        6,
+        22,
+        9
       ]
     },
     {

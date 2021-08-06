@@ -11,7 +11,7 @@ input_file: fixtures/fragments/py/reads.py
         0,
         0,
         0,
-        0
+        4
       ]
     },
     {
@@ -122,10 +122,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "assign": [
-        0,
-        0,
-        0,
-        0
+        16,
+        4,
+        16,
+        13
       ]
     },
     {
@@ -165,11 +165,39 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "assign": [
+      "write": [
         0,
         0,
         0,
         0
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/write"
+    }
+  ],
+  [
+    {
+      "write": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/write"
+    }
+  ],
+  [
+    {
+      "assign": [
+        28,
+        0,
+        28,
+        4
       ]
     },
     {
@@ -182,10 +210,42 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        29,
+        5,
+        29,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        30,
+        5,
+        30,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        31,
+        5,
+        31,
+        9
       ]
     },
     {
@@ -198,10 +258,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "assign": [
+        33,
         0,
-        0,
-        0,
-        0
+        33,
+        4
       ]
     },
     {
@@ -214,10 +274,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        34,
+        15,
+        34,
+        19
       ]
     },
     {

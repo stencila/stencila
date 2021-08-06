@@ -1,12 +1,10 @@
-use std::path::Path;
-
 use super::{remove_quotes, Compiler};
 use crate::{
-    graphs::{resources, Relation, Resource, NULL_RANGE},
+    graphs::{resources, Relation, Resource},
     utils::path::merge,
 };
-use itertools::Itertools;
 use once_cell::sync::Lazy;
+use std::path::Path;
 
 /// Compiler for JavaScript
 static COMPILER: Lazy<Compiler> = Lazy::new(|| {
@@ -106,37 +104,37 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
         .filter_map(|(pattern, captures)| match pattern {
             0 | 1 => {
                 // Imports a module using `import` or `require`
-                let module = match pattern {
+                let capture = match pattern {
                     0 => &captures[0],
                     1 => &captures[1],
                     _ => unreachable!(),
-                }
-                .text
-                .clone();
-                let module = remove_quotes(&module);
+                };
+                let range = capture.range;
+                let module = remove_quotes(&capture.text.clone());
                 let object = if module.starts_with("./") {
                     resources::file(&merge(path, &[&module, ".js"].concat()))
                 } else {
                     resources::module("javascript", &module)
                 };
-                Some((Relation::Use(NULL_RANGE), object))
+                Some((Relation::Use(range), object))
             }
             2 => {
                 // Reads a file
                 Some((
-                    Relation::Read(NULL_RANGE),
+                    Relation::Read(captures[1].range),
                     resources::file(&merge(path, remove_quotes(&captures[1].text))),
                 ))
             }
             3 => {
                 // Writes a file
                 Some((
-                    Relation::Write(NULL_RANGE),
+                    Relation::Write(captures[1].range),
                     resources::file(&merge(path, remove_quotes(&captures[1].text))),
                 ))
             }
             4 | 5 => {
                 // Assigns a symbol at the top level of the module
+                let range = captures[0].range;
                 let name = captures[0].text.clone();
                 let kind = match pattern {
                     4 => match captures[1].node.kind() {
@@ -152,7 +150,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     _ => unreachable!(),
                 };
                 Some((
-                    Relation::Assign(NULL_RANGE),
+                    Relation::Assign(range),
                     resources::symbol(path, &name, kind),
                 ))
             }
