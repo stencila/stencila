@@ -94,6 +94,20 @@ pub(crate) fn captures_as_args_map(captures: Vec<Capture>) -> HashMap<String, St
     map
 }
 
+/// Get the text of a child node
+///
+/// Returns an empty string if the child does not exists, or the text could
+/// not be obtained
+pub(crate) fn child_text<'tree>(
+    node: tree_sitter::Node<'tree>,
+    name: &str,
+    code: &'tree [u8],
+) -> &'tree str {
+    node.child_by_field_name(name)
+        .and_then(|child| child.utf8_text(code).ok())
+        .unwrap_or("")
+}
+
 /// Whether or not the text is quoted
 pub(crate) fn is_quoted(text: &str) -> bool {
     (text.starts_with('"') && text.ends_with('"'))

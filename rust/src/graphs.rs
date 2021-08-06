@@ -47,7 +47,7 @@ pub mod resources {
         /// The name/identifier of the symbol
         pub name: String,
 
-        /// The kind of the object that the symbol refers to
+        /// The type of the object that the symbol refers to (e.g `Number`, `Function`)
         ///
         /// Should be used as a hint only, and as such is excluded from
         /// equality and hash functions.
@@ -74,11 +74,11 @@ pub mod resources {
         /// The address of the node
         pub address: String,
 
-        /// The type of node e.g. "CodeChunk"
+        /// The type of node e.g. `Parameter`, `CodeChunk`
         pub kind: String,
     }
 
-    /// Create a new `Symbol` resource
+    /// Create a new `Node` resource
     pub fn node(path: &Path, address: &str, kind: &str) -> Resource {
         Resource::Node(Node {
             path: path.to_path_buf(),
@@ -273,7 +273,19 @@ impl Graph {
                     .to_string();
 
                 let (shape, fill_color, label) = match resource {
-                    Resource::Symbol(symbol) => ("diamond", "#efb8b8", symbol.name.clone()),
+                    Resource::Symbol(symbol) => (
+                        "diamond",
+                        "#efb8b8",
+                        format!(
+                            "{}{}",
+                            if !symbol.kind.is_empty() {
+                                format!("{}\\n", symbol.kind)
+                            } else {
+                                "".to_string()
+                            },
+                            symbol.name
+                        ),
+                    ),
                     Resource::Node(node) => (
                         "box",
                         "#efe0b8",

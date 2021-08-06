@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
+use super::{captures_as_args_map, child_text, is_quoted, remove_quotes, Compiler};
 use crate::{
     graphs::{resources, Relation, Resource},
     utils::path::merge,
@@ -125,13 +125,25 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 })
             }
             3 | 4 => {
-                // Assigns a variable or function at the program root
+                // Assigns a symbol at the program root
                 let name = captures[0].text.clone();
-                let resource = match captures[1].node.kind() {
-                    "function_definition" => resources::symbol(path, &name, "function"),
-                    _ => resources::symbol(path, &name, "variable"),
+                let value = captures[1].node;
+                let kind = match value.kind() {
+                    // Attempt to infer the type of symbol
+                    "true" | "false" => "Boolean",
+                    "integer" => "Integer",
+                    "float" => "Number",
+                    "string" => "String",
+                    "function_definition" => "Function",
+                    "call" => match child_text(value, "function", code) {
+                        "data.table" | "read.csv" | "read.csv2" | "read.delim" | "read.table" => {
+                            "Datatable"
+                        }
+                        _ => "",
+                    },
+                    _ => "",
                 };
-                Some((Relation::Assign, resource))
+                Some((Relation::Assign, resources::symbol(path, &name, kind)))
             }
             5 => {
                 // Uses a function or variable
@@ -168,11 +180,9 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                         }
                         // Skip package identifiers
                         "call" => {
-                            if let Some(function) = parent_node.child_by_field_name("function") {
-                                let name = function.utf8_text(code).unwrap();
-                                if name == "library" || name == "require" {
-                                    return None;
-                                }
+                            let name = child_text(parent_node, "function", code);
+                            if name == "library" || name == "require" {
+                                return None;
                             }
                         }
                         // Skip identifiers within a function definition
@@ -188,9 +198,9 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                             if USES_IGNORE_FUNCTIONS.contains(&symbol.as_str()) {
                                 return None;
                             }
-                            resources::symbol(path, &symbol, "function")
+                            resources::symbol(path, &symbol, "Function")
                         }
-                        _ => resources::symbol(path, &symbol, "variable"),
+                        _ => resources::symbol(path, &symbol, ""),
                     },
                     None => resources::symbol(path, &symbol, ""),
                 };
