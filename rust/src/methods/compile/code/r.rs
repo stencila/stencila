@@ -125,11 +125,10 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 })
             }
             3 | 4 => {
-                // Assigns a symbol at the program root
+                // Assigns a symbol at the top level of the module
                 let name = captures[0].text.clone();
                 let value = captures[1].node;
                 let kind = match value.kind() {
-                    // Attempt to infer the type of symbol
                     "true" | "false" => "Boolean",
                     "integer" => "Integer",
                     "float" => "Number",

@@ -15,7 +15,6 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 (import_statement
     name: (dotted_name) @module
 )
-
 (import_from_statement
     module_name: (dotted_name) @module
 )
@@ -36,6 +35,21 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
             )*
     )
 )
+
+(module
+    (expression_statement
+        (assignment
+            left: (identifier) @name
+            right: (_) @value
+        )
+    )
+) 
+(module
+    (function_definition
+      name: (identifier) @name
+    )
+)
+  
 "#,
     )
 });
@@ -50,6 +64,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
         .into_iter()
         .filter_map(|(pattern, captures)| match pattern {
             0 | 1 => {
+                // Imports a module
                 let module = &captures[0].text;
                 let path = merge(path, [module, ".py"].concat());
                 let object = match path.exists() {
@@ -59,6 +74,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 Some((Relation::Use, object))
             }
             2 => {
+                // Opens a file for reading or writing
                 let args = captures_as_args_map(captures);
                 if let Some(file) = args.get("0").or_else(|| args.get("file")) {
                     if !is_quoted(file) {
@@ -81,6 +97,25 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 } else {
                     None
                 }
+            }
+            3 | 4 => {
+                // Assigns a symbol at the top level of the module
+                let name = captures[0].text.clone();
+                let kind = match pattern {
+                    3 => match captures[1].node.kind() {
+                        "true" | "false" => "Boolean",
+                        "integer" => "Integer",
+                        "float" => "Number",
+                        "string" => "String",
+                        "list" => "Array",
+                        "dictionary" => "Object",
+                        "lambda" => "Function",
+                        _ => "",
+                    },
+                    4 => "Function",
+                    _ => unreachable!(),
+                };
+                Some((Relation::Assign, resources::symbol(path, &name, kind)))
             }
             _ => None,
         })

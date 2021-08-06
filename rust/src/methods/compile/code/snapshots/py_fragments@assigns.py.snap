@@ -1,0 +1,107 @@
+---
+source: rust/src/methods/compile/code/py.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/py/assigns.py
+
+---
+[
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var1",
+      "kind": "Integer"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "fun1",
+      "kind": "Function"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "fun2",
+      "kind": "Function"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var3",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var4",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var5",
+      "kind": "Integer"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var6",
+      "kind": "Number"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var7",
+      "kind": "String"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var8",
+      "kind": "Array"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var9",
+      "kind": "Object"
+    }
+  ]
+]

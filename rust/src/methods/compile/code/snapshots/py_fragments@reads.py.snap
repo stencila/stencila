@@ -6,6 +6,15 @@ input_file: fixtures/fragments/py/reads.py
 ---
 [
   [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "f",
+      "kind": ""
+    }
+  ],
+  [
     "read",
     {
       "type": "File",
@@ -55,6 +64,15 @@ input_file: fixtures/fragments/py/reads.py
     }
   ],
   [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "open_func",
+      "kind": "Function"
+    }
+  ],
+  [
     "read",
     {
       "type": "File",
@@ -66,6 +84,24 @@ input_file: fixtures/fragments/py/reads.py
     {
       "type": "File",
       "path": "fragments/py/write"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "var",
+      "kind": ""
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "mode",
+      "kind": ""
     }
   ]
 ]
