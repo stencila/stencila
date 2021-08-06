@@ -144,6 +144,7 @@ impl Compile for InlineContent {
             InlineContent::Note(node) => node.compile(address, context).await,
             InlineContent::Null => Ok(()),
             InlineContent::Number(node) => node.compile(address, context).await,
+            InlineContent::Parameter(node) => node.compile(address, context).await,
             InlineContent::Quote(node) => node.compile(address, context).await,
             InlineContent::String(node) => node.compile(address, context).await,
             InlineContent::Strong(node) => node.compile(address, context).await,
@@ -435,6 +436,26 @@ compile_media_object!(
     VideoObject,
     VideoObjectSimple
 );
+
+#[async_trait]
+impl Compile for Parameter {
+    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+        let subject = resources::node(&context.path, address, &self.type_name());
+        let kind = match self.validator.as_deref() {
+            Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
+            Some(ValidatorTypes::IntegerValidator(..)) => "Integer",
+            Some(ValidatorTypes::NumberValidator(..)) => "Number",
+            Some(ValidatorTypes::StringValidator(..)) => "String",
+            Some(ValidatorTypes::TupleValidator(..)) => "Tuple",
+            Some(ValidatorTypes::ArrayValidator(..)) => "Array",
+            _ => "",
+        };
+        let object = resources::symbol(&context.path, &self.name, kind);
+
+        context.relations.push((subject, Relation::Assign, object));
+        Ok(())
+    }
+}
 
 #[async_trait]
 impl Compile for CodeChunk {

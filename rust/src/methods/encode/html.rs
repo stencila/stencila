@@ -193,6 +193,7 @@ impl ToHtml for InlineContent {
             InlineContent::Note(node) => node.to_html(context),
             InlineContent::Null => null_to_html(),
             InlineContent::Number(node) => node.to_html(context),
+            InlineContent::Parameter(node) => node.to_html(context),
             InlineContent::Quote(node) => node.to_html(context),
             InlineContent::String(node) => node.to_html(context),
             InlineContent::Strong(node) => node.to_html(context),
@@ -534,6 +535,15 @@ impl ToHtml for MathFragment {
 }
 
 impl ToHtml for Note {
+    fn to_html(&self, _context: &Context) -> String {
+        format!(
+            r#"<code class="todo">{json}</code>"#,
+            json = serde_json::to_string(self).unwrap_or_else(|_| "".into())
+        )
+    }
+}
+
+impl ToHtml for Parameter {
     fn to_html(&self, _context: &Context) -> String {
         format!(
             r#"<code class="todo">{json}</code>"#,
