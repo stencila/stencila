@@ -1,3 +1,15 @@
+# [0.108.0](https://github.com/stencila/stencila/compare/v0.107.1...v0.108.0) (2021-08-06)
+
+
+### Bug Fixes
+
+* **Documents:** Convert content if necessary on load; check that binary file exists on update ([a1b8382](https://github.com/stencila/stencila/commit/a1b83827276518dc9757a8f478387ac614eb85dd))
+
+
+### Features
+
+* **Documents:** Add "Save as…" functionality to Desktop ([c8c3daa](https://github.com/stencila/stencila/commit/c8c3daa51269d7b8f22597224a1452c0344e8bf6))
+
 ## [0.107.1](https://github.com/stencila/stencila/compare/v0.107.0...v0.107.1) (2021-08-04)
 
 
