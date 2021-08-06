@@ -4,9 +4,9 @@ use std::collections::HashSet;
 
 /// A list of R functions to ignore when generating relations of type `Relation::Uses`.
 ///
-/// This list was generated using `./uses-ignores-functions.R` with
+/// This list was generated using `./use-ignore.R` with
 /// R version 4.1.0 (2021-05-18).
-pub static USES_IGNORE_FUNCTIONS: Lazy<HashSet<&str>> = Lazy::new(|| {
+pub static USE_IGNORE: Lazy<HashSet<&str>> = Lazy::new(|| {
     hashset! {
         "-",
         "-.Date",

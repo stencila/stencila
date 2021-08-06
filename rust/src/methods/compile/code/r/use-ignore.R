@@ -1,7 +1,7 @@
 # Generate a list of functions in the packages on the
 # default R `search()` list.
 #
-# Rus using `RScript uses-ignores-functions.R`
+# Run using `RScript use-ignore.R`
 cat(
   paste(
     '"', 

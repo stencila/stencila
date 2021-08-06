@@ -9,7 +9,7 @@ use itertools::Itertools;
 use once_cell::sync::Lazy;
 
 mod ignores;
-use ignores::USES_IGNORE_FUNCTIONS;
+use ignores::USE_IGNORE;
 
 /// Compiler for R
 static COMPILER: Lazy<Compiler> = Lazy::new(|| {
@@ -194,7 +194,11 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 let resource = match node.parent() {
                     Some(parent_node) => match parent_node.kind() {
                         "call" => {
-                            if USES_IGNORE_FUNCTIONS.contains(&symbol.as_str()) {
+                            // Because there are so many globals, unlike for other languages
+                            // we only ignore apparent uses of global functions in calls.
+                            // This avoids false negatives when a variable has been given a
+                            // global name (e.g. "data").
+                            if USE_IGNORE.contains(&symbol.as_str()) {
                                 return None;
                             }
                             resources::symbol(path, &symbol, "Function")
