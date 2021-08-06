@@ -14,6 +14,7 @@ import { EditorState } from '../../../../renderer/store/editorState/editorStateT
 import { alterDocument, saveDocument } from '../../../actions/documentActions'
 import { client } from '../../../client'
 import { configState } from '../../../store/appConfig'
+import { openDocumentInActivePane } from '../../../store/documentPane/documentPaneActions'
 import { errorToast } from '../../../utils/errors'
 
 @Component({
@@ -67,8 +68,8 @@ export class AppDocumentEditor {
       editorStateById,
       O.map(this.setDocState),
       O.getOrElse(() => {
-        client.documents.contents(documentId).then(({ value }) => {
-          this.editorRef?.setStateFromString(value)
+        client.documents.contents(documentId).then(({ value: contents }) => {
+          this.editorRef?.setStateFromString(contents)
         })
       })
     )
@@ -102,6 +103,7 @@ export class AppDocumentEditor {
 
     // Handle global file save events, both keyboard shortcut and File menu items
     window.api.receive(CHANNEL.DOCUMENT_WRITE_ACTIVE, this.saveDoc)
+    window.api.receive(CHANNEL.DOCUMENT_WRITE_ACTIVE_AS, this.saveDocAs)
 
     this.restoreOrCreateDocState(documentId)
       .then(() => this.editorRef?.getRef())
@@ -113,6 +115,7 @@ export class AppDocumentEditor {
 
   private unsubscribeFromDocument = (documentId: EntityId) => {
     window.api.removeAll(CHANNEL.DOCUMENT_WRITE_ACTIVE)
+    window.api.removeAll(CHANNEL.DOCUMENT_WRITE_ACTIVE_AS)
     window.api.removeAll(CHANNEL.DOCUMENTS_DUMP)
 
     return client.documents.unsubscribe({
@@ -160,6 +163,27 @@ export class AppDocumentEditor {
       })
       .catch((err) => {
         errorToast(err)
+      })
+  }
+
+  private saveDocAs = async () => {
+    const { value: maybeFilePath } = await client.documents.createFilePath()
+    const contents = await this.editorRef?.getContents()
+
+    if (maybeFilePath.canceled || !contents) return
+
+    client.documents
+      .create(maybeFilePath.filePath)
+      .then(({ value: doc }) => {
+        saveDocument(
+          doc.id,
+          contents.text,
+          FileFormatUtils.lookupFormat(contents.language).ext ??
+            contents.language
+        )
+      })
+      .then(() => {
+        openDocumentInActivePane(maybeFilePath.filePath)
       })
   }
 

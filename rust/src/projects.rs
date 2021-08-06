@@ -337,7 +337,7 @@ impl Project {
             .clone()
             .or_else(|| match &self.path.components().last() {
                 Some(last) => Some(last.as_os_str().to_string_lossy().to_string()),
-                None => Some("Unnamed".to_string()),
+                None => Some("Untitled".to_string()),
             });
 
         // Theme defaults to the configured default
@@ -779,7 +779,7 @@ impl Projects {
         };
 
         if let Some(handler) = self.registry.lock().await.get(&path) {
-            return Ok(handler.project.lock().await.clone())
+            return Ok(handler.project.lock().await.clone());
         }
 
         let project = Project::open(&path).await?;

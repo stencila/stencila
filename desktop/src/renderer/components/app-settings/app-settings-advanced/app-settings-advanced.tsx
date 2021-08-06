@@ -18,8 +18,8 @@ export class AppSettingsAdvanced {
   @State() settings: Settings | undefined
 
   private readConfig = () =>
-    client.config.global.getAll().then(({ value }) => {
-      return value as Settings
+    client.config.global.getAll().then(({ value: settings }) => {
+      return settings as Settings
     })
 
   async componentWillLoad() {

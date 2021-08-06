@@ -7,13 +7,13 @@ import { client } from '../client'
 export const isErrorReportingEnabled = () =>
   client.config.ui
     .get(UnprotectedStoreKeys.REPORT_ERRORS)
-    .then(({ value }) => value ?? false)
+    .then(({ value: isEnabled }) => isEnabled ?? false)
 
 export let configState: AppConfigStore
 
 export const initConfigStore = async () =>
-  await client.config.ui.getAll().then(({ value }) => {
-    configState = createStore<AppConfigStore>(value).state
+  await client.config.ui.getAll().then(({ value: config }) => {
+    configState = createStore<AppConfigStore>(config).state
   })
 
 export const configEventListener = () => {

@@ -16,26 +16,17 @@ pub fn list(cx: FunctionContext) -> JsResult<JsString> {
 
 /// Create a document
 pub fn create(mut cx: FunctionContext) -> JsResult<JsString> {
-    let format = cx.argument::<JsString>(0)?.value(&mut cx);
-    let format = if format.is_empty() {
-        None
-    } else {
-        Some(format)
-    };
+    let path = not_empty_or_none(&cx.argument::<JsString>(0)?.value(&mut cx));
+    let format = not_empty_or_none(&cx.argument::<JsString>(1)?.value(&mut cx));
 
-    let result = RUNTIME.block_on(async { DOCUMENTS.create(format).await });
+    let result = RUNTIME.block_on(async { DOCUMENTS.create(path, format).await });
     to_json_or_throw(cx, result)
 }
 
 /// Open a document
 pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
     let path = &cx.argument::<JsString>(0)?.value(&mut cx);
-    let format = cx.argument::<JsString>(1)?.value(&mut cx);
-    let format = if format.is_empty() {
-        None
-    } else {
-        Some(format)
-    };
+    let format = not_empty_or_none(&cx.argument::<JsString>(1)?.value(&mut cx));
 
     let result = RUNTIME.block_on(async { DOCUMENTS.open(path, format).await });
     to_json_or_throw(cx, result)
@@ -93,10 +84,11 @@ pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let content = cx.argument::<JsString>(1)?.value(&mut cx);
+    let format = not_empty_or_none(&cx.argument::<JsString>(2)?.value(&mut cx));
 
     let result = RUNTIME.block_on(async {
         match DOCUMENTS.get(id).await {
-            Ok(document) => document.lock().await.write(Some(content), None).await,
+            Ok(document) => document.lock().await.write(Some(content), format).await,
             Err(error) => Err(error),
         }
     });
@@ -148,10 +140,11 @@ pub fn dump(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn load(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let content = cx.argument::<JsString>(1)?.value(&mut cx);
+    let format = not_empty_or_none(&cx.argument::<JsString>(2)?.value(&mut cx));
 
     let result = RUNTIME.block_on(async {
         match DOCUMENTS.get(id).await {
-            Ok(document) => document.lock().await.load(content, None).await,
+            Ok(document) => document.lock().await.load(content, format).await,
             Err(error) => Err(error),
         }
     });

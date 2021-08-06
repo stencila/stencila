@@ -5,6 +5,7 @@ import {
   closeActiveTab,
   createNewDocument,
   saveActiveDoc,
+  saveActiveDocAs,
 } from '../../window/windowUtils'
 import { openProject } from '../handlers'
 
@@ -33,6 +34,13 @@ export const projectFileMenu: MenuItemConstructorOptions = {
         saveActiveDoc()
       },
       accelerator: 'CommandOrControl+s',
+    },
+    {
+      label: 'Save as…',
+      click: () => {
+        saveActiveDocAs()
+      },
+      accelerator: 'CommandOrControl+Shift+s',
     },
     { type: 'separator' },
     {

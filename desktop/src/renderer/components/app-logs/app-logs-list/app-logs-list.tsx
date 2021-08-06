@@ -18,8 +18,8 @@ export class AppLogsList {
   }
 
   async componentWillLoad() {
-    const { value } = await client.app.logs.get()
-    this.logs = value
+    const { value: logs } = await client.app.logs.get()
+    this.logs = logs
 
     window.api.receive(CHANNEL.LOGS_PRINT, (logItem) => {
       this.logs = [...this.logs, logItem as LogMessage]

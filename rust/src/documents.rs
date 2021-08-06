@@ -128,7 +128,7 @@ pub struct Document {
 
     /// The name of the document
     ///
-    /// Usually the filename from the `path` but "Unnamed"
+    /// Usually the filename from the `path` but "Untitled"
     /// for temporary documents.
     name: String,
 
@@ -197,35 +197,65 @@ impl Document {
     ///
     /// # Arguments
     ///
+    /// - `path`: The path of the document; defaults to a temporary path.
     /// - `format`: The format of the document; defaults to plain text.
     ///
     /// This function is intended to be used by editors when creating
-    /// a new document. The created document will be `temporary: true`
-    /// and have a temporary file path.
-    fn new(format: Option<String>) -> Document {
+    /// a new document. If the `path` is not specified, the created document
+    /// will be `temporary: true` and have a temporary file path.
+    fn new(path: Option<PathBuf>, format: Option<String>) -> Document {
         let id = uuids::generate(uuids::Family::Document);
 
-        let path = env::temp_dir().join(uuids::generate(uuids::Family::File));
-        // Ensure that the file exists
-        if !path.exists() {
-            fs::write(path.clone(), "").expect("Unable to write temporary file");
-        }
+        let format = if let Some(format) = format {
+            FORMATS.match_path(&format)
+        } else if let Some(path) = path.as_ref() {
+            FORMATS.match_path(path)
+        } else {
+            FORMATS.match_name("txt")
+        };
+        let previewable = format.preview;
+
+        let (path, name, temporary) = match path {
+            Some(path) => {
+                let name = path
+                    .file_name()
+                    .map(|os_str| os_str.to_string_lossy())
+                    .unwrap_or_else(|| "Untitled".into())
+                    .into();
+
+                (path, name, false)
+            }
+            None => {
+                let path = env::temp_dir().join(
+                    [
+                        uuids::generate(uuids::Family::File),
+                        format.extensions.first().cloned().unwrap_or_default(),
+                    ]
+                    .concat(),
+                );
+                // Ensure that the file exists
+                if !path.exists() {
+                    fs::write(path.clone(), "").expect("Unable to write temporary file");
+                }
+
+                let name = "Untitled".into();
+
+                (path, name, true)
+            }
+        };
 
         let project = path
             .parent()
             .expect("Unable to get path parent")
             .to_path_buf();
 
-        let format = FORMATS.match_path(&format.unwrap_or_else(|| "txt".to_string()));
-        let previewable = format.preview;
-
         Document {
             id,
             path,
             project,
-            temporary: true,
+            temporary,
             status: DocumentStatus::Synced,
-            name: "Unnamed".into(),
+            name,
             format,
             previewable,
             ..Default::default()
@@ -306,7 +336,7 @@ impl Document {
 
         // Given that the `format` may have changed, it is necessary
         // to update the `root` of the document
-        self.update().await?;
+        self.update(true).await?;
 
         Ok(())
     }
@@ -322,7 +352,7 @@ impl Document {
             self.load(content.clone(), None).await?;
             content
         } else {
-            self.update().await?;
+            self.update(true).await?;
             "".to_string()
         };
         self.status = DocumentStatus::Synced;
@@ -341,10 +371,21 @@ impl Document {
     /// Sets `status` to `Synced`.
     pub async fn write(&mut self, content: Option<String>, format: Option<String>) -> Result<()> {
         if let Some(content) = content {
-            self.load(content, format).await?;
+            self.load(content, format.clone()).await?;
         }
 
-        fs::write(&self.path, self.content.as_bytes())?;
+        let content_to_write = if let Some(input_format) = format.as_ref() {
+            let input_format = FORMATS.match_path(&input_format);
+            if input_format.name != self.format.name {
+                self.dump(None).await?
+            } else {
+                self.content.clone()
+            }
+        } else {
+            self.content.clone()
+        };
+
+        fs::write(&self.path, content_to_write.as_bytes())?;
         self.status = DocumentStatus::Synced;
         self.last_write = Some(Instant::now());
 
@@ -419,20 +460,34 @@ impl Document {
 
     /// Load content into the document
     ///
+    /// If the format of the new content is different to the document's format
+    /// then the content will be converted to the document's format.
+    ///
     /// # Arguments
     ///
     /// - `content`: the content to load into the document
     /// - `format`: the format of the content; if not supplied assumed to be
     ///    the document's existing format.
     pub async fn load(&mut self, content: String, format: Option<String>) -> Result<()> {
-        // Set the `content` and `status` of the document
-        self.content = content;
-        self.status = DocumentStatus::Unwritten;
+        let mut decode_content = true;
         if let Some(format) = format {
-            self.format = FORMATS.match_path(&format)
-        }
+            let other_format = FORMATS.match_path(&format);
+            if other_format.name != self.format.name {
+                let node = decode(&content, &other_format.name).await?;
+                if !self.format.binary {
+                    self.content = encode(&node, "string://", &self.format.name, None).await?;
+                }
+                self.root = Some(node);
+                decode_content = false;
+            } else {
+                self.content = content;
+            }
+        } else {
+            self.content = content;
+        };
+        self.status = DocumentStatus::Unwritten;
 
-        self.update().await
+        self.update(decode_content).await
     }
 
     /// Update the `root` (and associated properties) of the document and publish updated encodings
@@ -440,21 +495,42 @@ impl Document {
     /// Publishes `encoded:` events for each of the formats subscribed to.
     /// Error results from this function (e.g. compile errors)
     /// should generally not be bubbled up.
-    async fn update(&mut self) -> Result<()> {
+    ///
+    /// # Arguments
+    ///
+    /// - `decode_content`: Should the current content of the be decoded?. This
+    ///                     is an optimization for situations where the `root` has
+    ///                     just been decoded from the current `content`.
+    async fn update(&mut self, decode_content: bool) -> Result<()> {
         tracing::debug!(
             "Updating document '{}' at '{}'",
             self.id,
             self.path.display()
         );
 
-        // Decode the content into the `root` node of the document
+        // Decode the binary file or, in-memory content into the `root` node
+        // of the document
         let format = &self.format.name;
         let mut root = if self.format.binary {
-            let path = self.path.display().to_string();
-            let input = ["file://", &path].concat();
-            decode(&input, format).await?
+            if self.path.exists() {
+                let path = self.path.display().to_string();
+                let input = ["file://", &path].concat();
+                decode(&input, format).await?
+            } else {
+                match self.root.as_ref() {
+                    Some(root) => root.clone(),
+                    None => return Ok(()),
+                }
+            }
         } else if !self.content.is_empty() {
-            decode(&self.content, format).await?
+            if decode_content {
+                decode(&self.content, format).await?
+            } else {
+                match self.root.as_ref() {
+                    Some(root) => root.clone(),
+                    None => return Ok(()),
+                }
+            }
         } else {
             self.root = None;
             return Ok(());
@@ -859,8 +935,10 @@ impl Documents {
     }
 
     /// Create a new empty document
-    pub async fn create(&self, format: Option<String>) -> Result<Document> {
-        let document = Document::new(format);
+    pub async fn create(&self, path: Option<String>, format: Option<String>) -> Result<Document> {
+        let path = path.map(PathBuf::from);
+
+        let document = Document::new(path, format);
         let handler = DocumentHandler::new(document.clone(), false);
 
         self.registry
@@ -1180,7 +1258,7 @@ mod tests {
 
     #[test]
     fn document_new() {
-        let doc = Document::new(None);
+        let doc = Document::new(None, None);
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
@@ -1189,7 +1267,7 @@ mod tests {
         assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
 
-        let doc = Document::new(Some("md".to_string()));
+        let doc = Document::new(None, Some("md".to_string()));
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));

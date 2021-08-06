@@ -34,12 +34,12 @@ const saveRecentProjects = (path: string) => {
 export const fetchProject = createAsyncThunk(
   'projects/fetchProject',
   async (path: string) => {
-    const { value } = await client.projects.contents(path)
+    const { value: project } = await client.projects.contents(path)
 
     saveRecentProjects(path)
 
     const normalized = normalize<any, ProjectStoreEntities>(
-      value,
+      project,
       projectEntity
     )
 

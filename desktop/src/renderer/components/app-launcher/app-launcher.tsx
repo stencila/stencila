@@ -25,8 +25,8 @@ export class AppLauncher {
 
   componentWillLoad() {
     this.recentProjects = fetchRecentProjects()
-    return client.app.version().then(({ value }) => {
-      this.appVersion = value
+    return client.app.version().then(({ value: version }) => {
+      this.appVersion = version
     })
   }
 
@@ -48,7 +48,11 @@ export class AppLauncher {
                 Open folder…
               </stencila-button>
 
-              <stencila-button size="small" fill={true} onClick={client.projects.new}>
+              <stencila-button
+                size="small"
+                fill={true}
+                onClick={client.projects.new}
+              >
                 New project…
               </stencila-button>
 

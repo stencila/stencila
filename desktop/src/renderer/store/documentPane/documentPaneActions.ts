@@ -30,8 +30,8 @@ export const createNewDocument = async () => {
     UnprotectedStoreKeys.EDITOR_NEW_FILE_SYNTAX
   )
 
-  createDocument(format).then(({ value }) => {
-    addDocumentToActivePane(value)
+  createDocument(undefined, format).then(({ value: doc }) => {
+    addDocumentToActivePane(doc)
   })
 }
 
@@ -89,8 +89,8 @@ export const addDocumentToActivePane = async (doc: Document) =>
     O.map((paneId) => addDocumentToPane(paneId, doc))
   )
 
-export const createDocument = async (format?: string) =>
-  client.documents.create(format)
+export const createDocument = async (path?: string, format?: string) =>
+  client.documents.create(path, format)
 
 export const updateDocument = (doc: Document) => {
   return store.dispatch(documentPaneActions.updateDoc({ doc }))

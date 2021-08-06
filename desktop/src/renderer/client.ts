@@ -127,17 +127,29 @@ export const client = {
       window.api
         .invoke(CHANNEL.DOCUMENTS_ALTER, docId.toString(), path, format)
         .then(unwrapOrThrow),
-    create: (format?: string) =>
-      window.api.invoke(CHANNEL.DOCUMENTS_CREATE, format).then(unwrapOrThrow),
+    create: (path?: string, format?: string) =>
+      window.api
+        .invoke(CHANNEL.DOCUMENTS_CREATE, path, format)
+        .then(unwrapOrThrow),
     createFilePath: () =>
-      window.api.invoke(CHANNEL.DOCUMENTS_CREATE_FILE_PATH).then(unwrapOrThrow),
+      window.api.invoke(CHANNEL.DOCUMENTS_CREATE_FILE_PATH).then((result) => {
+        if (result.ok) {
+          return result
+        } else {
+          throw new RPCError(result.errors)
+        }
+      }),
     contents: (docId: EntityId) =>
       window.api
         .invoke(CHANNEL.DOCUMENTS_DUMP, docId.toString())
         .then(unwrapOrThrow),
-    load: (docId: EntityId, contents: string) =>
+    dump: (docId: EntityId, format?: string) =>
       window.api
-        .invoke(CHANNEL.DOCUMENTS_LOAD, docId.toString(), contents)
+        .invoke(CHANNEL.DOCUMENTS_DUMP, docId.toString(), format)
+        .then(unwrapOrThrow),
+    load: (docId: EntityId, contents: string, format?: string) =>
+      window.api
+        .invoke(CHANNEL.DOCUMENTS_LOAD, docId.toString(), contents, format)
         .then(unwrapOrThrow),
     get: (docId: EntityId) =>
       window.api
@@ -160,12 +172,34 @@ export const client = {
     write: ({
       documentId,
       content,
+      format,
     }: {
       documentId: EntityId
       content: string
+      format?: string
     }) =>
       window.api
-        .invoke(CHANNEL.DOCUMENTS_WRITE, documentId.toString(), content)
+        .invoke(CHANNEL.DOCUMENTS_WRITE, documentId.toString(), content, format)
+        .then(unwrapOrThrow),
+    writeAs: ({
+      documentId,
+      path,
+      format,
+      theme,
+    }: {
+      documentId: EntityId
+      path: string
+      format?: string
+      theme?: string
+    }) =>
+      window.api
+        .invoke(
+          CHANNEL.DOCUMENTS_WRITE_AS,
+          documentId.toString(),
+          path,
+          format,
+          theme
+        )
         .then(unwrapOrThrow),
   },
   projects: {

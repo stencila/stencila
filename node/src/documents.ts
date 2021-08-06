@@ -28,11 +28,13 @@ export function list(): string[] {
 /**
  * Create a new empty document, optionally specifying its format.
  *
- * @param format Format of the document
+ * @param path Path of the document. If `undefined` will be set to a temporary path.
+ * @param format Format of the document. If `undefined` will be inferred from
+ *               the file extension of `path`.
  * @return A document
  */
-export function create(format?: string): Document {
-  return fromJSON<Document>(addon.documentsCreate(format ?? ''))
+export function create(path?: string, format?: string): Document {
+  return fromJSON<Document>(addon.documentsCreate(path ?? '', format ?? ''))
 }
 
 /**
@@ -40,7 +42,7 @@ export function create(format?: string): Document {
  *
  * @param path Path to the document's file
  * @param format Format of the document. If `undefined` will be inferred from
- *               the file extension.
+ *               the file extension of `path`.
  * @return A document
  */
 export function open(path: string, format?: string): Document {
@@ -68,10 +70,10 @@ export function get(id: string): Document {
  * may be `known: false`.
  *
  * @param id Id of the document
- * @param path A new path of the document
- * @param format The name of the new format for the document.
+ * @param path A new path for the document
+ * @param format A new format for the document
  */
- export function alter(id: string, path?: string, format?: string): Document {
+export function alter(id: string, path?: string, format?: string): Document {
   return fromJSON<Document>(addon.documentsAlter(id, path ?? '', format ?? ''))
 }
 
@@ -88,9 +90,11 @@ export function read(id: string): string {
  * Write the content of a document to the file system.
  *
  * @param id Id of the document
+ * @param content The content to load into the document, and then write to the file system
+ * @param format Format of the `content` being loaded
  */
-export function write(id: string, content: string): string {
-  return addon.documentsWrite(id, content)
+export function write(id: string, content: string, format?: string): string {
+  return addon.documentsWrite(id, content, format ?? '')
 }
 
 /**
@@ -115,6 +119,7 @@ export function writeAs(
  * from the file system. The inverse of `load()`.
  *
  * @param id Id of the document
+ * @param format Format of the returned content
  */
 export function dump(id: string, format?: string): string {
   return addon.documentsDump(id, format ?? '')
@@ -127,9 +132,10 @@ export function dump(id: string, format?: string): string {
  *
  * @param id Id of the document
  * @param content The content to load into the document
+ * @param format Format of the `content` being loaded
  */
-export function load(id: string, content: string): void {
-  return addon.documentsLoad(id, content)
+export function load(id: string, content: string, format?: string): void {
+  return addon.documentsLoad(id, content, format ?? '')
 }
 
 /**

@@ -68,10 +68,7 @@ export type LogsWindowOpen = InvokeType<
   () => void
 >
 
-export type LogsGet = InvokeType<
-  typeof CHANNEL.LOGS_GET,
-  () => LogMessage[]
->
+export type LogsGet = InvokeType<typeof CHANNEL.LOGS_GET, () => LogMessage[]>
 
 // Config
 export type ConfigWindowOpen = InvokeType<
@@ -187,7 +184,12 @@ export type DocumentsCreate = InvokeType<
 
 export type DocumentsCreateFilePath = InvokeType<
   typeof CHANNEL.DOCUMENTS_CREATE_FILE_PATH,
-  () => string | null
+  () =>
+    | {
+        filePath: string
+        canceled: false
+      }
+    | { canceled: true }
 >
 
 export type DocumentsClose = InvokeType<
@@ -227,7 +229,8 @@ export type DocumentsWrite = InvokeType<
 
 export type DocumentsWriteAs = InvokeType<
   typeof CHANNEL.DOCUMENTS_WRITE_AS,
-  typeof dispatch.documents.writeAs
+  | typeof dispatch.documents.writeAs
+  | ((...args: Parameters<typeof dispatch.documents.writeAs>) => null)
 >
 
 export type DocumentsUnsubscribe = InvokeType<
@@ -469,7 +472,7 @@ interface Invoke {
 
   invoke(
     channel: DocumentsWriteAs['channel'],
-    documentId: string
+    ...args: DocumentsWriteAs['args']
   ): DocumentsWriteAs['result']
 
   invoke(

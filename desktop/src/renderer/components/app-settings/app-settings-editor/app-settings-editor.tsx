@@ -22,8 +22,8 @@ export class AppSettingsEditor {
   }
 
   async componentWillLoad() {
-    return client.config.ui.getAll().then(({ value }) => {
-      this.config = value
+    return client.config.ui.getAll().then(({ value: config }) => {
+      this.config = config
     })
   }
 
