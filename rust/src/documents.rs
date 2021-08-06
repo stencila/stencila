@@ -336,7 +336,7 @@ impl Document {
 
         // Given that the `format` may have changed, it is necessary
         // to update the `root` of the document
-        self.update().await?;
+        self.update(true).await?;
 
         Ok(())
     }
@@ -352,7 +352,7 @@ impl Document {
             self.load(content.clone(), None).await?;
             content
         } else {
-            self.update().await?;
+            self.update(true).await?;
             "".to_string()
         };
         self.status = DocumentStatus::Synced;
@@ -460,20 +460,34 @@ impl Document {
 
     /// Load content into the document
     ///
+    /// If the format of the new content is different to the document's format
+    /// then the content will be converted to the document's format.
+    ///
     /// # Arguments
     ///
     /// - `content`: the content to load into the document
     /// - `format`: the format of the content; if not supplied assumed to be
     ///    the document's existing format.
     pub async fn load(&mut self, content: String, format: Option<String>) -> Result<()> {
-        // Set the `content` and `status` of the document
-        self.content = content;
-        self.status = DocumentStatus::Unwritten;
+        let mut decode_content = true;
         if let Some(format) = format {
-            self.format = FORMATS.match_path(&format)
-        }
+            let other_format = FORMATS.match_path(&format);
+            if other_format.name != self.format.name {
+                let node = decode(&content, &other_format.name).await?;
+                if !self.format.binary {
+                    self.content = encode(&node, "string://", &self.format.name, None).await?;
+                }
+                self.root = Some(node);
+                decode_content = false;
+            } else {
+                self.content = content;
+            }
+        } else {
+            self.content = content;
+        };
+        self.status = DocumentStatus::Unwritten;
 
-        self.update().await
+        self.update(decode_content).await
     }
 
     /// Update the `root` (and associated properties) of the document and publish updated encodings
@@ -481,21 +495,42 @@ impl Document {
     /// Publishes `encoded:` events for each of the formats subscribed to.
     /// Error results from this function (e.g. compile errors)
     /// should generally not be bubbled up.
-    async fn update(&mut self) -> Result<()> {
+    ///
+    /// # Arguments
+    ///
+    /// - `decode_content`: Should the current content of the be decoded?. This
+    ///                     is an optimization for situations where the `root` has
+    ///                     just been decoded from the current `content`.
+    async fn update(&mut self, decode_content: bool) -> Result<()> {
         tracing::debug!(
             "Updating document '{}' at '{}'",
             self.id,
             self.path.display()
         );
 
-        // Decode the content into the `root` node of the document
+        // Decode the binary file or, in-memory content into the `root` node
+        // of the document
         let format = &self.format.name;
         let mut root = if self.format.binary {
-            let path = self.path.display().to_string();
-            let input = ["file://", &path].concat();
-            decode(&input, format).await?
+            if self.path.exists() {
+                let path = self.path.display().to_string();
+                let input = ["file://", &path].concat();
+                decode(&input, format).await?
+            } else {
+                match self.root.as_ref() {
+                    Some(root) => root.clone(),
+                    None => return Ok(()),
+                }
+            }
         } else if !self.content.is_empty() {
-            decode(&self.content, format).await?
+            if decode_content {
+                decode(&self.content, format).await?
+            } else {
+                match self.root.as_ref() {
+                    Some(root) => root.clone(),
+                    None => return Ok(()),
+                }
+            }
         } else {
             self.root = None;
             return Ok(());
