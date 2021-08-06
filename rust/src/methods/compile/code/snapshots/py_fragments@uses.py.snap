@@ -1,0 +1,197 @@
+---
+source: rust/src/methods/compile/code/py.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/py/uses.py
+
+---
+[
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var1",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var3",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "fun1",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "fun2",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var4",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var5",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var6",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var7",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var8",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var9",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var10",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var11",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var12",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var13",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var14",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var15",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "fun3",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "var16",
+      "kind": ""
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "fun4",
+      "kind": "Function"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/uses.py",
+      "name": "assign",
+      "kind": "Integer"
+    }
+  ]
+]

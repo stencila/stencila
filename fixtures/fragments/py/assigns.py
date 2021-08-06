@@ -2,7 +2,7 @@ var1 = 1
 var2 = 1 * 5
 
 def fun1(): pass
-fun2 = lambda x: x
+fun2 = lambda: None
 
 var3 = True
 var4 = False

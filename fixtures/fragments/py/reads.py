@@ -1,7 +1,7 @@
-f = open("path1")  # no mode, assumed to be read
+var1 = open("path1")  # no mode, assumed to be read
 
-with open("path2", "r") as f:  # open with ContextManager and mode
-    a = f.read()
+with open("path2", "r") as ignore:  # open with ContextManager and mode
+    ignore.read()
 
 open("path3", "r+")  # read and write, include file
 
@@ -26,10 +26,10 @@ open(file="write", mode="a")
 
 # The following should be ignored
 
-var = None
-open(var)
-open(var.y)
-open(var["y"])
+var2 = None
+open(var2)
+open(var2.y)
+open(var2["y"])
 
 mode = None
 open("ignore", mode)

@@ -7,6 +7,9 @@ use itertools::Itertools;
 use once_cell::sync::Lazy;
 use std::path::Path;
 
+mod ignores;
+use ignores::USE_IGNORE;
+
 /// Compiler for Python
 static COMPILER: Lazy<Compiler> = Lazy::new(|| {
     Compiler::new(
@@ -49,6 +52,8 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
       name: (identifier) @name
     )
 )
+
+((identifier) @identifer)
   
 "#,
     )
@@ -116,6 +121,80 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     _ => unreachable!(),
                 };
                 Some((Relation::Assign, resources::symbol(path, &name, kind)))
+            }
+            5 => {
+                // Uses an identifier assigned elsewhere
+                let node = captures[0].node;
+                let symbol = captures[0].text.clone();
+
+                if USE_IGNORE.contains(&symbol.as_str()) {
+                    return None;
+                }
+
+                let mut parent = node.parent();
+                while let Some(parent_node) = parent {
+                    match parent_node.kind() {
+                        // Skip identifiers that are the `left` of an assignment
+                        "assignment" => {
+                            if Some(node) == parent_node.child_by_field_name("left") {
+                                return None;
+                            }
+                        }
+                        // Skip any identifier used in a function parameter
+                        "parameters" | "lambda_parameters" => {
+                            return None;
+                        }
+                        // Skip identifiers that are the `name` of a keyword argument
+                        "keyword_argument" => {
+                            if Some(node) == parent_node.child_by_field_name("name") {
+                                return None;
+                            }
+                        }
+                        // Skip identifiers that are an `attribute`
+                        "object" | "function" | "attribute" => {
+                            if Some(node) == parent_node.child_by_field_name("attribute") {
+                                return None;
+                            }
+                        }
+                        // Skip identifiers that are the `left` of a for loop, or that refer to it
+                        // within the loop
+                        "for_statement" => {
+                            if let Some(left) = parent_node.child_by_field_name("left") {
+                                if left == node || left.utf8_text(code).unwrap() == symbol {
+                                    return None;
+                                }
+                            }
+                        }
+                        // Skip identifiers that are the `alias` of a with clause
+                        "with_clause" => {
+                            if Some(node) == parent_node.child_by_field_name("alias") {
+                                return None;
+                            }
+                        }
+                        // Skip references to the `alias` of a with clause
+                        "with_statement" => {
+                            if let Some(alias) = parent_node
+                                .child(1) // "with_clause"
+                                .and_then(|node| node.child(0)) // "with_item"
+                                .and_then(|node| node.child_by_field_name("alias"))
+                                .and_then(|node| node.utf8_text(code).ok())
+                            {
+                                if symbol == alias {
+                                    return None;
+                                }
+                            }
+                        }
+                        // Skip identifiers within these...
+                        "import_statement"
+                        | "import_from_statement"
+                        | "function_definition"
+                        | "lambda" => return None,
+                        _ => {}
+                    }
+                    parent = parent_node.parent();
+                }
+
+                Some((Relation::Use, resources::symbol(path, &symbol, "")))
             }
             _ => None,
         })

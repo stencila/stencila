@@ -10,7 +10,7 @@ input_file: fixtures/fragments/py/writes.py
     {
       "type": "Symbol",
       "path": "fragments/py/writes.py",
-      "name": "f",
+      "name": "var1",
       "kind": ""
     }
   ],
@@ -26,7 +26,7 @@ input_file: fixtures/fragments/py/writes.py
     {
       "type": "Symbol",
       "path": "fragments/py/writes.py",
-      "name": "data",
+      "name": "var2",
       "kind": "Array"
     }
   ],
@@ -35,6 +35,15 @@ input_file: fixtures/fragments/py/writes.py
     {
       "type": "File",
       "path": "fragments/py/path2"
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/writes.py",
+      "name": "var2",
+      "kind": ""
     }
   ],
   [
@@ -72,15 +81,6 @@ input_file: fixtures/fragments/py/writes.py
     {
       "type": "File",
       "path": "fragments/py/read"
-    }
-  ],
-  [
-    "assign",
-    {
-      "type": "Symbol",
-      "path": "fragments/py/writes.py",
-      "name": "var",
-      "kind": ""
     }
   ]
 ]

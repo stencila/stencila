@@ -1,8 +1,8 @@
-f = open("path1", "w")
+var1 = open("path1", "w")
 
-data = []
+var2 = []
 with open("path2", "w+") as f: 
-    f.write(data)
+    f.write(var2)
 
 open("path3", "w+") 
 
@@ -20,5 +20,5 @@ open(file="read", mode="r+")
 
 # The following should be ignored
 
-var = None
-open(var)
+var2 = None
+open(var2)

@@ -10,7 +10,7 @@ input_file: fixtures/fragments/py/reads.py
     {
       "type": "Symbol",
       "path": "fragments/py/reads.py",
-      "name": "f",
+      "name": "var1",
       "kind": ""
     }
   ],
@@ -91,12 +91,30 @@ input_file: fixtures/fragments/py/reads.py
     {
       "type": "Symbol",
       "path": "fragments/py/reads.py",
-      "name": "var",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "var2",
       "kind": ""
     }
   ],
   [
     "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "mode",
+      "kind": ""
+    }
+  ],
+  [
+    "use",
     {
       "type": "Symbol",
       "path": "fragments/py/reads.py",
