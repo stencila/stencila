@@ -14,6 +14,15 @@ input_file: fixtures/fragments/js/reads.js
     }
   ],
   [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/reads.js",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
     "read",
     {
       "type": "File",
@@ -25,6 +34,15 @@ input_file: fixtures/fragments/js/reads.js
     {
       "type": "File",
       "path": "fragments/js/path2"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/reads.js",
+      "name": "readData",
+      "kind": "Function"
     }
   ],
   [

@@ -1,0 +1,143 @@
+---
+source: rust/src/methods/compile/code/js.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/js/assigns.js
+
+---
+[
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var1",
+      "kind": "Number"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var2",
+      "kind": "Number"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var3",
+      "kind": "Number"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var4",
+      "kind": "Number"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var5",
+      "kind": "Number"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var6",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var7",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var8",
+      "kind": "Number"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var9",
+      "kind": "Number"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var10",
+      "kind": "String"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var11",
+      "kind": "Array"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var12",
+      "kind": "Object"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "fun1",
+      "kind": "Function"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "fun2",
+      "kind": "Function"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "fun3",
+      "kind": "Function"
+    }
+  ]
+]

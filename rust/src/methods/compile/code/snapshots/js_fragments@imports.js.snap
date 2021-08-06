@@ -78,11 +78,29 @@ input_file: fixtures/fragments/js/imports.js
     }
   ],
   [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "promise",
+      "kind": ""
+    }
+  ],
+  [
     "use",
     {
       "type": "Module",
       "language": "javascript",
       "name": "module-10"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "defaultExport",
+      "kind": ""
     }
   ],
   [
@@ -94,11 +112,47 @@ input_file: fixtures/fragments/js/imports.js
     }
   ],
   [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "alias",
+      "kind": ""
+    }
+  ],
+  [
     "use",
     {
       "type": "Module",
       "language": "javascript",
       "name": "module-12"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "foo",
+      "kind": ""
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "pkg_var",
+      "kind": "String"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "bar",
+      "kind": ""
     }
   ]
 ]

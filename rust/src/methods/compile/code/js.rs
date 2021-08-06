@@ -16,7 +16,6 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 (import_statement
     source: (string) @module
 )
-
 (call_expression
     function: [(import)(identifier)] @function (#match? @function "^import|require$")
     arguments: (arguments . (string) @module)
@@ -49,6 +48,49 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
     ]
     arguments: (arguments . (string) @path)
 )
+
+(program
+    [
+        (expression_statement
+            (assignment_expression
+                left: (identifier) @name
+                right: (_) @value
+            )
+        )
+        (variable_declaration
+            (variable_declarator
+                name: (identifier) @name
+                value: (_) @value
+            )
+        )
+        (lexical_declaration
+            (variable_declarator
+                name: (identifier) @name
+                value: (_) @value
+            )
+        )
+        (export_statement
+            declaration: (lexical_declaration
+                (variable_declarator
+                    name: (identifier) @name
+                    value: (_) @value
+                )
+            )
+        )
+    ]
+)
+(program
+    [
+        (function_declaration
+            name: (identifier) @name
+        )
+        (export_statement
+            declaration: (function_declaration
+                name: (identifier) @name
+            )
+        )
+    ]
+)
 "#,
     )
 });
@@ -63,6 +105,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
         .iter()
         .filter_map(|(pattern, captures)| match pattern {
             0 | 1 => {
+                // Imports a module using `import` or `require`
                 let module = match pattern {
                     0 => &captures[0],
                     1 => &captures[1],
@@ -78,14 +121,38 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 };
                 Some((Relation::Use, object))
             }
-            2 => Some((
-                Relation::Read,
-                resources::file(&merge(path, remove_quotes(&captures[1].text))),
-            )),
-            3 => Some((
-                Relation::Write,
-                resources::file(&merge(path, remove_quotes(&captures[1].text))),
-            )),
+            2 => {
+                // Reads a file
+                Some((
+                    Relation::Read,
+                    resources::file(&merge(path, remove_quotes(&captures[1].text))),
+                ))
+            }
+            3 => {
+                // Writes a file
+                Some((
+                    Relation::Write,
+                    resources::file(&merge(path, remove_quotes(&captures[1].text))),
+                ))
+            }
+            4 | 5 => {
+                // Assigns a symbol at the top level of the module
+                let name = captures[0].text.clone();
+                let kind = match pattern {
+                    4 => match captures[1].node.kind() {
+                        "true" | "false" => "Boolean",
+                        "number" => "Number",
+                        "string" => "String",
+                        "array" => "Array",
+                        "object" => "Object",
+                        "arrow_function" => "Function",
+                        _ => "",
+                    },
+                    5 => "Function",
+                    _ => unreachable!(),
+                };
+                Some((Relation::Assign, resources::symbol(path, &name, kind)))
+            }
             _ => None,
         })
         .unique()

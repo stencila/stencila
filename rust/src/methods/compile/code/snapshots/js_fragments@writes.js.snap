@@ -14,6 +14,15 @@ input_file: fixtures/fragments/js/writes.js
     }
   ],
   [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/writes.js",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
     "write",
     {
       "type": "File",
@@ -25,6 +34,15 @@ input_file: fixtures/fragments/js/writes.js
     {
       "type": "File",
       "path": "fragments/js/path2"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/js/writes.js",
+      "name": "writeData",
+      "kind": "Function"
     }
   ],
   [
