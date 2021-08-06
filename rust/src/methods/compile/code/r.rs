@@ -136,7 +136,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     "string" => "String",
                     "function_definition" => "Function",
                     "call" => match child_text(value, "function", code) {
-                        "data.table" | "read.csv" | "read.csv2" | "read.delim" | "read.table" => {
+                        "data.frame" | "read.csv" | "read.csv2" | "read.delim" | "read.table" => {
                             "Datatable"
                         }
                         _ => "",

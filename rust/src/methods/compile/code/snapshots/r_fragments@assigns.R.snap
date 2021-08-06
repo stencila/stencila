@@ -58,5 +58,59 @@ input_file: fixtures/fragments/r/assigns.R
       "name": "var5",
       "kind": ""
     }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var6",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var7",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var8",
+      "kind": "Integer"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var9",
+      "kind": "Number"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var10",
+      "kind": "String"
+    }
+  ],
+  [
+    "assign",
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var11",
+      "kind": "Datatable"
+    }
   ]
 ]

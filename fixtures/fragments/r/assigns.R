@@ -12,3 +12,10 @@ for (i in 1:10) {
 }
 
 var5 <<- 1 * 5
+
+var6 <- TRUE
+var7 <- FALSE
+var8 <- 42L
+var9 <- 3.14
+var10 <- "string"
+var11 <- data.frame()
