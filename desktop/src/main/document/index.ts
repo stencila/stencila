@@ -1,10 +1,4 @@
-import { FileFormatUtils } from '@stencila/components'
-import {
-  BrowserWindow,
-  dialog,
-  FileFilter,
-  SaveDialogReturnValue,
-} from 'electron'
+import { BrowserWindow, dialog, SaveDialogReturnValue } from 'electron'
 import { dispatch, documents } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import {
@@ -25,6 +19,7 @@ import { rewriteHtml } from '../local-protocol'
 import { makeHandlers, removeChannelHandlers } from '../utils/handler'
 import { handle, valueToSuccessResult } from '../utils/ipc'
 import { DOCUMENT_CHANNEL } from './channel'
+import { supportedFileFormats } from './utils'
 
 /**
  * Open system file picker, prompting user to navigate to desired location, and enter a file name.
@@ -32,18 +27,6 @@ import { DOCUMENT_CHANNEL } from './channel'
 const createFilePath = async (event: Electron.IpcMainInvokeEvent) => {
   const win = BrowserWindow.fromWebContents(event.sender) ?? undefined
   let file: SaveDialogReturnValue
-
-  const supportedFileFormats = Object.values(
-    FileFormatUtils.fileFormatMap
-  ).reduce((filters: FileFilter[], { name, ext, aliases }) => {
-    return [
-      ...filters,
-      {
-        name,
-        extensions: [ext ?? '', ...aliases],
-      },
-    ]
-  }, [])
 
   // Conditional check required to satisfy TypeScript function overload
   if (win) {
