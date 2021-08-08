@@ -36,12 +36,12 @@ use stencila::{config, serve, tracing};
 
 ## 🛠️ Develop
 
-Get started by cloning this repository and building the library:
+Get started by cloning this repository and installing Cargo plugins (for linting, code coverage etc):
 
 ```sh
 git clone git@github.com:stencila/stencila
 cd stencila/rust
-make build
+make setup
 ```
 
 If you are contributing code please run formatting, linting and tests before submitting PRs:

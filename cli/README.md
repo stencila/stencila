@@ -63,3 +63,6 @@ If you are contributing code please run formatting and linting checks before sub
 ```sh
 make format lint
 ```
+
+See the `Makefile` in the [`../rust`](../rust) directory for tips on install necessary Cargo plugins etc.
+ 

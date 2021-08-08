@@ -1,8 +1,7 @@
 all: format lint cover audit build docs
 
 setup:
-	rustup component add clippy
-	rustup toolchain install nightly
+	# Install cargo plugins
 	cargo install \
 		cargo-audit --features=fix
 	cargo install \
@@ -11,7 +10,8 @@ setup:
 		cargo-tarpaulin \
 		cargo-udeps \
 		cargo-watch
-	cargo fetch
+	# Nightly is required to run `cargo udeps`
+	rustup toolchain install nightly
 
 format:
 	cargo fmt
@@ -31,9 +31,6 @@ audit:
 
 build:
 	cargo build --release
-
-install:
-	cargo install --path .
 
 docs:
 	cargo doc
