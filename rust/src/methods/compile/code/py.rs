@@ -199,10 +199,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     parent = parent_node.parent();
                 }
 
-                Some((
-                    Relation::Use(range),
-                    resources::symbol(path, &symbol, ""),
-                ))
+                Some((Relation::Use(range), resources::symbol(path, &symbol, "")))
             }
             _ => None,
         })

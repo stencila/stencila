@@ -1,4 +1,9 @@
-use crate::{documents::DOCUMENTS, graphs::{NULL_RANGE, Relation, Triple, resources}, traits::ToVecBlockContent, utils::path::merge};
+use crate::{
+    documents::DOCUMENTS,
+    graphs::{resources, Relation, Triple, NULL_RANGE},
+    traits::ToVecBlockContent,
+    utils::path::merge,
+};
 use async_trait::async_trait;
 use defaults::Defaults;
 use eyre::Result;
