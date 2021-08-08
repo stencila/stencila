@@ -1,3 +1,12 @@
+## [0.109.1](https://github.com/stencila/stencila/compare/v0.109.0...v0.109.1) (2021-08-08)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate nom to v7.0.0-alpha2 ([43ffa9c](https://github.com/stencila/stencila/commit/43ffa9cbb2e1647c686e4854b47fc1f0481f3fb1))
+* **dependencies:** update rust crate syntect to v4.6.0 ([7e6d7af](https://github.com/stencila/stencila/commit/7e6d7af38359d3c7cd76c301fb974c8a6c3fe5c7))
+* **dependencies:** update rust crate termimad to v0.14.1 ([898293e](https://github.com/stencila/stencila/commit/898293e8fe0b7de273864cbe016736635eb51dd8))
+
 # [0.109.0](https://github.com/stencila/stencila/compare/v0.108.0...v0.109.0) (2021-08-06)
 
 

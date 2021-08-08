@@ -173,9 +173,9 @@ dependencies = [
 
 [[package]]
 name = "async-process"
-version = "1.1.0"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8f38756dd9ac84671c428afbf7c9f7495feff9ec5b0710f17100098e5b354ac"
+checksum = "b21b63ab5a0db0369deb913540af2892750e42d949faacc7a61495ac418a1692"
 dependencies = [
  "async-io",
  "blocking",
@@ -3742,7 +3742,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
-version = "0.109.0"
+version = "0.109.1"
 dependencies = [
  "Inflector",
  "ansi_term 0.12.1",
@@ -3822,7 +3822,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.109.0"
+version = "0.109.1"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -3840,7 +3840,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.109.0"
+version = "0.109.1"
 dependencies = [
  "neon",
  "stencila",
