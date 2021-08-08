@@ -89,6 +89,9 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
         )
     ]
 )
+
+((identifier) @identifer)
+
 "#,
     )
 });
@@ -153,6 +156,65 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     Relation::Assign(range),
                     resources::symbol(path, &name, kind),
                 ))
+            }
+            6 => {
+                // Uses an identifier assigned elsewhere
+                let node = captures[0].node;
+                let range = captures[0].range;
+                let symbol = captures[0].text.clone();
+
+                let mut parent = node.parent();
+                while let Some(parent_node) = parent {
+                    match parent_node.kind() {
+                        // Skip identifiers in import statements
+                        // Could just skip children of `import_statement`, but specifying others in tree
+                        // results in an earlier return while walking up tree.
+                        "import_statement" | "import_clause" | "named_imports"
+                        | "import_specifier" => return None,
+                        // Skip identifiers that are the `name` of a declaration
+                        "variable_declarator" => {
+                            if Some(node) == parent_node.child_by_field_name("name") {
+                                return None;
+                            }
+                        }
+                        // Skip identifiers that are the `left` of an assignment
+                        "assignment_expression" => {
+                            if Some(node) == parent_node.child_by_field_name("left") {
+                                return None;
+                            }
+                        }
+                        // Skip any identifier used in a function
+                        "function_declaration" | "arrow_function" | "formal_parameters" => {
+                            return None;
+                        }
+                        // Skip identifiers that are the `left` of a for in loop, or that refer to it
+                        // within the loop
+                        "for_in_statement" => {
+                            if let Some(left) = parent_node.child_by_field_name("left") {
+                                if left == node || left.utf8_text(code).unwrap() == symbol {
+                                    return None;
+                                }
+                            }
+                        }
+                        // Skip identifiers that are the `name` of the variable in a for loop, or
+                        // that refer to it within the loop
+                        "for_statement" => {
+                            if let Some(name) = parent_node
+                                .child_by_field_name("initializer")
+                                .and_then(|node| node.named_child(0)) // variable_declarator
+                                .and_then(|node| node.child_by_field_name("name"))
+                            {
+                                if name == node || name.utf8_text(code).unwrap() == symbol {
+                                    return None;
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                    parent = parent_node.parent();
+                }
+
+                Some((Relation::Use(range), resources::symbol(path, &symbol, "")))
             }
             _ => None,
         })

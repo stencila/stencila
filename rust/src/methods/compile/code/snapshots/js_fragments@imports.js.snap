@@ -191,6 +191,22 @@ input_file: fixtures/fragments/js/imports.js
     {
       "use": [
         14,
+        20,
+        14,
+        27
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "require",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        14,
         28,
         14,
         39
@@ -215,6 +231,22 @@ input_file: fixtures/fragments/js/imports.js
       "type": "Symbol",
       "path": "fragments/js/imports.js",
       "name": "alias",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        15,
+        12,
+        15,
+        19
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "require",
       "kind": ""
     }
   ],
@@ -278,6 +310,38 @@ input_file: fixtures/fragments/js/imports.js
       "type": "Symbol",
       "path": "fragments/js/imports.js",
       "name": "bar",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        22,
+        12,
+        22,
+        19
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "require",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        22,
+        20,
+        22,
+        27
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "pkg_var",
       "kind": ""
     }
   ]

@@ -52,6 +52,21 @@ input_file: fixtures/fragments/r/imports.R
   ],
   [
     {
+      "use": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg3"
+    }
+  ],
+  [
+    {
       "assign": [
         8,
         0,
