@@ -7,23 +7,32 @@ use std::{collections::HashMap, path::Path, sync::Mutex};
 use tree_sitter::{Language, Parser, Query, QueryCursor};
 
 #[cfg(feature = "compile-code-js")]
-mod js;
+pub mod js;
 
 #[cfg(feature = "compile-code-py")]
-mod py;
+pub mod py;
 
 #[cfg(feature = "compile-code-r")]
-mod r;
+pub mod r;
+
+#[cfg(feature = "compile-code-ts")]
+pub mod ts;
 
 /// Compile code in a particular language
 pub fn compile(path: &Path, subject: &Resource, code: &str, language: &str) -> Vec<Triple> {
     let pairs = match language {
         #[cfg(feature = "compile-code-js")]
         "js" | "javascript" => js::compile(path, code),
+
         #[cfg(feature = "compile-code-py")]
         "py" | "python" => py::compile(path, code),
+
         #[cfg(feature = "compile-code-r")]
         "r" => r::compile(path, code),
+
+        #[cfg(feature = "compile-code-ts")]
+        "ts" | "typescript" => ts::compile(path, code),
+
         _ => Vec::new(),
     };
 

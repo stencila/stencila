@@ -75,27 +75,28 @@ compile-code = ["tree-sitter"]
 compile-code-js = ["compile-code", "tree-sitter-javascript"]
 compile-code-py = ["compile-code", "tree-sitter-python"]
 compile-code-r = ["compile-code", "tree-sitter-r"]
+compile-code-ts = ["compile-code", "tree-sitter-typescript"]
 
 query-jsonptr = []
 query-jmespath = ["jmespatch"]
 
 default = [
     "cli",
-    
+
     "serve",
     "serve-stdio",
     "serve-http",
     "serve-ws",
     "serve-static",
-    
+
     "request",
     "request-docker",
     "request-http",
     "request-stdio",
     "request-ws",
-    
+
     "binaries",
-    
+
     "plugins",
     "plugins-binary",
     "plugins-docker",
@@ -103,12 +104,12 @@ default = [
     "plugins-javascript",
     "plugins-python",
     "plugins-r",
-    
+
     "upgrade",
-    
+
     "import-elife",
     "import-github",
-    
+
     "decode-date",
     "decode-docx",
     "decode-html",
@@ -120,7 +121,7 @@ default = [
     "decode-rmd",
     "decode-toml",
     "decode-yaml",
-    
+
     "encode-docx",
     "encode-html",
     "encode-json",
@@ -132,7 +133,7 @@ default = [
     "encode-toml",
     "encode-txt",
     "encode-yaml",
-    
+
     "coerce",
     "reshape",
 
@@ -140,9 +141,10 @@ default = [
     "compile-code-js",
     "compile-code-py",
     "compile-code-r",
-    
+    "compile-code-ts",
+
     "query-jsonptr",
-    "query-jmespath"
+    "query-jmespath",
 ]
 
 [dependencies]
@@ -152,7 +154,9 @@ async-recursion = "0.3.2"
 async-trait = "=0.1.51"
 base64 = "=0.13.0"
 bollard = { version = "=0.11.0", optional = true }
-chromiumoxide = { version = "=0.3.1", optional = true, features = ["tokio-runtime"] }
+chromiumoxide = { version = "=0.3.1", optional = true, features = [
+    "tokio-runtime",
+] }
 chrono = "=0.4.19"
 crossbeam-channel = "=0.5.1"
 defaults = "=0.2.0"
@@ -187,7 +191,7 @@ pandoc_types = { version = "=0.4.0", optional = true }
 path-clean = "=0.1.0"
 pathdiff = "=0.2.0"
 petgraph = { version = "=0.6.0", features = ["serde-1"] }
-pulldown-cmark = { version = "=0.8.0", optional = true}
+pulldown-cmark = { version = "=0.8.0", optional = true }
 rand = "=0.8.4"
 regex = "=1.5.4"
 reqwest = { version = "=0.11.4", optional = true, features = ["json"] }
@@ -225,6 +229,7 @@ tree-sitter = { version = "=0.19.5", optional = true }
 tree-sitter-javascript = { version = "=0.19.0", optional = true }
 tree-sitter-python = { version = "=0.19.0", optional = true }
 tree-sitter-r = { git = "https://github.com/nokome/tree-sitter-r", optional = true }
+tree-sitter-typescript = { version = "=0.19.0", optional = true }
 url = "=2.2.2"
 validator = { version = "=0.14.0", features = ["derive"] }
 warp = { version = "=0.3.1", optional = true }

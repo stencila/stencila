@@ -4032,6 +4032,7 @@ dependencies = [
  "tree-sitter-javascript",
  "tree-sitter-python",
  "tree-sitter-r",
+ "tree-sitter-typescript",
  "url",
  "validator",
  "warp",
@@ -4614,6 +4615,16 @@ dependencies = [
 name = "tree-sitter-r"
 version = "0.19.3"
 source = "git+https://github.com/nokome/tree-sitter-r#b4bb8714bfd482e56bac2cd2dd45b32bcd2321ec"
+dependencies = [
+ "cc",
+ "tree-sitter",
+]
+
+[[package]]
+name = "tree-sitter-typescript"
+version = "0.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3f62d49c6e56bf291c412ee5e178ea14dff40f14a5f01a8847933f56d65bf3b"
 dependencies = [
  "cc",
  "tree-sitter",
