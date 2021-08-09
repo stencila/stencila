@@ -1,5 +1,6 @@
 use super::{
-    js::{self, handle},
+    apply_tags,
+    js::{self, handle_patterns},
     Compiler,
 };
 use crate::graphs::{resources, Relation, Resource};
@@ -50,8 +51,8 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
     let tree = COMPILER_TS.parse(code);
 
     // Query the tree for typed patterns defined in this module
-    let captures = COMPILER_TS.query(code, &tree);
-    let relations_typed = captures
+    let matches = COMPILER_TS.query(code, &tree);
+    let relations_typed = matches
         .iter()
         .filter_map(|(pattern, captures)| match pattern {
             0 => {
@@ -87,12 +88,13 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
         });
 
     // Query the tree for untyped patterns defined in the JavaScript module
-    let captures = COMPILER_JS.query(code, &tree);
-    let relations_untyped = captures
+    let matches = COMPILER_JS.query(code, &tree);
+    let relations_untyped = matches
         .iter()
-        .filter_map(|(pattern, capture)| handle(path, code, pattern, capture));
+        .filter_map(|(pattern, capture)| handle_patterns(path, code, pattern, capture));
 
-    relations_typed.chain(relations_untyped).collect()
+    let relations = relations_typed.chain(relations_untyped).collect();
+    apply_tags(path, "javascript", matches, 0, relations)
 }
 
 #[cfg(test)]

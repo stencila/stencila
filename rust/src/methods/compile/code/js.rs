@@ -1,4 +1,4 @@
-use super::{remove_quotes, Capture, Compiler};
+use super::{apply_tags, remove_quotes, Capture, Compiler};
 use crate::{
     graphs::{resources, Relation, Resource},
     utils::path::merge,
@@ -8,6 +8,8 @@ use std::path::Path;
 
 /// Query patterns for JavaScript (and reused for TypeScript)
 pub const PATTERNS: &str = r#"
+(program (comment) @comment)
+
 (import_statement
     source: (string) @module
 )
@@ -91,22 +93,21 @@ pub const PATTERNS: &str = r#"
 )
 
 ((identifier) @identifer)
-
 "#;
 
 // Handle a pattern match
-pub(crate) fn handle(
+pub(crate) fn handle_patterns(
     path: &Path,
     code: &[u8],
     pattern: &usize,
     captures: &Vec<Capture>,
 ) -> Option<(Relation, Resource)> {
     match pattern {
-        0 | 1 => {
+        1 | 2 => {
             // Imports a module using `import` or `require`
             let capture = match pattern {
-                0 => &captures[0],
-                1 => &captures[1],
+                1 => &captures[0],
+                2 => &captures[1],
                 _ => unreachable!(),
             };
             let range = capture.range;
@@ -118,26 +119,26 @@ pub(crate) fn handle(
             };
             Some((Relation::Use(range), object))
         }
-        2 => {
+        3 => {
             // Reads a file
             Some((
                 Relation::Read(captures[1].range),
                 resources::file(&merge(path, remove_quotes(&captures[1].text))),
             ))
         }
-        3 => {
+        4 => {
             // Writes a file
             Some((
                 Relation::Write(captures[1].range),
                 resources::file(&merge(path, remove_quotes(&captures[1].text))),
             ))
         }
-        4 | 5 => {
+        5 | 6 => {
             // Assigns a symbol at the top level of the module
             let range = captures[0].range;
             let name = captures[0].text.clone();
             let kind = match pattern {
-                4 => match captures[1].node.kind() {
+                5 => match captures[1].node.kind() {
                     "true" | "false" => "Boolean",
                     "number" => "Number",
                     "string" => "String",
@@ -146,7 +147,7 @@ pub(crate) fn handle(
                     "arrow_function" => "Function",
                     _ => "",
                 },
-                5 => "Function",
+                6 => "Function",
                 _ => unreachable!(),
             };
             Some((
@@ -154,7 +155,7 @@ pub(crate) fn handle(
                 resources::symbol(path, &name, kind),
             ))
         }
-        6 => {
+        7 => {
             // Uses an identifier assigned elsewhere
             let node = captures[0].node;
             let range = captures[0].range;
@@ -226,12 +227,14 @@ static COMPILER: Lazy<Compiler> =
 pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
     let code = code.as_bytes();
     let tree = COMPILER.parse(code);
-    let captures = COMPILER.query(code, &tree);
+    let matches = COMPILER.query(code, &tree);
 
-    captures
+    let relations = matches
         .iter()
-        .filter_map(|(pattern, capture)| handle(path, code, pattern, capture))
-        .collect()
+        .filter_map(|(pattern, capture)| handle_patterns(path, code, pattern, capture))
+        .collect();
+
+    apply_tags(path, "javascript", matches, 0, relations)
 }
 
 #[cfg(test)]

@@ -1,4 +1,4 @@
-use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
+use super::{apply_tags, captures_as_args_map, is_quoted, remove_quotes, Compiler};
 use crate::{
     graphs::{resources, Relation, Resource},
     utils::path::merge,
@@ -14,6 +14,13 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
     Compiler::new(
         tree_sitter_python::language(),
         r#"
+(module
+    [
+        (expression_statement (string) @comment)
+        (comment) @comment
+    ]
+)
+        
 (import_statement
     name: (dotted_name) @module
 )
@@ -53,7 +60,6 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 )
 
 ((identifier) @identifer)
-  
 "#,
     )
 });
@@ -62,12 +68,12 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
     let code = code.as_bytes();
     let tree = COMPILER.parse(code);
-    let captures = COMPILER.query(code, &tree);
+    let matches = COMPILER.query(code, &tree);
 
-    captures
-        .into_iter()
+    let relations = matches
+        .iter()
         .filter_map(|(pattern, captures)| match pattern {
-            0 | 1 => {
+            1 | 2 => {
                 // Imports a module
                 let range = captures[0].range;
                 let module = &captures[0].text;
@@ -78,7 +84,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 };
                 Some((Relation::Use(range), object))
             }
-            2 => {
+            3 => {
                 // Opens a file for reading or writing
                 let args = captures_as_args_map(captures);
                 if let Some(file) = args.get("0").or_else(|| args.get("file")) {
@@ -104,12 +110,12 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     None
                 }
             }
-            3 | 4 => {
+            4 | 5 => {
                 // Assigns a symbol at the top level of the module
                 let range = captures[0].range;
                 let name = captures[0].text.clone();
                 let kind = match pattern {
-                    3 => match captures[1].node.kind() {
+                    4 => match captures[1].node.kind() {
                         "true" | "false" => "Boolean",
                         "integer" => "Integer",
                         "float" => "Number",
@@ -119,7 +125,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                         "lambda" => "Function",
                         _ => "",
                     },
-                    4 => "Function",
+                    5 => "Function",
                     _ => unreachable!(),
                 };
                 Some((
@@ -127,7 +133,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     resources::symbol(path, &name, kind),
                 ))
             }
-            5 => {
+            6 => {
                 // Uses an identifier assigned elsewhere
                 let node = captures[0].node;
                 let range = captures[0].range;
@@ -204,7 +210,9 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
             }
             _ => None,
         })
-        .collect()
+        .collect();
+
+    apply_tags(path, "python", matches, 0, relations)
 }
 
 #[cfg(test)]

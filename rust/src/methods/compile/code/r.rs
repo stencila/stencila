@@ -1,4 +1,4 @@
-use super::{captures_as_args_map, child_text, is_quoted, remove_quotes, Compiler};
+use super::{apply_tags, captures_as_args_map, child_text, is_quoted, remove_quotes, Compiler};
 use crate::{
     graphs::{resources, Relation, Resource},
     utils::path::merge,
@@ -14,6 +14,8 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
     Compiler::new(
         tree_sitter_r::language(),
         r#"
+(program (comment) @comment)
+
 (call
     function: (identifier) @function (#match? @function "^library|require$")
     arguments:(
@@ -69,7 +71,6 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 (super_assignment name: (identifier) @identifer  value: (_) @value)
 
 ((identifier) @identifer)
-
 "#,
     )
 });
@@ -78,12 +79,12 @@ static COMPILER: Lazy<Compiler> = Lazy::new(|| {
 pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
     let code = code.as_bytes();
     let tree = COMPILER.parse(code);
-    let captures = COMPILER.query(code, &tree);
+    let matches = COMPILER.query(code, &tree);
 
-    captures
-        .into_iter()
+    let relations = matches
+        .iter()
         .filter_map(|(pattern, captures)| match pattern {
-            0 => {
+            1 => {
                 // Imports a package using `library` or `require`
                 let args = captures_as_args_map(captures);
                 args.get("0")
@@ -102,7 +103,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                         ))
                     })
             }
-            1 => {
+            2 => {
                 // Reads a file
                 let args = captures_as_args_map(captures);
                 args.get("0").or_else(|| args.get("file")).map(|file| {
@@ -112,7 +113,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     )
                 })
             }
-            2 => {
+            3 => {
                 // Writes a file
                 let args = captures_as_args_map(captures);
                 args.get("1").or_else(|| args.get("file")).map(|file| {
@@ -122,7 +123,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     )
                 })
             }
-            3 | 4 => {
+            4 | 5 => {
                 // Assigns a symbol at the top level of the module
                 let range = captures[0].range;
                 let name = captures[0].text.clone();
@@ -146,7 +147,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     resources::symbol(path, &name, kind),
                 ))
             }
-            5 => {
+            6 => {
                 // Uses a function or variable
                 let node = captures[0].node;
                 let range = captures[0].range;
@@ -222,7 +223,9 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
             }
             _ => None,
         })
-        .collect()
+        .collect();
+
+    apply_tags(path, "r", matches, 0, relations)
 }
 
 #[cfg(test)]

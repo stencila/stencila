@@ -2,8 +2,14 @@
 ///!
 ///! Uses `tree-sitter` to parse source code into a abstract syntax tree which is then used to
 ///! derive properties of a `CodeAnalysis`.
-use crate::graphs::{Range, Relation, Resource, Triple};
-use std::{collections::HashMap, path::Path, sync::Mutex};
+use crate::graphs::{resources, Range, Relation, Resource, Triple};
+use once_cell::sync::Lazy;
+use regex::Regex;
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+    sync::Mutex,
+};
 use tree_sitter::{Language, Parser, Query, QueryCursor};
 
 #[cfg(feature = "compile-code-js")]
@@ -98,7 +104,9 @@ impl<'tree> Capture<'tree> {
 ///
 /// This relies on captures using the names `@arg` (for non-keyword args)
 /// and `@arg_name` and `@arg_value` pairs (for keyword args).
-pub(crate) fn captures_as_args_map(captures: Vec<Capture>) -> HashMap<String, Capture> {
+pub(crate) fn captures_as_args_map<'tree>(
+    captures: &'tree Vec<Capture>,
+) -> HashMap<String, &'tree Capture<'tree>> {
     let mut map = HashMap::new();
 
     let mut index = 0;
@@ -110,7 +118,7 @@ pub(crate) fn captures_as_args_map(captures: Vec<Capture>) -> HashMap<String, Ca
                 index += 1;
             }
             "arg_name" => {
-                name = capture.text;
+                name = capture.text.clone();
             }
             "arg_value" => {
                 map.insert(name.clone(), capture);
@@ -166,8 +174,8 @@ impl Compiler {
     ///
     /// # Arguments
     ///
-    /// - `language`: the `tree-sitter` language definition
-    /// - `query`: the `tree-sitter` query definition
+    /// - `language`: The `tree-sitter` language definition
+    /// - `query`: The `tree-sitter` query definition
     fn new(language: Language, query: &str) -> Compiler {
         let mut parser = Parser::new();
         parser
@@ -184,7 +192,7 @@ impl Compiler {
     ///
     /// # Arguments
     ///
-    /// - `code`: the code to parse
+    /// - `code`: The code to parse
     ///
     /// # Returns
     ///
@@ -197,11 +205,12 @@ impl Compiler {
             .expect("Should be a tree result")
     }
 
-    /// Query a
+    /// Query a parse tree
     ///
     /// # Arguments
     ///
-    /// - `code`: the code to parse
+    /// - `code`: The code to parse
+    /// - `tree`: The `tree-sitter` parse tree
     ///
     /// # Returns
     ///
@@ -244,4 +253,107 @@ impl Compiler {
             })
             .collect()
     }
+}
+
+/// Apply manual tags (e.g. `@uses` in a comment) to the relations
+///
+/// # Arguments
+///
+/// - `path`: The path of the subject code resource
+/// - `lang`: The language (used for creating `Resource::Module` variants)
+/// - `matches`: The matches from querying the code
+/// - `pattern`: The pattern from which to extract tags
+/// - `relations`: The relations to update based on tags
+///
+/// Assumes that the first capture has the text content
+/// of the comment.
+/// If the tag ends in `only` then all existing relations of that type
+/// will be removed from `relations`.
+pub(crate) fn apply_tags(
+    path: &Path,
+    lang: &str,
+    matches: Vec<(usize, Vec<Capture>)>,
+    pattern: usize,
+    mut relations: Vec<(Relation, Resource)>,
+) -> Vec<(Relation, Resource)> {
+    for (pattern_, captures) in matches {
+        if pattern_ != pattern {
+            continue;
+        }
+
+        // Get the new relations from the comment
+        let comment = &captures[0];
+        let (mut specified_relations, only_relations) =
+            parse_tags(path, lang, comment.range.0, &comment.text);
+
+        // Remove existing relations if `only` indicators are present
+        for only in only_relations {
+            relations.retain(|(relation, resource)| {
+                !(matches!(relation, Relation::Use(..))
+                    && matches!(resource, Resource::Module(..))
+                    && only == "imports"
+                    || matches!(relation, Relation::Assign(..)) && only == "assigns"
+                    || matches!(relation, Relation::Use(..))
+                        && matches!(resource, Resource::Symbol(..))
+                        && only == "uses")
+            })
+        }
+
+        // Add specified relations
+        relations.append(&mut specified_relations);
+    }
+    relations
+}
+
+/// Parse a comment into a set of `Relation`/`Resource` pairs and the name relation
+/// types for which those specified should be the only relations
+fn parse_tags(
+    path: &Path,
+    lang: &str,
+    row: usize,
+    comment: &str,
+) -> (Vec<(Relation, Resource)>, Vec<String>) {
+    static REGEX_TAG: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r"@(imports|assigns|uses|modifies|reads|writes)\s+(.*?)(\*/)?$")
+            .expect("Unable to create regex")
+    });
+    static REGEX_ITEMS: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"\s+|(\s*,\s*)").expect("Unable to create regex"));
+
+    let mut relations: Vec<(Relation, Resource)> = Vec::new();
+    let mut only: Vec<String> = Vec::new();
+    for (index, line) in comment.lines().enumerate() {
+        let range = (row + index, 0, row + index, line.len() - 1);
+        if let Some(captures) = REGEX_TAG.captures(line) {
+            let tag = captures[1].to_string();
+            let relation = match tag.as_str() {
+                "imports" => Relation::Use(range),
+                "assigns" => Relation::Assign(range),
+                "uses" => Relation::Use(range),
+                "reads" => Relation::Read(range),
+                "writes" => Relation::Write(range),
+                _ => continue,
+            };
+
+            let items: Vec<String> = REGEX_ITEMS
+                .split(&captures[2].trim())
+                .map(|item| item.to_string())
+                .collect();
+            for item in items {
+                if item == "only" {
+                    only.push(tag.clone());
+                    continue;
+                }
+
+                let resource = match tag.as_str() {
+                    "imports" => resources::module(lang, &item),
+                    "assigns" | "uses" => resources::symbol(path, &item, ""),
+                    "reads" | "writes" => resources::file(&PathBuf::from(item)),
+                    _ => continue,
+                };
+                relations.push((relation.clone(), resource))
+            }
+        }
+    }
+    (relations, only)
 }

@@ -1,0 +1,127 @@
+---
+source: rust/src/methods/compile/code/js.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/js/tags.js
+
+---
+[
+  [
+    {
+      "use": [
+        1,
+        0,
+        1,
+        26
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "mod1"
+    }
+  ],
+  [
+    {
+      "use": [
+        1,
+        0,
+        1,
+        26
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "mod2"
+    }
+  ],
+  [
+    {
+      "use": [
+        1,
+        0,
+        1,
+        26
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "mod3"
+    }
+  ],
+  [
+    {
+      "assign": [
+        2,
+        0,
+        2,
+        20
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/tags.js",
+      "name": "var1",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        3,
+        0,
+        3,
+        12
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/tags.js",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "read": [
+        5,
+        0,
+        5,
+        23
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file1"
+    }
+  ],
+  [
+    {
+      "read": [
+        5,
+        0,
+        5,
+        23
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file2"
+    }
+  ],
+  [
+    {
+      "write": [
+        6,
+        0,
+        6,
+        15
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file3"
+    }
+  ]
+]
