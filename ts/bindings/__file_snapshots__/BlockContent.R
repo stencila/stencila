@@ -2,5 +2,5 @@
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-BlockContent <- Union(Claim, CodeBlock, CodeChunk, Collection, Figure, Heading, List, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
+BlockContent <- Union(Claim, CodeBlock, CodeChunk, Collection, Figure, Heading, Include, List, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
 

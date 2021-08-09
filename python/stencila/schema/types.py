@@ -4400,7 +4400,7 @@ GrantTypes = Union["Grant", "MonetaryGrant"]
 """
 Union type for valid inline content.
 """
-InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Quote", "Strong", "Subscript", "Superscript", "VideoObject", None, "Boolean", "Integer", "Number", "String"]
+InlineContent = Union["AudioObject", "Cite", "CiteGroup", "CodeExpression", "CodeFragment", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Note", "Parameter", "Quote", "Strong", "Subscript", "Superscript", "VideoObject", None, "Boolean", "Integer", "Number", "String"]
 
 
 """

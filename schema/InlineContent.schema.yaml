@@ -19,6 +19,7 @@ anyOf:
   - $ref: MathFragment
   - $ref: NontextualAnnotation
   - $ref: Note
+  - $ref: Parameter
   - $ref: Quote
   - $ref: Strong
   - $ref: Subscript

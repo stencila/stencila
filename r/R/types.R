@@ -2143,14 +2143,15 @@ ImageObject <- function(
 }
 
 
-#' A directive to include content from an external source (e.g. file, URL) or content.
+#' Include content from an external source (e.g. file, URL).
 #'
 #' @name Include
-#' @param source The source of the content, a URL or file path, or the content itself. \bold{Required}.
-#' @param content The content to be included.
+#' @param source The external source of the content, a file path or URL. \bold{Required}.
+#' @param content The structured content decoded from the source.
 #' @param id The identifier for this item.
-#' @param mediaType Media type, typically expressed using a MIME format, of the source content.
+#' @param mediaType Media type of the source content.
 #' @param meta Metadata associated with this item.
+#' @param sha256 The SHA-256 hash of the content of `source`.
 #' @return A `list` of class `Include`
 #' @seealso \code{\link{Entity}}
 #' @export
@@ -2159,7 +2160,8 @@ Include <- function(
   content,
   id,
   mediaType,
-  meta
+  meta,
+  sha256
 ){
   self <- Entity(
     id = id,
@@ -2169,6 +2171,7 @@ Include <- function(
   self[["source"]] <- check_property("Include", "source", TRUE, missing(source), "character", source)
   self[["content"]] <- check_property("Include", "content", FALSE, missing(content), Array(BlockContent), content)
   self[["mediaType"]] <- check_property("Include", "mediaType", FALSE, missing(mediaType), "character", mediaType)
+  self[["sha256"]] <- check_property("Include", "sha256", FALSE, missing(sha256), "character", sha256)
   class(self) <- c(class(self), "Include")
   self
 }
@@ -4421,7 +4424,7 @@ CitationIntentEnumeration <- Enum("AgreesWith", "CitesAsAuthority", "CitesAsData
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-BlockContent <- Union(Claim, CodeBlock, CodeChunk, Collection, Figure, Heading, List, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
+BlockContent <- Union(Claim, CodeBlock, CodeChunk, Collection, Figure, Heading, Include, List, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
 
 
 #' All type schemas that are derived from CodeBlock
@@ -4484,7 +4487,7 @@ GrantTypes <- Union(Grant, MonetaryGrant)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-InlineContent <- Union(AudioObject, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Note, Quote, Strong, Subscript, Superscript, VideoObject, "NULL", "logical", "numeric", "character")
+InlineContent <- Union(AudioObject, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Note, Parameter, Quote, Strong, Subscript, Superscript, VideoObject, "NULL", "logical", "numeric", "character")
 
 
 #' All type schemas that are derived from Mark

@@ -117,6 +117,7 @@ fn sizes() {
     sizeof!(MathFragment);
     sizeof!(NontextualAnnotation);
     sizeof!(Note);
+    sizeof!(Parameter);
     sizeof!(Quote);
     sizeof!(Strong);
     sizeof!(Subscript);

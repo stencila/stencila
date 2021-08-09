@@ -2115,6 +2115,7 @@ export type InlineContent =
   | MathFragment
   | NontextualAnnotation
   | Note
+  | Parameter
   | Quote
   | Strong
   | Subscript
@@ -3004,6 +3005,7 @@ export const inlineContentTypes: TypeMap<Exclude<InlineContent, Primitives>> = {
   MathFragment: 'MathFragment',
   NontextualAnnotation: 'NontextualAnnotation',
   Note: 'Note',
+  Parameter: 'Parameter',
   Quote: 'Quote',
   Strong: 'Strong',
   Subscript: 'Subscript',

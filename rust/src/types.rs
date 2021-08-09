@@ -5351,6 +5351,7 @@ pub enum InlineContent {
     MathFragment(MathFragment),
     NontextualAnnotation(NontextualAnnotation),
     Note(Note),
+    Parameter(Parameter),
     Quote(Quote),
     Strong(Strong),
     Subscript(Subscript),
