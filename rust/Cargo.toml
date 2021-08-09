@@ -75,7 +75,7 @@ compile-code = ["tree-sitter"]
 compile-code-js = ["compile-code", "tree-sitter-javascript"]
 compile-code-py = ["compile-code", "tree-sitter-python"]
 compile-code-r = ["compile-code", "tree-sitter-r"]
-compile-code-ts = ["compile-code", "tree-sitter-typescript"]
+compile-code-ts = ["compile-code", "compile-code-js", "tree-sitter-typescript"]
 
 query-jsonptr = []
 query-jmespath = ["jmespatch"]
