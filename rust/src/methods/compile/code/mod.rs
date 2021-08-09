@@ -94,8 +94,11 @@ impl<'tree> Capture<'tree> {
     }
 }
 
-/// Convert a vector of `Capture`s into a
-pub(crate) fn captures_as_args_map(captures: Vec<Capture>) -> HashMap<String, String> {
+/// Convert a vector of `Capture`s into a `HashMap` of captures
+///
+/// This relies on captures using the names `@arg` (for non-keyword args)
+/// and `@arg_name` and `@arg_value` pairs (for keyword args).
+pub(crate) fn captures_as_args_map(captures: Vec<Capture>) -> HashMap<String, Capture> {
     let mut map = HashMap::new();
 
     let mut index = 0;
@@ -103,14 +106,14 @@ pub(crate) fn captures_as_args_map(captures: Vec<Capture>) -> HashMap<String, St
     for capture in captures {
         match capture.name.as_str() {
             "arg" => {
-                map.insert(index.to_string(), capture.text);
+                map.insert(index.to_string(), capture);
                 index += 1;
             }
             "arg_name" => {
                 name = capture.text;
             }
             "arg_value" => {
-                map.insert(name.clone(), capture.text);
+                map.insert(name.clone(), capture);
             }
             _ => {}
         }

@@ -2,9 +2,7 @@ use super::{
     js::{self, handle},
     Compiler,
 };
-use crate::{
-    graphs::{resources, Relation, Resource},
-};
+use crate::graphs::{resources, Relation, Resource};
 use once_cell::sync::Lazy;
 use std::path::Path;
 

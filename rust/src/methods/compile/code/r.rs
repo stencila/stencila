@@ -1,6 +1,6 @@
 use super::{captures_as_args_map, child_text, is_quoted, remove_quotes, Compiler};
 use crate::{
-    graphs::{resources, Relation, Resource, NULL_RANGE},
+    graphs::{resources, Relation, Resource},
     utils::path::merge,
 };
 use once_cell::sync::Lazy;
@@ -90,15 +90,15 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     .or_else(|| args.get("package"))
                     .and_then(|package| {
                         if let Some(is_char) = args.get("character.only") {
-                            if is_char.starts_with('T') && !is_quoted(package) {
+                            if is_char.text.starts_with('T') && !is_quoted(&package.text) {
                                 return None;
                             }
-                        } else if is_quoted(package) {
+                        } else if is_quoted(&package.text) {
                             return None;
                         }
                         Some((
-                            Relation::Use(NULL_RANGE),
-                            resources::module("r", &remove_quotes(package)),
+                            Relation::Use(package.range),
+                            resources::module("r", &remove_quotes(&package.text)),
                         ))
                     })
             }
@@ -107,8 +107,8 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 let args = captures_as_args_map(captures);
                 args.get("0").or_else(|| args.get("file")).map(|file| {
                     (
-                        Relation::Read(NULL_RANGE),
-                        resources::file(&merge(path, remove_quotes(file))),
+                        Relation::Read(file.range),
+                        resources::file(&merge(path, remove_quotes(&file.text))),
                     )
                 })
             }
@@ -117,8 +117,8 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 let args = captures_as_args_map(captures);
                 args.get("1").or_else(|| args.get("file")).map(|file| {
                     (
-                        Relation::Write(NULL_RANGE),
-                        resources::file(&merge(path, remove_quotes(file))),
+                        Relation::Write(file.range),
+                        resources::file(&merge(path, remove_quotes(&file.text))),
                     )
                 })
             }

@@ -1,6 +1,6 @@
 use super::{captures_as_args_map, is_quoted, remove_quotes, Compiler};
 use crate::{
-    graphs::{resources, Relation, Resource, NULL_RANGE},
+    graphs::{resources, Relation, Resource},
     utils::path::merge,
 };
 use once_cell::sync::Lazy;
@@ -82,22 +82,23 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 // Opens a file for reading or writing
                 let args = captures_as_args_map(captures);
                 if let Some(file) = args.get("0").or_else(|| args.get("file")) {
-                    if !is_quoted(file) {
+                    if !is_quoted(&file.text) {
                         return None;
                     }
-                    let path = merge(path, remove_quotes(file));
+                    let path = merge(path, remove_quotes(&file.text));
+                    let range = file.range;
                     if let Some(mode) = args.get("1").or_else(|| args.get("mode")) {
-                        if !is_quoted(mode) {
+                        if !is_quoted(&mode.text) {
                             return None;
                         }
-                        let mode = remove_quotes(mode);
+                        let mode = remove_quotes(&mode.text);
                         if mode.starts_with('w') || mode.starts_with('a') {
-                            Some((Relation::Write(NULL_RANGE), resources::file(&path)))
+                            Some((Relation::Write(range), resources::file(&path)))
                         } else {
-                            Some((Relation::Read(NULL_RANGE), resources::file(&path)))
+                            Some((Relation::Read(range), resources::file(&path)))
                         }
                     } else {
-                        Some((Relation::Read(NULL_RANGE), resources::file(&path)))
+                        Some((Relation::Read(range), resources::file(&path)))
                     }
                 } else {
                     None

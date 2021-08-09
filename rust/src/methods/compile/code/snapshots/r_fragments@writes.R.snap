@@ -25,9 +25,9 @@ input_file: fixtures/fragments/r/writes.R
     {
       "write": [
         0,
+        16,
         0,
-        0,
-        0
+        23
       ]
     },
     {
@@ -54,10 +54,10 @@ input_file: fixtures/fragments/r/writes.R
   [
     {
       "write": [
-        0,
-        0,
-        0,
-        0
+        2,
+        25,
+        2,
+        32
       ]
     },
     {
@@ -84,10 +84,10 @@ input_file: fixtures/fragments/r/writes.R
   [
     {
       "write": [
-        0,
-        0,
-        0,
-        0
+        5,
+        29,
+        5,
+        36
       ]
     },
     {
@@ -114,10 +114,10 @@ input_file: fixtures/fragments/r/writes.R
   [
     {
       "write": [
-        0,
-        0,
-        0,
-        0
+        8,
+        31,
+        8,
+        38
       ]
     },
     {

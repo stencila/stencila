@@ -8,10 +8,10 @@ input_file: fixtures/fragments/r/imports.R
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        1,
+        8,
+        1,
+        12
       ]
     },
     {
@@ -23,10 +23,10 @@ input_file: fixtures/fragments/r/imports.R
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        2,
+        8,
+        2,
+        12
       ]
     },
     {
@@ -38,10 +38,10 @@ input_file: fixtures/fragments/r/imports.R
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        5,
+        8,
+        5,
+        14
       ]
     },
     {
@@ -53,10 +53,10 @@ input_file: fixtures/fragments/r/imports.R
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        5,
+        8,
+        5,
+        14
       ]
     },
     {
@@ -84,10 +84,10 @@ input_file: fixtures/fragments/r/imports.R
   [
     {
       "use": [
-        0,
-        0,
-        0,
-        0
+        9,
+        12,
+        9,
+        16
       ]
     },
     {

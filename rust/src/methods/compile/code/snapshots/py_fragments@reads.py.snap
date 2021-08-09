@@ -25,9 +25,9 @@ input_file: fixtures/fragments/py/reads.py
     {
       "read": [
         0,
+        12,
         0,
-        0,
-        0
+        19
       ]
     },
     {
@@ -38,10 +38,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        2,
+        10,
+        2,
+        17
       ]
     },
     {
@@ -52,10 +52,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        5,
+        5,
+        5,
+        12
       ]
     },
     {
@@ -66,10 +66,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        7,
+        10,
+        7,
+        17
       ]
     },
     {
@@ -80,10 +80,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        9,
+        5,
+        9,
+        12
       ]
     },
     {
@@ -94,10 +94,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        11,
+        10,
+        11,
+        17
       ]
     },
     {
@@ -108,10 +108,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        13,
+        10,
+        13,
+        17
       ]
     },
     {
@@ -138,10 +138,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        17,
+        9,
+        17,
+        16
       ]
     },
     {
@@ -152,10 +152,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "write": [
-        0,
-        0,
-        0,
-        0
+        22,
+        5,
+        22,
+        12
       ]
     },
     {
@@ -166,10 +166,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "write": [
-        0,
-        0,
-        0,
-        0
+        23,
+        5,
+        23,
+        12
       ]
     },
     {
@@ -180,10 +180,10 @@ input_file: fixtures/fragments/py/reads.py
   [
     {
       "write": [
-        0,
-        0,
-        0,
-        0
+        24,
+        10,
+        24,
+        17
       ]
     },
     {

@@ -8,10 +8,10 @@ input_file: fixtures/fragments/r/reads.R
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        1,
+        9,
+        1,
+        16
       ]
     },
     {
@@ -38,10 +38,10 @@ input_file: fixtures/fragments/r/reads.R
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        4,
+        19,
+        4,
+        26
       ]
     },
     {
@@ -68,10 +68,10 @@ input_file: fixtures/fragments/r/reads.R
   [
     {
       "read": [
-        0,
-        0,
-        0,
-        0
+        8,
+        22,
+        8,
+        29
       ]
     },
     {
