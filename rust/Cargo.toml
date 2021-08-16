@@ -185,7 +185,7 @@ stencila-schema = "=1.10.1"
 structopt = { version = "=0.3.22", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
 strum_macros = "=0.21.1"
-tar = { version = "=0.4.35", optional = true }
+tar = { version = "=0.4.37", optional = true }
 tempfile = "3.2.0"
 thiserror = "=1.0.26"
 tokio = { version = "=1.9.0", features = ["full"] }
