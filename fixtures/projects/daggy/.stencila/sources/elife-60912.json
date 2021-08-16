@@ -1,0 +1,11 @@
+{
+  "source": {
+    "type": "Elife",
+    "article": 60912
+  },
+  "destination": "article.xml",
+  "files": [
+      "article.xml",
+      "article.xml.media/fig1-v1.jpg"
+  ]
+}
