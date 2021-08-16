@@ -23,6 +23,36 @@ pub enum Error {
     #[error("Invalid universal identifier for family '{family}': {id}")]
     InvalidUUID { family: String, id: String },
 
+    /// Used to indicate that two values are not the same (rather than
+    /// return `false`, this error allows for convenient early return via `?`).
+    #[error("Values are not the same (type and/or their value differ).")]
+    NotSame,
+
+    /// Used to indicate that two values are not equal (rather than
+    /// return `false`, this error allows for convenient early return via `?`).
+    #[error("Values are not equal (type is equal but their value differs")]
+    NotEqual,
+
+    /// The user attempted to apply a patch operation that is invalid for
+    /// the type.
+    #[error("Invalid patch operation '{op}' for type '{type_name}'")]
+    InvalidPatchOperation { op: String, type_name: String },
+
+    /// The user attempted to apply a patch operation with invalid keys
+    /// for the type.
+    #[error("Invalid patch keys '{keys}' for type '{type_name}'")]
+    InvalidPatchKeys { keys: String, type_name: String },
+
+    /// The user attempted to apply a patch operation with an invalid
+    /// property name for the type.
+    #[error("Invalid patch name '{name}' for type '{type_name}'")]
+    InvalidPatchName { name: String, type_name: String },
+
+    /// The user attempted to apply a patch operation with an invalid
+    /// sequence index for the type.
+    #[error("Invalid patch index '{index}' for type '{type_name}'")]
+    InvalidPatchIndex { index: usize, type_name: String },
+
     /// The user attempted to open a document with an unknown format
     #[error("Unknown format '{format}'")]
     UnknownFormat { format: String },
@@ -69,26 +99,24 @@ pub fn start() {
     COLLECT.swap(true, std::sync::atomic::Ordering::Relaxed);
 }
 
-/// Push an error
-pub fn push_error(error: Error) {
+/// Report an error
+pub fn report(error: Error) {
+    #[cfg(test)]
+    eprintln!("Reported ERROR: {}", error);
+
     if COLLECT.load(std::sync::atomic::Ordering::Relaxed) {
         ERRORS.lock().expect("To be able to get lock").push(error);
     }
 }
 
-/// Push a error report
-pub fn push_report(report: eyre::Report) {
-    let message = report.to_string();
-    match report.downcast::<Error>() {
-        Ok(error) => push_error(error),
-        Err(_) => push_error(Error::Unspecified { message }),
-    }
-}
-
-/// Record an error result
+/// Record an error result if any
 pub fn attempt<T>(result: Result<T>) {
-    if let Err(report) = result {
-        push_report(report)
+    if let Err(error) = result {
+        let message = error.to_string();
+        match error.downcast::<Error>() {
+            Ok(error) => report(error),
+            Err(_) => report(Error::Unspecified { message }),
+        }
     }
 }
 

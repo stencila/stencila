@@ -4078,6 +4078,7 @@ dependencies = [
  "serde_with",
  "serde_yaml",
  "sha2",
+ "similar",
  "slug",
  "stencila-schema",
  "structopt",
