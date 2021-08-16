@@ -1,8 +1,8 @@
 use crate::{
     documents::DOCUMENTS,
-    graphs::{resources, Relation, Triple, NULL_RANGE},
+    graphs::{resources, Relation, Resource, NULL_RANGE},
     traits::ToVecBlockContent,
-    utils::path::merge,
+    utils::{hash::str_sha256_bytes, path::merge},
 };
 use async_trait::async_trait;
 use defaults::Defaults;
@@ -43,8 +43,9 @@ pub struct Context {
     /// Used to store in relations
     path_within_project: String,
 
-    /// Relations within the document
-    pub relations: Vec<Triple>,
+    /// Relations with other resources for each compiled resource
+    /// in the document.
+    pub relations: Vec<(Resource, Vec<(Relation, Resource)>)>,
 }
 
 impl Context {
@@ -353,7 +354,9 @@ impl Compile for Link {
             resources::file(&merge(&context.path, target))
         };
 
-        context.relations.push((subject, Relation::Link, object));
+        context
+            .relations
+            .push((subject, vec![(Relation::Link, object)]));
 
         Ok(())
     }
@@ -416,7 +419,7 @@ macro_rules! compile_media_object {
                         resources::file(&Path::new(&url))
                     };
 
-                    context.relations.push((subject, Relation::Embed, object));
+                    context.relations.push((subject, vec![(Relation::Embed, object)]));
 
                     self.content_url = url;
 
@@ -454,7 +457,7 @@ impl Compile for Parameter {
 
         context
             .relations
-            .push((subject, Relation::Assign(NULL_RANGE), object));
+            .push((subject, vec![(Relation::Assign(NULL_RANGE), object)]));
         Ok(())
     }
 }
@@ -462,11 +465,20 @@ impl Compile for Parameter {
 #[async_trait]
 impl Compile for CodeChunk {
     async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        if let Some(lang) = self.programming_language.as_deref() {
+        let CodeChunk {
+            text,
+            programming_language,
+            ..
+        } = &self;
+        let digest = str_sha256_bytes(&[text.as_str(), programming_language.as_str()].concat());
+
+        if Some(digest) != self.compile_digest {
             let subject = resources::node(&context.path, address, &self.type_name());
-            let mut relations = code::compile(&context.path, &subject, &self.text, lang);
-            context.relations.append(&mut relations)
+            let relations = code::compile(&context.path, text, programming_language);
+            context.relations.push((subject, relations));
+            self.compile_digest = Some(digest)
         }
+
         Ok(())
     }
 }
@@ -474,11 +486,20 @@ impl Compile for CodeChunk {
 #[async_trait]
 impl Compile for CodeExpression {
     async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        if let Some(lang) = self.programming_language.as_deref() {
+        let CodeExpression {
+            text,
+            programming_language,
+            ..
+        } = &self;
+        let digest = str_sha256_bytes(&[text.as_str(), programming_language.as_str()].concat());
+
+        if Some(digest) != self.compile_digest {
             let subject = resources::node(&context.path, address, &self.type_name());
-            let mut relations = code::compile(&context.path, &subject, &self.text, lang);
-            context.relations.append(&mut relations)
+            let relations = code::compile(&context.path, text, programming_language);
+            context.relations.push((subject, relations));
+            self.compile_digest = Some(digest);
         }
+
         Ok(())
     }
 }
@@ -486,12 +507,15 @@ impl Compile for CodeExpression {
 #[async_trait]
 impl Compile for SoftwareSourceCode {
     async fn compile(&mut self, _address: &str, context: &mut Context) -> Result<()> {
-        if let (Some(text), Some(lang)) =
+        if let (Some(text), Some(programming_language)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
+            let _digest =
+                str_sha256_bytes(&[text.as_str(), programming_language.as_str()].concat());
+
             let subject = resources::file(&context.path);
-            let mut relations = code::compile(&context.path, &subject, text, lang);
-            context.relations.append(&mut relations)
+            let relations = code::compile(&context.path, text, programming_language);
+            context.relations.push((subject, relations));
         }
         Ok(())
     }
@@ -513,7 +537,9 @@ impl Compile for Include {
 
         let object = resources::file(&path);
 
-        context.relations.push((subject, Relation::Include, object));
+        context
+            .relations
+            .push((subject, vec![(Relation::Include, object)]));
 
         Ok(())
     }

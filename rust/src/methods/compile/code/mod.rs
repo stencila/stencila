@@ -2,7 +2,7 @@
 ///!
 ///! Uses `tree-sitter` to parse source code into a abstract syntax tree which is then used to
 ///! derive properties of a `CodeAnalysis`.
-use crate::graphs::{resources, Range, Relation, Resource, Triple};
+use crate::graphs::{resources, Range, Relation, Resource};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::{
@@ -25,7 +25,7 @@ pub mod r;
 pub mod ts;
 
 /// Compile code in a particular language
-pub fn compile(path: &Path, subject: &Resource, code: &str, language: &str) -> Vec<Triple> {
+pub fn compile(path: &Path, code: &str, language: &str) -> Vec<(Relation, Resource)> {
     let pairs = match language {
         #[cfg(feature = "compile-code-js")]
         "js" | "javascript" => js::compile(path, code),
@@ -42,12 +42,12 @@ pub fn compile(path: &Path, subject: &Resource, code: &str, language: &str) -> V
         _ => Vec::new(),
     };
 
-    // Translate pairs into triples and remove any `Uses` of locally assigned variables
-    let mut triples: Vec<Triple> = Vec::with_capacity(pairs.len());
+    // Normalize pairs by removing any `Uses` of locally assigned variables
+    let mut normalized: Vec<(Relation, Resource)> = Vec::with_capacity(pairs.len());
     for (relation, object) in pairs {
         let mut include = true;
         if matches!(relation, Relation::Use(..)) {
-            for (.., other_relation, other_object) in &triples {
+            for (other_relation, other_object) in &normalized {
                 if matches!(other_relation, Relation::Assign(..)) && *other_object == object {
                     include = false;
                     break;
@@ -58,9 +58,9 @@ pub fn compile(path: &Path, subject: &Resource, code: &str, language: &str) -> V
             continue;
         }
 
-        triples.push((subject.clone(), relation, object))
+        normalized.push((relation, object))
     }
-    triples
+    normalized
 }
 
 /// A capture resulting from a `tree-sitter` query
@@ -105,7 +105,7 @@ impl<'tree> Capture<'tree> {
 /// This relies on captures using the names `@arg` (for non-keyword args)
 /// and `@arg_name` and `@arg_value` pairs (for keyword args).
 pub(crate) fn captures_as_args_map<'tree>(
-    captures: &'tree Vec<Capture>,
+    captures: &'tree [Capture],
 ) -> HashMap<String, &'tree Capture<'tree>> {
     let mut map = HashMap::new();
 
@@ -336,7 +336,7 @@ fn parse_tags(
             };
 
             let items: Vec<String> = REGEX_ITEMS
-                .split(&captures[2].trim())
+                .split(captures[2].trim())
                 .map(|item| item.to_string())
                 .collect();
             for item in items {

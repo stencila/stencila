@@ -100,7 +100,7 @@ pub(crate) fn handle_patterns(
     path: &Path,
     code: &[u8],
     pattern: &usize,
-    captures: &Vec<Capture>,
+    captures: &[Capture],
 ) -> Option<(Relation, Resource)> {
     match pattern {
         1 | 2 => {

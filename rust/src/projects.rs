@@ -418,16 +418,12 @@ impl Project {
             }
 
             let document = DOCUMENTS.open(path, None).await?;
-            if let Some(relations) = document.relations {
-                for triple in &relations {
-                    graph.add_triple(triple.clone());
+            for (subject, pairs) in document.relations {
+                for (relation, object) in pairs {
+                    graph.add_triple((subject.clone(), relation, object.clone()));
 
-                    let (.., object) = triple;
-                    match object {
-                        Resource::File(file) => {
-                            walk(visited, &file.path, graph).await?;
-                        }
-                        _ => (),
+                    if let Resource::File(file) = object {
+                        walk(visited, &file.path, graph).await?;
                     }
                 }
             }

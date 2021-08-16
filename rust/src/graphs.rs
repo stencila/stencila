@@ -145,6 +145,9 @@ pub mod resources {
 }
 
 /// The relation between two resources in a dependency graph (the edges of the graph)
+///
+/// Some relations carry additional information such whether the relation is active
+/// (`Import` and `Convert`) or the range that they occur in code (`Assign`, `Use`, `Read`) etc
 #[derive(
     Debug, Display, Clone, PartialEq, Eq, Hash, EnumString, JsonSchema, Serialize, Deserialize,
 )]
@@ -161,11 +164,12 @@ pub enum Relation {
     Write(Range),
 }
 
-/// The two dimensional range that a relation is defined within some code
-/// or a spreadsheet.
+/// The two dimensional range that a relation is defined within some
+/// code (line start, line end, column start, column end).
 pub type Range = (usize, usize, usize, usize);
 
-/// A null range that can be used in places that
+/// A null range which can be used in places where we do not know where
+/// in the `subject` the relation is defined.
 pub const NULL_RANGE: Range = (0, 0, 0, 0);
 
 /// The direction to represent the flow of information from subject to object

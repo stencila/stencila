@@ -627,10 +627,7 @@ impl ToHtml for CodeChunk {
             },
         };
 
-        let lang = match &self.programming_language {
-            None => String::new(),
-            Some(boxed) => *boxed.clone(),
-        };
+        let lang = &self.programming_language;
 
         let text = format!(
             r#"<pre slot="text"><code>{text}</code></pre>"#,

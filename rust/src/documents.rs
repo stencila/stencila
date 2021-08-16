@@ -1,7 +1,7 @@
 use crate::{
     errors::attempt,
     formats::{Format, FORMATS},
-    graphs::Triple,
+    graphs::{Relation, Resource},
     methods::{
         compile::compile,
         decode::decode,
@@ -9,7 +9,7 @@ use crate::{
     },
     pubsub::publish,
     utils::{
-        hash::{file_to_sha256, str_to_sha256},
+        hash::{file_sha256_hex, str_sha256_hex},
         schemas, uuids,
     },
 };
@@ -18,6 +18,7 @@ use eyre::{bail, Result};
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use serde::ser::SerializeMap;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::time::{Duration, Instant};
@@ -172,13 +173,15 @@ pub struct Document {
     #[serde(skip)]
     pub root: Option<Node>,
 
-    /// A list of relations associated with this document
+    /// The set of relations between nodes in this document and other
+    /// resources.
     ///
     /// Relations may be external (e.g. this document links to
     /// another file) or internal (e.g. the second code chunk uses a variable
     /// defined in the first code chunk).
     #[schemars(schema_with = "Document::schema_relations")]
-    pub relations: Option<Vec<Triple>>,
+    #[serde(skip_deserializing, serialize_with = "Document::serialize_relations")]
+    pub relations: HashMap<Resource, Vec<(Relation, Resource)>>,
 
     /// The set of unique subscriptions to this document
     ///
@@ -206,9 +209,29 @@ impl Document {
     }
 
     /// Generate the JSON Schema for the `relations` property to avoid duplicated
-    /// inline types.
+    /// inline types and allow for custom serialization.
     fn schema_relations(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Triple[]", false)
+        schemas::typescript("Record<string, [Relation, Resource]>", false)
+    }
+
+    /// Serialize the `relations` property such that the `Resource` keys are represented as
+    /// a string suitable for encoding as JSON.
+    fn serialize_relations<S>(
+        relations: &HashMap<Resource, Vec<(Relation, Resource)>>,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut map = serializer.serialize_map(Some(relations.len()))?;
+        for (resource, pairs) in relations {
+            let key = match resource {
+                Resource::Node(node) => [&node.kind, "@", &node.address].concat(),
+                _ => unreachable!(),
+            };
+            map.serialize_entry(&key, pairs);
+        }
+        map.end()
     }
 
     /// Create a new empty document.
@@ -513,8 +536,8 @@ impl Document {
     /// For binary documents, returns the SHA-256 of the document's file.
     pub fn sha256(&self) -> Result<String> {
         match self.format.binary {
-            true => Ok(str_to_sha256(&self.content)),
-            false => file_to_sha256(&self.path),
+            true => Ok(str_sha256_hex(&self.content)),
+            false => file_sha256_hex(&self.path),
         }
     }
 
@@ -574,7 +597,7 @@ impl Document {
         // Compile the `root` and update document intra- and inter- dependencies
         let compilation = compile(&mut root, &self.path, &self.project).await?;
         if !compilation.relations.is_empty() {
-            self.relations = Some(compilation.relations);
+            self.relations.extend(compilation.relations)
         }
 
         // Encode the `root` into each of the formats for which there are subscriptions
