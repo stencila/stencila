@@ -47,7 +47,7 @@
     "@stencila/dev-config": "2.0.18",
     "@stoplight/json-ref-resolver": "3.1.2",
     "@types/fs-extra": "9.0.12",
-    "@types/jest": "26.0.24",
+    "@types/jest": "27.0.1",
     "@types/js-yaml": "4.0.2",
     "@types/lodash": "4.14.171",
     "@types/node": "15.12.4",
