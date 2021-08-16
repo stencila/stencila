@@ -42,6 +42,9 @@ const propertyAttributes: Record<string, string[]> = {
   'PropertyValue.value': [
     '#[def = "PropertyValueValue::String(String::new())"]',
   ],
+  // Skip serializing the compile digest since the results of compiling
+  // are not stored with the node (at present) and so always need recompiling.
+  '*.compileDigest': ['#[serde(skip)]'],
 }
 
 // Custom types for particular properties
@@ -64,6 +67,10 @@ const propertyTypes: Record<string, string> = {
   'ArrayValidator.max_items': 'u32',
   'StringValidator.min_length': 'u32',
   'StringValidator.max_length': 'u32',
+  // SHA-256 digests are most efficiently represented as 32 bytes
+  '*.compileDigest': '[u8; 32]',
+  '*.buildDigest': '[u8; 32]',
+  '*.executeDigest': '[u8; 32]',
 }
 
 // Types that should not get automatically boxed if the property is
@@ -108,7 +115,6 @@ const pointerProperties = [
   'CodeExpression.output',
   'Parameter.default',
   'Parameter.value',
-  'Variable.value',
 ]
 
 // For types that extend `CreativeWork`, _and_ which are part of `InlineContent`
@@ -255,7 +261,7 @@ export function interfaceSchemaToStruct(
       let attrs = propertyAttributes[propertyPath] ?? []
       if (isPointer) attrs = [...attrs, '#[serde(skip)]']
 
-      let type = propertyTypes[propertyPath]
+      let type = propertyTypes[propertyPath] ?? propertyTypes[`*.${name}`]
       if (type === undefined) {
         type = schemaToType(schema, context)
         type =

@@ -178,6 +178,8 @@ fn sizes() {
     println!("----------------------------------------------");
     println!("Reference");
     println!("----------------------------------------------");
+    sizeof!(bool);
+    sizeof!(Option<bool>);
     sizeof!(String);
     sizeof!(Option<String>);
     sizeof!(Option<Box<String>>);

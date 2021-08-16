@@ -125,7 +125,7 @@ fn article_fixture() -> Article {
             content: vec![
                 InlineContent::String("A paragraph with a ".into()),
                 InlineContent::CodeExpression(CodeExpression {
-                    programming_language: Some(Box::new("r".into())),
+                    programming_language: "r".into(),
                     text: "2^2".into(),
                     ..Default::default()
                 }),

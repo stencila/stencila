@@ -1,0 +1,37 @@
+title: CodeExecutable
+'@id': stencila:CodeExecutable
+extends: Code
+role: base
+status: stable
+category: code
+description: Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+$comment: |
+  Adds properties to the base `Code` node type that are necessary, or useful, for executable code.
+  Also makes the `programmingLanguage` property required since that is necessary to be able to execute it.
+properties:
+  compileDigest:
+    '@id': stencila:compileDigest
+    description: The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
+    type: string
+    $comment: |
+      Used to determine whether it is necessary to re-compile the node (i.e. to semantically analyse it
+      for dependencies).
+  executeDigest:
+    '@id': stencila:executeDigest
+    description: The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
+    type: string
+    $comment: |
+      Used to determine whether it is necessary to re-execute the code.
+  errors:
+    '@id': stencila:errors
+    description: Errors when compiling (e.g. syntax errors) or executing the chunk.
+    type: array
+    items:
+      $ref: CodeError
+  duration:
+    '@id': stencila:duration
+    description: Duration in seconds of the last execution of the code.
+    type: number
+    minimum: 0
+required:
+  - programmingLanguage

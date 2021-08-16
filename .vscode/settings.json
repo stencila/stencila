@@ -40,21 +40,27 @@
     },
     {
       "fileMatch": [
+        "*.CodeExecutable.json"
+      ],
+      "url": "./public/CodeExecutable.schema.json"
+    },
+    {
+      "fileMatch": [
         "*.CodeChunk.json"
       ],
       "url": "./public/CodeChunk.schema.json"
     },
     {
       "fileMatch": [
-        "*.CodeFragment.json"
-      ],
-      "url": "./public/CodeFragment.schema.json"
-    },
-    {
-      "fileMatch": [
         "*.CodeExpression.json"
       ],
       "url": "./public/CodeExpression.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.CodeFragment.json"
+      ],
+      "url": "./public/CodeFragment.schema.json"
     },
     {
       "fileMatch": [
@@ -316,12 +322,6 @@
     },
     {
       "fileMatch": [
-        "*.Variable.json"
-      ],
-      "url": "./public/Variable.schema.json"
-    },
-    {
-      "fileMatch": [
         "*.Parameter.json"
       ],
       "url": "./public/Parameter.schema.json"
@@ -463,6 +463,12 @@
         "*.TupleValidator.json"
       ],
       "url": "./public/TupleValidator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Variable.json"
+      ],
+      "url": "./public/Variable.schema.json"
     },
     {
       "fileMatch": [

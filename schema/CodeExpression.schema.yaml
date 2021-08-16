@@ -1,19 +1,13 @@
 title: CodeExpression
 '@id': stencila:CodeExpression
-extends: CodeFragment
+extends: CodeExecutable
 role: secondary
 status: unstable
 category: code
-description: An expression defined in programming language source code.
+description: An executable programming code expression.
 properties:
   output:
     '@id': stencila:output
     description: The value of the expression when it was last evaluated.
     allOf:
       - $ref: Node
-  errors:
-    '@id': stencila:errors
-    description: Errors when compiling or executing the chunk.
-    type: array
-    items:
-      $ref: CodeError
