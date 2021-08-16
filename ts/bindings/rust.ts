@@ -356,7 +356,7 @@ export function enumSchemaToEnum(
     .join('')
 
   return `${docComment(description)}
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${title} {\n${variants}}
 impl_enum!(${title});`
@@ -396,7 +396,7 @@ export function unionSchemaToEnum(
       ? '\n#[enum_dispatch(NodeTrait)]'
       : ''
   }
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${title} {\n${variants}}\n`
 }
@@ -441,7 +441,7 @@ function anyOfToEnum(anyOf: JsonSchema[], context: Context): string {
 
   const name = context.propertyTypeName ?? ''
   const definition = `/// Types permitted for the \`${context.propertyName}\` property of a \`${context.typeName}\` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${name} {\n${variants}}\n`
   context.anonEnums[name] = definition
@@ -461,7 +461,7 @@ export function enumToEnum(enu: (string | number)[], context: Context): string {
     .join('')
 
   const name = context.propertyTypeName ?? ''
-  const definition = `#[derive(Clone, Debug, Serialize, Deserialize)]
+  const definition = `#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 pub enum ${name} {\n${lines}}\n`
   context.anonEnums[name] = definition
 

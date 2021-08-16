@@ -4,7 +4,9 @@ pub use serde::{de, Deserialize, Deserializer, Serialize};
 pub use serde_json::Value;
 pub use serde_with::skip_serializing_none;
 use std::collections::BTreeMap;
+pub use std::convert::AsRef;
 pub use std::sync::Arc;
+pub use strum::AsRefStr;
 
 /// A trait for methods that can be called on all types of nodes
 #[enum_dispatch]

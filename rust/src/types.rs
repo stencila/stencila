@@ -4542,7 +4542,7 @@ impl_struct!(VolumeMount);
  * Enums for struct properties which use JSON Schema 'enum' or 'anyOf'
  ********************************************************************/
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 pub enum CiteCitationMode {
     Parenthetical,
     Narrative,
@@ -4553,7 +4553,7 @@ pub enum CiteCitationMode {
 }
 
 /// Types permitted for the `pageEnd` property of a `Cite` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CitePageEnd {
     Integer(Integer),
@@ -4561,15 +4561,23 @@ pub enum CitePageEnd {
 }
 
 /// Types permitted for the `pageStart` property of a `Cite` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CitePageStart {
     Integer(Integer),
     String(String),
 }
 
+/// Types permitted for the `assigns` property of a `CodeChunk` node.
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CodeChunkAssigns {
+    Variable(Variable),
+    String(String),
+}
+
 /// Types permitted for the `caption` property of a `CodeChunk` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkCaption {
     VecBlockContent(Vec<BlockContent>),
@@ -4577,7 +4585,7 @@ pub enum CodeChunkCaption {
 }
 
 /// Types permitted for the `description` property of a `Thing` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -4586,7 +4594,7 @@ pub enum ThingDescription {
 }
 
 /// Types permitted for the `identifiers` property of a `Thing` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingIdentifiers {
     PropertyValue(PropertyValue),
@@ -4594,7 +4602,7 @@ pub enum ThingIdentifiers {
 }
 
 /// Types permitted for the `images` property of a `Thing` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingImages {
     ImageObject(ImageObject),
@@ -4602,7 +4610,7 @@ pub enum ThingImages {
 }
 
 /// Types permitted for the `logo` property of a `Brand` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BrandLogo {
     ImageObject(ImageObject),
@@ -4610,7 +4618,7 @@ pub enum BrandLogo {
 }
 
 /// Types permitted for the `authors` property of a `CreativeWork` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkAuthors {
     Person(Person),
@@ -4618,7 +4626,7 @@ pub enum CreativeWorkAuthors {
 }
 
 /// Types permitted for the `content` property of a `CreativeWork` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkContent {
     VecNode(Vec<Node>),
@@ -4626,7 +4634,7 @@ pub enum CreativeWorkContent {
 }
 
 /// Types permitted for the `fundedBy` property of a `CreativeWork` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkFundedBy {
     Grant(Grant),
@@ -4634,7 +4642,7 @@ pub enum CreativeWorkFundedBy {
 }
 
 /// Types permitted for the `funders` property of a `CreativeWork` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkFunders {
     Person(Person),
@@ -4642,7 +4650,7 @@ pub enum CreativeWorkFunders {
 }
 
 /// Types permitted for the `licenses` property of a `CreativeWork` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
@@ -4650,7 +4658,7 @@ pub enum CreativeWorkLicenses {
 }
 
 /// Types permitted for the `maintainers` property of a `CreativeWork` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkMaintainers {
     Person(Person),
@@ -4658,7 +4666,7 @@ pub enum CreativeWorkMaintainers {
 }
 
 /// Types permitted for the `publisher` property of a `CreativeWork` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkPublisher {
     Person(Person),
@@ -4666,7 +4674,7 @@ pub enum CreativeWorkPublisher {
 }
 
 /// Types permitted for the `references` property of a `CreativeWork` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkReferences {
     CreativeWorkTypes(CreativeWorkTypes),
@@ -4674,7 +4682,7 @@ pub enum CreativeWorkReferences {
 }
 
 /// Types permitted for the `title` property of a `CreativeWork` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkTitle {
     VecInlineContent(Vec<InlineContent>),
@@ -4682,7 +4690,7 @@ pub enum CreativeWorkTitle {
 }
 
 /// Types permitted for the `version` property of a `CreativeWork` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkVersion {
     String(String),
@@ -4690,7 +4698,7 @@ pub enum CreativeWorkVersion {
 }
 
 /// Types permitted for the `pageEnd` property of a `Article` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticlePageEnd {
     Integer(Integer),
@@ -4698,14 +4706,14 @@ pub enum ArticlePageEnd {
 }
 
 /// Types permitted for the `pageStart` property of a `Article` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticlePageStart {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 pub enum ClaimClaimType {
     Statement,
     Theorem,
@@ -4718,7 +4726,7 @@ pub enum ClaimClaimType {
 }
 
 /// Types permitted for the `caption` property of a `Figure` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureCaption {
     VecBlockContent(Vec<BlockContent>),
@@ -4726,14 +4734,14 @@ pub enum FigureCaption {
 }
 
 /// Types permitted for the `sponsors` property of a `Grant` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantSponsors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 pub enum ListOrder {
     Ascending,
     Descending,
@@ -4741,7 +4749,7 @@ pub enum ListOrder {
 }
 
 /// Types permitted for the `content` property of a `ListItem` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ListItemContent {
     VecBlockContent(Vec<BlockContent>),
@@ -4749,14 +4757,14 @@ pub enum ListItemContent {
 }
 
 /// Types permitted for the `funders` property of a `MonetaryGrant` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 pub enum NoteNoteType {
     Footnote,
     Endnote,
@@ -4764,7 +4772,7 @@ pub enum NoteNoteType {
 }
 
 /// Types permitted for the `address` property of a `Organization` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationAddress {
     PostalAddress(PostalAddress),
@@ -4772,7 +4780,7 @@ pub enum OrganizationAddress {
 }
 
 /// Types permitted for the `funders` property of a `Organization` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationFunders {
     Organization(Organization),
@@ -4780,7 +4788,7 @@ pub enum OrganizationFunders {
 }
 
 /// Types permitted for the `logo` property of a `Organization` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationLogo {
     ImageObject(ImageObject),
@@ -4788,7 +4796,7 @@ pub enum OrganizationLogo {
 }
 
 /// Types permitted for the `members` property of a `Organization` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationMembers {
     Organization(Organization),
@@ -4796,7 +4804,7 @@ pub enum OrganizationMembers {
 }
 
 /// Types permitted for the `address` property of a `Person` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonAddress {
     PostalAddress(PostalAddress),
@@ -4804,7 +4812,7 @@ pub enum PersonAddress {
 }
 
 /// Types permitted for the `funders` property of a `Person` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonFunders {
     Organization(Organization),
@@ -4812,7 +4820,7 @@ pub enum PersonFunders {
 }
 
 /// Types permitted for the `logo` property of a `Product` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProductLogo {
     ImageObject(ImageObject),
@@ -4820,7 +4828,7 @@ pub enum ProductLogo {
 }
 
 /// Types permitted for the `value` property of a `PropertyValue` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValueValue {
     Boolean(Boolean),
@@ -4830,7 +4838,7 @@ pub enum PropertyValueValue {
 }
 
 /// Types permitted for the `issueNumber` property of a `PublicationIssue` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueIssueNumber {
     Integer(Integer),
@@ -4838,7 +4846,7 @@ pub enum PublicationIssueIssueNumber {
 }
 
 /// Types permitted for the `pageEnd` property of a `PublicationIssue` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssuePageEnd {
     Integer(Integer),
@@ -4846,7 +4854,7 @@ pub enum PublicationIssuePageEnd {
 }
 
 /// Types permitted for the `pageStart` property of a `PublicationIssue` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssuePageStart {
     Integer(Integer),
@@ -4854,7 +4862,7 @@ pub enum PublicationIssuePageStart {
 }
 
 /// Types permitted for the `pageEnd` property of a `PublicationVolume` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumePageEnd {
     Integer(Integer),
@@ -4862,7 +4870,7 @@ pub enum PublicationVolumePageEnd {
 }
 
 /// Types permitted for the `pageStart` property of a `PublicationVolume` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumePageStart {
     Integer(Integer),
@@ -4870,7 +4878,7 @@ pub enum PublicationVolumePageStart {
 }
 
 /// Types permitted for the `volumeNumber` property of a `PublicationVolume` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeVolumeNumber {
     Integer(Integer),
@@ -4878,7 +4886,7 @@ pub enum PublicationVolumeVolumeNumber {
 }
 
 /// Types permitted for the `cite` property of a `Quote` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum QuoteCite {
     Cite(Cite),
@@ -4886,14 +4894,14 @@ pub enum QuoteCite {
 }
 
 /// Types permitted for the `cite` property of a `QuoteBlock` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum QuoteBlockCite {
     Cite(Cite),
     String(String),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 pub enum SoftwareSessionStatus {
     Unknown,
     Starting,
@@ -4904,7 +4912,7 @@ pub enum SoftwareSessionStatus {
 }
 
 /// Types permitted for the `softwareRequirements` property of a `SoftwareSourceCode` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeSoftwareRequirements {
     SoftwareSourceCode(SoftwareSourceCode),
@@ -4913,28 +4921,28 @@ pub enum SoftwareSourceCodeSoftwareRequirements {
 }
 
 /// Types permitted for the `caption` property of a `Table` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableCaption {
     VecBlockContent(Vec<BlockContent>),
     String(String),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 pub enum TableCellCellType {
     Data,
     Header,
 }
 
 /// Types permitted for the `content` property of a `TableCell` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableCellContent {
     VecBlockContent(Vec<BlockContent>),
     VecInlineContent(Vec<InlineContent>),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 pub enum TableRowRowType {
     Header,
     Footer,
@@ -4946,7 +4954,7 @@ pub enum TableRowRowType {
  ********************************************************************/
 
 /// The type or nature of a citation, both factually and rhetorically.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CitationIntentEnumeration {
     /// The citing entity agrees with statements, ideas or conclusions presented in the cited entity
@@ -5140,7 +5148,7 @@ impl_enum!(CitationIntentEnumeration);
   
 /// Union type for valid block content.
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BlockContent {
     Claim(ClaimSimple),
@@ -5160,7 +5168,7 @@ pub enum BlockContent {
 
 /// All type schemas that are derived from CodeExecutable
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeExecutableTypes {
     CodeExecutable(CodeExecutable),
@@ -5170,7 +5178,7 @@ pub enum CodeExecutableTypes {
 
 /// All type schemas that are derived from Code
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeTypes {
     Code(Code),
@@ -5183,7 +5191,7 @@ pub enum CodeTypes {
 
 /// All type schemas that are derived from ContactPoint
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointTypes {
     ContactPoint(ContactPoint),
@@ -5192,7 +5200,7 @@ pub enum ContactPointTypes {
 
 /// All type schemas that are derived from CreativeWork
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkTypes {
     CreativeWork(CreativeWork),
@@ -5217,7 +5225,7 @@ pub enum CreativeWorkTypes {
 
 /// All type schemas that are derived from Entity
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EntityTypes {
     Entity(Entity),
@@ -5304,7 +5312,7 @@ pub enum EntityTypes {
 
 /// All type schemas that are derived from Enumeration
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnumerationTypes {
     Enumeration(Enumeration),
@@ -5313,7 +5321,7 @@ pub enum EnumerationTypes {
 
 /// All type schemas that are derived from Grant
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantTypes {
     Grant(Grant),
@@ -5321,7 +5329,7 @@ pub enum GrantTypes {
 }
 
 /// Union type for valid inline content.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineContent {
     AudioObject(AudioObjectSimple),
@@ -5351,7 +5359,7 @@ pub enum InlineContent {
 
 /// All type schemas that are derived from Mark
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MarkTypes {
     Mark(Mark),
@@ -5366,7 +5374,7 @@ pub enum MarkTypes {
 
 /// All type schemas that are derived from Math
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MathTypes {
     Math(Math),
@@ -5376,7 +5384,7 @@ pub enum MathTypes {
 
 /// All type schemas that are derived from MediaObject
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectTypes {
     MediaObject(MediaObject),
@@ -5386,7 +5394,7 @@ pub enum MediaObjectTypes {
 }
 
 /// Union type for all schema nodes, including primitives and entities
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Node {
     Entity(Entity),
@@ -5480,7 +5488,7 @@ pub enum Node {
 
 /// All type schemas that are derived from Thing
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingTypes {
     Thing(Thing),
@@ -5523,7 +5531,7 @@ pub enum ThingTypes {
 
 /// All type schemas that are derived from Validator
 #[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ValidatorTypes {
     Validator(Validator),
