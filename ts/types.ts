@@ -42,12 +42,12 @@ export interface Types {
   Claim: Claim
   Code: Code
   CodeBlock: CodeBlock
-  CodeBlockTypes: CodeBlockTypes
   CodeChunk: CodeChunk
   CodeError: CodeError
+  CodeExecutable: CodeExecutable
+  CodeExecutableTypes: CodeExecutableTypes
   CodeExpression: CodeExpression
   CodeFragment: CodeFragment
-  CodeFragmentTypes: CodeFragmentTypes
   CodeTypes: CodeTypes
   Collection: Collection
   Comment: Comment
@@ -128,7 +128,6 @@ export interface Types {
   Validator: Validator
   ValidatorTypes: ValidatorTypes
   Variable: Variable
-  VariableTypes: VariableTypes
   VideoObject: VideoObject
   VolumeMount: VolumeMount
 }
@@ -152,6 +151,7 @@ export interface Entity {
     | 'CodeBlock'
     | 'CodeChunk'
     | 'CodeError'
+    | 'CodeExecutable'
     | 'CodeExpression'
     | 'CodeFragment'
     | 'Collection'
@@ -282,10 +282,16 @@ export const citeGroup = (props: Omit<CiteGroup, 'type'>): CiteGroup => ({
 })
 
 /**
- * Base type for code nodes e.g. CodeBlock, CodeExpression.
+ * Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
  */
 export interface Code extends Entity {
-  type: 'Code' | 'CodeBlock' | 'CodeChunk' | 'CodeExpression' | 'CodeFragment'
+  type:
+    | 'Code'
+    | 'CodeBlock'
+    | 'CodeChunk'
+    | 'CodeExecutable'
+    | 'CodeExpression'
+    | 'CodeFragment'
   text: String
   mediaType?: String
   programmingLanguage?: String
@@ -305,9 +311,7 @@ export const code = (props: Omit<Code, 'type'>): Code => ({
  * A code block.
  */
 export interface CodeBlock extends Code {
-  type: 'CodeBlock' | 'CodeChunk'
-  exportFrom?: String
-  importTo?: String
+  type: 'CodeBlock'
 }
 
 /**
@@ -321,21 +325,38 @@ export const codeBlock = (props: Omit<CodeBlock, 'type'>): CodeBlock => ({
 })
 
 /**
- * A executable chunk of code.
+ * Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
  */
-export interface CodeChunk extends CodeBlock {
-  type: 'CodeChunk'
-  alters?: Array<String>
-  assigns?: Array<Variable | String>
-  caption?: Array<BlockContent> | String
-  declares?: Array<Variable | Function | String>
+export interface CodeExecutable extends Code {
+  type: 'CodeExecutable' | 'CodeChunk' | 'CodeExpression'
+  programmingLanguage: String
+  compileDigest?: String
   duration?: Number
   errors?: Array<CodeError>
-  imports?: Array<SoftwareSourceCode | SoftwareApplication | String>
+  executeDigest?: String
+}
+
+/**
+ * Create a `CodeExecutable` node
+ * @param props Object containing CodeExecutable schema properties as key/value pairs
+ * @returns {CodeExecutable} CodeExecutable schema node
+ */
+export const codeExecutable = (
+  props: Omit<CodeExecutable, 'type'>
+): CodeExecutable => ({
+  ...compact(props),
+  type: 'CodeExecutable',
+})
+
+/**
+ * A executable chunk of code.
+ */
+export interface CodeChunk extends CodeExecutable {
+  type: 'CodeChunk'
+  programmingLanguage: String
+  caption?: Array<BlockContent> | String
   label?: String
   outputs?: Array<Node>
-  reads?: Array<String>
-  uses?: Array<Variable | String>
 }
 
 /**
@@ -349,30 +370,11 @@ export const codeChunk = (props: Omit<CodeChunk, 'type'>): CodeChunk => ({
 })
 
 /**
- * Inline code.
+ * An executable programming code expression.
  */
-export interface CodeFragment extends Code {
-  type: 'CodeFragment' | 'CodeExpression'
-}
-
-/**
- * Create a `CodeFragment` node
- * @param props Object containing CodeFragment schema properties as key/value pairs
- * @returns {CodeFragment} CodeFragment schema node
- */
-export const codeFragment = (
-  props: Omit<CodeFragment, 'type'>
-): CodeFragment => ({
-  ...compact(props),
-  type: 'CodeFragment',
-})
-
-/**
- * An expression defined in programming language source code.
- */
-export interface CodeExpression extends CodeFragment {
+export interface CodeExpression extends CodeExecutable {
   type: 'CodeExpression'
-  errors?: Array<CodeError>
+  programmingLanguage: String
   output?: Node
 }
 
@@ -386,6 +388,25 @@ export const codeExpression = (
 ): CodeExpression => ({
   ...compact(props),
   type: 'CodeExpression',
+})
+
+/**
+ * Inline code.
+ */
+export interface CodeFragment extends Code {
+  type: 'CodeFragment'
+}
+
+/**
+ * Create a `CodeFragment` node
+ * @param props Object containing CodeFragment schema properties as key/value pairs
+ * @returns {CodeFragment} CodeFragment schema node
+ */
+export const codeFragment = (
+  props: Omit<CodeFragment, 'type'>
+): CodeFragment => ({
+  ...compact(props),
+  type: 'CodeFragment',
 })
 
 /**
@@ -1066,9 +1087,9 @@ export const imageObject = (props: Omit<ImageObject, 'type'>): ImageObject => ({
 export interface Include extends Entity {
   type: 'Include'
   source: String
+  buildDigest?: String
   content?: Array<BlockContent>
   mediaType?: String
-  sha256?: String
 }
 
 /**
@@ -1350,35 +1371,18 @@ export const paragraph = (props: Omit<Paragraph, 'type'>): Paragraph => ({
 })
 
 /**
- * A variable representing a name / value pair.
+ * A parameter of a document or function.
  */
-export interface Variable extends Entity {
-  type: 'Variable' | 'Parameter'
-  name: String
-  isReadonly?: Boolean
-  validator?: ValidatorTypes
-  value?: Node
-}
-
-/**
- * Create a `Variable` node
- * @param props Object containing Variable schema properties as key/value pairs
- * @returns {Variable} Variable schema node
- */
-export const variable = (props: Omit<Variable, 'type'>): Variable => ({
-  ...compact(props),
-  type: 'Variable',
-})
-
-/**
- * A parameter that can be set and used in evaluated code.
- */
-export interface Parameter extends Variable {
+export interface Parameter extends Entity {
   type: 'Parameter'
+  name: String
   default?: Node
+  executeDigest?: String
   isExtensible?: Boolean
   isRequired?: Boolean
   isVariadic?: Boolean
+  validator?: ValidatorTypes
+  value?: Node
 }
 
 /**
@@ -1899,6 +1903,27 @@ export const tupleValidator = (
 })
 
 /**
+ * A variable representing a name / value pair.
+ */
+export interface Variable extends Entity {
+  type: 'Variable'
+  name: String
+  isReadonly?: Boolean
+  validator?: ValidatorTypes
+  value?: Node
+}
+
+/**
+ * Create a `Variable` node
+ * @param props Object containing Variable schema properties as key/value pairs
+ * @returns {Variable} Variable schema node
+ */
+export const variable = (props: Omit<Variable, 'type'>): Variable => ({
+  ...compact(props),
+  type: 'Variable',
+})
+
+/**
  * A video file.
  */
 export interface VideoObject extends MediaObject {
@@ -1958,14 +1983,9 @@ export type BlockContent =
   | ThematicBreak
 
 /**
- * All type schemas that are derived from CodeBlock
+ * All type schemas that are derived from CodeExecutable
  */
-export type CodeBlockTypes = CodeBlock | CodeChunk
-
-/**
- * All type schemas that are derived from CodeFragment
- */
-export type CodeFragmentTypes = CodeFragment | CodeExpression
+export type CodeExecutableTypes = CodeExecutable | CodeChunk | CodeExpression
 
 /**
  * All type schemas that are derived from Code
@@ -1974,6 +1994,7 @@ export type CodeTypes =
   | Code
   | CodeBlock
   | CodeChunk
+  | CodeExecutable
   | CodeExpression
   | CodeFragment
 
@@ -2023,6 +2044,7 @@ export type EntityTypes =
   | CodeBlock
   | CodeChunk
   | CodeError
+  | CodeExecutable
   | CodeExpression
   | CodeFragment
   | Collection
@@ -2172,6 +2194,7 @@ export type Node =
   | CodeBlock
   | CodeChunk
   | CodeError
+  | CodeExecutable
   | CodeExpression
   | CodeFragment
   | Collection
@@ -2299,11 +2322,6 @@ export type ValidatorTypes =
   | NumberValidator
   | StringValidator
   | TupleValidator
-
-/**
- * All type schemas that are derived from Variable
- */
-export type VariableTypes = Variable | Parameter
 
 /**
  * The type or nature of a citation, both factually and rhetorically.
@@ -2767,20 +2785,18 @@ export enum CitationIntentEnumeration {
 
 export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }
 
-export const codeBlockTypes: TypeMap<Exclude<CodeBlockTypes, Primitives>> = {
-  CodeBlock: 'CodeBlock',
-  CodeChunk: 'CodeChunk',
-}
-export const codeFragmentTypes: TypeMap<
-  Exclude<CodeFragmentTypes, Primitives>
+export const codeExecutableTypes: TypeMap<
+  Exclude<CodeExecutableTypes, Primitives>
 > = {
-  CodeFragment: 'CodeFragment',
+  CodeExecutable: 'CodeExecutable',
+  CodeChunk: 'CodeChunk',
   CodeExpression: 'CodeExpression',
 }
 export const codeTypes: TypeMap<Exclude<CodeTypes, Primitives>> = {
   Code: 'Code',
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
+  CodeExecutable: 'CodeExecutable',
   CodeExpression: 'CodeExpression',
   CodeFragment: 'CodeFragment',
 }
@@ -2827,6 +2843,7 @@ export const entityTypes: TypeMap<Exclude<EntityTypes, Primitives>> = {
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
   CodeError: 'CodeError',
+  CodeExecutable: 'CodeExecutable',
   CodeExpression: 'CodeExpression',
   CodeFragment: 'CodeFragment',
   Collection: 'Collection',
@@ -2973,10 +2990,6 @@ export const validatorTypes: TypeMap<Exclude<ValidatorTypes, Primitives>> = {
   StringValidator: 'StringValidator',
   TupleValidator: 'TupleValidator',
 }
-export const variableTypes: TypeMap<Exclude<VariableTypes, Primitives>> = {
-  Variable: 'Variable',
-  Parameter: 'Parameter',
-}
 export const blockContentTypes: TypeMap<Exclude<BlockContent, Primitives>> = {
   Claim: 'Claim',
   CodeBlock: 'CodeBlock',
@@ -3014,8 +3027,7 @@ export const inlineContentTypes: TypeMap<Exclude<InlineContent, Primitives>> = {
 }
 
 export interface Unions {
-  CodeBlockTypes: CodeBlockTypes
-  CodeFragmentTypes: CodeFragmentTypes
+  CodeExecutableTypes: CodeExecutableTypes
   CodeTypes: CodeTypes
   ContactPointTypes: ContactPointTypes
   CreativeWorkTypes: CreativeWorkTypes
@@ -3027,14 +3039,12 @@ export interface Unions {
   MediaObjectTypes: MediaObjectTypes
   ThingTypes: ThingTypes
   ValidatorTypes: ValidatorTypes
-  VariableTypes: VariableTypes
   BlockContent: BlockContent
   InlineContent: InlineContent
 }
 
 export const unions = {
-  CodeBlockTypes: codeBlockTypes,
-  CodeFragmentTypes: codeFragmentTypes,
+  CodeExecutableTypes: codeExecutableTypes,
   CodeTypes: codeTypes,
   ContactPointTypes: contactPointTypes,
   CreativeWorkTypes: creativeWorkTypes,
@@ -3046,7 +3056,6 @@ export const unions = {
   MediaObjectTypes: mediaObjectTypes,
   ThingTypes: thingTypes,
   ValidatorTypes: validatorTypes,
-  VariableTypes: variableTypes,
   BlockContent: blockContentTypes,
   InlineContent: inlineContentTypes,
 }

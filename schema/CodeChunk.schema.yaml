@@ -1,145 +1,32 @@
 title: CodeChunk
 '@id': stencila:CodeChunk
-extends: CodeBlock
+extends: CodeExecutable
 category: code
 role: secondary
 status: unstable
 description: A executable chunk of code.
-$comment: |
-  A `CodeChunk` has two 'source' properties, `text` and `programmingLanguage`, from which it's other properties
-  are derived during compilation (e.g. `import`, `declares`) or execution (e.g. `outputs`).
-
-  All `CodeChunk`s are required to have a `text` property, containing the actual code,
-  and most will also specify the `programmingLanguage`. If `programmingLanguage` is not specified
-  then it defaults to the language of the previous `CodeChunk` or `CodeExpression` in the document.
-
-  The `imports` property lists the packages that a `CodeChunk` imports into the execution context.
-  It is used by the compiler to populate the `requires` property of the document containing the
-  chunk so that it can build an execution environment for it (e.g. a Docker container).
-
-  The `declares` property lists the variables that a `CodeChunk` declares.
-  It is used by the compiler to build a graph of the dependencies among `CodeChunk`s and `CodeExpressions`.
-  This in turn allows for reactivity. When a user changes a chunk containing a declaration,
-  all of the other chunks or expressions that use that variable will be re-executed.
 properties:
+  label:
+    '@id': stencila:label
+    description: A short label for the CodeChunk.
+    type: string
   caption:
     '@id': schema:caption
     description: A caption for the CodeChunk.
     $comment: |
-      An array of nodes or, to be compatible with https://schema.org/caption,
-      a string.
+      An array of nodes or, to be compatible with https://schema.org/caption, a string.
     anyOf:
       - type: array
         items:
           $ref: BlockContent
       - type: string
-  label:
-    '@id': stencila:label
-    description: A short label for the CodeChunk.
-    type: string
-  imports:
-    '@id': stencila:imports
-    description: Software packages that the code chunk imports
-    type: array
-    items:
-      anyOf:
-        - $ref: SoftwareSourceCode
-        - $ref: SoftwareApplication
-        - type: string
-  declares:
-    '@id': stencila:declares
-    description: Variables that the code chunk declares.
-    type: array
-    items:
-      anyOf:
-        # For when we want to store type and possibly value of variable
-        - $ref: Variable
-        # Functions already have a name so it is redundant / confusing
-        # to wrap then in a variable
-        - $ref: Function
-        # String for when user want to specify manually that a cell
-        # declares a variable
-        - type: string
-  assigns:
-    '@id': stencila:assigns
-    description: Variables that the code chunk assigns to.
-    type: array
-    items:
-      anyOf:
-        # For when we want to store type and possibly value of variable
-        - $ref: Variable
-        # String for when user want to specify manually that a cell
-        # declares a variable
-        - type: string
-    $comment: |
-      In languages such as Python and R we are unable
-      to differentiate between an assignment that
-      is a declaration and an assignment that is an alteration
-      (a re-assignment).
-      The "primary" compiler keeps a track of the variables
-      declared in code chunks prior to the current chunk in the
-      document and may treat an assignment as a declaration.
-  alters:
-    '@id': stencila:alters
-    description: Names of variables that the code chunk alters.
-    type: array
-    items:
-      type: string
-    $comment: |
-      This property allows users to add undetected
-      alterations (i.e. not assignments) to this list. Chunks that alter a variable
-      need to be inserted into the dependency graph between `declares` and `uses`
-  uses:
-    '@id': stencila:uses
-    description: Names of variables that the code chunk uses (but does not alter).
-    type: array
-    items:
-      anyOf:
-        - $ref: Variable
-        - type: string
-  reads:
-    '@id': stencila:reads
-    description: Filesystem paths that this code chunk reads from.
-    type: array
-    items:
-      type: string
   outputs:
     '@id': stencila:outputs
     description: Outputs from executing the chunk.
     type: array
     items:
       $ref: Node
-  errors:
-    '@id': stencila:errors
-    description: Errors when compiling or executing the chunk.
-    type: array
-    items:
-      $ref: CodeError
-  duration:
-    '@id': stencila:duration
-    description: Duration in seconds of the last execution of the chunk.
-    type: number
-    minimum: 0
 examples:
   - type: CodeChunk
-    language: python
-    text: print('Hello world')
-  - type: CodeChunk
-    language: r
-    text: |
-      superdoopa::func("beep", "boop")
-    imports:
-      - superdoopa
-  - type: CodeChunk
-    language: python
-    text: |
-      def greet(who: str):
-        return 'Hello %s!' % who
-    declares:
-      - type: Function
-        name: greet
-        parameters:
-          - type: Parameter
-            name: who
-            schema:
-              - type: StringValidator
+    programmingLanguage: python
+    text: print('Hello world!')

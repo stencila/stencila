@@ -100,7 +100,7 @@ pub enum CiteGroup_ {
 
 impl_struct!(CiteGroup);
 
-/// Base type for code nodes e.g. CodeBlock, CodeExpression.
+/// Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
@@ -141,14 +141,8 @@ pub struct CodeBlock {
     /// The text of the code.
     pub text: String,
 
-    /// A compilation directive giving the name of the variable to export into the content of the code block.
-    pub export_from: Option<Box<String>>,
-
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// A compilation directive giving the name of the variable to import the content of the code block as.
-    pub import_to: Option<Box<String>>,
 
     /// Media type, typically expressed using a MIME format, of the code.
     pub media_type: Option<Box<String>>,
@@ -164,6 +158,47 @@ pub enum CodeBlock_ {
 
 impl_struct!(CodeBlock);
 
+/// Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct CodeExecutable {
+    /// The name of this type
+    #[def = "CodeExecutable_::CodeExecutable"]
+    pub type_: CodeExecutable_,
+
+    /// The programming language of the code.
+    pub programming_language: String,
+
+    /// The text of the code.
+    pub text: String,
+
+    /// The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
+    pub compile_digest: Option<[u8; 32]>,
+
+    /// Duration in seconds of the last execution of the code.
+    pub duration: Option<Number>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
+    pub execute_digest: Option<[u8; 32]>,
+
+    /// The identifier for this item.
+    pub id: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum CodeExecutable_ {
+  CodeExecutable
+}
+
+impl_struct!(CodeExecutable);
+
 /// A executable chunk of code.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -173,38 +208,29 @@ pub struct CodeChunk {
     #[def = "CodeChunk_::CodeChunk"]
     pub type_: CodeChunk_,
 
+    /// The programming language of the code.
+    pub programming_language: String,
+
     /// The text of the code.
     pub text: String,
-
-    /// Names of variables that the code chunk alters.
-    pub alters: Option<Vec<String>>,
-
-    /// Variables that the code chunk assigns to.
-    pub assigns: Option<Vec<CodeChunkAssigns>>,
 
     /// A caption for the CodeChunk.
     pub caption: Option<Box<CodeChunkCaption>>,
 
-    /// Variables that the code chunk declares.
-    pub declares: Option<Vec<CodeChunkDeclares>>,
+    /// The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
+    pub compile_digest: Option<[u8; 32]>,
 
-    /// Duration in seconds of the last execution of the chunk.
+    /// Duration in seconds of the last execution of the code.
     pub duration: Option<Number>,
 
-    /// Errors when compiling or executing the chunk.
+    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
 
-    /// A compilation directive giving the name of the variable to export into the content of the code block.
-    pub export_from: Option<Box<String>>,
+    /// The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
+    pub execute_digest: Option<[u8; 32]>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// A compilation directive giving the name of the variable to import the content of the code block as.
-    pub import_to: Option<Box<String>>,
-
-    /// Software packages that the code chunk imports
-    pub imports: Option<Vec<CodeChunkImports>>,
 
     /// A short label for the CodeChunk.
     pub label: Option<Box<String>>,
@@ -214,15 +240,6 @@ pub struct CodeChunk {
 
     /// Outputs from executing the chunk.
     pub outputs: Option<Vec<Node>>,
-
-    /// The programming language of the code.
-    pub programming_language: Option<Box<String>>,
-
-    /// Filesystem paths that this code chunk reads from.
-    pub reads: Option<Vec<String>>,
-
-    /// Names of variables that the code chunk uses (but does not alter).
-    pub uses: Option<Vec<CodeChunkUses>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -231,6 +248,51 @@ pub enum CodeChunk_ {
 }
 
 impl_struct!(CodeChunk);
+
+/// An executable programming code expression.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct CodeExpression {
+    /// The name of this type
+    #[def = "CodeExpression_::CodeExpression"]
+    pub type_: CodeExpression_,
+
+    /// The programming language of the code.
+    pub programming_language: String,
+
+    /// The text of the code.
+    pub text: String,
+
+    /// The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
+    pub compile_digest: Option<[u8; 32]>,
+
+    /// Duration in seconds of the last execution of the code.
+    pub duration: Option<Number>,
+
+    /// Errors when compiling (e.g. syntax errors) or executing the chunk.
+    pub errors: Option<Vec<CodeError>>,
+
+    /// The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
+    pub execute_digest: Option<[u8; 32]>,
+
+    /// The identifier for this item.
+    pub id: Option<Box<String>>,
+
+    /// Media type, typically expressed using a MIME format, of the code.
+    pub media_type: Option<Box<String>>,
+
+    /// The value of the expression when it was last evaluated.
+    #[serde(skip)]
+    pub output: Option<Box<Node>>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum CodeExpression_ {
+  CodeExpression
+}
+
+impl_struct!(CodeExpression);
 
 /// Inline code.
 #[skip_serializing_none]
@@ -260,42 +322,6 @@ pub enum CodeFragment_ {
 }
 
 impl_struct!(CodeFragment);
-
-/// An expression defined in programming language source code.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
-pub struct CodeExpression {
-    /// The name of this type
-    #[def = "CodeExpression_::CodeExpression"]
-    pub type_: CodeExpression_,
-
-    /// The text of the code.
-    pub text: String,
-
-    /// Errors when compiling or executing the chunk.
-    pub errors: Option<Vec<CodeError>>,
-
-    /// The identifier for this item.
-    pub id: Option<Box<String>>,
-
-    /// Media type, typically expressed using a MIME format, of the code.
-    pub media_type: Option<Box<String>>,
-
-    /// The value of the expression when it was last evaluated.
-    #[serde(skip)]
-    pub output: Option<Box<Node>>,
-
-    /// The programming language of the code.
-    pub programming_language: Option<Box<String>>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum CodeExpression_ {
-  CodeExpression
-}
-
-impl_struct!(CodeExpression);
 
 /// An error that occurred when parsing, compiling or executing a Code node.
 #[skip_serializing_none]
@@ -2255,6 +2281,9 @@ pub struct Include {
     /// The external source of the content, a file path or URL.
     pub source: String,
 
+    /// The SHA-256 digest of the `source` and `mediaType` properties the last time the node was built.
+    pub build_digest: Option<[u8; 32]>,
+
     /// The structured content decoded from the source.
     pub content: Option<Vec<BlockContent>>,
 
@@ -2263,9 +2292,6 @@ pub struct Include {
 
     /// Media type of the source content.
     pub media_type: Option<Box<String>>,
-
-    /// The SHA-256 hash of the content of `source`.
-    pub sha256: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2723,40 +2749,7 @@ pub enum Paragraph_ {
 
 impl_struct!(Paragraph);
 
-/// A variable representing a name / value pair.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
-pub struct Variable {
-    /// The name of this type
-    #[def = "Variable_::Variable"]
-    pub type_: Variable_,
-
-    /// The name of the variable.
-    pub name: String,
-
-    /// The identifier for this item.
-    pub id: Option<Box<String>>,
-
-    /// Whether or not a property is mutable. Default is false.
-    pub is_readonly: Option<Boolean>,
-
-    /// The validator that the value is validated against.
-    pub validator: Option<Box<ValidatorTypes>>,
-
-    /// The value of the variable.
-    #[serde(skip)]
-    pub value: Option<Box<Node>>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum Variable_ {
-  Variable
-}
-
-impl_struct!(Variable);
-
-/// A parameter that can be set and used in evaluated code.
+/// A parameter of a document or function.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
@@ -2765,21 +2758,21 @@ pub struct Parameter {
     #[def = "Parameter_::Parameter"]
     pub type_: Parameter_,
 
-    /// The name of the variable.
+    /// The name of the parameter.
     pub name: String,
 
     /// The default value of the parameter.
     #[serde(skip)]
     pub default: Option<Box<Node>>,
 
+    /// The SHA-256 digest of the `value` property the last time the node was executed.
+    pub execute_digest: Option<[u8; 32]>,
+
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
     /// Indicates that this parameter is variadic and can accept multiple named arguments.
     pub is_extensible: Option<Boolean>,
-
-    /// Whether or not a property is mutable. Default is false.
-    pub is_readonly: Option<Boolean>,
 
     /// Is this parameter required, if not it should have a default or default is assumed to be null.
     pub is_required: Option<Boolean>,
@@ -2790,7 +2783,7 @@ pub struct Parameter {
     /// The validator that the value is validated against.
     pub validator: Option<Box<ValidatorTypes>>,
 
-    /// The value of the variable.
+    /// The current value of the parameter.
     #[serde(skip)]
     pub value: Option<Box<Node>>,
 }
@@ -4282,6 +4275,38 @@ pub enum TupleValidator_ {
 
 impl_struct!(TupleValidator);
 
+/// A variable representing a name / value pair.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Variable {
+    /// The name of this type
+    #[def = "Variable_::Variable"]
+    pub type_: Variable_,
+
+    /// The name of the variable.
+    pub name: String,
+
+    /// The identifier for this item.
+    pub id: Option<Box<String>>,
+
+    /// Whether or not a property is mutable. Default is false.
+    pub is_readonly: Option<Boolean>,
+
+    /// The validator that the value is validated against.
+    pub validator: Option<Box<ValidatorTypes>>,
+
+    /// The value of the variable.
+    pub value: Option<Box<Node>>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Variable_ {
+  Variable
+}
+
+impl_struct!(Variable);
+
 /// A video file.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4543,45 +4568,11 @@ pub enum CitePageStart {
     String(String),
 }
 
-/// Types permitted for the `assigns` property of a `CodeChunk` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CodeChunkAssigns {
-    Variable(Variable),
-    String(String),
-}
-
 /// Types permitted for the `caption` property of a `CodeChunk` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkCaption {
     VecBlockContent(Vec<BlockContent>),
-    String(String),
-}
-
-/// Types permitted for the `declares` property of a `CodeChunk` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CodeChunkDeclares {
-    Variable(Variable),
-    Function(Function),
-    String(String),
-}
-
-/// Types permitted for the `imports` property of a `CodeChunk` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CodeChunkImports {
-    SoftwareSourceCode(SoftwareSourceCode),
-    SoftwareApplication(SoftwareApplication),
-    String(String),
-}
-
-/// Types permitted for the `uses` property of a `CodeChunk` node.
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CodeChunkUses {
-    Variable(Variable),
     String(String),
 }
 
@@ -5167,21 +5158,13 @@ pub enum BlockContent {
     ThematicBreak(ThematicBreak),
 }
 
-/// All type schemas that are derived from CodeBlock
+/// All type schemas that are derived from CodeExecutable
 #[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum CodeBlockTypes {
-    CodeBlock(CodeBlock),
+pub enum CodeExecutableTypes {
+    CodeExecutable(CodeExecutable),
     CodeChunk(CodeChunk),
-}
-
-/// All type schemas that are derived from CodeFragment
-#[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CodeFragmentTypes {
-    CodeFragment(CodeFragment),
     CodeExpression(CodeExpression),
 }
 
@@ -5193,6 +5176,7 @@ pub enum CodeTypes {
     Code(Code),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
+    CodeExecutable(CodeExecutable),
     CodeExpression(CodeExpression),
     CodeFragment(CodeFragment),
 }
@@ -5250,6 +5234,7 @@ pub enum EntityTypes {
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
     CodeError(CodeError),
+    CodeExecutable(CodeExecutable),
     CodeExpression(CodeExpression),
     CodeFragment(CodeFragment),
     Collection(Collection),
@@ -5418,6 +5403,7 @@ pub enum Node {
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
     CodeError(CodeError),
+    CodeExecutable(CodeExecutable),
     CodeExpression(CodeExpression),
     CodeFragment(CodeFragment),
     Collection(Collection),
@@ -5549,13 +5535,4 @@ pub enum ValidatorTypes {
     NumberValidator(NumberValidator),
     StringValidator(StringValidator),
     TupleValidator(TupleValidator),
-}
-
-/// All type schemas that are derived from Variable
-#[enum_dispatch(NodeTrait)]
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum VariableTypes {
-    Variable(Variable),
-    Parameter(Parameter),
 }

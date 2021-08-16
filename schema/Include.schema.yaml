@@ -19,12 +19,13 @@ properties:
     $comment: |
       Typically expressed using a file name extensions (e.g. `md`) or a
       MIME type (e.g. `text/md`).
-  sha256:
-    '@id': schema:sha256
-    description: The SHA-256 hash of the content of `source`.
+  buildDigest:
+    '@id': stencila:buildDigest
+    description: The SHA-256 digest of the `source` and `mediaType` properties the last time the node was built.
     type: string
     $comment: |
-      Used to determine whether it is necessary to update the `content` property.
+      Used to determine whether it is necessary to re-build the node (i.e. update the `content` property
+      due to new content in the `source` or a change in the `mediaType`).
   content:
     '@id': stencila:content
     description: The structured content decoded from the source.

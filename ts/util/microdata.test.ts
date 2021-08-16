@@ -13,7 +13,7 @@ import { codeChunk, article, person, organization } from '../types'
 
 test('microdata', () => {
   // A Stencila type
-  expect(microdata(codeChunk({ text: '' }))).toEqual({
+  expect(microdata(codeChunk({ text: '', programmingLanguage: '' }))).toEqual({
     itemscope: '',
     itemtype: 'http://schema.stenci.la/CodeChunk',
   })

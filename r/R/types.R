@@ -99,7 +99,7 @@ CiteGroup <- function(
 }
 
 
-#' Base type for code nodes e.g. CodeBlock, CodeExpression.
+#' Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
 #'
 #' @name Code
 #' @param text The text of the code. \bold{Required}.
@@ -134,9 +134,7 @@ Code <- function(
 #'
 #' @name CodeBlock
 #' @param text The text of the code. \bold{Required}.
-#' @param exportFrom A compilation directive giving the name of the variable to export into the content of the code block.
 #' @param id The identifier for this item.
-#' @param importTo A compilation directive giving the name of the variable to import the content of the code block as.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
@@ -145,9 +143,7 @@ Code <- function(
 #' @export
 CodeBlock <- function(
   text,
-  exportFrom,
   id,
-  importTo,
   mediaType,
   meta,
   programmingLanguage
@@ -160,9 +156,52 @@ CodeBlock <- function(
     programmingLanguage = programmingLanguage
   )
   self$type <- as_scalar("CodeBlock")
-  self[["exportFrom"]] <- check_property("CodeBlock", "exportFrom", FALSE, missing(exportFrom), "character", exportFrom)
-  self[["importTo"]] <- check_property("CodeBlock", "importTo", FALSE, missing(importTo), "character", importTo)
+
   class(self) <- c(class(self), "CodeBlock")
+  self
+}
+
+
+#' Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+#'
+#' @name CodeExecutable
+#' @param programmingLanguage The programming language of the code. \bold{Required}.
+#' @param text The text of the code. \bold{Required}.
+#' @param compileDigest The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
+#' @param duration Duration in seconds of the last execution of the code.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
+#' @param executeDigest The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
+#' @param id The identifier for this item.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
+#' @param meta Metadata associated with this item.
+#' @return A `list` of class `CodeExecutable`
+#' @seealso \code{\link{Code}}
+#' @export
+CodeExecutable <- function(
+  programmingLanguage,
+  text,
+  compileDigest,
+  duration,
+  errors,
+  executeDigest,
+  id,
+  mediaType,
+  meta
+){
+  self <- Code(
+    programmingLanguage = programmingLanguage,
+    text = text,
+    id = id,
+    mediaType = mediaType,
+    meta = meta
+  )
+  self$type <- as_scalar("CodeExecutable")
+  self[["programmingLanguage"]] <- check_property("CodeExecutable", "programmingLanguage", TRUE, missing(programmingLanguage), "character", programmingLanguage)
+  self[["compileDigest"]] <- check_property("CodeExecutable", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
+  self[["duration"]] <- check_property("CodeExecutable", "duration", FALSE, missing(duration), "numeric", duration)
+  self[["errors"]] <- check_property("CodeExecutable", "errors", FALSE, missing(errors), Array(CodeError), errors)
+  self[["executeDigest"]] <- check_property("CodeExecutable", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
+  class(self) <- c(class(self), "CodeExecutable")
   self
 }
 
@@ -170,26 +209,20 @@ CodeBlock <- function(
 #' A executable chunk of code.
 #'
 #' @name CodeChunk
+#' @param programmingLanguage The programming language of the code. \bold{Required}.
 #' @param text The text of the code. \bold{Required}.
-#' @param alters Names of variables that the code chunk alters.
-#' @param assigns Variables that the code chunk assigns to.
 #' @param caption A caption for the CodeChunk.
-#' @param declares Variables that the code chunk declares.
-#' @param duration Duration in seconds of the last execution of the chunk.
-#' @param errors Errors when compiling or executing the chunk.
-#' @param exportFrom A compilation directive giving the name of the variable to export into the content of the code block.
+#' @param compileDigest The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
+#' @param duration Duration in seconds of the last execution of the code.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
+#' @param executeDigest The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
 #' @param id The identifier for this item.
-#' @param importTo A compilation directive giving the name of the variable to import the content of the code block as.
-#' @param imports Software packages that the code chunk imports
 #' @param label A short label for the CodeChunk.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
 #' @param outputs Outputs from executing the chunk.
-#' @param programmingLanguage The programming language of the code.
-#' @param reads Filesystem paths that this code chunk reads from.
-#' @param uses Names of variables that the code chunk uses (but does not alter).
 #' @return A `list` of class `CodeChunk`
-#' @seealso \code{\link{CodeBlock}}
+#' @seealso \code{\link{CodeExecutable}}
 #' @export
 #' @examples
 #' CodeChunk(
@@ -212,47 +245,83 @@ CodeBlock <- function(
 #'   )
 #' )
 CodeChunk <- function(
+  programmingLanguage,
   text,
-  alters,
-  assigns,
   caption,
-  declares,
+  compileDigest,
   duration,
   errors,
-  exportFrom,
+  executeDigest,
   id,
-  importTo,
-  imports,
   label,
   mediaType,
   meta,
-  outputs,
-  programmingLanguage,
-  reads,
-  uses
+  outputs
 ){
-  self <- CodeBlock(
+  self <- CodeExecutable(
+    programmingLanguage = programmingLanguage,
     text = text,
-    exportFrom = exportFrom,
+    compileDigest = compileDigest,
+    duration = duration,
+    errors = errors,
+    executeDigest = executeDigest,
     id = id,
-    importTo = importTo,
     mediaType = mediaType,
-    meta = meta,
-    programmingLanguage = programmingLanguage
+    meta = meta
   )
   self$type <- as_scalar("CodeChunk")
-  self[["alters"]] <- check_property("CodeChunk", "alters", FALSE, missing(alters), Array("character"), alters)
-  self[["assigns"]] <- check_property("CodeChunk", "assigns", FALSE, missing(assigns), Array(Union(Variable, "character")), assigns)
+  self[["programmingLanguage"]] <- check_property("CodeChunk", "programmingLanguage", TRUE, missing(programmingLanguage), "character", programmingLanguage)
   self[["caption"]] <- check_property("CodeChunk", "caption", FALSE, missing(caption), Union(Array(BlockContent), "character"), caption)
-  self[["declares"]] <- check_property("CodeChunk", "declares", FALSE, missing(declares), Array(Union(Variable, Function, "character")), declares)
-  self[["duration"]] <- check_property("CodeChunk", "duration", FALSE, missing(duration), "numeric", duration)
-  self[["errors"]] <- check_property("CodeChunk", "errors", FALSE, missing(errors), Array(CodeError), errors)
-  self[["imports"]] <- check_property("CodeChunk", "imports", FALSE, missing(imports), Array(Union(SoftwareSourceCode, SoftwareApplication, "character")), imports)
   self[["label"]] <- check_property("CodeChunk", "label", FALSE, missing(label), "character", label)
   self[["outputs"]] <- check_property("CodeChunk", "outputs", FALSE, missing(outputs), Array(Node), outputs)
-  self[["reads"]] <- check_property("CodeChunk", "reads", FALSE, missing(reads), Array("character"), reads)
-  self[["uses"]] <- check_property("CodeChunk", "uses", FALSE, missing(uses), Array(Union(Variable, "character")), uses)
   class(self) <- c(class(self), "CodeChunk")
+  self
+}
+
+
+#' An executable programming code expression.
+#'
+#' @name CodeExpression
+#' @param programmingLanguage The programming language of the code. \bold{Required}.
+#' @param text The text of the code. \bold{Required}.
+#' @param compileDigest The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
+#' @param duration Duration in seconds of the last execution of the code.
+#' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
+#' @param executeDigest The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
+#' @param id The identifier for this item.
+#' @param mediaType Media type, typically expressed using a MIME format, of the code.
+#' @param meta Metadata associated with this item.
+#' @param output The value of the expression when it was last evaluated.
+#' @return A `list` of class `CodeExpression`
+#' @seealso \code{\link{CodeExecutable}}
+#' @export
+CodeExpression <- function(
+  programmingLanguage,
+  text,
+  compileDigest,
+  duration,
+  errors,
+  executeDigest,
+  id,
+  mediaType,
+  meta,
+  output
+){
+  self <- CodeExecutable(
+    programmingLanguage = programmingLanguage,
+    text = text,
+    compileDigest = compileDigest,
+    duration = duration,
+    errors = errors,
+    executeDigest = executeDigest,
+    id = id,
+    mediaType = mediaType,
+    meta = meta
+  )
+  self$type <- as_scalar("CodeExpression")
+  self[["programmingLanguage"]] <- check_property("CodeExpression", "programmingLanguage", TRUE, missing(programmingLanguage), "character", programmingLanguage)
+  self[["output"]] <- check_property("CodeExpression", "output", FALSE, missing(output), Node, output)
+  class(self) <- c(class(self), "CodeExpression")
   self
 }
 
@@ -285,43 +354,6 @@ CodeFragment <- function(
   self$type <- as_scalar("CodeFragment")
 
   class(self) <- c(class(self), "CodeFragment")
-  self
-}
-
-
-#' An expression defined in programming language source code.
-#'
-#' @name CodeExpression
-#' @param text The text of the code. \bold{Required}.
-#' @param errors Errors when compiling or executing the chunk.
-#' @param id The identifier for this item.
-#' @param mediaType Media type, typically expressed using a MIME format, of the code.
-#' @param meta Metadata associated with this item.
-#' @param output The value of the expression when it was last evaluated.
-#' @param programmingLanguage The programming language of the code.
-#' @return A `list` of class `CodeExpression`
-#' @seealso \code{\link{CodeFragment}}
-#' @export
-CodeExpression <- function(
-  text,
-  errors,
-  id,
-  mediaType,
-  meta,
-  output,
-  programmingLanguage
-){
-  self <- CodeFragment(
-    text = text,
-    id = id,
-    mediaType = mediaType,
-    meta = meta,
-    programmingLanguage = programmingLanguage
-  )
-  self$type <- as_scalar("CodeExpression")
-  self[["errors"]] <- check_property("CodeExpression", "errors", FALSE, missing(errors), Array(CodeError), errors)
-  self[["output"]] <- check_property("CodeExpression", "output", FALSE, missing(output), Node, output)
-  class(self) <- c(class(self), "CodeExpression")
   self
 }
 
@@ -2147,21 +2179,21 @@ ImageObject <- function(
 #'
 #' @name Include
 #' @param source The external source of the content, a file path or URL. \bold{Required}.
+#' @param buildDigest The SHA-256 digest of the `source` and `mediaType` properties the last time the node was built.
 #' @param content The structured content decoded from the source.
 #' @param id The identifier for this item.
 #' @param mediaType Media type of the source content.
 #' @param meta Metadata associated with this item.
-#' @param sha256 The SHA-256 hash of the content of `source`.
 #' @return A `list` of class `Include`
 #' @seealso \code{\link{Entity}}
 #' @export
 Include <- function(
   source,
+  buildDigest,
   content,
   id,
   mediaType,
-  meta,
-  sha256
+  meta
 ){
   self <- Entity(
     id = id,
@@ -2169,9 +2201,9 @@ Include <- function(
   )
   self$type <- as_scalar("Include")
   self[["source"]] <- check_property("Include", "source", TRUE, missing(source), "character", source)
+  self[["buildDigest"]] <- check_property("Include", "buildDigest", FALSE, missing(buildDigest), "character", buildDigest)
   self[["content"]] <- check_property("Include", "content", FALSE, missing(content), Array(BlockContent), content)
   self[["mediaType"]] <- check_property("Include", "mediaType", FALSE, missing(mediaType), "character", mediaType)
-  self[["sha256"]] <- check_property("Include", "sha256", FALSE, missing(sha256), "character", sha256)
   class(self) <- c(class(self), "Include")
   self
 }
@@ -2652,22 +2684,30 @@ Paragraph <- function(
 }
 
 
-#' A variable representing a name / value pair.
+#' A parameter of a document or function.
 #'
-#' @name Variable
-#' @param name The name of the variable. \bold{Required}.
+#' @name Parameter
+#' @param name The name of the parameter. \bold{Required}.
+#' @param default The default value of the parameter.
+#' @param executeDigest The SHA-256 digest of the `value` property the last time the node was executed.
 #' @param id The identifier for this item.
-#' @param isReadonly Whether or not a property is mutable. Default is false.
+#' @param isExtensible Indicates that this parameter is variadic and can accept multiple named arguments.
+#' @param isRequired Is this parameter required, if not it should have a default or default is assumed to be null.
+#' @param isVariadic Indicates that this parameter is variadic and can accept multiple arguments.
 #' @param meta Metadata associated with this item.
 #' @param validator The validator that the value is validated against.
-#' @param value The value of the variable.
-#' @return A `list` of class `Variable`
+#' @param value The current value of the parameter.
+#' @return A `list` of class `Parameter`
 #' @seealso \code{\link{Entity}}
 #' @export
-Variable <- function(
+Parameter <- function(
   name,
+  default,
+  executeDigest,
   id,
-  isReadonly,
+  isExtensible,
+  isRequired,
+  isVariadic,
   meta,
   validator,
   value
@@ -2676,57 +2716,15 @@ Variable <- function(
     id = id,
     meta = meta
   )
-  self$type <- as_scalar("Variable")
-  self[["name"]] <- check_property("Variable", "name", TRUE, missing(name), "character", name)
-  self[["isReadonly"]] <- check_property("Variable", "isReadonly", FALSE, missing(isReadonly), "logical", isReadonly)
-  self[["validator"]] <- check_property("Variable", "validator", FALSE, missing(validator), ValidatorTypes, validator)
-  self[["value"]] <- check_property("Variable", "value", FALSE, missing(value), Node, value)
-  class(self) <- c(class(self), "Variable")
-  self
-}
-
-
-#' A parameter that can be set and used in evaluated code.
-#'
-#' @name Parameter
-#' @param name The name of the variable. \bold{Required}.
-#' @param default The default value of the parameter.
-#' @param id The identifier for this item.
-#' @param isExtensible Indicates that this parameter is variadic and can accept multiple named arguments.
-#' @param isReadonly Whether or not a property is mutable. Default is false.
-#' @param isRequired Is this parameter required, if not it should have a default or default is assumed to be null.
-#' @param isVariadic Indicates that this parameter is variadic and can accept multiple arguments.
-#' @param meta Metadata associated with this item.
-#' @param validator The validator that the value is validated against.
-#' @param value The value of the variable.
-#' @return A `list` of class `Parameter`
-#' @seealso \code{\link{Variable}}
-#' @export
-Parameter <- function(
-  name,
-  default,
-  id,
-  isExtensible,
-  isReadonly,
-  isRequired,
-  isVariadic,
-  meta,
-  validator,
-  value
-){
-  self <- Variable(
-    name = name,
-    id = id,
-    isReadonly = isReadonly,
-    meta = meta,
-    validator = validator,
-    value = value
-  )
   self$type <- as_scalar("Parameter")
+  self[["name"]] <- check_property("Parameter", "name", TRUE, missing(name), "character", name)
   self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), Node, default)
+  self[["executeDigest"]] <- check_property("Parameter", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
   self[["isExtensible"]] <- check_property("Parameter", "isExtensible", FALSE, missing(isExtensible), "logical", isExtensible)
   self[["isRequired"]] <- check_property("Parameter", "isRequired", FALSE, missing(isRequired), "logical", isRequired)
   self[["isVariadic"]] <- check_property("Parameter", "isVariadic", FALSE, missing(isVariadic), "logical", isVariadic)
+  self[["validator"]] <- check_property("Parameter", "validator", FALSE, missing(validator), ValidatorTypes, validator)
+  self[["value"]] <- check_property("Parameter", "value", FALSE, missing(value), Node, value)
   class(self) <- c(class(self), "Parameter")
   self
 }
@@ -4227,6 +4225,40 @@ TupleValidator <- function(
 }
 
 
+#' A variable representing a name / value pair.
+#'
+#' @name Variable
+#' @param name The name of the variable. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param isReadonly Whether or not a property is mutable. Default is false.
+#' @param meta Metadata associated with this item.
+#' @param validator The validator that the value is validated against.
+#' @param value The value of the variable.
+#' @return A `list` of class `Variable`
+#' @seealso \code{\link{Entity}}
+#' @export
+Variable <- function(
+  name,
+  id,
+  isReadonly,
+  meta,
+  validator,
+  value
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Variable")
+  self[["name"]] <- check_property("Variable", "name", TRUE, missing(name), "character", name)
+  self[["isReadonly"]] <- check_property("Variable", "isReadonly", FALSE, missing(isReadonly), "logical", isReadonly)
+  self[["validator"]] <- check_property("Variable", "validator", FALSE, missing(validator), ValidatorTypes, validator)
+  self[["value"]] <- check_property("Variable", "value", FALSE, missing(value), Node, value)
+  class(self) <- c(class(self), "Variable")
+  self
+}
+
+
 #' A video file.
 #'
 #' @name VideoObject
@@ -4427,25 +4459,18 @@ CitationIntentEnumeration <- Enum("AgreesWith", "CitesAsAuthority", "CitesAsData
 BlockContent <- Union(Claim, CodeBlock, CodeChunk, Collection, Figure, Heading, Include, List, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
 
 
-#' All type schemas that are derived from CodeBlock
+#' All type schemas that are derived from CodeExecutable
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-CodeBlockTypes <- Union(CodeBlock, CodeChunk)
-
-
-#' All type schemas that are derived from CodeFragment
-#'
-#' @return A `list` of class `Union` describing valid subtypes of this type
-#' @export
-CodeFragmentTypes <- Union(CodeFragment, CodeExpression)
+CodeExecutableTypes <- Union(CodeExecutable, CodeChunk, CodeExpression)
 
 
 #' All type schemas that are derived from Code
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-CodeTypes <- Union(Code, CodeBlock, CodeChunk, CodeExpression, CodeFragment)
+CodeTypes <- Union(Code, CodeBlock, CodeChunk, CodeExecutable, CodeExpression, CodeFragment)
 
 
 #' All type schemas that are derived from ContactPoint
@@ -4466,7 +4491,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Claim, Collection
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Validator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Validator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Enumeration
@@ -4515,7 +4540,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
+Node <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExecutable, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Validator, Variable, VideoObject, VolumeMount, "NULL", "logical", "numeric", "character", "list", Array(Any()))
 
 
 #' All type schemas that are derived from Thing
@@ -4530,12 +4555,5 @@ ThingTypes <- Union(Thing, Article, AudioObject, Brand, CitationIntentEnumeratio
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 ValidatorTypes <- Union(Validator, ArrayValidator, BooleanValidator, ConstantValidator, EnumValidator, IntegerValidator, NumberValidator, StringValidator, TupleValidator)
-
-
-#' All type schemas that are derived from Variable
-#'
-#' @return A `list` of class `Union` describing valid subtypes of this type
-#' @export
-VariableTypes <- Union(Variable, Parameter)
 
 
