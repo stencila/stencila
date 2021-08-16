@@ -4568,14 +4568,6 @@ pub enum CitePageStart {
     String(String),
 }
 
-/// Types permitted for the `assigns` property of a `CodeChunk` node.
-#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum CodeChunkAssigns {
-    Variable(Variable),
-    String(String),
-}
-
 /// Types permitted for the `caption` property of a `CodeChunk` node.
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
