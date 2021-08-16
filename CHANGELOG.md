@@ -1,3 +1,15 @@
+## [0.109.2](https://github.com/stencila/stencila/compare/v0.109.1...v0.109.2) (2021-08-16)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/schema to v1.10.1 ([44c045c](https://github.com/stencila/stencila/commit/44c045c4d3c4c3dec3a159c86abd43c479ad3282))
+* **dependencies:** update rust crate handlebars to v4.1.2 ([3c2f026](https://github.com/stencila/stencila/commit/3c2f02691d250531f8ccebaf94f852fc3b8e0a1c))
+* **dependencies:** update rust crate pyo3 to v0.14.2 ([efab7b4](https://github.com/stencila/stencila/commit/efab7b4f0f0f0e75f0d1cfbe65a9fd3889ae0f40))
+* **dependencies:** update rust crate tar to v0.4.37 ([4eaa530](https://github.com/stencila/stencila/commit/4eaa530a85a148c7ee5719ee427ae32892b1a92e))
+* **dependencies:** update rust crate termimad to v0.14.2 ([307e963](https://github.com/stencila/stencila/commit/307e963783cd1347602e886f6b290f4ff77ec6d7))
+* **dependencies:** update rust crate tokio to v1.10.0 ([9ea2d33](https://github.com/stencila/stencila/commit/9ea2d33608f8c0dc76673c38faf5be2b1538b189))
+
 ## [0.109.1](https://github.com/stencila/stencila/compare/v0.109.0...v0.109.1) (2021-08-08)
 
 
