@@ -1,0 +1,290 @@
+---
+source: rust/src/methods/compile/code/py.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/py/reads.py
+
+---
+[
+  [
+    {
+      "assign": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "var1",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "read": [
+        0,
+        12,
+        0,
+        19
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path1"
+    }
+  ],
+  [
+    {
+      "read": [
+        2,
+        10,
+        2,
+        17
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path2"
+    }
+  ],
+  [
+    {
+      "read": [
+        5,
+        5,
+        5,
+        12
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path3"
+    }
+  ],
+  [
+    {
+      "read": [
+        7,
+        10,
+        7,
+        17
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path4"
+    }
+  ],
+  [
+    {
+      "read": [
+        9,
+        5,
+        9,
+        12
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path5"
+    }
+  ],
+  [
+    {
+      "read": [
+        11,
+        10,
+        11,
+        17
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path6"
+    }
+  ],
+  [
+    {
+      "read": [
+        13,
+        10,
+        13,
+        17
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path7"
+    }
+  ],
+  [
+    {
+      "assign": [
+        16,
+        4,
+        16,
+        13
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "open_func",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "read": [
+        17,
+        9,
+        17,
+        16
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path8"
+    }
+  ],
+  [
+    {
+      "write": [
+        22,
+        5,
+        22,
+        12
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/write"
+    }
+  ],
+  [
+    {
+      "write": [
+        23,
+        5,
+        23,
+        12
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/write"
+    }
+  ],
+  [
+    {
+      "write": [
+        24,
+        10,
+        24,
+        17
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/write"
+    }
+  ],
+  [
+    {
+      "assign": [
+        28,
+        0,
+        28,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        29,
+        5,
+        29,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        30,
+        5,
+        30,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        31,
+        5,
+        31,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "assign": [
+        33,
+        0,
+        33,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "mode",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        34,
+        15,
+        34,
+        19
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/reads.py",
+      "name": "mode",
+      "kind": ""
+    }
+  ]
+]

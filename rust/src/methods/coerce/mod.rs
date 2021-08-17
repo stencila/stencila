@@ -911,7 +911,7 @@ mod tests {
 
     #[test]
     fn coerce_yaml_articles() {
-        snapshot_content("articles/coerce-*.yaml", |content| {
+        snapshot_content("articles/coerce-*.yaml", |_path, content| {
             let value = serde_yaml::from_str(&content).expect("Unable to deserialize YAML");
             let node = coerce(value).expect("Unable to coerce");
             assert!(matches!(node, Node::Article(_)));

@@ -100,3 +100,17 @@ pub fn import_source(mut cx: FunctionContext) -> JsResult<JsString> {
     });
     to_json_or_throw(cx, result)
 }
+
+/// Get a project graph in a desired format
+pub fn graph(mut cx: FunctionContext) -> JsResult<JsString> {
+    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let format = &cx.argument::<JsString>(1)?.value(&mut cx);
+
+    let result = RUNTIME.block_on(async {
+        match PROJECTS.get(&path).await {
+            Ok(project) => project.lock().await.graph(format),
+            Err(error) => Err(error),
+        }
+    });
+    to_string_or_throw(cx, result)
+}

@@ -1,0 +1,115 @@
+---
+source: rust/src/methods/compile/code/r.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/r/imports.R
+
+---
+[
+  [
+    {
+      "use": [
+        1,
+        8,
+        1,
+        12
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg1"
+    }
+  ],
+  [
+    {
+      "use": [
+        2,
+        8,
+        2,
+        12
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg2"
+    }
+  ],
+  [
+    {
+      "use": [
+        5,
+        8,
+        5,
+        14
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg3"
+    }
+  ],
+  [
+    {
+      "use": [
+        5,
+        8,
+        5,
+        14
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg3"
+    }
+  ],
+  [
+    {
+      "assign": [
+        8,
+        0,
+        8,
+        3
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/imports.R",
+      "name": "foo",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "use": [
+        9,
+        12,
+        9,
+        16
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg4"
+    }
+  ],
+  [
+    {
+      "assign": [
+        16,
+        0,
+        16,
+        7
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/imports.R",
+      "name": "pkg_var",
+      "kind": "String"
+    }
+  ]
+]

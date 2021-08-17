@@ -1,0 +1,176 @@
+---
+source: rust/src/methods/compile/code/ts.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/js/writes.js
+
+---
+[
+  [
+    {
+      "use": [
+        0,
+        15,
+        0,
+        19
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "fs"
+    }
+  ],
+  [
+    {
+      "use": [
+        1,
+        28,
+        1,
+        32
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "fs"
+    }
+  ],
+  [
+    {
+      "assign": [
+        3,
+        4,
+        3,
+        8
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/writes.js",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        3,
+        11,
+        3,
+        13
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/writes.js",
+      "name": "fs",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "write": [
+        3,
+        24,
+        3,
+        31
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/js/path1"
+    }
+  ],
+  [
+    {
+      "use": [
+        3,
+        33,
+        3,
+        37
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/writes.js",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        4,
+        0,
+        4,
+        13
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/writes.js",
+      "name": "writeFileSync",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "write": [
+        4,
+        14,
+        4,
+        21
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/js/path2"
+    }
+  ],
+  [
+    {
+      "use": [
+        4,
+        23,
+        4,
+        27
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/writes.js",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "assign": [
+        6,
+        9,
+        6,
+        18
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/writes.js",
+      "name": "writeData",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "write": [
+        7,
+        15,
+        7,
+        22
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/js/path3"
+    }
+  ]
+]

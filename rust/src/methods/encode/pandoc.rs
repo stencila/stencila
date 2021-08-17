@@ -179,6 +179,7 @@ impl ToPandoc for MathFragment {
 }
 
 unimplemented_to_pandoc!(Note);
+unimplemented_to_pandoc!(Parameter);
 
 impl ToPandoc for Quote {
     fn to_pandoc_inline(&self) -> pandoc::Inline {
@@ -208,6 +209,7 @@ impl ToPandoc for InlineContent {
             InlineContent::Note(node) => node.to_pandoc_inline(),
             InlineContent::Null => null_to_pandoc_inline(),
             InlineContent::Number(node) => node.to_pandoc_inline(),
+            InlineContent::Parameter(node) => node.to_pandoc_inline(),
             InlineContent::Quote(node) => node.to_pandoc_inline(),
             InlineContent::String(node) => node.to_pandoc_inline(),
             InlineContent::Strong(node) => node.to_pandoc_inline(),
@@ -253,6 +255,8 @@ impl ToPandoc for Heading {
         )
     }
 }
+
+unimplemented_to_pandoc!(Include);
 
 impl ToPandoc for List {
     fn to_pandoc_block(&self) -> pandoc::Block {
@@ -353,6 +357,7 @@ impl ToPandoc for BlockContent {
             BlockContent::Collection(node) => node.to_pandoc_block(),
             BlockContent::Figure(node) => node.to_pandoc_block(),
             BlockContent::Heading(node) => node.to_pandoc_block(),
+            BlockContent::Include(node) => node.to_pandoc_block(),
             BlockContent::List(node) => node.to_pandoc_block(),
             BlockContent::MathBlock(node) => node.to_pandoc_block(),
             BlockContent::Paragraph(node) => node.to_pandoc_block(),

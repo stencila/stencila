@@ -188,9 +188,10 @@ impl Formats {
 pub static FORMATS: Lazy<Formats> = Lazy::new(Formats::default);
 
 pub enum FormatType {
-    Audio,
-    Image,
-    Video,
+    AudioObject,
+    ImageObject,
+    VideoObject,
+    SoftwareSourceCode,
     Unknown,
 }
 
@@ -210,9 +211,10 @@ pub fn format_type(path: &str) -> FormatType {
     let name = name.to_str().unwrap();
 
     match name {
-        "flac" | "mp3" | "ogg" => FormatType::Audio,
-        "gif" | "jpg" | "png" => FormatType::Image,
-        "3gp" | "mp4" | "ogv" | "webm" => FormatType::Video,
+        "flac" | "mp3" | "ogg" => FormatType::AudioObject,
+        "gif" | "jpg" | "png" => FormatType::ImageObject,
+        "3gp" | "mp4" | "ogv" | "webm" => FormatType::VideoObject,
+        "js" | "r" | "py" | "ts" => FormatType::SoftwareSourceCode,
         _ => FormatType::Unknown,
     }
 }

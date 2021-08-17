@@ -1,0 +1,97 @@
+---
+source: rust/src/methods/compile/code/py.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/py/tags.py
+
+---
+[
+  [
+    {
+      "use": [
+        1,
+        0,
+        1,
+        17
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "python",
+      "name": "mod1"
+    }
+  ],
+  [
+    {
+      "assign": [
+        2,
+        0,
+        2,
+        17
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/tags.py",
+      "name": "var1",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        4,
+        0,
+        4,
+        11
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/tags.py",
+      "name": "var3",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "read": [
+        5,
+        0,
+        5,
+        19
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file1"
+    }
+  ],
+  [
+    {
+      "read": [
+        5,
+        0,
+        5,
+        19
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file2"
+    }
+  ],
+  [
+    {
+      "write": [
+        6,
+        0,
+        6,
+        14
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file3"
+    }
+  ]
+]

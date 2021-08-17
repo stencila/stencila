@@ -1,0 +1,184 @@
+---
+source: rust/src/methods/compile/code/py.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/py/assigns.py
+
+---
+[
+  [
+    {
+      "assign": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var1",
+      "kind": "Integer"
+    }
+  ],
+  [
+    {
+      "assign": [
+        1,
+        0,
+        1,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "assign": [
+        3,
+        4,
+        3,
+        8
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "fun1",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "assign": [
+        4,
+        0,
+        4,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "fun2",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "assign": [
+        6,
+        0,
+        6,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var3",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    {
+      "assign": [
+        7,
+        0,
+        7,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var4",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    {
+      "assign": [
+        8,
+        0,
+        8,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var5",
+      "kind": "Integer"
+    }
+  ],
+  [
+    {
+      "assign": [
+        9,
+        0,
+        9,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var6",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        10,
+        0,
+        10,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var7",
+      "kind": "String"
+    }
+  ],
+  [
+    {
+      "assign": [
+        11,
+        0,
+        11,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var8",
+      "kind": "Array"
+    }
+  ],
+  [
+    {
+      "assign": [
+        12,
+        0,
+        12,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/assigns.py",
+      "name": "var9",
+      "kind": "Object"
+    }
+  ]
+]

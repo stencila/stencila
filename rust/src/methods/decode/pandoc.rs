@@ -482,13 +482,13 @@ fn translate_inline(element: &pandoc::Inline, context: &Context) -> Vec<InlineCo
             let content_url = url.clone();
 
             match format_type(&content_url) {
-                FormatType::Audio => vec![InlineContent::AudioObject(AudioObjectSimple {
+                FormatType::AudioObject => vec![InlineContent::AudioObject(AudioObjectSimple {
                     content_url,
                     caption,
                     id,
                     ..Default::default()
                 })],
-                FormatType::Video => vec![InlineContent::VideoObject(VideoObjectSimple {
+                FormatType::VideoObject => vec![InlineContent::VideoObject(VideoObjectSimple {
                     content_url,
                     caption,
                     id,
@@ -595,7 +595,7 @@ mod tests {
     #[test]
     fn pandoc_fragments() {
         let runtime = tokio::runtime::Runtime::new().unwrap();
-        snapshot_content("fragments/pandoc/*.json", |content| {
+        snapshot_content("fragments/pandoc/*.json", |_path, content| {
             let json =
                 runtime.block_on(async { decode_fragment(&content, "pandoc", &[]).await.unwrap() });
             assert_json_snapshot!(json);

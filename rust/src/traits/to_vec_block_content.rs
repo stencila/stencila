@@ -1,4 +1,4 @@
-use stencila_schema::{BlockContent, InlineContent, Paragraph};
+use stencila_schema::{BlockContent, InlineContent, Node, Paragraph};
 
 pub trait ToVecBlockContent {
     fn to_vec_block_content(&self) -> Vec<BlockContent>;
@@ -12,5 +12,17 @@ impl ToVecBlockContent for Vec<InlineContent> {
             content: self.clone(),
             ..Default::default()
         })]
+    }
+}
+
+impl ToVecBlockContent for Node {
+    fn to_vec_block_content(&self) -> Vec<BlockContent> {
+        match self {
+            Node::Article(node) => match &node.content {
+                Some(content) => content.clone(),
+                None => Vec::new(),
+            },
+            _ => Vec::new(),
+        }
     }
 }

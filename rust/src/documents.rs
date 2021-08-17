@@ -1,19 +1,24 @@
 use crate::{
     errors::attempt,
     formats::{Format, FORMATS},
+    graphs::{Relation, Resource},
     methods::{
         compile::compile,
         decode::decode,
         encode::{self, encode},
     },
     pubsub::publish,
-    utils::{schemas, uuids},
+    utils::{
+        hash::{file_sha256_hex, str_sha256_hex},
+        schemas, uuids,
+    },
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use serde::ser::SerializeMap;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::time::{Duration, Instant};
@@ -166,7 +171,17 @@ pub struct Document {
 
     /// The root Stencila Schema node of the document
     #[serde(skip)]
-    root: Option<Node>,
+    pub root: Option<Node>,
+
+    /// The set of relations between nodes in this document and other
+    /// resources.
+    ///
+    /// Relations may be external (e.g. this document links to
+    /// another file) or internal (e.g. the second code chunk uses a variable
+    /// defined in the first code chunk).
+    #[schemars(schema_with = "Document::schema_relations")]
+    #[serde(skip_deserializing, serialize_with = "Document::serialize_relations")]
+    pub relations: HashMap<Resource, Vec<(Relation, Resource)>>,
 
     /// The set of unique subscriptions to this document
     ///
@@ -191,6 +206,32 @@ impl Document {
     /// inline type.
     fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
         schemas::typescript("Format", true)
+    }
+
+    /// Generate the JSON Schema for the `relations` property to avoid duplicated
+    /// inline types and allow for custom serialization.
+    fn schema_relations(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("Record<string, [Relation, Resource]>", false)
+    }
+
+    /// Serialize the `relations` property such that the `Resource` keys are represented as
+    /// a string suitable for encoding as JSON.
+    fn serialize_relations<S>(
+        relations: &HashMap<Resource, Vec<(Relation, Resource)>>,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut map = serializer.serialize_map(Some(relations.len()))?;
+        for (resource, pairs) in relations {
+            let key = match resource {
+                Resource::Node(node) => [&node.kind, "@", &node.id].concat(),
+                _ => unreachable!(),
+            };
+            map.serialize_entry(&key, pairs);
+        }
+        map.end()
     }
 
     /// Create a new empty document.
@@ -271,8 +312,7 @@ impl Document {
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the path's file extension.
     /// TODO: add project: Option<PathBuf> so that project can be explictly set
-    async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
-        // Canonicalize and ensure the path exists
+    pub async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
         let path = path.as_ref().canonicalize()?;
 
         // Create a new document with unique id
@@ -490,6 +530,17 @@ impl Document {
         self.update(decode_content).await
     }
 
+    /// Get the SHA-256 of the document
+    ///
+    /// For text-based documents, returns the SHA-256 of the document's `content`.
+    /// For binary documents, returns the SHA-256 of the document's file.
+    pub fn sha256(&self) -> Result<String> {
+        match self.format.binary {
+            true => Ok(str_sha256_hex(&self.content)),
+            false => file_sha256_hex(&self.path),
+        }
+    }
+
     /// Update the `root` (and associated properties) of the document and publish updated encodings
     ///
     /// Publishes `encoded:` events for each of the formats subscribed to.
@@ -543,8 +594,11 @@ impl Document {
             reshape(&mut root, reshape::Options::default())?;
         }
 
-        // Compile the `root` and update document dependencies
-        let _compilation = compile(&mut root, &self.path, &self.project)?;
+        // Compile the `root` and update document intra- and inter- dependencies
+        let compilation = compile(&mut root, &self.path, &self.project).await?;
+        if !compilation.relations.is_empty() {
+            self.relations.extend(compilation.relations)
+        }
 
         // Encode the `root` into each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {

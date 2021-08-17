@@ -333,13 +333,13 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                         |ext| ext.to_string_lossy().to_string().to_ascii_lowercase(),
                     );
                     let media_object = match format_type(extension.as_str()) {
-                        FormatType::Audio => InlineContent::AudioObject(AudioObjectSimple {
+                        FormatType::AudioObject => InlineContent::AudioObject(AudioObjectSimple {
                             content,
                             content_url: url.to_string(),
                             caption: title,
                             ..Default::default()
                         }),
-                        FormatType::Video => InlineContent::VideoObject(VideoObjectSimple {
+                        FormatType::VideoObject => InlineContent::VideoObject(VideoObjectSimple {
                             content,
                             content_url: url.to_string(),
                             caption: title,
@@ -902,14 +902,14 @@ mod tests {
 
     #[test]
     fn md_articles() {
-        snapshot_content("articles/*.md", |content| {
+        snapshot_content("articles/*.md", |_path, content| {
             assert_json_snapshot!(decode(&content).expect("Unable to decode Markdown"));
         });
     }
 
     #[test]
     fn md_fragments() {
-        snapshot_content("fragments/md/*.md", |content| {
+        snapshot_content("fragments/md/*.md", |_path, content| {
             assert_json_snapshot!(decode_fragment(&content));
         });
     }

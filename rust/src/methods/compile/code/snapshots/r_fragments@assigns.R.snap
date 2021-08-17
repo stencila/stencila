@@ -1,0 +1,200 @@
+---
+source: rust/src/methods/compile/code/r.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/r/assigns.R
+
+---
+[
+  [
+    {
+      "assign": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var1",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        1,
+        0,
+        1,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var2",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        3,
+        0,
+        3,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "fun1",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "assign": [
+        5,
+        4,
+        5,
+        8
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var3",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        10,
+        4,
+        10,
+        8
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var4",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        13,
+        0,
+        13,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var5",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "assign": [
+        15,
+        0,
+        15,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var6",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    {
+      "assign": [
+        16,
+        0,
+        16,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var7",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    {
+      "assign": [
+        17,
+        0,
+        17,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var8",
+      "kind": "Integer"
+    }
+  ],
+  [
+    {
+      "assign": [
+        18,
+        0,
+        18,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var9",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        19,
+        0,
+        19,
+        5
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var10",
+      "kind": "String"
+    }
+  ],
+  [
+    {
+      "assign": [
+        20,
+        0,
+        20,
+        5
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/assigns.R",
+      "name": "var11",
+      "kind": "Datatable"
+    }
+  ]
+]

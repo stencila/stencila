@@ -1,7 +1,16 @@
 import fs from 'fs'
 import path from 'path'
 import tmp from 'tmp'
-import { addSource, importSource, open, removeSource, schemas, subscribe, write } from './projects'
+import {
+  addSource,
+  graph,
+  importSource,
+  open,
+  removeSource,
+  schemas,
+  subscribe,
+  write,
+} from './projects'
 import { FileEvent, ProjectEvent } from './types'
 
 /**
@@ -132,7 +141,6 @@ test('workflow: open and modify', async () => {
   )
 })
 
-
 /**
  * Test of a workflow involving adding and removing sources
  */
@@ -146,4 +154,10 @@ test('workflow: sources', async () => {
   expect(fs.existsSync(path.join(folder, 'article.xml')))
 
   removeSource(folder, 'source-1')
+})
+
+test('graph', async () => {
+  const folder = tmp.dirSync().name
+  open(folder)
+  expect(graph(folder, 'dot')).toMatch(/^\s*digraph/)
 })

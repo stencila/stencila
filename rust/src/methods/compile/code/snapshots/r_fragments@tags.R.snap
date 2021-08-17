@@ -1,0 +1,142 @@
+---
+source: rust/src/methods/compile/code/r.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/r/tags.R
+
+---
+[
+  [
+    {
+      "use": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg1"
+    }
+  ],
+  [
+    {
+      "use": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg2"
+    }
+  ],
+  [
+    {
+      "use": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pk3"
+    }
+  ],
+  [
+    {
+      "use": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg4"
+    }
+  ],
+  [
+    {
+      "assign": [
+        1,
+        0,
+        1,
+        19
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/tags.R",
+      "name": "var1",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        2,
+        0,
+        2,
+        12
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/tags.R",
+      "name": "var1",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "read": [
+        3,
+        0,
+        3,
+        21
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file1"
+    }
+  ],
+  [
+    {
+      "read": [
+        3,
+        0,
+        3,
+        21
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file2"
+    }
+  ],
+  [
+    {
+      "write": [
+        4,
+        0,
+        4,
+        20
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file3"
+    }
+  ]
+]

@@ -589,28 +589,37 @@ mod render {
 
     // Render Markdown to the terminal
     pub fn print(_format: &str, content: &str) -> Result<()> {
-        let skin = termimad::MadSkin::default();
-        println!("{}", skin.term_text(content));
+        if atty::isnt(atty::Stream::Stdout) {
+            println!("{}", content)
+        } else {
+            let skin = termimad::MadSkin::default();
+            println!("{}", skin.term_text(content));
+        }
+
         Ok(())
     }
 
     // Apply syntax highlighting and print to terminal
     pub fn highlight(format: &str, content: &str) -> Result<()> {
-        // TODO: Only bake in a subset of syntaxes and themes? See the following for examples of this
-        // https://github.com/ducaale/xh/blob/master/build.rs
-        // https://github.com/sharkdp/bat/blob/0b44aa6f68ab967dd5d74b7e02d306f2b8388928/src/assets.rs
-        static SYNTAXES: Lazy<SyntaxSet> = Lazy::new(SyntaxSet::load_defaults_newlines);
-        static THEMES: Lazy<ThemeSet> = Lazy::new(ThemeSet::load_defaults);
+        if atty::isnt(atty::Stream::Stdout) {
+            println!("{}", content)
+        } else {
+            // TODO: Only bake in a subset of syntaxes and themes? See the following for examples of this
+            // https://github.com/ducaale/xh/blob/master/build.rs
+            // https://github.com/sharkdp/bat/blob/0b44aa6f68ab967dd5d74b7e02d306f2b8388928/src/assets.rs
+            static SYNTAXES: Lazy<SyntaxSet> = Lazy::new(SyntaxSet::load_defaults_newlines);
+            static THEMES: Lazy<ThemeSet> = Lazy::new(ThemeSet::load_defaults);
 
-        let syntax = SYNTAXES
-            .find_syntax_by_extension(format)
-            .unwrap_or_else(|| SYNTAXES.find_syntax_by_extension("txt").unwrap());
+            let syntax = SYNTAXES
+                .find_syntax_by_extension(format)
+                .unwrap_or_else(|| SYNTAXES.find_syntax_by_extension("txt").unwrap());
 
-        let mut highlighter = HighlightLines::new(syntax, &THEMES.themes["Solarized (light)"]);
-        for line in content.lines() {
-            let ranges: Vec<(Style, &str)> = highlighter.highlight(line, &SYNTAXES);
-            let escaped = as_24_bit_terminal_escaped(&ranges[..], false);
-            println!("{}", escaped);
+            let mut highlighter = HighlightLines::new(syntax, &THEMES.themes["Solarized (light)"]);
+            for line in content.lines() {
+                let ranges: Vec<(Style, &str)> = highlighter.highlight(line, &SYNTAXES);
+                let escaped = as_24_bit_terminal_escaped(&ranges[..], false);
+                println!("{}", escaped);
+            }
         }
 
         Ok(())

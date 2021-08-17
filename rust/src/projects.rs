@@ -1,5 +1,9 @@
 use crate::config::CONFIG;
+use crate::conversions::Conversion;
+use crate::documents::DOCUMENTS;
+use crate::errors::attempt;
 use crate::files::{File, FileEvent, Files};
+use crate::graphs::{resources, Graph, Resource};
 use crate::methods::import::import;
 use crate::pubsub::publish;
 use crate::sources::{self, Source, SourceDestination, SourceTrait};
@@ -103,6 +107,9 @@ pub struct Project {
     #[schemars(schema_with = "Project::schema_sources")]
     pub sources: Option<HashMap<String, SourceDestination>>,
 
+    /// A list of file conversions
+    conversions: Option<Vec<Conversion>>,
+
     /// Glob patterns for paths to be excluded from file watching
     ///
     /// As a performance optimization, paths that match these patterns are
@@ -131,27 +138,38 @@ pub struct Project {
     #[serde(skip_deserializing)]
     #[schemars(schema_with = "Project::schema_files")]
     files: Files,
+
+    /// The project's dependency graph
+    #[serde(skip_deserializing)]
+    #[schemars(schema_with = "Project::schema_graph")]
+    graph: Graph,
 }
 
 impl Project {
     /// Generate the JSON Schema for the `path` property to avoid optionality
     /// due to `skip_deserializing`
-    fn schema_path(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+    fn schema_path(_generator: &mut SchemaGenerator) -> Schema {
         schemas::typescript("string", true)
     }
 
     /// Generate the JSON Schema for the `source` property to avoid duplicated types
-    fn schema_sources(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+    fn schema_sources(_generator: &mut SchemaGenerator) -> Schema {
         schemas::typescript("SourceDestination[]", false)
     }
 
     /// Generate the JSON Schema for the `file` property to avoid duplicated
     /// inline type and optionality due to `skip_deserializing`
-    fn schema_files(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+    fn schema_files(_generator: &mut SchemaGenerator) -> Schema {
         schemas::typescript("Record<string, File>", true)
     }
 
-    /// The name of the project's manifest file within the project directory
+    /// Generate the JSON Schema for the `graph` property to point to
+    /// our custom `Graph` schema
+    fn schema_graph(_generator: &mut SchemaGenerator) -> Schema {
+        schemas::typescript("Graph", true)
+    }
+
+    /// The name of a project's manifest file, within the project directory
     const FILE_NAME: &'static str = "project.json";
 
     /// Get the path to a project's manifest file
@@ -159,9 +177,18 @@ impl Project {
         path.as_ref().join(Project::FILE_NAME)
     }
 
-    /// Load a project's from its manifest file
+    /// The name of a project's storage directory, within the project directory
+    const STORAGE_DIR: &'static str = ".stencila";
+
+    /// Get the path to a project's storage directory
+    fn storage<P: AsRef<Path>>(path: P) -> PathBuf {
+        path.as_ref().join(Project::STORAGE_DIR)
+    }
+
+    /// Load a project's from its manifest file and storage directory
     ///
-    /// If there is no manifest file, then default values will be used
+    /// If there is no manifest file, then default values will be used.
+    /// See the `write` method for what gets written to where.
     fn load<P: AsRef<Path>>(path: P) -> Result<Project> {
         let path = path.as_ref();
         if !path.exists() {
@@ -169,6 +196,7 @@ impl Project {
         }
         let path = path.canonicalize()?;
 
+        // Deserialize the project from the project.json file (if any)
         let file = Project::file(&path);
         let mut project = if file.exists() {
             let json = fs::read_to_string(file)?;
@@ -176,8 +204,20 @@ impl Project {
         } else {
             Project::default()
         };
-        project.path = path;
 
+        // Deserialize details kept in storage, rather than in project.json
+        if let Some(sources) = &mut project.sources {
+            for (name, source) in sources.iter_mut() {
+                let source_file = Project::storage(&path)
+                    .join("sources")
+                    .join([name, ".json"].concat());
+                if source_file.exists() {
+                    source.read(source_file)?
+                }
+            }
+        }
+
+        project.path = path;
         Ok(project)
     }
 
@@ -224,41 +264,52 @@ impl Project {
     /// calls `update()`. If there is no manifest file, then default
     /// values will be used.
     async fn read(&mut self) -> Result<()> {
-        let file = Project::file(&self.path);
-        let updates = if file.exists() {
-            let json = fs::read_to_string(file)?;
-            serde_json::from_str(&json)?
-        } else {
-            Project::default()
-        };
-
+        let updates = Project::load(&self.path)?;
         self.update(Some(updates)).await;
-
         Ok(())
     }
 
-    /// Write a project's manifest file, optionally providing updated properties
+    /// Write to a project's manifest file and storage directory.
     ///
     /// If the project folder does not exist yet then it will be created.
+    /// Removes derived fields from the project to avoid polluting the project.json file
+    /// and instead writes them to the project storage directory.
     pub async fn write(&mut self, updates: Option<Project>) -> Result<()> {
         if updates.is_some() {
             self.update(updates).await
         }
 
-        // Redact derived properties
-        let mut value = serde_json::to_value(&self)?;
-        let map = value.as_object_mut().expect("Should always be an object");
-        map.remove("path");
-        map.remove("imagePath");
-        map.remove("mainPath");
-        map.remove("files");
-        let json = serde_json::to_string_pretty(map)?;
+        fs::create_dir_all(&self.path)?;
 
-        let path = &self.path;
-        if !path.exists() {
-            fs::create_dir_all(path)?;
+        let mut project = serde_json::to_value(&self)?;
+        let project = project.as_object_mut().expect("Should always be an object");
+
+        if let Some(sources) = project.get_mut("sources") {
+            let dir = Project::storage(&self.path).join("sources");
+            fs::create_dir_all(&dir)?;
+
+            let sources = sources.as_object_mut().expect("Should always be an object");
+            for (name, source) in sources.iter_mut() {
+                let source = source.as_object_mut().expect("Should always be an object");
+                // Write the whole source to storage
+                let file = dir.join([name, ".json"].concat());
+                let json = serde_json::to_string_pretty(source)?;
+                fs::write(file, json)?;
+
+                // Remove details
+                source.remove("files");
+            }
         }
-        let file = Project::file(path);
+
+        // Remove derived fields
+        project.remove("path");
+        project.remove("imagePath");
+        project.remove("mainPath");
+        project.remove("files");
+        project.remove("graph");
+
+        let json = serde_json::to_string_pretty(project)?;
+        let file = Project::file(&self.path);
         fs::write(file, json)?;
 
         Ok(())
@@ -343,7 +394,62 @@ impl Project {
         // Theme defaults to the configured default
         self.theme = self.theme.clone().or_else(|| Some(config.theme.clone()));
 
+        // Compile the project
+        attempt(self.compile().await);
+
         ProjectEvent::publish(self, ProjectEventType::Updated)
+    }
+
+    /// Compile a project
+    ///
+    /// Starts at the main document and walks over related files (linked to, imported from etc)
+    /// building up the graph. Also adds sources and their relations to files.
+    pub async fn compile(&mut self) -> Result<&mut Project> {
+        let mut graph = Graph::new();
+
+        // Walk over files starting at the main file
+        #[async_recursion::async_recursion]
+        async fn walk(visited: &mut Vec<PathBuf>, path: &Path, graph: &mut Graph) -> Result<()> {
+            let path_buf = path.to_path_buf();
+            if visited.contains(&path_buf) || !path.exists() {
+                return Ok(());
+            } else {
+                visited.push(path_buf);
+            }
+
+            let document = DOCUMENTS.open(path, None).await?;
+            for (subject, pairs) in document.relations {
+                for (relation, object) in pairs {
+                    graph.add_triple((subject.clone(), relation, object.clone()));
+
+                    if let Resource::File(file) = object {
+                        walk(visited, &file.path, graph).await?;
+                    }
+                }
+            }
+            Ok(())
+        }
+        if let Some(path) = self.main_path.as_ref() {
+            walk(&mut Vec::new(), path, &mut graph).await?;
+        }
+
+        // Add sources and relations with associated files
+        if let Some(sources) = self.sources.as_ref() {
+            for (name, source) in sources {
+                graph.add_resource(resources::source(name));
+                graph.add_triples(source.triples(name, &self.path))
+            }
+        }
+
+        // Add relation for each conversion
+        if let Some(conversions) = self.conversions.as_ref() {
+            for conversion in conversions {
+                graph.add_triple(conversion.triple(&self.path))
+            }
+        }
+
+        self.graph = graph;
+        Ok(self)
     }
 
     /// Show a project
@@ -410,22 +516,10 @@ impl Project {
                     )
                 }
             }
-            sources.insert(
-                name,
-                SourceDestination {
-                    source: source.clone(),
-                    destination,
-                },
-            );
+            sources.insert(name, SourceDestination::new(source.clone(), destination));
         } else {
             let mut sources = HashMap::new();
-            sources.insert(
-                name,
-                SourceDestination {
-                    source: source.clone(),
-                    destination,
-                },
-            );
+            sources.insert(name, SourceDestination::new(source.clone(), destination));
             self.sources = Some(sources)
         };
         self.write(None).await?;
@@ -490,6 +584,16 @@ impl Project {
         let files = import(&self.path, &source, destination).await?;
 
         Ok(files)
+    }
+
+    /// Get the project graph in some format
+    pub fn graph(&self, format: &str) -> Result<String> {
+        Ok(match format {
+            "dot" => self.graph.to_dot(&self.path),
+            "json" => serde_json::to_string_pretty(&self.graph)?,
+            "yaml" => serde_yaml::to_string(&self.graph)?,
+            _ => bail!("Unknown graph format '{}'", format),
+        })
     }
 }
 
@@ -891,6 +995,7 @@ pub mod cli {
         Open(Open),
         Close(Close),
         Show(Show),
+        Graph(Graph),
         Schemas(Schemas),
     }
 
@@ -903,6 +1008,7 @@ pub mod cli {
                 Action::Open(action) => action.run().await,
                 Action::Close(action) => action.run().await,
                 Action::Show(action) => action.run().await,
+                Action::Graph(action) => action.run().await,
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -1002,6 +1108,41 @@ pub mod cli {
             let project = PROJECTS.open(folder, false).await?;
             let content = project.show()?;
             display::new("md", &content, Some(project))
+        }
+    }
+
+    /// Output a dependency graph for a project
+    ///
+    /// When using the DOT format, if you have GraphViz and ImageMagick installed
+    /// you can view the graph by piping the output to them. For example, to
+    /// view a graph of the current project:
+    ///
+    /// ```sh
+    /// stencila projects graph --format dot | dot -Tpng | display
+    /// ```
+    ///
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Graph {
+        /// The path of the project folder (defaults to the current project)
+        folder: Option<PathBuf>,
+
+        /// The format to output the graph as
+        #[structopt(long, short, default_value = "dot", possible_values = &GRAPH_FORMATS)]
+        format: String,
+    }
+
+    const GRAPH_FORMATS: [&str; 3] = ["dot", "json", "yaml"];
+
+    impl Graph {
+        pub async fn run(self) -> display::Result {
+            let Self { folder, format } = self;
+            let project = &mut PROJECTS.open(folder, false).await?;
+            let content = project.graph(&format)?;
+            display::content(&format, &content)
         }
     }
 

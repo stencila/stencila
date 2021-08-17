@@ -9,13 +9,14 @@ path = "main.rs"
 
 [features]
 feedback = ["ansi_term", "color-eyre", "linya"]
-pretty = ["syntect", "termimad"]
+pretty = ["atty", "syntect", "termimad"]
 view = ["rust-embed", "webbrowser"]
 interact = ["ansi_term", "rustyline", "rustyline-derive"]
 default = ["feedback", "pretty", "view", "interact"]
 
 [dependencies]
 ansi_term = { version = "=0.12.1", optional = true }
+atty = { version = "=0.2.14", optional = true }
 color-eyre = { version = "=0.5.11", optional = true }
 exitcode = "=1.1.2"
 linya = { version = "=0.2.1", optional = true }

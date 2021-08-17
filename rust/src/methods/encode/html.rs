@@ -193,6 +193,7 @@ impl ToHtml for InlineContent {
             InlineContent::Note(node) => node.to_html(context),
             InlineContent::Null => null_to_html(),
             InlineContent::Number(node) => node.to_html(context),
+            InlineContent::Parameter(node) => node.to_html(context),
             InlineContent::Quote(node) => node.to_html(context),
             InlineContent::String(node) => node.to_html(context),
             InlineContent::Strong(node) => node.to_html(context),
@@ -542,6 +543,15 @@ impl ToHtml for Note {
     }
 }
 
+impl ToHtml for Parameter {
+    fn to_html(&self, _context: &Context) -> String {
+        format!(
+            r#"<code class="todo">{json}</code>"#,
+            json = serde_json::to_string(self).unwrap_or_else(|_| "".into())
+        )
+    }
+}
+
 impl ToHtml for Quote {
     fn to_html(&self, context: &Context) -> String {
         format!(
@@ -564,6 +574,7 @@ impl ToHtml for BlockContent {
             BlockContent::Collection(node) => node.to_html(context),
             BlockContent::Figure(node) => node.to_html(context),
             BlockContent::Heading(node) => node.to_html(context),
+            BlockContent::Include(node) => node.to_html(context),
             BlockContent::List(node) => node.to_html(context),
             BlockContent::MathBlock(node) => node.to_html(context),
             BlockContent::Paragraph(node) => node.to_html(context),
@@ -616,10 +627,7 @@ impl ToHtml for CodeChunk {
             },
         };
 
-        let lang = match &self.programming_language {
-            None => String::new(),
-            Some(boxed) => *boxed.clone(),
-        };
+        let lang = &self.programming_language;
 
         let text = format!(
             r#"<pre slot="text"><code>{text}</code></pre>"#,
@@ -716,6 +724,21 @@ impl ToHtml for Heading {
             depth = depth,
             content = self.content.to_html(context)
         )
+    }
+}
+
+impl ToHtml for Include {
+    fn to_html(&self, context: &Context) -> String {
+        let content = self
+            .content
+            .as_ref()
+            .map_or_else(|| "".to_string(), |content| content.to_html(context));
+        [
+            "<div itemtype=\"http://schema.stenci.la/Include\">",
+            &content,
+            "</div>",
+        ]
+        .concat()
     }
 }
 

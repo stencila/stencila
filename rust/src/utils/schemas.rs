@@ -47,44 +47,44 @@ fn transform(value: JsonValue) -> JsonValue {
             modified.insert(key.clone(), transform(child.clone()));
         }
 
-        // For `type:object` schemas, including sub-schemas..
-        if let Some(value) = object.get("type") {
-            if value == &serde_json::to_value("object").unwrap() {
-                // Put any `title` into `$id`
-                if let Some(title) = object.get("title") {
-                    modified.insert("$id".into(), title.clone());
+        // Put any `title` into `$id`
+        if let Some(title) = object.get("title") {
+            modified.insert("$id".into(), title.clone());
+        }
+
+        if object.get("type") == Some(&json!("object")) {
+            // Parse any `description` and if multi-line, put
+            // the first "paragraph" into the `title`
+            if let Some(JsonValue::String(description)) = object.get("description") {
+                let paras = description.split("\n\n").collect::<Vec<&str>>();
+                if paras.len() > 1 {
+                    modified.insert("title".into(), JsonValue::String(paras[0].into()));
+                    modified.insert(
+                        "description".into(),
+                        JsonValue::String(paras[1..].join("\n\n")),
+                    );
                 }
-                // Parse any `description` and if multi-line, put
-                // the first "paragraph" into the `title`
-                if let Some(JsonValue::String(description)) = object.get("description") {
-                    let paras = description.split("\n\n").collect::<Vec<&str>>();
-                    if paras.len() > 1 {
-                        modified.insert("title".into(), JsonValue::String(paras[0].into()));
-                        modified.insert(
-                            "description".into(),
-                            JsonValue::String(paras[1..].join("\n\n")),
-                        );
-                    }
-                }
-                // Check if any properties declare themselves `isRequired`
-                if let Some(JsonValue::Object(properties)) = object.get("properties") {
-                    for (name, subschema) in properties {
-                        if let Some(JsonValue::Bool(is_required)) = subschema.get("isRequired") {
-                            let name = JsonValue::String(name.clone());
-                            if let Some(JsonValue::Array(required)) = modified.get_mut("required") {
-                                if *is_required {
-                                    required.push(name)
-                                } else {
-                                    required.retain(|prop| *prop != name)
-                                }
-                            } else if *is_required {
-                                modified.insert("required".into(), JsonValue::Array(vec![name]));
+            }
+
+            // Check if any properties declare themselves `isRequired`
+            if let Some(JsonValue::Object(properties)) = object.get("properties") {
+                for (name, subschema) in properties {
+                    if let Some(JsonValue::Bool(is_required)) = subschema.get("isRequired") {
+                        let name = JsonValue::String(name.clone());
+                        if let Some(JsonValue::Array(required)) = modified.get_mut("required") {
+                            if *is_required {
+                                required.push(name)
+                            } else {
+                                required.retain(|prop| *prop != name)
                             }
+                        } else if *is_required {
+                            modified.insert("required".into(), JsonValue::Array(vec![name]));
                         }
                     }
                 }
             }
         }
+
         JsonValue::Object(modified)
     } else {
         value

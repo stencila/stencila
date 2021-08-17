@@ -1,0 +1,248 @@
+---
+source: rust/src/methods/compile/code/ts.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/ts/assigns.ts
+
+---
+[
+  [
+    {
+      "assign": [
+        1,
+        4,
+        1,
+        8
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var1",
+      "kind": "Object"
+    }
+  ],
+  [
+    {
+      "assign": [
+        2,
+        4,
+        2,
+        8
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var2",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        3,
+        4,
+        3,
+        8
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var3",
+      "kind": "String"
+    }
+  ],
+  [
+    {
+      "assign": [
+        5,
+        6,
+        5,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var4",
+      "kind": "Array"
+    }
+  ],
+  [
+    {
+      "assign": [
+        6,
+        13,
+        6,
+        17
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var5",
+      "kind": "Object"
+    }
+  ],
+  [
+    {
+      "assign": [
+        9,
+        6,
+        9,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var6",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    {
+      "assign": [
+        10,
+        6,
+        10,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var7",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    {
+      "assign": [
+        11,
+        6,
+        11,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var8",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        12,
+        6,
+        12,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var9",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        13,
+        6,
+        13,
+        11
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var10",
+      "kind": "String"
+    }
+  ],
+  [
+    {
+      "assign": [
+        14,
+        6,
+        14,
+        11
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var11",
+      "kind": "Array"
+    }
+  ],
+  [
+    {
+      "assign": [
+        15,
+        6,
+        15,
+        11
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "var12",
+      "kind": "Object"
+    }
+  ],
+  [
+    {
+      "assign": [
+        17,
+        9,
+        17,
+        13
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "fun1",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "assign": [
+        18,
+        6,
+        18,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "fun2",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "assign": [
+        19,
+        16,
+        19,
+        20
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/ts/assigns.ts",
+      "name": "fun3",
+      "kind": "Function"
+    }
+  ]
+]

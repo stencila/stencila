@@ -1,0 +1,82 @@
+---
+source: rust/src/methods/compile/code/r.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/r/reads.R
+
+---
+[
+  [
+    {
+      "read": [
+        1,
+        9,
+        1,
+        16
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/r/path1"
+    }
+  ],
+  [
+    {
+      "assign": [
+        4,
+        0,
+        4,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/reads.R",
+      "name": "data",
+      "kind": "Datatable"
+    }
+  ],
+  [
+    {
+      "read": [
+        4,
+        19,
+        4,
+        26
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/r/path2"
+    }
+  ],
+  [
+    {
+      "assign": [
+        7,
+        0,
+        7,
+        3
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/reads.R",
+      "name": "foo",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "read": [
+        8,
+        22,
+        8,
+        29
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/r/path3"
+    }
+  ]
+]

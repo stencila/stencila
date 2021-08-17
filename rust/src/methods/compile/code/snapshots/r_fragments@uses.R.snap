@@ -1,0 +1,376 @@
+---
+source: rust/src/methods/compile/code/r.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/r/uses.R
+
+---
+[
+  [
+    {
+      "use": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var1",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        1,
+        0,
+        1,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "fun1",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "use": [
+        2,
+        0,
+        2,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        2,
+        7,
+        2,
+        11
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var3",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        3,
+        0,
+        3,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "fun2",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "use": [
+        3,
+        5,
+        3,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var4",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        3,
+        11,
+        3,
+        15
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var5",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        4,
+        0,
+        4,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var6",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        4,
+        5,
+        4,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var7",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        6,
+        4,
+        6,
+        8
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var8",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        6,
+        11,
+        6,
+        15
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var9",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        7,
+        14,
+        7,
+        19
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var10",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        12,
+        15,
+        12,
+        20
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var11",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        13,
+        4,
+        13,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var12",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        18,
+        7,
+        18,
+        12
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var13",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        22,
+        0,
+        22,
+        5
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var14",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        23,
+        0,
+        23,
+        5
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var14",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        24,
+        0,
+        24,
+        5
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var14",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        24,
+        13,
+        24,
+        18
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "var15",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "assign": [
+        34,
+        0,
+        34,
+        6
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "assign",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        35,
+        0,
+        35,
+        6
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "assign",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        36,
+        0,
+        36,
+        6
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "assign",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        37,
+        0,
+        37,
+        6
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/uses.R",
+      "name": "assign",
+      "kind": "Function"
+    }
+  ]
+]

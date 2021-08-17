@@ -5,9 +5,11 @@
 //
 // Core Stencila objects e.g `File`, `Article`, `Project`
 
+pub mod conversions;
 pub mod documents;
 pub mod files;
 pub mod formats;
+pub mod graphs;
 pub mod projects;
 pub mod sources;
 
@@ -89,7 +91,9 @@ pub mod telemetry;
 
 pub mod utils {
     pub mod fs;
+    pub mod hash;
     pub mod http;
+    pub mod path;
     pub mod schemas;
     pub mod urls;
     pub mod uuids;

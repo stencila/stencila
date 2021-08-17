@@ -1,0 +1,22 @@
+{
+  "name": "daggy",
+  "theme": "elife",
+  "sources": {
+    "elife-60912": {
+      "source": {
+        "type": "Elife",
+        "article": 60912
+      },
+      "destination": "article.xml",
+      "active": false
+    }
+  },
+  "conversions": [
+    {
+      "input": "article.xml",
+      "output": "article.json",
+      "active": false
+    }
+  ],
+  "main": "article.json"
+}

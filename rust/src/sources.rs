@@ -1,4 +1,7 @@
-use crate::utils::schemas;
+use crate::{
+    graphs::{resources, Relation, Triple},
+    utils::schemas,
+};
 use async_trait::async_trait;
 use defaults::Defaults;
 use enum_dispatch::enum_dispatch;
@@ -8,6 +11,7 @@ use regex::Regex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+use std::{fs, path::Path};
 use strum::{EnumIter, IntoEnumIterator, ToString};
 
 /// Trait for project sources. This allows us to use `enum_dispatch` to
@@ -28,9 +32,14 @@ pub trait SourceTrait {
 
 /// A project source
 #[enum_dispatch(SourceTrait)]
-#[derive(PartialEq, Clone, Debug, ToString, EnumIter, JsonSchema, Deserialize, Serialize)]
+#[derive(
+    PartialEq, Clone, Debug, Defaults, ToString, EnumIter, JsonSchema, Deserialize, Serialize,
+)]
+#[def = "Null(Null{})"]
 #[serde(tag = "type")]
 pub enum Source {
+    /// A null variant that exists only so that we can define a default source
+    Null(Null),
     Elife(Elife),
     GitHub(GitHub),
 }
@@ -57,7 +66,8 @@ pub fn resolve(id: &str) -> Result<Source> {
 /// destinations within a project and for multiple sources to used the same
 /// destination (e.g. the root directory of the project).
 #[skip_serializing_none]
-#[derive(PartialEq, Clone, Debug, JsonSchema, Deserialize, Serialize)]
+#[derive(PartialEq, Clone, Debug, Defaults, JsonSchema, Deserialize, Serialize)]
+#[serde(default)]
 #[schemars(deny_unknown_fields)]
 pub struct SourceDestination {
     /// The source from which files will be imported
@@ -65,6 +75,77 @@ pub struct SourceDestination {
 
     /// The destination path within the project
     pub destination: Option<String>,
+
+    /// Whether or not the source is active
+    ///
+    /// If the source is active an import job will be created for it
+    /// each time the project is updated.
+    #[def = "true"]
+    active: bool,
+
+    /// A list of file paths currently associated with the source,
+    /// relative to the project root
+    pub files: Option<Vec<String>>,
+}
+
+impl SourceDestination {
+    /// Create a new `SourceDestination`
+    pub fn new(source: Source, destination: Option<String>) -> SourceDestination {
+        SourceDestination {
+            source,
+            destination,
+            ..Default::default()
+        }
+    }
+
+    /// Read a `SourceDestination` from a JSON file
+    ///
+    /// Only changes the properties that are NOT saved in the project.json file.
+    pub fn read<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
+        let path = path.as_ref();
+        if !path.exists() {
+            bail!("Project source file does not exist: {}", path.display())
+        }
+        let path = path.canonicalize()?;
+
+        let json = fs::read_to_string(path)?;
+        let source: SourceDestination = serde_json::from_str(&json)?;
+
+        self.files = source.files;
+        Ok(())
+    }
+
+    /// Generate a set of graph triples describing relation between the source
+    /// and it's associated files.
+    pub fn triples(&self, name: &str, project: &Path) -> Vec<Triple> {
+        match &self.files {
+            Some(files) => files
+                .iter()
+                .map(|file| {
+                    (
+                        resources::source(name),
+                        Relation::Import(self.active),
+                        resources::file(&project.join(file)),
+                    )
+                })
+                .collect(),
+            None => Vec::new(),
+        }
+    }
+}
+
+#[derive(PartialEq, Clone, Debug, Defaults, JsonSchema, Deserialize, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct Null {}
+
+impl SourceTrait for Null {
+    fn resolve(&self, _id: &str) -> Option<Source> {
+        None
+    }
+
+    fn default_name(&self) -> String {
+        "null".to_string()
+    }
 }
 
 #[skip_serializing_none]

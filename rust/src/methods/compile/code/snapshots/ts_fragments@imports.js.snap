@@ -1,0 +1,333 @@
+---
+source: rust/src/methods/compile/code/ts.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/js/imports.js
+
+---
+[
+  [
+    {
+      "use": [
+        2,
+        26,
+        2,
+        36
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "module-1"
+    }
+  ],
+  [
+    {
+      "use": [
+        3,
+        22,
+        3,
+        32
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "module-2"
+    }
+  ],
+  [
+    {
+      "use": [
+        4,
+        24,
+        4,
+        34
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "module-3"
+    }
+  ],
+  [
+    {
+      "use": [
+        5,
+        33,
+        5,
+        43
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "module-4"
+    }
+  ],
+  [
+    {
+      "use": [
+        6,
+        34,
+        6,
+        44
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "module-5"
+    }
+  ],
+  [
+    {
+      "use": [
+        7,
+        43,
+        7,
+        53
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "module-6"
+    }
+  ],
+  [
+    {
+      "use": [
+        8,
+        39,
+        8,
+        49
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "module-7"
+    }
+  ],
+  [
+    {
+      "use": [
+        9,
+        37,
+        9,
+        47
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "module-8"
+    }
+  ],
+  [
+    {
+      "assign": [
+        11,
+        4,
+        11,
+        11
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "promise",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        11,
+        21,
+        11,
+        32
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "module-10"
+    }
+  ],
+  [
+    {
+      "assign": [
+        14,
+        4,
+        14,
+        17
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "defaultExport",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        14,
+        20,
+        14,
+        27
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "require",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        14,
+        28,
+        14,
+        39
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "module-11"
+    }
+  ],
+  [
+    {
+      "assign": [
+        15,
+        4,
+        15,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "alias",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        15,
+        12,
+        15,
+        19
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "require",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        15,
+        20,
+        15,
+        31
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "javascript",
+      "name": "module-12"
+    }
+  ],
+  [
+    {
+      "assign": [
+        19,
+        6,
+        19,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "foo",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "assign": [
+        21,
+        6,
+        21,
+        13
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "pkg_var",
+      "kind": "String"
+    }
+  ],
+  [
+    {
+      "assign": [
+        22,
+        6,
+        22,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "bar",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        22,
+        12,
+        22,
+        19
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "require",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        22,
+        20,
+        22,
+        27
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/imports.js",
+      "name": "pkg_var",
+      "kind": ""
+    }
+  ]
+]

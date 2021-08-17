@@ -1,0 +1,192 @@
+---
+source: rust/src/methods/compile/code/r.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/r/writes.R
+
+---
+[
+  [
+    {
+      "use": [
+        0,
+        10,
+        0,
+        14
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "write": [
+        0,
+        16,
+        0,
+        23
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/r/path1"
+    }
+  ],
+  [
+    {
+      "use": [
+        2,
+        12,
+        2,
+        16
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "write": [
+        2,
+        25,
+        2,
+        32
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/r/path2"
+    }
+  ],
+  [
+    {
+      "assign": [
+        4,
+        0,
+        4,
+        3
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "foo",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "write": [
+        5,
+        29,
+        5,
+        36
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/r/path3"
+    }
+  ],
+  [
+    {
+      "use": [
+        8,
+        17,
+        8,
+        21
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "write": [
+        8,
+        31,
+        8,
+        38
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/r/path4"
+    }
+  ],
+  [
+    {
+      "use": [
+        12,
+        12,
+        12,
+        16
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        12,
+        18,
+        12,
+        24
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "ignore",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        14,
+        10,
+        14,
+        14
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "data",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "use": [
+        14,
+        23,
+        14,
+        29
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/writes.R",
+      "name": "ignore",
+      "kind": ""
+    }
+  ]
+]

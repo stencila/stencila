@@ -1,0 +1,248 @@
+---
+source: rust/src/methods/compile/code/js.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/js/assigns.js
+
+---
+[
+  [
+    {
+      "assign": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var1",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        1,
+        4,
+        1,
+        8
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var2",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        2,
+        4,
+        2,
+        8
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var3",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        3,
+        6,
+        3,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var4",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        4,
+        13,
+        4,
+        17
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var5",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        6,
+        6,
+        6,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var6",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    {
+      "assign": [
+        7,
+        6,
+        7,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var7",
+      "kind": "Boolean"
+    }
+  ],
+  [
+    {
+      "assign": [
+        8,
+        6,
+        8,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var8",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        9,
+        6,
+        9,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var9",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "assign": [
+        10,
+        6,
+        10,
+        11
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var10",
+      "kind": "String"
+    }
+  ],
+  [
+    {
+      "assign": [
+        11,
+        6,
+        11,
+        11
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var11",
+      "kind": "Array"
+    }
+  ],
+  [
+    {
+      "assign": [
+        12,
+        6,
+        12,
+        11
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "var12",
+      "kind": "Object"
+    }
+  ],
+  [
+    {
+      "assign": [
+        14,
+        9,
+        14,
+        13
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "fun1",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "assign": [
+        15,
+        6,
+        15,
+        10
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "fun2",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "assign": [
+        16,
+        16,
+        16,
+        20
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/js/assigns.js",
+      "name": "fun3",
+      "kind": "Function"
+    }
+  ]
+]

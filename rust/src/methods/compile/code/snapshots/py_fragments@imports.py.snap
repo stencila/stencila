@@ -1,0 +1,68 @@
+---
+source: rust/src/methods/compile/code/py.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/py/imports.py
+
+---
+[
+  [
+    {
+      "use": [
+        0,
+        7,
+        0,
+        15
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "python",
+      "name": "module_1"
+    }
+  ],
+  [
+    {
+      "use": [
+        1,
+        5,
+        1,
+        13
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "python",
+      "name": "module_2"
+    }
+  ],
+  [
+    {
+      "use": [
+        2,
+        5,
+        2,
+        13
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "python",
+      "name": "module_3"
+    }
+  ],
+  [
+    {
+      "use": [
+        3,
+        5,
+        3,
+        13
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "python",
+      "name": "module_4"
+    }
+  ]
+]
