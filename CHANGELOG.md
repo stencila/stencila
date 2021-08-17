@@ -1,3 +1,19 @@
+# [1.11.0](https://github.com/stencila/schema/compare/v1.10.1...v1.11.0) (2021-08-17)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate serde_json to 1.0.66 ([819f74b](https://github.com/stencila/schema/commit/819f74b22296ec13c07bc7eafb512ee4c3c456aa))
+* **Dependencies:** NPM audit fix ([6f631c8](https://github.com/stencila/schema/commit/6f631c83f58f57e93de85166a295308f90c45914))
+
+
+### Features
+
+* **Digests:** Add `buildDigest` and other digests; refactor code types ([0521783](https://github.com/stencila/schema/commit/05217835bfb45397741c2b25def2c101a012d0ca))
+* **Include:** Add sha256 property and add to BlockContent ([3e94190](https://github.com/stencila/schema/commit/3e941908a7b9e113fc81601fc2ad48e35ef87ec8))
+* **Parameter:** Add to InlineContent ([74235e1](https://github.com/stencila/schema/commit/74235e19bb11eb0b3748f2c612a4f83020834fae))
+* **Rust:** Use `strum` to provide a string representation of enum variants ([1b7060a](https://github.com/stencila/schema/commit/1b7060ab8fd88600f08dd67e2ca2729ac8375607))
+
 ## [1.10.1](https://github.com/stencila/schema/compare/v1.10.0...v1.10.1) (2021-08-09)
 
 
