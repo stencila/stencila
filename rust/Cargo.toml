@@ -210,7 +210,7 @@ serde_with = "=1.9.4"
 serde_yaml = "=0.8.17"
 sha2 = "0.9.5"
 slug = "=0.1.4"
-stencila-schema = { path = "../../schema/rust" }
+stencila-schema = "=1.11.0"
 structopt = { version = "=0.3.22", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
 strum_macros = "=0.21.1"
