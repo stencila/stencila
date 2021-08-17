@@ -1,7 +1,7 @@
 use crate::utils::schemas;
 use derivative::Derivative;
 use eyre::Result;
-use path_slash::PathBufExt;
+use path_slash::PathExt;
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -150,7 +150,7 @@ pub mod resources {
 
 /// Serialize the `path` fields of resources so that they use Unix forward slash
 /// separators on all platforms.
-fn serialize_path<S>(path: &PathBuf, serializer: S) -> Result<S::Ok, S::Error>
+fn serialize_path<S>(path: &Path, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {
