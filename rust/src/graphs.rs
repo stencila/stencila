@@ -154,7 +154,7 @@ fn serialize_path<S>(path: &PathBuf, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {
-    path.to_slash().serialize(serializer)
+    path.to_slash_lossy().serialize(serializer)
 }
 
 /// The relation between two resources in a dependency graph (the edges of the graph)
