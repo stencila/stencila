@@ -39,6 +39,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("projectsAddSource", projects::add_source)?;
     cx.export_function("projectsRemoveSource", projects::remove_source)?;
     cx.export_function("projectsImportSource", projects::import_source)?;
+    cx.export_function("projectsGraph", projects::graph)?;
 
     cx.export_function("formatsSchemas", formats::schemas)?;
     cx.export_function("formatsFormats", formats::formats)?;

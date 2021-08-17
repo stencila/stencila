@@ -585,6 +585,16 @@ impl Project {
 
         Ok(files)
     }
+
+    /// Get the project graph in some format
+    pub fn graph(&self, format: &str) -> Result<String> {
+        Ok(match format {
+            "dot" => self.graph.to_dot(&self.path),
+            "json" => serde_json::to_string_pretty(&self.graph)?,
+            "yaml" => serde_yaml::to_string(&self.graph)?,
+            _ => bail!("Unknown graph format '{}'", format),
+        })
+    }
 }
 
 #[derive(Debug)]
@@ -1131,12 +1141,7 @@ pub mod cli {
         pub async fn run(self) -> display::Result {
             let Self { folder, format } = self;
             let project = &mut PROJECTS.open(folder, false).await?;
-            let content = match format.as_str() {
-                "dot" => project.graph.to_dot(&project.path),
-                "json" => serde_json::to_string_pretty(&project.graph)?,
-                "yaml" => serde_yaml::to_string(&project.graph)?,
-                _ => bail!("Unknown graph format '{}'", format),
-            };
+            let content = project.graph(&format)?;
             display::content(&format, &content)
         }
     }

@@ -84,10 +84,7 @@ export function addSource(
  *
  * @param name The name of the source
  */
- export function removeSource(
-  path: string,
-  name: string
-) {
+export function removeSource(path: string, name: string) {
   addon.projectsRemoveSource(path, name)
 }
 
@@ -98,12 +95,26 @@ export function addSource(
  * @param nameOrIdentifier Name of an existing source or an identifier for a new source
  * @param destination The destination for the source within the project folder
  */
- export function importSource(
+export function importSource(
   path: string,
   nameOrIdentifier: string,
   destination?: string
 ) {
   addon.projectsImportSource(path, nameOrIdentifier, destination ?? '')
+}
+
+/**
+ * Get a project graph in some format
+ *
+ * A project's graph is available as a "raw" `Graph` at `project.graph`. This function
+ * generates some other format e.g. "dot", "json", "yaml".
+ *
+ * @param path Path to the project folder
+ * @param nameOrIdentifier Name of an existing source or an identifier for a new source
+ * @param destination The destination for the source within the project folder
+ */
+export function graph(path: string, format: string): string {
+  return addon.projectsGraph(path, format)
 }
 
 /**
