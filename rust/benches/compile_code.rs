@@ -8,7 +8,6 @@ fn criterion_benchmark(criterion: &mut Criterion) {
         bencher.iter(|| {
             compile(
                 black_box(&PathBuf::from("path")),
-                &resources::file(&PathBuf::from("path")),
                 black_box("library(pkg)"),
                 "r",
             )

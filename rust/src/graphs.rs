@@ -71,18 +71,18 @@ pub mod resources {
         /// The path of the file that the node is defined in
         pub path: PathBuf,
 
-        /// The address of the node
-        pub address: String,
+        /// The id of the node with the document
+        pub id: String,
 
         /// The type of node e.g. `Parameter`, `CodeChunk`
         pub kind: String,
     }
 
     /// Create a new `Node` resource
-    pub fn node(path: &Path, address: &str, kind: &str) -> Resource {
+    pub fn node(path: &Path, id: &str, kind: &str) -> Resource {
         Resource::Node(Node {
             path: path.to_path_buf(),
-            address: address.into(),
+            id: id.into(),
             kind: kind.into(),
         })
     }
@@ -297,11 +297,9 @@ impl Graph {
                             symbol.name
                         ),
                     ),
-                    Resource::Node(node) => (
-                        "box",
-                        "#efe0b8",
-                        format!("{}\\n{}", node.kind, node.address),
-                    ),
+                    Resource::Node(node) => {
+                        ("box", "#efe0b8", format!("{}\\n{}", node.kind, node.id))
+                    }
                     Resource::File(..) => ("note", "#d1efb8", path.clone()),
                     Resource::Source(source) => ("house", "#efb8d4", source.name.clone()),
                     Resource::Module(module) => ("invhouse", "#b8efed", module.name.clone()),

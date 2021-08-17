@@ -2,7 +2,7 @@ use crate::{
     documents::DOCUMENTS,
     graphs::{resources, Relation, Resource, NULL_RANGE},
     traits::ToVecBlockContent,
-    utils::{hash::str_sha256_bytes, path::merge},
+    utils::{hash::str_sha256_bytes, path::merge, uuids},
 };
 use async_trait::async_trait;
 use defaults::Defaults;
@@ -23,7 +23,7 @@ pub async fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<Con
         project: PathBuf::from(project),
         ..Default::default()
     };
-    node.compile("", &mut context).await?;
+    node.compile(&mut context).await?;
     Ok(context)
 }
 
@@ -39,25 +39,31 @@ pub struct Context {
     /// Used to restrict any file links to be within the project
     project: PathBuf,
 
-    /// The path of the document relative to the project it is in
-    /// Used to store in relations
-    path_within_project: String,
-
     /// Relations with other resources for each compiled resource
     /// in the document.
     pub relations: Vec<(Resource, Vec<(Relation, Resource)>)>,
 }
 
-impl Context {
-    pub fn resource_id(&self, address: &str) -> String {
-        [&self.path_within_project, address].concat()
-    }
-}
-
 /// Trait for compiling a node
 #[async_trait]
 trait Compile {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()>;
+    async fn compile(&mut self, context: &mut Context) -> Result<()>;
+}
+
+/// Identify a node
+///
+/// If the node does not have an id, generate and assign one.
+/// Return the node's id.
+macro_rules! identify {
+    ($node:expr) => {
+        if let Some(id) = $node.id.as_deref() {
+            id.clone()
+        } else {
+            let id = uuids::generate(uuids::Family::Node);
+            $node.id = Some(Box::new(id.clone()));
+            id
+        }
+    };
 }
 
 // The following `impl Compile` for enums try to include all variants so that
@@ -68,55 +74,55 @@ trait Compile {
 /// Compile a `Node`
 #[async_trait]
 impl Compile for Node {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
-            Node::Array(node) => node.compile(address, context).await,
-            Node::Article(node) => node.compile(address, context).await,
-            Node::AudioObject(node) => node.compile(address, context).await,
-            Node::Boolean(node) => node.compile(address, context).await,
-            Node::Cite(node) => node.compile(address, context).await,
-            Node::CiteGroup(node) => node.compile(address, context).await,
-            Node::Claim(node) => node.compile(address, context).await,
-            Node::CodeBlock(node) => node.compile(address, context).await,
-            Node::CodeChunk(node) => node.compile(address, context).await,
-            Node::CodeExpression(node) => node.compile(address, context).await,
-            Node::CodeFragment(node) => node.compile(address, context).await,
-            Node::Collection(node) => node.compile(address, context).await,
-            Node::Comment(node) => node.compile(address, context).await,
-            Node::CreativeWork(node) => node.compile(address, context).await,
-            Node::Datatable(node) => node.compile(address, context).await,
-            Node::Delete(node) => node.compile(address, context).await,
-            Node::Emphasis(node) => node.compile(address, context).await,
-            Node::Figure(node) => node.compile(address, context).await,
-            Node::Heading(node) => node.compile(address, context).await,
-            Node::ImageObject(node) => node.compile(address, context).await,
-            Node::Integer(node) => node.compile(address, context).await,
-            Node::Link(node) => node.compile(address, context).await,
-            Node::List(node) => node.compile(address, context).await,
-            Node::MathBlock(node) => node.compile(address, context).await,
-            Node::MathFragment(node) => node.compile(address, context).await,
-            Node::MediaObject(node) => node.compile(address, context).await,
-            Node::NontextualAnnotation(node) => node.compile(address, context).await,
-            Node::Note(node) => node.compile(address, context).await,
+            Node::Array(node) => node.compile(context).await,
+            Node::Article(node) => node.compile(context).await,
+            Node::AudioObject(node) => node.compile(context).await,
+            Node::Boolean(node) => node.compile(context).await,
+            Node::Cite(node) => node.compile(context).await,
+            Node::CiteGroup(node) => node.compile(context).await,
+            Node::Claim(node) => node.compile(context).await,
+            Node::CodeBlock(node) => node.compile(context).await,
+            Node::CodeChunk(node) => node.compile(context).await,
+            Node::CodeExpression(node) => node.compile(context).await,
+            Node::CodeFragment(node) => node.compile(context).await,
+            Node::Collection(node) => node.compile(context).await,
+            Node::Comment(node) => node.compile(context).await,
+            Node::CreativeWork(node) => node.compile(context).await,
+            Node::Datatable(node) => node.compile(context).await,
+            Node::Delete(node) => node.compile(context).await,
+            Node::Emphasis(node) => node.compile(context).await,
+            Node::Figure(node) => node.compile(context).await,
+            Node::Heading(node) => node.compile(context).await,
+            Node::ImageObject(node) => node.compile(context).await,
+            Node::Integer(node) => node.compile(context).await,
+            Node::Link(node) => node.compile(context).await,
+            Node::List(node) => node.compile(context).await,
+            Node::MathBlock(node) => node.compile(context).await,
+            Node::MathFragment(node) => node.compile(context).await,
+            Node::MediaObject(node) => node.compile(context).await,
+            Node::NontextualAnnotation(node) => node.compile(context).await,
+            Node::Note(node) => node.compile(context).await,
             Node::Null => Ok(()),
-            Node::Number(node) => node.compile(address, context).await,
-            Node::Object(node) => node.compile(address, context).await,
-            Node::Paragraph(node) => node.compile(address, context).await,
-            Node::Periodical(node) => node.compile(address, context).await,
-            Node::PublicationIssue(node) => node.compile(address, context).await,
-            Node::PublicationVolume(node) => node.compile(address, context).await,
-            Node::Quote(node) => node.compile(address, context).await,
-            Node::QuoteBlock(node) => node.compile(address, context).await,
-            Node::Review(node) => node.compile(address, context).await,
-            Node::SoftwareApplication(node) => node.compile(address, context).await,
-            Node::SoftwareSourceCode(node) => node.compile(address, context).await,
-            Node::String(node) => node.compile(address, context).await,
-            Node::Strong(node) => node.compile(address, context).await,
-            Node::Subscript(node) => node.compile(address, context).await,
-            Node::Superscript(node) => node.compile(address, context).await,
-            Node::Table(node) => node.compile(address, context).await,
-            Node::ThematicBreak(node) => node.compile(address, context).await,
-            Node::VideoObject(node) => node.compile(address, context).await,
+            Node::Number(node) => node.compile(context).await,
+            Node::Object(node) => node.compile(context).await,
+            Node::Paragraph(node) => node.compile(context).await,
+            Node::Periodical(node) => node.compile(context).await,
+            Node::PublicationIssue(node) => node.compile(context).await,
+            Node::PublicationVolume(node) => node.compile(context).await,
+            Node::Quote(node) => node.compile(context).await,
+            Node::QuoteBlock(node) => node.compile(context).await,
+            Node::Review(node) => node.compile(context).await,
+            Node::SoftwareApplication(node) => node.compile(context).await,
+            Node::SoftwareSourceCode(node) => node.compile(context).await,
+            Node::String(node) => node.compile(context).await,
+            Node::Strong(node) => node.compile(context).await,
+            Node::Subscript(node) => node.compile(context).await,
+            Node::Superscript(node) => node.compile(context).await,
+            Node::Table(node) => node.compile(context).await,
+            Node::ThematicBreak(node) => node.compile(context).await,
+            Node::VideoObject(node) => node.compile(context).await,
             _ => {
                 tracing::debug!("Compile is not implemented for {:?}", self);
                 Ok(())
@@ -127,78 +133,78 @@ impl Compile for Node {
 
 #[async_trait]
 impl Compile for InlineContent {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
-            InlineContent::AudioObject(node) => node.compile(address, context).await,
-            InlineContent::Boolean(node) => node.compile(address, context).await,
-            InlineContent::Cite(node) => node.compile(address, context).await,
-            InlineContent::CiteGroup(node) => node.compile(address, context).await,
-            InlineContent::CodeExpression(node) => node.compile(address, context).await,
-            InlineContent::CodeFragment(node) => node.compile(address, context).await,
-            InlineContent::Delete(node) => node.compile(address, context).await,
-            InlineContent::Emphasis(node) => node.compile(address, context).await,
-            InlineContent::ImageObject(node) => node.compile(address, context).await,
-            InlineContent::Integer(node) => node.compile(address, context).await,
-            InlineContent::Link(node) => node.compile(address, context).await,
-            InlineContent::MathFragment(node) => node.compile(address, context).await,
-            InlineContent::NontextualAnnotation(node) => node.compile(address, context).await,
-            InlineContent::Note(node) => node.compile(address, context).await,
+            InlineContent::AudioObject(node) => node.compile(context).await,
+            InlineContent::Boolean(node) => node.compile(context).await,
+            InlineContent::Cite(node) => node.compile(context).await,
+            InlineContent::CiteGroup(node) => node.compile(context).await,
+            InlineContent::CodeExpression(node) => node.compile(context).await,
+            InlineContent::CodeFragment(node) => node.compile(context).await,
+            InlineContent::Delete(node) => node.compile(context).await,
+            InlineContent::Emphasis(node) => node.compile(context).await,
+            InlineContent::ImageObject(node) => node.compile(context).await,
+            InlineContent::Integer(node) => node.compile(context).await,
+            InlineContent::Link(node) => node.compile(context).await,
+            InlineContent::MathFragment(node) => node.compile(context).await,
+            InlineContent::NontextualAnnotation(node) => node.compile(context).await,
+            InlineContent::Note(node) => node.compile(context).await,
             InlineContent::Null => Ok(()),
-            InlineContent::Number(node) => node.compile(address, context).await,
-            InlineContent::Parameter(node) => node.compile(address, context).await,
-            InlineContent::Quote(node) => node.compile(address, context).await,
-            InlineContent::String(node) => node.compile(address, context).await,
-            InlineContent::Strong(node) => node.compile(address, context).await,
-            InlineContent::Subscript(node) => node.compile(address, context).await,
-            InlineContent::Superscript(node) => node.compile(address, context).await,
-            InlineContent::VideoObject(node) => node.compile(address, context).await,
+            InlineContent::Number(node) => node.compile(context).await,
+            InlineContent::Parameter(node) => node.compile(context).await,
+            InlineContent::Quote(node) => node.compile(context).await,
+            InlineContent::String(node) => node.compile(context).await,
+            InlineContent::Strong(node) => node.compile(context).await,
+            InlineContent::Subscript(node) => node.compile(context).await,
+            InlineContent::Superscript(node) => node.compile(context).await,
+            InlineContent::VideoObject(node) => node.compile(context).await,
         }
     }
 }
 
 #[async_trait]
 impl Compile for BlockContent {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
-            BlockContent::Claim(node) => node.compile(address, context).await,
-            BlockContent::CodeBlock(node) => node.compile(address, context).await,
-            BlockContent::CodeChunk(node) => node.compile(address, context).await,
-            BlockContent::Collection(node) => node.compile(address, context).await,
-            BlockContent::Figure(node) => node.compile(address, context).await,
-            BlockContent::Heading(node) => node.compile(address, context).await,
-            BlockContent::Include(node) => node.compile(address, context).await,
-            BlockContent::List(node) => node.compile(address, context).await,
-            BlockContent::MathBlock(node) => node.compile(address, context).await,
-            BlockContent::Paragraph(node) => node.compile(address, context).await,
-            BlockContent::QuoteBlock(node) => node.compile(address, context).await,
-            BlockContent::Table(node) => node.compile(address, context).await,
-            BlockContent::ThematicBreak(node) => node.compile(address, context).await,
+            BlockContent::Claim(node) => node.compile(context).await,
+            BlockContent::CodeBlock(node) => node.compile(context).await,
+            BlockContent::CodeChunk(node) => node.compile(context).await,
+            BlockContent::Collection(node) => node.compile(context).await,
+            BlockContent::Figure(node) => node.compile(context).await,
+            BlockContent::Heading(node) => node.compile(context).await,
+            BlockContent::Include(node) => node.compile(context).await,
+            BlockContent::List(node) => node.compile(context).await,
+            BlockContent::MathBlock(node) => node.compile(context).await,
+            BlockContent::Paragraph(node) => node.compile(context).await,
+            BlockContent::QuoteBlock(node) => node.compile(context).await,
+            BlockContent::Table(node) => node.compile(context).await,
+            BlockContent::ThematicBreak(node) => node.compile(context).await,
         }
     }
 }
 
 #[async_trait]
 impl Compile for CreativeWorkTypes {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
-            CreativeWorkTypes::Article(node) => node.compile(address, context).await,
-            CreativeWorkTypes::AudioObject(node) => node.compile(address, context).await,
-            CreativeWorkTypes::Claim(node) => node.compile(address, context).await,
-            CreativeWorkTypes::Collection(node) => node.compile(address, context).await,
-            CreativeWorkTypes::Comment(node) => node.compile(address, context).await,
-            CreativeWorkTypes::CreativeWork(node) => node.compile(address, context).await,
-            CreativeWorkTypes::Datatable(node) => node.compile(address, context).await,
-            CreativeWorkTypes::Figure(node) => node.compile(address, context).await,
-            CreativeWorkTypes::ImageObject(node) => node.compile(address, context).await,
-            CreativeWorkTypes::MediaObject(node) => node.compile(address, context).await,
-            CreativeWorkTypes::Periodical(node) => node.compile(address, context).await,
-            CreativeWorkTypes::PublicationIssue(node) => node.compile(address, context).await,
-            CreativeWorkTypes::PublicationVolume(node) => node.compile(address, context).await,
-            CreativeWorkTypes::Review(node) => node.compile(address, context).await,
-            CreativeWorkTypes::SoftwareApplication(node) => node.compile(address, context).await,
-            CreativeWorkTypes::SoftwareSourceCode(node) => node.compile(address, context).await,
-            CreativeWorkTypes::Table(node) => node.compile(address, context).await,
-            CreativeWorkTypes::VideoObject(node) => node.compile(address, context).await,
+            CreativeWorkTypes::Article(node) => node.compile(context).await,
+            CreativeWorkTypes::AudioObject(node) => node.compile(context).await,
+            CreativeWorkTypes::Claim(node) => node.compile(context).await,
+            CreativeWorkTypes::Collection(node) => node.compile(context).await,
+            CreativeWorkTypes::Comment(node) => node.compile(context).await,
+            CreativeWorkTypes::CreativeWork(node) => node.compile(context).await,
+            CreativeWorkTypes::Datatable(node) => node.compile(context).await,
+            CreativeWorkTypes::Figure(node) => node.compile(context).await,
+            CreativeWorkTypes::ImageObject(node) => node.compile(context).await,
+            CreativeWorkTypes::MediaObject(node) => node.compile(context).await,
+            CreativeWorkTypes::Periodical(node) => node.compile(context).await,
+            CreativeWorkTypes::PublicationIssue(node) => node.compile(context).await,
+            CreativeWorkTypes::PublicationVolume(node) => node.compile(context).await,
+            CreativeWorkTypes::Review(node) => node.compile(context).await,
+            CreativeWorkTypes::SoftwareApplication(node) => node.compile(context).await,
+            CreativeWorkTypes::SoftwareSourceCode(node) => node.compile(context).await,
+            CreativeWorkTypes::Table(node) => node.compile(context).await,
+            CreativeWorkTypes::VideoObject(node) => node.compile(context).await,
         }
     }
 }
@@ -210,9 +216,9 @@ impl<T> Compile for Option<T>
 where
     T: Compile + Send,
 {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
         if let Some(value) = self {
-            value.compile(address, context).await
+            value.compile(context).await
         } else {
             Ok(())
         }
@@ -224,8 +230,8 @@ impl<T> Compile for Box<T>
 where
     T: Compile + Send,
 {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        (**self).compile(address, context).await
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        (**self).compile(context).await
     }
 }
 
@@ -234,10 +240,9 @@ impl<T> Compile for Vec<T>
 where
     T: Compile + Send,
 {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        for (index, item) in self.iter_mut().enumerate() {
-            item.compile(&[address, ".", &index.to_string()].concat(), context)
-                .await?
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        for item in self.iter_mut() {
+            item.compile(context).await?
         }
         Ok(())
     }
@@ -249,7 +254,7 @@ macro_rules! compile_nothing {
         $(
             #[async_trait]
             impl Compile for $type {
-                async fn compile(&mut self, _address: &str, _compilation: &mut Context) -> Result<()> {Ok(())}
+                async fn compile(&mut self, _context: &mut Context) -> Result<()> {Ok(())}
             }
         )*
     };
@@ -287,8 +292,8 @@ macro_rules! compile_content {
         $(
             #[async_trait]
             impl Compile for $type {
-                async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-                    self.content.compile(&[address, ".content"].concat(), context).await
+                async fn compile(&mut self, context: &mut Context) -> Result<()> {
+                    self.content.compile(context).await
                 }
             }
         )*
@@ -323,20 +328,20 @@ compile_content!(
 
 #[async_trait]
 impl Compile for CreativeWorkContent {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
-            CreativeWorkContent::String(node) => node.compile(address, context).await,
-            CreativeWorkContent::VecNode(nodes) => nodes.compile(address, context).await,
+            CreativeWorkContent::String(node) => node.compile(context).await,
+            CreativeWorkContent::VecNode(nodes) => nodes.compile(context).await,
         }
     }
 }
 
 #[async_trait]
 impl Compile for ListItemContent {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
         match self {
-            ListItemContent::VecInlineContent(nodes) => nodes.compile(address, context).await,
-            ListItemContent::VecBlockContent(nodes) => nodes.compile(address, context).await,
+            ListItemContent::VecInlineContent(nodes) => nodes.compile(context).await,
+            ListItemContent::VecBlockContent(nodes) => nodes.compile(context).await,
         }
     }
 }
@@ -344,8 +349,9 @@ impl Compile for ListItemContent {
 /// Compile a `Link` to add its `target` to the list of included files
 #[async_trait]
 impl Compile for Link {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        let subject = resources::node(&context.path, address, &self.type_name());
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        let id = identify!(self);
+        let subject = resources::node(&context.path, &id, &self.type_name());
 
         let target = &self.target;
         let object = if target.starts_with("http://") || target.starts_with("https://") {
@@ -409,8 +415,9 @@ macro_rules! compile_media_object {
         $(
             #[async_trait]
             impl Compile for $type {
-                async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-                    let subject = resources::node(&context.path, address, &self.type_name());
+                async fn compile(&mut self, context: &mut Context) -> Result<()> {
+                    let id = identify!(self);
+                    let subject = resources::node(&context.path, &id, &self.type_name());
 
                     let url = compile_content_url(&self.content_url, context);
                     let object = if url.starts_with("http") {
@@ -442,8 +449,9 @@ compile_media_object!(
 
 #[async_trait]
 impl Compile for Parameter {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        let subject = resources::node(&context.path, address, &self.type_name());
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        let id = identify!(self);
+        let subject = resources::node(&context.path, &id, &self.type_name());
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
             Some(ValidatorTypes::IntegerValidator(..)) => "Integer",
@@ -464,17 +472,14 @@ impl Compile for Parameter {
 
 #[async_trait]
 impl Compile for CodeChunk {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        let CodeChunk {
-            text,
-            programming_language,
-            ..
-        } = &self;
-        let digest = str_sha256_bytes(&[text.as_str(), programming_language.as_str()].concat());
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        let digest =
+            str_sha256_bytes(&[self.text.as_str(), self.programming_language.as_str()].concat());
 
         if Some(digest) != self.compile_digest {
-            let subject = resources::node(&context.path, address, &self.type_name());
-            let relations = code::compile(&context.path, text, programming_language);
+            let id = identify!(self);
+            let subject = resources::node(&context.path, &id, &self.type_name());
+            let relations = code::compile(&context.path, &self.text, &self.programming_language);
             context.relations.push((subject, relations));
             self.compile_digest = Some(digest)
         }
@@ -485,17 +490,14 @@ impl Compile for CodeChunk {
 
 #[async_trait]
 impl Compile for CodeExpression {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        let CodeExpression {
-            text,
-            programming_language,
-            ..
-        } = &self;
-        let digest = str_sha256_bytes(&[text.as_str(), programming_language.as_str()].concat());
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        let digest =
+            str_sha256_bytes(&[self.text.as_str(), self.programming_language.as_str()].concat());
 
         if Some(digest) != self.compile_digest {
-            let subject = resources::node(&context.path, address, &self.type_name());
-            let relations = code::compile(&context.path, text, programming_language);
+            let id = identify!(self);
+            let subject = resources::node(&context.path, &id, &self.type_name());
+            let relations = code::compile(&context.path, &self.text, &self.programming_language);
             context.relations.push((subject, relations));
             self.compile_digest = Some(digest);
         }
@@ -506,7 +508,7 @@ impl Compile for CodeExpression {
 
 #[async_trait]
 impl Compile for SoftwareSourceCode {
-    async fn compile(&mut self, _address: &str, context: &mut Context) -> Result<()> {
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
         if let (Some(text), Some(programming_language)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
@@ -523,8 +525,9 @@ impl Compile for SoftwareSourceCode {
 
 #[async_trait]
 impl Compile for Include {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        let subject = resources::node(&context.path, address, &self.type_name());
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        let id = identify!(self);
+        let subject = resources::node(&context.path, &id, &self.type_name());
 
         let path = merge(&context.path, &self.source);
         let format = self.media_type.as_deref().cloned();
@@ -549,37 +552,37 @@ impl Compile for Include {
 
 #[async_trait]
 impl Compile for CiteGroup {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        self.items.compile(address, context).await
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        self.items.compile(context).await
     }
 }
 
 #[async_trait]
 impl Compile for Collection {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        self.parts.compile(address, context).await
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        self.parts.compile(context).await
     }
 }
 
 #[async_trait]
 impl Compile for CollectionSimple {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        self.parts.compile(address, context).await
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        self.parts.compile(context).await
     }
 }
 
 #[async_trait]
 impl Compile for List {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        self.items.compile(address, context).await
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        self.items.compile(context).await
     }
 }
 
 #[async_trait]
 impl Compile for ListItem {
-    async fn compile(&mut self, address: &str, context: &mut Context) -> Result<()> {
-        self.item.compile(address, context).await?;
-        self.content.compile(address, context).await?;
+    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        self.item.compile(context).await?;
+        self.content.compile(context).await?;
         Ok(())
     }
 }

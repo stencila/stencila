@@ -226,7 +226,7 @@ impl Document {
         let mut map = serializer.serialize_map(Some(relations.len()))?;
         for (resource, pairs) in relations {
             let key = match resource {
-                Resource::Node(node) => [&node.kind, "@", &node.address].concat(),
+                Resource::Node(node) => [&node.kind, "@", &node.id].concat(),
                 _ => unreachable!(),
             };
             map.serialize_entry(&key, pairs);
