@@ -115,27 +115,31 @@ impl Diffable for String {
                                 items,
                                 value: Box::new(value.clone()),
                             }));
-                        }
-                        if let Entry::Occupied(entry) = removes.entry(value.clone()) {
-                            let index = *entry.get();
-                            let move_ = if let Some(Operation::Remove(remove)) = ops.get(index) {
-                                Operation::Move(Move {
-                                    from: remove.keys.clone(),
-                                    items: remove.items,
-                                    to: keys(position - value.len()),
-                                })
-                            } else {
-                                unreachable!()
-                            };
-                            ops.remove(index);
-                            ops.push(move_);
-                            entry.remove_entry();
                         } else {
-                            ops.push(Operation::Add(Add {
-                                keys: keys(key),
-                                value: Box::new(value.clone()),
-                            }));
-                            adds.insert(value.clone(), ops.len() - 1);
+                            // Clippy seems to think this is collapsible with the above. It's not, tests break.
+                            #[allow(clippy::collapsible_else_if)]
+                            if let Entry::Occupied(entry) = removes.entry(value.clone()) {
+                                let index = *entry.get();
+                                let move_ = if let Some(Operation::Remove(remove)) = ops.get(index)
+                                {
+                                    Operation::Move(Move {
+                                        from: remove.keys.clone(),
+                                        items: remove.items,
+                                        to: keys(position - value.len()),
+                                    })
+                                } else {
+                                    unreachable!()
+                                };
+                                ops.remove(index);
+                                ops.push(move_);
+                                entry.remove_entry();
+                            } else {
+                                ops.push(Operation::Add(Add {
+                                    keys: keys(key),
+                                    value: Box::new(value.clone()),
+                                }));
+                                adds.insert(value.clone(), ops.len() - 1);
+                            }
                         }
                     }
                     _ => {}
