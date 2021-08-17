@@ -1,5 +1,5 @@
 use super::prelude::*;
-use stencila_schema::{BlockContent, NodeTrait, Paragraph};
+use stencila_schema::{BlockContent, Paragraph};
 
 impl Diffable for Paragraph {
     diffable_is_same!(Paragraph);
@@ -92,7 +92,9 @@ impl Diffable for BlockContent {
             //(BlockContent::Heading(me), BlockContent::Heading(other)) => me.diff_same(other),
             //(BlockContent::List(me), BlockContent::List(other)) => me.diff_same(other),
             //(BlockContent::MathBlock(me), BlockContent::MathBlock(other)) => me.diff_same(other),
-            (BlockContent::Paragraph(me), BlockContent::Paragraph(other)) => me.diff_same(differ, other),
+            (BlockContent::Paragraph(me), BlockContent::Paragraph(other)) => {
+                me.diff_same(differ, other)
+            }
             //(BlockContent::QuoteBlock(me), BlockContent::QuoteBlock(other)) => me.diff_same(other),
             //(BlockContent::Table(me), BlockContent::Table(other)) => me.diff_same(other),
             //(BlockContent::ThematicBreak(me), BlockContent::ThematicBreak(other)) => me.diff_same(other),

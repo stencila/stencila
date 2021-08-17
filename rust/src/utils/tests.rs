@@ -1,5 +1,4 @@
 ///! Helper functions and macros for tests
-use pretty_assertions::assert_eq;
 use std::{fs::read_to_string, path::PathBuf};
 
 /// Get the path of the home directory of this repository
@@ -62,7 +61,7 @@ pub fn skip_slow_tests() -> bool {
 #[macro_export]
 macro_rules! assert_json {
     ($expr:expr, $json:tt) => {
-        assert_eq!(
+        pretty_assertions::assert_eq!(
             serde_json::to_value(&$expr).unwrap(),
             serde_json::json!($json)
         );
@@ -73,7 +72,7 @@ macro_rules! assert_json {
 #[macro_export]
 macro_rules! assert_json_eq {
     ($expr1:expr, $expr2:expr) => {
-        assert_eq!(
+        pretty_assertions::assert_eq!(
             serde_json::to_value(&$expr1).unwrap(),
             serde_json::to_value(&$expr2).unwrap()
         );

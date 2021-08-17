@@ -1,5 +1,5 @@
 use super::prelude::*;
-use stencila_schema::{Article};
+use stencila_schema::Article;
 
 impl Diffable for Article {
     diffable_is_same!(Article);
@@ -24,7 +24,6 @@ mod tests {
         assert_json,
         patches::{apply_new, diff, equal},
     };
-    use pretty_assertions::assert_eq;
     use stencila_schema::{BlockContent, Paragraph};
 
     #[test]

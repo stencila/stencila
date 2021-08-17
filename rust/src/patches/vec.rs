@@ -44,7 +44,7 @@ where
         }
     }
 
-    fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
+    fn apply_remove(&mut self, _keys: &mut Keys, _items: usize) {
         todo!()
     }
 
@@ -104,7 +104,7 @@ mod tests {
         patches::{apply_new, diff, equal},
     };
     use pretty_assertions::assert_eq;
-    use stencila_schema::{Emphasis, InlineContent, Integer, Paragraph};
+    use stencila_schema::Integer;
 
     #[test]
     fn test_vector() {

@@ -37,7 +37,7 @@ where
 }
 
 /// Apply a [`Patch`] to a node of any type.
-pub fn apply<Type>(node: &mut Type, patch: &Patch)
+pub fn apply<Type>(node: &mut Type, patch: &[Operation])
 where
     Type: Diffable,
 {
@@ -47,7 +47,7 @@ where
 }
 
 /// Apply a [`Patch`] to a clone of a node of any type.
-pub fn apply_new<Type>(node: &Type, patch: &Patch) -> Type
+pub fn apply_new<Type>(node: &Type, patch: &[Operation]) -> Type
 where
     Type: Diffable + Clone,
 {
