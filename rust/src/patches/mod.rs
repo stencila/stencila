@@ -63,7 +63,7 @@ type Patch = Vec<Operation>;
 /// mutate one node into another.
 ///
 /// These are the same operations as described in [JSON Patch](http://jsonpatch.com/)
-/// (with the exception of `test`). Note that `Replace`, `Copy` and `Move` can all be
+/// (with the exception of `copy` and `test`). Note that `Replace` and `Move` can be
 /// represented by combinations of `Remove` and `Add`. They are included as a means of
 /// providing more semantically meaningful patches, and more space efficient serializations
 /// (e.g. it is not necessary to represent the value being moved or copied).
@@ -84,7 +84,6 @@ pub enum Operation {
     Add(Add),
     Remove(Remove),
     Replace(Replace),
-    Copy(Copy),
     Move(Move),
     Transform(Transform),
 }
@@ -126,23 +125,16 @@ pub struct Replace {
     value: Box<dyn Any>,
 }
 
-/// Copy a value from one location in a node tree, to another.
-#[derive(Debug, Serialize)]
-pub struct Copy {
-    /// The location from which to remove the value
-    from: Keys,
-
-    /// The location to which to add the value
-    to: Keys,
-}
-
 /// Move a value from one location in a node tree, to another.
 #[derive(Debug, Serialize)]
 pub struct Move {
     /// The location from which to remove the value
     from: Keys,
 
-    /// The location to which to add the value
+    /// The number of items to move
+    items: usize,
+
+    /// The location to which to add the items
     to: Keys,
 }
 
@@ -230,30 +222,34 @@ impl Differ {
 
     /// Append a list of operations nested within the current keys
     pub fn append(&mut self, ops: Vec<Operation>) {
+        let concat_keys = |begin: &VecDeque<Key>, end: &VecDeque<Key>| {
+            let mut keys = begin.clone();
+            keys.append(&mut end.clone());
+            keys
+        };
         for op in ops {
-            let mut keys = self.keys.clone();
             match op {
-                Operation::Add(mut add) => {
-                    keys.append(&mut add.keys);
-                    add.keys = keys;
-                    self.patch.push(Operation::Add(add))
+                Operation::Add(mut op) => {
+                    op.keys = concat_keys(&self.keys, &op.keys);
+                    self.patch.push(Operation::Add(op))
                 }
-                Operation::Remove(mut remove) => {
-                    keys.append(&mut remove.keys);
-                    remove.keys = keys;
-                    self.patch.push(Operation::Remove(remove))
+                Operation::Remove(mut op) => {
+                    op.keys = concat_keys(&self.keys, &op.keys);
+                    self.patch.push(Operation::Remove(op))
                 }
-                Operation::Replace(mut replace) => {
-                    keys.append(&mut replace.keys);
-                    replace.keys = keys;
-                    self.patch.push(Operation::Replace(replace))
+                Operation::Replace(mut op) => {
+                    op.keys = concat_keys(&self.keys, &op.keys);
+                    self.patch.push(Operation::Replace(op))
                 }
-                Operation::Transform(mut transform) => {
-                    keys.append(&mut transform.keys);
-                    transform.keys = keys;
-                    self.patch.push(Operation::Transform(transform))
+                Operation::Move(mut op) => {
+                    op.from = concat_keys(&self.keys, &op.from);
+                    op.to = concat_keys(&self.keys, &op.to);
+                    self.patch.push(Operation::Move(op))
                 }
-                _ => todo!(),
+                Operation::Transform(mut op) => {
+                    op.keys = concat_keys(&self.keys, &op.keys);
+                    self.patch.push(Operation::Transform(op))
+                }
             }
         }
     }
@@ -282,8 +278,6 @@ impl Differ {
             value: Box::new(value.clone()),
         }))
     }
-
-    // TODO Add methods for copy, move
 
     /// Add a `Transform` operation to the patch.
     pub fn transform(&mut self, from: &str, to: &str) {
@@ -370,14 +364,12 @@ pub trait Diffable {
             Operation::Add(op) => self.apply_add(&mut op.keys.clone(), &op.value),
             Operation::Remove(op) => self.apply_remove(&mut op.keys.clone(), op.items),
             Operation::Replace(op) => self.apply_replace(&mut op.keys.clone(), op.items, &op.value),
-            // TODO copy and move require us to get the from value first and then call self.add
-            // with the value
-            // Copy
-            // Move
+            Operation::Move(op) => {
+                self.apply_move(&mut op.from.clone(), op.items, &mut op.to.clone())
+            }
             Operation::Transform(op) => {
                 self.apply_transform(&mut op.keys.clone(), &op.from, &op.to)
             }
-            _ => todo!(),
         }
     }
 
@@ -394,6 +386,11 @@ pub trait Diffable {
     /// Apply a `Replace` patch operation
     fn apply_replace(&mut self, _keys: &mut Keys, _items: usize, _value: &Box<dyn Any>) {
         invalid_op!("replace")
+    }
+
+    /// Apply a `Move` patch operation
+    fn apply_move(&mut self, _from: &mut Keys, _items: usize, _to: &mut Keys) {
+        invalid_op!("move")
     }
 
     /// Apply a `Transform` patch operation

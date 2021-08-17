@@ -1,14 +1,16 @@
+use crate::patches::Move;
+
 use super::prelude::*;
 use itertools::Itertools;
 use similar::{ChangeTag, TextDiff};
 use std::any::{type_name, Any};
-use std::collections::VecDeque;
+use std::collections::hash_map::Entry;
+use std::collections::{HashMap, VecDeque};
 use std::iter::FromIterator;
 use std::ops::Deref;
 
 impl Diffable for String {
     diffable_is_same!(String);
-    diffable_diff!(String);
 
     fn is_equal(&self, other: &Self) -> Result<()> {
         if self == other {
@@ -18,13 +20,14 @@ impl Diffable for String {
         }
     }
 
+    diffable_diff!(String);
+
     fn diff_same(&self, differ: &mut Differ, other: &Self) {
         if self == other {
             return;
         }
 
         let diff = TextDiff::from_chars(self, other);
-
         let mut ops: Vec<Operation> = Vec::new();
         let mut last: char = 'e';
         let mut curr: char = 'e';
@@ -33,6 +36,8 @@ impl Diffable for String {
         let mut key: usize = 0;
         let mut items: usize = 0;
         let mut value: String = String::new();
+        let mut adds: HashMap<String, usize> = HashMap::new();
+        let mut removes: HashMap<String, usize> = HashMap::new();
 
         let changes = diff.iter_all_changes().collect_vec();
         for (index, change) in changes.iter().enumerate() {
@@ -44,11 +49,13 @@ impl Diffable for String {
                 ChangeTag::Delete => match curr {
                     'd' => {
                         items += 1;
+                        value.push_str(change.value());
                     }
                     _ => {
                         next = 'd';
                         key = position;
                         items = 1;
+                        value = change.value().into();
                     }
                 },
                 ChangeTag::Insert => {
@@ -70,26 +77,65 @@ impl Diffable for String {
 
             let end = index == changes.len() - 1;
             if next != curr || end {
-                let keys = VecDeque::from_iter(vec![Key::Index(key)]);
+                // Generate a keys for a string position index
+                fn keys(index: usize) -> VecDeque<Key> {
+                    VecDeque::from_iter(vec![Key::Index(index)])
+                }
 
                 match if end { next } else { curr } {
                     'd' => {
                         if next != 'i' {
-                            ops.push(Operation::Remove(Remove { keys, items }));
+                            if let Entry::Occupied(entry) = adds.entry(value.clone()) {
+                                let index = *entry.get();
+                                let move_ = if let Some(Operation::Add(add)) = ops.get(index) {
+                                    Operation::Move(Move {
+                                        from: keys(position - value.len()),
+                                        items,
+                                        to: add.keys.clone(),
+                                    })
+                                } else {
+                                    unreachable!()
+                                };
+                                ops.remove(index);
+                                ops.push(move_);
+                                entry.remove_entry();
+                            } else {
+                                ops.push(Operation::Remove(Remove {
+                                    keys: keys(key),
+                                    items,
+                                }));
+                                removes.insert(value.clone(), ops.len() - 1);
+                            }
                         }
                     }
                     'i' => {
                         if last == 'd' || end && curr == 'd' {
                             ops.push(Operation::Replace(Replace {
-                                keys,
+                                keys: keys(key),
                                 items,
                                 value: Box::new(value.clone()),
                             }));
+                        }
+                        if let Entry::Occupied(entry) = removes.entry(value.clone()) {
+                            let index = *entry.get();
+                            let move_ = if let Some(Operation::Remove(remove)) = ops.get(index) {
+                                Operation::Move(Move {
+                                    from: remove.keys.clone(),
+                                    items: remove.items,
+                                    to: keys(position - value.len()),
+                                })
+                            } else {
+                                unreachable!()
+                            };
+                            ops.remove(index);
+                            ops.push(move_);
+                            entry.remove_entry();
                         } else {
                             ops.push(Operation::Add(Add {
-                                keys,
+                                keys: keys(key),
                                 value: Box::new(value.clone()),
                             }));
+                            adds.insert(value.clone(), ops.len() - 1);
                         }
                     }
                     _ => {}
@@ -126,6 +172,32 @@ impl Diffable for String {
         }
     }
 
+    fn apply_move(&mut self, from: &mut Keys, items: usize, to: &mut Keys) {
+        if let (Some(Key::Index(from)), Some(Key::Index(to))) = (from.pop_front(), to.pop_front()) {
+            let chars: Vec<char> = self.chars().collect();
+            let chars = if from < to {
+                [
+                    &chars[..from],
+                    &chars[(from + items)..(to + items)],
+                    &chars[from..(from + items)],
+                    &chars[(to + items)..],
+                ]
+                .concat()
+            } else {
+                [
+                    &chars[..to],
+                    &chars[from..(from + items)],
+                    &chars[to..from],
+                    &chars[(from + items)..],
+                ]
+                .concat()
+            };
+            *self = chars.into_iter().collect();
+        } else {
+            invalid_keys!(from)
+        }
+    }
+
     fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value
@@ -156,6 +228,8 @@ mod tests {
         let b = "123".to_string();
         let c = "a2b3".to_string();
         let d = "abcdef".to_string();
+        let e = "adefbc".to_string();
+        let f = "adbcfe".to_string();
 
         assert!(equal(&empty, &empty));
         assert!(equal(&a, &a));
@@ -228,6 +302,26 @@ mod tests {
         );
         assert_eq!(apply_new(&b, &patch), d);
 
+        // Move
+
+        let patch = diff(&d, &e);
+        assert_json!(
+            patch,
+            [
+                { "op": "move", "from": [1], "items": 2, "to": [4] },
+            ]
+        );
+        assert_eq!(apply_new(&d, &patch), e);
+
+        let patch = diff(&e, &d);
+        assert_json!(
+            patch,
+            [
+                { "op": "move", "from": [4], "items": 2, "to": [1] },
+            ]
+        );
+        assert_eq!(apply_new(&e, &patch), d);
+
         // Mixed
 
         let patch = diff(&c, &d);
@@ -249,5 +343,16 @@ mod tests {
             ]
         );
         assert_eq!(apply_new(&d, &patch), c);
+
+        let patch = diff(&d, &f);
+        assert_json!(
+            patch,
+            [
+                { "op": "add", "keys": [1], "value": "d" },
+                { "op": "replace", "keys": [4], "items": 1, "value": "f" },
+                { "op": "remove", "keys": [6], "items": 1 }
+            ]
+        );
+        assert_eq!(apply_new(&d, &patch), f);
     }
 }
