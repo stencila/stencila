@@ -1,6 +1,7 @@
 use crate::utils::schemas;
 use derivative::Derivative;
 use eyre::Result;
+use path_slash::PathBufExt;
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -42,6 +43,7 @@ pub mod resources {
     #[schemars(deny_unknown_fields)]
     pub struct Symbol {
         /// The path of the file that the symbol is defined in
+        #[serde(serialize_with = "serialize_path")]
         pub path: PathBuf,
 
         /// The name/identifier of the symbol
@@ -69,6 +71,7 @@ pub mod resources {
     #[schemars(deny_unknown_fields)]
     pub struct Node {
         /// The path of the file that the node is defined in
+        #[serde(serialize_with = "serialize_path")]
         pub path: PathBuf,
 
         /// The id of the node with the document
@@ -91,6 +94,7 @@ pub mod resources {
     #[schemars(deny_unknown_fields)]
     pub struct File {
         /// The path of the file
+        #[serde(serialize_with = "serialize_path")]
         pub path: PathBuf,
     }
 
@@ -142,6 +146,15 @@ pub mod resources {
     pub fn url(url: &str) -> Resource {
         Resource::Url(Url { url: url.into() })
     }
+}
+
+/// Serialize the `path` fields of resources so that they use Unix forward slash
+/// separators on all platforms.
+fn serialize_path<S>(path: &PathBuf, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    path.to_slash().serialize(serializer)
 }
 
 /// The relation between two resources in a dependency graph (the edges of the graph)
