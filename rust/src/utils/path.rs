@@ -1,5 +1,4 @@
-use path_clean::PathClean;
-use path_slash::PathExt;
+use lexiclean::Lexiclean;
 use std::path::{Path, PathBuf};
 
 /// Merge paths
@@ -7,7 +6,18 @@ use std::path::{Path, PathBuf};
 /// Differs from `path.join()` in that it joins the *parent* of `path1`, not `path1` itself.
 /// Does not canonicalize the path, or check for its existence.
 pub fn merge<P1: AsRef<Path>, P2: AsRef<Path>>(path1: P1, path2: P2) -> PathBuf {
-    let path1 = PathBuf::from(path1.as_ref().to_slash_lossy());
-    let path2 = PathBuf::from(path2.as_ref().to_slash_lossy());
-    path1.join("..").join(path2).clean()
+    path1.as_ref().join("..").join(path2).lexiclean()
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn test_merge() {
+        assert_eq!(merge("a", "c").to_string_lossy(), "c");
+        assert_eq!(merge("a/b", "c").to_string_lossy(), "a/c");
+        assert_eq!(merge("a/b/../d/e", "c").to_string_lossy(), "a/d/c")
+    }
 }

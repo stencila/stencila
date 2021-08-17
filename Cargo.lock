@@ -2085,6 +2085,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "lexiclean"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "441225017b106b9f902e97947a6d31e44ebcf274b91bdbfb51e5c477fcd468e5"
+
+[[package]]
 name = "libc"
 version = "0.2.99"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2751,12 +2757,6 @@ checksum = "c705f256449c60da65e11ff6626e0c16a0a0b96aaa348de61376b249bc340f41"
 dependencies = [
  "regex",
 ]
-
-[[package]]
-name = "path-clean"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ecba01bf2678719532c5e3059e0b5f0811273d94b397088b82e3bd0a78c78fdd"
 
 [[package]]
 name = "path-slash"
@@ -3991,6 +3991,7 @@ dependencies = [
  "jsonschema",
  "jsonwebtoken",
  "kuchiki",
+ "lexiclean",
  "maplit",
  "markup5ever",
  "mime_guess",
@@ -4000,7 +4001,6 @@ dependencies = [
  "notify",
  "once_cell",
  "pandoc_types",
- "path-clean",
  "path-slash",
  "pathdiff",
  "petgraph",
