@@ -16,6 +16,14 @@ use stencila_schema::*;
 #[cfg(feature = "compile-code")]
 pub mod code;
 
+#[cfg(not(feature = "compile-code"))]
+pub mod code {
+    use super::*;
+    pub fn compile(path: &Path, code: &str, language: &str) -> Vec<(Relation, Resource)> {
+        Vec::new()
+    }
+}
+
 /// Compile a node
 pub async fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<Context> {
     let mut context = Context {
