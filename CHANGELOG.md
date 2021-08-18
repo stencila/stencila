@@ -1,3 +1,50 @@
+# [0.110.0](https://github.com/stencila/stencila/compare/v0.109.2...v0.110.0) (2021-08-18)
+
+
+### Bug Fixes
+
+* **CLI:** Do not highlight content when using non-TTY devices ([dfc40dd](https://github.com/stencila/stencila/commit/dfc40ddba6a3de0fc23a88395ae4c3ea722c7283))
+* **Code analysis:** Allow expressions for first arg when detecting R write files ([add8741](https://github.com/stencila/stencila/commit/add8741913c113c580bd8ffd97b093b32717741d))
+* **Compile code:** Use forward slash when merging paths ([cb802c6](https://github.com/stencila/stencila/commit/cb802c64835224f8998dbac82e987f8980b4ac4f))
+* **Dependencies:** Upgrade to Schema v1.11.0 ([e288bf6](https://github.com/stencila/stencila/commit/e288bf61f9b820c467d452dec43b9233ca1bfa7e))
+* **File paths:** Use `lexiclean` for cross-platform path normalization ([a3e5775](https://github.com/stencila/stencila/commit/a3e5775607854cdf84ac6d4e77e46e38a0281828))
+* **Graphs:** Serialize paths as Unix forward slash paths ([c201e15](https://github.com/stencila/stencila/commit/c201e1556d97a724c9f68c3dcee36c4f9eb41eaa))
+* **Project graphs:** Avoid cycles when walking over files ([cd7441a](https://github.com/stencila/stencila/commit/cd7441a7becfb521b4d2440e4b7ec09cdad0307a))
+* **Project graphs:** Improve DOT visualizations ([dae57f3](https://github.com/stencila/stencila/commit/dae57f3442a6e8f5db3146b6b2d914ef6701ccec))
+* **Project graphs:** Use absolute paths for resources ([eca490c](https://github.com/stencila/stencila/commit/eca490ce9e603f17724a4836ccdaf5de84215445))
+* **Projects:** Do not walk over subject in triple ([f4b0112](https://github.com/stencila/stencila/commit/f4b011258a82e85ae363adb50fd525349c3e2135))
+* **Python and Javascript code analysis:** Enable ranges ([761a1f8](https://github.com/stencila/stencila/commit/761a1f8cf4473e0bae84ccd19e9468961407c2ca))
+* **R and Python code analysis:** Capture ranges for reads, writes and imports ([978a2d3](https://github.com/stencila/stencila/commit/978a2d36b538acb34b79cd541f0f64ac40ee21bc))
+* **R code analysis:** Ignore attributes ([19870da](https://github.com/stencila/stencila/commit/19870da23e6b2e53b76dfc6e900afcc0603064dd))
+* **R code analysis:** Use correct function name ([c71dbcb](https://github.com/stencila/stencila/commit/c71dbcb0aadff7ac87dfa36a161b8eece61a4d25))
+
+
+### Features
+
+* **Code analysis:** Add ranges to relations ([f5b75b7](https://github.com/stencila/stencila/commit/f5b75b7b13a71f1ce7578b966192b14f8b45d25c))
+* **Code analysis:** Allow manual overrides using tags in comments ([8784e05](https://github.com/stencila/stencila/commit/8784e05ac43c4a0003144272f0b0466c8983fc0f))
+* **Code analysis:** Decode and compile entire source code files ([9707eef](https://github.com/stencila/stencila/commit/9707eef281fd65eecfdb57e54b9755c8b2460817))
+* **Code analysis:** Detect files read for JavaScript ([7a0bf41](https://github.com/stencila/stencila/commit/7a0bf4177415adb598fabbf8b5f5d4a04d014f7f))
+* **Code analysis:** Detect files read for Python and R ([60a0450](https://github.com/stencila/stencila/commit/60a04506215625b45a18bf495137c109ed77d344))
+* **Code analysis:** Detect files written in JavaScript, Python and R ([e9b25a7](https://github.com/stencila/stencila/commit/e9b25a72e5280b6f07791f3564c3a68a89c11ba9))
+* **Compile:** Add code compilation for dependency analysis for CodeChunks etc ([cf55b6b](https://github.com/stencila/stencila/commit/cf55b6b5c681cb4907094b6a760cd0a61bb29591))
+* **Dependency graphs:** Include variable and function dependencies for R; visualization for projects ([652101d](https://github.com/stencila/stencila/commit/652101d0c98d055f85126b403b1cbe4f5e4255e9))
+* **Documents:** Get the SHA-256 of a document ([d65939c](https://github.com/stencila/stencila/commit/d65939c26f35f0e590613c37bc117a1057e80103))
+* **Graphs:** Add alternative visualization formats ([996296a](https://github.com/stencila/stencila/commit/996296acb0b952785d35ca26afd5b83586bca09a))
+* **Include:** Allow documents to be included within others ([e9ab21f](https://github.com/stencila/stencila/commit/e9ab21f100e2d533568d3eb20aaa0ced4fb60a62))
+* **JavaScript code analysis:** Detect assignments ([32264cc](https://github.com/stencila/stencila/commit/32264ccd96a133f457a17e36568363a3c1ddc41c))
+* **JavaScript code analysis:** Detect usage of symbols ([21f127e](https://github.com/stencila/stencila/commit/21f127e71eb96d060ee2eeff510e5286a5dae5fa))
+* **Node.js:** Allow project graph to be obtained in `dot` and other formats ([4d37304](https://github.com/stencila/stencila/commit/4d37304120af4cead62665bccf42684dec1bf179))
+* **Project conversion:** Allow definition of conversion between files ([c3c574e](https://github.com/stencila/stencila/commit/c3c574ec51c01060de1b60da73438455ab16697f))
+* **Project graphs:** Add sources and associated files ([4e9db6d](https://github.com/stencila/stencila/commit/4e9db6dcb89189ed10bd3d3a59798c77d91c1b4f))
+* **Project graphs:** Export related JSON schemas ([d4745c3](https://github.com/stencila/stencila/commit/d4745c36d3f5aadb31696f2fcc1a6045b9a80157))
+* **Project graphs:** Include document parameters ([c0db190](https://github.com/stencila/stencila/commit/c0db19056f02aa39cdd779f1875d7aae90d776f6))
+* **Project sources:** Add flag for whether or not source is active ([ab94670](https://github.com/stencila/stencila/commit/ab9467066a19f1d87f15f44f8e48704a0a6df704))
+* **Python code analysis:** Detect assignments ([374667b](https://github.com/stencila/stencila/commit/374667ba6c1f1e37d1c4527becb09d6fd298ec43))
+* **Python code analysis:** Detect usage of symbols ([daf107e](https://github.com/stencila/stencila/commit/daf107e2242a7d6d47d3a94bc76a72fb398ff257))
+* **R code analysis:** Improve inference of the type of assigned symbols ([db744d7](https://github.com/stencila/stencila/commit/db744d79e0264eacca1a561bced6079d313eadd3))
+* **TypeScript code analysis:** Add analysis of TypeScript code ([17d14e2](https://github.com/stencila/stencila/commit/17d14e24cb750e8fcd25d92ec9e72a37fcae595d))
+
 ## [0.109.2](https://github.com/stencila/stencila/compare/v0.109.1...v0.109.2) (2021-08-16)
 
 
