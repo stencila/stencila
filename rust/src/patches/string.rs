@@ -82,7 +82,8 @@ impl Diffable for String {
                     VecDeque::from_iter(vec![Key::Index(index)])
                 }
 
-                match if end { next } else { curr } {
+                let change = if end && next != 'e' { next } else { curr };
+                match change {
                     'd' => {
                         if next != 'i' {
                             if let Entry::Occupied(entry) = adds.entry(value.clone()) {
@@ -162,7 +163,14 @@ impl Diffable for String {
         };
 
         if let Some(Key::Index(index)) = keys.pop_front() {
-            self.insert_str(index, value)
+            let chars: Vec<char> = self.chars().collect();
+            let chars = [
+                &chars[..index],
+                &value.chars().collect_vec(),
+                &chars[index..],
+            ]
+            .concat();
+            *self = chars.into_iter().collect();
         } else {
             invalid_keys!(keys)
         }
@@ -170,7 +178,9 @@ impl Diffable for String {
 
     fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
         if let Some(Key::Index(index)) = keys.pop_front() {
-            self.replace_range(index..(index + items), "")
+            let chars: Vec<char> = self.chars().collect();
+            let chars = [&chars[..index], &chars[(index + items)..]].concat();
+            *self = chars.into_iter().collect();
         } else {
             invalid_keys!(keys)
         }
@@ -178,7 +188,7 @@ impl Diffable for String {
 
     fn apply_move(&mut self, from: &mut Keys, items: usize, to: &mut Keys) {
         if let (Some(Key::Index(from)), Some(Key::Index(to))) = (from.pop_front(), to.pop_front()) {
-            let chars: Vec<char> = self.chars().collect();
+            let chars = self.chars().collect_vec();
             let chars = if from < to {
                 [
                     &chars[..from],
@@ -186,7 +196,6 @@ impl Diffable for String {
                     &chars[from..(from + items)],
                     &chars[(to + items)..],
                 ]
-                .concat()
             } else {
                 [
                     &chars[..to],
@@ -194,9 +203,8 @@ impl Diffable for String {
                     &chars[to..from],
                     &chars[(from + items)..],
                 ]
-                .concat()
             };
-            *self = chars.into_iter().collect();
+            *self = chars.concat().into_iter().collect();
         } else {
             invalid_keys!(from)
         }
@@ -212,7 +220,14 @@ impl Diffable for String {
         if keys.is_empty() {
             *self = value.clone();
         } else if let Some(Key::Index(index)) = keys.pop_front() {
-            self.replace_range(index..(index + items), value);
+            let chars: Vec<char> = self.chars().collect();
+            let chars = [
+                &chars[..index],
+                &value.chars().collect_vec(),
+                &chars[(index + items)..],
+            ]
+            .concat();
+            *self = chars.into_iter().collect();
         }
     }
 }
@@ -358,5 +373,34 @@ mod tests {
             ]
         );
         assert_eq!(apply_new(&d, &patch), f);
+    }
+
+    /// Test that works with Unicode graphemes (which are made
+    /// up of multiple `char`s).
+    #[test]
+    fn test_unicode() {
+        let a = "ä".to_string();
+        let b = "ä1👍🏻2".to_string();
+        let c = "1👍🏿2".to_string();
+
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "add", "keys": [1], "value": "1👍🏻2" },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+
+        let patch = diff(&b, &c);
+        assert_json!(patch, [
+            { "op": "remove", "keys": [0], "items": 1 },
+            { "op": "replace", "keys": [2], "items": 1, "value": "🏿" },
+        ]);
+        assert_eq!(apply_new(&b, &patch), c);
+
+        let patch = diff(&c, &b);
+        assert_json!(patch, [
+            { "op": "add", "keys": [0], "value": "ä" },
+            { "op": "replace", "keys": [3], "items": 1, "value": "🏻" },
+        ]);
+        assert_eq!(apply_new(&c, &patch), b);
     }
 }
