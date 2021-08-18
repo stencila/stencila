@@ -55,15 +55,19 @@ const CHARACTERS: [char; 62] = [
     'v', 'w', 'x', 'y', 'z',
 ];
 
+// Generate random characters
+pub fn generate_chars(size: usize) -> String {
+    nanoid!(size, &CHARACTERS)
+}
+
 // Generate a universally unique identifier
 pub fn generate(family: Family) -> String {
     let diff = chrono::Utc::now().timestamp() - EPOCH;
     let seconds =
         u32::try_from(diff).expect("Unable to convert to u32 (must be waaaay in the future");
-    let rand = nanoid!(18, &CHARACTERS);
+    let rand = generate_chars(18);
     format!("{}.{:010x}.{}", family.to_string(), seconds, rand)
 }
-
 #[cfg(test)]
 mod tests {
     use eyre::Result;
