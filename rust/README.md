@@ -83,6 +83,12 @@ This approach is particularly useful when using `cargo watch`, for example to ru
 cargo watch -x "test --no-default-features --features encode-html,decode-html --test ende html"
 ```
 
+There are integration tests, mostly using generative testing approaches, in the `tests` directory. You can run those individually like this:
+
+```sh
+cargo test --test patches
+```
+
 ### Benchmarking
 
 Run benchmarks using,

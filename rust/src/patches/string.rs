@@ -29,11 +29,10 @@ impl Diffable for String {
 
         let diff = TextDiff::from_chars(self, other);
         let mut ops: Vec<Operation> = Vec::new();
-        let mut last: char = 'e';
         let mut curr: char = 'e';
-        let mut next: char = 'e';
+        let mut replace = false;
         let mut position = 0;
-        let mut key: usize = 0;
+        let mut start = 0;
         let mut items: usize = 0;
         let mut value: String = String::new();
         let mut adds: HashMap<String, usize> = HashMap::new();
@@ -41,32 +40,36 @@ impl Diffable for String {
 
         let changes = diff.iter_all_changes().collect_vec();
         for (index, change) in changes.iter().enumerate() {
+            let last = curr;
             match change.tag() {
                 ChangeTag::Equal => {
                     position += 1;
-                    next = 'e';
+                    curr = 'e';
                 }
-                ChangeTag::Delete => match curr {
+                ChangeTag::Delete => match last {
                     'd' => {
                         items += 1;
                         value.push_str(change.value());
                     }
                     _ => {
-                        next = 'd';
-                        key = position;
+                        curr = 'd';
+                        start = position;
                         items = 1;
                         value = change.value().into();
                     }
                 },
                 ChangeTag::Insert => {
-                    match curr {
+                    match last {
                         'i' => {
                             value.push_str(change.value());
                         }
                         _ => {
-                            next = 'i';
-                            if last != 'd' {
-                                key = position;
+                            curr = 'i';
+                            if last == 'd' {
+                                replace = true;
+                            } else {
+                                replace = false;
+                                start = position;
                             }
                             value = change.value().into();
                         }
@@ -75,81 +78,77 @@ impl Diffable for String {
                 }
             }
 
+            /*
+            println!(
+                "{:?} {} {} {} {} {} {} {}",
+                change, index, position, last, curr, items, value, replace
+            );
+            */
+
             let end = index == changes.len() - 1;
-            if next != curr || end {
+            if (index > 0 && curr != last) || end {
                 // Generate a keys for a string position index
                 fn keys(index: usize) -> VecDeque<Key> {
                     VecDeque::from_iter(vec![Key::Index(index)])
                 }
 
-                let change = if end && next != 'e' { next } else { curr };
-                match change {
-                    'd' => {
-                        if next != 'i' {
-                            if let Entry::Occupied(entry) = adds.entry(value.clone()) {
-                                let index = *entry.get();
-                                let move_ = if let Some(Operation::Add(add)) = ops.get(index) {
-                                    Operation::Move(Move {
-                                        from: keys(position - value.len()),
-                                        items,
-                                        to: add.keys.clone(),
-                                    })
-                                } else {
-                                    unreachable!()
-                                };
-                                ops.remove(index);
-                                ops.push(move_);
-                                entry.remove_entry();
-                            } else {
-                                ops.push(Operation::Remove(Remove {
-                                    keys: keys(key),
-                                    items,
-                                }));
-                                removes.insert(value.clone(), ops.len() - 1);
-                            }
-                        }
-                    }
-                    'i' => {
-                        if last == 'd' || end && curr == 'd' {
-                            ops.push(Operation::Replace(Replace {
-                                keys: keys(key),
+                if (curr == 'e' && last == 'd') || (end && curr == 'd') {
+                    if let Entry::Occupied(entry) = adds.entry(value.clone()) {
+                        let index = *entry.get();
+                        let move_ = if let Some(Operation::Add(add)) = ops.get(index) {
+                            Operation::Move(Move {
+                                // The add incremented `start`, so we must remove `items`
+                                from: keys(start - items),
                                 items,
-                                value: Box::new(value.clone()),
-                            }));
+                                to: add.keys.clone(),
+                            })
                         } else {
-                            // Clippy seems to think this is collapsible with the above. It's not, tests break.
-                            #[allow(clippy::collapsible_else_if)]
-                            if let Entry::Occupied(entry) = removes.entry(value.clone()) {
-                                let index = *entry.get();
-                                let move_ = if let Some(Operation::Remove(remove)) = ops.get(index)
-                                {
-                                    Operation::Move(Move {
-                                        from: remove.keys.clone(),
-                                        items: remove.items,
-                                        to: keys(position - value.len()),
-                                    })
-                                } else {
-                                    unreachable!()
-                                };
-                                ops.remove(index);
-                                ops.push(move_);
-                                entry.remove_entry();
-                            } else {
-                                ops.push(Operation::Add(Add {
-                                    keys: keys(key),
-                                    value: Box::new(value.clone()),
-                                }));
-                                adds.insert(value.clone(), ops.len() - 1);
-                            }
+                            unreachable!()
+                        };
+                        ops.remove(index);
+                        ops.push(move_);
+                        entry.remove_entry();
+                    } else {
+                        ops.push(Operation::Remove(Remove {
+                            keys: keys(start),
+                            items,
+                        }));
+                        if !end {
+                            removes.insert(value.clone(), ops.len() - 1);
                         }
                     }
-                    _ => {}
+                } else if (curr == 'e' && last == 'i') || (end && curr == 'i') {
+                    if replace {
+                        ops.push(Operation::Replace(Replace {
+                            keys: keys(start),
+                            items,
+                            value: Box::new(value.clone()),
+                        }));
+                    } else if let Entry::Occupied(entry) = removes.entry(value.clone()) {
+                        let index = *entry.get();
+                        let move_ = if let Some(Operation::Remove(remove)) = ops.get(index) {
+                            Operation::Move(Move {
+                                from: remove.keys.clone(),
+                                items: remove.items,
+                                to: keys(start),
+                            })
+                        } else {
+                            unreachable!()
+                        };
+                        ops.remove(index);
+                        ops.push(move_);
+                        entry.remove_entry();
+                    } else {
+                        ops.push(Operation::Add(Add {
+                            keys: keys(start),
+                            value: Box::new(value.clone()),
+                        }));
+                        if !end {
+                            adds.insert(value.clone(), ops.len() - 1);
+                        }
+                    }
                 };
-
-                last = curr;
             }
-
-            curr = next;
         }
 
         differ.append(ops)
@@ -241,7 +240,7 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     #[test]
-    fn test_string() {
+    fn basic() {
         let empty = "".to_string();
         let a = "1".to_string();
         let b = "123".to_string();
@@ -378,7 +377,7 @@ mod tests {
     /// Test that works with Unicode graphemes (which are made
     /// up of multiple `char`s).
     #[test]
-    fn test_unicode() {
+    fn unicode() {
         let a = "ä".to_string();
         let b = "ä1👍🏻2".to_string();
         let c = "1👍🏿2".to_string();
@@ -402,5 +401,34 @@ mod tests {
             { "op": "replace", "keys": [3], "items": 1, "value": "🏻" },
         ]);
         assert_eq!(apply_new(&c, &patch), b);
+    }
+
+    /// Regression tests of minimal failing cases found using property testing
+
+    #[test]
+    fn regression_1() {
+        let a = "ab".to_string();
+        let b = "bc".to_string();
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "remove", "keys": [0], "items": 1 },
+            { "op": "add", "keys": [1], "value": "c" },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+    }
+
+    #[test]
+    fn regression_2() {
+        let a = "ac".to_string();
+        let b = "bcd".to_string();
+        let patch = diff(&a, &b);
+        assert_json!(
+            patch,
+            [
+                { "op": "replace", "keys": [0], "items": 1, "value": "b" },
+                { "op": "add", "keys": [2], "value": "d" },
+            ]
+        );
+        assert_eq!(apply_new(&a, &patch), b);
     }
 }
