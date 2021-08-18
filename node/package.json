@@ -11,7 +11,7 @@
     "build:rust": "npm run build:rust:debug -- --release",
     "build:types": "npx ts-node schemas.ts",
     "build:ts": "tsc -p tsconfig.prod.json",
-    "test": "npm run build:rust:debug && jest --forceExit",
+    "test": "npm run build:rust:debug && jest --runInBand --forceExit",
     "cover": "npm run test -- --collectCoverage",
     "docs": "typedoc src/index.ts"
   },
