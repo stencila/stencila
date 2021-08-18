@@ -1,6 +1,6 @@
 use crate::{
     documents::DOCUMENTS,
-    graphs::{resources, Relation, Resource, NULL_RANGE},
+    graphs::{relations, resources, Relation, Resource, NULL_RANGE},
     traits::ToVecBlockContent,
     utils::{hash::str_sha256_bytes, path::merge, uuids},
 };
@@ -52,14 +52,15 @@ trait Compile {
 
 /// Identify a node
 ///
-/// If the node does not have an id, generate and assign one.
+/// If the node does not have an id, generate and assign one with a
+/// leading "_" to indicate it is generated.
 /// Return the node's id.
 macro_rules! identify {
     ($node:expr) => {
         if let Some(id) = $node.id.as_deref() {
             id.clone()
         } else {
-            let id = uuids::generate(uuids::Family::Node);
+            let id = ["_", &uuids::generate_chars(20)].concat();
             $node.id = Some(Box::new(id.clone()));
             id
         }
@@ -465,7 +466,7 @@ impl Compile for Parameter {
 
         context
             .relations
-            .push((subject, vec![(Relation::Assign(NULL_RANGE), object)]));
+            .push((subject, vec![(relations::assigns(NULL_RANGE), object)]));
         Ok(())
     }
 }

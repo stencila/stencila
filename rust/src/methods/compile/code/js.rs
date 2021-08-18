@@ -1,6 +1,6 @@
 use super::{apply_tags, remove_quotes, Capture, Compiler};
 use crate::{
-    graphs::{resources, Relation, Resource},
+    graphs::{relations, resources, Relation, Resource},
     utils::path::merge,
 };
 use once_cell::sync::Lazy;
@@ -117,19 +117,19 @@ pub(crate) fn handle_patterns(
             } else {
                 resources::module("javascript", &module)
             };
-            Some((Relation::Use(range), object))
+            Some((relations::uses(range), object))
         }
         3 => {
             // Reads a file
             Some((
-                Relation::Read(captures[1].range),
+                relations::reads(captures[1].range),
                 resources::file(&merge(path, remove_quotes(&captures[1].text))),
             ))
         }
         4 => {
             // Writes a file
             Some((
-                Relation::Write(captures[1].range),
+                relations::writes(captures[1].range),
                 resources::file(&merge(path, remove_quotes(&captures[1].text))),
             ))
         }
@@ -151,7 +151,7 @@ pub(crate) fn handle_patterns(
                 _ => unreachable!(),
             };
             Some((
-                Relation::Assign(range),
+                relations::assigns(range),
                 resources::symbol(path, &name, kind),
             ))
         }
@@ -213,7 +213,7 @@ pub(crate) fn handle_patterns(
                 parent = parent_node.parent();
             }
 
-            Some((Relation::Use(range), resources::symbol(path, &symbol, "")))
+            Some((relations::uses(range), resources::symbol(path, &symbol, "")))
         }
         _ => None,
     }

@@ -1,6 +1,6 @@
 use super::{apply_tags, captures_as_args_map, is_quoted, remove_quotes, Compiler};
 use crate::{
-    graphs::{resources, Relation, Resource},
+    graphs::{relations, resources, Relation, Resource},
     utils::path::merge,
 };
 use once_cell::sync::Lazy;
@@ -82,7 +82,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     true => resources::file(&path),
                     false => resources::module("python", module),
                 };
-                Some((Relation::Use(range), object))
+                Some((relations::uses(range), object))
             }
             3 => {
                 // Opens a file for reading or writing
@@ -99,12 +99,12 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                         }
                         let mode = remove_quotes(&mode.text);
                         if mode.starts_with('w') || mode.starts_with('a') {
-                            Some((Relation::Write(range), resources::file(&path)))
+                            Some((relations::writes(range), resources::file(&path)))
                         } else {
-                            Some((Relation::Read(range), resources::file(&path)))
+                            Some((relations::reads(range), resources::file(&path)))
                         }
                     } else {
-                        Some((Relation::Read(range), resources::file(&path)))
+                        Some((relations::reads(range), resources::file(&path)))
                     }
                 } else {
                     None
@@ -129,7 +129,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     _ => unreachable!(),
                 };
                 Some((
-                    Relation::Assign(range),
+                    relations::assigns(range),
                     resources::symbol(path, &name, kind),
                 ))
             }
@@ -206,7 +206,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     parent = parent_node.parent();
                 }
 
-                Some((Relation::Use(range), resources::symbol(path, &symbol, "")))
+                Some((relations::uses(range), resources::symbol(path, &symbol, "")))
             }
             _ => None,
         })

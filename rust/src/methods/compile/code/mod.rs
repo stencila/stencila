@@ -2,7 +2,7 @@
 ///!
 ///! Uses `tree-sitter` to parse source code into a abstract syntax tree which is then used to
 ///! derive properties of a `CodeAnalysis`.
-use crate::graphs::{resources, Range, Relation, Resource};
+use crate::graphs::{relations, resources, Range, Relation, Resource};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::{
@@ -327,11 +327,11 @@ fn parse_tags(
         if let Some(captures) = REGEX_TAG.captures(line) {
             let tag = captures[1].to_string();
             let relation = match tag.as_str() {
-                "imports" => Relation::Use(range),
-                "assigns" => Relation::Assign(range),
-                "uses" => Relation::Use(range),
-                "reads" => Relation::Read(range),
-                "writes" => Relation::Write(range),
+                "imports" => relations::uses(range),
+                "assigns" => relations::assigns(range),
+                "uses" => relations::uses(range),
+                "reads" => relations::reads(range),
+                "writes" => relations::writes(range),
                 _ => continue,
             };
 

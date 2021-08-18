@@ -7,7 +7,8 @@ input_file: fixtures/fragments/py/writes.py
 [
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         0,
         0,
         0,
@@ -23,7 +24,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         0,
         12,
         0,
@@ -37,7 +39,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         2,
         0,
         2,
@@ -53,7 +56,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         3,
         10,
         3,
@@ -67,7 +71,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         4,
         12,
         4,
@@ -83,7 +88,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         6,
         5,
         6,
@@ -97,7 +103,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         8,
         10,
         8,
@@ -111,7 +118,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         10,
         4,
         10,
@@ -127,7 +135,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         11,
         9,
         11,
@@ -141,7 +150,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         16,
         5,
         16,
@@ -155,7 +165,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         17,
         5,
         17,
@@ -169,7 +180,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         18,
         10,
         18,
@@ -183,7 +195,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         22,
         0,
         22,
@@ -199,7 +212,8 @@ input_file: fixtures/fragments/py/writes.py
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         23,
         5,
         23,

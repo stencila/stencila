@@ -1,5 +1,5 @@
 use crate::{
-    graphs::{resources, Relation, Triple},
+    graphs::{relations, resources, Triple},
     utils::schemas,
 };
 use async_trait::async_trait;
@@ -124,7 +124,7 @@ impl SourceDestination {
                 .map(|file| {
                     (
                         resources::source(name),
-                        Relation::Import(self.active),
+                        relations::imports(self.active),
                         resources::file(&project.join(file)),
                     )
                 })

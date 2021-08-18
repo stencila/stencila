@@ -7,7 +7,8 @@ input_file: fixtures/fragments/r/writes.R
 [
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         0,
         10,
         0,
@@ -23,7 +24,8 @@ input_file: fixtures/fragments/r/writes.R
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         0,
         16,
         0,
@@ -37,7 +39,8 @@ input_file: fixtures/fragments/r/writes.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         2,
         12,
         2,
@@ -53,7 +56,8 @@ input_file: fixtures/fragments/r/writes.R
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         2,
         25,
         2,
@@ -67,7 +71,8 @@ input_file: fixtures/fragments/r/writes.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         4,
         0,
         4,
@@ -83,7 +88,8 @@ input_file: fixtures/fragments/r/writes.R
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         5,
         29,
         5,
@@ -97,7 +103,8 @@ input_file: fixtures/fragments/r/writes.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         8,
         17,
         8,
@@ -113,7 +120,8 @@ input_file: fixtures/fragments/r/writes.R
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         8,
         31,
         8,
@@ -127,7 +135,8 @@ input_file: fixtures/fragments/r/writes.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         12,
         12,
         12,
@@ -143,7 +152,8 @@ input_file: fixtures/fragments/r/writes.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         12,
         18,
         12,
@@ -159,7 +169,8 @@ input_file: fixtures/fragments/r/writes.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         14,
         10,
         14,
@@ -175,7 +186,8 @@ input_file: fixtures/fragments/r/writes.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         14,
         23,
         14,

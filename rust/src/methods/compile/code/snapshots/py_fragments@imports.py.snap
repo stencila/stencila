@@ -7,7 +7,8 @@ input_file: fixtures/fragments/py/imports.py
 [
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         0,
         7,
         0,
@@ -22,7 +23,8 @@ input_file: fixtures/fragments/py/imports.py
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         1,
         5,
         1,
@@ -37,7 +39,8 @@ input_file: fixtures/fragments/py/imports.py
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         2,
         5,
         2,
@@ -52,7 +55,8 @@ input_file: fixtures/fragments/py/imports.py
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         3,
         5,
         3,
