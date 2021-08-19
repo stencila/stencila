@@ -430,6 +430,7 @@ impl Project {
             Ok(())
         }
         if let Some(path) = self.main_path.as_ref() {
+            graph.add_resource(resources::file(path));
             walk(&mut Vec::new(), path, &mut graph).await?;
         }
 
