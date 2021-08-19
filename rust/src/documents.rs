@@ -596,9 +596,7 @@ impl Document {
 
         // Compile the `root` and update document intra- and inter- dependencies
         let compilation = compile(&mut root, &self.path, &self.project).await?;
-        if !compilation.relations.is_empty() {
-            self.relations.extend(compilation.relations)
-        }
+        self.relations = compilation.relations.into_iter().collect();
 
         // Encode the `root` into each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {
