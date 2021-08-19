@@ -51,6 +51,7 @@
     "Stencila",
     "canonicalize",
     "concat",
+    "diffable",
     "inlines",
     "itemprop",
     "itemscope",

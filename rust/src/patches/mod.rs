@@ -433,6 +433,25 @@ macro_rules! diffable_diff {
     };
 }
 
+/// Macro to generate the `impl Diffable` for a type
+macro_rules! diffable_todo {
+    ($type:ty) => {
+        impl Diffable for $type {
+            diffable_is_same!($type);
+
+            fn is_equal(&self, _other: &Self) -> Result<()> {
+                todo!()
+            }
+
+            diffable_diff!($type);
+
+            fn diff_same(&self, _differ: &mut Differ, _other: &Self) {
+                todo!()
+            }
+        }
+    };
+}
+
 mod prelude;
 
 mod atomics;

@@ -39,6 +39,15 @@ pub mod methods {
     pub mod execute;
 }
 
+// Macros
+//
+// Helper macros for `Node` enums etc
+
+pub mod macros {
+    mod dispatch_enums;
+    pub use dispatch_enums::*;
+}
+
 // Traits
 //
 // Helper traits for `Node` structs and vectors are useful across
