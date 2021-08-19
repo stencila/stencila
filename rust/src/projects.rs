@@ -405,6 +405,8 @@ impl Project {
     /// Starts at the main document and walks over related files (linked to, imported from etc)
     /// building up the graph. Also adds sources and their relations to files.
     pub async fn compile(&mut self) -> Result<&mut Project> {
+        tracing::debug!("Compiling project: {}", self.path.display());
+
         let mut graph = Graph::new();
 
         // Walk over files starting at the main file
