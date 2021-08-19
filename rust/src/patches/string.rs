@@ -78,13 +78,6 @@ impl Diffable for String {
                 }
             }
 
-            /*
-            println!(
-                "{:?} {} {} {} {} {} {} {}",
-                change, index, position, last, curr, items, value, replace
-            );
-            */
-
             let end = index == changes.len() - 1;
             if (index > 0 && curr != last) || end {
                 // Generate a keys for a string position index
