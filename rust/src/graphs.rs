@@ -1,4 +1,4 @@
-use crate::utils::schemas;
+use crate::{pubsub::publish, utils::schemas};
 use derivative::Derivative;
 use eyre::Result;
 use path_slash::PathExt;
@@ -7,14 +7,15 @@ use petgraph::{
     stable_graph::StableGraph,
     visit::{EdgeRef, IntoEdgeReferences, IntoNodeReferences},
 };
-use schemars::JsonSchema;
+use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{ser::SerializeMap, Serialize};
 use serde_json::json;
+use serde_with::skip_serializing_none;
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
 };
-use strum::Display;
+use strum::{Display, ToString};
 
 /// A resource in a dependency graph (the nodes of the graph)
 #[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
@@ -573,6 +574,49 @@ impl Graph {
     }
 }
 
+#[derive(Debug, JsonSchema, Serialize, ToString)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum GraphEventType {
+    Updated,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct GraphEvent {
+    /// The path of the project (absolute)
+    project: PathBuf,
+
+    /// The type of event
+    #[serde(rename = "type")]
+    type_: GraphEventType,
+
+    /// The graph at the time of the event
+    #[schemars(schema_with = "GraphEvent::schema_graph")]
+    graph: Graph,
+}
+
+impl GraphEvent {
+    /// Generate the JSON Schema for the `graph` property to avoid nesting
+    fn schema_graph(_generator: &mut SchemaGenerator) -> Schema {
+        schemas::typescript("Graph", true)
+    }
+
+    /// Publish a `GraphEvent`.
+    ///
+    /// Will publish an event under the `projects:<project>:graph` topic.
+    pub fn publish(project: &Path, type_: GraphEventType, graph: &Graph) {
+        let topic = &format!("projects:{}:graph", project.display());
+        let event = GraphEvent {
+            project: project.to_path_buf(),
+            type_,
+            graph: graph.clone(),
+        };
+        publish(topic, &event)
+    }
+}
+
 /// Get JSON Schemas for this modules
 pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![
@@ -608,33 +652,31 @@ pub fn schemas() -> Result<serde_json::Value> {
                     "description": "The resources in the graph",
                     "type": "array",
                     "items": {
-                        "tsType": "Resource",
-                        "isRequired": true
-                    }
+                        "tsType": "Resource"
+                    },
+                    "isRequired": true
                 },
                 "edges": {
                     "description": "The relations between resources in the graph",
                     "type": "array",
                     "items": {
-                        "type": "array",
-                        "items": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "tsType": "Relation"
+                        "type": "object",
+                        "required": ["from", "to", "relation"],
+                        "properties": {
+                            "from": "integer",
+                            "to": "integer",
+                            "relation" : {
+                                "tsType": "Resource"
                             }
-                        ],
-                        "minItems": 3,
-                        "maxItems": 3
-                    }
+                        },
+                        "additionalProperties": false
+                    },
+                    "isRequired": true
                 }
             },
             "additionalProperties": false
         }),
+        schemas::generate::<GraphEvent>()?,
     ]);
     Ok(schemas)
 }

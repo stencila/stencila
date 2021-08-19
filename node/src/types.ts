@@ -423,7 +423,26 @@ export interface Graph {
   /**
    * The relations between resources in the graph
    */
-  edges: [number, number, Relation][]
+  edges: {
+    from: 'integer'
+    to: 'integer'
+    relation: Resource
+  }[]
+}
+
+export interface GraphEvent {
+  /**
+   * The path of the project (absolute)
+   */
+  project: string
+  /**
+   * The type of event
+   */
+  type: 'updated'
+  /**
+   * The graph at the time of the event
+   */
+  graph: Graph
 }
 
 /**

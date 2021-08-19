@@ -11,7 +11,7 @@ import {
   subscribe,
   write,
 } from './projects'
-import { FileEvent, ProjectEvent } from './types'
+import { FileEvent, GraphEvent, ProjectEvent } from './types'
 
 /**
  * Get the path to one of the project fixtures
@@ -82,11 +82,14 @@ test('open: manifest', () => {
 
 /**
  * Test of a workflow involving opening and modifying a project
+ * and receiving events for: updated properties and graph and
+ * any file events within the project 
  */
 test('workflow: open and modify', async () => {
   const folder = tmp.dirSync().name
   let projectEvents: ProjectEvent[] = []
   let fileEvents: FileEvent[] = []
+  let graphEvents: GraphEvent[] = []
 
   // Open the project
   const project = open(folder)
@@ -104,11 +107,15 @@ test('workflow: open and modify', async () => {
   subscribe(folder, ['files'], (_topic, event) =>
     fileEvents.push(event as FileEvent)
   )
+  subscribe(folder, ['graph'], (_topic, event) =>
+    graphEvents.push(event as GraphEvent)
+  )
 
   // Wait for events to propagate before clearing event arrays
   await delay(500)
   projectEvents = []
   fileEvents = []
+  graphEvents = []
 
   // Modify the project.json file on disk
   fs.writeFileSync(
@@ -136,6 +143,17 @@ test('workflow: open and modify', async () => {
       expect.objectContaining({
         type: 'created',
         path: path.join(folder, 'project.json'),
+      }),
+    ])
+  )
+  expect(graphEvents).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        type: 'updated',
+        graph: expect.objectContaining({
+          nodes: expect.arrayContaining([]),
+          edges: expect.arrayContaining([])
+        })
       }),
     ])
   )
