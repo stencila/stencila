@@ -407,7 +407,7 @@ impl Project {
     pub async fn compile(&mut self) -> Result<&mut Project> {
         tracing::debug!("Compiling project: {}", self.path.display());
 
-        let mut graph = Graph::new();
+        let mut graph = Graph::new(self.path.clone());
 
         // Walk over files starting at the main file
         #[async_recursion::async_recursion]
@@ -595,7 +595,7 @@ impl Project {
     /// Get the project graph in some format
     pub fn graph(&self, format: &str) -> Result<String> {
         Ok(match format {
-            "dot" => self.graph.to_dot(&self.path),
+            "dot" => self.graph.to_dot(),
             "json" => serde_json::to_string_pretty(&self.graph)?,
             "yaml" => serde_yaml::to_string(&self.graph)?,
             _ => bail!("Unknown graph format '{}'", format),

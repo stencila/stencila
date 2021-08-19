@@ -296,27 +296,87 @@ pub fn direction(relation: &Relation) -> Direction {
 pub type Triple = (Resource, Relation, Resource);
 
 /// A project dependency graph
-#[derive(Debug, Default, Clone, Serialize)]
+#[derive(Debug, Default, Clone)]
 pub struct Graph {
+    /// The path of the project that this graph is for
+    ///
+    /// Primarily used to make file paths relative in visualizations and
+    /// if ever persisting the graph.
+    path: PathBuf,
+
     /// The graph itself
     ///
     /// Use a `petgraph::StableGraph` so that nodes can be added and removed
     /// without changing node indices.
-    #[serde(flatten, serialize_with = "Graph::serialize_graph")]
     graph: StableGraph<Resource, Relation>,
 
     /// Indices of the nodes in the tree
     ///
     /// This is necessary to keep track of which resources
     /// are already in the graph and re-use their index if they are.
-    #[serde(skip)]
     indices: HashMap<Resource, NodeIndex>,
+}
+
+impl Serialize for Graph {
+    /// Custom serialization to strip prefix from paths, add stable node indices,
+    /// and exclude properties that are included by default by `petgraph` (e.g `node_holes`).
+    ///
+    /// Our general approach is to keep paths absolute whilst in memory and only convert to
+    /// relative when necessary (e.g. visualizations). See also `Graph::to_dot`.
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let nodes: Vec<serde_json::Value> = self
+            .graph
+            .node_references()
+            .map(|(index, resource)| {
+                let mut obj = serde_json::to_value(resource).expect("To be able to serialize");
+                let obj = obj.as_object_mut().expect("To be an object");
+
+                // Strip prefix from paths
+                if let Some(path) = match resource {
+                    Resource::Symbol(symbol) => Some(symbol.path.clone()),
+                    Resource::Node(node) => Some(node.path.clone()),
+                    Resource::File(file) => Some(file.path.clone()),
+                    _ => None,
+                } {
+                    let path = path
+                        .strip_prefix(&self.path)
+                        .unwrap_or(&path)
+                        .to_slash_lossy();
+                    obj.insert("path".to_string(), json!(path));
+                }
+
+                obj.insert("index".to_string(), json!(index));
+                json!(obj)
+            })
+            .collect();
+
+        let edges: Vec<serde_json::Value> = self
+            .graph
+            .edge_references()
+            .map(|edge| -> serde_json::Value {
+                json!({
+                    "from": edge.source(),
+                    "to": edge.target(),
+                    "relation": edge.weight()
+                })
+            })
+            .collect();
+
+        let mut map = serializer.serialize_map(Some(2))?;
+        map.serialize_entry("nodes", &nodes)?;
+        map.serialize_entry("edges", &edges)?;
+        map.end()
+    }
 }
 
 impl Graph {
     /// Create a new graph
-    pub fn new() -> Graph {
+    pub fn new(path: PathBuf) -> Graph {
         Graph {
+            path,
             indices: HashMap::new(),
             graph: StableGraph::new(),
         }
@@ -363,44 +423,8 @@ impl Graph {
             .for_each(|triple| self.add_triple(triple))
     }
 
-    /// Custom serializer to add stable node indices and exclude properties that
-    /// are included by default by `petgraph` (e.g `node_holes`).
-    fn serialize_graph<S>(
-        graph: &StableGraph<Resource, Relation>,
-        serializer: S,
-    ) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let nodes: Vec<serde_json::Value> = graph
-            .node_references()
-            .map(|(index, resource)| {
-                let mut obj = serde_json::to_value(resource).expect("To be able to serialize");
-                let obj = obj.as_object_mut().expect("To be an object");
-                obj.insert("index".to_string(), json!(index));
-                json!(obj)
-            })
-            .collect();
-
-        let edges: Vec<serde_json::Value> = graph
-            .edge_references()
-            .map(|edge| -> serde_json::Value {
-                json!({
-                    "from": edge.source(),
-                    "to": edge.target(),
-                    "relation": edge.weight()
-                })
-            })
-            .collect();
-
-        let mut map = serializer.serialize_map(Some(2))?;
-        map.serialize_entry("nodes", &nodes)?;
-        map.serialize_entry("edges", &edges)?;
-        map.end()
-    }
-
     /// Convert the graph to a visualization nodes and edges
-    pub fn to_dot(&self, base_path: &Path) -> String {
+    pub fn to_dot(&self) -> String {
         let nodes = self
             .indices
             .iter()
@@ -413,10 +437,10 @@ impl Graph {
                     Resource::File(file) => file.path.clone(),
                     _ => PathBuf::new(),
                 };
-                let path = pathdiff::diff_paths(&path, base_path)
-                    .unwrap_or_default()
-                    .to_string_lossy()
-                    .to_string();
+                let path = path
+                    .strip_prefix(&self.path)
+                    .unwrap_or(&path)
+                    .to_slash_lossy();
 
                 let (shape, fill_color, label) = match resource {
                     Resource::Symbol(symbol) => (
@@ -474,10 +498,10 @@ impl Graph {
             clusters
                 .keys()
                 .position(|key| {
-                    key == pathdiff::diff_paths(path, base_path)
-                        .unwrap_or_default()
-                        .to_str()
-                        .unwrap_or_default()
+                    key == &path
+                        .strip_prefix(&self.path)
+                        .unwrap_or(path)
+                        .to_slash_lossy()
                 })
                 .unwrap_or(0)
         };
