@@ -325,6 +325,14 @@ macro_rules! invalid_index {
     };
 }
 
+macro_rules! invalid_value {
+    () => {
+        report(Error::InvalidPatchValue {
+            type_name: type_name::<Self>().into(),
+        })
+    };
+}
+
 pub trait Diffable {
     /// Test whether a node is the same as (i.e. equal type and equal value)
     /// another node of any type.

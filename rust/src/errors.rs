@@ -53,6 +53,11 @@ pub enum Error {
     #[error("Invalid patch index '{index}' for type '{type_name}'")]
     InvalidPatchIndex { index: usize, type_name: String },
 
+    /// The user attempted to apply a patch operation with an invalid
+    /// value for the type.
+    #[error("Invalid patch value for type '{type_name}'")]
+    InvalidPatchValue { type_name: String },
+
     /// The user attempted to open a document with an unknown format
     #[error("Unknown format '{format}'")]
     UnknownFormat { format: String },
