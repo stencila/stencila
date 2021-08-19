@@ -8,8 +8,21 @@ use proptest::prelude::*;
 use stencila::patches::{apply_new, diff};
 
 proptest! {
+    /// Any two strings including all unicode graphemes
     #[test]
-    fn string(a in any::<String>(), b in any::<String>()) {
+    fn strings_any(a in any::<String>(), b in any::<String>()) {
+        let patch = diff(&a, &b);
+        assert_eq!(apply_new(&a, &patch), b)
+    }
+
+    /// Zero to ten letters from a restricted range
+    ///
+    /// This test is useful because `strings_any` has a very low
+    /// probability of generating `move` operations (because of the
+    /// low probability of the same character appearing twice) and so was
+    /// missing a bug associated with that operation.
+    #[test]
+    fn strings_restricted(a in "[a-e]{0,10}", b in "[a-e]{0,10}") {
         let patch = diff(&a, &b);
         assert_eq!(apply_new(&a, &patch), b)
     }
