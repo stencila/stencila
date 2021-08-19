@@ -424,6 +424,7 @@ macro_rules! compile_media_object {
                     let object = if url.starts_with("http") {
                         resources::url(&url)
                     } else {
+                        let url = url.strip_prefix("file://").unwrap_or(&url);
                         resources::file(&Path::new(&url))
                     };
 
