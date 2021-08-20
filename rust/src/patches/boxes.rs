@@ -6,7 +6,7 @@ where
     Type: Clone + 'static,
 {
     // All methods simply pass throught o the boxed value
-    
+
     diffable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {

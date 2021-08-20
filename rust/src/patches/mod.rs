@@ -588,11 +588,11 @@ macro_rules! diffable_todo {
 mod prelude;
 
 mod atomics;
-mod string;
+mod strings;
 
-mod option;
 mod boxes;
-mod vec;
+mod options;
+mod vecs;
 
 mod blocks;
 mod inlines;
