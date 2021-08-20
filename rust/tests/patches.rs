@@ -19,8 +19,11 @@ proptest! {
     ///
     /// This test is useful because `strings_any` has a very low
     /// probability of generating `move` operations (because of the
-    /// low probability of the same character appearing twice) and so was
-    /// missing a bug associated with that operation.
+    /// low probability of the same character appearing twice) and so
+    /// was missing a bug associated with that operation.
+    ///
+    /// Move opertions have since been removed for strings but this
+    /// test has been kept anyway.
     #[test]
     fn strings_restricted(a in "[a-e]{0,10}", b in "[a-e]{0,10}") {
         let patch = diff(&a, &b);
