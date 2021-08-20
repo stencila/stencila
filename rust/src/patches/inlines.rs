@@ -8,7 +8,7 @@ use stencila_schema::{
 };
 
 impl Diffable for InlineContent {
-    diffable_is_same!(InlineContent);
+    diffable_is_same!();
 
     #[rustfmt::skip]
     fn is_equal(&self, other: &Self) -> Result<()> {
@@ -37,13 +37,13 @@ impl Diffable for InlineContent {
             (InlineContent::Subscript(me), InlineContent::Subscript(other)) => me.is_equal(other),
             (InlineContent::Superscript(me), InlineContent::Superscript(other)) => me.is_equal(other),
             (InlineContent::VideoObject(me), InlineContent::VideoObject(other)) => me.is_equal(other),
-            
+
             // Different variants so by definition not equal
             _ => bail!(Error::NotEqual),
         }
     }
 
-    diffable_diff!(InlineContent);
+    diffable_diff!();
 
     #[rustfmt::skip]
     fn diff_same(&self, differ: &mut Differ, other: &Self) {
@@ -72,7 +72,7 @@ impl Diffable for InlineContent {
             (InlineContent::Subscript(me), InlineContent::Subscript(other)) => me.diff_same(differ, other),
             (InlineContent::Superscript(me), InlineContent::Superscript(other)) => me.diff_same(differ, other),
             (InlineContent::VideoObject(me), InlineContent::VideoObject(other)) => me.diff_same(differ, other),
-            
+
             // Different variants so attempt to transform from one to the other
             _ => {
                 let self_variant = self.as_ref();
@@ -104,6 +104,7 @@ impl Diffable for InlineContent {
         dispatch_inline!(self, apply_move, from, items, to);
     }
 
+    /// Apply a transform between variants of `InlineContent`
     fn apply_transform(&mut self, keys: &mut Keys, from: &str, to: &str) {
         if keys.is_empty() {
             assert_eq!(from, self.as_ref(), "Expected the same type");
@@ -126,18 +127,18 @@ impl Diffable for InlineContent {
 diffable_todo!(AudioObjectSimple);
 diffable_todo!(Cite);
 diffable_todo!(CiteGroup);
-diffable_todo!(CodeExpression);
-diffable_todo!(CodeFragment);
-diffable_todo!(Delete);
-diffable_todo!(Emphasis);
+diffable_struct!(CodeExpression, programming_language, text);
+diffable_struct!(CodeFragment, programming_language, text);
+diffable_struct!(Delete, content);
+diffable_struct!(Emphasis, content);
 diffable_todo!(ImageObjectSimple);
 diffable_todo!(Link);
-diffable_todo!(MathFragment);
-diffable_todo!(NontextualAnnotation);
+diffable_struct!(MathFragment, math_language, text);
+diffable_struct!(NontextualAnnotation, content);
 diffable_todo!(Note);
 diffable_todo!(Parameter);
 diffable_todo!(Quote);
-diffable_todo!(Strong);
-diffable_todo!(Subscript);
-diffable_todo!(Superscript);
+diffable_struct!(Strong, content);
+diffable_struct!(Subscript, content);
+diffable_struct!(Superscript, content);
 diffable_todo!(VideoObjectSimple);

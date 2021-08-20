@@ -6,8 +6,8 @@ impl<Type: Diffable> Diffable for Vec<Type>
 where
     Type: Clone + 'static,
 {
-    diffable_is_same!(Vec<Type>);
-    diffable_diff!(Vec<Type>);
+    diffable_is_same!();
+    diffable_diff!();
 
     /// Is this vector equal to another?
     ///

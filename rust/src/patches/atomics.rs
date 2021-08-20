@@ -6,7 +6,7 @@ use stencila_schema::{Boolean, Integer, Number};
 macro_rules! diffable_atomic {
     ($type:ty) => {
         impl Diffable for $type {
-            diffable_is_same!($type);
+            diffable_is_same!();
 
             fn is_equal(&self, other: &Self) -> Result<()> {
                 #[allow(clippy::float_cmp)]
@@ -17,7 +17,7 @@ macro_rules! diffable_atomic {
                 }
             }
 
-            diffable_diff!($type);
+            diffable_diff!();
 
             fn diff_same(&self, differ: &mut Differ, other: &Self) {
                 #[allow(clippy::float_cmp)]

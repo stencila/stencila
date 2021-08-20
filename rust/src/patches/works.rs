@@ -2,8 +2,8 @@ use super::prelude::*;
 use stencila_schema::Article;
 
 impl Diffable for Article {
-    diffable_is_same!(Article);
-    diffable_diff!(Article);
+    diffable_is_same!();
+    diffable_diff!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {
         self.content.is_equal(&other.content)?;

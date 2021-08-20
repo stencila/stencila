@@ -407,11 +407,11 @@ pub trait Diffable {
     }
 }
 
-/// Macro to generate the `same` method for a type
+/// Generate the `is_same` method for a type
 macro_rules! diffable_is_same {
-    ($type:ty) => {
+    () => {
         fn is_same<Other: Any + Clone>(&self, other: &Other) -> Result<()> {
-            if let Some(other) = (other as &dyn Any).downcast_ref::<$type>() {
+            if let Some(other) = (other as &dyn Any).downcast_ref::<Self>() {
                 self.is_equal(&other)
             } else {
                 bail!(Error::NotSame)
@@ -420,11 +420,23 @@ macro_rules! diffable_is_same {
     };
 }
 
-/// Macro to generate the `mutate` method for a type
+/// Generate the `is_equal` method for a `struct`
+macro_rules! diffable_is_equal {
+    ($( $field:ident )*) => {
+        fn is_equal(&self, other: &Self) -> Result<()> {
+            $(
+                self.$field.is_equal(&other.$field)?;
+            )*
+            Ok(())
+        }
+    };
+}
+
+/// Generate the `diff` method for a type
 macro_rules! diffable_diff {
-    ($type:ty) => {
+    () => {
         fn diff<Other: Any + Clone>(&self, differ: &mut Differ, other: &Other) {
-            if let Some(other) = (other as &dyn Any).downcast_ref::<$type>() {
+            if let Some(other) = (other as &dyn Any).downcast_ref::<Self>() {
                 self.diff_same(differ, other)
             } else {
                 self.diff_other(differ, other)
@@ -433,17 +445,138 @@ macro_rules! diffable_diff {
     };
 }
 
-/// Macro to generate the `impl Diffable` for a type
+/// Generate the `diff_same` method for a `struct`
+macro_rules! diffable_diff_same {
+    ($( $field:ident )*) => {
+        fn diff_same(&self, differ: &mut Differ, other: &Self) {
+            $(
+                differ.field(stringify!($field), &self.$field, &other.$field);
+            )*
+        }
+    };
+}
+
+/// Generate the `apply_add` method for a `struct`
+macro_rules! diffable_apply_add {
+    ($( $field:ident )*) => {
+        fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
+            if let Some(Key::Name(name)) = keys.pop_front() {
+                match name.as_str() {
+                    $(
+                        stringify!($field) => self.$field.apply_add(keys, value),
+                    )*
+                    _ => invalid_name!(name),
+                }
+            } else {
+                invalid_keys!(keys)
+            }
+        }
+    };
+}
+
+/// Generate the `apply_remove` method for a `struct`
+macro_rules! diffable_apply_remove {
+    ($( $field:ident )*) => {
+        fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
+            if let Some(Key::Name(name)) = keys.pop_front() {
+                match name.as_str() {
+                    $(
+                        stringify!($field) => self.$field.apply_remove(keys, items),
+                    )*
+                    _ => invalid_name!(name),
+                }
+            } else {
+                invalid_keys!(keys)
+            }
+        }
+    };
+}
+
+/// Generate the `apply_replace` method for a `struct`
+macro_rules! diffable_apply_replace {
+    ($( $field:ident )*) => {
+        fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {
+            if let Some(Key::Name(name)) = keys.pop_front() {
+                match name.as_str() {
+                    $(
+                        stringify!($field) => self.$field.apply_replace(keys, items, value),
+                    )*
+                    _ => invalid_name!(name),
+                }
+            } else {
+                invalid_keys!(keys)
+            }
+        }
+    };
+}
+
+/// Generate the `apply_move` method for a `struct`
+macro_rules! diffable_apply_move {
+    ($( $field:ident )*) => {
+        fn apply_move(&mut self, from: &mut Keys, items: usize, to: &mut Keys) {
+            if let (Some(Key::Name(name)), Some(Key::Name(_name_again))) = (from.pop_front(), to.pop_front()) {
+                match name.as_str() {
+                    $(
+                        stringify!($field) => self.$field.apply_move(from, items, to),
+                    )*
+                    _ => invalid_name!(name),
+                }
+            } else {
+                invalid_keys!(from)
+            }
+        }
+    };
+}
+
+/// Generate the `apply_transform` method for a `struct`
+macro_rules! diffable_apply_transform {
+    ($( $field:ident )*) => {
+        fn apply_transform(&mut self, keys: &mut Keys, from: &str, to: &str) {
+            if let Some(Key::Name(name)) = keys.pop_front() {
+                match name.as_str() {
+                    $(
+                        stringify!($field) => self.$field.apply_transform(keys, from, to),
+                    )*
+                    _ => invalid_name!(name),
+                }
+            } else {
+                invalid_keys!(from)
+            }
+        }
+    };
+}
+
+/// Generate all the the  diffable methods for a `struct` by passing
+/// a list of fields tfor comparision, diffing, and applying ops.
+macro_rules! diffable_struct {
+    ($type:ty $(, $field:ident )*) => {
+        impl Diffable for $type {
+            diffable_is_same!();
+            diffable_is_equal!($( $field )*);
+
+            diffable_diff!();
+            diffable_diff_same!($( $field )*);
+
+            diffable_apply_add!($( $field )*);
+            diffable_apply_remove!($( $field )*);
+            diffable_apply_replace!($( $field )*);
+            diffable_apply_move!($( $field )*);
+            diffable_apply_transform!($( $field )*);
+        }
+    };
+}
+
+/// Generate the `impl Diffable` for a type
 macro_rules! diffable_todo {
     ($type:ty) => {
         impl Diffable for $type {
-            diffable_is_same!($type);
+            diffable_is_same!();
 
             fn is_equal(&self, _other: &Self) -> Result<()> {
                 todo!()
             }
 
-            diffable_diff!($type);
+            diffable_diff!();
 
             fn diff_same(&self, _differ: &mut Differ, _other: &Self) {
                 todo!()
@@ -458,6 +591,7 @@ mod atomics;
 mod string;
 
 mod option;
+mod boxes;
 mod vec;
 
 mod blocks;

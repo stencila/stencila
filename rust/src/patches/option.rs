@@ -5,7 +5,7 @@ impl<Type: Diffable> Diffable for Option<Type>
 where
     Type: Clone + 'static,
 {
-    diffable_is_same!(Option<Type>);
+    diffable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {
         match (self, other) {
@@ -15,7 +15,7 @@ where
         }
     }
 
-    diffable_diff!(Option<Type>);
+    diffable_diff!();
 
     fn diff_same(&self, differ: &mut Differ, other: &Self) {
         match (self, other) {

@@ -1,16 +1,19 @@
-use crate::patches::Move;
+use crate::patches::{Move, Transform};
 
 use super::prelude::*;
 use itertools::Itertools;
+use sha2::digest::generic_array::typenum::PInt;
 use similar::{ChangeTag, TextDiff};
 use std::any::{type_name, Any};
+use std::cmp::{max, min};
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, VecDeque};
+use std::convert::TryInto;
 use std::iter::FromIterator;
 use std::ops::Deref;
 
 impl Diffable for String {
-    diffable_is_same!(String);
+    diffable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {
         if self == other {
@@ -20,7 +23,7 @@ impl Diffable for String {
         }
     }
 
-    diffable_diff!(String);
+    diffable_diff!();
 
     fn diff_same(&self, differ: &mut Differ, other: &Self) {
         if self == other {
@@ -31,12 +34,13 @@ impl Diffable for String {
         let mut ops: Vec<Operation> = Vec::new();
         let mut curr: char = 'e';
         let mut replace = false;
-        let mut position = 0;
-        let mut start = 0;
+        let mut position: usize = 0;
+        let mut start: usize = 0;
+        let mut shift: i32 = 0;
         let mut items: usize = 0;
         let mut value: String = String::new();
-        let mut adds: HashMap<String, usize> = HashMap::new();
-        let mut removes: HashMap<String, usize> = HashMap::new();
+        let mut adds: HashMap<String, (usize, i32)> = HashMap::new();
+        let mut removes: HashMap<String, (usize, i32)> = HashMap::new();
 
         let changes = diff.iter_all_changes().collect_vec();
         for (index, change) in changes.iter().enumerate() {
@@ -46,18 +50,21 @@ impl Diffable for String {
                     position += 1;
                     curr = 'e';
                 }
-                ChangeTag::Delete => match last {
-                    'd' => {
-                        items += 1;
-                        value.push_str(change.value());
+                ChangeTag::Delete => {
+                    match last {
+                        'd' => {
+                            items += 1;
+                            value.push_str(change.value());
+                        }
+                        _ => {
+                            curr = 'd';
+                            start = position;
+                            items = 1;
+                            value = change.value().into();
+                        }
                     }
-                    _ => {
-                        curr = 'd';
-                        start = position;
-                        items = 1;
-                        value = change.value().into();
-                    }
-                },
+                    shift -= 1;
+                }
                 ChangeTag::Insert => {
                     match last {
                         'i' => {
@@ -75,8 +82,14 @@ impl Diffable for String {
                         }
                     }
                     position += 1;
+                    shift += 1;
                 }
             }
+
+            println!(
+                "{:?} i{} p{} s{} sh{} ({} {}) {} {} {}",
+                change, index, position, start, shift, last, curr, items, value, replace
+            );
 
             let end = index == changes.len() - 1;
             if (index > 0 && curr != last) || end {
@@ -84,22 +97,27 @@ impl Diffable for String {
                 fn keys(index: usize) -> VecDeque<Key> {
                     VecDeque::from_iter(vec![Key::Index(index)])
                 }
-
                 if (curr == 'e' && last == 'd') || (end && curr == 'd') {
                     if let Entry::Occupied(entry) = adds.entry(value.clone()) {
-                        let index = *entry.get();
-                        let move_ = if let Some(Operation::Add(add)) = ops.get(index) {
+                        let (add_index, add_shift) = *entry.get();
+                        let move_ = if let Some(Operation::Add(add)) = ops.get(add_index) {
+                            println!("Move back {} {} {}", start, shift, add_shift);
                             Operation::Move(Move {
-                                // The add incremented `start`, so we must remove `items`
-                                from: keys(start - items),
+                                // Because the `Move` will replace the previous `Add` we need to account for
+                                // the shifts (additions plus deletions) between it and here as well as the
+                                // inserted items.
+                                from: keys(
+                                    (start as i32 - (shift - add_shift) - items as i32) as usize,
+                                ),
                                 items,
                                 to: add.keys.clone(),
                             })
                         } else {
                             unreachable!()
                         };
-                        ops.remove(index);
-                        ops.push(move_);
+                        // Replace the `Add` with the `Move` and remove the `adds`
+                        // entry so that it is not matched again
+                        ops[add_index] = move_;
                         entry.remove_entry();
                     } else {
                         ops.push(Operation::Remove(Remove {
@@ -107,7 +125,7 @@ impl Diffable for String {
                             items,
                         }));
                         if !end {
-                            removes.insert(value.clone(), ops.len() - 1);
+                            removes.insert(value.clone(), (ops.len() - 1, shift));
                         }
                     }
                 } else if (curr == 'e' && last == 'i') || (end && curr == 'i') {
@@ -118,18 +136,21 @@ impl Diffable for String {
                             value: Box::new(value.clone()),
                         }));
                     } else if let Entry::Occupied(entry) = removes.entry(value.clone()) {
-                        let index = *entry.get();
-                        let move_ = if let Some(Operation::Remove(remove)) = ops.get(index) {
+                        let (remove_index, remove_shift) = *entry.get();
+                        let move_ = if let Some(Operation::Remove(remove)) = ops.get(remove_index) {
+                            println!("Move forward {} {} {}", start, shift, remove_shift);
                             Operation::Move(Move {
                                 from: remove.keys.clone(),
                                 items: remove.items,
-                                to: keys(start),
+                                // Because the `Move` will replace the previous `Remove` we need to account
+                                // for shifts (additions plus deletions) between it and here as well as the
+                                // deleted items.
+                                to: keys((start as i32 - (shift - remove_shift)) as usize),
                             })
                         } else {
                             unreachable!()
                         };
-                        ops.remove(index);
-                        ops.push(move_);
+                        ops[remove_index] = move_;
                         entry.remove_entry();
                     } else {
                         ops.push(Operation::Add(Add {
@@ -137,7 +158,7 @@ impl Diffable for String {
                             value: Box::new(value.clone()),
                         }));
                         if !end {
-                            adds.insert(value.clone(), ops.len() - 1);
+                            adds.insert(value.clone(), (ops.len() - 1, shift));
                         }
                     }
                 };
@@ -184,9 +205,9 @@ impl Diffable for String {
             let chars = if from < to {
                 [
                     &chars[..from],
-                    &chars[(from + items)..(to + items)],
+                    &chars[(from + items)..to],
                     &chars[from..(from + items)],
-                    &chars[(to + items)..],
+                    if to < chars.len() { &chars[to..] } else { &[] },
                 ]
             } else {
                 [
@@ -315,14 +336,14 @@ mod tests {
 
         // Move
 
-        let patch = diff(&d, &e);
+        /*let patch = diff(&d, &e);
         assert_json!(
             patch,
             [
                 { "op": "move", "from": [1], "items": 2, "to": [4] },
             ]
         );
-        assert_eq!(apply_new(&d, &patch), e);
+        assert_eq!(apply_new(&d, &patch), e);*/
 
         let patch = diff(&e, &d);
         assert_json!(
@@ -396,7 +417,8 @@ mod tests {
         assert_eq!(apply_new(&c, &patch), b);
     }
 
-    /// Regression tests of minimal failing cases found using property testing
+    // Regression tests of minimal failing cases found using property testing
+    // and elsewhere.
 
     #[test]
     fn regression_1() {
@@ -420,6 +442,57 @@ mod tests {
             [
                 { "op": "replace", "keys": [0], "items": 1, "value": "b" },
                 { "op": "add", "keys": [2], "value": "d" },
+            ]
+        );
+        assert_eq!(apply_new(&a, &patch), b);
+    }
+
+    #[test]
+    fn regression_3() {
+        let a = "abcde".to_string();
+        let b = "dace".to_string();
+        let patch = diff(&a, &b);
+        assert_json!(
+            patch,
+            [
+                { "op": "move", "from": [3], "items": 1, "to": [0] },
+                { "op": "remove", "keys": [2], "items": 1 },
+            ]
+        );
+        assert_eq!(apply_new(&a, &patch), b);
+
+        let a = "adebc".to_string();
+        let b = "abcde".to_string();
+        let patch = diff(&a, &b);
+        assert_json!(
+            patch,
+            [
+                { "op": "move", "from": [3], "items": 2, "to": [1] },
+            ]
+        );
+        assert_eq!(apply_new(&a, &patch), b);
+
+        let a = "ecdaa".to_string();
+        let b = "caad".to_string();
+        let patch = diff(&a, &b);
+        assert_json!(
+            patch,
+            [
+                { "op": "remove", "keys": [0], "items": 1 },
+                { "op": "move", "from": [1], "items": 1, "to": [4] },
+            ]
+        );
+        assert_eq!(apply_new(&a, &patch), b);
+
+        let a = "ecdaa".to_string();
+        let b = "cabbad".to_string();
+        let patch = diff(&a, &b);
+        assert_json!(
+            patch,
+            [
+                { "op": "remove", "keys": [0], "items": 1 },
+                { "op": "move", "from": [1], "items": 1, "to": [4] },
+                { "op": "add", "keys": [2], "value": "bb" },
             ]
         );
         assert_eq!(apply_new(&a, &patch), b);
