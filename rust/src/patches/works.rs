@@ -1,9 +1,9 @@
 use super::prelude::*;
 use stencila_schema::Article;
 
-impl Diffable for Article {
-    diffable_is_same!();
-    diffable_diff!();
+impl Patchable for Article {
+    patchable_is_same!();
+    patchable_diff!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {
         self.content.is_equal(&other.content)?;

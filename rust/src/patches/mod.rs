@@ -12,7 +12,7 @@ use stencila_schema::{BlockContent, Boolean, InlineContent, Integer, Number};
 /// Whether or not two nodes are the same type and value.
 pub fn same<Type1, Type2>(node1: &Type1, node2: &Type2) -> bool
 where
-    Type1: Diffable,
+    Type1: Patchable,
     Type2: Clone + 'static,
 {
     node1.is_same(node2).is_ok()
@@ -21,7 +21,7 @@ where
 /// Whether or not two nodes of the same type have equal value.
 pub fn equal<Type>(node1: &Type, node2: &Type) -> bool
 where
-    Type: Diffable,
+    Type: Patchable,
 {
     node1.is_equal(node2).is_ok()
 }
@@ -29,7 +29,7 @@ where
 /// Generate a [`Patch`] describing the difference between two nodes of the same type.
 pub fn diff<Type>(node1: &Type, node2: &Type) -> Patch
 where
-    Type: Diffable,
+    Type: Patchable,
 {
     let mut differ = Differ::default();
     node1.diff_same(&mut differ, node2);
@@ -39,7 +39,7 @@ where
 /// Apply a [`Patch`] to a node of any type.
 pub fn apply<Type>(node: &mut Type, patch: &[Operation])
 where
-    Type: Diffable,
+    Type: Patchable,
 {
     for op in patch {
         node.apply(op)
@@ -49,7 +49,7 @@ where
 /// Apply a [`Patch`] to a clone of a node of any type.
 pub fn apply_new<Type>(node: &Type, patch: &[Operation]) -> Type
 where
-    Type: Diffable + Clone,
+    Type: Patchable + Clone,
 {
     let mut node = node.clone();
     apply(&mut node, patch);
@@ -205,7 +205,7 @@ impl Differ {
     /// Difference a field of a `struct` or an item of a `HashMap`.
     ///
     /// Adds a `Name` key to `keys` and then differences the two values.
-    pub fn field<Type: Diffable>(&mut self, name: &str, value1: &Type, value2: &Type) {
+    pub fn field<Type: Patchable>(&mut self, name: &str, value1: &Type, value2: &Type) {
         self.keys.push_back(Key::Name(name.to_string()));
         value1.diff_same(self, value2);
         self.keys.pop_back();
@@ -214,7 +214,7 @@ impl Differ {
     /// Difference an item in a `Vec`.
     ///
     /// Adds an `Index` key to `keys` and then differences the two values.
-    pub fn item<Type: Diffable>(&mut self, index: usize, value1: &Type, value2: &Type) {
+    pub fn item<Type: Patchable>(&mut self, index: usize, value1: &Type, value2: &Type) {
         self.keys.push_back(Key::Index(index));
         value1.diff_same(self, value2);
         self.keys.pop_back();
@@ -333,7 +333,7 @@ macro_rules! invalid_value {
     };
 }
 
-pub trait Diffable {
+pub trait Patchable {
     /// Test whether a node is the same as (i.e. equal type and equal value)
     /// another node of any type.
     fn is_same<Other: Any + Clone>(&self, other: &Other) -> Result<()>;
@@ -408,7 +408,7 @@ pub trait Diffable {
 }
 
 /// Generate the `is_same` method for a type
-macro_rules! diffable_is_same {
+macro_rules! patchable_is_same {
     () => {
         fn is_same<Other: Any + Clone>(&self, other: &Other) -> Result<()> {
             if let Some(other) = (other as &dyn Any).downcast_ref::<Self>() {
@@ -421,7 +421,7 @@ macro_rules! diffable_is_same {
 }
 
 /// Generate the `is_equal` method for a `struct`
-macro_rules! diffable_is_equal {
+macro_rules! patchable_is_equal {
     ($( $field:ident )*) => {
         fn is_equal(&self, other: &Self) -> Result<()> {
             $(
@@ -433,7 +433,7 @@ macro_rules! diffable_is_equal {
 }
 
 /// Generate the `diff` method for a type
-macro_rules! diffable_diff {
+macro_rules! patchable_diff {
     () => {
         fn diff<Other: Any + Clone>(&self, differ: &mut Differ, other: &Other) {
             if let Some(other) = (other as &dyn Any).downcast_ref::<Self>() {
@@ -446,7 +446,7 @@ macro_rules! diffable_diff {
 }
 
 /// Generate the `diff_same` method for a `struct`
-macro_rules! diffable_diff_same {
+macro_rules! patchable_diff_same {
     ($( $field:ident )*) => {
         fn diff_same(&self, differ: &mut Differ, other: &Self) {
             $(
@@ -457,7 +457,7 @@ macro_rules! diffable_diff_same {
 }
 
 /// Generate the `apply_add` method for a `struct`
-macro_rules! diffable_apply_add {
+macro_rules! patchable_apply_add {
     ($( $field:ident )*) => {
         fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
             if let Some(Key::Name(name)) = keys.pop_front() {
@@ -475,7 +475,7 @@ macro_rules! diffable_apply_add {
 }
 
 /// Generate the `apply_remove` method for a `struct`
-macro_rules! diffable_apply_remove {
+macro_rules! patchable_apply_remove {
     ($( $field:ident )*) => {
         fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
             if let Some(Key::Name(name)) = keys.pop_front() {
@@ -493,7 +493,7 @@ macro_rules! diffable_apply_remove {
 }
 
 /// Generate the `apply_replace` method for a `struct`
-macro_rules! diffable_apply_replace {
+macro_rules! patchable_apply_replace {
     ($( $field:ident )*) => {
         fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {
             if let Some(Key::Name(name)) = keys.pop_front() {
@@ -511,7 +511,7 @@ macro_rules! diffable_apply_replace {
 }
 
 /// Generate the `apply_move` method for a `struct`
-macro_rules! diffable_apply_move {
+macro_rules! patchable_apply_move {
     ($( $field:ident )*) => {
         fn apply_move(&mut self, from: &mut Keys, items: usize, to: &mut Keys) {
             if let (Some(Key::Name(name)), Some(Key::Name(_name_again))) = (from.pop_front(), to.pop_front()) {
@@ -529,7 +529,7 @@ macro_rules! diffable_apply_move {
 }
 
 /// Generate the `apply_transform` method for a `struct`
-macro_rules! diffable_apply_transform {
+macro_rules! patchable_apply_transform {
     ($( $field:ident )*) => {
         fn apply_transform(&mut self, keys: &mut Keys, from: &str, to: &str) {
             if let Some(Key::Name(name)) = keys.pop_front() {
@@ -546,37 +546,37 @@ macro_rules! diffable_apply_transform {
     };
 }
 
-/// Generate all the the  diffable methods for a `struct` by passing
+/// Generate all the the  patchable methods for a `struct` by passing
 /// a list of fields tfor comparision, diffing, and applying ops.
-macro_rules! diffable_struct {
+macro_rules! patchable_struct {
     ($type:ty $(, $field:ident )*) => {
-        impl Diffable for $type {
-            diffable_is_same!();
-            diffable_is_equal!($( $field )*);
+        impl Patchable for $type {
+            patchable_is_same!();
+            patchable_is_equal!($( $field )*);
 
-            diffable_diff!();
-            diffable_diff_same!($( $field )*);
+            patchable_diff!();
+            patchable_diff_same!($( $field )*);
 
-            diffable_apply_add!($( $field )*);
-            diffable_apply_remove!($( $field )*);
-            diffable_apply_replace!($( $field )*);
-            diffable_apply_move!($( $field )*);
-            diffable_apply_transform!($( $field )*);
+            patchable_apply_add!($( $field )*);
+            patchable_apply_remove!($( $field )*);
+            patchable_apply_replace!($( $field )*);
+            patchable_apply_move!($( $field )*);
+            patchable_apply_transform!($( $field )*);
         }
     };
 }
 
-/// Generate the `impl Diffable` for a type
-macro_rules! diffable_todo {
+/// Generate the `impl Patchable` for a type
+macro_rules! patchable_todo {
     ($type:ty) => {
-        impl Diffable for $type {
-            diffable_is_same!();
+        impl Patchable for $type {
+            patchable_is_same!();
 
             fn is_equal(&self, _other: &Self) -> Result<()> {
                 todo!()
             }
 
-            diffable_diff!();
+            patchable_diff!();
 
             fn diff_same(&self, _differ: &mut Differ, _other: &Self) {
                 todo!()

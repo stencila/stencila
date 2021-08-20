@@ -2,11 +2,11 @@ use super::prelude::*;
 use std::ops::Deref;
 use stencila_schema::{Boolean, Integer, Number};
 
-/// Macro to generate `impl Diffable` for atomic types
-macro_rules! diffable_atomic {
+/// Macro to generate `impl Patchable` for atomic types
+macro_rules! patchable_atomic {
     ($type:ty) => {
-        impl Diffable for $type {
-            diffable_is_same!();
+        impl Patchable for $type {
+            patchable_is_same!();
 
             fn is_equal(&self, other: &Self) -> Result<()> {
                 #[allow(clippy::float_cmp)]
@@ -17,7 +17,7 @@ macro_rules! diffable_atomic {
                 }
             }
 
-            diffable_diff!();
+            patchable_diff!();
 
             fn diff_same(&self, differ: &mut Differ, other: &Self) {
                 #[allow(clippy::float_cmp)]
@@ -37,9 +37,9 @@ macro_rules! diffable_atomic {
     };
 }
 
-diffable_atomic!(Boolean);
-diffable_atomic!(Integer);
-diffable_atomic!(Number);
+patchable_atomic!(Boolean);
+patchable_atomic!(Integer);
+patchable_atomic!(Number);
 
 #[cfg(test)]
 mod tests {

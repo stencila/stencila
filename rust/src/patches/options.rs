@@ -1,11 +1,18 @@
 use super::prelude::*;
 use std::ops::Deref;
 
-impl<Type: Diffable> Diffable for Option<Type>
+/// Implements patching for `Option`
+///
+/// Generates `Add` and `Remove` operations (with no keys) given differences in
+/// `Some` and `None` between the two options.
+/// When applying `Add` and `Remove` operations, if there are no keys
+/// then apply here, otherwise pass operation through to any value.
+/// All other operations passed through.
+impl<Type: Patchable> Patchable for Option<Type>
 where
     Type: Clone + 'static,
 {
-    diffable_is_same!();
+    patchable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {
         match (self, other) {
@@ -15,7 +22,7 @@ where
         }
     }
 
-    diffable_diff!();
+    patchable_diff!();
 
     fn diff_same(&self, differ: &mut Differ, other: &Self) {
         match (self, other) {
@@ -25,9 +32,6 @@ where
             (Some(me), Some(other)) => me.diff_same(differ, other),
         }
     }
-
-    // For `Add` and `Remove`, if there are no keys then apply here, otherwise
-    // pass operation through to any value
 
     fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
         if keys.is_empty() {
@@ -146,16 +150,6 @@ mod tests {
         assert_json!(
             patch,
             [{"op": "replace", "keys": [1], "items": 1, "value": "@"}]
-        );
-        assert_json!(apply_new(&a, &patch), b);
-
-        // Move
-        let a = Some("abc".to_string());
-        let b = Some("bca".to_string());
-        let patch = diff(&a, &b);
-        assert_json!(
-            patch,
-            [{"op": "move", "from": [0], "items": 1, "to": [2]}]
         );
         assert_json!(apply_new(&a, &patch), b);
     }

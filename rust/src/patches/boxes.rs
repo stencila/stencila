@@ -1,19 +1,20 @@
 use super::prelude::*;
 use std::ops::{Deref, DerefMut};
 
-impl<Type: Diffable> Diffable for Box<Type>
+/// Implements patching for `Box`
+///
+/// All methods simply pass throught to the boxed value.
+impl<Type: Patchable> Patchable for Box<Type>
 where
     Type: Clone + 'static,
 {
-    // All methods simply pass throught o the boxed value
-
-    diffable_is_same!();
+    patchable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {
         self.deref().is_equal(other)
     }
 
-    diffable_diff!();
+    patchable_diff!();
 
     fn diff_same(&self, differ: &mut Differ, other: &Self) {
         self.deref().diff_same(differ, other)
@@ -52,18 +53,16 @@ mod tests {
     fn basic() {
         assert!(equal::<Box<Integer>>(&Box::new(1), &Box::new(1)));
 
-        // Add, remove, replace, move
-        let a = Box::new("abcde".to_string());
-        let b = Box::new("dace".to_string());
+        // Add, remove, replace
+        let a = Box::new("abcd".to_string());
+        let b = Box::new("eacp".to_string());
         let patch = diff(&a, &b);
         assert_json!(
             patch,
             [
+                {"op": "add", "keys": [0], "value": "e"},
                 {"op": "remove", "keys": [2], "items": 1},
-                {"op": "move", "from": [2], "items": 1, "to": [0]},
-                //{"op": "replace", "keys": [5], "items": 4, "value": "add"},
-               // {"op": "replace", "keys": [14], "items": 6, "value": "n"},
-                //{"op": "add", "keys": [16], "value": "w"},
+                {"op": "replace", "keys": [3], "items": 1, "value": "p"}
             ]
         );
         assert_json!(apply_new(&a, &patch), b);

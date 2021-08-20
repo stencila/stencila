@@ -5,8 +5,8 @@ use stencila_schema::{
     Include, List, MathBlock, Paragraph, QuoteBlock, TableSimple, ThematicBreak,
 };
 
-impl Diffable for BlockContent {
-    diffable_is_same!();
+impl Patchable for BlockContent {
+    patchable_is_same!();
 
     #[rustfmt::skip]
     fn is_equal(&self, other: &Self) -> Result<()> {
@@ -31,7 +31,7 @@ impl Diffable for BlockContent {
         }
     }
 
-    diffable_diff!();
+    patchable_diff!();
 
     #[rustfmt::skip]
     fn diff_same(&self, differ: &mut Differ, other: &Self) {
@@ -87,16 +87,16 @@ impl Diffable for BlockContent {
     }
 }
 
-diffable_struct!(ClaimSimple, content);
-diffable_struct!(CodeBlock, programming_language, text);
-diffable_struct!(CodeChunk, programming_language, text);
-diffable_todo!(CollectionSimple);
-diffable_todo!(FigureSimple);
-diffable_todo!(Heading);
-diffable_struct!(Include, source);
-diffable_todo!(List);
-diffable_struct!(MathBlock, math_language, text);
-diffable_struct!(Paragraph, content);
-diffable_struct!(QuoteBlock, content);
-diffable_todo!(TableSimple);
-diffable_struct!(ThematicBreak, id);
+patchable_struct!(ClaimSimple, content);
+patchable_struct!(CodeBlock, programming_language, text);
+patchable_struct!(CodeChunk, programming_language, text);
+patchable_todo!(CollectionSimple);
+patchable_todo!(FigureSimple);
+patchable_todo!(Heading);
+patchable_struct!(Include, source);
+patchable_todo!(List);
+patchable_struct!(MathBlock, math_language, text);
+patchable_struct!(Paragraph, content);
+patchable_struct!(QuoteBlock, content);
+patchable_todo!(TableSimple);
+patchable_struct!(ThematicBreak, id);

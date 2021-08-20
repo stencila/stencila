@@ -2,12 +2,12 @@ use super::prelude::*;
 use std::cmp::min;
 use std::ops::Deref;
 
-impl<Type: Diffable> Diffable for Vec<Type>
+impl<Type: Patchable> Patchable for Vec<Type>
 where
     Type: Clone + 'static,
 {
-    diffable_is_same!();
-    diffable_diff!();
+    patchable_is_same!();
+    patchable_diff!();
 
     /// Is this vector equal to another?
     ///

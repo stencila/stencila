@@ -1,4 +1,4 @@
-pub use super::{Diffable, Differ, Key, Keys, Operation};
+pub use super::{Differ, Key, Keys, Operation, Patchable};
 pub use crate::{
     errors::{report, Error},
     patches::{Add, Remove, Replace},

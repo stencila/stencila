@@ -12,8 +12,8 @@ use std::ops::Deref;
 /// The `Move` operation, whilst possible for strings, adds complexity
 /// and a performance hit to diffing, but is likely to be uncommon at the
 /// word level (word level moves are dealt with in `Vec<InlineContent>`).
-impl Diffable for String {
-    diffable_is_same!();
+impl Patchable for String {
+    patchable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {
         if self == other {
@@ -23,7 +23,7 @@ impl Diffable for String {
         }
     }
 
-    diffable_diff!();
+    patchable_diff!();
 
     fn diff_same(&self, differ: &mut Differ, other: &Self) {
         if self == other {

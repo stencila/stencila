@@ -7,8 +7,9 @@ use stencila_schema::{
     Quote, Strong, Subscript, Superscript, VideoObjectSimple,
 };
 
-impl Diffable for InlineContent {
-    diffable_is_same!();
+/// Implements patching for `InlineContent`
+impl Patchable for InlineContent {
+    patchable_is_same!();
 
     #[rustfmt::skip]
     fn is_equal(&self, other: &Self) -> Result<()> {
@@ -43,7 +44,7 @@ impl Diffable for InlineContent {
         }
     }
 
-    diffable_diff!();
+    patchable_diff!();
 
     #[rustfmt::skip]
     fn diff_same(&self, differ: &mut Differ, other: &Self) {
@@ -124,21 +125,21 @@ impl Diffable for InlineContent {
     }
 }
 
-diffable_todo!(AudioObjectSimple);
-diffable_todo!(Cite);
-diffable_todo!(CiteGroup);
-diffable_struct!(CodeExpression, programming_language, text);
-diffable_struct!(CodeFragment, programming_language, text);
-diffable_struct!(Delete, content);
-diffable_struct!(Emphasis, content);
-diffable_todo!(ImageObjectSimple);
-diffable_todo!(Link);
-diffable_struct!(MathFragment, math_language, text);
-diffable_struct!(NontextualAnnotation, content);
-diffable_todo!(Note);
-diffable_todo!(Parameter);
-diffable_todo!(Quote);
-diffable_struct!(Strong, content);
-diffable_struct!(Subscript, content);
-diffable_struct!(Superscript, content);
-diffable_todo!(VideoObjectSimple);
+patchable_todo!(AudioObjectSimple);
+patchable_todo!(Cite);
+patchable_todo!(CiteGroup);
+patchable_struct!(CodeExpression, programming_language, text);
+patchable_struct!(CodeFragment, programming_language, text);
+patchable_struct!(Delete, content);
+patchable_struct!(Emphasis, content);
+patchable_todo!(ImageObjectSimple);
+patchable_todo!(Link);
+patchable_struct!(MathFragment, math_language, text);
+patchable_struct!(NontextualAnnotation, content);
+patchable_todo!(Note);
+patchable_todo!(Parameter);
+patchable_todo!(Quote);
+patchable_struct!(Strong, content);
+patchable_struct!(Subscript, content);
+patchable_struct!(Superscript, content);
+patchable_todo!(VideoObjectSimple);
