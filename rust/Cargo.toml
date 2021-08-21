@@ -67,12 +67,11 @@ encode-png = ["chromiumoxide"]
 encode-rmd = ["encode-md"]
 encode-rpng = ["encode-png", "png"]
 encode-toml = []
-encode-txt = []
 encode-yaml = []
 
 coerce = ["decode-date", "decode-person"]
 
-reshape = ["decode-date", "decode-person", "encode-txt"]
+reshape = ["decode-date", "decode-person"]
 
 compile-code = ["tree-sitter"]
 compile-code-js = ["compile-code", "tree-sitter-javascript"]
