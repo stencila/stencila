@@ -44,8 +44,36 @@ where
         }
     }
 
-    fn apply_remove(&mut self, _keys: &mut Keys, _items: usize) {
-        todo!()
+    fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
+        if let Some(key) = keys.pop_front() {
+            if let Key::Index(index) = key {
+                if let Some(item) = self.get_mut(index) {
+                    item.apply_add(keys, value);
+                } else {
+                    invalid_index!(index)
+                }
+            } else {
+                invalid_keys!(keys)
+            }
+        } else {
+            todo!()
+        }
+    }
+
+    fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
+        if let Some(key) = keys.pop_front() {
+            if let Key::Index(index) = key {
+                if let Some(item) = self.get_mut(index) {
+                    item.apply_remove(keys, items);
+                } else {
+                    invalid_index!(index)
+                }
+            } else {
+                invalid_keys!(keys)
+            }
+        } else {
+            todo!()
+        }
     }
 
     fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {

@@ -108,7 +108,7 @@ impl Patchable for String {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value
         } else {
-            return invalid_value!()
+            return invalid_value!();
         };
 
         if let Some(Key::Index(index)) = keys.pop_front() {
@@ -139,7 +139,7 @@ impl Patchable for String {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value
         } else {
-            return invalid_value!()
+            return invalid_value!();
         };
 
         if keys.is_empty() {
