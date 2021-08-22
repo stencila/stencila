@@ -1,21 +1,7 @@
 use super::prelude::*;
 use stencila_schema::Article;
 
-impl Patchable for Article {
-    patchable_is_same!();
-    patchable_diff!();
-
-    fn is_equal(&self, other: &Self) -> Result<()> {
-        self.content.is_equal(&other.content)?;
-        // TODO add other properties using macro
-        Ok(())
-    }
-
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
-        differ.field("content", &self.content, &other.content)
-        // TODO add other properties using macro
-    }
-}
+patchable_struct!(Article, content);
 
 #[cfg(test)]
 mod tests {

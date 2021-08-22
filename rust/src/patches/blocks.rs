@@ -1,5 +1,6 @@
 use super::prelude::*;
 use crate::dispatch_block;
+use std::hash::Hasher;
 use stencila_schema::{
     BlockContent, ClaimSimple, CodeBlock, CodeChunk, CollectionSimple, FigureSimple, Heading,
     Include, List, MathBlock, Paragraph, QuoteBlock, TableSimple, ThematicBreak,
@@ -29,6 +30,10 @@ impl Patchable for BlockContent {
             // Different variants so by definition not equal
             _ => bail!(Error::NotEqual),
         }
+    }
+
+    fn make_hash<H: Hasher>(&self, state: &mut H) {
+        dispatch_block!(self, make_hash, state)
     }
 
     patchable_diff!();
@@ -78,9 +83,7 @@ impl Patchable for BlockContent {
     fn apply_transform(&mut self, keys: &mut Keys, from: &str, _to: &str) {
         if keys.is_empty() {
             assert_eq!(from, self.as_ref(), "Expected the same type");
-            *self = match self {
-                _ => todo!(),
-            }
+            todo!()
         } else {
             todo!()
         }

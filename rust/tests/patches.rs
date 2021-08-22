@@ -4,6 +4,7 @@
 ///! the `diff` and `apply` functions are consistent by doing round
 ///! trips, both ways, between two instances.
 use pretty_assertions::assert_eq;
+use proptest::collection::{size_range, vec};
 use proptest::prelude::*;
 use stencila::patches::{apply_new, diff};
 
@@ -22,7 +23,10 @@ macro_rules! assert_json_eq {
 proptest! {
     /// Any two strings including all unicode graphemes
     #[test]
-    fn strings_any(a in any::<String>(), b in any::<String>()) {
+    fn strings_any(
+        a in any::<String>(),
+        b in any::<String>()
+    ) {
         let patch = diff(&a, &b);
         assert_eq!(apply_new(&a, &patch), b)
     }
@@ -37,14 +41,30 @@ proptest! {
     /// Move opertions have since been removed for strings but this
     /// test has been kept anyway.
     #[test]
-    fn strings_restricted(a in "[a-e]{0,10}", b in "[a-e]{0,10}") {
+    fn strings_restricted(
+        a in "[a-e]{0,10}",
+        b in "[a-e]{0,10}"
+    ) {
         let patch = diff(&a, &b);
         assert_eq!(apply_new(&a, &patch), b)
     }
 
     // Any two inlines
     #[test]
-    fn inlines(a in inline_content(Freedom::Low), b in inline_content(Freedom::Low)) {
+    fn inlines(
+        a in inline_content(Freedom::Low),
+        b in inline_content(Freedom::Low)
+    ) {
+        let patch = diff(&a, &b);
+        assert_json_eq!(apply_new(&a, &patch), b)
+    }
+
+    // Any two vectors of integers
+    #[test]
+    fn vec_integers(
+        a in vec(0..10i64, size_range(0..10)),
+        b in vec(0..10i64, size_range(0..10))
+    ) {
         let patch = diff(&a, &b);
         assert_json_eq!(apply_new(&a, &patch), b)
     }

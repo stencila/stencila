@@ -1,5 +1,8 @@
 use super::prelude::*;
-use std::ops::{Deref, DerefMut};
+use std::{
+    hash::Hasher,
+    ops::{Deref, DerefMut},
+};
 
 /// Implements patching for `Box`
 ///
@@ -12,6 +15,10 @@ where
 
     fn is_equal(&self, other: &Self) -> Result<()> {
         self.deref().is_equal(other)
+    }
+
+    fn make_hash<H: Hasher>(&self, state: &mut H) {
+        self.deref().make_hash(state)
     }
 
     patchable_diff!();

@@ -1,9 +1,8 @@
-use super::prelude::*;
+use super::{keys_from_index, prelude::*};
 use itertools::Itertools;
 use similar::{ChangeTag, TextDiff};
 use std::any::{type_name, Any};
-use std::collections::VecDeque;
-use std::iter::FromIterator;
+use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 
 /// Implements patching for strings
@@ -21,6 +20,10 @@ impl Patchable for String {
         } else {
             bail!(Error::NotEqual)
         }
+    }
+
+    fn make_hash<H: Hasher>(&self, state: &mut H) {
+        self.hash(state)
     }
 
     patchable_diff!();
@@ -81,7 +84,7 @@ impl Patchable for String {
 
             let end = index == changes.len() - 1;
             if (index > 0 && curr != last) || end {
-                let keys = VecDeque::from_iter(vec![Key::Index(start)]);
+                let keys = keys_from_index(start);
                 if (curr == 'e' && last == 'd') || (end && curr == 'd') {
                     ops.push(Operation::Remove(Remove { keys, items }));
                 } else if (curr == 'e' && last == 'i') || (end && curr == 'i') {
@@ -172,8 +175,7 @@ mod tests {
         let b = "123".to_string();
         let c = "a2b3".to_string();
         let d = "abcdef".to_string();
-        let e = "adefbc".to_string();
-        let f = "adbcfe".to_string();
+        let e = "adbcfe".to_string();
 
         assert!(equal(&empty, &empty));
         assert!(equal(&a, &a));
@@ -268,7 +270,7 @@ mod tests {
         );
         assert_eq!(apply_new(&d, &patch), c);
 
-        let patch = diff(&d, &f);
+        let patch = diff(&d, &e);
         assert_json!(
             patch,
             [
@@ -277,7 +279,7 @@ mod tests {
                 { "op": "remove", "keys": [6], "items": 1 }
             ]
         );
-        assert_eq!(apply_new(&d, &patch), f);
+        assert_eq!(apply_new(&d, &patch), e);
     }
 
     /// Test that works with Unicode graphemes (which are made

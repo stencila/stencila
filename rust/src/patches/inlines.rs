@@ -1,5 +1,6 @@
 use super::prelude::*;
 use crate::{dispatch_inline, methods::encode::txt::ToTxt};
+use std::hash::Hasher;
 use std::ops::Deref;
 use stencila_schema::{
     AudioObjectSimple, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis,
@@ -45,6 +46,10 @@ impl Patchable for InlineContent {
             // Different variants so by definition not equal
             _ => bail!(Error::NotEqual),
         }
+    }
+
+    fn make_hash<H: Hasher>(&self, state: &mut H) {
+        dispatch_inline!(self, make_hash, state)
     }
 
     patchable_diff!();

@@ -1,4 +1,5 @@
 use super::prelude::*;
+use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 use stencila_schema::{Boolean, Integer, Number};
 
@@ -9,7 +10,6 @@ macro_rules! patchable_atomic {
             patchable_is_same!();
 
             fn is_equal(&self, other: &Self) -> Result<()> {
-                #[allow(clippy::float_cmp)]
                 if self == other {
                     Ok(())
                 } else {
@@ -17,10 +17,13 @@ macro_rules! patchable_atomic {
                 }
             }
 
+            fn make_hash<H: Hasher>(&self, state: &mut H) {
+                self.hash(state)
+            }
+
             patchable_diff!();
 
             fn diff_same(&self, differ: &mut Differ, other: &Self) {
-                #[allow(clippy::float_cmp)]
                 if self != other {
                     differ.replace(other)
                 }
@@ -39,7 +42,42 @@ macro_rules! patchable_atomic {
 
 patchable_atomic!(Boolean);
 patchable_atomic!(Integer);
-patchable_atomic!(Number);
+
+impl Patchable for Number {
+    patchable_is_same!();
+
+    fn is_equal(&self, other: &Self) -> Result<()> {
+        #[allow(clippy::float_cmp)]
+        if self == other {
+            Ok(())
+        } else {
+            bail!(Error::NotEqual)
+        }
+    }
+
+    fn make_hash<H: Hasher>(&self, state: &mut H) {
+        // See caveats to this approach
+        // https://stackoverflow.com/a/39647997
+        self.to_bits().hash(state)
+    }
+
+    patchable_diff!();
+
+    fn diff_same(&self, differ: &mut Differ, other: &Self) {
+        #[allow(clippy::float_cmp)]
+        if self != other {
+            differ.replace(other)
+        }
+    }
+
+    fn apply_replace(&mut self, _keys: &mut Keys, _items: usize, value: &Box<dyn Any>) {
+        if let Some(value) = value.deref().downcast_ref::<Self>() {
+            *self = *value
+        } else {
+            invalid_value!()
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

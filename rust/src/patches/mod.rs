@@ -6,6 +6,8 @@ use std::{
     any::{type_name, Any},
     collections::VecDeque,
     fmt::Debug,
+    hash::Hasher,
+    iter::FromIterator,
 };
 use stencila_schema::{BlockContent, Boolean, InlineContent, Integer, Number};
 
@@ -163,6 +165,8 @@ where
         value.serialize(serializer)
     } else if let Some(value) = value.downcast_ref::<Integer>() {
         value.serialize(serializer)
+    } else if let Some(value) = value.downcast_ref::<Vec<Integer>>() {
+        value.serialize(serializer)
     } else if let Some(value) = value.downcast_ref::<Number>() {
         value.serialize(serializer)
     } else if let Some(value) = value.downcast_ref::<String>() {
@@ -189,6 +193,10 @@ pub enum Key {
 }
 
 pub type Keys = VecDeque<Key>;
+
+fn keys_from_index(index: usize) -> Keys {
+    VecDeque::from_iter(vec![Key::Index(index)])
+}
 
 /// A differencing `struct` used as an optimization to track the keys describing the
 /// current location in a node tree while walking over it.
@@ -341,6 +349,11 @@ pub trait Patchable {
     /// Test whether a node is equal to (i.e. equal value) a node of the same type.
     fn is_equal(&self, other: &Self) -> Result<()>;
 
+    /// Generate a hash of the patchable content of a node
+    ///
+    /// Used for identifying unique values, particularly when diffing sequences.
+    fn make_hash<H: Hasher>(&self, state: &mut H);
+
     /// Generate the operations needed to mutate this node so that is the same as
     /// a node of any other type.
     ///
@@ -428,6 +441,17 @@ macro_rules! patchable_is_equal {
                 self.$field.is_equal(&other.$field)?;
             )*
             Ok(())
+        }
+    };
+}
+
+/// Generate the `hash` method for a `struct`
+macro_rules! patchable_hash {
+    ($( $field:ident )*) => {
+        fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
+            $(
+                self.$field.make_hash(state);
+            )*
         }
     };
 }
@@ -553,6 +577,7 @@ macro_rules! patchable_struct {
         impl Patchable for $type {
             patchable_is_same!();
             patchable_is_equal!($( $field )*);
+            patchable_hash!($( $field )*);
 
             patchable_diff!();
             patchable_diff_same!($( $field )*);
@@ -573,6 +598,10 @@ macro_rules! patchable_todo {
             patchable_is_same!();
 
             fn is_equal(&self, _other: &Self) -> Result<()> {
+                todo!()
+            }
+
+            fn make_hash<H: Hasher>(&self, _state: &mut H) {
                 todo!()
             }
 
@@ -665,9 +694,8 @@ mod tests {
         assert_json!(
             patch,
             [{
-                "op": "replace",
-                "keys": ["content"],
-                "items": 1,
+                "op": "add",
+                "keys": ["content", 0],
                 "value": ["word1", "word2"]
             }]
         );

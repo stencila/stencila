@@ -1,5 +1,5 @@
 use super::prelude::*;
-use std::ops::Deref;
+use std::{hash::Hasher, ops::Deref};
 
 /// Implements patching for `Option`
 ///
@@ -19,6 +19,12 @@ where
             (None, None) => Ok(()),
             (None, Some(_)) | (Some(_), None) => bail!(Error::NotEqual),
             (Some(me), Some(other)) => me.is_equal(other),
+        }
+    }
+
+    fn make_hash<H: Hasher>(&self, state: &mut H) {
+        if let Some(value) = self {
+            value.make_hash(state)
         }
     }
 
