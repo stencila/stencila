@@ -631,7 +631,7 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
             string,
             character,
         )),
-        Vec::new(),
+        Vec::new,
         |mut vec: Vec<InlineContent>, node| {
             if let InlineContent::String(string) = &node {
                 match vec.last_mut() {
