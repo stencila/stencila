@@ -286,7 +286,7 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            {"op": "remove", "keys": ["content", 0, 2], "items": 2},
+            {"op": "replace", "keys": ["content", 0], "items": 1, "value": ["ab"]},
         ]);
         assert_json_eq!(apply_new(&a, &patch), b);
     }

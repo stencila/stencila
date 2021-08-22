@@ -409,8 +409,11 @@ mod tests {
         let b: Vec<Integer> = vec![3, 1];
         let patch = diff(&a, &b);
         assert_json!(
-            patch,
-            [{ "op": "move", "from": [1], "items": 1, "to": [0] }]
+            patch, [
+                // { "op": "move", "from": [1], "items": 1, "to": [0] }
+                { "op": "add", "keys": [0], "value": [3] },
+                { "op": "remove", "keys": [2], "items": 1 }
+            ]
         );
         assert_json_eq!(apply_new(&a, &patch), b);
     }
