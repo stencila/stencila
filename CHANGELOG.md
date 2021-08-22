@@ -1,3 +1,16 @@
+## [0.110.1](https://github.com/stencila/stencila/compare/v0.110.0...v0.110.1) (2021-08-22)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate nom to v7.0.0 ([7fe48a0](https://github.com/stencila/stencila/commit/7fe48a0b1f6db7559acf3418a07cbb01cd9c5432))
+* **dependencies:** update rust crate pyo3 to v0.14.3 ([4ea92eb](https://github.com/stencila/stencila/commit/4ea92ebe37ce3068930738f251aa89605bd051f2))
+* **dependencies:** update rust crate rust-embed to v6.0.1 ([5c684f8](https://github.com/stencila/stencila/commit/5c684f8a30139e8fcf58bb43bde7bd779964dd13))
+* **dependencies:** update rust crate rustyline-derive to v0.5.0 ([d0194d5](https://github.com/stencila/stencila/commit/d0194d5291e996338260196cd4671abaa78b6fb9))
+* **dependencies:** update rust crate serde to v1.0.128 ([ad97ef7](https://github.com/stencila/stencila/commit/ad97ef7be3c3df080fb9dd7d9db2b319dd899fd9))
+* **dependencies:** update rust crate serde_yaml to v0.8.19 ([34d46b8](https://github.com/stencila/stencila/commit/34d46b8b85bd946c3036db0da97d7502ba707a04))
+* **dependencies:** update rust crate tracing-subscriber to v0.2.20 ([73625ee](https://github.com/stencila/stencila/commit/73625eefce913dfbf0211973cf7e5c4c9b14d10c))
+
 # [0.110.0](https://github.com/stencila/stencila/compare/v0.109.2...v0.110.0) (2021-08-18)
 
 
