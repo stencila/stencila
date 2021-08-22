@@ -21,6 +21,10 @@ macro_rules! assert_json_eq {
 }
 
 proptest! {
+    // Higher number of cases than the default because some patches can fail
+    // on rare corner cases (in particular `Move` operations).
+    #![proptest_config(ProptestConfig::with_cases(1000))]
+
     /// Any two strings including all unicode graphemes
     #[test]
     fn strings_any(
@@ -34,12 +38,10 @@ proptest! {
     /// Zero to ten letters from a restricted range
     ///
     /// This test is useful because `strings_any` has a very low
-    /// probability of generating `move` operations (because of the
+    /// probability of generating `Move` operations (because of the
     /// low probability of the same character appearing twice) and so
-    /// was missing a bug associated with that operation.
-    ///
-    /// Move opertions have since been removed for strings but this
-    /// test has been kept anyway.
+    /// was missing a bug associated with that operation. Move operations
+    /// have since been removed for strings but this test has been kept anyway.
     #[test]
     fn strings_restricted(
         a in "[a-e]{0,10}",
