@@ -86,19 +86,19 @@ impl Patchable for String {
             if (index > 0 && curr != last) || end {
                 let keys = keys_from_index(start);
                 if (curr == 'e' && last == 'd') || (end && curr == 'd') {
-                    ops.push(Operation::Remove(Remove { keys, items }));
+                    ops.push(Operation::Remove { keys, items });
                 } else if (curr == 'e' && last == 'i') || (end && curr == 'i') {
                     if replace {
-                        ops.push(Operation::Replace(Replace {
+                        ops.push(Operation::Replace {
                             keys,
                             items,
                             value: Box::new(value.clone()),
-                        }));
+                        });
                     } else {
-                        ops.push(Operation::Add(Add {
+                        ops.push(Operation::Add {
                             keys,
                             value: Box::new(value.clone()),
-                        }));
+                        });
                     }
                 };
             }

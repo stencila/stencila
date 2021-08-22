@@ -83,74 +83,59 @@ type Patch = Vec<Operation>;
 #[derive(Debug, Serialize)]
 #[serde(tag = "op", rename_all = "lowercase")]
 pub enum Operation {
-    Add(Add),
-    Remove(Remove),
-    Replace(Replace),
-    Move(Move),
-    Transform(Transform),
-}
+    /// Add a value
+    Add {
+        /// The location to which to add the value
+        keys: Keys,
 
-/// Add a value into a node tree
-#[derive(Debug, Serialize)]
-pub struct Add {
-    /// The location to which to add the value
-    keys: Keys,
+        /// The value to add
+        #[serde(serialize_with = "serialize_value")]
+        value: Box<dyn Any>,
+    },
+    /// Remove one or more values
+    Remove {
+        /// The location from which to remove the value/s
+        keys: Keys,
 
-    /// The value to add
-    #[serde(serialize_with = "serialize_value")]
-    value: Box<dyn Any>,
-}
+        /// The number of items to remove forward from the location
+        ///
+        /// Only relevant for sequences i.e. `Vec` or `String`
+        items: usize,
+    },
+    /// Replace one or more values
+    Replace {
+        /// The location which should be replaced
+        keys: Keys,
 
-/// Remove one or more values from a node tree
-///
-/// The `items` field is only relevant for sequences.
-#[derive(Debug, Serialize)]
-pub struct Remove {
-    /// The location from which to remove the current value
-    keys: Keys,
+        /// The number of items to remove forward from the location
+        items: usize,
 
-    /// The number of items to remove forward from the location
-    items: usize,
-}
+        /// The replacement value
+        #[serde(serialize_with = "serialize_value")]
+        value: Box<dyn Any>,
+    },
+    /// Move a value from one location in a node tree, to another
+    Move {
+        /// The location from which to remove the value
+        from: Keys,
 
-/// Replace a value in the node tree with another value
-#[derive(Debug, Serialize)]
-pub struct Replace {
-    /// The location which should be replaced
-    keys: Keys,
+        /// The number of items to move
+        items: usize,
 
-    /// The number of items to remove forward from the location
-    items: usize,
+        /// The location to which to add the items
+        to: Keys,
+    },
+    /// Transform a value from one type to another
+    Transform {
+        /// The location of the node to transform
+        keys: Keys,
 
-    /// The replacement value
-    #[serde(serialize_with = "serialize_value")]
-    value: Box<dyn Any>,
-}
+        /// The type of node to transform from
+        from: String,
 
-/// Move a value from one location in a node tree, to another.
-#[derive(Debug, Serialize)]
-pub struct Move {
-    /// The location from which to remove the value
-    from: Keys,
-
-    /// The number of items to move
-    items: usize,
-
-    /// The location to which to add the items
-    to: Keys,
-}
-
-/// Transform a node from one type to another.
-#[derive(Debug, Serialize)]
-pub struct Transform {
-    /// The location of the node to transform
-    keys: Keys,
-
-    /// The type of node to transform from
-    from: String,
-
-    /// The type of node to transform to
-    to: String,
+        /// The type of node to transform to
+        to: String,
+    },
 }
 
 /// Serialize the `value` field of an operation
@@ -236,64 +221,67 @@ impl Differ {
             keys
         };
         for op in ops {
-            match op {
-                Operation::Add(mut op) => {
-                    op.keys = concat_keys(&self.keys, &op.keys);
-                    self.patch.push(Operation::Add(op))
-                }
-                Operation::Remove(mut op) => {
-                    op.keys = concat_keys(&self.keys, &op.keys);
-                    self.patch.push(Operation::Remove(op))
-                }
-                Operation::Replace(mut op) => {
-                    op.keys = concat_keys(&self.keys, &op.keys);
-                    self.patch.push(Operation::Replace(op))
-                }
-                Operation::Move(mut op) => {
-                    op.from = concat_keys(&self.keys, &op.from);
-                    op.to = concat_keys(&self.keys, &op.to);
-                    self.patch.push(Operation::Move(op))
-                }
-                Operation::Transform(mut op) => {
-                    op.keys = concat_keys(&self.keys, &op.keys);
-                    self.patch.push(Operation::Transform(op))
-                }
-            }
+            let op = match op {
+                Operation::Add { keys, value } => Operation::Add {
+                    keys: concat_keys(&self.keys, &keys),
+                    value,
+                },
+                Operation::Remove { keys, items } => Operation::Remove {
+                    keys: concat_keys(&self.keys, &keys),
+                    items,
+                },
+                Operation::Replace { keys, items, value } => Operation::Replace {
+                    keys: concat_keys(&self.keys, &keys),
+                    items,
+                    value,
+                },
+                Operation::Move { from, items, to } => Operation::Move {
+                    from: concat_keys(&self.keys, &from),
+                    items,
+                    to: concat_keys(&self.keys, &to),
+                },
+                Operation::Transform { keys, from, to } => Operation::Transform {
+                    keys: concat_keys(&self.keys, &keys),
+                    from,
+                    to,
+                },
+            };
+            self.patch.push(op)
         }
     }
 
     /// Add an `Add` operation to the patch.
     pub fn add<Value: Clone + 'static>(&mut self, value: &Value) {
-        self.patch.push(Operation::Add(Add {
+        self.patch.push(Operation::Add {
             keys: self.keys.clone(),
             value: Box::new(value.clone()),
-        }))
+        })
     }
 
     /// Add a `Remove` operation to the patch.
     pub fn remove(&mut self) {
-        self.patch.push(Operation::Remove(Remove {
+        self.patch.push(Operation::Remove {
             keys: self.keys.clone(),
             items: 1,
-        }))
+        })
     }
 
     /// Add a `Replace` operation to the patch.
     pub fn replace<Value: Clone + 'static>(&mut self, value: &Value) {
-        self.patch.push(Operation::Replace(Replace {
+        self.patch.push(Operation::Replace {
             keys: self.keys.clone(),
             items: 1,
             value: Box::new(value.clone()),
-        }))
+        })
     }
 
     /// Add a `Transform` operation to the patch.
     pub fn transform(&mut self, from: &str, to: &str) {
-        self.patch.push(Operation::Transform(Transform {
+        self.patch.push(Operation::Transform {
             keys: self.keys.clone(),
             from: from.into(),
             to: to.into(),
-        }))
+        })
     }
 }
 
@@ -382,14 +370,16 @@ pub trait Patchable {
     /// Apply a patch operation to this node.
     fn apply(&mut self, op: &Operation) {
         match op {
-            Operation::Add(op) => self.apply_add(&mut op.keys.clone(), &op.value),
-            Operation::Remove(op) => self.apply_remove(&mut op.keys.clone(), op.items),
-            Operation::Replace(op) => self.apply_replace(&mut op.keys.clone(), op.items, &op.value),
-            Operation::Move(op) => {
-                self.apply_move(&mut op.from.clone(), op.items, &mut op.to.clone())
+            Operation::Add { keys, value } => self.apply_add(&mut keys.clone(), &value),
+            Operation::Remove { keys, items } => self.apply_remove(&mut keys.clone(), *items),
+            Operation::Replace { keys, items, value } => {
+                self.apply_replace(&mut keys.clone(), *items, &value)
             }
-            Operation::Transform(op) => {
-                self.apply_transform(&mut op.keys.clone(), &op.from, &op.to)
+            Operation::Move { from, items, to } => {
+                self.apply_move(&mut from.clone(), *items, &mut to.clone())
+            }
+            Operation::Transform { keys, from, to } => {
+                self.apply_transform(&mut keys.clone(), &from, &to)
             }
         }
     }

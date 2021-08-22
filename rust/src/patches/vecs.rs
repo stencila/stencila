@@ -1,5 +1,4 @@
 use super::{keys_from_index, prelude::*};
-use crate::patches::Add;
 use similar::DiffOp;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
@@ -47,17 +46,17 @@ where
         }
 
         if self.is_empty() && !other.is_empty() {
-            return differ.append(vec![Operation::Add(Add {
+            return differ.append(vec![Operation::Add {
                 keys: keys_from_index(0),
                 value: Box::new(other.clone()),
-            })]);
+            }]);
         }
 
         if !self.is_empty() && other.is_empty() {
-            return differ.append(vec![Operation::Remove(Remove {
+            return differ.append(vec![Operation::Remove {
                 keys: keys_from_index(0),
                 items: self.len(),
-            })]);
+            }]);
         }
 
         let mapper = Mapper::new(self, other);
@@ -76,10 +75,10 @@ where
                 DiffOp::Insert {
                     new_index, new_len, ..
                 } => {
-                    ops.push(Operation::Add(Add {
+                    ops.push(Operation::Add {
                         keys: keys_from_index(index),
                         value: Box::new(other[new_index..(new_index + new_len)].to_vec()),
-                    }));
+                    });
                     index += new_len
                 }
                 DiffOp::Delete {
@@ -111,10 +110,10 @@ where
                     }
 
                     if !matched {
-                        ops.push(Operation::Remove(Remove {
+                        ops.push(Operation::Remove {
                             keys: keys_from_index(index),
                             items: old_len,
-                        }));
+                        });
                     }
                 }
                 DiffOp::Replace {
@@ -123,11 +122,11 @@ where
                     new_len,
                     ..
                 } => {
-                    ops.push(Operation::Replace(Replace {
+                    ops.push(Operation::Replace {
                         keys: keys_from_index(index),
                         items: old_len,
                         value: Box::new(other[new_index..(new_index + new_len)].to_vec()),
-                    }));
+                    });
                     index += new_len;
                 }
             }
