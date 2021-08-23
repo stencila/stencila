@@ -320,12 +320,12 @@ where
 
     fn apply_transform(&mut self, keys: &mut Keys, from: &str, to: &str) {
         if keys.len() == 1 {
-            todo!()
-        } else if let Some(Key::Index(index)) = keys.pop_front() {
-            if let Some(item) = self.get_mut(index) {
-                item.apply_transform(keys, from, to);
-            } else {
-                invalid_index!(index)
+            if let Some(Key::Index(index)) = keys.pop_front() {
+                if let Some(item) = self.get_mut(index) {
+                    item.apply_transform(keys, from, to);
+                } else {
+                    invalid_index!(index)
+                }
             }
         } else {
             invalid_keys!(keys)
@@ -417,7 +417,7 @@ mod tests {
         patches::{apply_new, diff, equal},
     };
     use pretty_assertions::assert_eq;
-    use stencila_schema::Integer;
+    use stencila_schema::{Emphasis, InlineContent, Integer, Strong};
 
     // Test patches that operate on atomic items (integers) with no
     // pass though.
@@ -534,6 +534,22 @@ mod tests {
             { "op": "replace", "keys": [0, 0], "items": 1, "value": "b" },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
+
+        // Transform
+
+        let a = vec![InlineContent::Emphasis(Emphasis {
+            content: vec![InlineContent::String("word".to_string())],
+            ..Default::default()
+        })];
+        let b = vec![InlineContent::Strong(Strong {
+            content: vec![InlineContent::String("word".to_string())],
+            ..Default::default()
+        })];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "transform", "keys": [0], "from": "Emphasis", "to": "Strong" },
+        ]);
+        assert_json_eq!(apply_new(&a, &patch), b);
     }
 
     // As above, but with an extra `Add` or `Remove` as needed.
