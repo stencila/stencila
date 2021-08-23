@@ -87,7 +87,7 @@ where
                 DiffOp::Delete {
                     old_index, old_len, ..
                 } => {
-                    // Attempt to find a previous `Add` operations with the same value
+                    // Attempt to find a previous `Add` operations, at the vector level, with the same value
                     // and replace it with a `Move` from here.
                     let mut matched = false;
                     let mut shift = 0i32;
@@ -100,24 +100,37 @@ where
                                 value,
                                 length,
                             } => {
-                                shift -= *length as i32;
-                                let added_value = value
-                                    .deref()
-                                    .downcast_ref::<Self>()
-                                    .expect("To be a Vec<Type>");
-                                if added_value.is_equal(&removed_value).is_ok() {
-                                    ops[prev] = Operation::Move {
-                                        from: keys_from_index((index as i32 + shift) as usize),
-                                        items: old_len,
-                                        to: keys.clone(),
-                                    };
-                                    matched = true;
-                                    break;
+                                if keys.len() == 1 {
+                                    shift -= *length as i32;
+                                    let added_value = value
+                                        .deref()
+                                        .downcast_ref::<Self>()
+                                        .expect("To be a Vec<Type>");
+                                    if added_value.is_equal(&removed_value).is_ok() {
+                                        ops[prev] = Operation::Move {
+                                            from: keys_from_index((index as i32 + shift) as usize),
+                                            items: old_len,
+                                            to: keys.clone(),
+                                        };
+                                        matched = true;
+                                        break;
+                                    }
                                 }
                             }
-                            Operation::Remove { items, .. } => shift += *items as i32,
-                            Operation::Replace { items, length, .. } => {
-                                shift -= *length as i32 - *items as i32
+                            Operation::Remove { keys, items, .. } => {
+                                if keys.len() == 1 {
+                                    shift += *items as i32
+                                }
+                            }
+                            Operation::Replace {
+                                keys,
+                                items,
+                                length,
+                                ..
+                            } => {
+                                if keys.len() == 1 {
+                                    shift -= *length as i32 - *items as i32
+                                }
                             }
                             _ => {}
                         }
@@ -642,6 +655,19 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             { "op": "replace", "keys": [0], "items": 4, "value": [2, 2, 0], "length": 3 },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+    }
+
+    #[test]
+    fn regression_5() {
+        let a = vec!["c".to_string(), "".to_string(), "d".to_string()];
+        let b = vec!["cd".to_string(), "a".to_string(), "".to_string()];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "add", "keys": [0, 1], "value": "d", "length": 1 },
+            { "op": "add", "keys": [1], "value": ["a"], "length": 1 },
+            { "op": "remove", "keys": [3], "items": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }
