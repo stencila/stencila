@@ -168,7 +168,7 @@ where
     ser!(Vec<InlineContent>);
     ser!(Vec<BlockContent>);
 
-    return serializer.serialize_str("<unserialized type>");
+    serializer.serialize_str("<unserialized type>")
 }
 
 /// A key of a `struct`, `HashMap`, or `Vec` used to locate an operation.
@@ -373,16 +373,16 @@ pub trait Patchable {
     /// Apply a patch operation to this node.
     fn apply(&mut self, op: &Operation) {
         match op {
-            Operation::Add { keys, value } => self.apply_add(&mut keys.clone(), &value),
+            Operation::Add { keys, value } => self.apply_add(&mut keys.clone(), value),
             Operation::Remove { keys, items } => self.apply_remove(&mut keys.clone(), *items),
             Operation::Replace { keys, items, value } => {
-                self.apply_replace(&mut keys.clone(), *items, &value)
+                self.apply_replace(&mut keys.clone(), *items, value)
             }
             Operation::Move { from, items, to } => {
                 self.apply_move(&mut from.clone(), *items, &mut to.clone())
             }
             Operation::Transform { keys, from, to } => {
-                self.apply_transform(&mut keys.clone(), &from, &to)
+                self.apply_transform(&mut keys.clone(), from, to)
             }
         }
     }
@@ -624,7 +624,6 @@ mod works;
 mod tests {
     use super::*;
     use crate::{assert_json, assert_json_eq};
-    use pretty_assertions::assert_eq;
     use stencila_schema::{Emphasis, InlineContent, Integer, Paragraph};
 
     #[test]

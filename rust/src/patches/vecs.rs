@@ -133,15 +133,17 @@ where
                     for item_index in 0usize..min(old_len, new_len) {
                         let mut differ = Differ::default();
                         differ.item(
-                            item_index,
+                            index,
                             &self[old_index + item_index],
                             &other[new_index + item_index],
                         );
+                        index += 1;
+
                         let mut item_ops = differ.patch;
                         // If there is only one operation...
                         if item_ops.len() == 1 {
                             // and its a `Replace`...
-                            if let Some(Operation::Replace { keys, items, .. }) = item_ops.get(0) {
+                            if let Some(Operation::Replace { keys, .. }) = item_ops.get(0) {
                                 // at the root of the item.
                                 if keys.len() == 1 {
                                     // Then, if the previous operation is a `Replace` at the root
@@ -153,7 +155,7 @@ where
                                     }) = replace_ops.last_mut()
                                     {
                                         if last_keys.len() == 1 {
-                                            *last_items = *items + 1;
+                                            *last_items += 1;
                                             last_value
                                                 .downcast_mut::<Vec<Type>>()
                                                 .expect("To be a Vec<Type>")
@@ -165,7 +167,7 @@ where
                                     // Otherwise, add it
                                     replace_ops.push(Operation::Replace {
                                         keys: keys.clone(),
-                                        items: *items,
+                                        items: 1,
                                         value: Box::new(
                                             vec![other[new_index + item_index].clone()],
                                         ),
@@ -178,24 +180,36 @@ where
                         replace_ops.append(&mut item_ops);
                     }
 
+                    #[allow(clippy::comparison_chain)]
                     if new_len > old_len {
                         // Add remaining items
                         replace_ops.push(Operation::Add {
-                            keys: keys_from_index(old_len),
+                            keys: keys_from_index(index),
                             value: Box::new(
                                 other[(new_index + old_len)..(new_index + new_len)].to_vec(),
                             ),
                         });
+                        index += new_len - old_len;
                     } else if new_len < old_len {
-                        // Remove remaining items
-                        replace_ops.push(Operation::Remove {
-                            keys: keys_from_index(new_len),
-                            items: old_len - new_len,
-                        });
+                        // If the last op was a `Replace` at level of the vector, them just add to
+                        // the number of items. Otherwise, remove remaining items.
+                        let mut remove = true;
+                        if let Some(Operation::Replace { keys, items, .. }) = replace_ops.last_mut()
+                        {
+                            if keys.len() == 1 {
+                                *items = *items + old_len - new_len;
+                                remove = false;
+                            }
+                        }
+                        if remove {
+                            replace_ops.push(Operation::Remove {
+                                keys: keys_from_index(index),
+                                items: old_len - new_len,
+                            });
+                        }
                     }
 
                     ops.append(&mut replace_ops);
-                    index += new_len;
                 }
             }
         }
@@ -571,6 +585,37 @@ mod tests {
             //{ "op": "move", "from": [2], "items": 1, "to": [1] },
               { "op": "add", "keys": [1], "value": [2] },
               { "op": "remove", "keys": [3], "items": 1 },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+    }
+
+    #[test]
+    fn regression_3() {
+        let a = vec!["".to_string(), "".to_string()];
+        let b = vec![
+            "a".to_string(),
+            "a".to_string(),
+            "a".to_string(),
+            "".to_string(),
+            "a".to_string(),
+            "a".to_string(),
+        ];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "add", "keys": [0], "value": ["a", "a", "a"] },
+            { "op": "add", "keys": [4, 0], "value": "a" },
+            { "op": "add", "keys": [5], "value": ["a"] },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+    }
+
+    #[test]
+    fn regression_4() {
+        let a = vec![6, 1, 1, 1];
+        let b = vec![2, 2, 0];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "replace", "keys": [0], "items": 4, "value": [2, 2, 0] },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }

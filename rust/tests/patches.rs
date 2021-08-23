@@ -51,7 +51,7 @@ proptest! {
         assert_eq!(apply_new(&a, &patch), b)
     }
 
-    // Any two inlines
+    // Inlines
     #[test]
     fn inlines(
         a in inline_content(Freedom::Low),
@@ -61,11 +61,21 @@ proptest! {
         assert_json_eq!(apply_new(&a, &patch), b)
     }
 
-    // Any two vectors of integers
+    // Vectors of integers
     #[test]
     fn vec_integers(
         a in vec(0..10i64, size_range(0..10)),
         b in vec(0..10i64, size_range(0..10))
+    ) {
+        let patch = diff(&a, &b);
+        assert_json_eq!(apply_new(&a, &patch), b)
+    }
+
+    // Vectors of strings (which may have internal `Add`, `Remove`, `Replace` operations)
+    #[test]
+    fn vec_strings(
+        a in vec("[a-e]{0,10}", size_range(0..10)),
+        b in vec("[a-e]{0,10}", size_range(0..10))
     ) {
         let patch = diff(&a, &b);
         assert_json_eq!(apply_new(&a, &patch), b)
