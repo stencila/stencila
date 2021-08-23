@@ -721,7 +721,6 @@ mod tests {
         apply(&mut patched, &patch);
         assert_json_eq!(patched, a);
 
-        /*
         // Patching `a` to `b` should:
         // - transform `content[0]` from a string to an `Emphasis`
         // - replace part of `content[1]`
@@ -738,13 +737,13 @@ mod tests {
                 "op": "replace",
                 "keys": ["content", 1, 2],
                 "items": 3,
-                "value": "two"
+                "value": "two",
+                "length": 3
             }]
         );
 
         let mut patched = a.clone();
         apply(&mut patched, &patch);
         assert_json_eq!(patched, b);
-        */
     }
 }
