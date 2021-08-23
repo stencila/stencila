@@ -257,6 +257,7 @@ mod tests {
     // Test that operations with keys are passed through
     #[test]
     fn passthrough() {
+        // Simple
         let a = InlineContent::String("abcd".to_string());
         let b = InlineContent::String("eacp".to_string());
 
@@ -272,6 +273,7 @@ mod tests {
         ]);
         assert_json_eq!(apply_new(&a, &patch), b);
 
+        // Nested
         let a = InlineContent::Delete(Delete {
             content: vec![InlineContent::String("abcd".to_string())],
             ..Default::default()
@@ -286,7 +288,7 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            {"op": "replace", "keys": ["content", 0], "items": 1, "value": ["ab"]},
+            {"op": "remove", "keys": ["content", 0, 2], "items": 2},
         ]);
         assert_json_eq!(apply_new(&a, &patch), b);
     }

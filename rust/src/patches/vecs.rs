@@ -1,5 +1,6 @@
 use super::{keys_from_index, prelude::*};
 use similar::DiffOp;
+use std::cmp::min;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
@@ -61,7 +62,7 @@ where
 
         let mapper = Mapper::new(self, other);
 
-        let diff = similar::capture_diff_slices(
+        let diff_ops = similar::capture_diff_slices(
             similar::Algorithm::Patience,
             &mapper.a_ids,
             &mapper.b_ids,
@@ -69,8 +70,8 @@ where
 
         let mut index = 0;
         let mut ops = Vec::new();
-        for change in diff {
-            match change {
+        for diff_op in diff_ops {
+            match diff_op {
                 DiffOp::Equal { len, .. } => index += len,
                 DiffOp::Insert {
                     new_index, new_len, ..
@@ -117,16 +118,83 @@ where
                     }
                 }
                 DiffOp::Replace {
+                    old_index,
                     old_len,
                     new_index,
                     new_len,
-                    ..
                 } => {
-                    ops.push(Operation::Replace {
-                        keys: keys_from_index(index),
-                        items: old_len,
-                        value: Box::new(other[new_index..(new_index + new_len)].to_vec()),
-                    });
+                    // Attempt to generate more fine-grained operations for each item instead of
+                    // just replacing them all
+                    let mut replace_ops = Vec::new();
+
+                    // Diff each item for which there is an old and new item.
+                    // Merge `Replace` operations together at this level, rather than have several
+                    // replaces at the lower level
+                    for item_index in 0usize..min(old_len, new_len) {
+                        let mut differ = Differ::default();
+                        differ.item(
+                            item_index,
+                            &self[old_index + item_index],
+                            &other[new_index + item_index],
+                        );
+                        let mut item_ops = differ.patch;
+                        // If there is only one operation...
+                        if item_ops.len() == 1 {
+                            // and its a `Replace`...
+                            if let Some(Operation::Replace { keys, items, .. }) = item_ops.get(0) {
+                                // at the root of the item.
+                                if keys.len() == 1 {
+                                    // Then, if the previous operation is a `Replace` at the root
+                                    if let Some(Operation::Replace {
+                                        keys: last_keys,
+                                        items: last_items,
+                                        value: last_value,
+                                        ..
+                                    }) = replace_ops.last_mut()
+                                    {
+                                        if last_keys.len() == 1 {
+                                            *last_items = *items + 1;
+                                            last_value
+                                                .downcast_mut::<Vec<Type>>()
+                                                .expect("To be a Vec<Type>")
+                                                .push(other[new_index + item_index].clone());
+                                        }
+                                        continue;
+                                    }
+
+                                    // Otherwise, add it
+                                    replace_ops.push(Operation::Replace {
+                                        keys: keys.clone(),
+                                        items: *items,
+                                        value: Box::new(
+                                            vec![other[new_index + item_index].clone()],
+                                        ),
+                                    });
+                                    continue;
+                                }
+                            }
+                        }
+                        // Otherwise append to replacement ops
+                        replace_ops.append(&mut item_ops);
+                    }
+
+                    if new_len > old_len {
+                        // Add remaining items
+                        replace_ops.push(Operation::Add {
+                            keys: keys_from_index(old_len),
+                            value: Box::new(
+                                other[(new_index + old_len)..(new_index + new_len)].to_vec(),
+                            ),
+                        });
+                    } else if new_len < old_len {
+                        // Remove remaining items
+                        replace_ops.push(Operation::Remove {
+                            keys: keys_from_index(new_len),
+                            items: old_len - new_len,
+                        });
+                    }
+
+                    ops.append(&mut replace_ops);
                     index += new_len;
                 }
             }
@@ -337,6 +405,8 @@ mod tests {
     use pretty_assertions::assert_eq;
     use stencila_schema::Integer;
 
+    // Test patches that operate on atomic items (integers) with no
+    // pass though.
     #[test]
     fn basic() {
         let empty: Vec<Integer> = vec![];
@@ -415,6 +485,62 @@ mod tests {
             ]
         );
         assert_json_eq!(apply_new(&a, &patch), b);
+    }
+
+    // Test patches that operate on compound items (strings) to check that
+    // fine grained operations are generated for each item and passed through on apply.
+    #[test]
+    fn item_ops() {
+        // Add
+
+        let a = vec!["a".to_string()];
+        let b = vec!["ab".to_string()];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "add", "keys": [0, 1], "value": "b" },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+
+        // Remove
+
+        let a = vec!["ab".to_string()];
+        let b = vec!["a".to_string()];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "remove", "keys": [0, 1], "items": 1 },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+
+        // Replace
+
+        let a = vec!["a".to_string()];
+        let b = vec!["b".to_string()];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "replace", "keys": [0, 0], "items": 1, "value": "b" },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+    }
+
+    // As above, but with an extra `Add` or `Remove` as needed.
+    #[test]
+    fn item_ops_plus() {
+        let a = vec!["a".to_string()];
+        let b = vec!["ab".to_string(), "c".to_string()];
+
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "add", "keys": [0, 1], "value": "b" },
+            { "op": "add", "keys": [1], "value": ["c"] },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+
+        let patch = diff(&b, &a);
+        assert_json!(patch, [
+            { "op": "remove", "keys": [0, 1], "items": 1 },
+            { "op": "remove", "keys": [1], "items": 1 },
+        ]);
+        assert_eq!(apply_new(&b, &patch), a);
     }
 
     // Regression tests of minimal failing cases found using property testing

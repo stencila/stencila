@@ -146,27 +146,29 @@ fn serialize_value<S>(value: &Box<dyn Any>, serializer: S) -> Result<S::Ok, S::E
 where
     S: Serializer,
 {
-    if let Some(value) = value.downcast_ref::<Boolean>() {
-        value.serialize(serializer)
-    } else if let Some(value) = value.downcast_ref::<Integer>() {
-        value.serialize(serializer)
-    } else if let Some(value) = value.downcast_ref::<Vec<Integer>>() {
-        value.serialize(serializer)
-    } else if let Some(value) = value.downcast_ref::<Number>() {
-        value.serialize(serializer)
-    } else if let Some(value) = value.downcast_ref::<String>() {
-        value.serialize(serializer)
-    } else if let Some(value) = value.downcast_ref::<InlineContent>() {
-        value.serialize(serializer)
-    } else if let Some(value) = value.downcast_ref::<Vec<InlineContent>>() {
-        value.serialize(serializer)
-    } else if let Some(value) = value.downcast_ref::<BlockContent>() {
-        value.serialize(serializer)
-    } else if let Some(value) = value.downcast_ref::<Vec<BlockContent>>() {
-        value.serialize(serializer)
-    } else {
-        serializer.serialize_str("<unserialized type>")
+    macro_rules! ser {
+        ($type:ty) => {
+            if let Some(value) = value.downcast_ref::<$type>() {
+                return value.serialize(serializer);
+            }
+        };
     }
+
+    ser!(Boolean);
+    ser!(Integer);
+    ser!(Number);
+    ser!(String);
+    ser!(InlineContent);
+    ser!(BlockContent);
+
+    ser!(Vec<Boolean>);
+    ser!(Vec<Integer>);
+    ser!(Vec<Number>);
+    ser!(Vec<String>);
+    ser!(Vec<InlineContent>);
+    ser!(Vec<BlockContent>);
+
+    return serializer.serialize_str("<unserialized type>");
 }
 
 /// A key of a `struct`, `HashMap`, or `Vec` used to locate an operation.
@@ -181,6 +183,12 @@ pub type Keys = VecDeque<Key>;
 
 fn keys_from_index(index: usize) -> Keys {
     VecDeque::from_iter(vec![Key::Index(index)])
+}
+
+fn keys_concat(begin: &Keys, end: &Keys) -> Keys {
+    let mut keys = begin.clone();
+    keys.append(&mut end.clone());
+    keys
 }
 
 /// A differencing `struct` used as an optimization to track the keys describing the
@@ -215,33 +223,28 @@ impl Differ {
 
     /// Append a list of operations nested within the current keys
     pub fn append(&mut self, ops: Vec<Operation>) {
-        let concat_keys = |begin: &VecDeque<Key>, end: &VecDeque<Key>| {
-            let mut keys = begin.clone();
-            keys.append(&mut end.clone());
-            keys
-        };
         for op in ops {
             let op = match op {
                 Operation::Add { keys, value } => Operation::Add {
-                    keys: concat_keys(&self.keys, &keys),
+                    keys: keys_concat(&self.keys, &keys),
                     value,
                 },
                 Operation::Remove { keys, items } => Operation::Remove {
-                    keys: concat_keys(&self.keys, &keys),
+                    keys: keys_concat(&self.keys, &keys),
                     items,
                 },
                 Operation::Replace { keys, items, value } => Operation::Replace {
-                    keys: concat_keys(&self.keys, &keys),
+                    keys: keys_concat(&self.keys, &keys),
                     items,
                     value,
                 },
                 Operation::Move { from, items, to } => Operation::Move {
-                    from: concat_keys(&self.keys, &from),
+                    from: keys_concat(&self.keys, &from),
                     items,
-                    to: concat_keys(&self.keys, &to),
+                    to: keys_concat(&self.keys, &to),
                 },
                 Operation::Transform { keys, from, to } => Operation::Transform {
-                    keys: concat_keys(&self.keys, &keys),
+                    keys: keys_concat(&self.keys, &keys),
                     from,
                     to,
                 },
