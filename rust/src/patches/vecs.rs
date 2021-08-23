@@ -71,23 +71,77 @@ where
 
         let mut index = 0;
         let mut ops = Vec::new();
+        let mut removes: HashMap<usize, (usize, usize)> = HashMap::new();
         for diff_op in diff_ops {
             match diff_op {
                 DiffOp::Equal { len, .. } => index += len,
                 DiffOp::Insert {
                     new_index, new_len, ..
                 } => {
-                    ops.push(Operation::Add {
-                        keys: keys_from_index(index),
-                        value: Box::new(other[new_index..(new_index + new_len)].to_vec()),
-                        length: new_len,
-                    });
+                    // Attempt to find a previous `Remove` operation, at the top level, with the same value,
+                    // remove it, and add a `Move` here. Otherwise add a `Add`.
+                    let mut matched = false;
+                    let mut shift = 0i32;
+                    let added_value = other[new_index..(new_index + new_len)].to_vec();
+                    for prev in (0..ops.len()).rev() {
+                        let op = &ops[prev];
+                        match op {
+                            Operation::Add { keys, length, .. } => {
+                                if keys.len() == 1 {
+                                    shift -= *length as i32;
+                                }
+                            }
+                            Operation::Remove { keys, items, .. } => {
+                                if keys.len() == 1 {
+                                    shift += *items as i32;
+                                    let remove_index = if let Key::Index(remove_index) = keys[0] {
+                                        remove_index
+                                    } else {
+                                        panic!("Should be a index")
+                                    };
+                                    let removed = removes
+                                        .get(&remove_index)
+                                        .expect("To have an entry for all removes");
+                                    let removed_value =
+                                        self[removed.0..(removed.0 + removed.1)].to_vec();
+                                    if added_value.is_equal(&removed_value).is_ok() {
+                                        ops[prev] = Operation::Move {
+                                            from: keys.clone(),
+                                            items: *items,
+                                            to: keys_from_index((index as i32 + shift) as usize),
+                                        };
+                                        matched = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            Operation::Replace {
+                                keys,
+                                items,
+                                length,
+                                ..
+                            } => {
+                                if keys.len() == 1 {
+                                    shift -= *length as i32 - *items as i32
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                    if !matched {
+                        ops.push(Operation::Add {
+                            keys: keys_from_index(index),
+                            value: Box::new(added_value),
+                            length: new_len,
+                        })
+                    }
+
                     index += new_len
                 }
                 DiffOp::Delete {
                     old_index, old_len, ..
                 } => {
-                    // Attempt to find a previous `Add` operations, at the vector level, with the same value
+                    // Attempt to find a previous `Add` operations, at the top level, with the same value
                     // and replace it with a `Move` from here.
                     let mut matched = false;
                     let mut shift = 0i32;
@@ -140,6 +194,7 @@ where
                             keys: keys_from_index(index),
                             items: old_len,
                         });
+                        removes.insert(index, (old_index, old_len));
                     }
                 }
                 DiffOp::Replace {
@@ -236,6 +291,7 @@ where
                                 keys: keys_from_index(index),
                                 items: old_len - new_len,
                             });
+                            removes.insert(index, (old_index, old_len));
                         }
                     }
 
@@ -474,14 +530,14 @@ mod tests {
             patch,
             [{ "op": "add", "keys": [0], "value": [1, 2], "length": 2 }]
         );
-        assert_json_eq!(apply_new(&empty, &patch), b);
+        assert_eq!(apply_new(&empty, &patch), b);
 
         let patch = diff(&b, &empty);
         assert_json!(
             patch,
             [{ "op": "remove", "keys": [0], "items": 2 }]
         );
-        assert_json_eq!(apply_new(&b, &patch), empty);
+        assert_eq!(apply_new(&b, &patch), empty);
 
         // Add
 
@@ -492,7 +548,7 @@ mod tests {
             patch,
             [{ "op": "add", "keys": [1], "value": [2], "length": 1 }]
         );
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch), b);
 
         // Remove
 
@@ -503,7 +559,7 @@ mod tests {
             patch,
             [{ "op": "remove", "keys": [1], "items": 1 }]
         );
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch), b);
 
         // Replace
 
@@ -514,7 +570,7 @@ mod tests {
             patch,
             [{ "op": "replace", "keys": [0], "items": 2, "value": [3, 4], "length": 2 }]
         );
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch), b);
 
         // Move
 
@@ -526,7 +582,17 @@ mod tests {
                 { "op": "move", "from": [1], "items": 1, "to": [0] }
             ]
         );
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch), b);
+
+        let a: Vec<Integer> = vec![1, 2, 3, 4];
+        let b: Vec<Integer> = vec![2, 3, 1, 4];
+        let patch = diff(&a, &b);
+        assert_json!(
+            patch, [
+                { "op": "move", "from": [0], "items": 1, "to": [3] }
+            ]
+        );
+        assert_eq!(apply_new(&a, &patch), b);
     }
 
     // Test patches that operate on compound items (strings) to check that
@@ -668,6 +734,65 @@ mod tests {
             { "op": "add", "keys": [0, 1], "value": "d", "length": 1 },
             { "op": "add", "keys": [1], "value": ["a"], "length": 1 },
             { "op": "remove", "keys": [3], "items": 1 },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+    }
+
+    #[test]
+    fn regression_6() {
+        let a = vec!["".to_string(), "a".to_string(), "".to_string()];
+        let b = vec![
+            "b".to_string(),
+            "".to_string(),
+            "".to_string(),
+            "b".to_string(),
+        ];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "add", "keys": [0], "value": ["b"], "length": 1 },
+            { "op": "remove", "keys": [2], "items": 1 },
+            { "op": "add", "keys": [3], "value": ["b"], "length": 1 },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+    }
+
+    #[test]
+    fn regression_7() {
+        let a = vec![1, 7, 3];
+        let b = vec![7, 3, 1];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "move", "from": [0], "items": 1, "to": [3] },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+    }
+
+    #[test]
+    fn regression_8() {
+        let a = vec![3, 0, 7];
+        let b = vec![0, 1, 7, 3];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "move", "from": [0], "items": 1, "to": [3] },
+            { "op": "add", "keys": [1], "value": [1], "length": 1 },
+        ]);
+        assert_eq!(apply_new(&a, &patch), b);
+    }
+
+    #[test]
+    fn regression_9() {
+        let a = vec![
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+            "d".to_string(),
+        ];
+        let b = vec!["a".to_string(), "d".to_string(), "".to_string()];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "op": "add", "keys": [0, 0], "value": "a", "length": 1 },
+            { "op": "remove", "keys": [1], "items": 2 },
+            { "op": "add", "keys": [2], "value": [""], "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }

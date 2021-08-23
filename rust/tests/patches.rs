@@ -74,8 +74,8 @@ proptest! {
     // Vectors of strings (which may have internal `Add`, `Remove`, `Replace` operations)
     #[test]
     fn vec_strings(
-        a in vec("[a-e]{0,10}", size_range(0..10)),
-        b in vec("[a-e]{0,10}", size_range(0..10))
+        a in vec("[a-e]{0,5}", size_range(0..10)),
+        b in vec("[a-e]{0,5}", size_range(0..10))
     ) {
         let patch = diff(&a, &b);
         assert_json_eq!(apply_new(&a, &patch), b)
