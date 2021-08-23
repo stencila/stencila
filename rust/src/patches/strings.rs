@@ -93,11 +93,13 @@ impl Patchable for String {
                             keys,
                             items,
                             value: Box::new(value.clone()),
+                            length: value.chars().count(),
                         });
                     } else {
                         ops.push(Operation::Add {
                             keys,
                             value: Box::new(value.clone()),
+                            length: value.chars().count(),
                         });
                     }
                 };
@@ -194,21 +196,21 @@ mod tests {
         let patch = diff(&empty, &a);
         assert_json!(
             patch,
-            [{ "op": "add", "keys": [0], "value": "1" }]
+            [{ "op": "add", "keys": [0], "value": "1", "length": 1 }]
         );
         assert_eq!(apply_new(&empty, &patch), a);
 
         let patch = diff(&empty, &d);
         assert_json!(
             patch,
-            [{ "op": "add", "keys": [0], "value": "abcdef" }]
+            [{ "op": "add", "keys": [0], "value": "abcdef", "length": 6 }]
         );
         assert_eq!(apply_new(&empty, &patch), d);
 
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{ "op": "add", "keys": [1], "value": "23" }]
+            [{ "op": "add", "keys": [1], "value": "23", "length": 2 }]
         );
         assert_eq!(apply_new(&a, &patch), b);
 
@@ -237,14 +239,14 @@ mod tests {
         let patch = diff(&a, &c);
         assert_json!(
             patch,
-            [{ "op": "replace", "keys": [0], "items": 1, "value": "a2b3" }]
+            [{ "op": "replace", "keys": [0], "items": 1, "value": "a2b3", "length": 4 }]
         );
         assert_eq!(apply_new(&a, &patch), c);
 
         let patch = diff(&b, &d);
         assert_json!(
             patch,
-            [{ "op": "replace", "keys": [0], "items": 3, "value": "abcdef" }]
+            [{ "op": "replace", "keys": [0], "items": 3, "value": "abcdef", "length": 6 }]
         );
         assert_eq!(apply_new(&b, &patch), d);
 
@@ -255,7 +257,7 @@ mod tests {
             patch,
             [
                 { "op": "remove", "keys": [1], "items": 1 },
-                { "op": "replace", "keys": [2], "items": 1, "value": "cdef" }
+                { "op": "replace", "keys": [2], "items": 1, "value": "cdef", "length": 4 }
             ]
         );
         assert_eq!(apply_new(&c, &patch), d);
@@ -264,8 +266,8 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "add", "keys": [1], "value": "2" },
-                { "op": "replace", "keys": [3], "items": 4, "value": "3" }
+                { "op": "add", "keys": [1], "value": "2", "length": 1 },
+                { "op": "replace", "keys": [3], "items": 4, "value": "3", "length": 1 }
             ]
         );
         assert_eq!(apply_new(&d, &patch), c);
@@ -274,8 +276,8 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "add", "keys": [1], "value": "d" },
-                { "op": "replace", "keys": [4], "items": 1, "value": "f" },
+                { "op": "add", "keys": [1], "value": "d", "length": 1 },
+                { "op": "replace", "keys": [4], "items": 1, "value": "f", "length": 1 },
                 { "op": "remove", "keys": [6], "items": 1 }
             ]
         );
@@ -292,21 +294,21 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "add", "keys": [1], "value": "1👍🏻2" },
+            { "op": "add", "keys": [1], "value": "1👍🏻2", "length": 4 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
 
         let patch = diff(&b, &c);
         assert_json!(patch, [
             { "op": "remove", "keys": [0], "items": 1 },
-            { "op": "replace", "keys": [2], "items": 1, "value": "🏿" },
+            { "op": "replace", "keys": [2], "items": 1, "value": "🏿", "length": 1 },
         ]);
         assert_eq!(apply_new(&b, &patch), c);
 
         let patch = diff(&c, &b);
         assert_json!(patch, [
-            { "op": "add", "keys": [0], "value": "ä" },
-            { "op": "replace", "keys": [3], "items": 1, "value": "🏻" },
+            { "op": "add", "keys": [0], "value": "ä", "length": 1 },
+            { "op": "replace", "keys": [3], "items": 1, "value": "🏻", "length": 1 },
         ]);
         assert_eq!(apply_new(&c, &patch), b);
     }
@@ -321,7 +323,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             { "op": "remove", "keys": [0], "items": 1 },
-            { "op": "add", "keys": [1], "value": "c" },
+            { "op": "add", "keys": [1], "value": "c", "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }
@@ -334,8 +336,8 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "replace", "keys": [0], "items": 1, "value": "b" },
-                { "op": "add", "keys": [2], "value": "d" },
+                { "op": "replace", "keys": [0], "items": 1, "value": "b", "length": 1 },
+                { "op": "add", "keys": [2], "value": "d", "length": 1 },
             ]
         );
         assert_eq!(apply_new(&a, &patch), b);

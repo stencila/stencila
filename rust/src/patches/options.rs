@@ -115,7 +115,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "add", "keys": [], "value": "abc".to_string()}]
+            [{"op": "add", "keys": [], "value": "abc".to_string(), "length": 1}]
         );
         assert_json!(apply_new(&a, &patch), b);
 
@@ -125,7 +125,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "add", "keys": [1], "value": "bc".to_string()}]
+            [{"op": "add", "keys": [1], "value": "bc".to_string(), "length": 2}]
         );
         assert_json!(apply_new(&a, &patch), b);
 
@@ -155,7 +155,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "replace", "keys": [1], "items": 1, "value": "@"}]
+            [{"op": "replace", "keys": [1], "items": 1, "value": "@", "length": 1}]
         );
         assert_json!(apply_new(&a, &patch), b);
     }

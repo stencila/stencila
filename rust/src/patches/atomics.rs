@@ -94,7 +94,7 @@ mod tests {
 
         assert_json!(diff(&true, &true), []);
         assert_json!(diff(&false, &false), []);
-        assert_json!(diff(&true, &false), [{"op": "replace", "keys": [], "items": 1, "value": false}]);
+        assert_json!(diff(&true, &false), [{"op": "replace", "keys": [], "items": 1, "value": false, "length": 1}]);
 
         assert_json!(apply_new(&true, &diff(&true, &false)), false);
         assert_json!(apply_new(&false, &diff(&false, &true)), true);
@@ -106,7 +106,7 @@ mod tests {
         assert!(!equal(&42, &1));
 
         assert_json!(diff(&42, &42), []);
-        assert_json!(diff(&42, &1), [{"op": "replace", "keys": [], "items": 1, "value": 1}]);
+        assert_json!(diff(&42, &1), [{"op": "replace", "keys": [], "items": 1, "value": 1, "length": 1}]);
 
         assert_json!(apply_new(&1, &diff(&1, &42)), 42);
     }
@@ -117,7 +117,7 @@ mod tests {
         assert!(!equal(&3.14, &1e6));
 
         assert_json!(diff(&3.14, &3.14), []);
-        assert_json!(diff(&3.14, &1e6), [{"op": "replace", "keys": [], "items": 1, "value": 1e6}]);
+        assert_json!(diff(&3.14, &1e6), [{"op": "replace", "keys": [], "items": 1, "value": 1e6, "length": 1}]);
 
         assert_json!(apply_new(&1e6, &diff(&1e6, &3.14)), 3.14);
     }

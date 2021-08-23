@@ -80,6 +80,13 @@ type Patch = Vec<Operation>;
 /// In contrast to JSON Patch, which uses a [JSON Pointer](http://tools.ietf.org/html/rfc6901)
 /// to describe the location of additions and removals, these operations use a double ended queue
 /// of [`Key`]s for improved performance and type safety.
+///
+/// The `length` field on `Add` and `Replace` is not necessary for applying operations, but
+/// is useful for generating them and for determining if there are conflicts between two patches
+/// without having to downcast the `value`.
+///
+/// Note that for `String`s indices in `keys`, `items` and `length` all refer to Unicode characters,
+/// not bytes.
 #[derive(Debug, Serialize)]
 #[serde(tag = "op", rename_all = "lowercase")]
 pub enum Operation {
@@ -91,15 +98,16 @@ pub enum Operation {
         /// The value to add
         #[serde(serialize_with = "serialize_value")]
         value: Box<dyn Any>,
+
+        /// The number of items added
+        length: usize,
     },
     /// Remove one or more values
     Remove {
         /// The location from which to remove the value/s
         keys: Keys,
 
-        /// The number of items to remove forward from the location
-        ///
-        /// Only relevant for sequences i.e. `Vec` or `String`
+        /// The number of items to remove
         items: usize,
     },
     /// Replace one or more values
@@ -107,12 +115,15 @@ pub enum Operation {
         /// The location which should be replaced
         keys: Keys,
 
-        /// The number of items to remove forward from the location
+        /// The number of items to replace
         items: usize,
 
         /// The replacement value
         #[serde(serialize_with = "serialize_value")]
         value: Box<dyn Any>,
+
+        /// The number of items added
+        length: usize,
     },
     /// Move a value from one location in a node tree, to another
     Move {
@@ -225,18 +236,29 @@ impl Differ {
     pub fn append(&mut self, ops: Vec<Operation>) {
         for op in ops {
             let op = match op {
-                Operation::Add { keys, value } => Operation::Add {
+                Operation::Add {
+                    keys,
+                    value,
+                    length,
+                } => Operation::Add {
                     keys: keys_concat(&self.keys, &keys),
                     value,
+                    length,
                 },
                 Operation::Remove { keys, items } => Operation::Remove {
                     keys: keys_concat(&self.keys, &keys),
                     items,
                 },
-                Operation::Replace { keys, items, value } => Operation::Replace {
+                Operation::Replace {
+                    keys,
+                    items,
+                    value,
+                    length,
+                } => Operation::Replace {
                     keys: keys_concat(&self.keys, &keys),
                     items,
                     value,
+                    length,
                 },
                 Operation::Move { from, items, to } => Operation::Move {
                     from: keys_concat(&self.keys, &from),
@@ -258,6 +280,7 @@ impl Differ {
         self.patch.push(Operation::Add {
             keys: self.keys.clone(),
             value: Box::new(value.clone()),
+            length: 1,
         })
     }
 
@@ -275,6 +298,7 @@ impl Differ {
             keys: self.keys.clone(),
             items: 1,
             value: Box::new(value.clone()),
+            length: 1,
         })
     }
 
@@ -373,11 +397,11 @@ pub trait Patchable {
     /// Apply a patch operation to this node.
     fn apply(&mut self, op: &Operation) {
         match op {
-            Operation::Add { keys, value } => self.apply_add(&mut keys.clone(), value),
+            Operation::Add { keys, value, .. } => self.apply_add(&mut keys.clone(), value),
             Operation::Remove { keys, items } => self.apply_remove(&mut keys.clone(), *items),
-            Operation::Replace { keys, items, value } => {
-                self.apply_replace(&mut keys.clone(), *items, value)
-            }
+            Operation::Replace {
+                keys, items, value, ..
+            } => self.apply_replace(&mut keys.clone(), *items, value),
             Operation::Move { from, items, to } => {
                 self.apply_move(&mut from.clone(), *items, &mut to.clone())
             }
@@ -688,7 +712,8 @@ mod tests {
             [{
                 "op": "add",
                 "keys": ["content", 0],
-                "value": ["word1", "word2"]
+                "value": ["word1", "word2"],
+                "length": 2
             }]
         );
 
