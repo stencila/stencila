@@ -61,13 +61,9 @@ where
             }]);
         }
 
-        let mapper = Mapper::new(self, other);
-
-        let diff_ops = similar::capture_diff_slices(
-            similar::Algorithm::Patience,
-            &mapper.a_ids,
-            &mapper.b_ids,
-        );
+        let (me_ids, other_ids) = unique_items(self, other);
+        let diff_ops =
+            similar::capture_diff_slices(similar::Algorithm::Patience, &me_ids, &other_ids);
 
         let mut index = 0;
         let mut ops = Vec::new();
@@ -419,6 +415,7 @@ where
     }
 }
 
+/// An item used in the has map for the `unique_items` function below
 struct Item<'lt, Type>
 where
     Type: Patchable,
@@ -446,54 +443,37 @@ where
 
 impl<'lt, Type> Eq for Item<'lt, Type> where Type: Patchable {}
 
-struct Mapper<'lt, Type>
-where
-    Type: Patchable,
-{
-    #[allow(dead_code)]
-    map: HashMap<Item<'lt, Type>, u32>,
+/// Generate unique integer ids for items across two vectors using the
+/// the `make_hash` trait property.
+fn unique_items<Type: Patchable>(a: &[Type], b: &[Type]) -> (Vec<u32>, Vec<u32>) {
+    let mut map = HashMap::new();
+    let mut id = 0;
+    let mut a_ids = Vec::new();
+    let mut b_ids = Vec::new();
 
-    // The `a` vector represented as ids
-    a_ids: Vec<u32>,
-
-    // The `b` vector represented as ids
-    b_ids: Vec<u32>,
-}
-
-impl<'lt, Type> Mapper<'lt, Type>
-where
-    Type: Patchable,
-{
-    fn new(a: &'lt [Type], b: &'lt [Type]) -> Self {
-        let mut map = HashMap::new();
-        let mut id = 0;
-        let mut a_ids = Vec::new();
-        let mut b_ids = Vec::new();
-
-        for item in a {
-            let id = match map.entry(Item { item }) {
-                Entry::Occupied(occupied) => *occupied.get(),
-                Entry::Vacant(vacant) => {
-                    id += 1;
-                    *vacant.insert(id)
-                }
-            };
-            a_ids.push(id);
-        }
-
-        for item in b {
-            let id = match map.entry(Item { item }) {
-                Entry::Occupied(occupied) => *occupied.get(),
-                Entry::Vacant(vacant) => {
-                    id += 1;
-                    *vacant.insert(id)
-                }
-            };
-            b_ids.push(id);
-        }
-
-        Mapper { map, a_ids, b_ids }
+    for item in a {
+        let id = match map.entry(Item { item }) {
+            Entry::Occupied(occupied) => *occupied.get(),
+            Entry::Vacant(vacant) => {
+                id += 1;
+                *vacant.insert(id)
+            }
+        };
+        a_ids.push(id);
     }
+
+    for item in b {
+        let id = match map.entry(Item { item }) {
+            Entry::Occupied(occupied) => *occupied.get(),
+            Entry::Vacant(vacant) => {
+                id += 1;
+                *vacant.insert(id)
+            }
+        };
+        b_ids.push(id);
+    }
+
+    (a_ids, b_ids)
 }
 
 #[cfg(test)]
