@@ -43,9 +43,7 @@ pub fn apply<Type>(node: &mut Type, patch: &[Operation])
 where
     Type: Patchable,
 {
-    for op in patch {
-        node.apply(op)
-    }
+    node.apply_patch(patch)
 }
 
 /// Apply a [`Patch`] to a clone of a node of any type.
@@ -54,7 +52,7 @@ where
     Type: Patchable + Clone,
 {
     let mut node = node.clone();
-    apply(&mut node, patch);
+    node.apply_patch(patch);
     node
 }
 
@@ -394,8 +392,15 @@ pub trait Patchable {
         differ.replace(other)
     }
 
-    /// Apply a patch operation to this node.
-    fn apply(&mut self, op: &Operation) {
+    /// Apply a patch to this node.
+    fn apply_patch(&mut self, patch: &[Operation]) {
+        for op in patch {
+            self.apply_op(op)
+        }
+    }
+
+    /// Apply an operation to this node.
+    fn apply_op(&mut self, op: &Operation) {
         match op {
             Operation::Add { keys, value, .. } => self.apply_add(&mut keys.clone(), value),
             Operation::Remove { keys, items } => self.apply_remove(&mut keys.clone(), *items),
