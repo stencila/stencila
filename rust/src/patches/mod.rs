@@ -593,8 +593,8 @@ macro_rules! patchable_apply_transform {
     };
 }
 
-/// Generate all the the  patchable methods for a `struct` by passing
-/// a list of fields tfor comparision, diffing, and applying ops.
+/// Generate all the patchable methods for a `struct` by passing
+/// a list of fields for comparison, diffing, and applying ops.
 macro_rules! patchable_struct {
     ($type:ty $(, $field:ident )*) => {
         impl Patchable for $type {
