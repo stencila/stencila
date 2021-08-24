@@ -466,6 +466,12 @@ macro_rules! patchable_is_equal {
 macro_rules! patchable_hash {
     ($( $field:ident )*) => {
         fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
+            // Include the type name in the hash (to avoid clash when structs
+            // of different types have the same values for different fields)
+            use std::hash::Hash;
+            type_name::<Self>().hash(state);
+            // Include the hash of supplied fields. Because we include the type
+            // name in the hash, we do no need to include the field names.
             $(
                 self.$field.make_hash(state);
             )*
