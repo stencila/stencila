@@ -83,9 +83,7 @@ impl Patchable for InlineContent {
             (InlineContent::VideoObject(me), InlineContent::VideoObject(other)) => me.diff_same(differ, other),
 
             // Different variants so attempt to transform from one to the other
-            _ => {
-                diff_transform(differ, self, other)
-            }
+            _ => diff_transform(differ, self, other)
         }
     }
 
@@ -226,9 +224,11 @@ fn apply_transform(from: &InlineContent, to: &str) -> InlineContent {
     }
 }
 
-// TODO add all relevant fields for each type (may need additional impl Patchable)
+// Implementations for `InlineContent` structs
+// TODO: add all relevant fields to each struct
+
 patchable_struct!(AudioObjectSimple, content_url);
-patchable_todo!(Cite);
+patchable_struct!(Cite);
 patchable_struct!(CiteGroup, items);
 patchable_struct!(CodeExpression, programming_language, text);
 patchable_struct!(CodeFragment, programming_language, text);
@@ -239,7 +239,7 @@ patchable_struct!(Link, content, target);
 patchable_struct!(MathFragment, math_language, text);
 patchable_struct!(NontextualAnnotation, content);
 patchable_struct!(Note, content);
-patchable_todo!(Parameter);
+patchable_struct!(Parameter);
 patchable_struct!(Quote, content);
 patchable_struct!(Strong, content);
 patchable_struct!(Subscript, content);

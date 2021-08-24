@@ -456,8 +456,9 @@ macro_rules! patchable_is_same {
 }
 
 /// Generate the `is_equal` method for a `struct`
-macro_rules! patchable_is_equal {
+macro_rules! patchable_struct_is_equal {
     ($( $field:ident )*) => {
+        #[allow(unused_variables)]
         fn is_equal(&self, other: &Self) -> Result<()> {
             $(
                 self.$field.is_equal(&other.$field)?;
@@ -468,7 +469,7 @@ macro_rules! patchable_is_equal {
 }
 
 /// Generate the `hash` method for a `struct`
-macro_rules! patchable_hash {
+macro_rules! patchable_struct_hash {
     ($( $field:ident )*) => {
         fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
             // Include the type name in the hash (to avoid clash when structs
@@ -498,8 +499,9 @@ macro_rules! patchable_diff {
 }
 
 /// Generate the `diff_same` method for a `struct`
-macro_rules! patchable_diff_same {
+macro_rules! patchable_struct_diff_same {
     ($( $field:ident )*) => {
+        #[allow(unused_variables)]
         fn diff_same(&self, differ: &mut Differ, other: &Self) {
             $(
                 differ.field(stringify!($field), &self.$field, &other.$field);
@@ -509,8 +511,9 @@ macro_rules! patchable_diff_same {
 }
 
 /// Generate the `apply_add` method for a `struct`
-macro_rules! patchable_apply_add {
+macro_rules! patchable_struct_apply_add {
     ($( $field:ident )*) => {
+        #[allow(unused_variables)]
         fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
             if let Some(Key::Name(name)) = keys.pop_front() {
                 match name.as_str() {
@@ -527,8 +530,9 @@ macro_rules! patchable_apply_add {
 }
 
 /// Generate the `apply_remove` method for a `struct`
-macro_rules! patchable_apply_remove {
+macro_rules! patchable_struct_apply_remove {
     ($( $field:ident )*) => {
+        #[allow(unused_variables)]
         fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
             if let Some(Key::Name(name)) = keys.pop_front() {
                 match name.as_str() {
@@ -545,8 +549,9 @@ macro_rules! patchable_apply_remove {
 }
 
 /// Generate the `apply_replace` method for a `struct`
-macro_rules! patchable_apply_replace {
+macro_rules! patchable_struct_apply_replace {
     ($( $field:ident )*) => {
+        #[allow(unused_variables)]
         fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {
             if let Some(Key::Name(name)) = keys.pop_front() {
                 match name.as_str() {
@@ -563,8 +568,9 @@ macro_rules! patchable_apply_replace {
 }
 
 /// Generate the `apply_move` method for a `struct`
-macro_rules! patchable_apply_move {
+macro_rules! patchable_struct_apply_move {
     ($( $field:ident )*) => {
+        #[allow(unused_variables)]
         fn apply_move(&mut self, from: &mut Keys, items: usize, to: &mut Keys) {
             if let (Some(Key::Name(name)), Some(Key::Name(_name_again))) = (from.pop_front(), to.pop_front()) {
                 match name.as_str() {
@@ -581,8 +587,9 @@ macro_rules! patchable_apply_move {
 }
 
 /// Generate the `apply_transform` method for a `struct`
-macro_rules! patchable_apply_transform {
+macro_rules! patchable_struct_apply_transform {
     ($( $field:ident )*) => {
+        #[allow(unused_variables)]
         fn apply_transform(&mut self, keys: &mut Keys, from: &str, to: &str) {
             if let Some(Key::Name(name)) = keys.pop_front() {
                 match name.as_str() {
@@ -604,40 +611,17 @@ macro_rules! patchable_struct {
     ($type:ty $(, $field:ident )*) => {
         impl Patchable for $type {
             patchable_is_same!();
-            patchable_is_equal!($( $field )*);
-            patchable_hash!($( $field )*);
+            patchable_struct_is_equal!($( $field )*);
+            patchable_struct_hash!($( $field )*);
 
             patchable_diff!();
-            patchable_diff_same!($( $field )*);
+            patchable_struct_diff_same!($( $field )*);
 
-            patchable_apply_add!($( $field )*);
-            patchable_apply_remove!($( $field )*);
-            patchable_apply_replace!($( $field )*);
-            patchable_apply_move!($( $field )*);
-            patchable_apply_transform!($( $field )*);
-        }
-    };
-}
-
-/// Generate the `impl Patchable` for a type
-macro_rules! patchable_todo {
-    ($type:ty) => {
-        impl Patchable for $type {
-            patchable_is_same!();
-
-            fn is_equal(&self, _other: &Self) -> Result<()> {
-                todo!()
-            }
-
-            fn make_hash<H: Hasher>(&self, _state: &mut H) {
-                todo!()
-            }
-
-            patchable_diff!();
-
-            fn diff_same(&self, _differ: &mut Differ, _other: &Self) {
-                todo!()
-            }
+            patchable_struct_apply_add!($( $field )*);
+            patchable_struct_apply_remove!($( $field )*);
+            patchable_struct_apply_replace!($( $field )*);
+            patchable_struct_apply_move!($( $field )*);
+            patchable_struct_apply_transform!($( $field )*);
         }
     };
 }

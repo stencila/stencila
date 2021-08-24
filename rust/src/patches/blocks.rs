@@ -1,11 +1,16 @@
 use super::prelude::*;
 use crate::dispatch_block;
 use std::hash::Hasher;
+use std::ops::Deref;
 use stencila_schema::{
     BlockContent, ClaimSimple, CodeBlock, CodeChunk, CollectionSimple, FigureSimple, Heading,
     Include, List, MathBlock, Paragraph, QuoteBlock, TableSimple, ThematicBreak,
 };
 
+/// Implements patching for `BlockContent`
+///
+/// Generates and applies `Replace` and `Transform` operations between variants of block content.
+/// All other operations are passed through to variants.
 impl Patchable for BlockContent {
     patchable_is_same!();
 
@@ -57,11 +62,9 @@ impl Patchable for BlockContent {
             (BlockContent::ThematicBreak(me), BlockContent::ThematicBreak(other)) => me.diff_same(differ, other),
 
             // Different variants so attempt to transform from one to the other
-            _ => todo!("transform types"),
+            _ => diff_transform(differ, self, other)
         }
     }
-
-    // All operations, except `Transform`, are passed through to the variant
 
     fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
         dispatch_block!(self, apply_add, keys, value);
@@ -72,34 +75,57 @@ impl Patchable for BlockContent {
     }
 
     fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {
-        dispatch_block!(self, apply_replace, keys, items, value);
+        if keys.is_empty() {
+            if let Some(value) = value.deref().downcast_ref::<Self>() {
+                *self = value.clone()
+            } else {
+                return invalid_value!();
+            };
+        } else {
+            dispatch_block!(self, apply_replace, keys, items, value)
+        }
     }
 
     fn apply_move(&mut self, from: &mut Keys, items: usize, to: &mut Keys) {
         dispatch_block!(self, apply_move, from, items, to);
     }
 
-    /// Apply a transform between variants of `BlockContent`
-    fn apply_transform(&mut self, keys: &mut Keys, from: &str, _to: &str) {
+    fn apply_transform(&mut self, keys: &mut Keys, from: &str, to: &str) {
         if keys.is_empty() {
             assert_eq!(from, self.as_ref(), "Expected the same type");
-            todo!()
+            *self = apply_transform(self, to)
         } else {
-            todo!()
+            dispatch_block!(self, apply_transform, keys, from, to)
         }
     }
 }
 
+fn diff_transform(differ: &mut Differ, from: &BlockContent, to: &BlockContent) {
+    match from {
+        _ => (),
+    }
+    differ.replace(to)
+}
+
+fn apply_transform(from: &BlockContent, _to: &str) -> BlockContent {
+    match from {
+        _ => unreachable!(),
+    }
+}
+
+// Implementations for `BlockContent` structs
+// TODO: add all relevant fields to each struct
+
 patchable_struct!(ClaimSimple, content);
 patchable_struct!(CodeBlock, programming_language, text);
 patchable_struct!(CodeChunk, programming_language, text);
-patchable_todo!(CollectionSimple);
-patchable_todo!(FigureSimple);
-patchable_todo!(Heading);
+patchable_struct!(CollectionSimple);
+patchable_struct!(FigureSimple);
+patchable_struct!(Heading);
 patchable_struct!(Include, source);
-patchable_todo!(List);
+patchable_struct!(List);
 patchable_struct!(MathBlock, math_language, text);
 patchable_struct!(Paragraph, content);
 patchable_struct!(QuoteBlock, content);
-patchable_todo!(TableSimple);
+patchable_struct!(TableSimple);
 patchable_struct!(ThematicBreak, id);
