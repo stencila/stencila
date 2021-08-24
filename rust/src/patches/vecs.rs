@@ -242,8 +242,8 @@ where
                                                 .expect("To be a Vec<Type>")
                                                 .push(other[new_index + item_index].clone());
                                             *last_length += 1;
+                                            continue;
                                         }
-                                        continue;
                                     }
 
                                     // Otherwise, add it

@@ -331,9 +331,9 @@ mod tests {
         assert_json_eq!(apply_new(&c, &patch), b);
     }
 
-    // Test that if content differs a replacement is done
+    // Test that if content differs a replacement is done instead of a transform
     #[test]
-    fn replace() {
+    fn replace_different_content() {
         let a = InlineContent::String("a".to_string());
         let b = InlineContent::Emphasis(Emphasis {
             content: vec![InlineContent::String("b".to_string())],
@@ -354,9 +354,73 @@ mod tests {
         assert_json!(patch, [
             {
                 "op": "replace", "keys": [], "items": 1,
-                "value": "a", "length": 1
+                "value": "a",
+                "length": 1
             }
         ]);
         assert_json_eq!(apply_new(&b, &patch), a);
+    }
+
+    // Test that if content is same but types differ that replacement
+    // is done.
+    #[test]
+    fn replace_different_types() {
+        let a = InlineContent::AudioObject(AudioObjectSimple {
+            content_url: "a".to_string(),
+            ..Default::default()
+        });
+        let b = InlineContent::ImageObject(ImageObjectSimple {
+            content_url: "a".to_string(),
+            ..Default::default()
+        });
+
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            {
+                "op": "replace", "keys": [], "items": 1,
+                "value": {"type": "ImageObject", "contentUrl": "a"},
+                "length": 1
+            }
+        ]);
+        assert_json_eq!(apply_new(&a, &patch), b);
+    }
+
+    // Regression tests of minimal failing cases found using property testing
+    // and elsewhere.
+
+    #[test]
+    fn regression_1() {
+        let a = vec![
+            InlineContent::Superscript(Superscript {
+                content: vec![InlineContent::String("a".to_string())],
+                ..Default::default()
+            }),
+            InlineContent::ImageObject(ImageObjectSimple {
+                content_url: "a.gif".to_string(),
+                ..Default::default()
+            }),
+        ];
+        let b = vec![
+            InlineContent::Superscript(Superscript {
+                content: vec![InlineContent::String("b".to_string())],
+                ..Default::default()
+            }),
+            InlineContent::AudioObject(AudioObjectSimple {
+                content_url: "a.flac".to_string(),
+                ..Default::default()
+            }),
+        ];
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            {
+                "op": "replace", "keys": [0, "content", 0, 0], "items": 1,
+                "value": "b", "length": 1
+            },
+            {
+                "op": "replace", "keys": [1], "items": 1,
+                "value": [{ "type": "AudioObject", "contentUrl": "a.flac"}], "length": 1
+            }
+        ]);
+        assert_json_eq!(apply_new(&a, &patch), b);
     }
 }

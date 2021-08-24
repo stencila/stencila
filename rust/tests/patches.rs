@@ -63,19 +63,29 @@ proptest! {
 
     // Vectors of integers
     #[test]
-    fn vec_integers(
+    fn vecs_integers(
         a in vec(0..10i64, size_range(0..10)),
         b in vec(0..10i64, size_range(0..10))
     ) {
         let patch = diff(&a, &b);
-        assert_json_eq!(apply_new(&a, &patch), b)
+        assert_eq!(apply_new(&a, &patch), b)
     }
 
     // Vectors of strings (which may have internal `Add`, `Remove`, `Replace` operations)
     #[test]
-    fn vec_strings(
+    fn vecs_strings(
         a in vec("[a-e]{0,5}", size_range(0..10)),
         b in vec("[a-e]{0,5}", size_range(0..10))
+    ) {
+        let patch = diff(&a, &b);
+        assert_eq!(apply_new(&a, &patch), b)
+    }
+
+    // Vectors of inline content
+    #[test]
+    fn vecs_inlines(
+        a in vec(inline_content(Freedom::Low), size_range(0..10)),
+        b in vec(inline_content(Freedom::Low), size_range(0..10)),
     ) {
         let patch = diff(&a, &b);
         assert_json_eq!(apply_new(&a, &patch), b)
