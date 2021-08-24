@@ -163,6 +163,8 @@ where
         };
     }
 
+    ser!(u8);
+    ser!(i32);
     ser!(Boolean);
     ser!(Integer);
     ser!(Number);
@@ -170,6 +172,8 @@ where
     ser!(InlineContent);
     ser!(BlockContent);
 
+    ser!(Vec<u8>);
+    ser!(Vec<i32>);
     ser!(Vec<Boolean>);
     ser!(Vec<Integer>);
     ser!(Vec<Number>);

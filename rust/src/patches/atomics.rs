@@ -40,6 +40,14 @@ macro_rules! patchable_atomic {
     };
 }
 
+// Implementations for types used in some struct fields
+// instead of the Stencila primitives (usually as optimizations)
+
+patchable_atomic!(u8);
+patchable_atomic!(i32);
+
+// Implementations for Stencila primitive types
+
 patchable_atomic!(Boolean);
 patchable_atomic!(Integer);
 

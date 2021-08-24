@@ -121,7 +121,7 @@ patchable_struct!(CodeBlock, programming_language, text);
 patchable_struct!(CodeChunk, programming_language, text);
 patchable_struct!(CollectionSimple);
 patchable_struct!(FigureSimple);
-patchable_struct!(Heading);
+patchable_struct!(Heading, content, depth);
 patchable_struct!(Include, source);
 patchable_struct!(List);
 patchable_struct!(MathBlock, math_language, text);
