@@ -3,8 +3,10 @@ use crate::dispatch_block;
 use std::hash::Hasher;
 use std::ops::Deref;
 use stencila_schema::{
-    BlockContent, ClaimSimple, CodeBlock, CodeChunk, CollectionSimple, FigureSimple, Heading,
-    Include, List, MathBlock, Paragraph, QuoteBlock, TableSimple, ThematicBreak,
+    BlockContent, ClaimClaimType, ClaimSimple, CodeBlock, CodeChunk, CollectionSimple,
+    FigureSimple, Heading, Include, List, ListItem, ListItemContent, ListOrder, MathBlock,
+    Paragraph, QuoteBlock, TableCell, TableCellCellType, TableCellContent, TableRow,
+    TableRowRowType, TableSimple, ThematicBreak,
 };
 
 /// Implements patching for `BlockContent`
@@ -116,16 +118,38 @@ fn apply_transform(from: &BlockContent, _to: &str) -> BlockContent {
 // Implementations for `BlockContent` structs
 // TODO: add all relevant fields to each struct
 
-patchable_struct!(ClaimSimple, content);
+patchable_struct!(ClaimSimple, content, claim_type);
 patchable_struct!(CodeBlock, programming_language, text);
 patchable_struct!(CodeChunk, programming_language, text);
 patchable_struct!(CollectionSimple);
 patchable_struct!(FigureSimple);
 patchable_struct!(Heading, content, depth);
 patchable_struct!(Include, source);
-patchable_struct!(List);
+patchable_struct!(List, items, order);
+patchable_struct!(ListItem, content);
 patchable_struct!(MathBlock, math_language, text);
 patchable_struct!(Paragraph, content);
 patchable_struct!(QuoteBlock, content);
-patchable_struct!(TableSimple);
-patchable_struct!(ThematicBreak, id);
+patchable_struct!(TableSimple, rows);
+patchable_struct!(TableRow, cells, row_type);
+patchable_struct!(TableCell, content, cell_type, colspan, rowspan);
+patchable_struct!(ThematicBreak);
+
+// Implementations for enum fields of `BlockContent` structs
+
+patchable_enum!(ClaimClaimType);
+
+patchable_enum!(ListOrder);
+patchable_variants!(
+    ListItemContent,
+    ListItemContent::VecBlockContent,
+    ListItemContent::VecInlineContent
+);
+
+patchable_enum!(TableRowRowType);
+patchable_enum!(TableCellCellType);
+patchable_variants!(
+    TableCellContent,
+    TableCellContent::VecBlockContent,
+    TableCellContent::VecInlineContent
+);

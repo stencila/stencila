@@ -9,7 +9,7 @@ use proptest::prelude::*;
 use stencila::patches::{apply_new, diff};
 
 mod strategies;
-use strategies::{inline_content, Freedom};
+use strategies::{block_content, inline_content, vec_block_content, vec_inline_content, Freedom};
 
 macro_rules! assert_json_eq {
     ($expr1:expr, $expr2:expr) => {
@@ -51,16 +51,6 @@ proptest! {
         assert_eq!(apply_new(&a, &patch), b)
     }
 
-    // Inlines
-    #[test]
-    fn inlines(
-        a in inline_content(Freedom::Low),
-        b in inline_content(Freedom::Low)
-    ) {
-        let patch = diff(&a, &b);
-        assert_json_eq!(apply_new(&a, &patch), b)
-    }
-
     // Vectors of integers
     #[test]
     fn vecs_integers(
@@ -80,12 +70,47 @@ proptest! {
         let patch = diff(&a, &b);
         assert_eq!(apply_new(&a, &patch), b)
     }
+}
+
+proptest! {
+    // Reduced number of cases for these more complicated tests.
+    #![proptest_config(ProptestConfig::with_cases(100))]
+
+    // Inlines
+    #[test]
+    fn inlines(
+        a in inline_content(Freedom::Low),
+        b in inline_content(Freedom::Low)
+    ) {
+        let patch = diff(&a, &b);
+        assert_json_eq!(apply_new(&a, &patch), b)
+    }
+
+    // Blocks
+    #[test]
+    fn blocks(
+        a in block_content(Freedom::Low),
+        b in block_content(Freedom::Low)
+    ) {
+        let patch = diff(&a, &b);
+        assert_json_eq!(apply_new(&a, &patch), b)
+    }
 
     // Vectors of inline content
     #[test]
     fn vecs_inlines(
-        a in vec(inline_content(Freedom::Low), size_range(0..10)),
-        b in vec(inline_content(Freedom::Low), size_range(0..10)),
+        a in vec_inline_content(Freedom::Low),
+        b in vec_inline_content(Freedom::Low),
+    ) {
+        let patch = diff(&a, &b);
+        assert_json_eq!(apply_new(&a, &patch), b)
+    }
+
+    // Vectors of block content
+    #[test]
+    fn vecs_blocks(
+        a in vec_block_content(Freedom::Low),
+        b in vec_block_content(Freedom::Low),
     ) {
         let patch = diff(&a, &b);
         assert_json_eq!(apply_new(&a, &patch), b)
