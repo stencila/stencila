@@ -10,10 +10,9 @@ macro_rules! patchable_atomic {
             patchable_is_same!();
 
             fn is_equal(&self, other: &Self) -> Result<()> {
-                if self == other {
-                    Ok(())
-                } else {
-                    bail!(Error::NotEqual)
+                match self == other {
+                    true => Ok(()),
+                    false => bail!(Error::NotEqual),
                 }
             }
 
@@ -45,6 +44,7 @@ macro_rules! patchable_atomic {
 
 patchable_atomic!(u8);
 patchable_atomic!(i32);
+patchable_atomic!(u32);
 
 // Implementations for Stencila primitive types
 
