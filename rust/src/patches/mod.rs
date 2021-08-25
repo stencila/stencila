@@ -56,8 +56,16 @@ where
     node
 }
 
+/// Merge differences between `node1` and `node2` into `node1`.
+pub fn merge<Type>(node1: &mut Type, node2: &Type)
+where
+    Type: Patchable,
+{
+    apply(node1, &diff(node1, node2))
+}
+
 /// A vector of [`Operation`]s describing the difference between two nodes.
-type Patch = Vec<Operation>;
+pub type Patch = Vec<Operation>;
 
 /// An enumeration of the types of operations that can be used in a [`Patch`] to
 /// mutate one node into another.
@@ -677,6 +685,8 @@ macro_rules! patchable_variants_hash {
                 $(
                     $variant(me) => me.make_hash(state),
                 )*
+                #[allow(unreachable_patterns)]
+                _ => unimplemented!()
             }
         }
     };
@@ -690,6 +700,7 @@ macro_rules! patchable_variants_diff_same {
                 $(
                     ($variant(me), $variant(other)) => me.diff_same(differ, other),
                 )*
+                #[allow(unreachable_patterns)]
                 _ => differ.replace(other)
             }
         }
@@ -704,6 +715,8 @@ macro_rules! patchable_variants_apply_add {
                 $(
                     $variant(me) => me.apply_add(keys, value),
                 )*
+                #[allow(unreachable_patterns)]
+                _ => invalid_op!("add")
             }
         }
     };
@@ -717,6 +730,8 @@ macro_rules! patchable_variants_apply_remove {
                 $(
                     $variant(me) => me.apply_remove(keys, items),
                 )*
+                #[allow(unreachable_patterns)]
+                _ => invalid_op!("remove")
             }
         }
     };
@@ -730,6 +745,8 @@ macro_rules! patchable_variants_apply_replace {
                 $(
                     $variant(me) => me.apply_replace(keys, items, value),
                 )*
+                #[allow(unreachable_patterns)]
+                _ => invalid_op!("replace")
             }
         }
     };
@@ -743,6 +760,8 @@ macro_rules! patchable_variants_apply_move {
                 $(
                     $variant(me) => me.apply_move(from, items, to),
                 )*
+                #[allow(unreachable_patterns)]
+                _ => invalid_op!("move")
             }
         }
     };
@@ -756,6 +775,8 @@ macro_rules! patchable_variants_apply_transform {
                 $(
                     $variant(me) => me.apply_transform(keys, from, to),
                 )*
+                #[allow(unreachable_patterns)]
+                _ => invalid_op!("transform")
             }
         }
     };
@@ -830,6 +851,8 @@ mod vecs;
 mod blocks;
 mod inlines;
 mod works;
+
+mod nodes;
 
 #[cfg(test)]
 mod tests {

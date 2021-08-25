@@ -7,6 +7,7 @@ use crate::{
         decode::decode,
         encode::{self, encode},
     },
+    patches::{diff, merge, Patch},
     pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
@@ -538,6 +539,40 @@ impl Document {
         self.update(decode_content).await
     }
 
+    /// Generate a [`Patch`] describing the operations needed to modify this
+    /// document so that it is equal to another.
+    pub fn diff(&self, other: &Document) -> Result<Patch> {
+        let patch = match (&self.root, &other.root) {
+            (Some(me), Some(other)) => diff(me, other),
+            _ => bail!("One or more of the documents is empty"),
+        };
+        Ok(patch)
+    }
+
+    /// Merge another document into this document
+    ///
+    /// Note that, for non-binary documents, that this will update the `content` of the document.
+    pub async fn merge(&mut self, other: &Document) -> Result<()> {
+        match (&mut self.root, &other.root) {
+            (Some(me), Some(other)) => merge(me, other),
+            _ => bail!("One or more of the documents is empty"),
+        };
+
+        // TODO updating of *content from root* and publishing of events etc needs to be sorted out
+        if !self.format.binary {
+            self.content = encode(
+                &self.root.as_ref().unwrap(),
+                "string://",
+                &self.format.name,
+                None,
+            )
+            .await?;
+        }
+        self.update(false).await?;
+
+        Ok(())
+    }
+
     /// Get the SHA-256 of the document
     ///
     /// For text-based documents, returns the SHA-256 of the document's `content`.
@@ -645,7 +680,6 @@ impl Document {
     /// Query the document
     ///
     /// Returns a JSON value. Returns `null` if the query does not select anything.
-    #[allow(unreachable_code)]
     pub fn query(&self, query: &str, lang: &str) -> Result<serde_json::Value> {
         let result = match lang {
             #[cfg(feature = "query-jmespath")]
@@ -1172,6 +1206,8 @@ pub mod cli {
         Show(Show),
         Query(Query),
         Convert(Convert),
+        Diff(Diff),
+        Merge(Merge),
         Schemas(Schemas),
     }
 
@@ -1185,6 +1221,8 @@ pub mod cli {
                 Action::Show(action) => action.run().await,
                 Action::Query(action) => action.run().await,
                 Action::Convert(action) => action.run().await,
+                Action::Diff(action) => action.run().await,
+                Action::Merge(action) => action.run().await,
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -1362,6 +1400,54 @@ pub mod cli {
                 document.write_as(output, to, theme).await?;
                 display::nothing()
             }
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Diff {
+        /// The path of the first document
+        pub first: PathBuf,
+
+        /// The path of the second document
+        pub second: PathBuf,
+    }
+
+    impl Diff {
+        pub async fn run(self) -> display::Result {
+            let Self { first, second } = self;
+            let first = Document::open(first, None).await?;
+            let second = Document::open(second, None).await?;
+            let patch = first.diff(&second)?;
+            display::value(patch)
+        }
+    }
+
+    /// Merge one document into another
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Merge {
+        /// The path of the first document
+        pub first: PathBuf,
+
+        /// The path of the second document
+        pub second: PathBuf,
+    }
+
+    impl Merge {
+        pub async fn run(self) -> display::Result {
+            let Self { first, second } = self;
+            let mut first = Document::open(first, None).await?;
+            let second = Document::open(second, None).await?;
+            first.merge(&second).await?;
+            first.write(None, None).await?;
+            display::nothing()
         }
     }
 
