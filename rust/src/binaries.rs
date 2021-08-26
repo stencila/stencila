@@ -1,6 +1,6 @@
 use crate::config::CONFIG;
 use defaults::Defaults;
-use eyre::{bail, Result};
+use eyre::{bail, eyre, Result};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -61,7 +61,7 @@ impl BinaryInstallation {
         }
     }
 
-    /// Get the command for the binary
+    /// Get a `std::process::Command` for the binary
     pub fn command(&self) -> Command {
         Command::new(&self.path)
     }
@@ -71,6 +71,57 @@ impl BinaryInstallation {
     /// Returns the output of the command
     pub fn run(&self, args: &[String]) -> Result<Output> {
         Ok(self.command().args(args).output()?)
+    }
+
+    /// Runs the binary asynchronously, logging `stderr`
+    /// lines and returning `stdout` as a string on completion.
+    pub async fn run_async(&self, args: &[String]) -> Result<String> {
+        use tokio::{
+            io::{AsyncBufReadExt, BufReader},
+            process::Command,
+        };
+
+        let mut child = Command::new(&self.path)
+            .args(args)
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()?;
+
+        let stderr = child
+            .stderr
+            .take()
+            .ok_or_else(|| eyre!("Child has no stderr handle"))?;
+
+        let stdout = child
+            .stdout
+            .take()
+            .ok_or_else(|| eyre!("Child has no stdout handle"))?;
+
+        let name = self.name.clone();
+        let stderr_task = tokio::spawn(async move {
+            let reader = BufReader::new(stderr);
+            let mut lines = reader.lines();
+            loop {
+                match lines.next_line().await {
+                    Ok(Some(line)) => tracing::info!("{}: {}", name, line),
+                    Ok(None) => return,
+                    Err(error) => {
+                        tracing::error!("{}", error);
+                        break;
+                    }
+                }
+            }
+        });
+        stderr_task.await?;
+
+        let mut out = String::new();
+        let reader = BufReader::new(stdout);
+        let mut lines = reader.lines();
+        while let Ok(Some(line)) = lines.next_line().await {
+            out.push_str(&line);
+        }
+
+        Ok(out.clone())
     }
 }
 
@@ -332,6 +383,7 @@ impl Binary {
         let os = os.unwrap_or_else(|| OS.to_string());
         let arch = arch.unwrap_or_else(|| ARCH.to_string());
         match self.name.as_ref() {
+            "buildah" => self.install_buildah().await,
             "chrome" => self.install_chrome(version, &os, &arch).await,
             "node" => self.install_node(version, &os, &arch).await,
             "pandoc" => self.install_pandoc(version, &os, &arch).await,
@@ -341,6 +393,11 @@ impl Binary {
                 name = self.name
             ),
         }
+    }
+
+    /// Install Buildah
+    async fn install_buildah(&self) -> Result<()> {
+        bail!("Unable to install Buildah. Please see https://github.com/containers/buildah/blob/main/install.md");
     }
 
     /// Install Chrome
@@ -613,6 +670,8 @@ static BINARIES: Lazy<Mutex<HashMap<String, Binary>>> = Lazy::new(|| {
     // Note: versions should be valid semver triples and listed in descending order!
     // The first version meeting semver requirements will be installed is necessary
     let binaries = vec![
+        // Buildah
+        Binary::new("buildah", &[], &[]),
         // Chrome / Chromium
         // Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history
         // but only use triples ending in `.0` here and make sure there is a mapping in the
