@@ -11,7 +11,7 @@ use std::{
 };
 use stencila_schema::{BlockContent, Boolean, InlineContent, Integer, Number};
 
-/// Whether or not two nodes are the same type and value.
+/// Are two nodes are the same type and value?
 pub fn same<Type1, Type2>(node1: &Type1, node2: &Type2) -> bool
 where
     Type1: Patchable,
@@ -20,7 +20,7 @@ where
     node1.is_same(node2).is_ok()
 }
 
-/// Whether or not two nodes of the same type have equal value.
+/// Do two nodes of the same type have equal value?
 pub fn equal<Type>(node1: &Type, node2: &Type) -> bool
 where
     Type: Patchable,
@@ -38,7 +38,7 @@ where
     differ.patch
 }
 
-/// Apply a [`Patch`] to a node of any type.
+/// Apply a [`Patch`] to a node.
 pub fn apply<Type>(node: &mut Type, patch: &[Operation])
 where
     Type: Patchable,
@@ -46,7 +46,9 @@ where
     node.apply_patch(patch)
 }
 
-/// Apply a [`Patch`] to a clone of a node of any type.
+/// Apply a [`Patch`] to a clone of a node.
+///
+/// In contrast to `apply`, this does not alter the original node.
 pub fn apply_new<Type>(node: &Type, patch: &[Operation]) -> Type
 where
     Type: Patchable + Clone,
@@ -56,12 +58,32 @@ where
     node
 }
 
-/// Merge differences between `node1` and `node2` into `node1`.
-pub fn merge<Type>(node1: &mut Type, node2: &Type)
+/// Merge changes from two or more derived versions of a node into
+/// their common ancestor version.
+///
+/// This is equivalent to `git merge` except that there can be
+/// more than two derived versions and conflicts are always resolved.
+/// Conflicts are resolved by preferring the changes in 'later' derived
+/// version (i.e. those that are later in the `derived` list).
+///
+/// # Arguments
+///
+/// - `ancestor`: The ancestor node
+/// - `derived`: A list of derived nodes in ascending order of priority
+///              when resolving merge conflicts i.e. the last in the list
+///              will win over all other nodes that it conflicts with
+pub fn merge<Type>(ancestor: &mut Type, derived: &[&Type])
 where
     Type: Patchable,
 {
-    apply(node1, &diff(node1, node2))
+    let patches: Vec<Patch> = derived.iter().map(|node| diff(ancestor, *node)).collect();
+
+    // TODO transform operations (shift keys based on other operations) and resolve conflicts
+    tracing::warn!("Merging is work in progress");
+
+    for patch in patches {
+        apply(ancestor, &patch)
+    }
 }
 
 /// A vector of [`Operation`]s describing the difference between two nodes.

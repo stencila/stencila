@@ -18,6 +18,7 @@ use crate::{
 use defaults::Defaults;
 use eyre::{bail, Result};
 use maplit::hashset;
+use itertools::Itertools;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
@@ -34,7 +35,7 @@ use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
-use stencila_schema::Node;
+use stencila_schema::{Article, Node};
 use strum::ToString;
 use tokio::{sync::Mutex, task::JoinHandle};
 
@@ -549,14 +550,28 @@ impl Document {
         Ok(patch)
     }
 
-    /// Merge another document into this document
+    /// Merge changes from two or more derived version into this document.
     ///
-    /// Note that, for non-binary documents, that this will update the `content` of the document.
-    pub async fn merge(&mut self, other: &Document) -> Result<()> {
-        match (&mut self.root, &other.root) {
-            (Some(me), Some(other)) => merge(me, other),
-            _ => bail!("One or more of the documents is empty"),
-        };
+    /// See documentation on the [`merge`] function for how any conflicts
+    /// are resolved.
+    pub async fn merge(&mut self, derived: &[Document]) -> Result<()> {
+        // If the current document has not root (e.g. empty document)
+        // then make it an empty `Article` node so that there is at least a
+        // node to merge into.
+        if self.root.is_none() {
+            self.root = Some(Node::Article(Article::default()));
+        }
+        let root = self.root.as_mut().expect("Just ensured root was some node");
+
+        // For derived documents, ignore documents that have no root
+        // i.e. those that are empty.
+        let derived = derived
+            .iter()
+            .filter_map(|derived| derived.root.as_ref())
+            .collect_vec();
+
+        // Do the merge into root
+        merge(root, &derived);
 
         // TODO updating of *content from root* and publishing of events etc needs to be sorted out
         if !self.format.binary {
@@ -1426,27 +1441,63 @@ pub mod cli {
         }
     }
 
-    /// Merge one document into another
+    /// Merge changes from two or more derived versions of a document
+    ///
+    /// This command can be used as a Git custom "merge driver".
+    /// First, register Stencila as a merge driver,
+    ///
+    /// git config merge.stencila.driver "stencila merge --git %O %A %B"
+    ///
+    /// (The placeholders `%A` etc are used by `git` to pass arguments such
+    /// as file paths and options to `stencila`.)
+    ///
+    /// Then, in your `.gitattributes` file assign the driver to specific
+    /// types of files e.g.,
+    ///
+    /// *.{md|docx} merge=stencila
+    ///
+    /// This can be done per project, or globally.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
+    // See https://git-scm.com/docs/gitattributes#_defining_a_custom_merge_driver and
+    // https://www.julianburr.de/til/custom-git-merge-drivers/ for more examples of defining a
+    // custom driver. In particular the meaning of the placeholders %O, %A etc
     pub struct Merge {
-        /// The path of the first document
-        pub first: PathBuf,
+        /// The path of the original version
+        original: PathBuf,
 
-        /// The path of the second document
-        pub second: PathBuf,
+        /// The paths of the derived versions
+        #[structopt(required = true, multiple = true)]
+        derived: Vec<PathBuf>,
+
+        /// A flag to indicate that the command is being used as a Git merge driver
+        ///
+        /// When the `merge` command is used as a Git merge driver the second path
+        /// supplied is the file that is written to.
+        #[structopt(short, long)]
+        git: bool,
     }
 
     impl Merge {
         pub async fn run(self) -> display::Result {
-            let Self { first, second } = self;
-            let mut first = Document::open(first, None).await?;
-            let second = Document::open(second, None).await?;
-            first.merge(&second).await?;
-            first.write(None, None).await?;
+            let mut original = Document::open(self.original, None).await?;
+
+            let mut docs: Vec<Document> = Vec::new();
+            for path in &self.derived {
+                docs.push(Document::open(path, None).await?)
+            }
+
+            original.merge(&docs).await?;
+
+            if self.git {
+                original.write_as(&self.derived[0], None, None).await?;
+            } else {
+                original.write(None, None).await?;
+            }
+
             display::nothing()
         }
     }
