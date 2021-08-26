@@ -80,6 +80,7 @@ pub enum Command {
     Open(OpenCommand),
     Close(CloseCommand),
     Show(ShowCommand),
+    Build(BuildCommand),
     Convert(ConvertCommand),
 
     // Module-specific commands defined in the `stencila` library
@@ -116,6 +117,7 @@ pub async fn run_command(
         Command::Open(command) => command.run(context).await,
         Command::Close(command) => command.run().await,
         Command::Show(command) => command.run().await,
+        Command::Build(command) => command.run().await,
         Command::Convert(command) => command.run().await,
         Command::Documents(command) => command.run().await,
         Command::Projects(command) => command.run().await,
@@ -289,7 +291,8 @@ impl ShowCommand {
     }
 }
 
-/// Currently, `convert` just delegates to the `documents` module
+/// Currently, these commands just delegate to other modules
+type BuildCommand = projects::cli::Build;
 type ConvertCommand = documents::cli::Convert;
 
 /// Main entry point function
