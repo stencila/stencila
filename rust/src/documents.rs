@@ -1196,7 +1196,7 @@ pub fn schemas() -> Result<serde_json::Value> {
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
-    use crate::cli::display;
+    use crate::{cli::display, patches::diff_display};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -1418,6 +1418,7 @@ pub mod cli {
         }
     }
 
+    /// Display the structural differences between two documents
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
@@ -1425,19 +1426,43 @@ pub mod cli {
     )]
     pub struct Diff {
         /// The path of the first document
-        pub first: PathBuf,
+        first: PathBuf,
 
         /// The path of the second document
-        pub second: PathBuf,
+        second: PathBuf,
+
+        /// The format to display the difference in
+        ///
+        /// Defaults to a "unified diff" of the JSON representation
+        /// of the documents. Unified diffs of other formats are available
+        /// e.g. "md", "yaml". Use "raw" for the raw patch as a list of
+        /// operations.
+        #[structopt(short, long, default_value = "json")]
+        format: String,
     }
 
     impl Diff {
         pub async fn run(self) -> display::Result {
-            let Self { first, second } = self;
+            let Self {
+                first,
+                second,
+                format,
+            } = self;
             let first = Document::open(first, None).await?;
             let second = Document::open(second, None).await?;
-            let patch = first.diff(&second)?;
-            display::value(patch)
+
+            let (first, second) = match (&first.root, &second.root) {
+                (Some(first), Some(second)) => (first, second),
+                _ => bail!("One or more of the documents is empty"),
+            };
+
+            if format == "raw" {
+                let patch = diff(first, second);
+                display::value(patch)
+            } else {
+                let diff = diff_display(first, second, &format).await?;
+                display::content("patch", &diff)
+            }
         }
     }
 

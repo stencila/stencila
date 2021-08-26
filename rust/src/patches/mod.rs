@@ -1,7 +1,11 @@
-use crate::errors::{report, Error};
+use crate::{
+    errors::{report, Error},
+    methods::encode::encode,
+};
 use defaults::Defaults;
 use eyre::Result;
 use serde::{Serialize, Serializer};
+use similar::TextDiff;
 use std::{
     any::{type_name, Any},
     collections::VecDeque,
@@ -9,7 +13,7 @@ use std::{
     hash::Hasher,
     iter::FromIterator,
 };
-use stencila_schema::{BlockContent, Boolean, InlineContent, Integer, Number};
+use stencila_schema::{BlockContent, Boolean, InlineContent, Integer, Node, Number};
 
 /// Are two nodes are the same type and value?
 pub fn same<Type1, Type2>(node1: &Type1, node2: &Type2) -> bool
@@ -36,6 +40,31 @@ where
     let mut differ = Differ::default();
     node1.diff_same(&mut differ, node2);
     differ.patch
+}
+
+/// Display the difference between two nodes as a "unified diff" of the nodes
+/// converted to a given format.
+///
+/// This can provide a more intuitive way of visualizing the differences between the
+/// nodes than the raw [`Operation`]s. Note that this is slightly different from first
+/// converting each node and then taking the diff in that this generates and applies a
+/// patch. This means any change operations not generated or applied by the functions
+/// in this module will not appear in the difference.
+pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<String> {
+    let patch = diff(node1, node2);
+    let patched = apply_new(node1, &patch);
+
+    let old = encode(node1, "string://", format, None).await?;
+    let new = encode(&patched, "string://", format, None).await?;
+
+    let mut bytes = Vec::new();
+    TextDiff::from_lines(&old, &new)
+        .unified_diff()
+        .to_writer(&mut bytes)
+        .unwrap();
+
+    let display = String::from_utf8(bytes)?;
+    Ok(display)
 }
 
 /// Apply a [`Patch`] to a node.
