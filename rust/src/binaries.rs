@@ -385,6 +385,7 @@ impl Binary {
         match self.name.as_ref() {
             "buildah" => self.install_buildah().await,
             "chrome" => self.install_chrome(version, &os, &arch).await,
+            "docker" => self.install_docker().await,
             "node" => self.install_node(version, &os, &arch).await,
             "pandoc" => self.install_pandoc(version, &os, &arch).await,
             "python" => self.install_python(version, &os, &arch).await,
@@ -429,6 +430,11 @@ impl Binary {
         self.executable(&dest, &["chrome", "chrome.exe"])?;
 
         Ok(())
+    }
+
+    /// Install Docker
+    async fn install_docker(&self) -> Result<()> {
+        bail!("Unable to install Docker. Please see https://docs.docker.com/get-docker/.");
     }
 
     /// Install Node.js
@@ -677,6 +683,8 @@ static BINARIES: Lazy<Mutex<HashMap<String, Binary>>> = Lazy::new(|| {
         // but only use triples ending in `.0` here and make sure there is a mapping in the
         // `install_chromium` function.
         Binary::new("chrome", &["chromium"], &["91.0.0"]),
+        // Docker
+        Binary::new("docker", &[], &[]),
         // Node.js
         // Release list at https://nodejs.org/en/download/releases/
         Binary::new("node", &[], &["16.4.1"]),
