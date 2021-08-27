@@ -1,3 +1,18 @@
+# [0.111.0](https://github.com/stencila/stencila/compare/v0.110.1...v0.111.0) (2021-08-27)
+
+
+### Bug Fixes
+
+* **Documents:** Overwrite document relations rather than always extending it ([3d9a4e2](https://github.com/stencila/stencila/commit/3d9a4e254d7ecf0ad32335f851a7515cc2fc1ce6))
+* **Documents:** Remove file:// scheme when creating resource ([744fb3f](https://github.com/stencila/stencila/commit/744fb3f8385a6b6e12d74d4e8c816435a8548456))
+* **Project graphs:** Always add the main file ([755c12c](https://github.com/stencila/stencila/commit/755c12ca3aaa9061f47399ae7affff4dd5900e33))
+* **Project graphs:** Remove the project file path prefix when serializing ([72d26ba](https://github.com/stencila/stencila/commit/72d26ba994d7668b3358bc3bd5dffab250f74179))
+
+
+### Features
+
+* **Project graphs:** Recompile when there are file changes ([bdef1e3](https://github.com/stencila/stencila/commit/bdef1e383dbabd06a05b9ae857571cec986b74be))
+
 ## [0.110.1](https://github.com/stencila/stencila/compare/v0.110.0...v0.110.1) (2021-08-22)
 
 
