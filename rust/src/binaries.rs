@@ -961,6 +961,7 @@ mod tests {
     /// End to end CLI test that install, show and uninstall
     /// the latest version of each binary. Intended as a course
     /// test of installation of each binary.
+    #[cfg(feature = "cli")]
     #[tokio::test]
     async fn cli_install_run_uninstall() -> Result<()> {
         if skip_slow_tests() {

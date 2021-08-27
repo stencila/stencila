@@ -28,7 +28,7 @@ request-docker = ["bollard"]
 request-http = ["reqwest", "jsonwebtoken"]
 request-ws = ["tokio-tungstenite", "jsonwebtoken"]
 
-binaries = ["flate2", "tar", "which", "xz2", "zip"]
+binaries = ["flate2", "reqwest", "semver", "tar", "which", "xz2", "zip"]
 
 plugins = ["jsonschema", "semver"]
 plugins-docker = ["plugins", "bollard"]
@@ -61,6 +61,7 @@ encode-json = []
 encode-latex = ["encode-pandoc"]
 encode-md = []
 encode-pandoc = ["binaries", "pandoc_types"]
+encode-png = ["chromiumoxide"]
 encode-pdf = ["chromiumoxide"]
 encode-rmd = ["encode-md"]
 encode-toml = []
@@ -129,6 +130,7 @@ default = [
     "encode-md",
     "encode-pandoc",
     "encode-pdf",
+    "encode-png",
     "encode-rmd",
     "encode-toml",
     "encode-txt",

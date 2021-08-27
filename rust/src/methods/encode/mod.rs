@@ -22,6 +22,9 @@ pub mod md;
 #[cfg(feature = "encode-pandoc")]
 pub mod pandoc;
 
+#[cfg(feature = "encode-png")]
+pub mod png;
+
 #[cfg(feature = "encode-pdf")]
 pub mod pdf;
 

@@ -636,8 +636,8 @@ impl ToHtml for CodeChunk {
 
         let outputs = match &self.outputs {
             None => String::new(),
-            Some(_outputs) => {
-                r#"<pre slot="outputs"><code class="todo">outputs</code></pre>"#.into()
+            Some(outputs) => {
+                [r#"<pre slot="outputs">"#, &outputs.to_html(context), "</pre>"].concat()
             }
         };
 
