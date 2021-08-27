@@ -76,6 +76,20 @@ const wrap =
     return dispatchFn(() => fn.apply(null, args))
   }
 
+/* Type interface for the exported `dispatch` object.
+ * Ensures that all module functions are wrapped in the `wrap` functions, and re-exported
+ * for consumption by the Desktop, and other, clients.
+ */
+type DispatchModule<P extends { [key: string]: AnyFunction }> = {
+  [key in keyof P]: (...args: Parameters<P[key]>) => Result<ReturnType<P[key]>>
+}
+
+type Dispatch = {
+  documents: DispatchModule<typeof documents>
+  plugins: DispatchModule<typeof plugins>
+  projects: DispatchModule<typeof projects>
+}
+
 /**
  * Various library functions wrapped in the `dispatchFn` helper.
  * All function arguments are the same as the original, but the return types are
@@ -83,7 +97,7 @@ const wrap =
  *
  * TODO: See if type safety can be maintained while iterating over the imported objects.
  */
-export const dispatch = {
+export const dispatch: Dispatch = {
   documents: {
     schemas: wrap(documents.schemas),
     list: wrap(documents.list),
@@ -112,9 +126,13 @@ export const dispatch = {
     schemas: wrap(projects.schemas),
     list: wrap(projects.list),
     open: wrap(projects.open),
+    close: wrap(projects.close),
     write: wrap(projects.write),
+    addSource: wrap(projects.addSource),
+    removeSource: wrap(projects.removeSource),
+    importSource: wrap(projects.importSource),
+    graph: wrap(projects.graph),
     subscribe: wrap(projects.subscribe),
     unsubscribe: wrap(projects.unsubscribe),
-    close: wrap(projects.close),
   },
 }

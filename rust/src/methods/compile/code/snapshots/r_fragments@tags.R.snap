@@ -7,7 +7,8 @@ input_file: fixtures/fragments/r/tags.R
 [
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         0,
         0,
         0,
@@ -22,7 +23,8 @@ input_file: fixtures/fragments/r/tags.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         0,
         0,
         0,
@@ -37,7 +39,8 @@ input_file: fixtures/fragments/r/tags.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         0,
         0,
         0,
@@ -52,7 +55,8 @@ input_file: fixtures/fragments/r/tags.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         0,
         0,
         0,
@@ -67,7 +71,8 @@ input_file: fixtures/fragments/r/tags.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         1,
         0,
         1,
@@ -83,7 +88,8 @@ input_file: fixtures/fragments/r/tags.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         2,
         0,
         2,
@@ -99,7 +105,8 @@ input_file: fixtures/fragments/r/tags.R
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         3,
         0,
         3,
@@ -113,7 +120,8 @@ input_file: fixtures/fragments/r/tags.R
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         3,
         0,
         3,
@@ -127,7 +135,8 @@ input_file: fixtures/fragments/r/tags.R
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         4,
         0,
         4,

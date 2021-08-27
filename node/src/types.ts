@@ -305,9 +305,9 @@ export type Resource =
        */
       path: string
       /**
-       * The address of the node
+       * The id of the node with the document
        */
-      address: string
+      id: string
       /**
        * The type of node e.g. `Parameter`, `CodeChunk`
        */
@@ -352,24 +352,59 @@ export type Resource =
  * Some relations carry additional information such whether the relation is active (`Import` and `Convert`) or the range that they occur in code (`Assign`, `Use`, `Read`) etc
  */
 export type Relation =
-  | ('embed' | 'include' | 'link')
   | {
-      assign: [number, number, number, number]
+      type: 'Assign'
+      /**
+       * The range within code that the assignment is done
+       */
+      range: [number, number, number, number]
     }
   | {
-      convert: boolean
+      type: 'Convert'
+      /**
+       * Whether or not the conversion is automatically updated
+       */
+      auto: boolean
     }
   | {
-      import: boolean
+      type: 'Embed'
+      [k: string]: unknown
     }
   | {
-      read: [number, number, number, number]
+      type: 'Import'
+      /**
+       * Whether or not the import is automatically updated
+       */
+      auto: boolean
     }
   | {
-      use: [number, number, number, number]
+      type: 'Include'
+      [k: string]: unknown
     }
   | {
-      write: [number, number, number, number]
+      type: 'Link'
+      [k: string]: unknown
+    }
+  | {
+      type: 'Read'
+      /**
+       * The range within code that the read is declared
+       */
+      range: [number, number, number, number]
+    }
+  | {
+      type: 'Use'
+      /**
+       * The range within code that the use is declared
+       */
+      range: [number, number, number, number]
+    }
+  | {
+      type: 'Write'
+      /**
+       * The range within code that the write is declared
+       */
+      range: [number, number, number, number]
     }
 
 /**
@@ -388,7 +423,26 @@ export interface Graph {
   /**
    * The relations between resources in the graph
    */
-  edges: [number, number, Relation][]
+  edges: {
+    from: 'integer'
+    to: 'integer'
+    relation: Resource
+  }[]
+}
+
+export interface GraphEvent {
+  /**
+   * The path of the project (absolute)
+   */
+  project: string
+  /**
+   * The type of event
+   */
+  type: 'updated'
+  /**
+   * The graph at the time of the event
+   */
+  graph: Graph
 }
 
 /**

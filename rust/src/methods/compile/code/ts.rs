@@ -3,7 +3,7 @@ use super::{
     js::{self, handle_patterns},
     Compiler,
 };
-use crate::graphs::{resources, Relation, Resource};
+use crate::graphs::{relations, resources, Relation, Resource};
 use once_cell::sync::Lazy;
 use std::path::Path;
 
@@ -80,7 +80,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     }
                 };
                 Some((
-                    Relation::Assign(range),
+                    relations::assigns(range),
                     resources::symbol(path, &name, kind),
                 ))
             }

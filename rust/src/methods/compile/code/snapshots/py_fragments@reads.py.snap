@@ -7,7 +7,8 @@ input_file: fixtures/fragments/py/reads.py
 [
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         0,
         0,
         0,
@@ -23,7 +24,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         0,
         12,
         0,
@@ -37,7 +39,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         2,
         10,
         2,
@@ -51,7 +54,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         5,
         5,
         5,
@@ -65,7 +69,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         7,
         10,
         7,
@@ -79,7 +84,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         9,
         5,
         9,
@@ -93,7 +99,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         11,
         10,
         11,
@@ -107,7 +114,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         13,
         10,
         13,
@@ -121,7 +129,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         16,
         4,
         16,
@@ -137,7 +146,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         17,
         9,
         17,
@@ -151,7 +161,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         22,
         5,
         22,
@@ -165,7 +176,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         23,
         5,
         23,
@@ -179,7 +191,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "write": [
+      "type": "Write",
+      "range": [
         24,
         10,
         24,
@@ -193,7 +206,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         28,
         0,
         28,
@@ -209,7 +223,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         29,
         5,
         29,
@@ -225,7 +240,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         30,
         5,
         30,
@@ -241,7 +257,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         31,
         5,
         31,
@@ -257,7 +274,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         33,
         0,
         33,
@@ -273,7 +291,8 @@ input_file: fixtures/fragments/py/reads.py
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         34,
         15,
         34,

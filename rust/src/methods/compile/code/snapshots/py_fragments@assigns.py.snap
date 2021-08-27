@@ -7,7 +7,8 @@ input_file: fixtures/fragments/py/assigns.py
 [
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         0,
         0,
         0,
@@ -23,7 +24,8 @@ input_file: fixtures/fragments/py/assigns.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         1,
         0,
         1,
@@ -39,7 +41,8 @@ input_file: fixtures/fragments/py/assigns.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         3,
         4,
         3,
@@ -55,7 +58,8 @@ input_file: fixtures/fragments/py/assigns.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         4,
         0,
         4,
@@ -71,7 +75,8 @@ input_file: fixtures/fragments/py/assigns.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         6,
         0,
         6,
@@ -87,7 +92,8 @@ input_file: fixtures/fragments/py/assigns.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         7,
         0,
         7,
@@ -103,7 +109,8 @@ input_file: fixtures/fragments/py/assigns.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         8,
         0,
         8,
@@ -119,7 +126,8 @@ input_file: fixtures/fragments/py/assigns.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         9,
         0,
         9,
@@ -135,7 +143,8 @@ input_file: fixtures/fragments/py/assigns.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         10,
         0,
         10,
@@ -151,7 +160,8 @@ input_file: fixtures/fragments/py/assigns.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         11,
         0,
         11,
@@ -167,7 +177,8 @@ input_file: fixtures/fragments/py/assigns.py
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         12,
         0,
         12,

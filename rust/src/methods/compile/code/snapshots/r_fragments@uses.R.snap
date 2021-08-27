@@ -7,7 +7,8 @@ input_file: fixtures/fragments/r/uses.R
 [
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         0,
         0,
         0,
@@ -23,7 +24,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         1,
         0,
         1,
@@ -39,7 +41,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         2,
         0,
         2,
@@ -55,7 +58,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         2,
         7,
         2,
@@ -71,7 +75,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         3,
         0,
         3,
@@ -87,7 +92,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         3,
         5,
         3,
@@ -103,7 +109,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         3,
         11,
         3,
@@ -119,7 +126,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         4,
         0,
         4,
@@ -135,7 +143,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         4,
         5,
         4,
@@ -151,7 +160,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         6,
         4,
         6,
@@ -167,7 +177,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         6,
         11,
         6,
@@ -183,7 +194,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         7,
         14,
         7,
@@ -199,7 +211,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         12,
         15,
         12,
@@ -215,7 +228,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         13,
         4,
         13,
@@ -231,7 +245,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         18,
         7,
         18,
@@ -247,7 +262,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         22,
         0,
         22,
@@ -263,7 +279,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         23,
         0,
         23,
@@ -279,7 +296,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         24,
         0,
         24,
@@ -295,7 +313,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         24,
         13,
         24,
@@ -311,7 +330,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         34,
         0,
         34,
@@ -327,7 +347,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         35,
         0,
         35,
@@ -343,7 +364,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         36,
         0,
         36,
@@ -359,7 +381,8 @@ input_file: fixtures/fragments/r/uses.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         37,
         0,
         37,

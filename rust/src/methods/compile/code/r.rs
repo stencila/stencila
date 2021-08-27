@@ -1,6 +1,6 @@
 use super::{apply_tags, captures_as_args_map, child_text, is_quoted, remove_quotes, Compiler};
 use crate::{
-    graphs::{resources, Relation, Resource},
+    graphs::{relations, resources, Relation, Resource},
     utils::path::merge,
 };
 use once_cell::sync::Lazy;
@@ -98,7 +98,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                             return None;
                         }
                         Some((
-                            Relation::Use(package.range),
+                            relations::uses(package.range),
                             resources::module("r", &remove_quotes(&package.text)),
                         ))
                     })
@@ -108,7 +108,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 let args = captures_as_args_map(captures);
                 args.get("0").or_else(|| args.get("file")).map(|file| {
                     (
-                        Relation::Read(file.range),
+                        relations::reads(file.range),
                         resources::file(&merge(path, remove_quotes(&file.text))),
                     )
                 })
@@ -118,7 +118,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                 let args = captures_as_args_map(captures);
                 args.get("1").or_else(|| args.get("file")).map(|file| {
                     (
-                        Relation::Write(file.range),
+                        relations::writes(file.range),
                         resources::file(&merge(path, remove_quotes(&file.text))),
                     )
                 })
@@ -143,7 +143,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     _ => "",
                 };
                 Some((
-                    Relation::Assign(range),
+                    relations::assigns(range),
                     resources::symbol(path, &name, kind),
                 ))
             }
@@ -219,7 +219,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
                     None => resources::symbol(path, &symbol, ""),
                 };
 
-                Some((Relation::Use(range), resource))
+                Some((relations::uses(range), resource))
             }
             _ => None,
         })

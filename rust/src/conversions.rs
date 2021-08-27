@@ -1,4 +1,4 @@
-use crate::graphs::{resources, Relation, Triple};
+use crate::graphs::{relations, resources, Triple};
 use defaults::Defaults;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -33,7 +33,7 @@ impl Conversion {
     pub fn triple(&self, project: &Path) -> Triple {
         (
             resources::file(&project.join(&self.input)),
-            Relation::Convert(self.active),
+            relations::converts(self.active),
             resources::file(&project.join(&self.output)),
         )
     }

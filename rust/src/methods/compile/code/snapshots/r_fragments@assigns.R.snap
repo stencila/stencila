@@ -7,7 +7,8 @@ input_file: fixtures/fragments/r/assigns.R
 [
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         0,
         0,
         0,
@@ -23,7 +24,8 @@ input_file: fixtures/fragments/r/assigns.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         1,
         0,
         1,
@@ -39,7 +41,8 @@ input_file: fixtures/fragments/r/assigns.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         3,
         0,
         3,
@@ -55,7 +58,8 @@ input_file: fixtures/fragments/r/assigns.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         5,
         4,
         5,
@@ -71,7 +75,8 @@ input_file: fixtures/fragments/r/assigns.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         10,
         4,
         10,
@@ -87,7 +92,8 @@ input_file: fixtures/fragments/r/assigns.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         13,
         0,
         13,
@@ -103,7 +109,8 @@ input_file: fixtures/fragments/r/assigns.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         15,
         0,
         15,
@@ -119,7 +126,8 @@ input_file: fixtures/fragments/r/assigns.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         16,
         0,
         16,
@@ -135,7 +143,8 @@ input_file: fixtures/fragments/r/assigns.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         17,
         0,
         17,
@@ -151,7 +160,8 @@ input_file: fixtures/fragments/r/assigns.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         18,
         0,
         18,
@@ -167,7 +177,8 @@ input_file: fixtures/fragments/r/assigns.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         19,
         0,
         19,
@@ -183,7 +194,8 @@ input_file: fixtures/fragments/r/assigns.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         20,
         0,
         20,

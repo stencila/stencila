@@ -3,7 +3,7 @@
 import { JSONSchema7 } from 'json-schema'
 import { fromJSON, toJSON } from './prelude'
 import * as pubsub from './pubsub'
-import { FileEvent, Project, ProjectEvent } from './types'
+import { FileEvent, GraphEvent, Project, ProjectEvent } from './types'
 
 const addon = require('../index.node')
 
@@ -128,7 +128,7 @@ export function graph(path: string, format: string): string {
 export function subscribe(
   path: string,
   topics: string[],
-  subscriber: (topic: string, event: ProjectEvent | FileEvent) => unknown
+  subscriber: (topic: string, event: ProjectEvent | FileEvent | GraphEvent) => unknown
 ): void {
   for (const topic of topics) {
     pubsub.subscribe(

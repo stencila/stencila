@@ -1,15 +1,21 @@
-use crate::utils::schemas;
+use crate::{pubsub::publish, utils::schemas};
 use derivative::Derivative;
 use eyre::Result;
 use path_slash::PathExt;
-use petgraph::{graph::NodeIndex, stable_graph::StableGraph};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use petgraph::{
+    graph::NodeIndex,
+    stable_graph::StableGraph,
+    visit::{EdgeRef, IntoEdgeReferences, IntoNodeReferences},
+};
+use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use serde::{ser::SerializeMap, Serialize};
+use serde_json::json;
+use serde_with::skip_serializing_none;
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
 };
-use strum::{Display, EnumString};
+use strum::{Display, ToString};
 
 /// A resource in a dependency graph (the nodes of the graph)
 #[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
@@ -35,9 +41,9 @@ pub enum Resource {
 }
 
 pub mod resources {
+    use super::*;
     use std::path::{Path, PathBuf};
 
-    use super::*;
     #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
     #[derivative(PartialEq, Eq, Hash)]
     #[schemars(deny_unknown_fields)]
@@ -161,29 +167,109 @@ where
 ///
 /// Some relations carry additional information such whether the relation is active
 /// (`Import` and `Convert`) or the range that they occur in code (`Assign`, `Use`, `Read`) etc
-#[derive(
-    Debug, Display, Clone, PartialEq, Eq, Hash, EnumString, JsonSchema, Serialize, Deserialize,
-)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Display, Clone, JsonSchema, Serialize)]
+#[serde(tag = "type")]
 pub enum Relation {
-    Assign(Range),
-    Convert(bool),
+    Assign(relations::Assign),
+    Convert(relations::Convert),
     Embed,
-    Import(bool),
+    Import(relations::Import),
     Include,
     Link,
-    Read(Range),
-    Use(Range),
-    Write(Range),
+    Read(relations::Read),
+    Use(relations::Use),
+    Write(relations::Write),
 }
 
 /// The two dimensional range that a relation is defined within some
-/// code (line start, line end, column start, column end).
+/// code (line start, column start, line end, column end).
 pub type Range = (usize, usize, usize, usize);
 
 /// A null range which can be used in places where we do not know where
 /// in the `subject` the relation is defined.
 pub const NULL_RANGE: Range = (0, 0, 0, 0);
+
+pub mod relations {
+    use super::*;
+
+    /// Assigns a symbol
+    #[derive(Debug, Clone, JsonSchema, Serialize)]
+    #[schemars(deny_unknown_fields)]
+    pub struct Assign {
+        /// The range within code that the assignment is done
+        pub range: Range,
+    }
+
+    /// Create a new `Assign` relation
+    pub fn assigns(range: Range) -> Relation {
+        Relation::Assign(Assign { range })
+    }
+
+    /// Imports a file from a `Source`
+    #[derive(Debug, Clone, JsonSchema, Serialize)]
+    #[schemars(deny_unknown_fields)]
+    pub struct Import {
+        /// Whether or not the import is automatically updated
+        pub auto: bool,
+    }
+
+    /// Create a new `Import` relation
+    pub fn imports(auto: bool) -> Relation {
+        Relation::Import(Import { auto })
+    }
+
+    /// Converts a file into another
+    #[derive(Debug, Clone, JsonSchema, Serialize)]
+    #[schemars(deny_unknown_fields)]
+    pub struct Convert {
+        /// Whether or not the conversion is automatically updated
+        pub auto: bool,
+    }
+
+    /// Create a new `Convert` relation
+    pub fn converts(auto: bool) -> Relation {
+        Relation::Convert(Convert { auto })
+    }
+
+    /// Reads from a file
+    #[derive(Debug, Clone, JsonSchema, Serialize)]
+    #[schemars(deny_unknown_fields)]
+    pub struct Read {
+        /// The range within code that the read is declared
+        pub range: Range,
+    }
+
+    /// Create a new `Read` relation
+    pub fn reads(range: Range) -> Relation {
+        Relation::Read(Read { range })
+    }
+
+    /// Uses a symbol or module
+    #[derive(Debug, Clone, JsonSchema, Serialize)]
+    #[schemars(deny_unknown_fields)]
+    pub struct Use {
+        /// The range within code that the use is declared
+        pub range: Range,
+    }
+
+    /// Create a new `Use` relation
+    pub fn uses(range: Range) -> Relation {
+        Relation::Use(Use { range })
+    }
+
+    /// Writes to a file
+    #[derive(Debug, Clone, JsonSchema, Serialize)]
+    #[schemars(deny_unknown_fields)]
+    pub struct Write {
+        /// The range within code that the write is declared
+        pub range: Range,
+    }
+
+    /// Create a new `Write` relation
+    pub fn writes(range: Range) -> Relation {
+        Relation::Write(Write { range })
+    }
+}
 
 /// The direction to represent the flow of information from subject to object
 pub enum Direction {
@@ -210,27 +296,87 @@ pub fn direction(relation: &Relation) -> Direction {
 pub type Triple = (Resource, Relation, Resource);
 
 /// A project dependency graph
-#[derive(Debug, Default, Clone, Serialize)]
+#[derive(Debug, Default, Clone)]
 pub struct Graph {
+    /// The path of the project that this graph is for
+    ///
+    /// Primarily used to make file paths relative in visualizations and
+    /// if ever persisting the graph.
+    path: PathBuf,
+
     /// The graph itself
     ///
     /// Use a `petgraph::StableGraph` so that nodes can be added and removed
     /// without changing node indices.
-    #[serde(flatten)]
     graph: StableGraph<Resource, Relation>,
 
     /// Indices of the nodes in the tree
     ///
     /// This is necessary to keep track of which resources
     /// are already in the graph and re-use their index if they are.
-    #[serde(skip)]
     indices: HashMap<Resource, NodeIndex>,
+}
+
+impl Serialize for Graph {
+    /// Custom serialization to strip prefix from paths, add stable node indices,
+    /// and exclude properties that are included by default by `petgraph` (e.g `node_holes`).
+    ///
+    /// Our general approach is to keep paths absolute whilst in memory and only convert to
+    /// relative when necessary (e.g. visualizations). See also `Graph::to_dot`.
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let nodes: Vec<serde_json::Value> = self
+            .graph
+            .node_references()
+            .map(|(index, resource)| {
+                let mut obj = serde_json::to_value(resource).expect("To be able to serialize");
+                let obj = obj.as_object_mut().expect("To be an object");
+
+                // Strip prefix from paths
+                if let Some(path) = match resource {
+                    Resource::Symbol(symbol) => Some(symbol.path.clone()),
+                    Resource::Node(node) => Some(node.path.clone()),
+                    Resource::File(file) => Some(file.path.clone()),
+                    _ => None,
+                } {
+                    let path = path
+                        .strip_prefix(&self.path)
+                        .unwrap_or(&path)
+                        .to_slash_lossy();
+                    obj.insert("path".to_string(), json!(path));
+                }
+
+                obj.insert("index".to_string(), json!(index));
+                json!(obj)
+            })
+            .collect();
+
+        let edges: Vec<serde_json::Value> = self
+            .graph
+            .edge_references()
+            .map(|edge| -> serde_json::Value {
+                json!({
+                    "from": edge.source(),
+                    "to": edge.target(),
+                    "relation": edge.weight()
+                })
+            })
+            .collect();
+
+        let mut map = serializer.serialize_map(Some(2))?;
+        map.serialize_entry("nodes", &nodes)?;
+        map.serialize_entry("edges", &edges)?;
+        map.end()
+    }
 }
 
 impl Graph {
     /// Create a new graph
-    pub fn new() -> Graph {
+    pub fn new(path: PathBuf) -> Graph {
         Graph {
+            path,
             indices: HashMap::new(),
             graph: StableGraph::new(),
         }
@@ -278,7 +424,7 @@ impl Graph {
     }
 
     /// Convert the graph to a visualization nodes and edges
-    pub fn to_dot(&self, base_path: &Path) -> String {
+    pub fn to_dot(&self) -> String {
         let nodes = self
             .indices
             .iter()
@@ -291,10 +437,10 @@ impl Graph {
                     Resource::File(file) => file.path.clone(),
                     _ => PathBuf::new(),
                 };
-                let path = pathdiff::diff_paths(&path, base_path)
-                    .unwrap_or_default()
-                    .to_string_lossy()
-                    .to_string();
+                let path = path
+                    .strip_prefix(&self.path)
+                    .unwrap_or(&path)
+                    .to_slash_lossy();
 
                 let (shape, fill_color, label) = match resource {
                     Resource::Symbol(symbol) => (
@@ -311,7 +457,12 @@ impl Graph {
                         ),
                     ),
                     Resource::Node(node) => {
-                        ("box", "#efe0b8", format!("{}\\n{}", node.kind, node.id))
+                        let label = if !node.id.starts_with('_') {
+                            format!("{}\\n{}", node.kind, node.id)
+                        } else {
+                            node.kind.clone()
+                        };
+                        ("box", "#efe0b8", label)
                     }
                     Resource::File(..) => ("note", "#d1efb8", path.clone()),
                     Resource::Source(source) => ("house", "#efb8d4", source.name.clone()),
@@ -347,10 +498,10 @@ impl Graph {
             clusters
                 .keys()
                 .position(|key| {
-                    key == pathdiff::diff_paths(path, base_path)
-                        .unwrap_or_default()
-                        .to_str()
-                        .unwrap_or_default()
+                    key == &path
+                        .strip_prefix(&self.path)
+                        .unwrap_or(path)
+                        .to_slash_lossy()
                 })
                 .unwrap_or(0)
         };
@@ -383,14 +534,22 @@ impl Graph {
                     self.graph.edge_weight(edge),
                 ) {
                     let (label, style) = match relation {
-                        Relation::Convert(active) | Relation::Import(active) => (
+                        Relation::Convert(relations::Convert { auto: active })
+                        | Relation::Import(relations::Import { auto: active }) => (
                             relation.to_string(),
                             if *active { "solid" } else { "dashed" },
                         ),
-                        Relation::Assign(range)
-                        | Relation::Use(range)
-                        | Relation::Read(range)
-                        | Relation::Write(range) => (format!("{} L{}", relation, range.0), "solid"),
+                        Relation::Assign(relations::Assign { range })
+                        | Relation::Use(relations::Use { range })
+                        | Relation::Read(relations::Read { range })
+                        | Relation::Write(relations::Write { range }) => {
+                            let label = if *range == NULL_RANGE {
+                                relation.to_string()
+                            } else {
+                                format!("{} L{}", relation, range.0 + 1)
+                            };
+                            (label, "solid")
+                        }
                         _ => (relation.to_string(), "solid"),
                     };
 
@@ -439,6 +598,49 @@ impl Graph {
     }
 }
 
+#[derive(Debug, JsonSchema, Serialize, ToString)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+pub enum GraphEventType {
+    Updated,
+}
+
+#[skip_serializing_none]
+#[derive(Debug, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct GraphEvent {
+    /// The path of the project (absolute)
+    project: PathBuf,
+
+    /// The type of event
+    #[serde(rename = "type")]
+    type_: GraphEventType,
+
+    /// The graph at the time of the event
+    #[schemars(schema_with = "GraphEvent::schema_graph")]
+    graph: Graph,
+}
+
+impl GraphEvent {
+    /// Generate the JSON Schema for the `graph` property to avoid nesting
+    fn schema_graph(_generator: &mut SchemaGenerator) -> Schema {
+        schemas::typescript("Graph", true)
+    }
+
+    /// Publish a `GraphEvent`.
+    ///
+    /// Will publish an event under the `projects:<project>:graph` topic.
+    pub fn publish(project: &Path, type_: GraphEventType, graph: &Graph) {
+        let topic = &format!("projects:{}:graph", project.display());
+        let event = GraphEvent {
+            project: project.to_path_buf(),
+            type_,
+            graph: graph.clone(),
+        };
+        publish(topic, &event)
+    }
+}
+
 /// Get JSON Schemas for this modules
 pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![
@@ -474,33 +676,31 @@ pub fn schemas() -> Result<serde_json::Value> {
                     "description": "The resources in the graph",
                     "type": "array",
                     "items": {
-                        "tsType": "Resource",
-                        "isRequired": true
-                    }
+                        "tsType": "Resource"
+                    },
+                    "isRequired": true
                 },
                 "edges": {
                     "description": "The relations between resources in the graph",
                     "type": "array",
                     "items": {
-                        "type": "array",
-                        "items": [
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "type": "integer"
-                            },
-                            {
-                                "tsType": "Relation"
+                        "type": "object",
+                        "required": ["from", "to", "relation"],
+                        "properties": {
+                            "from": "integer",
+                            "to": "integer",
+                            "relation" : {
+                                "tsType": "Resource"
                             }
-                        ],
-                        "minItems": 3,
-                        "maxItems": 3
-                    }
+                        },
+                        "additionalProperties": false
+                    },
+                    "isRequired": true
                 }
             },
             "additionalProperties": false
         }),
+        schemas::generate::<GraphEvent>()?,
     ]);
     Ok(schemas)
 }

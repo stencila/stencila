@@ -24,6 +24,8 @@ fn obtain() -> Result<MutexGuard<'static, Vec<Subscription>>> {
 
 /// Subscribe to a topic
 pub fn subscribe(topic: &str, subscriber: Subscriber) -> Result<()> {
+    tracing::debug!("Subscribing to topic: {}", topic);
+
     match obtain() {
         Ok(mut subscriptions) => {
             subscriptions.push(Subscription {
@@ -47,6 +49,8 @@ pub fn publish<Event>(topic: &str, event: &Event)
 where
     Event: Serialize,
 {
+    tracing::debug!("Publishing event for topic: {}", topic);
+
     match obtain() {
         Ok(subscriptions) => {
             for subscription in &*subscriptions {

@@ -3,7 +3,7 @@ use crate::conversions::Conversion;
 use crate::documents::DOCUMENTS;
 use crate::errors::attempt;
 use crate::files::{File, FileEvent, Files};
-use crate::graphs::{resources, Graph, Resource};
+use crate::graphs::{resources, Graph, GraphEvent, GraphEventType, Resource};
 use crate::methods::import::import;
 use crate::pubsub::publish;
 use crate::sources::{self, Source, SourceDestination, SourceTrait};
@@ -56,9 +56,9 @@ impl ProjectEvent {
 
     /// Publish a `ProjectEvent`.
     ///
-    /// Will publish the events under the `projects:<>:props` topic
-    /// so it can be differentiated from `FileEvents` under the
-    /// `projects:{}:files` topic.
+    /// Will publish the event under the `projects:<project>:props` topic
+    /// so it can be differentiated from `FileEvent`s and `GraphEvent`s for the
+    /// same project.
     pub fn publish(project: &Project, type_: ProjectEventType) {
         let topic = &format!("projects:{}:props", project.path.display());
         let event = ProjectEvent {
@@ -232,9 +232,12 @@ impl Project {
         // Get all the files and folders in the project
         project.files = Files::new(&path);
 
-        // Update the project's properties,
-        // some one which may depend on the files.
+        // Update the project's properties, some one which may depend on the files
+        // list that we just updated
         project.update(None).await;
+
+        // Attempt to compile the project's graph
+        attempt(project.compile().await);
 
         Ok(project)
     }
@@ -394,9 +397,6 @@ impl Project {
         // Theme defaults to the configured default
         self.theme = self.theme.clone().or_else(|| Some(config.theme.clone()));
 
-        // Compile the project
-        attempt(self.compile().await);
-
         ProjectEvent::publish(self, ProjectEventType::Updated)
     }
 
@@ -405,7 +405,9 @@ impl Project {
     /// Starts at the main document and walks over related files (linked to, imported from etc)
     /// building up the graph. Also adds sources and their relations to files.
     pub async fn compile(&mut self) -> Result<&mut Project> {
-        let mut graph = Graph::new();
+        tracing::debug!("Compiling project: {}", self.path.display());
+
+        let mut graph = Graph::new(self.path.clone());
 
         // Walk over files starting at the main file
         #[async_recursion::async_recursion]
@@ -430,6 +432,7 @@ impl Project {
             Ok(())
         }
         if let Some(path) = self.main_path.as_ref() {
+            graph.add_resource(resources::file(path));
             walk(&mut Vec::new(), path, &mut graph).await?;
         }
 
@@ -447,6 +450,9 @@ impl Project {
                 graph.add_triple(conversion.triple(&self.path))
             }
         }
+
+        // Publish a "graph updated" event
+        GraphEvent::publish(&self.path, GraphEventType::Updated, &graph);
 
         self.graph = graph;
         Ok(self)
@@ -589,7 +595,7 @@ impl Project {
     /// Get the project graph in some format
     pub fn graph(&self, format: &str) -> Result<String> {
         Ok(match format {
-            "dot" => self.graph.to_dot(&self.path),
+            "dot" => self.graph.to_dot(),
             "json" => serde_json::to_string_pretty(&self.graph)?,
             "yaml" => serde_yaml::to_string(&self.graph)?,
             _ => bail!("Unknown graph format '{}'", format),
@@ -753,7 +759,7 @@ impl ProjectHandler {
                 true
             };
 
-            // Should the event trigger an update to other project properties?
+            // Should the event trigger a read of the project.json file?
             let should_read_project = |event_path: &Path| {
                 if let Some(file_name) = event_path.file_name() {
                     if file_name == Project::FILE_NAME {
@@ -774,6 +780,23 @@ impl ProjectHandler {
                 }
             }
 
+            // Should the event trigger a recompilation of the project's graph?
+            let should_compile_graph = |event_path: &Path| {
+                // TODO: Filter based on whether the path is in the graph's nodes
+                true
+            };
+
+            // Compile the project graph
+            async fn compile_graph(project: &mut Project) {
+                if let Err(error) = project.compile().await {
+                    tracing::error!(
+                        "While compiling project '{}': {}",
+                        project.path.display(),
+                        error
+                    )
+                }
+            }
+
             tracing::debug!("Starting project handler");
             while let Some(event) = async_receiver.recv().await {
                 match event {
@@ -785,6 +808,9 @@ impl ProjectHandler {
                         if should_read_project(&path) {
                             read_project(project).await;
                         }
+                        if should_compile_graph(&path) {
+                            compile_graph(project).await;
+                        }
                     }
                     DebouncedEvent::Remove(path) => {
                         let project = &mut *project.lock().await;
@@ -793,6 +819,9 @@ impl ProjectHandler {
                         }
                         if should_read_project(&path) {
                             read_project(project).await;
+                        }
+                        if should_compile_graph(&path) {
+                            compile_graph(project).await;
                         }
                     }
                     DebouncedEvent::Rename(from, to) => {
@@ -803,6 +832,9 @@ impl ProjectHandler {
                         if should_read_project(&from) || should_read_project(&to) {
                             read_project(project).await;
                         }
+                        if should_compile_graph(&from) || should_compile_graph(&to) {
+                            compile_graph(project).await;
+                        }
                     }
                     DebouncedEvent::Write(path) => {
                         let project = &mut *project.lock().await;
@@ -811,6 +843,9 @@ impl ProjectHandler {
                         }
                         if should_read_project(&path) {
                             read_project(project).await;
+                        }
+                        if should_compile_graph(&path) {
+                            compile_graph(project).await;
                         }
                     }
                     _ => {}

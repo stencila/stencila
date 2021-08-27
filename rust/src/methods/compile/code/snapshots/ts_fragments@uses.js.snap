@@ -7,7 +7,8 @@ input_file: fixtures/fragments/js/uses.js
 [
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         0,
         0,
         0,
@@ -23,7 +24,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         1,
         0,
         1,
@@ -39,7 +41,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         1,
         7,
         1,
@@ -55,7 +58,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         2,
         0,
         2,
@@ -71,7 +75,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         3,
         0,
         3,
@@ -87,7 +92,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         3,
         5,
         3,
@@ -103,7 +109,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         3,
         11,
         3,
@@ -119,7 +126,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         4,
         0,
         4,
@@ -135,7 +143,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         4,
         5,
         4,
@@ -151,7 +160,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         6,
         4,
         6,
@@ -167,7 +177,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         6,
         11,
         6,
@@ -183,7 +194,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         7,
         13,
         7,
@@ -199,7 +211,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         12,
         19,
         12,
@@ -214,7 +227,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         13,
         21,
         13,
@@ -229,7 +243,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         17,
         15,
         17,
@@ -245,7 +260,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         18,
         4,
         18,
@@ -261,7 +277,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         21,
         26,
         21,
@@ -277,7 +294,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         27,
         0,
         27,
@@ -293,7 +311,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         28,
         0,
         28,
@@ -309,7 +328,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         29,
         0,
         29,
@@ -325,7 +345,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "use": [
+      "type": "Use",
+      "range": [
         29,
         13,
         29,
@@ -341,7 +362,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         34,
         9,
         34,
@@ -357,7 +379,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         38,
         6,
         38,
@@ -373,7 +396,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         42,
         0,
         42,
@@ -389,7 +413,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         43,
         4,
         43,
@@ -405,7 +430,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         44,
         4,
         44,
@@ -421,7 +447,8 @@ input_file: fixtures/fragments/js/uses.js
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         45,
         6,
         45,

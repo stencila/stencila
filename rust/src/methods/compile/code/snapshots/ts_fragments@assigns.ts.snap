@@ -7,7 +7,8 @@ input_file: fixtures/fragments/ts/assigns.ts
 [
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         1,
         4,
         1,
@@ -23,7 +24,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         2,
         4,
         2,
@@ -39,7 +41,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         3,
         4,
         3,
@@ -55,7 +58,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         5,
         6,
         5,
@@ -71,7 +75,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         6,
         13,
         6,
@@ -87,7 +92,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         9,
         6,
         9,
@@ -103,7 +109,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         10,
         6,
         10,
@@ -119,7 +126,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         11,
         6,
         11,
@@ -135,7 +143,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         12,
         6,
         12,
@@ -151,7 +160,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         13,
         6,
         13,
@@ -167,7 +177,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         14,
         6,
         14,
@@ -183,7 +194,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         15,
         6,
         15,
@@ -199,7 +211,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         17,
         9,
         17,
@@ -215,7 +228,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         18,
         6,
         18,
@@ -231,7 +245,8 @@ input_file: fixtures/fragments/ts/assigns.ts
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         19,
         16,
         19,

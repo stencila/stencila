@@ -7,7 +7,8 @@ input_file: fixtures/fragments/r/reads.R
 [
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         1,
         9,
         1,
@@ -21,7 +22,8 @@ input_file: fixtures/fragments/r/reads.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         4,
         0,
         4,
@@ -37,7 +39,8 @@ input_file: fixtures/fragments/r/reads.R
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         4,
         19,
         4,
@@ -51,7 +54,8 @@ input_file: fixtures/fragments/r/reads.R
   ],
   [
     {
-      "assign": [
+      "type": "Assign",
+      "range": [
         7,
         0,
         7,
@@ -67,7 +71,8 @@ input_file: fixtures/fragments/r/reads.R
   ],
   [
     {
-      "read": [
+      "type": "Read",
+      "range": [
         8,
         22,
         8,
