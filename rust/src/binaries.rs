@@ -3,6 +3,7 @@ use defaults::Defaults;
 use eyre::{bail, eyre, Result};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
+use path_slash::PathBufExt;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -246,6 +247,9 @@ impl Binary {
         }
         tracing::debug!("Found existing dirs {:?}", dirs);
 
+        // Add Python virtual environs for packages installed there
+        dirs.push(binaries_dir().join("python").join("venv").join("bin"));
+
         // Add the system PATH env var
         if let Some(path) = env::var_os("PATH") {
             tracing::debug!("Found PATH {:?}", path);
@@ -344,7 +348,7 @@ impl Binary {
         } else {
             self.installable
                 .first()
-                .expect("Always at least one version")
+                .expect("There should be at least one version of installable binaries")
                 .clone()
         };
         let semver = semver::VersionReq::parse(&semver)?;
@@ -523,6 +527,47 @@ impl Binary {
         Ok(())
     }
 
+    /// Install a Python package
+    ///
+    /// Creates a virtual environment in the binaries folder (see `stencila config dirs`)
+    /// if it does not yet exist and then installs the package into it.
+    #[async_recursion::async_recursion]
+    async fn install_python_package(
+        &self,
+        name: &str,
+        version: &str,
+        _os: &str,
+        _arch: &str,
+    ) -> Result<()> {
+        tracing::debug!("Installing Python package '{}=={}'", name, version);
+
+        let python = require("python", "3").await?;
+
+        let venv = binaries_dir().join("python").join("venv");
+        if !venv.exists() {
+            tracing::debug!("Setting up virtual environment '{}'", venv.to_slash_lossy());
+            python
+                .run_async(&["-m".to_string(), "venv".to_string(), venv.to_slash_lossy()])
+                .await?;
+        }
+
+        let python_venv = BinaryInstallation::new(
+            "python3".to_string(),
+            venv.join("bin").join("python3"),
+            None,
+        );
+        python_venv
+            .run_async(
+                &format!("-m pip install {}=={}", name, version)
+                    .split_whitespace()
+                    .map(String::from)
+                    .collect_vec(),
+            )
+            .await?;
+
+        Ok(())
+    }
+
     /// Download a URL (usually an archive) to a temporary, but optionally cached, file
     async fn download(&self, url: &str) -> Result<PathBuf> {
         let url_parsed = url::Url::parse(url)?;
@@ -675,16 +720,17 @@ impl Binary {
 static BINARIES: Lazy<Mutex<HashMap<String, Binary>>> = Lazy::new(|| {
     // Note: versions should be valid semver triples and listed in descending order!
     // The first version meeting semver requirements will be installed is necessary
+    // If the binary is not installable, use a dummy version e.g. "0.0.0"
     let binaries = vec![
         // Buildah
-        Binary::new("buildah", &[], &[]),
+        Binary::new("buildah", &[], &["0.0.0"]),
         // Chrome / Chromium
         // Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history
         // but only use triples ending in `.0` here and make sure there is a mapping in the
         // `install_chromium` function.
         Binary::new("chrome", &["chromium"], &["91.0.0"]),
         // Docker
-        Binary::new("docker", &[], &[]),
+        Binary::new("docker", &[], &["0.0.0"]),
         // Node.js
         // Release list at https://nodejs.org/en/download/releases/
         Binary::new("node", &[], &["16.4.1"]),
@@ -936,12 +982,20 @@ pub mod cli {
                 arch,
             } = self;
 
-            if let Some(binary) = BINARIES.lock().await.get_mut(&name) {
-                binary.install(semver, os, arch).await?;
-                tracing::info!("📦 Installed {}", name);
+            let mut binary = if let Some(binary) = BINARIES.lock().await.get(&name) {
+                // Clone the binary here so that we can release the lock on BINARIES.
+                // Otherwise deadlocks are possible if the installation it self needs to call
+                // the `require` function.
+                binary.clone()
             } else {
-                tracing::warn!("No registered binary with that name. See `stencila binaries list`.")
-            }
+                tracing::warn!(
+                    "No registered binary with that name. See `stencila binaries list`."
+                );
+                return display::nothing();
+            };
+
+            binary.install(semver, os, arch).await?;
+            tracing::info!("📦 Installed {}", name);
 
             display::nothing()
         }
