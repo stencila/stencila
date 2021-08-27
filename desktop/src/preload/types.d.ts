@@ -156,7 +156,9 @@ export type ProjectsWindowOpen = InvokeType<
 
 export type ProjectsOpenUsingFilePicker = InvokeType<
   typeof CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER,
-  () => void
+  () => {
+    canceled: boolean
+  }
 >
 
 export type ProjectsNew = InvokeType<typeof CHANNEL.PROJECTS_NEW, () => void>

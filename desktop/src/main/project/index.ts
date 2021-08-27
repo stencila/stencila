@@ -4,7 +4,7 @@ import {
   ProjectsNew,
   ProjectsOpen,
   ProjectsOpenUsingFilePicker,
-  ProjectsWindowOpen
+  ProjectsWindowOpen,
 } from '../../preload/types'
 import { makeHandlers, removeChannelHandlers } from '../utils/handler'
 import { handle, valueToSuccessResult } from '../utils/ipc'
@@ -16,16 +16,17 @@ const registerProjectHandlers = () => {
   handle<ProjectsOpenUsingFilePicker>(
     CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER,
     async () => {
-      return openProject().then(() => valueToSuccessResult())
+      return openProject().then((res) =>
+        valueToSuccessResult({
+          canceled: res === undefined,
+        })
+      )
     }
   )
 
-  handle<ProjectsNew>(
-    CHANNEL.PROJECTS_NEW,
-    async () => {
-      return newProject().then(() => valueToSuccessResult())
-    }
-  )
+  handle<ProjectsNew>(CHANNEL.PROJECTS_NEW, async () => {
+    return newProject().then(() => valueToSuccessResult())
+  })
 
   handle<ProjectsWindowOpen>(
     CHANNEL.PROJECTS_WINDOW_OPEN,
