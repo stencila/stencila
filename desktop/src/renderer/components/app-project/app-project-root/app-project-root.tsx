@@ -1,12 +1,15 @@
 import { Component, h } from '@stencil/core'
 import { Route } from '@stencil/router'
+import { option as O } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 import { state, store } from '../../../store'
 import {
   initPane,
-  openDocumentInActivePane
+  openDocumentInActivePane,
 } from '../../../store/documentPane/documentPaneActions'
 import { fetchProject } from '../../../store/project/projectActions'
 import { getProjectMainFilePath } from '../../../store/project/projectSelectors'
+import { SessionsStoreKeys, sessionStore } from '../../../store/sessionStore'
 import { ProjectRouter } from '../projectRouter'
 import { listenForFileEvents, removeFileEventListener } from './projectEvents'
 
@@ -18,13 +21,26 @@ const rootPaneId = 1
   scoped: true,
 })
 export class AppProjectRoot {
+  private projectPath: string
+
   async componentWillLoad() {
-    const projectPath = decodeURI(
-      window.location.pathname.replace('/project', '')
+    pipe(
+      sessionStore.get(SessionsStoreKeys.PROJECT_PATH),
+      O.alt(() => {
+        const decodedPath = decodeURI(
+          window.location.pathname.replace('/project', '')
+        )
+        sessionStore.set(SessionsStoreKeys.PROJECT_PATH)(decodedPath)
+        return O.some(decodedPath)
+      }),
+      O.map((projectPath) => {
+        this.projectPath = projectPath
+      })
     )
+
     initPane(rootPaneId)
-    await store.dispatch(fetchProject(projectPath))
-    listenForFileEvents(projectPath)
+    await store.dispatch(fetchProject(this.projectPath))
+    listenForFileEvents(this.projectPath)
 
     const mainFile = getProjectMainFilePath(state)
     if (mainFile) {

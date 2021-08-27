@@ -1,4 +1,4 @@
-import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
+import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
 import { i18n } from '../../i18n'
 import { isDevelopment } from '../../preload/utils/env'
 import { scheme } from '../app-protocol'
@@ -23,7 +23,6 @@ export const createWindow = (
       contextIsolation: true, // protect against prototype pollution
       enableRemoteModule: false,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      additionalArguments: [`storePath:${app.getPath('userData')}`],
     },
   })
 
