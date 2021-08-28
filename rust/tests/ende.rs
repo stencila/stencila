@@ -10,9 +10,10 @@
 use pretty_assertions::assert_eq;
 use proptest::prelude::*;
 use stencila::methods::{decode, encode};
+use stencila_schema::{BlockContent, Node};
 
 mod strategies;
-use strategies::{article, node, Freedom};
+use strategies::{article, code_chunk, node, Freedom};
 
 proptest! {
     // Tests for generic data serialization formats
@@ -24,7 +25,7 @@ proptest! {
     #[cfg(all(feature="encode-json", feature="decode-json"))]
     #[test]
     fn json(input in node(Freedom::Max)) {
-        let content = encode::json::encode(&input).unwrap();
+        let content = encode::json::encode(&input, None).unwrap();
         let output = decode::json::decode(&content).unwrap();
         assert_eq!(
             serde_json::to_value(&input).unwrap(),
@@ -37,6 +38,33 @@ proptest! {
     fn yaml(input in node(Freedom::Max)) {
         let content = encode::yaml::encode(&input).unwrap();
         let output = decode::yaml::decode(&content).unwrap();
+        assert_eq!(
+            serde_json::to_value(&input).unwrap(),
+            serde_json::to_value(&output).unwrap()
+        )
+    }
+}
+
+proptest! {
+    // Tests for RPNGs
+    //
+    // RPNGs can be used for all node types but theses tests
+    // focus on the types for which they are most predominately used.
+    // Given the slowness of generating PNGs only use very few cases.
+    #![proptest_config(ProptestConfig::with_cases(3))]
+
+    #[cfg(all(feature="encode-rpng", feature="decode-rpng"))]
+    #[test]
+    fn rpng(chunk in code_chunk(Freedom::Max)) {
+        let input = if let BlockContent::CodeChunk(chunk) = chunk {
+            Node::CodeChunk(chunk)
+        } else {
+            panic!("Whaaat?!@#!!")
+        };
+        let content = tokio::runtime::Runtime::new().unwrap().block_on(async {
+            encode::rpng::encode(&input, "data://", None).await.unwrap()
+        });
+        let output = decode::rpng::decode(&content).unwrap();
         assert_eq!(
             serde_json::to_value(&input).unwrap(),
             serde_json::to_value(&output).unwrap()
@@ -83,5 +111,4 @@ proptest! {
             serde_json::to_value(&output).unwrap()
         )
     }
-
 }

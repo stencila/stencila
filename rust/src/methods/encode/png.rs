@@ -1,12 +1,30 @@
 use super::{html, Options};
 use crate::binaries;
-use chromiumoxide::{Browser, BrowserConfig, cdp::browser_protocol::page::{CaptureScreenshotFormat, CaptureScreenshotParams}};
-use eyre::{bail, Result};
+use chromiumoxide::{cdp::browser_protocol::page::CaptureScreenshotFormat, Browser, BrowserConfig};
+use eyre::Result;
 use futures::StreamExt;
+use std::fs;
 use stencila_schema::Node;
 
-/// Encode a `Node` to a PNG image
+/// Encode a `Node` to a PNG file or Base64 encoded data URI.
 pub async fn encode(node: &Node, output: &str, options: Option<Options>) -> Result<String> {
+    let bytes = encode_to_bytes(node, options).await?;
+    let content = if output.starts_with("data:") {
+        ["data:image/png;base64,", &base64::encode(&bytes)].concat()
+    } else {
+        let path = if let Some(path) = output.strip_prefix("file://") {
+            path
+        } else {
+            output
+        };
+        fs::write(path, bytes)?;
+        ["file://", path].concat()
+    };
+    Ok(content)
+}
+
+/// Encode a `Node` to the bytes of a PNG image
+pub async fn encode_to_bytes(node: &Node, options: Option<Options>) -> Result<Vec<u8>> {
     let Options { theme, .. } = options.unwrap_or_default();
 
     let html = html::encode(
@@ -17,7 +35,6 @@ pub async fn encode(node: &Node, output: &str, options: Option<Options>) -> Resu
             theme,
         }),
     )?;
-    println!("{}", html);
 
     let chrome = binaries::require("chrome", "*").await?;
 
@@ -43,21 +60,8 @@ pub async fn encode(node: &Node, output: &str, options: Option<Options>) -> Resu
         .await?;
 
     let format = CaptureScreenshotFormat::Png;
-    let content = if output.starts_with("data:") {
-        let bytes = element.screenshot(format).await?;
-        let data_uri = ["data:image/png;base64,", &base64::encode(&bytes)].concat();
-        data_uri
-    } else {
-        let path = if let Some(path) = output.strip_prefix("file://") {
-            path
-        } else {
-            output
-        };
-        element.save_screenshot(format, path).await?;
-        ["file://", &path].concat()
-    };
-
-    Ok(content)
+    let bytes = element.screenshot(format).await?;
+    Ok(bytes)
 }
 
 #[cfg(test)]

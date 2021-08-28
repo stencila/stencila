@@ -468,6 +468,28 @@ prop_compose! {
     }
 }
 
+prop_compose! {
+    /// Generate a code chunk
+    pub fn code_chunk(freedom: Freedom)(
+        programming_language in match freedom {
+            Freedom::Min => "",
+            Freedom::Low => r"[A-Za-z0-9-]+",
+            _ => any::<String>()
+        },
+        text in match freedom {
+            Freedom::Min => r"text",
+            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            _ => any::<String>()
+        }
+    ) -> BlockContent {
+        BlockContent::CodeChunk(CodeChunk{
+            programming_language,
+            text,
+            ..Default::default()
+        })
+    }
+}
+
 /// Generate a thematic break
 pub fn thematic_break() -> impl Strategy<Value = BlockContent> {
     Just(BlockContent::ThematicBreak(ThematicBreak::default()))

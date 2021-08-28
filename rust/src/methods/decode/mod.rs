@@ -29,6 +29,9 @@ pub mod pandoc;
 #[cfg(feature = "decode-person")]
 pub mod person;
 
+#[cfg(feature = "decode-rpng")]
+pub mod rpng;
+
 #[cfg(feature = "decode-toml")]
 pub mod toml;
 
