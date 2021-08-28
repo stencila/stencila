@@ -58,14 +58,35 @@ pub async fn encode(node: &Node, output: &str, options: Option<Options>) -> Resu
 #[cfg(test)]
 mod tests {
     use super::*;
+    use path_slash::PathExt;
     use stencila_schema::CodeChunk;
 
     #[tokio::test]
-    async fn encode_to_file() -> Result<()> {
+    async fn test_encode() -> Result<()> {
         let node = Node::CodeChunk(CodeChunk {
+            programming_language: "python".to_string(),
+            text: "print(\"Hello world!\")".to_string(),
+            outputs: Some(vec![Node::String("Hello world!".to_string())]),
             ..Default::default()
         });
-        encode(&node, "file://temp.png", None).await?;
+
+        let dir = tempfile::tempdir()?;
+        let path = dir.path().join("temp.png");
+        let output = encode(
+            &node,
+            &path.to_slash_lossy(),
+            Some(Options {
+                theme: "rpng".to_string(),
+                ..Default::default()
+            }),
+        )
+        .await?;
+        assert_eq!(output, ["file://", &path.to_slash_lossy()].concat());
+        assert!(path.exists());
+
+        let data = encode(&node, "data://", None).await?;
+        assert!(data.starts_with("data:image/png;base64,"));
+
         Ok(())
     }
 }

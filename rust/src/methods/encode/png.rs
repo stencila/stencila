@@ -67,37 +67,35 @@ pub async fn encode_to_bytes(node: &Node, options: Option<Options>) -> Result<Ve
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_content;
-    use insta::assert_json_snapshot;
-    use pretty_assertions::assert_eq;
-    use stencila_schema::{CodeChunk, CodeExpression};
+    use path_slash::PathExt;
+    use stencila_schema::CodeChunk;
 
     #[tokio::test]
-    async fn encode_file() -> Result<()> {
+    async fn test_encode() -> Result<()> {
         let node = Node::CodeChunk(CodeChunk {
             programming_language: "python".to_string(),
             text: "print(\"Hello world!\")".to_string(),
             outputs: Some(vec![Node::String("Hello world!".to_string())]),
             ..Default::default()
         });
-        encode(
+
+        let dir = tempfile::tempdir()?;
+        let path = dir.path().join("temp.png");
+        let output = encode(
             &node,
-            "file://temp.png",
+            &path.to_slash_lossy(),
             Some(Options {
                 theme: "rpng".to_string(),
                 ..Default::default()
             }),
         )
         .await?;
-        Ok(())
-    }
+        assert_eq!(output, ["file://", &path.to_slash_lossy()].concat());
+        assert!(path.exists());
 
-    #[tokio::test]
-    async fn encode_data_uri() -> Result<()> {
-        let node = Node::CodeExpression(CodeExpression {
-            ..Default::default()
-        });
-        encode(&node, "data://", None).await?;
+        let data = encode(&node, "data://", None).await?;
+        assert!(data.starts_with("data:image/png;base64,"));
+
         Ok(())
     }
 }
