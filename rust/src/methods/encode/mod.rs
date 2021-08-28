@@ -125,7 +125,7 @@ pub async fn encode(
         "rmd" => rmd::encode(node)?,
 
         #[cfg(feature = "encode-rpng")]
-        "rpng" => rpng::encode(node, output, options).await?,
+        "rpng" => rpng::encode(node, output).await?,
 
         #[cfg(feature = "encode-toml")]
         "toml" => toml::encode(node)?,

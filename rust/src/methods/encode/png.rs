@@ -8,7 +8,60 @@ use stencila_schema::Node;
 
 /// Encode a `Node` to a PNG file or Base64 encoded data URI.
 pub async fn encode(node: &Node, output: &str, options: Option<Options>) -> Result<String> {
-    let bytes = encode_to_bytes(node, options).await?;
+    let pngs = encode_to_pngs(&[node], options).await?;
+    encode_to_output(&pngs[0], output)
+}
+
+/// Encode a list of `Node`s to PNGs (as bytes)
+pub async fn encode_to_pngs(nodes: &[&Node], options: Option<Options>) -> Result<Vec<Vec<u8>>> {
+    // Generate HTML for each node
+    let mut html = String::new();
+    for (index, node) in nodes.iter().enumerate() {
+        let node_html = html::encode(
+            node,
+            Some(Options {
+                standalone: false,
+                bundle: true,
+                ..Default::default()
+            }),
+        )?;
+        html.push_str(&format!(r#"<div id="node-{}">{}</div>"#, index, node_html));
+    }
+
+    // Wrap the HTML with a header etc so that the theme is set and CSS is loaded
+    let Options { theme, .. } = options.unwrap_or_default();
+    let html = html::wrap_standalone(&html, &theme);
+
+    // Launch the browser
+    let chrome = binaries::require("chrome", "*").await?;
+    let config = BrowserConfig::builder()
+        .chrome_executable(chrome.path)
+        .build()
+        .expect("Should build config");
+    let (browser, mut handler) = Browser::launch(config).await?;
+    tokio::task::spawn(async move {
+        loop {
+            let _ = handler.next().await.unwrap();
+        }
+    });
+
+    // Create a page and set its HTML
+    let page = browser.new_page("about:blank").await?;
+    page.set_content(html).await?.wait_for_navigation().await?;
+
+    // Take a screenshot of each element
+    let mut pngs = Vec::with_capacity(nodes.len());
+    for index in 0..nodes.len() {
+        let element = page.find_element(&format!("#node-{}", index)).await?;
+        let bytes = element.screenshot(CaptureScreenshotFormat::Png).await?;
+        pngs.push(bytes)
+    }
+
+    Ok(pngs)
+}
+
+/// Encode a PNG (as bytes) to a data URI or a file
+pub fn encode_to_output(bytes: &[u8], output: &str) -> Result<String> {
     let content = if output.starts_with("data:") {
         ["data:image/png;base64,", &base64::encode(&bytes)].concat()
     } else {
@@ -21,47 +74,6 @@ pub async fn encode(node: &Node, output: &str, options: Option<Options>) -> Resu
         ["file://", path].concat()
     };
     Ok(content)
-}
-
-/// Encode a `Node` to the bytes of a PNG image
-pub async fn encode_to_bytes(node: &Node, options: Option<Options>) -> Result<Vec<u8>> {
-    let Options { theme, .. } = options.unwrap_or_default();
-
-    let html = html::encode(
-        node,
-        Some(Options {
-            standalone: true,
-            bundle: true,
-            theme,
-        }),
-    )?;
-
-    let chrome = binaries::require("chrome", "*").await?;
-
-    let config = BrowserConfig::builder()
-        .chrome_executable(chrome.path)
-        .build()
-        .expect("Should build config");
-
-    let (browser, mut handler) = Browser::launch(config).await?;
-    tokio::task::spawn(async move {
-        loop {
-            let _ = handler.next().await.unwrap();
-        }
-    });
-
-    let page = browser.new_page("about:blank").await?;
-    let element = page
-        .set_content(html)
-        .await?
-        .wait_for_navigation()
-        .await?
-        .find_element("body")
-        .await?;
-
-    let format = CaptureScreenshotFormat::Png;
-    let bytes = element.screenshot(format).await?;
-    Ok(bytes)
 }
 
 #[cfg(test)]

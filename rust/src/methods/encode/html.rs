@@ -18,9 +18,7 @@ pub fn encode(node: &Node, options: Option<Options>) -> Result<String> {
     } = options.unwrap_or_default();
 
     let context = Context { root: node, bundle };
-
     let html = node.to_html(&context);
-
     if standalone {
         Ok(wrap_standalone(&html, &theme))
     } else {

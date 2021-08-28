@@ -62,7 +62,7 @@ proptest! {
             panic!("Whaaat?!@#!!")
         };
         let content = tokio::runtime::Runtime::new().unwrap().block_on(async {
-            encode::rpng::encode(&input, "data://", None).await.unwrap()
+            encode::rpng::encode(&input, "data://").await.unwrap()
         });
         let output = decode::rpng::decode(&content).unwrap();
         assert_eq!(

@@ -60,7 +60,7 @@ mod tests {
             ..Default::default()
         });
 
-        let data_uri = encode(&input, "data://", None).await?;
+        let data_uri = encode(&input, "data://").await?;
         let output = decode(&data_uri)?;
 
         assert_eq!(
