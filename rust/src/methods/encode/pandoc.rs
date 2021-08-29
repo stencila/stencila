@@ -97,7 +97,7 @@ impl Context {
     }
 
     /// Push a node to be encoded as an RPNG
-    fn push_rpng(&mut self, title: &str, node: Node) -> pandoc::Inline {
+    fn push_rpng(&mut self, type_name: &str, node: Node) -> pandoc::Inline {
         let id = generate_chars(22);
 
         let path = self
@@ -105,7 +105,7 @@ impl Context {
             .path()
             .join([&id, ".png"].concat())
             .to_slash_lossy();
-        let url = ["https://hub.stenci.la/", &id].concat();
+        let url = ["https://hub.stenci.la/api/nodes/", &id].concat();
 
         let json = json::encode(
             &node,
@@ -123,9 +123,9 @@ impl Context {
             vec![pandoc::Inline::Image(
                 attrs_empty(),
                 vec![pandoc::Inline::Str(json)],
-                pandoc::Target(path, title.into()),
+                pandoc::Target(path, type_name.into()),
             )],
-            pandoc::Target(url, title.into()),
+            pandoc::Target(url, type_name.into()),
         )
     }
 
@@ -238,7 +238,11 @@ unimplemented_to_pandoc!(Cite);
 
 unimplemented_to_pandoc!(CiteGroup);
 
-unimplemented_to_pandoc!(CodeExpression);
+impl ToPandoc for CodeExpression {
+    fn to_pandoc_inline(&self, context: &mut Context) -> pandoc::Inline {
+        context.push_rpng("CodeExpression", Node::CodeExpression(self.clone()))
+    }
+}
 
 impl ToPandoc for CodeFragment {
     fn to_pandoc_inline(&self, _context: &mut Context) -> pandoc::Inline {
@@ -332,7 +336,7 @@ impl ToPandoc for CodeBlock {
 }
 
 impl ToPandoc for CodeChunk {
-    /// Encode a `CodeChunk` to a Pandoc bloc element
+    /// Encode a `CodeChunk` to a Pandoc block element
     ///
     /// Encodes the code chunk as a RPNG.
     /// Places any label and figure after the code chunk normal text, rather than as screenshotted content.
@@ -344,7 +348,7 @@ impl ToPandoc for CodeChunk {
         stripped.label = None;
         stripped.caption = None;
 
-        let image = context.push_rpng("Code chunk", Node::CodeChunk(stripped));
+        let image = context.push_rpng("CodeChunk", Node::CodeChunk(stripped));
         let image_para = pandoc::Block::Para(vec![image]);
 
         let blocks = if label.is_some() || caption.is_some() {

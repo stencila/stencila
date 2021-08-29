@@ -4,7 +4,7 @@ use crate::{
     methods::{coerce::coerce, encode::txt::ToTxt},
 };
 use eyre::{bail, Result};
-use pandoc_types::definition as pandoc;
+use pandoc_types::definition::{self as pandoc};
 use std::{collections::HashMap, io::Write, path::PathBuf, process::Stdio};
 use stencila_schema::{
     Article, AudioObjectSimple, BlockContent, Cite, CiteCitationMode, CiteGroup, CodeBlock,
@@ -13,6 +13,8 @@ use stencila_schema::{
     Paragraph, Quote, QuoteBlock, Strong, Subscript, Superscript, TableCaption, TableCell,
     TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
 };
+
+use super::{json, rpng};
 
 /// The semver requirement for Pandoc
 /// Used on the `decode::pandoc` module as well.
@@ -177,10 +179,18 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
             })]
         }
 
-        pandoc::Block::Para(inlines) => vec![BlockContent::Paragraph(Paragraph {
-            content: translate_inlines(inlines, context),
-            ..Default::default()
-        })],
+        pandoc::Block::Para(inlines) => {
+            let content = translate_inlines(inlines, context);
+            if content.len() == 1 {
+                if let Some(translated) = try_code_chunk(&content[0]) {
+                    return vec![translated];
+                }
+            }
+            vec![BlockContent::Paragraph(Paragraph {
+                content,
+                ..Default::default()
+            })]
+        }
 
         pandoc::Block::BlockQuote(blocks) => {
             vec![BlockContent::QuoteBlock(QuoteBlock {
@@ -413,7 +423,7 @@ fn translate_inlines(elements: &[pandoc::Inline], context: &Context) -> Vec<Inli
 
 /// Translate a Pandoc `Inline` element into a zero or more `InlineContent` nodes
 fn translate_inline(element: &pandoc::Inline, context: &Context) -> Vec<InlineContent> {
-    match element {
+    let inlines = match element {
         pandoc::Inline::Str(string) => vec![InlineContent::String(string.clone())],
         pandoc::Inline::Space => vec![InlineContent::String(" ".to_string())],
         pandoc::Inline::SoftBreak => vec![InlineContent::String("\u{2029}".to_string())],
@@ -556,7 +566,19 @@ fn translate_inline(element: &pandoc::Inline, context: &Context) -> Vec<InlineCo
 
         // Element types not supported by Stencila
         pandoc::Inline::LineBreak => vec![],
-    }
+    };
+
+    // Try to transform inline nodes as needed
+    inlines
+        .into_iter()
+        .map(|inline| {
+            if let Some(code_expression) = try_code_expression(&inline) {
+                code_expression
+            } else {
+                inline
+            }
+        })
+        .collect()
 }
 
 /// Get an attribute from a Pandoc `Attr` tuple struct
@@ -592,6 +614,77 @@ fn get_string_prop(value: &str) -> Option<Box<String>> {
 // Get the `id` property of a `Entity` from a  Pandoc `Attr` tuple struct
 fn get_id(attrs: &pandoc::Attr) -> Option<Box<String>> {
     get_attr(attrs, "id").and_then(|value| get_string_prop(&value))
+}
+
+/// Try to extract a `CodeExpression` from an RPNG representation
+fn try_code_expression(inline: &InlineContent) -> Option<InlineContent> {
+    match inline {
+        InlineContent::Link(link) => {
+            if link.content.len() == 1 {
+                // If this is a link around a code expression and the it has a
+                // matching title then return that code expression
+                let title = match link.title.as_deref() {
+                    Some(title) => title.clone(),
+                    None => "".to_string(),
+                };
+                if title == "CodeExpression" {
+                    if let InlineContent::CodeExpression(expr) = &link.content[0] {
+                        return Some(InlineContent::CodeExpression(expr.clone()));
+                    }
+                }
+                // Try to get a code expression from the inner content
+                if let Some(expr) = try_code_expression(&link.content[0]) {
+                    return Some(expr);
+                }
+            }
+            // Fallback to fetching code expression from the link's URL
+            // TODO
+        }
+        InlineContent::ImageObject(image) => {
+            // Try to get the code expression from the caption
+            if let Some(caption) = image.caption.as_deref() {
+                if let Ok(Node::CodeExpression(expr)) = json::decode(caption) {
+                    return Some(InlineContent::CodeExpression(expr));
+                }
+            }
+            // Fallback to getting from the image
+            if let Ok(Node::CodeExpression(expr)) = rpng::decode(&image.content_url) {
+                return Some(InlineContent::CodeExpression(expr));
+            }
+        }
+        _ => (),
+    };
+    None
+}
+
+/// Try to extract a `CodeChunk` from an RPNG representation
+fn try_code_chunk(inline: &InlineContent) -> Option<BlockContent> {
+    match inline {
+        InlineContent::Link(link) => {
+            // Try to get a code chunk from the inner content
+            if link.content.len() == 1 {
+                if let Some(chunk) = try_code_chunk(&link.content[0]) {
+                    return Some(chunk);
+                }
+            }
+            // Fallback to fetching code chunk from the link's URL
+            // TODO
+        }
+        InlineContent::ImageObject(image) => {
+            // Try to get the code chunk from the caption
+            if let Some(caption) = image.caption.as_deref() {
+                if let Ok(Node::CodeChunk(chunk)) = json::decode(caption) {
+                    return Some(BlockContent::CodeChunk(chunk));
+                }
+            }
+            // Fallback to getting from the image
+            if let Ok(Node::CodeChunk(chunk)) = rpng::decode(&image.content_url) {
+                return Some(BlockContent::CodeChunk(chunk));
+            }
+        }
+        _ => (),
+    };
+    None
 }
 
 #[cfg(test)]
