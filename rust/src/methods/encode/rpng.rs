@@ -24,7 +24,7 @@ pub async fn encode(node: &Node, output: &str) -> Result<String> {
 /// Encode a list of `Node`s to RPNGs (as bytes)
 pub async fn encode_to_rpngs(nodes: &[&Node]) -> Result<Vec<Vec<u8>>> {
     let pngs = encode_to_pngs(
-        &nodes,
+        nodes,
         Some(Options {
             theme: "rpng".to_string(),
             ..Default::default()
