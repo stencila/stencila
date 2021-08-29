@@ -329,8 +329,19 @@ export function interfaceSchemaToSimpleStruct(
   const filteredProperties = Object.fromEntries(
     Object.entries(properties).reduce(
       (prev: [string, JsonSchema][], [name, property]) => {
+        let keepers: string[]
+        switch (title) {
+          case 'MediaObject':
+          case 'AudioObject':
+          case 'ImageObject':
+          case 'VideoObject':
+            keepers = ['title']
+            break
+          default:
+            keepers = ['title', 'content', 'parts']
+        }
         const keep =
-          ['content', 'parts'].includes(name) ||
+          keepers.includes(name) ||
           !['Thing', 'CreativeWork'].includes(property.from ?? '')
         return keep ? [...prev, [name, property]] : prev
       },

@@ -938,6 +938,9 @@ pub struct ClaimSimple {
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
+
+    /// The title of the creative work.
+    pub title: Option<Box<CreativeWorkTitle>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1071,6 +1074,9 @@ pub struct CollectionSimple {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
+
+    /// The title of the creative work.
+    pub title: Option<Box<CreativeWorkTitle>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1575,9 +1581,6 @@ pub struct AudioObjectSimple {
     /// The caption for this audio recording.
     pub caption: Option<Box<String>>,
 
-    /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Box<CreativeWorkContent>>,
-
     /// File size in megabits (Mbit, Mb).
     pub content_size: Option<Number>,
 
@@ -1590,8 +1593,8 @@ pub struct AudioObjectSimple {
     /// IANA media type (MIME type).
     pub media_type: Option<Box<String>>,
 
-    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    pub parts: Option<Vec<CreativeWorkTypes>>,
+    /// The title of the creative work.
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The transcript of this audio recording.
     pub transcript: Option<Box<String>>,
@@ -1987,6 +1990,9 @@ pub struct FigureSimple {
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
+
+    /// The title of the creative work.
+    pub title: Option<Box<CreativeWorkTitle>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2243,9 +2249,6 @@ pub struct ImageObjectSimple {
     /// The caption for this image.
     pub caption: Option<Box<String>>,
 
-    /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Box<CreativeWorkContent>>,
-
     /// File size in megabits (Mbit, Mb).
     pub content_size: Option<Number>,
 
@@ -2258,11 +2261,11 @@ pub struct ImageObjectSimple {
     /// IANA media type (MIME type).
     pub media_type: Option<Box<String>>,
 
-    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    pub parts: Option<Vec<CreativeWorkTypes>>,
-
     /// Thumbnail image of this image.
     pub thumbnail: Option<Box<ImageObject>>,
+
+    /// The title of the creative work.
+    pub title: Option<Box<CreativeWorkTitle>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4165,6 +4168,9 @@ pub struct TableSimple {
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
+
+    /// The title of the creative work.
+    pub title: Option<Box<CreativeWorkTitle>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4459,9 +4465,6 @@ pub struct VideoObjectSimple {
     /// The caption for this video recording.
     pub caption: Option<Box<String>>,
 
-    /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Box<CreativeWorkContent>>,
-
     /// File size in megabits (Mbit, Mb).
     pub content_size: Option<Number>,
 
@@ -4474,11 +4477,11 @@ pub struct VideoObjectSimple {
     /// IANA media type (MIME type).
     pub media_type: Option<Box<String>>,
 
-    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    pub parts: Option<Vec<CreativeWorkTypes>>,
-
     /// Thumbnail image of this video recording.
     pub thumbnail: Option<Box<ImageObject>>,
+
+    /// The title of the creative work.
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The transcript of this video recording.
     pub transcript: Option<Box<String>>,
