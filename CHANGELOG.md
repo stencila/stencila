@@ -1,3 +1,12 @@
+## [1.11.1](https://github.com/stencila/schema/compare/v1.11.0...v1.11.1) (2021-08-29)
+
+
+### Bug Fixes
+
+* **Rust:** Exclude content and parts and add title for simple versions ([62ac660](https://github.com/stencila/schema/commit/62ac660e58fcd984f3a83d92e568a89788526cf0))
+* **Rust:** Use strings for digests ([df07e95](https://github.com/stencila/schema/commit/df07e95ac928f9cb8d6b20c25eb8830416b2d2ca))
+* **Rust bindings:** Correct casing for property type overrides ([586529a](https://github.com/stencila/schema/commit/586529a8e91061f337c3f423e55d06e7a2658ead))
+
 # [1.11.0](https://github.com/stencila/schema/compare/v1.10.1...v1.11.0) (2021-08-17)
 
 
