@@ -57,6 +57,12 @@ impl ToMd for Quote {
     }
 }
 
+impl ToMd for CodeExpression {
+    fn to_md(&self) -> String {
+        ["`", &self.text, "`{", &self.programming_language, " exec}"].concat()
+    }
+}
+
 macro_rules! delimited_inline_text_to_md {
     ($type:ty, $delimiter:expr) => {
         impl ToMd for $type {
@@ -116,6 +122,19 @@ impl ToMd for CodeBlock {
         };
 
         ["```", lang, "\n", &self.text, "\n```\n\n"].concat()
+    }
+}
+
+impl ToMd for CodeChunk {
+    fn to_md(&self) -> String {
+        [
+            "```",
+            &self.programming_language,
+            " exec \n",
+            &self.text,
+            "\n```\n\n",
+        ]
+        .concat()
     }
 }
 
@@ -327,6 +346,7 @@ impl ToMd for InlineContent {
             InlineContent::AudioObject(node) => node.to_md(),
             InlineContent::Boolean(node) => node.to_string(),
             //InlineContent::Cite(node) => node.to_md(),
+            InlineContent::CodeExpression(node) => node.to_md(),
             InlineContent::CodeFragment(node) => node.to_md(),
             InlineContent::Delete(node) => node.to_md(),
             InlineContent::Emphasis(node) => node.to_md(),
@@ -354,6 +374,7 @@ impl ToMd for BlockContent {
         match self {
             //BlockContent::Claim(node) => node.to_md(),
             BlockContent::CodeBlock(node) => node.to_md(),
+            BlockContent::CodeChunk(node) => node.to_md(),
             BlockContent::Heading(node) => node.to_md(),
             BlockContent::List(node) => node.to_md(),
             //BlockContent::MathBlock(node) => node.to_md(),

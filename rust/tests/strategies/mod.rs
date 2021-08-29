@@ -101,6 +101,28 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a code expression node with arbitrary text and programming language
+    pub fn code_expression(freedom: Freedom)(
+        text in match freedom {
+            Freedom::Min => r"text",
+            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            _ => any::<String>()
+        },
+        programming_language in match freedom {
+            Freedom::Min => "python",
+            Freedom::Low => r"[A-Za-z0-9-]+",
+            _ => any::<String>()
+        }
+    ) -> InlineContent {
+        InlineContent::CodeExpression(CodeExpression{
+            text,
+            programming_language,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
     /// Generate a code fragment node with arbitrary text and programming language
     pub fn code_fragment(freedom: Freedom)(
         text in match freedom {
@@ -236,6 +258,7 @@ pub fn inline_content(freedom: Freedom) -> impl Strategy<Value = InlineContent> 
         audio_object_simple(freedom).boxed(),
         image_object_simple(freedom).boxed(),
         video_object_simple(freedom).boxed(),
+        code_expression(freedom).boxed(),
         code_fragment(freedom).boxed(),
         delete(freedom).boxed(),
         emphasis(freedom).boxed(),
@@ -499,6 +522,7 @@ pub fn thematic_break() -> impl Strategy<Value = BlockContent> {
 pub fn block_content(freedom: Freedom) -> impl Strategy<Value = BlockContent> {
     Union::new(vec![
         code_block(freedom).boxed(),
+        code_chunk(freedom).boxed(),
         heading(freedom).boxed(),
         list(freedom).boxed(),
         paragraph(freedom).boxed(),
