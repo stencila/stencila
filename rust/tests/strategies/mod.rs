@@ -103,16 +103,16 @@ prop_compose! {
 prop_compose! {
     /// Generate a code expression node with arbitrary text and programming language
     pub fn code_expression(freedom: Freedom)(
+        programming_language in match freedom {
+            Freedom::Min => "lang",
+            Freedom::Low => r"[A-Za-z0-9-]+",
+            _ => any::<String>()
+        },
         text in match freedom {
             Freedom::Min => r"text",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         },
-        programming_language in match freedom {
-            Freedom::Min => "python",
-            Freedom::Low => r"[A-Za-z0-9-]+",
-            _ => any::<String>()
-        }
     ) -> InlineContent {
         InlineContent::CodeExpression(CodeExpression{
             text,
@@ -495,7 +495,7 @@ prop_compose! {
     /// Generate a code chunk
     pub fn code_chunk(freedom: Freedom)(
         programming_language in match freedom {
-            Freedom::Min => "",
+            Freedom::Min => "lang",
             Freedom::Low => r"[A-Za-z0-9-]+",
             _ => any::<String>()
         },
