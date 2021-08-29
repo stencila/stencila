@@ -4135,9 +4135,9 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.11.0"
+version = "1.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51d0b497652159de2607b0aaef3cdf4a6d72ebd4f43dff1c78b7e38d3b5cc4ab"
+checksum = "5bb44b53d0906576a738dc82795e12495af5206296dcd79fee157a61c7b4397a"
 dependencies = [
  "chrono",
  "defaults",
