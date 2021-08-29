@@ -8,7 +8,7 @@ Non-executable code fragments, lack the `exec` keyword but can have a language e
 
 ## Block code
 
-Code chunk use the `exec` keywork to differentiate them from code blocks,
+Code chunk use the `exec` keyword to differentiate them from code blocks,
 
 ```r exec
 "Hello from R"

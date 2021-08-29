@@ -90,7 +90,7 @@ input_file: fixtures/articles/code.md
           "type": "CodeFragment",
           "text": "exec"
         },
-        " keywork to differentiate them from code blocks,"
+        " keyword to differentiate them from code blocks,"
       ]
     },
     {
