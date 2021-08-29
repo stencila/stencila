@@ -4,7 +4,6 @@ use eyre::Result;
 use html_escape::{encode_double_quoted_attribute, encode_safe};
 use itertools::Itertools;
 use std::cmp::min;
-use std::collections::HashMap;
 use std::fs;
 use std::{collections::BTreeMap, path::PathBuf};
 use stencila_schema::*;
@@ -976,7 +975,7 @@ impl ToHtml for Article {
 
         // Create a map of organization name to Organization, in the order
         // they appear in affiliations.
-        let orgs: HashMap<String, &Organization> = match &self.authors {
+        let orgs: BTreeMap<String, &Organization> = match &self.authors {
             Some(authors) => authors
                 .iter()
                 .filter_map(|author| match author {
@@ -991,7 +990,7 @@ impl ToHtml for Article {
                 })
                 .flatten()
                 .collect(),
-            None => HashMap::new(),
+            None => BTreeMap::new(),
         };
         let orgs = orgs.values().cloned().collect();
 
