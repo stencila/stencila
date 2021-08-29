@@ -85,6 +85,7 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
         // Decode a HTML element
         //
         // Custom elements must be dealt with outside of the following match.
+        #[allow(clippy::cmp_owned)]
         if element.name.local == LocalName::from("stencila-code-chunk") {
             let programming_language = if let Some(lang) = element
                 .attributes
@@ -272,6 +273,7 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
         // Decode a HTML element
         //
         // Custom elements must be dealt with outside of the following match.
+        #[allow(clippy::cmp_owned)]
         if element.name.local == LocalName::from("stencila-code-expression") {
             let programming_language = if let Some(lang) = element
                 .attributes
