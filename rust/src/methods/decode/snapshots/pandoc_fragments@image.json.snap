@@ -23,7 +23,7 @@ input_file: fixtures/fragments/pandoc/image.json
       {
         "type": "ImageObject",
         "contentUrl": "image.png",
-        "caption": "the title"
+        "title": "the title"
       },
       "."
     ]

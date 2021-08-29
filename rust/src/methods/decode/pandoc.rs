@@ -1,17 +1,17 @@
 use crate::{
     binaries,
     formats::{format_type, FormatType},
-    methods::coerce::coerce,
+    methods::{coerce::coerce, encode::txt::ToTxt},
 };
 use eyre::{bail, Result};
 use pandoc_types::definition as pandoc;
 use std::{collections::HashMap, io::Write, path::PathBuf, process::Stdio};
 use stencila_schema::{
     Article, AudioObjectSimple, BlockContent, Cite, CiteCitationMode, CiteGroup, CodeBlock,
-    CodeFragment, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List,
-    ListItem, ListItemContent, ListOrder, MathFragment, Node, NontextualAnnotation, Paragraph,
-    Quote, QuoteBlock, Strong, Subscript, Superscript, TableCaption, TableCell, TableCellContent,
-    TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
+    CodeFragment, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent,
+    Link, List, ListItem, ListItemContent, ListOrder, MathFragment, Node, NontextualAnnotation,
+    Paragraph, Quote, QuoteBlock, Strong, Subscript, Superscript, TableCaption, TableCell,
+    TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
 };
 
 /// The semver requirement for Pandoc
@@ -472,30 +472,38 @@ fn translate_inline(element: &pandoc::Inline, context: &Context) -> Vec<InlineCo
                 ..Default::default()
             })]
         }
-        pandoc::Inline::Image(attrs, _inlines, target) => {
-            // TODO: Translate inlines as content. Perhaps wait for possible change
-            // of `ImageObject.content` to `Vec<InlineContent>`.
+        pandoc::Inline::Image(attrs, inlines, target) => {
+            let id = get_id(attrs);
+
+            let caption = translate_inlines(inlines, context).to_txt();
+            let caption = match caption.is_empty() {
+                true => None,
+                false => Some(Box::new(caption)),
+            };
 
             let pandoc::Target(url, title) = target;
-            let id = get_id(attrs);
-            let caption = get_string_prop(title);
             let content_url = url.clone();
+            let title = match title.is_empty() {
+                true => None,
+                false => Some(Box::new(CreativeWorkTitle::String(title.to_string()))),
+            };
 
             match format_type(&content_url) {
                 FormatType::AudioObject => vec![InlineContent::AudioObject(AudioObjectSimple {
                     content_url,
-                    caption,
+                    title,
                     id,
                     ..Default::default()
                 })],
                 FormatType::VideoObject => vec![InlineContent::VideoObject(VideoObjectSimple {
                     content_url,
-                    caption,
+                    title,
                     id,
                     ..Default::default()
                 })],
                 _ => vec![InlineContent::ImageObject(ImageObjectSimple {
                     content_url,
+                    title,
                     caption,
                     id,
                     ..Default::default()
