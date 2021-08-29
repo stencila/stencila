@@ -2,7 +2,7 @@ use crate::{
     documents::DOCUMENTS,
     graphs::{relations, resources, Relation, Resource, NULL_RANGE},
     traits::ToVecBlockContent,
-    utils::{hash::str_sha256_bytes, path::merge, uuids},
+    utils::{hash::str_sha256_hex, path::merge, uuids},
 };
 use async_trait::async_trait;
 use defaults::Defaults;
@@ -484,9 +484,9 @@ impl Compile for Parameter {
 impl Compile for CodeChunk {
     async fn compile(&mut self, context: &mut Context) -> Result<()> {
         let digest =
-            str_sha256_bytes(&[self.text.as_str(), self.programming_language.as_str()].concat());
+            str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
 
-        if Some(digest) != self.compile_digest {
+        if Some(digest.clone()) != self.compile_digest {
             let id = identify!(self);
             let subject = resources::node(&context.path, &id, &self.type_name());
             let relations = code::compile(&context.path, &self.text, &self.programming_language);
@@ -502,9 +502,9 @@ impl Compile for CodeChunk {
 impl Compile for CodeExpression {
     async fn compile(&mut self, context: &mut Context) -> Result<()> {
         let digest =
-            str_sha256_bytes(&[self.text.as_str(), self.programming_language.as_str()].concat());
+            str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
 
-        if Some(digest) != self.compile_digest {
+        if Some(digest.clone()) != self.compile_digest {
             let id = identify!(self);
             let subject = resources::node(&context.path, &id, &self.type_name());
             let relations = code::compile(&context.path, &self.text, &self.programming_language);
@@ -522,8 +522,7 @@ impl Compile for SoftwareSourceCode {
         if let (Some(text), Some(programming_language)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
-            let _digest =
-                str_sha256_bytes(&[text.as_str(), programming_language.as_str()].concat());
+            let _digest = str_sha256_hex(&[text.as_str(), programming_language.as_str()].concat());
 
             let subject = resources::file(&context.path);
             let relations = code::compile(&context.path, text, programming_language);
