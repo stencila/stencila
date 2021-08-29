@@ -232,7 +232,7 @@ atomic_to_html!(f64, "http://schema.org/Number");
 /// within HTML, including within quoted attributes.
 impl ToHtml for String {
     fn to_html(&self, _context: &Context) -> String {
-        html_escape::encode_safe(self).into()
+        encode_safe(self).into()
     }
 }
 
@@ -489,11 +489,27 @@ impl ToHtml for CiteGroup {
 }
 
 impl ToHtml for CodeExpression {
-    fn to_html(&self, _context: &Context) -> String {
-        format!(
-            r#"<code class="todo">{json}</code>"#,
-            json = serde_json::to_string(self).unwrap_or_else(|_| "".into())
-        )
+    fn to_html(&self, context: &Context) -> String {
+        let output = match &self.output {
+            None => String::new(),
+            Some(output) => [
+                r#"<pre slot="outputs">"#,
+                &output.to_html(context),
+                "</pre>",
+            ]
+            .concat(),
+        };
+
+        [
+            r#"<stencila-code-expression itemtype="http://schema.stenci.la/CodeExpression" "#,
+            &encode_attr("programming-language", &self.programming_language),
+            r#""><code slot="text">"#,
+            &encode_safe(&self.text),
+            r#"</code><output slot="output">"#,
+            &output,
+            r#"</output></stencila-code-expression>"#,
+        ]
+        .concat()
     }
 }
 
@@ -624,13 +640,6 @@ impl ToHtml for CodeChunk {
             },
         };
 
-        let lang = &self.programming_language;
-
-        let text = format!(
-            r#"<pre slot="text"><code>{text}</code></pre>"#,
-            text = self.text
-        );
-
         let outputs = match &self.outputs {
             None => String::new(),
             Some(outputs) => [
@@ -641,22 +650,22 @@ impl ToHtml for CodeChunk {
             .concat(),
         };
 
-        format!(
-            r#"<figure id="{id}" figure itemtype="http://schema.stenci.la/Figure" itemscope>
-    {label}
-    <stencila-code-chunk itemtype="http://schema.stenci.la/CodeChunk" itemscope data-programminglanguage="{lang}">
-    {text}
-    {outputs}
-    </stencila-code-chunk>
-    {caption}
-</figure>"#,
-            id = self.id.clone().unwrap_or_default(),
-            label = label,
-            lang = lang,
-            text = text,
-            outputs = outputs,
-            caption = caption
-        )
+        #[cfg_attr(rustfmt, rustfmt_skip)]
+        [
+            r#"<figure itemtype="http://schema.stenci.la/Figure" itemscope "#,
+            &encode_attr("id", &self.id.clone().unwrap_or_default()),
+            ">",
+                &label,
+                r#"<stencila-code-chunk itemtype="http://schema.stenci.la/CodeChunk" itemscope "#,
+                &encode_attr("data-programminglanguage", &self.programming_language),
+                    r#"><pre slot="text"><code>"#,
+                        &encode_safe(&self.text),
+                    "</code></pre>",
+                    &outputs,
+                "</stencila-code-chunk>",
+                &caption,
+            "</figure>"
+        ].concat()
     }
 }
 

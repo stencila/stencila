@@ -2,13 +2,14 @@ use super::md;
 use crate::traits::ToVecInlineContent;
 use eyre::Result;
 use kuchiki::{traits::*, ElementData, NodeRef};
-use markup5ever::local_name;
+use markup5ever::{local_name, LocalName};
 use std::cmp::max;
 use stencila_schema::{
-    Article, AudioObjectSimple, BlockContent, CodeBlock, CodeFragment, Delete, Emphasis, Heading,
-    ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, ListOrder, Node,
-    NontextualAnnotation, Paragraph, Quote, QuoteBlock, Strong, Subscript, Superscript, TableCell,
-    TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
+    Article, AudioObjectSimple, BlockContent, CodeBlock, CodeChunk, CodeExpression, CodeFragment,
+    Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem,
+    ListItemContent, ListOrder, Node, NontextualAnnotation, Paragraph, Quote, QuoteBlock, Strong,
+    Subscript, Superscript, TableCell, TableCellContent, TableRow, TableRowRowType, TableSimple,
+    ThematicBreak, VideoObjectSimple,
 };
 
 /// Decode a HTML document to a `Node`
@@ -83,8 +84,32 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
     } else if let Some(element) = node.as_element() {
         // Decode a HTML element
         //
+        // Custom elements must be dealt with outside of the following match.
+        if element.name.local == LocalName::from("stencila-code-chunk") {
+            let programming_language = if let Some(lang) = element
+                .attributes
+                .borrow()
+                .get(LocalName::from("data-programminglanguage"))
+            {
+                lang.to_string()
+            } else {
+                "".to_string()
+            };
+
+            let text = if let Ok(text) = node.select_first("[slot=text]") {
+                collect_text(text.as_node())
+            } else {
+                "".to_string()
+            };
+
+            return vec![BlockContent::CodeChunk(CodeChunk {
+                programming_language,
+                text,
+                ..Default::default()
+            })];
+        }
         // The following are ordered alphabetically by the output node type
-        // with placeholder comments for types not implemented yet
+        // with placeholder comments for types not implemented yet.
         match element.name.local {
             // TODO: Claim
             local_name!("pre") => {
@@ -106,9 +131,16 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
                     ..Default::default()
                 })]
             }
-            // TODO: CodeChunk
             // TODO: Collection
-            // TODO: Figure
+            local_name!("figure") => {
+                // Currently code chunks are wrapped in a figure, so check for them...
+                if let Ok(code_chunk) = node.select_first("stencila-code-chunk") {
+                    decode_block(code_chunk.as_node(), context)
+                } else {
+                    // TODO: handle plain figures
+                    vec![]
+                }
+            }
             local_name!("h1")
             | local_name!("h2")
             | local_name!("h3")
@@ -239,8 +271,32 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
     if let Some(element) = node.as_element() {
         // Decode a HTML element
         //
+        // Custom elements must be dealt with outside of the following match.
+        if element.name.local == LocalName::from("stencila-code-expression") {
+            let programming_language = if let Some(lang) = element
+                .attributes
+                .borrow()
+                .get(LocalName::from("programming-language"))
+            {
+                lang.to_string()
+            } else {
+                "".to_string()
+            };
+
+            let text = if let Ok(text) = node.select_first("[slot=text]") {
+                collect_text(text.as_node())
+            } else {
+                "".to_string()
+            };
+
+            return vec![InlineContent::CodeExpression(CodeExpression {
+                programming_language,
+                text,
+                ..Default::default()
+            })];
+        }
         // The following are ordered alphabetically by the output node type
-        // with placeholder comments for types not implemented yet
+        // with placeholder comments for types not implemented yet.
         match element.name.local {
             local_name!("audio") => {
                 let attrs = element.attributes.borrow();
@@ -253,9 +309,8 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
             }
             // TODO: Cite
             // TODO: CiteGroup
-            // TODO: CodeExpression
             local_name!("code") => {
-                // See note for `CodeBlock` on choice of attribute for decodiong `programming_language`
+                // See note for `CodeBlock` on choice of attribute for decoding `programming_language`
                 let programming_language = element
                     .attributes
                     .borrow()
