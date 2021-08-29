@@ -21,9 +21,9 @@ use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use regex::Regex;
 use stencila_schema::{
     Article, AudioObjectSimple, BlockContent, Cite, CiteGroup, CodeBlock, CodeChunk,
-    CodeExpression, CodeFragment, CreativeWorkContent, Delete, Emphasis, Heading,
-    ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, MathFragment, Node,
-    Paragraph, QuoteBlock, Strong, Subscript, Superscript, TableCell, TableCellContent, TableRow,
+    CodeExpression, CodeFragment, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObjectSimple,
+    InlineContent, Link, List, ListItem, ListItemContent, MathFragment, Node, Paragraph,
+    QuoteBlock, Strong, Subscript, Superscript, TableCell, TableCellContent, TableRow,
     TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
 };
 
@@ -328,44 +328,47 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     }))
                 }
                 Tag::Image(_link_type, url, title) => {
-                    let content = inlines.pop_tail();
-                    let content = if content.is_empty() {
+                    let caption = inlines.pop_tail();
+                    let caption = if caption.is_empty() {
                         None
                     } else {
                         // Content is reduced to a string. Media object do not often have other, more
                         // complicated, Markdown content in any case.
-                        let txt = content.to_txt();
-                        Some(Box::new(CreativeWorkContent::String(txt)))
+                        let txt = caption.to_txt();
+                        Some(Box::new(txt))
                     };
+
                     let title = {
                         let title = title.to_string();
                         if !title.is_empty() {
-                            Some(Box::new(title))
+                            Some(Box::new(CreativeWorkTitle::String(title)))
                         } else {
                             None
                         }
                     };
+
                     let extension = PathBuf::from(&url.to_string()).extension().map_or_else(
                         || "".to_string(),
                         |ext| ext.to_string_lossy().to_string().to_ascii_lowercase(),
                     );
+
                     let media_object = match format_type(extension.as_str()) {
                         FormatType::AudioObject => InlineContent::AudioObject(AudioObjectSimple {
-                            content,
+                            caption,
                             content_url: url.to_string(),
-                            caption: title,
+                            title,
                             ..Default::default()
                         }),
                         FormatType::VideoObject => InlineContent::VideoObject(VideoObjectSimple {
-                            content,
+                            caption,
                             content_url: url.to_string(),
-                            caption: title,
+                            title,
                             ..Default::default()
                         }),
                         _ => InlineContent::ImageObject(ImageObjectSimple {
-                            content,
+                            caption,
                             content_url: url.to_string(),
-                            caption: title,
+                            title,
                             ..Default::default()
                         }),
                     };

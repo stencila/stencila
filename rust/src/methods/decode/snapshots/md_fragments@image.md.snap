@@ -23,7 +23,7 @@ input_file: fixtures/fragments/md/image.md
       {
         "type": "ImageObject",
         "contentUrl": "image.png",
-        "caption": "the title"
+        "title": "the title"
       },
       "."
     ]
@@ -35,7 +35,7 @@ input_file: fixtures/fragments/md/image.md
       {
         "type": "ImageObject",
         "contentUrl": "image.png",
-        "content": "some content"
+        "caption": "some content"
       },
       "."
     ]
