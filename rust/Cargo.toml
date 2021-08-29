@@ -208,7 +208,7 @@ semver = { version = "=1.0.4", optional = true }
 serde = { version = "=1.0.128", features = ["derive", "rc"] }
 serde_json = { version = "=1.0.66", features = ["preserve_order"] }
 serde_with = "=1.9.4"
-serde_yaml = "=0.8.19"
+serde_yaml = "=0.8.20"
 sha2 = "0.9.5"
 slug = "=0.1.4"
 stencila-schema = "=1.11.0"
