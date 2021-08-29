@@ -209,7 +209,7 @@ serde = { version = "=1.0.130", features = ["derive", "rc"] }
 serde_json = { version = "=1.0.67", features = ["preserve_order"] }
 serde_with = "=1.9.4"
 serde_yaml = "=0.8.20"
-sha2 = "0.9.5"
+sha2 = "0.9.6"
 slug = "=0.1.4"
 stencila-schema = "=1.11.0"
 structopt = { version = "=0.3.22", optional = true }
