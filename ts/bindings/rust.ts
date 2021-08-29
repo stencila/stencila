@@ -63,10 +63,10 @@ const propertyTypes: Record<string, string> = {
   // Expect list items positions to be non-zero
   'ListItem.position': 'u32',
   // These validation related properties have a minimum of zero
-  'ArrayValidator.min_items': 'u32',
-  'ArrayValidator.max_items': 'u32',
-  'StringValidator.min_length': 'u32',
-  'StringValidator.max_length': 'u32',
+  'ArrayValidator.minItems': 'u32',
+  'ArrayValidator.maxItems': 'u32',
+  'StringValidator.minLength': 'u32',
+  'StringValidator.maxLength': 'u32',
   // SHA-256 digests are most efficiently represented as 32 bytes
   '*.compileDigest': '[u8; 32]',
   '*.buildDigest': '[u8; 32]',

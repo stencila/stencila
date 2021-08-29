@@ -1727,10 +1727,10 @@ pub struct ArrayValidator {
     pub items_validator: Option<Box<ValidatorTypes>>,
 
     /// An array node is valid if its size is less than, or equal to, this value.
-    pub max_items: Option<Integer>,
+    pub max_items: Option<u32>,
 
     /// An array node is valid if its size is greater than, or equal to, this value.
-    pub min_items: Option<Integer>,
+    pub min_items: Option<u32>,
 
     /// A flag to indicate that each value in the array should be unique.
     pub unique_items: Option<Boolean>,
@@ -3935,10 +3935,10 @@ pub struct StringValidator {
     pub id: Option<Box<String>>,
 
     /// The maximum length for a string node.
-    pub max_length: Option<Integer>,
+    pub max_length: Option<u32>,
 
     /// The minimum length for a string node.
-    pub min_length: Option<Integer>,
+    pub min_length: Option<u32>,
 
     /// A regular expression that a string node must match.
     pub pattern: Option<Box<String>>,
