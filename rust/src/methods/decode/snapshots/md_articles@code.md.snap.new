@@ -1,0 +1,118 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: "decode(&content).expect(\"Unable to decode Markdown\")"
+input_file: fixtures/articles/code.md
+
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "This article fixture is focussed on the Markdown representation of executable code nodes such as ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeChunk"
+        },
+        ", ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeExpression"
+        },
+        ", and ",
+        {
+          "type": "CodeFragment",
+          "text": "Parameter"
+        },
+        " nodes."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Inline code"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Code expressions have a language and the ",
+        {
+          "type": "CodeFragment",
+          "text": "exec"
+        },
+        " keyword in curly braces, like this ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "r",
+          "text": "1+1"
+        },
+        " and this ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "python",
+          "text": "2+2"
+        },
+        "."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Non-executable code fragments, lack the ",
+        {
+          "type": "CodeFragment",
+          "text": "exec"
+        },
+        " keyword but can have a language e.g. ",
+        {
+          "type": "CodeFragment",
+          "text": "3+3",
+          "programmingLanguage": "r"
+        },
+        "."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Block code"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Code chunk use the ",
+        {
+          "type": "CodeFragment",
+          "text": "exec"
+        },
+        " keywork to differentiate them from code blocks,"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r ",
+      "text": "\"Hello from R\""
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Non executable code blocks do not have the ",
+        {
+          "type": "CodeFragment",
+          "text": "exec"
+        },
+        " keyword,"
+      ]
+    },
+    {
+      "type": "CodeBlock",
+      "text": "# Not executed",
+      "programmingLanguage": "python"
+    }
+  ]
+}

@@ -11,20 +11,20 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, take, take_until, take_while1},
     character::complete::{char, digit1, multispace0, multispace1},
-    combinator::{map_res, not, peek},
+    combinator::{map_res, not, opt, peek},
     multi::{fold_many0, separated_list1},
-    sequence::{delimited, preceded, tuple},
+    sequence::{delimited, pair, preceded, tuple},
     IResult,
 };
 use once_cell::sync::Lazy;
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use regex::Regex;
 use stencila_schema::{
-    Article, AudioObjectSimple, BlockContent, Cite, CiteGroup, CodeBlock, CodeFragment,
-    CreativeWorkContent, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List,
-    ListItem, ListItemContent, MathFragment, Node, Paragraph, QuoteBlock, Strong, Subscript,
-    Superscript, TableCell, TableCellContent, TableRow, TableRowRowType, TableSimple,
-    ThematicBreak, VideoObjectSimple,
+    Article, AudioObjectSimple, BlockContent, Cite, CiteGroup, CodeBlock, CodeChunk,
+    CodeExpression, CodeFragment, CreativeWorkContent, Delete, Emphasis, Heading,
+    ImageObjectSimple, InlineContent, Link, List, ListItem, ListItemContent, MathFragment, Node,
+    Paragraph, QuoteBlock, Strong, Subscript, Superscript, TableCell, TableCellContent, TableRow,
+    TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
 };
 
 /// Decode a Markdown document to a `Node`
@@ -253,22 +253,39 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     ..Default::default()
                 })),
                 Tag::CodeBlock(kind) => {
-                    let text = inlines.pop_text().trim_end_matches('\n').to_string();
-                    blocks.push_node(BlockContent::CodeBlock(CodeBlock {
-                        text,
-                        programming_language: match kind {
-                            CodeBlockKind::Fenced(lang) => {
-                                let lang = lang.to_string();
-                                if !lang.is_empty() {
-                                    Some(Box::new(lang))
+                    let (lang, exec) = match kind {
+                        CodeBlockKind::Fenced(lang) => {
+                            let lang = lang.to_string();
+                            if !lang.is_empty() {
+                                let (lang, exec) = if let Some(lang) = lang.strip_suffix("exec") {
+                                    (lang.to_string(), true)
                                 } else {
-                                    None
-                                }
+                                    (lang.to_string(), false)
+                                };
+                                (Some(lang), exec)
+                            } else {
+                                (None, false)
                             }
-                            _ => None,
-                        },
-                        ..Default::default()
-                    }))
+                        }
+                        _ => (None, false),
+                    };
+
+                    let text = inlines.pop_text().trim_end_matches('\n').to_string();
+
+                    let node = match (lang.as_ref(), exec) {
+                        (Some(lang), true) => BlockContent::CodeChunk(CodeChunk {
+                            text,
+                            programming_language: lang.to_string(),
+                            ..Default::default()
+                        }),
+                        _ => BlockContent::CodeBlock(CodeBlock {
+                            text,
+                            programming_language: lang.map(Box::new),
+                            ..Default::default()
+                        }),
+                    };
+
+                    blocks.push_node(node)
                 }
 
                 // Inline nodes with inline content
@@ -362,10 +379,9 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 }
             },
             Event::Code(value) => {
-                inlines.push_node(InlineContent::CodeFragment(CodeFragment {
-                    text: value.to_string(),
-                    ..Default::default()
-                }));
+                // Because we allow for attributes on code, we push back the
+                // code in back ticks for it to be parsed again later.
+                inlines.push_text(&["`", &value.to_string(), "`"].concat())
             }
             Event::Rule => blocks.push_node(BlockContent::ThematicBreak(ThematicBreak {
                 ..Default::default()
@@ -623,6 +639,7 @@ impl Inlines {
 fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
     fold_many0(
         alt((
+            code_attrs,
             cite_group,
             cite,
             math,
@@ -642,6 +659,43 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
                 vec.push(node)
             }
             vec
+        },
+    )(input)
+}
+
+/// Parse inline code with attributes in curly braces
+/// e.g. `code`{attr1 attr2} into a `CodeFragment` or `CodeExpression` node
+pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
+    map_res(
+        pair(
+            delimited(char('`'), take_until("`"), char('`')),
+            opt(delimited(char('{'), take_until("}"), char('}'))),
+        ),
+        |res: (&str, Option<&str>)| -> Result<InlineContent> {
+            let text = res.0.to_string();
+            let (lang, exec) = match res.1 {
+                Some(attrs) => {
+                    let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
+                    (
+                        attrs.get(0).map(|item| item.to_string()),
+                        attrs.contains(&"exec"),
+                    )
+                }
+                None => (None, false),
+            };
+            let node = match (lang.as_ref(), exec) {
+                (Some(lang), true) => InlineContent::CodeExpression(CodeExpression {
+                    text,
+                    programming_language: lang.to_string(),
+                    ..Default::default()
+                }),
+                _ => InlineContent::CodeFragment(CodeFragment {
+                    text,
+                    programming_language: lang.map(Box::new),
+                    ..Default::default()
+                }),
+            };
+            Ok(node)
         },
     )(input)
 }
