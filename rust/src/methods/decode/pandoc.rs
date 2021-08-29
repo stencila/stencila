@@ -627,7 +627,9 @@ fn try_code_expression(inline: &InlineContent) -> Option<InlineContent> {
                     Some(title) => title.clone(),
                     None => "".to_string(),
                 };
-                if title == "CodeExpression" {
+                if title == "CodeExpression"
+                    || link.target.starts_with("https://hub.stenci.la/api/nodes")
+                {
                     if let InlineContent::CodeExpression(expr) = &link.content[0] {
                         return Some(InlineContent::CodeExpression(expr.clone()));
                     }
