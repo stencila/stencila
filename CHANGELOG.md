@@ -1,3 +1,17 @@
+## [0.111.1](https://github.com/stencila/stencila/compare/v0.111.0...v0.111.1) (2021-08-29)
+
+
+### Bug Fixes
+
+* **dependencies:** update docusaurus monorepo to v2.0.0-beta.5 ([f98ed31](https://github.com/stencila/stencila/commit/f98ed310655393a98b5b7d25b4ce17287a4da340))
+* **dependencies:** update rust crate neon to v0.9.1 ([1a76f13](https://github.com/stencila/stencila/commit/1a76f1341fd93f96a01c7c03725daf549c79a515))
+* **dependencies:** update rust crate pyo3 to v0.14.4 ([dab290d](https://github.com/stencila/stencila/commit/dab290d3cd76e116adc58cf9ae459718f0923441))
+* **dependencies:** update rust crate serde to v1.0.130 ([12f2fb7](https://github.com/stencila/stencila/commit/12f2fb7ef863d9bb7fea0ca0826faddded2728d9))
+* **dependencies:** update rust crate serde_json to v1.0.67 ([de10000](https://github.com/stencila/stencila/commit/de1000085aa8c18c8586f75b4760c9bb663d4c9a))
+* **dependencies:** update rust crate serde_yaml to v0.8.20 ([e4648ce](https://github.com/stencila/stencila/commit/e4648ce6c07f5c725fe36d61756693da80173781))
+* **dependencies:** update rust crate sha2 to 0.9.6 ([259d857](https://github.com/stencila/stencila/commit/259d857a833cb7e5f53c7b85cfcdb431175bcaf0))
+* **dependencies:** update rust crate termimad to v0.15.0 ([485c1fc](https://github.com/stencila/stencila/commit/485c1fc174627498f93841f947679745499f1ce3))
+
 # [0.111.0](https://github.com/stencila/stencila/compare/v0.110.1...v0.111.0) (2021-08-27)
 
 
