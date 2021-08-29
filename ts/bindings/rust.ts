@@ -44,6 +44,8 @@ const propertyAttributes: Record<string, string[]> = {
   ],
   // Skip serializing the compile digest since the results of compiling
   // are not stored with the node (at present) and so always need recompiling.
+  // This is not true to `executeDigest`, for example `CodeChunk.outputs` are the
+  // result of execution.
   '*.compileDigest': ['#[serde(skip)]'],
 }
 
@@ -67,10 +69,11 @@ const propertyTypes: Record<string, string> = {
   'ArrayValidator.maxItems': 'u32',
   'StringValidator.minLength': 'u32',
   'StringValidator.maxLength': 'u32',
-  // SHA-256 digests are most efficiently represented as 32 bytes
-  '*.compileDigest': '[u8; 32]',
-  '*.buildDigest': '[u8; 32]',
-  '*.executeDigest': '[u8; 32]',
+  // SHA-256 digests are most efficiently represented as 32 bytes but
+  // for readability when serialized we use a string.
+  '*.compileDigest': 'String',
+  '*.buildDigest': 'String',
+  '*.executeDigest': 'String',
 }
 
 // Types that should not get automatically boxed if the property is
@@ -258,7 +261,10 @@ export function interfaceSchemaToStruct(
         pointerProperties.includes(propertyPath) ||
         pointerProperties.includes(`*.${name}`)
 
-      let attrs = propertyAttributes[propertyPath] ?? []
+      let attrs =
+        propertyAttributes[propertyPath] ??
+        propertyAttributes[`*.${name}`] ??
+        []
       if (isPointer) attrs = [...attrs, '#[serde(skip)]']
 
       let type = propertyTypes[propertyPath] ?? propertyTypes[`*.${name}`]

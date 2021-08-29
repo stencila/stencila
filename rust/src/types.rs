@@ -174,7 +174,8 @@ pub struct CodeExecutable {
     pub text: String,
 
     /// The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
-    pub compile_digest: Option<[u8; 32]>,
+    #[serde(skip)]
+    pub compile_digest: Option<String>,
 
     /// Duration in seconds of the last execution of the code.
     pub duration: Option<Number>,
@@ -183,7 +184,7 @@ pub struct CodeExecutable {
     pub errors: Option<Vec<CodeError>>,
 
     /// The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
-    pub execute_digest: Option<[u8; 32]>,
+    pub execute_digest: Option<String>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
@@ -218,7 +219,8 @@ pub struct CodeChunk {
     pub caption: Option<Box<CodeChunkCaption>>,
 
     /// The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
-    pub compile_digest: Option<[u8; 32]>,
+    #[serde(skip)]
+    pub compile_digest: Option<String>,
 
     /// Duration in seconds of the last execution of the code.
     pub duration: Option<Number>,
@@ -227,7 +229,7 @@ pub struct CodeChunk {
     pub errors: Option<Vec<CodeError>>,
 
     /// The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
-    pub execute_digest: Option<[u8; 32]>,
+    pub execute_digest: Option<String>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
@@ -265,7 +267,8 @@ pub struct CodeExpression {
     pub text: String,
 
     /// The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
-    pub compile_digest: Option<[u8; 32]>,
+    #[serde(skip)]
+    pub compile_digest: Option<String>,
 
     /// Duration in seconds of the last execution of the code.
     pub duration: Option<Number>,
@@ -274,7 +277,7 @@ pub struct CodeExpression {
     pub errors: Option<Vec<CodeError>>,
 
     /// The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
-    pub execute_digest: Option<[u8; 32]>,
+    pub execute_digest: Option<String>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
@@ -2282,7 +2285,7 @@ pub struct Include {
     pub source: String,
 
     /// The SHA-256 digest of the `source` and `mediaType` properties the last time the node was built.
-    pub build_digest: Option<[u8; 32]>,
+    pub build_digest: Option<String>,
 
     /// The structured content decoded from the source.
     pub content: Option<Vec<BlockContent>>,
@@ -2766,7 +2769,7 @@ pub struct Parameter {
     pub default: Option<Box<Node>>,
 
     /// The SHA-256 digest of the `value` property the last time the node was executed.
-    pub execute_digest: Option<[u8; 32]>,
+    pub execute_digest: Option<String>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
