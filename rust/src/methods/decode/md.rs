@@ -258,7 +258,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                             let lang = lang.to_string();
                             if !lang.is_empty() {
                                 let (lang, exec) = if let Some(lang) = lang.strip_suffix("exec") {
-                                    (lang.to_string(), true)
+                                    (lang.trim().to_string(), true)
                                 } else {
                                     (lang.to_string(), false)
                                 };

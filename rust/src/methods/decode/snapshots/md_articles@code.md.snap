@@ -95,7 +95,7 @@ input_file: fixtures/articles/code.md
     },
     {
       "type": "CodeChunk",
-      "programmingLanguage": "r ",
+      "programmingLanguage": "r",
       "text": "\"Hello from R\""
     },
     {
