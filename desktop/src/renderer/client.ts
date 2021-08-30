@@ -205,6 +205,10 @@ export const client = {
   projects: {
     open: (path: string) =>
       window.api.invoke(CHANNEL.PROJECTS_WINDOW_OPEN, path).then(unwrapOrThrow),
+    graph: (path: string) =>
+      window.api
+        .invoke(CHANNEL.PROJECTS_GRAPH, path, 'json')
+        .then(unwrapOrThrow),
     contents: (path: string) =>
       window.api.invoke(CHANNEL.PROJECTS_OPEN, path).then(unwrapOrThrow),
     openUsingPicker: () =>

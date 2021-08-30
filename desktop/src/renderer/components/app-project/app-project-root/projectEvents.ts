@@ -19,7 +19,9 @@ export const listenForFileEvents = (_projectId: string) => {
     store.dispatch(projectActions.updateProjectFiles(e.files))
   })
 
-  window.api.receive(CHANNEL.DOCUMENTS_CREATE, createNewDocument)
+  window.api.receive(CHANNEL.DOCUMENTS_CREATE, () => {
+    createNewDocument()
+  })
 
   window.api.receive(CHANNEL.DOCUMENTS_CLOSE_ACTIVE, () => {
     pipe(

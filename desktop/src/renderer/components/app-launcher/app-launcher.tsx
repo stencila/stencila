@@ -17,6 +17,15 @@ export class AppLauncher {
 
   @State() recentProjects: string[] = []
 
+  private pickAndOpenProject = async (e: Event) => {
+    e.preventDefault()
+    client.projects.openUsingPicker().then(({ value }) => {
+      if (!value.canceled) {
+        client.launcher.close()
+      }
+    })
+  }
+
   private openProject = (path: string) => async (e: Event) => {
     e.preventDefault()
     await client.projects.open(path)
@@ -43,7 +52,7 @@ export class AppLauncher {
               <stencila-button
                 size="small"
                 fill={true}
-                onClick={client.projects.openUsingPicker}
+                onClick={this.pickAndOpenProject}
               >
                 Open folder…
               </stencila-button>

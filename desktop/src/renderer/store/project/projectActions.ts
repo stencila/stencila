@@ -24,7 +24,7 @@ export const fetchRecentProjects = (): string[] => {
 
 const saveRecentProjects = (path: string) => {
   const existingPaths = fetchRecentProjects()
-  const dedupedPaths = new Set([...existingPaths, path])
+  const dedupedPaths = new Set([path, ...existingPaths])
   window.localStorage.setItem(
     StoreKeys.recentProjects,
     JSON.stringify([...dedupedPaths])
@@ -34,9 +34,9 @@ const saveRecentProjects = (path: string) => {
 export const fetchProject = createAsyncThunk(
   'projects/fetchProject',
   async (path: string) => {
-    const { value: project } = await client.projects.contents(path)
-
     saveRecentProjects(path)
+
+    const { value: project } = await client.projects.contents(path)
 
     const normalized = normalize<any, ProjectStoreEntities>(
       project,

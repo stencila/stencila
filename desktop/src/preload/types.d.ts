@@ -156,7 +156,9 @@ export type ProjectsWindowOpen = InvokeType<
 
 export type ProjectsOpenUsingFilePicker = InvokeType<
   typeof CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER,
-  () => void
+  () => {
+    canceled: boolean
+  }
 >
 
 export type ProjectsNew = InvokeType<typeof CHANNEL.PROJECTS_NEW, () => void>
@@ -164,6 +166,16 @@ export type ProjectsNew = InvokeType<typeof CHANNEL.PROJECTS_NEW, () => void>
 export type ProjectsOpen = InvokeType<
   typeof CHANNEL.PROJECTS_OPEN,
   typeof dispatch.projects.open
+>
+
+export type ProjectsWrite = InvokeType<
+  typeof CHANNEL.PROJECTS_WRITE,
+  typeof dispatch.projects.write
+>
+
+export type ProjectsGraph = InvokeType<
+  typeof CHANNEL.PROJECTS_GRAPH,
+  typeof dispatch.projects.graph
 >
 
 // Documents
@@ -262,6 +274,8 @@ type InvokeTypes =
   | ProjectsOpenUsingFilePicker
   | ProjectsNew
   | ProjectsOpen
+  | ProjectsWrite
+  | ProjectsGraph
   | DocumentsOpen
   | DocumentsAlter
   | DocumentsCreate
@@ -413,6 +427,16 @@ interface Invoke {
     channel: ProjectsOpen['channel'],
     ...args: ProjectsOpen['args']
   ): ProjectsOpen['result']
+
+  invoke(
+    channel: ProjectsWrite['channel'],
+    ...args: ProjectsWrite['args']
+  ): ProjectsWrite['result']
+
+  invoke(
+    channel: ProjectsGraph['channel'],
+    ...args: ProjectsGraph['args']
+  ): ProjectsGraph['result']
 
   // Documents
   invoke(

@@ -52,6 +52,9 @@ export namespace Components {
     }
     interface AppOnboardingWelcome {
     }
+    interface AppProjectGraph {
+        "projectPath": string;
+    }
     interface AppProjectRoot {
     }
     interface AppProjectSidebarFile {
@@ -60,6 +63,8 @@ export namespace Components {
     }
     interface AppProjectSidebarFiles {
         "projectDir": string;
+    }
+    interface AppProjectSidebarNav {
     }
     interface AppRoot {
     }
@@ -178,6 +183,12 @@ declare global {
         prototype: HTMLAppOnboardingWelcomeElement;
         new (): HTMLAppOnboardingWelcomeElement;
     };
+    interface HTMLAppProjectGraphElement extends Components.AppProjectGraph, HTMLStencilElement {
+    }
+    var HTMLAppProjectGraphElement: {
+        prototype: HTMLAppProjectGraphElement;
+        new (): HTMLAppProjectGraphElement;
+    };
     interface HTMLAppProjectRootElement extends Components.AppProjectRoot, HTMLStencilElement {
     }
     var HTMLAppProjectRootElement: {
@@ -195,6 +206,12 @@ declare global {
     var HTMLAppProjectSidebarFilesElement: {
         prototype: HTMLAppProjectSidebarFilesElement;
         new (): HTMLAppProjectSidebarFilesElement;
+    };
+    interface HTMLAppProjectSidebarNavElement extends Components.AppProjectSidebarNav, HTMLStencilElement {
+    }
+    var HTMLAppProjectSidebarNavElement: {
+        prototype: HTMLAppProjectSidebarNavElement;
+        new (): HTMLAppProjectSidebarNavElement;
     };
     interface HTMLAppRootElement extends Components.AppRoot, HTMLStencilElement {
     }
@@ -267,9 +284,11 @@ declare global {
         "app-onboarding-reporting": HTMLAppOnboardingReportingElement;
         "app-onboarding-root": HTMLAppOnboardingRootElement;
         "app-onboarding-welcome": HTMLAppOnboardingWelcomeElement;
+        "app-project-graph": HTMLAppProjectGraphElement;
         "app-project-root": HTMLAppProjectRootElement;
         "app-project-sidebar-file": HTMLAppProjectSidebarFileElement;
         "app-project-sidebar-files": HTMLAppProjectSidebarFilesElement;
+        "app-project-sidebar-nav": HTMLAppProjectSidebarNavElement;
         "app-root": HTMLAppRootElement;
         "app-settings-advanced": HTMLAppSettingsAdvancedElement;
         "app-settings-editor": HTMLAppSettingsEditorElement;
@@ -325,6 +344,9 @@ declare namespace LocalJSX {
     }
     interface AppOnboardingWelcome {
     }
+    interface AppProjectGraph {
+        "projectPath"?: string;
+    }
     interface AppProjectRoot {
     }
     interface AppProjectSidebarFile {
@@ -333,6 +355,8 @@ declare namespace LocalJSX {
     }
     interface AppProjectSidebarFiles {
         "projectDir"?: string;
+    }
+    interface AppProjectSidebarNav {
     }
     interface AppRoot {
     }
@@ -370,9 +394,11 @@ declare namespace LocalJSX {
         "app-onboarding-reporting": AppOnboardingReporting;
         "app-onboarding-root": AppOnboardingRoot;
         "app-onboarding-welcome": AppOnboardingWelcome;
+        "app-project-graph": AppProjectGraph;
         "app-project-root": AppProjectRoot;
         "app-project-sidebar-file": AppProjectSidebarFile;
         "app-project-sidebar-files": AppProjectSidebarFiles;
+        "app-project-sidebar-nav": AppProjectSidebarNav;
         "app-root": AppRoot;
         "app-settings-advanced": AppSettingsAdvanced;
         "app-settings-editor": AppSettingsEditor;
@@ -404,9 +430,11 @@ declare module "@stencil/core" {
             "app-onboarding-reporting": LocalJSX.AppOnboardingReporting & JSXBase.HTMLAttributes<HTMLAppOnboardingReportingElement>;
             "app-onboarding-root": LocalJSX.AppOnboardingRoot & JSXBase.HTMLAttributes<HTMLAppOnboardingRootElement>;
             "app-onboarding-welcome": LocalJSX.AppOnboardingWelcome & JSXBase.HTMLAttributes<HTMLAppOnboardingWelcomeElement>;
+            "app-project-graph": LocalJSX.AppProjectGraph & JSXBase.HTMLAttributes<HTMLAppProjectGraphElement>;
             "app-project-root": LocalJSX.AppProjectRoot & JSXBase.HTMLAttributes<HTMLAppProjectRootElement>;
             "app-project-sidebar-file": LocalJSX.AppProjectSidebarFile & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFileElement>;
             "app-project-sidebar-files": LocalJSX.AppProjectSidebarFiles & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFilesElement>;
+            "app-project-sidebar-nav": LocalJSX.AppProjectSidebarNav & JSXBase.HTMLAttributes<HTMLAppProjectSidebarNavElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
             "app-settings-advanced": LocalJSX.AppSettingsAdvanced & JSXBase.HTMLAttributes<HTMLAppSettingsAdvancedElement>;
             "app-settings-editor": LocalJSX.AppSettingsEditor & JSXBase.HTMLAttributes<HTMLAppSettingsEditorElement>;
