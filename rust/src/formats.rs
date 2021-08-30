@@ -124,6 +124,7 @@ impl Default for Formats {
             Format::new("gif", true, true),
             Format::new_extensions("jpg", true, true, &["jpeg"]),
             Format::new("png", true, true),
+            Format::new("rpng", true, true),
             // Video formats
             Format::new("3gp", true, true),
             Format::new("mp4", true, true),

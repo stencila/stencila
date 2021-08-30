@@ -85,6 +85,9 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         #[cfg(feature = "decode-rmd")]
         "rmd" => rmd::decode(input)?,
 
+        #[cfg(feature = "decode-rpng")]
+        "rpng" => rpng::decode(input)?,
+
         #[cfg(feature = "decode-toml")]
         "toml" => toml::decode(input)?,
 
