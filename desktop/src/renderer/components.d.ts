@@ -52,6 +52,9 @@ export namespace Components {
     }
     interface AppOnboardingWelcome {
     }
+    interface AppProjectGraph {
+        "projectPath": string;
+    }
     interface AppProjectRoot {
     }
     interface AppProjectSidebarFile {
@@ -180,6 +183,12 @@ declare global {
         prototype: HTMLAppOnboardingWelcomeElement;
         new (): HTMLAppOnboardingWelcomeElement;
     };
+    interface HTMLAppProjectGraphElement extends Components.AppProjectGraph, HTMLStencilElement {
+    }
+    var HTMLAppProjectGraphElement: {
+        prototype: HTMLAppProjectGraphElement;
+        new (): HTMLAppProjectGraphElement;
+    };
     interface HTMLAppProjectRootElement extends Components.AppProjectRoot, HTMLStencilElement {
     }
     var HTMLAppProjectRootElement: {
@@ -275,6 +284,7 @@ declare global {
         "app-onboarding-reporting": HTMLAppOnboardingReportingElement;
         "app-onboarding-root": HTMLAppOnboardingRootElement;
         "app-onboarding-welcome": HTMLAppOnboardingWelcomeElement;
+        "app-project-graph": HTMLAppProjectGraphElement;
         "app-project-root": HTMLAppProjectRootElement;
         "app-project-sidebar-file": HTMLAppProjectSidebarFileElement;
         "app-project-sidebar-files": HTMLAppProjectSidebarFilesElement;
@@ -334,6 +344,9 @@ declare namespace LocalJSX {
     }
     interface AppOnboardingWelcome {
     }
+    interface AppProjectGraph {
+        "projectPath"?: string;
+    }
     interface AppProjectRoot {
     }
     interface AppProjectSidebarFile {
@@ -381,6 +394,7 @@ declare namespace LocalJSX {
         "app-onboarding-reporting": AppOnboardingReporting;
         "app-onboarding-root": AppOnboardingRoot;
         "app-onboarding-welcome": AppOnboardingWelcome;
+        "app-project-graph": AppProjectGraph;
         "app-project-root": AppProjectRoot;
         "app-project-sidebar-file": AppProjectSidebarFile;
         "app-project-sidebar-files": AppProjectSidebarFiles;
@@ -416,6 +430,7 @@ declare module "@stencil/core" {
             "app-onboarding-reporting": LocalJSX.AppOnboardingReporting & JSXBase.HTMLAttributes<HTMLAppOnboardingReportingElement>;
             "app-onboarding-root": LocalJSX.AppOnboardingRoot & JSXBase.HTMLAttributes<HTMLAppOnboardingRootElement>;
             "app-onboarding-welcome": LocalJSX.AppOnboardingWelcome & JSXBase.HTMLAttributes<HTMLAppOnboardingWelcomeElement>;
+            "app-project-graph": LocalJSX.AppProjectGraph & JSXBase.HTMLAttributes<HTMLAppProjectGraphElement>;
             "app-project-root": LocalJSX.AppProjectRoot & JSXBase.HTMLAttributes<HTMLAppProjectRootElement>;
             "app-project-sidebar-file": LocalJSX.AppProjectSidebarFile & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFileElement>;
             "app-project-sidebar-files": LocalJSX.AppProjectSidebarFiles & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFilesElement>;

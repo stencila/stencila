@@ -80,7 +80,7 @@
     "@reduxjs/toolkit": "1.6.1",
     "@sentry/electron": "2.5.1",
     "@stencila/brand": "0.7.1",
-    "@stencila/components": "0.39.0",
+    "@stencila/components": "0.40.0",
     "@stencila/schema": "1.10.1",
     "debounce": "1.2.1",
     "electron-log": "^4.4.1",

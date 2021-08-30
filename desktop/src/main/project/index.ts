@@ -1,6 +1,7 @@
 import { dispatch, projects } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import {
+  ProjectsGraph,
   ProjectsNew,
   ProjectsOpen,
   ProjectsOpenUsingFilePicker,
@@ -48,6 +49,21 @@ const registerProjectHandlers = () => {
             ipcEvent.sender.send(CHANNEL.PROJECTS_OPEN, fileEvent)
           }
         )
+      }
+
+      return result
+    }
+  )
+
+  handle<ProjectsGraph>(
+    CHANNEL.PROJECTS_GRAPH,
+    async (ipcEvent, directoryPath) => {
+      const result = dispatch.projects.graph(directoryPath, 'json')
+
+      if (result.ok) {
+        projects.subscribe(directoryPath, ['graph'], (_topic, projectGraph) => {
+          ipcEvent.sender.send(CHANNEL.PROJECTS_GRAPH, projectGraph)
+        })
       }
 
       return result

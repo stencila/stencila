@@ -1,0 +1,7 @@
+:host {
+  @apply block h-full w-full;
+
+  stencila-project-graph {
+    @apply block h-full w-full;
+  }
+}

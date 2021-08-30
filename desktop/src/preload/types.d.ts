@@ -173,6 +173,11 @@ export type ProjectsWrite = InvokeType<
   typeof dispatch.projects.write
 >
 
+export type ProjectsGraph = InvokeType<
+  typeof CHANNEL.PROJECTS_GRAPH,
+  typeof dispatch.projects.graph
+>
+
 // Documents
 export type DocumentsOpen = InvokeType<
   typeof CHANNEL.DOCUMENTS_OPEN,
@@ -270,6 +275,7 @@ type InvokeTypes =
   | ProjectsNew
   | ProjectsOpen
   | ProjectsWrite
+  | ProjectsGraph
   | DocumentsOpen
   | DocumentsAlter
   | DocumentsCreate
@@ -426,6 +432,11 @@ interface Invoke {
     channel: ProjectsWrite['channel'],
     ...args: ProjectsWrite['args']
   ): ProjectsWrite['result']
+
+  invoke(
+    channel: ProjectsGraph['channel'],
+    ...args: ProjectsGraph['args']
+  ): ProjectsGraph['result']
 
   // Documents
   invoke(
