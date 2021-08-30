@@ -14,6 +14,11 @@ pub async fn encode(node: &Node, output: &str, options: Option<Options>) -> Resu
 
 /// Encode a list of `Node`s to PNGs (as bytes)
 pub async fn encode_to_pngs(nodes: &[&Node], options: Option<Options>) -> Result<Vec<Vec<u8>>> {
+    // Return early if possible to avoid the following, including requiring Chrome.
+    if nodes.is_empty() {
+        return Ok(Vec::new())
+    }
+
     // Generate HTML for each node
     let mut html = String::new();
     for (index, node) in nodes.iter().enumerate() {
