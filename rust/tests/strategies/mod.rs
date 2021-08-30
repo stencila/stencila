@@ -47,6 +47,22 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate inline content for inside other inline content
+    pub fn inline_inner_content(freedom: Freedom)(
+        string in (match freedom {
+            Freedom::Min => r"string",
+            Freedom::Low => r"[A-Za-z0-9]+", // Note: no whitespace or "special" characters
+            _ => any::<String>(),
+        }).prop_filter(
+            "Inline strings should not be empty",
+            |string| !string.is_empty()
+        )
+    ) -> InlineContent {
+        InlineContent::String(string)
+    }
+}
+
+prop_compose! {
     /// Generate an arbitrary audio object
     /// Use audio file extensions because Markdown decoding uses that to determine
     /// to decode to a `AudioObject`.
@@ -102,14 +118,18 @@ prop_compose! {
 
 prop_compose! {
     /// Generate a code expression node with arbitrary text and programming language
+    ///
+    /// With `Freedom::Low` only allow language codes that are recognized when decoding
+    /// formats such as R Markdown.
     pub fn code_expression(freedom: Freedom)(
         programming_language in match freedom {
-            Freedom::Min => "lang",
-            Freedom::Low => r"[A-Za-z0-9-]+",
+            Freedom::Min => "py",
+            Freedom::Low => r"js|py|r",
+            Freedom::High => r"[A-Za-z0-9-]+",
             _ => any::<String>()
         },
         text in match freedom {
-            Freedom::Min => r"text",
+            Freedom::Min => "text",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         },
@@ -152,7 +172,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a delete node with arbitrary content
     pub fn delete(freedom: Freedom)(
-        content in string_no_whitespace(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Delete(Delete{
             content:vec![content],
@@ -164,7 +184,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a emphasis node with arbitrary content
     pub fn emphasis(freedom: Freedom)(
-        content in string_no_whitespace(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Emphasis(Emphasis{
             content:vec![content],
@@ -181,7 +201,7 @@ prop_compose! {
             Freedom::Low => r"[A-Za-z0-9-]*",
             _ => any::<String>()
         },
-        content in string(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Link(Link{
             target,
@@ -194,7 +214,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a nontextual annotation node with arbitrary content
     pub fn nontextual_annotation(freedom: Freedom)(
-        content in string(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::NontextualAnnotation(NontextualAnnotation{
             content:vec![content],
@@ -206,7 +226,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a quote node with arbitrary content
     pub fn quote(freedom: Freedom)(
-        content in string(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Quote(Quote{
             content:vec![content],
@@ -218,7 +238,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a strong node with arbitrary content
     pub fn strong(freedom: Freedom)(
-        content in string_no_whitespace(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Strong(Strong{
             content:vec![content],
@@ -230,7 +250,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a subscript node with arbitrary content
     pub fn subscript(freedom: Freedom)(
-        content in string_no_whitespace(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Subscript(Subscript{
             content:vec![content],
@@ -242,7 +262,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a superscript node with arbitrary content
     pub fn superscript(freedom: Freedom)(
-        content in string_no_whitespace(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Superscript(Superscript{
             content:vec![content],
@@ -493,14 +513,18 @@ prop_compose! {
 
 prop_compose! {
     /// Generate a code chunk
+    ///
+    /// With `Freedom::Low` only allow language codes that are recognized when decoding
+    /// formats such as R Markdown.
     pub fn code_chunk(freedom: Freedom)(
         programming_language in match freedom {
-            Freedom::Min => "lang",
-            Freedom::Low => r"[A-Za-z0-9-]+",
+            Freedom::Min => "py",
+            Freedom::Low => r"js|py|r",
+            Freedom::High => r"[A-Za-z0-9-]+",
             _ => any::<String>()
         },
         text in match freedom {
-            Freedom::Min => r"text",
+            Freedom::Min => "text",
             Freedom::Low => r"[A-Za-z0-9-_ ]+",
             _ => any::<String>()
         }

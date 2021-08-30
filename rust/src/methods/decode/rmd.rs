@@ -5,6 +5,8 @@ use stencila_schema::{
     InlineContent, Node, NontextualAnnotation, Paragraph, Strong, Subscript, Superscript,
 };
 
+const LANGUAGES: &[&str] = &["r", "py", "python", "js", "javascript"];
+
 /// Decode a R Markdown document to a `Node`
 pub fn decode(input: &str) -> Result<Node> {
     let mut node = md::decode(input)?;
@@ -19,23 +21,26 @@ pub fn decode(input: &str) -> Result<Node> {
 fn transform_blocks(blocks: &mut Vec<BlockContent>) {
     for block in blocks {
         match block {
+            // Code blocks with curly braced language are transformed to code chunks
             BlockContent::CodeBlock(CodeBlock {
                 programming_language,
                 text,
                 ..
             }) => {
-                let programming_language = programming_language
+                let lang = programming_language
                     .clone()
                     .map(|boxed| *boxed)
-                    .unwrap_or("".to_string());
-                if programming_language.starts_with("{r") && programming_language.ends_with("}") {
+                    .unwrap_or_else(|| "".to_string());
+                if lang.starts_with('{') && lang.ends_with('}') {
+                    let lang = lang[1..(lang.len() - 1)].to_string();
                     *block = BlockContent::CodeChunk(CodeChunk {
-                        programming_language: "r".to_string(),
+                        programming_language: lang,
                         text: text.to_string(),
                         ..Default::default()
                     })
                 }
             }
+            // Transform the inline content of other block types
             BlockContent::Paragraph(Paragraph { content, .. }) => transform_inlines(content),
             _ => (),
         }
@@ -45,14 +50,17 @@ fn transform_blocks(blocks: &mut Vec<BlockContent>) {
 fn transform_inlines(inlines: &mut Vec<InlineContent>) {
     for inline in inlines {
         match inline {
-            // Code fragments prefixed with `r` get transformed to a CodeExpression
+            // Code fragments prefixed with a language code get transformed to a code expression
             InlineContent::CodeFragment(CodeFragment { text, .. }) => {
-                if let Some(text) = text.strip_prefix("r ") {
-                    *inline = InlineContent::CodeExpression(CodeExpression {
-                        programming_language: "r".to_string(),
-                        text: text.to_string(),
-                        ..Default::default()
-                    })
+                for lang in LANGUAGES {
+                    if let Some(text) = text.strip_prefix(&[lang, " "].concat()) {
+                        *inline = InlineContent::CodeExpression(CodeExpression {
+                            programming_language: lang.to_string(),
+                            text: text.to_string(),
+                            ..Default::default()
+                        });
+                        break;
+                    }
                 }
             }
             // Recursively transform other inlines

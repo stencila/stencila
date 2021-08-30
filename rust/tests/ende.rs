@@ -101,6 +101,17 @@ proptest! {
         )
     }
 
+    #[cfg(all(feature="encode-rmd", feature="decode-rmd"))]
+    #[test]
+    fn rmd(input in article(Freedom::Min)) {
+        let content = encode::rmd::encode(&input).unwrap();
+        let output = decode::rmd::decode(&content).unwrap();
+        assert_eq!(
+            serde_json::to_value(&input).unwrap(),
+            serde_json::to_value(&output).unwrap()
+        )
+    }
+
     #[cfg(all(feature="encode-pandoc", feature="decode-pandoc"))]
     #[test]
     fn pandoc(input in article(Freedom::Min)) {
