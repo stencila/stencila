@@ -44,7 +44,7 @@ export class AppProjectRoot {
 
     const mainFile = getProjectMainFilePath(state)
     if (mainFile) {
-      openDocumentInActivePane(mainFile)
+      openDocumentInActivePane(mainFile)()
     }
   }
 
@@ -55,28 +55,43 @@ export class AppProjectRoot {
   render() {
     return (
       <div class="projectWindow">
-        <split-me
-          n={2}
-          sizes={[0.2, 0.8]}
-          minSizes={[0.05, 0.2]}
-          maxSizes={[0.5, 1]}
-          d="horizontal"
-        >
-          <app-project-sidebar-files slot="0"></app-project-sidebar-files>
+        <app-project-sidebar-nav></app-project-sidebar-nav>
 
-          <div slot="1">
-            <ProjectRouter.Switch>
-              <Route
-                path={() => true}
-                render={() => (
+        <ProjectRouter.Switch>
+          <Route
+            path="/project/graph"
+            render={() => (
+              <main>
+                <app-project-graph
+                  projectPath={this.projectPath}
+                ></app-project-graph>
+              </main>
+            )}
+          ></Route>
+
+          <Route
+            path={() => true}
+            render={() => (
+              <split-me
+                n={2}
+                sizes={[0.2, 0.8]}
+                minSizes={[0.05, 0.2]}
+                maxSizes={[0.5, 1]}
+                d="horizontal"
+              >
+                <div slot="0">
+                  <app-project-sidebar-files></app-project-sidebar-files>
+                </div>
+
+                <div slot="1">
                   <main>
                     <app-document-pane paneId={rootPaneId}></app-document-pane>
                   </main>
-                )}
-              ></Route>
-            </ProjectRouter.Switch>
-          </div>
-        </split-me>
+                </div>
+              </split-me>
+            )}
+          ></Route>
+        </ProjectRouter.Switch>
       </div>
     )
   }

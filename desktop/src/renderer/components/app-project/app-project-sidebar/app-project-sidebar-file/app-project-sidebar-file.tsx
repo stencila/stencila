@@ -1,8 +1,11 @@
 import { Component, h, Host, Prop, State } from '@stencil/core'
+import { taskEither as TE } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 import { File } from 'stencila'
 import { state } from '../../../../store'
 import { openDocumentInActivePane } from '../../../../store/documentPane/documentPaneActions'
 import { selectProjectFile } from '../../../../store/project/projectSelectors'
+import { errorToast } from '../../../../utils/errors'
 import { getFileIcon } from './iconMap'
 
 @Component({
@@ -28,7 +31,7 @@ export class AppProjectSidebarFile {
     if (this.file?.children) {
       this.isCollapsed = !this.isCollapsed
     } else {
-      openDocumentInActivePane(this.filePath)
+      pipe(this.filePath, openDocumentInActivePane, TE.mapLeft(errorToast))()
     }
   }
 

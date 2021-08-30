@@ -1,0 +1,12 @@
+:host {
+  @apply flex flex-col justify-between h-screen px-1 pt-4 pb-2;
+  border-right: 1px solid var(--color-neutral-600);
+
+  & > div {
+    @apply flex flex-col;
+  }
+
+  stencila-button + stencila-button {
+    @apply mt-2;
+  }
+}

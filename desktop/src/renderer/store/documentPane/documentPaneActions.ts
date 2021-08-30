@@ -1,10 +1,9 @@
 import { EntityId } from '@reduxjs/toolkit'
-import { option as O } from 'fp-ts'
+import { option as O, taskEither as TE } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { Document } from 'stencila'
 import { UnprotectedStoreKeys } from '../../../preload/stores'
-import { errorToast } from '../../../renderer/utils/errors'
-import { client } from '../../client'
+import { client, isRPCError } from '../../client'
 import { clearEditorState } from '../editorState/editorStateActions'
 import { state, store } from '../index'
 import { selectPaneId } from './documentPaneSelectors'
@@ -25,13 +24,13 @@ export const initPane = (paneId: EntityId) => {
   store.dispatch(documentPaneActions.createPane({ paneId }))
 }
 
-export const createNewDocument = async () => {
-  const { value: format } = await client.config.ui.get(
+export const createNewDocument = async (path?: string, format?: string) => {
+  const { value: defaultFormat } = await client.config.ui.get(
     UnprotectedStoreKeys.EDITOR_NEW_FILE_SYNTAX
   )
 
-  createDocument(undefined, format).then(({ value: doc }) => {
-    addDocumentToActivePane(doc)
+  createDocument(path, format ?? defaultFormat).then(({ value: doc }) => {
+    addDocumentToActivePane(doc)()
   })
 }
 
@@ -40,18 +39,14 @@ export const createNewDocument = async () => {
  * Note that this is different from `addDocumentToPane` which instead accepts an already open `Document`.
  */
 export const openDocumentInPane = async (paneId: EntityId, path: string) => {
-  try {
-    const { value: doc } = await client.documents.open(path)
+  const { value: doc } = await client.documents.open(path)
 
-    return store.dispatch(
-      documentPaneActions.addDocToPane({
-        paneId,
-        doc,
-      })
-    )
-  } catch (err) {
-    errorToast(err)
-  }
+  return store.dispatch(
+    documentPaneActions.addDocToPane({
+      paneId,
+      doc,
+    })
+  )
 }
 
 /**
@@ -71,22 +66,34 @@ export const addDocumentToPane = async (paneId: EntityId, doc: Document) => {
  * Given a document path, open it with Stencila client and add to the currently focussed Pane.
  * Note that this is different from `addDocumentToActivePane` which instead accepts an already open `Document`.
  */
-export const openDocumentInActivePane = async (path: string) =>
+export const openDocumentInActivePane = (path: string) =>
   pipe(
     state,
     selectPaneId,
-    O.map((paneId) => openDocumentInPane(paneId, path))
+    TE.fromOption(() => 'Could not select active pane'),
+    TE.chain((paneId) =>
+      TE.tryCatch(
+        () => openDocumentInPane(paneId, path),
+        (err) => (isRPCError(err) ? err.message : err)
+      )
+    )
   )
 
 /**
  * Given a document path, open it with Stencila client and add to the currently focussed Pane.
  * Note that this is different from `openDocumentInActivePane` which instead accepts a file path.
  */
-export const addDocumentToActivePane = async (doc: Document) =>
+export const addDocumentToActivePane = (doc: Document) =>
   pipe(
     state,
     selectPaneId,
-    O.map((paneId) => addDocumentToPane(paneId, doc))
+    TE.fromOption(() => 'Could not select active pane'),
+    TE.chain((paneId) =>
+      TE.tryCatch(
+        () => addDocumentToPane(paneId, doc),
+        (err) => (isRPCError(err) ? err.message : err)
+      )
+    )
   )
 
 export const createDocument = async (path?: string, format?: string) =>

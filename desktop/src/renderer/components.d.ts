@@ -61,6 +61,8 @@ export namespace Components {
     interface AppProjectSidebarFiles {
         "projectDir": string;
     }
+    interface AppProjectSidebarNav {
+    }
     interface AppRoot {
     }
     interface AppSettingsAdvanced {
@@ -196,6 +198,12 @@ declare global {
         prototype: HTMLAppProjectSidebarFilesElement;
         new (): HTMLAppProjectSidebarFilesElement;
     };
+    interface HTMLAppProjectSidebarNavElement extends Components.AppProjectSidebarNav, HTMLStencilElement {
+    }
+    var HTMLAppProjectSidebarNavElement: {
+        prototype: HTMLAppProjectSidebarNavElement;
+        new (): HTMLAppProjectSidebarNavElement;
+    };
     interface HTMLAppRootElement extends Components.AppRoot, HTMLStencilElement {
     }
     var HTMLAppRootElement: {
@@ -270,6 +278,7 @@ declare global {
         "app-project-root": HTMLAppProjectRootElement;
         "app-project-sidebar-file": HTMLAppProjectSidebarFileElement;
         "app-project-sidebar-files": HTMLAppProjectSidebarFilesElement;
+        "app-project-sidebar-nav": HTMLAppProjectSidebarNavElement;
         "app-root": HTMLAppRootElement;
         "app-settings-advanced": HTMLAppSettingsAdvancedElement;
         "app-settings-editor": HTMLAppSettingsEditorElement;
@@ -334,6 +343,8 @@ declare namespace LocalJSX {
     interface AppProjectSidebarFiles {
         "projectDir"?: string;
     }
+    interface AppProjectSidebarNav {
+    }
     interface AppRoot {
     }
     interface AppSettingsAdvanced {
@@ -373,6 +384,7 @@ declare namespace LocalJSX {
         "app-project-root": AppProjectRoot;
         "app-project-sidebar-file": AppProjectSidebarFile;
         "app-project-sidebar-files": AppProjectSidebarFiles;
+        "app-project-sidebar-nav": AppProjectSidebarNav;
         "app-root": AppRoot;
         "app-settings-advanced": AppSettingsAdvanced;
         "app-settings-editor": AppSettingsEditor;
@@ -407,6 +419,7 @@ declare module "@stencil/core" {
             "app-project-root": LocalJSX.AppProjectRoot & JSXBase.HTMLAttributes<HTMLAppProjectRootElement>;
             "app-project-sidebar-file": LocalJSX.AppProjectSidebarFile & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFileElement>;
             "app-project-sidebar-files": LocalJSX.AppProjectSidebarFiles & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFilesElement>;
+            "app-project-sidebar-nav": LocalJSX.AppProjectSidebarNav & JSXBase.HTMLAttributes<HTMLAppProjectSidebarNavElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
             "app-settings-advanced": LocalJSX.AppSettingsAdvanced & JSXBase.HTMLAttributes<HTMLAppSettingsAdvancedElement>;
             "app-settings-editor": LocalJSX.AppSettingsEditor & JSXBase.HTMLAttributes<HTMLAppSettingsEditorElement>;

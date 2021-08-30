@@ -168,6 +168,11 @@ export type ProjectsOpen = InvokeType<
   typeof dispatch.projects.open
 >
 
+export type ProjectsWrite = InvokeType<
+  typeof CHANNEL.PROJECTS_WRITE,
+  typeof dispatch.projects.write
+>
+
 // Documents
 export type DocumentsOpen = InvokeType<
   typeof CHANNEL.DOCUMENTS_OPEN,
@@ -264,6 +269,7 @@ type InvokeTypes =
   | ProjectsOpenUsingFilePicker
   | ProjectsNew
   | ProjectsOpen
+  | ProjectsWrite
   | DocumentsOpen
   | DocumentsAlter
   | DocumentsCreate
@@ -415,6 +421,11 @@ interface Invoke {
     channel: ProjectsOpen['channel'],
     ...args: ProjectsOpen['args']
   ): ProjectsOpen['result']
+
+  invoke(
+    channel: ProjectsWrite['channel'],
+    ...args: ProjectsWrite['args']
+  ): ProjectsWrite['result']
 
   // Documents
   invoke(
