@@ -657,7 +657,7 @@ impl ToHtml for CodeChunk {
             ">",
                 &label,
                 r#"<stencila-code-chunk itemtype="http://schema.stenci.la/CodeChunk" itemscope "#,
-                &encode_attr("data-programminglanguage", &self.programming_language),
+                &encode_attr("programming-language", &self.programming_language),
                     r#"><pre slot="text"><code>"#,
                         &encode_safe(&self.text),
                     "</code></pre>",

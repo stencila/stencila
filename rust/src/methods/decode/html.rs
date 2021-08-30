@@ -90,7 +90,7 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
             let programming_language = if let Some(lang) = element
                 .attributes
                 .borrow()
-                .get(LocalName::from("data-programminglanguage"))
+                .get(LocalName::from("programming-language"))
             {
                 lang.to_string()
             } else {
