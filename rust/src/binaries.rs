@@ -168,14 +168,6 @@ impl Binary {
         None
     }
 
-    /// Clear any cached requires of this binary
-    async fn clear(&self) {
-        REQUIRES
-            .lock()
-            .await
-            .retain(|_, installation| installation.name != self.name);
-    }
-
     /// Resolve the path and version of a binary
     pub fn resolve(&mut self) {
         // Collect the directories for previously installed versions
@@ -315,8 +307,7 @@ impl Binary {
             )
         }
 
-        // Always clear any cached requires and re-resolve after an install
-        self.clear().await;
+        // Always re-resolve after an install
         self.resolve();
 
         Ok(())
@@ -601,8 +592,7 @@ impl Binary {
             tracing::warn!("No matching Stencila installed binary found")
         }
 
-        // Always clear cached requires and re-resolve after an uninstall
-        self.clear().await;
+        // Always re-resolve after an uninstall
         self.resolve();
 
         Ok(())
