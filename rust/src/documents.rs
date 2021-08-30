@@ -461,6 +461,7 @@ impl Document {
 
         let content = if let Some(root) = &self.root {
             let mut options = encode::Options::default();
+            options.standalone = true;
             if let Some(theme) = theme {
                 options.theme = theme
             }
