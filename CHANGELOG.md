@@ -1,3 +1,18 @@
+# [0.112.0](https://github.com/stencila/stencila/compare/v0.111.1...v0.112.0) (2021-08-30)
+
+
+### Bug Fixes
+
+* **Desktop:** Close launcher window when opening Project using file browser ([391fc1d](https://github.com/stencila/stencila/commit/391fc1db2cfe8a0eed8a41a35d5403d632638ef5))
+* **Desktop:** Don't crash when reloading project window ([7f21255](https://github.com/stencila/stencila/commit/7f212554ad7166a15f08bfbeb1f07ca6e075b5da))
+* **Desktop:** Fix ordering of Recent Projects list ([01e5081](https://github.com/stencila/stencila/commit/01e5081d4a64b88b1ffb37b4266196c4c461820c))
+
+
+### Features
+
+* **Desktop:** Add sidebar nav to Project window ([87b8896](https://github.com/stencila/stencila/commit/87b88961877695a6af314fae397988a9a1ac5ff5))
+* **Graphs:** Add UI for rendering Project Graph in Desktop client ([48ae974](https://github.com/stencila/stencila/commit/48ae974b2f4bb2f9d00460c23adf23f7bf3eaa52))
+
 ## [0.111.1](https://github.com/stencila/stencila/compare/v0.111.0...v0.111.1) (2021-08-29)
 
 
