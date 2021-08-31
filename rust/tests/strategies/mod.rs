@@ -378,7 +378,10 @@ prop_compose! {
     /// Generate a heading with arbitrary content and depth
     pub fn heading(freedom: Freedom)(
         depth in 1..6,
-        content in vec_inline_content(freedom)
+        content in match freedom {
+            Freedom::Min => vec(string(freedom), 1..2).boxed(),
+            _ => vec_inline_content(freedom).boxed()
+        }
     ) -> BlockContent {
         BlockContent::Heading(Heading{
             depth: Some(depth as u8),
@@ -444,15 +447,23 @@ prop_compose! {
     /// Does no allow for quote blocks (because that would be a recursive
     /// strategy), or lists or thematic breaks (because they need filtering, see below)
     pub fn quote_block(freedom: Freedom)(
-        content in vec(Union::new(vec![
-            code_block(freedom).boxed(),
-            heading(freedom).boxed(),
-            paragraph(freedom).boxed(),
-        ]), 1..(match freedom {
-            Freedom::Min => 1,
-            Freedom::Low => 3,
-            _ => 5,
-        } + 1))
+        content in vec(Union::new(
+            match freedom {
+                Freedom::Min => vec![
+                    paragraph(freedom).boxed(),
+                ],
+                _ => vec![
+                    code_block(freedom).boxed(),
+                    heading(freedom).boxed(),
+                    paragraph(freedom).boxed(),
+                ]
+            }),
+            1..(match freedom {
+                Freedom::Min => 1,
+                Freedom::Low => 3,
+                _ => 5,
+            } + 1)
+        )
     ) -> BlockContent {
         BlockContent::QuoteBlock(QuoteBlock{
             content,
