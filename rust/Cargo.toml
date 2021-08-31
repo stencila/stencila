@@ -1,12 +1,10 @@
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [package]
-version = "0.112.0"
 name = "stencila"
+version = "0.112.0"
 authors = ["Stencila <hello@stenci.la>"]
 edition = "2018"
-name = "stencila"
-version = "0.111.0"
 
 # Compile time feature flags. See https://www.worthe-it.co.za/blog/2018-11-18-compile-time-feature-flags-in-rust.html
 # All features are on by default, use `--no-default-features --features="json http ..."` to
