@@ -1,14 +1,15 @@
 ///! File system utilities, particularly functionality that requires
 ///! alternative implementations for alternative operating systems.
 use eyre::Result;
-use std::{fs, os, path::Path};
+use std::{os, path::Path};
 
 /// Set permissions on a file
+#[allow(unused_variables)]
 pub fn set_perms<File: AsRef<Path>>(path: File, mode: u32) -> Result<()> {
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
         use os::unix::fs::PermissionsExt;
-        fs::set_permissions(path, fs::Permissions::from_mode(mode))?;
+        std::fs::set_permissions(path, std::fs::Permissions::from_mode(mode))?;
     }
 
     Ok(())
