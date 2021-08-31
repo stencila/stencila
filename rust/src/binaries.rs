@@ -946,18 +946,21 @@ pub mod cli {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::skip_slow_tests;
 
-    /// End to end CLI test that install, show and uninstall
-    /// the latest version of each binary. Intended as a course
-    /// test of installation of each binary.
+    // End to end CLI test that install, show and uninstall
+    // the latest version of each binary. Intended as a coarse
+    // tests of installation of each binary. These tests are
+    // tagged with #[ignore] because they are slow, so in development
+    // you don't want to run them, and because if they are run in
+    // parallel with other tests that use `require()` they can cause deadlocks
+    // and other on-disk conflicts.
+
+    // Run this test at the start of CI tests using
+    //   cargo test binaries::tests::install -- --ignored --nocapture
     #[cfg(feature = "cli")]
     #[tokio::test]
-    async fn cli_install_run_uninstall() -> Result<()> {
-        if skip_slow_tests() {
-            return Ok(());
-        }
-
+    #[ignore]
+    async fn install() -> Result<()> {
         cli::List {}.run().await?;
 
         let binaries = (*BINARIES.lock().await).clone();
@@ -998,7 +1001,19 @@ mod tests {
                     .len()
                     > 0
             );
+        }
 
+        Ok(())
+    }
+
+    // Run this test at the end of CI tests using
+    //   cargo test binaries::tests::uninstall -- --ignored --nocapture
+    #[cfg(feature = "cli")]
+    #[tokio::test]
+    #[ignore]
+    async fn uninstall() -> Result<()> {
+        let binaries = (*BINARIES.lock().await).clone();
+        for name in binaries.keys() {
             cli::Uninstall {
                 name: name.clone(),
                 version: None,
