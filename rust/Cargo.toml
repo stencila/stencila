@@ -211,7 +211,7 @@ serde_with = "=1.9.4"
 serde_yaml = "=0.8.20"
 sha2 = "0.9.6"
 slug = "=0.1.4"
-stencila-schema = "=1.11.0"
+stencila-schema = "=1.11.1"
 structopt = { version = "=0.3.22", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
 strum_macros = "=0.21.1"
