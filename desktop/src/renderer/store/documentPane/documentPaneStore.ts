@@ -113,11 +113,29 @@ export const documentPaneSlice = createSlice({
       }
       return state
     },
-    updateDoc: (
-      state,
-      { payload }: PayloadAction<{ doc: Document }>
-    ) => {
+    updateDoc: (state, { payload }: PayloadAction<{ doc: Document }>) => {
       state.entities.views[payload.doc.id] = payload.doc
+      return state
+    },
+    patchDoc: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{
+        doc: Partial<Omit<Document, 'id'>> & { id: EntityId }
+      }>
+    ) => {
+      const id = payload.doc.id.toString()
+      const currentState = state.entities.views[id]
+
+      if (currentState) {
+        state.entities.views[id] = {
+          ...currentState,
+          ...payload.doc,
+          id,
+        }
+      }
+
       return state
     },
     removeDocFromPane: (

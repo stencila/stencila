@@ -20,7 +20,7 @@
       background: var(--color-neutral-100);
     }
 
-    stencila-icon {
+    stencila-icon.closeTabIcon {
       @apply opacity-100;
     }
   }
@@ -37,9 +37,20 @@
       @apply flex-row-reverse;
     }
   }
+
+  &.unwritten stencila-icon.documentStatusIcon {
+    @apply opacity-100;
+    color: var(--color-neutral-400);
+  }
 }
 
-stencila-icon {
+stencila-icon.documentStatusIcon {
+  --height: .85em;
+  --width: .85em;
+  @apply mr-2 text-sm opacity-0;
+}
+
+stencila-icon.closeTabIcon {
   @apply opacity-0 rounded-sm mr-1;
 
   &:hover,
@@ -52,5 +63,6 @@ stencila-icon {
 a,
 a:link,
 a:visited {
-  @apply block no-underline whitespace-nowrap leading-none text-current flex-grow cursor-default pr-1;
+  @apply block no-underline whitespace-nowrap leading-none text-current flex-grow cursor-default;
+  padding-right: 1.675rem;
 }

@@ -1,7 +1,10 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { client } from '../client'
 import { state } from '../store'
-import { updateDocument } from '../store/documentPane/documentPaneActions'
+import {
+  patchDocument,
+  updateDocument,
+} from '../store/documentPane/documentPaneActions'
 import { isTemporaryDocument } from '../store/documentPane/documentPaneSelectors'
 
 export const alterDocument = async (
@@ -14,7 +17,11 @@ export const alterDocument = async (
   return doc
 }
 
-export const saveDocument = async (docId: EntityId, content: string, format?: string) => {
+export const saveDocument = async (
+  docId: EntityId,
+  content: string,
+  format?: string
+) => {
   if (isTemporaryDocument(state)(docId)) {
     const { value: file } = await client.documents.createFilePath()
 
@@ -22,18 +29,20 @@ export const saveDocument = async (docId: EntityId, content: string, format?: st
 
     const doc = await alterDocument(docId, file.filePath)
 
-    client.documents.write({
-      documentId: docId,
-      content,
-      format
-    })
-
-    return updateDocument(doc)
+    client.documents
+      .write({
+        documentId: docId,
+        content,
+        format,
+      })
+      .then(() => updateDocument({ ...doc, status: 'synced' }))
   } else {
-    client.documents.write({
-      documentId: docId,
-      content,
-      format
-    })
+    client.documents
+      .write({
+        documentId: docId,
+        content,
+        format,
+      })
+      .then(() => patchDocument({ id: docId, status: 'synced' }))
   }
 }

@@ -103,6 +103,12 @@ export const updateDocument = (doc: Document) => {
   return store.dispatch(documentPaneActions.updateDoc({ doc }))
 }
 
+export const patchDocument = (
+  doc: Partial<Omit<Document, 'id'>> & { id: EntityId }
+) => {
+  return store.dispatch(documentPaneActions.patchDoc({ doc }))
+}
+
 export const getDocument = async (docId: EntityId) => {
   const { value: doc } = await client.documents.get(docId)
   updateDocument(doc)
