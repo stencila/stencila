@@ -5,7 +5,7 @@ import { Document } from 'stencila'
 import {
   DocumentPane,
   NormalizedDocumentPaneStore,
-  PaneModule
+  PaneModule,
 } from './documentPaneTypes'
 
 const initialState: NormalizedDocumentPaneStore = {
@@ -175,6 +175,32 @@ export const documentPaneSlice = createSlice({
       }
 
       return state
+    },
+    nextDocInPane: (
+      state,
+      { payload }: PayloadAction<{ paneId: EntityId, direction: 'next' | 'previous' }>
+    ) => {
+      const paneState = state.entities.panes[payload.paneId]
+      const directionIndex = payload.direction === 'next' ? 1 : -1
+
+      if (paneState) {
+        pipe(
+          paneState.activeView,
+          O.map((view) => paneState.views.indexOf(view)),
+          O.map((activeViewIndex) => paneState.views[activeViewIndex + directionIndex]),
+          O.map(O.fromNullable),
+          O.flatten,
+          O.alt(() => 
+            // If there isn't a next pane, loop through the list
+            payload.direction === 'next' ? A.head(paneState.views) : A.last(paneState.views)
+          ),
+          O.map((nextViewId) => {
+            console.log('nextViewId: ', nextViewId)
+            paneState.activeView = O.some(nextViewId)
+            return nextViewId
+          })
+        )
+      }
     },
   },
 })

@@ -137,6 +137,21 @@ export const setActiveDocument = (paneId: EntityId, docId: EntityId) => {
   )
 }
 
+export const cycleTabs = (direction: 'next' | 'previous') => {
+  pipe(
+    state,
+    selectPaneId,
+    O.map(id => {
+      store.dispatch(
+        documentPaneActions.nextDocInPane({
+          paneId: id,
+          direction
+        })
+      )
+    })
+  )
+}
+
 export const setPreviewPaneVisibility = (
   layoutId: EntityId,
   isVisible: boolean
