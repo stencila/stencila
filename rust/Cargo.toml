@@ -225,7 +225,7 @@ tracing-subscriber = "=0.2.20"
 tree-sitter = { version = "=0.19.5", optional = true }
 tree-sitter-javascript = { version = "=0.19.0", optional = true }
 tree-sitter-python = { version = "=0.19.0", optional = true }
-tree-sitter-r = { git = "https://github.com/nokome/tree-sitter-r", optional = true }
+tree-sitter-r = { version = "=0.19.3", optional = true }
 tree-sitter-typescript = { version = "=0.19.0", optional = true }
 url = "=2.2.2"
 validator = { version = "=0.14.0", features = ["derive"] }
