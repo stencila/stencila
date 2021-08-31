@@ -460,8 +460,10 @@ impl Document {
         let output = ["file://", &path.display().to_string()].concat();
 
         let content = if let Some(root) = &self.root {
-            let mut options = encode::Options::default();
-            options.standalone = true;
+            let mut options = encode::Options {
+                standalone: true,
+                ..Default::default()
+            };
             if let Some(theme) = theme {
                 options.theme = theme
             }

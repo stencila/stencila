@@ -16,7 +16,7 @@ pub async fn encode(node: &Node, output: &str, options: Option<Options>) -> Resu
 pub async fn encode_to_pngs(nodes: &[&Node], options: Option<Options>) -> Result<Vec<Vec<u8>>> {
     // Return early if possible to avoid the following, including requiring Chrome.
     if nodes.is_empty() {
-        return Ok(Vec::new())
+        return Ok(Vec::new());
     }
 
     // Generate HTML for each node
