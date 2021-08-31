@@ -503,9 +503,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.69"
+version = "1.0.70"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e70cc2f62c6ce1868963827bd677764c62d07c3d9a3e1fb1177ee1a9ab199eb2"
+checksum = "d26a6ce4b6a484fa3edb70f7efa6fc430fd2b87285fe8b84304fd0936faa0dc0"
 
 [[package]]
 name = "cfg-if"
@@ -913,9 +913,9 @@ dependencies = [
 
 [[package]]
 name = "ctor"
-version = "0.1.20"
+version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e98e2ad1a782e33928b96fc3948e7c355e5af34ba4de7670fe8bac2a3b2006d"
+checksum = "ccc0a48a9b826acdf4028595adc9db92caea352f7af011a3034acd172a52a0aa"
 dependencies = [
  "quote 1.0.9",
  "syn 1.0.75",
@@ -3464,19 +3464,19 @@ checksum = "d058b84555f8dbf848b5fdf8d3340cbed66167d616232a5ddbffe6fb476db9d2"
 dependencies = [
  "include-flate",
  "rust-embed-impl",
- "rust-embed-utils",
+ "rust-embed-utils 6.0.0",
  "walkdir",
 ]
 
 [[package]]
 name = "rust-embed-impl"
-version = "6.0.1"
+version = "6.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a888d6e9c2ef8ce7691500edef64ad184a1fc0984805d3f825653d62df9f9eb"
+checksum = "f567ca01565c50c67b29e535f5f67b8ea8aeadaeed16a88f10792ab57438b957"
 dependencies = [
  "proc-macro2 1.0.29",
  "quote 1.0.9",
- "rust-embed-utils",
+ "rust-embed-utils 7.0.0",
  "syn 1.0.75",
  "walkdir",
 ]
@@ -3486,6 +3486,16 @@ name = "rust-embed-utils"
 version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b5f2909061b856ce587f2496fc149a71d576cb2e0842c79f0dc82741622c6d0"
+dependencies = [
+ "sha2",
+ "walkdir",
+]
+
+[[package]]
+name = "rust-embed-utils"
+version = "7.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6116e7ab9ea963f60f2f20291d8fcf6c7273192cdd7273b3c80729a9605c97b2"
 dependencies = [
  "sha2",
  "walkdir",
@@ -3910,9 +3920,9 @@ dependencies = [
 
 [[package]]
 name = "signal-hook"
-version = "0.3.9"
+version = "0.3.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "470c5a6397076fae0094aaf06a08e6ba6f37acb77d3b1b91ea92b4d6c8650c39"
+checksum = "9c98891d737e271a2954825ef19e46bd16bdb98e2746f2eec4f7a4ef7946efd1"
 dependencies = [
  "libc",
  "signal-hook-registry",
@@ -4015,7 +4025,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
 name = "stencila"
-version = "0.112.0"
+version = "0.113.0"
 dependencies = [
  "Inflector",
  "ansi_term 0.12.1",
@@ -4108,7 +4118,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.112.0"
+version = "0.113.0"
 dependencies = [
  "ansi_term 0.12.1",
  "atty",
@@ -4127,7 +4137,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.112.0"
+version = "0.113.0"
 dependencies = [
  "neon",
  "stencila",

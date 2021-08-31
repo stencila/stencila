@@ -1,3 +1,35 @@
+# [0.113.0](https://github.com/stencila/stencila/compare/v0.112.0...v0.113.0) (2021-08-31)
+
+
+### Bug Fixes
+
+* **Binaries:** Do not clear `REQUIRES` map to avoid deadlock ([d317c08](https://github.com/stencila/stencila/commit/d317c08a700cc00afe0632ff3389e9f97a270b5a))
+* **Compile:** Move to using strings for hashes ([013c513](https://github.com/stencila/stencila/commit/013c513286027822d4a0442df0f72096b6d416c8))
+* **Dependencies:** Upgrade Schema ([29808ab](https://github.com/stencila/stencila/commit/29808abc7b914153052e11e1e4275860fa0bff2b))
+* **Documents:** When writing as other format ensure standalone ([07e33a9](https://github.com/stencila/stencila/commit/07e33a9c94fad92fcdbbe68d9d0c87bf2db47486))
+* **Formats:** Allow decoding of RPNGs ([b196d42](https://github.com/stencila/stencila/commit/b196d427887ba721b76009befa9da90836a9b210))
+* **HTML:** Use consistent attribute name for programming language ([f9dbfb9](https://github.com/stencila/stencila/commit/f9dbfb9888b438b915119d31bdb8db0319a35461))
+* **HTML encoding:** Use an ordered map to avoid re-ording of affiliations ([7cc1dea](https://github.com/stencila/stencila/commit/7cc1deaa8aa78293cba3e43bc0b2c0e30bb2b0ac))
+* **Makdown decoding:** Use title and caption ([ca46470](https://github.com/stencila/stencila/commit/ca464708bb759866d99efdba359406c4e6d7874a))
+* **Markdown decoding:** Handle code chunks and expressions ([c158436](https://github.com/stencila/stencila/commit/c15843687a9ccb943ca67e10368f4a235af937f9))
+* **Markdown decoding:** Trim code chunk language ([d5a4763](https://github.com/stencila/stencila/commit/d5a476323316aa2943db42a3bf0e87438690d2eb))
+* **Pandoc decode:** Use title and caption ([f9fb2ec](https://github.com/stencila/stencila/commit/f9fb2ec79657fa2e52b388b70feb295cf002aed8))
+* **Pandoc decoding:** Also check for node URL when decoding ([8873697](https://github.com/stencila/stencila/commit/887369707334cd1bcdacbbb37f12de6a2d746540))
+* **PNG encoding:** Return early if possible ([6cd52a9](https://github.com/stencila/stencila/commit/6cd52a905e916b381df325aa1ca2e91ba06a325c))
+* **R markdown:** Handling of specific format for code chunks and expressions ([9975b42](https://github.com/stencila/stencila/commit/9975b42087a997d83752cd6d8041d2994b28dd0b))
+* **R Markdown:** Implement encoding ([b7cb681](https://github.com/stencila/stencila/commit/b7cb681cf946b5b8960bbf60c69a06f95daa74cc))
+
+
+### Features
+
+* **CLI:** Add option for `convert` to stdout ([eae08fc](https://github.com/stencila/stencila/commit/eae08fc1a9ebb4506ee3862244ec41c8035b599d))
+* **Encoding JSON:** Add option for compact or indented ([5ad37af](https://github.com/stencila/stencila/commit/5ad37af9dd883d99bf05410480e52918e9c5bace))
+* **HTML:** Encoding and decoding of code nodes ([4deafef](https://github.com/stencila/stencila/commit/4deafef336fd0029bf7dde96f545aad7b0fe6c26))
+* **Markdown encoding:** Encode code expressions and chunks ([da64b64](https://github.com/stencila/stencila/commit/da64b6429b275231e2e8c758fd5c9081f26702ca))
+* **Pandoc:** End-to-end encoding and decoding for code ([7d0d12d](https://github.com/stencila/stencila/commit/7d0d12d2145a2ca3bf0b81f6553c0d07f3b5d78b))
+* **Pandoc encoding:** Encode to code chunks to RPNGs ([c2c7148](https://github.com/stencila/stencila/commit/c2c714841905088024c610a3581229db50aaf427))
+* **RPNG:** Initial version of encoding and decoding ([ad30b3e](https://github.com/stencila/stencila/commit/ad30b3eebde6e2c707cf591bb09b4e6044afde35))
+
 # [0.112.0](https://github.com/stencila/stencila/compare/v0.111.1...v0.112.0) (2021-08-30)
 
 
