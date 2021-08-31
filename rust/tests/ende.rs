@@ -53,7 +53,7 @@ proptest! {
     // Given the slowness of generating PNGs only use very few cases.
     #![proptest_config(ProptestConfig::with_cases(3))]
 
-    #[cfg(all(feature="encode-rpng", feature="decode-rpng"))]
+    #[cfg(all(target_os="linux", feature="encode-rpng", feature="decode-rpng"))]
     #[test]
     fn rpng(chunk in code_chunk(Freedom::Max)) {
         let input = if let BlockContent::CodeChunk(chunk) = chunk {

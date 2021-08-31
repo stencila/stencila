@@ -52,6 +52,7 @@ mod tests {
 
     // End-to-end test of encoding a node to a PNG and then decoding
     // it from the PNG. See the integration tests in `ende.rs` for more.
+    #[cfg(target_os = "linux")]
     #[tokio::test]
     async fn encode_decode() -> Result<()> {
         let input = Node::CodeChunk(CodeChunk {

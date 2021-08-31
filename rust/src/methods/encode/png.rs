@@ -87,6 +87,7 @@ mod tests {
     use path_slash::PathExt;
     use stencila_schema::CodeChunk;
 
+    #[cfg(target_os = "linux")]
     #[tokio::test]
     async fn test_encode() -> Result<()> {
         let node = Node::CodeChunk(CodeChunk {
