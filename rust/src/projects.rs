@@ -781,7 +781,7 @@ impl ProjectHandler {
             }
 
             // Should the event trigger a recompilation of the project's graph?
-            let should_compile_graph = |event_path: &Path| {
+            let should_compile_graph = |_event_path: &Path| {
                 // TODO: Filter based on whether the path is in the graph's nodes
                 true
             };

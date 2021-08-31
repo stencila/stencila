@@ -47,6 +47,22 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate inline content for inside other inline content
+    pub fn inline_inner_content(freedom: Freedom)(
+        string in (match freedom {
+            Freedom::Min => r"string",
+            Freedom::Low => r"[A-Za-z0-9]+", // Note: no whitespace or "special" characters
+            _ => any::<String>(),
+        }).prop_filter(
+            "Inline strings should not be empty",
+            |string| !string.is_empty()
+        )
+    ) -> InlineContent {
+        InlineContent::String(string)
+    }
+}
+
+prop_compose! {
     /// Generate an arbitrary audio object
     /// Use audio file extensions because Markdown decoding uses that to determine
     /// to decode to a `AudioObject`.
@@ -101,6 +117,32 @@ prop_compose! {
 }
 
 prop_compose! {
+    /// Generate a code expression node with arbitrary text and programming language
+    ///
+    /// With `Freedom::Low` only allow language codes that are recognized when decoding
+    /// formats such as R Markdown.
+    pub fn code_expression(freedom: Freedom)(
+        programming_language in match freedom {
+            Freedom::Min => "py",
+            Freedom::Low => r"js|py|r",
+            Freedom::High => r"[A-Za-z0-9-]+",
+            _ => any::<String>()
+        },
+        text in match freedom {
+            Freedom::Min => "text",
+            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            _ => any::<String>()
+        },
+    ) -> InlineContent {
+        InlineContent::CodeExpression(CodeExpression{
+            text,
+            programming_language,
+            ..Default::default()
+        })
+    }
+}
+
+prop_compose! {
     /// Generate a code fragment node with arbitrary text and programming language
     pub fn code_fragment(freedom: Freedom)(
         text in match freedom {
@@ -130,7 +172,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a delete node with arbitrary content
     pub fn delete(freedom: Freedom)(
-        content in string_no_whitespace(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Delete(Delete{
             content:vec![content],
@@ -142,7 +184,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a emphasis node with arbitrary content
     pub fn emphasis(freedom: Freedom)(
-        content in string_no_whitespace(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Emphasis(Emphasis{
             content:vec![content],
@@ -159,7 +201,7 @@ prop_compose! {
             Freedom::Low => r"[A-Za-z0-9-]*",
             _ => any::<String>()
         },
-        content in string(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Link(Link{
             target,
@@ -172,7 +214,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a nontextual annotation node with arbitrary content
     pub fn nontextual_annotation(freedom: Freedom)(
-        content in string(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::NontextualAnnotation(NontextualAnnotation{
             content:vec![content],
@@ -184,7 +226,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a quote node with arbitrary content
     pub fn quote(freedom: Freedom)(
-        content in string(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Quote(Quote{
             content:vec![content],
@@ -196,7 +238,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a strong node with arbitrary content
     pub fn strong(freedom: Freedom)(
-        content in string_no_whitespace(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Strong(Strong{
             content:vec![content],
@@ -208,7 +250,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a subscript node with arbitrary content
     pub fn subscript(freedom: Freedom)(
-        content in string_no_whitespace(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Subscript(Subscript{
             content:vec![content],
@@ -220,7 +262,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a superscript node with arbitrary content
     pub fn superscript(freedom: Freedom)(
-        content in string_no_whitespace(freedom)
+        content in inline_inner_content(freedom)
     ) -> InlineContent {
         InlineContent::Superscript(Superscript{
             content:vec![content],
@@ -236,6 +278,7 @@ pub fn inline_content(freedom: Freedom) -> impl Strategy<Value = InlineContent> 
         audio_object_simple(freedom).boxed(),
         image_object_simple(freedom).boxed(),
         video_object_simple(freedom).boxed(),
+        code_expression(freedom).boxed(),
         code_fragment(freedom).boxed(),
         delete(freedom).boxed(),
         emphasis(freedom).boxed(),
@@ -335,7 +378,10 @@ prop_compose! {
     /// Generate a heading with arbitrary content and depth
     pub fn heading(freedom: Freedom)(
         depth in 1..6,
-        content in vec_inline_content(freedom)
+        content in match freedom {
+            Freedom::Min => vec(string(freedom), 1..2).boxed(),
+            _ => vec_inline_content(freedom).boxed()
+        }
     ) -> BlockContent {
         BlockContent::Heading(Heading{
             depth: Some(depth as u8),
@@ -401,15 +447,23 @@ prop_compose! {
     /// Does no allow for quote blocks (because that would be a recursive
     /// strategy), or lists or thematic breaks (because they need filtering, see below)
     pub fn quote_block(freedom: Freedom)(
-        content in vec(Union::new(vec![
-            code_block(freedom).boxed(),
-            heading(freedom).boxed(),
-            paragraph(freedom).boxed(),
-        ]), 1..(match freedom {
-            Freedom::Min => 1,
-            Freedom::Low => 3,
-            _ => 5,
-        } + 1))
+        content in vec(Union::new(
+            match freedom {
+                Freedom::Min => vec![
+                    paragraph(freedom).boxed(),
+                ],
+                _ => vec![
+                    code_block(freedom).boxed(),
+                    heading(freedom).boxed(),
+                    paragraph(freedom).boxed(),
+                ]
+            }),
+            1..(match freedom {
+                Freedom::Min => 1,
+                Freedom::Low => 3,
+                _ => 5,
+            } + 1)
+        )
     ) -> BlockContent {
         BlockContent::QuoteBlock(QuoteBlock{
             content,
@@ -468,6 +522,32 @@ prop_compose! {
     }
 }
 
+prop_compose! {
+    /// Generate a code chunk
+    ///
+    /// With `Freedom::Low` only allow language codes that are recognized when decoding
+    /// formats such as R Markdown.
+    pub fn code_chunk(freedom: Freedom)(
+        programming_language in match freedom {
+            Freedom::Min => "py",
+            Freedom::Low => r"js|py|r",
+            Freedom::High => r"[A-Za-z0-9-]+",
+            _ => any::<String>()
+        },
+        text in match freedom {
+            Freedom::Min => "text",
+            Freedom::Low => r"[A-Za-z0-9-_ ]+",
+            _ => any::<String>()
+        }
+    ) -> BlockContent {
+        BlockContent::CodeChunk(CodeChunk{
+            programming_language,
+            text,
+            ..Default::default()
+        })
+    }
+}
+
 /// Generate a thematic break
 pub fn thematic_break() -> impl Strategy<Value = BlockContent> {
     Just(BlockContent::ThematicBreak(ThematicBreak::default()))
@@ -477,6 +557,7 @@ pub fn thematic_break() -> impl Strategy<Value = BlockContent> {
 pub fn block_content(freedom: Freedom) -> impl Strategy<Value = BlockContent> {
     Union::new(vec![
         code_block(freedom).boxed(),
+        code_chunk(freedom).boxed(),
         heading(freedom).boxed(),
         list(freedom).boxed(),
         paragraph(freedom).boxed(),

@@ -1,0 +1,8 @@
+{
+    "type": "CodeChunk",
+    "programmingLanguage": "python",
+    "text": "print('Hello world!')",
+    "outputs": [
+        "Hello world!"
+    ]
+}

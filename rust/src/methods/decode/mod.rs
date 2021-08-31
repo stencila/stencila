@@ -29,6 +29,9 @@ pub mod pandoc;
 #[cfg(feature = "decode-person")]
 pub mod person;
 
+#[cfg(feature = "decode-rpng")]
+pub mod rpng;
+
 #[cfg(feature = "decode-toml")]
 pub mod toml;
 
@@ -81,6 +84,9 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
 
         #[cfg(feature = "decode-rmd")]
         "rmd" => rmd::decode(input)?,
+
+        #[cfg(feature = "decode-rpng")]
+        "rpng" => rpng::decode(input)?,
 
         #[cfg(feature = "decode-toml")]
         "toml" => toml::decode(input)?,

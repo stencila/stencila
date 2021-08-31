@@ -460,7 +460,10 @@ impl Document {
         let output = ["file://", &path.display().to_string()].concat();
 
         let content = if let Some(root) = &self.root {
-            let mut options = encode::Options::default();
+            let mut options = encode::Options {
+                standalone: true,
+                ..Default::default()
+            };
             if let Some(theme) = theme {
                 options.theme = theme
             }
@@ -1248,9 +1251,9 @@ pub mod cli {
         }
     }
 
+    /// Convert a document to another format
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Convert a document to another format",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
@@ -1259,6 +1262,8 @@ pub mod cli {
         pub input: PathBuf,
 
         /// The path of the output document
+        ///
+        /// Use `-` to print output to the console's standard output.
         pub output: PathBuf,
 
         /// The format of the input (defaults to being inferred from the file extension or content type)
@@ -1283,9 +1288,21 @@ pub mod cli {
                 to,
                 theme,
             } = self;
+
             let document = Document::open(input, from).await?;
-            document.write_as(output, to, theme).await?;
-            display::nothing()
+
+            let out = output.display().to_string();
+            if out == "-" {
+                let format = match to {
+                    None => "json".to_string(),
+                    Some(format) => format,
+                };
+                let content = document.dump(Some(format.clone())).await?;
+                display::content(&format, &content)
+            } else {
+                document.write_as(output, to, theme).await?;
+                display::nothing()
+            }
         }
     }
     #[derive(Debug, StructOpt)]

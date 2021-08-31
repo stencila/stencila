@@ -25,8 +25,14 @@ pub mod pandoc;
 #[cfg(feature = "encode-pdf")]
 pub mod pdf;
 
+#[cfg(feature = "encode-png")]
+pub mod png;
+
 #[cfg(feature = "encode-rmd")]
 pub mod rmd;
+
+#[cfg(feature = "encode-rpng")]
+pub mod rpng;
 
 #[cfg(feature = "encode-toml")]
 pub mod toml;
@@ -39,13 +45,16 @@ pub mod yaml;
 
 /// Common encoding options
 ///
-/// Functions (including in plugins) are encouraged to respect these options
+/// Encoding functions (including those in plugins) are encouraged to respect these options
 /// but are not required to. Indeed, some options do not apply for some formats.
 /// For example, a PDF is always `standalone` (so if that option is set to `false` is it will be ignored).
 /// Futhermore, some combinations of options are ineffectual e.g. a `theme` when `standalone: false`
 #[derive(Clone, Debug, Defaults)]
 pub struct Options {
-    /// Whether to ensure that the encoded document is standalone
+    /// Whether to ensure that the encoded document is standalone.
+    ///
+    /// Some formats (e.g. Markdown, DOCX) are always standalone, others
+    /// can be frangments, or standalong documents (e.g HTML).
     #[def = "false"]
     pub standalone: bool,
 
@@ -58,6 +67,10 @@ pub struct Options {
     pub bundle: bool,
 
     /// The theme to apply to the encoded document
+    ///
+    /// Only applies to some formats (e.g. HTML, PDF, PNG).
+    /// Other formats use this option to determine if content is "pretty" printed
+    /// by indenting it (e.g. JSON).
     #[def = "\"stencila\".to_string()"]
     pub theme: String,
 }
@@ -91,7 +104,7 @@ pub async fn encode(
         "html" => html::encode(node, options)?,
 
         #[cfg(feature = "encode-json")]
-        "json" => json::encode(node)?,
+        "json" => json::encode(node, options)?,
 
         #[cfg(feature = "encode-latex")]
         "latex" => latex::encode(node).await?,
@@ -105,8 +118,14 @@ pub async fn encode(
         #[cfg(feature = "encode-pdf")]
         "pdf" => pdf::encode(node, output, options).await?,
 
+        #[cfg(feature = "encode-png")]
+        "png" => png::encode(node, output, options).await?,
+
         #[cfg(feature = "encode-rmd")]
         "rmd" => rmd::encode(node)?,
+
+        #[cfg(feature = "encode-rpng")]
+        "rpng" => rpng::encode(node, output).await?,
 
         #[cfg(feature = "encode-toml")]
         "toml" => toml::encode(node)?,

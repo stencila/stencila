@@ -218,7 +218,10 @@ jobs:
           echo "##vso[task.setvariable variable=RUST_CACHING]true"
         displayName: 'Install build tools'
 
-      - script: make -C rust test
+      - script: |
+          set -e
+          cd rust
+          cargo test
         condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
@@ -299,7 +302,10 @@ jobs:
           echo ##vso[task.setvariable variable=RUST_CACHING]true
         displayName: 'Install build tools'
 
-      - script: make -C rust test
+      - script: |
+          set -e
+          cd rust
+          cargo test
         condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 

@@ -7795,7 +7795,7 @@
         null,
         {
           "type": "ImageObject",
-          "contentUrl": "era-plotly.json.media/0",
+          "contentUrl": "era-plotly.json.media/0.png",
           "content": [
             {
               "mediaType": "application/vnd.plotly.v1+json",
@@ -8832,7 +8832,7 @@
       "outputs": [
         {
           "type": "ImageObject",
-          "contentUrl": "era-plotly.json.media/1",
+          "contentUrl": "era-plotly.json.media/1.png",
           "content": [
             {
               "mediaType": "application/vnd.plotly.v1+json",
@@ -10332,7 +10332,7 @@
       "outputs": [
         {
           "type": "ImageObject",
-          "contentUrl": "era-plotly.json.media/2",
+          "contentUrl": "era-plotly.json.media/2.png",
           "content": [
             {
               "mediaType": "application/vnd.plotly.v1+json",
@@ -12326,7 +12326,7 @@
       "outputs": [
         {
           "type": "ImageObject",
-          "contentUrl": "era-plotly.json.media/3",
+          "contentUrl": "era-plotly.json.media/3.png",
           "content": [
             {
               "mediaType": "application/vnd.plotly.v1+json",
@@ -14801,7 +14801,7 @@
       "outputs": [
         {
           "type": "ImageObject",
-          "contentUrl": "era-plotly.json.media/4",
+          "contentUrl": "era-plotly.json.media/4.png",
           "content": [
             {
               "mediaType": "application/vnd.plotly.v1+json",
@@ -16422,7 +16422,7 @@
       "outputs": [
         {
           "type": "ImageObject",
-          "contentUrl": "era-plotly.json.media/5",
+          "contentUrl": "era-plotly.json.media/5.png",
           "content": [
             {
               "mediaType": "application/vnd.plotly.v1+json",

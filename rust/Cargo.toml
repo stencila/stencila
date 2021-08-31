@@ -17,26 +17,26 @@ edition = "2018"
 cli = ["structopt"]
 
 serve = []
-serve-stdio = []
 serve-http = ["warp", "jsonwebtoken"]
-serve-ws = ["warp", "jsonwebtoken"]
 serve-static = ["warp", "rust-embed"]
+serve-stdio = []
+serve-ws = ["warp", "jsonwebtoken"]
 
 request = []
-request-stdio = []
 request-docker = ["bollard"]
 request-http = ["reqwest", "jsonwebtoken"]
+request-stdio = []
 request-ws = ["tokio-tungstenite", "jsonwebtoken"]
 
-binaries = ["flate2", "tar", "which", "xz2", "zip"]
+binaries = ["flate2", "reqwest", "semver", "tar", "which", "xz2", "zip"]
 
 plugins = ["jsonschema", "semver"]
-plugins-docker = ["plugins", "bollard"]
 plugins-binary = ["plugins", "self_update"]
+plugins-docker = ["plugins", "bollard"]
 plugins-javascript = ["plugins"]
+plugins-link = ["plugins"]
 plugins-python = ["plugins"]
 plugins-r = ["plugins"]
-plugins-link = ["plugins"]
 
 upgrade = ["self_update"]
 
@@ -48,10 +48,11 @@ decode-docx = ["decode-pandoc"]
 decode-html = ["kuchiki", "markup5ever"]
 decode-json = []
 decode-latex = ["decode-pandoc"]
-decode-md = ["pulldown-cmark", "nom", "decode-html"]
+decode-md = ["pulldown-cmark", "nom", "coerce", "decode-html", "encode-txt"]
 decode-pandoc = ["binaries", "pandoc_types"]
 decode-person = ["human_name"]
 decode-rmd = ["decode-md"]
+decode-rpng = ["png"]
 decode-toml = []
 decode-yaml = []
 
@@ -62,7 +63,9 @@ encode-latex = ["encode-pandoc"]
 encode-md = []
 encode-pandoc = ["binaries", "pandoc_types"]
 encode-pdf = ["chromiumoxide"]
+encode-png = ["chromiumoxide"]
 encode-rmd = ["encode-md"]
+encode-rpng = ["encode-png", "png"]
 encode-toml = []
 encode-txt = []
 encode-yaml = []
@@ -77,74 +80,66 @@ compile-code-py = ["compile-code", "tree-sitter-python"]
 compile-code-r = ["compile-code", "tree-sitter-r"]
 compile-code-ts = ["compile-code", "compile-code-js", "tree-sitter-typescript"]
 
-query-jsonptr = []
 query-jmespath = ["jmespatch"]
+query-jsonptr = []
 
 default = [
-    "cli",
-
-    "serve",
-    "serve-stdio",
-    "serve-http",
-    "serve-ws",
-    "serve-static",
-
-    "request",
-    "request-docker",
-    "request-http",
-    "request-stdio",
-    "request-ws",
-
-    "binaries",
-
-    "plugins",
-    "plugins-binary",
-    "plugins-docker",
-    "plugins-link",
-    "plugins-javascript",
-    "plugins-python",
-    "plugins-r",
-
-    "upgrade",
-
-    "import-elife",
-    "import-github",
-
-    "decode-date",
-    "decode-docx",
-    "decode-html",
-    "decode-json",
-    "decode-latex",
-    "decode-md",
-    "decode-pandoc",
-    "decode-person",
-    "decode-rmd",
-    "decode-toml",
-    "decode-yaml",
-
-    "encode-docx",
-    "encode-html",
-    "encode-json",
-    "encode-latex",
-    "encode-md",
-    "encode-pandoc",
-    "encode-pdf",
-    "encode-rmd",
-    "encode-toml",
-    "encode-txt",
-    "encode-yaml",
-
-    "coerce",
-    "reshape",
-
-    "compile-code",
-    "compile-code-js",
-    "compile-code-py",
-    "compile-code-r",
-    "compile-code-ts",
-
-    "query-jsonptr",
-    "query-jmespath",
+  "cli",
+  "serve",
+  "serve-stdio",
+  "serve-http",
+  "serve-ws",
+  "serve-static",
+  "request",
+  "request-docker",
+  "request-http",
+  "request-stdio",
+  "request-ws",
+  "binaries",
+  "plugins",
+  "plugins-binary",
+  "plugins-docker",
+  "plugins-link",
+  "plugins-javascript",
+  "plugins-python",
+  "plugins-r",
+  "upgrade",
+  "import-elife",
+  "import-github",
+  "decode-date",
+  "decode-docx",
+  "decode-html",
+  "decode-json",
+  "decode-latex",
+  "decode-md",
+  "decode-pandoc",
+  "decode-person",
+  "decode-rmd",
+  "decode-rpng",
+  "decode-toml",
+  "decode-yaml",
+  "encode-docx",
+  "encode-html",
+  "encode-json",
+  "encode-latex",
+  "encode-md",
+  "encode-pandoc",
+  "encode-pdf",
+  "encode-png",
+  "encode-rmd",
+  "encode-rpng",
+  "encode-toml",
+  "encode-txt",
+  "encode-yaml",
+  "coerce",
+  "reshape",
+  "compile-code",
+  "compile-code-js",
+  "compile-code-py",
+  "compile-code-r",
+  "compile-code-ts",
+  "query-jsonptr",
+  "query-jmespath",
 ]
 
 [dependencies]
@@ -155,7 +150,7 @@ async-trait = "=0.1.51"
 base64 = "=0.13.0"
 bollard = { version = "=0.11.0", optional = true }
 chromiumoxide = { version = "=0.3.1", optional = true, features = [
-    "tokio-runtime",
+  "tokio-runtime",
 ] }
 chrono = "=0.4.19"
 crossbeam-channel = "=0.5.1"
@@ -192,6 +187,7 @@ pandoc_types = { version = "=0.4.0", optional = true }
 path-slash = "=0.1.4"
 pathdiff = "=0.2.0"
 petgraph = { version = "=0.6.0", features = ["serde-1"] }
+png = { git = "https://github.com/sayantangkhan/image-png", rev = "eb39301f86b3019b3c4e4a015f7ec5f62ee5c782", optional = true }
 pulldown-cmark = { version = "=0.8.0", optional = true }
 rand = "=0.8.4"
 regex = "=1.5.4"
@@ -199,10 +195,10 @@ reqwest = { version = "=0.11.4", optional = true, features = ["json"] }
 rust-embed = { version = "=6.0.1", optional = true }
 schemars = { version = "=0.8.3", features = ["preserve_order", "chrono"] }
 self_update = { version = "=0.27.0", optional = true, features = [
-    "archive-tar",
-    "archive-zip",
-    "compression-flate2",
-    "compression-zip-deflate",
+  "archive-tar",
+  "archive-zip",
+  "compression-flate2",
+  "compression-zip-deflate",
 ] }
 semver = { version = "=1.0.4", optional = true }
 serde = { version = "=1.0.130", features = ["derive", "rc"] }
@@ -211,7 +207,7 @@ serde_with = "=1.9.4"
 serde_yaml = "=0.8.20"
 sha2 = "0.9.6"
 slug = "=0.1.4"
-stencila-schema = "=1.11.0"
+stencila-schema = "=1.11.1"
 structopt = { version = "=0.3.22", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
 strum_macros = "=0.21.1"
@@ -245,5 +241,5 @@ pretty_assertions = "0.7.2"
 proptest = "1.0.0"
 
 [[bench]]
-name = "compile_code"
 harness = false
+name = "compile_code"
