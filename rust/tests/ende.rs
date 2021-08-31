@@ -124,7 +124,6 @@ proptest! {
     }
 }
 
-
 proptest! {
     // Tests for formats that spawn Pandoc
 
@@ -132,7 +131,7 @@ proptest! {
     // pandoc, only a few tests cases.
     #![proptest_config(ProptestConfig::with_cases(10))]
 
-    #[ignore = "End-to-end not yet completely working"] 
+    #[ignore = "End-to-end not yet completely working"]
     #[cfg(all(feature="encode-latex", feature="decode-latex"))]
     #[test]
     fn latex(input in article(Freedom::Min)) {
@@ -146,7 +145,7 @@ proptest! {
         })
     }
 
-    #[ignore = "End-to-end not yet completely working"] 
+    #[ignore = "End-to-end not yet completely working"]
     #[cfg(all(feature="encode-docx", feature="decode-docx"))]
     #[test]
     fn docx(input in article(Freedom::Min)) {
