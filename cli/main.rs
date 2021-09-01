@@ -211,8 +211,9 @@ impl OpenCommand {
 
         // Generate a key and a corresponding login URL and open browser at the login page (will
         // redirect to document page).
+        let port = 9000u16;
         let key = serve::generate_key();
-        let login_url = serve::login_url(&key, Some(60), Some(path))?;
+        let login_url = serve::login_url(port, &key, Some(60), Some(path))?;
         webbrowser::open(login_url.as_str())?;
 
         // If not yet serving, serve in the background, or in the current thread,
@@ -222,7 +223,7 @@ impl OpenCommand {
             if context.interactive {
                 serve::serve_background(None, Some(key))?
             } else {
-                serve::serve(None, Some(key)).await?;
+                serve::serve(Some(format!(":{}", port)), Some(key)).await?;
             }
         }
 

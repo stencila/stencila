@@ -16,11 +16,11 @@ edition = "2018"
 
 cli = ["structopt"]
 
-serve = []
-serve-http = ["warp", "jsonwebtoken"]
-serve-static = ["warp", "rust-embed"]
-serve-stdio = []
-serve-ws = ["warp", "jsonwebtoken"]
+serve = ["sudo"]
+serve-http = ["serve", "warp", "jsonwebtoken"]
+serve-static = ["serve", "warp", "rust-embed"]
+serve-stdio = ["serve"]
+serve-ws = ["serve", "warp", "jsonwebtoken"]
 
 request = []
 request-docker = ["bollard"]
@@ -211,6 +211,7 @@ stencila-schema = "=1.11.1"
 structopt = { version = "=0.3.22", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
 strum_macros = "=0.21.1"
+sudo = { version = "=0.6.0", optional = true }
 tar = { version = "=0.4.37", optional = true }
 tempfile = "3.2.0"
 thiserror = "=1.0.26"

@@ -140,10 +140,9 @@ pub async fn serve_on(
 
     tracing::info!(%protocol, %address, %port);
     if let Some(key) = key.clone() {
-        tracing::info!("To sign JWTs use this key: {}", key);
         tracing::info!(
             "To login visit this URL (valid for 5 minutes): {}",
-            login_url(&key, Some(300), None)?
+            login_url(port, &key, Some(300), None)?
         );
     }
 
@@ -306,12 +305,17 @@ pub fn generate_key() -> String {
 
 /// Generate the login URL given a key, and optionally, the path to redirect to
 /// on successful login.
-pub fn login_url(key: &str, expiry_seconds: Option<i64>, next: Option<String>) -> Result<String> {
+pub fn login_url(
+    port: u16,
+    key: &str,
+    expiry_seconds: Option<i64>,
+    next: Option<String>,
+) -> Result<String> {
     let token = jwt::encode(key.to_string(), expiry_seconds)?;
     let next = next.unwrap_or_else(|| "/".to_string());
     Ok(format!(
-        "http://127.0.0.1:9000/~login?token={}&next={}",
-        token, next
+        "http://127.0.0.1:{}/~login?token={}&next={}",
+        port, token, next
     ))
 }
 
@@ -715,7 +719,7 @@ pub mod config {
         #[serde(skip_serializing_if = "Option::is_none")]
         pub key: Option<String>,
 
-        /// Do not require a JSON Web Token
+        /// Do not require a JSON Web Token to access the server
         #[def = "false"]
         pub insecure: bool,
     }
@@ -723,14 +727,39 @@ pub mod config {
 
 #[cfg(feature = "cli")]
 pub mod cli {
-    use crate::cli::display;
-
     use super::*;
+    use crate::cli::display;
     use structopt::StructOpt;
 
+    /// Serve over HTTP and WebSockets
+    ///
+    /// Use the <url> argument to change the port, address, and/or schema that the server
+    /// listens on. This argument can be a partial, or complete, URL.
+    ///
+    /// For example, to serve on port 8000 instead of the default port,
+    ///
+    ///    stencila serve :8000
+    ///
+    /// To serve on all IPv4 addresses on the machine, instead of only `127.0.0.1`,
+    ///
+    ///    stencila serve 0.0.0.0
+    ///
+    /// To only serve HTTP, and not both HTTP and WebSockets (the default), also specify
+    /// the scheme e.g.
+    ///
+    ///   stencila serve http://127.0.0.1:9000
+    ///
+    /// By default, the server requires an initial login via a JSON Web Token which is
+    /// printed in the console at startup. To turn that authorization off, for example
+    /// if you are using some other security layer infront of the server, use the `--insecure`
+    /// flag.
+    ///
+    /// By default, this command will NOT run as a root (Linux/Mac OS/Unix) or administrator (Windows) user.
+    /// Use the `--root` option, with extreme caution, to allow to be run as root.
+    ///
+    /// Most of these options can be set in the Stencila configuration file. See `stencila config get serve`
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Serve on HTTP, WebSockets, or Standard I/O",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
@@ -743,20 +772,41 @@ pub mod cli {
         #[structopt(short, long, env = "STENCILA_KEY")]
         key: Option<String>,
 
-        /// Do not require a JSON Web Token
+        /// Do not require a JSON Web Token to access the server
         #[structopt(long)]
         insecure: bool,
+
+        /// Allow root (Linux/Mac OS/Unix) or administrator (Windows) user to serve
+        #[structopt(long)]
+        root: bool,
     }
 
     impl Command {
         pub async fn run(self) -> display::Result {
-            let Command { url, key, insecure } = self;
+            let Command {
+                url,
+                key,
+                insecure,
+                root,
+            } = self;
 
             let config = &CONFIG.lock().await.serve;
 
             let url = url.or_else(|| Some(config.url.clone()));
             let key = key.or_else(|| config.key.clone());
             let insecure = insecure || config.insecure;
+
+            if insecure {
+                tracing::warn!("Running in insecure mode is dangerous and discouraged.")
+            }
+
+            if let sudo::RunningAs::Root = sudo::check() {
+                if root {
+                    tracing::warn!("Running as root/administrator is dangerous and discouraged.")
+                } else {
+                    bail!("Running as root/administrator is not permitted by default, use the `--root` option to bypass this safety measure.")
+                }
+            }
 
             super::serve(
                 url,
