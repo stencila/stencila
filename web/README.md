@@ -18,6 +18,14 @@ cd stencila/web
 npm install
 ```
 
+### Building JavaScript
+
+During development, re-build the `dist` folder on source code changes using,
+
+```
+npm run watch
+```
+
 ### Testing against a server
 
 To test this package against a Stencila document server, [install necessary Rust build tools](https://rustup.rs/) and run the CLI's `serve` command at the top level of this repo,
@@ -56,6 +64,6 @@ Regardless of the method used, all of the above default to listening on `http://
 
 ### Serving built JavaScript
 
-The Rust document server can serve static assets such as JavaScript and CSS from the [`../rust/static`](../rust/static) folder. During development, these assets are served "live" from disk. When the binary is built the assets are embedded in it and served directly from there. This is faster than fetching from a CDN and allows for offline use.
+The Rust document server can serve static assets such as JavaScript and CSS from the [`../rust/static`](../rust/static) folder. During development, these assets are served from disk. When the binary is built the assets are embedded in it and served directly from there. This is faster than fetching from a CDN and allows for offline use.
 
-During development, you can either build assets into the `../rust/static` folder or create a symlink from it to a build sub-folder in this folder. This has the advantage over running a separate development server of more closely mimicking the production setup, including serving from the same domain.
+To enable this, the `../rust/static` folder has a symlink, named `web` which points to the `dist` subfolder in this folder. Anything in that folder is available at the `/~static/web` and the `/~static/web/index.js` file is included in the `<head>` of the served pages.

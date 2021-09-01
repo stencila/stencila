@@ -1,4 +1,5 @@
 .DS_Store
-/dist
+.parcel-cache
+dist
 node_modules
-/target
+target
