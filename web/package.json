@@ -1,0 +1,33 @@
+{
+  "name": "@stencila/web",
+  "version": "1.0.0",
+  "description": "Web client for interacting with Stencila document server",
+  "scripts": {
+    "build": "parcel build",
+    "watch": "parcel watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "author": "Stencila",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/stencila/stencila/issues"
+  },
+  "homepage": "https://github.com/stencila/stencila#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stencila/stencila"
+  },
+  "devDependencies": {
+    "@stencila/schema": "1.11.1",
+    "parcel": "2.0.0-rc.0",
+    "typescript": "4.4.2"
+  },
+  "peerDependencies": {
+    "@stencila/schema": "^1.11.1"
+  },
+  "dependencies": {
+    "@stencila/stencila": "file:../node"
+  }
+}

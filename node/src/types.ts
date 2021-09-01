@@ -642,7 +642,7 @@ export interface Config {
      */
     key?: string
     /**
-     * Do not require a JSON Web Token
+     * Do not require a JSON Web Token to access the server
      */
     insecure?: boolean
   }
@@ -932,6 +932,13 @@ export const FORMATS: Record<string, Format> = {
     "known": true,
     "name": "rmd",
     "binary": false,
+    "preview": true,
+    "extensions": []
+  },
+  "rpng": {
+    "known": true,
+    "name": "rpng",
+    "binary": true,
     "preview": true,
     "extensions": []
   },

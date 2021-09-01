@@ -4,7 +4,7 @@
 
 ## 👋 Introduction
 
-This is the Stencila web client, a small TypeScript library for interacting with a Stencila document server. This client is used, in conjuntion with Stencila [web components](https://github.com/stencila/designa#-designa), to enable readers of published executable documents to be able to start a document session and interact with it. It is also used within the [desktop](https://github.com/stencila/stencila/tree/master/desktop#readme) and [CLI](https://github.com/stencila/stencila/tree/master/clie#readme) clients for previewing executable documents locally.
+This is the Stencila web client, a small TypeScript library for interacting with a Stencila document server. This client is used, in conjunction with Stencila [web components](https://github.com/stencila/designa#-designa), to enable readers of published executable documents to be able to start a document session and interact with it. It is also used within the [desktop](https://github.com/stencila/stencila/tree/master/desktop#readme) and [CLI](https://github.com/stencila/stencila/tree/master/clie#readme) clients for previewing executable documents locally.
 
 ## 🛠️ Develop
 

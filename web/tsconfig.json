@@ -1,0 +1,13 @@
+{
+  "extends": "@stencila/dev-config/tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "module": "esnext",
+    "noUncheckedIndexedAccess": true,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "resolveJsonModule": true
+  },
+  "include": ["src"]
+}
