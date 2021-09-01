@@ -81,15 +81,11 @@ pub struct Response {
 }
 
 impl Response {
-    pub fn new(
-        id: Option<u64>,
-        result: Option<serde_json::Value>,
-        error: Option<eyre::Error>,
-    ) -> Self {
+    pub fn new(id: Option<u64>, result: Option<serde_json::Value>, error: Option<Error>) -> Self {
         Response {
             id,
             result,
-            error: error.map(|error| Error::server_error(&error.to_string())),
+            error,
             ..Default::default()
         }
     }

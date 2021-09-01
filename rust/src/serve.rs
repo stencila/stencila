@@ -2,11 +2,11 @@ use crate::{
     config::CONFIG,
     documents::DOCUMENTS,
     jwt,
-    rpc::{Error, Protocol, Request, Response},
+    rpc::{self, Error, Protocol, Request, Response},
     utils::urls,
 };
 use eyre::{bail, Result};
-use futures::{FutureExt, StreamExt};
+use futures::{stream::SplitSink, SinkExt, StreamExt};
 use jwt::JwtError;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
@@ -127,8 +127,7 @@ pub async fn serve_on(
 
     let port = port.unwrap_or(9000);
 
-    let key = if key.is_some() {
-        let mut key = key.unwrap();
+    let key = if let Some(mut key) = key {
         if key == "insecure" {
             None
         } else {
@@ -198,7 +197,7 @@ pub async fn serve_on(
             let ws = warp::path("~ws")
                 .and(warp::ws())
                 .and(authorize())
-                .map(ws_handler);
+                .map(ws_handshake);
 
             let get = warp::get()
                 .and(warp::path::full())
@@ -384,7 +383,7 @@ struct LoginParams {
 #[tracing::instrument]
 fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Response {
     tracing::info!("GET ~login");
-    
+
     let token = params.token;
     let next = params.next.unwrap_or_else(|| "/".to_string());
 
@@ -665,22 +664,70 @@ async fn post_wrap_handler(
     Ok(reply)
 }
 
-/// Handle a Websocket connection
+/// Perform a WebSocket handshake / upgrade
 ///
-/// This function is called at the start of a WebSocket connection
+/// This function is called at the start of a WebSocket connection.
 #[tracing::instrument]
-fn ws_handler(ws: warp::ws::Ws, _claims: jwt::Claims) -> impl warp::Reply {
-    tracing::debug!("WebSocket handler");
+fn ws_handshake(ws: warp::ws::Ws, _claims: jwt::Claims) -> impl warp::Reply {
+    tracing::debug!("WebSocket handshake");
+    ws.on_upgrade(ws_connected)
+}
 
-    ws.on_upgrade(|socket| {
-        // TODO Currently just echos
-        let (tx, rx) = socket.split();
-        rx.forward(tx).map(|result| {
-            if let Err(error) = result {
+/// Handle a WebSocket connection
+///
+/// This function is called after the handshake, when a WebSocket client
+/// has sucessfully connected.
+#[tracing::instrument]
+async fn ws_connected(socket: warp::ws::WebSocket) {
+    tracing::debug!("WebSocket connected");
+
+    let (mut sender, mut receiver) = socket.split();
+
+    while let Some(result) = receiver.next().await {
+        // Get the message
+        let message = match result {
+            Ok(message) => message,
+            Err(error) => {
                 tracing::error!("Websocket error: {:?}", error);
+                break;
             }
-        })
-    })
+        };
+
+        // Parse the message as a string, skipping non-text messages
+        let json = if let Ok(string) = message.to_str() {
+            string
+        } else {
+            continue;
+        };
+
+        // Parse the message, returning an error to the client if that fails
+        let request = match serde_json::from_str::<rpc::Request>(json) {
+            Ok(request) => request,
+            Err(error) => {
+                let error = rpc::Error::parse_error(&error.to_string());
+                let response = rpc::Response::new(None, None, Some(error));
+                ws_send(&mut sender, response).await;
+                continue;
+            }
+        };
+
+        // Dispatch the request and send back the response
+        let response = respond(request).await;
+        ws_send(&mut sender, response).await;
+    }
+}
+
+/// Send a response over a Websocket connection
+#[tracing::instrument]
+async fn ws_send(
+    sender: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
+    response: Response,
+) {
+    if let Ok(json) = serde_json::to_string(&response) {
+        if let Err(error) = sender.send(warp::ws::Message::text(json)).await {
+            tracing::warn!("Error sending message: {}", error)
+        }
+    }
 }
 
 /// Handle a rejection by converting into a JSON-RPC response
@@ -715,14 +762,14 @@ async fn rejection_handler(
 }
 
 /// Respond to a request
-///
-/// Optionally pass a dispatching closure which dispatches the requested method
-/// and parameters to a function that returns a result.
 async fn respond(request: Request) -> Response {
     let id = request.id();
     match request.dispatch().await {
         Ok(node) => Response::new(id, Some(node), None),
-        Err(error) => Response::new(id, None, Some(error)),
+        Err(error) => {
+            let error = rpc::Error::server_error(&error.to_string());
+            Response::new(id, None, Some(error))
+        }
     }
 }
 

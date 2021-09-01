@@ -28,14 +28,15 @@ cargo run serve --debug
 
 Then visit the login URL that is printed in the console. This will set a cookie in your browser that will authorize subsequent requests, including a WebSocket handshake.
 
-You can test that the authorization and WebSocket handshake were successful in the browser console,
+You can test that the authorization and WebSocket handshake were successful in the browser console (check the WebSocket messages sent/received in the `Network` tab of your browser developer tools),
 
 ```js
 var ws = new WebSocket("ws://127.0.0.1:9000/~ws")
-ws.send("Hello")
+ws.send(JSON.stringify({
+    method: "documents:start",
+    params: {"id": ".."}
+}))
 ```
-
-Because `"Hello"` is not a valid JSON-RPC message, you should get an error message back. Check the WebSocket messages sent/received in the `Network` tab of your browser developer tools (at the time of writing the server actually just echos back the message).
 
 You can also open documents in this repository using their relative paths. For example, this file is available at http://127.0.0.1:9000/web/README.md; or you might want to develop against a document with this fixture which has some web components in it: http://127.0.0.1:9000/fixtures/articles/code.md.
 
