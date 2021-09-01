@@ -1,3 +1,17 @@
+# [0.114.0](https://github.com/stencila/stencila/compare/v0.113.0...v0.114.0) (2021-09-01)
+
+
+### Bug Fixes
+
+* **Deps:** Only require `rust-embed` once; upgrade ([9e16213](https://github.com/stencila/stencila/commit/9e16213211d1e2efa4a26cdbbfdf3e7694096301))
+* **Icons:** Fix rendering of icon components ([5e772c4](https://github.com/stencila/stencila/commit/5e772c4c3a32f90929b2cb8853f12226fe513d7c))
+
+
+### Features
+
+* **Desktop:** Add document state indicator icon to tabs ([3b5a571](https://github.com/stencila/stencila/commit/3b5a5717436652b1576d12a9ca417d4d3f4861e9))
+* **Editor:** Add keyboard shortcuts for cycling between document tabs ([dc714c6](https://github.com/stencila/stencila/commit/dc714c689ce67f0aee054f40fbe454d64b588ddb))
+
 # [0.113.0](https://github.com/stencila/stencila/compare/v0.112.0...v0.113.0) (2021-08-31)
 
 
