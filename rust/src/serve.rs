@@ -167,18 +167,23 @@ pub async fn serve_on(
             }
         }
         Protocol::Http | Protocol::Ws => {
+            // Static files (assets embedded in binary for which authorization is not required)
+
             let statics = warp::get()
                 .and(warp::path("~static"))
                 .and(warp::path::tail())
                 .and_then(get_static);
 
-            let key_clone = key.clone();
+            // Login endpoint (sets authorization cookie)
 
+            let key_clone = key.clone();
             let login = warp::get()
                 .and(warp::path("~login"))
                 .map(move || key_clone.clone())
                 .and(warp::query::<LoginParams>())
                 .map(login_handler);
+
+            // The following HTTP and WS endpoints all require authorization (done by `jwt_filter`)
 
             let authorize = || jwt_filter(key.clone());
 
@@ -187,6 +192,11 @@ pub async fn serve_on(
                 .and(warp::path::tail())
                 .and(authorize())
                 .and_then(get_local);
+
+            let ws = warp::path("~ws")
+                .and(warp::ws())
+                .and(authorize())
+                .map(ws_handler);
 
             let get = warp::get()
                 .and(warp::path::full())
@@ -206,8 +216,17 @@ pub async fn serve_on(
                 .and(authorize())
                 .and_then(post_wrap_handler);
 
-            let ws = warp::path::end().and(warp::ws()).map(ws_handler);
+            // Custom `server` header
+            let server = warp::reply::with::default_header(
+                "server",
+                format!(
+                    "Stencila/{} ({})",
+                    env!("CARGO_PKG_VERSION"),
+                    env::consts::OS
+                ),
+            );
 
+            // CORS headers to allow from any origin
             let cors = warp::cors()
                 .allow_any_origin()
                 .allow_headers(vec![
@@ -222,18 +241,11 @@ pub async fn serve_on(
             let routes = login
                 .or(statics)
                 .or(local)
+                .or(ws)
                 .or(get)
                 .or(post)
                 .or(post_wrap)
-                .or(ws)
-                .with(warp::reply::with::default_header(
-                    "server",
-                    format!(
-                        "Stencila/{} ({})",
-                        env!("CARGO_PKG_VERSION"),
-                        env::consts::OS
-                    ),
-                ))
+                .with(server)
                 .with(cors)
                 .recover(rejection_handler);
 
@@ -320,7 +332,7 @@ pub fn login_url(
 }
 
 /// A Warp filter that extracts any JSON Web Token from either the `Authorization` header
-/// or the `token` query parameter.
+/// or the `token` cookie.
 fn jwt_filter(
     key: Option<String>,
 ) -> impl Filter<Extract = (jwt::Claims,), Error = warp::Rejection> + Clone {
@@ -345,6 +357,7 @@ fn jwt_filter(
                         Err(error) => Err(warp::reject::custom(error)),
                     }
                 } else {
+                    // No key, so just return an empty claim
                     Ok(jwt::Claims { exp: 0 })
                 }
             },
@@ -467,8 +480,7 @@ struct GetParams {
 /// Handle a HTTP `GET` request for a document
 ///
 /// If the requested path starts with `/static` or is not one of the registered file types,
-/// then returns the static asset with the
-/// `Content-Type` header set.
+/// then returns the static asset with the `Content-Type` header set.
 /// Otherwise, if the requested `Accept` header includes "text/html", viewer's index.html is
 /// returned (which, in the background will request the document as JSON). Otherwise,
 /// will attempt to determine the desired format from the `Accept` header and convert the
@@ -647,13 +659,18 @@ async fn post_wrap_handler(
 }
 
 /// Handle a Websocket connection
-fn ws_handler(ws: warp::ws::Ws) -> impl warp::Reply {
+///
+/// This function is called at the start of a WebSocket connection
+#[tracing::instrument]
+fn ws_handler(ws: warp::ws::Ws, _claims: jwt::Claims) -> impl warp::Reply {
+    tracing::debug!("WebSocket handler");
+
     ws.on_upgrade(|socket| {
         // TODO Currently just echos
         let (tx, rx) = socket.split();
         rx.forward(tx).map(|result| {
-            if let Err(e) = result {
-                eprintln!("websocket error: {:?}", e);
+            if let Err(error) = result {
+                tracing::error!("Websocket error: {:?}", error);
             }
         })
     })
@@ -665,6 +682,7 @@ fn ws_handler(ws: warp::ws::Ws) -> impl warp::Reply {
 /// handle JSON parsing errors (which are rejected by the `warp::body::json` filter).
 /// This therefore ensures that any request expecting a JSON-RPC response, will get
 /// a JSON-RPC response (in these cases containing and error code and message).
+#[tracing::instrument]
 async fn rejection_handler(
     rejection: warp::Rejection,
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
@@ -678,10 +696,15 @@ async fn rejection_handler(
         Error::server_error("Unknown error")
     };
 
-    Ok(warp::reply::json(&Response {
-        error: Some(error),
-        ..Default::default()
-    }))
+    tracing::error!("{:?}", error);
+
+    Ok(warp::reply::with_status(
+        warp::reply::json(&Response {
+            error: Some(error),
+            ..Default::default()
+        }),
+        warp::http::StatusCode::BAD_REQUEST,
+    ))
 }
 
 /// Respond to a request
@@ -751,7 +774,7 @@ pub mod cli {
     ///
     /// By default, the server requires an initial login via a JSON Web Token which is
     /// printed in the console at startup. To turn that authorization off, for example
-    /// if you are using some other security layer infront of the server, use the `--insecure`
+    /// if you are using some other security layer in front of the server, use the `--insecure`
     /// flag.
     ///
     /// By default, this command will NOT run as a root (Linux/Mac OS/Unix) or administrator (Windows) user.
