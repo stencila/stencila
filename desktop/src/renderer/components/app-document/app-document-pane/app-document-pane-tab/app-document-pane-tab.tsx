@@ -3,7 +3,7 @@ import { Component, h, Host, Prop } from '@stencil/core'
 import { state } from '../../../../store'
 import {
   closeDocument,
-  setActiveDocument,
+  setActiveDocument
 } from '../../../../store/documentPane/documentPaneActions'
 import { selectDoc } from '../../../../store/documentPane/documentPaneSelectors'
 import { userOS } from '../../../../utils/env'
@@ -32,17 +32,28 @@ export class AppDocumentPaneTab {
   }
 
   render() {
+    const doc = selectDoc(state)(this.viewId)
     return (
       <Host
         class={{
           isActive: this.isActive,
           [`userOS-${userOS ?? 'unknown'}`]: true,
+          [doc?.status ?? '']: true,
         }}
         onClick={this.activateDoc}
       >
         <li>
-          <stencila-icon icon="close" onClick={this.closeDoc}></stencila-icon>
-          <a href="#">{selectDoc(state)(this.viewId)?.name}</a>
+          <stencila-icon
+            class="closeTabIcon"
+            icon="close"
+            onClick={this.closeDoc}
+          ></stencila-icon>
+          <stencila-icon
+            icon="pencil"
+            iconStyle="fill"
+            class="documentStatusIcon"
+          ></stencila-icon>
+          <a href="#">{doc?.name}</a>
         </li>
       </Host>
     )

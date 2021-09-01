@@ -3,8 +3,10 @@ import { Component, h, Listen, Prop } from '@stencil/core'
 import { array as A, option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { IResizeEvent } from 'split-me/dist/types/components/split-me/interfaces'
+import { CHANNEL } from '../../../../preload/channels'
 import { state } from '../../../store'
 import {
+  cycleTabs,
   isEditPaneOpen,
   isPreviewPaneOpen,
 } from '../../../store/documentPane/documentPaneActions'
@@ -28,6 +30,16 @@ export class AppDocumentPane {
   resizeHandler(e: CustomEvent<IResizeEvent>) {
     const { sizes } = e.detail
     this.splitSizes = sizes
+  }
+
+  componentDidLoad() {
+    window.api.receive(CHANNEL.TABS_NEXT, () => cycleTabs('next'))
+    window.api.receive(CHANNEL.TABS_PREVIOUS, () => cycleTabs('previous'))
+  }
+
+  disconnectedCallback() {
+    window.api.removeAll(CHANNEL.TABS_NEXT)
+    window.api.removeAll(CHANNEL.TABS_PREVIOUS)
   }
 
   render() {

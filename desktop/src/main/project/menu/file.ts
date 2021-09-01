@@ -6,7 +6,7 @@ import {
   createNewDocument,
   saveActiveDoc,
   saveActiveDocAs,
-} from '../../window/windowUtils'
+} from '../utils'
 import { openProject } from '../handlers'
 
 export const projectFileMenu: MenuItemConstructorOptions = {

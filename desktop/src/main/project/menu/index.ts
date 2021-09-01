@@ -2,10 +2,10 @@ import { Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
 import { baseAppMenu } from '../../menu/app'
 import { baseHelpMenu } from '../../menu/help'
 import { baseViewMenu } from '../../menu/view'
-import { baseWindowMenu } from '../../menu/window'
 import { projectEditMenu } from './edit'
 import { projectEditorMenu } from './editor'
 import { projectFileMenu } from './file'
+import { projectWindowMenu } from './window'
 
 const template: (MenuItemConstructorOptions | MenuItem)[] = [
   ...baseAppMenu,
@@ -13,7 +13,7 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
   projectEditMenu,
   baseViewMenu,
   projectEditorMenu,
-  baseWindowMenu,
+  projectWindowMenu,
   baseHelpMenu,
 ]
 

@@ -21,7 +21,6 @@ export const createWindow = (
       sandbox: false,
       nodeIntegration: false,
       contextIsolation: true, // protect against prototype pollution
-      enableRemoteModule: false,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
   })

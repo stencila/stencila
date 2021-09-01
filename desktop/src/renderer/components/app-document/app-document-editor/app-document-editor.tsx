@@ -14,7 +14,10 @@ import { EditorState } from '../../../../renderer/store/editorState/editorStateT
 import { alterDocument, saveDocument } from '../../../actions/documentActions'
 import { client } from '../../../client'
 import { configState } from '../../../store/appConfig'
-import { openDocumentInActivePane } from '../../../store/documentPane/documentPaneActions'
+import {
+  openDocumentInActivePane,
+  patchDocument
+} from '../../../store/documentPane/documentPaneActions'
 import { errorToast } from '../../../utils/errors'
 
 @Component({
@@ -137,6 +140,14 @@ export class AppDocumentEditor {
     this.editorRef
       ?.getContents()
       .then((contents) => client.documents.load(this.documentId, contents.text))
+      .then(() => {
+        if (selectDoc(state)(this.documentId)?.status === 'synced') {
+          patchDocument({
+            id: this.documentId,
+            status: 'unwritten',
+          })
+        }
+      })
   }, this.onDocChangeTimeout)
 
   private onSetLanguage = (e: CustomEvent<FileFormatUtils.FileFormat>) => {
@@ -182,9 +193,7 @@ export class AppDocumentEditor {
             contents.language
         )
       })
-      .then(() => {
-        openDocumentInActivePane(maybeFilePath.filePath)
-      })
+      .then(openDocumentInActivePane(maybeFilePath.filePath))
   }
 
   componentDidLoad() {

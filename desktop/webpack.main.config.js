@@ -20,11 +20,10 @@ module.exports = {
   module: {
     rules: [
       // Add support for native node modules
-      // TODO: Investigate. Seems to cause issues, and things seem to work without this loader
-      // {
-      //   test: /\.node$/,
-      //   use: 'node-loader',
-      // },
+      {
+        test: /native_modules\/.+\.node$/,
+        use: 'node-loader',
+      },
       {
         test: /\.(m?js|node)$/,
         parser: { amd: false },

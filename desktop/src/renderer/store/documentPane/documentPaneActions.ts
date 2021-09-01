@@ -103,6 +103,12 @@ export const updateDocument = (doc: Document) => {
   return store.dispatch(documentPaneActions.updateDoc({ doc }))
 }
 
+export const patchDocument = (
+  doc: Partial<Omit<Document, 'id'>> & { id: EntityId }
+) => {
+  return store.dispatch(documentPaneActions.patchDoc({ doc }))
+}
+
 export const getDocument = async (docId: EntityId) => {
   const { value: doc } = await client.documents.get(docId)
   updateDocument(doc)
@@ -127,6 +133,21 @@ export const setActiveDocument = (paneId: EntityId, docId: EntityId) => {
     documentPaneActions.updatePane({
       id: paneId,
       changes: { activeView: O.some(docId) },
+    })
+  )
+}
+
+export const cycleTabs = (direction: 'next' | 'previous') => {
+  pipe(
+    state,
+    selectPaneId,
+    O.map(id => {
+      store.dispatch(
+        documentPaneActions.nextDocInPane({
+          paneId: id,
+          direction
+        })
+      )
     })
   )
 }

@@ -5,7 +5,7 @@ import { Document } from 'stencila'
 import {
   DocumentPane,
   NormalizedDocumentPaneStore,
-  PaneModule
+  PaneModule,
 } from './documentPaneTypes'
 
 const initialState: NormalizedDocumentPaneStore = {
@@ -113,11 +113,29 @@ export const documentPaneSlice = createSlice({
       }
       return state
     },
-    updateDoc: (
-      state,
-      { payload }: PayloadAction<{ doc: Document }>
-    ) => {
+    updateDoc: (state, { payload }: PayloadAction<{ doc: Document }>) => {
       state.entities.views[payload.doc.id] = payload.doc
+      return state
+    },
+    patchDoc: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{
+        doc: Partial<Omit<Document, 'id'>> & { id: EntityId }
+      }>
+    ) => {
+      const id = payload.doc.id.toString()
+      const currentState = state.entities.views[id]
+
+      if (currentState) {
+        state.entities.views[id] = {
+          ...currentState,
+          ...payload.doc,
+          id,
+        }
+      }
+
       return state
     },
     removeDocFromPane: (
@@ -157,6 +175,32 @@ export const documentPaneSlice = createSlice({
       }
 
       return state
+    },
+    nextDocInPane: (
+      state,
+      { payload }: PayloadAction<{ paneId: EntityId, direction: 'next' | 'previous' }>
+    ) => {
+      const paneState = state.entities.panes[payload.paneId]
+      const directionIndex = payload.direction === 'next' ? 1 : -1
+
+      if (paneState) {
+        pipe(
+          paneState.activeView,
+          O.map((view) => paneState.views.indexOf(view)),
+          O.map((activeViewIndex) => paneState.views[activeViewIndex + directionIndex]),
+          O.map(O.fromNullable),
+          O.flatten,
+          O.alt(() => 
+            // If there isn't a next pane, loop through the list
+            payload.direction === 'next' ? A.head(paneState.views) : A.last(paneState.views)
+          ),
+          O.map((nextViewId) => {
+            console.log('nextViewId: ', nextViewId)
+            paneState.activeView = O.some(nextViewId)
+            return nextViewId
+          })
+        )
+      }
     },
   },
 })
