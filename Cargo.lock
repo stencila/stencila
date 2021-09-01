@@ -3458,13 +3458,13 @@ checksum = "cabe4fa914dec5870285fa7f71f602645da47c486e68486d2b4ceb4a343e90ac"
 
 [[package]]
 name = "rust-embed"
-version = "6.0.1"
+version = "6.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d058b84555f8dbf848b5fdf8d3340cbed66167d616232a5ddbffe6fb476db9d2"
+checksum = "8d0ad9a47b3ad08f73154f055e72a93715789cf99fc8f6584533fb6c29170f85"
 dependencies = [
  "include-flate",
  "rust-embed-impl",
- "rust-embed-utils 6.0.0",
+ "rust-embed-utils",
  "walkdir",
 ]
 
@@ -3476,18 +3476,8 @@ checksum = "f567ca01565c50c67b29e535f5f67b8ea8aeadaeed16a88f10792ab57438b957"
 dependencies = [
  "proc-macro2 1.0.29",
  "quote 1.0.9",
- "rust-embed-utils 7.0.0",
+ "rust-embed-utils",
  "syn 1.0.75",
- "walkdir",
-]
-
-[[package]]
-name = "rust-embed-utils"
-version = "6.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b5f2909061b856ce587f2496fc149a71d576cb2e0842c79f0dc82741622c6d0"
-dependencies = [
- "sha2",
  "walkdir",
 ]
 
@@ -4125,7 +4115,6 @@ dependencies = [
  "color-eyre",
  "exitcode",
  "linya",
- "rust-embed",
  "rustyline",
  "rustyline-derive",
  "stencila",
