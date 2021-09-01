@@ -101,6 +101,7 @@ struct Static;
 ///     None
 /// );
 /// ```
+#[tracing::instrument]
 pub async fn serve_on(
     protocol: Option<Protocol>,
     address: Option<String>,
@@ -133,15 +134,11 @@ pub async fn serve_on(
         Some(generate_key())
     };
 
-    let _span = tracing::trace_span!(
-        "serve",
-        %protocol, %address, %port
-    );
+    tracing::info!("Listening on {}://{}:{}", protocol, address, port);
 
-    tracing::info!(%protocol, %address, %port);
     if let Some(key) = key.clone() {
         tracing::info!(
-            "To login visit this URL (valid for 5 minutes): {}",
+            "To login, visit this URL (valid for 5 minutes): {}",
             login_url(port, &key, Some(300), None)?
         );
     }
@@ -275,10 +272,13 @@ fn error_response(
 }
 
 /// Handle a HTTP `GET` request to the `/~static/` path
+#[tracing::instrument]
 async fn get_static(
     path: warp::path::Tail,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
+    tracing::info!("GET ~static /{}", path);
+
     let asset = match Static::get(path) {
         Some(asset) => asset,
         None => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
@@ -376,11 +376,12 @@ struct LoginParams {
 /// human if something failed with the login and what to do about it. Otherwise,
 /// it just sets a cookie and redirects them to the next page.
 #[allow(clippy::unnecessary_unwrap)]
+#[tracing::instrument]
 fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Response {
+    tracing::info!("GET ~login");
+    
     let token = params.token;
     let next = params.next.unwrap_or_else(|| "/".to_string());
-
-    tracing::info!("GET login");
 
     fn redirect(next: String) -> warp::reply::Response {
         warp::reply::with_header(
@@ -428,12 +429,13 @@ fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Respo
 }
 
 /// Handle a HTTP `GET` request to a `/~local/` path
+#[tracing::instrument]
 async fn get_local(
     path: warp::path::Tail,
     _claims: jwt::Claims,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    tracing::info!("GET (local) /{}", path);
+    tracing::info!("GET ~local /{}", path);
 
     let cwd = std::env::current_dir().expect("Unable to get current working directory");
 
