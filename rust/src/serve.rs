@@ -17,7 +17,7 @@ use std::str::FromStr;
 use std::{env, fmt::Debug, path::Path};
 use warp::{Filter, Reply};
 
-/// Serve JSON-RPC requests at a URL
+/// Run a server on this thread
 ///
 /// # Arguments
 ///
@@ -46,7 +46,12 @@ pub async fn serve(url: Option<String>, key: Option<String>) -> Result<()> {
     serve_on(Some(protocol), Some(address), port, key).await
 }
 
-/// Run a server on another thread.
+/// Run a server on another thread
+///
+/// # Arguments
+///
+/// - `url`: The URL to listen on
+/// - `key`: A secret key for signing and verifying JSON Web Tokens (defaults to random)
 #[tracing::instrument]
 pub fn serve_background(url: Option<String>, key: Option<String>) -> Result<()> {
     // Spawn a thread, start a runtime in it, and serve using that runtime.
@@ -77,7 +82,7 @@ pub fn serve_background(url: Option<String>, key: Option<String>) -> Result<()> 
 #[folder = "static"]
 struct Static;
 
-/// Serve JSON-RPC requests over one of alternative transport protocols
+/// Run a server
 ///
 /// # Arguments
 ///
