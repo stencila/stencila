@@ -1,5 +1,9 @@
+use defaults::Defaults;
 use eyre::Result;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
+use serde_with::skip_serializing_none;
+use std::collections::HashMap;
 use strum::{Display, EnumString, EnumVariantNames};
 
 #[derive(Debug, Display, EnumString, EnumVariantNames, PartialEq)]
@@ -13,8 +17,13 @@ pub enum Protocol {
     Ws,
 }
 
+type Params = HashMap<String, serde_json::Value>;
+
+/// A JSON-RPC 2.0 request
+///
+/// See <https://www.jsonrpc.org/specification#request_object>.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GenericRequest<P> {
+pub struct Request {
     /// A string specifying the version of the JSON-RPC protocol.
     pub jsonrpc: Option<String>,
 
@@ -24,59 +33,50 @@ pub struct GenericRequest<P> {
     /// May be `None` for notifications from the server
     pub id: Option<u64>,
 
-    /// Parameters of the method call
-    pub params: P,
-}
+    /// The method being called
+    pub method: String,
 
-/// A JSON-RPC 2.0 request
-///
-/// See <https://www.jsonrpc.org/specification#request_object>.
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(tag = "method", rename_all = "lowercase")]
-pub enum Request {
-    Decode(GenericRequest<crate::methods::decode::rpc::Params>),
-    Execute(GenericRequest<crate::methods::execute::rpc::Params>),
+    /// Parameters of the method
+    pub params: Params,
 }
 
 impl Request {
-    pub fn id(&self) -> Option<u64> {
-        match self {
-            Request::Decode(request) => request.id,
-            Request::Execute(request) => request.id,
-        }
-    }
-
-    pub async fn dispatch(self) -> Result<serde_json::Value> {
-        let node = match self {
-            Request::Decode(request) => crate::methods::decode::rpc::decode(request.params).await,
-            Request::Execute(request) => {
-                crate::methods::execute::rpc::execute(request.params).await
+    pub async fn dispatch(self) -> Response {
+        let result: Result<serde_json::Value> = match self.method.as_str() {
+            "documents.start" => documents_start(&self.params).await,
+            _ => {
+                let error = Error::method_not_found_error(&self.method);
+                return Response::new(self.id, None, Some(error));
             }
-        }?;
-        let value = serde_json::to_value(&node)?;
-        Ok(value)
+        };
+        match result {
+            Ok(result) => Response::new(self.id, Some(result), None),
+            Err(error) => {
+                let error = Error::server_error(&error.to_string());
+                Response::new(self.id, None, Some(error))
+            }
+        }
     }
 }
 
 /// A JSON-RPC 2.0 response
 ///
 /// See <https://www.jsonrpc.org/specification#response_object>.
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[skip_serializing_none]
+#[derive(Debug, Defaults, PartialEq, Serialize, Deserialize)]
 pub struct Response {
     /// A string specifying the version of the JSON-RPC protocol.
+    #[def = "Some(\"2.0\".to_string())"]
     pub jsonrpc: Option<String>,
 
     /// The id of the request that this response is for
     /// May be `None` for notifications from the server
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<u64>,
 
     /// The result of the method call
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub result: Option<serde_json::Value>,
 
     /// Any error that may have occurred
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<Error>,
 }
 
@@ -87,17 +87,6 @@ impl Response {
             result,
             error,
             ..Default::default()
-        }
-    }
-}
-
-impl Default for Response {
-    fn default() -> Self {
-        Self {
-            jsonrpc: Some("2.0".to_string()),
-            id: None,
-            result: None,
-            error: None,
         }
     }
 }
@@ -183,4 +172,12 @@ impl Error {
             })),
         }
     }
+}
+
+// The following are dispatching functions that check the supplied JSON arguments
+// and send them on to the relevant core functions, raising errors is arguments are
+// missing or of the wrong type, and converting returned values to JSON.
+
+async fn documents_start(_params: &Params) -> Result<serde_json::Value> {
+    Ok(json!(true))
 }

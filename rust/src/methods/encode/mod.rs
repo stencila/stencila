@@ -159,25 +159,3 @@ pub async fn encode(
         }
     })
 }
-
-#[cfg(any(feature = "request", feature = "serve"))]
-pub mod rpc {
-    use super::*;
-    use serde::{Deserialize, Serialize};
-
-    #[derive(Debug, Serialize, Deserialize)]
-    pub struct Params {
-        pub node: Node,
-        pub output: String,
-        pub format: String,
-    }
-
-    pub async fn encode(params: Params) -> Result<String> {
-        let Params {
-            node,
-            output,
-            format,
-        } = params;
-        super::encode(&node, &output, &format, None).await
-    }
-}

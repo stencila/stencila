@@ -160,7 +160,7 @@ pub async fn serve_on(
             while let Some(line) = lines.next_line().await? {
                 // TODO capture any json errors and send
                 let request = serde_json::from_str::<Request>(&line)?;
-                let response = respond(request).await;
+                let response = request.dispatch().await;
                 let json = serde_json::to_string(&response)? + "\n";
                 // TODO: unwrap any of these errors and log them
                 stdout.write_all(json.as_bytes()).await?;
@@ -618,7 +618,7 @@ async fn post_handler(
     request: Request,
     _claims: jwt::Claims,
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
-    let response = respond(request).await;
+    let response = request.dispatch().await;
     Ok(warp::reply::json(&response))
 }
 
@@ -648,7 +648,7 @@ async fn post_wrap_handler(
     };
 
     // Unwrap the response into results or error message
-    let Response { result, error, .. } = respond(request).await;
+    let Response { result, error, .. } = request.dispatch().await;
     let reply = match result {
         Some(result) => reply::with_status(reply::json(&result), StatusCode::OK),
         None => match error {
@@ -712,7 +712,7 @@ async fn ws_connected(socket: warp::ws::WebSocket) {
         };
 
         // Dispatch the request and send back the response
-        let response = respond(request).await;
+        let response = request.dispatch().await;
         ws_send(&mut sender, response).await;
     }
 }
@@ -759,18 +759,6 @@ async fn rejection_handler(
         }),
         warp::http::StatusCode::BAD_REQUEST,
     ))
-}
-
-/// Respond to a request
-async fn respond(request: Request) -> Response {
-    let id = request.id();
-    match request.dispatch().await {
-        Ok(node) => Response::new(id, Some(node), None),
-        Err(error) => {
-            let error = rpc::Error::server_error(&error.to_string());
-            Response::new(id, None, Some(error))
-        }
-    }
 }
 
 pub mod config {

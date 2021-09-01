@@ -15,19 +15,3 @@ pub async fn execute(node: Node) -> Result<Node> {
     #[cfg(not(feature = "plugins"))]
     eyre::bail!("Unable to execute node")
 }
-
-#[cfg(any(feature = "request", feature = "serve"))]
-pub mod rpc {
-    use super::*;
-    use serde::{Deserialize, Serialize};
-
-    #[derive(Debug, Serialize, Deserialize)]
-    pub struct Params {
-        pub node: Node,
-    }
-
-    pub async fn execute(params: Params) -> Result<Node> {
-        let Params { node } = params;
-        super::execute(node).await
-    }
-}

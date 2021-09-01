@@ -119,20 +119,3 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         }
     })
 }
-
-#[cfg(any(feature = "request", feature = "serve"))]
-pub mod rpc {
-    use super::*;
-    use serde::{Deserialize, Serialize};
-
-    #[derive(Debug, Serialize, Deserialize)]
-    pub struct Params {
-        pub input: String,
-        pub format: String,
-    }
-
-    pub async fn decode(params: Params) -> Result<Node> {
-        let Params { input, format } = params;
-        super::decode(&input, &format).await
-    }
-}
