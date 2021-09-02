@@ -11,6 +11,7 @@ pub mod files;
 pub mod formats;
 pub mod graphs;
 pub mod projects;
+pub mod sessions;
 pub mod sources;
 
 // Methods

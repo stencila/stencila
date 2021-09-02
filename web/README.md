@@ -40,9 +40,10 @@ You can test that the authorization and WebSocket handshake were successful in t
 
 ```js
 var ws = new WebSocket("ws://127.0.0.1:9000/~ws")
+ws.onmessage = (msg) => console.log(msg.data)
 ws.send(JSON.stringify({
-    method: "documents:start",
-    params: {"id": ".."}
+    method: "sessions.start",
+    params: {"project": "pr.b4sa95hsg.."}
 }))
 ```
 
@@ -51,7 +52,7 @@ You can also open documents in this repository using their relative paths. For e
 If you are also developing the Rust server, you might want to use `cargo watch` for automatic recompiling and running of that code. In that case, you should provide the `--key` option so that you do not need to re-login on each reload,
 
 ```sh
-cargo watch -x "run serve --debug --key my-temporary-key"
+cargo watch --ignore web -x "run serve --debug --key my-temporary-key"
 ```
 
 Alternatively, if you don't want to install Rust tooling, you can [install the pre-built CLI](https://github.com/stencila/stencila/tree/master/cli#-install) binary and run it directly,

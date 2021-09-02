@@ -676,7 +676,7 @@ fn ws_handshake(ws: warp::ws::Ws, _claims: jwt::Claims) -> impl warp::Reply {
 /// Handle a WebSocket connection
 ///
 /// This function is called after the handshake, when a WebSocket client
-/// has sucessfully connected.
+/// has successfully connected.
 #[tracing::instrument]
 async fn ws_connected(socket: warp::ws::WebSocket) {
     tracing::debug!("WebSocket connected");
