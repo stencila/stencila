@@ -858,18 +858,25 @@ pub mod cli {
             let config = &CONFIG.lock().await.serve;
 
             let url = url.or_else(|| Some(config.url.clone()));
-            let key = key.or_else(|| config.key.clone());
-            let insecure = insecure || config.insecure;
 
+            let key = match key {
+                Some(key) => {
+                    tracing::warn!("Keys set on command line can be sniffed by malicious processes; prefer to set in config file.");
+                    Some(key)
+                }
+                None => config.key.clone(),
+            };
+
+            let insecure = insecure || config.insecure;
             if insecure {
-                tracing::warn!("Running in insecure mode is dangerous and discouraged.")
+                tracing::warn!("Serving in insecure mode is dangerous and discouraged.")
             }
 
             if let sudo::RunningAs::Root = sudo::check() {
                 if root {
-                    tracing::warn!("Running as root/administrator is dangerous and discouraged.")
+                    tracing::warn!("Serving as root/administrator is dangerous and discouraged.")
                 } else {
-                    bail!("Running as root/administrator is not permitted by default, use the `--root` option to bypass this safety measure.")
+                    bail!("Serving as root/administrator is not permitted by default, use the `--root` option to bypass this safety measure.")
                 }
             }
 
