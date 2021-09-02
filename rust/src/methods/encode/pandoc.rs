@@ -5,7 +5,7 @@ use crate::{
         encode::{json, Options},
     },
     traits::{ToVecBlockContent, ToVecInlineContent},
-    utils::uuids::generate_chars,
+    utils::uuids,
 };
 use eyre::Result;
 use itertools::Itertools;
@@ -98,7 +98,7 @@ impl Context {
 
     /// Push a node to be encoded as an RPNG
     fn push_rpng(&mut self, type_name: &str, node: Node) -> pandoc::Inline {
-        let id = generate_chars(22);
+        let id = uuids::generate(uuids::Family::Node);
 
         let path = self
             .temp_dir

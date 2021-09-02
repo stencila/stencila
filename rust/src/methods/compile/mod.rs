@@ -60,15 +60,16 @@ trait Compile {
 
 /// Identify a node
 ///
-/// If the node does not have an id, generate and assign one with a
-/// leading "_" to indicate it is generated.
+/// If the node does not have an id, generate and assign one.
+/// These generated id have a leading "no." which can be used to determine
+/// that it was generated
 /// Return the node's id.
 macro_rules! identify {
     ($node:expr) => {
         if let Some(id) = $node.id.as_deref() {
             id.clone()
         } else {
-            let id = ["_", &uuids::generate_chars(20)].concat();
+            let id = uuids::generate(uuids::Family::Node);
             $node.id = Some(Box::new(id.clone()));
             id
         }

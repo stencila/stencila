@@ -5,28 +5,29 @@
 ///! - are URL safe
 ///! - contain information on the type of object that they
 ///!   are identifying
-///! - are roughly sortable by time of generation
 ///! - have an extremely low probability of collision
 ///!
 ///! Generated identifiers have a fixed length of 32 characters made up
-///! of three parts separated by dots:
+///! of two parts separated by a dot:
 ///!
 ///! - 2 characters in the range `[a-z]` that identifying the "family" of
 ///!   identifiers, usually the type of object the identifier is for
 ///!   e.g. `fi` = file, `re` = request
 ///!
-///! - 10 characters in the range `[0-9a-f]` that are the hexadecimal encoding of the
-///!   32bit number of seconds since Unix Timestamp Epoch 1500000000000 left padded
-///!   with zeros
+///! - 20 characters in the range `[0-9A-Za-z]` that are randomly generated
 ///!
-///! - 18 characters in the range `[0-9A-Za-z]` that are randomly generated
+///! For project identifiers (those starting with 'pr') only lowercase
+///! letters are used for compatibility with Docker image naming rules.
+///!
+///! The total size of the generated ids is 23 bytes which allows it to fit
+///! inside a [`SmartString`](https://lib.rs/crates/smartstring) for better
+///! performance that a plain old `String`.
 ///!
 ///! See
 ///!  - https://segment.com/blog/a-brief-history-of-the-uuid/
 ///!  - https://zelark.github.io/nano-id-cc/
 ///!  - https://gist.github.com/fnky/76f533366f75cf75802c8052b577e2a5
 use nanoid::nanoid;
-use std::convert::TryFrom;
 use strum::ToString;
 
 /// The available families of identifiers
@@ -40,48 +41,56 @@ pub enum Family {
 
     #[strum(serialize = "fi")]
     File,
-}
 
-/// The epoch used for calculating the time stamp in the second part of
-/// an identifier. Chosen as a recent time that was easily remembered
-/// (happens to correspond to 2017-07-14T02:40:00.000Z).
-const EPOCH: i64 = 1500000000;
+    #[strum(serialize = "pr")]
+    Project,
+
+    #[strum(serialize = "se")]
+    Session,
+}
 
 /// The characters used in the third part of the identifier
 const CHARACTERS: [char; 62] = [
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
-    'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b',
-    'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
-    'v', 'w', 'x', 'y', 'z',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
+    'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B',
+    'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
+    'V', 'W', 'X', 'Y', 'Z',
 ];
-
-// Generate random characters
-pub fn generate_chars(size: usize) -> String {
-    nanoid!(size, &CHARACTERS)
-}
 
 // Generate a universally unique identifier
 pub fn generate(family: Family) -> String {
-    let diff = chrono::Utc::now().timestamp() - EPOCH;
-    let seconds =
-        u32::try_from(diff).expect("Unable to convert to u32 (must be waaaay in the future");
-    let rand = generate_chars(18);
-    format!("{}.{:010x}.{}", family.to_string(), seconds, rand)
+    let chars = match family {
+        Family::Project => nanoid!(20, &CHARACTERS[..36]),
+        _ => nanoid!(20, &CHARACTERS),
+    };
+    [&family.to_string(), ".", &chars].concat()
 }
+
 #[cfg(test)]
 mod tests {
+    use super::*;
     use eyre::Result;
     use regex::Regex;
 
-    use super::*;
+    #[test]
+    fn test_node_id() -> Result<()> {
+        let id = generate(Family::Node);
+
+        assert_eq!(id.len(), 23);
+
+        let re = Regex::new(r"no\.[0-9a-zA-Z]{20}")?;
+        assert!(re.is_match(&id));
+
+        Ok(())
+    }
 
     #[test]
-    fn test_generate() -> Result<()> {
-        let id = generate(Family::File);
+    fn test_project_id() -> Result<()> {
+        let id = generate(Family::Project);
 
-        assert_eq!(id.len(), 32);
+        assert_eq!(id.len(), 23);
 
-        let re = Regex::new(r"[a-z]{2}\.[0-9a-f]{10}\.[0-9A-Za-z]{18}")?;
+        let re = Regex::new(r"pr\.[0-9a-z]{20}")?;
         assert!(re.is_match(&id));
 
         Ok(())
