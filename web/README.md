@@ -39,12 +39,13 @@ Then visit the login URL that is printed in the console. This will set a cookie 
 You can test that the authorization and WebSocket handshake were successful in the browser console (check the WebSocket messages sent/received in the `Network` tab of your browser developer tools),
 
 ```js
-var ws = new WebSocket("ws://127.0.0.1:9000/~ws")
-ws.onmessage = (msg) => console.log(msg.data)
-ws.send(JSON.stringify({
-    method: "sessions.start",
-    params: {"project": "pr.b4sa95hsg.."}
-}))
+var ws = window.stencilaWebClient('ws://127.0.0.1:9000/~ws')
+ws.on('open', async () => {
+  const { id: sessionId } = await ws.call(
+    "sessions.start",
+    {"project": "pr.b4sa95hsg.."}
+  )
+})
 ```
 
 You can also open documents in this repository using their relative paths. For example, this file is available at http://127.0.0.1:9000/web/README.md; or you might want to develop against a document with this fixture which has some web components in it: http://127.0.0.1:9000/fixtures/articles/code.md.
