@@ -8,7 +8,7 @@
 ///! - have an extremely low probability of collision
 ///!
 ///! Generated identifiers have a fixed length of 32 characters made up
-///! of two parts separated by a dot:
+///! of two parts separated by a hyphen:
 ///!
 ///! - 2 characters in the range `[a-z]` that identifying the "family" of
 ///!   identifiers, usually the type of object the identifier is for
@@ -27,11 +27,15 @@
 ///!  - https://segment.com/blog/a-brief-history-of-the-uuid/
 ///!  - https://zelark.github.io/nano-id-cc/
 ///!  - https://gist.github.com/fnky/76f533366f75cf75802c8052b577e2a5
+use eyre::{bail, Result};
 use nanoid::nanoid;
+use regex::Regex;
 use strum::ToString;
 
+use crate::errors::Error;
+
 /// The available families of identifiers
-#[derive(ToString)]
+#[derive(Debug, Clone, ToString)]
 pub enum Family {
     #[strum(serialize = "no")]
     Node,
@@ -49,7 +53,13 @@ pub enum Family {
     Session,
 }
 
-/// The characters used in the third part of the identifier
+/// The separator between the family and random parts of the identifier
+///
+/// A hyphen provides for better readability than a dot or colon when used
+/// in pubsub topic strings and elsewhere.
+const SEPARATOR: &str = "-";
+
+/// The characters used in the random part of the identifier
 const CHARACTERS: [char; 62] = [
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
     'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B',
@@ -63,36 +73,48 @@ pub fn generate(family: Family) -> String {
         Family::Project => nanoid!(20, &CHARACTERS[..36]),
         _ => nanoid!(20, &CHARACTERS),
     };
-    [&family.to_string(), ".", &chars].concat()
+    [&family.to_string(), SEPARATOR, &chars].concat()
+}
+
+// Test whether a string is an identifer for a particular family
+pub fn matches(family: Family, id: &str) -> bool {
+    let pattern = match family {
+        Family::Project => "[0-9a-z]{20}",
+        _ => "[0-9a-zA-Z]{20}",
+    };
+    let re = [&family.to_string(), SEPARATOR, pattern].concat();
+    let re = Regex::new(&re).expect("Should be a valid regex");
+    re.is_match(id)
+}
+
+// Assert that a string is an identifer for a particular family
+pub fn assert(family: Family, id: &str) -> Result<String> {
+    match matches(family.clone(), id) {
+        true => Ok(id.to_string()),
+        false => bail!(Error::InvalidUUID {
+            family: family.to_string(),
+            id: id.to_string()
+        }),
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use eyre::Result;
-    use regex::Regex;
 
     #[test]
-    fn test_node_id() -> Result<()> {
+    fn test_node_id() {
         let id = generate(Family::Node);
-
         assert_eq!(id.len(), 23);
-
-        let re = Regex::new(r"no\.[0-9a-zA-Z]{20}")?;
-        assert!(re.is_match(&id));
-
-        Ok(())
+        assert!(matches(Family::Node, &id));
+        assert(Family::Node, &id).unwrap();
     }
 
     #[test]
-    fn test_project_id() -> Result<()> {
+    fn test_project_id() {
         let id = generate(Family::Project);
-
         assert_eq!(id.len(), 23);
-
-        let re = Regex::new(r"pr\.[0-9a-z]{20}")?;
-        assert!(re.is_match(&id));
-
-        Ok(())
+        assert!(matches(Family::Project, &id));
+        assert(Family::Project, &id).unwrap();
     }
 }

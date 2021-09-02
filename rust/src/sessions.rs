@@ -1,4 +1,7 @@
-use crate::{pubsub::publish, utils::uuids};
+use crate::{
+    pubsub::publish,
+    utils::uuids::{self, Family},
+};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use itertools::Itertools;
@@ -147,8 +150,9 @@ impl Sessions {
     }
 
     pub async fn stop(&self, session: &str) -> Result<Session> {
+        let session = uuids::assert(Family::Session, session)?;
         let mut sessions = self.sessions.write().await;
-        match sessions.entry(session.to_string()) {
+        match sessions.entry(session.clone()) {
             Entry::Occupied(mut entry) => {
                 let session = entry.get_mut();
                 session.stop();
@@ -159,8 +163,9 @@ impl Sessions {
     }
 
     pub async fn subscribe(&self, session: &str, client: &str) -> Result<Session> {
+        let session = uuids::assert(Family::Session, session)?;
         let mut sessions = self.sessions.write().await;
-        if let Some(session) = sessions.get_mut(session) {
+        if let Some(session) = sessions.get_mut(&session) {
             session.subscribe(client);
             Ok(session.clone())
         } else {
@@ -169,8 +174,9 @@ impl Sessions {
     }
 
     pub async fn unsubscribe(&self, session: &str, client: &str) -> Result<Session> {
+        let session = uuids::assert(Family::Session, session)?;
         let mut sessions = self.sessions.write().await;
-        if let Some(session) = sessions.get_mut(session) {
+        if let Some(session) = sessions.get_mut(&session) {
             session.unsubscribe(client);
             Ok(session.clone())
         } else {
