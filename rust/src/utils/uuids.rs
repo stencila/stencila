@@ -46,11 +46,17 @@ pub enum Family {
     #[strum(serialize = "fi")]
     File,
 
+    #[strum(serialize = "sn")]
+    Snapshot,
+
     #[strum(serialize = "pr")]
     Project,
 
     #[strum(serialize = "se")]
     Session,
+
+    #[strum(serialize = "cl")]
+    Client,
 }
 
 /// The separator between the family and random parts of the identifier
