@@ -15,6 +15,7 @@ use tokio::{sync::RwLock, task::JoinHandle};
 
 /// A session event
 #[derive(Debug, Clone, Serialize)]
+#[serde(tag = "type")]
 pub enum SessionEvent {
     /// One or more of the session's properties was updated
     Updated { session: Session },
@@ -72,21 +73,25 @@ impl Session {
         self.updated();
     }
 
-    pub fn subscribe(&mut self, client: &str) -> bool {
-        let inserted = self.subscribers.insert(client.to_string());
-        self.updated();
-        inserted
+    pub fn topic(&self) -> String {
+        ["sessions:", &self.id].concat()
     }
 
-    pub fn unsubscribe(&mut self, client: &str) -> bool {
-        let removed = self.subscribers.remove(client);
+    pub fn subscribe(&mut self, client: &str) -> String {
+        self.subscribers.insert(client.to_string());
         self.updated();
-        removed
+        self.topic()
+    }
+
+    pub fn unsubscribe(&mut self, client: &str) -> String {
+        self.subscribers.remove(client);
+        self.updated();
+        self.topic()
     }
 
     pub fn publish(&self, topic: &str, event: SessionEvent) {
         if !self.subscribers.is_empty() {
-            publish(&["sessions:", &self.id, ":", topic].concat(), &event)
+            publish(&[&self.topic(), ":", topic].concat(), &event)
         }
     }
 
@@ -162,23 +167,23 @@ impl Sessions {
         }
     }
 
-    pub async fn subscribe(&self, session: &str, client: &str) -> Result<Session> {
+    pub async fn subscribe(&self, session: &str, client: &str) -> Result<(Session, String)> {
         let session = uuids::assert(Family::Session, session)?;
         let mut sessions = self.sessions.write().await;
         if let Some(session) = sessions.get_mut(&session) {
-            session.subscribe(client);
-            Ok(session.clone())
+            let topic = session.subscribe(client);
+            Ok((session.clone(), topic))
         } else {
             bail!("No session with id '{}'", session)
         }
     }
 
-    pub async fn unsubscribe(&self, session: &str, client: &str) -> Result<Session> {
+    pub async fn unsubscribe(&self, session: &str, client: &str) -> Result<(Session, String)> {
         let session = uuids::assert(Family::Session, session)?;
         let mut sessions = self.sessions.write().await;
         if let Some(session) = sessions.get_mut(&session) {
-            session.unsubscribe(client);
-            Ok(session.clone())
+            let topic = session.unsubscribe(client);
+            Ok((session.clone(), topic))
         } else {
             bail!("No session with id '{}'", session)
         }
@@ -196,10 +201,13 @@ impl Sessions {
             let sessions = guard.values().into_iter().cloned().collect_vec();
             drop(guard);
 
-            tracing::debug!("Monitoring {} sessions", sessions.len());
-            for session in sessions {
-                session.heartbeat()
+            if !sessions.is_empty() {
+                tracing::debug!("Monitoring {} sessions", sessions.len());
+                for session in sessions {
+                    session.heartbeat()
+                }
             }
+
             sleep(Duration::from_secs(5)).await;
         }
     }

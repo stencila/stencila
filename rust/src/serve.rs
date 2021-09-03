@@ -2,20 +2,33 @@ use crate::{
     config::CONFIG,
     documents::DOCUMENTS,
     jwt,
+    pubsub::{self, subscribe, Subscriber},
     rpc::{self, Error, Protocol, Request, Response},
-    utils::urls,
+    utils::{
+        urls,
+        uuids::{self, Family},
+    },
 };
+use defaults::Defaults;
 use eyre::{bail, Result};
-use futures::{stream::SplitSink, SinkExt, StreamExt};
+use futures::{stream::SplitSink, SinkExt, StreamExt, TryFutureExt};
+use itertools::Itertools;
 use jwt::JwtError;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use reqwest::{header::HeaderValue, StatusCode};
 use rust_embed::RustEmbed;
-use serde::Deserialize;
-use std::str::FromStr;
-use std::{env, fmt::Debug, path::Path};
-use warp::{Filter, Reply};
+use serde::{Deserialize, Serialize};
+use std::{
+    collections::{hash_map::Entry, HashMap, HashSet},
+    env,
+    fmt::Debug,
+    path::Path,
+    str::FromStr,
+    sync::Arc,
+};
+use tokio::sync::{mpsc, RwLock};
+use warp::{ws, Filter, Reply};
 
 /// Run a server on this thread
 ///
@@ -81,6 +94,168 @@ pub fn serve_background(url: Option<String>, key: Option<String>) -> Result<()> 
 #[derive(RustEmbed)]
 #[folder = "static"]
 struct Static;
+
+struct Client {
+    /// A list of subscription topics for this client
+    subscriptions: HashSet<String>,
+
+    /// The current sender for this client
+    ///
+    /// This is set / reset each time that the client opens
+    /// a websocket connection
+    sender: mpsc::UnboundedSender<ws::Message>,
+}
+
+impl Client {
+    pub fn subscribe(&mut self, topic: &str) -> bool {
+        self.subscriptions.insert(topic.to_string())
+    }
+
+    pub fn unsubscribe(&mut self, topic: &str) -> bool {
+        self.subscriptions.remove(topic)
+    }
+
+    pub fn subscribed(&self, topic: &str) -> bool {
+        for subscription in &self.subscriptions {
+            if subscription == "*" || topic.starts_with(subscription) {
+                return true;
+            }
+        }
+        false
+    }
+
+    pub fn send(&self, message: impl Serialize) {
+        match serde_json::to_string(&message) {
+            Ok(json) => self.send_text(&json),
+            Err(error) => tracing::error!("Error serializing to JSON: {}", error),
+        }
+    }
+
+    pub fn send_text(&self, text: &str) {
+        if let Err(error) = self.sender.send(warp::ws::Message::text(text)) {
+            tracing::error!("Client send error: {}", error)
+        }
+    }
+}
+
+/// A store of clients
+#[derive(Defaults)]
+struct Clients {
+    clients: Arc<RwLock<HashMap<String, Client>>>,
+}
+
+impl Clients {
+    pub fn new() -> Self {
+        let clients = Clients::default();
+
+        let (sender, receiver) = mpsc::unbounded_channel::<pubsub::Message>();
+        subscribe("*", Subscriber::Sender(sender)).unwrap();
+        tokio::spawn(Clients::publish(clients.clients.clone(), receiver));
+
+        clients
+    }
+
+    pub async fn connected(&self, id: &str, sender: mpsc::UnboundedSender<ws::Message>) {
+        let mut clients = self.clients.write().await;
+        match clients.entry(id.to_string()) {
+            Entry::Occupied(mut occupied) => {
+                tracing::debug!("Re-connection for client: {}", id);
+                let client = occupied.get_mut();
+                client.sender = sender;
+            }
+            Entry::Vacant(vacant) => {
+                tracing::debug!("New connection for client: {}", id);
+                vacant.insert(Client {
+                    subscriptions: HashSet::new(),
+                    sender,
+                });
+            }
+        };
+    }
+
+    pub async fn send(&self, id: &str, message: impl Serialize) {
+        let clients = self.clients.read().await;
+        if let Some(client) = clients.get(id) {
+            client.send(message);
+        } else {
+            tracing::error!("No such client: {}", id);
+        }
+    }
+
+    pub async fn subscribe(&self, id: &str, topic: &str) {
+        let mut clients = self.clients.write().await;
+        if let Some(client) = clients.get_mut(id) {
+            tracing::debug!("Subscribing client {} to topic: {}", id, topic);
+            client.subscribe(topic);
+        } else {
+            tracing::error!("No such client: {}", id);
+        }
+    }
+
+    pub async fn unsubscribe(&self, id: &str, topic: &str) {
+        let mut clients = self.clients.write().await;
+        if let Some(client) = clients.get_mut(id) {
+            tracing::debug!("Unsubscribing client {} from topic: {}", id, topic);
+            client.unsubscribe(topic);
+        } else {
+            tracing::error!("No such client: {}", id);
+        }
+    }
+
+    /// Publish events to clients
+    ///
+    /// The receiver will receive _all_ events that are published and relay them on to
+    /// clients based in their subscriptions.
+    async fn publish(
+        clients: Arc<RwLock<HashMap<String, Client>>>,
+        receiver: mpsc::UnboundedReceiver<pubsub::Message>,
+    ) {
+        let mut receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(receiver);
+        while let Some((topic, event)) = receiver.next().await {
+            tracing::debug!("Received event for topic: {}", topic);
+
+            // Get a list of clients that are subscribed to this topic
+            let clients = clients.read().await;
+            let clients = clients
+                .values()
+                .filter(|client| client.subscribed(&topic))
+                .collect_vec();
+
+            // Skip this event if no one is subscribed
+            if clients.is_empty() {
+                continue;
+            }
+
+            tracing::debug!("Publishing event to {} clients", clients.len());
+
+            // Create a JSON-RPC notification for the event and serialize it
+            // so that does not need to be repeated for each client
+            let params = if event.is_object() {
+                serde_json::from_value(event).unwrap()
+            } else {
+                let mut params = HashMap::new();
+                params.insert("event".to_string(), event);
+                params
+            };
+            let notification = rpc::Notification::new(&topic, params);
+            let json = match serde_json::to_string(&notification) {
+                Ok(json) => json,
+                Err(error) => {
+                    tracing::error!("Error serializing to JSON: {}", error);
+                    continue;
+                }
+            };
+
+            // Send it!
+            for client in clients {
+                client.send_text(&json)
+            }
+        }
+    }
+}
+
+/// The global clients store
+static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
 
 /// Run a server
 ///
@@ -160,7 +335,7 @@ pub async fn serve_on(
             while let Some(line) = lines.next_line().await? {
                 // TODO capture any json errors and send
                 let request = serde_json::from_str::<Request>(&line)?;
-                let response = request.dispatch().await;
+                let (response, ..) = request.dispatch("stdio").await;
                 let json = serde_json::to_string(&response)? + "\n";
                 // TODO: unwrap any of these errors and log them
                 stdout.write_all(json.as_bytes()).await?;
@@ -196,6 +371,7 @@ pub async fn serve_on(
 
             let ws = warp::path("~ws")
                 .and(warp::ws())
+                .and(warp::query::<WsParams>())
                 .and(authorize())
                 .map(ws_handshake);
 
@@ -582,15 +758,21 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path) -> String {
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script src="/~static/web/browser/index.js"></script>
+        <script>
+            stencilaWebClient.test("{url}", "{client}", "{project}", "{snapshot}")
+        </script>
         <link
             href="https://unpkg.com/@stencila/thema/dist/themes/{theme}/styles.css"
             rel="stylesheet">
         <script
             src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.esm.js"
-            type="module"></script>
+            type="module">
+        </script>
         <script
             src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.js"
-            type="text/javascript" nomodule=""></script>
+            type="text/javascript" nomodule="">
+        </script>
         <style>
             .todo {{
                 font-family: mono;
@@ -608,6 +790,10 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path) -> String {
         <div data-itemscope="root">{body}</div>
     </body>
 </html>"#,
+        url = "/~ws",
+        client = uuids::generate(Family::Client),
+        project = "current",
+        snapshot = "current",
         theme = theme,
         body = body
     )
@@ -618,7 +804,7 @@ async fn post_handler(
     request: Request,
     _claims: jwt::Claims,
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
-    let response = request.dispatch().await;
+    let (response, ..) = request.dispatch("http").await;
     Ok(warp::reply::json(&response))
 }
 
@@ -648,7 +834,7 @@ async fn post_wrap_handler(
     };
 
     // Unwrap the response into results or error message
-    let Response { result, error, .. } = request.dispatch().await;
+    let (Response { result, error, .. }, ..) = request.dispatch("http").await;
     let reply = match result {
         Some(result) => reply::with_status(reply::json(&result), StatusCode::OK),
         None => match error {
@@ -664,13 +850,19 @@ async fn post_wrap_handler(
     Ok(reply)
 }
 
+/// Parameters for the WebSocket handshake
+#[derive(Debug, Deserialize)]
+struct WsParams {
+    client: String,
+}
+
 /// Perform a WebSocket handshake / upgrade
 ///
 /// This function is called at the start of a WebSocket connection.
 #[tracing::instrument]
-fn ws_handshake(ws: warp::ws::Ws, _claims: jwt::Claims) -> impl warp::Reply {
+fn ws_handshake(ws: warp::ws::Ws, params: WsParams, _claims: jwt::Claims) -> impl warp::Reply {
     tracing::debug!("WebSocket handshake");
-    ws.on_upgrade(ws_connected)
+    ws.on_upgrade(|socket| ws_connected(socket, params.client))
 }
 
 /// Handle a WebSocket connection
@@ -678,18 +870,37 @@ fn ws_handshake(ws: warp::ws::Ws, _claims: jwt::Claims) -> impl warp::Reply {
 /// This function is called after the handshake, when a WebSocket client
 /// has successfully connected.
 #[tracing::instrument]
-async fn ws_connected(socket: warp::ws::WebSocket) {
+async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
     tracing::debug!("WebSocket connected");
 
-    let (mut sender, mut receiver) = socket.split();
+    let (mut ws_sender, mut ws_receiver) = socket.split();
 
-    while let Some(result) = receiver.next().await {
+    // Use an unbounded channel to handle buffering and flushing of messages
+    // to the client's websocket.
+    let (client_sender, client_receiver) = mpsc::unbounded_channel();
+    let mut client_receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(client_receiver);
+
+    tokio::task::spawn(async move {
+        while let Some(message) = client_receiver.next().await {
+            ws_sender
+                .send(message)
+                .unwrap_or_else(|error| {
+                    tracing::error!("Websocket send error: {}", error);
+                })
+                .await;
+        }
+    });
+
+    // Save / update the client
+    CLIENTS.connected(&client, client_sender).await;
+
+    while let Some(result) = ws_receiver.next().await {
         // Get the message
         let message = match result {
             Ok(message) => message,
             Err(error) => {
-                tracing::error!("Websocket error: {:?}", error);
-                break;
+                tracing::error!("Websocket receive error: {}", error);
+                continue;
             }
         };
 
@@ -706,24 +917,33 @@ async fn ws_connected(socket: warp::ws::WebSocket) {
             Err(error) => {
                 let error = rpc::Error::parse_error(&error.to_string());
                 let response = rpc::Response::new(None, None, Some(error));
-                ws_send(&mut sender, response).await;
+                CLIENTS.send(&client, response).await;
                 continue;
             }
         };
 
-        // Dispatch the request and send back the response
-        let response = request.dispatch().await;
-        ws_send(&mut sender, response).await;
+        // Dispatch the request and send back the response and update subscriptions
+        let (response, subscription) = request.dispatch(&client).await;
+        CLIENTS.send(&client, response).await;
+        match subscription {
+            rpc::Subscription::Subscribe(topic) => {
+                CLIENTS.subscribe(&client, &topic).await;
+            }
+            rpc::Subscription::Unsubscribe(topic) => {
+                CLIENTS.unsubscribe(&client, &topic).await;
+            }
+            rpc::Subscription::None => (),
+        }
     }
 }
 
-/// Send a response over a Websocket connection
+/// Send a response or request over a Websocket connection
 #[tracing::instrument]
 async fn ws_send(
     sender: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
-    response: Response,
+    value: impl Serialize + Debug,
 ) {
-    if let Ok(json) = serde_json::to_string(&response) {
+    if let Ok(json) = serde_json::to_string(&value) {
         if let Err(error) = sender.send(warp::ws::Message::text(json)).await {
             tracing::warn!("Error sending message: {}", error)
         }
@@ -861,7 +1081,7 @@ pub mod cli {
 
             let key = match key {
                 Some(key) => {
-                    tracing::warn!("Keys set on command line can be sniffed by malicious processes; prefer to set in config file.");
+                    tracing::warn!("Server key set on command line can be sniffed by malicious processes; prefer to set it in config file.");
                     Some(key)
                 }
                 None => config.key.clone(),

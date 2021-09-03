@@ -4087,6 +4087,7 @@ dependencies = [
  "tempfile",
  "thiserror",
  "tokio",
+ "tokio-stream",
  "tokio-tungstenite 0.15.0",
  "toml",
  "tracing",

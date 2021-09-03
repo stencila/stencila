@@ -23,15 +23,18 @@ type Params = HashMap<String, serde_json::Value>;
 /// A JSON-RPC 2.0 request
 ///
 /// See <https://www.jsonrpc.org/specification#request_object>.
-#[derive(Debug, Serialize, Deserialize)]
+#[skip_serializing_none]
+#[derive(Debug, Clone, Defaults, Serialize, Deserialize)]
 pub struct Request {
     /// A string specifying the version of the JSON-RPC protocol.
+    #[def = "Some(\"2.0\".to_string())"]
     pub jsonrpc: Option<String>,
 
     /// An identifier for the request established by the client
     /// The standard allows this to be a number or a string but here we use
     /// `u64` because it proved to require less code and is probably more efficient.
-    /// May be `None` for notifications from the server
+    /// May be `None` for notifications or for requests over TTP (where there is not
+    /// a need to correlate the request with the response message).
     pub id: Option<u64>,
 
     /// The method being called
@@ -42,20 +45,30 @@ pub struct Request {
 }
 
 impl Request {
-    pub async fn dispatch(self) -> Response {
-        let client = "TODO: pass client through";
-        let result: Result<serde_json::Value> = match self.method.as_str() {
+    pub fn new(method: &str, params: Params) -> Self {
+        Request {
+            method: method.to_string(),
+            params,
+            ..Default::default()
+        }
+    }
+
+    pub async fn dispatch(self, client: &str) -> (Response, Subscription) {
+        let result: Result<(serde_json::Value, Subscription)> = match self.method.as_str() {
             "sessions.start" => sessions_start(&self.params).await,
             "sessions.stop" => sessions_stop(&self.params).await,
             "sessions.subscribe" => sessions_subscribe(&self.params, client).await,
             "sessions.unsubscribe" => sessions_unsubscribe(&self.params, client).await,
             _ => {
                 let error = Error::method_not_found_error(&self.method);
-                return Response::new(self.id, None, Some(error));
+                return (
+                    Response::new(self.id, None, Some(error)),
+                    Subscription::None,
+                );
             }
         };
         match result {
-            Ok(result) => Response::new(self.id, Some(result), None),
+            Ok((value, subscription)) => (Response::new(self.id, Some(value), None), subscription),
             Err(error) => {
                 // If the error is JSON-RPC error from this module, just return that.
                 // Otherwise, convert it into a generic `server_error`.
@@ -64,11 +77,21 @@ impl Request {
                     Ok(error) => error,
                     Err(_) => Error::server_error(&message),
                 };
-                Response::new(self.id, None, Some(error))
+                (
+                    Response::new(self.id, None, Some(error)),
+                    Subscription::None,
+                )
             }
         }
     }
 }
+
+/// A JSON-RPC 2.0 notification
+///
+/// A `Notification` is just a `Request` with `id: None`.
+///
+/// See <https://www.jsonrpc.org/specification#notification>.
+pub type Notification = Request;
 
 /// A JSON-RPC 2.0 response
 ///
@@ -81,7 +104,6 @@ pub struct Response {
     pub jsonrpc: Option<String>,
 
     /// The id of the request that this response is for
-    /// May be `None` for notifications from the server
     pub id: Option<u64>,
 
     /// The result of the method call
@@ -100,6 +122,12 @@ impl Response {
             ..Default::default()
         }
     }
+}
+
+pub enum Subscription {
+    None,
+    Subscribe(String),
+    Unsubscribe(String),
 }
 
 /// A JSON-RPC 2.0 error
@@ -201,32 +229,38 @@ impl Error {
 // and send them on to the relevant core functions, raising errors is arguments are
 // missing or of the wrong type, and converting returned values to JSON.
 
-async fn sessions_start(params: &Params) -> Result<serde_json::Value> {
+async fn sessions_start(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let project = required_string(params, "project")?;
 
     let session = SESSIONS.start(&project).await?;
-    Ok(json!(session))
+    Ok((json!(session), Subscription::None))
 }
 
-async fn sessions_stop(params: &Params) -> Result<serde_json::Value> {
+async fn sessions_stop(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let session = required_string(params, "session")?;
 
     let session = SESSIONS.stop(&session).await?;
-    Ok(json!(session))
+    Ok((json!(session), Subscription::None))
 }
 
-async fn sessions_subscribe(params: &Params, client: &str) -> Result<serde_json::Value> {
+async fn sessions_subscribe(
+    params: &Params,
+    client: &str,
+) -> Result<(serde_json::Value, Subscription)> {
     let session = required_string(params, "session")?;
 
-    let session = SESSIONS.subscribe(&session, client).await?;
-    Ok(json!(session))
+    let (session, topic) = SESSIONS.subscribe(&session, client).await?;
+    Ok((json!(session), Subscription::Subscribe(topic)))
 }
 
-async fn sessions_unsubscribe(params: &Params, client: &str) -> Result<serde_json::Value> {
+async fn sessions_unsubscribe(
+    params: &Params,
+    client: &str,
+) -> Result<(serde_json::Value, Subscription)> {
     let session = required_string(params, "session")?;
 
-    let session = SESSIONS.unsubscribe(&session, client).await?;
-    Ok(json!(session))
+    let (session, topic) = SESSIONS.unsubscribe(&session, client).await?;
+    Ok((json!(session), Subscription::Unsubscribe(topic)))
 }
 
 // Helper functions for getting JSON-RPC parameters and raising appropriate errors
