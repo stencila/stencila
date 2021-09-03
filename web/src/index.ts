@@ -35,3 +35,50 @@ export const main = (url: string) => {
   // client.documents.open(documentPath)
   // client.sessions.start(documentPath)
 }
+
+interface Session {
+  id: string
+}
+
+interface SessionEvent {
+  type: 'Updated' | 'Heartbeat'
+  session: Session
+}
+
+
+// Development test function to check for expected events etc
+export const test = async (url: string, clientId: string, projectId: string, snapshotId: string) => {
+  let sleep = (seconds: number) => new Promise((resolve) => { setTimeout(resolve, seconds * 1000) });
+
+  const client = new Client(`ws://${window.location.host}${url}?client=${clientId}`)
+  client.on('open', async () => {
+    // Start a session
+    let session = await client.call('sessions.start', { project: projectId, snapshot: snapshotId }) as Session
+    console.debug(session)
+
+    await sleep(10);
+
+    // Subscribe to the session
+    session = await client.call('sessions.subscribe', { session: session.id }) as Session
+    console.debug(session)
+
+    // Handlers for session events that we just subscribed to
+    client.on(`sessions:${session.id}:updated`, (event: SessionEvent) => console.log(event))
+    client.on(`sessions:${session.id}:heartbeat`, (event: SessionEvent) => console.log(event))
+
+    await sleep(30);
+
+    // Unsubscribe from the session
+    session = await client.call('sessions.unsubscribe', { session: session.id }) as Session
+    console.debug(session)
+
+    await sleep(10);
+
+    // Stop the session
+    session = await client.call('sessions.stop', { session: session.id }) as Session
+    console.debug(session)
+
+    // Close the client
+    client.close()
+  })
+}

@@ -1,4 +1,7 @@
-import { main } from './index'
+import { main, test } from './index'
 
 // @ts-ignore
-window.stencilaWebClient = main
+window.stencilaWebClient = {
+    main,
+    test
+}
