@@ -2,8 +2,14 @@ use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::sync::{Mutex, MutexGuard};
+use tokio::sync::mpsc;
 
-pub type Subscriber = fn(topic: String, event: serde_json::Value) -> ();
+pub type Message = (String, serde_json::Value);
+
+pub enum Subscriber {
+    Function(fn(topic: String, event: serde_json::Value) -> ()),
+    Sender(mpsc::UnboundedSender<Message>),
+}
 
 struct Subscription {
     topic: String,
@@ -59,14 +65,23 @@ where
                     || topic.starts_with(&subscription.topic)
                 {
                     let value = serde_json::to_value(event).unwrap_or(serde_json::Value::Null);
-                    (subscription.subscriber)(topic.into(), value)
+                    match &subscription.subscriber {
+                        Subscriber::Function(function) => {
+                            function(topic.into(), value);
+                        }
+                        Subscriber::Sender(sender) => {
+                            if let Err(error) = sender.send((topic.into(), value)) {
+                                tracing::error!("Error sending event: {}", error);
+                            }
+                        }
+                    }
                 }
             }
         }
         Err(error) => {
             // Do not log error if the topic is logging since that could lead to recursion
             if topic != "logging" {
-                tracing::error!("Unable to publish event: {}", error.to_string())
+                tracing::error!("Unable to publish event: {}", error)
             }
         }
     }

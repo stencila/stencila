@@ -381,7 +381,11 @@ pub async fn main() -> Result<()> {
             .install()?;
 
         // Subscribe to progress events and display them on console
-        stencila::pubsub::subscribe("progress", feedback::progress_subscriber)?;
+        use stencila::pubsub::{subscribe, Subscriber};
+        subscribe(
+            "progress",
+            Subscriber::Function(feedback::progress_subscriber),
+        )?;
     }
 
     // If not explicitly upgrading then run an upgrade check in the background
