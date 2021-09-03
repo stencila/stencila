@@ -1079,6 +1079,7 @@ pub mod cli {
                 tracing::warn!("Serving in insecure mode is dangerous and discouraged.")
             }
 
+            #[cfg(any(target_os = "linux", target_os = "macos"))]
             if let sudo::RunningAs::Root = sudo::check() {
                 if root {
                     tracing::warn!("Serving as root/administrator is dangerous and discouraged.")
