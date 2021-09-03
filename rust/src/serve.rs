@@ -937,19 +937,6 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
     }
 }
 
-/// Send a response or request over a Websocket connection
-#[tracing::instrument]
-async fn ws_send(
-    sender: &mut SplitSink<warp::ws::WebSocket, warp::ws::Message>,
-    value: impl Serialize + Debug,
-) {
-    if let Ok(json) = serde_json::to_string(&value) {
-        if let Err(error) = sender.send(warp::ws::Message::text(json)).await {
-            tracing::warn!("Error sending message: {}", error)
-        }
-    }
-}
-
 /// Handle a rejection by converting into a JSON-RPC response
 ///
 /// The above handlers can not handle all errors, in particular, they do not
