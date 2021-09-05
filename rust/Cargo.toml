@@ -67,6 +67,7 @@ encode-png = ["chromiumoxide"]
 encode-rmd = ["encode-md"]
 encode-rpng = ["encode-png", "png"]
 encode-toml = []
+encode-txt = []
 encode-yaml = []
 
 coerce = ["decode-date", "decode-person"]
