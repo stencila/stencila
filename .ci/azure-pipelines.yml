@@ -152,6 +152,21 @@ jobs:
           )
         displayName: 'Desktop: Test'
 
+      # Web client is tested if there are changes in the `web` or `rust` folder
+      # because it includes end-to-end tests of integrations with the Rust server
+      - script: |
+          set -e
+          npm install
+          cargo run --manifest-path ../cli/Cargo.toml -- serve --insecure &
+          SERVER_URL="ws://127.0.0.1:9000/~ws" npm test
+          kill %1
+        condition: |
+          or(
+            contains(variables.changed, 'rust'),
+            contains(variables.changed, 'web')
+          )
+        displayName: 'Web: Test'
+
       # CLI is built and published on tags
       - script: |
           set -e
