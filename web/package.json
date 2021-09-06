@@ -5,7 +5,7 @@
   "scripts": {
     "build": "parcel build --no-cache",
     "watch": "parcel watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "source": "src/index.ts",
   "main": "dist/index.js",
@@ -34,8 +34,12 @@
     "url": "https://github.com/stencila/stencila"
   },
   "devDependencies": {
+    "@stencila/dev-config": "2.0.19",
     "@stencila/schema": "1.11.1",
+    "@types/jest": "27.0.1",
+    "jest": "27.1.0",
     "parcel": "2.0.0-rc.0",
+    "ts-jest": "27.0.5",
     "typescript": "4.4.2"
   },
   "peerDependencies": {
@@ -49,5 +53,13 @@
     "defaults",
     "not IE 11",
     "not IE_Mob 11"
-  ]
+  ],
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "testMatch": [
+      "**/*.e2e.ts",
+      "**/*.test.ts"
+    ]
+  }
 }
