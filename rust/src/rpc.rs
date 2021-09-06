@@ -231,8 +231,9 @@ impl Error {
 
 async fn sessions_start(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let project = required_string(params, "project")?;
+    let snapshot = required_string(params, "snapshot")?;
 
-    let session = SESSIONS.start(&project).await?;
+    let session = SESSIONS.start(&project, &snapshot).await?;
     Ok((json!(session), Subscription::None))
 }
 
@@ -248,8 +249,9 @@ async fn sessions_subscribe(
     client: &str,
 ) -> Result<(serde_json::Value, Subscription)> {
     let session = required_string(params, "session")?;
+    let topic = required_string(params, "topic")?;
 
-    let (session, topic) = SESSIONS.subscribe(&session, client).await?;
+    let (session, topic) = SESSIONS.subscribe(&session, &topic, client).await?;
     Ok((json!(session), Subscription::Subscribe(topic)))
 }
 
@@ -258,8 +260,9 @@ async fn sessions_unsubscribe(
     client: &str,
 ) -> Result<(serde_json::Value, Subscription)> {
     let session = required_string(params, "session")?;
+    let topic = required_string(params, "topic")?;
 
-    let (session, topic) = SESSIONS.unsubscribe(&session, client).await?;
+    let (session, topic) = SESSIONS.unsubscribe(&session, &topic, client).await?;
     Ok((json!(session), Subscription::Unsubscribe(topic)))
 }
 
