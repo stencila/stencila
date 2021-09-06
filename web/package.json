@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Web client for interacting with Stencila document server",
   "scripts": {
+    "format": "prettier --write '**/*.ts'",
     "build": "parcel build --no-cache",
     "watch": "parcel watch",
     "test": "jest"
@@ -61,5 +62,9 @@
       "**/*.e2e.ts",
       "**/*.test.ts"
     ]
-  }
+  },
+  "eslintConfig": {
+    "extends": "@stencila/eslint-config"
+  },
+  "prettier": "@stencila/dev-config/prettier-config.json"
 }

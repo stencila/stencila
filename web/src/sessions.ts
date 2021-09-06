@@ -1,13 +1,18 @@
-import { Client } from 'rpc-websockets'
-import {
-  SessionId,
-  Session,
-  ProjectId,
-  SnapshotId,
-  SessionEvent,
-} from './types'
+import { Client } from './client'
+import { ProjectId, SnapshotId } from './types'
+
+export type SessionId = string
+
+export interface Session {
+  id: SessionId
+}
 
 type SessionTopic = 'updated' | 'heartbeat'
+
+export interface SessionEvent {
+  type: 'Updated' | 'Heartbeat'
+  session: Session
+}
 
 /**
  * Start a session
@@ -26,7 +31,10 @@ export async function start(
 /**
  * Stop a session
  */
-export async function stop(client: Client, sessionId: SessionId): Promise<Session> {
+export async function stop(
+  client: Client,
+  sessionId: SessionId
+): Promise<Session> {
   return client.call('sessions.stop', {
     session: sessionId,
   }) as Promise<Session>
@@ -34,23 +42,25 @@ export async function stop(client: Client, sessionId: SessionId): Promise<Sessio
 
 /**
  * Default handler for session events
- * 
+ *
  * Dispatches a `CustomEvent` with the type of the event,
  * prefixed with "session:" e.g. "session:heartbeat".
  */
 function defaultHandler(event: SessionEvent) {
-  window.dispatchEvent(new CustomEvent(`session:${event.type}`.toLowerCase(), {detail: event}))
+  window.dispatchEvent(
+    new CustomEvent(`session:${event.type}`.toLowerCase(), { detail: event })
+  )
 }
 
 /**
  * Subscribe to a session topic
- * 
+ *
  * Note that it is possible have a single handler which handles events for multiple
  * topics (i.e. call this function multiple times with the same handler).
  * In general, to reduce noise, only subscribe to the topics for which events are actually
  * being used e.g. to update an UI indicator of the state of the session.
  * Given that, it is probably better to have one handler function per topic.
- * 
+ *
  * Returns the session state after the topic has been subscribed to.
  */
 export async function subscribe(
@@ -68,7 +78,7 @@ export async function subscribe(
 
 /**
  * Unsubscribe from a session topic
- * 
+ *
  * Returns the session state after the topic has been unsubscribed from.
  */
 export async function unsubscribe(
@@ -81,11 +91,4 @@ export async function unsubscribe(
     session: sessionId,
     topic,
   }) as Promise<Session>
-}
-
-export const sessions = {
-  start,
-  stop,
-  subscribe,
-  unsubscribe,
 }

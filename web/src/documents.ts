@@ -1,41 +1,134 @@
-import { DocumentPath, DocumentId, JSONValue } from './types'
+import { Client } from './client'
 
-// NOTE: path is relative to the project root
-declare function open(path: DocumentPath, format?: string): Promise<void>
+export type DocumentPath = string
 
-declare function patch(
-  path: DocumentPath,
-  nodeId: string,
-  payload: JSONValue
-): Promise<void>
+export type DocumentId = string
 
-// declare function load(docId: DocumentId, contents: string, format?: string): Promise<void>
+export interface Document {
+  id: DocumentId
+}
 
-// declare function get(docId: DocumentId): Promise<void>
+type DocumentTopic = 'node:value' | 'node:html'
 
-// declare function preview(docId: DocumentId): Promise<void>
+export type NodeId = string
 
-declare function subscribe({
-  documentId,
-  topics,
-}: {
+export type NodeValue =
+  | string
+  | number
+  | boolean
+  | null
+  | NodeValue[]
+  | { [key: string | number]: NodeValue }
+
+/**
+ * A document event published by the server indicating
+ * that a node has been updated
+ */
+export type DocumentEvent =
+  | {
+      type: 'NodeValueUpdated'
+      documentId: string
+      nodeId: string
+      value: NodeValue
+    }
+  | {
+      type: 'NodeHtmlUpdated'
+      documentId: string
+      nodeId: string
+      html: String
+    }
+
+/**
+ * The browser `CustomEvent` detail emitted when a node in the current
+ * document is changed by the user.
+ */
+export interface NodeValueChanged {
+  id: NodeId
+  value: NodeValue
+}
+
+/**
+ * Open a document
+ *
+ * Loads the document into memory and returns a document object
+ * with an `id` which can be used to subscribe to topics.
+ */
+export async function open(
+  client: Client,
+  documentPath: DocumentPath
+): Promise<Document> {
+  return client.call('documents.open', {
+    path: documentPath,
+  }) as Promise<Document>
+}
+
+/**
+ * Default handler for document events
+ *
+ * Dispatches a `CustomEvent` with the type of the event
+ * prefixed with "document:" e.g. "document:nodevalueupdated"
+ */
+function defaultHandler(event: DocumentEvent) {
+  window.dispatchEvent(
+    new CustomEvent(`document:${event.type}`.toLowerCase(), { detail: event })
+  )
+}
+
+/**
+ * Subscribe to a document topic
+ */
+export async function subscribe(
+  client: Client,
+  documentId: DocumentId,
+  topic: DocumentTopic,
+  handler: (event: DocumentEvent) => void = defaultHandler
+): Promise<Document> {
+  client.on(`document:${documentId}:${topic}`, handler)
+  return client.call('documents.subscribe', {
+    document: documentId,
+    topic,
+  }) as Promise<Document>
+}
+
+/**
+ * Unsubscribe from a document topic
+ */
+export async function unsubscribe(
+  client: Client,
+  documentId: DocumentId,
+  topic: DocumentTopic
+): Promise<Document> {
+  client.off(`document:${documentId}:${topic}`)
+  return client.call('documents.unsubscribe', {
+    document: documentId,
+    topic,
+  }) as Promise<Document>
+}
+
+/**
+ * Execute a document
+ */
+export async function execute(
+  client: Client,
   documentId: DocumentId
-  topics: string[]
-}): Promise<void>
+): Promise<Document> {
+  return client.call('documents.execute', {
+    document: documentId,
+  }) as Promise<Document>
+}
 
-declare function unsubscribe({
-  documentId,
-  topics,
-}: {
-  documentId: DocumentId
-  topics: string[]
-}): Promise<void>
-
-export const documents = {
-  open,
-  // load,
-  // get,
-  // preview,
-  subscribe,
-  unsubscribe,
+/**
+ * Change a document node
+ */
+export async function change(
+  client: Client,
+  documentId: DocumentId,
+  nodeId: NodeId,
+  nodeValue: NodeValue
+): Promise<Document> {
+  return client.call('documents.change', {
+    document: documentId,
+    node: nodeId,
+    value: nodeValue,
+  }) as Promise<Document>
 }
