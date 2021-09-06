@@ -30,6 +30,60 @@ use std::{
 use tokio::sync::{mpsc, RwLock};
 use warp::{ws, Filter, Reply};
 
+/// Parse a URL into protocol, address and port components
+pub fn parse_url(url: &str) -> Result<(Protocol, String, u16)> {
+    let url = urls::parse(url)?;
+    let protocol = Protocol::from_str(url.scheme())?;
+    let address = url.host().unwrap().to_string();
+    let port = url
+        .port_or_known_default()
+        .expect("Should be a default port for the protocol");
+    Ok((protocol, address, port))
+}
+
+/// Generate a secret key for signing and verifying JSON Web Tokens.
+///
+/// Returns a secret comprised of 64 URL and command line compatible characters
+/// (e.g. so that it can easily be entered on the CLI for the `--key` option ).
+///
+/// Uses 64 bytes because this is the maximum size possible for JWT signing keys.
+/// Using a large key for JWT signing reduces the probability of brute force attacks.
+/// See <https://auth0.com/blog/brute-forcing-hs256-is-possible-the-importance-of-using-strong-keys-to-sign-jwts/>.
+pub fn generate_key() -> String {
+    use rand::Rng;
+    const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
+                            abcdefghijklmnopqrstuvwxyz\
+                            0123456789";
+    let mut rng = rand::thread_rng();
+    (0..64)
+        .map(|_| {
+            let idx = rng.gen_range(0..CHARSET.len());
+            CHARSET[idx] as char
+        })
+        .collect()
+}
+
+/// Generate the login URL given a key, and optionally, the path to redirect to
+/// on successful login.
+pub fn login_url(
+    port: u16,
+    key: Option<String>,
+    expiry_seconds: Option<i64>,
+    next: Option<String>,
+) -> Result<String> {
+    let next = next.unwrap_or_else(|| "/".to_string());
+    let url = if let Some(key) = key {
+        let token = jwt::encode(key, expiry_seconds)?;
+        format!(
+            "http://127.0.0.1:{}/~login?token={}&next={}",
+            port, token, next
+        )
+    } else {
+        format!("http://127.0.0.1:{}{}", port, next)
+    };
+    Ok(url)
+}
+
 /// Run a server on this thread
 ///
 /// # Arguments
@@ -45,18 +99,11 @@ use warp::{ws, Filter, Reply};
 /// # #![recursion_limit = "256"]
 /// use stencila::serve::serve;
 ///
-/// serve(Some("ws://0.0.0.0:1234".to_string()), None);
+/// serve("ws://0.0.0.0:1234", None);
 /// ```
-pub async fn serve(url: Option<String>, key: Option<String>) -> Result<()> {
-    let url = urls::parse(
-        url.unwrap_or_else(|| "ws://127.0.0.1:9000".to_string())
-            .as_str(),
-    )?;
-    let protocol = Protocol::from_str(url.scheme())?;
-    let address = url.host().unwrap().to_string();
-    let port = url.port_or_known_default();
-
-    serve_on(Some(protocol), Some(address), port, key).await
+pub async fn serve(url: &str, key: Option<String>) -> Result<()> {
+    let (protocol, address, port) = parse_url(url)?;
+    serve_on(protocol, address, port, key).await
 }
 
 /// Run a server on another thread
@@ -66,10 +113,11 @@ pub async fn serve(url: Option<String>, key: Option<String>) -> Result<()> {
 /// - `url`: The URL to listen on
 /// - `key`: A secret key for signing and verifying JSON Web Tokens (defaults to random)
 #[tracing::instrument]
-pub fn serve_background(url: Option<String>, key: Option<String>) -> Result<()> {
+pub fn serve_background(url: &str, key: Option<String>) -> Result<()> {
     // Spawn a thread, start a runtime in it, and serve using that runtime.
     // Any errors within the thread are logged because we can't return a
     // `Result` from the thread to the caller of this function.
+    let url = url.to_string();
     std::thread::spawn(move || {
         let _span = tracing::trace_span!("serve_in_background");
 
@@ -80,7 +128,7 @@ pub fn serve_background(url: Option<String>, key: Option<String>) -> Result<()> 
                 return;
             }
         };
-        match runtime.block_on(async { serve(url, key).await }) {
+        match runtime.block_on(async { serve(&url, key).await }) {
             Ok(_) => {}
             Err(error) => tracing::error!("{}", error.to_string()),
         };
@@ -286,53 +334,22 @@ static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
 /// use stencila::rpc::Protocol;
 /// use stencila::serve::serve_on;
 ///
-/// serve_on(
-///     Some(Protocol::Ws),
-///     Some("127.0.0.1".to_string()),
-///     Some(9000),
-///     None
-/// );
+/// serve_on(Protocol::Ws, "127.0.0.1", 9000, None);
 /// ```
 #[tracing::instrument]
 pub async fn serve_on(
-    protocol: Option<Protocol>,
-    address: Option<String>,
-    port: Option<u16>,
+    protocol: Protocol,
+    address: String,
+    port: u16,
     key: Option<String>,
 ) -> Result<()> {
-    let protocol = protocol.unwrap_or(if cfg!(feature = "serve-ws") {
-        Protocol::Ws
-    } else if cfg!(feature = "serve-http") {
-        Protocol::Http
-    } else if cfg!(feature = "serve-stdio") {
-        Protocol::Stdio
-    } else {
-        bail!("There are no serve-* features enabled")
-    });
-
-    let address: std::net::IpAddr = address.unwrap_or_else(|| "127.0.0.1".to_string()).parse()?;
-
-    let port = port.unwrap_or(9000);
-
-    let key = if let Some(mut key) = key {
-        if key == "insecure" {
-            None
-        } else {
-            key.truncate(64);
-            Some(key)
+    if let Some(key) = key.as_ref() {
+        if key.len() > 64 {
+            bail!("Server key should be 64 bytes or less")
         }
-    } else {
-        Some(generate_key())
-    };
-
-    tracing::info!("Listening on {}://{}:{}", protocol, address, port);
-
-    if let Some(key) = key.clone() {
-        tracing::info!(
-            "To login, visit this URL (valid for 5 minutes): {}",
-            login_url(port, &key, Some(300), None)?
-        );
     }
+
+    tracing::info!("Serving on {}://{}:{}", protocol, address, port);
 
     match protocol {
         Protocol::Stdio => {
@@ -439,6 +456,7 @@ pub async fn serve_on(
                 .recover(rejection_handler);
 
             // Use `try_bind_ephemeral` here to avoid potential panic when using `run`
+            let address: std::net::IpAddr = address.parse()?;
             let (_address, future) = warp::serve(routes).try_bind_ephemeral((address, port))?;
             future.await
         }
@@ -483,44 +501,6 @@ async fn get_static(
         HeaderValue::from_str(mime.as_ref()).unwrap(),
     );
     Ok(res)
-}
-
-/// Generate a secret key for signing and verifying JSON Web Tokens.
-///
-/// Returns a secret comprised of 64 URL and command line compatible characters
-/// (e.g. so that it can easily be entered on the CLI for the `--key` option of the `request` command).
-///
-/// Uses 64 bytes because this is the maximum size possible for JWT signing keys.
-/// Using a large key for JWT signing reduces the probability of brute force attacks.
-/// See <https://auth0.com/blog/brute-forcing-hs256-is-possible-the-importance-of-using-strong-keys-to-sign-jwts/>.
-pub fn generate_key() -> String {
-    use rand::Rng;
-    const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
-                            abcdefghijklmnopqrstuvwxyz\
-                            0123456789";
-    let mut rng = rand::thread_rng();
-    (0..64)
-        .map(|_| {
-            let idx = rng.gen_range(0..CHARSET.len());
-            CHARSET[idx] as char
-        })
-        .collect()
-}
-
-/// Generate the login URL given a key, and optionally, the path to redirect to
-/// on successful login.
-pub fn login_url(
-    port: u16,
-    key: &str,
-    expiry_seconds: Option<i64>,
-    next: Option<String>,
-) -> Result<String> {
-    let token = jwt::encode(key.to_string(), expiry_seconds)?;
-    let next = next.unwrap_or_else(|| "/".to_string());
-    Ok(format!(
-        "http://127.0.0.1:{}/~login?token={}&next={}",
-        port, token, next
-    ))
 }
 
 /// A Warp filter that extracts any JSON Web Token from either the `Authorization` header
@@ -1029,7 +1009,9 @@ pub mod cli {
 
     /// Serve over HTTP and WebSockets
     ///
-    /// Use the <url> argument to change the port, address, and/or schema that the server
+    /// ## Ports, protocols, and addresses
+    ///
+    /// Use the <url> argument to change the port, address, and/or protocol that the server
     /// listens on. This argument can be a partial, or complete, URL.
     ///
     /// For example, to serve on port 8000 instead of the default port,
@@ -1045,8 +1027,10 @@ pub mod cli {
     ///
     ///   stencila serve http://127.0.0.1:9000
     ///
-    /// By default, the server requires an initial login via a JSON Web Token which is
-    /// printed in the console at startup. To turn that authorization off, for example
+    /// ## Security
+    ///
+    /// By default, the server requires an initial login via a JSON Web Token. A login URL is
+    /// printed in the console's standard output at startup. To turn authorization off, for example
     /// if you are using some other security layer in front of the server, use the `--insecure`
     /// flag.
     ///
@@ -1088,8 +1072,10 @@ pub mod cli {
 
             let config = &CONFIG.lock().await.serve;
 
-            let url = url.or_else(|| Some(config.url.clone()));
+            let url = url.unwrap_or_else(|| config.url.clone());
+            let (protocol, address, port) = parse_url(&url)?;
 
+            // Get key configured on command line or config file
             let key = match key {
                 Some(key) => {
                     tracing::warn!("Server key set on command line can be sniffed by malicious processes; prefer to set it in config file.");
@@ -1098,11 +1084,27 @@ pub mod cli {
                 None => config.key.clone(),
             };
 
+            // Check that user is explicitly allowing no key to be used
             let insecure = insecure || config.insecure;
             if insecure {
                 tracing::warn!("Serving in insecure mode is dangerous and discouraged.")
             }
 
+            // Generate key if necessary
+            let key = if key.is_none() {
+                match insecure {
+                    true => None,
+                    false => Some(generate_key()),
+                }
+            } else {
+                key
+            };
+
+            // Print the login URL to stdout so that it can be used by, for example, the
+            // parent process.
+            println!("{}", login_url(port, key.clone(), Some(300), None)?);
+
+            // Check for root usage
             #[cfg(any(target_os = "linux", target_os = "macos"))]
             if let sudo::RunningAs::Root = sudo::check() {
                 if root {
@@ -1112,15 +1114,7 @@ pub mod cli {
                 }
             }
 
-            super::serve(
-                url,
-                if insecure {
-                    Some("insecure".to_string())
-                } else {
-                    key
-                },
-            )
-            .await?;
+            super::serve_on(protocol, address, port, key).await?;
 
             display::nothing()
         }
