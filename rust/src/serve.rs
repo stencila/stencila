@@ -11,7 +11,7 @@ use crate::{
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
-use futures::{stream::SplitSink, SinkExt, StreamExt, TryFutureExt};
+use futures::{SinkExt, StreamExt};
 use itertools::Itertools;
 use jwt::JwtError;
 use once_cell::sync::Lazy;
@@ -115,6 +115,7 @@ impl Client {
         self.subscriptions.remove(topic)
     }
 
+    // Is a client subscribed to a particular topic, or set of topics?
     pub fn subscribed(&self, topic: &str) -> bool {
         for subscription in &self.subscriptions {
             if subscription == "*" || topic.starts_with(subscription) {
@@ -171,6 +172,17 @@ impl Clients {
                 });
             }
         };
+    }
+
+    pub async fn disconnected(&self, id: &str, gracefully: bool) {
+        let mut clients = self.clients.write().await;
+        clients.remove(id);
+
+        if gracefully {
+            tracing::debug!("Graceful disconnection by client {}", id)
+        } else {
+            tracing::warn!("Ungraceful disconnection by client: {}", id)
+        }
     }
 
     pub async fn send(&self, id: &str, message: impl Serialize) {
@@ -880,14 +892,17 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
     let (client_sender, client_receiver) = mpsc::unbounded_channel();
     let mut client_receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(client_receiver);
 
+    let client_clone = client.clone();
     tokio::task::spawn(async move {
         while let Some(message) = client_receiver.next().await {
-            ws_sender
-                .send(message)
-                .unwrap_or_else(|error| {
+            if let Err(error) = ws_sender.send(message).await {
+                let message = error.to_string();
+                if message == "Connection closed normally" {
+                    CLIENTS.disconnected(&client_clone, true).await
+                } else {
                     tracing::error!("Websocket send error: {}", error);
-                })
-                .await;
+                }
+            }
         }
     });
 
@@ -899,7 +914,13 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
         let message = match result {
             Ok(message) => message,
             Err(error) => {
-                tracing::error!("Websocket receive error: {}", error);
+                let message = error.to_string();
+                if message == "WebSocket protocol error: Connection reset without closing handshake"
+                {
+                    CLIENTS.disconnected(&client, false).await
+                } else {
+                    tracing::error!("Websocket receive error: {}", error);
+                }
                 continue;
             }
         };
@@ -935,6 +956,9 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
             rpc::Subscription::None => (),
         }
     }
+
+    // Record that the client has diconnected gracefully
+    CLIENTS.disconnected(&client, true).await
 }
 
 /// Handle a rejection by converting into a JSON-RPC response
