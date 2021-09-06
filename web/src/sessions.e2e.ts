@@ -1,12 +1,27 @@
+import { Client } from 'rpc-websockets'
 import { connect, disconnect } from './client'
-import { Session, SessionEvent, start, stop, subscribe, unsubscribe } from './sessions'
+import {
+  Session,
+  SessionEvent,
+  start,
+  stop,
+  subscribe,
+  unsubscribe,
+} from './sessions'
 
 jest.setTimeout(10000)
+
+let client: Client
+beforeAll(async () => {
+  client = await connect(process.env.SERVER_URL || 'ws://127.0.0.1:9000/~ws')
+})
+afterAll(async () => {
+  disconnect(client)
+})
 
 // Test of the basic session workflow of starting a session, subscribing
 // to it, receiving events and then stopping it.
 test('basic', async () => {
-  let client = await connect(process.env.SERVER_URL || "ws://127.0.0.1:9000/~ws")
   let session: Session
 
   // Start the session
@@ -96,6 +111,4 @@ test('basic', async () => {
       status: 'Stopped',
     })
   )
-
-  disconnect(client)
 })
