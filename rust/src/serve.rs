@@ -334,7 +334,7 @@ static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
 /// use stencila::rpc::Protocol;
 /// use stencila::serve::serve_on;
 ///
-/// serve_on(Protocol::Ws, "127.0.0.1", 9000, None);
+/// serve_on(Protocol::Ws, "127.0.0.1".to_string(), 9000, None);
 /// ```
 #[tracing::instrument]
 pub async fn serve_on(
