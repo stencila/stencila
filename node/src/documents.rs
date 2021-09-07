@@ -158,7 +158,10 @@ pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 
     let result = RUNTIME.block_on(async {
         match DOCUMENTS.get(id).await {
-            Ok(document) => document.lock().await.subscribe(topic),
+            Ok(document) => {
+                document.lock().await.subscribe(topic, "node");
+                Ok(())
+            }
             Err(error) => Err(error),
         }
     });
@@ -172,7 +175,10 @@ pub fn unsubscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 
     let result = RUNTIME.block_on(async {
         match DOCUMENTS.get(id).await {
-            Ok(document) => document.lock().await.unsubscribe(topic),
+            Ok(document) => {
+                document.lock().await.unsubscribe(topic, "node");
+                Ok(())
+            }
             Err(error) => Err(error),
         }
     });

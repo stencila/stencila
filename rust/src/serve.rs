@@ -27,6 +27,7 @@ use std::{
     str::FromStr,
     sync::Arc,
 };
+use thiserror::private::PathAsDisplay;
 use tokio::sync::{mpsc, RwLock};
 use warp::{ws, Filter, Reply};
 
@@ -686,7 +687,7 @@ async fn get_handler(
     let format = params.format.unwrap_or_else(|| "html".into());
     let theme = params.theme.unwrap_or_else(|| "wilmore".into());
 
-    match DOCUMENTS.open(path, None).await {
+    match DOCUMENTS.open(&path, None).await {
         Ok(document) => {
             let content = match document.dump(Some(format.clone())).await {
                 Ok(content) => content,
@@ -699,7 +700,7 @@ async fn get_handler(
             };
 
             let content = match format.as_str() {
-                "html" => rewrite_html(&content, &theme, &cwd),
+                "html" => rewrite_html(&content, &theme, &cwd, &path),
                 _ => content,
             };
 
@@ -723,7 +724,7 @@ async fn get_handler(
 ///
 /// Only local files somewhere withing the current working directory are
 /// served.
-pub fn rewrite_html(body: &str, theme: &str, cwd: &Path) -> String {
+pub fn rewrite_html(body: &str, theme: &str, cwd: &Path, document: &Path) -> String {
     static REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r#""file://(.*?)""#).expect("Unable to create regex"));
 
@@ -752,7 +753,7 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path) -> String {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <script src="/~static/web/browser/index.js"></script>
         <script>
-            stencilaWebClient.test("{url}", "{client}", "{project}", "{snapshot}")
+            stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}")
         </script>
         <link
             href="https://unpkg.com/@stencila/thema/dist/themes/{theme}/styles.css"
@@ -782,10 +783,12 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path) -> String {
         <div data-itemscope="root">{body}</div>
     </body>
 </html>"#,
-        url = "/~ws",
+        // TODO: pass url from outside this function?
+        url = "ws://127.0.0.1:9000/~ws",
         client = uuids::generate(Family::Client),
         project = "current",
         snapshot = "current",
+        document = document.as_display().to_string(),
         theme = theme,
         body = body
     )

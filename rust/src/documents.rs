@@ -10,18 +10,23 @@ use crate::{
     pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
-        schemas, uuids,
+        schemas,
+        uuids::{self, Family},
     },
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
+use maplit::hashset;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::ser::SerializeMap;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::time::{Duration, Instant};
+use std::{
+    collections::HashSet,
+    time::{Duration, Instant},
+};
 use std::{
     collections::{hash_map::Entry, HashMap},
     env, fs,
@@ -183,11 +188,11 @@ pub struct Document {
     #[serde(skip_deserializing, serialize_with = "Document::serialize_relations")]
     pub relations: HashMap<Resource, Vec<(Relation, Resource)>>,
 
-    /// The set of unique subscriptions to this document
+    /// The clients that are subscribed to each topic for this document
     ///
-    /// Keeps track of the number of subscribers to each of the document's
-    /// topic channels. Events will only be published on channels that
-    /// have at least one subscriber.
+    /// Keeping track of client ids per topics allows for a some
+    /// optimizations. For example, events will only be published on topics that have at least one
+    /// subscriber.
     ///
     /// Valid subscription topics are the names of the `DocumentEvent` types:
     ///
@@ -195,9 +200,9 @@ pub struct Document {
     /// - `renamed`: published when document file is renamed
     /// - `modified`: published when document file is modified
     /// - `encoded:<format>` published when a document's content
-    ///   is changed internally or externally and  conversions have been
-    ///   completed e.g. `encoded:html`
-    subscriptions: HashMap<String, u32>,
+    ///    is changed internally or externally and  conversions have been
+    ///    completed e.g. `encoded:html`
+    subscriptions: HashMap<String, HashSet<String>>,
 }
 
 #[allow(unused)]
@@ -663,42 +668,50 @@ impl Document {
         Ok(result)
     }
 
-    /// Add a subscriber to one of the document's topics
-    #[allow(clippy::unnecessary_wraps)]
-    pub fn subscribe(&mut self, topic: &str) -> Result<()> {
-        match self.subscriptions.entry(topic.into()) {
-            Entry::Occupied(mut entry) => {
-                let subscribers = entry.get_mut();
-                *subscribers += 1;
-            }
-            Entry::Vacant(entry) => {
-                entry.insert(1);
-            }
-        }
-        Ok(())
+    /// Generate a topic string for the document
+    pub fn topic(&self, subtopic: &str) -> String {
+        ["documents:", &self.id, ":", subtopic].concat()
     }
 
-    /// Remove a subscriber to one of the document's topics
-    #[allow(clippy::unnecessary_wraps)]
-    pub fn unsubscribe(&mut self, topic: &str) -> Result<()> {
+    /// Subscribe a client to one of the document's topics
+    pub fn subscribe(&mut self, topic: &str, client: &str) -> String {
         match self.subscriptions.entry(topic.into()) {
-            Entry::Occupied(mut entry) => {
-                let subscribers = entry.get_mut();
-                *subscribers -= 1;
-                if *subscribers == 0 {
-                    entry.remove();
-                }
+            Entry::Occupied(mut occupied) => {
+                occupied.get_mut().insert(client.into());
             }
-            Entry::Vacant(_) => {}
+            Entry::Vacant(vacant) => {
+                vacant.insert(hashset! {client.into()});
+            }
         }
-        Ok(())
+        self.topic(topic)
     }
 
-    /// Publish a `DocumentEvent` for this document
+    /// Unsubscribe a client from one of the document's topics
+    pub fn unsubscribe(&mut self, topic: &str, client: &str) -> String {
+        if let Entry::Occupied(mut occupied) = self.subscriptions.entry(topic.to_string()) {
+            let subscribers = occupied.get_mut();
+            subscribers.remove(client);
+            if subscribers.is_empty() {
+                occupied.remove();
+            }
+        }
+        self.topic(topic)
+    }
+
+    /// Get the number of subscribers to one of the document's topics
+    fn subscribers(&self, topic: &str) -> usize {
+        if let Some(subscriptions) = self.subscriptions.get(topic) {
+            subscriptions.len()
+        } else {
+            0
+        }
+    }
+
+    /// Publish an event for this document
     fn publish(&self, type_: DocumentEventType, content: Option<String>, format: Option<String>) {
         let format = format.map(|name| FORMATS.match_name(&name));
 
-        let topic = match type_ {
+        let subtopic = match type_ {
             DocumentEventType::Encoded => format!(
                 "encoded:{}",
                 format
@@ -707,10 +720,9 @@ impl Document {
             ),
             _ => type_.to_string(),
         };
-        let topic = format!("documents:{}:{}", self.id, topic);
 
         publish(
-            &topic,
+            &self.topic(&subtopic),
             &DocumentEvent {
                 type_,
                 document: self.clone(),
@@ -1063,6 +1075,53 @@ impl Documents {
         Ok(())
     }
 
+    /// Subscribe a client to a topic for a document
+    pub async fn subscribe(
+        &self,
+        id: &str,
+        topic: &str,
+        client: &str,
+    ) -> Result<(Document, String)> {
+        let document_lock = self.get(id).await?;
+        let mut document_guard = document_lock.lock().await;
+        let topic = document_guard.subscribe(topic, client);
+        Ok((document_guard.clone(), topic))
+    }
+
+    /// Unsubscribe a client from a topic for a document
+    pub async fn unsubscribe(
+        &self,
+        id: &str,
+        topic: &str,
+        client: &str,
+    ) -> Result<(Document, String)> {
+        let document_lock = self.get(id).await?;
+        let mut document_guard = document_lock.lock().await;
+        let topic = document_guard.unsubscribe(topic, client);
+        Ok((document_guard.clone(), topic))
+    }
+
+    /// Execute a node within a document
+    pub async fn execute(&self, id: &str, node: &str) -> Result<Document> {
+        let document_lock = self.get(id).await?;
+        let mut document_guard = document_lock.lock().await;
+        // TODO
+        Ok(document_guard.clone())
+    }
+
+    /// Change a node within a document
+    pub async fn change(
+        &self,
+        id: &str,
+        node: &str,
+        value: &serde_json::Value,
+    ) -> Result<Document> {
+        let document_lock = self.get(id).await?;
+        let mut document_guard = document_lock.lock().await;
+        // TODO
+        Ok(document_guard.clone())
+    }
+
     /// Get a document that has previously been opened
     pub async fn get(&self, id: &str) -> Result<Arc<Mutex<Document>>> {
         if let Some(handler) = self.registry.lock().await.get(id) {
@@ -1305,6 +1364,7 @@ pub mod cli {
             }
         }
     }
+
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Get JSON Schemas for documents and associated types",

@@ -1,12 +1,9 @@
+import { Document } from 'stencila'
 import { Client } from './client'
 
 export type DocumentPath = string
 
 export type DocumentId = string
-
-export interface Document {
-  id: DocumentId
-}
 
 type DocumentTopic = 'node:value' | 'node:html'
 
@@ -40,6 +37,14 @@ export type DocumentEvent =
 
 /**
  * The browser `CustomEvent` detail emitted when a node in the current
+ * document is executed.
+ */
+export interface NodeExecute {
+  id: NodeId
+}
+
+/**
+ * The browser `CustomEvent` detail emitted when a node in the current
  * document is changed by the user.
  */
 export interface NodeValueChanged {
@@ -50,7 +55,7 @@ export interface NodeValueChanged {
 /**
  * Open a document
  *
- * Loads the document into memory and returns a document object
+ * Loads the document into memory on the server and returns a document object
  * with an `id` which can be used to subscribe to topics.
  */
 export async function open(
@@ -59,6 +64,18 @@ export async function open(
 ): Promise<Document> {
   return client.call('documents.open', {
     path: documentPath,
+  }) as Promise<Document>
+}
+
+/**
+ * Close a document
+ */
+export async function close(
+  client: Client,
+  documentId: DocumentId
+): Promise<Document> {
+  return client.call('documents.close', {
+    id: documentId,
   }) as Promise<Document>
 }
 
@@ -85,7 +102,7 @@ export async function subscribe(
 ): Promise<Document> {
   client.on(`document:${documentId}:${topic}`, handler)
   return client.call('documents.subscribe', {
-    document: documentId,
+    id: documentId,
     topic,
   }) as Promise<Document>
 }
@@ -100,7 +117,7 @@ export async function unsubscribe(
 ): Promise<Document> {
   client.off(`document:${documentId}:${topic}`)
   return client.call('documents.unsubscribe', {
-    document: documentId,
+    id: documentId,
     topic,
   }) as Promise<Document>
 }
@@ -110,10 +127,12 @@ export async function unsubscribe(
  */
 export async function execute(
   client: Client,
-  documentId: DocumentId
+  documentId: DocumentId,
+  nodeId: NodeId
 ): Promise<Document> {
   return client.call('documents.execute', {
-    document: documentId,
+    id: documentId,
+    node: nodeId,
   }) as Promise<Document>
 }
 
@@ -127,7 +146,7 @@ export async function change(
   nodeValue: NodeValue
 ): Promise<Document> {
   return client.call('documents.change', {
-    document: documentId,
+    id: documentId,
     node: nodeId,
     value: nodeValue,
   }) as Promise<Document>

@@ -13,6 +13,7 @@ import * as sessions from './sessions'
 import { ProjectId, SnapshotId } from './types'
 
 export const main = (
+  url: string,
   clientId: ClientId,
   projectId: ProjectId,
   snapshotId: SnapshotId,
@@ -25,7 +26,7 @@ export const main = (
   // Start the client and session, if necessary
   const startup = async (): Promise<[Client, Document, Session]> => {
     if (client == undefined) {
-      client = await connect('/~ws', clientId)
+      client = await connect(url, clientId)
     }
 
     if (session == undefined) {
@@ -52,10 +53,19 @@ export const main = (
   }
 
   // Listen for a `document:execute` custom event e.g. user presses
-  // a document level "run button".
+  // a document level "run button". Note that in this case the node id
+  // _is_ the document id.
   window.addEventListener('document:execute', async () => {
     const [client, document] = await startup()
-    await documents.execute(client, document.id)
+    await documents.execute(client, document.id, document.id)
+  })
+
+  // Listen for a `document:node::execute` custom event e.g. user presses
+  // a the "run button" on a `CodeChunk` (to execute it without changing it)
+  window.addEventListener('document:node:execute', async (e) => {
+    const [client, document] = await startup()
+    const event = (e as CustomEvent).detail as documents.NodeExecute
+    await documents.execute(client, document.id, event.id)
   })
 
   // Listen for a `document:node:changed` custom event emitted from within browser window
