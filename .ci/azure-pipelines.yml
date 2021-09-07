@@ -156,8 +156,9 @@ jobs:
       # because it includes end-to-end tests of integrations with the Rust server
       - script: |
           set -e
+          cargo run --manifest-path cli/Cargo.toml -- serve --insecure &
+          cd web
           npm install
-          cargo run --manifest-path ../cli/Cargo.toml -- serve --insecure &
           SERVER_URL="ws://127.0.0.1:9000/~ws" npm test
           kill %1
         condition: |
