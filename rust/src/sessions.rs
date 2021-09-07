@@ -1,12 +1,16 @@
 use crate::{
     pubsub::publish,
-    utils::uuids::{self, Family},
+    utils::{
+        schemas,
+        uuids::{self, Family},
+    },
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
 use itertools::Itertools;
 use maplit::hashset;
 use once_cell::sync::Lazy;
+use schemars::{schema::Schema, JsonSchema};
 use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
@@ -15,18 +19,31 @@ use std::{
 use tokio::{sync::RwLock, task::JoinHandle};
 
 /// A session event
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, JsonSchema, Serialize)]
 #[serde(tag = "type")]
+#[schemars(deny_unknown_fields)]
 pub enum SessionEvent {
     /// One or more of the session's properties was updated
-    Updated { session: Session },
+    Updated {
+        #[schemars(schema_with = "SessionEvent::session_schema")]
+        session: Session,
+    },
 
     /// A heartbeat event
-    Heartbeat { session: Session },
+    Heartbeat { 
+        #[schemars(schema_with = "SessionEvent::session_schema")]
+        session: Session
+    },
 }
 
-/// The status if a session
-#[derive(Debug, Clone, Serialize)]
+impl SessionEvent {
+    fn session_schema<Generator>(_: Generator) -> Schema {
+        schemas::typescript("Session", true)
+    }   
+}
+
+/// The status of a session
+#[derive(Debug, Clone, JsonSchema, Serialize)]
 pub enum SessionStatus {
     Pending,
     Starting,
@@ -36,7 +53,8 @@ pub enum SessionStatus {
 }
 
 /// A session
-#[derive(Debug, Clone, Defaults, Serialize)]
+#[derive(Debug, Clone, Defaults, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
 pub struct Session {
     /// The id of the session
     pub id: String,
@@ -47,7 +65,7 @@ pub struct Session {
     /// The id of the snapshot that this session is for
     snapshot: String,
 
-    /// The topics / clients that are subscribed to this session
+    /// The clients that are subscribed to each topic for this session
     ///
     /// This is an optimization to avoid collecting session metrics
     /// and / or publishing events if there are no clients subscribed.
@@ -59,6 +77,7 @@ pub struct Session {
 }
 
 impl Session {
+    // Create a new session for a project and snapshot
     pub fn new(project: &str, snapshot: &str) -> Session {
         Session {
             id: uuids::generate(uuids::Family::Session),
@@ -68,33 +87,38 @@ impl Session {
         }
     }
 
+    // Start the session
     pub fn start(&mut self) {
         self.status = SessionStatus::Started;
         self.updated();
     }
 
+    // Stop the session
     pub fn stop(&mut self) {
         self.status = SessionStatus::Stopped;
         self.updated();
     }
 
+    /// Generate a topic string for the session
     pub fn topic(&self, subtopic: &str) -> String {
         ["sessions:", &self.id, ":", subtopic].concat()
     }
 
+    /// Subscribe a client to one of the session's topics
     pub fn subscribe(&mut self, topic: &str, client: &str) -> String {
-        match self.subscriptions.entry(topic.to_string()) {
+        match self.subscriptions.entry(topic.into()) {
             Entry::Occupied(mut occupied) => {
-                occupied.get_mut().insert(client.to_string());
+                occupied.get_mut().insert(client.into());
             }
             Entry::Vacant(vacant) => {
-                vacant.insert(hashset! {client.to_string()});
+                vacant.insert(hashset! {client.into()});
             }
         };
         self.updated();
         self.topic(topic)
     }
 
+    /// Unsubscribe a client from one of the session's topics
     pub fn unsubscribe(&mut self, topic: &str, client: &str) -> String {
         if let Entry::Occupied(mut occupied) = self.subscriptions.entry(topic.to_string()) {
             let subscribers = occupied.get_mut();
@@ -107,13 +131,26 @@ impl Session {
         self.topic(topic)
     }
 
-    pub fn publish(&self, topic: &str, event: SessionEvent) {
-        if !self.subscriptions.is_empty() {
+    /// Get the number of subscribers to one of the session's topics
+    fn subscribers(&self, topic: &str) -> usize {
+        if let Some(subscriptions) = self.subscriptions.get(topic) {
+            subscriptions.len()
+        } else {
+            0
+        }
+    }
+
+    /// Publish an event for this session
+    ///
+    /// Checks that there is at least one subscriber for the topic before publishing
+    fn publish(&self, topic: &str, event: SessionEvent) {
+        if self.subscribers(topic) > 0 {
             publish(&self.topic(topic), &event)
         }
     }
 
-    pub fn updated(&self) {
+    /// Publish an `Updated` event for this session
+    fn updated(&self) {
         self.publish(
             "updated",
             SessionEvent::Updated {
@@ -122,7 +159,8 @@ impl Session {
         )
     }
 
-    pub fn heartbeat(&self) {
+    /// Publish a `Heartbeat` event for this session
+    fn heartbeat(&self) {
         self.publish(
             "heartbeat",
             SessionEvent::Heartbeat {
@@ -151,19 +189,23 @@ impl Drop for Sessions {
 }
 
 impl Sessions {
+    /// Create a new sessions store
+    ///
+    /// Starts a session monitoring thread.
     #[allow(clippy::new_without_default)]
     pub fn new() -> Sessions {
         let sessions: Arc<RwLock<HashMap<String, Session>>> = Arc::new(RwLock::new(HashMap::new()));
 
         let sessions_clone = sessions.clone();
-        let monitor = tokio::spawn(Sessions::heartbeats(sessions_clone));
+        let monitoring = tokio::spawn(Sessions::monitor(sessions_clone));
 
         Sessions {
             sessions,
-            monitoring: monitor,
+            monitoring,
         }
     }
 
+    /// Start a session for a project and snapshot
     pub async fn start(&self, project: &str, snapshot: &str) -> Result<Session> {
         let mut sessions = self.sessions.write().await;
         let mut session = Session::new(project, snapshot);
@@ -172,8 +214,9 @@ impl Sessions {
         Ok(session)
     }
 
-    pub async fn stop(&self, session: &str) -> Result<Session> {
-        let session = uuids::assert(Family::Session, session)?;
+    /// Stop a session
+    pub async fn stop(&self, id: &str) -> Result<Session> {
+        let session = uuids::assert(Family::Session, id)?;
         let mut sessions = self.sessions.write().await;
         match sessions.entry(session.clone()) {
             Entry::Occupied(mut entry) => {
@@ -185,13 +228,14 @@ impl Sessions {
         }
     }
 
+    /// Subscribe a client to a topic for a session
     pub async fn subscribe(
         &self,
-        session: &str,
+        id: &str,
         topic: &str,
         client: &str,
     ) -> Result<(Session, String)> {
-        let session = uuids::assert(Family::Session, session)?;
+        let session = uuids::assert(Family::Session, id)?;
         let mut sessions = self.sessions.write().await;
         if let Some(session) = sessions.get_mut(&session) {
             let topic = session.subscribe(topic, client);
@@ -201,13 +245,14 @@ impl Sessions {
         }
     }
 
+    /// Unsubscribe a client from a topic for a session
     pub async fn unsubscribe(
         &self,
-        session: &str,
+        id: &str,
         topic: &str,
         client: &str,
     ) -> Result<(Session, String)> {
-        let session = uuids::assert(Family::Session, session)?;
+        let session = uuids::assert(Family::Session, id)?;
         let mut sessions = self.sessions.write().await;
         if let Some(session) = sessions.get_mut(&session) {
             let topic = session.unsubscribe(topic, client);
@@ -217,8 +262,10 @@ impl Sessions {
         }
     }
 
-    /// Generate heartbeat events for each session for which there are heartbeat subscriptions
-    async fn heartbeats(sessions: Arc<RwLock<HashMap<String, Session>>>) {
+    /// Monitor sessions
+    ///
+    /// Generated heartbeat events for each session for which there are heartbeat subscriptions
+    async fn monitor(sessions: Arc<RwLock<HashMap<String, Session>>>) {
         use tokio::time::{sleep, Duration};
 
         loop {
@@ -254,3 +301,12 @@ impl Sessions {
 
 /// The global session store
 pub static SESSIONS: Lazy<Sessions> = Lazy::new(Sessions::new);
+
+/// Get JSON Schemas for this modules
+pub fn schemas() -> Result<serde_json::Value> {
+    let schemas = serde_json::Value::Array(vec![
+        schemas::generate::<Session>()?,
+        schemas::generate::<SessionEvent>()?,
+    ]);
+    Ok(schemas)
+}

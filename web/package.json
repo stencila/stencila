@@ -47,7 +47,7 @@
     "@stencila/schema": "^1.11.1"
   },
   "dependencies": {
-    "@stencila/stencila": "file:../node",
+    "stencila": "file:../node",
     "rpc-websockets": "^7.4.14"
   },
   "browserslist": [

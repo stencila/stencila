@@ -446,6 +446,47 @@ export interface GraphEvent {
 }
 
 /**
+ * A session
+ */
+export interface Session {
+  /**
+   * The id of the session
+   */
+  id: string
+  /**
+   * The id of the project that this session is for
+   */
+  project: string
+  /**
+   * The id of the snapshot that this session is for
+   */
+  snapshot: string
+  /**
+   * This is an optimization to avoid collecting session metrics and / or publishing events if there are no clients subscribed.
+   */
+  subscriptions: {
+    [k: string]: string[]
+  }
+  /**
+   * The status of the session
+   */
+  status: 'Pending' | 'Starting' | 'Started' | 'Stopping' | 'Stopped'
+}
+
+/**
+ * A session event
+ */
+export type SessionEvent =
+  | {
+      type: 'Updated'
+      session: Session
+    }
+  | {
+      type: 'Heartbeat'
+      session: Session
+    }
+
+/**
  * Each source by destination combination should be unique to a project. It is possible to have the same source being imported to multiple destinations within a project and for multiple sources to used the same destination (e.g. the root directory of the project).
  */
 export interface SourceDestination {
@@ -730,6 +771,12 @@ export interface ConfigEvent {
  * Where possible functions should return one of these errors to provide greater context to the user, in particular regarding actions that can be taken to resolve the error.
  */
 export type Error =
+  | {
+      type: 'InvalidUUID'
+      family: string
+      id: string
+      message: string
+    }
   | {
       type: 'UnknownFormat'
       format: string

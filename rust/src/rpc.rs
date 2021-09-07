@@ -238,9 +238,9 @@ async fn sessions_start(params: &Params) -> Result<(serde_json::Value, Subscript
 }
 
 async fn sessions_stop(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let session = required_string(params, "session")?;
+    let id = required_string(params, "id")?;
 
-    let session = SESSIONS.stop(&session).await?;
+    let session = SESSIONS.stop(&id).await?;
     Ok((json!(session), Subscription::None))
 }
 
@@ -248,10 +248,10 @@ async fn sessions_subscribe(
     params: &Params,
     client: &str,
 ) -> Result<(serde_json::Value, Subscription)> {
-    let session = required_string(params, "session")?;
+    let id = required_string(params, "id")?;
     let topic = required_string(params, "topic")?;
 
-    let (session, topic) = SESSIONS.subscribe(&session, &topic, client).await?;
+    let (session, topic) = SESSIONS.subscribe(&id, &topic, client).await?;
     Ok((json!(session), Subscription::Subscribe(topic)))
 }
 
@@ -259,10 +259,10 @@ async fn sessions_unsubscribe(
     params: &Params,
     client: &str,
 ) -> Result<(serde_json::Value, Subscription)> {
-    let session = required_string(params, "session")?;
+    let id = required_string(params, "id")?;
     let topic = required_string(params, "topic")?;
 
-    let (session, topic) = SESSIONS.unsubscribe(&session, &topic, client).await?;
+    let (session, topic) = SESSIONS.unsubscribe(&id, &topic, client).await?;
     Ok((json!(session), Subscription::Unsubscribe(topic)))
 }
 

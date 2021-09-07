@@ -22,6 +22,7 @@ const addon = require('./index.node')
     'documentsSchemas',
     'projectsSchemas',
     'graphsSchemas',
+    'sessionsSchemas',
     'sourcesSchemas',
     'pluginsSchema',
     'configSchemas',

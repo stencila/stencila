@@ -1,18 +1,10 @@
+import { Session, SessionEvent } from 'stencila'
 import { Client } from './client'
 import { ProjectId, SnapshotId } from './types'
 
 export type SessionId = string
 
-export interface Session {
-  id: SessionId
-}
-
 type SessionTopic = 'updated' | 'heartbeat'
-
-export interface SessionEvent {
-  type: 'Updated' | 'Heartbeat'
-  session: Session
-}
 
 /**
  * Start a session
@@ -36,7 +28,7 @@ export async function stop(
   sessionId: SessionId
 ): Promise<Session> {
   return client.call('sessions.stop', {
-    session: sessionId,
+    id: sessionId,
   }) as Promise<Session>
 }
 
@@ -71,7 +63,7 @@ export async function subscribe(
 ): Promise<Session> {
   client.on(`sessions:${sessionId}:${topic}`, handler)
   return client.call('sessions.subscribe', {
-    session: sessionId,
+    id: sessionId,
     topic,
   }) as Promise<Session>
 }
@@ -88,7 +80,7 @@ export async function unsubscribe(
 ): Promise<Session> {
   client.off(`sessions:${sessionId}:${topic}`)
   return client.call('sessions.unsubscribe', {
-    session: sessionId,
+    id: sessionId,
     topic,
   }) as Promise<Session>
 }

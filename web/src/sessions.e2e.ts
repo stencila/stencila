@@ -1,13 +1,6 @@
-import { Client } from 'rpc-websockets'
-import { connect, disconnect } from './client'
-import {
-  Session,
-  SessionEvent,
-  start,
-  stop,
-  subscribe,
-  unsubscribe,
-} from './sessions'
+import { Session, SessionEvent } from 'stencila'
+import { Client, connect, disconnect } from './client'
+import { start, stop, subscribe, unsubscribe } from './sessions'
 
 jest.setTimeout(10000)
 
