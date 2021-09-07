@@ -6,14 +6,14 @@
 // - How do we migrate old published documents
 // - Attach Node IDs for required elements in published article HTML
 
-import { Client, connect, disconnect } from './client'
+import { Document, Session } from 'stencila'
+import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
-import { Document } from './documents'
 import * as sessions from './sessions'
-import { Session } from './sessions'
 import { ProjectId, SnapshotId } from './types'
 
 export const main = (
+  clientId: ClientId,
   projectId: ProjectId,
   snapshotId: SnapshotId,
   documentPath: documents.DocumentPath
@@ -25,7 +25,7 @@ export const main = (
   // Start the client and session, if necessary
   const startup = async (): Promise<[Client, Document, Session]> => {
     if (client == undefined) {
-      client = await connect()
+      client = await connect('/~ws', clientId)
     }
 
     if (session == undefined) {

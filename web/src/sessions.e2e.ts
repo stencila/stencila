@@ -4,9 +4,13 @@ import { start, stop, subscribe, unsubscribe } from './sessions'
 
 jest.setTimeout(10000)
 
+const clientId = 'cl-session-tests'
 let client: Client
 beforeAll(async () => {
-  client = await connect(process.env.SERVER_URL || 'ws://127.0.0.1:9000/~ws')
+  client = await connect(
+    process.env.SERVER_URL || 'ws://127.0.0.1:9000/~ws',
+    clientId
+  )
 })
 afterAll(async () => {
   disconnect(client)
@@ -36,7 +40,7 @@ test('basic', async () => {
   })
   expect(session).toEqual(
     expect.objectContaining({
-      subscriptions: { updated: ['clientId'] },
+      subscriptions: { updated: [clientId] },
     })
   )
 
@@ -48,7 +52,7 @@ test('basic', async () => {
   })
   expect(session).toEqual(
     expect.objectContaining({
-      subscriptions: { updated: ['clientId'], heartbeat: ['clientId'] },
+      subscriptions: { updated: [clientId], heartbeat: [clientId] },
     })
   )
 
@@ -85,7 +89,7 @@ test('basic', async () => {
   session = await unsubscribe(client, session.id, 'heartbeat')
   expect(session).toEqual(
     expect.objectContaining({
-      subscriptions: { updated: ['clientId'] },
+      subscriptions: { updated: [clientId] },
     })
   )
 
