@@ -7,7 +7,6 @@ use crate::{
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
-use itertools::Itertools;
 use maplit::hashset;
 use once_cell::sync::Lazy;
 use schemars::{schema::Schema, JsonSchema};
@@ -30,16 +29,16 @@ pub enum SessionEvent {
     },
 
     /// A heartbeat event
-    Heartbeat { 
+    Heartbeat {
         #[schemars(schema_with = "SessionEvent::session_schema")]
-        session: Session
+        session: Session,
     },
 }
 
 impl SessionEvent {
     fn session_schema<Generator>(_: Generator) -> Schema {
         schemas::typescript("Session", true)
-    }   
+    }
 }
 
 /// The status of a session
@@ -173,7 +172,7 @@ impl Session {
 /// A session store
 #[derive(Debug)]
 pub struct Sessions {
-    sessions: Arc<RwLock<HashMap<String, Session>>>,
+    sessions: Arc<RwLock<HashMap<String, RwLock<Session>>>>,
 
     /// The join handle for the monitoring thread.
     ///
@@ -194,11 +193,8 @@ impl Sessions {
     /// Starts a session monitoring thread.
     #[allow(clippy::new_without_default)]
     pub fn new() -> Sessions {
-        let sessions: Arc<RwLock<HashMap<String, Session>>> = Arc::new(RwLock::new(HashMap::new()));
-
-        let sessions_clone = sessions.clone();
-        let monitoring = tokio::spawn(Sessions::monitor(sessions_clone));
-
+        let sessions = Arc::new(RwLock::new(HashMap::new()));
+        let monitoring = tokio::spawn(Sessions::monitor(sessions.clone()));
         Sessions {
             sessions,
             monitoring,
@@ -207,24 +203,27 @@ impl Sessions {
 
     /// Start a session for a project and snapshot
     pub async fn start(&self, project: &str, snapshot: &str) -> Result<Session> {
-        let mut sessions = self.sessions.write().await;
         let mut session = Session::new(project, snapshot);
         session.start();
-        sessions.insert(session.id.clone(), session.clone());
+        let mut sessions = self.sessions.write().await;
+        sessions.insert(session.id.clone(), RwLock::new(session.clone()));
         Ok(session)
     }
 
     /// Stop a session
     pub async fn stop(&self, id: &str) -> Result<Session> {
-        let session = uuids::assert(Family::Session, id)?;
+        let id = uuids::assert(Family::Session, id)?;
         let mut sessions = self.sessions.write().await;
-        match sessions.entry(session.clone()) {
-            Entry::Occupied(mut entry) => {
-                let session = entry.get_mut();
-                session.stop();
-                Ok(entry.remove())
+        match sessions.entry(id.clone()) {
+            Entry::Occupied(entry) => {
+                let mut session_guard = entry.get().write().await;
+                session_guard.stop();
+                drop(session_guard);
+
+                let session = entry.remove().read().await.clone();
+                Ok(session)
             }
-            Entry::Vacant(..) => bail!("No session with id '{}'", session),
+            Entry::Vacant(..) => bail!("No session with id '{}'", id),
         }
     }
 
@@ -235,13 +234,17 @@ impl Sessions {
         topic: &str,
         client: &str,
     ) -> Result<(Session, String)> {
-        let session = uuids::assert(Family::Session, id)?;
-        let mut sessions = self.sessions.write().await;
-        if let Some(session) = sessions.get_mut(&session) {
-            let topic = session.subscribe(topic, client);
-            Ok((session.clone(), topic))
+        let id = uuids::assert(Family::Session, id)?;
+        let sessions = self.sessions.read().await;
+        if let Some(session_lock) = sessions.get(&id) {
+            let mut session_guard = session_lock.write().await;
+            let topic = session_guard.subscribe(topic, client);
+            drop(session_guard);
+
+            let session = session_lock.read().await.clone();
+            Ok((session, topic))
         } else {
-            bail!("No session with id '{}'", session)
+            bail!("No session with id '{}'", id)
         }
     }
 
@@ -252,20 +255,24 @@ impl Sessions {
         topic: &str,
         client: &str,
     ) -> Result<(Session, String)> {
-        let session = uuids::assert(Family::Session, id)?;
-        let mut sessions = self.sessions.write().await;
-        if let Some(session) = sessions.get_mut(&session) {
-            let topic = session.unsubscribe(topic, client);
-            Ok((session.clone(), topic))
+        let id = uuids::assert(Family::Session, id)?;
+        let sessions = self.sessions.read().await;
+        if let Some(session_lock) = sessions.get(&id) {
+            let mut session_guard = session_lock.write().await;
+            let topic = session_guard.unsubscribe(topic, client);
+            drop(session_guard);
+
+            let session = session_lock.read().await.clone();
+            Ok((session, topic))
         } else {
-            bail!("No session with id '{}'", session)
+            bail!("No session with id '{}'", id)
         }
     }
 
     /// Monitor sessions
     ///
-    /// Generated heartbeat events for each session for which there are heartbeat subscriptions
-    async fn monitor(sessions: Arc<RwLock<HashMap<String, Session>>>) {
+    /// Generates heartbeat events for each session for which there are heartbeat subscriptions
+    async fn monitor(sessions: Arc<RwLock<HashMap<String, RwLock<Session>>>>) {
         use tokio::time::{sleep, Duration};
 
         loop {
@@ -273,23 +280,22 @@ impl Sessions {
             // Doing this allows us to not hold a lock on the sessions while publishing
             // heartbeats AND sleeping. If this is not done the lock is held for 5 seconds
             // on each loop.
-            let guard = sessions.read().await;
-            let sessions = guard
-                .values()
-                .filter_map(|session| {
-                    if let Some(subscriptions) = session.subscriptions.get("heartbeat") {
-                        if !subscriptions.is_empty() {
-                            return Some(session.clone());
-                        }
-                    }
-                    None
-                })
-                .collect_vec();
-            drop(guard);
+            let sessions_guard = sessions.read().await;
+            let mut sessions_heartbeats: Vec<Session> = Vec::with_capacity(sessions_guard.len());
+            for session_lock in sessions_guard.values() {
+                let session_guard = session_lock.read().await;
+                if session_guard.subscribers("heartbeat") > 0 {
+                    sessions_heartbeats.push(session_guard.clone())
+                }
+            }
+            drop(sessions_guard);
 
-            if !sessions.is_empty() {
-                tracing::debug!("Generating heartbeats for {} sessions", sessions.len());
-                for session in sessions {
+            if !sessions_heartbeats.is_empty() {
+                tracing::debug!(
+                    "Generating heartbeats for {} sessions",
+                    sessions_heartbeats.len()
+                );
+                for session in sessions_heartbeats {
                     session.heartbeat()
                 }
             }
