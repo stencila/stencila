@@ -65,7 +65,7 @@ export const main = (
   window.addEventListener('document:node:execute', async (e) => {
     const [client, document] = await startup()
     const event = (e as CustomEvent).detail as documents.NodeExecute
-    await documents.execute(client, document.id, event.id)
+    await documents.execute(client, document.id, event.id, event.value)
   })
 
   // Listen for a `document:node:changed` custom event emitted from within browser window

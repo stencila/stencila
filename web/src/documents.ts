@@ -41,6 +41,7 @@ export type DocumentEvent =
  */
 export interface NodeExecute {
   id: NodeId
+  value?: NodeValue
 }
 
 /**
@@ -123,20 +124,6 @@ export async function unsubscribe(
 }
 
 /**
- * Execute a document
- */
-export async function execute(
-  client: Client,
-  documentId: DocumentId,
-  nodeId: NodeId
-): Promise<Document> {
-  return client.call('documents.execute', {
-    id: documentId,
-    node: nodeId,
-  }) as Promise<Document>
-}
-
-/**
  * Change a document node
  */
 export async function change(
@@ -146,6 +133,24 @@ export async function change(
   nodeValue: NodeValue
 ): Promise<Document> {
   return client.call('documents.change', {
+    id: documentId,
+    node: nodeId,
+    value: nodeValue,
+  }) as Promise<Document>
+}
+
+/**
+ * Execute a document node
+ *
+ * Optionally, pass a new value for the node.
+ */
+export async function execute(
+  client: Client,
+  documentId: DocumentId,
+  nodeId: NodeId,
+  nodeValue?: NodeValue
+): Promise<Document> {
+  return client.call('documents.execute', {
     id: documentId,
     node: nodeId,
     value: nodeValue,

@@ -308,20 +308,21 @@ async fn documents_unsubscribe(
     Ok((json!(document), Subscription::Unsubscribe(topic)))
 }
 
-async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "id")?;
-    let node = required_string(params, "node")?;
-
-    let document = DOCUMENTS.execute(&id, &node).await?;
-    Ok((json!(document), Subscription::None))
-}
-
 async fn documents_change(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "id")?;
     let node = required_string(params, "node")?;
     let value = required_value(params, "value")?;
 
-    let document = DOCUMENTS.change(&id, &node, &value).await?;
+    let document = DOCUMENTS.change(&id, &node, value).await?;
+    Ok((json!(document), Subscription::None))
+}
+
+async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let id = required_string(params, "id")?;
+    let node = required_string(params, "node")?;
+    let value = optional_value(params, "value");
+
+    let document = DOCUMENTS.execute(&id, &node, value).await?;
     Ok((json!(document), Subscription::None))
 }
 
@@ -337,6 +338,10 @@ fn required_value(params: &Params, name: &str) -> Result<serde_json::Value> {
             name
         )))
     }
+}
+
+fn optional_value(params: &Params, name: &str) -> Option<serde_json::Value> {
+    params.get(name).map(|param| param.clone())
 }
 
 fn required_string(params: &Params, name: &str) -> Result<String> {

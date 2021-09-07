@@ -1101,21 +1101,21 @@ impl Documents {
         Ok((document_guard.clone(), topic))
     }
 
-    /// Execute a node within a document
-    pub async fn execute(&self, id: &str, node: &str) -> Result<Document> {
+    /// Change a node within a document
+    pub async fn change(
+        &self,
+        id: &str,
+        node: &str,
+        value: serde_json::Value,
+    ) -> Result<Document> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
         // TODO
         Ok(document_guard.clone())
     }
 
-    /// Change a node within a document
-    pub async fn change(
-        &self,
-        id: &str,
-        node: &str,
-        value: &serde_json::Value,
-    ) -> Result<Document> {
+    /// Execute a node within a document
+    pub async fn execute(&self, id: &str, node: &str, value: Option<serde_json::Value>) -> Result<Document> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
         // TODO
