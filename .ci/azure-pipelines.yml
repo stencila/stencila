@@ -152,10 +152,11 @@ jobs:
           )
         displayName: 'Desktop: Test'
 
-      # Web client is tested if there are changes in the `web` or `rust` folder
-      # because it includes end-to-end tests of integrations with the Rust server
+      # Web client is tested if there are changes in the `web`, `rust` or `cli` folders
+      # because it includes end-to-end tests of integrations with the Rust server.
       - script: |
           set -e
+          cargo build --manifest-path cli/Cargo.toml
           cargo run --manifest-path cli/Cargo.toml -- serve --insecure &
           cd web
           npm install
