@@ -73,16 +73,16 @@ export const main = (
   // a the "run button" on a `CodeChunk` (to execute it without changing it)
   window.addEventListener('document:node:execute', async (e) => {
     const [client, document] = await startup()
-    const event = (e as CustomEvent).detail as documents.NodeExecute
-    await documents.execute(client, document.id, event.id, event.value)
+    const { id, value } = (e as CustomEvent<documents.NodeExecute>).detail
+    await documents.execute(client, document.id, id, value)
   })
 
   // Listen for a `document:node:changed` custom event emitted from within browser window
   // e.g. user changes the code of a `CodeChunk`, or slides a numeric `Parameter`
   window.addEventListener('document:node:changed', async (e) => {
     const [client, document] = await startup()
-    const event = (e as CustomEvent).detail as documents.NodeValueChanged
-    await documents.change(client, document.id, event.id, event.value)
+    const { id, value } = (e as CustomEvent<documents.NodeValueChanged>).detail
+    await documents.change(client, document.id, id, value)
   })
 
   // Listen for a `session:stop` custom event e.g. user presses
