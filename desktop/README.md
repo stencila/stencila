@@ -2,23 +2,19 @@
 
 **Use Stencila on your own computer**
 
-<!-- TODO: Add screenshot of the application -->
+![](screenshot.png)
 
 ## 📦 Install
 
-The desktop client is is early stages of development (all contributions welcome!).
+The desktop client is is early stages of development (all contributions welcome!). We don't necessarily recommend installing it yet, but if you are an early adopter, we'd also appreciate any feedback 💖. You can download standalone binaries for MacOS, Windows or Linux from the [latest release](https://github.com/stencila/stencila/releases/latest):
 
-We don't recommend installing it yet, but if you are an early adopter 💖, we'd also appreciate any feedback.
-
-Prebuilt distributions for various operating systems will be made available once ready.
-
-<!-- TODO: Uncomment once published. You can download standalone binaries for MacOS, Windows or Linux from the [latest release](https://github.com/stencila/stencila/releases/latest). -->
+- Windows: `Stencila-<version>.Setup.exe`
+- MacOS: `Stencila-darwin-x64-<version>.zip`
+- Linux: `stencila-desktop_<version>_amd64.deb` or `stencila-desktop-<version>.x86_64.rpm`
 
 ## 🛠️ Develop
 
-The desktop client is built using [ElectronJS](https://www.electronjs.org), and uses
-[StencilJS](https://stenciljs.com) for the UI.
-We use [Electron Forge](https://stenciljs.com) for bootstrapping the project.
+The desktop client is built using [ElectronJS](https://www.electronjs.org), and uses [StencilJS](https://stenciljs.com) for the UI. We use [Electron Forge](https://stenciljs.com) for bootstrapping the project.
 
 The desktop client uses the [Stencila Node bindings](../node) under the hood, so make sure you have
 followed the [development installations steps there](../node#%EF%B8%8F-develop). In particular, you'll have to run `npm run build` in the `../node` folder so that it is available as a built package here.
