@@ -25,6 +25,15 @@ pub mod code {
 }
 
 /// Compile a node
+///
+/// Compiling a document involves walking over the node tree and compiling each
+/// individual node so that it is ready to be built & executed. This includes
+/// (but is not limited to):
+///
+/// - ensuring that each node has an `id`
+/// - for `Include` nodes actually including the included content and then compiling that
+/// - for executable nodes (e.g. `CodeChunk`) performing semantic analysis of the code
+/// - determining dependencies within and between documents and other resources
 pub async fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<Context> {
     let mut context = Context {
         path: PathBuf::from(path),
@@ -53,6 +62,9 @@ pub struct Context {
 }
 
 /// Trait for compiling a node
+///
+/// This trait is implemented below for all (or at least most)
+/// node types.
 #[async_trait]
 trait Compile {
     async fn compile(&mut self, context: &mut Context) -> Result<()>;
@@ -61,9 +73,12 @@ trait Compile {
 /// Identify a node
 ///
 /// If the node does not have an id, generate and assign one.
-/// These generated id have a leading "no." which can be used to determine
-/// that it was generated
-/// Return the node's id.
+/// These generated id belong to the `Node` family (i.e. have a leading "no-")
+/// which can be used to determine that it was generated (so, for example
+/// it is not persisted. Return the node's id.
+///
+/// This needs to be (?) a macro, rather than a generic function, because
+/// it is not possible to define a bound that the type must have the `id` property.
 macro_rules! identify {
     ($node:expr) => {
         if let Some(id) = $node.id.as_deref() {
@@ -258,8 +273,9 @@ where
     }
 }
 
-/// An implementation where `compile` is a no-op
-macro_rules! compile_nothing {
+/// An implementation of `compile` for primitive (non-Entity)
+/// node types (which do not have an `id` property).
+macro_rules! compile_primitive {
     ( $( $type:ty ),* ) => {
         $(
             #[async_trait]
@@ -270,20 +286,35 @@ macro_rules! compile_nothing {
     };
 }
 
-compile_nothing!(
-    // Primitives (will never need to be compiled)
+compile_primitive!(
     bool, // Boolean
     i64, // Integer
     f64, // Number
     String,
     Vec<Primitive>, // Array
-    BTreeMap<String, Primitive>, // Object
+    BTreeMap<String, Primitive> // Object
+);
 
-    // Nodes that are unlikely to need to be compiled
+/// An implementation of `compile` for node types which only
+/// need to ensure they have an identifier
+macro_rules! compile_identify {
+    ( $( $type:ty ),* ) => {
+        $(
+            #[async_trait]
+            impl Compile for $type {
+                async fn compile(&mut self, _context: &mut Context) -> Result<()> {
+                    identify!(self);
+                    Ok(())
+                }
+            }
+        )*
+    };
+}
+
+compile_identify!(
+    // Nodes that are unlikely to need anything else done to them
     ThematicBreak,
-
-    // Nodes that may need to be compiled but are here to
-    // have an explicit no-op implementation
+    // Nodes that may need to be compiled but are here for now
     CodeBlock,
     CodeFragment,
     Datatable,
@@ -303,6 +334,7 @@ macro_rules! compile_content {
             #[async_trait]
             impl Compile for $type {
                 async fn compile(&mut self, context: &mut Context) -> Result<()> {
+                    identify!(self);
                     self.content.compile(context).await
                 }
             }
@@ -484,11 +516,11 @@ impl Compile for Parameter {
 #[async_trait]
 impl Compile for CodeChunk {
     async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        let id = identify!(self);
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
 
         if Some(digest.clone()) != self.compile_digest {
-            let id = identify!(self);
             let subject = resources::node(&context.path, &id, &self.type_name());
             let relations = code::compile(&context.path, &self.text, &self.programming_language);
             context.relations.push((subject, relations));
@@ -502,11 +534,11 @@ impl Compile for CodeChunk {
 #[async_trait]
 impl Compile for CodeExpression {
     async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        let id = identify!(self);
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
 
         if Some(digest.clone()) != self.compile_digest {
-            let id = identify!(self);
             let subject = resources::node(&context.path, &id, &self.type_name());
             let relations = code::compile(&context.path, &self.text, &self.programming_language);
             context.relations.push((subject, relations));
@@ -520,6 +552,7 @@ impl Compile for CodeExpression {
 #[async_trait]
 impl Compile for SoftwareSourceCode {
     async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        identify!(self);
         if let (Some(text), Some(programming_language)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
@@ -563,6 +596,7 @@ impl Compile for Include {
 #[async_trait]
 impl Compile for CiteGroup {
     async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        identify!(self);
         self.items.compile(context).await
     }
 }
@@ -570,6 +604,7 @@ impl Compile for CiteGroup {
 #[async_trait]
 impl Compile for Collection {
     async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        identify!(self);
         self.parts.compile(context).await
     }
 }
@@ -577,6 +612,7 @@ impl Compile for Collection {
 #[async_trait]
 impl Compile for CollectionSimple {
     async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        identify!(self);
         self.parts.compile(context).await
     }
 }
@@ -584,6 +620,7 @@ impl Compile for CollectionSimple {
 #[async_trait]
 impl Compile for List {
     async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        identify!(self);
         self.items.compile(context).await
     }
 }
@@ -591,6 +628,7 @@ impl Compile for List {
 #[async_trait]
 impl Compile for ListItem {
     async fn compile(&mut self, context: &mut Context) -> Result<()> {
+        identify!(self);
         self.item.compile(context).await?;
         self.content.compile(context).await?;
         Ok(())
