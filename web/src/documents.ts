@@ -1,4 +1,4 @@
-import { Document } from 'stencila'
+import { Document } from '@stencila/stencila'
 import { Client } from './client'
 
 export type DocumentPath = string

@@ -1,4 +1,4 @@
-import { Session, SessionEvent } from 'stencila'
+import { Session, SessionEvent } from '@stencila/stencila'
 import { Client } from './client'
 import { ProjectId, SnapshotId } from './types'
 

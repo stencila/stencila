@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Document } from 'stencila'
+import { Document } from '@stencila/stencila'
 import { Client, connect, disconnect } from './client'
 import {
   change,

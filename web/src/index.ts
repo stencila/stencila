@@ -6,7 +6,7 @@
 // - How do we migrate old published documents
 // - Attach Node IDs for required elements in published article HTML
 
-import { Document, Session } from 'stencila'
+import { Document, Session } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
 import * as sessions from './sessions'
