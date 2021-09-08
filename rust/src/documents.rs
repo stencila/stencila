@@ -1102,12 +1102,7 @@ impl Documents {
     }
 
     /// Change a node within a document
-    pub async fn change(
-        &self,
-        id: &str,
-        node: &str,
-        value: serde_json::Value,
-    ) -> Result<Document> {
+    pub async fn change(&self, id: &str, node: &str, value: serde_json::Value) -> Result<Document> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
         // TODO
@@ -1115,7 +1110,12 @@ impl Documents {
     }
 
     /// Execute a node within a document
-    pub async fn execute(&self, id: &str, node: &str, value: Option<serde_json::Value>) -> Result<Document> {
+    pub async fn execute(
+        &self,
+        id: &str,
+        node: &str,
+        value: Option<serde_json::Value>,
+    ) -> Result<Document> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
         // TODO
