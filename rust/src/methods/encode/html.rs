@@ -3,9 +3,9 @@ use super::Options;
 use eyre::Result;
 use html_escape::{encode_double_quoted_attribute, encode_safe};
 use itertools::Itertools;
+use serde::Serialize;
 use std::cmp::min;
-use std::fs;
-use std::{collections::BTreeMap, path::PathBuf};
+use std::{collections::BTreeMap, fs, path::PathBuf};
 use stencila_schema::*;
 
 /// Encode a `Node` to a HTML document
@@ -87,6 +87,101 @@ trait ToHtml {
     fn to_html(&self, context: &Context) -> String;
 }
 
+/// Encode a HTML element
+///
+/// Use this function for creating HTML strings for elements.
+/// This, and other functions below, us slice `concat`, rather than `format!`
+/// for performance (given that HTML generation may be done on every, or nearly every, keystroke).
+fn elem(name: &str, attrs: &[String], content: &str) -> String {
+    [
+        "<",
+        name,
+        if attrs.is_empty() { "" } else { " " },
+        &attrs.join(" "),
+        ">",
+        content,
+        "</",
+        name,
+        ">",
+    ]
+    .concat()
+}
+
+/// Encode an "empty" HTML element
+///
+/// An empty (a.k.a self-closing) element has no closing tag.
+/// See https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
+fn elem_empty(name: &str, attrs: &[String]) -> String {
+    [
+        "<",
+        name,
+        if attrs.is_empty() { "" } else { " " },
+        &attrs.join(" "),
+        "/>",
+    ]
+    .concat()
+}
+
+/// Encode a HTML element attribute, ensuring that the value is escaped correctly
+fn attr(name: &str, value: &str) -> String {
+    [
+        name,
+        "=\"",
+        encode_double_quoted_attribute(&value).as_ref(),
+        "\"",
+    ]
+    .concat()
+}
+
+/// Encode a node `id` as the "id" attribute of an HTML element
+fn id(id: &Option<Box<String>>) -> String {
+    match id.as_deref() {
+        Some(id) => attr("id", id),
+        None => "".to_string(),
+    }
+}
+
+/// Encode the "itemtype" attribute of an HTML element
+///
+/// If the element has children with "itemprop" attributes then
+/// there should be a sibling "itemscope" attribute on the element.
+fn itemtype(itemtype: &str) -> String {
+    attr("itemtype", itemtype)
+}
+
+/// Encode the "itemscope" attribute of an HTML element
+fn itemscope() -> String {
+    "itemscope".to_string()
+}
+
+/// Encode an "itemprop" attribute of an HTML element
+fn itemprop(itemprop: &str) -> String {
+    attr("itemprop", itemprop)
+}
+
+/// Encode a "data-itemprop" attribute of an HTML element
+fn data_itemprop(itemprop: &str) -> String {
+    attr("data-itemprop", itemprop)
+}
+
+/// Encode a node as JSON
+///
+/// Several of the below implementations use this, mainly as a placeholder,
+/// until a complete implementation is finished. Ensures that the JSON is
+/// properly escaped
+fn json(node: &impl Serialize) -> String {
+    encode_safe(&serde_json::to_string_pretty(node).unwrap_or_default()).to_string()
+}
+
+/// Iterate over a vector of nodes, call a string generating function on each item
+/// and concatenate the strings
+pub fn concat<T, F>(vec: &[T], func: F) -> String
+where
+    F: FnMut(&T) -> String,
+{
+    vec.iter().map(func).collect::<Vec<String>>().concat()
+}
+
 macro_rules! slice_to_html {
     ($type:ty) => {
         impl ToHtml for $type {
@@ -102,17 +197,6 @@ macro_rules! slice_to_html {
 slice_to_html!([Node]);
 slice_to_html!([InlineContent]);
 slice_to_html!([BlockContent]);
-
-/// Encode a HTML attribute, ensuring that the value is escaped correctly
-fn encode_attr(name: &str, value: &str) -> String {
-    [
-        name,
-        "=\"",
-        encode_double_quoted_attribute(&value).as_ref(),
-        "\"",
-    ]
-    .concat()
-}
 
 /// Encode a `Node` to HTML
 ///
@@ -159,10 +243,7 @@ impl ToHtml for Node {
             Node::Table(node) => node.to_html(context),
             Node::ThematicBreak(node) => node.to_html(context),
             Node::VideoObject(node) => node.to_html(context),
-            _ => format!(
-                r#"<div class="unsupported">{json}</div>"#,
-                json = serde_json::to_string_pretty(self).unwrap_or_else(|_| "".into())
-            ),
+            _ => elem("div", &[attr("class", "unsupported")], &json(self)),
         }
     }
 }
@@ -206,18 +287,19 @@ impl ToHtml for InlineContent {
 ///////////////////////////////////////////////////////////////////////////////
 
 fn null_to_html() -> String {
-    r#"<span itemtype="http://schema.stenci.la/Null">null</span>"#.to_string()
+    elem(
+        "span",
+        &[itemtype("http://schema.stenci.la/Null")],
+        &"null".to_string(),
+    )
 }
 
+/// Encode an atomic to HTML
 macro_rules! atomic_to_html {
     ($type:ident, $itemtype:literal) => {
         impl ToHtml for $type {
             fn to_html(&self, _context: &Context) -> String {
-                format!(
-                    r#"<span itemtype="{itemtype}">{content}</span>"#,
-                    itemtype = $itemtype,
-                    content = self.to_string()
-                )
+                elem("span", &[itemtype($itemtype)], &self.to_string())
             }
         }
     };
@@ -236,22 +318,24 @@ impl ToHtml for String {
     }
 }
 
+/// Encode a vector to HTML
 impl ToHtml for Vec<Primitive> {
-    fn to_html(&self, context: &Context) -> String {
-        let json = serde_json::to_string(self).unwrap_or_else(|_| "".into());
-        format!(
-            r#"<code itemtype="http://schema.stenci.la/Array">{content}</code>"#,
-            content = json.to_html(context) // Ensure string is escaped
+    fn to_html(&self, _context: &Context) -> String {
+        elem(
+            "code",
+            &[itemtype("http://schema.stenci.la/Array")],
+            &json(self),
         )
     }
 }
 
+/// Encode an object to HTML
 impl ToHtml for BTreeMap<String, Primitive> {
-    fn to_html(&self, context: &Context) -> String {
-        let json = serde_json::to_string(self).unwrap_or_else(|_| "".into());
-        format!(
-            r#"<code itemtype="http://schema.stenci.la/Object">{content}</code>"#,
-            content = json.to_html(context) // Ensure string is escaped
+    fn to_html(&self, _context: &Context) -> String {
+        elem(
+            "code",
+            &[itemtype("http://schema.stenci.la/Object")],
+            &json(self),
         )
     }
 }
@@ -264,11 +348,13 @@ macro_rules! mark_to_html {
     ($type:ident, $tag:literal) => {
         impl ToHtml for $type {
             fn to_html(&self, context: &Context) -> String {
-                format!(
-                    r#"<{tag} itemtype="http://schema.stenci.la/{itemtype}">{content}</{tag}>"#,
-                    tag = $tag,
-                    itemtype = stringify!($type),
-                    content = self.content.to_html(context)
+                elem(
+                    $tag,
+                    &[
+                        itemtype(&["http://schema.stenci.la/", stringify!($type)].concat()),
+                        id(&self.id),
+                    ],
+                    &self.content.to_html(context),
                 )
             }
         }
@@ -306,8 +392,7 @@ fn file_uri_to_data_uri(url: &str) -> String {
                 None => "image/png".to_string(),
             };
             let data = base64::encode(bytes);
-
-            format!("data:{mime};base64,{data}", mime = mime, data = data)
+            ["data:", &mime, ";base64,", &data].concat()
         }
         Err(error) => {
             tracing::warn!("Unable to read media file {}: {}", path.display(), error);
@@ -321,30 +406,34 @@ fn content_url_to_src_attr(content_url: &str, context: &Context) -> String {
         true => file_uri_to_data_uri(content_url),
         false => content_url.to_string(),
     };
-    encode_attr("src", &url)
+    attr("src", &url)
 }
 
 impl ToHtml for AudioObjectSimple {
     fn to_html(&self, context: &Context) -> String {
-        let src_attr = content_url_to_src_attr(&self.content_url, context);
-        [
-            "<audio itemtype=\"http://schema.org/AudioObject\" controls ",
-            &src_attr,
-            "></audio>",
-        ]
-        .concat()
+        elem(
+            "audio",
+            &[
+                itemtype("http://schema.org/AudioObject"),
+                id(&self.id),
+                "controls".to_string(),
+                content_url_to_src_attr(&self.content_url, context),
+            ],
+            "",
+        )
     }
 }
 
 impl ToHtml for ImageObjectSimple {
     fn to_html(&self, context: &Context) -> String {
-        let src_attr = content_url_to_src_attr(&self.content_url, context);
-        [
-            "<img itemtype=\"http://schema.org/ImageObject\" ",
-            &src_attr,
-            "/>",
-        ]
-        .concat()
+        elem_empty(
+            "img",
+            &[
+                itemtype("http://schema.org/ImageObject"),
+                id(&self.id),
+                content_url_to_src_attr(&self.content_url, context),
+            ],
+        )
     }
 }
 
@@ -352,17 +441,18 @@ impl ToHtml for VideoObjectSimple {
     fn to_html(&self, context: &Context) -> String {
         let src_attr = content_url_to_src_attr(&self.content_url, context);
         let type_attr = match &self.media_type {
-            Some(media_type) => encode_attr("type", media_type),
+            Some(media_type) => attr("type", media_type),
             None => "".to_string(),
         };
-        [
-            "<video itemtype=\"http://schema.org/VideoObject\" controls><source ",
-            &src_attr,
-            " ",
-            &type_attr,
-            "></source></video>",
-        ]
-        .concat()
+        elem(
+            "video",
+            &[
+                itemtype("http://schema.org/VideoObject"),
+                id(&self.id),
+                "controls".to_string(),
+            ],
+            &elem("source", &[src_attr, type_attr], ""),
+        )
     }
 }
 
@@ -471,19 +561,20 @@ impl ToHtml for Cite {
                 }
             }
         };
-        format!(
-            "<cite itemtype=\"http://schema.stenci.la/Cite\"><a href=\"#{target}\">{content}</a></cite>",
-            target = self.target.to_html(context),
-            content = content
+        elem(
+            "cite",
+            &[itemtype("http://schema.stenci.la/Cite")],
+            &elem("a", &[attr("href", &self.target)], &content),
         )
     }
 }
 
 impl ToHtml for CiteGroup {
     fn to_html(&self, context: &Context) -> String {
-        format!(
-            r#"<span itemtype="http://schema.stenci.la/CiteGroup">{items}</span>"#,
-            items = concat(&self.items, |cite| cite.to_html(context))
+        elem(
+            "span",
+            &[itemtype("http://schema.stenci.la/CiteGroup"), id(&self.id)],
+            &concat(&self.items, |cite| cite.to_html(context)),
         )
     }
 }
@@ -491,85 +582,103 @@ impl ToHtml for CiteGroup {
 impl ToHtml for CodeExpression {
     fn to_html(&self, context: &Context) -> String {
         let output = match &self.output {
-            None => String::new(),
-            Some(output) => [
-                r#"<pre slot="outputs">"#,
-                &output.to_html(context),
-                "</pre>",
+            Some(output) => elem("pre", &[], &output.to_html(context)),
+            None => "".to_string(),
+        };
+        elem(
+            "stencila-code-expression",
+            &[
+                itemtype("http://schema.stenci.la/CodeExpression"),
+                id(&self.id),
+                attr("programming-language", &self.programming_language),
+            ],
+            &[
+                elem("code", &[attr("slot", "text")], &encode_safe(&self.text)),
+                elem("output", &[attr("slot", "output")], &output),
             ]
             .concat(),
-        };
-
-        [
-            r#"<stencila-code-expression itemtype="http://schema.stenci.la/CodeExpression" "#,
-            &encode_attr("programming-language", &self.programming_language),
-            r#""><code slot="text">"#,
-            &encode_safe(&self.text),
-            r#"</code><output slot="output">"#,
-            &output,
-            r#"</output></stencila-code-expression>"#,
-        ]
-        .concat()
+        )
     }
 }
 
 impl ToHtml for CodeFragment {
-    fn to_html(&self, context: &Context) -> String {
-        let class = match &self.programming_language {
-            None => String::new(),
-            Some(lang) => format!(r#"class="language-{}""#, lang.to_html(context)),
-        };
-
-        format!(
-            r#"<code itemtype="http://schema.stenci.la/CodeFragment" {class}>{text}</code>"#,
-            class = class,
-            text = self.text.to_html(context)
+    fn to_html(&self, _context: &Context) -> String {
+        elem(
+            "code",
+            &[
+                itemtype("http://schema.stenci.la/CodeFragment"),
+                id(&self.id),
+                match &self.programming_language {
+                    Some(lang) => attr("class", &["language-", &lang].concat()),
+                    None => "".to_string(),
+                },
+            ],
+            &encode_safe(&self.text),
         )
     }
 }
 
 impl ToHtml for Link {
     fn to_html(&self, context: &Context) -> String {
-        format!(
-            r#"<a itemtype="http://schema.stenci.la/Link" href="{target}">{content}</a>"#,
-            target = self.target.to_html(context),
-            content = self.content.to_html(context)
+        elem(
+            "a",
+            &[
+                itemtype("http://schema.stenci.la/Link"),
+                id(&self.id),
+                attr("href", &self.target),
+            ],
+            &self.content.to_html(context),
         )
     }
 }
 
 impl ToHtml for MathFragment {
     fn to_html(&self, _context: &Context) -> String {
-        format!(
-            r#"<code class="todo">{json}</code>"#,
-            json = serde_json::to_string(self).unwrap_or_else(|_| "".into())
+        elem(
+            "code",
+            &[
+                itemtype("http://schema.stenci.la/MathFragment"),
+                id(&self.id),
+            ],
+            &encode_safe(&self.text),
         )
     }
 }
 
 impl ToHtml for Note {
     fn to_html(&self, _context: &Context) -> String {
-        format!(
-            r#"<code class="todo">{json}</code>"#,
-            json = serde_json::to_string(self).unwrap_or_else(|_| "".into())
+        elem(
+            "code",
+            &[
+                itemtype("http://schema.stenci.la/Note"),
+                id(&self.id),
+                attr("class", "todo"),
+            ],
+            &json(self),
         )
     }
 }
 
 impl ToHtml for Parameter {
     fn to_html(&self, _context: &Context) -> String {
-        format!(
-            r#"<code class="todo">{json}</code>"#,
-            json = serde_json::to_string(self).unwrap_or_else(|_| "".into())
+        elem(
+            "code",
+            &[
+                itemtype("http://schema.stenci.la/Parameter"),
+                id(&self.id),
+                attr("class", "todo"),
+            ],
+            &json(self),
         )
     }
 }
 
 impl ToHtml for Quote {
     fn to_html(&self, context: &Context) -> String {
-        format!(
-            r#"<q itemtype="http://schema.stenci.la/Quote">{content}</q>"#,
-            content = self.content.to_html(context)
+        elem(
+            "q",
+            &[itemtype("http://schema.stenci.la/Quote"), id(&self.id)],
+            &self.content.to_html(context),
         )
     }
 }
@@ -600,24 +709,31 @@ impl ToHtml for BlockContent {
 
 impl ToHtml for ClaimSimple {
     fn to_html(&self, _context: &Context) -> String {
-        format!(
-            r#"<div class="todo">{json}</div>"#,
-            json = serde_json::to_string(self).unwrap_or_else(|_| "".into())
+        elem(
+            "pre",
+            &[
+                itemtype("http://schema.stenci.la/Claim"),
+                id(&self.id),
+                attr("class", "todo"),
+            ],
+            &json(self),
         )
     }
 }
 
 impl ToHtml for CodeBlock {
-    fn to_html(&self, context: &Context) -> String {
-        let class = match &self.programming_language {
-            None => String::new(),
-            Some(lang) => format!(r#"class="language-{}""#, lang.to_html(context)),
-        };
-
-        format!(
-            r#"<pre><code itemtype="http://schema.stenci.la/CodeBlock" {class}>{text}</code></pre>"#,
-            class = class,
-            text = self.text.to_html(context)
+    fn to_html(&self, _context: &Context) -> String {
+        elem(
+            "pre",
+            &[itemtype("http://schema.stenci.la/CodeBlock"), id(&self.id)],
+            &elem(
+                "code",
+                &[match &self.programming_language {
+                    Some(lang) => attr("class", &["language-", &lang].concat()),
+                    None => "".to_string(),
+                }],
+                &encode_safe(&self.text),
+            ),
         )
     }
 }
@@ -626,10 +742,7 @@ impl ToHtml for CodeChunk {
     fn to_html(&self, context: &Context) -> String {
         let label = match &self.label {
             None => String::new(),
-            Some(label) => format!(
-                r#"<label data-itemprop="label">{label}</label>"#,
-                label = label
-            ),
+            Some(label) => elem("label", &[data_itemprop("label")], &label),
         };
 
         let caption = match &self.caption {
@@ -640,40 +753,41 @@ impl ToHtml for CodeChunk {
             },
         };
 
+        let text = elem("pre", &[attr("slot", "text")], &encode_safe(&self.text));
+
         let outputs = match &self.outputs {
             None => String::new(),
-            Some(outputs) => [
-                r#"<pre slot="outputs">"#,
-                &outputs.to_html(context),
-                "</pre>",
-            ]
-            .concat(),
+            Some(outputs) => elem("pre", &[attr("slot", "outputs")], &outputs.to_html(context)),
         };
 
-        #[cfg_attr(rustfmt, rustfmt_skip)]
-        [
-            r#"<figure itemtype="http://schema.stenci.la/Figure" itemscope "#,
-            &encode_attr("id", &self.id.clone().unwrap_or_default()),
-            ">",
-                &label,
-                r#"<stencila-code-chunk itemtype="http://schema.stenci.la/CodeChunk" itemscope "#,
-                &encode_attr("programming-language", &self.programming_language),
-                    r#"><pre slot="text"><code>"#,
-                        &encode_safe(&self.text),
-                    "</code></pre>",
-                    &outputs,
-                "</stencila-code-chunk>",
-                &caption,
-            "</figure>"
-        ].concat()
+        elem(
+            "figure",
+            &[itemtype("http://schema.stenci.la/Figure"), itemscope()],
+            &[
+                label,
+                elem(
+                    "stencila-code-chunk",
+                    &[
+                        itemtype("http://schema.stenci.la/Figure"),
+                        itemscope(),
+                        id(&self.id),
+                        attr("programming-language", &self.programming_language),
+                    ],
+                    &[text, outputs].concat(),
+                ),
+                caption,
+            ]
+            .concat(),
+        )
     }
 }
 
 impl ToHtml for CollectionSimple {
     fn to_html(&self, context: &Context) -> String {
-        format!(
-            r#"<ol itemtype="http://schema.org/Collection">{parts}</ol>"#,
-            parts = concat(&self.parts, |part| part.to_html(context))
+        elem(
+            "ol",
+            &[itemtype("http://schema.stenci.la/Collection"), id(&self.id)],
+            &concat(&self.parts, |part| elem("li", &[], &part.to_html(context))),
         )
     }
 }
@@ -682,10 +796,7 @@ impl ToHtml for FigureSimple {
     fn to_html(&self, context: &Context) -> String {
         let label = match &self.label {
             None => String::new(),
-            Some(label) => format!(
-                r#"<label data-itemprop="label">{label}</label>"#,
-                label = label
-            ),
+            Some(label) => elem("label", &[data_itemprop("label")], &label),
         };
 
         let content = match &self.content {
@@ -693,19 +804,26 @@ impl ToHtml for FigureSimple {
             Some(nodes) => nodes.to_html(context),
         };
 
-        let caption = match &self.caption {
+        let caption = match self.caption.as_deref() {
             None => String::new(),
-            Some(boxed) => match &**boxed {
-                FigureCaption::String(string) => string.clone(),
-                FigureCaption::VecBlockContent(content) => content.to_html(context),
-            },
+            Some(caption) => elem(
+                "figcaption",
+                &[data_itemprop("caption")],
+                &match caption {
+                    FigureCaption::String(string) => encode_safe(&string.clone()).to_string(),
+                    FigureCaption::VecBlockContent(content) => content.to_html(context),
+                },
+            ),
         };
 
-        format!(
-            r#"<figure itemtype="http://schema.stenci.la/Figure" itemscope>{label}{content}{caption}</figure>"#,
-            label = label,
-            content = content,
-            caption = caption
+        elem(
+            "figure",
+            &[
+                itemtype("http://schema.stenci.la/Figure"),
+                itemscope(),
+                id(&self.id),
+            ],
+            &[label, content, caption].concat(),
         )
     }
 }
@@ -728,10 +846,11 @@ impl ToHtml for Heading {
             Some(depth) => min(*depth + 1, 6),
             None => 2,
         };
-        format!(
-            r#"<h{depth} itemtype="http://schema.stenci.la/Heading">{content}</h{depth}>"#,
-            depth = depth,
-            content = self.content.to_html(context)
+
+        elem(
+            &["h", &depth.to_string()].concat(),
+            &[itemtype("http://schema.stenci.la/Heading"), id(&self.id)],
+            &self.content.to_html(context),
         )
     }
 }
@@ -742,12 +861,12 @@ impl ToHtml for Include {
             .content
             .as_ref()
             .map_or_else(|| "".to_string(), |content| content.to_html(context));
-        [
-            "<div itemtype=\"http://schema.stenci.la/Include\">",
+
+        elem(
+            "div",
+            &[itemtype("http://schema.stenci.la/Include"), id(&self.id)],
             &content,
-            "</div>",
-        ]
-        .concat()
+        )
     }
 }
 
@@ -757,18 +876,14 @@ impl ToHtml for List {
             Some(ListOrder::Ascending) => "ol",
             _ => "ul",
         };
+
         let items = concat(&self.items, |item| item.to_html(context));
 
-        [
-            "<",
+        elem(
             tag,
-            " itemtype=\"http://schema.org/ItemList\">",
+            &[itemtype("http://schema.org/ItemList"), id(&self.id)],
             &items,
-            "</",
-            tag,
-            ">",
-        ]
-        .concat()
+        )
     }
 }
 
@@ -778,6 +893,7 @@ impl ToHtml for ListItem {
             true => InlineContent::String("☑ ".to_string()),
             false => InlineContent::String("☐ ".to_string()),
         });
+
         let content = match &self.content {
             Some(content) => match content {
                 ListItemContent::VecInlineContent(inlines) => match checkbox {
@@ -800,38 +916,45 @@ impl ToHtml for ListItem {
             },
             None => "".to_string(),
         };
-        [
-            "<li itemtype=\"http://schema.org/ListItem\">",
+
+        elem(
+            "li",
+            &[itemtype("http://schema.org/ListItem"), id(&self.id)],
             &content,
-            "</li>",
-        ]
-        .concat()
+        )
     }
 }
 
 impl ToHtml for MathBlock {
     fn to_html(&self, _context: &Context) -> String {
-        format!(
-            r#"<div class="todo">{json}</div>"#,
-            json = serde_json::to_string(self).unwrap_or_else(|_| "".into())
+        elem(
+            "pre",
+            &[
+                itemtype("http://schema.stenci.la/MathBlock"),
+                id(&self.id),
+                attr("class", "todo"),
+            ],
+            &encode_safe(&self.text),
         )
     }
 }
 
 impl ToHtml for Paragraph {
     fn to_html(&self, context: &Context) -> String {
-        format!(
-            r#"<p itemtype="http://schema.stenci.la/Paragraph">{content}</p>"#,
-            content = self.content.to_html(context)
+        elem(
+            "p",
+            &[itemtype("http://schema.stenci.la/Paragraph"), id(&self.id)],
+            &self.content.to_html(context),
         )
     }
 }
 
 impl ToHtml for QuoteBlock {
     fn to_html(&self, context: &Context) -> String {
-        format!(
-            r#"<blockquote itemtype="http://schema.stenci.la/QuoteBlock">{content}</blockquote>"#,
-            content = self.content.to_html(context)
+        elem(
+            "blockquote",
+            &[itemtype("http://schema.stenci.la/QuoteBlock"), id(&self.id)],
+            &self.content.to_html(context),
         )
     }
 }
@@ -840,25 +963,22 @@ impl ToHtml for TableSimple {
     fn to_html(&self, context: &Context) -> String {
         let label = match &self.label {
             None => String::new(),
-            Some(label) => format!(
-                r#"<label data-itemprop="label">{label}</label>"#,
-                label = label
+            Some(label) => elem("label", &[data_itemprop("label")], &label),
+        };
+
+        let caption = match self.caption.as_deref() {
+            None => String::new(),
+            Some(caption) => elem(
+                "div",
+                &[data_itemprop("caption")],
+                &match caption {
+                    TableCaption::String(string) => encode_safe(&string.clone()).to_string(),
+                    TableCaption::VecBlockContent(content) => content.to_html(context),
+                },
             ),
         };
 
-        let caption = match &self.caption {
-            None => String::new(),
-            Some(boxed) => match &**boxed {
-                TableCaption::String(string) => string.clone(),
-                TableCaption::VecBlockContent(content) => content.to_html(context),
-            },
-        };
-
-        let caption = format!(
-            r#"<caption>{label}{caption}</caption>"#,
-            label = label,
-            caption = caption
-        );
+        let caption = elem("caption", &[], &[label, caption].concat());
 
         // Partition rows into head, body and foot rows
         let mut head = Vec::new();
@@ -875,25 +995,30 @@ impl ToHtml for TableSimple {
         }
 
         // Generate table sections with cell types defaulting to appropriate variants
-        let head = format!(
-            r#"<thead>{rows}</thead>"#,
-            rows = table_rows_to_html(&head, TableCellCellType::Header, context)
+        let head = elem(
+            "thead",
+            &[],
+            &table_rows_to_html(&head, TableCellCellType::Header, context),
         );
-        let body = format!(
-            r#"<tbody>{rows}</tbody>"#,
-            rows = table_rows_to_html(&body, TableCellCellType::Data, context)
+        let body = elem(
+            "tbody",
+            &[],
+            &table_rows_to_html(&body, TableCellCellType::Data, context),
         );
-        let foot = format!(
-            r#"<tfoot>{rows}</tfoot>"#,
-            rows = table_rows_to_html(&foot, TableCellCellType::Header, context)
+        let foot = elem(
+            "tfoot",
+            &[],
+            &table_rows_to_html(&foot, TableCellCellType::Header, context),
         );
 
-        format!(
-            r#"<table itemtype="http://schema.stenci.la/Table" itemscope>{caption}{head}{body}{foot}</table>"#,
-            caption = caption,
-            head = head,
-            body = body,
-            foot = foot
+        elem(
+            "table",
+            &[
+                itemtype("http://schema.stenci.la/Table"),
+                itemscope(),
+                id(&self.id),
+            ],
+            &[caption, head, body, foot].concat(),
         )
     }
 }
@@ -925,15 +1050,29 @@ fn table_row_to_html(row: &TableRow, cell_type: TableCellCellType, context: &Con
                 TableCellContent::VecBlockContent(nodes) => nodes.to_html(context),
             },
         };
-        format!(r#"<{tag}>{content}</{tag}>"#, tag = tag, content = content)
+        elem(
+            tag,
+            &[itemtype("http://schema.stenci.la/TableCell"), id(&cell.id)],
+            &content,
+        )
     });
 
-    format!(r#"<tr>{cells}</tr>"#, cells = cells)
+    elem(
+        "tr",
+        &[itemtype("http://schema.stenci.la/TableRow"), id(&row.id)],
+        &cells,
+    )
 }
 
 impl ToHtml for ThematicBreak {
     fn to_html(&self, _context: &Context) -> String {
-        r#"<hr itemtype="http://schema.stenci.la/ThematicBreak">"#.to_string()
+        elem_empty(
+            "hr",
+            &[
+                itemtype("http://schema.stenci.la/ThematicBreak"),
+                id(&self.id),
+            ],
+        )
     }
 }
 
@@ -952,10 +1091,7 @@ impl ToHtml for CreativeWorkTypes {
             CreativeWorkTypes::ImageObject(node) => node.to_html(context),
             CreativeWorkTypes::Table(node) => node.to_html(context),
             CreativeWorkTypes::VideoObject(node) => node.to_html(context),
-            _ => format!(
-                r#"<div class="unsupported">{json}</div>"#,
-                json = serde_json::to_string_pretty(self).unwrap_or_else(|_| "".into())
-            ),
+            _ => elem("div", &[attr("class", "unsupported")], &json(self)),
         }
     }
 }
@@ -977,7 +1113,7 @@ impl ToHtml for Article {
                     CreativeWorkTitle::String(title) => title.to_html(context),
                     CreativeWorkTitle::VecInlineContent(title) => title.to_html(context),
                 };
-                ["<h1 itemprop=\"headline\">", &title, "</h1>"].concat()
+                elem("h1", &[itemprop("headline")], &title)
             }
             None => "".to_string(),
         };
@@ -1011,19 +1147,17 @@ impl ToHtml for Article {
                     }
                     CreativeWorkAuthors::Organization(org) => author_org_to_html(org),
                 });
-                ["<ol data-itemprop=\"authors\">", &authors, "</ol>"].concat()
+                elem("ol", &[data_itemprop("authors")], &authors)
             }
             None => "".to_string(),
         };
 
         let affiliations = if !orgs.is_empty() {
-            #[cfg_attr(rustfmt, rustfmt_skip)]
-            [
-                "<ol data-itemprop=\"affiliations\">",
-                    &concat(&orgs, |org| affiliation_org_to_html(org)),
-                "</ol>",
-            ]
-            .concat()
+            elem(
+                "ol",
+                &[data_itemprop("affiliations")],
+                &concat(&orgs, |org| affiliation_org_to_html(org)),
+            )
         } else {
             "".to_string()
         };
@@ -1044,15 +1178,15 @@ impl ToHtml for Article {
                     .to_html(context),
                     ThingDescription::VecBlockContent(blocks) => blocks.to_html(context),
                 };
-                #[cfg_attr(rustfmt, rustfmt_skip)]
-                [
-                    "<section data-itemprop=\"description\">",
-                        "<h2>Abstract</h2>",
-                        "<meta itemprop=\"description\"", &encode_attr("content", &meta), ">",
-                        &content,
-                    "</section>",
-                ]
-                .concat()
+                elem(
+                    "section",
+                    &[data_itemprop("description")],
+                    &[
+                        elem_empty("meta", &[itemprop("description"), attr("content", &meta)]),
+                        content,
+                    ]
+                    .concat(),
+                )
             }
             None => "".to_string(),
         };
@@ -1062,17 +1196,15 @@ impl ToHtml for Article {
             None => "".to_string(),
         };
 
-        #[cfg_attr(rustfmt, rustfmt_skip)]
-        [
-            "<article itemtype=\"http://schema.org/Article\" itemscope data-itemscope=\"root\">",
-                &title,
-                &authors,
-                &affiliations,
-                &abstract_,
-                &content,
-            "</article>",
-        ]
-        .concat()
+        elem(
+            "article",
+            &[
+                itemtype("http://schema.org/Article"),
+                attr("data-itemscope", "root"),
+                id(&self.id),
+            ],
+            &[title, authors, affiliations, abstract_, content].concat(),
+        )
     }
 }
 
@@ -1105,7 +1237,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
     let name = if person.given_names.is_some() && person.family_names.is_some() {
         #[cfg_attr(rustfmt, rustfmt_skip)]
         [
-            "<meta itemprop=\"name\"", &encode_attr("content", &name_string), ">",
+            "<meta itemprop=\"name\"", &attr("content", &name_string), ">",
         ]
         .concat()
     } else {
@@ -1148,7 +1280,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
                 "<span data-itemprop=\"emails\">",
                 &concat(emails, |email| {
                     [
-                        "<a itemprop=\"email\"", &encode_attr("href", &["mailto:", email].concat()), ">",
+                        "<a itemprop=\"email\"", &attr("href", &["mailto:", email].concat()), ">",
                             email,
                         "</a>",
                     ].concat()
@@ -1170,7 +1302,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
                 }) {
                     let position = (index+1).to_string();
                     [
-                        "<a itemprop=\"affiliation\"", &encode_attr("href", &position), ">",
+                        "<a itemprop=\"affiliation\"", &attr("href", &position), ">",
                             &position,
                         "</a>"
                     ].concat()
@@ -1299,23 +1431,6 @@ impl ToHtml for Table {
         simple.to_html(context)
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////
-// Helper functions
-///////////////////////////////////////////////////////////////////////////////
-
-/// Iterate over a vector of node, call a string generating function on each item
-/// and concatenate the strings
-pub fn concat<T, F>(vec: &[T], func: F) -> String
-where
-    F: FnMut(&T) -> String,
-{
-    vec.iter().map(func).collect::<Vec<String>>().concat()
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Tests
-///////////////////////////////////////////////////////////////////////////////
 
 #[cfg(test)]
 mod tests {
