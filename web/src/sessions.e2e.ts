@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Session, SessionEvent } from 'stencila'
 import { Client, connect, disconnect } from './client'
 import { start, stop, subscribe, unsubscribe } from './sessions'
@@ -8,11 +9,11 @@ const clientId = 'cl-session-tests'
 let client: Client
 beforeAll(async () => {
   client = await connect(
-    process.env.SERVER_URL || 'ws://127.0.0.1:9000/~ws',
+    process.env.SERVER_URL ?? 'ws://127.0.0.1:9000/~ws',
     clientId
   )
 })
-afterAll(async () => {
+afterAll(() => {
   disconnect(client)
 })
 
@@ -33,7 +34,7 @@ test('basic', async () => {
   )
 
   // Subscribe to updates
-  let updates: SessionEvent[] = []
+  const updates: SessionEvent[] = []
   session = await subscribe(client, session.id, 'updated', (event) => {
     expect(event.type).toBe('Updated')
     updates.push(event)
@@ -45,7 +46,7 @@ test('basic', async () => {
   )
 
   // Subscribe to heartbeats
-  let heartbeats: SessionEvent[] = []
+  const heartbeats: SessionEvent[] = []
   session = await subscribe(client, session.id, 'heartbeat', (event) => {
     expect(event.type).toBe('Heartbeat')
     heartbeats.push(event)

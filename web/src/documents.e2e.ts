@@ -1,13 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Document } from 'stencila'
 import { Client, connect, disconnect } from './client'
 import {
-  open,
-  execute,
   change,
+  close,
+  DocumentEvent,
+  open,
   subscribe,
   unsubscribe,
-  DocumentEvent,
-  close,
 } from './documents'
 
 jest.setTimeout(10000)
@@ -16,11 +16,11 @@ const clientId = 'cl-document-tests'
 let client: Client
 beforeAll(async () => {
   client = await connect(
-    process.env.SERVER_URL || 'ws://127.0.0.1:9000/~ws',
+    process.env.SERVER_URL ?? 'ws://127.0.0.1:9000/~ws',
     clientId
   )
 })
-afterAll(async () => {
+afterAll(() => {
   disconnect(client)
 })
 
@@ -39,7 +39,7 @@ test('basic', async () => {
   )
 
   // Subscribe to updates to node values
-  let events: DocumentEvent[] = []
+  const events: DocumentEvent[] = []
   document = await subscribe(client, document.id, 'node:value', (event) => {
     expect(event.type).toBe('NodeValueUpdated')
     events.push(event)

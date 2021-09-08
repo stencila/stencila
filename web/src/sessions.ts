@@ -38,7 +38,7 @@ export async function stop(
  * Dispatches a `CustomEvent` with the type of the event,
  * prefixed with "session:" e.g. "session:heartbeat".
  */
-function defaultHandler(event: SessionEvent) {
+function defaultHandler(event: SessionEvent): void {
   window.dispatchEvent(
     new CustomEvent(`session:${event.type}`.toLowerCase(), { detail: event })
   )

@@ -7,12 +7,12 @@ export async function connect(
   url: string,
   clientId: ClientId
 ): Promise<Client> {
-  let client = new Client(`${url}?client=${clientId}`)
+  const client = new Client(`${url}?client=${clientId}`)
   return new Promise<Client>((resolve) =>
     client.on('open', () => resolve(client))
   )
 }
 
-export function disconnect(client: Client) {
+export function disconnect(client: Client): void {
   client.close()
 }

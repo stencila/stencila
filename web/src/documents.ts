@@ -32,7 +32,7 @@ export type DocumentEvent =
       type: 'NodeHtmlUpdated'
       documentId: string
       nodeId: string
-      html: String
+      html: string
     }
 
 /**
@@ -86,7 +86,7 @@ export async function close(
  * Dispatches a `CustomEvent` with the type of the event
  * prefixed with "document:" e.g. "document:nodevalueupdated"
  */
-function defaultHandler(event: DocumentEvent) {
+function defaultHandler(event: DocumentEvent): void {
   window.dispatchEvent(
     new CustomEvent(`document:${event.type}`.toLowerCase(), { detail: event })
   )

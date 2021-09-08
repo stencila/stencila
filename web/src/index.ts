@@ -18,34 +18,43 @@ export const main = (
   projectId: ProjectId,
   snapshotId: SnapshotId,
   documentPath: documents.DocumentPath
-) => {
+): void => {
   let client: Client | undefined
   let session: Session | undefined
   let document: Document | undefined
 
   // Start the client and session, if necessary
   const startup = async (): Promise<[Client, Document, Session]> => {
-    if (client == undefined) {
+    if (!client) {
       client = await connect(url, clientId)
     }
 
-    if (session == undefined) {
+    if (!session) {
       session = await sessions.start(client, projectId, snapshotId)
-      sessions.subscribe(client, session.id, 'updated')
-      sessions.subscribe(client, session.id, 'heartbeat')
+      sessions.subscribe(client, session.id, 'updated').catch((err) => {
+        console.warn(`Couldn't subscribe to session updates`, err)
+      })
+
+      sessions.subscribe(client, session.id, 'heartbeat').catch((err) => {
+        console.warn(`Couldn't subscribe to session updates`, err)
+      })
     }
 
-    if (document == undefined) {
+    if (document === undefined) {
       document = await documents.open(client, documentPath)
-      documents.subscribe(client, document.id, 'node:value')
-      documents.subscribe(client, document.id, 'node:html')
+      documents.subscribe(client, document.id, 'node:value').catch((err) => {
+        console.warn(`Couldn't subscribe to document 'node:value'`, err)
+      })
+      documents.subscribe(client, document.id, 'node:html').catch((err) => {
+        console.warn(`Couldn't subscribe to document 'node:html'`, err)
+      })
     }
 
     return [client, document, session]
   }
 
   // Shutdown the session, if necessary
-  const shutdown = async () => {
+  const shutdown = async (): Promise<void> => {
     if (client !== undefined && session !== undefined) {
       await sessions.stop(client, session.id)
       session = undefined
@@ -79,13 +88,18 @@ export const main = (
   // Listen for a `session:stop` custom event e.g. user presses
   // a document level "stop button".
   window.addEventListener('session:stop', () => {
-    shutdown()
+    shutdown().catch((err) => {
+      console.warn(`Couldn't shut down the session`, err)
+    })
   })
 
   // Shutdown and disconnect on page unload
   window.addEventListener('unload', () => {
     if (client !== undefined) {
-      shutdown()
+      shutdown().catch((err) => {
+        console.warn(`Couldn't shut down the session`, err)
+      })
+
       disconnect(client)
     }
   })

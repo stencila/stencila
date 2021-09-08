@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "Web client for interacting with Stencila document server",
   "scripts": {
-    "format": "prettier --write '**/*.ts'",
     "build": "parcel build --no-cache",
     "watch": "parcel watch",
-    "test": "jest"
+    "test": "jest",
+    "format": "prettier --write '**/*.ts'",
+    "lint": "eslint 'src/**/*'",
+    "lint:fix": "eslint 'src/**/*' --fix"
   },
   "source": "src/index.ts",
   "main": "dist/index.js",
@@ -47,8 +49,8 @@
     "@stencila/schema": "^1.11.1"
   },
   "dependencies": {
-    "stencila": "file:../node",
-    "rpc-websockets": "^7.4.14"
+    "rpc-websockets": "^7.4.14",
+    "stencila": "file:../node"
   },
   "browserslist": [
     "defaults",
@@ -64,7 +66,16 @@
     ]
   },
   "eslintConfig": {
-    "extends": "@stencila/eslint-config"
+    "root": true,
+    "extends": "@stencila/eslint-config",
+    "rules": {
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        {
+          "checksVoidReturn": false
+        }
+      ]
+    }
   },
   "prettier": "@stencila/dev-config/prettier-config.json"
 }
