@@ -1,10 +1,10 @@
 # ⌨️ Stencila CLI
 
-**Use Stencila in a terminal console on your own machine**
+**Use Stencila in a terminal console on your own computer**
 
 ## 📦 Install
 
-The CLI is is early stages of development (all contributions welcome!). We don't recommend installing it yet, but if you are an early adopter 💖, we'd also appreciate any feedback. You can download standalone binaries for MacOS, Windows or Linux from the [latest release](https://github.com/stencila/stencila/releases/latest).
+The CLI is is early stages of development (all contributions welcome!). We don't necessarily recommend installing it yet, but if you are an early adopter, we'd also appreciate any feedback 💖. You can download standalone binaries for MacOS, Windows or Linux from the [latest release](https://github.com/stencila/stencila/releases/latest).
 
 ### Windows
 
