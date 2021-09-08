@@ -59,6 +59,8 @@ cargo install sccache
 export RUSTC_WRAPPER=sccache
 ```
 
+> 📢 It is likely that we will split off some of the modules (e.g. `methods/encode`) into their own sub-crate to improve compile times further.
+
 ### Testing
 
 We make extensive use of Rust feature flags. The main benefit of this is reduced compile times during development. To take advantage of this use the Cargo options `--no-default-features` (to turn off all the default features) and `--features` (to turn on the features that you are currently working on).
@@ -73,6 +75,12 @@ You should get faster compile times using this:
 
 ```sh
 cargo test --no-default-features --features=compile-code-r compile::code::r
+```
+
+This approach is particularly useful when using `cargo watch`, for example to run the encode-decode ("ende") roundtrip integration test for HTML only when any source file changes:
+
+```sh
+cargo watch -x "test --no-default-features --features encode-html,decode-html --test ende html"
 ```
 
 ### Benchmarking

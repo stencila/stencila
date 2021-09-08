@@ -211,18 +211,20 @@ impl OpenCommand {
 
         // Generate a key and a corresponding login URL and open browser at the login page (will
         // redirect to document page).
-        let key = serve::generate_key();
-        let login_url = serve::login_url(&key, Some(60), Some(path))?;
+        let port = 9000u16;
+        let key = Some(serve::generate_key());
+        let login_url = serve::login_url(port, key.clone(), Some(60), Some(path))?;
         webbrowser::open(login_url.as_str())?;
 
         // If not yet serving, serve in the background, or in the current thread,
         // depending upon mode.
         if !context.serving {
             context.serving = true;
+            let url = format!(":{}", port);
             if context.interactive {
-                serve::serve_background(None, Some(key))?
+                serve::serve_background(&url, key)?
             } else {
-                serve::serve(None, Some(key)).await?;
+                serve::serve(&url, key).await?;
             }
         }
 
@@ -380,7 +382,11 @@ pub async fn main() -> Result<()> {
             .install()?;
 
         // Subscribe to progress events and display them on console
-        stencila::pubsub::subscribe("progress", feedback::progress_subscriber)?;
+        use stencila::pubsub::{subscribe, Subscriber};
+        subscribe(
+            "progress",
+            Subscriber::Function(feedback::progress_subscriber),
+        )?;
     }
 
     // If not explicitly upgrading then run an upgrade check in the background

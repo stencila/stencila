@@ -18,6 +18,11 @@ use thiserror::Error;
 #[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
 pub enum Error {
+    /// An identifer was supplied that does not match the pattern for the
+    /// expected family of identifiers.
+    #[error("Invalid universal identifier for family '{family}': {id}")]
+    InvalidUUID { family: String, id: String },
+
     /// The user attempted to open a document with an unknown format
     #[error("Unknown format '{format}'")]
     UnknownFormat { format: String },

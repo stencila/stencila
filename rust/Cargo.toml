@@ -16,11 +16,11 @@ edition = "2018"
 
 cli = ["structopt"]
 
-serve = []
-serve-http = ["warp", "jsonwebtoken"]
-serve-static = ["warp", "rust-embed"]
-serve-stdio = []
-serve-ws = ["warp", "jsonwebtoken"]
+serve = ["sudo"]
+serve-http = ["serve", "warp", "jsonwebtoken"]
+serve-static = ["serve", "warp", "rust-embed"]
+serve-stdio = ["serve"]
+serve-ws = ["serve", "warp", "jsonwebtoken"]
 
 request = []
 request-docker = ["bollard"]
@@ -45,7 +45,7 @@ import-github = []
 
 decode-date = ["dtparse"]
 decode-docx = ["decode-pandoc"]
-decode-html = ["kuchiki", "markup5ever"]
+decode-html = ["decode-md", "kuchiki", "markup5ever"]
 decode-json = []
 decode-latex = ["decode-pandoc"]
 decode-md = ["pulldown-cmark", "nom", "coerce", "decode-html", "encode-txt"]
@@ -57,7 +57,7 @@ decode-toml = []
 decode-yaml = []
 
 encode-docx = ["encode-pandoc"]
-encode-html = ["html-escape"]
+encode-html = ["encode-txt", "html-escape"]
 encode-json = []
 encode-latex = ["encode-pandoc"]
 encode-md = []
@@ -211,10 +211,12 @@ stencila-schema = "=1.11.1"
 structopt = { version = "=0.3.23", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
 strum_macros = "=0.21.1"
+sudo = { version = "=0.6.0", optional = true }
 tar = { version = "=0.4.37", optional = true }
 tempfile = "3.2.0"
 thiserror = "=1.0.29"
 tokio = { version = "=1.11.0", features = ["full"] }
+tokio-stream = "=0.1.7"
 tokio-tungstenite = { version = "=0.15.0", optional = true }
 toml = "=0.5.8"
 tracing = "=0.1.26"

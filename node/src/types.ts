@@ -77,14 +77,14 @@ export interface Document {
    */
   relations?: Record<string, [Relation, Resource]>
   /**
-   * Keeps track of the number of subscribers to each of the document's topic channels. Events will only be published on channels that have at least one subscriber.
+   * Keeping track of client ids per topics allows for a some optimizations. For example, events will only be published on topics that have at least one subscriber.
    *
    * Valid subscription topics are the names of the `DocumentEvent` types:
    *
    * - `removed`: published when document file is deleted - `renamed`: published when document file is renamed - `modified`: published when document file is modified - `encoded:<format>` published when a document's content is changed internally or externally and  conversions have been completed e.g. `encoded:html`
    */
   subscriptions: {
-    [k: string]: number
+    [k: string]: string[]
   }
 }
 
@@ -446,6 +446,47 @@ export interface GraphEvent {
 }
 
 /**
+ * A session
+ */
+export interface Session {
+  /**
+   * The id of the session
+   */
+  id: string
+  /**
+   * The id of the project that this session is for
+   */
+  project: string
+  /**
+   * The id of the snapshot that this session is for
+   */
+  snapshot: string
+  /**
+   * This is an optimization to avoid collecting session metrics and / or publishing events if there are no clients subscribed.
+   */
+  subscriptions: {
+    [k: string]: string[]
+  }
+  /**
+   * The status of the session
+   */
+  status: 'Pending' | 'Starting' | 'Started' | 'Stopping' | 'Stopped'
+}
+
+/**
+ * A session event
+ */
+export type SessionEvent =
+  | {
+      type: 'Updated'
+      session: Session
+    }
+  | {
+      type: 'Heartbeat'
+      session: Session
+    }
+
+/**
  * Each source by destination combination should be unique to a project. It is possible to have the same source being imported to multiple destinations within a project and for multiple sources to used the same destination (e.g. the root directory of the project).
  */
 export interface SourceDestination {
@@ -642,7 +683,7 @@ export interface Config {
      */
     key?: string
     /**
-     * Do not require a JSON Web Token
+     * Do not require a JSON Web Token to access the server
      */
     insecure?: boolean
   }
@@ -730,6 +771,12 @@ export interface ConfigEvent {
  * Where possible functions should return one of these errors to provide greater context to the user, in particular regarding actions that can be taken to resolve the error.
  */
 export type Error =
+  | {
+      type: 'InvalidUUID'
+      family: string
+      id: string
+      message: string
+    }
   | {
       type: 'UnknownFormat'
       format: string
@@ -932,6 +979,13 @@ export const FORMATS: Record<string, Format> = {
     "known": true,
     "name": "rmd",
     "binary": false,
+    "preview": true,
+    "extensions": []
+  },
+  "rpng": {
+    "known": true,
+    "name": "rpng",
+    "binary": true,
     "preview": true,
     "extensions": []
   },
