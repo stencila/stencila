@@ -103,6 +103,7 @@ test('workflow-create-write-as', async () => {
  * on having a converter plugin installed.
  */
 test('workflow-open-modify', async () => {
+  const clientId = 'cl-nodejs'
   const path = tmp.fileSync({ postfix: '.json' }).name
   fs.writeFileSync(path, '{"type": "Article"}')
 
@@ -127,18 +128,18 @@ test('workflow-open-modify', async () => {
     events.push(event)
   )
   expect(get(docId).subscriptions).toEqual({
-    removed: 1,
-    renamed: 1,
-    modified: 1,
+    removed: [clientId],
+    renamed: [clientId],
+    modified: [clientId],
   })
 
   // Subscribe a preview panel to the the `encoded:json` topic
   subscribe(docId, ['encoded:json'], (_topic, event) => events.push(event))
   expect(get(docId).subscriptions).toEqual({
-    removed: 1,
-    renamed: 1,
-    modified: 1,
-    'encoded:json': 1,
+    removed: [clientId],
+    renamed: [clientId],
+    modified: [clientId],
+    'encoded:json': [clientId],
   })
 
   // Load some new content into the document (and wait a bit for events)
@@ -220,9 +221,9 @@ test('workflow-open-modify', async () => {
   // Unsubscribe from `encoded:json` because say we closed the preview panel
   unsubscribe(docId, ['encoded:json'])
   expect(get(docId).subscriptions).toEqual({
-    removed: 1,
-    renamed: 1,
-    modified: 1,
+    removed: [clientId],
+    renamed: [clientId],
+    modified: [clientId],
   })
 
   // Close the document

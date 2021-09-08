@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{client::CLIENT_ID, prelude::*};
 use neon::prelude::*;
 use stencila::documents::{self, DOCUMENTS};
 
@@ -159,7 +159,7 @@ pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let result = RUNTIME.block_on(async {
         match DOCUMENTS.get(id).await {
             Ok(document) => {
-                document.lock().await.subscribe(topic, "node");
+                document.lock().await.subscribe(topic, CLIENT_ID);
                 Ok(())
             }
             Err(error) => Err(error),
@@ -176,7 +176,7 @@ pub fn unsubscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let result = RUNTIME.block_on(async {
         match DOCUMENTS.get(id).await {
             Ok(document) => {
-                document.lock().await.unsubscribe(topic, "node");
+                document.lock().await.unsubscribe(topic, CLIENT_ID);
                 Ok(())
             }
             Err(error) => Err(error),

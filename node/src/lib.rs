@@ -2,6 +2,7 @@
 
 use neon::prelude::*;
 
+mod client;
 mod config;
 mod documents;
 mod errors;
