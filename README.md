@@ -7,7 +7,7 @@
 
 This is the main repository of [Stencila](https://stenci.la), a platform for authoring, collaborating on, and publishing executable documents.
 
-Stencila is comprised of several open source packages, written in a variety of programming languages. This repo acts as an entry point to these other packages (as well as having its own code too).
+Stencila is comprised of several open source packages, written in a variety of programming languages. This repo acts as an entry point to these other packages as well as hosting code for our desktop and CLI tools.
 
 We 💕 contributions! All types of contributions: ideas 🤔, examples 💡, bug reports 🐛, documentation 📖, code 💻, questions 💬. If you are unsure of where to make a contribution feel free to open a new [issue](https://github.com/stencila/stencila/issues/new) or [discussion](https://github.com/stencila/stencila/discussions/new) in this repository (we can always move them elsewhere if need be).
 
@@ -47,7 +47,7 @@ stencila plugins install <name or alias>
 
 The following table lists the main plugins. These plugins are in various stages of development and not all of them are compatible with the Desktop and CLI. Generally, it won't be worth installing them prior to `v1` and coverage of at least 90%.
 
-We are currently focussed on the integration between `jesta` and the `stencila` CLI and will then use `jesta` as the base for other Node.js based plugins `encoda`, `jupita` and `nixta`.
+> 🚨 We are the process of deprecating the "executor" plugins `rasta`, `pyla` and `jesta` and instead focussing on a tighter integration with Jupyter kernels by way of porting the functionality in `jupita` into the core Rust library.
 
 | Plugin   | Aliases      | Version     | Coverage    | Primary functionality                                    |
 | -------- | ------------ | ----------- | ----------- | -------------------------------------------------------- |
@@ -91,20 +91,20 @@ If you prefer, you can use Stencila from within your favorite programming langua
 [jupita]: https://github.com/stencila/jupita#readme
 [dockta]: https://github.com/stencila/dockta#readme
 [nixta]: https://github.com/stencila/nixta#readme
-[encoda-v]: https://img.shields.io/github/v/release/stencila/encoda?label=
-[jesta-v]: https://img.shields.io/github/v/release/stencila/jesta?label=
-[rasta-v]: https://img.shields.io/github/v/release/stencila/rasta?label=
-[pyla-v]: https://img.shields.io/github/v/release/stencila/pyla?label=
-[dockta-v]: https://img.shields.io/github/v/release/stencila/dockta?label=
-[nixta-v]: https://img.shields.io/github/v/release/stencila/nixta?label=
-[jupita-v]: https://img.shields.io/github/v/release/stencila/jupita?label=
-[encoda-c]: https://img.shields.io/codecov/c/github/stencila/encoda?label=
-[jesta-c]: https://img.shields.io/codecov/c/github/stencila/jesta?label=
-[rasta-c]: https://img.shields.io/codecov/c/github/stencila/rasta?label=
-[pyla-c]: https://img.shields.io/codecov/c/github/stencila/pyla?label=
-[dockta-c]: https://img.shields.io/codecov/c/github/stencila/dockta?label=
-[nixta-c]: https://img.shields.io/codecov/c/github/stencila/nixta?label=
-[jupita-c]: https://img.shields.io/codecov/c/github/stencila/jupita?label=
+[encoda-v]: https://img.shields.io/github/v/release/stencila/encoda
+[jesta-v]: https://img.shields.io/github/v/release/stencila/jesta
+[rasta-v]: https://img.shields.io/github/v/release/stencila/rasta
+[pyla-v]: https://img.shields.io/github/v/release/stencila/pyla
+[dockta-v]: https://img.shields.io/github/v/release/stencila/dockta
+[nixta-v]: https://img.shields.io/github/v/release/stencila/nixta
+[jupita-v]: https://img.shields.io/github/v/release/stencila/jupita
+[encoda-c]: https://img.shields.io/codecov/c/github/stencila/encoda
+[jesta-c]: https://img.shields.io/codecov/c/github/stencila/jesta
+[rasta-c]: https://img.shields.io/codecov/c/github/stencila/rasta
+[pyla-c]: https://img.shields.io/codecov/c/github/stencila/pyla
+[dockta-c]: https://img.shields.io/codecov/c/github/stencila/dockta
+[nixta-c]: https://img.shields.io/codecov/c/github/stencila/nixta
+[jupita-c]: https://img.shields.io/codecov/c/github/stencila/jupita
 [stencila/stencila]: https://hub.docker.com/r/stencila/stencila
 [stencila/node]: https://hub.docker.com/r/stencila/node
 [stencila-stencila-s]: https://img.shields.io/docker/image-size/stencila/stencila?label=size&sort=semver
