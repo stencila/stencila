@@ -643,6 +643,7 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
     fold_many0(
         alt((
             code_attrs,
+            code_expr,
             cite_group,
             cite,
             math,
@@ -667,7 +668,7 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
 }
 
 /// Parse inline code with attributes in curly braces
-/// e.g. `code`{attr1 attr2} into a `CodeFragment` or `CodeExpression` node
+/// e.g. `\`code\`{attr1 attr2}` into a `CodeFragment` or `CodeExpression` node
 pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
     map_res(
         pair(
@@ -699,6 +700,47 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
                 }),
             };
             Ok(node)
+        },
+    )(input)
+}
+
+/// Parse commonly used syntaxes for variable / expression interpolation into
+/// a `CodeExpression`.
+///
+/// This supports two interpolation syntaxes:
+///
+/// - Jupyter Python Markdown extension style: `{{x}}`
+/// - JavaScript style: `${x}`
+///
+/// It currently does not support the single curly brace syntax (as in Python, Rust and JSX) i.e. `{x}`
+/// given that is less specific and could conflict with other user content.
+///
+/// The language of the code expression can be added in a curly brace suffix.
+/// e.g. `{{2 * 2}}{r}` is equivalent to `\`r 2 * 2\``{r exec} in Markdown or to
+/// `\`r 2 * 2\` in R Markdown.
+pub fn code_expr(input: &str) -> IResult<&str, InlineContent> {
+    map_res(
+        pair(
+            alt((
+                delimited(tag("{{"), take_until("}}"), tag("}}")),
+                delimited(tag("${"), take_until("}"), tag("}")),
+            )),
+            opt(delimited(char('{'), take_until("}"), char('}'))),
+        ),
+        |res: (&str, Option<&str>)| -> Result<InlineContent> {
+            let text = res.0.to_string();
+            let lang = match res.1 {
+                Some(attrs) => {
+                    let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
+                    attrs.get(0).map(|item| item.to_string())
+                }
+                None => None,
+            };
+            Ok(InlineContent::CodeExpression(CodeExpression {
+                text,
+                programming_language: lang.unwrap_or("".to_string()),
+                ..Default::default()
+            }))
         },
     )(input)
 }
