@@ -476,7 +476,7 @@ impl Document {
             }
             encode(root, &output, &format, Some(options)).await?
         } else {
-            tracing::warn!("Document has no root node");
+            tracing::debug!("Document has no root node");
             "".to_string()
         };
 
@@ -503,7 +503,7 @@ impl Document {
         if let Some(root) = &self.root {
             encode(root, "string://", &format, None).await
         } else {
-            tracing::warn!("Document has no root node");
+            tracing::debug!("Document has no root node");
             Ok(String::new())
         }
     }
