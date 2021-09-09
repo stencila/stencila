@@ -10,6 +10,7 @@ pub mod documents;
 pub mod files;
 pub mod formats;
 pub mod graphs;
+pub mod patches;
 pub mod projects;
 pub mod sessions;
 pub mod sources;
@@ -36,6 +37,15 @@ pub mod methods {
 
     pub mod compile;
     pub mod execute;
+}
+
+// Macros
+//
+// Helper macros for `Node` enums etc
+
+pub mod macros {
+    mod dispatch_enums;
+    pub use dispatch_enums::*;
 }
 
 // Traits

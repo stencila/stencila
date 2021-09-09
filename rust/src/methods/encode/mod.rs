@@ -37,7 +37,6 @@ pub mod rpng;
 #[cfg(feature = "encode-toml")]
 pub mod toml;
 
-#[cfg(feature = "encode-txt")]
 pub mod txt;
 
 #[cfg(feature = "encode-yaml")]

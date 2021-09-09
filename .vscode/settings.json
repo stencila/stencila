@@ -51,6 +51,7 @@
     "Stencila",
     "canonicalize",
     "concat",
+    "patchable",
     "inlines",
     "itemprop",
     "itemscope",

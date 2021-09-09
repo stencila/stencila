@@ -81,6 +81,8 @@ pub enum Command {
     Close(CloseCommand),
     Show(ShowCommand),
     Convert(ConvertCommand),
+    Diff(DiffCommand),
+    Merge(MergeCommand),
 
     // Module-specific commands defined in the `stencila` library
     #[structopt(aliases = &["project"])]
@@ -117,6 +119,8 @@ pub async fn run_command(
         Command::Close(command) => command.run().await,
         Command::Show(command) => command.run().await,
         Command::Convert(command) => command.run().await,
+        Command::Diff(command) => command.run().await,
+        Command::Merge(command) => command.run().await,
         Command::Documents(command) => command.run().await,
         Command::Projects(command) => command.run().await,
         Command::Sources(command) => command.run().await,
@@ -291,8 +295,10 @@ impl ShowCommand {
     }
 }
 
-/// Currently, `convert` just delegates to the `documents` module
+/// Currently, these commands simply delegate to the `documents` module
 type ConvertCommand = documents::cli::Convert;
+type DiffCommand = documents::cli::Diff;
+type MergeCommand = documents::cli::Merge;
 
 /// Main entry point function
 #[tokio::main]

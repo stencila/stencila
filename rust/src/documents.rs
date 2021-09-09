@@ -7,6 +7,7 @@ use crate::{
         decode::decode,
         encode::{self, encode},
     },
+    patches::{diff, merge, Patch},
     pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
@@ -16,6 +17,7 @@ use crate::{
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
+use itertools::Itertools;
 use maplit::hashset;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
@@ -33,7 +35,7 @@ use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
-use stencila_schema::Node;
+use stencila_schema::{Article, Node};
 use strum::ToString;
 use tokio::{sync::Mutex, task::JoinHandle};
 
@@ -538,6 +540,54 @@ impl Document {
         self.update(decode_content).await
     }
 
+    /// Generate a [`Patch`] describing the operations needed to modify this
+    /// document so that it is equal to another.
+    pub fn diff(&self, other: &Document) -> Result<Patch> {
+        let patch = match (&self.root, &other.root) {
+            (Some(me), Some(other)) => diff(me, other),
+            _ => bail!("One or more of the documents is empty"),
+        };
+        Ok(patch)
+    }
+
+    /// Merge changes from two or more derived version into this document.
+    ///
+    /// See documentation on the [`merge`] function for how any conflicts
+    /// are resolved.
+    pub async fn merge(&mut self, derived: &[Document]) -> Result<()> {
+        // If the current document has not root (e.g. empty document)
+        // then make it an empty `Article` node so that there is at least a
+        // node to merge into.
+        if self.root.is_none() {
+            self.root = Some(Node::Article(Article::default()));
+        }
+        let root = self.root.as_mut().expect("Just ensured root was some node");
+
+        // For derived documents, ignore documents that have no root
+        // i.e. those that are empty.
+        let derived = derived
+            .iter()
+            .filter_map(|derived| derived.root.as_ref())
+            .collect_vec();
+
+        // Do the merge into root
+        merge(root, &derived);
+
+        // TODO updating of *content from root* and publishing of events etc needs to be sorted out
+        if !self.format.binary {
+            self.content = encode(
+                &self.root.as_ref().unwrap(),
+                "string://",
+                &self.format.name,
+                None,
+            )
+            .await?;
+        }
+        self.update(false).await?;
+
+        Ok(())
+    }
+
     /// Get the SHA-256 of the document
     ///
     /// For text-based documents, returns the SHA-256 of the document's `content`.
@@ -645,7 +695,6 @@ impl Document {
     /// Query the document
     ///
     /// Returns a JSON value. Returns `null` if the query does not select anything.
-    #[allow(unreachable_code)]
     pub fn query(&self, query: &str, lang: &str) -> Result<serde_json::Value> {
         let result = match lang {
             #[cfg(feature = "query-jmespath")]
@@ -1147,7 +1196,7 @@ pub fn schemas() -> Result<serde_json::Value> {
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
-    use crate::cli::display;
+    use crate::{cli::display, patches::diff_display};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -1172,6 +1221,8 @@ pub mod cli {
         Show(Show),
         Query(Query),
         Convert(Convert),
+        Diff(Diff),
+        Merge(Merge),
         Schemas(Schemas),
     }
 
@@ -1185,6 +1236,8 @@ pub mod cli {
                 Action::Show(action) => action.run().await,
                 Action::Query(action) => action.run().await,
                 Action::Convert(action) => action.run().await,
+                Action::Diff(action) => action.run().await,
+                Action::Merge(action) => action.run().await,
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -1362,6 +1415,115 @@ pub mod cli {
                 document.write_as(output, to, theme).await?;
                 display::nothing()
             }
+        }
+    }
+
+    /// Display the structural differences between two documents
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Diff {
+        /// The path of the first document
+        first: PathBuf,
+
+        /// The path of the second document
+        second: PathBuf,
+
+        /// The format to display the difference in
+        ///
+        /// Defaults to a "unified diff" of the JSON representation
+        /// of the documents. Unified diffs of other formats are available
+        /// e.g. "md", "yaml". Use "raw" for the raw patch as a list of
+        /// operations.
+        #[structopt(short, long, default_value = "json")]
+        format: String,
+    }
+
+    impl Diff {
+        pub async fn run(self) -> display::Result {
+            let Self {
+                first,
+                second,
+                format,
+            } = self;
+            let first = Document::open(first, None).await?;
+            let second = Document::open(second, None).await?;
+
+            let (first, second) = match (&first.root, &second.root) {
+                (Some(first), Some(second)) => (first, second),
+                _ => bail!("One or more of the documents is empty"),
+            };
+
+            if format == "raw" {
+                let patch = diff(first, second);
+                display::value(patch)
+            } else {
+                let diff = diff_display(first, second, &format).await?;
+                display::content("patch", &diff)
+            }
+        }
+    }
+
+    /// Merge changes from two or more derived versions of a document
+    ///
+    /// This command can be used as a Git custom "merge driver".
+    /// First, register Stencila as a merge driver,
+    ///
+    /// git config merge.stencila.driver "stencila merge --git %O %A %B"
+    ///
+    /// (The placeholders `%A` etc are used by `git` to pass arguments such
+    /// as file paths and options to `stencila`.)
+    ///
+    /// Then, in your `.gitattributes` file assign the driver to specific
+    /// types of files e.g.,
+    ///
+    /// *.{md|docx} merge=stencila
+    ///
+    /// This can be done per project, or globally.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    // See https://git-scm.com/docs/gitattributes#_defining_a_custom_merge_driver and
+    // https://www.julianburr.de/til/custom-git-merge-drivers/ for more examples of defining a
+    // custom driver. In particular the meaning of the placeholders %O, %A etc
+    pub struct Merge {
+        /// The path of the original version
+        original: PathBuf,
+
+        /// The paths of the derived versions
+        #[structopt(required = true, multiple = true)]
+        derived: Vec<PathBuf>,
+
+        /// A flag to indicate that the command is being used as a Git merge driver
+        ///
+        /// When the `merge` command is used as a Git merge driver the second path
+        /// supplied is the file that is written to.
+        #[structopt(short, long)]
+        git: bool,
+    }
+
+    impl Merge {
+        pub async fn run(self) -> display::Result {
+            let mut original = Document::open(self.original, None).await?;
+
+            let mut docs: Vec<Document> = Vec::new();
+            for path in &self.derived {
+                docs.push(Document::open(path, None).await?)
+            }
+
+            original.merge(&docs).await?;
+
+            if self.git {
+                original.write_as(&self.derived[0], None, None).await?;
+            } else {
+                original.write(None, None).await?;
+            }
+
+            display::nothing()
         }
     }
 

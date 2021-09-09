@@ -1,4 +1,4 @@
-///! Helper functions for tests
+///! Helper functions and macros for tests
 use std::{fs::read_to_string, path::PathBuf};
 
 /// Get the path of the home directory of this repository
@@ -55,4 +55,26 @@ pub fn skip_slow_tests() -> bool {
     } else {
         false
     }
+}
+
+/// Assert that an expression is serialized to expected JSON
+#[macro_export]
+macro_rules! assert_json {
+    ($expr:expr, $json:tt) => {
+        pretty_assertions::assert_eq!(
+            serde_json::to_value(&$expr).unwrap(),
+            serde_json::json!($json)
+        );
+    };
+}
+
+/// Assert that the JSON serialization of two expression is equal
+#[macro_export]
+macro_rules! assert_json_eq {
+    ($expr1:expr, $expr2:expr) => {
+        pretty_assertions::assert_eq!(
+            serde_json::to_value(&$expr1).unwrap(),
+            serde_json::to_value(&$expr2).unwrap()
+        );
+    };
 }

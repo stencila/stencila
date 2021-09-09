@@ -63,6 +63,24 @@ export RUSTC_WRAPPER=sccache
 
 ### Testing
 
+#### Running unit tests
+
+Consistent with Rust conventions, most modules define unit tests withing the modules themselves. You can run unit tests for specific modules by supply a module pattern e.g
+
+```sh
+cargo test encode::html
+```
+
+#### Running integration tests
+
+There are integration tests, mostly using generative testing approaches, in the `tests` directory. You can run those individually like this:
+
+```sh
+cargo test --test patches
+```
+
+#### Using feature flags when testing
+
 We make extensive use of Rust feature flags. The main benefit of this is reduced compile times during development. To take advantage of this use the Cargo options `--no-default-features` (to turn off all the default features) and `--features` (to turn on the features that you are currently working on).
 
 For example, if you are working on the compilation of R code chunks, instead of compiling and running the relevant using tests like this:
@@ -99,12 +117,12 @@ When developing `tree-sitter` language queries for the `methods::compile::code` 
 
 2. Parse fixture files to glean the structure of the AST for the language e.g.
 
-    ```sh
-    tree-sitter parse ../fixtures/fragments/r/imports.R
-    ```
+   ```sh
+   tree-sitter parse ../fixtures/fragments/r/imports.R
+   ```
 
 3. Create a query (or part of a larger query) and test it against the query files e.g.
 
-    ```sh
-    tree-sitter query query.txt ../fixtures/fragments/r/imports.R
-    ```
+   ```sh
+   tree-sitter query query.txt ../fixtures/fragments/r/imports.R
+   ```

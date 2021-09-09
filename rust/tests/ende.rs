@@ -7,13 +7,21 @@
 ///! Uses `serde_json::to_value` for assertions because currently unable
 ///! to compare nodes directly. `serde_json::Value` provides most readable
 ///! way to compare.
-use pretty_assertions::assert_eq;
 use proptest::prelude::*;
 use stencila::methods::{decode, encode};
 use stencila_schema::{BlockContent, Node};
 
 mod strategies;
 use strategies::{article, code_chunk, node, Freedom};
+
+macro_rules! assert_json_eq {
+    ($expr1:expr, $expr2:expr) => {
+        pretty_assertions::assert_eq!(
+            serde_json::to_value(&$expr1).unwrap(),
+            serde_json::to_value(&$expr2).unwrap()
+        );
+    };
+}
 
 proptest! {
     // Tests for generic data serialization formats
@@ -27,10 +35,7 @@ proptest! {
     fn json(input in node(Freedom::Max)) {
         let content = encode::json::encode(&input, None).unwrap();
         let output = decode::json::decode(&content).unwrap();
-        assert_eq!(
-            serde_json::to_value(&input).unwrap(),
-            serde_json::to_value(&output).unwrap()
-        )
+        assert_json_eq!(input, output);
     }
 
     #[cfg(all(feature="encode-yaml", feature="decode-yaml"))]
@@ -38,10 +43,7 @@ proptest! {
     fn yaml(input in node(Freedom::Max)) {
         let content = encode::yaml::encode(&input).unwrap();
         let output = decode::yaml::decode(&content).unwrap();
-        assert_eq!(
-            serde_json::to_value(&input).unwrap(),
-            serde_json::to_value(&output).unwrap()
-        )
+        assert_json_eq!(input, output);
     }
 }
 
@@ -84,10 +86,7 @@ proptest! {
     fn html(input in article(Freedom::Max)) {
         let content = encode::html::encode(&input, None).unwrap();
         let output = decode::html::decode(&content, false).unwrap();
-        assert_eq!(
-            serde_json::to_value(&input).unwrap(),
-            serde_json::to_value(&output).unwrap()
-        )
+        assert_json_eq!(input, output);
     }
 
     #[cfg(all(feature="encode-md", feature="decode-md"))]
@@ -95,10 +94,7 @@ proptest! {
     fn md(input in article(Freedom::Min)) {
         let content = encode::md::encode(&input).unwrap();
         let output = decode::md::decode(&content).unwrap();
-        assert_eq!(
-            serde_json::to_value(&input).unwrap(),
-            serde_json::to_value(&output).unwrap()
-        )
+        assert_json_eq!(input, output);
     }
 
     #[cfg(all(feature="encode-rmd", feature="decode-rmd"))]
@@ -117,10 +113,7 @@ proptest! {
     fn pandoc(input in article(Freedom::Min)) {
         let pandoc = encode::pandoc::encode_node(&input).unwrap();
         let output = decode::pandoc::decode_pandoc(pandoc).unwrap();
-        assert_eq!(
-            serde_json::to_value(&input).unwrap(),
-            serde_json::to_value(&output).unwrap()
-        )
+        assert_json_eq!(input, output);
     }
 }
 
