@@ -1,3 +1,35 @@
+# [0.116.0](https://github.com/stencila/stencila/compare/v0.115.0...v0.116.0) (2021-09-09)
+
+
+### Bug Fixes
+
+* **Block patches:** Add fields for heading ([a5ccc74](https://github.com/stencila/stencila/commit/a5ccc74c86c6710edcbeb70d0dc36ffeb005de3f))
+* **Document merge:**  Make CLI command usable as a Git merge driver ([2810b25](https://github.com/stencila/stencila/commit/2810b2529d9e21134d41b28f8cce6edbf9a0b1ea))
+* **Documents:** Use `debug` instead of `warn` log level ([bcf6af6](https://github.com/stencila/stencila/commit/bcf6af6c259b687ed9796a0f8c89d862255e5c85)), closes [#1135](https://github.com/stencila/stencila/issues/1135)
+* **Patches:** Include type name of structs in hash ([28d410f](https://github.com/stencila/stencila/commit/28d410fd31dcdabb7bb65c96579f08ee5e4be6a4))
+* **String patches:** Ignore linter warning which broke tests ([eb50280](https://github.com/stencila/stencila/commit/eb50280c1dc99452281174d74cb038e1f71e1c6e))
+* **String patches:** Make unicode character aware ([2f122e4](https://github.com/stencila/stencila/commit/2f122e438ba568ca50b46081df814bd7e12a6224))
+* **String patches:** Remove move operations ([6ecaa15](https://github.com/stencila/stencila/commit/6ecaa153502e83fa57272987e351b89eca247bea))
+* **String patches:** Various fixes and generative testing ([7212a47](https://github.com/stencila/stencila/commit/7212a474c88e22eef8c68dab9a59c2fb50419e0b))
+* **Vector patches:** Apply transform operations ([0b06cbc](https://github.com/stencila/stencila/commit/0b06cbcdff034415312962a1b9357e0363272167))
+* **Vector patches:** Fix backwards moves ([0ba5262](https://github.com/stencila/stencila/commit/0ba5262450b6cfbd5c2427151ddfb6b9951ccf2f))
+* **Vector patches:** Fix issue when nested replacements ([23dcbf7](https://github.com/stencila/stencila/commit/23dcbf7d5f9032dca7742fbc99688ea48e84dde2))
+* **Vector patches:** Fix issue with indexing replacements ([01f1ca1](https://github.com/stencila/stencila/commit/01f1ca11154726692cc17228f191323c2696c4b4))
+* **Vector patches:** Only match add operations at top level ([844fe67](https://github.com/stencila/stencila/commit/844fe678ea4c7bd3ff8de131b2a74e26a606b0ab))
+
+
+### Features
+
+* **Atomics patches:** Implement apply patch ([814e723](https://github.com/stencila/stencila/commit/814e723256bac40b0b792998f87df10219902167))
+* **Document diffs:** Generate unified diffs in alternative formats ([f378a06](https://github.com/stencila/stencila/commit/f378a063eb07d60cb5d05d76a46bfa98b801e07a))
+* **Inline content:** Implement patching for inline content nodes ([3f116bb](https://github.com/stencila/stencila/commit/3f116bbff9cfab9860b71a1d24909f575025c6c8))
+* **Option patches:** Implement apply patch ([0717721](https://github.com/stencila/stencila/commit/071772133ce7050b3bed51a325a2ad08c60a0185))
+* **Patches:** Add diff and merge CLI commands ([700cc47](https://github.com/stencila/stencila/commit/700cc47927dea38a01159bd17c3ce3bc39e56d73))
+* **Patches:** Introduce functions and traits for diffing and patching document nodes ([1610291](https://github.com/stencila/stencila/commit/1610291295b644b8e5b0615163ef45ba585612e9))
+* **String patches:** Add move operation ([4aa3e1f](https://github.com/stencila/stencila/commit/4aa3e1ff63f1dd909784d3736367df6e9173a5f7))
+* **Vector patches:** Fine grained operations for replacement items ([731d852](https://github.com/stencila/stencila/commit/731d852b84e0f780246c0fc264fab08a78755044))
+* **Vector patches:** Implement forward moves ([9cf4f33](https://github.com/stencila/stencila/commit/9cf4f33f11f27f7c695a3fe214e11bc98ecc34fd))
+
 # [0.115.0](https://github.com/stencila/stencila/compare/v0.114.1...v0.115.0) (2021-09-09)
 
 
