@@ -89,6 +89,15 @@ proptest! {
         assert_json_eq!(input, output);
     }
 
+    #[cfg(all(feature="encode-ipynb", feature="decode-ipynb"))]
+    #[test]
+    #[ignore="Because encoding not yet implemented"]
+    fn ipynb(input in article(Freedom::Min)) {
+        let content = encode::ipynb::encode(&input).unwrap();
+        let output = decode::ipynb::decode(&content).unwrap();
+        assert_json_eq!(input, output);
+    }
+
     #[cfg(all(feature="encode-md", feature="decode-md"))]
     #[test]
     fn md(input in article(Freedom::Min)) {
@@ -102,10 +111,7 @@ proptest! {
     fn rmd(input in article(Freedom::Min)) {
         let content = encode::rmd::encode(&input).unwrap();
         let output = decode::rmd::decode(&content).unwrap();
-        assert_eq!(
-            serde_json::to_value(&input).unwrap(),
-            serde_json::to_value(&output).unwrap()
-        )
+        assert_json_eq!(input, output);
     }
 
     #[cfg(all(feature="encode-pandoc", feature="decode-pandoc"))]

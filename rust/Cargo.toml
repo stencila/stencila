@@ -46,6 +46,7 @@ import-github = []
 decode-date = ["dtparse"]
 decode-docx = ["decode-pandoc"]
 decode-html = ["decode-md", "kuchiki", "markup5ever"]
+decode-ipynb = ["decode-md", "decode-html"]
 decode-json = []
 decode-latex = ["decode-pandoc"]
 decode-md = ["pulldown-cmark", "nom", "coerce", "decode-html", "encode-txt"]
@@ -58,6 +59,7 @@ decode-yaml = []
 
 encode-docx = ["encode-pandoc"]
 encode-html = ["encode-txt", "html-escape"]
+encode-ipynb = ["encode-md"]
 encode-json = []
 encode-latex = ["encode-pandoc"]
 encode-md = []
@@ -109,6 +111,7 @@ default = [
   "decode-date",
   "decode-docx",
   "decode-html",
+  "decode-ipynb",
   "decode-json",
   "decode-latex",
   "decode-md",
@@ -120,6 +123,7 @@ default = [
   "decode-yaml",
   "encode-docx",
   "encode-html",
+  "encode-ipynb",
   "encode-json",
   "encode-latex",
   "encode-md",

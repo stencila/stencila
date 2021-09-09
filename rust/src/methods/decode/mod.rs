@@ -5,6 +5,7 @@ use stencila_schema::Node;
 
 #[cfg(feature = "decode-date")]
 pub mod date;
+
 #[cfg(feature = "decode-docx")]
 pub mod docx;
 
@@ -13,6 +14,9 @@ pub mod json;
 
 #[cfg(feature = "decode-html")]
 pub mod html;
+
+#[cfg(feature = "decode-ipynb")]
+pub mod ipynb;
 
 #[cfg(feature = "decode-md")]
 pub mod md;
@@ -37,6 +41,8 @@ pub mod toml;
 
 #[cfg(feature = "decode-yaml")]
 pub mod yaml;
+
+// Modules for types of content, rather than specific formats
 
 pub mod code;
 pub mod media;
@@ -66,6 +72,9 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
 
         #[cfg(feature = "decode-html")]
         "html" => html::decode(input, false)?,
+
+        #[cfg(feature = "decode-ipynb")]
+        "ipynb" => ipynb::decode(input)?,
 
         #[cfg(feature = "decode-json")]
         "json" => json::decode(input)?,

@@ -10,6 +10,9 @@ pub mod docx;
 #[allow(clippy::deprecated_cfg_attr)]
 pub mod html;
 
+#[cfg(feature = "encode-ipynb")]
+pub mod ipynb;
+
 #[cfg(feature = "encode-json")]
 pub mod json;
 
@@ -101,6 +104,9 @@ pub async fn encode(
 
         #[cfg(feature = "encode-html")]
         "html" => html::encode(node, options)?,
+
+        #[cfg(feature = "encode-ipynb")]
+        "ipynb" => ipynb::encode(node)?,
 
         #[cfg(feature = "encode-json")]
         "json" => json::encode(node, options)?,
