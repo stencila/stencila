@@ -6,10 +6,7 @@ patchable_struct!(Article, content);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        assert_json,
-        patches::{apply_new, diff, equal},
-    };
+    use crate::patches::diff;
     use stencila_schema::{BlockContent, Paragraph};
 
     #[test]

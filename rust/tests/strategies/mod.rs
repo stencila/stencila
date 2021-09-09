@@ -619,6 +619,7 @@ prop_compose! {
 }
 
 /// Generate an arbitrary node
+#[allow(dead_code)]
 pub fn node(freedom: Freedom) -> impl Strategy<Value = Node> {
     Union::new(vec![article(freedom).boxed()])
 }

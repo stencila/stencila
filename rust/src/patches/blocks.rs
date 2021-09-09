@@ -102,17 +102,15 @@ impl Patchable for BlockContent {
     }
 }
 
-fn diff_transform(differ: &mut Differ, from: &BlockContent, to: &BlockContent) {
-    match from {
-        _ => (),
-    }
+fn diff_transform(differ: &mut Differ, _from: &BlockContent, to: &BlockContent) {
+    // TODO implement generation of `Transform` operations
+    // Default is to generate a replace operation
     differ.replace(to)
 }
 
-fn apply_transform(from: &BlockContent, _to: &str) -> BlockContent {
-    match from {
-        _ => unreachable!(),
-    }
+fn apply_transform(_from: &BlockContent, _to: &str) -> BlockContent {
+    // TODO implement application of `Transform` operations
+    todo!()
 }
 
 // Implementations for `BlockContent` structs

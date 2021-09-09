@@ -12,7 +12,7 @@ use crate::{
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
         schemas,
-        uuids::{self, Family},
+        uuids::{self},
     },
 };
 use defaults::Defaults;
@@ -576,7 +576,7 @@ impl Document {
         // TODO updating of *content from root* and publishing of events etc needs to be sorted out
         if !self.format.binary {
             self.content = encode(
-                &self.root.as_ref().unwrap(),
+                self.root.as_ref().unwrap(),
                 "string://",
                 &self.format.name,
                 None,
@@ -1151,9 +1151,14 @@ impl Documents {
     }
 
     /// Change a node within a document
-    pub async fn change(&self, id: &str, node: &str, value: serde_json::Value) -> Result<Document> {
+    pub async fn change(
+        &self,
+        id: &str,
+        _node: &str,
+        _value: serde_json::Value,
+    ) -> Result<Document> {
         let document_lock = self.get(id).await?;
-        let mut document_guard = document_lock.lock().await;
+        let document_guard = document_lock.lock().await;
         // TODO
         Ok(document_guard.clone())
     }
@@ -1162,11 +1167,11 @@ impl Documents {
     pub async fn execute(
         &self,
         id: &str,
-        node: &str,
-        value: Option<serde_json::Value>,
+        _node: &str,
+        _value: Option<serde_json::Value>,
     ) -> Result<Document> {
         let document_lock = self.get(id).await?;
-        let mut document_guard = document_lock.lock().await;
+        let document_guard = document_lock.lock().await;
         // TODO
         Ok(document_guard.clone())
     }

@@ -341,7 +341,7 @@ fn required_value(params: &Params, name: &str) -> Result<serde_json::Value> {
 }
 
 fn optional_value(params: &Params, name: &str) -> Option<serde_json::Value> {
-    params.get(name).map(|param| param.clone())
+    params.get(name).cloned()
 }
 
 fn required_string(params: &Params, name: &str) -> Result<String> {

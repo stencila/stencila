@@ -609,7 +609,7 @@ impl ToHtml for CodeFragment {
                 itemtype("http://schema.stenci.la/CodeFragment"),
                 id(&self.id),
                 match &self.programming_language {
-                    Some(lang) => attr("class", &["language-", &lang].concat()),
+                    Some(lang) => attr("class", &["language-", lang].concat()),
                     None => "".to_string(),
                 },
             ],
@@ -729,7 +729,7 @@ impl ToHtml for CodeBlock {
             &elem(
                 "code",
                 &[match &self.programming_language {
-                    Some(lang) => attr("class", &["language-", &lang].concat()),
+                    Some(lang) => attr("class", &["language-", lang].concat()),
                     None => "".to_string(),
                 }],
                 &encode_safe(&self.text),
@@ -742,7 +742,7 @@ impl ToHtml for CodeChunk {
     fn to_html(&self, context: &Context) -> String {
         let label = match &self.label {
             None => String::new(),
-            Some(label) => elem("label", &[data_itemprop("label")], &label),
+            Some(label) => elem("label", &[data_itemprop("label")], label),
         };
 
         let caption = match &self.caption {
@@ -796,7 +796,7 @@ impl ToHtml for FigureSimple {
     fn to_html(&self, context: &Context) -> String {
         let label = match &self.label {
             None => String::new(),
-            Some(label) => elem("label", &[data_itemprop("label")], &label),
+            Some(label) => elem("label", &[data_itemprop("label")], label),
         };
 
         let content = match &self.content {
@@ -963,7 +963,7 @@ impl ToHtml for TableSimple {
     fn to_html(&self, context: &Context) -> String {
         let label = match &self.label {
             None => String::new(),
-            Some(label) => elem("label", &[data_itemprop("label")], &label),
+            Some(label) => elem("label", &[data_itemprop("label")], label),
         };
 
         let caption = match self.caption.as_deref() {
