@@ -153,14 +153,15 @@ jobs:
 
       # Web client is tested if there are changes in the `web`, `rust` or `cli` folders
       # because it includes end-to-end tests of integrations with the Rust server.
+      # Use the `--prefix` option rather than `cd web` so that the server runs from the
+      # top level directory and thus allows HTTP access to fixtures.
       - script: |
           set -e
-          cd web
-          npm install
-          npm run lint
-          cargo build --manifest-path ../cli/Cargo.toml
-          cargo run --manifest-path ../cli/Cargo.toml -- serve --insecure &
-          SERVER_URL="ws://127.0.0.1:9000/~ws" npm test
+          npm install --prefix web
+          npm run lint --prefix web
+          cargo build --manifest-path cli/Cargo.toml
+          cargo run --manifest-path cli/Cargo.toml -- serve --insecure &
+          SERVER_URL="ws://127.0.0.1:9000/~ws" npm test --prefix web
           kill %1
         condition: |
           or(
