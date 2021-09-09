@@ -27,24 +27,24 @@ where
         self.deref().diff_same(differ, other)
     }
 
-    fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
-        self.deref_mut().apply_add(keys, value)
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+        self.deref_mut().apply_add(address, value)
     }
 
-    fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
-        self.deref_mut().apply_remove(keys, items)
+    fn apply_remove(&mut self, address: &mut Address, items: usize) {
+        self.deref_mut().apply_remove(address, items)
     }
 
-    fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {
-        self.deref_mut().apply_replace(keys, items, value)
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+        self.deref_mut().apply_replace(address, items, value)
     }
 
-    fn apply_move(&mut self, from: &mut Keys, items: usize, to: &mut Keys) {
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
         self.deref_mut().apply_move(from, items, to)
     }
 
-    fn apply_transform(&mut self, keys: &mut Keys, from: &str, to: &str) {
-        self.deref_mut().apply_transform(keys, from, to)
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+        self.deref_mut().apply_transform(address, from, to)
     }
 }
 
@@ -67,9 +67,9 @@ mod tests {
         assert_json!(
             patch,
             [
-                {"op": "add", "keys": [0], "value": "e", "length": 1},
-                {"op": "remove", "keys": [2], "items": 1},
-                {"op": "replace", "keys": [3], "items": 1, "value": "p", "length": 1}
+                {"op": "add", "address": [0], "value": "e", "length": 1},
+                {"op": "remove", "address": [2], "items": 1},
+                {"op": "replace", "address": [3], "items": 1, "value": "p", "length": 1}
             ]
         );
         assert_json!(apply_new(&a, &patch), b);

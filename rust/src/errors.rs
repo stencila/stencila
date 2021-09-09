@@ -38,19 +38,19 @@ pub enum Error {
     #[error("Invalid patch operation '{op}' for type '{type_name}'")]
     InvalidPatchOperation { op: String, type_name: String },
 
-    /// The user attempted to apply a patch operation with invalid keys
-    /// for the type.
-    #[error("Invalid patch keys '{keys}' for type '{type_name}'")]
-    InvalidPatchKeys { keys: String, type_name: String },
+    /// The user attempted to apply a patch operation with and invalid
+    /// address for the type.
+    #[error("Invalid patch address '{address}' for type '{type_name}'")]
+    InvalidPatchAddress { address: String, type_name: String },
 
     /// The user attempted to apply a patch operation with an invalid
-    /// property name for the type.
-    #[error("Invalid patch name '{name}' for type '{type_name}'")]
+    /// property name for the type as part of an address.
+    #[error("Invalid patch address name '{name}' for type '{type_name}'")]
     InvalidPatchName { name: String, type_name: String },
 
     /// The user attempted to apply a patch operation with an invalid
-    /// sequence index for the type.
-    #[error("Invalid patch index '{index}' for type '{type_name}'")]
+    /// sequence index for the type as part of an address.
+    #[error("Invalid patch address index '{index}' for type '{type_name}'")]
     InvalidPatchIndex { index: usize, type_name: String },
 
     /// The user attempted to apply a patch operation with an invalid

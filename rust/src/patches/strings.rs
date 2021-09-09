@@ -1,4 +1,4 @@
-use super::{keys_from_index, prelude::*};
+use super::{address_from_index, prelude::*};
 use itertools::Itertools;
 use similar::{ChangeTag, TextDiff};
 use std::any::{type_name, Any};
@@ -9,8 +9,7 @@ use std::ops::Deref;
 ///
 /// `Add`, `Remove` and `Replace` operations are implemented.
 /// The `Move` operation, whilst possible for strings, adds complexity
-/// and a performance hit to diffing, but is likely to be uncommon at the
-/// word level (word level moves are dealt with in `Vec<InlineContent>`).
+/// and a performance hit to diffing.
 impl Patchable for String {
     patchable_is_same!();
 
@@ -84,20 +83,20 @@ impl Patchable for String {
 
             let end = index == changes.len() - 1;
             if (index > 0 && curr != last) || end {
-                let keys = keys_from_index(start);
+                let address = address_from_index(start);
                 if (curr == 'e' && last == 'd') || (end && curr == 'd') {
-                    ops.push(Operation::Remove { keys, items });
+                    ops.push(Operation::Remove { address, items });
                 } else if (curr == 'e' && last == 'i') || (end && curr == 'i') {
                     if replace {
                         ops.push(Operation::Replace {
-                            keys,
+                            address,
                             items,
                             value: Box::new(value.clone()),
                             length: value.chars().count(),
                         });
                     } else {
                         ops.push(Operation::Add {
-                            keys,
+                            address,
                             value: Box::new(value.clone()),
                             length: value.chars().count(),
                         });
@@ -109,14 +108,14 @@ impl Patchable for String {
         differ.append(ops)
     }
 
-    fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value
         } else {
             return invalid_value!();
         };
 
-        if let Some(Key::Index(index)) = keys.pop_front() {
+        if let Some(Key::Index(index)) = address.pop_front() {
             let chars: Vec<char> = self.chars().collect();
             let chars = [
                 &chars[..index],
@@ -126,30 +125,30 @@ impl Patchable for String {
             .concat();
             *self = chars.into_iter().collect();
         } else {
-            invalid_keys!(keys)
+            invalid_address!(address)
         }
     }
 
-    fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
-        if let Some(Key::Index(index)) = keys.pop_front() {
+    fn apply_remove(&mut self, address: &mut Address, items: usize) {
+        if let Some(Key::Index(index)) = address.pop_front() {
             let chars: Vec<char> = self.chars().collect();
             let chars = [&chars[..index], &chars[(index + items)..]].concat();
             *self = chars.into_iter().collect();
         } else {
-            invalid_keys!(keys)
+            invalid_address!(address)
         }
     }
 
-    fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value
         } else {
             return invalid_value!();
         };
 
-        if keys.is_empty() {
+        if address.is_empty() {
             *self = value.clone();
-        } else if let Some(Key::Index(index)) = keys.pop_front() {
+        } else if let Some(Key::Index(index)) = address.pop_front() {
             let chars: Vec<char> = self.chars().collect();
             let chars = [
                 &chars[..index],
@@ -196,21 +195,21 @@ mod tests {
         let patch = diff(&empty, &a);
         assert_json!(
             patch,
-            [{ "op": "add", "keys": [0], "value": "1", "length": 1 }]
+            [{ "op": "add", "address": [0], "value": "1", "length": 1 }]
         );
         assert_eq!(apply_new(&empty, &patch), a);
 
         let patch = diff(&empty, &d);
         assert_json!(
             patch,
-            [{ "op": "add", "keys": [0], "value": "abcdef", "length": 6 }]
+            [{ "op": "add", "address": [0], "value": "abcdef", "length": 6 }]
         );
         assert_eq!(apply_new(&empty, &patch), d);
 
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{ "op": "add", "keys": [1], "value": "23", "length": 2 }]
+            [{ "op": "add", "address": [1], "value": "23", "length": 2 }]
         );
         assert_eq!(apply_new(&a, &patch), b);
 
@@ -219,19 +218,19 @@ mod tests {
         let patch = diff(&a, &empty);
         assert_json!(
             patch,
-            [{ "op": "remove", "keys": [0], "items": 1 }]
+            [{ "op": "remove", "address": [0], "items": 1 }]
         );
 
         let patch = diff(&d, &empty);
         assert_json!(
             patch,
-            [{ "op": "remove", "keys": [0], "items": 6 }]
+            [{ "op": "remove", "address": [0], "items": 6 }]
         );
 
         let patch = diff(&b, &a);
         assert_json!(
             patch,
-            [{ "op": "remove", "keys": [1], "items": 2 }]
+            [{ "op": "remove", "address": [1], "items": 2 }]
         );
 
         // Replace
@@ -239,14 +238,14 @@ mod tests {
         let patch = diff(&a, &c);
         assert_json!(
             patch,
-            [{ "op": "replace", "keys": [0], "items": 1, "value": "a2b3", "length": 4 }]
+            [{ "op": "replace", "address": [0], "items": 1, "value": "a2b3", "length": 4 }]
         );
         assert_eq!(apply_new(&a, &patch), c);
 
         let patch = diff(&b, &d);
         assert_json!(
             patch,
-            [{ "op": "replace", "keys": [0], "items": 3, "value": "abcdef", "length": 6 }]
+            [{ "op": "replace", "address": [0], "items": 3, "value": "abcdef", "length": 6 }]
         );
         assert_eq!(apply_new(&b, &patch), d);
 
@@ -256,8 +255,8 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "remove", "keys": [1], "items": 1 },
-                { "op": "replace", "keys": [2], "items": 1, "value": "cdef", "length": 4 }
+                { "op": "remove", "address": [1], "items": 1 },
+                { "op": "replace", "address": [2], "items": 1, "value": "cdef", "length": 4 }
             ]
         );
         assert_eq!(apply_new(&c, &patch), d);
@@ -266,8 +265,8 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "add", "keys": [1], "value": "2", "length": 1 },
-                { "op": "replace", "keys": [3], "items": 4, "value": "3", "length": 1 }
+                { "op": "add", "address": [1], "value": "2", "length": 1 },
+                { "op": "replace", "address": [3], "items": 4, "value": "3", "length": 1 }
             ]
         );
         assert_eq!(apply_new(&d, &patch), c);
@@ -276,9 +275,9 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "add", "keys": [1], "value": "d", "length": 1 },
-                { "op": "replace", "keys": [4], "items": 1, "value": "f", "length": 1 },
-                { "op": "remove", "keys": [6], "items": 1 }
+                { "op": "add", "address": [1], "value": "d", "length": 1 },
+                { "op": "replace", "address": [4], "items": 1, "value": "f", "length": 1 },
+                { "op": "remove", "address": [6], "items": 1 }
             ]
         );
         assert_eq!(apply_new(&d, &patch), e);
@@ -294,21 +293,21 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "add", "keys": [1], "value": "1👍🏻2", "length": 4 },
+            { "op": "add", "address": [1], "value": "1👍🏻2", "length": 4 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
 
         let patch = diff(&b, &c);
         assert_json!(patch, [
-            { "op": "remove", "keys": [0], "items": 1 },
-            { "op": "replace", "keys": [2], "items": 1, "value": "🏿", "length": 1 },
+            { "op": "remove", "address": [0], "items": 1 },
+            { "op": "replace", "address": [2], "items": 1, "value": "🏿", "length": 1 },
         ]);
         assert_eq!(apply_new(&b, &patch), c);
 
         let patch = diff(&c, &b);
         assert_json!(patch, [
-            { "op": "add", "keys": [0], "value": "ä", "length": 1 },
-            { "op": "replace", "keys": [3], "items": 1, "value": "🏻", "length": 1 },
+            { "op": "add", "address": [0], "value": "ä", "length": 1 },
+            { "op": "replace", "address": [3], "items": 1, "value": "🏻", "length": 1 },
         ]);
         assert_eq!(apply_new(&c, &patch), b);
     }
@@ -322,8 +321,8 @@ mod tests {
         let b = "bc".to_string();
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "remove", "keys": [0], "items": 1 },
-            { "op": "add", "keys": [1], "value": "c", "length": 1 },
+            { "op": "remove", "address": [0], "items": 1 },
+            { "op": "add", "address": [1], "value": "c", "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }
@@ -336,8 +335,8 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "replace", "keys": [0], "items": 1, "value": "b", "length": 1 },
-                { "op": "add", "keys": [2], "value": "d", "length": 1 },
+                { "op": "replace", "address": [0], "items": 1, "value": "b", "length": 1 },
+                { "op": "add", "address": [2], "value": "d", "length": 1 },
             ]
         );
         assert_eq!(apply_new(&a, &patch), b);

@@ -17,8 +17,8 @@ use crate::{
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
-use maplit::hashset;
 use itertools::Itertools;
+use maplit::hashset;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};

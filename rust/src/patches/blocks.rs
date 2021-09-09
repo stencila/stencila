@@ -68,36 +68,36 @@ impl Patchable for BlockContent {
         }
     }
 
-    fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
-        dispatch_block!(self, apply_add, keys, value);
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+        dispatch_block!(self, apply_add, address, value);
     }
 
-    fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
-        dispatch_block!(self, apply_remove, keys, items);
+    fn apply_remove(&mut self, address: &mut Address, items: usize) {
+        dispatch_block!(self, apply_remove, address, items);
     }
 
-    fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {
-        if keys.is_empty() {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+        if address.is_empty() {
             if let Some(value) = value.deref().downcast_ref::<Self>() {
                 *self = value.clone()
             } else {
                 return invalid_value!();
             };
         } else {
-            dispatch_block!(self, apply_replace, keys, items, value)
+            dispatch_block!(self, apply_replace, address, items, value)
         }
     }
 
-    fn apply_move(&mut self, from: &mut Keys, items: usize, to: &mut Keys) {
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
         dispatch_block!(self, apply_move, from, items, to);
     }
 
-    fn apply_transform(&mut self, keys: &mut Keys, from: &str, to: &str) {
-        if keys.is_empty() {
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+        if address.is_empty() {
             assert_eq!(from, self.as_ref(), "Expected the same type");
             *self = apply_transform(self, to)
         } else {
-            dispatch_block!(self, apply_transform, keys, from, to)
+            dispatch_block!(self, apply_transform, address, from, to)
         }
     }
 }

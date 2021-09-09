@@ -3,9 +3,9 @@ use std::{hash::Hasher, ops::Deref};
 
 /// Implements patching for `Option`
 ///
-/// Generates `Add` and `Remove` operations (with no keys) given differences in
+/// Generates `Add` and `Remove` operations (with no address) given differences in
 /// `Some` and `None` between the two options.
-/// When applying `Add` and `Remove` operations, if there are no keys
+/// When applying `Add` and `Remove` operations, if there are no address
 /// then apply here, otherwise pass operation through to any value.
 /// All other operations passed through.
 impl<Type: Patchable> Patchable for Option<Type>
@@ -39,39 +39,39 @@ where
         }
     }
 
-    fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
-        if keys.is_empty() {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+        if address.is_empty() {
             if let Some(value) = value.deref().downcast_ref::<Type>() {
                 *self = Some(value.clone())
             } else {
                 invalid_value!()
             }
         } else if let Some(me) = self {
-            me.apply_add(keys, value)
+            me.apply_add(address, value)
         } else {
-            invalid_keys!(keys)
+            invalid_address!(address)
         }
     }
 
-    fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
-        if keys.is_empty() {
+    fn apply_remove(&mut self, address: &mut Address, items: usize) {
+        if address.is_empty() {
             *self = None
         } else if let Some(me) = self {
-            me.apply_remove(keys, items)
+            me.apply_remove(address, items)
         } else {
-            invalid_keys!(keys)
+            invalid_address!(address)
         }
     }
 
-    fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
         if let Some(me) = self {
-            me.apply_replace(keys, items, value)
+            me.apply_replace(address, items, value)
         } else {
             invalid_op!("replace")
         }
     }
 
-    fn apply_move(&mut self, from: &mut Keys, items: usize, to: &mut Keys) {
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
         if let Some(me) = self {
             me.apply_move(from, items, to)
         } else {
@@ -79,9 +79,9 @@ where
         }
     }
 
-    fn apply_transform(&mut self, keys: &mut Keys, from: &str, to: &str) {
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
         if let Some(me) = self {
-            me.apply_transform(keys, from, to)
+            me.apply_transform(address, from, to)
         } else {
             invalid_op!("transform")
         }
@@ -115,7 +115,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "add", "keys": [], "value": "abc".to_string(), "length": 1}]
+            [{"op": "add", "address": [], "value": "abc".to_string(), "length": 1}]
         );
         assert_json!(apply_new(&a, &patch), b);
 
@@ -125,7 +125,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "add", "keys": [1], "value": "bc".to_string(), "length": 2}]
+            [{"op": "add", "address": [1], "value": "bc".to_string(), "length": 2}]
         );
         assert_json!(apply_new(&a, &patch), b);
 
@@ -135,7 +135,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "remove", "keys": [], "items": 1}]
+            [{"op": "remove", "address": [], "items": 1}]
         );
         assert_json!(apply_new(&a, &patch), b);
 
@@ -145,7 +145,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "remove", "keys": [1], "items": 1}]
+            [{"op": "remove", "address": [1], "items": 1}]
         );
         assert_json!(apply_new(&a, &patch), b);
 
@@ -155,7 +155,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "replace", "keys": [1], "items": 1, "value": "@", "length": 1}]
+            [{"op": "replace", "address": [1], "items": 1, "value": "@", "length": 1}]
         );
         assert_json!(apply_new(&a, &patch), b);
     }

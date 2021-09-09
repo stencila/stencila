@@ -87,36 +87,36 @@ impl Patchable for InlineContent {
         }
     }
 
-    fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
-        dispatch_inline!(self, apply_add, keys, value);
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+        dispatch_inline!(self, apply_add, address, value);
     }
 
-    fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
-        dispatch_inline!(self, apply_remove, keys, items);
+    fn apply_remove(&mut self, address: &mut Address, items: usize) {
+        dispatch_inline!(self, apply_remove, address, items);
     }
 
-    fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {
-        if keys.is_empty() {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+        if address.is_empty() {
             if let Some(value) = value.deref().downcast_ref::<Self>() {
                 *self = value.clone()
             } else {
                 return invalid_value!();
             };
         } else {
-            dispatch_inline!(self, apply_replace, keys, items, value)
+            dispatch_inline!(self, apply_replace, address, items, value)
         }
     }
 
-    fn apply_move(&mut self, from: &mut Keys, items: usize, to: &mut Keys) {
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
         dispatch_inline!(self, apply_move, from, items, to);
     }
 
-    fn apply_transform(&mut self, keys: &mut Keys, from: &str, to: &str) {
-        if keys.is_empty() {
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+        if address.is_empty() {
             assert_eq!(from, self.as_ref(), "Expected the same type");
             *self = apply_transform(self, to)
         } else {
-            dispatch_inline!(self, apply_transform, keys, from, to)
+            dispatch_inline!(self, apply_transform, address, from, to)
         }
     }
 }
@@ -254,7 +254,7 @@ mod tests {
         patches::{apply_new, diff, equal},
     };
 
-    // Test that operations with keys are passed through
+    // Test that operations with address are passed through
     #[test]
     fn passthrough() {
         // Simple
@@ -267,9 +267,9 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            {"op": "add", "keys": [0], "value": "e", "length": 1},
-            {"op": "remove", "keys": [2], "items": 1},
-            {"op": "replace", "keys": [3], "items": 1, "value": "p", "length": 1}
+            {"op": "add", "address": [0], "value": "e", "length": 1},
+            {"op": "remove", "address": [2], "items": 1},
+            {"op": "replace", "address": [3], "items": 1, "value": "p", "length": 1}
         ]);
         assert_json_eq!(apply_new(&a, &patch), b);
 
@@ -288,7 +288,7 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            {"op": "remove", "keys": ["content", 0, 2], "items": 2},
+            {"op": "remove", "address": ["content", 0, 2], "items": 2},
         ]);
         assert_json_eq!(apply_new(&a, &patch), b);
     }
@@ -308,25 +308,25 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            {"op": "transform", "keys": [], "from": "String", "to": "Emphasis"}
+            {"op": "transform", "address": [], "from": "String", "to": "Emphasis"}
         ]);
         assert_json_eq!(apply_new(&a, &patch), b);
 
         let patch = diff(&b, &a);
         assert_json!(patch, [
-            {"op": "transform", "keys": [], "from": "Emphasis", "to": "String"}
+            {"op": "transform", "address": [], "from": "Emphasis", "to": "String"}
         ]);
         assert_json_eq!(apply_new(&b, &patch), a);
 
         let patch = diff(&b, &c);
         assert_json!(patch, [
-            {"op": "transform", "keys": [], "from": "Emphasis", "to": "Strong"}
+            {"op": "transform", "address": [], "from": "Emphasis", "to": "Strong"}
         ]);
         assert_json_eq!(apply_new(&b, &patch), c);
 
         let patch = diff(&c, &b);
         assert_json!(patch, [
-            {"op": "transform", "keys": [], "from": "Strong", "to": "Emphasis"}
+            {"op": "transform", "address": [], "from": "Strong", "to": "Emphasis"}
         ]);
         assert_json_eq!(apply_new(&c, &patch), b);
     }
@@ -343,7 +343,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             {
-                "op": "replace", "keys": [], "items": 1,
+                "op": "replace", "address": [], "items": 1,
                 "value": {"type": "Emphasis", "content": ["b"]},
                 "length": 1
             }
@@ -353,7 +353,7 @@ mod tests {
         let patch = diff(&b, &a);
         assert_json!(patch, [
             {
-                "op": "replace", "keys": [], "items": 1,
+                "op": "replace", "address": [], "items": 1,
                 "value": "a",
                 "length": 1
             }
@@ -377,7 +377,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             {
-                "op": "replace", "keys": [], "items": 1,
+                "op": "replace", "address": [], "items": 1,
                 "value": {"type": "ImageObject", "contentUrl": "a"},
                 "length": 1
             }
@@ -413,11 +413,11 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             {
-                "op": "replace", "keys": [0, "content", 0, 0], "items": 1,
+                "op": "replace", "address": [0, "content", 0, 0], "items": 1,
                 "value": "b", "length": 1
             },
             {
-                "op": "replace", "keys": [1], "items": 1,
+                "op": "replace", "address": [1], "items": 1,
                 "value": [{ "type": "AudioObject", "contentUrl": "a.flac"}], "length": 1
             }
         ]);

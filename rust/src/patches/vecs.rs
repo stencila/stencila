@@ -1,4 +1,4 @@
-use super::{keys_from_index, prelude::*};
+use super::{address_from_index, prelude::*};
 use similar::DiffOp;
 use std::cmp::min;
 use std::collections::hash_map::Entry;
@@ -13,10 +13,6 @@ where
 {
     patchable_is_same!();
 
-    /// Is this vector equal to another?
-    ///
-    /// Checks that the vectors of equal length first, and then
-    /// compares each item with early return on the first difference.
     fn is_equal(&self, other: &Self) -> Result<()> {
         if self.len() != other.len() {
             bail!(Error::NotEqual)
@@ -48,7 +44,7 @@ where
 
         if self.is_empty() && !other.is_empty() {
             return differ.append(vec![Operation::Add {
-                keys: keys_from_index(0),
+                address: address_from_index(0),
                 value: Box::new(other.clone()),
                 length: other.len(),
             }]);
@@ -56,7 +52,7 @@ where
 
         if !self.is_empty() && other.is_empty() {
             return differ.append(vec![Operation::Remove {
-                keys: keys_from_index(0),
+                address: address_from_index(0),
                 items: self.len(),
             }]);
         }
@@ -82,15 +78,18 @@ where
                     for prev in (0..ops.len()).rev() {
                         let op = &ops[prev];
                         match op {
-                            Operation::Add { keys, length, .. } => {
-                                if keys.len() == 1 {
+                            Operation::Add {
+                                address, length, ..
+                            } => {
+                                if address.len() == 1 {
                                     shift -= *length as i32;
                                 }
                             }
-                            Operation::Remove { keys, items, .. } => {
-                                if keys.len() == 1 {
+                            Operation::Remove { address, items, .. } => {
+                                if address.len() == 1 {
                                     shift += *items as i32;
-                                    let remove_index = if let Key::Index(remove_index) = keys[0] {
+                                    let remove_index = if let Key::Index(remove_index) = address[0]
+                                    {
                                         remove_index
                                     } else {
                                         panic!("Should be a index")
@@ -102,9 +101,9 @@ where
                                         self[removed.0..(removed.0 + removed.1)].to_vec();
                                     if added_value.is_equal(&removed_value).is_ok() {
                                         ops[prev] = Operation::Move {
-                                            from: keys.clone(),
+                                            from: address.clone(),
                                             items: *items,
-                                            to: keys_from_index((index as i32 + shift) as usize),
+                                            to: address_from_index((index as i32 + shift) as usize),
                                         };
                                         matched = true;
                                         break;
@@ -112,12 +111,12 @@ where
                                 }
                             }
                             Operation::Replace {
-                                keys,
+                                address,
                                 items,
                                 length,
                                 ..
                             } => {
-                                if keys.len() == 1 {
+                                if address.len() == 1 {
                                     shift -= *length as i32 - *items as i32
                                 }
                             }
@@ -126,7 +125,7 @@ where
                     }
                     if !matched {
                         ops.push(Operation::Add {
-                            keys: keys_from_index(index),
+                            address: address_from_index(index),
                             value: Box::new(added_value),
                             length: new_len,
                         })
@@ -146,11 +145,11 @@ where
                         let op = &ops[prev];
                         match op {
                             Operation::Add {
-                                keys,
+                                address,
                                 value,
                                 length,
                             } => {
-                                if keys.len() == 1 {
+                                if address.len() == 1 {
                                     shift -= *length as i32;
                                     let added_value = value
                                         .deref()
@@ -158,27 +157,29 @@ where
                                         .expect("To be a Vec<Type>");
                                     if added_value.is_equal(&removed_value).is_ok() {
                                         ops[prev] = Operation::Move {
-                                            from: keys_from_index((index as i32 + shift) as usize),
+                                            from: address_from_index(
+                                                (index as i32 + shift) as usize,
+                                            ),
                                             items: old_len,
-                                            to: keys.clone(),
+                                            to: address.clone(),
                                         };
                                         matched = true;
                                         break;
                                     }
                                 }
                             }
-                            Operation::Remove { keys, items, .. } => {
-                                if keys.len() == 1 {
+                            Operation::Remove { address, items, .. } => {
+                                if address.len() == 1 {
                                     shift += *items as i32
                                 }
                             }
                             Operation::Replace {
-                                keys,
+                                address,
                                 items,
                                 length,
                                 ..
                             } => {
-                                if keys.len() == 1 {
+                                if address.len() == 1 {
                                     shift -= *length as i32 - *items as i32
                                 }
                             }
@@ -187,7 +188,7 @@ where
                     }
                     if !matched {
                         ops.push(Operation::Remove {
-                            keys: keys_from_index(index),
+                            address: address_from_index(index),
                             items: old_len,
                         });
                         removes.insert(index, (old_index, old_len));
@@ -219,19 +220,19 @@ where
                         // If there is only one operation...
                         if item_ops.len() == 1 {
                             // and its a `Replace`...
-                            if let Some(Operation::Replace { keys, .. }) = item_ops.get(0) {
+                            if let Some(Operation::Replace { address, .. }) = item_ops.get(0) {
                                 // at the root of the item.
-                                if keys.len() == 1 {
+                                if address.len() == 1 {
                                     // Then, if the previous operation is a `Replace` at the root
                                     if let Some(Operation::Replace {
-                                        keys: last_keys,
+                                        address: last_address,
                                         items: last_items,
                                         value: last_value,
                                         length: last_length,
                                         ..
                                     }) = replace_ops.last_mut()
                                     {
-                                        if last_keys.len() == 1 {
+                                        if last_address.len() == 1 {
                                             *last_items += 1;
                                             last_value
                                                 .downcast_mut::<Vec<Type>>()
@@ -244,7 +245,7 @@ where
 
                                     // Otherwise, add it
                                     replace_ops.push(Operation::Replace {
-                                        keys: keys.clone(),
+                                        address: address.clone(),
                                         items: 1,
                                         value: Box::new(
                                             vec![other[new_index + item_index].clone()],
@@ -264,7 +265,7 @@ where
                         // Add remaining items
                         let length = new_len - old_len;
                         replace_ops.push(Operation::Add {
-                            keys: keys_from_index(index),
+                            address: address_from_index(index),
                             value: Box::new(
                                 other[(new_index + old_len)..(new_index + new_len)].to_vec(),
                             ),
@@ -275,16 +276,17 @@ where
                         // If the last op was a `Replace` at level of the vector, them just add to
                         // the number of items. Otherwise, remove remaining items.
                         let mut remove = true;
-                        if let Some(Operation::Replace { keys, items, .. }) = replace_ops.last_mut()
+                        if let Some(Operation::Replace { address, items, .. }) =
+                            replace_ops.last_mut()
                         {
-                            if keys.len() == 1 {
+                            if address.len() == 1 {
                                 *items = *items + old_len - new_len;
                                 remove = false;
                             }
                         }
                         if remove {
                             replace_ops.push(Operation::Remove {
-                                keys: keys_from_index(index),
+                                address: address_from_index(index),
                                 items: old_len - new_len,
                             });
                             removes.insert(index, (old_index, old_len));
@@ -298,9 +300,9 @@ where
         differ.append(ops);
     }
 
-    fn apply_add(&mut self, keys: &mut Keys, value: &Box<dyn Any>) {
-        if keys.len() == 1 {
-            if let Some(Key::Index(index)) = keys.pop_front() {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+        if address.len() == 1 {
+            if let Some(Key::Index(index)) = address.pop_front() {
                 let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
                     value
                 } else {
@@ -308,63 +310,63 @@ where
                 };
                 *self = [&self[..index], value, &self[index..]].concat().to_vec();
             } else {
-                invalid_keys!(keys)
+                invalid_address!(address)
             }
-        } else if let Some(Key::Index(index)) = keys.pop_front() {
+        } else if let Some(Key::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
-                item.apply_add(keys, value);
+                item.apply_add(address, value);
             } else {
                 invalid_index!(index)
             }
         } else {
-            invalid_keys!(keys)
+            invalid_address!(address)
         }
     }
 
-    fn apply_remove(&mut self, keys: &mut Keys, items: usize) {
-        if keys.len() == 1 {
-            if let Some(Key::Index(index)) = keys.pop_front() {
+    fn apply_remove(&mut self, address: &mut Address, items: usize) {
+        if address.len() == 1 {
+            if let Some(Key::Index(index)) = address.pop_front() {
                 *self = [&self[..index], &self[(index + items)..]].concat().to_vec();
             } else {
-                invalid_keys!(keys)
+                invalid_address!(address)
             }
-        } else if let Some(Key::Index(index)) = keys.pop_front() {
+        } else if let Some(Key::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
-                item.apply_remove(keys, items);
+                item.apply_remove(address, items);
             } else {
                 invalid_index!(index)
             }
         } else {
-            invalid_keys!(keys)
+            invalid_address!(address)
         }
     }
 
-    fn apply_replace(&mut self, keys: &mut Keys, items: usize, value: &Box<dyn Any>) {
-        if keys.len() == 1 {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+        if address.len() == 1 {
             let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
                 value
             } else {
                 return invalid_value!();
             };
-            if let Some(Key::Index(index)) = keys.pop_front() {
+            if let Some(Key::Index(index)) = address.pop_front() {
                 *self = [&self[..index], value, &self[(index + items)..]]
                     .concat()
                     .to_vec();
             } else {
-                invalid_keys!(keys)
+                invalid_address!(address)
             }
-        } else if let Some(Key::Index(index)) = keys.pop_front() {
+        } else if let Some(Key::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
-                item.apply_replace(keys, items, value);
+                item.apply_replace(address, items, value);
             } else {
                 invalid_index!(index)
             }
         } else {
-            invalid_keys!(keys)
+            invalid_address!(address)
         }
     }
 
-    fn apply_move(&mut self, from: &mut Keys, items: usize, to: &mut Keys) {
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
         if from.len() == 1 {
             if let (Some(Key::Index(from)), Some(Key::Index(to))) =
                 (from.pop_front(), to.pop_front())
@@ -387,7 +389,7 @@ where
                 .concat()
                 .to_vec();
             } else {
-                invalid_keys!(from)
+                invalid_address!(from)
             }
         } else if let Some(Key::Index(index)) = from.pop_front() {
             if let Some(item) = self.get_mut(index) {
@@ -396,26 +398,26 @@ where
                 invalid_index!(index)
             }
         } else {
-            invalid_keys!(from)
+            invalid_address!(from)
         }
     }
 
-    fn apply_transform(&mut self, keys: &mut Keys, from: &str, to: &str) {
-        if keys.len() == 1 {
-            if let Some(Key::Index(index)) = keys.pop_front() {
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+        if address.len() == 1 {
+            if let Some(Key::Index(index)) = address.pop_front() {
                 if let Some(item) = self.get_mut(index) {
-                    item.apply_transform(keys, from, to);
+                    item.apply_transform(address, from, to);
                 } else {
                     invalid_index!(index)
                 }
             }
         } else {
-            invalid_keys!(keys)
+            invalid_address!(address)
         }
     }
 }
 
-/// An item used in the has map for the `unique_items` function below
+/// An item used in the hash map for the `unique_items` function below
 struct Item<'lt, Type>
 where
     Type: Patchable,
@@ -508,14 +510,14 @@ mod tests {
         let patch = diff(&empty, &b);
         assert_json!(
             patch,
-            [{ "op": "add", "keys": [0], "value": [1, 2], "length": 2 }]
+            [{ "op": "add", "address": [0], "value": [1, 2], "length": 2 }]
         );
         assert_eq!(apply_new(&empty, &patch), b);
 
         let patch = diff(&b, &empty);
         assert_json!(
             patch,
-            [{ "op": "remove", "keys": [0], "items": 2 }]
+            [{ "op": "remove", "address": [0], "items": 2 }]
         );
         assert_eq!(apply_new(&b, &patch), empty);
 
@@ -526,7 +528,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{ "op": "add", "keys": [1], "value": [2], "length": 1 }]
+            [{ "op": "add", "address": [1], "value": [2], "length": 1 }]
         );
         assert_eq!(apply_new(&a, &patch), b);
 
@@ -537,7 +539,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{ "op": "remove", "keys": [1], "items": 1 }]
+            [{ "op": "remove", "address": [1], "items": 1 }]
         );
         assert_eq!(apply_new(&a, &patch), b);
 
@@ -548,7 +550,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{ "op": "replace", "keys": [0], "items": 2, "value": [3, 4], "length": 2 }]
+            [{ "op": "replace", "address": [0], "items": 2, "value": [3, 4], "length": 2 }]
         );
         assert_eq!(apply_new(&a, &patch), b);
 
@@ -585,7 +587,7 @@ mod tests {
         let b = vec!["ab".to_string()];
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "add", "keys": [0, 1], "value": "b", "length": 1 },
+            { "op": "add", "address": [0, 1], "value": "b", "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
 
@@ -595,7 +597,7 @@ mod tests {
         let b = vec!["a".to_string()];
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "remove", "keys": [0, 1], "items": 1 },
+            { "op": "remove", "address": [0, 1], "items": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
 
@@ -605,7 +607,7 @@ mod tests {
         let b = vec!["b".to_string()];
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "replace", "keys": [0, 0], "items": 1, "value": "b", "length": 1 },
+            { "op": "replace", "address": [0, 0], "items": 1, "value": "b", "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
 
@@ -621,7 +623,7 @@ mod tests {
         })];
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "transform", "keys": [0], "from": "Emphasis", "to": "Strong" },
+            { "op": "transform", "address": [0], "from": "Emphasis", "to": "Strong" },
         ]);
         assert_json_eq!(apply_new(&a, &patch), b);
     }
@@ -634,15 +636,15 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "add", "keys": [0, 1], "value": "b", "length": 1 },
-            { "op": "add", "keys": [1], "value": ["c"], "length": 1 },
+            { "op": "add", "address": [0, 1], "value": "b", "length": 1 },
+            { "op": "add", "address": [1], "value": ["c"], "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
 
         let patch = diff(&b, &a);
         assert_json!(patch, [
-            { "op": "remove", "keys": [0, 1], "items": 1 },
-            { "op": "remove", "keys": [1], "items": 1 },
+            { "op": "remove", "address": [0, 1], "items": 1 },
+            { "op": "remove", "address": [1], "items": 1 },
         ]);
         assert_eq!(apply_new(&b, &patch), a);
     }
@@ -657,7 +659,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             { "op": "move", "from": [2], "items": 1, "to": [0] },
-            { "op": "add", "keys": [2], "value": [1], "length": 1 },
+            { "op": "add", "address": [2], "value": [1], "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }
@@ -668,7 +670,7 @@ mod tests {
         let b = vec![2, 2, 4];
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "remove", "keys": [0], "items": 2 },
+            { "op": "remove", "address": [0], "items": 2 },
             { "op": "move", "from": [2], "items": 1, "to": [1] },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
@@ -687,9 +689,9 @@ mod tests {
         ];
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "add", "keys": [0], "value": ["a", "a", "a"], "length": 3 },
-            { "op": "add", "keys": [4, 0], "value": "a", "length": 1 },
-            { "op": "add", "keys": [5], "value": ["a"], "length": 1 },
+            { "op": "add", "address": [0], "value": ["a", "a", "a"], "length": 3 },
+            { "op": "add", "address": [4, 0], "value": "a", "length": 1 },
+            { "op": "add", "address": [5], "value": ["a"], "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }
@@ -700,7 +702,7 @@ mod tests {
         let b = vec![2, 2, 0];
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "replace", "keys": [0], "items": 4, "value": [2, 2, 0], "length": 3 },
+            { "op": "replace", "address": [0], "items": 4, "value": [2, 2, 0], "length": 3 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }
@@ -711,9 +713,9 @@ mod tests {
         let b = vec!["cd".to_string(), "a".to_string(), "".to_string()];
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "add", "keys": [0, 1], "value": "d", "length": 1 },
-            { "op": "add", "keys": [1], "value": ["a"], "length": 1 },
-            { "op": "remove", "keys": [3], "items": 1 },
+            { "op": "add", "address": [0, 1], "value": "d", "length": 1 },
+            { "op": "add", "address": [1], "value": ["a"], "length": 1 },
+            { "op": "remove", "address": [3], "items": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }
@@ -729,9 +731,9 @@ mod tests {
         ];
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "add", "keys": [0], "value": ["b"], "length": 1 },
-            { "op": "remove", "keys": [2], "items": 1 },
-            { "op": "add", "keys": [3], "value": ["b"], "length": 1 },
+            { "op": "add", "address": [0], "value": ["b"], "length": 1 },
+            { "op": "remove", "address": [2], "items": 1 },
+            { "op": "add", "address": [3], "value": ["b"], "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }
@@ -754,7 +756,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             { "op": "move", "from": [0], "items": 1, "to": [3] },
-            { "op": "add", "keys": [1], "value": [1], "length": 1 },
+            { "op": "add", "address": [1], "value": [1], "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }
@@ -770,9 +772,9 @@ mod tests {
         let b = vec!["a".to_string(), "d".to_string(), "".to_string()];
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "add", "keys": [0, 0], "value": "a", "length": 1 },
-            { "op": "remove", "keys": [1], "items": 2 },
-            { "op": "add", "keys": [2], "value": [""], "length": 1 },
+            { "op": "add", "address": [0, 0], "value": "a", "length": 1 },
+            { "op": "remove", "address": [1], "items": 2 },
+            { "op": "add", "address": [2], "value": [""], "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }

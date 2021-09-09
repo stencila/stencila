@@ -28,7 +28,12 @@ macro_rules! patchable_atomic {
                 }
             }
 
-            fn apply_replace(&mut self, _keys: &mut Keys, _items: usize, value: &Box<dyn Any>) {
+            fn apply_replace(
+                &mut self,
+                _address: &mut Address,
+                _items: usize,
+                value: &Box<dyn Any>,
+            ) {
                 if let Some(value) = value.deref().downcast_ref::<Self>() {
                     *self = *value
                 } else {
@@ -78,7 +83,7 @@ impl Patchable for Number {
         }
     }
 
-    fn apply_replace(&mut self, _keys: &mut Keys, _items: usize, value: &Box<dyn Any>) {
+    fn apply_replace(&mut self, _address: &mut Address, _items: usize, value: &Box<dyn Any>) {
         if let Some(value) = value.deref().downcast_ref::<Self>() {
             *self = *value
         } else {
@@ -102,7 +107,7 @@ mod tests {
 
         assert_json!(diff(&true, &true), []);
         assert_json!(diff(&false, &false), []);
-        assert_json!(diff(&true, &false), [{"op": "replace", "keys": [], "items": 1, "value": false, "length": 1}]);
+        assert_json!(diff(&true, &false), [{"op": "replace", "address": [], "items": 1, "value": false, "length": 1}]);
 
         assert_json!(apply_new(&true, &diff(&true, &false)), false);
         assert_json!(apply_new(&false, &diff(&false, &true)), true);
@@ -114,7 +119,7 @@ mod tests {
         assert!(!equal(&42, &1));
 
         assert_json!(diff(&42, &42), []);
-        assert_json!(diff(&42, &1), [{"op": "replace", "keys": [], "items": 1, "value": 1, "length": 1}]);
+        assert_json!(diff(&42, &1), [{"op": "replace", "address": [], "items": 1, "value": 1, "length": 1}]);
 
         assert_json!(apply_new(&1, &diff(&1, &42)), 42);
     }
@@ -125,7 +130,7 @@ mod tests {
         assert!(!equal(&3.14, &1e6));
 
         assert_json!(diff(&3.14, &3.14), []);
-        assert_json!(diff(&3.14, &1e6), [{"op": "replace", "keys": [], "items": 1, "value": 1e6, "length": 1}]);
+        assert_json!(diff(&3.14, &1e6), [{"op": "replace", "address": [], "items": 1, "value": 1e6, "length": 1}]);
 
         assert_json!(apply_new(&1e6, &diff(&1e6, &3.14)), 3.14);
     }
