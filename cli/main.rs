@@ -295,7 +295,7 @@ impl ShowCommand {
     }
 }
 
-/// Currently, these commands just delegates to the `documents` module
+/// Currently, these commands simply delegate to the `documents` module
 type ConvertCommand = documents::cli::Convert;
 type DiffCommand = documents::cli::Diff;
 type MergeCommand = documents::cli::Merge;
