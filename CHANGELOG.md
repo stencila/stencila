@@ -1,3 +1,26 @@
+# [0.115.0](https://github.com/stencila/stencila/compare/v0.114.1...v0.115.0) (2021-09-09)
+
+
+### Bug Fixes
+
+* **Server:** Check and add option for run-as-root; add docs ([b4376d3](https://github.com/stencila/stencila/commit/b4376d3221b41ca6372d56bced583ea156462e2a))
+* **Server:** Handle disconnections ([0d1106d](https://github.com/stencila/stencila/commit/0d1106d3dbceae285cf4c0c85b499a156d4279ec))
+* **Server:** Improve error handling,; dedicated WebSocket path ([4a04b2f](https://github.com/stencila/stencila/commit/4a04b2f629cb408bcc49a988c3f80af22bba7ae7))
+* **Server:** On;y run sudo check on systems where it is available ([e526cd7](https://github.com/stencila/stencila/commit/e526cd7700ad14d22480e86f6bed56e8ba4af04c))
+* **Server:** Warning when key is set on command line ([ad086d7](https://github.com/stencila/stencila/commit/ad086d76098ffcc28352c0ded3c1f6ff11f2c4fc))
+* **Session:** Finer grained subscriptions ([b78cbdb](https://github.com/stencila/stencila/commit/b78cbdbd98c960497a7fa0333a31df073a5880b2))
+* **Web:** Client takes id ([b8e6fbf](https://github.com/stencila/stencila/commit/b8e6fbffd76863039716b5370ff3c34aa0ff112e))
+
+
+### Features
+
+* **Compile:** Identify all entity nodes ([950b1a2](https://github.com/stencila/stencila/commit/950b1a2d2a3337a5172b8be4da44724c00656e89))
+* **HTML Encoding:** Encode ids on nodes ([5e6ad57](https://github.com/stencila/stencila/commit/5e6ad571fce9ecf50f3a246ee3d784c67fe61a78))
+* **Server:** Manage clients and their subscriptions ([2761105](https://github.com/stencila/stencila/commit/276110597a2950d5fdfcfa68acbdfa6c7f6553ee))
+* **Sessions:** Initial implementation of sessions ([2b658d7](https://github.com/stencila/stencila/commit/2b658d71cd6c23491bb9fe69db1cd5351fafeeaa))
+* **Web:** Add main sessions functions ([78230d2](https://github.com/stencila/stencila/commit/78230d2cf1a3275feb5b39078a0650c24099fb71))
+* **Web RPC:** Add handling of `documents` functions ([362dda6](https://github.com/stencila/stencila/commit/362dda6e14cc278e62f520d6742ed4cae89a735a))
+
 ## [0.114.1](https://github.com/stencila/stencila/compare/v0.114.0...v0.114.1) (2021-09-05)
 
 
