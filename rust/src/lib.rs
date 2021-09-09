@@ -54,8 +54,12 @@ pub mod macros {
 // methods and elsewhere
 
 pub mod traits {
+    mod to_node;
+    pub use to_node::*;
+
     mod to_vec_inline_content;
     pub use to_vec_inline_content::*;
+
     mod to_vec_block_content;
     pub use to_vec_block_content::*;
 }
