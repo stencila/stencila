@@ -363,7 +363,7 @@ input_file: fixtures/articles/simple.ipynb
     {
       "type": "CodeChunk",
       "programmingLanguage": "python",
-      "text": "# HTML output\nimport pandas as pd\n\npd.DataFrame(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]), columns=['a', 'b', 'c'])",
+      "text": "import pandas as pd\nimport numpy as np\n\ndf = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]), columns=['a', 'b', 'c'])\n\n# By default a `text/html` representation of the data frame is generated\ndf",
       "outputs": [
         {
           "type": "Table",
@@ -483,6 +483,35 @@ input_file: fixtures/articles/simple.ipynb
               ]
             }
           ]
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Preformatted text outputs"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "If a string output of the cell includes newlines, tabs or more than two consecutive spaces (other than leading or trailing whitespace) it is treated as preformatted text and converted to a Stencila ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeBlock"
+        },
+        "."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# Print the data.frame so that is output as `text/plain`\nprint(df)",
+      "outputs": [
+        {
+          "type": "CodeBlock",
+          "text": "   a  b  c\n0  1  2  3\n1  4  5  6\n2  7  8  9\n"
         }
       ]
     }

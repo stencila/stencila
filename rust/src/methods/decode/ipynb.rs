@@ -1,7 +1,9 @@
 use super::{html, md, txt};
 use crate::traits::ToNode;
 use eyre::Result;
-use stencila_schema::{Article, BlockContent, CodeChunk, ImageObject, Node};
+use once_cell::sync::Lazy;
+use regex::Regex;
+use stencila_schema::{Article, BlockContent, CodeBlock, CodeChunk, ImageObject, Node};
 
 /// Decode a Jupyter Notebook to a `Node`.
 ///
@@ -118,7 +120,7 @@ fn translate_output(output: &serde_json::Value) -> Option<Node> {
         .unwrap_or_default();
     match output_type {
         "execute_result" | "display_data" => output.get("data").and_then(translate_mime_bundle),
-        "stream" => output.get("text").and_then(translate_stream_text),
+        "stream" => output.get("text").and_then(translate_text),
         _ => {
             tracing::warn!("Unhandled output type: {}", output_type);
             None
@@ -131,7 +133,7 @@ fn translate_output(output: &serde_json::Value) -> Option<Node> {
 /// Attempts to use the most "rich" and reliable MIME types first, returning
 /// early on success.
 fn translate_mime_bundle(bundle: &serde_json::Value) -> Option<Node> {
-    for mime_type in ["image/png", "image/jpg", "image/gif"] {
+    for mime_type in ["image/png", "image/jpg", "image/gif", "image/svg+xml"] {
         if let Some(data) = bundle.get(mime_type) {
             let data = translate_multiline_string(data);
             return Some(Node::ImageObject(ImageObject {
@@ -150,18 +152,31 @@ fn translate_mime_bundle(bundle: &serde_json::Value) -> Option<Node> {
         }
     }
     if let Some(text) = bundle.get("text/plain") {
-        return Some(txt::decode_fragment(&translate_multiline_string(text)));
+        return translate_text(text);
     }
     tracing::warn!("Unable to decode MIME bundle");
     None
 }
 
-/// Translate text from standard output stream into a `Node`.
+/// Translate text from a cell result or standard output stream into a `Node`.
 ///
 /// Uses `txt:decode` to attempt to parse the text to something other
-/// than a string (although that is what it falls back to).
-fn translate_stream_text(text: &serde_json::Value) -> Option<Node> {
-    Some(txt::decode_fragment(&translate_multiline_string(text)))
+/// than a string. However, if the result is a `String` (i.e. `txt:decode` could not
+/// parse the text), and it contains pre-formatting (tabs, newlines or more than one consecutive space),
+// then decode as a `CodeBlock` since formatting is often important in text output of cells.
+fn translate_text(text: &serde_json::Value) -> Option<Node> {
+    let node = txt::decode_fragment(&translate_multiline_string(text));
+    if let Node::String(text) = &node {
+        static REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new("[ ]{2,}|\t|\n").expect("Unable to create regex"));
+        if REGEX.is_match(text.trim()) {
+            return Some(Node::CodeBlock(CodeBlock {
+                text: text.to_string(),
+                ..Default::default()
+            }));
+        }
+    }
+    Some(node)
 }
 
 /// Translate a Jupyter "markdown" cell
