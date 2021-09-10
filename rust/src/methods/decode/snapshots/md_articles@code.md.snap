@@ -55,6 +55,30 @@ input_file: fixtures/articles/code.md
           "programmingLanguage": "python",
           "text": "2+2"
         },
+        ". The language may be omitted e.g. ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "",
+          "text": "x"
+        },
+        " (in which case it may default to the file’s language e.g. pymd files)."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Double brace syntax is also supported, but generally not recommended e.g. ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "python",
+          "text": "2+3"
+        },
+        " an ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "",
+          "text": "4+5"
+        },
         "."
       ]
     },

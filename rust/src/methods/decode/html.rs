@@ -241,7 +241,7 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
         // Markdown fragment
         if !text.borrow().trim().is_empty() {
             if context.decode_text_as_markdown {
-                md::decode_fragment(&text.borrow())
+                md::decode_fragment(&text.borrow(), None)
             } else {
                 vec![BlockContent::Paragraph(Paragraph {
                     content: vec![InlineContent::String(text.borrow().clone())],
@@ -428,7 +428,7 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
         // and unwrapping from `Vec<BlockContent>` to `Vec<InlineContent>`.
         if !text.borrow().is_empty() {
             if context.decode_text_as_markdown {
-                md::decode_fragment(&text.borrow()).to_vec_inline_content()
+                md::decode_fragment(&text.borrow(), None).to_vec_inline_content()
             } else {
                 vec![InlineContent::String(text.borrow().clone())]
             }

@@ -54,7 +54,7 @@ pub fn decode(ipynb: &str) -> Result<Node> {
                 .unwrap_or_default();
             let mut blocks = match cell_type {
                 "code" => translate_code_cell(cell, &language),
-                "markdown" => translate_markdown_cell(cell),
+                "markdown" => translate_markdown_cell(cell, &language),
                 "raw" => translate_raw_cell(cell),
                 _ => {
                     tracing::warn!("Jupyter Notebook cell has unknown type: {}", cell_type);
@@ -81,7 +81,19 @@ pub fn decode(ipynb: &str) -> Result<Node> {
 }
 
 /// Translate a Jupyter "code" cell
-fn translate_code_cell(cell: &serde_json::Value, lang: &str) -> Vec<BlockContent> {
+fn translate_code_cell(cell: &serde_json::Value, notebook_lang: &str) -> Vec<BlockContent> {
+    let metadata = cell.get("metadata");
+
+    let programming_language = if let Some(cell_lang) = metadata
+        .and_then(|value| value.get("language_info"))
+        .and_then(|value| value.get("name"))
+        .and_then(|value| value.as_str())
+    {
+        cell_lang.to_string()
+    } else {
+        notebook_lang.to_string()
+    };
+
     let text = if let Some(source) = cell.get("source") {
         translate_multiline_string(source)
     } else {
@@ -103,7 +115,7 @@ fn translate_code_cell(cell: &serde_json::Value, lang: &str) -> Vec<BlockContent
     }
 
     let chunk = CodeChunk {
-        programming_language: lang.to_string(),
+        programming_language,
         text,
         outputs: if outputs.is_empty() {
             None
@@ -266,9 +278,12 @@ fn translate_error(error: &serde_json::Value) -> Option<Node> {
 }
 
 /// Translate a Jupyter "markdown" cell
-fn translate_markdown_cell(cell: &serde_json::Value) -> Vec<BlockContent> {
+fn translate_markdown_cell(cell: &serde_json::Value, default_lang: &str) -> Vec<BlockContent> {
     if let Some(source) = cell.get("source") {
-        md::decode_fragment(&translate_multiline_string(source))
+        md::decode_fragment(
+            &translate_multiline_string(source),
+            Some(default_lang.to_string()),
+        )
     } else {
         tracing::warn!("Markdown cell does not have a `source` property");
         Vec::new()

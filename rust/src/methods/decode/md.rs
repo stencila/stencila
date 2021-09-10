@@ -44,7 +44,7 @@ pub fn decode(md: &str) -> Result<Node> {
         None => Node::Article(Article::default()),
     };
 
-    let content = decode_fragment(md);
+    let content = decode_fragment(md, None);
     if !content.is_empty() {
         let content = Some(content);
         match &mut node {
@@ -111,8 +111,15 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
 /// Uses the `pulldown_cmark` and transforms its `Event`s into
 /// `Vec<BlockContent>`. Text is further parsed using `nom` based parsers
 /// to handle the elements that `pulldown_cmark` does not handle (e.g. math).
-pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
+///
+/// # Arguments
+///
+/// - `default_lang`: The default programming language to use on code
+///                   related nodes e.g. `CodeExpression` which do not
+///                   explicitly set it.
+pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockContent> {
     let mut inlines = Inlines {
+        default_lang: default_lang.clone(),
         active: false,
         text: String::new(),
         nodes: Vec::new(),
@@ -253,7 +260,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     ..Default::default()
                 })),
                 Tag::CodeBlock(kind) => {
-                    let (lang, exec) = match kind {
+                    let (mut lang, exec) = match kind {
                         CodeBlockKind::Fenced(lang) => {
                             let lang = lang.to_string();
                             if !lang.is_empty() {
@@ -270,15 +277,19 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                         _ => (None, false),
                     };
 
+                    if lang.is_none() && default_lang.is_some() {
+                        lang = default_lang.clone()
+                    }
+
                     let text = inlines.pop_text().trim_end_matches('\n').to_string();
 
-                    let node = match (lang.as_ref(), exec) {
-                        (Some(lang), true) => BlockContent::CodeChunk(CodeChunk {
+                    let node = match exec {
+                        true => BlockContent::CodeChunk(CodeChunk {
                             text,
-                            programming_language: lang.to_string(),
+                            programming_language: lang.unwrap_or_default(),
                             ..Default::default()
                         }),
-                        _ => BlockContent::CodeBlock(CodeBlock {
+                        false => BlockContent::CodeBlock(CodeBlock {
                             text,
                             programming_language: lang.map(Box::new),
                             ..Default::default()
@@ -544,6 +555,7 @@ impl Tables {
 
 /// Stores and parses inline content
 struct Inlines {
+    default_lang: Option<String>,
     active: bool,
     text: String,
     nodes: Vec<InlineContent>,
@@ -587,7 +599,19 @@ impl Inlines {
         if !self.text.is_empty() {
             let text = self.pop_text();
             let mut nodes = match inline_content(&text) {
-                Ok((_, content)) => content,
+                Ok((_, mut inlines)) => {
+                    // Set the programming language on code expressions if necessary
+                    if let Some(default_lang) = self.default_lang.as_ref() {
+                        for node in inlines.iter_mut() {
+                            if let InlineContent::CodeExpression(expr) = node {
+                                if expr.programming_language.is_empty() {
+                                    expr.programming_language = default_lang.clone()
+                                }
+                            }
+                        }
+                    }
+                    inlines
+                }
                 Err(error) => {
                     tracing::warn!("While parsing inline Markdown: {}", error);
                     vec![InlineContent::String(text)]
@@ -680,17 +704,22 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
             let (lang, exec) = match res.1 {
                 Some(attrs) => {
                     let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
-                    (
-                        attrs.get(0).map(|item| item.to_string()),
-                        attrs.contains(&"exec"),
-                    )
+                    let lang = attrs.get(0).and_then(|item| {
+                        if *item == "exec" {
+                            None
+                        } else {
+                            Some(item.to_string())
+                        }
+                    });
+                    let exec = attrs.contains(&"exec");
+                    (lang, exec)
                 }
                 None => (None, false),
             };
-            let node = match (lang.as_ref(), exec) {
-                (Some(lang), true) => InlineContent::CodeExpression(CodeExpression {
+            let node = match exec {
+                true => InlineContent::CodeExpression(CodeExpression {
                     text,
-                    programming_language: lang.to_string(),
+                    programming_language: lang.unwrap_or_default(),
                     ..Default::default()
                 }),
                 _ => InlineContent::CodeFragment(CodeFragment {
@@ -1007,7 +1036,7 @@ mod tests {
     #[test]
     fn md_fragments() {
         snapshot_content("fragments/md/*.md", |_path, content| {
-            assert_json_snapshot!(decode_fragment(&content));
+            assert_json_snapshot!(decode_fragment(&content, None));
         });
     }
 }
