@@ -147,9 +147,24 @@ fn translate_output(output: &serde_json::Value) -> Option<Node> {
 
 /// Translate a MIME bundle into a `Node` (if possible).
 ///
-/// Attempts to use the most "rich" and reliable MIME types first, returning
-/// early on success.
+/// Attempts to use the most "rich" and reliable (in terms of conversion loss)
+/// MIME types first, returning early on success.
 fn translate_mime_bundle(bundle: &serde_json::Value) -> Option<Node> {
+    let plotly_media_type = "application/vnd.plotly.v1+json";
+    if let Some(value) = bundle.get(plotly_media_type) {
+        return translate_image_data(value, plotly_media_type);
+    }
+
+    // Spec and version numbers ordered for soonest potential match
+    for spec in ["application/vnd.vegalite", "application/vnd.vega"] {
+        for version in ["4", "5", "3", "2", "1"] {
+            let media_type = [spec, ".v", version, "+json"].concat();
+            if let Some(value) = bundle.get(&media_type) {
+                return translate_image_data(value, &media_type);
+            }
+        }
+    }
+
     for mime_type in ["image/png", "image/jpg", "image/gif", "image/svg+xml"] {
         if let Some(data) = bundle.get(mime_type) {
             let data = translate_multiline_string(data);
@@ -173,6 +188,21 @@ fn translate_mime_bundle(bundle: &serde_json::Value) -> Option<Node> {
     }
     tracing::warn!("Unable to decode MIME bundle");
     None
+}
+
+/// Translate Plotly or Vega image data/spec into an `ImangeObject` node
+fn translate_image_data(data: &serde_json::Value, media_type: &str) -> Option<Node> {
+    let json = data.to_string();
+    let bytes = json.as_bytes();
+    let data = base64::encode(bytes);
+    let content_url = ["data:", media_type, ";base64,", &data].concat();
+    Some(Node::ImageObject({
+        ImageObject {
+            content_url,
+            media_type: Some(Box::new(media_type.to_string())),
+            ..Default::default()
+        }
+    }))
 }
 
 /// Translate text from a cell result or standard output stream into a `Node`.
