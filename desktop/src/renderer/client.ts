@@ -216,6 +216,10 @@ export const client = {
         .invoke(CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER)
         .then(unwrapOrThrow),
     new: () => window.api.invoke(CHANNEL.PROJECTS_NEW).then(unwrapOrThrow),
+    unsubscribe: (path: string, topics: string[]) =>
+      window.api
+        .invoke(CHANNEL.PROJECTS_UNSUBSCRIBE, path, topics)
+        .then(unwrapOrThrow),
   },
   plugins: {
     install: (name: string) =>

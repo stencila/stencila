@@ -14,12 +14,19 @@ export class AppProjectGraph {
 
   @State() graph?: Graph
 
+  private updateGraph = (e: GraphEvent) => {
+    this.graph = e.graph
+  }
+
   private subscribeToUpdates = () => {
-    window.api.receive(CHANNEL.PROJECTS_GRAPH, (event) => {
-      const e = event as GraphEvent
-      console.log('new graph', e)
-      this.graph = e.graph
-    })
+    window.api.receive(CHANNEL.PROJECTS_GRAPH, (e) =>
+      this.updateGraph(e as GraphEvent)
+    )
+  }
+
+  private unsubscribeFromUpdates = () => {
+    window.api.removeAll(CHANNEL.PROJECTS_GRAPH)
+    client.projects.unsubscribe(this.projectPath, ['graph'])
   }
 
   componentWillLoad() {
@@ -27,13 +34,15 @@ export class AppProjectGraph {
       this.subscribeToUpdates()
 
       try {
-        const parsedGraph = JSON.parse(res.value)
-        console.log('og graph', parsedGraph)
-        this.graph = parsedGraph
+        this.graph = JSON.parse(res.value)
       } catch (err) {
         errorToast(err)
       }
     })
+  }
+
+  disconnectedCallback() {
+    this.unsubscribeFromUpdates()
   }
 
   render() {
