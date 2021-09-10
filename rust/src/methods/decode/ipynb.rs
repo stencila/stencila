@@ -1,9 +1,10 @@
 use super::{html, md, txt};
 use crate::traits::ToNode;
 use eyre::Result;
+use itertools::Itertools;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use stencila_schema::{Article, BlockContent, CodeBlock, CodeChunk, ImageObject, Node};
+use stencila_schema::{Article, BlockContent, CodeBlock, CodeChunk, CodeError, ImageObject, Node};
 
 /// Decode a Jupyter Notebook to a `Node`.
 ///
@@ -88,24 +89,32 @@ fn translate_code_cell(cell: &serde_json::Value, lang: &str) -> Vec<BlockContent
         "".to_string()
     };
 
-    let outputs = if let Some(outputs) = cell.get("outputs").and_then(|value| value.as_array()) {
-        let outputs = outputs
-            .iter()
-            .filter_map(translate_output)
-            .collect::<Vec<Node>>();
-        if outputs.is_empty() {
-            None
-        } else {
-            Some(outputs)
+    let mut outputs = Vec::with_capacity(1);
+    let mut errors = Vec::new();
+
+    if let Some(cell_outputs) = cell.get("outputs").and_then(|value| value.as_array()) {
+        for output in cell_outputs {
+            match translate_output(output) {
+                Some(Node::CodeError(error)) => errors.push(error),
+                Some(node) => outputs.push(node),
+                None => (),
+            }
         }
-    } else {
-        None
-    };
+    }
 
     let chunk = CodeChunk {
         programming_language: lang.to_string(),
         text,
-        outputs,
+        outputs: if outputs.is_empty() {
+            None
+        } else {
+            Some(outputs)
+        },
+        errors: if errors.is_empty() {
+            None
+        } else {
+            Some(errors)
+        },
         ..Default::default()
     };
 
@@ -120,7 +129,15 @@ fn translate_output(output: &serde_json::Value) -> Option<Node> {
         .unwrap_or_default();
     match output_type {
         "execute_result" | "display_data" => output.get("data").and_then(translate_mime_bundle),
-        "stream" => output.get("text").and_then(translate_text),
+        "stream" => {
+            let text = output.get("text");
+            let name = output.get("name").and_then(|value| value.as_str());
+            match name {
+                Some("stderr") => text.and_then(translate_stderr),
+                _ => text.and_then(translate_text),
+            }
+        }
+        "error" => translate_error(output),
         _ => {
             tracing::warn!("Unhandled output type: {}", output_type);
             None
@@ -177,6 +194,45 @@ fn translate_text(text: &serde_json::Value) -> Option<Node> {
         }
     }
     Some(node)
+}
+
+/// Translate text from a standard error stream into a `CodeError`.
+fn translate_stderr(text: &serde_json::Value) -> Option<Node> {
+    Some(Node::CodeError(CodeError {
+        error_message: translate_multiline_string(text),
+        error_type: Some(Box::new("stderr".to_string())),
+        ..Default::default()
+    }))
+}
+
+/// Translate a cell error into a `CodeError`
+fn translate_error(error: &serde_json::Value) -> Option<Node> {
+    let error_message = error
+        .get("evalue")
+        .and_then(|value| value.as_str())
+        .map_or_else(|| "Unknown error".to_string(), |str| str.to_string());
+    let error_type = error
+        .get("ename")
+        .and_then(|value| value.as_str())
+        .map(|str| Box::new(str.to_string()));
+    let stack_trace = error
+        .get("traceback")
+        .and_then(|value| value.as_array())
+        .map(|vec| {
+            let trace = vec.iter().filter_map(|line| line.as_str()).join("\n");
+            let stripped = strip_ansi_escapes::strip(&trace).map_or_else(
+                |_| trace,
+                |bytes| String::from_utf8_lossy(&bytes).to_string(),
+            );
+            Box::new(stripped)
+        });
+
+    Some(Node::CodeError(CodeError {
+        error_message,
+        error_type,
+        stack_trace,
+        ..Default::default()
+    }))
 }
 
 /// Translate a Jupyter "markdown" cell

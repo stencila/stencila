@@ -46,7 +46,7 @@ import-github = []
 decode-date = ["dtparse"]
 decode-docx = ["decode-pandoc"]
 decode-html = ["decode-md", "kuchiki", "markup5ever"]
-decode-ipynb = ["decode-md", "decode-html", "decode-txt"]
+decode-ipynb = ["decode-md", "decode-html", "decode-txt", "strip-ansi-escapes"]
 decode-json = []
 decode-json5 = ["coerce", "json5"]
 decode-latex = ["decode-pandoc"]
@@ -220,6 +220,7 @@ sha2 = "0.9.6"
 similar = "=1.3.0"
 slug = "=0.1.4"
 stencila-schema = "=1.11.1"
+strip-ansi-escapes = { version = "0.1.1", optional = true }
 structopt = { version = "=0.3.23", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
 strum_macros = "=0.21.1"

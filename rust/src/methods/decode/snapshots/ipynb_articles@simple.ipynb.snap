@@ -514,6 +514,77 @@ input_file: fixtures/articles/simple.ipynb
           "text": "   a  b  c\n0  1  2  3\n1  4  5  6\n2  7  8  9\n"
         }
       ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Errors"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stencila converts any cell outputs that are errors into a ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeError"
+        },
+        " with message, type and stack trace. In addition, any output to the ",
+        {
+          "type": "CodeFragment",
+          "text": "stderr"
+        },
+        " stream is converted to a ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeError"
+        },
+        " with ",
+        {
+          "type": "CodeFragment",
+          "text": "errorType: \"stderr\""
+        },
+        "."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "A syntax error",
+      "errors": [
+        {
+          "type": "CodeError",
+          "errorMessage": "invalid syntax (3992919514.py, line 1)",
+          "errorType": "SyntaxError",
+          "stackTrace": "  File \"/tmp/ipykernel_69408/3992919514.py\", line 1\n    A syntax error\n      ^\nSyntaxError: invalid syntax\n"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "foo()",
+      "errors": [
+        {
+          "type": "CodeError",
+          "errorMessage": "name 'foo' is not defined",
+          "errorType": "NameError",
+          "stackTrace": "---------------------------------------------------------------------------\nNameError                                 Traceback (most recent call last)\n/tmp/ipykernel_69408/3160684747.py in <module>\n----> 1 foo()\n\nNameError: name 'foo' is not defined"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "import sys\nprint(\"Whooaah!\", file=sys.stderr)",
+      "errors": [
+        {
+          "type": "CodeError",
+          "errorMessage": "Whooaah!\n",
+          "errorType": "stderr"
+        }
+      ]
     }
   ]
 }
