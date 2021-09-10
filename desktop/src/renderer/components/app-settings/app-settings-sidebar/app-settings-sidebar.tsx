@@ -57,7 +57,7 @@ export class AppSettingsSidebar {
             </stencila-tooltip>
           </li>
 
-          <li>
+          {/* <li>
             <a
               {...href('/settings/plugins')}
               class={{
@@ -68,7 +68,7 @@ export class AppSettingsSidebar {
               <stencila-icon icon="plug"></stencila-icon>
               {i18n.t('settings.plugins.title')}
             </a>
-          </li>
+          </li> */}
 
           <li>
             <a {...href('/settings/editor')}>
