@@ -28,13 +28,23 @@ proptest! {
 
     // Given the high confidence for encoding/decoding for the
     // following formats the number of test cases is minimal
-    #![proptest_config(ProptestConfig::with_cases(5))]
+    #![proptest_config(ProptestConfig::with_cases(30))]
 
     #[cfg(all(feature="encode-json", feature="decode-json"))]
     #[test]
     fn json(input in node(Freedom::Max)) {
         let content = encode::json::encode(&input, None).unwrap();
         let output = decode::json::decode(&content).unwrap();
+        assert_json_eq!(input, output);
+    }
+
+    // JSON5 does not appear to deal with Unicode characters (?)
+    // so this test uses `Low` freedom for now
+    #[cfg(all(feature="encode-json5", feature="decode-json5"))]
+    #[test]
+    fn json5(input in node(Freedom::Low)) {
+        let content = encode::json5::encode(&input, None).unwrap();
+        let output = decode::json5::decode(&content).unwrap();
         assert_json_eq!(input, output);
     }
 

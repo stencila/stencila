@@ -2051,6 +2051,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "json5"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d993b17585f39e5e3bd98ff52bbd9e2a6d6b3f5b09d8abcec9d1873fb04cf3f"
+dependencies = [
+ "pest",
+ "pest_derive",
+ "serde",
+]
+
+[[package]]
 name = "jsonschema"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4046,6 +4057,7 @@ dependencies = [
  "insta",
  "itertools",
  "jmespatch",
+ "json5",
  "jsonschema",
  "jsonwebtoken",
  "kuchiki",

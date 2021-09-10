@@ -1,4 +1,4 @@
-use super::{html, md};
+use super::{html, md, txt};
 use crate::traits::ToNode;
 use eyre::Result;
 use stencila_schema::{Article, BlockContent, CodeChunk, ImageObject, Node};
@@ -150,7 +150,7 @@ fn translate_mime_bundle(bundle: &serde_json::Value) -> Option<Node> {
         }
     }
     if let Some(text) = bundle.get("text/plain") {
-        return Some(Node::String(translate_multiline_string(text)));
+        return Some(txt::decode_fragment(&translate_multiline_string(text)));
     }
     tracing::warn!("Unable to decode MIME bundle");
     None
@@ -158,20 +158,20 @@ fn translate_mime_bundle(bundle: &serde_json::Value) -> Option<Node> {
 
 /// Translate text from standard output stream into a `Node`.
 ///
-/// Currently does not attempt to parse the text (e.g. into a number).
+/// Uses `txt:decode` to attempt to parse the text to something other
+/// than a string (although that is what it falls back to).
 fn translate_stream_text(text: &serde_json::Value) -> Option<Node> {
-    Some(Node::String(translate_multiline_string(text)))
+    Some(txt::decode_fragment(&translate_multiline_string(text)))
 }
 
 /// Translate a Jupyter "markdown" cell
 fn translate_markdown_cell(cell: &serde_json::Value) -> Vec<BlockContent> {
-    let markdown = if let Some(source) = cell.get("source") {
-        translate_multiline_string(source)
+    if let Some(source) = cell.get("source") {
+        md::decode_fragment(&translate_multiline_string(source))
     } else {
         tracing::warn!("Markdown cell does not have a `source` property");
-        return Vec::new();
-    };
-    md::decode_fragment(&markdown)
+        Vec::new()
+    }
 }
 
 /// Translate a Jupyter "raw" cell

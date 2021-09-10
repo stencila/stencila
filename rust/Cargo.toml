@@ -46,8 +46,9 @@ import-github = []
 decode-date = ["dtparse"]
 decode-docx = ["decode-pandoc"]
 decode-html = ["decode-md", "kuchiki", "markup5ever"]
-decode-ipynb = ["decode-md", "decode-html"]
+decode-ipynb = ["decode-md", "decode-html", "decode-txt"]
 decode-json = []
+decode-json5 = ["coerce", "json5"]
 decode-latex = ["decode-pandoc"]
 decode-md = ["pulldown-cmark", "nom", "coerce", "decode-html", "encode-txt"]
 decode-pandoc = ["binaries", "pandoc_types"]
@@ -55,12 +56,14 @@ decode-person = ["human_name"]
 decode-rmd = ["decode-md"]
 decode-rpng = ["png"]
 decode-toml = []
+decode-txt = ["decode-json5"]
 decode-yaml = []
 
 encode-docx = ["encode-pandoc"]
 encode-html = ["encode-txt", "html-escape"]
 encode-ipynb = ["encode-md"]
 encode-json = []
+encode-json5 = ["json5"]
 encode-latex = ["encode-pandoc"]
 encode-md = []
 encode-pandoc = ["binaries", "pandoc_types"]
@@ -113,6 +116,7 @@ default = [
   "decode-html",
   "decode-ipynb",
   "decode-json",
+  "decode-json5",
   "decode-latex",
   "decode-md",
   "decode-pandoc",
@@ -120,11 +124,13 @@ default = [
   "decode-rmd",
   "decode-rpng",
   "decode-toml",
+  "decode-txt",
   "decode-yaml",
   "encode-docx",
   "encode-html",
   "encode-ipynb",
   "encode-json",
+  "encode-json5",
   "encode-latex",
   "encode-md",
   "encode-pandoc",
@@ -175,6 +181,7 @@ humantime = "=2.1.0"
 ignore = "=0.4.18"
 itertools = "0.10.1"
 jmespatch = { version = "=0.3.0", optional = true }
+json5 = { version = "=0.3.0", optional = true }
 jsonschema = { version = "=0.12.1", optional = true }
 jsonwebtoken = { version = "=7.2.0", optional = true }
 kuchiki = { version = "=0.8.1", optional = true }

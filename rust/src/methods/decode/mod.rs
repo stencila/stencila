@@ -12,6 +12,9 @@ pub mod docx;
 #[cfg(feature = "decode-json")]
 pub mod json;
 
+#[cfg(feature = "decode-json5")]
+pub mod json5;
+
 #[cfg(feature = "decode-html")]
 pub mod html;
 
@@ -38,6 +41,9 @@ pub mod rpng;
 
 #[cfg(feature = "decode-toml")]
 pub mod toml;
+
+#[cfg(feature = "decode-txt")]
+pub mod txt;
 
 #[cfg(feature = "decode-yaml")]
 pub mod yaml;
@@ -79,6 +85,9 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         #[cfg(feature = "decode-json")]
         "json" => json::decode(input)?,
 
+        #[cfg(feature = "decode-json5")]
+        "json5" => json5::decode(input)?,
+
         #[cfg(feature = "decode-latex")]
         "latex" => latex::decode(input).await?,
 
@@ -99,6 +108,9 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
 
         #[cfg(feature = "decode-toml")]
         "toml" => toml::decode(input)?,
+
+        #[cfg(feature = "decode-txt")]
+        "txt" => txt::decode(input)?,
 
         #[cfg(feature = "decode-yaml")]
         "yaml" => yaml::decode(input)?,
