@@ -134,19 +134,74 @@ input_file: fixtures/articles/simple.ipynb
     {
       "type": "Paragraph",
       "content": [
-        "Stencila supports inline executable code using double curly braces ",
+        "Stencila supports inline executable code expressions and variable interpolation using either:"
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
         {
-          "type": "CodeExpression",
-          "programmingLanguage": "",
-          "text": "2"
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "the ",
+                {
+                  "type": "CodeFragment",
+                  "text": "exec"
+                },
+                " keyword on backticked inline code ",
+                {
+                  "type": "CodeExpression",
+                  "programmingLanguage": "r",
+                  "text": "a*b"
+                },
+                "."
+              ]
+            }
+          ]
         },
-        ", optionally with a language: ",
         {
-          "type": "CodeExpression",
-          "programmingLanguage": "python",
-          "text": "3"
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "double curly braces ",
+                {
+                  "type": "CodeExpression",
+                  "programmingLanguage": "",
+                  "text": "c"
+                },
+                ", optionally with a language ",
+                {
+                  "type": "CodeExpression",
+                  "programmingLanguage": "python",
+                  "text": "d"
+                },
+                "."
+              ]
+            }
+          ]
+        }
+      ],
+      "order": "Unordered"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Using backticks with ",
+        {
+          "type": "CodeFragment",
+          "text": "exec"
         },
-        "."
+        " is recommend as most Markdown parsers will properly escape symbols like ",
+        {
+          "type": "CodeFragment",
+          "text": "*"
+        },
+        " within backticks."
       ]
     },
     {
@@ -581,7 +636,7 @@ input_file: fixtures/articles/simple.ipynb
           "type": "CodeError",
           "errorMessage": "invalid syntax (3992919514.py, line 1)",
           "errorType": "SyntaxError",
-          "stackTrace": "  File \"/tmp/ipykernel_69408/3992919514.py\", line 1\n    A syntax error\n      ^\nSyntaxError: invalid syntax\n"
+          "stackTrace": "  File \"/tmp/ipykernel_21154/3992919514.py\", line 1\n    A syntax error\n      ^\nSyntaxError: invalid syntax\n"
         }
       ]
     },

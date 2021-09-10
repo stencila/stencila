@@ -704,16 +704,17 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
     )(input)
 }
 
-/// Parse commonly used syntaxes for variable / expression interpolation into
-/// a `CodeExpression`.
+/// Parse double brace surrounded text into a `CodeExpression`.
 ///
-/// This supports two interpolation syntaxes:
+/// This supports the Jupyter "Python Markdown" extension syntax for
+/// interpolated variables / expressions: `{{x}}`
 ///
-/// - Jupyter Python Markdown extension style: `{{x}}`
-/// - JavaScript style: `${x}`
-///
-/// It currently does not support the single curly brace syntax (as in Python, Rust and JSX) i.e. `{x}`
+/// Does not support the single curly brace syntax (as in Python, Rust and JSX) i.e. `{x}`
 /// given that is less specific and could conflict with other user content.
+///
+/// Does not support JavaScript style "dollared-brace" syntax i.e. `${x}` since some
+/// at least some Markdown parsers seem to parse that as TeX math (even though there
+/// is no closing brace).
 ///
 /// The language of the code expression can be added in a curly brace suffix.
 /// e.g. `{{2 * 2}}{r}` is equivalent to `\`r 2 * 2\``{r exec} in Markdown or to
@@ -721,10 +722,7 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
 pub fn code_expr(input: &str) -> IResult<&str, InlineContent> {
     map_res(
         pair(
-            alt((
-                delimited(tag("{{"), take_until("}}"), tag("}}")),
-                delimited(tag("${"), take_until("}"), tag("}")),
-            )),
+            delimited(tag("{{"), take_until("}}"), tag("}}")),
             opt(delimited(char('{'), take_until("}"), char('}'))),
         ),
         |res: (&str, Option<&str>)| -> Result<InlineContent> {
