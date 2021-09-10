@@ -136,7 +136,7 @@ impl ToNode for BlockContent {
                     parts,
                     title,
                     type_: _type,
-                } = node.clone();
+                } = node;
                 Node::Claim(Claim {
                     claim_type,
                     content,
@@ -156,7 +156,7 @@ impl ToNode for BlockContent {
                     parts,
                     title,
                     type_: _type,
-                } = node.clone();
+                } = node;
                 Node::Collection(Collection {
                     content,
                     id,
@@ -174,7 +174,7 @@ impl ToNode for BlockContent {
                     parts,
                     title,
                     type_: _type,
-                } = node.clone();
+                } = node;
                 Node::Figure(Figure {
                     caption,
                     content,
@@ -191,7 +191,7 @@ impl ToNode for BlockContent {
             BlockContent::MathBlock(node) => Node::MathBlock(node),
             BlockContent::Paragraph(node) => Node::Paragraph(node),
             BlockContent::QuoteBlock(node) => Node::QuoteBlock(node),
-            BlockContent::Table(table_simple) => {
+            BlockContent::Table(node) => {
                 let TableSimple {
                     caption,
                     content,
@@ -201,7 +201,7 @@ impl ToNode for BlockContent {
                     rows,
                     title,
                     type_: _type,
-                } = table_simple.clone();
+                } = node;
                 Node::Table(Table {
                     caption,
                     content,

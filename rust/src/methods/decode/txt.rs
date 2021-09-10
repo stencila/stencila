@@ -1,5 +1,4 @@
 use super::json5;
-use crate::methods::coerce::coerce;
 use eyre::Result;
 use stencila_schema::Node;
 
