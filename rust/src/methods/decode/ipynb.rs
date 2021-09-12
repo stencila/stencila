@@ -1,4 +1,5 @@
 use super::{html, md, txt};
+use crate::methods::coerce::coerce;
 use crate::traits::ToNode;
 use eyre::Result;
 use itertools::Itertools;
@@ -29,8 +30,19 @@ pub fn decode(ipynb: &str) -> Result<Node> {
         );
     }
 
+    let metadata = notebook.get("metadata");
+
+    let mut article = if let Some(metadata) = metadata {
+        match coerce(metadata.clone(), Some("Article".to_string()))? {
+            Node::Article(article) => article,
+            _ => unreachable!("Should always be an article"),
+        }
+    } else {
+        Article::default()
+    };
+
     let mut language = None;
-    if let Some(metadata) = notebook.get("metadata") {
+    if let Some(metadata) = metadata {
         if let Some(kernelspec) = metadata.get("kernelspec") {
             if let Some(lang) = kernelspec.get("language") {
                 language = lang.as_str();
@@ -45,7 +57,7 @@ pub fn decode(ipynb: &str) -> Result<Node> {
         }
     };
 
-    let content = if let Some(cells) = notebook.get("cells").and_then(|value| value.as_array()) {
+    if let Some(cells) = notebook.get("cells").and_then(|value| value.as_array()) {
         let mut content = Vec::with_capacity(cells.len());
         for cell in cells {
             let cell_type = cell
@@ -63,20 +75,11 @@ pub fn decode(ipynb: &str) -> Result<Node> {
             };
             content.append(&mut blocks);
         }
-        content
+        article.content = Some(content)
     } else {
         tracing::warn!("Jupyter Notebook does not have a valid `cells` property");
-        Vec::new()
     };
 
-    let article = Article {
-        content: if content.is_empty() {
-            None
-        } else {
-            Some(content)
-        },
-        ..Default::default()
-    };
     Ok(Node::Article(article))
 }
 

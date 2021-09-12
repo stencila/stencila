@@ -6,6 +6,20 @@ input_file: fixtures/articles/kitchen-sink.ipynb
 ---
 {
   "type": "Article",
+  "authors": [
+    {
+      "type": "Person",
+      "emails": [
+        "nokome@stenci.la"
+      ],
+      "familyNames": [
+        "Bentley"
+      ],
+      "givenNames": [
+        "Nokome"
+      ]
+    }
+  ],
   "content": [
     {
       "type": "Heading",
@@ -23,6 +37,54 @@ input_file: fixtures/articles/kitchen-sink.ipynb
           "text": "ipynb"
         },
         ") format. It’s principal use is in testing Stencila’s conversion to / from Jupyter Notebooks but also serves to document that conversion. It contains a variety of document node types and Jupyter cell types."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Meta data"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stencila parses the ",
+        {
+          "type": "CodeFragment",
+          "text": "metadata"
+        },
+        " property of a notebook by coercing it to an ",
+        {
+          "type": "CodeFragment",
+          "text": "Article"
+        },
+        ". This allows article properties such as ",
+        {
+          "type": "CodeFragment",
+          "text": "title"
+        },
+        ", ",
+        {
+          "type": "CodeFragment",
+          "text": "authors"
+        },
+        ", ",
+        {
+          "type": "CodeFragment",
+          "text": "funders"
+        },
+        " and ",
+        {
+          "type": "CodeFragment",
+          "text": "references"
+        },
+        " to be encoded into the ",
+        {
+          "type": "CodeFragment",
+          "text": "ipynb"
+        },
+        " format and then extracted, for conversion to other formats e.g. HTML."
       ]
     },
     {
@@ -735,5 +797,6 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         }
       ]
     }
-  ]
+  ],
+  "title": "Kitchen sink Jupyter Notebook test fixture"
 }
