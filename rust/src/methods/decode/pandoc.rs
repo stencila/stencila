@@ -108,7 +108,7 @@ fn translate_meta(meta: pandoc::Meta, context: &Context) -> Result<Article> {
     let mut article = translate_meta_map(&meta.0, context);
     article.insert("type".to_string(), serde_json::json!("Article"));
 
-    let node = coerce(serde_json::Value::Object(article))?;
+    let node = coerce(serde_json::Value::Object(article), None)?;
 
     match node {
         Node::Article(article) => Ok(article),

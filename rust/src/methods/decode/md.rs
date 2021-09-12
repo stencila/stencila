@@ -96,7 +96,7 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
             }
         };
 
-        let node = coerce(node)?;
+        let node = coerce(node, None)?;
         Ok((end, Some(node)))
     } else {
         Ok((None, None))
