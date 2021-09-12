@@ -239,7 +239,7 @@ zip = { version = "=0.5.13", optional = true }
 
 [dev-dependencies]
 criterion = "0.3.5"
-insta = { version = "1.7.2", features = ["glob"] }
+insta = { version = "1.8.0", features = ["glob"] }
 pretty_assertions = "0.7.2"
 proptest = "1.0.0"
 
