@@ -213,8 +213,20 @@ fn encode_stream(text: &String) -> serde_json::Value {
 /// Encode an `ImageObject` as a Jupyter `DisplayData`.
 fn encode_display_data(image: &ImageObject) -> serde_json::Value {
     let url = &image.content_url;
-    let data = if let Some(media_type) = image.media_type.as_deref() {
-        json!({})
+    let data = if let Some(data) = url.strip_prefix("data:") {
+        let parts = data.split(";base64,").collect::<Vec<&str>>();
+        let mime_type = parts.get(0).map(|str| str.to_string()).unwrap_or_default();
+        let data = parts.get(1);
+        let data = if mime_type.starts_with("application/vnd.plotly")
+            || mime_type.starts_with("application/vnd.vega")
+        {
+            data.and_then(|data| base64::decode(data).ok())
+                .and_then(|bytes| serde_json::from_slice(&bytes).ok())
+                .unwrap_or_else(|| json!({}))
+        } else {
+            json!(data)
+        };
+        json!({ mime_type: data })
     } else {
         json!({})
     };
