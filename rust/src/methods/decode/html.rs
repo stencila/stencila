@@ -557,19 +557,19 @@ fn collect_text(node: &NodeRef) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_content;
+    use crate::utils::tests::snapshot_fixtures;
     use insta::assert_json_snapshot;
 
     #[test]
     fn html_articles() {
-        snapshot_content("articles/*.html", |_path, content| {
+        snapshot_fixtures("articles/*.html", |_path, content| {
             assert_json_snapshot!(decode(&content, false).expect("Unable to decode HTML"));
         });
     }
 
     #[test]
     fn html_fragments() {
-        snapshot_content("fragments/html/*.html", |_path, content| {
+        snapshot_fixtures("fragments/html/*.html", |_path, content| {
             assert_json_snapshot!(decode_fragment(&content, false));
         });
     }

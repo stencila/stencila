@@ -368,7 +368,7 @@ fn translate_multiline_string(multiline_string: &serde_json::Value) -> String {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::utils::tests::snapshot_content;
+    use crate::utils::tests::snapshot_fixtures;
     use insta::assert_json_snapshot;
     use serde_json::json;
 
@@ -384,7 +384,7 @@ mod test {
 
     #[test]
     fn ipynb_articles() {
-        snapshot_content("articles/*.ipynb", |_path, content| {
+        snapshot_fixtures("articles/*.ipynb", |_path, content| {
             assert_json_snapshot!(decode(&content).unwrap());
         });
     }

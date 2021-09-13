@@ -692,13 +692,13 @@ fn try_code_chunk(inline: &InlineContent) -> Option<BlockContent> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_content;
+    use crate::utils::tests::snapshot_fixtures;
     use insta::assert_json_snapshot;
 
     #[test]
     fn pandoc_fragments() {
         let runtime = tokio::runtime::Runtime::new().unwrap();
-        snapshot_content("fragments/pandoc/*.json", |_path, content| {
+        snapshot_fixtures("fragments/pandoc/*.json", |_path, content| {
             let json =
                 runtime.block_on(async { decode_fragment(&content, "pandoc", &[]).await.unwrap() });
             assert_json_snapshot!(json);

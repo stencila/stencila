@@ -735,7 +735,7 @@ fn valid_for_all_of(value: &JsonValue, schemas: &[JsonSchema]) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_content;
+    use crate::utils::tests::snapshot_fixtures;
     use insta::assert_json_snapshot;
     use pretty_assertions::assert_eq;
 
@@ -916,7 +916,7 @@ mod tests {
 
     #[test]
     fn coerce_yaml_articles() {
-        snapshot_content("articles/coerce-*.yaml", |_path, content| {
+        snapshot_fixtures("articles/coerce-*.yaml", |_path, content| {
             let value = serde_yaml::from_str(&content).expect("Unable to deserialize YAML");
             let node = coerce(value, None).expect("Unable to coerce");
             assert!(matches!(node, Node::Article(_)));

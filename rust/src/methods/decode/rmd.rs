@@ -80,20 +80,20 @@ fn transform_inlines(inlines: &mut Vec<InlineContent>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_content;
+    use crate::utils::tests::snapshot_fixtures;
     use insta::assert_json_snapshot;
 
     #[ignore]
     #[test]
     fn rmd_articles() {
-        snapshot_content("articles/*.Rmd", |_path, content| {
+        snapshot_fixtures("articles/*.Rmd", |_path, content| {
             assert_json_snapshot!(decode(&content).unwrap());
         });
     }
 
     #[test]
     fn rmd_fragments() {
-        snapshot_content("fragments/rmd/*.Rmd", |_path, content| {
+        snapshot_fixtures("fragments/rmd/*.Rmd", |_path, content| {
             assert_json_snapshot!(decode(&content).unwrap());
         });
     }

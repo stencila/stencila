@@ -100,18 +100,18 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_content;
+    use crate::utils::tests::snapshot_fixtures;
     use insta::assert_json_snapshot;
     use std::path::PathBuf;
 
     #[test]
     fn ts_fragments() {
-        snapshot_content("fragments/ts/*.ts", |path, code| {
+        snapshot_fixtures("fragments/ts/*.ts", |path, code| {
             assert_json_snapshot!(compile(&PathBuf::from(path), code));
         });
 
         // JavaScript fragments should also be compilable by the TypeScript compiler
-        snapshot_content("fragments/js/*.js", |path, code| {
+        snapshot_fixtures("fragments/js/*.js", |path, code| {
             assert_json_snapshot!(compile(&PathBuf::from(path), code));
         });
     }

@@ -1001,7 +1001,7 @@ impl Html {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_content;
+    use crate::utils::tests::snapshot_fixtures;
     use insta::assert_json_snapshot;
     use pretty_assertions::assert_eq;
 
@@ -1027,14 +1027,14 @@ mod tests {
 
     #[test]
     fn md_articles() {
-        snapshot_content("articles/*.md", |_path, content| {
+        snapshot_fixtures("articles/*.md", |_path, content| {
             assert_json_snapshot!(decode(&content).expect("Unable to decode Markdown"));
         });
     }
 
     #[test]
     fn md_fragments() {
-        snapshot_content("fragments/md/*.md", |_path, content| {
+        snapshot_fixtures("fragments/md/*.md", |_path, content| {
             assert_json_snapshot!(decode_fragment(&content, None));
         });
     }
