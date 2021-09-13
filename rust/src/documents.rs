@@ -22,7 +22,6 @@ use maplit::hashset;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
-use serde::ser::SerializeMap;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
@@ -180,7 +179,7 @@ pub struct Document {
     #[serde(skip)]
     pub root: Option<Node>,
 
-    /// The set of relations between nodes in this document and other
+    /// The set of relations between this document, or nodes in this document, and other
     /// resources.
     ///
     /// Relations may be external (e.g. this document links to
@@ -221,8 +220,12 @@ impl Document {
         schemas::typescript("Record<string, [Relation, Resource]>", false)
     }
 
-    /// Serialize the `relations` property such that the `Resource` keys are represented as
-    /// a string suitable for encoding as JSON.
+    /// Serialize the `relations` property.
+    ///
+    /// This custom serialization is necessary because a JSON object must have a `String` key (not
+    /// a `Resource` key). So we can't just serialize the `HashMap`. This serializes `relations` as an array,
+    /// which causes some repetition, but avoids having to generate a string identifier for each resource,
+    /// whilst trying not to loose information.
     fn serialize_relations<S>(
         relations: &HashMap<Resource, Vec<(Relation, Resource)>>,
         serializer: S,
@@ -230,15 +233,13 @@ impl Document {
     where
         S: serde::Serializer,
     {
-        let mut map = serializer.serialize_map(Some(relations.len()))?;
-        for (resource, pairs) in relations {
-            let key = match resource {
-                Resource::Node(node) => [&node.kind, "@", &node.id].concat(),
-                _ => unreachable!(),
-            };
-            map.serialize_entry(&key, pairs);
-        }
-        map.end()
+        let triples: Vec<(&Resource, &Relation, &Resource)> = relations
+            .iter()
+            .flat_map(|(resource, pairs)| {
+                pairs.iter().map(move |pair| (resource, &pair.0, &pair.1))
+            })
+            .collect();
+        triples.serialize(serializer)
     }
 
     /// Create a new empty document.

@@ -71,7 +71,7 @@ export interface Document {
    */
   previewable: boolean
   /**
-   * The set of relations between nodes in this document and other resources.
+   * The set of relations between this document, or nodes in this document, and other resources.
    *
    * Relations may be external (e.g. this document links to another file) or internal (e.g. the second code chunk uses a variable defined in the first code chunk).
    */
@@ -775,6 +775,45 @@ export type Error =
       type: 'InvalidUUID'
       family: string
       id: string
+      message: string
+    }
+  | {
+      type: 'NotSame'
+      message: string
+      [k: string]: unknown
+    }
+  | {
+      type: 'NotEqual'
+      message: string
+      [k: string]: unknown
+    }
+  | {
+      type: 'InvalidPatchOperation'
+      op: string
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidPatchAddress'
+      address: string
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidPatchName'
+      name: string
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidPatchIndex'
+      index: number
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidPatchValue'
+      type_name: string
       message: string
     }
   | {
