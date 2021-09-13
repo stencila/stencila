@@ -1,3 +1,10 @@
+## [1.11.2](https://github.com/stencila/schema/compare/v1.11.1...v1.11.2) (2021-09-13)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate serde to 1.0.130 ([5f9b78a](https://github.com/stencila/schema/commit/5f9b78ae4e17f8bfdd06d293d343414a8fa23cf2))
+
 ## [1.11.1](https://github.com/stencila/schema/compare/v1.11.0...v1.11.1) (2021-08-29)
 
 
