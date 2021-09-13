@@ -113,9 +113,8 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
 ///
 /// # Arguments
 ///
-/// - `default_lang`: The default programming language to use on code
-///                   related nodes e.g. `CodeExpression` which do not
-///                   explicitly set it.
+/// - `default_lang`: The default programming language to use on executable code
+///                   nodes e.g. `CodeExpression` which do not explicitly se a language.
 pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockContent> {
     let mut inlines = Inlines {
         default_lang: default_lang.clone(),
@@ -276,7 +275,8 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         _ => (None, false),
                     };
 
-                    if lang.is_none() && default_lang.is_some() {
+                    // Apply default lang for executable code only
+                    if exec && lang.is_none() && default_lang.is_some() {
                         lang = default_lang.clone()
                     }
 
