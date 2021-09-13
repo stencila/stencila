@@ -3,8 +3,7 @@ use std::path::PathBuf;
 use super::html;
 use crate::{
     formats::{format_type, FormatType},
-    methods::{coerce::coerce, encode::txt::ToTxt},
-    traits::ToVecInlineContent,
+    methods::{coerce::coerce, encode::txt::ToTxt, transform::Transform},
 };
 use eyre::{bail, Result};
 use nom::{
@@ -423,7 +422,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 let mut content = html.handle_html(&content.to_string());
                 if !content.is_empty() {
                     if inlines.active {
-                        inlines.append_nodes(&mut content.to_vec_inline_content())
+                        inlines.append_nodes(&mut content.to_inlines())
                     } else {
                         blocks.append_nodes(&mut content)
                     }

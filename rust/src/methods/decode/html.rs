@@ -1,5 +1,5 @@
 use super::md;
-use crate::traits::ToVecInlineContent;
+use crate::methods::transform::Transform;
 use eyre::Result;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::{local_name, LocalName};
@@ -428,7 +428,7 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
         // and unwrapping from `Vec<BlockContent>` to `Vec<InlineContent>`.
         if !text.borrow().is_empty() {
             if context.decode_text_as_markdown {
-                md::decode_fragment(&text.borrow(), None).to_vec_inline_content()
+                md::decode_fragment(&text.borrow(), None).to_inlines()
             } else {
                 vec![InlineContent::String(text.borrow().clone())]
             }

@@ -1,11 +1,12 @@
 use super::{html, md, txt};
-use crate::methods::coerce::coerce;
-use crate::traits::ToNode;
+use crate::methods::{coerce::coerce, transform::Transform};
 use eyre::Result;
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use stencila_schema::{Article, BlockContent, CodeBlock, CodeChunk, CodeError, ImageObject, Node};
+use stencila_schema::{
+    Article, BlockContent, CodeBlock, CodeChunk, CodeChunkCaption, CodeError, ImageObject, Node,
+};
 
 /// Decode a Jupyter Notebook to a `Node`.
 ///
@@ -87,6 +88,51 @@ pub fn decode(ipynb: &str) -> Result<Node> {
 fn translate_code_cell(cell: &serde_json::Value, notebook_lang: &str) -> Vec<BlockContent> {
     let metadata = cell.get("metadata");
 
+    let (id, label, caption) = if let Some(metadata) = metadata {
+        let id = metadata
+            .get("id")
+            .and_then(|value| value.as_str())
+            .map(|value| Box::new(value.to_string()));
+
+        let label = metadata
+            .get("label")
+            .and_then(|value| value.as_str())
+            .map(|value| Box::new(value.to_string()));
+
+        let caption = if let Some(caption) = metadata.get("caption") {
+            let blocks = if let Some(string) = caption.as_str() {
+                md::decode_fragment(string, Some(notebook_lang.to_string()))
+            } else if let Some(array) = caption.as_array() {
+                array
+                    .iter()
+                    .filter_map(|item| match coerce(item.clone(), None) {
+                        Ok(node) => Some(node),
+                        Err(error) => {
+                            tracing::warn!("While coercing cell caption: {}", error);
+                            None
+                        }
+                    })
+                    .collect::<Vec<Node>>()
+                    .to_blocks()
+            } else {
+                match coerce(caption.clone(), None) {
+                    Ok(node) => node.to_blocks(),
+                    Err(error) => {
+                        tracing::warn!("While coercing cell caption: {}", error);
+                        Vec::new()
+                    }
+                }
+            };
+            Some(Box::new(CodeChunkCaption::VecBlockContent(blocks)))
+        } else {
+            None
+        };
+
+        (id, label, caption)
+    } else {
+        (None, None, None)
+    };
+
     let programming_language = if let Some(cell_lang) = metadata
         .and_then(|value| value.get("language_info"))
         .and_then(|value| value.get("name"))
@@ -118,6 +164,9 @@ fn translate_code_cell(cell: &serde_json::Value, notebook_lang: &str) -> Vec<Blo
     }
 
     let chunk = CodeChunk {
+        id,
+        label,
+        caption,
         programming_language,
         text,
         outputs: if outputs.is_empty() {

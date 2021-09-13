@@ -1,21 +1,34 @@
+use super::Transform;
+use crate::methods::encode::txt::ToTxt;
 use stencila_schema::{
-    AudioObject, AudioObjectSimple, BlockContent, Claim, ClaimSimple, Collection, CollectionSimple,
-    Figure, FigureSimple, ImageObject, ImageObjectSimple, InlineContent, Node, Table, TableSimple,
-    VideoObject, VideoObjectSimple,
+    AudioObject, AudioObjectSimple, BlockContent, ImageObject, ImageObjectSimple, InlineContent,
+    Node, Paragraph, VideoObject, VideoObjectSimple,
 };
 
-pub trait ToNode {
-    /// Convert a `Node` subtype enum (e.g. `BlockContent::Strong`) to a `Node` enum (e.g. `Node::Strong`)
-    fn to_node(self) -> Node;
-}
+impl Transform for InlineContent {
+    /// Transform an `InlineContent` variant to a `InlineContent` variant
+    ///
+    /// Returns self.
+    fn to_inline(&self) -> InlineContent {
+        self.to_owned()
+    }
 
-impl ToNode for InlineContent {
-    /// Convert an `InlineContent` node to a `Node`.
+    /// Transform an `InlineContent` variant to a `BlockContent` variant
+    ///
+    /// Returns self wrapped into a paragraph.
+    fn to_block(&self) -> BlockContent {
+        BlockContent::Paragraph(Paragraph {
+            content: self.to_inlines(),
+            ..Default::default()
+        })
+    }
+
+    /// Transform an `InlineContent` variant to a `Node` variant
     ///
     /// Most variants can be converted directly. However, `CreativeWork` types that have
     /// simple inline variants need "upcasting" to their more complex types.
-    fn to_node(self) -> Node {
-        match self {
+    fn to_node(&self) -> Node {
+        match self.to_owned() {
             InlineContent::AudioObject(node) => {
                 let AudioObjectSimple {
                     bitrate,
@@ -120,100 +133,42 @@ impl ToNode for InlineContent {
     }
 }
 
-impl ToNode for BlockContent {
-    /// Convert an `BlockContent` node to a `Node`.
+impl Transform for Vec<InlineContent> {
+    /// Transform a vector of `InlineContent` variants to a `InlineContent` variant
     ///
-    /// Most variants can be converted directly. However, `CreativeWork` types that have
-    /// simple block variants need "upcasting" to their more complex types.
-    fn to_node(self) -> Node {
-        match self {
-            BlockContent::Claim(node) => {
-                let ClaimSimple {
-                    claim_type,
-                    content,
-                    id,
-                    label,
-                    parts,
-                    title,
-                    type_: _type,
-                } = node;
-                Node::Claim(Claim {
-                    claim_type,
-                    content,
-                    id,
-                    label,
-                    parts,
-                    title,
-                    ..Default::default()
-                })
-            }
-            BlockContent::CodeBlock(node) => Node::CodeBlock(node),
-            BlockContent::CodeChunk(node) => Node::CodeChunk(node),
-            BlockContent::Collection(node) => {
-                let CollectionSimple {
-                    content,
-                    id,
-                    parts,
-                    title,
-                    type_: _type,
-                } = node;
-                Node::Collection(Collection {
-                    content,
-                    id,
-                    parts,
-                    title,
-                    ..Default::default()
-                })
-            }
-            BlockContent::Figure(node) => {
-                let FigureSimple {
-                    caption,
-                    content,
-                    id,
-                    label,
-                    parts,
-                    title,
-                    type_: _type,
-                } = node;
-                Node::Figure(Figure {
-                    caption,
-                    content,
-                    id,
-                    label,
-                    parts,
-                    title,
-                    ..Default::default()
-                })
-            }
-            BlockContent::Heading(node) => Node::Heading(node),
-            BlockContent::Include(node) => Node::Include(node),
-            BlockContent::List(node) => Node::List(node),
-            BlockContent::MathBlock(node) => Node::MathBlock(node),
-            BlockContent::Paragraph(node) => Node::Paragraph(node),
-            BlockContent::QuoteBlock(node) => Node::QuoteBlock(node),
-            BlockContent::Table(node) => {
-                let TableSimple {
-                    caption,
-                    content,
-                    id,
-                    label,
-                    parts,
-                    rows,
-                    title,
-                    type_: _type,
-                } = node;
-                Node::Table(Table {
-                    caption,
-                    content,
-                    id,
-                    label,
-                    parts,
-                    rows,
-                    title,
-                    ..Default::default()
-                })
-            }
-            BlockContent::ThematicBreak(node) => Node::ThematicBreak(node),
+    /// If there is just one item, returns that. Otherwise, returns a string using the `ToTxt` trait.
+    fn to_inline(&self) -> InlineContent {
+        if self.len() == 1 {
+            self[0].to_owned()
+        } else {
+            InlineContent::String(self.to_txt())
         }
+    }
+
+    /// Transform a vector of `InlineContent` variants to a vector of `InlineContent` variants
+    ///
+    /// Returns self.
+    fn to_inlines(&self) -> Vec<InlineContent> {
+        self.to_owned()
+    }
+
+    /// Transform a vector of `InlineContent` variants to a `BlockContent` variant
+    ///
+    /// Returns self wrapped by a paragraph.
+    fn to_block(&self) -> BlockContent {
+        BlockContent::Paragraph(Paragraph {
+            content: self.to_owned(),
+            ..Default::default()
+        })
+    }
+
+    /// Transform a vector of `InlineContent` variants to a `Node` variant
+    ///
+    /// Returns self wrapped by a paragraph.
+    fn to_node(&self) -> Node {
+        Node::Paragraph(Paragraph {
+            content: self.to_owned(),
+            ..Default::default()
+        })
     }
 }

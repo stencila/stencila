@@ -3,8 +3,8 @@ use crate::{
     methods::{
         decode::pandoc::PANDOC_SEMVER,
         encode::{json, Options},
+        transform::Transform,
     },
-    traits::{ToVecBlockContent, ToVecInlineContent},
     utils::uuids,
 };
 use eyre::Result;
@@ -364,8 +364,7 @@ impl ToPandoc for CodeChunk {
                         inlines.push(pandoc::Inline::Str(string.clone()))
                     }
                     CodeChunkCaption::VecBlockContent(blocks) => {
-                        let mut blocks_as_inlines =
-                            blocks.to_vec_inline_content().to_pandoc_inlines(context);
+                        let mut blocks_as_inlines = blocks.to_inlines().to_pandoc_inlines(context);
                         inlines.append(&mut blocks_as_inlines);
                     }
                 };
@@ -458,7 +457,7 @@ impl ToPandoc for TableSimple {
                         None => Vec::new(),
                         Some(content) => match content {
                             TableCellContent::VecInlineContent(inlines) => {
-                                inlines.to_vec_block_content().to_pandoc_blocks(context)
+                                inlines.to_blocks().to_pandoc_blocks(context)
                             }
                             TableCellContent::VecBlockContent(blocks) => {
                                 blocks.to_pandoc_blocks(context)
