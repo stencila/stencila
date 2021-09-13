@@ -25,10 +25,11 @@ use stencila_schema::{self, Node, Object, Primitive};
 pub fn coerce(value: JsonValue, type_: Option<String>) -> Result<Node> {
     let type_ = if type_.is_some() {
         type_
-    } else if let Some(type_) = value.get("type").and_then(|value| value.as_str()) {
-        Some(type_.to_string())
     } else {
-        None
+        value
+            .get("type")
+            .and_then(|value| value.as_str())
+            .map(|type_| type_.to_string())
     };
 
     if let Some(type_) = type_ {
