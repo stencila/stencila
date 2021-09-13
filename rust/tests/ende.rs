@@ -101,7 +101,6 @@ proptest! {
 
     #[cfg(all(feature="encode-ipynb", feature="decode-ipynb"))]
     #[test]
-    #[ignore="Because encoding not yet implemented"]
     fn ipynb(input in article(Freedom::Min)) {
         let content = encode::ipynb::encode(&input).unwrap();
         let output = decode::ipynb::decode(&content).unwrap();
