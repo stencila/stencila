@@ -10,8 +10,14 @@ pub mod docx;
 #[allow(clippy::deprecated_cfg_attr)]
 pub mod html;
 
+#[cfg(feature = "encode-ipynb")]
+pub mod ipynb;
+
 #[cfg(feature = "encode-json")]
 pub mod json;
+
+#[cfg(feature = "encode-json5")]
+pub mod json5;
 
 #[cfg(feature = "encode-latex")]
 pub mod latex;
@@ -102,8 +108,14 @@ pub async fn encode(
         #[cfg(feature = "encode-html")]
         "html" => html::encode(node, options)?,
 
+        #[cfg(feature = "encode-ipynb")]
+        "ipynb" => ipynb::encode(node)?,
+
         #[cfg(feature = "encode-json")]
         "json" => json::encode(node, options)?,
+
+        #[cfg(feature = "encode-json5")]
+        "json5" => json5::encode(node, options)?,
 
         #[cfg(feature = "encode-latex")]
         "latex" => latex::encode(node).await?,

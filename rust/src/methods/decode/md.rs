@@ -3,8 +3,7 @@ use std::path::PathBuf;
 use super::html;
 use crate::{
     formats::{format_type, FormatType},
-    methods::{coerce::coerce, encode::txt::ToTxt},
-    traits::ToVecInlineContent,
+    methods::{coerce::coerce, encode::txt::ToTxt, transform::Transform},
 };
 use eyre::{bail, Result};
 use nom::{
@@ -44,7 +43,7 @@ pub fn decode(md: &str) -> Result<Node> {
         None => Node::Article(Article::default()),
     };
 
-    let content = decode_fragment(md);
+    let content = decode_fragment(md, None);
     if !content.is_empty() {
         let content = Some(content);
         match &mut node {
@@ -96,7 +95,7 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
             }
         };
 
-        let node = coerce(node)?;
+        let node = coerce(node, None)?;
         Ok((end, Some(node)))
     } else {
         Ok((None, None))
@@ -111,8 +110,14 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
 /// Uses the `pulldown_cmark` and transforms its `Event`s into
 /// `Vec<BlockContent>`. Text is further parsed using `nom` based parsers
 /// to handle the elements that `pulldown_cmark` does not handle (e.g. math).
-pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
+///
+/// # Arguments
+///
+/// - `default_lang`: The default programming language to use on executable code
+///                   nodes e.g. `CodeExpression` which do not explicitly se a language.
+pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockContent> {
     let mut inlines = Inlines {
+        default_lang: default_lang.clone(),
         active: false,
         text: String::new(),
         nodes: Vec::new(),
@@ -253,7 +258,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                     ..Default::default()
                 })),
                 Tag::CodeBlock(kind) => {
-                    let (lang, exec) = match kind {
+                    let (mut lang, exec) = match kind {
                         CodeBlockKind::Fenced(lang) => {
                             let lang = lang.to_string();
                             if !lang.is_empty() {
@@ -270,15 +275,20 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                         _ => (None, false),
                     };
 
+                    // Apply default lang for executable code only
+                    if exec && lang.is_none() && default_lang.is_some() {
+                        lang = default_lang.clone()
+                    }
+
                     let text = inlines.pop_text().trim_end_matches('\n').to_string();
 
-                    let node = match (lang.as_ref(), exec) {
-                        (Some(lang), true) => BlockContent::CodeChunk(CodeChunk {
+                    let node = match exec {
+                        true => BlockContent::CodeChunk(CodeChunk {
                             text,
-                            programming_language: lang.to_string(),
+                            programming_language: lang.unwrap_or_default(),
                             ..Default::default()
                         }),
-                        _ => BlockContent::CodeBlock(CodeBlock {
+                        false => BlockContent::CodeBlock(CodeBlock {
                             text,
                             programming_language: lang.map(Box::new),
                             ..Default::default()
@@ -412,7 +422,7 @@ pub fn decode_fragment(md: &str) -> Vec<BlockContent> {
                 let mut content = html.handle_html(&content.to_string());
                 if !content.is_empty() {
                     if inlines.active {
-                        inlines.append_nodes(&mut content.to_vec_inline_content())
+                        inlines.append_nodes(&mut content.to_inlines())
                     } else {
                         blocks.append_nodes(&mut content)
                     }
@@ -544,6 +554,7 @@ impl Tables {
 
 /// Stores and parses inline content
 struct Inlines {
+    default_lang: Option<String>,
     active: bool,
     text: String,
     nodes: Vec<InlineContent>,
@@ -587,7 +598,19 @@ impl Inlines {
         if !self.text.is_empty() {
             let text = self.pop_text();
             let mut nodes = match inline_content(&text) {
-                Ok((_, content)) => content,
+                Ok((_, mut inlines)) => {
+                    // Set the programming language on code expressions if necessary
+                    if let Some(default_lang) = self.default_lang.as_ref() {
+                        for node in inlines.iter_mut() {
+                            if let InlineContent::CodeExpression(expr) = node {
+                                if expr.programming_language.is_empty() {
+                                    expr.programming_language = default_lang.clone()
+                                }
+                            }
+                        }
+                    }
+                    inlines
+                }
                 Err(error) => {
                     tracing::warn!("While parsing inline Markdown: {}", error);
                     vec![InlineContent::String(text)]
@@ -643,6 +666,7 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
     fold_many0(
         alt((
             code_attrs,
+            code_expr,
             cite_group,
             cite,
             math,
@@ -667,7 +691,7 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
 }
 
 /// Parse inline code with attributes in curly braces
-/// e.g. `code`{attr1 attr2} into a `CodeFragment` or `CodeExpression` node
+/// e.g. `\`code\`{attr1 attr2}` into a `CodeFragment` or `CodeExpression` node
 pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
     map_res(
         pair(
@@ -679,17 +703,22 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
             let (lang, exec) = match res.1 {
                 Some(attrs) => {
                     let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
-                    (
-                        attrs.get(0).map(|item| item.to_string()),
-                        attrs.contains(&"exec"),
-                    )
+                    let lang = attrs.get(0).and_then(|item| {
+                        if *item == "exec" {
+                            None
+                        } else {
+                            Some(item.to_string())
+                        }
+                    });
+                    let exec = attrs.contains(&"exec");
+                    (lang, exec)
                 }
                 None => (None, false),
             };
-            let node = match (lang.as_ref(), exec) {
-                (Some(lang), true) => InlineContent::CodeExpression(CodeExpression {
+            let node = match exec {
+                true => InlineContent::CodeExpression(CodeExpression {
                     text,
-                    programming_language: lang.to_string(),
+                    programming_language: lang.unwrap_or_default(),
                     ..Default::default()
                 }),
                 _ => InlineContent::CodeFragment(CodeFragment {
@@ -699,6 +728,45 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
                 }),
             };
             Ok(node)
+        },
+    )(input)
+}
+
+/// Parse double brace surrounded text into a `CodeExpression`.
+///
+/// This supports the Jupyter "Python Markdown" extension syntax for
+/// interpolated variables / expressions: `{{x}}`
+///
+/// Does not support the single curly brace syntax (as in Python, Rust and JSX) i.e. `{x}`
+/// given that is less specific and could conflict with other user content.
+///
+/// Does not support JavaScript style "dollared-brace" syntax i.e. `${x}` since some
+/// at least some Markdown parsers seem to parse that as TeX math (even though there
+/// is no closing brace).
+///
+/// The language of the code expression can be added in a curly brace suffix.
+/// e.g. `{{2 * 2}}{r}` is equivalent to `\`r 2 * 2\``{r exec} in Markdown or to
+/// `\`r 2 * 2\` in R Markdown.
+pub fn code_expr(input: &str) -> IResult<&str, InlineContent> {
+    map_res(
+        pair(
+            delimited(tag("{{"), take_until("}}"), tag("}}")),
+            opt(delimited(char('{'), take_until("}"), char('}'))),
+        ),
+        |res: (&str, Option<&str>)| -> Result<InlineContent> {
+            let text = res.0.to_string();
+            let lang = match res.1 {
+                Some(attrs) => {
+                    let attrs = attrs.split_whitespace().collect::<Vec<&str>>();
+                    attrs.get(0).map(|item| item.to_string())
+                }
+                None => None,
+            };
+            Ok(InlineContent::CodeExpression(CodeExpression {
+                text,
+                programming_language: lang.unwrap_or_else(|| "".to_string()),
+                ..Default::default()
+            }))
         },
     )(input)
 }
@@ -933,7 +1001,7 @@ impl Html {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_content;
+    use crate::utils::tests::snapshot_fixtures;
     use insta::assert_json_snapshot;
     use pretty_assertions::assert_eq;
 
@@ -959,15 +1027,15 @@ mod tests {
 
     #[test]
     fn md_articles() {
-        snapshot_content("articles/*.md", |_path, content| {
+        snapshot_fixtures("articles/*.md", |_path, content| {
             assert_json_snapshot!(decode(&content).expect("Unable to decode Markdown"));
         });
     }
 
     #[test]
     fn md_fragments() {
-        snapshot_content("fragments/md/*.md", |_path, content| {
-            assert_json_snapshot!(decode_fragment(&content));
+        snapshot_fixtures("fragments/md/*.md", |_path, content| {
+            assert_json_snapshot!(decode_fragment(&content, None));
         });
     }
 }

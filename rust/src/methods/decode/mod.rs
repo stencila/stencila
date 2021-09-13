@@ -5,14 +5,21 @@ use stencila_schema::Node;
 
 #[cfg(feature = "decode-date")]
 pub mod date;
+
 #[cfg(feature = "decode-docx")]
 pub mod docx;
 
 #[cfg(feature = "decode-json")]
 pub mod json;
 
+#[cfg(feature = "decode-json5")]
+pub mod json5;
+
 #[cfg(feature = "decode-html")]
 pub mod html;
+
+#[cfg(feature = "decode-ipynb")]
+pub mod ipynb;
 
 #[cfg(feature = "decode-md")]
 pub mod md;
@@ -35,8 +42,13 @@ pub mod rpng;
 #[cfg(feature = "decode-toml")]
 pub mod toml;
 
+#[cfg(feature = "decode-txt")]
+pub mod txt;
+
 #[cfg(feature = "decode-yaml")]
 pub mod yaml;
+
+// Modules for types of content, rather than specific formats
 
 pub mod code;
 pub mod media;
@@ -67,8 +79,14 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         #[cfg(feature = "decode-html")]
         "html" => html::decode(input, false)?,
 
+        #[cfg(feature = "decode-ipynb")]
+        "ipynb" => ipynb::decode(input)?,
+
         #[cfg(feature = "decode-json")]
         "json" => json::decode(input)?,
+
+        #[cfg(feature = "decode-json5")]
+        "json5" => json5::decode(input)?,
 
         #[cfg(feature = "decode-latex")]
         "latex" => latex::decode(input).await?,
@@ -90,6 +108,9 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
 
         #[cfg(feature = "decode-toml")]
         "toml" => toml::decode(input)?,
+
+        #[cfg(feature = "decode-txt")]
+        "txt" => txt::decode(input)?,
 
         #[cfg(feature = "decode-yaml")]
         "yaml" => yaml::decode(input)?,

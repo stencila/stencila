@@ -218,13 +218,13 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_content;
+    use crate::utils::tests::snapshot_fixtures;
     use insta::assert_json_snapshot;
     use std::path::PathBuf;
 
     #[test]
     fn py_fragments() {
-        snapshot_content("fragments/py/*.py", |path, code| {
+        snapshot_fixtures("fragments/py/*.py", |path, code| {
             assert_json_snapshot!(compile(&PathBuf::from(path), code));
         });
     }

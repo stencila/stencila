@@ -27,7 +27,7 @@ pub fn fixtures() -> PathBuf {
 /// layout (workspaces and nested modules). This function deals with that
 /// by making the pattern relative to the fixtures and adding some other
 /// conveniences.
-pub fn snapshot_content<F: FnMut(&str, &str)>(pattern: &str, mut func: F) {
+pub fn snapshot_fixtures<F: FnMut(&str, &str)>(pattern: &str, mut func: F) {
     let mut settings = insta::Settings::clone_current();
     settings.set_prepend_module_to_snapshot(false);
     settings.bind(|| {

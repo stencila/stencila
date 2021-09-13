@@ -36,6 +36,21 @@ slice_to_txt!([Node]);
 slice_to_txt!([InlineContent]);
 slice_to_txt!([BlockContent]);
 
+macro_rules! primitive_to_txt {
+    ($type:ty) => {
+        impl ToTxt for $type {
+            fn to_txt(&self) -> String {
+                json5::to_string(self).expect("Should always convert to JSON5")
+            }
+        }
+    };
+}
+primitive_to_txt!(Boolean);
+primitive_to_txt!(Integer);
+primitive_to_txt!(Number);
+primitive_to_txt!(Array);
+primitive_to_txt!(Object);
+
 macro_rules! inline_content_to_txt {
     ($type:ty) => {
         impl ToTxt for $type {
@@ -117,6 +132,7 @@ optional_content_to_txt!(Cite);
 impl ToTxt for Node {
     fn to_txt(&self) -> String {
         match self {
+            Node::Array(node) => node.to_txt(),
             Node::Article(node) => node.to_txt(),
             Node::Boolean(node) => node.to_string(),
             Node::Cite(node) => node.to_txt(),
@@ -131,6 +147,7 @@ impl ToTxt for Node {
             Node::Note(node) => node.to_txt(),
             Node::Null => "null".to_string(),
             Node::Number(node) => node.to_string(),
+            Node::Object(node) => node.to_txt(),
             Node::Paragraph(node) => node.to_txt(),
             Node::Quote(node) => node.to_txt(),
             Node::QuoteBlock(node) => node.to_txt(),

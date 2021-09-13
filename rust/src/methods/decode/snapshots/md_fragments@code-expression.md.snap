@@ -1,0 +1,49 @@
+---
+source: rust/src/methods/decode/md.rs
+expression: decode_fragment(&content)
+input_file: fixtures/fragments/md/code-expression.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "A code expression can be represented in Markdown in two ways."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Using the ",
+      {
+        "type": "CodeFragment",
+        "text": "exec"
+      },
+      " keyword on backticked inline code: ",
+      {
+        "type": "CodeExpression",
+        "programmingLanguage": "r",
+        "text": "1"
+      },
+      "."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Double curly braces ",
+      {
+        "type": "CodeExpression",
+        "programmingLanguage": "",
+        "text": "2"
+      },
+      ", optionally with a language: ",
+      {
+        "type": "CodeExpression",
+        "programmingLanguage": "python",
+        "text": "3"
+      },
+      "."
+    ]
+  }
+]

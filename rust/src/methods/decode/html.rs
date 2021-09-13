@@ -1,5 +1,5 @@
 use super::md;
-use crate::traits::ToVecInlineContent;
+use crate::methods::transform::Transform;
 use eyre::Result;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::{local_name, LocalName};
@@ -241,7 +241,7 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
         // Markdown fragment
         if !text.borrow().trim().is_empty() {
             if context.decode_text_as_markdown {
-                md::decode_fragment(&text.borrow())
+                md::decode_fragment(&text.borrow(), None)
             } else {
                 vec![BlockContent::Paragraph(Paragraph {
                     content: vec![InlineContent::String(text.borrow().clone())],
@@ -428,7 +428,7 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
         // and unwrapping from `Vec<BlockContent>` to `Vec<InlineContent>`.
         if !text.borrow().is_empty() {
             if context.decode_text_as_markdown {
-                md::decode_fragment(&text.borrow()).to_vec_inline_content()
+                md::decode_fragment(&text.borrow(), None).to_inlines()
             } else {
                 vec![InlineContent::String(text.borrow().clone())]
             }
@@ -557,19 +557,19 @@ fn collect_text(node: &NodeRef) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_content;
+    use crate::utils::tests::snapshot_fixtures;
     use insta::assert_json_snapshot;
 
     #[test]
     fn html_articles() {
-        snapshot_content("articles/*.html", |_path, content| {
+        snapshot_fixtures("articles/*.html", |_path, content| {
             assert_json_snapshot!(decode(&content, false).expect("Unable to decode HTML"));
         });
     }
 
     #[test]
     fn html_fragments() {
-        snapshot_content("fragments/html/*.html", |_path, content| {
+        snapshot_fixtures("fragments/html/*.html", |_path, content| {
             assert_json_snapshot!(decode_fragment(&content, false));
         });
     }

@@ -1,7 +1,7 @@
 use crate::{
     documents::DOCUMENTS,
     graphs::{relations, resources, Relation, Resource, NULL_RANGE},
-    traits::ToVecBlockContent,
+    methods::transform::Transform,
     utils::{hash::str_sha256_hex, path::merge, uuids},
 };
 use async_trait::async_trait;
@@ -575,10 +575,7 @@ impl Compile for Include {
         let path = merge(&context.path, &self.source);
         let format = self.media_type.as_deref().cloned();
         let document = DOCUMENTS.open(&path, format).await?;
-        self.content = document
-            .root
-            .as_ref()
-            .map(|root| root.to_vec_block_content());
+        self.content = document.root.as_ref().map(|root| root.to_blocks());
         //self.sha256 = Some(Box::new(document.sha256()?));
 
         let object = resources::file(&path);

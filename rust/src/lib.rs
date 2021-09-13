@@ -32,6 +32,8 @@ pub mod methods {
     #[cfg(feature = "coerce")]
     pub mod coerce;
 
+    pub mod transform;
+
     #[cfg(feature = "reshape")]
     pub mod reshape;
 
@@ -46,18 +48,6 @@ pub mod methods {
 pub mod macros {
     mod dispatch_enums;
     pub use dispatch_enums::*;
-}
-
-// Traits
-//
-// Helper traits for `Node` structs and vectors are useful across
-// methods and elsewhere
-
-pub mod traits {
-    mod to_vec_inline_content;
-    pub use to_vec_inline_content::*;
-    mod to_vec_block_content;
-    pub use to_vec_block_content::*;
 }
 
 // Features

@@ -22,16 +22,21 @@ use stencila_schema::{self, Node, Object, Primitive};
 /// - when deserializing the result from delegating a method
 ///   to a peer or plugin
 /// - when decoding the YAML header of a Markdown document
-pub fn coerce(value: JsonValue) -> Result<Node> {
-    if let JsonValue::Object(object) = &value {
-        if object.contains_key("type") {
-            if let JsonValue::String(type_) = &object["type"].clone() {
-                let mut value = value;
-                coerce_to_type(&mut value, type_);
-                let node = serde_json::from_value(value)?;
-                return Ok(node);
-            }
-        }
+pub fn coerce(value: JsonValue, type_: Option<String>) -> Result<Node> {
+    let type_ = if type_.is_some() {
+        type_
+    } else {
+        value
+            .get("type")
+            .and_then(|value| value.as_str())
+            .map(|type_| type_.to_string())
+    };
+
+    if let Some(type_) = type_ {
+        let mut value = value;
+        coerce_to_type(&mut value, &type_);
+        let node = serde_json::from_value(value)?;
+        return Ok(node);
     }
 
     Ok(match coerce_to_primitive(value) {
@@ -730,7 +735,7 @@ fn valid_for_all_of(value: &JsonValue, schemas: &[JsonSchema]) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_content;
+    use crate::utils::tests::snapshot_fixtures;
     use insta::assert_json_snapshot;
     use pretty_assertions::assert_eq;
 
@@ -911,9 +916,9 @@ mod tests {
 
     #[test]
     fn coerce_yaml_articles() {
-        snapshot_content("articles/coerce-*.yaml", |_path, content| {
+        snapshot_fixtures("articles/coerce-*.yaml", |_path, content| {
             let value = serde_yaml::from_str(&content).expect("Unable to deserialize YAML");
-            let node = coerce(value).expect("Unable to coerce");
+            let node = coerce(value, None).expect("Unable to coerce");
             assert!(matches!(node, Node::Article(_)));
             assert_json_snapshot!(node);
         });
