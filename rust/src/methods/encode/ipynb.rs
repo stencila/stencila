@@ -1,4 +1,5 @@
 use eyre::{bail, Result};
+use serde::Serialize;
 use serde_json::json;
 use std::collections::HashMap;
 use stencila_schema::{
@@ -12,7 +13,8 @@ use super::md::ToMd;
 /// Encode a `Node` to a Jupyter Notebook.
 ///
 /// Note that the order of properties in various JSON objects is
-/// consistent with Jupyter and other tools.
+/// consistent with Jupyter and other tools. Also, the JSON is
+/// pretty printed with a one space indentation.
 pub fn encode(node: &Node) -> Result<String> {
     let article = match node {
         Node::Article(article) => article,
@@ -26,7 +28,11 @@ pub fn encode(node: &Node) -> Result<String> {
         "nbformat_minor": 5
     });
 
-    let json = serde_json::to_string_pretty(&notebook)?;
+    let buffer = Vec::new();
+    let formatter = serde_json::ser::PrettyFormatter::with_indent(b" ");
+    let mut serializer = serde_json::Serializer::with_formatter(buffer, formatter);
+    notebook.serialize(&mut serializer).unwrap();
+    let json = String::from_utf8(serializer.into_inner())?;
 
     Ok(json)
 }
