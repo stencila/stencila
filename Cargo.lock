@@ -4039,7 +4039,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
 name = "stencila"
-version = "0.116.1"
+version = "0.117.0"
 dependencies = [
  "Inflector",
  "ansi_term 0.12.1",
@@ -4137,7 +4137,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.116.1"
+version = "0.117.0"
 dependencies = [
  "ansi_term 0.12.1",
  "atty",
@@ -4155,7 +4155,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.116.1"
+version = "0.117.0"
 dependencies = [
  "neon",
  "stencila",
@@ -4636,9 +4636,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-core"
-version = "0.1.19"
+version = "0.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ca517f43f0fb96e0c3072ed5c275fe5eece87e8cb52f4a77b69226d3b1c9df8"
+checksum = "46125608c26121c81b0c6d693eab5a420e416da7e43c426d2e8f7df8da8a3acf"
 dependencies = [
  "lazy_static",
 ]

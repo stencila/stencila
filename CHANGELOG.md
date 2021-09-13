@@ -1,3 +1,26 @@
+# [0.117.0](https://github.com/stencila/stencila/compare/v0.116.1...v0.117.0) (2021-09-13)
+
+
+### Bug Fixes
+
+* **IPYNB Encoding:** Encode article metadata ([0712026](https://github.com/stencila/stencila/commit/071202659d1645e284c5fbb2ff98f2823f4b9b6b))
+* **IPYNB Encoding:** Encode image outputs ([00e3da2](https://github.com/stencila/stencila/commit/00e3da2ebdb73eae57a46391e1bb3a2bbf977edd))
+* **IPYNB Encoding:** Indent using one space ([57bd63f](https://github.com/stencila/stencila/commit/57bd63f8b122ea9f73aac9cfe9ade3b2f88133a6))
+* **Markdown:** Remove dollar-brace code expression syntax due to clash with math syntax ([a17580b](https://github.com/stencila/stencila/commit/a17580b1bb7a1bfaa5ac64d3710bf7c978ba8dfa))
+* **Markdown & IPYNB:** Allow default language to be supplied ([64229e5](https://github.com/stencila/stencila/commit/64229e5b85c42008ba906ab274ecac3026f5310d))
+
+
+### Features
+
+* **IPYNB:** Add decoding and encoding of Jupyter Notebooks ([4ee5129](https://github.com/stencila/stencila/commit/4ee5129dffb41f8630a0a6b5507c467833ca942c))
+* **IPYNB:** Add encoding of Jupyter notebooks ([5fe7ed9](https://github.com/stencila/stencila/commit/5fe7ed9d3dbf9f1ff1fd72f676cf357f757ec26f))
+* **IPYNB:** Convert pre-formatted text output to `CodeBlock` ([31d7b63](https://github.com/stencila/stencila/commit/31d7b633414681d80325df0224d8e90a0da8d156))
+* **IPYNB:** Convert stderr streams and errors into `CodeError`s ([ca59335](https://github.com/stencila/stencila/commit/ca59335c12fc2f764a9a4ed7d58d10a9dadc0345))
+* **IPYNB:** Decode plain text cell outputs into nodes where possible ([231341c](https://github.com/stencila/stencila/commit/231341c1fba8ce9b4d6392b0721b9690054d0d3d))
+* **IPYNB:** Handle Plotly and Vega outputs ([5c2d090](https://github.com/stencila/stencila/commit/5c2d090a4de92c22f6388bea116227fa8ad9d858))
+* **IPYNB:** Handle top level metadata in notebook ([f4491f6](https://github.com/stencila/stencila/commit/f4491f6cdb7ef35ae0136634876529b5e964b9c4))
+* **MD, IPYNB:** Support syntax for inline code nodes ([eccf426](https://github.com/stencila/stencila/commit/eccf4260b739fca18b04eb4e7120003ac379892c))
+
 ## [0.116.1](https://github.com/stencila/stencila/compare/v0.116.0...v0.116.1) (2021-09-12)
 
 
