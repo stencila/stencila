@@ -507,7 +507,24 @@ input_file: fixtures/articles/kitchen-sink.ipynb
       }
     }
   ],
-  "metadata": {},
+  "metadata": {
+    "authors": [
+      {
+        "type": "Person",
+        "emails": [
+          "nokome@stenci.la"
+        ],
+        "familyNames": [
+          "Bentley"
+        ],
+        "givenNames": [
+          "Nokome"
+        ],
+        "name": "Nokome Bentley"
+      }
+    ],
+    "title": "Kitchen sink Jupyter Notebook test fixture"
+  },
   "nbformat": 4,
   "nbformat_minor": 5
 }

@@ -3,7 +3,8 @@ use serde::Serialize;
 use serde_json::json;
 use std::collections::HashMap;
 use stencila_schema::{
-    Article, BlockContent, CodeBlock, CodeChunk, CodeChunkCaption, ImageObject, Node,
+    Article, BlockContent, CodeBlock, CodeChunk, CodeChunkCaption, CreativeWorkAuthors,
+    CreativeWorkTitle, ImageObject, Node, Person,
 };
 
 use crate::methods::encode::txt::ToTxt;
@@ -37,9 +38,75 @@ pub fn encode(node: &Node) -> Result<String> {
     Ok(json)
 }
 
-/// Encode various `Article` properties as a JSON object
-fn encode_metadata(article: &Article) -> HashMap<String, serde_json::Value> {
-    HashMap::new()
+/// Encode `Article` properties, other than `content` as a JSON object
+///
+/// The nbformat-v4 schema requires that `title` be a string
+/// and that `authors` be an array of objects with a `name` string
+/// property (and optional additional properties). This function
+/// conforms to those requirements.
+fn encode_metadata(article: &Article) -> serde_json::Value {
+    let mut metadata = serde_json::to_value(article).expect("Should serialize");
+    let object = metadata.as_object_mut().expect("Should be object");
+    object.remove("type");
+    object.remove("content");
+
+    if let Some(title) = article.title.as_deref() {
+        let title = match title {
+            CreativeWorkTitle::String(string) => string.clone(),
+            CreativeWorkTitle::VecInlineContent(inlines) => inlines.to_txt(),
+        };
+        object.insert("title".to_string(), json!(title));
+    }
+
+    if let Some(authors) = article.authors.as_ref() {
+        let authors = authors
+            .iter()
+            .map(|author| {
+                let name = match author {
+                    CreativeWorkAuthors::Person(person) => {
+                        let Person {
+                            name,
+                            given_names,
+                            family_names,
+                            ..
+                        } = person;
+                        if let Some(name) = name.as_deref() {
+                            name.clone()
+                        } else {
+                            [
+                                &given_names
+                                    .as_ref()
+                                    .map(|names| names.join(" "))
+                                    .unwrap_or_default(),
+                                " ",
+                                &family_names
+                                    .as_ref()
+                                    .map(|names| names.join(" "))
+                                    .unwrap_or_default(),
+                            ]
+                            .concat()
+                            .trim()
+                            .to_string()
+                        }
+                    }
+                    CreativeWorkAuthors::Organization(org) => {
+                        if let Some(name) = org.name.as_deref() {
+                            name.clone()
+                        } else {
+                            "Unnamed".to_string()
+                        }
+                    }
+                };
+                let mut value = serde_json::to_value(author).expect("Should serialize");
+                let object = value.as_object_mut().expect("Should be object");
+                object.insert("name".to_string(), json!(name));
+                value
+            })
+            .collect::<Vec<serde_json::Value>>();
+        object.insert("authors".to_string(), json!(authors));
+    }
+
+    metadata
 }
 
 /// Encode a `Article`'s content as a vector of Jupyter cells
