@@ -778,6 +778,45 @@ export type Error =
       message: string
     }
   | {
+      type: 'NotSame'
+      message: string
+      [k: string]: unknown
+    }
+  | {
+      type: 'NotEqual'
+      message: string
+      [k: string]: unknown
+    }
+  | {
+      type: 'InvalidPatchOperation'
+      op: string
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidPatchAddress'
+      address: string
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidPatchName'
+      name: string
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidPatchIndex'
+      index: number
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidPatchValue'
+      type_name: string
+      message: string
+    }
+  | {
       type: 'UnknownFormat'
       format: string
       message: string

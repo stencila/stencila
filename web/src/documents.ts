@@ -40,7 +40,7 @@ export type DocumentEvent =
  * document is executed.
  */
 export interface NodeExecute {
-  id: NodeId
+  nodeId: NodeId
   value?: NodeValue
 }
 
@@ -49,7 +49,7 @@ export interface NodeExecute {
  * document is changed by the user.
  */
 export interface NodeValueChanged {
-  id: NodeId
+  nodeId: NodeId
   value: NodeValue
 }
 
@@ -76,7 +76,7 @@ export async function close(
   documentId: DocumentId
 ): Promise<Document> {
   return client.call('documents.close', {
-    id: documentId,
+    documentId,
   }) as Promise<Document>
 }
 
@@ -103,7 +103,7 @@ export async function subscribe(
 ): Promise<Document> {
   client.on(`document:${documentId}:${topic}`, handler)
   return client.call('documents.subscribe', {
-    id: documentId,
+    documentId,
     topic,
   }) as Promise<Document>
 }
@@ -118,7 +118,7 @@ export async function unsubscribe(
 ): Promise<Document> {
   client.off(`document:${documentId}:${topic}`)
   return client.call('documents.unsubscribe', {
-    id: documentId,
+    documentId,
     topic,
   }) as Promise<Document>
 }
@@ -133,8 +133,8 @@ export async function change(
   nodeValue: NodeValue
 ): Promise<Document> {
   return client.call('documents.change', {
-    id: documentId,
-    node: nodeId,
+    documentId,
+    nodeId,
     value: nodeValue,
   }) as Promise<Document>
 }
@@ -151,8 +151,8 @@ export async function execute(
   nodeValue?: NodeValue
 ): Promise<Document> {
   return client.call('documents.execute', {
-    id: documentId,
-    node: nodeId,
+    documentId,
+    nodeId,
     value: nodeValue,
   }) as Promise<Document>
 }
