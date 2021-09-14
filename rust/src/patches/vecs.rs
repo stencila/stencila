@@ -88,7 +88,7 @@ where
                             Operation::Remove { address, items, .. } => {
                                 if address.len() == 1 {
                                     shift += *items as i32;
-                                    let remove_index = if let Key::Index(remove_index) = address[0]
+                                    let remove_index = if let Slot::Index(remove_index) = address[0]
                                     {
                                         remove_index
                                     } else {
@@ -302,7 +302,7 @@ where
 
     fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
         if address.len() == 1 {
-            if let Some(Key::Index(index)) = address.pop_front() {
+            if let Some(Slot::Index(index)) = address.pop_front() {
                 let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
                     value
                 } else {
@@ -312,7 +312,7 @@ where
             } else {
                 invalid_address!(address)
             }
-        } else if let Some(Key::Index(index)) = address.pop_front() {
+        } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
                 item.apply_add(address, value);
             } else {
@@ -325,12 +325,12 @@ where
 
     fn apply_remove(&mut self, address: &mut Address, items: usize) {
         if address.len() == 1 {
-            if let Some(Key::Index(index)) = address.pop_front() {
+            if let Some(Slot::Index(index)) = address.pop_front() {
                 *self = [&self[..index], &self[(index + items)..]].concat().to_vec();
             } else {
                 invalid_address!(address)
             }
-        } else if let Some(Key::Index(index)) = address.pop_front() {
+        } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
                 item.apply_remove(address, items);
             } else {
@@ -348,14 +348,14 @@ where
             } else {
                 return invalid_value!();
             };
-            if let Some(Key::Index(index)) = address.pop_front() {
+            if let Some(Slot::Index(index)) = address.pop_front() {
                 *self = [&self[..index], value, &self[(index + items)..]]
                     .concat()
                     .to_vec();
             } else {
                 invalid_address!(address)
             }
-        } else if let Some(Key::Index(index)) = address.pop_front() {
+        } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
                 item.apply_replace(address, items, value);
             } else {
@@ -368,7 +368,7 @@ where
 
     fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
         if from.len() == 1 {
-            if let (Some(Key::Index(from)), Some(Key::Index(to))) =
+            if let (Some(Slot::Index(from)), Some(Slot::Index(to))) =
                 (from.pop_front(), to.pop_front())
             {
                 *self = if from < to {
@@ -391,7 +391,7 @@ where
             } else {
                 invalid_address!(from)
             }
-        } else if let Some(Key::Index(index)) = from.pop_front() {
+        } else if let Some(Slot::Index(index)) = from.pop_front() {
             if let Some(item) = self.get_mut(index) {
                 item.apply_move(from, items, to);
             } else {
@@ -404,7 +404,7 @@ where
 
     fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
         if address.len() == 1 {
-            if let Some(Key::Index(index)) = address.pop_front() {
+            if let Some(Slot::Index(index)) = address.pop_front() {
                 if let Some(item) = self.get_mut(index) {
                     item.apply_transform(address, from, to);
                 } else {

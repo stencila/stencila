@@ -115,7 +115,7 @@ impl Patchable for String {
             return invalid_value!();
         };
 
-        if let Some(Key::Index(index)) = address.pop_front() {
+        if let Some(Slot::Index(index)) = address.pop_front() {
             let chars: Vec<char> = self.chars().collect();
             let chars = [
                 &chars[..index],
@@ -130,7 +130,7 @@ impl Patchable for String {
     }
 
     fn apply_remove(&mut self, address: &mut Address, items: usize) {
-        if let Some(Key::Index(index)) = address.pop_front() {
+        if let Some(Slot::Index(index)) = address.pop_front() {
             let chars: Vec<char> = self.chars().collect();
             let chars = [&chars[..index], &chars[(index + items)..]].concat();
             *self = chars.into_iter().collect();
@@ -148,7 +148,7 @@ impl Patchable for String {
 
         if address.is_empty() {
             *self = value.clone();
-        } else if let Some(Key::Index(index)) = address.pop_front() {
+        } else if let Some(Slot::Index(index)) = address.pop_front() {
             let chars: Vec<char> = self.chars().collect();
             let chars = [
                 &chars[..index],
