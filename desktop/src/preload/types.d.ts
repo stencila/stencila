@@ -178,6 +178,11 @@ export type ProjectsGraph = InvokeType<
   typeof dispatch.projects.graph
 >
 
+export type ProjectsUnsubscribe = InvokeType<
+  typeof CHANNEL.PROJECTS_UNSUBSCRIBE,
+  typeof dispatch.projects.unsubscribe
+>
+
 // Documents
 export type DocumentsOpen = InvokeType<
   typeof CHANNEL.DOCUMENTS_OPEN,
@@ -276,6 +281,7 @@ type InvokeTypes =
   | ProjectsOpen
   | ProjectsWrite
   | ProjectsGraph
+  | ProjectsUnsubscribe
   | DocumentsOpen
   | DocumentsAlter
   | DocumentsCreate
@@ -437,6 +443,11 @@ interface Invoke {
     channel: ProjectsGraph['channel'],
     ...args: ProjectsGraph['args']
   ): ProjectsGraph['result']
+
+  invoke(
+    channel: ProjectsUnsubscribe['channel'],
+    ...args: ProjectsUnsubscribe['args']
+  ): ProjectsUnsubscribe['result']
 
   // Documents
   invoke(

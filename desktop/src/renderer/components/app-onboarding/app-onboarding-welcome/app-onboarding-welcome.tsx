@@ -19,7 +19,7 @@ export class AppOnboardingWelcome {
 
         <p>{i18n.t('onboarding.welcome.explanation')}</p>
 
-        <stencila-button {...href('/onboarding/plugins', OnboardingRouter)}>
+        <stencila-button {...href('/onboarding/reporting', OnboardingRouter)}>
           {i18n.t('onboarding.welcome.next')}
         </stencila-button>
       </div>

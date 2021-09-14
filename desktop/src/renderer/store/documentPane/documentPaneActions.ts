@@ -126,6 +126,11 @@ export const closeDocument = (paneId: EntityId, docId: EntityId) => {
   // This isn't currently a problem as we don't support opening the same document
   // in multiple panes.
   clearEditorState(docId)
+
+  return client.documents.unsubscribe({
+    documentId: docId,
+    topics: ['modified'],
+  })
 }
 
 export const setActiveDocument = (paneId: EntityId, docId: EntityId) => {

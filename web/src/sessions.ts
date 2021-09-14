@@ -15,8 +15,8 @@ export async function start(
   snapshotId: SnapshotId
 ): Promise<Session> {
   return client.call('sessions.start', {
-    project: projectId,
-    snapshot: snapshotId,
+    projectId,
+    snapshotId,
   }) as Promise<Session>
 }
 
@@ -28,7 +28,7 @@ export async function stop(
   sessionId: SessionId
 ): Promise<Session> {
   return client.call('sessions.stop', {
-    id: sessionId,
+    sessionId,
   }) as Promise<Session>
 }
 
@@ -63,7 +63,7 @@ export async function subscribe(
 ): Promise<Session> {
   client.on(`sessions:${sessionId}:${topic}`, handler)
   return client.call('sessions.subscribe', {
-    id: sessionId,
+    sessionId,
     topic,
   }) as Promise<Session>
 }
@@ -80,7 +80,7 @@ export async function unsubscribe(
 ): Promise<Session> {
   client.off(`sessions:${sessionId}:${topic}`)
   return client.call('sessions.unsubscribe', {
-    id: sessionId,
+    sessionId,
     topic,
   }) as Promise<Session>
 }
