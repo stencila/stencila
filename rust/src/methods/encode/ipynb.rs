@@ -126,7 +126,7 @@ fn encode_content(content: &Option<Vec<BlockContent>>) -> Vec<serde_json::Value>
                     cells.push(encode_markdown(&content));
                     content.clear()
                 }
-                cells.push(encode_chunk(&chunk));
+                cells.push(encode_chunk(chunk));
             }
             _ => content.push(block.clone()),
         }
@@ -202,7 +202,7 @@ fn encode_outputs(nodes: &[Node]) -> Vec<serde_json::Value> {
 }
 
 /// Encode a `String` as a Jupyter `Stream`.
-fn encode_stream(text: &String) -> serde_json::Value {
+fn encode_stream(text: &str) -> serde_json::Value {
     json!({
         "output_type": "stream",
         "name": "stdout",
