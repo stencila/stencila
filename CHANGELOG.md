@@ -1,3 +1,20 @@
+# [0.118.0](https://github.com/stencila/stencila/compare/v0.117.0...v0.118.0) (2021-09-14)
+
+
+### Bug Fixes
+
+* **Documents:** Make serialization of relations more robust and less lossy ([018ad39](https://github.com/stencila/stencila/commit/018ad3992cd3b8de3119f7eb81cf6ee0cbf0a564)), closes [#1118](https://github.com/stencila/stencila/issues/1118)
+
+
+### Features
+
+* **Plugins:** Remove mention of Plugins from desktop client ([871f7a6](https://github.com/stencila/stencila/commit/871f7a6c289258c2784e5718b8776340debad177)), closes [#1137](https://github.com/stencila/stencila/issues/1137)
+
+
+### Performance Improvements
+
+* **Graph:** Remove Graph update listeners when closing Graph view ([e96d02d](https://github.com/stencila/stencila/commit/e96d02d4ab325cfea39771bd5cfe0bc868053729))
+
 # [0.117.0](https://github.com/stencila/stencila/compare/v0.116.1...v0.117.0) (2021-09-13)
 
 
