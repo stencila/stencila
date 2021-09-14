@@ -236,15 +236,15 @@ impl Error {
 // missing or of the wrong type, and converting returned values to JSON.
 
 async fn sessions_start(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let project = required_string(params, "project")?;
-    let snapshot = required_string(params, "snapshot")?;
+    let project = required_string(params, "projectId")?;
+    let snapshot = required_string(params, "snapshotId")?;
 
     let session = SESSIONS.start(&project, &snapshot).await?;
     Ok((json!(session), Subscription::None))
 }
 
 async fn sessions_stop(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "id")?;
+    let id = required_string(params, "sessionId")?;
 
     let session = SESSIONS.stop(&id).await?;
     Ok((json!(session), Subscription::None))
@@ -254,7 +254,7 @@ async fn sessions_subscribe(
     params: &Params,
     client: &str,
 ) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "id")?;
+    let id = required_string(params, "sessionId")?;
     let topic = required_string(params, "topic")?;
 
     let (session, topic) = SESSIONS.subscribe(&id, &topic, client).await?;
@@ -265,7 +265,7 @@ async fn sessions_unsubscribe(
     params: &Params,
     client: &str,
 ) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "id")?;
+    let id = required_string(params, "sessionId")?;
     let topic = required_string(params, "topic")?;
 
     let (session, topic) = SESSIONS.unsubscribe(&id, &topic, client).await?;
@@ -280,7 +280,7 @@ async fn documents_open(params: &Params) -> Result<(serde_json::Value, Subscript
 }
 
 async fn documents_close(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "id")?;
+    let id = required_string(params, "documentId")?;
 
     let document = DOCUMENTS.close(&id).await?;
     Ok((json!(document), Subscription::None))
@@ -290,7 +290,7 @@ async fn documents_subscribe(
     params: &Params,
     client: &str,
 ) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "id")?;
+    let id = required_string(params, "documentId")?;
     let topic = required_string(params, "topic")?;
 
     let (document, topic) = DOCUMENTS.subscribe(&id, &topic, client).await?;
@@ -301,7 +301,7 @@ async fn documents_unsubscribe(
     params: &Params,
     client: &str,
 ) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "id")?;
+    let id = required_string(params, "documentId")?;
     let topic = required_string(params, "topic")?;
 
     let (document, topic) = DOCUMENTS.unsubscribe(&id, &topic, client).await?;
@@ -309,8 +309,8 @@ async fn documents_unsubscribe(
 }
 
 async fn documents_change(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "id")?;
-    let node = required_string(params, "node")?;
+    let id = required_string(params, "documentId")?;
+    let node = required_string(params, "nodeId")?;
     let value = required_value(params, "value")?;
 
     let document = DOCUMENTS.change(&id, &node, value).await?;
@@ -318,8 +318,8 @@ async fn documents_change(params: &Params) -> Result<(serde_json::Value, Subscri
 }
 
 async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
-    let id = required_string(params, "id")?;
-    let node = required_string(params, "node")?;
+    let id = required_string(params, "documentId")?;
+    let node = required_string(params, "nodeId")?;
     let value = optional_value(params, "value");
 
     let document = DOCUMENTS.execute(&id, &node, value).await?;
