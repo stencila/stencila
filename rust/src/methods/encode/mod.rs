@@ -56,6 +56,13 @@ pub mod yaml;
 /// Futhermore, some combinations of options are ineffectual e.g. a `theme` when `standalone: false`
 #[derive(Clone, Debug, Defaults)]
 pub struct Options {
+    /// Whether to encode in compact form.
+    ///
+    /// Some formats (e.g HTML and JSON) can be encoded in either compact
+    /// or "pretty-printed" ie.e. indented forms.
+    #[def = "true"]
+    pub compact: bool,
+
     /// Whether to ensure that the encoded document is standalone.
     ///
     /// Some formats (e.g. Markdown, DOCX) are always standalone, others
@@ -74,8 +81,6 @@ pub struct Options {
     /// The theme to apply to the encoded document
     ///
     /// Only applies to some formats (e.g. HTML, PDF, PNG).
-    /// Other formats use this option to determine if content is "pretty" printed
-    /// by indenting it (e.g. JSON).
     #[def = "\"stencila\".to_string()"]
     pub theme: String,
 }
