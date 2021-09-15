@@ -140,7 +140,7 @@ where
 pub enum Slot {
     Index(usize),
     Name(String),
-    None
+    None,
 }
 
 /// A double ended queue of `Slot`s.
