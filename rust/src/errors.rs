@@ -98,7 +98,7 @@ pub enum Error {
 }
 
 /// Create an `InvalidSlotType` error
-pub fn invalid_slot_variant<Type>(variant: &str, object: Type) -> Error {
+pub fn invalid_slot_variant<Type>(variant: &str, _object: Type) -> Error {
     Error::InvalidSlotVariant {
         variant: variant.into(),
         type_name: type_name::<Type>().into(),
@@ -106,7 +106,7 @@ pub fn invalid_slot_variant<Type>(variant: &str, object: Type) -> Error {
 }
 
 /// Create an `InvalidSlotName` error
-pub fn invalid_slot_name<Type>(name: &str, object: Type) -> Error {
+pub fn invalid_slot_name<Type>(name: &str, _object: Type) -> Error {
     Error::InvalidSlotName {
         name: name.into(),
         type_name: type_name::<Type>().into(),
@@ -114,7 +114,7 @@ pub fn invalid_slot_name<Type>(name: &str, object: Type) -> Error {
 }
 
 /// Create an `InvalidSlotIndex` error
-pub fn invalid_slot_index<Type>(index: usize, object: Type) -> Error {
+pub fn invalid_slot_index<Type>(index: usize, _object: Type) -> Error {
     Error::InvalidSlotIndex {
         index,
         type_name: type_name::<Type>().into(),
