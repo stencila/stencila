@@ -35,7 +35,7 @@ pub async fn encode_to_pngs(nodes: &[&Node], options: Option<Options>) -> Result
 
     // Wrap the HTML with a header etc so that the theme is set and CSS is loaded
     let Options { theme, .. } = options.unwrap_or_default();
-    let html = html::wrap_standalone(&html, &theme);
+    let html = html::wrap_standalone("PNG", &theme, &html);
 
     // Launch the browser
     let chrome = binaries::require("chrome", "*").await?;

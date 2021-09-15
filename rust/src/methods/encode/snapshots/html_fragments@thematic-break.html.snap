@@ -1,0 +1,27 @@
+---
+source: rust/src/methods/encode/html.rs
+expression: encoded
+input_file: fixtures/fragments/html/thematic-break.html
+
+---
+<article slot="root" itemtype="https://schema.org/Article" itemscope>
+  <div slot="content">
+    <p slot="0" itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">
+        <span slot="0">First theme.</span>
+      </span>
+    </p>
+    <hr slot="1" itemtype="https://stenci.la/ThematicBreak" itemscope/>
+    <p slot="2" itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">
+        <span slot="0">Second theme.</span>
+      </span>
+    </p>
+    <hr slot="3" itemtype="https://stenci.la/ThematicBreak" itemscope/>
+    <p slot="4" itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">
+        <span slot="0">Third theme.</span>
+      </span>
+    </p>
+  </div>
+</article>

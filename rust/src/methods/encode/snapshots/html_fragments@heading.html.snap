@@ -1,0 +1,50 @@
+---
+source: rust/src/methods/encode/html.rs
+expression: encoded
+input_file: fixtures/fragments/html/heading.html
+
+---
+<article slot="root" itemtype="https://schema.org/Article" itemscope>
+  <div slot="content">
+    <h2 slot="0" itemtype="https://stenci.la/Heading" itemscope>
+      <span slot="content">
+        <span slot="0">Title of document</span>
+      </span>
+    </h2>
+    <p slot="1" itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">
+        <span slot="0">The h1 tag is reserved for single use by the title. So a heading of depth 1 uses h2 etc</span>
+      </span>
+    </p>
+    <h2 slot="2" itemtype="https://stenci.la/Heading" itemscope>
+      <span slot="content">
+        <span slot="0">Heading 1</span>
+      </span>
+    </h2>
+    <h3 slot="3" itemtype="https://stenci.la/Heading" itemscope>
+      <span slot="content">
+        <span slot="0">Heading 2</span>
+      </span>
+    </h3>
+    <h4 slot="4" itemtype="https://stenci.la/Heading" itemscope>
+      <span slot="content">
+        <span slot="0">Heading 3</span>
+      </span>
+    </h4>
+    <h5 slot="5" itemtype="https://stenci.la/Heading" itemscope>
+      <span slot="content">
+        <span slot="0">Heading 4</span>
+      </span>
+    </h5>
+    <h6 slot="6" itemtype="https://stenci.la/Heading" itemscope>
+      <span slot="content">
+        <span slot="0">Heading 5</span>
+      </span>
+    </h6>
+    <h2 slot="7" itemtype="https://stenci.la/Heading" itemscope id="heading-with-an-id">
+      <span slot="content">
+        <span slot="0">Heading with an id</span>
+      </span>
+    </h2>
+  </div>
+</article>

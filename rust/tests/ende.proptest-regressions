@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 6b861fb8c7329fd3332a3d5fd471db67cb97bcb117ef5abf58b277efe7b5f713 # shrinks to chunk = CodeChunk(CodeChunk { type_: CodeChunk, programming_language: "`'𐬐ඍ*+f", text: "*7/03᠐P\u{9e2}￣\u{bc0}\u{b3e}{..cÅ$<d¥𐋊ൾ𑘗\"ਆ", caption: None, compile_digest: None, duration: None, errors: None, execute_digest: None, id: None, label: None, media_type: None, outputs: None })

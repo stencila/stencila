@@ -1,0 +1,20 @@
+---
+source: rust/src/methods/encode/html.rs
+expression: encoded
+input_file: fixtures/fragments/html/non-textual-annotation.html
+
+---
+<article slot="root" itemtype="https://schema.org/Article" itemscope>
+  <div slot="content">
+    <p slot="0" itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">
+        <span slot="0">Nontextual annotations like</span>
+        <u slot="1" itemtype="https://stenci.la/NontextualAnnotation" itemscope>
+          <span slot="content">
+            <span slot="0">this</span>
+          </span>
+        </u>
+      </span>
+    </p>
+  </div>
+</article>
