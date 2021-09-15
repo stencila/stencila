@@ -14,6 +14,7 @@ use std::{
     iter::FromIterator,
 };
 use stencila_schema::{BlockContent, Boolean, InlineContent, Integer, Node, Number};
+use strum::ToString;
 
 /// Are two nodes are the same type and value?
 pub fn same<Type1, Type2>(node1: &Type1, node2: &Type2) -> bool
@@ -118,24 +119,28 @@ where
 /// A slot used to locate an operation within a `Node` tree.
 ///
 /// Slots can be used to identify a part of a larger object.
-/// The `Slot:Name` variant can be used to identify:
+/// The `Name` variant can be used to identify:
 ///
 /// - the property name of a `struct`
 /// - the key of a `HashMap<String, ...>`
 ///
-/// The `Slot:Integer` variant can be used to identify:
+/// The `Integer` variant can be used to identify:
 ///
 /// - the index of a `Vec`
 /// - the index of a Unicode character in a `String`
 ///
+/// The `None` variant is used in places where a `Slot` is required
+/// but none applies to the particular type or use case.
+///
 /// In contrast to JSON Patch, which uses a [JSON Pointer](http://tools.ietf.org/html/rfc6901)
 /// to describe the location of additions and removals, slots offer improved performance and
 /// type safety.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToString)]
 #[serde(untagged)]
 pub enum Slot {
     Index(usize),
     Name(String),
+    None
 }
 
 /// A double ended queue of `Slot`s.
@@ -415,7 +420,7 @@ macro_rules! invalid_address {
 
 macro_rules! invalid_name {
     ($name:expr) => {
-        report(Error::InvalidPatchName {
+        report(Error::InvalidSlotName {
             name: $name.into(),
             type_name: type_name::<Self>().into(),
         })
@@ -424,7 +429,7 @@ macro_rules! invalid_name {
 
 macro_rules! invalid_index {
     ($index:expr) => {
-        report(Error::InvalidPatchIndex {
+        report(Error::InvalidSlotIndex {
             index: $index.into(),
             type_name: type_name::<Self>().into(),
         })

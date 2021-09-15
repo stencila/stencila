@@ -4,6 +4,7 @@ use once_cell::sync::Lazy;
 use schemars::{gen::SchemaSettings, JsonSchema};
 use serde::Serialize;
 use std::{
+    any::type_name,
     collections::HashMap,
     sync::{atomic::AtomicBool, Mutex},
 };
@@ -38,20 +39,25 @@ pub enum Error {
     #[error("Invalid patch operation '{op}' for type '{type_name}'")]
     InvalidPatchOperation { op: String, type_name: String },
 
-    /// The user attempted to apply a patch operation with and invalid
+    /// The user attempted to apply a patch operation with an invalid
     /// address for the type.
     #[error("Invalid patch address '{address}' for type '{type_name}'")]
     InvalidPatchAddress { address: String, type_name: String },
 
-    /// The user attempted to apply a patch operation with an invalid
-    /// property name for the type as part of an address.
-    #[error("Invalid patch address name '{name}' for type '{type_name}'")]
-    InvalidPatchName { name: String, type_name: String },
+    /// The user attempted to use a slot with an invalid type for the
+    /// type of the object (e.g. a `Slot::Name` on a `Vector`).
+    #[error("Invalid slot type '{variant}' for type '{type_name}'")]
+    InvalidSlotVariant { variant: String, type_name: String },
 
-    /// The user attempted to apply a patch operation with an invalid
-    /// sequence index for the type as part of an address.
+    /// The user attempted to use a slot with an invalid `Slot::Name`
+    /// for the type (e.g a key for a `HashMap` that is not occupied).
+    #[error("Invalid patch address name '{name}' for type '{type_name}'")]
+    InvalidSlotName { name: String, type_name: String },
+
+    /// The user attempted to use a slot with an invalid `Slot::Index`
+    /// for the type (e.g an index that is greater than the size of a vector).
     #[error("Invalid patch address index '{index}' for type '{type_name}'")]
-    InvalidPatchIndex { index: usize, type_name: String },
+    InvalidSlotIndex { index: usize, type_name: String },
 
     /// The user attempted to apply a patch operation with an invalid
     /// value for the type.
@@ -89,6 +95,30 @@ pub enum Error {
     /// An error of unspecified type
     #[error("{message}")]
     Unspecified { message: String },
+}
+
+/// Create an `InvalidSlotType` error
+pub fn invalid_slot_variant<Type>(variant: &str, object: Type) -> Error {
+    Error::InvalidSlotVariant {
+        variant: variant.into(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidSlotName` error
+pub fn invalid_slot_name<Type>(name: &str, object: Type) -> Error {
+    Error::InvalidSlotName {
+        name: name.into(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidSlotIndex` error
+pub fn invalid_slot_index<Type>(index: usize, object: Type) -> Error {
+    Error::InvalidSlotIndex {
+        index,
+        type_name: type_name::<Type>().into(),
+    }
 }
 
 /// A global stack of errors that can be used have "sideband" errors i.e. those that
