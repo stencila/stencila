@@ -273,62 +273,56 @@ fn affiliation_org_to_html(org: &Organization) -> String {
     ["<li>", &name, "</li>"].concat()
 }
 
-// For media objects, because their simple versions generate inline HTML, wrap them in
-// a <main data-itemscope="root">.
-
 impl ToHtml for AudioObject {
     fn to_html(&self, slot: &str, context: &Context) -> String {
-        let simple = AudioObjectSimple {
+        AudioObjectSimple {
             content_url: self.content_url.clone(),
             ..Default::default()
         }
-        .to_html("", context);
-        ["<main data-itemscope=\"root\">", &simple, "</main>"].concat()
+        .to_html(slot, context)
     }
 }
 
 impl ToHtml for ImageObject {
     fn to_html(&self, slot: &str, context: &Context) -> String {
-        let simple = ImageObjectSimple {
+        ImageObjectSimple {
             content_url: self.content_url.clone(),
             ..Default::default()
         }
-        .to_html("", context);
-        ["<main data-itemscope=\"root\">", &simple, "</main>"].concat()
+        .to_html(slot, context)
     }
 }
 
 impl ToHtml for VideoObject {
     fn to_html(&self, slot: &str, context: &Context) -> String {
-        let simple = VideoObjectSimple {
+        VideoObjectSimple {
             media_type: self.media_type.clone(),
             content_url: self.content_url.clone(),
             ..Default::default()
         }
-        .to_html("", context);
-        ["<main data-itemscope=\"root\">", &simple, "</main>"].concat()
+        .to_html(slot, context)
     }
 }
 
 impl ToHtml for Collection {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         let Collection { parts, .. } = self;
-        let simple = CollectionSimple {
+        CollectionSimple {
             parts: parts.clone(),
             ..Default::default()
-        };
-        simple.to_html("", context)
+        }
+        .to_html(slot, context)
     }
 }
 
 impl ToHtml for Claim {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         let Claim { content, .. } = self;
-        let simple = ClaimSimple {
+        ClaimSimple {
             content: content.clone(),
             ..Default::default()
-        };
-        simple.to_html("", context)
+        }
+        .to_html(slot, context)
     }
 }
 
@@ -337,23 +331,23 @@ impl ToHtml for Figure {
         let Figure {
             caption, content, ..
         } = self;
-        let simple = FigureSimple {
+        FigureSimple {
             caption: caption.clone(),
             content: content.clone(),
             ..Default::default()
-        };
-        simple.to_html("", context)
+        }
+        .to_html(slot, context)
     }
 }
 
 impl ToHtml for Table {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         let Table { caption, rows, .. } = self;
-        let simple = TableSimple {
+        TableSimple {
             caption: caption.clone(),
             rows: rows.clone(),
             ..Default::default()
-        };
-        simple.to_html("", context)
+        }
+        .to_html(slot, context)
     }
 }
