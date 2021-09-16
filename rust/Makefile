@@ -17,7 +17,6 @@ format:
 	cargo fmt
 
 lint:
-	touch src/*.rs
 	cargo clippy
 
 test:
