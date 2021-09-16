@@ -140,7 +140,15 @@ where
 pub enum Slot {
     Index(usize),
     Name(String),
-    None,
+}
+
+impl Slot {
+    pub fn to_inner_string(&self) -> String {
+        match self {
+            Slot::Name(name) => name.clone(),
+            Slot::Index(index) => index.to_string(),
+        }
+    }
 }
 
 /// A double ended queue of `Slot`s.
@@ -188,7 +196,7 @@ fn address_concat(begin: &Address, end: &Address) -> Address {
 ///
 /// Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode
 /// characters not bytes.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToString)]
 #[serde(tag = "op", rename_all = "lowercase")]
 pub enum Operation {
     /// Add a value
@@ -197,7 +205,7 @@ pub enum Operation {
         address: Address,
 
         /// The value to add
-        #[serde(serialize_with = "serialize_value")]
+        #[serde(serialize_with = "Operation::value_serialize")]
         value: Box<dyn Any>,
 
         /// The number of items added
@@ -205,7 +213,7 @@ pub enum Operation {
     },
     /// Remove one or more values
     Remove {
-        /// The address from which to remove the value/s
+        /// The address from which to remove the value(s)
         address: Address,
 
         /// The number of items to remove
@@ -220,7 +228,7 @@ pub enum Operation {
         items: usize,
 
         /// The replacement value
-        #[serde(serialize_with = "serialize_value")]
+        #[serde(serialize_with = "Operation::value_serialize")]
         value: Box<dyn Any>,
 
         /// The number of items added
@@ -239,56 +247,230 @@ pub enum Operation {
     },
     /// Transform a value from one type to another
     Transform {
-        /// The address of the node to transform
+        /// The address of the `Node` to transform
         address: Address,
 
-        /// The type of node to transform from
+        /// The type of `Node` to transform from
         from: String,
 
-        /// The type of node to transform to
+        /// The type of `Node` to transform to
         to: String,
     },
 }
 
-/// Serialize the `value` field of an operation
-///
-/// This is mainly for debugging and testing. Serialization of types is added as
-/// needed.
-fn serialize_value<S>(value: &Box<dyn Any>, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    macro_rules! ser {
-        ($type:ty) => {
-            if let Some(value) = value.downcast_ref::<$type>() {
-                return value.serialize(serializer);
+impl Operation {
+    /// Serialize the `value` field of an operation
+    ///
+    /// This is mainly for debugging and testing. Serialization of types is added as
+    /// needed.
+    fn value_serialize<S>(value: &Box<dyn Any>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        macro_rules! serialize {
+            ($( $type:ty )*) => {
+                $(
+                    if let Some(value) = value.downcast_ref::<$type>() {
+                        return value.serialize(serializer);
+                    }
+                )*
             }
-        };
+        }
+
+        serialize!(
+            u8
+            i32
+            Boolean
+            Integer
+            Number
+            String
+            InlineContent
+            BlockContent
+            Vec<u8>
+            Vec<i32>
+            Vec<Boolean>
+            Vec<Integer>
+            Vec<Number>
+            Vec<String>
+            Vec<InlineContent>
+            Vec<BlockContent>
+        );
+
+        serializer.serialize_str("<unserialized type>")
     }
-
-    ser!(u8);
-    ser!(i32);
-    ser!(Boolean);
-    ser!(Integer);
-    ser!(Number);
-    ser!(String);
-    ser!(InlineContent);
-    ser!(BlockContent);
-
-    ser!(Vec<u8>);
-    ser!(Vec<i32>);
-    ser!(Vec<Boolean>);
-    ser!(Vec<Integer>);
-    ser!(Vec<Number>);
-    ser!(Vec<String>);
-    ser!(Vec<InlineContent>);
-    ser!(Vec<BlockContent>);
-
-    serializer.serialize_str("<unserialized type>")
 }
 
 /// A set of operations
 pub type Patch = Vec<Operation>;
+
+/// A DOM operation used to mutate the DOM.
+///
+/// A `DomOperation` is the DOM version of an [`Operation`].
+/// The same names for operation variants and their properties
+/// are used with the following exception: the `value` property is
+/// renamed to `html` and is a string representing the HTML
+/// of the DOM node (usually a HTML `Element` or `Text` node) or part of it.
+#[derive(Debug, Serialize)]
+#[serde(tag = "op", rename_all = "lowercase")]
+pub enum DomOperation {
+    /// Add an DOM node
+    Add {
+        /// The address to which to add the DOM node
+        address: Address,
+
+        /// The HTML to add
+        html: String,
+
+        /// The number of items added
+        length: usize,
+    },
+    /// Remove one or more DOM nodes
+    Remove {
+        /// The address from which to remove the DOM node(s)
+        address: Address,
+
+        /// The number of items to remove
+        items: usize,
+    },
+    /// Replace one or more DOM nodes
+    Replace {
+        /// The address which should be replaced
+        address: Address,
+
+        /// The number of items to replace
+        items: usize,
+
+        /// The replacement HTML
+        html: String,
+
+        /// The number of items added
+        length: usize,
+    },
+    /// Move a DOM node from one address to another
+    Move {
+        /// The address from which to remove the DOM node
+        from: Address,
+
+        /// The number of items to move
+        items: usize,
+
+        /// The address to which to add the items
+        to: Address,
+    },
+    /// Transform a DOM node from one type to another
+    Transform {
+        /// The address of the DOM node to transform
+        address: Address,
+
+        /// The type of `Node` to transform from
+        from: String,
+
+        /// The type of `Node` to transform to
+        to: String,
+    },
+}
+
+impl DomOperation {
+    /// Create a `DomOperation` from an `Operation`
+    fn from_op(op: &Operation) -> DomOperation {
+        match op {
+            Operation::Add {
+                address,
+                value,
+                length,
+            } => DomOperation::Add {
+                address: address.clone(),
+                html: DomOperation::value_html(address, value),
+                length: *length,
+            },
+
+            Operation::Remove { address, items, .. } => DomOperation::Remove {
+                address: address.clone(),
+                items: *items,
+            },
+
+            Operation::Replace {
+                address,
+                items,
+                value,
+                length,
+            } => DomOperation::Replace {
+                address: address.clone(),
+                items: *items,
+                html: DomOperation::value_html(address, value),
+                length: *length,
+            },
+
+            Operation::Move { from, items, to } => DomOperation::Move {
+                from: from.clone(),
+                items: *items,
+                to: to.clone(),
+            },
+
+            Operation::Transform { address, from, to } => DomOperation::Transform {
+                address: address.clone(),
+                from: from.clone(),
+                to: to.clone(),
+            },
+        }
+    }
+
+    /// Generate HTML for the `value` field of an operation
+    fn value_html(address: &Address, value: &Box<dyn Any>) -> String {
+        use crate::methods::encode::html::{Context, ToHtml};
+
+        let slot = address.back().unwrap();
+        let slot_string = slot.to_inner_string();
+        let context = Context::new();
+        if let Some(string) = value.downcast_ref::<String>() {
+            string.clone()
+        } else if let Some(inline) = value.downcast_ref::<InlineContent>() {
+            inline.to_html(&slot_string, &context)
+        } else if let Some(block) = value.downcast_ref::<BlockContent>() {
+            block.to_html(&slot_string, &context)
+        } else if let Some(inlines) = value.downcast_ref::<Vec<InlineContent>>() {
+            // If the last slot is an index then this is a vector addition or replacement
+            // and so the value needs to be expanded with the correct slots. Otherwise,
+            // generate the HTML from the vector including it's wrapper
+            match slot {
+                Slot::Name(name) => inlines.to_html(name, &context),
+                Slot::Index(start) => inlines
+                    .iter()
+                    .enumerate()
+                    .map(|(index, inline)| {
+                        let slot = (start + index).to_string();
+                        inline.to_html(&slot, &context)
+                    })
+                    .collect::<Vec<String>>()
+                    .concat(),
+            }
+        } else if let Some(blocks) = value.downcast_ref::<Vec<BlockContent>>() {
+            // As above, but for blocks...
+            match slot {
+                Slot::Name(name) => blocks.to_html(name, &context),
+                Slot::Index(start) => blocks
+                    .iter()
+                    .enumerate()
+                    .map(|(index, block)| {
+                        let slot = (start + index).to_string();
+                        block.to_html(&slot, &context)
+                    })
+                    .collect::<Vec<String>>()
+                    .concat(),
+            }
+        } else {
+            tracing::error!("Unhandled value type when generating `DomOperation`");
+            "<span class=\"todo\">TODO</span>".to_string()
+        }
+    }
+}
+
+// A set of DOM operations
+pub type DomPatch = Vec<DomOperation>;
+
+pub fn dom_patch_from_patch(patch: &[Operation]) -> Vec<DomOperation> {
+    patch.iter().map(|op| DomOperation::from_op(op)).collect()
+}
 
 /// A differencing `struct` used as an optimization to track the address describing the
 /// current location in a node tree while walking over it.
@@ -939,7 +1121,8 @@ mod nodes;
 mod tests {
     use super::*;
     use crate::{assert_json, assert_json_eq};
-    use stencila_schema::{Emphasis, InlineContent, Integer, Paragraph};
+    use serde_json::json;
+    use stencila_schema::{Article, Emphasis, InlineContent, Integer, Paragraph};
 
     #[test]
     fn test_same_equal() {
@@ -1036,5 +1219,149 @@ mod tests {
         let mut patched = a.clone();
         apply(&mut patched, &patch);
         assert_json_eq!(patched, b);
+    }
+
+    #[test]
+    fn test_dom_patch() {
+        // Empty article
+        let one = Article::default();
+
+        // Add an empty paragraph
+        let two = Article {
+            content: Some(vec![BlockContent::Paragraph(Paragraph::default())]),
+            ..Default::default()
+        };
+
+        // Add words to the paragraph
+        let three = Article {
+            content: Some(vec![BlockContent::Paragraph(Paragraph {
+                content: vec![
+                    InlineContent::String("first".to_string()),
+                    InlineContent::String("second".to_string()),
+                ],
+                ..Default::default()
+            })]),
+            ..Default::default()
+        };
+
+        // Modify a word
+        let four = Article {
+            content: Some(vec![BlockContent::Paragraph(Paragraph {
+                content: vec![
+                    InlineContent::String("foot".to_string()),
+                    InlineContent::String("second".to_string()),
+                ],
+                ..Default::default()
+            })]),
+            ..Default::default()
+        };
+
+        // Move words
+        let five = Article {
+            content: Some(vec![BlockContent::Paragraph(Paragraph {
+                content: vec![
+                    InlineContent::String("second".to_string()),
+                    InlineContent::String("foot".to_string()),
+                ],
+                ..Default::default()
+            })]),
+            ..Default::default()
+        };
+
+        // one to one -> empty patch
+        let patch = diff(&one, &one);
+        assert_json_eq!(patch, json!([]));
+        let dom_patch = dom_patch_from_patch(&patch);
+        assert_json_eq!(dom_patch, json!([]));
+
+        // one to two -> `Add` operation on the article's optional content
+        let patch = diff(&one, &two);
+        assert_json_eq!(
+            patch,
+            json!([{
+                "op": "add",
+                "address": ["content"],
+                "value": [{"type": "Paragraph", "content": []}],
+                "length": 1
+            }])
+        );
+        let dom_patch = dom_patch_from_patch(&patch);
+        assert_json_eq!(
+            dom_patch,
+            json!([{
+                "op": "add",
+                "address": ["content"],
+                "html": "<div slot=\"content\"><p slot=\"0\" itemtype=\"https://stenci.la/Paragraph\" itemscope><span slot=\"content\"></span></p></div>",
+                "length": 1
+            }])
+        );
+
+        // two to three -> `Add` operation on the paragraph's content
+        let patch = diff(&two, &three);
+        assert_json_eq!(
+            patch,
+            json!([{
+                "op": "add",
+                "address": ["content", 0, "content", 0],
+                "value": ["first", "second"],
+                "length": 2
+            }])
+        );
+        let dom_patch = dom_patch_from_patch(&patch);
+        assert_json_eq!(
+            dom_patch,
+            json!([{
+                "op": "add",
+                "address": ["content", 0, "content", 0],
+                "html": "<span slot=\"0\">first</span><span slot=\"1\">second</span>",
+                "length": 2
+            }])
+        );
+
+        // three to four -> `Replace` operation on a word
+        let patch = diff(&three, &four);
+        assert_json_eq!(
+            patch,
+            json!([{
+                "op": "replace",
+                "address": ["content", 0, "content", 0, 1],
+                "items": 3,
+                "value": "oo",
+                "length": 2
+            }])
+        );
+        let dom_patch = dom_patch_from_patch(&patch);
+        assert_json_eq!(
+            dom_patch,
+            json!([{
+                "op": "replace",
+                "address": ["content", 0, "content", 0, 1],
+                "items": 3,
+                "html": "oo",
+                "length": 2
+            }])
+        );
+
+        // four to five -> `Move` operation on the word
+        let patch = diff(&four, &five);
+        assert_json_eq!(
+            patch,
+            json!([{
+                "op": "move",
+                "from": ["content", 0, "content", 1],
+                "items": 1,
+                "to": ["content", 0, "content", 0],
+            }])
+        );
+        let dom_patch = dom_patch_from_patch(&patch);
+        assert_json_eq!(
+            dom_patch,
+            json!([{
+                "op": "move",
+                "from": ["content", 0, "content", 1],
+                "items": 1,
+                "to": ["content", 0, "content", 0],
+            }])
+        );
     }
 }
