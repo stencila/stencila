@@ -7,7 +7,6 @@ use stencila_schema::Node;
 pub mod docx;
 
 #[cfg(feature = "encode-html")]
-#[allow(clippy::deprecated_cfg_attr)]
 pub mod html;
 
 #[cfg(feature = "encode-ipynb")]

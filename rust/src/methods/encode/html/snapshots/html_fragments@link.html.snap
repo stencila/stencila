@@ -1,5 +1,5 @@
 ---
-source: rust/src/methods/encode/html.rs
+source: rust/src/methods/encode/html/mod.rs
 expression: encoded
 input_file: fixtures/fragments/html/link.html
 
@@ -10,7 +10,9 @@ input_file: fixtures/fragments/html/link.html
       <span slot="content">
         <span slot="0">A</span>
         <a slot="1" itemtype="https://stenci.la/Link" itemscope  href="https://stenci.la">
-          <span slot="0">link</span>
+          <span slot="content">
+            <span slot="0">link</span>
+          </span>
         </a>
         <span slot="2">.</span>
       </span>
@@ -19,7 +21,9 @@ input_file: fixtures/fragments/html/link.html
       <span slot="content">
         <span slot="0">A</span>
         <a slot="1" itemtype="https://stenci.la/Link" itemscope  href="">
-          <span slot="0">link</span>
+          <span slot="content">
+            <span slot="0">link</span>
+          </span>
         </a>
         <span slot="2">with no target or title.</span>
       </span>
@@ -28,7 +32,9 @@ input_file: fixtures/fragments/html/link.html
       <span slot="content">
         <span slot="0">A</span>
         <a slot="1" itemtype="https://stenci.la/Link" itemscope  href="https://stenci.la">
-          <span slot="0">link</span>
+          <span slot="content">
+            <span slot="0">link</span>
+          </span>
         </a>
         <span slot="2">with no title.</span>
       </span>
