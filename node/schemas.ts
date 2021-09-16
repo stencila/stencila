@@ -20,6 +20,7 @@ const addon = require('./index.node')
   const schemas = [
     'formatsSchemas',
     'documentsSchemas',
+    'patchesSchemas',
     'projectsSchemas',
     'graphsSchemas',
     'sessionsSchemas',
@@ -36,28 +37,6 @@ const addon = require('./index.node')
   let ts = (
     await Promise.all(
       schemas.map(async (schema) => {
-        // Replace `title` with `$id` or remove it. This is necessary because
-        // `json-schema-to-typescript` uses JSON schema `title` for the name of `interface`s
-        // whereas we use it for longer titles intended for user interfaces.
-        // See https://github.com/stencila/stencila/pull/929#issuecomment-842623228
-        function modify(value: unknown) {
-          if (typeof value != 'object') return
-          if (value === null) return
-          const object = value as Record<string, unknown>
-
-          for (const [key, child] of Object.entries(object)) {
-            if (key == 'title') {
-              if ('$id' in object) {
-                object['title'] = object['$id']
-              } else {
-                delete object['title']
-              }
-            } else {
-              modify(child)
-            }
-          }
-        }
-
         if (schema.title === 'Error') {
           // Add the error message that gets dynamically
           // added to the error object when it is translated to JSON
@@ -68,14 +47,11 @@ const addon = require('./index.node')
                 ...subschema.properties,
                 message: { type: 'string' },
               },
-              required: [
-                ...(subschema.required as string[]),
-                'message'
-              ]
+              required: [...(subschema.required as string[]), 'message'],
             }
           })
-        } else {
-          modify(schema)
+        } else if (schema.title !== 'PatchesSchema') {
+          modifyTitle(schema)
         }
 
         return compile(schema, '', {
@@ -96,3 +72,25 @@ const addon = require('./index.node')
 
   fs.writeFileSync(path.join(__dirname, 'src', 'types.ts'), ts)
 })()
+
+// Replace `title` with `$id` or remove it. This is necessary because
+// `json-schema-to-typescript` uses JSON schema `title` for the name of `interface`s
+// whereas we use it for longer titles intended for user interfaces.
+// See https://github.com/stencila/stencila/pull/929#issuecomment-842623228
+function modifyTitle(value: unknown) {
+  if (typeof value != 'object') return
+  if (value === null) return
+  const object = value as Record<string, unknown>
+
+  for (const [key, child] of Object.entries(object)) {
+    if (key == 'title') {
+      if ('$id' in object) {
+        object['title'] = object['$id']
+      } else {
+        delete object['title']
+      }
+    } else {
+      modifyTitle(child)
+    }
+  }
+}

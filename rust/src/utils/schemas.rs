@@ -19,7 +19,7 @@ use serde_json::{json, Value as JsonValue};
 pub fn generator() -> SchemaGenerator {
     let settings = SchemaSettings::draft2019_09().with(|settings| {
         settings.option_add_null_type = false;
-        settings.inline_subschemas = true;
+        settings.inline_subschemas = false;
     });
     settings.into_generator()
 }

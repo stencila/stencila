@@ -169,6 +169,7 @@ chrono = "=0.4.19"
 crossbeam-channel = "=0.5.1"
 defaults = "=0.2.0"
 derivative = "=2.2.0"
+derive_more = "0.99.16"
 dirs-next = "=2.0.0"
 dtparse = { version = "=1.2.0", optional = true }
 enum_dispatch = "=0.3.7"

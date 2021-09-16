@@ -1,9 +1,16 @@
 use crate::{
     errors::{report, Error},
     methods::encode::encode,
+    utils::schemas,
 };
 use defaults::Defaults;
+use derive_more::{Constructor, Deref, DerefMut};
 use eyre::Result;
+use schemars::{
+    gen::SchemaGenerator,
+    schema::{Schema, SchemaObject},
+    JsonSchema,
+};
 use serde::{Serialize, Serializer};
 use similar::TextDiff;
 use std::{
@@ -116,9 +123,10 @@ where
     }
 }
 
-/// A slot used to locate an operation within a `Node` tree.
+/// A slot, used as part of an [`Address`], to locate a value within a `Node` tree.
 ///
 /// Slots can be used to identify a part of a larger object.
+///
 /// The `Name` variant can be used to identify:
 ///
 /// - the property name of a `struct`
@@ -135,8 +143,9 @@ where
 /// In contrast to JSON Patch, which uses a [JSON Pointer](http://tools.ietf.org/html/rfc6901)
 /// to describe the location of additions and removals, slots offer improved performance and
 /// type safety.
-#[derive(Debug, Clone, Serialize, ToString)]
+#[derive(Debug, Clone, JsonSchema, Serialize, ToString)]
 #[serde(untagged)]
+#[schemars(deny_unknown_fields)]
 pub enum Slot {
     Index(usize),
     Name(String),
@@ -151,28 +160,36 @@ impl Slot {
     }
 }
 
-/// A double ended queue of `Slot`s.
+/// The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
 ///
-/// Note: This could instead be called a "Path", but was avoided because of potential confusion with
-/// file system paths.
-pub type Address = VecDeque<Slot>;
+/// Implemented as a double-ended queue. Given that addresses usually have less than
+/// six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+///
+/// Note: This could instead have be called a "Path", but that name was avoided because
+/// of potential confusion with file system paths.
+#[derive(Debug, Constructor, Clone, Default, Deref, DerefMut, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct Address(VecDeque<Slot>);
 
-/// Create an address from an index
-fn address_from_index(index: usize) -> Address {
-    VecDeque::from_iter(vec![Slot::Index(index)])
+impl Address {
+    /// Concatenate an address with another and return the result
+    fn concat(&self, other: &Address) -> Self {
+        let mut concat = self.clone();
+        concat.append(&mut other.clone());
+        concat
+    }
 }
 
-/// Create an address from a name
-#[allow(unused)]
-fn address_from_name(name: &str) -> Address {
-    VecDeque::from_iter(vec![Slot::Name(name.to_string())])
+impl From<usize> for Address {
+    fn from(index: usize) -> Address {
+        Address(VecDeque::from_iter([Slot::Index(index)]))
+    }
 }
 
-/// Concatenate two addresses
-fn address_concat(begin: &Address, end: &Address) -> Address {
-    let mut address = begin.clone();
-    address.append(&mut end.clone());
-    address
+impl From<&str> for Address {
+    fn from(name: &str) -> Address {
+        Address(VecDeque::from_iter([Slot::Name(name.to_string())]))
+    }
 }
 
 /// The operations that can be used in a patch to mutate one node into another.
@@ -196,22 +213,26 @@ fn address_concat(begin: &Address, end: &Address) -> Address {
 ///
 /// Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode
 /// characters not bytes.
-#[derive(Debug, Serialize, ToString)]
+#[derive(Debug, JsonSchema, Serialize, ToString)]
 #[serde(tag = "op", rename_all = "lowercase")]
+#[schemars(deny_unknown_fields)]
 pub enum Operation {
     /// Add a value
+    #[schemars(title = "OperationAdd")]
     Add {
         /// The address to which to add the value
         address: Address,
 
         /// The value to add
         #[serde(serialize_with = "Operation::value_serialize")]
+        #[schemars(schema_with = "Operation::value_schema")]
         value: Box<dyn Any>,
 
         /// The number of items added
         length: usize,
     },
     /// Remove one or more values
+    #[schemars(title = "OperationAdd")]
     Remove {
         /// The address from which to remove the value(s)
         address: Address,
@@ -220,6 +241,7 @@ pub enum Operation {
         items: usize,
     },
     /// Replace one or more values
+    #[schemars(title = "OperationReplace")]
     Replace {
         /// The address which should be replaced
         address: Address,
@@ -229,12 +251,14 @@ pub enum Operation {
 
         /// The replacement value
         #[serde(serialize_with = "Operation::value_serialize")]
+        #[schemars(schema_with = "Operation::value_schema")]
         value: Box<dyn Any>,
 
         /// The number of items added
         length: usize,
     },
     /// Move a value from one address to another
+    #[schemars(title = "OperationMove")]
     Move {
         /// The address from which to remove the value
         from: Address,
@@ -246,6 +270,7 @@ pub enum Operation {
         to: Address,
     },
     /// Transform a value from one type to another
+    #[schemars(title = "OperationTransform")]
     Transform {
         /// The address of the `Node` to transform
         address: Address,
@@ -298,10 +323,18 @@ impl Operation {
 
         serializer.serialize_str("<unserialized type>")
     }
+
+    /// Generate the JSON Schema for the `value` property
+    fn value_schema(_generator: &mut SchemaGenerator) -> Schema {
+        Schema::Object(SchemaObject {
+            ..Default::default()
+        })
+    }
 }
 
-/// A set of operations
-pub type Patch = Vec<Operation>;
+/// A set of [`Operation`]s
+#[derive(Debug, Default, Deref, DerefMut, JsonSchema, Serialize)]
+pub struct Patch(Vec<Operation>);
 
 /// A DOM operation used to mutate the DOM.
 ///
@@ -310,12 +343,14 @@ pub type Patch = Vec<Operation>;
 /// are used with the following exception: the `value` property is
 /// renamed to `html` and is a string representing the HTML
 /// of the DOM node (usually a HTML `Element` or `Text` node) or part of it.
-#[derive(Debug, Serialize)]
+#[derive(Debug, JsonSchema, Serialize)]
 #[serde(tag = "op", rename_all = "lowercase")]
+#[schemars(deny_unknown_fields)]
 pub enum DomOperation {
-    /// Add an DOM node
+    /// Add one or more DOM nodes
+    #[schemars(title = "DomOperationAdd")]
     Add {
-        /// The address to which to add the DOM node
+        /// The address to which to add the DOM node(s)
         address: Address,
 
         /// The HTML to add
@@ -325,6 +360,7 @@ pub enum DomOperation {
         length: usize,
     },
     /// Remove one or more DOM nodes
+    #[schemars(title = "DomOperationRemove")]
     Remove {
         /// The address from which to remove the DOM node(s)
         address: Address,
@@ -333,6 +369,7 @@ pub enum DomOperation {
         items: usize,
     },
     /// Replace one or more DOM nodes
+    #[schemars(title = "DomOperationReplace")]
     Replace {
         /// The address which should be replaced
         address: Address,
@@ -347,6 +384,7 @@ pub enum DomOperation {
         length: usize,
     },
     /// Move a DOM node from one address to another
+    #[schemars(title = "DomOperationMove")]
     Move {
         /// The address from which to remove the DOM node
         from: Address,
@@ -358,6 +396,7 @@ pub enum DomOperation {
         to: Address,
     },
     /// Transform a DOM node from one type to another
+    #[schemars(title = "DomOperationTransform")]
     Transform {
         /// The address of the DOM node to transform
         address: Address,
@@ -465,11 +504,14 @@ impl DomOperation {
     }
 }
 
-// A set of DOM operations
-pub type DomPatch = Vec<DomOperation>;
+/// A set of [`DomOperation`]s
+#[derive(Debug, Deref, JsonSchema, Serialize)]
+pub struct DomPatch(Vec<DomOperation>);
 
-pub fn dom_patch_from_patch(patch: &[Operation]) -> Vec<DomOperation> {
-    patch.iter().map(|op| DomOperation::from_op(op)).collect()
+impl From<&Patch> for DomPatch {
+    fn from(patch: &Patch) -> DomPatch {
+        DomPatch(patch.iter().map(|op| DomOperation::from_op(op)).collect())
+    }
 }
 
 /// A differencing `struct` used as an optimization to track the address describing the
@@ -511,12 +553,12 @@ impl Differ {
                     value,
                     length,
                 } => Operation::Add {
-                    address: address_concat(&self.address, &address),
+                    address: self.address.concat(&address),
                     value,
                     length,
                 },
                 Operation::Remove { address, items } => Operation::Remove {
-                    address: address_concat(&self.address, &address),
+                    address: self.address.concat(&address),
                     items,
                 },
                 Operation::Replace {
@@ -525,18 +567,18 @@ impl Differ {
                     value,
                     length,
                 } => Operation::Replace {
-                    address: address_concat(&self.address, &address),
+                    address: self.address.concat(&address),
                     items,
                     value,
                     length,
                 },
                 Operation::Move { from, items, to } => Operation::Move {
-                    from: address_concat(&self.address, &from),
+                    from: self.address.concat(&from),
                     items,
-                    to: address_concat(&self.address, &to),
+                    to: self.address.concat(&to),
                 },
                 Operation::Transform { address, from, to } => Operation::Transform {
-                    address: address_concat(&self.address, &address),
+                    address: self.address.concat(&address),
                     from,
                     to,
                 },
@@ -1117,6 +1159,22 @@ mod works;
 
 mod nodes;
 
+#[allow(dead_code)]
+#[derive(JsonSchema)]
+enum PatchesSchema {
+    Slot(Slot),
+    Address(Address),
+    Patch(Patch),
+    Operation(Operation),
+    DomPatch(DomPatch),
+    DomOperation(DomOperation),
+}
+
+/// Get JSON Schemas for this module
+pub fn schemas() -> Result<serde_json::Value> {
+    Ok(schemas::generate::<PatchesSchema>()?)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1271,7 +1329,7 @@ mod tests {
         // one to one -> empty patch
         let patch = diff(&one, &one);
         assert_json_eq!(patch, json!([]));
-        let dom_patch = dom_patch_from_patch(&patch);
+        let dom_patch = DomPatch::from(&patch);
         assert_json_eq!(dom_patch, json!([]));
 
         // one to two -> `Add` operation on the article's optional content
@@ -1285,7 +1343,7 @@ mod tests {
                 "length": 1
             }])
         );
-        let dom_patch = dom_patch_from_patch(&patch);
+        let dom_patch = DomPatch::from(&patch);
         assert_json_eq!(
             dom_patch,
             json!([{
@@ -1307,7 +1365,7 @@ mod tests {
                 "length": 2
             }])
         );
-        let dom_patch = dom_patch_from_patch(&patch);
+        let dom_patch = DomPatch::from(&patch);
         assert_json_eq!(
             dom_patch,
             json!([{
@@ -1330,7 +1388,7 @@ mod tests {
                 "length": 2
             }])
         );
-        let dom_patch = dom_patch_from_patch(&patch);
+        let dom_patch = DomPatch::from(&patch);
         assert_json_eq!(
             dom_patch,
             json!([{
@@ -1353,7 +1411,7 @@ mod tests {
                 "to": ["content", 0, "content", 0],
             }])
         );
-        let dom_patch = dom_patch_from_patch(&patch);
+        let dom_patch = DomPatch::from(&patch);
         assert_json_eq!(
             dom_patch,
             json!([{

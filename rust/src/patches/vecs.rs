@@ -1,4 +1,4 @@
-use super::{address_from_index, prelude::*};
+use super::prelude::*;
 use similar::DiffOp;
 use std::cmp::min;
 use std::collections::hash_map::Entry;
@@ -44,7 +44,7 @@ where
 
         if self.is_empty() && !other.is_empty() {
             return differ.append(vec![Operation::Add {
-                address: address_from_index(0),
+                address: Address::from(0),
                 value: Box::new(other.clone()),
                 length: other.len(),
             }]);
@@ -52,7 +52,7 @@ where
 
         if !self.is_empty() && other.is_empty() {
             return differ.append(vec![Operation::Remove {
-                address: address_from_index(0),
+                address: Address::from(0),
                 items: self.len(),
             }]);
         }
@@ -103,7 +103,7 @@ where
                                         ops[prev] = Operation::Move {
                                             from: address.clone(),
                                             items: *items,
-                                            to: address_from_index((index as i32 + shift) as usize),
+                                            to: Address::from((index as i32 + shift) as usize),
                                         };
                                         matched = true;
                                         break;
@@ -125,7 +125,7 @@ where
                     }
                     if !matched {
                         ops.push(Operation::Add {
-                            address: address_from_index(index),
+                            address: Address::from(index),
                             value: Box::new(added_value),
                             length: new_len,
                         })
@@ -157,9 +157,7 @@ where
                                         .expect("To be a Vec<Type>");
                                     if added_value.is_equal(&removed_value).is_ok() {
                                         ops[prev] = Operation::Move {
-                                            from: address_from_index(
-                                                (index as i32 + shift) as usize,
-                                            ),
+                                            from: Address::from((index as i32 + shift) as usize),
                                             items: old_len,
                                             to: address.clone(),
                                         };
@@ -188,7 +186,7 @@ where
                     }
                     if !matched {
                         ops.push(Operation::Remove {
-                            address: address_from_index(index),
+                            address: Address::from(index),
                             items: old_len,
                         });
                         removes.insert(index, (old_index, old_len));
@@ -265,7 +263,7 @@ where
                         // Add remaining items
                         let length = new_len - old_len;
                         replace_ops.push(Operation::Add {
-                            address: address_from_index(index),
+                            address: Address::from(index),
                             value: Box::new(
                                 other[(new_index + old_len)..(new_index + new_len)].to_vec(),
                             ),
@@ -286,7 +284,7 @@ where
                         }
                         if remove {
                             replace_ops.push(Operation::Remove {
-                                address: address_from_index(index),
+                                address: Address::from(index),
                                 items: old_len - new_len,
                             });
                             removes.insert(index, (old_index, old_len));

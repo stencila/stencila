@@ -1,4 +1,4 @@
-use super::{address_from_index, prelude::*};
+use super::prelude::*;
 use itertools::Itertools;
 use similar::{ChangeTag, TextDiff};
 use std::any::{type_name, Any};
@@ -83,7 +83,7 @@ impl Patchable for String {
 
             let end = index == changes.len() - 1;
             if (index > 0 && curr != last) || end {
-                let address = address_from_index(start);
+                let address = Address::from(start);
                 if (curr == 'e' && last == 'd') || (end && curr == 'd') {
                     ops.push(Operation::Remove { address, items });
                 } else if (curr == 'e' && last == 'i') || (end && curr == 'i') {
