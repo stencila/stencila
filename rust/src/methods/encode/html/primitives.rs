@@ -27,14 +27,15 @@ atomic_to_html!(Number);
 
 /// Encode a `String` to HTML
 ///
-/// This is the only node type where an `itemtype` attribute, in this case `http://schema.org/String`,
-/// is NOT added to the element.
+/// This is the only `Node` type that is NOT represented by an element
+/// (with an `itemtype` attribute, which in this case would be `https://schema.org/Text`).
+/// This reduces the size of the generated HTML, but is also useful in applying [`DomOperation`]s
+/// in the `web` module because it allows discrimination between strings and other node types.
 ///
-/// The string is escaped so that the generated HTML can be safely interpolated
-/// within HTML.
+/// The string is escaped so that the generated HTML can be safely interpolated within HTML.
 impl ToHtml for String {
-    fn to_html(&self, slot: &str, _context: &Context) -> String {
-        elem("span", &[attr_slot(slot)], &encode_safe(self))
+    fn to_html(&self, _slot: &str, _context: &Context) -> String {
+        encode_safe(self).to_string()
     }
 }
 

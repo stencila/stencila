@@ -13,8 +13,7 @@ impl ToHtml for Vec<InlineContent> {
             &[attr_slot(slot)],
             &self
                 .iter()
-                .enumerate()
-                .map(|(index, item)| item.to_html(&index.to_string(), context))
+                .map(|item| item.to_html("", context))
                 .collect::<Vec<String>>()
                 .concat(),
         )

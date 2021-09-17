@@ -462,32 +462,25 @@ impl DomOperation {
         } else if let Some(block) = value.downcast_ref::<BlockContent>() {
             block.to_html(&slot_string, &context)
         } else if let Some(inlines) = value.downcast_ref::<Vec<InlineContent>>() {
-            // If the last slot is an index then this is a vector addition or replacement
-            // and so the value needs to be expanded with the correct slots. Otherwise,
-            // generate the HTML from the vector including it's wrapper
             match slot {
+                // If the slot is a name then we're adding or replacing a property so we
+                // want the `Vec` to have a wrapper element with the name as the slot attribute
                 Slot::Name(name) => inlines.to_html(name, &context),
-                Slot::Index(start) => inlines
+                // If the slot is an index then we're adding or replacing items in a
+                // vector so we don't want a wrapper element
+                Slot::Index(..) => inlines
                     .iter()
-                    .enumerate()
-                    .map(|(index, inline)| {
-                        let slot = (start + index).to_string();
-                        inline.to_html(&slot, &context)
-                    })
+                    .map(|inline| inline.to_html("", &context))
                     .collect::<Vec<String>>()
                     .concat(),
             }
         } else if let Some(blocks) = value.downcast_ref::<Vec<BlockContent>>() {
-            // As above, but for blocks...
             match slot {
+                // As above, but for blocks...
                 Slot::Name(name) => blocks.to_html(name, &context),
-                Slot::Index(start) => blocks
+                Slot::Index(..) => blocks
                     .iter()
-                    .enumerate()
-                    .map(|(index, block)| {
-                        let slot = (start + index).to_string();
-                        block.to_html(&slot, &context)
-                    })
+                    .map(|block| block.to_html("", &context))
                     .collect::<Vec<String>>()
                     .concat(),
             }
@@ -1343,7 +1336,7 @@ mod tests {
             json!([{
                 "type": "Add",
                 "address": ["content"],
-                "html": "<div slot=\"content\"><p slot=\"0\" itemtype=\"https://stenci.la/Paragraph\" itemscope><span slot=\"content\"></span></p></div>",
+                "html": "<div slot=\"content\"><p itemtype=\"https://stenci.la/Paragraph\" itemscope><span slot=\"content\"></span></p></div>",
                 "length": 1
             }])
         );

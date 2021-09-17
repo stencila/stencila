@@ -1,24 +1,16 @@
 ---
-source: rust/src/methods/encode/html.rs
+source: rust/src/methods/encode/html/mod.rs
 expression: encoded
 input_file: fixtures/fragments/html/code-fragment.html
 
 ---
 <article slot="root" itemtype="https://schema.org/Article" itemscope>
   <div slot="content">
-    <p slot="0" itemtype="https://stenci.la/Paragraph" itemscope>
-      <span slot="content">
-        <span slot="0">Some</span>
-        <code slot="1" itemtype="https://stenci.la/CodeFragment" itemscope>code</code>
-        <span slot="2">in a paragraph.</span>
-      </span>
+    <p itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">Some<code itemtype="https://stenci.la/CodeFragment" itemscope>code</code>in a paragraph.</span>
     </p>
-    <p slot="1" itemtype="https://stenci.la/Paragraph" itemscope>
-      <span slot="content">
-        <span slot="0">With a language</span>
-        <code slot="1" itemtype="https://stenci.la/CodeFragment" itemscope  class="language-python">1 + 1</code>
-        <span slot="2">specified.</span>
-      </span>
+    <p itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">With a language<code itemtype="https://stenci.la/CodeFragment" itemscope  class="language-python">1 + 1</code>specified.</span>
     </p>
   </div>
 </article>

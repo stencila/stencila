@@ -6,38 +6,20 @@ input_file: fixtures/fragments/html/link.html
 ---
 <article slot="root" itemtype="https://schema.org/Article" itemscope>
   <div slot="content">
-    <p slot="0" itemtype="https://stenci.la/Paragraph" itemscope>
-      <span slot="content">
-        <span slot="0">A</span>
-        <a slot="1" itemtype="https://stenci.la/Link" itemscope  href="https://stenci.la">
-          <span slot="content">
-            <span slot="0">link</span>
-          </span>
-        </a>
-        <span slot="2">.</span>
-      </span>
+    <p itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">A<a itemtype="https://stenci.la/Link" itemscope  href="https://stenci.la">
+          <span slot="content">link</span>
+        </a>.</span>
     </p>
-    <p slot="1" itemtype="https://stenci.la/Paragraph" itemscope>
-      <span slot="content">
-        <span slot="0">A</span>
-        <a slot="1" itemtype="https://stenci.la/Link" itemscope  href="">
-          <span slot="content">
-            <span slot="0">link</span>
-          </span>
-        </a>
-        <span slot="2">with no target or title.</span>
-      </span>
+    <p itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">A<a itemtype="https://stenci.la/Link" itemscope  href="">
+          <span slot="content">link</span>
+        </a>with no target or title.</span>
     </p>
-    <p slot="2" itemtype="https://stenci.la/Paragraph" itemscope>
-      <span slot="content">
-        <span slot="0">A</span>
-        <a slot="1" itemtype="https://stenci.la/Link" itemscope  href="https://stenci.la">
-          <span slot="content">
-            <span slot="0">link</span>
-          </span>
-        </a>
-        <span slot="2">with no title.</span>
-      </span>
+    <p itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">A<a itemtype="https://stenci.la/Link" itemscope  href="https://stenci.la">
+          <span slot="content">link</span>
+        </a>with no title.</span>
     </p>
   </div>
 </article>

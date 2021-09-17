@@ -198,7 +198,11 @@ fn attr(name: &str, value: &str) -> String {
 
 /// Encode a "slot" attribute of an HTML element
 fn attr_slot(slot: &str) -> String {
-    attr("slot", slot)
+    if slot.is_empty() {
+        "".to_string()
+    } else {
+        attr("slot", slot)
+    }
 }
 
 /// Encode the "itemtype" attribute of an HTML element

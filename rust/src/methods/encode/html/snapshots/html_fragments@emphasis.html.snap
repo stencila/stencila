@@ -1,21 +1,15 @@
 ---
-source: rust/src/methods/encode/html.rs
+source: rust/src/methods/encode/html/mod.rs
 expression: encoded
 input_file: fixtures/fragments/html/emphasis.html
 
 ---
 <article slot="root" itemtype="https://schema.org/Article" itemscope>
   <div slot="content">
-    <p slot="0" itemtype="https://stenci.la/Paragraph" itemscope>
-      <span slot="content">
-        <span slot="0">Some</span>
-        <em slot="1" itemtype="https://stenci.la/Emphasis" itemscope>
-          <span slot="content">
-            <span slot="0">emphasized</span>
-          </span>
-        </em>
-        <span slot="2">text.</span>
-      </span>
+    <p itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">Some<em itemtype="https://stenci.la/Emphasis" itemscope>
+          <span slot="content">emphasized</span>
+        </em>text.</span>
     </p>
   </div>
 </article>

@@ -1,21 +1,15 @@
 ---
-source: rust/src/methods/encode/html.rs
+source: rust/src/methods/encode/html/mod.rs
 expression: encoded
 input_file: fixtures/fragments/html/delete.html
 
 ---
 <article slot="root" itemtype="https://schema.org/Article" itemscope>
   <div slot="content">
-    <p slot="0" itemtype="https://stenci.la/Paragraph" itemscope>
-      <span slot="content">
-        <span slot="0">Some</span>
-        <del slot="1" itemtype="https://stenci.la/Delete" itemscope>
-          <span slot="content">
-            <span slot="0">deleted</span>
-          </span>
-        </del>
-        <span slot="2">text.</span>
-      </span>
+    <p itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">Some<del itemtype="https://stenci.la/Delete" itemscope>
+          <span slot="content">deleted</span>
+        </del>text.</span>
     </p>
   </div>
 </article>

@@ -1,21 +1,15 @@
 ---
-source: rust/src/methods/encode/html.rs
+source: rust/src/methods/encode/html/mod.rs
 expression: encoded
 input_file: fixtures/fragments/html/superscript.html
 
 ---
 <article slot="root" itemtype="https://schema.org/Article" itemscope>
   <div slot="content">
-    <p slot="0" itemtype="https://stenci.la/Paragraph" itemscope>
-      <span slot="content">
-        <span slot="0">Superscripts like CO</span>
-        <sup slot="1" itemtype="https://stenci.la/Superscript" itemscope>
-          <span slot="content">
-            <span slot="0">2</span>
-          </span>
-        </sup>
-        <span slot="2">.</span>
-      </span>
+    <p itemtype="https://stenci.la/Paragraph" itemscope>
+      <span slot="content">Superscripts like CO<sup itemtype="https://stenci.la/Superscript" itemscope>
+          <span slot="content">2</span>
+        </sup>.</span>
     </p>
   </div>
 </article>
