@@ -6,10 +6,6 @@ input_file: fixtures/fragments/html/delete.html
 ---
 <article slot="root" itemtype="https://schema.org/Article" itemscope>
   <div slot="content">
-    <p itemtype="https://stenci.la/Paragraph" itemscope>
-      <span slot="content">Some<del itemtype="https://stenci.la/Delete" itemscope>
-          <span slot="content">deleted</span>
-        </del>text.</span>
-    </p>
+    <p itemtype="https://stenci.la/Paragraph" itemscope>Some<del itemtype="https://stenci.la/Delete" itemscope>deleted</del>text.</p>
   </div>
 </article>

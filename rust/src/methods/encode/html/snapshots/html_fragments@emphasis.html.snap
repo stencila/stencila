@@ -6,10 +6,6 @@ input_file: fixtures/fragments/html/emphasis.html
 ---
 <article slot="root" itemtype="https://schema.org/Article" itemscope>
   <div slot="content">
-    <p itemtype="https://stenci.la/Paragraph" itemscope>
-      <span slot="content">Some<em itemtype="https://stenci.la/Emphasis" itemscope>
-          <span slot="content">emphasized</span>
-        </em>text.</span>
-    </p>
+    <p itemtype="https://stenci.la/Paragraph" itemscope>Some<em itemtype="https://stenci.la/Emphasis" itemscope>emphasized</em>text.</p>
   </div>
 </article>

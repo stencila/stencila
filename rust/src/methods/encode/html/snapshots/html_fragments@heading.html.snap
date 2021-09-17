@@ -6,29 +6,13 @@ input_file: fixtures/fragments/html/heading.html
 ---
 <article slot="root" itemtype="https://schema.org/Article" itemscope>
   <div slot="content">
-    <h2 itemtype="https://stenci.la/Heading" itemscope>
-      <span slot="content">Title of document</span>
-    </h2>
-    <p itemtype="https://stenci.la/Paragraph" itemscope>
-      <span slot="content">The h1 tag is reserved for single use by the title. So a heading of depth 1 uses h2 etc</span>
-    </p>
-    <h2 itemtype="https://stenci.la/Heading" itemscope>
-      <span slot="content">Heading 1</span>
-    </h2>
-    <h3 itemtype="https://stenci.la/Heading" itemscope>
-      <span slot="content">Heading 2</span>
-    </h3>
-    <h4 itemtype="https://stenci.la/Heading" itemscope>
-      <span slot="content">Heading 3</span>
-    </h4>
-    <h5 itemtype="https://stenci.la/Heading" itemscope>
-      <span slot="content">Heading 4</span>
-    </h5>
-    <h6 itemtype="https://stenci.la/Heading" itemscope>
-      <span slot="content">Heading 5</span>
-    </h6>
-    <h2 itemtype="https://stenci.la/Heading" itemscope id="heading-with-an-id">
-      <span slot="content">Heading with an id</span>
-    </h2>
+    <h2 itemtype="https://stenci.la/Heading" itemscope>Title of document</h2>
+    <p itemtype="https://stenci.la/Paragraph" itemscope>The h1 tag is reserved for single use by the title. So a heading of depth 1 uses h2 etc</p>
+    <h2 itemtype="https://stenci.la/Heading" itemscope>Heading 1</h2>
+    <h3 itemtype="https://stenci.la/Heading" itemscope>Heading 2</h3>
+    <h4 itemtype="https://stenci.la/Heading" itemscope>Heading 3</h4>
+    <h5 itemtype="https://stenci.la/Heading" itemscope>Heading 4</h5>
+    <h6 itemtype="https://stenci.la/Heading" itemscope>Heading 5</h6>
+    <h2 itemtype="https://stenci.la/Heading" itemscope id="heading-with-an-id">Heading with an id</h2>
   </div>
 </article>

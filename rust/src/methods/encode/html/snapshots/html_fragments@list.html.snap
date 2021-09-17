@@ -9,118 +9,66 @@ input_file: fixtures/fragments/html/list.html
     <div itemtype="https://stenci.la/List" itemscope>
       <ul slot="items">
         <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
-          <div slot="content">
-            <p itemtype="https://stenci.la/Paragraph" itemscope>
-              <span slot="content">apple</span>
-            </p>
-          </div>
+          <p itemtype="https://stenci.la/Paragraph" itemscope>apple</p>
         </li>
         <li slot="1" itemtype="https://stenci.la/ListItem" itemscope>
-          <div slot="content">
-            <p itemtype="https://stenci.la/Paragraph" itemscope>
-              <span slot="content">pear</span>
-            </p>
-          </div>
+          <p itemtype="https://stenci.la/Paragraph" itemscope>pear</p>
         </li>
         <li slot="2" itemtype="https://stenci.la/ListItem" itemscope>
-          <div slot="content">
-            <p itemtype="https://stenci.la/Paragraph" itemscope>
-              <span slot="content">orange</span>
-            </p>
-          </div>
+          <p itemtype="https://stenci.la/Paragraph" itemscope>orange</p>
         </li>
       </ul>
     </div>
     <div itemtype="https://stenci.la/List" itemscope>
       <ol slot="items">
         <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
-          <div slot="content">
-            <p itemtype="https://stenci.la/Paragraph" itemscope>
-              <span slot="content">first</span>
-            </p>
-          </div>
+          <p itemtype="https://stenci.la/Paragraph" itemscope>first</p>
         </li>
         <li slot="1" itemtype="https://stenci.la/ListItem" itemscope>
-          <div slot="content">
-            <p itemtype="https://stenci.la/Paragraph" itemscope>
-              <span slot="content">second</span>
-            </p>
-          </div>
+          <p itemtype="https://stenci.la/Paragraph" itemscope>second</p>
         </li>
         <li slot="2" itemtype="https://stenci.la/ListItem" itemscope>
-          <div slot="content">
-            <p itemtype="https://stenci.la/Paragraph" itemscope>
-              <span slot="content">third</span>
-            </p>
-          </div>
+          <p itemtype="https://stenci.la/Paragraph" itemscope>third</p>
         </li>
       </ol>
     </div>
     <div itemtype="https://stenci.la/List" itemscope>
       <ul slot="items">
         <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
-          <div slot="content">
-            <p itemtype="https://stenci.la/Paragraph" itemscope>
-              <span slot="content">nested</span>
-            </p>
-            <div itemtype="https://stenci.la/List" itemscope>
-              <ul slot="items">
-                <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
-                  <div slot="content">
-                    <p itemtype="https://stenci.la/Paragraph" itemscope>
-                      <span slot="content">2a</span>
-                    </p>
-                    <div itemtype="https://stenci.la/List" itemscope>
-                      <ul slot="items">
-                        <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
-                          <div slot="content">
-                            <p itemtype="https://stenci.la/Paragraph" itemscope>
-                              <span slot="content">3a</span>
-                            </p>
-                          </div>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </li>
-                <li slot="1" itemtype="https://stenci.la/ListItem" itemscope>
-                  <div slot="content">
-                    <p itemtype="https://stenci.la/Paragraph" itemscope>
-                      <span slot="content">2b</span>
-                    </p>
-                  </div>
-                </li>
-                <li slot="2" itemtype="https://stenci.la/ListItem" itemscope>
-                  <div slot="content">
-                    <p itemtype="https://stenci.la/Paragraph" itemscope>
-                      <span slot="content">2c</span>
-                    </p>
-                    <div itemtype="https://stenci.la/List" itemscope>
-                      <ul slot="items">
-                        <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
-                          <div slot="content">
-                            <p itemtype="https://stenci.la/Paragraph" itemscope>
-                              <span slot="content">3b</span>
-                            </p>
-                            <div itemtype="https://stenci.la/List" itemscope>
-                              <ul slot="items">
-                                <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
-                                  <div slot="content">
-                                    <p itemtype="https://stenci.la/Paragraph" itemscope>
-                                      <span slot="content">4a</span>
-                                    </p>
-                                  </div>
-                                </li>
-                              </ul>
-                            </div>
-                          </div>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
+          <p itemtype="https://stenci.la/Paragraph" itemscope>nested</p>
+          <div itemtype="https://stenci.la/List" itemscope>
+            <ul slot="items">
+              <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
+                <p itemtype="https://stenci.la/Paragraph" itemscope>2a</p>
+                <div itemtype="https://stenci.la/List" itemscope>
+                  <ul slot="items">
+                    <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
+                      <p itemtype="https://stenci.la/Paragraph" itemscope>3a</p>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li slot="1" itemtype="https://stenci.la/ListItem" itemscope>
+                <p itemtype="https://stenci.la/Paragraph" itemscope>2b</p>
+              </li>
+              <li slot="2" itemtype="https://stenci.la/ListItem" itemscope>
+                <p itemtype="https://stenci.la/Paragraph" itemscope>2c</p>
+                <div itemtype="https://stenci.la/List" itemscope>
+                  <ul slot="items">
+                    <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
+                      <p itemtype="https://stenci.la/Paragraph" itemscope>3b</p>
+                      <div itemtype="https://stenci.la/List" itemscope>
+                        <ul slot="items">
+                          <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
+                            <p itemtype="https://stenci.la/Paragraph" itemscope>4a</p>
+                          </li>
+                        </ul>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
           </div>
         </li>
       </ul>
@@ -128,11 +76,7 @@ input_file: fixtures/fragments/html/list.html
     <div itemtype="https://stenci.la/List" itemscope>
       <ol slot="items">
         <li slot="0" itemtype="https://stenci.la/ListItem" itemscope>
-          <span slot="content">
-            <em itemtype="https://stenci.la/Emphasis" itemscope>
-              <span slot="content">solo inline</span>
-            </em>
-          </span>
+          <em itemtype="https://stenci.la/Emphasis" itemscope>solo inline</em>
         </li>
       </ol>
     </div>

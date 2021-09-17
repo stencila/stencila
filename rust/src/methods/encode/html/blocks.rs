@@ -5,17 +5,23 @@ use super::{
 use html_escape::encode_safe;
 use stencila_schema::*;
 
+/// Encode a vector of `BlockContent` as HTML
+///
+/// Note that if the `slot` is an empty string, then no wrapping `<div>`
+/// will be generated. This allows the `content` property of nodes to be "implicit".
+/// Use this when there are no other properties of a block that need to be encoded.
 impl ToHtml for Vec<BlockContent> {
     fn to_html(&self, slot: &str, context: &Context) -> String {
-        elem(
-            "div",
-            &[attr_slot(slot)],
-            &self
-                .iter()
-                .map(|item| item.to_html("", context))
-                .collect::<Vec<String>>()
-                .concat(),
-        )
+        let blocks = self
+            .iter()
+            .map(|item| item.to_html("", context))
+            .collect::<Vec<String>>()
+            .concat();
+        if slot.is_empty() {
+            blocks
+        } else {
+            elem("div", &[attr_slot(slot)], &blocks)
+        }
     }
 }
 
@@ -185,7 +191,7 @@ impl ToHtml for Heading {
         elem(
             &["h", &depth.to_string()].concat(),
             &[attr_slot(slot), attr_itemtype(self), attr_id(&self.id)],
-            &self.content.to_html("content", context),
+            &self.content.to_html("", context),
         )
     }
 }
@@ -244,8 +250,8 @@ impl ToHtml for ListItem {
                 ListItemContent::VecInlineContent(inlines) => match checkbox {
                     Some(checkbox) => [vec![checkbox], inlines.clone()]
                         .concat()
-                        .to_html("content", context),
-                    None => inlines.to_html("content", context),
+                        .to_html("", context),
+                    None => inlines.to_html("", context),
                 },
                 ListItemContent::VecBlockContent(blocks) => match checkbox {
                     Some(checkbox) => {
@@ -259,10 +265,10 @@ impl ToHtml for ListItem {
                             ]
                             .concat()
                         } else {
-                            blocks.to_html("content", context)
+                            blocks.to_html("", context)
                         }
                     }
-                    None => blocks.to_html("content", context),
+                    None => blocks.to_html("", context),
                 },
             },
             None => "".to_string(),
@@ -296,7 +302,7 @@ impl ToHtml for Paragraph {
         elem(
             "p",
             &[attr_slot(slot), attr_itemtype(self), attr_id(&self.id)],
-            &self.content.to_html("content", context),
+            &self.content.to_html("", context),
         )
     }
 }
@@ -306,7 +312,7 @@ impl ToHtml for QuoteBlock {
         elem(
             "blockquote",
             &[attr_slot(slot), attr_itemtype(self), attr_id(&self.id)],
-            &self.content.to_html("content", context),
+            &self.content.to_html("", context),
         )
     }
 }

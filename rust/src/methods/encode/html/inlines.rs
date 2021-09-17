@@ -6,17 +6,22 @@ use html_escape::encode_safe;
 use std::{fs, path::PathBuf};
 use stencila_schema::*;
 
+/// Encode a vector of `InlineContent` as HTML
+///
+/// Note that, as for blocks, if the `slot` is an empty string, then no wrapping `<div>`
+/// will be generated.
 impl ToHtml for Vec<InlineContent> {
     fn to_html(&self, slot: &str, context: &Context) -> String {
-        elem(
-            "span",
-            &[attr_slot(slot)],
-            &self
-                .iter()
-                .map(|item| item.to_html("", context))
-                .collect::<Vec<String>>()
-                .concat(),
-        )
+        let inlines = self
+            .iter()
+            .map(|item| item.to_html("", context))
+            .collect::<Vec<String>>()
+            .concat();
+        if slot.is_empty() {
+            inlines
+        } else {
+            elem("span", &[attr_slot(slot)], &inlines)
+        }
     }
 }
 
@@ -57,7 +62,7 @@ macro_rules! mark_to_html {
                 elem(
                     $tag,
                     &[attr_slot(slot), attr_itemtype(self), attr_id(&self.id)],
-                    &self.content.to_html("content", context),
+                    &self.content.to_html("", context),
                 )
             }
         }
@@ -332,7 +337,7 @@ impl ToHtml for Link {
                 attr_id(&self.id),
                 attr("href", &self.target),
             ],
-            &self.content.to_html("content", context),
+            &self.content.to_html("", context),
         )
     }
 }
@@ -382,7 +387,7 @@ impl ToHtml for Quote {
         elem(
             "q",
             &[attr_slot(slot), attr_itemtype(self), attr_id(&self.id)],
-            &self.content.to_html("content", context),
+            &self.content.to_html("", context),
         )
     }
 }

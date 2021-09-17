@@ -468,21 +468,13 @@ impl DomOperation {
                 Slot::Name(name) => inlines.to_html(name, &context),
                 // If the slot is an index then we're adding or replacing items in a
                 // vector so we don't want a wrapper element
-                Slot::Index(..) => inlines
-                    .iter()
-                    .map(|inline| inline.to_html("", &context))
-                    .collect::<Vec<String>>()
-                    .concat(),
+                Slot::Index(..) => inlines.to_html("", &context),
             }
         } else if let Some(blocks) = value.downcast_ref::<Vec<BlockContent>>() {
             match slot {
                 // As above, but for blocks...
                 Slot::Name(name) => blocks.to_html(name, &context),
-                Slot::Index(..) => blocks
-                    .iter()
-                    .map(|block| block.to_html("", &context))
-                    .collect::<Vec<String>>()
-                    .concat(),
+                Slot::Index(..) => blocks.to_html("", &context),
             }
         } else {
             tracing::error!("Unhandled value type when generating `DomOperation`");
@@ -1282,7 +1274,7 @@ mod tests {
             content: Some(vec![BlockContent::Paragraph(Paragraph {
                 content: vec![
                     InlineContent::String("first".to_string()),
-                    InlineContent::String("second".to_string()),
+                    InlineContent::String(" second".to_string()),
                 ],
                 ..Default::default()
             })]),
@@ -1294,7 +1286,7 @@ mod tests {
             content: Some(vec![BlockContent::Paragraph(Paragraph {
                 content: vec![
                     InlineContent::String("foot".to_string()),
-                    InlineContent::String("second".to_string()),
+                    InlineContent::String(" second".to_string()),
                 ],
                 ..Default::default()
             })]),
@@ -1305,7 +1297,7 @@ mod tests {
         let five = Article {
             content: Some(vec![BlockContent::Paragraph(Paragraph {
                 content: vec![
-                    InlineContent::String("second".to_string()),
+                    InlineContent::String(" second".to_string()),
                     InlineContent::String("foot".to_string()),
                 ],
                 ..Default::default()
@@ -1336,7 +1328,7 @@ mod tests {
             json!([{
                 "type": "Add",
                 "address": ["content"],
-                "html": "<div slot=\"content\"><p itemtype=\"https://stenci.la/Paragraph\" itemscope><span slot=\"content\"></span></p></div>",
+                "html": "<div slot=\"content\"><p itemtype=\"https://stenci.la/Paragraph\" itemscope></p></div>",
                 "length": 1
             }])
         );
@@ -1348,7 +1340,7 @@ mod tests {
             json!([{
                 "type": "Add",
                 "address": ["content", 0, "content", 0],
-                "value": ["first", "second"],
+                "value": ["first", " second"],
                 "length": 2
             }])
         );
@@ -1358,7 +1350,7 @@ mod tests {
             json!([{
                 "type": "Add",
                 "address": ["content", 0, "content", 0],
-                "html": "<span slot=\"0\">first</span><span slot=\"1\">second</span>",
+                "html": "first second",
                 "length": 2
             }])
         );
