@@ -165,7 +165,7 @@ export type Address = Slot[]
  *
  * Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode characters not bytes.
  */
-export type Operation = OperationAdd | OperationAdd1 | OperationReplace | OperationMove | OperationTransform
+export type Operation = OperationAdd | OperationRemove | OperationReplace | OperationMove | OperationTransform
 /**
  * A set of [`Operation`]s
  */
@@ -190,7 +190,7 @@ export type DomPatch = DomOperation[]
  * Add a value
  */
 export interface OperationAdd {
-  op: 'add'
+  type: 'Add'
   /**
    * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
    *
@@ -202,9 +202,7 @@ export interface OperationAdd {
   /**
    * The value to add
    */
-  value: {
-    [k: string]: unknown
-  }
+  value: any
   /**
    * The number of items added
    */
@@ -213,8 +211,8 @@ export interface OperationAdd {
 /**
  * Remove one or more values
  */
-export interface OperationAdd1 {
-  op: 'remove'
+export interface OperationRemove {
+  type: 'Remove'
   /**
    * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
    *
@@ -232,7 +230,7 @@ export interface OperationAdd1 {
  * Replace one or more values
  */
 export interface OperationReplace {
-  op: 'replace'
+  type: 'Replace'
   /**
    * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
    *
@@ -248,9 +246,7 @@ export interface OperationReplace {
   /**
    * The replacement value
    */
-  value: {
-    [k: string]: unknown
-  }
+  value: any
   /**
    * The number of items added
    */
@@ -260,7 +256,7 @@ export interface OperationReplace {
  * Move a value from one address to another
  */
 export interface OperationMove {
-  op: 'move'
+  type: 'Move'
   /**
    * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
    *
@@ -286,7 +282,7 @@ export interface OperationMove {
  * Transform a value from one type to another
  */
 export interface OperationTransform {
-  op: 'transform'
+  type: 'Transform'
   /**
    * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
    *
@@ -308,7 +304,7 @@ export interface OperationTransform {
  * Add one or more DOM nodes
  */
 export interface DomOperationAdd {
-  op: 'add'
+  type: 'Add'
   /**
    * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
    *
@@ -330,7 +326,7 @@ export interface DomOperationAdd {
  * Remove one or more DOM nodes
  */
 export interface DomOperationRemove {
-  op: 'remove'
+  type: 'Remove'
   /**
    * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
    *
@@ -348,7 +344,7 @@ export interface DomOperationRemove {
  * Replace one or more DOM nodes
  */
 export interface DomOperationReplace {
-  op: 'replace'
+  type: 'Replace'
   /**
    * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
    *
@@ -374,7 +370,7 @@ export interface DomOperationReplace {
  * Move a DOM node from one address to another
  */
 export interface DomOperationMove {
-  op: 'move'
+  type: 'Move'
   /**
    * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
    *
@@ -400,7 +396,7 @@ export interface DomOperationMove {
  * Transform a DOM node from one type to another
  */
 export interface DomOperationTransform {
-  op: 'transform'
+  type: 'Transform'
   /**
    * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
    *

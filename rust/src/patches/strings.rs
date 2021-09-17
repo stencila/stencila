@@ -195,21 +195,21 @@ mod tests {
         let patch = diff(&empty, &a);
         assert_json!(
             patch,
-            [{ "op": "add", "address": [0], "value": "1", "length": 1 }]
+            [{ "type": "Add", "address": [0], "value": "1", "length": 1 }]
         );
         assert_eq!(apply_new(&empty, &patch), a);
 
         let patch = diff(&empty, &d);
         assert_json!(
             patch,
-            [{ "op": "add", "address": [0], "value": "abcdef", "length": 6 }]
+            [{ "type": "Add", "address": [0], "value": "abcdef", "length": 6 }]
         );
         assert_eq!(apply_new(&empty, &patch), d);
 
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{ "op": "add", "address": [1], "value": "23", "length": 2 }]
+            [{ "type": "Add", "address": [1], "value": "23", "length": 2 }]
         );
         assert_eq!(apply_new(&a, &patch), b);
 
@@ -218,19 +218,19 @@ mod tests {
         let patch = diff(&a, &empty);
         assert_json!(
             patch,
-            [{ "op": "remove", "address": [0], "items": 1 }]
+            [{ "type": "Remove", "address": [0], "items": 1 }]
         );
 
         let patch = diff(&d, &empty);
         assert_json!(
             patch,
-            [{ "op": "remove", "address": [0], "items": 6 }]
+            [{ "type": "Remove", "address": [0], "items": 6 }]
         );
 
         let patch = diff(&b, &a);
         assert_json!(
             patch,
-            [{ "op": "remove", "address": [1], "items": 2 }]
+            [{ "type": "Remove", "address": [1], "items": 2 }]
         );
 
         // Replace
@@ -238,14 +238,14 @@ mod tests {
         let patch = diff(&a, &c);
         assert_json!(
             patch,
-            [{ "op": "replace", "address": [0], "items": 1, "value": "a2b3", "length": 4 }]
+            [{ "type": "Replace", "address": [0], "items": 1, "value": "a2b3", "length": 4 }]
         );
         assert_eq!(apply_new(&a, &patch), c);
 
         let patch = diff(&b, &d);
         assert_json!(
             patch,
-            [{ "op": "replace", "address": [0], "items": 3, "value": "abcdef", "length": 6 }]
+            [{ "type": "Replace", "address": [0], "items": 3, "value": "abcdef", "length": 6 }]
         );
         assert_eq!(apply_new(&b, &patch), d);
 
@@ -255,8 +255,8 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "remove", "address": [1], "items": 1 },
-                { "op": "replace", "address": [2], "items": 1, "value": "cdef", "length": 4 }
+                { "type": "Remove", "address": [1], "items": 1 },
+                { "type": "Replace", "address": [2], "items": 1, "value": "cdef", "length": 4 }
             ]
         );
         assert_eq!(apply_new(&c, &patch), d);
@@ -265,8 +265,8 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "add", "address": [1], "value": "2", "length": 1 },
-                { "op": "replace", "address": [3], "items": 4, "value": "3", "length": 1 }
+                { "type": "Add", "address": [1], "value": "2", "length": 1 },
+                { "type": "Replace", "address": [3], "items": 4, "value": "3", "length": 1 }
             ]
         );
         assert_eq!(apply_new(&d, &patch), c);
@@ -275,9 +275,9 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "add", "address": [1], "value": "d", "length": 1 },
-                { "op": "replace", "address": [4], "items": 1, "value": "f", "length": 1 },
-                { "op": "remove", "address": [6], "items": 1 }
+                { "type": "Add", "address": [1], "value": "d", "length": 1 },
+                { "type": "Replace", "address": [4], "items": 1, "value": "f", "length": 1 },
+                { "type": "Remove", "address": [6], "items": 1 }
             ]
         );
         assert_eq!(apply_new(&d, &patch), e);
@@ -293,21 +293,21 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "add", "address": [1], "value": "1👍🏻2", "length": 4 },
+            { "type": "Add", "address": [1], "value": "1👍🏻2", "length": 4 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
 
         let patch = diff(&b, &c);
         assert_json!(patch, [
-            { "op": "remove", "address": [0], "items": 1 },
-            { "op": "replace", "address": [2], "items": 1, "value": "🏿", "length": 1 },
+            { "type": "Remove", "address": [0], "items": 1 },
+            { "type": "Replace", "address": [2], "items": 1, "value": "🏿", "length": 1 },
         ]);
         assert_eq!(apply_new(&b, &patch), c);
 
         let patch = diff(&c, &b);
         assert_json!(patch, [
-            { "op": "add", "address": [0], "value": "ä", "length": 1 },
-            { "op": "replace", "address": [3], "items": 1, "value": "🏻", "length": 1 },
+            { "type": "Add", "address": [0], "value": "ä", "length": 1 },
+            { "type": "Replace", "address": [3], "items": 1, "value": "🏻", "length": 1 },
         ]);
         assert_eq!(apply_new(&c, &patch), b);
     }
@@ -321,8 +321,8 @@ mod tests {
         let b = "bc".to_string();
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "remove", "address": [0], "items": 1 },
-            { "op": "add", "address": [1], "value": "c", "length": 1 },
+            { "type": "Remove", "address": [0], "items": 1 },
+            { "type": "Add", "address": [1], "value": "c", "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
     }
@@ -335,8 +335,8 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "replace", "address": [0], "items": 1, "value": "b", "length": 1 },
-                { "op": "add", "address": [2], "value": "d", "length": 1 },
+                { "type": "Replace", "address": [0], "items": 1, "value": "b", "length": 1 },
+                { "type": "Add", "address": [2], "value": "d", "length": 1 },
             ]
         );
         assert_eq!(apply_new(&a, &patch), b);

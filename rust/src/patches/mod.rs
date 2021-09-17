@@ -6,11 +6,7 @@ use crate::{
 use defaults::Defaults;
 use derive_more::{Constructor, Deref, DerefMut};
 use eyre::Result;
-use schemars::{
-    gen::SchemaGenerator,
-    schema::{Schema, SchemaObject},
-    JsonSchema,
-};
+use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Serialize, Serializer};
 use similar::TextDiff;
 use std::{
@@ -214,7 +210,7 @@ impl From<&str> for Address {
 /// Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode
 /// characters not bytes.
 #[derive(Debug, JsonSchema, Serialize, ToString)]
-#[serde(tag = "op", rename_all = "lowercase")]
+#[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
 pub enum Operation {
     /// Add a value
@@ -232,7 +228,7 @@ pub enum Operation {
         length: usize,
     },
     /// Remove one or more values
-    #[schemars(title = "OperationAdd")]
+    #[schemars(title = "OperationRemove")]
     Remove {
         /// The address from which to remove the value(s)
         address: Address,
@@ -326,9 +322,7 @@ impl Operation {
 
     /// Generate the JSON Schema for the `value` property
     fn value_schema(_generator: &mut SchemaGenerator) -> Schema {
-        Schema::Object(SchemaObject {
-            ..Default::default()
-        })
+        schemas::typescript("any", true)
     }
 }
 
@@ -344,7 +338,7 @@ pub struct Patch(Vec<Operation>);
 /// renamed to `html` and is a string representing the HTML
 /// of the DOM node (usually a HTML `Element` or `Text` node) or part of it.
 #[derive(Debug, JsonSchema, Serialize)]
-#[serde(tag = "op", rename_all = "lowercase")]
+#[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
 pub enum DomOperation {
     /// Add one or more DOM nodes
@@ -1172,7 +1166,7 @@ enum PatchesSchema {
 
 /// Get JSON Schemas for this module
 pub fn schemas() -> Result<serde_json::Value> {
-    Ok(schemas::generate::<PatchesSchema>()?)
+    schemas::generate::<PatchesSchema>()
 }
 
 #[cfg(test)]
@@ -1242,7 +1236,7 @@ mod tests {
         assert_json!(
             patch,
             [{
-                "op": "add",
+                "type": "Add",
                 "address": ["content", 0],
                 "value": ["word1", "word2"],
                 "length": 2
@@ -1261,12 +1255,12 @@ mod tests {
         assert_json!(
             patch,
             [{
-                "op": "transform",
+                "type": "Transform",
                 "address": ["content", 0],
                 "from": "String",
                 "to": "Emphasis"
             },{
-                "op": "replace",
+                "type": "Replace",
                 "address": ["content", 1, 2],
                 "items": 3,
                 "value": "two",
@@ -1337,7 +1331,7 @@ mod tests {
         assert_json_eq!(
             patch,
             json!([{
-                "op": "add",
+                "type": "Add",
                 "address": ["content"],
                 "value": [{"type": "Paragraph", "content": []}],
                 "length": 1
@@ -1347,7 +1341,7 @@ mod tests {
         assert_json_eq!(
             dom_patch,
             json!([{
-                "op": "add",
+                "type": "Add",
                 "address": ["content"],
                 "html": "<div slot=\"content\"><p slot=\"0\" itemtype=\"https://stenci.la/Paragraph\" itemscope><span slot=\"content\"></span></p></div>",
                 "length": 1
@@ -1359,7 +1353,7 @@ mod tests {
         assert_json_eq!(
             patch,
             json!([{
-                "op": "add",
+                "type": "Add",
                 "address": ["content", 0, "content", 0],
                 "value": ["first", "second"],
                 "length": 2
@@ -1369,7 +1363,7 @@ mod tests {
         assert_json_eq!(
             dom_patch,
             json!([{
-                "op": "add",
+                "type": "Add",
                 "address": ["content", 0, "content", 0],
                 "html": "<span slot=\"0\">first</span><span slot=\"1\">second</span>",
                 "length": 2
@@ -1381,7 +1375,7 @@ mod tests {
         assert_json_eq!(
             patch,
             json!([{
-                "op": "replace",
+                "type": "Replace",
                 "address": ["content", 0, "content", 0, 1],
                 "items": 3,
                 "value": "oo",
@@ -1392,7 +1386,7 @@ mod tests {
         assert_json_eq!(
             dom_patch,
             json!([{
-                "op": "replace",
+                "type": "Replace",
                 "address": ["content", 0, "content", 0, 1],
                 "items": 3,
                 "html": "oo",
@@ -1405,7 +1399,7 @@ mod tests {
         assert_json_eq!(
             patch,
             json!([{
-                "op": "move",
+                "type": "Move",
                 "from": ["content", 0, "content", 1],
                 "items": 1,
                 "to": ["content", 0, "content", 0],
@@ -1415,7 +1409,7 @@ mod tests {
         assert_json_eq!(
             dom_patch,
             json!([{
-                "op": "move",
+                "type": "Move",
                 "from": ["content", 0, "content", 1],
                 "items": 1,
                 "to": ["content", 0, "content", 0],

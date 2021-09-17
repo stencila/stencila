@@ -267,9 +267,9 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            {"op": "add", "address": [0], "value": "e", "length": 1},
-            {"op": "remove", "address": [2], "items": 1},
-            {"op": "replace", "address": [3], "items": 1, "value": "p", "length": 1}
+            {"type": "Add", "address": [0], "value": "e", "length": 1},
+            {"type": "Remove", "address": [2], "items": 1},
+            {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
         ]);
         assert_json_eq!(apply_new(&a, &patch), b);
 
@@ -288,7 +288,7 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            {"op": "remove", "address": ["content", 0, 2], "items": 2},
+            {"type": "Remove", "address": ["content", 0, 2], "items": 2},
         ]);
         assert_json_eq!(apply_new(&a, &patch), b);
     }
@@ -308,25 +308,25 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            {"op": "transform", "address": [], "from": "String", "to": "Emphasis"}
+            {"type": "Transform", "address": [], "from": "String", "to": "Emphasis"}
         ]);
         assert_json_eq!(apply_new(&a, &patch), b);
 
         let patch = diff(&b, &a);
         assert_json!(patch, [
-            {"op": "transform", "address": [], "from": "Emphasis", "to": "String"}
+            {"type": "Transform", "address": [], "from": "Emphasis", "to": "String"}
         ]);
         assert_json_eq!(apply_new(&b, &patch), a);
 
         let patch = diff(&b, &c);
         assert_json!(patch, [
-            {"op": "transform", "address": [], "from": "Emphasis", "to": "Strong"}
+            {"type": "Transform", "address": [], "from": "Emphasis", "to": "Strong"}
         ]);
         assert_json_eq!(apply_new(&b, &patch), c);
 
         let patch = diff(&c, &b);
         assert_json!(patch, [
-            {"op": "transform", "address": [], "from": "Strong", "to": "Emphasis"}
+            {"type": "Transform", "address": [], "from": "Strong", "to": "Emphasis"}
         ]);
         assert_json_eq!(apply_new(&c, &patch), b);
     }
@@ -343,7 +343,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             {
-                "op": "replace", "address": [], "items": 1,
+                "type": "Replace", "address": [], "items": 1,
                 "value": {"type": "Emphasis", "content": ["b"]},
                 "length": 1
             }
@@ -353,7 +353,7 @@ mod tests {
         let patch = diff(&b, &a);
         assert_json!(patch, [
             {
-                "op": "replace", "address": [], "items": 1,
+                "type": "Replace", "address": [], "items": 1,
                 "value": "a",
                 "length": 1
             }
@@ -377,7 +377,7 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             {
-                "op": "replace", "address": [], "items": 1,
+                "type": "Replace", "address": [], "items": 1,
                 "value": {"type": "ImageObject", "contentUrl": "a"},
                 "length": 1
             }
@@ -413,11 +413,11 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             {
-                "op": "replace", "address": [0, "content", 0, 0], "items": 1,
+                "type": "Replace", "address": [0, "content", 0, 0], "items": 1,
                 "value": "b", "length": 1
             },
             {
-                "op": "replace", "address": [1], "items": 1,
+                "type": "Replace", "address": [1], "items": 1,
                 "value": [{ "type": "AudioObject", "contentUrl": "a.flac"}], "length": 1
             }
         ]);

@@ -67,9 +67,9 @@ mod tests {
         assert_json!(
             patch,
             [
-                {"op": "add", "address": [0], "value": "e", "length": 1},
-                {"op": "remove", "address": [2], "items": 1},
-                {"op": "replace", "address": [3], "items": 1, "value": "p", "length": 1}
+                {"type": "Add", "address": [0], "value": "e", "length": 1},
+                {"type": "Remove", "address": [2], "items": 1},
+                {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
             ]
         );
         assert_json!(apply_new(&a, &patch), b);
