@@ -3,6 +3,10 @@
  *
  * Compared to the Rust functions which apply a `Patch` to a Stencila `Node` (e.g. an `Article`
  * or `String`), these functions apply a `DomPatch` to a DOM `Node` (e.g. an `Element` or `Text`).
+ *
+ * In the Rust `patch` module most of the action in applying operations occurs in the `Patchable`
+ * implementations for `Vec` (vectors), `Option` (usually optional properties of `struct`s), and
+ * `String`s. To promote consistency in the implementations we use those names in the functions below.
  */
 
 import {
@@ -53,7 +57,7 @@ export function applyOp(op: DomOperation): void {
  * This module make liberal use of assertions of consistency between `DomOperation`s
  * and the current DOM with the view that if there is any inconsistency detected then
  * it is best to simply exit the `applyPatch` function early and reload the page.
- * 
+ *
  * This should only happen if there (a) the client has missed a `DomPatch`
  * such that the state of the DOM is out of sync with the server-side document, or
  * (b) if there is a bug in the following code. Hopefully testing rules out (b).
@@ -85,7 +89,7 @@ function isString(slot: Slot): slot is string {
 /**
  * Assert that a slot is a string variant.
  */
-function _assertString(slot: Slot): asserts slot is string {
+function assertString(slot: Slot): asserts slot is string {
   assert(isString(slot), 'Expected string slot')
 }
 
@@ -224,40 +228,57 @@ export function applyAdd(op: DomOperationAdd): void {
   const [parent, slot] = resolveParent(address)
 
   if (isElement(parent)) {
-    const fragment = createFragment(html)
-    if (isString(slot)) {
-      // If the slot is a string then we're adding a value to an `Option`
-      // property of a `struct` (one that was previous `None`) so can just append the fragment.
-      parent.appendChild(fragment)
-    } else {
-      // If the slot is number then we're inserting an item to a `Vec` in which
-      // case we need to make sure we're inserting at in correct position.
-      const children = parent.childNodes
-      if (children.length === 0) {
-        assert(
-          slot === 0,
-          'Attempting to insert at non-zero slot in element with no children'
-        )
-        parent.appendChild(fragment)
-      } else {
-        const sibling = parent.childNodes[slot]
-        if (sibling === undefined)
-          throw panic(
-            `Unexpected add slot ${slot} for element with ${children.length} children`
-          )
-        parent.insertBefore(fragment, sibling)
-      }
-    }
-  } else {
-    // Inserting into a string
-    assertNumber(slot)
-    const text = parent.textContent ?? ''
+    if (isString(slot)) applyAddOption(parent, slot, html)
+    else applyAddVec(parent, slot, html)
+  } else applyAddString(parent, slot, html)
+}
+
+/**
+ * Apply an add operation to an element representing an `Option`
+ */
+export function applyAddOption(node: Element, slot: Slot, html: string): void {
+  assertString(slot)
+
+  const fragment = createFragment(html)
+  node.appendChild(fragment)
+}
+
+/**
+ * Apply an add operation to an element representing a `Vec`
+ */
+export function applyAddVec(node: Element, slot: Slot, html: string): void {
+  assertNumber(slot)
+
+  const fragment = createFragment(html)
+  const children = node.childNodes
+  if (children.length === 0) {
     assert(
-      slot >= 0 && slot <= text.length,
-      `Unexpected add slot ${slot} for text node of length ${text.length}`
+      slot === 0,
+      'Attempting to insert at non-zero slot in element with no children'
     )
-    parent.textContent = text.slice(0, slot) + html + text.slice(slot)
+    node.appendChild(fragment)
+  } else {
+    const sibling = node.childNodes[slot]
+    if (sibling === undefined)
+      throw panic(
+        `Unexpected add slot ${slot} for element with ${children.length} children`
+      )
+    node.insertBefore(fragment, sibling)
   }
+}
+
+/**
+ * Apply an add operation to a text node representing a `String`
+ */
+export function applyAddString(node: Text, slot: Slot, value: string): void {
+  assertNumber(slot)
+
+  const text = node.textContent ?? ''
+  assert(
+    slot >= 0 && slot <= text.length,
+    `Unexpected add slot ${slot} for text node of length ${text.length}`
+  )
+  node.textContent = text.slice(0, slot) + value + text.slice(slot)
 }
 
 /**
@@ -268,44 +289,65 @@ export function applyRemove(op: DomOperationRemove): void {
   const [parent, slot] = resolveParent(address)
 
   if (isElement(parent)) {
-    if (isString(slot)) {
-      // If the slot is a string then we're removing a value from an `Option`
-      // property of a `struct` so expect the number of items to be 1
-      assert(items === 1, `Unexpected items ${items} for slot ${slot}`)
-      const node = resolveSlot(parent, slot)
-      node.remove()
-    } else {
-      // If the slot is number then we're removing items from a `Vec` so
-      // need to check the `slot` and `items` against the number of children.
-      const children = parent.childNodes
-      assert(
-        slot >= 0 && slot < children.length,
-        `Unexpected remove slot ${slot} for element with ${children.length} children`
-      )
-      assert(
-        items > 0 && slot + items <= children.length,
-        `Unexpected remove items ${items} for element with ${children.length} children`
-      )
-      let removed = 0
-      while (removed < items) {
-        children[slot]?.remove()
-        removed += 1
-      }
-    }
-  } else {
-    // Removing from a string
-    assertNumber(slot)
-    const text = parent.textContent ?? ''
-    assert(
-      slot >= 0 && slot <= text.length,
-      `Unexpected remove slot ${slot} for text node of length ${text.length}`
-    )
-    assert(
-      items > 0 && slot + items <= text.length,
-      `Unexpected remove items ${slot} for text node of length ${text.length}`
-    )
-    parent.textContent = text.slice(0, slot) + text.slice(slot + items)
+    if (isString(slot)) applyRemoveOption(parent, slot, items)
+    else applyRemoveVec(parent, slot, items)
+  } else applyRemoveString(parent, slot, items)
+}
+
+/**
+ * Apply a remove operation to an element representing an `Option`
+ */
+export function applyRemoveOption(
+  node: Element,
+  slot: Slot,
+  items: number
+): void {
+  assert(items === 1, `Unexpected items ${items} for slot ${slot}`)
+
+  const target = resolveSlot(node, slot)
+  target.remove()
+}
+
+/**
+ * Apply a remove operation to an element representing a `Vec`
+ */
+export function applyRemoveVec(node: Element, slot: Slot, items: number): void {
+  assertNumber(slot)
+
+  const children = node.childNodes
+  assert(
+    slot >= 0 && slot < children.length,
+    `Unexpected remove slot ${slot} for element with ${children.length} children`
+  )
+  assert(
+    items > 0 && slot + items <= children.length,
+    `Unexpected remove items ${items} for element with ${children.length} children`
+  )
+
+  let removed = 0
+  while (removed < items) {
+    children[slot]?.remove()
+    removed += 1
   }
+}
+
+/**
+ * Apply a remove operation to a text node representing a `String`
+ */
+export function applyRemoveString(node: Text, slot: Slot, items: number): void {
+  assertNumber(slot)
+
+  const text = node.textContent ?? ''
+  assert(
+    slot >= 0 && slot <= text.length,
+    `Unexpected remove slot ${slot} for text node of length ${text.length}`
+  )
+  assert(
+    items > 0 && slot + items <= text.length,
+    `Unexpected remove items ${slot} for text node of length ${text.length}`
+  )
+
+  node.textContent = text.slice(0, slot) + text.slice(slot + items)
 }
 
 /**
