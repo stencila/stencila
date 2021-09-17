@@ -2,7 +2,7 @@
  * This module implements DOM-based analogues of several functions in `../rust/src/patches.rs`.
  *
  * Compared to the Rust functions which apply a `Patch` to a Stencila `Node` (e.g. an `Article`
- * or `String`), these functions apply a `DomPatch` to a DOM `Node` (e.g. an `Element`, or `Text`).
+ * or `String`), these functions apply a `DomPatch` to a DOM `Node` (e.g. an `Element` or `Text`).
  */
 
 import {
@@ -48,15 +48,18 @@ export function applyOp(op: DomOperation): void {
 }
 
 /**
- * Panic because if there is a conflict between a `DomOperation` and the
- * current DOM.
+ * Panic if there is a conflict between a `DomPatch` and the current DOM.
  *
- * This should only happen if there (a) the client has missed a `DomOperation`
+ * This module make liberal use of assertions of consistency between `DomOperation`s
+ * and the current DOM with the view that if there is any inconsistency detected then
+ * it is best to simply exit the `applyPatch` function early and reload the page.
+ * 
+ * This should only happen if there (a) the client has missed a `DomPatch`
  * such that the state of the DOM is out of sync with the server-side document, or
  * (b) if there is a bug in the following code. Hopefully testing rules out (b).
  *
  * Reloads the page to get a new DOM state and then throws an exception for
- * early exit from the calling function
+ * early exit from the calling function.
  */
 function panic(message: string): void {
   window.location.reload()
