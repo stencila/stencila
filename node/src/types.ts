@@ -173,7 +173,11 @@ export type Patch = Operation[]
 /**
  * A DOM operation used to mutate the DOM.
  *
- * A `DomOperation` is the DOM version of an [`Operation`]. The same names for operation variants and their properties are used with the following exception: the `value` property is renamed to `html` and is a string representing the HTML of the DOM node (usually a HTML `Element` or `Text` node) or part of it.
+ * A `DomOperation` is the DOM version of an [`Operation`]. The same names for operation variants and their properties are used with the following exception:
+ *
+ * - the `value` property of `Add` and `Replace` is renamed to `html` and is a string representing the HTML of the DOM node (usually a HTML `Element` or `Text` node) or part of it.
+ *
+ * - the `length` property of `Add` and `Replace` is not included because it is not needed (for merge conflict resolution as it is in `Operation`).
  */
 export type DomOperation =
   | DomOperationAdd
@@ -317,10 +321,6 @@ export interface DomOperationAdd {
    * The HTML to add
    */
   html: string
-  /**
-   * The number of items added
-   */
-  length: number
 }
 /**
  * Remove one or more DOM nodes
@@ -361,10 +361,6 @@ export interface DomOperationReplace {
    * The replacement HTML
    */
   html: string
-  /**
-   * The number of items added
-   */
-  length: number
 }
 /**
  * Move a DOM node from one address to another

@@ -62,11 +62,11 @@ export function applyOp(op: DomOperation): void {
  * such that the state of the DOM is out of sync with the server-side document, or
  * (b) if there is a bug in the following code. Hopefully testing rules out (b).
  *
- * Reloads the page to get a new DOM state and then throws an exception for
+ * Reloads the document to get a new DOM state and then throws an exception for
  * early exit from the calling function.
  */
 function panic(message: string): void {
-  window.location.reload()
+  // TODO reload the document
   throw new Error(message)
 }
 
@@ -158,8 +158,10 @@ function resolveSlot(parent: Element, slot: Slot): Element | Text {
       `:scope > [slot="${slot}"]`
     )
     if (next === null) {
-      if (slot !== 'content') throw panic(`Unable to resolve slot ${slot}`)
-      else return parent
+      // The `content` property can be is an "implicit" slot; if it is not
+      // present then just return the parent.
+      if (slot === 'content') return parent
+      else throw panic(`Unable to resolve slot ${slot}`)
     }
     return next
   } else {
@@ -251,11 +253,7 @@ export function applyAddVec(node: Element, slot: Slot, html: string): void {
 
   const fragment = createFragment(html)
   const children = node.childNodes
-  if (children.length === 0) {
-    assert(
-      slot === 0,
-      'Attempting to insert at non-zero slot in element with no children'
-    )
+  if (slot === children.length) {
     node.appendChild(fragment)
   } else {
     const sibling = node.childNodes[slot]
@@ -302,7 +300,8 @@ export function applyRemoveOption(
   slot: Slot,
   items: number
 ): void {
-  assert(items === 1, `Unexpected items ${items} for slot ${slot}`)
+  assertString(slot)
+  assert(items === 1, `Unexpected remove items ${items} for slot ${slot}`)
 
   const target = resolveSlot(node, slot)
   target.remove()
@@ -344,7 +343,7 @@ export function applyRemoveString(node: Text, slot: Slot, items: number): void {
   )
   assert(
     items > 0 && slot + items <= text.length,
-    `Unexpected remove items ${slot} for text node of length ${text.length}`
+    `Unexpected remove items ${items} for text node of length ${text.length}`
   )
 
   node.textContent = text.slice(0, slot) + text.slice(slot + items)

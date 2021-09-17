@@ -334,9 +334,14 @@ pub struct Patch(Vec<Operation>);
 ///
 /// A `DomOperation` is the DOM version of an [`Operation`].
 /// The same names for operation variants and their properties
-/// are used with the following exception: the `value` property is
-/// renamed to `html` and is a string representing the HTML
-/// of the DOM node (usually a HTML `Element` or `Text` node) or part of it.
+/// are used with the following exception:
+///
+/// - the `value` property of `Add` and `Replace` is renamed to `html` and is a string
+///   representing the HTML of the DOM node (usually a HTML `Element` or `Text` node)
+///   or part of it.
+///
+/// - the `length` property of `Add` and `Replace` is not included because it is not
+///   needed (for merge conflict resolution as it is in `Operation`).
 #[derive(Debug, JsonSchema, Serialize)]
 #[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
@@ -349,9 +354,6 @@ pub enum DomOperation {
 
         /// The HTML to add
         html: String,
-
-        /// The number of items added
-        length: usize,
     },
     /// Remove one or more DOM nodes
     #[schemars(title = "DomOperationRemove")]
@@ -373,9 +375,6 @@ pub enum DomOperation {
 
         /// The replacement HTML
         html: String,
-
-        /// The number of items added
-        length: usize,
     },
     /// Move a DOM node from one address to another
     #[schemars(title = "DomOperationMove")]
@@ -407,14 +406,9 @@ impl DomOperation {
     /// Create a `DomOperation` from an `Operation`
     fn from_op(op: &Operation) -> DomOperation {
         match op {
-            Operation::Add {
-                address,
-                value,
-                length,
-            } => DomOperation::Add {
+            Operation::Add { address, value, .. } => DomOperation::Add {
                 address: address.clone(),
                 html: DomOperation::value_html(address, value),
-                length: *length,
             },
 
             Operation::Remove { address, items, .. } => DomOperation::Remove {
@@ -426,12 +420,11 @@ impl DomOperation {
                 address,
                 items,
                 value,
-                length,
+                ..
             } => DomOperation::Replace {
                 address: address.clone(),
                 items: *items,
                 html: DomOperation::value_html(address, value),
-                length: *length,
             },
 
             Operation::Move { from, items, to } => DomOperation::Move {
