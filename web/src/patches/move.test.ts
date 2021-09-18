@@ -1,4 +1,4 @@
-import { applyMove, applyMoveVec } from './move'
+import { applyMoveVec } from './move'
 
 test('applyMoveVec', () => {
   const elem = document.createElement('ol')

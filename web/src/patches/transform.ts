@@ -47,7 +47,32 @@ export function applyTransformElem(
   from: string,
   to: string
 ): void {
-  throw panic('todo')
+  const tag = elem.tagName.toLowerCase()
+  const expectedFrom = TAGS_TYPE[tag]
+  if (expectedFrom === undefined) throw panic(`Unhandled from tag ${tag}`)
+  if (expectedFrom !== from)
+    throw panic(
+      `Expected transform from type ${expectedFrom} for tag ${tag}, got ${from}`
+    )
+
+  if (to === 'String') {
+    const text = document.createTextNode(elem.textContent ?? '')
+    elem.replaceWith(text)
+  } else {
+    const tag = TYPE_TAGS[to]
+    if (tag === undefined) throw panic(`Unhandled to type ${to}`)
+    const transformed = document.createElement(tag)
+    transformed.innerHTML = elem.innerHTML
+    for (let index = 0; index < elem.attributes.length; index++) {
+      const attr = elem.attributes[index] as Attr
+      if (attr.name === 'itemtype') {
+        transformed.setAttribute(attr.name, `https://stenci.la/${to}`)
+      } else {
+        transformed.setAttribute(attr.name, attr.value)
+      }
+    }
+    elem.replaceWith(transformed)
+  }
 }
 
 /**
