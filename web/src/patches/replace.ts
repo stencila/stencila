@@ -40,7 +40,7 @@ export function applyReplaceOption(
     `Unexpected replace items ${items} for option slot ${slot}`
   )
 
-  let target = resolveSlot(node, slot)
+  const target = resolveSlot(node, slot)
   assertElement(target)
   target.outerHTML = html
 }
@@ -61,7 +61,7 @@ export function applyReplaceVec(
   if (children.length === 0) {
     node.appendChild(fragment)
   } else {
-    let child = children[slot]
+    const child = children[slot]
     if (child === undefined) {
       throw panic(
         `Unexpected replace slot ${slot} for element with ${children.length} children`

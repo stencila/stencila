@@ -7,6 +7,7 @@
     "watch": "parcel watch",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:cover": "jest --coverage",
     "format": "prettier --write '**/*.ts'",
     "lint": "eslint 'src/**/*'",
     "lint:fix": "eslint 'src/**/*' --fix"

@@ -31,7 +31,10 @@ export function applyRemoveOption(
   items: number
 ): void {
   assertString(slot)
-  assert(items === 1, `Unexpected remove items ${items} for option slot ${slot}`)
+  assert(
+    items === 1,
+    `Unexpected remove items ${items} for option slot ${slot}`
+  )
 
   const target = resolveSlot(node, slot)
   target.remove()
