@@ -1,16 +1,11 @@
-import {
-  applyAdd,
-  applyAddOption,
-  applyAddString,
-  applyAddVec,
-} from './patches'
+import { applyAdd, applyAddOption, applyAddString, applyAddVec } from './add'
 
 test('applyAddOption', () => {
   const elem = document.createElement('div')
   const html = '<p slot="property">A fragment</p>'
 
   applyAddOption(elem, 'property', html)
-  expect(elem.querySelector('[slot="property"]')?.outerHTML).toMatch(html)
+  expect(elem.querySelector('[slot="property"]')?.outerHTML).toEqual(html)
 
   expect(() => applyAddOption(elem, 1, '')).toThrow(/Expected string slot/)
 })
@@ -19,19 +14,19 @@ test('applyAddVec', () => {
   const elem = document.createElement('div')
 
   applyAddVec(elem, 0, '<p>one</p>')
-  expect(elem.innerHTML).toMatch('<p>one</p>')
+  expect(elem.innerHTML).toEqual('<p>one</p>')
 
   applyAddVec(elem, 1, '<p>two</p>')
-  expect(elem.innerHTML).toMatch('<p>two</p>')
+  expect(elem.innerHTML).toEqual('<p>one</p><p>two</p>')
 
   applyAddVec(elem, 0, '<p>zero</p>')
-  expect(elem.innerHTML).toMatch('<p>zero</p><p>one</p><p>two</p>')
+  expect(elem.innerHTML).toEqual('<p>zero</p><p>one</p><p>two</p>')
 
   applyAddVec(elem, 2, '<p>1.5</p>')
-  expect(elem.innerHTML).toMatch('<p>zero</p><p>one</p><p>1.5</p><p>two</p>')
+  expect(elem.innerHTML).toEqual('<p>zero</p><p>one</p><p>1.5</p><p>two</p>')
 
   applyAddVec(elem, 4, '<p>three</p>')
-  expect(elem.innerHTML).toMatch(
+  expect(elem.innerHTML).toEqual(
     '<p>zero</p><p>one</p><p>1.5</p><p>two</p><p>three</p>'
   )
 
@@ -44,13 +39,13 @@ test('applyAddString', () => {
   const node = document.createTextNode('')
 
   applyAddString(node, 0, 'a')
-  expect(node.textContent).toMatch('a')
+  expect(node.textContent).toEqual('a')
 
   applyAddString(node, 1, 'e')
-  expect(node.textContent).toMatch('ae')
+  expect(node.textContent).toEqual('ae')
 
   applyAddString(node, 1, 'bcd')
-  expect(node.textContent).toMatch('abcde')
+  expect(node.textContent).toEqual('abcde')
 
   expect(() => applyAddString(node, 'string', '')).toThrow(
     /Expected number slot/

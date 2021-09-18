@@ -3,14 +3,14 @@ import {
   applyRemoveOption,
   applyRemoveString,
   applyRemoveVec,
-} from './patches'
+} from './remove'
 
 test('applyRemoveOption', () => {
   const elem = document.createElement('div')
   elem.innerHTML = '<p slot="property"></p>'
 
   applyRemoveOption(elem, 'property', 1)
-  expect(elem.innerHTML).toMatch('')
+  expect(elem.innerHTML).toEqual('')
 
   expect(() => applyRemoveOption(elem, 42, 1)).toThrow(/Expected string slot/)
   expect(() => applyRemoveOption(elem, 'property', 42)).toThrow(
@@ -26,13 +26,13 @@ test('applyRemoveVec', () => {
   elem.innerHTML = '<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>'
 
   applyRemoveVec(elem, 0, 1)
-  expect(elem.innerHTML).toMatch('<li>2</li><li>3</li><li>4</li><li>5</li>')
+  expect(elem.innerHTML).toEqual('<li>2</li><li>3</li><li>4</li><li>5</li>')
 
   applyRemoveVec(elem, 1, 2)
-  expect(elem.innerHTML).toMatch('<li>2</li><li>5</li>')
+  expect(elem.innerHTML).toEqual('<li>2</li><li>5</li>')
 
   applyRemoveVec(elem, 1, 1)
-  expect(elem.innerHTML).toMatch('<li>2</li>')
+  expect(elem.innerHTML).toEqual('<li>2</li>')
 
   expect(() => applyRemoveVec(elem, 'string', 1)).toThrow(
     /Expected number slot/
@@ -50,13 +50,13 @@ test('applyRemoveString', () => {
   const node = document.createTextNode('abcde')
 
   applyRemoveString(node, 0, 1)
-  expect(node.textContent).toMatch('bcde')
+  expect(node.textContent).toEqual('bcde')
 
   applyRemoveString(node, 1, 2)
-  expect(node.textContent).toMatch('be')
+  expect(node.textContent).toEqual('be')
 
   applyRemoveString(node, 1, 1)
-  expect(node.textContent).toMatch('b')
+  expect(node.textContent).toEqual('b')
 
   expect(() => applyRemoveString(node, 'string', 1)).toThrow(
     /Expected number slot/
