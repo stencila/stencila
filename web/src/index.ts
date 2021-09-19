@@ -60,7 +60,7 @@ export const main = (
 
   // Listen for a `session:start` event. Currently, mainly
   // used for manual testing of events e.g. enter in the console
-  // `window.dispatchEvent(new CustomEvent(`session:start`))`
+  // `window.dispatchEvent(new CustomEvent('session:start'))`
   window.addEventListener('session:start', () => {
     startup().catch((err) => {
       console.warn(`Couldn't start the session`, err)
