@@ -232,7 +232,7 @@ tokio = { version = "=1.11.0", features = ["full"] }
 tokio-stream = "=0.1.7"
 tokio-tungstenite = { version = "=0.15.0", optional = true }
 toml = "=0.5.8"
-tracing = "=0.1.26"
+tracing = "=0.1.28"
 tracing-appender = "=0.1.2"
 tracing-error = "=0.1.2"
 tracing-serde = "=0.1.2"
