@@ -1321,8 +1321,7 @@ mod tests {
             json!([{
                 "type": "Add",
                 "address": ["content"],
-                "html": "<div slot=\"content\"><p itemtype=\"https://stenci.la/Paragraph\" itemscope></p></div>",
-                "length": 1
+                "html": "<div slot=\"content\"><p itemtype=\"https://stenci.la/Paragraph\" itemscope></p></div>"
             }])
         );
 
@@ -1343,8 +1342,7 @@ mod tests {
             json!([{
                 "type": "Add",
                 "address": ["content", 0, "content", 0],
-                "html": "first second",
-                "length": 2
+                "html": "first second"
             }])
         );
 
@@ -1367,8 +1365,7 @@ mod tests {
                 "type": "Replace",
                 "address": ["content", 0, "content", 0, 1],
                 "items": 3,
-                "html": "oo",
-                "length": 2
+                "html": "oo"
             }])
         );
 
