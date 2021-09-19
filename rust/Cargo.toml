@@ -170,7 +170,7 @@ dirs-next = "=2.0.0"
 dtparse = { version = "=1.2.0", optional = true }
 enum_dispatch = "=0.3.7"
 eyre = "=0.6.5"
-flate2 = { version = "=1.0.21", optional = true }
+flate2 = { version = "=1.0.22", optional = true }
 futures = "=0.3.17"
 gitignore = "=1.0.7"
 glob = "=0.3.0"
