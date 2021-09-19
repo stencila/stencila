@@ -7,7 +7,7 @@ use crate::{
         decode::decode,
         encode::{self, encode},
     },
-    patches::{diff, merge, Patch},
+    patches::{diff, merge, DomPatch, Patch},
     pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
@@ -45,6 +45,7 @@ enum DocumentEventType {
     Deleted,
     Renamed,
     Modified,
+    Patched,
     Encoded,
 }
 
@@ -68,6 +69,10 @@ struct DocumentEvent {
     /// of the document) and `encoded` events (the format of the encoding).
     #[schemars(schema_with = "DocumentEvent::schema_format")]
     format: Option<Format>,
+
+    /// The `DomPatch` associated with a `Patched` event
+    #[schemars(schema_with = "DocumentEvent::schema_patch")]
+    patch: Option<DomPatch>,
 }
 
 impl DocumentEvent {
@@ -79,6 +84,11 @@ impl DocumentEvent {
     /// Generate the JSON Schema for the `format` property to avoid nesting
     fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
         schemas::typescript("Format", false)
+    }
+
+    /// Generate the JSON Schema for the `patch` property to avoid nesting
+    fn schema_patch(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("DomPatch", false)
     }
 }
 
@@ -657,9 +667,27 @@ impl Document {
         let compilation = compile(&mut root, &self.path, &self.project).await?;
         self.relations = compilation.relations.into_iter().collect();
 
-        // Encode the `root` into each of the formats for which there are subscriptions
+        // Publish any events for which there are subscriptons
         for subscription in self.subscriptions.keys() {
-            if let Some(format) = subscription.strip_prefix("encoded:") {
+            // Generate a diff if there are any `patched` subscriptions
+            if subscription == "patched" {
+                if let Some(current_root) = &self.root {
+                    tracing::debug!("Generating patch for document '{}'", self.id);
+                    let patch = DomPatch::from(&diff(current_root, &root));
+                    publish(
+                        &["documents:", &self.id, ":patched"].concat(),
+                        &DocumentEvent {
+                            type_: DocumentEventType::Patched,
+                            document: self.clone(),
+                            content: None,
+                            format: None,
+                            patch: Some(patch),
+                        },
+                    )
+                }
+            }
+            // Encode the `root` into each of the formats for which there are subscriptions
+            else if let Some(format) = subscription.strip_prefix("encoded:") {
                 tracing::debug!("Encoding document '{}' to '{}'", self.id, format);
                 match encode(&root, "string://", format, None).await {
                     Ok(content) => {
@@ -778,6 +806,7 @@ impl Document {
                 document: self.clone(),
                 content,
                 format,
+                patch: None,
             },
         )
     }

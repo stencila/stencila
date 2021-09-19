@@ -92,7 +92,7 @@ export interface DocumentEvent {
   /**
    * The type of event
    */
-  type: 'deleted' | 'renamed' | 'modified' | 'encoded'
+  type: 'deleted' | 'renamed' | 'modified' | 'patched' | 'encoded'
   /**
    * The document associated with the event
    */
@@ -105,6 +105,10 @@ export interface DocumentEvent {
    * The format of the document, only provided for `modified` (the format of the document) and `encoded` events (the format of the encoding).
    */
   format?: Format
+  /**
+   * The `DomPatch` associated with a `Patched` event
+   */
+  patch?: DomPatch
 }
 
 export type PatchesSchema =

@@ -1,11 +1,12 @@
-import { Document } from '@stencila/stencila'
+import { Document, DocumentEvent, DomPatch } from '@stencila/stencila'
 import { Client } from './client'
+import { applyPatch } from './patches'
 
 export type DocumentPath = string
 
 export type DocumentId = string
 
-type DocumentTopic = 'node:value' | 'node:html'
+type DocumentTopic = 'patched'
 
 export type NodeId = string
 
@@ -16,24 +17,6 @@ export type NodeValue =
   | null
   | NodeValue[]
   | { [key: string | number]: NodeValue }
-
-/**
- * A document event published by the server indicating
- * that a node has been updated
- */
-export type DocumentEvent =
-  | {
-      type: 'NodeValueUpdated'
-      documentId: string
-      nodeId: string
-      value: NodeValue
-    }
-  | {
-      type: 'NodeHtmlUpdated'
-      documentId: string
-      nodeId: string
-      html: string
-    }
 
 /**
  * The browser `CustomEvent` detail emitted when a node in the current
@@ -82,14 +65,11 @@ export async function close(
 
 /**
  * Default handler for document events
- *
- * Dispatches a `CustomEvent` with the type of the event
- * prefixed with "document:" e.g. "document:nodevalueupdated"
  */
 function defaultHandler(event: DocumentEvent): void {
-  window.dispatchEvent(
-    new CustomEvent(`document:${event.type}`.toLowerCase(), { detail: event })
-  )
+  if (event.type === 'patched') {
+    applyPatch(event.patch as DomPatch)
+  }
 }
 
 /**
@@ -101,7 +81,7 @@ export async function subscribe(
   topic: DocumentTopic,
   handler: (event: DocumentEvent) => void = defaultHandler
 ): Promise<Document> {
-  client.on(`document:${documentId}:${topic}`, handler)
+  client.on(`documents:${documentId}:${topic}`, handler)
   return client.call('documents.subscribe', {
     documentId,
     topic,
@@ -116,7 +96,7 @@ export async function unsubscribe(
   documentId: DocumentId,
   topic: DocumentTopic
 ): Promise<Document> {
-  client.off(`document:${documentId}:${topic}`)
+  client.off(`documents:${documentId}:${topic}`)
   return client.call('documents.unsubscribe', {
     documentId,
     topic,
