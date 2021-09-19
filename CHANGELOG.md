@@ -1,3 +1,16 @@
+## [0.118.2](https://github.com/stencila/stencila/compare/v0.118.1...v0.118.2) (2021-09-19)
+
+
+### Bug Fixes
+
+* **Config:** Remove unecessary validate attributes ([61108b9](https://github.com/stencila/stencila/commit/61108b95d0c123b46dc05c9459b96b96ba2b21fe))
+* **dependencies:** update rust crate flate2 to v1.0.22 ([3cb0237](https://github.com/stencila/stencila/commit/3cb02375445c4c2dffcd279fe50b346de7951cfa))
+* **dependencies:** update rust crate json5 to v0.4.0 ([d5e5350](https://github.com/stencila/stencila/commit/d5e5350a0b9ec8bac3be885adc080a2a968d9604))
+* **dependencies:** update rust crate schemars to v0.8.4 ([14b6d9f](https://github.com/stencila/stencila/commit/14b6d9f49a7fbfc7cd74ebd7a31b2d818791efa7))
+* **dependencies:** update rust crate serde_json to v1.0.68 ([65d844e](https://github.com/stencila/stencila/commit/65d844ef6dc563ecdec66598a73bcadfc51faeb5))
+* **dependencies:** update rust crate tracing to v0.1.28 ([29b9479](https://github.com/stencila/stencila/commit/29b947920b20cdb2d8c93ce04ee44f2c9b876b12))
+* **dependencies:** update rust crate tracing-subscriber to v0.2.23 ([ba94992](https://github.com/stencila/stencila/commit/ba94992ba06493416782490e638444dd49d84f36))
+
 ## [0.118.1](https://github.com/stencila/stencila/compare/v0.118.0...v0.118.1) (2021-09-15)
 
 
