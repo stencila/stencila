@@ -4,12 +4,20 @@ use similar::{ChangeTag, TextDiff};
 use std::any::{type_name, Any};
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
+use unicode_segmentation::UnicodeSegmentation;
 
 /// Implements patching for strings
 ///
+/// Diffing and patching of strings is done on the basis of Unicode graphemes.
+/// These more closely match the human unit of writing than Unicode characters or bytes
+/// (which are alternative sub-units that string diffing and patching could be based upon).
+/// Note then that patch string indices i.e. slot indices, `length`, `items` represent
+/// graphemes and that this has to be taken into account when applying `DomOperation`s
+/// in JavaScript.
+///
 /// `Add`, `Remove` and `Replace` operations are implemented.
 /// The `Move` operation, whilst possible for strings, adds complexity
-/// and a performance hit to diffing.
+/// and a performance hit to diffing so is not used.
 impl Patchable for String {
     patchable_is_same!();
 
@@ -32,7 +40,7 @@ impl Patchable for String {
             return;
         }
 
-        let diff = TextDiff::from_chars(self, other);
+        let diff = TextDiff::from_graphemes(self, other);
         let mut ops: Vec<Operation> = Vec::new();
         let mut curr: char = 'e';
         let mut replace = false;
@@ -92,13 +100,13 @@ impl Patchable for String {
                             address,
                             items,
                             value: Box::new(value.clone()),
-                            length: value.chars().count(),
+                            length: value.graphemes(true).count(),
                         });
                     } else {
                         ops.push(Operation::Add {
                             address,
                             value: Box::new(value.clone()),
-                            length: value.chars().count(),
+                            length: value.graphemes(true).count(),
                         });
                     }
                 };
@@ -116,14 +124,14 @@ impl Patchable for String {
         };
 
         if let Some(Slot::Index(index)) = address.pop_front() {
-            let chars: Vec<char> = self.chars().collect();
-            let chars = [
-                &chars[..index],
-                &value.chars().collect_vec(),
-                &chars[index..],
+            let graphemes = self.graphemes(true).collect_vec();
+            let graphemes = [
+                &graphemes[..index],
+                &value.graphemes(true).collect_vec(),
+                &graphemes[index..],
             ]
             .concat();
-            *self = chars.into_iter().collect();
+            *self = graphemes.into_iter().collect();
         } else {
             invalid_address!(address)
         }
@@ -131,9 +139,9 @@ impl Patchable for String {
 
     fn apply_remove(&mut self, address: &mut Address, items: usize) {
         if let Some(Slot::Index(index)) = address.pop_front() {
-            let chars: Vec<char> = self.chars().collect();
-            let chars = [&chars[..index], &chars[(index + items)..]].concat();
-            *self = chars.into_iter().collect();
+            let graphemes = self.graphemes(true).collect_vec();
+            let graphemes = [&graphemes[..index], &graphemes[(index + items)..]].concat();
+            *self = graphemes.into_iter().collect();
         } else {
             invalid_address!(address)
         }
@@ -149,14 +157,14 @@ impl Patchable for String {
         if address.is_empty() {
             *self = value.clone();
         } else if let Some(Slot::Index(index)) = address.pop_front() {
-            let chars: Vec<char> = self.chars().collect();
-            let chars = [
-                &chars[..index],
-                &value.chars().collect_vec(),
-                &chars[(index + items)..],
+            let graphemes = self.graphemes(true).collect_vec();
+            let graphemes = [
+                &graphemes[..index],
+                &value.graphemes(true).collect_vec(),
+                &graphemes[(index + items)..],
             ]
             .concat();
-            *self = chars.into_iter().collect();
+            *self = graphemes.into_iter().collect();
         }
     }
 }
@@ -283,33 +291,54 @@ mod tests {
         assert_eq!(apply_new(&d, &patch), e);
     }
 
-    /// Test that works with Unicode graphemes (which are made
-    /// up of multiple `char`s).
+    /// Test that works with Unicode graphemes (which are made up of multiple Unicode characters
+    /// which themselves can be made of several bytes).
     #[test]
     fn unicode() {
+        // ä = 1 Unicode char
+        // 👍🏻 and 👍🏿 = 2 Unicode chars each
         let a = "ä".to_string();
         let b = "ä1👍🏻2".to_string();
         let c = "1👍🏿2".to_string();
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "type": "Add", "address": [1], "value": "1👍🏻2", "length": 4 },
+            { "type": "Add", "address": [1], "value": "1👍🏻2", "length": 3 },
         ]);
         assert_eq!(apply_new(&a, &patch), b);
 
         let patch = diff(&b, &c);
         assert_json!(patch, [
             { "type": "Remove", "address": [0], "items": 1 },
-            { "type": "Replace", "address": [2], "items": 1, "value": "🏿", "length": 1 },
+            { "type": "Replace", "address": [1], "items": 1, "value": "👍🏿", "length": 1 },
         ]);
         assert_eq!(apply_new(&b, &patch), c);
 
         let patch = diff(&c, &b);
         assert_json!(patch, [
             { "type": "Add", "address": [0], "value": "ä", "length": 1 },
-            { "type": "Replace", "address": [3], "items": 1, "value": "🏻", "length": 1 },
+            { "type": "Replace", "address": [2], "items": 1, "value": "👍🏻", "length": 1 },
         ]);
         assert_eq!(apply_new(&c, &patch), b);
+
+        // 🌷 and 🎁 = 2 Unicode chars each
+        // 🏳️‍🌈 = 6 Unicode chars
+        let d = "🌷🏳️‍🌈🎁".to_string();
+        let e = "🎁🏳️‍🌈🌷".to_string();
+
+        let patch = diff(&d, &e);
+        assert_json!(patch, [
+            { "type": "Add", "address": [0], "value": "🎁🏳️‍🌈", "length": 2 },
+            { "type": "Remove", "address": [3], "items": 2 },
+        ]);
+        assert_eq!(apply_new(&d, &patch), e);
+
+        let patch = diff(&e, &d);
+        assert_json!(patch, [
+            { "type": "Add", "address": [0], "value": "🌷🏳️‍🌈", "length": 2 },
+            { "type": "Remove", "address": [3], "items": 2 },
+        ]);
+        assert_eq!(apply_new(&e, &patch), d);
     }
 
     // Regression tests of minimal failing cases found using property testing

@@ -3976,6 +3976,10 @@ name = "similar"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6bf11003835e462f07851028082d2a1c89d956180ce4b4b50e07fb085ec4131a"
+dependencies = [
+ "bstr",
+ "unicode-segmentation",
+]
 
 [[package]]
 name = "simple_asn1"
@@ -4138,6 +4142,7 @@ dependencies = [
  "tree-sitter-python",
  "tree-sitter-r",
  "tree-sitter-typescript",
+ "unicode-segmentation",
  "url",
  "validator",
  "warp",
