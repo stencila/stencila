@@ -62,31 +62,24 @@ impl ConfigEvent {
 #[serde(default)]
 #[schemars(deny_unknown_fields)]
 pub struct Config {
-    #[validate]
     pub projects: projects::config::ProjectsConfig,
 
-    #[validate]
     pub logging: logging::config::LoggingConfig,
 
-    #[validate]
     pub telemetry: telemetry::config::TelemetryConfig,
 
     #[cfg(feature = "serve")]
-    #[validate]
     pub serve: crate::serve::config::ServeConfig,
 
     #[cfg(feature = "plugins")]
-    #[validate]
     pub plugins: crate::plugins::config::PluginsConfig,
 
     #[cfg(feature = "binaries")]
-    #[validate]
     pub binaries: crate::binaries::config::BinariesConfig,
 
     pub editors: EditorsConfig,
 
     #[cfg(feature = "upgrade")]
-    #[validate]
     pub upgrade: crate::upgrade::config::UpgradeConfig,
 }
 
