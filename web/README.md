@@ -23,7 +23,7 @@ npm install
 During development, re-build the `dist` folder on source code changes using,
 
 ```
-npm run watch
+npm run build:watch
 ```
 
 ### Running a document server
@@ -60,6 +60,8 @@ Once you have a document server running you can run the end-to-end tests in this
 
 ```sh
 npm test
+# or
+npm run test:watch
 ```
 
 > 📢 Currently the tests do not have a mechanism for visiting the `~login` page first so you'll have to run the server with the `---insecure` option. A PR to fix this (using a=the Jest `beforeAll` hook?) would be welcomed!
