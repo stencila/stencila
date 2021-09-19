@@ -1,4 +1,5 @@
 import { Address, Slot } from '@stencila/stencila'
+import GraphemeSplitter from 'grapheme-splitter'
 
 /**
  * Panic if there is a conflict between a `DomPatch` and the current DOM.
@@ -169,4 +170,13 @@ export function resolveNode(address: Address): Element | Text {
  */
 export function createFragment(html: string): DocumentFragment {
   return document.createRange().createContextualFragment(html)
+}
+
+const GRAPHEME_SPLITTER = new GraphemeSplitter()
+
+/**
+ * Split a string into Unicode graphemes
+ */
+export function toGraphemes(text: string): string[] {
+  return GRAPHEME_SPLITTER.splitGraphemes(text)
 }

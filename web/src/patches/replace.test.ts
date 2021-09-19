@@ -56,12 +56,12 @@ test('applyReplaceVec', () => {
 })
 
 test('applyReplaceString', () => {
-  const node = document.createTextNode('abcde')
+  const node = document.createTextNode('abc🎁de')
 
-  applyReplaceString(node, 0, 1, 'x')
-  expect(node.textContent).toEqual('xbcde')
+  applyReplaceString(node, 0, 1, 'x🏳️‍🌈')
+  expect(node.textContent).toEqual('x🏳️‍🌈bc🎁de')
 
-  applyReplaceString(node, 1, 4, 'yz')
+  applyReplaceString(node, 1, 6, 'yz')
   expect(node.textContent).toEqual('xyz')
 
   expect(() => applyReplaceString(node, 'string', 1, '')).toThrow(

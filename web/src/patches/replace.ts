@@ -10,6 +10,7 @@ import {
   panic,
   resolveParent,
   resolveSlot,
+  toGraphemes,
 } from './utils'
 
 /**
@@ -88,14 +89,17 @@ export function applyReplaceString(
 ): void {
   assertNumber(slot)
 
-  const text = node.textContent ?? ''
+  const graphemes = toGraphemes(node.textContent ?? '')
   assert(
-    slot >= 0 && slot <= text.length,
-    `Unexpected replace slot ${slot} for text node of length ${text.length}`
+    slot >= 0 && slot <= graphemes.length,
+    `Unexpected replace slot ${slot} for text node of length ${graphemes.length}`
   )
   assert(
-    items > 0 && slot + items <= text.length,
-    `Unexpected replace items ${items} for text node of length ${text.length}`
+    items > 0 && slot + items <= graphemes.length,
+    `Unexpected replace items ${items} for text node of length ${graphemes.length}`
   )
-  node.textContent = text.slice(0, slot) + value + text.slice(slot + items)
+  node.textContent =
+    graphemes.slice(0, slot).join('') +
+    value +
+    graphemes.slice(slot + items).join('')
 }

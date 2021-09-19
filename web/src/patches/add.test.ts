@@ -47,6 +47,12 @@ test('applyAddString', () => {
   applyAddString(node, 1, 'bcd')
   expect(node.textContent).toEqual('abcde')
 
+  applyAddString(node, 2, '🏳️‍🌈')
+  expect(node.textContent).toEqual('ab🏳️‍🌈cde')
+
+  applyAddString(node, 4, '🎁')
+  expect(node.textContent).toEqual('ab🏳️‍🌈c🎁de')
+
   expect(() => applyAddString(node, 'string', '')).toThrow(
     /Expected number slot/
   )

@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "@stencila/stencila": "file:../node",
+    "grapheme-splitter": "^1.0.4",
     "rpc-websockets": "^7.4.14"
   },
   "browserslist": [

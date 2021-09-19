@@ -7,6 +7,7 @@ import {
   isString,
   resolveParent,
   resolveSlot,
+  toGraphemes,
 } from './utils'
 
 /**
@@ -69,15 +70,16 @@ export function applyRemoveVec(node: Element, slot: Slot, items: number): void {
 export function applyRemoveString(node: Text, slot: Slot, items: number): void {
   assertNumber(slot)
 
-  const text = node.textContent ?? ''
+  const graphemes = toGraphemes(node.textContent ?? '')
   assert(
-    slot >= 0 && slot <= text.length,
-    `Unexpected remove slot ${slot} for text node of length ${text.length}`
+    slot >= 0 && slot <= graphemes.length,
+    `Unexpected remove slot ${slot} for text node of length ${graphemes.length}`
   )
   assert(
-    items > 0 && slot + items <= text.length,
-    `Unexpected remove items ${items} for text node of length ${text.length}`
+    items > 0 && slot + items <= graphemes.length,
+    `Unexpected remove items ${items} for text node of length ${graphemes.length}`
   )
 
-  node.textContent = text.slice(0, slot) + text.slice(slot + items)
+  node.textContent =
+    graphemes.slice(0, slot).join('') + graphemes.slice(slot + items).join('')
 }

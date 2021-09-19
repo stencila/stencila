@@ -47,12 +47,12 @@ test('applyRemoveVec', () => {
 })
 
 test('applyRemoveString', () => {
-  const node = document.createTextNode('abcde')
+  const node = document.createTextNode('ab🎁cde')
 
   applyRemoveString(node, 0, 1)
-  expect(node.textContent).toEqual('bcde')
+  expect(node.textContent).toEqual('b🎁cde')
 
-  applyRemoveString(node, 1, 2)
+  applyRemoveString(node, 1, 3)
   expect(node.textContent).toEqual('be')
 
   applyRemoveString(node, 1, 1)

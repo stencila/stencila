@@ -8,6 +8,7 @@ import {
   isString,
   panic,
   resolveParent,
+  toGraphemes,
 } from './utils'
 
 /**
@@ -59,10 +60,11 @@ export function applyAddVec(node: Element, slot: Slot, html: string): void {
 export function applyAddString(node: Text, slot: Slot, value: string): void {
   assertNumber(slot)
 
-  const text = node.textContent ?? ''
+  const graphemes = toGraphemes(node.textContent ?? '')
   assert(
-    slot >= 0 && slot <= text.length,
-    `Unexpected add slot ${slot} for text node of length ${text.length}`
+    slot >= 0 && slot <= graphemes.length,
+    `Unexpected add slot ${slot} for text node of length ${graphemes.length}`
   )
-  node.textContent = text.slice(0, slot) + value + text.slice(slot)
+  node.textContent =
+    graphemes.slice(0, slot).join('') + value + graphemes.slice(slot).join('')
 }
