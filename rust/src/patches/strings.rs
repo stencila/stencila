@@ -116,7 +116,7 @@ impl Patchable for String {
         differ.append(ops)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value
         } else {
@@ -147,7 +147,7 @@ impl Patchable for String {
         }
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value
         } else {

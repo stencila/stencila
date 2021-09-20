@@ -6,7 +6,7 @@
 // - How do we migrate old published documents
 // - Attach Node IDs for required elements in published article HTML
 
-import { Document, Session } from '@stencila/stencila'
+import { Document, Patch, Session } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
 import * as sessions from './sessions'
@@ -83,13 +83,26 @@ export const main = (
     await documents.execute(client, document.id, nodeId, value)
   })
 
-  // Listen for a `document:node:changed` custom event emitted from within browser window
+  // Listen for a `document:patched` custom event emitted from within browser window
   // e.g. user changes the code of a `CodeChunk`, or slides a numeric `Parameter`
-  window.addEventListener('document:node:changed', async (e) => {
+  //
+  // Creates a `Patch` (not a `DomPatch`) that is sent to the
+  // server to apply the change. The reason we construct and send a `Patch`
+  // is so that in the future we are able to send `Operation`s with an `address`
+  // and `value` that refer to a specific property of the node.
+  window.addEventListener('document:patch', async (e) => {
     const [client, document] = await startup()
-    const { nodeId, value } = (e as CustomEvent<documents.NodeValueChanged>)
-      .detail
-    await documents.change(client, document.id, nodeId, value)
+    const { nodeId, value } = (e as CustomEvent<documents.NodePatched>).detail
+    const patch: Patch = [
+      {
+        type: 'Replace',
+        address: [],
+        items: 1,
+        length: 1,
+        value,
+      },
+    ]
+    await documents.patch(client, document.id, nodeId, patch)
   })
 
   // Listen for a `session:stop` custom event e.g. user presses

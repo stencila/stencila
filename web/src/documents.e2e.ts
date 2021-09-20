@@ -1,14 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Document } from '@stencila/stencila'
+import { Document, DocumentEvent } from '@stencila/stencila'
 import { Client, connect, disconnect } from './client'
-import {
-  change,
-  close,
-  DocumentEvent,
-  open,
-  subscribe,
-  unsubscribe,
-} from './documents'
+import { close, open, patch, subscribe, unsubscribe } from './documents'
 
 jest.setTimeout(10000)
 
@@ -40,21 +33,21 @@ test('basic', async () => {
 
   // Subscribe to updates to node values
   const events: DocumentEvent[] = []
-  document = await subscribe(client, document.id, 'node:value', (event) => {
-    expect(event.type).toBe('NodeValueUpdated')
+  document = await subscribe(client, document.id, 'patched', (event) => {
+    expect(event.type).toBe('patched')
     events.push(event)
   })
   expect(document).toEqual(
     expect.objectContaining({
-      subscriptions: { 'node:value': [clientId] },
+      subscriptions: { patched: [clientId] },
     })
   )
 
-  // Send a change to the to the document
-  document = await change(client, document.id, 'nodeId', {})
+  // Send a document patch
+  document = await patch(client, document.id, 'nodeId', [])
 
   // Unsubscribe from document
-  document = await unsubscribe(client, document.id, 'node:value')
+  document = await unsubscribe(client, document.id, 'patched')
   expect(document).toEqual(
     expect.objectContaining({
       subscriptions: {},

@@ -1,5 +1,5 @@
 use crate::{
-    errors::attempt,
+    errors::{self, attempt},
     formats::{Format, FORMATS},
     graphs::{Relation, Resource},
     methods::{
@@ -7,7 +7,7 @@ use crate::{
         decode::decode,
         encode::{self, encode},
     },
-    patches::{diff, merge, DomPatch, Patch},
+    patches::{apply, diff, merge, DomPatch, Patch},
     pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
@@ -559,6 +559,24 @@ impl Document {
             _ => bail!("One or more of the documents is empty"),
         };
         Ok(patch)
+    }
+
+    pub fn patch(&mut self, _node_id: &str, patch: &Patch) -> Result<()> {
+        // TODO patch the node deferred to by the node_id
+        match self.root.as_mut() {
+            Some(root) => {
+                // TODO: rewrite when `apply` returns a `Result`.
+                errors::start();
+                apply(root, patch);
+                let errors = errors::stop();
+                if !errors.is_empty() {
+                    bail!(errors[0].to_string())
+                } else {
+                    Ok(())
+                }
+            }
+            None => bail!("Document does not have a root node to patch"),
+        }
     }
 
     /// Merge changes from two or more derived version into this document.
@@ -1180,16 +1198,11 @@ impl Documents {
         Ok((document_guard.clone(), topic))
     }
 
-    /// Change a node within a document
-    pub async fn change(
-        &self,
-        id: &str,
-        _node: &str,
-        _value: serde_json::Value,
-    ) -> Result<Document> {
+    /// Patch a document
+    pub async fn patch(&self, id: &str, node: &str, patch: Patch) -> Result<Document> {
         let document_lock = self.get(id).await?;
-        let document_guard = document_lock.lock().await;
-        // TODO
+        let mut document_guard = document_lock.lock().await;
+        document_guard.patch(node, &patch)?;
         Ok(document_guard.clone())
     }
 

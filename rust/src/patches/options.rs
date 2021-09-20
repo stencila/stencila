@@ -10,7 +10,7 @@ use std::{hash::Hasher, ops::Deref};
 /// All other operations passed through.
 impl<Type: Patchable> Patchable for Option<Type>
 where
-    Type: Clone + 'static,
+    Type: Clone + Send + 'static,
 {
     patchable_is_same!();
 
@@ -39,7 +39,7 @@ where
         }
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
         if address.is_empty() {
             if let Some(value) = value.deref().downcast_ref::<Type>() {
                 *self = Some(value.clone())
@@ -63,7 +63,7 @@ where
         }
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
         if let Some(me) = self {
             me.apply_replace(address, items, value)
         } else {

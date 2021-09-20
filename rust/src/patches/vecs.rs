@@ -9,7 +9,7 @@ use std::ops::Deref;
 /// Implements patching for vectors
 impl<Type: Patchable> Patchable for Vec<Type>
 where
-    Type: Clone + 'static,
+    Type: Clone + Send + 'static,
 {
     patchable_is_same!();
 
@@ -298,7 +298,7 @@ where
         differ.append(ops);
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
         if address.len() == 1 {
             if let Some(Slot::Index(index)) = address.pop_front() {
                 let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
@@ -339,7 +339,7 @@ where
         }
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
         if address.len() == 1 {
             let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
                 value

@@ -1,4 +1,4 @@
-import { Document, DocumentEvent, DomPatch } from '@stencila/stencila'
+import { Document, DocumentEvent, DomPatch, Patch } from '@stencila/stencila'
 import { Client } from './client'
 import { applyPatch } from './patches'
 
@@ -31,7 +31,7 @@ export interface NodeExecute {
  * The browser `CustomEvent` detail emitted when a node in the current
  * document is changed by the user.
  */
-export interface NodeValueChanged {
+export interface NodePatched {
   nodeId: NodeId
   value: NodeValue
 }
@@ -104,18 +104,18 @@ export async function unsubscribe(
 }
 
 /**
- * Change a document node
+ * Patch a document node
  */
-export async function change(
+export async function patch(
   client: Client,
   documentId: DocumentId,
   nodeId: NodeId,
-  nodeValue: NodeValue
+  patch: Patch
 ): Promise<Document> {
-  return client.call('documents.change', {
+  return client.call('documents.patch', {
     documentId,
     nodeId,
-    value: nodeValue,
+    patch,
   }) as Promise<Document>
 }
 

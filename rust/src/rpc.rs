@@ -1,4 +1,4 @@
-use crate::{documents::DOCUMENTS, sessions::SESSIONS};
+use crate::{documents::DOCUMENTS, patches::Patch, sessions::SESSIONS};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use serde::{Deserialize, Serialize};
@@ -61,8 +61,8 @@ impl Request {
             "sessions.unsubscribe" => sessions_unsubscribe(&self.params, client).await,
             "documents.open" => documents_open(&self.params).await,
             "documents.close" => documents_close(&self.params).await,
+            "documents.patch" => documents_patch(&self.params).await,
             "documents.execute" => documents_execute(&self.params).await,
-            "documents.change" => documents_change(&self.params).await,
             "documents.subscribe" => documents_subscribe(&self.params, client).await,
             "documents.unsubscribe" => documents_unsubscribe(&self.params, client).await,
             _ => {
@@ -308,12 +308,13 @@ async fn documents_unsubscribe(
     Ok((json!(document), Subscription::Unsubscribe(topic)))
 }
 
-async fn documents_change(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
     let node = required_string(params, "nodeId")?;
-    let value = required_value(params, "value")?;
+    let patch = required_value(params, "patch")?;
+    let patch: Patch = serde_json::from_value(patch)?;
 
-    let document = DOCUMENTS.change(&id, &node, value).await?;
+    let document = DOCUMENTS.patch(&id, &node, patch).await?;
     Ok((json!(document), Subscription::None))
 }
 

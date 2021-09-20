@@ -87,7 +87,7 @@ impl Patchable for InlineContent {
         }
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
         dispatch_inline!(self, apply_add, address, value);
     }
 
@@ -95,7 +95,7 @@ impl Patchable for InlineContent {
         dispatch_inline!(self, apply_remove, address, items);
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
         if address.is_empty() {
             if let Some(value) = value.deref().downcast_ref::<Self>() {
                 *self = value.clone()

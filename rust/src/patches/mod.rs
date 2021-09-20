@@ -7,7 +7,7 @@ use defaults::Defaults;
 use derive_more::{Constructor, Deref, DerefMut};
 use eyre::Result;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
-use serde::{Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use similar::TextDiff;
 use std::{
     any::{type_name, Any},
@@ -23,7 +23,7 @@ use strum::ToString;
 pub fn same<Type1, Type2>(node1: &Type1, node2: &Type2) -> bool
 where
     Type1: Patchable,
-    Type2: Clone + 'static,
+    Type2: Clone + Send + 'static,
 {
     node1.is_same(node2).is_ok()
 }
@@ -139,7 +139,7 @@ where
 /// In contrast to JSON Patch, which uses a [JSON Pointer](http://tools.ietf.org/html/rfc6901)
 /// to describe the location of additions and removals, slots offer improved performance and
 /// type safety.
-#[derive(Debug, Clone, JsonSchema, Serialize, ToString)]
+#[derive(Debug, Clone, JsonSchema, Serialize, Deserialize, ToString)]
 #[serde(untagged)]
 #[schemars(deny_unknown_fields)]
 pub enum Slot {
@@ -163,7 +163,9 @@ impl Slot {
 ///
 /// Note: This could instead have be called a "Path", but that name was avoided because
 /// of potential confusion with file system paths.
-#[derive(Debug, Constructor, Clone, Default, Deref, DerefMut, JsonSchema, Serialize)]
+#[derive(
+    Debug, Constructor, Clone, Default, Deref, DerefMut, JsonSchema, Serialize, Deserialize,
+)]
 #[schemars(deny_unknown_fields)]
 pub struct Address(VecDeque<Slot>);
 
@@ -209,7 +211,7 @@ impl From<&str> for Address {
 ///
 /// Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode
 /// characters not bytes.
-#[derive(Debug, JsonSchema, Serialize, ToString)]
+#[derive(Debug, JsonSchema, Serialize, Deserialize, ToString)]
 #[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
 pub enum Operation {
@@ -220,9 +222,12 @@ pub enum Operation {
         address: Address,
 
         /// The value to add
-        #[serde(serialize_with = "Operation::value_serialize")]
+        #[serde(
+            serialize_with = "Operation::value_serialize",
+            deserialize_with = "Operation::value_deserialize"
+        )]
         #[schemars(schema_with = "Operation::value_schema")]
-        value: Box<dyn Any>,
+        value: Box<dyn Any + Send>,
 
         /// The number of items added
         length: usize,
@@ -246,9 +251,12 @@ pub enum Operation {
         items: usize,
 
         /// The replacement value
-        #[serde(serialize_with = "Operation::value_serialize")]
+        #[serde(
+            serialize_with = "Operation::value_serialize",
+            deserialize_with = "Operation::value_deserialize"
+        )]
         #[schemars(schema_with = "Operation::value_schema")]
-        value: Box<dyn Any>,
+        value: Box<dyn Any + Send>,
 
         /// The number of items added
         length: usize,
@@ -284,7 +292,7 @@ impl Operation {
     ///
     /// This is mainly for debugging and testing. Serialization of types is added as
     /// needed.
-    fn value_serialize<S>(value: &Box<dyn Any>, serializer: S) -> Result<S::Ok, S::Error>
+    fn value_serialize<S>(value: &Box<dyn Any + Send>, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -315,9 +323,22 @@ impl Operation {
             Vec<String>
             Vec<InlineContent>
             Vec<BlockContent>
+            serde_json::Value
         );
 
         serializer.serialize_str("<unserialized type>")
+    }
+
+    /// Deserialize the `value` field of an operation
+    ///
+    /// This is needed so that the server can receive a `Patch` from the client and
+    /// deserialize the JSON value into a `Box<dyn Any + Send>`.
+    fn value_deserialize<'de, D>(deserializer: D) -> Result<Box<dyn Any + Send>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
+        Ok(Box::new(value))
     }
 
     /// Generate the JSON Schema for the `value` property
@@ -327,7 +348,7 @@ impl Operation {
 }
 
 /// A set of [`Operation`]s
-#[derive(Debug, Default, Deref, DerefMut, JsonSchema, Serialize)]
+#[derive(Debug, Default, Deref, DerefMut, JsonSchema, Serialize, Deserialize)]
 pub struct Patch(Vec<Operation>);
 
 /// A DOM operation used to mutate the DOM.
@@ -442,7 +463,7 @@ impl DomOperation {
     }
 
     /// Generate HTML for the `value` field of an operation
-    fn value_html(address: &Address, value: &Box<dyn Any>) -> String {
+    fn value_html(address: &Address, value: &Box<dyn Any + Send>) -> String {
         use crate::methods::encode::html::{Context, ToHtml};
 
         let slot = address.back().unwrap();
@@ -560,7 +581,7 @@ impl Differ {
     }
 
     /// Add an `Add` operation to the patch.
-    pub fn add<Value: Clone + 'static>(&mut self, value: &Value) {
+    pub fn add<Value: Clone + Send + 'static>(&mut self, value: &Value) {
         self.patch.push(Operation::Add {
             address: self.address.clone(),
             value: Box::new(value.clone()),
@@ -577,7 +598,7 @@ impl Differ {
     }
 
     /// Add a `Replace` operation to the patch.
-    pub fn replace<Value: Clone + 'static>(&mut self, value: &Value) {
+    pub fn replace<Value: Clone + Send + 'static>(&mut self, value: &Value) {
         self.patch.push(Operation::Replace {
             address: self.address.clone(),
             items: 1,
@@ -643,7 +664,7 @@ macro_rules! invalid_value {
 pub trait Patchable {
     /// Test whether a node is the same as (i.e. equal type and equal value)
     /// another node of any type.
-    fn is_same<Other: Any + Clone>(&self, other: &Other) -> Result<()>;
+    fn is_same<Other: Any + Clone + Send>(&self, other: &Other) -> Result<()>;
 
     /// Test whether a node is equal to (i.e. equal value) a node of the same type.
     fn is_equal(&self, other: &Self) -> Result<()>;
@@ -658,7 +679,7 @@ pub trait Patchable {
     ///
     /// `Other` needs to be `Clone` so that if necessary, we can keep a copy of it in a
     /// `Add` or `Replace operation.
-    fn diff<Other: Any + Clone>(&self, differ: &mut Differ, other: &Other);
+    fn diff<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other);
 
     /// Generate the operations needed to mutate this node so that it is equal
     /// to a node of the same type.
@@ -674,7 +695,7 @@ pub trait Patchable {
     ///
     /// The default implementation simply replaces the current node. Override as
     /// suits.
-    fn diff_other<Other: Any + Clone>(&self, differ: &mut Differ, other: &Other) {
+    fn diff_other<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other) {
         differ.replace(other)
     }
 
@@ -687,6 +708,8 @@ pub trait Patchable {
 
     /// Apply an operation to this node.
     fn apply_op(&mut self, op: &Operation) {
+        tracing::debug!("Applying patch operation: {:?}", op);
+
         match op {
             Operation::Add { address, value, .. } => self.apply_add(&mut address.clone(), value),
             Operation::Remove { address, items } => self.apply_remove(&mut address.clone(), *items),
@@ -706,7 +729,7 @@ pub trait Patchable {
     }
 
     /// Apply an `Add` patch operation
-    fn apply_add(&mut self, _address: &mut Address, _value: &Box<dyn Any>) {
+    fn apply_add(&mut self, _address: &mut Address, _value: &Box<dyn Any + Send>) {
         invalid_op!("add")
     }
 
@@ -716,7 +739,12 @@ pub trait Patchable {
     }
 
     /// Apply a `Replace` patch operation
-    fn apply_replace(&mut self, _address: &mut Address, _items: usize, _value: &Box<dyn Any>) {
+    fn apply_replace(
+        &mut self,
+        _address: &mut Address,
+        _items: usize,
+        _value: &Box<dyn Any + Send>,
+    ) {
         invalid_op!("replace")
     }
 
@@ -747,7 +775,7 @@ macro_rules! patchable_is_same {
 /// Generate the `diff` method for a type
 macro_rules! patchable_diff {
     () => {
-        fn diff<Other: Any + Clone>(&self, differ: &mut Differ, other: &Other) {
+        fn diff<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other) {
             if let Some(other) = (other as &dyn Any).downcast_ref::<Self>() {
                 self.diff_same(differ, other)
             } else {
@@ -757,379 +785,22 @@ macro_rules! patchable_diff {
     };
 }
 
-/// Generate the `is_equal` method for a `struct`
-macro_rules! patchable_struct_is_equal {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn is_equal(&self, other: &Self) -> Result<()> {
-            $(
-                self.$field.is_equal(&other.$field)?;
-            )*
-            Ok(())
-        }
-    };
-}
-
-/// Generate the `make_hash` method for a `struct`
-macro_rules! patchable_struct_hash {
-    ($( $field:ident )*) => {
-        fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
-            // Include the type name in the hash (to avoid clash when structs
-            // of different types have the same values for different fields)
-            use std::hash::Hash;
-            type_name::<Self>().hash(state);
-            // Include the hash of supplied fields. Because we include the type
-            // name in the hash, we do no need to include the field names.
-            $(
-                self.$field.make_hash(state);
-            )*
-        }
-    };
-}
-
-/// Generate the `diff_same` method for a `struct`
-macro_rules! patchable_struct_diff_same {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn diff_same(&self, differ: &mut Differ, other: &Self) {
-            $(
-                differ.field(stringify!($field), &self.$field, &other.$field);
-            )*
-        }
-    };
-}
-
-/// Generate the `apply_add` method for a `struct`
-macro_rules! patchable_struct_apply_add {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
-            if let Some(Slot::Name(name)) = address.pop_front() {
-                match name.as_str() {
-                    $(
-                        stringify!($field) => self.$field.apply_add(address, value),
-                    )*
-                    _ => invalid_name!(name),
-                }
-            } else {
-                invalid_address!(address)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_remove` method for a `struct`
-macro_rules! patchable_struct_apply_remove {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn apply_remove(&mut self, address: &mut Address, items: usize) {
-            if let Some(Slot::Name(name)) = address.pop_front() {
-                match name.as_str() {
-                    $(
-                        stringify!($field) => self.$field.apply_remove(address, items),
-                    )*
-                    _ => invalid_name!(name),
-                }
-            } else {
-                invalid_address!(address)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_replace` method for a `struct`
-macro_rules! patchable_struct_apply_replace {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
-            if let Some(Slot::Name(name)) = address.pop_front() {
-                match name.as_str() {
-                    $(
-                        stringify!($field) => self.$field.apply_replace(address, items, value),
-                    )*
-                    _ => invalid_name!(name),
-                }
-            } else {
-                invalid_address!(address)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_move` method for a `struct`
-macro_rules! patchable_struct_apply_move {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
-            if let (Some(Slot::Name(name)), Some(Slot::Name(_name_again))) = (from.pop_front(), to.pop_front()) {
-                match name.as_str() {
-                    $(
-                        stringify!($field) => self.$field.apply_move(from, items, to),
-                    )*
-                    _ => invalid_name!(name),
-                }
-            } else {
-                invalid_address!(from)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_transform` method for a `struct`
-macro_rules! patchable_struct_apply_transform {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
-            if let Some(Slot::Name(name)) = address.pop_front() {
-                match name.as_str() {
-                    $(
-                        stringify!($field) => self.$field.apply_transform(address, from, to),
-                    )*
-                    _ => invalid_name!(name),
-                }
-            } else {
-                invalid_address!(from)
-            }
-        }
-    };
-}
-
-/// Generate the `is_equal` method for an `enum`
-macro_rules! patchable_enum_is_equal {
-    () => {
-        fn is_equal(&self, other: &Self) -> Result<()> {
-            match std::mem::discriminant(self) == std::mem::discriminant(other) {
-                true => Ok(()),
-                false => bail!(Error::NotEqual),
-            }
-        }
-    };
-}
-
-/// Generate the `make_hash` method for an `enum`
-macro_rules! patchable_enum_hash {
-    () => {
-        fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
-            use std::hash::Hash;
-            std::mem::discriminant(self).hash(state)
-        }
-    };
-}
-
-/// Generate the `diff_same` method for an `enum`
-macro_rules! patchable_enum_diff_same {
-    () => {
-        fn diff_same(&self, differ: &mut Differ, other: &Self) {
-            if std::mem::discriminant(self) != std::mem::discriminant(other) {
-                differ.replace(other)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_replace` method for a `enum`
-macro_rules! patchable_enum_apply_replace {
-    () => {
-        fn apply_replace(&mut self, _address: &mut Address, _items: usize, value: &Box<dyn Any>) {
-            if let Some(value) = value.deref().downcast_ref::<Self>() {
-                *self = value.clone()
-            } else {
-                invalid_value!()
-            }
-        }
-    };
-}
-
-/// Generate the `is_equal` method for an `enum` having variants of different types
-macro_rules! patchable_variants_is_equal {
-    ($( $variant:path )*) => {
-        fn is_equal(&self, other: &Self) -> Result<()> {
-            match (self, other) {
-                $(
-                    ($variant(me), $variant(other)) => me.is_equal(other),
-                )*
-                _ => bail!(Error::NotEqual),
-            }
-        }
-    };
-}
-
-/// Generate the `make_hash` method for an `enum` having variants of different types
-macro_rules! patchable_variants_hash {
-    ($( $variant:path )*) => {
-        fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
-            match self {
-                $(
-                    $variant(me) => me.make_hash(state),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => unimplemented!()
-            }
-        }
-    };
-}
-
-/// Generate the `diff_same` method for an `enum` having variants of different types
-macro_rules! patchable_variants_diff_same {
-    ($( $variant:path )*) => {
-        fn diff_same(&self, differ: &mut Differ, other: &Self) {
-            match (self, other) {
-                $(
-                    ($variant(me), $variant(other)) => me.diff_same(differ, other),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => differ.replace(other)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_add` method for an `enum` having variants of different types
-macro_rules! patchable_variants_apply_add {
-    ($( $variant:path )*) => {
-        fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
-            match self {
-                $(
-                    $variant(me) => me.apply_add(address, value),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => invalid_op!("add")
-            }
-        }
-    };
-}
-
-/// Generate the `apply_remove` method for an `enum` having variants of different types
-macro_rules! patchable_variants_apply_remove {
-    ($( $variant:path )*) => {
-        fn apply_remove(&mut self, address: &mut Address, items: usize) {
-            match self {
-                $(
-                    $variant(me) => me.apply_remove(address, items),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => invalid_op!("remove")
-            }
-        }
-    };
-}
-
-/// Generate the `apply_replace` method for an `enum` having variants of different types
-macro_rules! patchable_variants_apply_replace {
-    ($( $variant:path )*) => {
-        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
-            match self {
-                $(
-                    $variant(me) => me.apply_replace(address, items, value),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => invalid_op!("replace")
-            }
-        }
-    };
-}
-
-/// Generate the `apply_move` method for an `enum` having variants of different types
-macro_rules! patchable_variants_apply_move {
-    ($( $variant:path )*) => {
-        fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
-            match self {
-                $(
-                    $variant(me) => me.apply_move(from, items, to),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => invalid_op!("move")
-            }
-        }
-    };
-}
-
-/// Generate the `apply_transform` method for an `enum` having variants of different types
-macro_rules! patchable_variants_apply_transform {
-    ($( $variant:path )*) => {
-        fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
-            match self {
-                $(
-                    $variant(me) => me.apply_transform(address, from, to),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => invalid_op!("transform")
-            }
-        }
-    };
-}
-
-/// Generate a `impl Patchable` for a `struct`, passing
-/// a list of fields for comparison, diffing, and applying ops.
-macro_rules! patchable_struct {
-    ($type:ty $(, $field:ident )*) => {
-        impl Patchable for $type {
-            patchable_is_same!();
-            patchable_struct_is_equal!($( $field )*);
-            patchable_struct_hash!($( $field )*);
-
-            patchable_diff!();
-            patchable_struct_diff_same!($( $field )*);
-
-            patchable_struct_apply_add!($( $field )*);
-            patchable_struct_apply_remove!($( $field )*);
-            patchable_struct_apply_replace!($( $field )*);
-            patchable_struct_apply_move!($( $field )*);
-            patchable_struct_apply_transform!($( $field )*);
-        }
-    };
-}
-
-/// Generate a `impl Patchable` for a simple `enum`.
-macro_rules! patchable_enum {
-    ($type:ty) => {
-        impl Patchable for $type {
-            patchable_is_same!();
-            patchable_enum_is_equal!();
-            patchable_enum_hash!();
-
-            patchable_diff!();
-            patchable_enum_diff_same!();
-
-            patchable_enum_apply_replace!();
-        }
-    };
-}
-
-/// Generate a `impl Patchable` for an `enum` having variants of different types.
-macro_rules! patchable_variants{
-    ($type:ty $(, $variant:path )*) => {
-        impl Patchable for $type {
-            patchable_is_same!();
-            patchable_variants_is_equal!($( $variant )*);
-            patchable_variants_hash!($( $variant )*);
-
-            patchable_diff!();
-            patchable_variants_diff_same!($( $variant )*);
-
-            patchable_variants_apply_add!($( $variant )*);
-            patchable_variants_apply_remove!($( $variant )*);
-            patchable_variants_apply_replace!($( $variant )*);
-            patchable_variants_apply_move!($( $variant )*);
-            patchable_variants_apply_transform!($( $variant )*);
-        }
-    };
-}
-
 mod prelude;
 
 mod atomics;
-mod strings;
-
+#[macro_use]
+mod enums;
 mod boxes;
 mod options;
+mod strings;
+#[macro_use]
+mod structs;
 mod vecs;
 
 mod blocks;
 mod inlines;
-mod works;
-
 mod nodes;
+mod works;
 
 #[allow(dead_code)]
 #[derive(JsonSchema)]

@@ -68,7 +68,7 @@ impl Patchable for BlockContent {
         }
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
         dispatch_block!(self, apply_add, address, value);
     }
 
@@ -76,7 +76,7 @@ impl Patchable for BlockContent {
         dispatch_block!(self, apply_remove, address, items);
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
         if address.is_empty() {
             if let Some(value) = value.deref().downcast_ref::<Self>() {
                 *self = value.clone()

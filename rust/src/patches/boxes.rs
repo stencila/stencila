@@ -9,7 +9,7 @@ use std::{
 /// All methods simply pass throught to the boxed value.
 impl<Type: Patchable> Patchable for Box<Type>
 where
-    Type: Clone + 'static,
+    Type: Clone + Send + 'static,
 {
     patchable_is_same!();
 
@@ -27,7 +27,7 @@ where
         self.deref().diff_same(differ, other)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
         self.deref_mut().apply_add(address, value)
     }
 
@@ -35,7 +35,7 @@ where
         self.deref_mut().apply_remove(address, items)
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
         self.deref_mut().apply_replace(address, items, value)
     }
 
