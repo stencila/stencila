@@ -5,7 +5,7 @@ use crate::{
 };
 use defaults::Defaults;
 use derive_more::{Constructor, Deref, DerefMut};
-use eyre::Result;
+use eyre::{bail, Result};
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use similar::TextDiff;
@@ -72,18 +72,23 @@ pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<St
 }
 
 /// Apply a [`Patch`] to a node.
-pub fn apply<Type>(node: &mut Type, patch: &[Operation]) -> Result<()>
+pub fn apply<Type>(node: &mut Type, id: Option<String>, patch: &Patch) -> Result<()>
 where
     Type: Patchable,
 {
-    node.apply_patch(patch)?;
-    Ok(())
+    match id {
+        Some(id) => match node.apply_maybe(&id, patch)? {
+            true => Ok(()),
+            false => bail!("Unable to apply patch. Is the node id {} correct?", id),
+        },
+        None => node.apply_patch(patch),
+    }
 }
 
 /// Apply a [`Patch`] to a clone of a node.
 ///
 /// In contrast to `apply`, this does not alter the original node.
-pub fn apply_new<Type>(node: &Type, patch: &[Operation]) -> Result<Type>
+pub fn apply_new<Type>(node: &Type, patch: &Patch) -> Result<Type>
 where
     Type: Patchable + Clone,
 {
@@ -116,7 +121,7 @@ where
     tracing::warn!("Merging is work in progress");
 
     for patch in patches {
-        apply(ancestor, &patch)?
+        apply(ancestor, None, &patch)?;
     }
     Ok(())
 }
@@ -701,12 +706,15 @@ pub trait Patchable {
         differ.replace(other)
     }
 
+    /// Apply a patch to this node if the id matches the node's id
+    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool>;
+
     /// Apply a patch to this node.
-    fn apply_patch(&mut self, patch: &[Operation]) -> Result<bool> {
-        for op in patch {
+    fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
+        for op in patch.iter() {
             self.apply_op(op)
         }
-        Ok(true)
+        Ok(())
     }
 
     /// Apply an operation to this node.
@@ -878,7 +886,7 @@ mod tests {
         assert_json!(patch, []);
 
         let mut patched = empty.clone();
-        apply(&mut patched, &patch)?;
+        apply(&mut patched, None, &patch)?;
         assert_json_eq!(patched, empty);
 
         // Patching `empty` to `a` should:
@@ -896,7 +904,7 @@ mod tests {
         );
 
         let mut patched = empty.clone();
-        apply(&mut patched, &patch)?;
+        apply(&mut patched, None, &patch)?;
         assert_json_eq!(patched, a);
 
         // Patching `a` to `b` should:
@@ -921,7 +929,7 @@ mod tests {
         );
 
         let mut patched = a.clone();
-        apply(&mut patched, &patch)?;
+        apply(&mut patched, None, &patch)?;
         assert_json_eq!(patched, b);
 
         Ok(())

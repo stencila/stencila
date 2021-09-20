@@ -39,6 +39,14 @@ where
         }
     }
 
+    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
+        if let Some(me) = self {
+            me.apply_maybe(id, patch)
+        } else {
+            Ok(false)
+        }
+    }
+
     fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
         if address.is_empty() {
             if let Some(value) = value.deref().downcast_ref::<Type>() {

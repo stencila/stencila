@@ -40,6 +40,27 @@ macro_rules! patchable_struct_diff_same {
     };
 }
 
+/// Generate the `apply_maybe` method for a `struct`
+macro_rules! patchable_struct_apply_maybe {
+    ($( $field:ident )*) => {
+        #[allow(unused_variables)]
+        fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
+            if id == self.id.as_deref().map_or_else(|| "", |id| id) {
+                self.apply_patch(patch)?;
+                return Ok(true)
+            }
+
+            $(
+                if self.$field.apply_maybe(id, patch)? {
+                    return Ok(true);
+                }
+            )*
+
+            return Ok(false);
+        }
+    };
+}
+
 /// Generate the `apply_add` method for a `struct`
 macro_rules! patchable_struct_apply_add {
     ($( $field:ident )*) => {
@@ -140,6 +161,7 @@ macro_rules! patchable_struct_apply_transform {
 macro_rules! patchable_struct {
     ($type:ty $(, $field:ident )*) => {
         impl Patchable for $type {
+
             patchable_is_same!();
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);
@@ -147,6 +169,7 @@ macro_rules! patchable_struct {
             patchable_diff!();
             patchable_struct_diff_same!($( $field )*);
 
+            patchable_struct_apply_maybe!($( $field )*);
             patchable_struct_apply_add!($( $field )*);
             patchable_struct_apply_remove!($( $field )*);
             patchable_struct_apply_replace!($( $field )*);

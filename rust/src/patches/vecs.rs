@@ -298,6 +298,15 @@ where
         differ.append(ops);
     }
 
+    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
+        for item in self {
+            if item.apply_maybe(id, patch)? {
+                return Ok(true);
+            }
+        }
+        Ok(false)
+    }
+
     fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
         if address.len() == 1 {
             if let Some(Slot::Index(index)) = address.pop_front() {

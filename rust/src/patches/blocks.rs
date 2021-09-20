@@ -68,6 +68,10 @@ impl Patchable for BlockContent {
         }
     }
 
+    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
+        dispatch_block!(self, apply_maybe, id, patch)
+    }
+
     fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
         dispatch_block!(self, apply_add, address, value);
     }

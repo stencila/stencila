@@ -49,7 +49,7 @@ impl Patchable for InlineContent {
     }
 
     fn make_hash<H: Hasher>(&self, state: &mut H) {
-        dispatch_inline!(self, make_hash, state)
+        dispatch_inline!(self, (), make_hash, state)
     }
 
     patchable_diff!();
@@ -87,12 +87,16 @@ impl Patchable for InlineContent {
         }
     }
 
+    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
+        dispatch_inline!(self, Ok(false), apply_maybe, id, patch)
+    }
+
     fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
-        dispatch_inline!(self, apply_add, address, value);
+        dispatch_inline!(self, (), apply_add, address, value);
     }
 
     fn apply_remove(&mut self, address: &mut Address, items: usize) {
-        dispatch_inline!(self, apply_remove, address, items);
+        dispatch_inline!(self, (), apply_remove, address, items);
     }
 
     fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
@@ -103,12 +107,12 @@ impl Patchable for InlineContent {
                 return invalid_value!();
             };
         } else {
-            dispatch_inline!(self, apply_replace, address, items, value)
+            dispatch_inline!(self, (), apply_replace, address, items, value)
         }
     }
 
     fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
-        dispatch_inline!(self, apply_move, from, items, to);
+        dispatch_inline!(self, (), apply_move, from, items, to);
     }
 
     fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
@@ -116,7 +120,7 @@ impl Patchable for InlineContent {
             assert_eq!(from, self.as_ref(), "Expected the same type");
             *self = apply_transform(self, to)
         } else {
-            dispatch_inline!(self, apply_transform, address, from, to)
+            dispatch_inline!(self, (), apply_transform, address, from, to)
         }
     }
 }

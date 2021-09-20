@@ -27,6 +27,10 @@ where
         self.deref().diff_same(differ, other)
     }
 
+    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
+        self.deref_mut().apply_maybe(id, patch)
+    }
+
     fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
         self.deref_mut().apply_add(address, value)
     }

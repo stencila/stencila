@@ -1,5 +1,5 @@
 use crate::{
-    errors::{self, attempt},
+    errors::attempt,
     formats::{Format, FORMATS},
     graphs::{Relation, Resource},
     methods::{
@@ -561,20 +561,16 @@ impl Document {
         Ok(patch)
     }
 
-    pub fn patch(&mut self, _node_id: &str, patch: &Patch) -> Result<()> {
-        // TODO patch the node deferred to by the node_id
+    /// Apply a [`Patch`] to this document
+    ///
+    /// # Arguments
+    ///
+    /// - `node`:  the id of the node at the origin of the patch (may be the root node
+    ///            or some child of it)
+    /// - `patch`: the patch to apply
+    pub fn patch(&mut self, node: &str, patch: &Patch) -> Result<()> {
         match self.root.as_mut() {
-            Some(root) => {
-                // TODO: rewrite when `apply` returns a `Result`.
-                errors::start();
-                apply(root, patch);
-                let errors = errors::stop();
-                if !errors.is_empty() {
-                    bail!(errors[0].to_string())
-                } else {
-                    Ok(())
-                }
-            }
+            Some(root) => apply(root, Some(node.to_string()), patch),
             None => bail!("Document does not have a root node to patch"),
         }
     }
@@ -1199,11 +1195,13 @@ impl Documents {
     }
 
     /// Patch a document
-    pub async fn patch(&self, id: &str, node: &str, patch: Patch) -> Result<Document> {
+    ///
+    /// Given that this function is likely to be called often, to avoid a `clone()` and
+    /// to reduce WebSocket message sizes, unlike other functions it does not return the object.
+    pub async fn patch(&self, id: &str, node: &str, patch: Patch) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        document_guard.patch(node, &patch)?;
-        Ok(document_guard.clone())
+        document_guard.patch(node, &patch)
     }
 
     /// Execute a node within a document

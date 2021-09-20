@@ -28,6 +28,10 @@ macro_rules! patchable_atomic {
                 }
             }
 
+            fn apply_maybe(&mut self, _id: &str, _patch: &Patch) -> Result<bool> {
+                Ok(false)
+            }
+
             fn apply_replace(
                 &mut self,
                 _address: &mut Address,
@@ -81,6 +85,10 @@ impl Patchable for Number {
         if self != other {
             differ.replace(other)
         }
+    }
+
+    fn apply_maybe(&mut self, _id: &str, _patch: &Patch) -> Result<bool> {
+        Ok(false)
     }
 
     fn apply_replace(

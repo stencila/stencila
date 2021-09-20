@@ -93,6 +93,21 @@ macro_rules! patchable_variants_diff_same {
     };
 }
 
+/// Generate the `apply_maybe` method for an `enum` having variants of different types
+macro_rules! patchable_variants_apply_maybe {
+    ($( $variant:path )*) => {
+        fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
+            match self {
+                $(
+                    $variant(me) => me.apply_maybe(id, patch),
+                )*
+                #[allow(unreachable_patterns)]
+                _ => bail!("Unhandled variant in apply_maybe")
+            }
+        }
+    };
+}
+
 /// Generate the `apply_add` method for an `enum` having variants of different types
 macro_rules! patchable_variants_apply_add {
     ($( $variant:path )*) => {
@@ -179,6 +194,10 @@ macro_rules! patchable_enum {
             patchable_diff!();
             patchable_enum_diff_same!();
 
+            fn apply_maybe(&mut self, _id: &str, _patch: &Patch) -> Result<bool> {
+                Ok(false)
+            }
+
             patchable_enum_apply_replace!();
         }
     };
@@ -195,6 +214,7 @@ macro_rules! patchable_variants {
             patchable_diff!();
             patchable_variants_diff_same!($( $variant )*);
 
+            patchable_variants_apply_maybe!($( $variant )*);
             patchable_variants_apply_add!($( $variant )*);
             patchable_variants_apply_remove!($( $variant )*);
             patchable_variants_apply_replace!($( $variant )*);

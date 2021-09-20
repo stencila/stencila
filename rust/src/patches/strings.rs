@@ -116,6 +116,10 @@ impl Patchable for String {
         differ.append(ops)
     }
 
+    fn apply_maybe(&mut self, _id: &str, _patch: &Patch) -> Result<bool> {
+        Ok(false)
+    }
+
     fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value

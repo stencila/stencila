@@ -105,18 +105,22 @@ export async function unsubscribe(
 
 /**
  * Patch a document node
+ * 
+ * Will generate an error if the patch could not be
+ * applied e.g. no node with the id could be found or
+ * the patch was inconsistent with the node.
  */
 export async function patch(
   client: Client,
   documentId: DocumentId,
   nodeId: NodeId,
   patch: Patch
-): Promise<Document> {
+): Promise<void> {
   return client.call('documents.patch', {
     documentId,
     nodeId,
     patch,
-  }) as Promise<Document>
+  }) as Promise<void>
 }
 
 /**
