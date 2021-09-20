@@ -85,23 +85,9 @@ export const main = (
 
   // Listen for a `document:patched` custom event emitted from within browser window
   // e.g. user changes the code of a `CodeChunk`, or slides a numeric `Parameter`
-  //
-  // Creates a `Patch` (not a `DomPatch`) that is sent to the
-  // server to apply the change. The reason we construct and send a `Patch`
-  // is so that in the future we are able to send `Operation`s with an `address`
-  // and `value` that refer to a specific property of the node.
   window.addEventListener('document:patch', async (e) => {
     const [client, document] = await startup()
-    const { nodeId, value } = (e as CustomEvent<documents.NodePatched>).detail
-    const patch: Patch = [
-      {
-        type: 'Replace',
-        address: [],
-        items: 1,
-        length: 1,
-        value,
-      },
-    ]
+    const { nodeId, patch } = (e as CustomEvent<documents.NodePatch>).detail
     await documents.patch(client, document.id, nodeId, patch)
   })
 

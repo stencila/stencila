@@ -24,16 +24,16 @@ export type NodeValue =
  */
 export interface NodeExecute {
   nodeId: NodeId
-  value?: NodeValue
+  patch?: Patch
 }
 
 /**
  * The browser `CustomEvent` detail emitted when a node in the current
  * document is changed by the user.
  */
-export interface NodePatched {
+export interface NodePatch {
   nodeId: NodeId
-  value: NodeValue
+  patch: Patch
 }
 
 /**
@@ -105,7 +105,7 @@ export async function unsubscribe(
 
 /**
  * Patch a document node
- * 
+ *
  * Will generate an error if the patch could not be
  * applied e.g. no node with the id could be found or
  * the patch was inconsistent with the node.
@@ -126,17 +126,18 @@ export async function patch(
 /**
  * Execute a document node
  *
- * Optionally, pass a new value for the node.
+ * Optionally, pass a patch to apply to the node
+ * prior to executing it.
  */
 export async function execute(
   client: Client,
   documentId: DocumentId,
   nodeId: NodeId,
-  nodeValue?: NodeValue
-): Promise<Document> {
+  patch?: Patch
+): Promise<void> {
   return client.call('documents.execute', {
     documentId,
     nodeId,
-    value: nodeValue,
-  }) as Promise<Document>
+    patch,
+  }) as Promise<void>
 }
