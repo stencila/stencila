@@ -1,7 +1,6 @@
 use super::prelude::*;
 use itertools::Itertools;
 use similar::{ChangeTag, TextDiff};
-use std::any::{type_name, Any};
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
 use unicode_segmentation::UnicodeSegmentation;
@@ -120,11 +119,11 @@ impl Patchable for String {
         Ok(false)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value
         } else {
-            return invalid_value!();
+            bail!(invalid_patch_value(self))
         };
 
         if let Some(Slot::Index(index)) = address.pop_front() {
@@ -136,30 +135,43 @@ impl Patchable for String {
             ]
             .concat();
             *self = graphemes.into_iter().collect();
+            Ok(())
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address(&address.to_string(), self))
         }
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) {
+    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
         if let Some(Slot::Index(index)) = address.pop_front() {
             let graphemes = self.graphemes(true).collect_vec();
             let graphemes = [&graphemes[..index], &graphemes[(index + items)..]].concat();
             *self = graphemes.into_iter().collect();
+            Ok(())
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address(&address.to_string(), self))
         }
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
+    fn apply_replace(
+        &mut self,
+        address: &mut Address,
+        items: usize,
+        value: &Box<dyn Any + Send>,
+    ) -> Result<()> {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value
+        } else if let Some(value) = value
+            .deref()
+            .downcast_ref::<serde_json::Value>()
+            .and_then(|value| value.as_str())
+        {
+            value
         } else {
-            return invalid_value!();
+            bail!(invalid_patch_value(self))
         };
 
         if address.is_empty() {
-            *self = value.clone();
+            *self = value.to_string()
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             let graphemes = self.graphemes(true).collect_vec();
             let graphemes = [
@@ -170,6 +182,7 @@ impl Patchable for String {
             .concat();
             *self = graphemes.into_iter().collect();
         }
+        Ok(())
     }
 }
 

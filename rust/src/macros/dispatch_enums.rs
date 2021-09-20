@@ -26,7 +26,7 @@ macro_rules! dispatch_inline {
             InlineContent::Superscript(node) => node.$method($($arg),*),
             InlineContent::VideoObject(node) => node.$method($($arg),*),
         }
-    };
+    }
 }
 
 #[macro_export]
@@ -47,5 +47,5 @@ macro_rules! dispatch_block {
             BlockContent::Table(node) => node.$method($($arg),*),
             BlockContent::ThematicBreak(node) => node.$method($($arg),*),
         }
-    };
+    }
 }

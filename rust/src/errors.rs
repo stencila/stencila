@@ -44,6 +44,11 @@ pub enum Error {
     #[error("Invalid patch address '{address}' for type '{type_name}'")]
     InvalidPatchAddress { address: String, type_name: String },
 
+    /// The user attempted to apply a patch operation with an invalid
+    /// value for the type.
+    #[error("Invalid patch value for type '{type_name}'")]
+    InvalidPatchValue { type_name: String },
+
     /// The user attempted to use a slot with an invalid type for the
     /// type of the object (e.g. a `Slot::Name` on a `Vector`).
     #[error("Invalid slot type '{variant}' for type '{type_name}'")]
@@ -58,11 +63,6 @@ pub enum Error {
     /// for the type (e.g an index that is greater than the size of a vector).
     #[error("Invalid patch address index '{index}' for type '{type_name}'")]
     InvalidSlotIndex { index: usize, type_name: String },
-
-    /// The user attempted to apply a patch operation with an invalid
-    /// value for the type.
-    #[error("Invalid patch value for type '{type_name}'")]
-    InvalidPatchValue { type_name: String },
 
     /// The user attempted to open a document with an unknown format
     #[error("Unknown format '{format}'")]
@@ -95,6 +95,29 @@ pub enum Error {
     /// An error of unspecified type
     #[error("{message}")]
     Unspecified { message: String },
+}
+
+/// Create an `InvalidPatchOp` error
+pub fn invalid_patch_operation<Type>(op: &str, _object: Type) -> Error {
+    Error::InvalidPatchOperation {
+        op: op.into(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidPatchAddress` error
+pub fn invalid_patch_address<Type>(address: &str, _object: Type) -> Error {
+    Error::InvalidPatchAddress {
+        address: address.into(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidPatchValue` error
+pub fn invalid_patch_value<Type>(_object: Type) -> Error {
+    Error::InvalidPatchValue {
+        type_name: type_name::<Type>().into(),
+    }
 }
 
 /// Create an `InvalidSlotType` error

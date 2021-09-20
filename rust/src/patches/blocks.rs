@@ -72,34 +72,41 @@ impl Patchable for BlockContent {
         dispatch_block!(self, apply_maybe, id, patch)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
-        dispatch_block!(self, apply_add, address, value);
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
+        dispatch_block!(self, apply_add, address, value)
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) {
-        dispatch_block!(self, apply_remove, address, items);
+    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
+        dispatch_block!(self, apply_remove, address, items)
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
+    fn apply_replace(
+        &mut self,
+        address: &mut Address,
+        items: usize,
+        value: &Box<dyn Any + Send>,
+    ) -> Result<()> {
         if address.is_empty() {
             if let Some(value) = value.deref().downcast_ref::<Self>() {
-                *self = value.clone()
+                *self = value.clone();
+                Ok(())
             } else {
-                return invalid_value!();
-            };
+                bail!(invalid_patch_value(self))
+            }
         } else {
             dispatch_block!(self, apply_replace, address, items, value)
         }
     }
 
-    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
-        dispatch_block!(self, apply_move, from, items, to);
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
+        dispatch_block!(self, apply_move, from, items, to)
     }
 
-    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
         if address.is_empty() {
             assert_eq!(from, self.as_ref(), "Expected the same type");
-            *self = apply_transform(self, to)
+            *self = apply_transform(self, to);
+            Ok(())
         } else {
             dispatch_block!(self, apply_transform, address, from, to)
         }

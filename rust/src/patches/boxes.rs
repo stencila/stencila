@@ -31,23 +31,28 @@ where
         self.deref_mut().apply_maybe(id, patch)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
         self.deref_mut().apply_add(address, value)
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) {
+    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
         self.deref_mut().apply_remove(address, items)
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
+    fn apply_replace(
+        &mut self,
+        address: &mut Address,
+        items: usize,
+        value: &Box<dyn Any + Send>,
+    ) -> Result<()> {
         self.deref_mut().apply_replace(address, items, value)
     }
 
-    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
         self.deref_mut().apply_move(from, items, to)
     }
 
-    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
         self.deref_mut().apply_transform(address, from, to)
     }
 }

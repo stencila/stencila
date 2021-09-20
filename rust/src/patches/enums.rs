@@ -39,11 +39,12 @@ macro_rules! patchable_enum_apply_replace {
             _address: &mut Address,
             _items: usize,
             value: &Box<dyn Any + Send>,
-        ) {
+        ) -> Result<()> {
             if let Some(value) = value.deref().downcast_ref::<Self>() {
-                *self = value.clone()
+                *self = value.clone();
+                Ok(())
             } else {
-                invalid_value!()
+                bail!(invalid_patch_value(self))
             }
         }
     };
@@ -111,13 +112,13 @@ macro_rules! patchable_variants_apply_maybe {
 /// Generate the `apply_add` method for an `enum` having variants of different types
 macro_rules! patchable_variants_apply_add {
     ($( $variant:path )*) => {
-        fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
+        fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
             match self {
                 $(
                     $variant(me) => me.apply_add(address, value),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => invalid_op!("add")
+                _ => bail!(invalid_patch_operation("add", self))
             }
         }
     };
@@ -126,13 +127,13 @@ macro_rules! patchable_variants_apply_add {
 /// Generate the `apply_remove` method for an `enum` having variants of different types
 macro_rules! patchable_variants_apply_remove {
     ($( $variant:path )*) => {
-        fn apply_remove(&mut self, address: &mut Address, items: usize) {
+        fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
             match self {
                 $(
                     $variant(me) => me.apply_remove(address, items),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => invalid_op!("remove")
+                _ => bail!(invalid_patch_operation("remove", self))
             }
         }
     };
@@ -141,13 +142,13 @@ macro_rules! patchable_variants_apply_remove {
 /// Generate the `apply_replace` method for an `enum` having variants of different types
 macro_rules! patchable_variants_apply_replace {
     ($( $variant:path )*) => {
-        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
+        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) -> Result<()> {
             match self {
                 $(
                     $variant(me) => me.apply_replace(address, items, value),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => invalid_op!("replace")
+                _ => bail!(invalid_patch_operation("replace", self))
             }
         }
     };
@@ -156,13 +157,13 @@ macro_rules! patchable_variants_apply_replace {
 /// Generate the `apply_move` method for an `enum` having variants of different types
 macro_rules! patchable_variants_apply_move {
     ($( $variant:path )*) => {
-        fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
+        fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
             match self {
                 $(
                     $variant(me) => me.apply_move(from, items, to),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => invalid_op!("move")
+                _ => bail!(invalid_patch_operation("move", self))
             }
         }
     };
@@ -171,13 +172,13 @@ macro_rules! patchable_variants_apply_move {
 /// Generate the `apply_transform` method for an `enum` having variants of different types
 macro_rules! patchable_variants_apply_transform {
     ($( $variant:path )*) => {
-        fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+        fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
             match self {
                 $(
                     $variant(me) => me.apply_transform(address, from, to),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => invalid_op!("transform")
+                _ => bail!(invalid_patch_operation("transform", self))
             }
         }
     };

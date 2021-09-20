@@ -1,23 +1,14 @@
-use crate::{
-    errors::{report, Error},
-    methods::encode::encode,
-    utils::schemas,
-};
+use crate::{errors::invalid_patch_operation, methods::encode::encode, utils::schemas};
 use defaults::Defaults;
 use derive_more::{Constructor, Deref, DerefMut};
 use eyre::{bail, Result};
+use itertools::Itertools;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use similar::TextDiff;
-use std::{
-    any::{type_name, Any},
-    collections::VecDeque,
-    fmt::Debug,
-    hash::Hasher,
-    iter::FromIterator,
-};
+use std::{any::Any, collections::VecDeque, fmt::Debug, hash::Hasher, iter::FromIterator};
 use stencila_schema::{BlockContent, Boolean, InlineContent, Integer, Node, Number};
-use strum::ToString;
+use strum::{AsRefStr, ToString};
 
 /// Are two nodes are the same type and value?
 pub fn same<Type1, Type2>(node1: &Type1, node2: &Type2) -> bool
@@ -146,7 +137,7 @@ where
 /// In contrast to JSON Patch, which uses a [JSON Pointer](http://tools.ietf.org/html/rfc6901)
 /// to describe the location of additions and removals, slots offer improved performance and
 /// type safety.
-#[derive(Debug, Clone, JsonSchema, Serialize, Deserialize, ToString)]
+#[derive(Debug, Clone, JsonSchema, Serialize, Deserialize, AsRefStr)]
 #[serde(untagged)]
 #[schemars(deny_unknown_fields)]
 pub enum Slot {
@@ -154,8 +145,8 @@ pub enum Slot {
     Name(String),
 }
 
-impl Slot {
-    pub fn to_inner_string(&self) -> String {
+impl ToString for Slot {
+    fn to_string(&self) -> String {
         match self {
             Slot::Name(name) => name.clone(),
             Slot::Index(index) => index.to_string(),
@@ -175,6 +166,15 @@ impl Slot {
 )]
 #[schemars(deny_unknown_fields)]
 pub struct Address(VecDeque<Slot>);
+
+impl ToString for Address {
+    fn to_string(&self) -> String {
+        self.iter()
+            .map(|slot| slot.to_string())
+            .collect_vec()
+            .join(".")
+    }
+}
 
 impl Address {
     /// Concatenate an address with another and return the result
@@ -474,14 +474,13 @@ impl DomOperation {
         use crate::methods::encode::html::{Context, ToHtml};
 
         let slot = address.back().unwrap();
-        let slot_string = slot.to_inner_string();
         let context = Context::new();
         if let Some(string) = value.downcast_ref::<String>() {
             string.clone()
         } else if let Some(inline) = value.downcast_ref::<InlineContent>() {
-            inline.to_html(&slot_string, &context)
+            inline.to_html(&slot.to_string(), &context)
         } else if let Some(block) = value.downcast_ref::<BlockContent>() {
-            block.to_html(&slot_string, &context)
+            block.to_html(&slot.to_string(), &context)
         } else if let Some(inlines) = value.downcast_ref::<Vec<InlineContent>>() {
             match slot {
                 // If the slot is a name then we're adding or replacing a property so we
@@ -624,50 +623,6 @@ impl Differ {
     }
 }
 
-macro_rules! invalid_op {
-    ($op:expr) => {
-        report(Error::InvalidPatchOperation {
-            op: $op.into(),
-            type_name: type_name::<Self>().into(),
-        })
-    };
-}
-
-macro_rules! invalid_address {
-    ($address:expr) => {
-        report(Error::InvalidPatchAddress {
-            address: format!("{:?}", $address),
-            type_name: type_name::<Self>().into(),
-        })
-    };
-}
-
-macro_rules! invalid_name {
-    ($name:expr) => {
-        report(Error::InvalidSlotName {
-            name: $name.into(),
-            type_name: type_name::<Self>().into(),
-        })
-    };
-}
-
-macro_rules! invalid_index {
-    ($index:expr) => {
-        report(Error::InvalidSlotIndex {
-            index: $index.into(),
-            type_name: type_name::<Self>().into(),
-        })
-    };
-}
-
-macro_rules! invalid_value {
-    () => {
-        report(Error::InvalidPatchValue {
-            type_name: type_name::<Self>().into(),
-        })
-    };
-}
-
 pub trait Patchable {
     /// Test whether a node is the same as (i.e. equal type and equal value)
     /// another node of any type.
@@ -712,13 +667,13 @@ pub trait Patchable {
     /// Apply a patch to this node.
     fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
         for op in patch.iter() {
-            self.apply_op(op)
+            self.apply_op(op)?;
         }
         Ok(())
     }
 
     /// Apply an operation to this node.
-    fn apply_op(&mut self, op: &Operation) {
+    fn apply_op(&mut self, op: &Operation) -> Result<()> {
         tracing::debug!("Applying patch operation: {:?}", op);
 
         match op {
@@ -740,13 +695,13 @@ pub trait Patchable {
     }
 
     /// Apply an `Add` patch operation
-    fn apply_add(&mut self, _address: &mut Address, _value: &Box<dyn Any + Send>) {
-        invalid_op!("add")
+    fn apply_add(&mut self, _address: &mut Address, _value: &Box<dyn Any + Send>) -> Result<()> {
+        bail!(invalid_patch_operation("add", self))
     }
 
     /// Apply a `Remove` patch operation
-    fn apply_remove(&mut self, _address: &mut Address, _items: usize) {
-        invalid_op!("remove")
+    fn apply_remove(&mut self, _address: &mut Address, _items: usize) -> Result<()> {
+        bail!(invalid_patch_operation("remove", self))
     }
 
     /// Apply a `Replace` patch operation
@@ -755,18 +710,18 @@ pub trait Patchable {
         _address: &mut Address,
         _items: usize,
         _value: &Box<dyn Any + Send>,
-    ) {
-        invalid_op!("replace")
+    ) -> Result<()> {
+        bail!(invalid_patch_operation("replace", self))
     }
 
     /// Apply a `Move` patch operation
-    fn apply_move(&mut self, _from: &mut Address, _items: usize, _to: &mut Address) {
-        invalid_op!("move")
+    fn apply_move(&mut self, _from: &mut Address, _items: usize, _to: &mut Address) -> Result<()> {
+        bail!(invalid_patch_operation("move", self))
     }
 
     /// Apply a `Transform` patch operation
-    fn apply_transform(&mut self, _address: &mut Address, _from: &str, _to: &str) {
-        invalid_op!("transform")
+    fn apply_transform(&mut self, _address: &mut Address, _from: &str, _to: &str) -> Result<()> {
+        bail!(invalid_patch_operation("transform", self))
     }
 }
 

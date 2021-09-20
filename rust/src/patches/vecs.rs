@@ -307,73 +307,81 @@ where
         Ok(false)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
         if address.len() == 1 {
             if let Some(Slot::Index(index)) = address.pop_front() {
                 let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
                     value
                 } else {
-                    return invalid_value!();
+                    bail!(invalid_patch_value(self))
                 };
                 *self = [&self[..index], value, &self[index..]].concat().to_vec();
             } else {
-                invalid_address!(address)
+                bail!(invalid_patch_address(&address.to_string(), self))
             }
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
-                item.apply_add(address, value);
+                item.apply_add(address, value)?;
             } else {
-                invalid_index!(index)
+                bail!(invalid_slot_index(index, self))
             }
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address(&address.to_string(), self))
         }
+        Ok(())
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) {
+    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
         if address.len() == 1 {
             if let Some(Slot::Index(index)) = address.pop_front() {
                 *self = [&self[..index], &self[(index + items)..]].concat().to_vec();
             } else {
-                invalid_address!(address)
+                bail!(invalid_patch_address(&address.to_string(), self))
             }
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
-                item.apply_remove(address, items);
+                item.apply_remove(address, items)?;
             } else {
-                invalid_index!(index)
+                bail!(invalid_slot_index(index, self))
             }
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address(&address.to_string(), self))
         }
+        Ok(())
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
+    fn apply_replace(
+        &mut self,
+        address: &mut Address,
+        items: usize,
+        value: &Box<dyn Any + Send>,
+    ) -> Result<()> {
         if address.len() == 1 {
             let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
                 value
             } else {
-                return invalid_value!();
+                bail!(invalid_patch_value(self))
             };
             if let Some(Slot::Index(index)) = address.pop_front() {
                 *self = [&self[..index], value, &self[(index + items)..]]
                     .concat()
                     .to_vec();
             } else {
-                invalid_address!(address)
+                bail!(invalid_patch_address(&address.to_string(), self))
             }
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
-                item.apply_replace(address, items, value);
+                item.apply_replace(address, items, value)?;
             } else {
-                invalid_index!(index)
+                bail!(invalid_slot_index(index, self))
             }
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address(&address.to_string(), self))
         }
+        Ok(())
     }
 
-    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
         if from.len() == 1 {
             if let (Some(Slot::Index(from)), Some(Slot::Index(to))) =
                 (from.pop_front(), to.pop_front())
@@ -396,31 +404,33 @@ where
                 .concat()
                 .to_vec();
             } else {
-                invalid_address!(from)
+                bail!(invalid_patch_address(&from.to_string(), self))
             }
         } else if let Some(Slot::Index(index)) = from.pop_front() {
             if let Some(item) = self.get_mut(index) {
-                item.apply_move(from, items, to);
+                item.apply_move(from, items, to)?;
             } else {
-                invalid_index!(index)
+                bail!(invalid_slot_index(index, self))
             }
         } else {
-            invalid_address!(from)
+            bail!(invalid_patch_address(&from.to_string(), self))
         }
+        Ok(())
     }
 
-    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
         if address.len() == 1 {
             if let Some(Slot::Index(index)) = address.pop_front() {
                 if let Some(item) = self.get_mut(index) {
-                    item.apply_transform(address, from, to);
+                    item.apply_transform(address, from, to)?;
                 } else {
-                    invalid_index!(index)
+                    bail!(invalid_slot_index(index, self))
                 }
             }
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address(&address.to_string(), self))
         }
+        Ok(())
     }
 }
 

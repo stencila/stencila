@@ -56,7 +56,7 @@ macro_rules! patchable_struct_apply_maybe {
                 }
             )*
 
-            return Ok(false);
+            Ok(false)
         }
     };
 }
@@ -65,16 +65,16 @@ macro_rules! patchable_struct_apply_maybe {
 macro_rules! patchable_struct_apply_add {
     ($( $field:ident )*) => {
         #[allow(unused_variables)]
-        fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
+        fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
             if let Some(Slot::Name(name)) = address.pop_front() {
                 match name.as_str() {
                     $(
                         stringify!($field) => self.$field.apply_add(address, value),
                     )*
-                    _ => invalid_name!(name),
+                    _ => bail!(invalid_slot_name(&name, self)),
                 }
             } else {
-                invalid_address!(address)
+                bail!(invalid_patch_address(&address.to_string(), self))
             }
         }
     };
@@ -84,16 +84,16 @@ macro_rules! patchable_struct_apply_add {
 macro_rules! patchable_struct_apply_remove {
     ($( $field:ident )*) => {
         #[allow(unused_variables)]
-        fn apply_remove(&mut self, address: &mut Address, items: usize) {
+        fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
             if let Some(Slot::Name(name)) = address.pop_front() {
                 match name.as_str() {
                     $(
                         stringify!($field) => self.$field.apply_remove(address, items),
                     )*
-                    _ => invalid_name!(name),
+                    _ => bail!(invalid_slot_name(&name, self)),
                 }
             } else {
-                invalid_address!(address)
+                bail!(invalid_patch_address(&address.to_string(), self))
             }
         }
     };
@@ -103,16 +103,16 @@ macro_rules! patchable_struct_apply_remove {
 macro_rules! patchable_struct_apply_replace {
     ($( $field:ident )*) => {
         #[allow(unused_variables)]
-        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
+        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) -> Result<()> {
             if let Some(Slot::Name(name)) = address.pop_front() {
                 match name.as_str() {
                     $(
                         stringify!($field) => self.$field.apply_replace(address, items, value),
                     )*
-                    _ => invalid_name!(name),
+                    _ => bail!(invalid_slot_name(&name, self)),
                 }
             } else {
-                invalid_address!(address)
+                bail!(invalid_patch_address(&address.to_string(), self))
             }
         }
     };
@@ -122,16 +122,16 @@ macro_rules! patchable_struct_apply_replace {
 macro_rules! patchable_struct_apply_move {
     ($( $field:ident )*) => {
         #[allow(unused_variables)]
-        fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
+        fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
             if let (Some(Slot::Name(name)), Some(Slot::Name(_name_again))) = (from.pop_front(), to.pop_front()) {
                 match name.as_str() {
                     $(
                         stringify!($field) => self.$field.apply_move(from, items, to),
                     )*
-                    _ => invalid_name!(name),
+                    _ => bail!(invalid_slot_name(&name, self)),
                 }
             } else {
-                invalid_address!(from)
+                bail!(invalid_patch_address(&from.to_string(), self))
             }
         }
     };
@@ -141,16 +141,16 @@ macro_rules! patchable_struct_apply_move {
 macro_rules! patchable_struct_apply_transform {
     ($( $field:ident )*) => {
         #[allow(unused_variables)]
-        fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+        fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
             if let Some(Slot::Name(name)) = address.pop_front() {
                 match name.as_str() {
                     $(
                         stringify!($field) => self.$field.apply_transform(address, from, to),
                     )*
-                    _ => invalid_name!(name),
+                    _ => bail!(invalid_slot_name(&name, self)),
                 }
             } else {
-                invalid_address!(from)
+                bail!(invalid_patch_address(&from.to_string(), self))
             }
         }
     };

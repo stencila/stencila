@@ -47,51 +47,58 @@ where
         }
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
         if address.is_empty() {
             if let Some(value) = value.deref().downcast_ref::<Type>() {
-                *self = Some(value.clone())
+                *self = Some(value.clone());
+                Ok(())
             } else {
-                invalid_value!()
+                bail!(invalid_patch_value(self))
             }
         } else if let Some(me) = self {
             me.apply_add(address, value)
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address(&address.to_string(), self))
         }
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) {
+    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
         if address.is_empty() {
-            *self = None
+            *self = None;
+            Ok(())
         } else if let Some(me) = self {
             me.apply_remove(address, items)
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address(&address.to_string(), self))
         }
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) {
+    fn apply_replace(
+        &mut self,
+        address: &mut Address,
+        items: usize,
+        value: &Box<dyn Any + Send>,
+    ) -> Result<()> {
         if let Some(me) = self {
             me.apply_replace(address, items, value)
         } else {
-            invalid_op!("replace")
+            bail!(invalid_patch_operation("replace", self))
         }
     }
 
-    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
         if let Some(me) = self {
             me.apply_move(from, items, to)
         } else {
-            invalid_op!("move")
+            bail!(invalid_patch_operation("move", self))
         }
     }
 
-    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
         if let Some(me) = self {
             me.apply_transform(address, from, to)
         } else {
-            invalid_op!("transform")
+            bail!(invalid_patch_operation("transform", self))
         }
     }
 }
