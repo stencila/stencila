@@ -171,6 +171,7 @@ impl Patchable for String {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::{
         assert_json,
         patches::{apply_new, diff, equal},
@@ -178,7 +179,7 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     #[test]
-    fn basic() {
+    fn basic() -> Result<()> {
         let empty = "".to_string();
         let a = "1".to_string();
         let b = "123".to_string();
@@ -205,21 +206,21 @@ mod tests {
             patch,
             [{ "type": "Add", "address": [0], "value": "1", "length": 1 }]
         );
-        assert_eq!(apply_new(&empty, &patch), a);
+        assert_eq!(apply_new(&empty, &patch)?, a);
 
         let patch = diff(&empty, &d);
         assert_json!(
             patch,
             [{ "type": "Add", "address": [0], "value": "abcdef", "length": 6 }]
         );
-        assert_eq!(apply_new(&empty, &patch), d);
+        assert_eq!(apply_new(&empty, &patch)?, d);
 
         let patch = diff(&a, &b);
         assert_json!(
             patch,
             [{ "type": "Add", "address": [1], "value": "23", "length": 2 }]
         );
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         // Remove
 
@@ -248,14 +249,14 @@ mod tests {
             patch,
             [{ "type": "Replace", "address": [0], "items": 1, "value": "a2b3", "length": 4 }]
         );
-        assert_eq!(apply_new(&a, &patch), c);
+        assert_eq!(apply_new(&a, &patch)?, c);
 
         let patch = diff(&b, &d);
         assert_json!(
             patch,
             [{ "type": "Replace", "address": [0], "items": 3, "value": "abcdef", "length": 6 }]
         );
-        assert_eq!(apply_new(&b, &patch), d);
+        assert_eq!(apply_new(&b, &patch)?, d);
 
         // Mixed
 
@@ -267,7 +268,7 @@ mod tests {
                 { "type": "Replace", "address": [2], "items": 1, "value": "cdef", "length": 4 }
             ]
         );
-        assert_eq!(apply_new(&c, &patch), d);
+        assert_eq!(apply_new(&c, &patch)?, d);
 
         let patch = diff(&d, &c);
         assert_json!(
@@ -277,7 +278,7 @@ mod tests {
                 { "type": "Replace", "address": [3], "items": 4, "value": "3", "length": 1 }
             ]
         );
-        assert_eq!(apply_new(&d, &patch), c);
+        assert_eq!(apply_new(&d, &patch)?, c);
 
         let patch = diff(&d, &e);
         assert_json!(
@@ -288,13 +289,15 @@ mod tests {
                 { "type": "Remove", "address": [6], "items": 1 }
             ]
         );
-        assert_eq!(apply_new(&d, &patch), e);
+        assert_eq!(apply_new(&d, &patch)?, e);
+
+        Ok(())
     }
 
     /// Test that works with Unicode graphemes (which are made up of multiple Unicode characters
     /// which themselves can be made of several bytes).
     #[test]
-    fn unicode() {
+    fn unicode() -> Result<()> {
         // ä = 1 Unicode char
         // 👍🏻 and 👍🏿 = 2 Unicode chars each
         let a = "ä".to_string();
@@ -305,21 +308,21 @@ mod tests {
         assert_json!(patch, [
             { "type": "Add", "address": [1], "value": "1👍🏻2", "length": 3 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &c);
         assert_json!(patch, [
             { "type": "Remove", "address": [0], "items": 1 },
             { "type": "Replace", "address": [1], "items": 1, "value": "👍🏿", "length": 1 },
         ]);
-        assert_eq!(apply_new(&b, &patch), c);
+        assert_eq!(apply_new(&b, &patch)?, c);
 
         let patch = diff(&c, &b);
         assert_json!(patch, [
             { "type": "Add", "address": [0], "value": "ä", "length": 1 },
             { "type": "Replace", "address": [2], "items": 1, "value": "👍🏻", "length": 1 },
         ]);
-        assert_eq!(apply_new(&c, &patch), b);
+        assert_eq!(apply_new(&c, &patch)?, b);
 
         // 🌷 and 🎁 = 2 Unicode chars each
         // 🏳️‍🌈 = 6 Unicode chars
@@ -331,21 +334,23 @@ mod tests {
             { "type": "Add", "address": [0], "value": "🎁🏳️‍🌈", "length": 2 },
             { "type": "Remove", "address": [3], "items": 2 },
         ]);
-        assert_eq!(apply_new(&d, &patch), e);
+        assert_eq!(apply_new(&d, &patch)?, e);
 
         let patch = diff(&e, &d);
         assert_json!(patch, [
             { "type": "Add", "address": [0], "value": "🌷🏳️‍🌈", "length": 2 },
             { "type": "Remove", "address": [3], "items": 2 },
         ]);
-        assert_eq!(apply_new(&e, &patch), d);
+        assert_eq!(apply_new(&e, &patch)?, d);
+
+        Ok(())
     }
 
     // Regression tests of minimal failing cases found using property testing
     // and elsewhere.
 
     #[test]
-    fn regression_1() {
+    fn regression_1() -> Result<()> {
         let a = "ab".to_string();
         let b = "bc".to_string();
         let patch = diff(&a, &b);
@@ -353,11 +358,13 @@ mod tests {
             { "type": "Remove", "address": [0], "items": 1 },
             { "type": "Add", "address": [1], "value": "c", "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     #[test]
-    fn regression_2() {
+    fn regression_2() -> Result<()> {
         let a = "ac".to_string();
         let b = "bcd".to_string();
         let patch = diff(&a, &b);
@@ -368,6 +375,8 @@ mod tests {
                 { "type": "Add", "address": [2], "value": "d", "length": 1 },
             ]
         );
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 }

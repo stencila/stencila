@@ -256,7 +256,7 @@ mod tests {
 
     // Test that operations with address are passed through
     #[test]
-    fn passthrough() {
+    fn passthrough() -> Result<()> {
         // Simple
         let a = InlineContent::String("abcd".to_string());
         let b = InlineContent::String("eacp".to_string());
@@ -271,7 +271,7 @@ mod tests {
             {"type": "Remove", "address": [2], "items": 1},
             {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
 
         // Nested
         let a = InlineContent::Delete(Delete {
@@ -290,12 +290,14 @@ mod tests {
         assert_json!(patch, [
             {"type": "Remove", "address": ["content", 0, 2], "items": 2},
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     // Test that strings and other simple inline content are transformed
     #[test]
-    fn transform() {
+    fn transform() -> Result<()> {
         let a = InlineContent::String("abcd".to_string());
         let b = InlineContent::Emphasis(Emphasis {
             content: vec![a.clone()],
@@ -310,30 +312,32 @@ mod tests {
         assert_json!(patch, [
             {"type": "Transform", "address": [], "from": "String", "to": "Emphasis"}
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
         assert_json!(patch, [
             {"type": "Transform", "address": [], "from": "Emphasis", "to": "String"}
         ]);
-        assert_json_eq!(apply_new(&b, &patch), a);
+        assert_json_eq!(apply_new(&b, &patch)?, a);
 
         let patch = diff(&b, &c);
         assert_json!(patch, [
             {"type": "Transform", "address": [], "from": "Emphasis", "to": "Strong"}
         ]);
-        assert_json_eq!(apply_new(&b, &patch), c);
+        assert_json_eq!(apply_new(&b, &patch)?, c);
 
         let patch = diff(&c, &b);
         assert_json!(patch, [
             {"type": "Transform", "address": [], "from": "Strong", "to": "Emphasis"}
         ]);
-        assert_json_eq!(apply_new(&c, &patch), b);
+        assert_json_eq!(apply_new(&c, &patch)?, b);
+
+        Ok(())
     }
 
     // Test that if content differs a replacement is done instead of a transform
     #[test]
-    fn replace_different_content() {
+    fn replace_different_content() -> Result<()> {
         let a = InlineContent::String("a".to_string());
         let b = InlineContent::Emphasis(Emphasis {
             content: vec![InlineContent::String("b".to_string())],
@@ -348,7 +352,7 @@ mod tests {
                 "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
         assert_json!(patch, [
@@ -358,13 +362,15 @@ mod tests {
                 "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&b, &patch), a);
+        assert_json_eq!(apply_new(&b, &patch)?, a);
+
+        Ok(())
     }
 
     // Test that if content is same but types differ that replacement
     // is done.
     #[test]
-    fn replace_different_types() {
+    fn replace_different_types() -> Result<()> {
         let a = InlineContent::AudioObject(AudioObjectSimple {
             content_url: "a".to_string(),
             ..Default::default()
@@ -382,14 +388,16 @@ mod tests {
                 "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     // Regression tests of minimal failing cases found using property testing
     // and elsewhere.
 
     #[test]
-    fn regression_1() {
+    fn regression_1() -> Result<()> {
         let a = vec![
             InlineContent::Superscript(Superscript {
                 content: vec![InlineContent::String("a".to_string())],
@@ -421,6 +429,8 @@ mod tests {
                 "value": [{ "type": "AudioObject", "contentUrl": "a.flac"}], "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 }

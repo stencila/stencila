@@ -478,6 +478,7 @@ fn unique_items<Type: Patchable>(a: &[Type], b: &[Type]) -> (Vec<u32>, Vec<u32>)
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::{
         assert_json, assert_json_eq,
         patches::{apply_new, diff, equal},
@@ -488,7 +489,7 @@ mod tests {
     // Test patches that operate on atomic items (integers) with no
     // pass though.
     #[test]
-    fn basic() {
+    fn basic() -> Result<()> {
         let empty: Vec<Integer> = vec![];
         let a: Vec<Integer> = vec![1];
         let b: Vec<Integer> = vec![1, 2];
@@ -510,14 +511,14 @@ mod tests {
             patch,
             [{ "type": "Add", "address": [0], "value": [1, 2], "length": 2 }]
         );
-        assert_eq!(apply_new(&empty, &patch), b);
+        assert_eq!(apply_new(&empty, &patch)?, b);
 
         let patch = diff(&b, &empty);
         assert_json!(
             patch,
             [{ "type": "Remove", "address": [0], "items": 2 }]
         );
-        assert_eq!(apply_new(&b, &patch), empty);
+        assert_eq!(apply_new(&b, &patch)?, empty);
 
         // Add
 
@@ -528,7 +529,7 @@ mod tests {
             patch,
             [{ "type": "Add", "address": [1], "value": [2], "length": 1 }]
         );
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         // Remove
 
@@ -539,7 +540,7 @@ mod tests {
             patch,
             [{ "type": "Remove", "address": [1], "items": 1 }]
         );
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         // Replace
 
@@ -550,7 +551,7 @@ mod tests {
             patch,
             [{ "type": "Replace", "address": [0], "items": 2, "value": [3, 4], "length": 2 }]
         );
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         // Move
 
@@ -562,7 +563,7 @@ mod tests {
                 { "type": "Move", "from": [1], "items": 1, "to": [0] }
             ]
         );
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         let a: Vec<Integer> = vec![1, 2, 3, 4];
         let b: Vec<Integer> = vec![2, 3, 1, 4];
@@ -572,13 +573,15 @@ mod tests {
                 { "type": "Move", "from": [0], "items": 1, "to": [3] }
             ]
         );
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     // Test patches that operate on compound items (strings) to check that
     // fine grained operations are generated for each item and passed through on apply.
     #[test]
-    fn item_ops() {
+    fn item_ops() -> Result<()> {
         // Add
 
         let a = vec!["a".to_string()];
@@ -587,7 +590,7 @@ mod tests {
         assert_json!(patch, [
             { "type": "Add", "address": [0, 1], "value": "b", "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         // Remove
 
@@ -597,7 +600,7 @@ mod tests {
         assert_json!(patch, [
             { "type": "Remove", "address": [0, 1], "items": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         // Replace
 
@@ -607,7 +610,7 @@ mod tests {
         assert_json!(patch, [
             { "type": "Replace", "address": [0, 0], "items": 1, "value": "b", "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         // Transform
 
@@ -623,12 +626,14 @@ mod tests {
         assert_json!(patch, [
             { "type": "Transform", "address": [0], "from": "Emphasis", "to": "Strong" },
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     // As above, but with an extra `Add` or `Remove` as needed.
     #[test]
-    fn item_ops_plus() {
+    fn item_ops_plus() -> Result<()> {
         let a = vec!["a".to_string()];
         let b = vec!["ab".to_string(), "c".to_string()];
 
@@ -637,21 +642,23 @@ mod tests {
             { "type": "Add", "address": [0, 1], "value": "b", "length": 1 },
             { "type": "Add", "address": [1], "value": ["c"], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
         assert_json!(patch, [
             { "type": "Remove", "address": [0, 1], "items": 1 },
             { "type": "Remove", "address": [1], "items": 1 },
         ]);
-        assert_eq!(apply_new(&b, &patch), a);
+        assert_eq!(apply_new(&b, &patch)?, a);
+
+        Ok(())
     }
 
     // Regression tests of minimal failing cases found using property testing
     // and elsewhere.
 
     #[test]
-    fn regression_1() {
+    fn regression_1() -> Result<()> {
         let a = vec![7, 0, 4, 1];
         let b = vec![4, 7, 1, 0, 1];
         let patch = diff(&a, &b);
@@ -659,11 +666,13 @@ mod tests {
             { "type": "Move", "from": [2], "items": 1, "to": [0] },
             { "type": "Add", "address": [2], "value": [1], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     #[test]
-    fn regression_2() {
+    fn regression_2() -> Result<()> {
         let a = vec![0, 6, 2, 4, 2];
         let b = vec![2, 2, 4];
         let patch = diff(&a, &b);
@@ -671,11 +680,13 @@ mod tests {
             { "type": "Remove", "address": [0], "items": 2 },
             { "type": "Move", "from": [2], "items": 1, "to": [1] },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     #[test]
-    fn regression_3() {
+    fn regression_3() -> Result<()> {
         let a = vec!["".to_string(), "".to_string()];
         let b = vec![
             "a".to_string(),
@@ -691,22 +702,26 @@ mod tests {
             { "type": "Add", "address": [4, 0], "value": "a", "length": 1 },
             { "type": "Add", "address": [5], "value": ["a"], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     #[test]
-    fn regression_4() {
+    fn regression_4() -> Result<()> {
         let a = vec![6, 1, 1, 1];
         let b = vec![2, 2, 0];
         let patch = diff(&a, &b);
         assert_json!(patch, [
             { "type": "Replace", "address": [0], "items": 4, "value": [2, 2, 0], "length": 3 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     #[test]
-    fn regression_5() {
+    fn regression_5() -> Result<()> {
         let a = vec!["c".to_string(), "".to_string(), "d".to_string()];
         let b = vec!["cd".to_string(), "a".to_string(), "".to_string()];
         let patch = diff(&a, &b);
@@ -715,11 +730,13 @@ mod tests {
             { "type": "Add", "address": [1], "value": ["a"], "length": 1 },
             { "type": "Remove", "address": [3], "items": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     #[test]
-    fn regression_6() {
+    fn regression_6() -> Result<()> {
         let a = vec!["".to_string(), "a".to_string(), "".to_string()];
         let b = vec![
             "b".to_string(),
@@ -733,22 +750,26 @@ mod tests {
             { "type": "Remove", "address": [2], "items": 1 },
             { "type": "Add", "address": [3], "value": ["b"], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     #[test]
-    fn regression_7() {
+    fn regression_7() -> Result<()> {
         let a = vec![1, 7, 3];
         let b = vec![7, 3, 1];
         let patch = diff(&a, &b);
         assert_json!(patch, [
             { "type": "Move", "from": [0], "items": 1, "to": [3] },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     #[test]
-    fn regression_8() {
+    fn regression_8() -> Result<()> {
         let a = vec![3, 0, 7];
         let b = vec![0, 1, 7, 3];
         let patch = diff(&a, &b);
@@ -756,11 +777,13 @@ mod tests {
             { "type": "Move", "from": [0], "items": 1, "to": [3] },
             { "type": "Add", "address": [1], "value": [1], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     #[test]
-    fn regression_9() {
+    fn regression_9() -> Result<()> {
         let a = vec![
             "".to_string(),
             "".to_string(),
@@ -774,6 +797,8 @@ mod tests {
             { "type": "Remove", "address": [1], "items": 2 },
             { "type": "Add", "address": [2], "value": [""], "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 }

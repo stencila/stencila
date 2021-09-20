@@ -50,6 +50,7 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::{
         assert_json,
         patches::{apply_new, diff, equal},
@@ -57,7 +58,7 @@ mod tests {
     use stencila_schema::Integer;
 
     #[test]
-    fn basic() {
+    fn basic() -> Result<()> {
         assert!(equal::<Box<Integer>>(&Box::new(1), &Box::new(1)));
 
         // Add, remove, replace
@@ -72,6 +73,8 @@ mod tests {
                 {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
             ]
         );
-        assert_json!(apply_new(&a, &patch), b);
+        assert_json!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 }

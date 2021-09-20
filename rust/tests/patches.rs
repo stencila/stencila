@@ -32,7 +32,7 @@ proptest! {
         b in any::<String>()
     ) {
         let patch = diff(&a, &b);
-        assert_eq!(apply_new(&a, &patch), b)
+        assert_eq!(apply_new(&a, &patch).unwrap(), b)
     }
 
     /// Zero to ten letters from a restricted range
@@ -48,7 +48,7 @@ proptest! {
         b in "[a-e]{0,10}"
     ) {
         let patch = diff(&a, &b);
-        assert_eq!(apply_new(&a, &patch), b)
+        assert_eq!(apply_new(&a, &patch).unwrap(), b)
     }
 
     // Vectors of integers
@@ -58,7 +58,7 @@ proptest! {
         b in vec(0..10i64, size_range(0..10))
     ) {
         let patch = diff(&a, &b);
-        assert_eq!(apply_new(&a, &patch), b)
+        assert_eq!(apply_new(&a, &patch).unwrap(), b)
     }
 
     // Vectors of strings (which may have internal `Add`, `Remove`, `Replace` operations)
@@ -68,7 +68,7 @@ proptest! {
         b in vec("[a-e]{0,5}", size_range(0..10))
     ) {
         let patch = diff(&a, &b);
-        assert_eq!(apply_new(&a, &patch), b)
+        assert_eq!(apply_new(&a, &patch).unwrap(), b)
     }
 }
 
@@ -83,7 +83,7 @@ proptest! {
         b in inline_content(Freedom::Low)
     ) {
         let patch = diff(&a, &b);
-        assert_json_eq!(apply_new(&a, &patch), b)
+        assert_json_eq!(apply_new(&a, &patch).unwrap(), b)
     }
 
     // Blocks
@@ -93,7 +93,7 @@ proptest! {
         b in block_content(Freedom::Low)
     ) {
         let patch = diff(&a, &b);
-        assert_json_eq!(apply_new(&a, &patch), b)
+        assert_json_eq!(apply_new(&a, &patch).unwrap(), b)
     }
 
     // Vectors of inline content
@@ -103,7 +103,7 @@ proptest! {
         b in vec_inline_content(Freedom::Low),
     ) {
         let patch = diff(&a, &b);
-        assert_json_eq!(apply_new(&a, &patch), b)
+        assert_json_eq!(apply_new(&a, &patch).unwrap(), b)
     }
 
     // Vectors of block content
@@ -113,6 +113,6 @@ proptest! {
         b in vec_block_content(Freedom::Low),
     ) {
         let patch = diff(&a, &b);
-        assert_json_eq!(apply_new(&a, &patch), b)
+        assert_json_eq!(apply_new(&a, &patch).unwrap(), b)
     }
 }

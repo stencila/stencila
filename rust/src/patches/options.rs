@@ -90,6 +90,7 @@ where
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::{
         assert_json,
         patches::{apply_new, diff, equal},
@@ -97,7 +98,7 @@ mod tests {
     use stencila_schema::Integer;
 
     #[test]
-    fn basic() {
+    fn basic() -> Result<()> {
         assert!(equal::<Option<Integer>>(&None, &None));
         assert!(equal(&Some(1), &Some(1)));
 
@@ -117,7 +118,7 @@ mod tests {
             patch,
             [{"type": "Add", "address": [], "value": "abc".to_string(), "length": 1}]
         );
-        assert_json!(apply_new(&a, &patch), b);
+        assert_json!(apply_new(&a, &patch)?, b);
 
         // Some to Some: Add with a key
         let a = Some("a".to_string());
@@ -127,7 +128,7 @@ mod tests {
             patch,
             [{"type": "Add", "address": [1], "value": "bc".to_string(), "length": 2}]
         );
-        assert_json!(apply_new(&a, &patch), b);
+        assert_json!(apply_new(&a, &patch)?, b);
 
         // Some to None: Remove with no key
         let a = Some("abc".to_string());
@@ -137,7 +138,7 @@ mod tests {
             patch,
             [{"type": "Remove", "address": [], "items": 1}]
         );
-        assert_json!(apply_new(&a, &patch), b);
+        assert_json!(apply_new(&a, &patch)?, b);
 
         // Some to Some: Remove with key
         let a = Some("abc".to_string());
@@ -147,7 +148,7 @@ mod tests {
             patch,
             [{"type": "Remove", "address": [1], "items": 1}]
         );
-        assert_json!(apply_new(&a, &patch), b);
+        assert_json!(apply_new(&a, &patch)?, b);
 
         // Replace
         let a = Some("abc".to_string());
@@ -157,6 +158,8 @@ mod tests {
             patch,
             [{"type": "Replace", "address": [1], "items": 1, "value": "@", "length": 1}]
         );
-        assert_json!(apply_new(&a, &patch), b);
+        assert_json!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 }

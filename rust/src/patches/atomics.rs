@@ -99,13 +99,14 @@ impl Patchable for Number {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::{
         assert_json,
         patches::{apply_new, diff, equal},
     };
 
     #[test]
-    fn booleans() {
+    fn booleans() -> Result<()> {
         assert!(equal(&true, &true));
         assert!(equal(&false, &false));
         assert!(!equal(&true, &false));
@@ -114,29 +115,35 @@ mod tests {
         assert_json!(diff(&false, &false), []);
         assert_json!(diff(&true, &false), [{"type": "Replace", "address": [], "items": 1, "value": false, "length": 1}]);
 
-        assert_json!(apply_new(&true, &diff(&true, &false)), false);
-        assert_json!(apply_new(&false, &diff(&false, &true)), true);
+        assert_json!(apply_new(&true, &diff(&true, &false))?, false);
+        assert_json!(apply_new(&false, &diff(&false, &true))?, true);
+
+        Ok(())
     }
 
     #[test]
-    fn integers() {
+    fn integers() -> Result<()> {
         assert!(equal(&42, &42));
         assert!(!equal(&42, &1));
 
         assert_json!(diff(&42, &42), []);
         assert_json!(diff(&42, &1), [{"type": "Replace", "address": [], "items": 1, "value": 1, "length": 1}]);
 
-        assert_json!(apply_new(&1, &diff(&1, &42)), 42);
+        assert_json!(apply_new(&1, &diff(&1, &42))?, 42);
+
+        Ok(())
     }
 
     #[test]
-    fn numbers() {
+    fn numbers() -> Result<()> {
         assert!(equal(&3.14, &3.14));
         assert!(!equal(&3.14, &1e6));
 
         assert_json!(diff(&3.14, &3.14), []);
         assert_json!(diff(&3.14, &1e6), [{"type": "Replace", "address": [], "items": 1, "value": 1e6, "length": 1}]);
 
-        assert_json!(apply_new(&1e6, &diff(&1e6, &3.14)), 3.14);
+        assert_json!(apply_new(&1e6, &diff(&1e6, &3.14))?, 3.14);
+
+        Ok(())
     }
 }

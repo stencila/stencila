@@ -56,7 +56,7 @@ where
 /// in this module will not appear in the difference.
 pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<String> {
     let patch = diff(node1, node2);
-    let patched = apply_new(node1, &patch);
+    let patched = apply_new(node1, &patch)?;
 
     let old = encode(node1, "string://", format, None).await?;
     let new = encode(&patched, "string://", format, None).await?;
@@ -72,23 +72,24 @@ pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<St
 }
 
 /// Apply a [`Patch`] to a node.
-pub fn apply<Type>(node: &mut Type, patch: &[Operation])
+pub fn apply<Type>(node: &mut Type, patch: &[Operation]) -> Result<()>
 where
     Type: Patchable,
 {
-    node.apply_patch(patch)
+    node.apply_patch(patch)?;
+    Ok(())
 }
 
 /// Apply a [`Patch`] to a clone of a node.
 ///
 /// In contrast to `apply`, this does not alter the original node.
-pub fn apply_new<Type>(node: &Type, patch: &[Operation]) -> Type
+pub fn apply_new<Type>(node: &Type, patch: &[Operation]) -> Result<Type>
 where
     Type: Patchable + Clone,
 {
     let mut node = node.clone();
-    node.apply_patch(patch);
-    node
+    node.apply_patch(patch)?;
+    Ok(node)
 }
 
 /// Merge changes from two or more derived versions of a node into
@@ -105,7 +106,7 @@ where
 /// - `derived`: A list of derived nodes in ascending order of priority
 ///              when resolving merge conflicts i.e. the last in the list
 ///              will win over all other nodes that it conflicts with
-pub fn merge<Type>(ancestor: &mut Type, derived: &[&Type])
+pub fn merge<Type>(ancestor: &mut Type, derived: &[&Type]) -> Result<()>
 where
     Type: Patchable,
 {
@@ -115,8 +116,9 @@ where
     tracing::warn!("Merging is work in progress");
 
     for patch in patches {
-        apply(ancestor, &patch)
+        apply(ancestor, &patch)?
     }
+    Ok(())
 }
 
 /// A slot, used as part of an [`Address`], to locate a value within a `Node` tree.
@@ -700,10 +702,11 @@ pub trait Patchable {
     }
 
     /// Apply a patch to this node.
-    fn apply_patch(&mut self, patch: &[Operation]) {
+    fn apply_patch(&mut self, patch: &[Operation]) -> Result<bool> {
         for op in patch {
             self.apply_op(op)
         }
+        Ok(true)
     }
 
     /// Apply an operation to this node.
@@ -849,7 +852,7 @@ mod tests {
     }
 
     #[test]
-    fn test_diff_apply() {
+    fn test_diff_apply() -> Result<()> {
         let empty = Paragraph::default();
         let a = Paragraph {
             content: vec![
@@ -875,7 +878,7 @@ mod tests {
         assert_json!(patch, []);
 
         let mut patched = empty.clone();
-        apply(&mut patched, &patch);
+        apply(&mut patched, &patch)?;
         assert_json_eq!(patched, empty);
 
         // Patching `empty` to `a` should:
@@ -893,7 +896,7 @@ mod tests {
         );
 
         let mut patched = empty.clone();
-        apply(&mut patched, &patch);
+        apply(&mut patched, &patch)?;
         assert_json_eq!(patched, a);
 
         // Patching `a` to `b` should:
@@ -918,8 +921,10 @@ mod tests {
         );
 
         let mut patched = a.clone();
-        apply(&mut patched, &patch);
+        apply(&mut patched, &patch)?;
         assert_json_eq!(patched, b);
+
+        Ok(())
     }
 
     #[test]
