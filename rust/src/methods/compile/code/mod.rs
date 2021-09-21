@@ -15,6 +15,9 @@ use tree_sitter::{Language, Parser, Query, QueryCursor};
 #[cfg(feature = "compile-code-js")]
 pub mod js;
 
+#[cfg(feature = "compile-code-calc")]
+pub mod calc;
+
 #[cfg(feature = "compile-code-py")]
 pub mod py;
 
@@ -29,6 +32,9 @@ pub fn compile(path: &Path, code: &str, language: &str) -> Vec<(Relation, Resour
     let pairs = match language {
         #[cfg(feature = "compile-code-js")]
         "js" | "javascript" => js::compile(path, code),
+    
+        #[cfg(feature = "compile-code-calc")]
+        "calc" => calc::compile(path, code),
 
         #[cfg(feature = "compile-code-py")]
         "py" | "python" => py::compile(path, code),
@@ -284,7 +290,7 @@ pub(crate) fn apply_tags(
         // Get the new relations from the comment
         let comment = &captures[0];
         let (mut specified_relations, only_relations) =
-            parse_tags(path, lang, comment.range.0, &comment.text);
+            parse_tags(path, lang, comment.range.0, &comment.text, None);
 
         // Remove existing relations if `only` indicators are present
         for only in only_relations {
@@ -312,6 +318,7 @@ fn parse_tags(
     lang: &str,
     row: usize,
     comment: &str,
+    kind: Option<String>,
 ) -> (Vec<(Relation, Resource)>, Vec<String>) {
     static REGEX_TAG: Lazy<Regex> = Lazy::new(|| {
         Regex::new(r"@(imports|assigns|uses|modifies|reads|writes)\s+(.*?)(\*/)?$")
@@ -319,6 +326,8 @@ fn parse_tags(
     });
     static REGEX_ITEMS: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"\s+|(\s*,\s*)").expect("Unable to create regex"));
+
+    let kind = kind.unwrap_or_else(||"".to_string());
 
     let mut relations: Vec<(Relation, Resource)> = Vec::new();
     let mut only: Vec<String> = Vec::new();
@@ -347,7 +356,7 @@ fn parse_tags(
 
                 let resource = match tag.as_str() {
                     "imports" => resources::module(lang, &item),
-                    "assigns" | "uses" => resources::symbol(path, &item, ""),
+                    "assigns" | "uses" => resources::symbol(path, &item, &kind),
                     "reads" | "writes" => resources::file(&PathBuf::from(item)),
                     _ => continue,
                 };

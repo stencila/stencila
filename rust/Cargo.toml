@@ -81,9 +81,12 @@ reshape = ["decode-date", "decode-person"]
 
 compile-code = ["tree-sitter"]
 compile-code-js = ["compile-code", "tree-sitter-javascript"]
+compile-code-calc = ["compile-code", "fasteval"]
 compile-code-py = ["compile-code", "tree-sitter-python"]
 compile-code-r = ["compile-code", "tree-sitter-r"]
 compile-code-ts = ["compile-code", "compile-code-js", "tree-sitter-typescript"]
+
+execute-code-calc = ["fasteval"]
 
 query-jmespath = ["jmespatch"]
 query-jsonptr = []
@@ -146,10 +149,12 @@ default = [
   "coerce",
   "reshape",
   "compile-code",
+  "compile-code-calc",
   "compile-code-js",
   "compile-code-py",
   "compile-code-r",
   "compile-code-ts",
+  "execute-code-calc",
   "query-jsonptr",
   "query-jmespath",
   "patches"
@@ -174,6 +179,7 @@ dirs-next = "=2.0.0"
 dtparse = { version = "=1.2.0", optional = true }
 enum_dispatch = "=0.3.7"
 eyre = "=0.6.5"
+fasteval = { version = "=0.2.4", optional = true }
 flate2 = { version = "=1.0.21", optional = true }
 futures = "=0.3.17"
 gitignore = "=1.0.7"
