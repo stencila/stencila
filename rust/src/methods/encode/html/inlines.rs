@@ -2,6 +2,7 @@ use super::{
     attr, attr_id, attr_itemtype, attr_itemtype_string, attr_slot, concat, elem, elem_empty, json,
     primitives::null_to_html, Context, ToHtml,
 };
+use crate::methods::encode::txt::ToTxt;
 use html_escape::encode_safe;
 use std::{fs, path::PathBuf};
 use stencila_schema::*;
@@ -369,15 +370,24 @@ impl ToHtml for Note {
 
 impl ToHtml for Parameter {
     fn to_html(&self, slot: &str, _context: &Context) -> String {
-        elem(
-            "code",
+        let input_type = match self.validator.as_deref() {
+            Some(ValidatorTypes::NumberValidator(..)) => "number",
+            _ => "text",
+        };
+        let value_attr = match self.value.as_deref() {
+            Some(node) => attr("value", &node.to_txt()),
+            _ => "".to_string(),
+        };
+        elem_empty(
+            "input",
             &[
                 attr_slot(slot),
                 attr_itemtype(self),
                 attr_id(&self.id),
-                attr("class", "todo"),
+                attr("type", input_type),
+                attr("name", &self.name),
+                value_attr,
             ],
-            &json(self),
         )
     }
 }

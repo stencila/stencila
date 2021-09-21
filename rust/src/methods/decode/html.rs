@@ -1,5 +1,5 @@
 use super::md;
-use crate::methods::transform::Transform;
+use crate::methods::{decode::txt, transform::Transform};
 use eyre::Result;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::{local_name, LocalName};
@@ -7,9 +7,10 @@ use std::cmp::max;
 use stencila_schema::{
     Article, AudioObjectSimple, BlockContent, CodeBlock, CodeChunk, CodeExpression, CodeFragment,
     Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem,
-    ListItemContent, ListOrder, Node, NontextualAnnotation, Paragraph, Quote, QuoteBlock, Strong,
-    Subscript, Superscript, TableCell, TableCellContent, TableRow, TableRowRowType, TableSimple,
-    ThematicBreak, VideoObjectSimple,
+    ListItemContent, ListOrder, Node, NontextualAnnotation, NumberValidator, Paragraph, Parameter,
+    Quote, QuoteBlock, StringValidator, Strong, Subscript, Superscript, TableCell,
+    TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, ValidatorTypes,
+    VideoObjectSimple,
 };
 
 /// Decode a HTML document to a `Node`
@@ -374,6 +375,32 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
                 })]
             }
             // TODO: Note
+            local_name!("input") => {
+                let attrs = element.attributes.borrow();
+                let name = attrs.get(local_name!("name")).unwrap_or("").to_string();
+                let validator = if let Some(type_) = attrs.get(local_name!("type")) {
+                    let validator = match type_ {
+                        "number" => ValidatorTypes::NumberValidator(NumberValidator {
+                            ..Default::default()
+                        }),
+                        _ => ValidatorTypes::StringValidator(StringValidator::default()),
+                    };
+                    Some(Box::new(validator))
+                } else {
+                    None
+                };
+                let value = attrs
+                    .get(local_name!("value"))
+                    .and_then(|value| txt::decode(value).ok())
+                    .map(Box::new);
+
+                vec![InlineContent::Parameter(Parameter {
+                    name,
+                    validator,
+                    value,
+                    ..Default::default()
+                })]
+            }
             local_name!("q") => {
                 vec![InlineContent::Quote(Quote {
                     content: decode_inlines(node, context),
