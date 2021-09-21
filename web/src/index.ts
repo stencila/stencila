@@ -6,7 +6,7 @@
 // - How do we migrate old published documents
 // - Attach Node IDs for required elements in published article HTML
 
-import { Document, Patch, Session } from '@stencila/stencila'
+import { Document, Session } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
 import * as sessions from './sessions'
@@ -67,28 +67,21 @@ export const main = (
     })
   })
 
-  // Listen for a `document:execute` custom event e.g. user presses
-  // a document level "run button". Note that in this case the node id
-  // _is_ the document id.
-  window.addEventListener('document:execute', async () => {
-    const [client, document] = await startup()
-    await documents.execute(client, document.id, document.id)
-  })
-
-  // Listen for a `document:node::execute` custom event e.g. user presses
-  // a the "run button" on a `CodeChunk` (to execute it without changing it)
-  window.addEventListener('document:node:execute', async (e) => {
-    const [client, document] = await startup()
-    const { nodeId, value } = (e as CustomEvent<documents.NodeExecute>).detail
-    await documents.execute(client, document.id, nodeId, value)
-  })
-
   // Listen for a `document:patched` custom event emitted from within browser window
-  // e.g. user changes the code of a `CodeChunk`, or slides a numeric `Parameter`
+  // e.g. user changes the code of a `CodeChunk` without executing it
   window.addEventListener('document:patch', async (e) => {
     const [client, document] = await startup()
     const { nodeId, patch } = (e as CustomEvent<documents.NodePatch>).detail
     await documents.patch(client, document.id, nodeId, patch)
+  })
+
+  // Listen for a `document:execute` custom event e.g. user presses
+  // the "run button" on a `CodeChunk` (to execute it without changing it)
+  // or on the document toolbar
+  window.addEventListener('document:execute', async (e) => {
+    const [client, document] = await startup()
+    const { nodeId, patch } = (e as CustomEvent<documents.NodeExecute>).detail
+    await documents.execute(client, document.id, nodeId, patch)
   })
 
   // Listen for a `session:stop` custom event e.g. user presses
@@ -109,4 +102,29 @@ export const main = (
       disconnect(client)
     }
   })
+
+  // Temporary `onChange` event handler to `Parameter` nodes
+  window.onload = () => {
+    window.document.querySelectorAll('input').forEach((input) => {
+      input.addEventListener('change', () => {
+        window.dispatchEvent(
+          new CustomEvent<documents.NodeExecute>('document:execute', {
+            detail: {
+              nodeId: input.id,
+              patch: [
+                {
+                  type: 'Replace',
+                  address: ['value'],
+                  /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
+                  value: JSON.parse(input.value),
+                  items: 1,
+                  length: 1,
+                },
+              ],
+            },
+          })
+        )
+      })
+    })
+  }
 }
