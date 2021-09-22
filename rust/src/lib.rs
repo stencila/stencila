@@ -1,5 +1,5 @@
 #![recursion_limit = "256"]
-#![deny(unsafe_code)]
+#![forbid(unsafe_code)]
 
 // Objects
 //
@@ -10,6 +10,7 @@ pub mod documents;
 pub mod files;
 pub mod formats;
 pub mod graphs;
+pub mod nodes;
 pub mod patches;
 pub mod projects;
 pub mod sessions;
@@ -62,6 +63,9 @@ pub mod binaries;
 
 #[cfg(feature = "plugins")]
 pub mod plugins;
+
+#[cfg(feature = "kernels")]
+pub mod kernels;
 
 #[cfg(feature = "upgrade")]
 pub mod upgrade;

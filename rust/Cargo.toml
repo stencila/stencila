@@ -38,6 +38,8 @@ plugins-link = ["plugins"]
 plugins-python = ["plugins"]
 plugins-r = ["plugins"]
 
+kernels = []
+
 upgrade = ["self_update"]
 
 import-elife = ["minidom"]
@@ -86,7 +88,7 @@ compile-code-py = ["compile-code", "tree-sitter-python"]
 compile-code-r = ["compile-code", "tree-sitter-r"]
 compile-code-ts = ["compile-code", "compile-code-js", "tree-sitter-typescript"]
 
-execute-code-calc = ["fasteval"]
+execute-calc = ["kernels", "fasteval"]
 
 query-jmespath = ["jmespatch"]
 query-jsonptr = []
@@ -113,6 +115,7 @@ default = [
   "plugins-javascript",
   "plugins-python",
   "plugins-r",
+  "kernels",
   "upgrade",
   "import-elife",
   "import-github",
@@ -154,7 +157,7 @@ default = [
   "compile-code-py",
   "compile-code-r",
   "compile-code-ts",
-  "execute-code-calc",
+  "execute-calc",
   "query-jsonptr",
   "query-jmespath",
   "patches"

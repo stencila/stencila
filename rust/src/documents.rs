@@ -2,10 +2,12 @@ use crate::{
     errors::attempt,
     formats::{Format, FORMATS},
     graphs::{Relation, Resource},
+    kernels::Kernel,
     methods::{
         compile::compile,
         decode::decode,
         encode::{self, encode},
+        execute::execute,
     },
     patches::{apply, diff, merge, DomPatch, Patch},
     pubsub::publish,
@@ -112,7 +114,7 @@ enum DocumentStatus {
 }
 
 /// An in-memory representation of a document
-#[derive(Debug, Clone, JsonSchema, Defaults, Serialize)]
+#[derive(Debug, Clone, Defaults, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Document {
     /// The document identifier
@@ -182,12 +184,19 @@ pub struct Document {
     /// of the file. The `content` may subsequently be changed using
     /// the `load()` function. A call to `write()` will write the content
     /// back to `path`.
+    ///
+    /// Skipped during serialization because will often be large.
     #[serde(skip)]
     content: String,
 
     /// The root Stencila Schema node of the document
+    ///
+    /// Skipped during serialization will often be large.
     #[serde(skip)]
     pub root: Option<Node>,
+
+    /// The set of variables in this document's namespace
+    variables: HashMap<String, Kernel>,
 
     /// The set of relations between this document, or nodes in this document, and other
     /// resources.
@@ -613,6 +622,20 @@ impl Document {
         Ok(())
     }
 
+    /// Execute the document, optionally providing a [`Patch`] to apply before execution.
+    pub fn execute(&mut self, node: &str, patch: Option<Patch>) -> Result<()> {
+        match self.root.as_mut() {
+            Some(root) => {
+                if let Some(patch) = patch {
+                    apply(root, Some(node.to_string()), &patch)?
+                }
+                execute(root);
+                Ok(())
+            }
+            None => bail!("Document does not have a root node to execute"),
+        }
+    }
+
     /// Get the SHA-256 of the document
     ///
     /// For text-based documents, returns the SHA-256 of the document's `content`.
@@ -678,10 +701,10 @@ impl Document {
         }
 
         // Compile the `root` and update document intra- and inter- dependencies
-        let compilation = compile(&mut root, &self.path, &self.project).await?;
-        self.relations = compilation.relations.into_iter().collect();
+        let (relations, ..) = compile(&mut root, &self.path, &self.project)?;
+        self.relations = relations;
 
-        // Publish any events for which there are subscriptons
+        // Publish any events for which there are subscriptions
         for subscription in self.subscriptions.keys() {
             // Generate a diff if there are any `patched` subscriptions
             if subscription == "patched" {
@@ -1198,23 +1221,20 @@ impl Documents {
     ///
     /// Given that this function is likely to be called often, to avoid a `clone()` and
     /// to reduce WebSocket message sizes, unlike other functions it does not return the object.
-    pub async fn patch(&self, id: &str, node: &str, patch: Patch) -> Result<()> {
+    pub async fn patch(&self, id: &str, node_id: &str, patch: Patch) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        document_guard.patch(node, &patch)
+        document_guard.patch(node_id, &patch)
     }
 
     /// Execute a node within a document
-    pub async fn execute(
-        &self,
-        id: &str,
-        _node: &str,
-        _value: Option<serde_json::Value>,
-    ) -> Result<Document> {
+    ///
+    /// Like `patch()`, given this function is likely to be called often, do not return
+    /// the document.
+    pub async fn execute(&self, id: &str, node_id: &str, patch: Option<Patch>) -> Result<()> {
         let document_lock = self.get(id).await?;
-        let document_guard = document_lock.lock().await;
-        // TODO
-        Ok(document_guard.clone())
+        let mut document_guard = document_lock.lock().await;
+        document_guard.execute(node_id, patch)
     }
 
     /// Get a document that has previously been opened
