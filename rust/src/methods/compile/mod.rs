@@ -1,7 +1,7 @@
 use crate::{
     dispatch_block, dispatch_inline, dispatch_node, dispatch_work,
     graphs::{relations, resources, Relation, Resource, NULL_RANGE},
-    nodes::{NodeId, NodePointer},
+    patches::{Address, Slot},
     utils::{hash::str_sha256_hex, path::merge, uuids},
 };
 use eyre::Result;
@@ -22,8 +22,8 @@ pub mod code {
     }
 }
 
+type Addresses = HashMap<String, Address>;
 type Relations = HashMap<Resource, Vec<(Relation, Resource)>>;
-type Pointers = HashMap<NodeId, NodePointer>;
 
 /// Compile a node
 ///
@@ -31,21 +31,22 @@ type Pointers = HashMap<NodeId, NodePointer>;
 /// individual node so that it is ready to be built & executed. This includes
 /// (but is not limited to):
 ///
-/// - ensuring that each node has an `id`
-/// - for `Include` nodes actually including the included content and then compiling that
+/// - for those node types needing to be accesses directly (e.g. executable nodes) ensuring
+///   they have an `id` and recording their address
 /// - for executable nodes (e.g. `CodeChunk`) performing semantic analysis of the code
 /// - determining dependencies within and between documents and other resources
-pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Relations, Pointers)> {
+pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresses, Relations)> {
+    let mut address = Address::default();
     let mut context = Context {
         path: PathBuf::from(path),
         project: PathBuf::from(project),
         ..Default::default()
     };
-    node.compile(&mut context)?;
+    node.compile(&mut address, &mut context)?;
 
+    let addresses = context.addresses;
     let relations = context.relations.into_iter().collect();
-    let pointers = context.pointers;
-    Ok((relations, pointers))
+    Ok((addresses, relations))
 }
 
 /// The compilation context, used to pass down properties of the
@@ -60,12 +61,12 @@ pub struct Context {
     /// Used to restrict any file links to be within the project
     project: PathBuf,
 
+    /// A map of node ids to addresses
+    pub addresses: HashMap<String, Address>,
+
     /// Relations with other resources for each compiled resource
     /// in the document.
     pub relations: Vec<(Resource, Vec<(Relation, Resource)>)>,
-
-    /// A map of node ids to pointers
-    pub pointers: Pointers,
 }
 
 /// Trait for compiling a node
@@ -73,7 +74,7 @@ pub struct Context {
 /// This trait is implemented below for all (or at least most)
 /// node types.
 trait Compile {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>>;
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()>;
 }
 
 /// Identify a node
@@ -100,12 +101,15 @@ macro_rules! identify {
 // This first set of implementations are for node types that need
 // some sort of compilation.
 
-/// Compile a `Link` to add its `target` to the list of included files
+/// Compile a `Link` node
+///
+/// Adds a `Link` relation
 impl Compile for Link {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
-        let subject = resources::node(&context.path, &id, &self.type_name());
+        context.addresses.insert(id.clone(), address.clone());
 
+        let subject = resources::node(&context.path, &id, &self.type_name());
         let target = &self.target;
         let object = if target.starts_with("http://") || target.starts_with("https://") {
             resources::url(target)
@@ -117,7 +121,7 @@ impl Compile for Link {
             .relations
             .push((subject, vec![(Relation::Link, object)]));
 
-        Ok(None)
+        Ok(())
     }
 }
 
@@ -162,15 +166,16 @@ fn compile_content_url(content_url: &str, context: &mut Context) -> String {
     format!("file://{}", path.display())
 }
 
-/// A `Compile` implementation for `MediaObject` node types
+/// Compile a `MediaObject` node type
 macro_rules! compile_media_object {
     ( $( $type:ty ),* ) => {
         $(
             impl Compile for $type {
-                fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+                fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
                     let id = identify!(self);
-                    let subject = resources::node(&context.path, &id, &self.type_name());
+                    context.addresses.insert(id.clone(), address.clone());
 
+                    let subject = resources::node(&context.path, &id, &self.type_name());
                     let url = compile_content_url(&self.content_url, context);
                     let object = if url.starts_with("http") {
                         resources::url(&url)
@@ -178,12 +183,11 @@ macro_rules! compile_media_object {
                         let url = url.strip_prefix("file://").unwrap_or(&url);
                         resources::file(&Path::new(&url))
                     };
-
                     context.relations.push((subject, vec![(Relation::Embed, object)]));
 
                     self.content_url = url;
 
-                    Ok(None)
+                    Ok(())
                 }
             }
         )*
@@ -200,9 +204,14 @@ compile_media_object!(
     VideoObjectSimple
 );
 
+/// Compile a `Parameter` node
+///
+/// Adds an `Assign` relation.
 impl Compile for Parameter {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
+        context.addresses.insert(id.clone(), address.clone());
+
         let subject = resources::node(&context.path, &id, &self.type_name());
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
@@ -214,20 +223,25 @@ impl Compile for Parameter {
             _ => "",
         };
         let object = resources::symbol(&context.path, &self.name, kind);
+        let relations = vec![(relations::assigns(NULL_RANGE), object)];
 
-        context
-            .relations
-            .push((subject, vec![(relations::assigns(NULL_RANGE), object)]));
-        Ok(Some(id))
+        context.relations.push((subject, relations));
+
+        Ok(())
     }
 }
 
+/// Compile a `CodeChunk` node
+///
+/// Performs semantic analysis of the code (if necessary) and adds the resulting
+/// relations.
 impl Compile for CodeChunk {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
+        context.addresses.insert(id.clone(), address.clone());
+
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
-
         if Some(digest.clone()) != self.compile_digest {
             let subject = resources::node(&context.path, &id, &self.type_name());
             let relations = code::compile(&context.path, &self.text, &self.programming_language);
@@ -235,16 +249,21 @@ impl Compile for CodeChunk {
             self.compile_digest = Some(digest)
         }
 
-        Ok(Some(id))
+        Ok(())
     }
 }
 
+/// Compile a `CodeExpression` node
+///
+/// Performs semantic analysis of the code (if necessary) and adds the resulting
+/// relations.
 impl Compile for CodeExpression {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
+        context.addresses.insert(id.clone(), address.clone());
+
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
-
         if Some(digest.clone()) != self.compile_digest {
             let subject = resources::node(&context.path, &id, &self.type_name());
             let relations = code::compile(&context.path, &self.text, &self.programming_language);
@@ -252,81 +271,76 @@ impl Compile for CodeExpression {
             self.compile_digest = Some(digest);
         }
 
-        Ok(Some(id))
+        Ok(())
     }
 }
 
+/// Compile a `SoftwareSourceCode` node
+///
+/// Performs semantic analysis of the code (if necessary) and adds the resulting
+/// relations.
 impl Compile for SoftwareSourceCode {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
+        context.addresses.insert(id, address.clone());
+
         if let (Some(text), Some(programming_language)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
-            let _digest = str_sha256_hex(&[text.as_str(), programming_language.as_str()].concat());
-
             let subject = resources::file(&context.path);
             let relations = code::compile(&context.path, text, programming_language);
             context.relations.push((subject, relations));
         }
-        Ok(Some(id))
+
+        Ok(())
     }
 }
 
+/// Compile an `Include` node
+///
+/// Adds an `Include` relation
 impl Compile for Include {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
+        context.addresses.insert(id.clone(), address.clone());
+
         let subject = resources::node(&context.path, &id, &self.type_name());
-
         let path = merge(&context.path, &self.source);
-        //let format = self.media_type.as_deref().cloned();
-        // TODO do this synchronously
-        //let document = DOCUMENTS.open(&path, format)?;
-        //self.content = document.root.as_ref().map(|root| root.to_blocks());
-        //self.sha256 = Some(Box::new(document.sha256()?));
-
         let object = resources::file(&path);
 
         context
             .relations
             .push((subject, vec![(Relation::Include, object)]));
 
-        Ok(Some(id))
+        Ok(())
     }
 }
 
 // The following are simple "dispatching" implementations of `compile`.
 // They implement the depth first walk across a node tree by calling `compile`
-// on child nodes.
+// on child nodes and where necessary pushing slots onto the address.
 
 impl Compile for Node {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        dispatch_node!(self, Ok(None), compile, context)
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_node!(self, Ok(()), compile, address, context)
     }
 }
 
 impl Compile for CreativeWorkTypes {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        dispatch_work!(self, compile, context)
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_work!(self, compile, address, context)
     }
 }
 
 impl Compile for BlockContent {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        let id = dispatch_block!(self, compile, context)?;
-        if let Some(id) = id {
-            context.pointers.insert(id, NodePointer::Block(self));
-        }
-        Ok(None)
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_block!(self, compile, address, context)
     }
 }
 
 impl Compile for InlineContent {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        let id = dispatch_inline!(self, Ok(None), compile, context)?;
-        if let Some(id) = id {
-            context.pointers.insert(id, NodePointer::Inline(self));
-        }
-        Ok(None)
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_inline!(self, Ok(()), compile, address, context)
     }
 }
 
@@ -334,11 +348,11 @@ impl<T> Compile for Option<T>
 where
     T: Compile,
 {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         if let Some(value) = self {
-            value.compile(context)
+            value.compile(address, context)
         } else {
-            Ok(None)
+            Ok(())
         }
     }
 }
@@ -347,8 +361,8 @@ impl<T> Compile for Box<T>
 where
     T: Compile,
 {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        (**self).compile(context)
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        (**self).compile(address, context)
     }
 }
 
@@ -356,11 +370,13 @@ impl<T> Compile for Vec<T>
 where
     T: Compile,
 {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        for item in self.iter_mut() {
-            item.compile(context)?;
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        for (index, item) in self.iter_mut().enumerate() {
+            address.push_back(Slot::Index(index));
+            item.compile(address, context)?;
+            address.pop_back();
         }
-        Ok(None)
+        Ok(())
     }
 }
 
@@ -368,8 +384,8 @@ where
 macro_rules! compile_nothing {
     ($type:ty) => {
         impl Compile for $type {
-            fn compile(&mut self, _context: &mut Context) -> Result<Option<NodeId>> {
-                Ok(None)
+            fn compile(&mut self, _address: &mut Address, _context: &mut Context) -> Result<()> {
+                Ok(())
             }
         }
     };
@@ -413,11 +429,13 @@ compile_nothing_for!(
 macro_rules! compile_fields {
     ($type:ty $(, $field:ident)* ) => {
         impl Compile for $type {
-            fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+            fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
                 $(
-                    self.$field.compile(context)?;
+                    address.push_back(Slot::Name(stringify!($field).to_string()));
+                    self.$field.compile(address, context)?;
+                    address.pop_back();
                 )*
-                Ok(None)
+                Ok(())
             }
         }
     };
@@ -473,10 +491,10 @@ compile_content_for!(
 macro_rules! compile_variants {
     ( $type:ty $(, $variant:path )* ) => {
         impl Compile for $type {
-            fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+            fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
                 match self {
                     $(
-                        $variant(node) => node.compile(context),
+                        $variant(node) => node.compile(address, context),
                     )*
                 }
             }

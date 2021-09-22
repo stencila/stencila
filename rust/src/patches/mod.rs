@@ -4,7 +4,7 @@ use crate::{
     utils::schemas,
 };
 use defaults::Defaults;
-use derive_more::{Constructor, Deref, DerefMut};
+use derive_more::{Deref, DerefMut};
 use eyre::{bail, Result};
 use itertools::Itertools;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
@@ -171,9 +171,7 @@ impl ToString for Slot {
 ///
 /// Note: This could instead have be called a "Path", but that name was avoided because
 /// of potential confusion with file system paths.
-#[derive(
-    Debug, Constructor, Clone, Default, Deref, DerefMut, JsonSchema, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Default, Deref, DerefMut, JsonSchema, Serialize, Deserialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Address(VecDeque<Slot>);
 
@@ -187,7 +185,12 @@ impl ToString for Address {
 }
 
 impl Address {
-    /// Concatenate an address with another and return the result
+    /// Create a new address
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Concatenate an address with another
     fn concat(&self, other: &Address) -> Self {
         let mut concat = self.clone();
         concat.append(&mut other.clone());

@@ -9,7 +9,7 @@ use crate::{
         encode::{self, encode},
         execute::execute,
     },
-    patches::{apply, diff, merge, DomPatch, Patch},
+    patches::{apply, diff, merge, Address, DomPatch, Patch},
     pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
@@ -197,6 +197,15 @@ pub struct Document {
 
     /// The set of variables in this document's namespace
     variables: HashMap<String, Kernel>,
+
+    /// Addresses of nodes in `root` that have an `id`
+    ///
+    /// Used to fetch a particular node (and do something with it like `patch`
+    /// or `execute` it) rather than walking the node tree looking for it.
+    /// It is necessary to use [`Address`] here (rather than say raw pointers) because
+    /// pointers or references will change as the document is patched.
+    /// These addresses are shifted when the document is patched to account for this.
+    addresses: HashMap<String, Address>,
 
     /// The set of relations between this document, or nodes in this document, and other
     /// resources.
@@ -701,7 +710,8 @@ impl Document {
         }
 
         // Compile the `root` and update document intra- and inter- dependencies
-        let (relations, ..) = compile(&mut root, &self.path, &self.project)?;
+        let (addresses, relations) = compile(&mut root, &self.path, &self.project)?;
+        self.addresses = addresses;
         self.relations = relations;
 
         // Publish any events for which there are subscriptions
