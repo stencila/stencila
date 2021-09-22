@@ -20,7 +20,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
         Regex::new(r"(\b[a-zA-Z_][a-zA-Z_0-9]*\b)(\s*\()?").expect("Unable to create regex")
     });
 
-    code.split("\n")
+    code.split('\n')
         .enumerate()
         .fold(Vec::new(), |mut pairs, (row, line)| {
             // Skip the line if it is blank
@@ -37,7 +37,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
             }
 
             // Parse for assignments
-            let (start, expr) = if let Some(captures) = ASSIGN_REGEX.captures(&line) {
+            let (start, expr) = if let Some(captures) = ASSIGN_REGEX.captures(line) {
                 let symbol = captures.get(1).expect("Should always have group 1");
                 let expr = captures.get(2).expect("Should always have group 2");
                 pairs.push((
@@ -50,7 +50,7 @@ pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
             };
 
             // Parse for uses of variables
-            for captures in VAR_REGEX.captures_iter(&expr) {
+            for captures in VAR_REGEX.captures_iter(expr) {
                 if captures.get(2).is_none() {
                     let symbol = captures.get(1).expect("Should always have group 1");
                     pairs.push((

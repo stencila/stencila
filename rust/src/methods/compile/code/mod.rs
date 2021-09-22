@@ -32,7 +32,7 @@ pub fn compile(path: &Path, code: &str, language: &str) -> Vec<(Relation, Resour
     let pairs = match language {
         #[cfg(feature = "compile-code-js")]
         "js" | "javascript" => js::compile(path, code),
-    
+
         #[cfg(feature = "compile-code-calc")]
         "calc" => calc::compile(path, code),
 
@@ -327,7 +327,7 @@ fn parse_tags(
     static REGEX_ITEMS: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"\s+|(\s*,\s*)").expect("Unable to create regex"));
 
-    let kind = kind.unwrap_or_else(||"".to_string());
+    let kind = kind.unwrap_or_else(|| "".to_string());
 
     let mut relations: Vec<(Relation, Resource)> = Vec::new();
     let mut only: Vec<String> = Vec::new();
