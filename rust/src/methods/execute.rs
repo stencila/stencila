@@ -4,7 +4,7 @@ use stencila_schema::Node;
 
 // Allow these for when no features are enabled
 #[allow(unused_variables, unreachable_code)]
-pub async fn execute(node: Node) -> Result<Node> {
+pub async fn execute(node: &mut Node) -> Result<Node> {
     #[cfg(feature = "plugins")]
     return crate::plugins::delegate(
         super::Method::Execute,
