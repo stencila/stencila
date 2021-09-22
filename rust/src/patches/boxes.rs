@@ -55,6 +55,10 @@ where
     fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
         self.deref_mut().apply_transform(address, from, to)
     }
+
+    fn cast_value(value: &Box<dyn Any + Send>) -> Result<Self> {
+        Ok(Box::new(Type::cast_value(value)?))
+    }
 }
 
 #[cfg(test)]

@@ -184,6 +184,23 @@ impl Patchable for String {
         }
         Ok(())
     }
+
+    fn cast_value(value: &Box<dyn Any + Send>) -> Result<Self>
+    where
+        Self: Clone + Sized + 'static,
+    {
+        if let Some(value) = value.downcast_ref::<String>() {
+            return Ok(value.clone());
+        } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
+            if let Some(string) = value.as_str() {
+                return Ok(string.to_string());
+            }
+        }
+
+        bail!(Error::InvalidPatchValue {
+            type_name: type_name::<Self>().to_string()
+        })
+    }
 }
 
 #[cfg(test)]

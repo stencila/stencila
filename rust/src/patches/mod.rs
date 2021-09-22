@@ -1,4 +1,8 @@
-use crate::{errors::invalid_patch_operation, methods::encode::encode, utils::schemas};
+use crate::{
+    errors::{invalid_patch_operation, Error},
+    methods::encode::encode,
+    utils::schemas,
+};
 use defaults::Defaults;
 use derive_more::{Constructor, Deref, DerefMut};
 use eyre::{bail, Result};
@@ -6,7 +10,13 @@ use itertools::Itertools;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use similar::TextDiff;
-use std::{any::Any, collections::VecDeque, fmt::Debug, hash::Hasher, iter::FromIterator};
+use std::{
+    any::{type_name, Any},
+    collections::VecDeque,
+    fmt::Debug,
+    hash::Hasher,
+    iter::FromIterator,
+};
 use stencila_schema::{BlockContent, Boolean, InlineContent, Integer, Node, Number};
 use strum::{AsRefStr, ToString};
 
@@ -666,16 +676,19 @@ pub trait Patchable {
 
     /// Apply a patch to this node.
     fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
+        tracing::debug!(
+            "Applying patch to type '{}': {:?}",
+            type_name::<Self>(),
+            patch
+        );
         for op in patch.iter() {
-            self.apply_op(op)?;
+            self.apply_op(op)?
         }
         Ok(())
     }
 
     /// Apply an operation to this node.
     fn apply_op(&mut self, op: &Operation) -> Result<()> {
-        tracing::debug!("Applying patch operation: {:?}", op);
-
         match op {
             Operation::Add { address, value, .. } => self.apply_add(&mut address.clone(), value),
             Operation::Remove { address, items } => self.apply_remove(&mut address.clone(), *items),
@@ -722,6 +735,20 @@ pub trait Patchable {
     /// Apply a `Transform` patch operation
     fn apply_transform(&mut self, _address: &mut Address, _from: &str, _to: &str) -> Result<()> {
         bail!(invalid_patch_operation("transform", self))
+    }
+
+    /// Cast a value, as stored in a `Add` or `Replace` operation, into a valid value for the type
+    fn cast_value(value: &Box<dyn Any + Send>) -> Result<Self>
+    where
+        Self: Clone + Sized + 'static,
+    {
+        if let Some(value) = value.downcast_ref::<Self>() {
+            Ok(value.clone())
+        } else {
+            bail!(Error::InvalidPatchValue {
+                type_name: type_name::<Self>().to_string()
+            })
+        }
     }
 }
 

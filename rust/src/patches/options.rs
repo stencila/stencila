@@ -1,5 +1,5 @@
 use super::prelude::*;
-use std::{hash::Hasher, ops::Deref};
+use std::hash::Hasher;
 
 /// Implements patching for `Option`
 ///
@@ -49,12 +49,8 @@ where
 
     fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
         if address.is_empty() {
-            if let Some(value) = value.deref().downcast_ref::<Type>() {
-                *self = Some(value.clone());
-                Ok(())
-            } else {
-                bail!(invalid_patch_value(self))
-            }
+            *self = Self::cast_value(value)?;
+            Ok(())
         } else if let Some(me) = self {
             me.apply_add(address, value)
         } else {
@@ -79,10 +75,13 @@ where
         items: usize,
         value: &Box<dyn Any + Send>,
     ) -> Result<()> {
-        if let Some(me) = self {
+        if address.is_empty() {
+            *self = Self::cast_value(value)?;
+            Ok(())
+        } else if let Some(me) = self {
             me.apply_replace(address, items, value)
         } else {
-            bail!(invalid_patch_operation("replace", self))
+            bail!(invalid_patch_address(&address.to_string(), self))
         }
     }
 
@@ -100,6 +99,10 @@ where
         } else {
             bail!(invalid_patch_operation("transform", self))
         }
+    }
+
+    fn cast_value(value: &Box<dyn Any + Send>) -> Result<Self> {
+        Ok(Some(Type::cast_value(value)?))
     }
 }
 
