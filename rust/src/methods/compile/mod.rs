@@ -97,91 +97,8 @@ macro_rules! identify {
     };
 }
 
-impl Compile for Node {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        dispatch_node!(self, Ok(None), compile, context)
-    }
-}
-
-impl Compile for InlineContent {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        let id = dispatch_inline!(self, Ok(None), compile, context)?;
-        if let Some(id) = id {
-            context.pointers.insert(id, NodePointer::Inline(self));
-        }
-        Ok(None)
-    }
-}
-
-impl Compile for BlockContent {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        let id = dispatch_block!(self, compile, context)?;
-        if let Some(id) = id {
-            context.pointers.insert(id, NodePointer::Block(self));
-        }
-        Ok(None)
-    }
-}
-
-impl Compile for CreativeWorkTypes {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        dispatch_work!(self, compile, context)
-    }
-}
-
-impl<T> Compile for Option<T>
-where
-    T: Compile,
-{
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        if let Some(value) = self {
-            value.compile(context)
-        } else {
-            Ok(None)
-        }
-    }
-}
-
-impl<T> Compile for Box<T>
-where
-    T: Compile,
-{
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        (**self).compile(context)
-    }
-}
-
-impl<T> Compile for Vec<T>
-where
-    T: Compile,
-{
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        for item in self.iter_mut() {
-            item.compile(context)?;
-        }
-        Ok(None)
-    }
-}
-
-// Implementations for `content` property enums
-
-impl Compile for CreativeWorkContent {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        match self {
-            CreativeWorkContent::String(node) => node.compile(context),
-            CreativeWorkContent::VecNode(nodes) => nodes.compile(context),
-        }
-    }
-}
-
-impl Compile for ListItemContent {
-    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
-        match self {
-            ListItemContent::VecInlineContent(nodes) => nodes.compile(context),
-            ListItemContent::VecBlockContent(nodes) => nodes.compile(context),
-        }
-    }
-}
+// This first set of implementations are for node types that need
+// some sort of compilation.
 
 /// Compile a `Link` to add its `target` to the list of included files
 impl Compile for Link {
@@ -377,6 +294,76 @@ impl Compile for Include {
     }
 }
 
+// The following are simple "dispatching" implementations of `compile`.
+// They implement the depth first walk across a node tree by calling `compile`
+// on child nodes.
+
+impl Compile for Node {
+    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+        dispatch_node!(self, Ok(None), compile, context)
+    }
+}
+
+impl Compile for CreativeWorkTypes {
+    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+        dispatch_work!(self, compile, context)
+    }
+}
+
+impl Compile for BlockContent {
+    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+        let id = dispatch_block!(self, compile, context)?;
+        if let Some(id) = id {
+            context.pointers.insert(id, NodePointer::Block(self));
+        }
+        Ok(None)
+    }
+}
+
+impl Compile for InlineContent {
+    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+        let id = dispatch_inline!(self, Ok(None), compile, context)?;
+        if let Some(id) = id {
+            context.pointers.insert(id, NodePointer::Inline(self));
+        }
+        Ok(None)
+    }
+}
+
+impl<T> Compile for Option<T>
+where
+    T: Compile,
+{
+    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+        if let Some(value) = self {
+            value.compile(context)
+        } else {
+            Ok(None)
+        }
+    }
+}
+
+impl<T> Compile for Box<T>
+where
+    T: Compile,
+{
+    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+        (**self).compile(context)
+    }
+}
+
+impl<T> Compile for Vec<T>
+where
+    T: Compile,
+{
+    fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+        for item in self.iter_mut() {
+            item.compile(context)?;
+        }
+        Ok(None)
+    }
+}
+
 /// Compile nothing
 macro_rules! compile_nothing {
     ($type:ty) => {
@@ -480,4 +467,31 @@ compile_content_for!(
     Superscript,
     Table,
     TableSimple
+);
+
+/// Compile variants of an enum
+macro_rules! compile_variants {
+    ( $type:ty $(, $variant:path )* ) => {
+        impl Compile for $type {
+            fn compile(&mut self, context: &mut Context) -> Result<Option<NodeId>> {
+                match self {
+                    $(
+                        $variant(node) => node.compile(context),
+                    )*
+                }
+            }
+        }
+    };
+}
+
+compile_variants!(
+    CreativeWorkContent,
+    CreativeWorkContent::String,
+    CreativeWorkContent::VecNode
+);
+
+compile_variants!(
+    ListItemContent,
+    ListItemContent::VecInlineContent,
+    ListItemContent::VecBlockContent
 );

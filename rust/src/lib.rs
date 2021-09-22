@@ -42,15 +42,6 @@ pub mod methods {
     pub mod execute;
 }
 
-// Macros
-//
-// Helper macros for `Node` enums etc
-
-pub mod macros {
-    mod dispatch_enums;
-    pub use dispatch_enums::*;
-}
-
 // Features
 //
 // Features that can be turned off
@@ -95,6 +86,7 @@ pub mod telemetry;
 // Usually just small functions that are often wrappers around other crates.
 
 pub mod utils {
+    pub mod dispatch;
     pub mod fs;
     pub mod hash;
     pub mod http;

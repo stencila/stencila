@@ -1,3 +1,5 @@
+///! Macros for dispatching a method call based on `Node` enum
+
 #[macro_export]
 macro_rules! dispatch_node {
     ($node:expr, $default:expr, $method:ident $(,$arg:expr)*) => {
