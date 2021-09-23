@@ -120,6 +120,14 @@ impl Patchable for InlineContent {
             dispatch_inline!(self, Ok(()), apply_transform, address, from, to)
         }
     }
+
+    fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
+        if address.is_empty() {
+            Ok(Some(Pointer::Inline(self)))
+        } else {
+            dispatch_inline!(self, Ok(None), resolve, address)
+        }
+    }
 }
 
 fn diff_transform(differ: &mut Differ, from: &InlineContent, to: &InlineContent) {

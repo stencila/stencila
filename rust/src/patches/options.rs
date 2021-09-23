@@ -54,7 +54,7 @@ where
         } else if let Some(me) = self {
             me.apply_add(address, value)
         } else {
-            bail!(invalid_patch_address(&address.to_string(), self))
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
     }
 
@@ -65,7 +65,7 @@ where
         } else if let Some(me) = self {
             me.apply_remove(address, items)
         } else {
-            bail!(invalid_patch_address(&address.to_string(), self))
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
     }
 
@@ -76,7 +76,7 @@ where
         } else if let Some(me) = self {
             me.apply_replace(address, items, value)
         } else {
-            bail!(invalid_patch_address(&address.to_string(), self))
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
     }
 
@@ -84,7 +84,7 @@ where
         if let Some(me) = self {
             me.apply_move(from, items, to)
         } else {
-            bail!(invalid_patch_operation("move", self))
+            bail!(invalid_patch_operation::<Self>("move"))
         }
     }
 
@@ -92,12 +92,20 @@ where
         if let Some(me) = self {
             me.apply_transform(address, from, to)
         } else {
-            bail!(invalid_patch_operation("transform", self))
+            bail!(invalid_patch_operation::<Self>("transform"))
         }
     }
 
     fn from_value(value: &Value) -> Result<Self> {
         Ok(Some(Type::from_value(value)?))
+    }
+
+    fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
+        if let Some(me) = self {
+            me.resolve(address)
+        } else {
+            Ok(None)
+        }
     }
 }
 

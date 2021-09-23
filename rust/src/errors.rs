@@ -98,7 +98,7 @@ pub enum Error {
 }
 
 /// Create an `InvalidPatchOp` error
-pub fn invalid_patch_operation<Type>(op: &str, _object: Type) -> Error {
+pub fn invalid_patch_operation<Type: ?Sized>(op: &str) -> Error {
     Error::InvalidPatchOperation {
         op: op.into(),
         type_name: type_name::<Type>().into(),
@@ -106,7 +106,7 @@ pub fn invalid_patch_operation<Type>(op: &str, _object: Type) -> Error {
 }
 
 /// Create an `InvalidPatchAddress` error
-pub fn invalid_patch_address<Type>(address: &str, _object: Type) -> Error {
+pub fn invalid_patch_address<Type: ?Sized>(address: &str) -> Error {
     Error::InvalidPatchAddress {
         address: address.into(),
         type_name: type_name::<Type>().into(),
@@ -114,14 +114,14 @@ pub fn invalid_patch_address<Type>(address: &str, _object: Type) -> Error {
 }
 
 /// Create an `InvalidPatchValue` error
-pub fn invalid_patch_value<Type>() -> Error {
+pub fn invalid_patch_value<Type: ?Sized>() -> Error {
     Error::InvalidPatchValue {
         type_name: type_name::<Type>().into(),
     }
 }
 
 /// Create an `InvalidSlotType` error
-pub fn invalid_slot_variant<Type>(variant: &str, _object: Type) -> Error {
+pub fn invalid_slot_variant<Type: ?Sized>(variant: &str) -> Error {
     Error::InvalidSlotVariant {
         variant: variant.into(),
         type_name: type_name::<Type>().into(),
@@ -129,7 +129,7 @@ pub fn invalid_slot_variant<Type>(variant: &str, _object: Type) -> Error {
 }
 
 /// Create an `InvalidSlotName` error
-pub fn invalid_slot_name<Type>(name: &str, _object: Type) -> Error {
+pub fn invalid_slot_name<Type: ?Sized>(name: &str) -> Error {
     Error::InvalidSlotName {
         name: name.into(),
         type_name: type_name::<Type>().into(),
@@ -137,7 +137,7 @@ pub fn invalid_slot_name<Type>(name: &str, _object: Type) -> Error {
 }
 
 /// Create an `InvalidSlotIndex` error
-pub fn invalid_slot_index<Type>(index: usize, _object: Type) -> Error {
+pub fn invalid_slot_index<Type: ?Sized>(index: usize) -> Error {
     Error::InvalidSlotIndex {
         index,
         type_name: type_name::<Type>().into(),

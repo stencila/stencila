@@ -101,6 +101,14 @@ impl Patchable for BlockContent {
             dispatch_block!(self, apply_transform, address, from, to)
         }
     }
+
+    fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
+        if address.is_empty() {
+            Ok(Some(Pointer::Block(self)))
+        } else {
+            dispatch_block!(self, resolve, address)
+        }
+    }
 }
 
 fn diff_transform(differ: &mut Differ, _from: &BlockContent, to: &BlockContent) {

@@ -313,16 +313,16 @@ where
                 let value = Self::from_value(value)?;
                 *self = [&self[..index], &value, &self[index..]].concat().to_vec();
             } else {
-                bail!(invalid_patch_address(&address.to_string(), self))
+                bail!(invalid_patch_address::<Self>(&address.to_string()))
             }
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
                 item.apply_add(address, value)?;
             } else {
-                bail!(invalid_slot_index(index, self))
+                bail!(invalid_slot_index::<Self>(index))
             }
         } else {
-            bail!(invalid_patch_address(&address.to_string(), self))
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
         Ok(())
     }
@@ -332,16 +332,16 @@ where
             if let Some(Slot::Index(index)) = address.pop_front() {
                 *self = [&self[..index], &self[(index + items)..]].concat().to_vec();
             } else {
-                bail!(invalid_patch_address(&address.to_string(), self))
+                bail!(invalid_patch_address::<Self>(&address.to_string()))
             }
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
                 item.apply_remove(address, items)?;
             } else {
-                bail!(invalid_slot_index(index, self))
+                bail!(invalid_slot_index::<Self>(index))
             }
         } else {
-            bail!(invalid_patch_address(&address.to_string(), self))
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
         Ok(())
     }
@@ -354,16 +354,16 @@ where
                     .concat()
                     .to_vec();
             } else {
-                bail!(invalid_patch_address(&address.to_string(), self))
+                bail!(invalid_patch_address::<Self>(&address.to_string()))
             }
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
                 item.apply_replace(address, items, value)?;
             } else {
-                bail!(invalid_slot_index(index, self))
+                bail!(invalid_slot_index::<Self>(index))
             }
         } else {
-            bail!(invalid_patch_address(&address.to_string(), self))
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
         Ok(())
     }
@@ -391,16 +391,16 @@ where
                 .concat()
                 .to_vec();
             } else {
-                bail!(invalid_patch_address(&from.to_string(), self))
+                bail!(invalid_patch_address::<Self>(&from.to_string()))
             }
         } else if let Some(Slot::Index(index)) = from.pop_front() {
             if let Some(item) = self.get_mut(index) {
                 item.apply_move(from, items, to)?;
             } else {
-                bail!(invalid_slot_index(index, self))
+                bail!(invalid_slot_index::<Self>(index))
             }
         } else {
-            bail!(invalid_patch_address(&from.to_string(), self))
+            bail!(invalid_patch_address::<Self>(&from.to_string()))
         }
         Ok(())
     }
@@ -411,13 +411,25 @@ where
                 if let Some(item) = self.get_mut(index) {
                     item.apply_transform(address, from, to)?;
                 } else {
-                    bail!(invalid_slot_index(index, self))
+                    bail!(invalid_slot_index::<Self>(index))
                 }
             }
         } else {
-            bail!(invalid_patch_address(&address.to_string(), self))
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
         Ok(())
+    }
+
+    fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
+        if let Some(Slot::Index(index)) = address.pop_front() {
+            if let Some(item) = self.get_mut(index) {
+                item.resolve(address)
+            } else {
+                bail!(invalid_slot_index::<Self>(index))
+            }
+        } else {
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
+        }
     }
 }
 

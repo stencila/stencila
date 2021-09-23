@@ -127,6 +127,17 @@ where
     Ok(())
 }
 
+pub fn resolve<'lt, Type>(node: &'lt mut Type, address: &Address) -> Result<Pointer<'lt>>
+where
+    Type: Patchable,
+{
+    let mut address = address.clone();
+    match node.resolve(&mut address)? {
+        Some(pointer) => Ok(pointer),
+        None => bail!("Unable to resolve address {}", address.to_string()),
+    }
+}
+
 /// A slot, used as part of an [`Address`], to locate a value within a `Node` tree.
 ///
 /// Slots can be used to identify a part of a larger object.
@@ -208,6 +219,11 @@ impl From<&str> for Address {
     fn from(name: &str) -> Address {
         Address(VecDeque::from_iter([Slot::Name(name.to_string())]))
     }
+}
+
+pub enum Pointer<'lt> {
+    Inline(&'lt mut InlineContent),
+    Block(&'lt mut BlockContent),
 }
 
 /// Type for the `value` property of `Add` and `Replace` operations
@@ -718,12 +734,12 @@ pub trait Patchable {
 
     /// Apply an `Add` patch operation
     fn apply_add(&mut self, _address: &mut Address, _value: &Value) -> Result<()> {
-        bail!(invalid_patch_operation("add", self))
+        bail!(invalid_patch_operation::<Self>("add"))
     }
 
     /// Apply a `Remove` patch operation
     fn apply_remove(&mut self, _address: &mut Address, _items: usize) -> Result<()> {
-        bail!(invalid_patch_operation("remove", self))
+        bail!(invalid_patch_operation::<Self>("remove"))
     }
 
     /// Apply a `Replace` patch operation
@@ -733,17 +749,17 @@ pub trait Patchable {
         _items: usize,
         _value: &Value,
     ) -> Result<()> {
-        bail!(invalid_patch_operation("replace", self))
+        bail!(invalid_patch_operation::<Self>("replace"))
     }
 
     /// Apply a `Move` patch operation
     fn apply_move(&mut self, _from: &mut Address, _items: usize, _to: &mut Address) -> Result<()> {
-        bail!(invalid_patch_operation("move", self))
+        bail!(invalid_patch_operation::<Self>("move"))
     }
 
     /// Apply a `Transform` patch operation
     fn apply_transform(&mut self, _address: &mut Address, _from: &str, _to: &str) -> Result<()> {
-        bail!(invalid_patch_operation("transform", self))
+        bail!(invalid_patch_operation::<Self>("transform"))
     }
 
     /// Cast a [`Value`] to an instance of the type
@@ -757,6 +773,17 @@ pub trait Patchable {
             bail!(invalid_patch_value::<Self>())
         };
         Ok(instance)
+    }
+
+    /// Resolve an address
+    ///
+    /// Only needs to be implemented for types that may contain one of the variants
+    /// in [`Pointer`] (at the time of writing `BlockContent` and `InlineContent`)
+    fn resolve(&mut self, _address: &mut Address) -> Result<Option<Pointer>> {
+        bail!(
+            "Method `resolve` is not implemented for type `{}`",
+            type_name::<Self>()
+        )
     }
 }
 

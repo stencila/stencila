@@ -19,6 +19,8 @@ macro_rules! patchable_node {
             patchable_variants_apply_move!($( $variant )*);
             patchable_variants_apply_transform!($( $variant )*);
 
+            patchable_variants_resolve!($( $variant )*);
+
             fn from_value(value: &Value) -> Result<Self>
             where
                 Self: Clone + Sized + 'static,

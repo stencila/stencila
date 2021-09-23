@@ -54,6 +54,10 @@ where
     fn from_value(value: &Value) -> Result<Self> {
         Ok(Box::new(Type::from_value(value)?))
     }
+
+    fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
+        self.deref_mut().resolve(address)
+    }
 }
 
 #[cfg(test)]

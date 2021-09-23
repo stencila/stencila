@@ -114,7 +114,7 @@ macro_rules! patchable_variants_apply_add {
                     $variant(me) => me.apply_add(address, value),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => bail!(invalid_patch_operation("add", self))
+                _ => bail!(invalid_patch_operation::<Self>("add"))
             }
         }
     };
@@ -129,7 +129,7 @@ macro_rules! patchable_variants_apply_remove {
                     $variant(me) => me.apply_remove(address, items),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => bail!(invalid_patch_operation("remove", self))
+                _ => bail!(invalid_patch_operation::<Self>("remove"))
             }
         }
     };
@@ -144,7 +144,7 @@ macro_rules! patchable_variants_apply_replace {
                     $variant(me) => me.apply_replace(address, items, value),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => bail!(invalid_patch_operation("replace", self))
+                _ => bail!(invalid_patch_operation::<Self>("replace"))
             }
         }
     };
@@ -159,7 +159,7 @@ macro_rules! patchable_variants_apply_move {
                     $variant(me) => me.apply_move(from, items, to),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => bail!(invalid_patch_operation("move", self))
+                _ => bail!(invalid_patch_operation::<Self>("move"))
             }
         }
     };
@@ -174,7 +174,22 @@ macro_rules! patchable_variants_apply_transform {
                     $variant(me) => me.apply_transform(address, from, to),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => bail!(invalid_patch_operation("transform", self))
+                _ => bail!(invalid_patch_operation::<Self>("transform"))
+            }
+        }
+    };
+}
+
+/// Generate the `resolve` method for an `enum` having variants of different types
+macro_rules! patchable_variants_resolve {
+    ($( $variant:path )*) => {
+        fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
+            match self {
+                $(
+                    $variant(me) => me.resolve(address),
+                )*
+                #[allow(unreachable_patterns)]
+                _ => bail!("Unhandled variant")
             }
         }
     };
@@ -217,6 +232,8 @@ macro_rules! patchable_variants {
             patchable_variants_apply_replace!($( $variant )*);
             patchable_variants_apply_move!($( $variant )*);
             patchable_variants_apply_transform!($( $variant )*);
+
+            patchable_variants_resolve!($( $variant )*);
         }
     };
 }

@@ -71,10 +71,10 @@ macro_rules! patchable_struct_apply_add {
                     $(
                         stringify!($field) => self.$field.apply_add(address, value),
                     )*
-                    _ => bail!(invalid_slot_name(&name, self)),
+                    _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
             } else {
-                bail!(invalid_patch_address(&address.to_string(), self))
+                bail!(invalid_patch_address::<Self>(&address.to_string()))
             }
         }
     };
@@ -90,10 +90,10 @@ macro_rules! patchable_struct_apply_remove {
                     $(
                         stringify!($field) => self.$field.apply_remove(address, items),
                     )*
-                    _ => bail!(invalid_slot_name(&name, self)),
+                    _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
             } else {
-                bail!(invalid_patch_address(&address.to_string(), self))
+                bail!(invalid_patch_address::<Self>(&address.to_string()))
             }
         }
     };
@@ -109,10 +109,10 @@ macro_rules! patchable_struct_apply_replace {
                     $(
                         stringify!($field) => self.$field.apply_replace(address, items, value),
                     )*
-                    _ => bail!(invalid_slot_name(&name, self)),
+                    _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
             } else {
-                bail!(invalid_patch_address(&address.to_string(), self))
+                bail!(invalid_patch_address::<Self>(&address.to_string()))
             }
         }
     };
@@ -128,10 +128,10 @@ macro_rules! patchable_struct_apply_move {
                     $(
                         stringify!($field) => self.$field.apply_move(from, items, to),
                     )*
-                    _ => bail!(invalid_slot_name(&name, self)),
+                    _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
             } else {
-                bail!(invalid_patch_address(&from.to_string(), self))
+                bail!(invalid_patch_address::<Self>(&from.to_string()))
             }
         }
     };
@@ -147,10 +147,29 @@ macro_rules! patchable_struct_apply_transform {
                     $(
                         stringify!($field) => self.$field.apply_transform(address, from, to),
                     )*
-                    _ => bail!(invalid_slot_name(&name, self)),
+                    _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
             } else {
-                bail!(invalid_patch_address(&from.to_string(), self))
+                bail!(invalid_patch_address::<Self>(&from.to_string()))
+            }
+        }
+    };
+}
+
+/// Generate the `resolve` method for a `struct`
+macro_rules! patchable_struct_resolve {
+    ($( $field:ident )*) => {
+        #[allow(unused_variables)]
+        fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
+            if let Some(Slot::Name(name)) = address.pop_front() {
+                match name.as_str() {
+                    $(
+                        stringify!($field) => self.$field.resolve(address),
+                    )*
+                    _ => bail!(invalid_slot_name::<Self>(&name)),
+                }
+            } else {
+                bail!(invalid_patch_address::<Self>(&address.to_string()))
             }
         }
     };
@@ -175,6 +194,8 @@ macro_rules! patchable_struct {
             patchable_struct_apply_replace!($( $field )*);
             patchable_struct_apply_move!($( $field )*);
             patchable_struct_apply_transform!($( $field )*);
+
+            patchable_struct_resolve!($( $field )*);
         }
     };
 }

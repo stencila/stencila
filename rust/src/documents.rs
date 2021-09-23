@@ -9,7 +9,7 @@ use crate::{
         encode::{self, encode},
         execute::execute,
     },
-    patches::{apply, diff, merge, Address, DomPatch, Patch},
+    patches::{apply, diff, merge, resolve, Address, DomPatch, Patch, Pointer},
     pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
@@ -632,13 +632,21 @@ impl Document {
     }
 
     /// Execute the document, optionally providing a [`Patch`] to apply before execution.
-    pub fn execute(&mut self, node: &str, patch: Option<Patch>) -> Result<()> {
+    pub async fn execute(&mut self, node_id: &str, patch: Option<Patch>) -> Result<()> {
         match self.root.as_mut() {
             Some(root) => {
-                if let Some(patch) = patch {
-                    apply(root, Some(node.to_string()), &patch)?
-                }
-                execute(root);
+                //if let Some(patch) = patch {
+                //    apply(root, Some(node_id.to_string()), &patch)?
+                //}
+                let address = match self.addresses.get(node_id) {
+                    Some(address) => address,
+                    None => bail!("No node with id in addresses: {}", node_id),
+                };
+                let pointer = resolve(root, address)?;
+                match pointer {
+                    Pointer::Inline(inline) => tracing::debug!("Execute inline {:?}", inline),
+                    Pointer::Block(block) => tracing::debug!("Execute block {:?}", block),
+                };
                 Ok(())
             }
             None => bail!("Document does not have a root node to execute"),
@@ -1244,7 +1252,7 @@ impl Documents {
     pub async fn execute(&self, id: &str, node_id: &str, patch: Option<Patch>) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        document_guard.execute(node_id, patch)
+        document_guard.execute(node_id, patch).await
     }
 
     /// Get a document that has previously been opened

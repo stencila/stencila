@@ -131,7 +131,7 @@ impl Patchable for String {
             *self = graphemes.into_iter().collect();
             Ok(())
         } else {
-            bail!(invalid_patch_address(&address.to_string(), self))
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
     }
 
@@ -142,7 +142,7 @@ impl Patchable for String {
             *self = graphemes.into_iter().collect();
             Ok(())
         } else {
-            bail!(invalid_patch_address(&address.to_string(), self))
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
     }
 

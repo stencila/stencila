@@ -10,7 +10,6 @@ pub mod documents;
 pub mod files;
 pub mod formats;
 pub mod graphs;
-pub mod nodes;
 pub mod patches;
 pub mod projects;
 pub mod sessions;
