@@ -77,11 +77,14 @@ impl Request {
             Ok((value, subscription)) => (Response::new(self.id, Some(value), None), subscription),
             Err(error) => {
                 // If the error is JSON-RPC error from this module, just return that.
-                // Otherwise, convert it into a generic `server_error`.
+                // Otherwise, convert it into a generic `server_error` and log it.
                 let message = error.to_string();
                 let error = match error.downcast::<Error>() {
                     Ok(error) => error,
-                    Err(_) => Error::server_error(&message),
+                    Err(_) => {
+                        tracing::error!("{}", message);
+                        Error::server_error(&message)
+                    }
                 };
                 (
                     Response::new(self.id, None, Some(error)),
