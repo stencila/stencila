@@ -1,3 +1,11 @@
+## [0.118.3](https://github.com/stencila/stencila/compare/v0.118.2...v0.118.3) (2021-09-23)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @sentry/electron to v2.5.4 ([96b009d](https://github.com/stencila/stencila/commit/96b009dcd0bdd11324f336fac74452ccced63b6a))
+* **dependencies:** update dependency fp-ts to v2.11.3 ([3f3451d](https://github.com/stencila/stencila/commit/3f3451dd4597b2bac58073caf51c495628337429))
+
 ## [0.118.2](https://github.com/stencila/stencila/compare/v0.118.1...v0.118.2) (2021-09-19)
 
 
