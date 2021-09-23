@@ -76,7 +76,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "1.6.1",
-    "@sentry/electron": "2.5.3",
+    "@sentry/electron": "2.5.4",
     "@stencil/router": "2.0.0-2",
     "@stencil/store": "1.4.1",
     "@stencila/brand": "0.7.4",
