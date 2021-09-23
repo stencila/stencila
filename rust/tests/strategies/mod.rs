@@ -582,13 +582,16 @@ prop_compose! {
             _ => 10,
         } + 1)
     )(
-        blocks in vec(block_content(freedom), size_range(length)).prop_filter(
-            "Vector of block content should not start with thematic break",
-            |blocks| {
-                for index in 0..blocks.len() {
-                    if index == 0 && matches!(blocks[0], BlockContent::ThematicBreak(..)) {
-                        return false
-                    } else if index > 0 {
+        blocks in vec(block_content(freedom), size_range(length))
+            .prop_filter(
+                "Should not start with thematic break",
+                |blocks| {
+                    matches!(blocks[0], BlockContent::ThematicBreak(..))
+                }
+            ).prop_filter(
+                "Lists with same ordering should not be adjacent",
+                |blocks| {
+                    for index in 1..blocks.len() {
                         if let (BlockContent::List(prev), BlockContent::List(curr)) = (&blocks[index-1], &blocks[index]) {
                             match (&prev.order, &curr.order) {
                                 (None, None) |
@@ -600,10 +603,9 @@ prop_compose! {
                             }
                         }
                     }
+                    true
                 }
-                true
-            }
-        )
+            )
     ) -> Vec<BlockContent> {
         blocks
     }
