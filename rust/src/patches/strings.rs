@@ -2,7 +2,6 @@ use super::prelude::*;
 use itertools::Itertools;
 use similar::{ChangeTag, TextDiff};
 use std::hash::{Hash, Hasher};
-use std::ops::Deref;
 use unicode_segmentation::UnicodeSegmentation;
 
 /// Implements patching for strings
@@ -120,12 +119,7 @@ impl Patchable for String {
     }
 
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
-        let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
-            value
-        } else {
-            bail!(invalid_patch_value(self))
-        };
-
+        let value = Self::from_value(value)?;
         if let Some(Slot::Index(index)) = address.pop_front() {
             let graphemes = self.graphemes(true).collect_vec();
             let graphemes = [
@@ -153,20 +147,9 @@ impl Patchable for String {
     }
 
     fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
-        let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
-            value
-        } else if let Some(value) = value
-            .deref()
-            .downcast_ref::<serde_json::Value>()
-            .and_then(|value| value.as_str())
-        {
-            value
-        } else {
-            bail!(invalid_patch_value(self))
-        };
-
+        let value = Self::from_value(value)?;
         if address.is_empty() {
-            *self = value.to_string()
+            *self = value
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             let graphemes = self.graphemes(true).collect_vec();
             let graphemes = [
@@ -180,7 +163,7 @@ impl Patchable for String {
         Ok(())
     }
 
-    fn cast_value(value: &Value) -> Result<Self>
+    fn from_value(value: &Value) -> Result<Self>
     where
         Self: Clone + Sized + 'static,
     {
@@ -191,10 +174,7 @@ impl Patchable for String {
                 return Ok(string.to_string());
             }
         }
-
-        bail!(Error::InvalidPatchValue {
-            type_name: type_name::<Self>().to_string()
-        })
+        bail!(invalid_patch_value::<Self>())
     }
 }
 

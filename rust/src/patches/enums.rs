@@ -40,12 +40,8 @@ macro_rules! patchable_enum_apply_replace {
             _items: usize,
             value: &Value,
         ) -> Result<()> {
-            if let Some(value) = value.deref().downcast_ref::<Self>() {
-                *self = value.clone();
-                Ok(())
-            } else {
-                bail!(invalid_patch_value(self))
-            }
+            *self = Self::from_value(value)?;
+            Ok(())
         }
     };
 }

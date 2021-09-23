@@ -114,7 +114,7 @@ pub fn invalid_patch_address<Type>(address: &str, _object: Type) -> Error {
 }
 
 /// Create an `InvalidPatchValue` error
-pub fn invalid_patch_value<Type>(_object: Type) -> Error {
+pub fn invalid_patch_value<Type>() -> Error {
     Error::InvalidPatchValue {
         type_name: type_name::<Type>().into(),
     }

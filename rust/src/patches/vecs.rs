@@ -310,12 +310,8 @@ where
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
         if address.len() == 1 {
             if let Some(Slot::Index(index)) = address.pop_front() {
-                let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
-                    value
-                } else {
-                    bail!(invalid_patch_value(self))
-                };
-                *self = [&self[..index], value, &self[index..]].concat().to_vec();
+                let value = Self::from_value(value)?;
+                *self = [&self[..index], &value, &self[index..]].concat().to_vec();
             } else {
                 bail!(invalid_patch_address(&address.to_string(), self))
             }
@@ -352,13 +348,9 @@ where
 
     fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
         if address.len() == 1 {
-            let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
-                value
-            } else {
-                bail!(invalid_patch_value(self))
-            };
+            let value = Self::from_value(value)?;
             if let Some(Slot::Index(index)) = address.pop_front() {
-                *self = [&self[..index], value, &self[(index + items)..]]
+                *self = [&self[..index], &value, &self[(index + items)..]]
                     .concat()
                     .to_vec();
             } else {

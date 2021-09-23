@@ -51,8 +51,8 @@ where
         self.deref_mut().apply_transform(address, from, to)
     }
 
-    fn cast_value(value: &Value) -> Result<Self> {
-        Ok(Box::new(Type::cast_value(value)?))
+    fn from_value(value: &Value) -> Result<Self> {
+        Ok(Box::new(Type::from_value(value)?))
     }
 }
 

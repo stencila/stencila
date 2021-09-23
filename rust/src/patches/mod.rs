@@ -1,5 +1,5 @@
 use crate::{
-    errors::{invalid_patch_operation, Error},
+    errors::{invalid_patch_operation, invalid_patch_value},
     methods::encode::encode,
     utils::schemas,
 };
@@ -746,18 +746,17 @@ pub trait Patchable {
         bail!(invalid_patch_operation("transform", self))
     }
 
-    /// Cast a value, as stored in a `Add` or `Replace` operation, into a valid value for the type
-    fn cast_value(value: &Value) -> Result<Self>
+    /// Cast a [`Value`] to an instance of the type
+    fn from_value(value: &Value) -> Result<Self>
     where
         Self: Clone + Sized + 'static,
     {
-        if let Some(value) = value.downcast_ref::<Self>() {
-            Ok(value.clone())
+        let instance = if let Some(value) = value.downcast_ref::<Self>() {
+            value.clone()
         } else {
-            bail!(Error::InvalidPatchValue {
-                type_name: type_name::<Self>().to_string()
-            })
-        }
+            bail!(invalid_patch_value::<Self>())
+        };
+        Ok(instance)
     }
 }
 

@@ -1,7 +1,7 @@
 use super::prelude::*;
 use stencila_schema::Node;
 
-/// Override of macro to implement `cast_value` for all node types
+/// Override of macro to implement `from_value` for all node types
 macro_rules! patchable_node {
     ($( $variant:path )*) => {
         impl Patchable for Node {
@@ -19,7 +19,7 @@ macro_rules! patchable_node {
             patchable_variants_apply_move!($( $variant )*);
             patchable_variants_apply_transform!($( $variant )*);
 
-            fn cast_value(value: &Value) -> Result<Self>
+            fn from_value(value: &Value) -> Result<Self>
             where
                 Self: Clone + Sized + 'static,
             {
@@ -39,10 +39,7 @@ macro_rules! patchable_node {
                         return Ok(Node::Boolean(boolean));
                     }
                 }
-
-                bail!(Error::InvalidPatchValue {
-                    type_name: type_name::<Self>().to_string()
-                })
+                bail!(invalid_patch_value::<Self>())
             }
         }
     };

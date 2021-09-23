@@ -1,6 +1,5 @@
 use super::prelude::*;
 use std::hash::{Hash, Hasher};
-use std::ops::Deref;
 use stencila_schema::{Boolean, Integer, Number};
 
 /// Macro to generate `impl Patchable` for atomic types
@@ -38,12 +37,8 @@ macro_rules! patchable_atomic {
                 _items: usize,
                 value: &Value,
             ) -> Result<()> {
-                if let Some(value) = value.deref().downcast_ref::<Self>() {
-                    *self = *value;
-                    Ok(())
-                } else {
-                    bail!(invalid_patch_value(self))
-                }
+                *self = Self::from_value(value)?;
+                Ok(())
             }
         }
     };
@@ -98,12 +93,8 @@ impl Patchable for Number {
         _items: usize,
         value: &Value,
     ) -> Result<()> {
-        if let Some(value) = value.deref().downcast_ref::<Self>() {
-            *self = *value;
-            Ok(())
-        } else {
-            bail!(invalid_patch_value(self))
-        }
+        *self = Self::from_value(value)?;
+        Ok(())
     }
 }
 

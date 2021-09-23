@@ -1,7 +1,6 @@
 use super::prelude::*;
 use crate::{dispatch_inline, methods::encode::txt::ToTxt};
 use std::hash::Hasher;
-use std::ops::Deref;
 use stencila_schema::{
     AudioObjectSimple, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis,
     ImageObjectSimple, InlineContent, Link, MathFragment, NontextualAnnotation, Note, Parameter,
@@ -101,12 +100,8 @@ impl Patchable for InlineContent {
 
     fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
         if address.is_empty() {
-            if let Some(value) = value.deref().downcast_ref::<Self>() {
-                *self = value.clone();
-                Ok(())
-            } else {
-                bail!(invalid_patch_value(self))
-            }
+            *self = Self::from_value(value)?;
+            Ok(())
         } else {
             dispatch_inline!(self, Ok(()), apply_replace, address, items, value)
         }
