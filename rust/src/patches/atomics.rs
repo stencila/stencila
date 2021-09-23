@@ -4,11 +4,12 @@ use stencila_schema::{Boolean, Integer, Number};
 
 /// Macro to generate `impl Patchable` for atomic types
 macro_rules! patchable_atomic {
-    ($type:ty) => {
+    ($type:ty, $hash:ident) => {
         impl Patchable for $type {
             patchable_is_same!();
 
             fn is_equal(&self, other: &Self) -> Result<()> {
+                #[allow(clippy::float_cmp)]
                 match self == other {
                     true => Ok(()),
                     false => bail!(Error::NotEqual),
@@ -16,12 +17,13 @@ macro_rules! patchable_atomic {
             }
 
             fn make_hash<H: Hasher>(&self, state: &mut H) {
-                self.hash(state)
+                $hash(self, state)
             }
 
             patchable_diff!();
 
             fn diff_same(&self, differ: &mut Differ, other: &Self) {
+                #[allow(clippy::float_cmp)]
                 if self != other {
                     differ.replace(other)
                 }
@@ -44,59 +46,30 @@ macro_rules! patchable_atomic {
     };
 }
 
+/// Hash an atomic
+fn hash<T: Hash, H: Hasher>(value: &T, state: &mut H) {
+    value.hash(state)
+}
+
+/// Hash a float
+///
+/// See caveats to this approach: https://stackoverflow.com/a/39647997
+fn hash_float<H: Hasher>(value: &f64, state: &mut H) {
+    value.to_bits().hash(state)
+}
+
 // Implementations for types used in some struct fields
 // instead of the Stencila primitives (usually as optimizations)
 
-patchable_atomic!(u8);
-patchable_atomic!(i32);
-patchable_atomic!(u32);
+patchable_atomic!(u8, hash);
+patchable_atomic!(i32, hash);
+patchable_atomic!(u32, hash);
 
 // Implementations for Stencila primitive types
 
-patchable_atomic!(Boolean);
-patchable_atomic!(Integer);
-
-impl Patchable for Number {
-    patchable_is_same!();
-
-    fn is_equal(&self, other: &Self) -> Result<()> {
-        #[allow(clippy::float_cmp)]
-        if self == other {
-            Ok(())
-        } else {
-            bail!(Error::NotEqual)
-        }
-    }
-
-    fn make_hash<H: Hasher>(&self, state: &mut H) {
-        // See caveats to this approach
-        // https://stackoverflow.com/a/39647997
-        self.to_bits().hash(state)
-    }
-
-    patchable_diff!();
-
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
-        #[allow(clippy::float_cmp)]
-        if self != other {
-            differ.replace(other)
-        }
-    }
-
-    fn apply_maybe(&mut self, _id: &str, _patch: &Patch) -> Result<bool> {
-        Ok(false)
-    }
-
-    fn apply_replace(
-        &mut self,
-        _address: &mut Address,
-        _items: usize,
-        value: &Value,
-    ) -> Result<()> {
-        *self = Self::from_value(value)?;
-        Ok(())
-    }
-}
+patchable_atomic!(Boolean, hash);
+patchable_atomic!(Integer, hash);
+patchable_atomic!(Number, hash_float);
 
 #[cfg(test)]
 mod tests {
