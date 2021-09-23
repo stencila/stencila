@@ -36,7 +36,7 @@ macro_rules! patchable_atomic {
                 &mut self,
                 _address: &mut Address,
                 _items: usize,
-                value: &Box<dyn Any + Send>,
+                value: &Value,
             ) -> Result<()> {
                 if let Some(value) = value.deref().downcast_ref::<Self>() {
                     *self = *value;
@@ -96,7 +96,7 @@ impl Patchable for Number {
         &mut self,
         _address: &mut Address,
         _items: usize,
-        value: &Box<dyn Any + Send>,
+        value: &Value,
     ) -> Result<()> {
         if let Some(value) = value.deref().downcast_ref::<Self>() {
             *self = *value;

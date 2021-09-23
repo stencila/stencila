@@ -31,7 +31,7 @@ where
         self.deref_mut().apply_maybe(id, patch)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
         self.deref_mut().apply_add(address, value)
     }
 
@@ -39,12 +39,7 @@ where
         self.deref_mut().apply_remove(address, items)
     }
 
-    fn apply_replace(
-        &mut self,
-        address: &mut Address,
-        items: usize,
-        value: &Box<dyn Any + Send>,
-    ) -> Result<()> {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
         self.deref_mut().apply_replace(address, items, value)
     }
 
@@ -56,7 +51,7 @@ where
         self.deref_mut().apply_transform(address, from, to)
     }
 
-    fn cast_value(value: &Box<dyn Any + Send>) -> Result<Self> {
+    fn cast_value(value: &Value) -> Result<Self> {
         Ok(Box::new(Type::cast_value(value)?))
     }
 }

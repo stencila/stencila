@@ -47,7 +47,7 @@ where
         }
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
         if address.is_empty() {
             *self = Self::cast_value(value)?;
             Ok(())
@@ -69,12 +69,7 @@ where
         }
     }
 
-    fn apply_replace(
-        &mut self,
-        address: &mut Address,
-        items: usize,
-        value: &Box<dyn Any + Send>,
-    ) -> Result<()> {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
         if address.is_empty() {
             *self = Self::cast_value(value)?;
             Ok(())
@@ -101,7 +96,7 @@ where
         }
     }
 
-    fn cast_value(value: &Box<dyn Any + Send>) -> Result<Self> {
+    fn cast_value(value: &Value) -> Result<Self> {
         Ok(Some(Type::cast_value(value)?))
     }
 }

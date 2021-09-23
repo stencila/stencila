@@ -210,6 +210,12 @@ impl From<&str> for Address {
     }
 }
 
+/// Type for the `value` property of `Add` and `Replace` operations
+///
+/// This open, dynamic type could be replaced with a enum (with a fixed number
+/// of type variants) but that would require substantial refactoring
+pub type Value = Box<dyn Any + Send>;
+
 /// The operations that can be used in a patch to mutate one node into another.
 ///
 /// These are the same operations as described in [JSON Patch](http://jsonpatch.com/)
@@ -247,7 +253,7 @@ pub enum Operation {
             deserialize_with = "Operation::value_deserialize"
         )]
         #[schemars(schema_with = "Operation::value_schema")]
-        value: Box<dyn Any + Send>,
+        value: Value,
 
         /// The number of items added
         length: usize,
@@ -276,7 +282,7 @@ pub enum Operation {
             deserialize_with = "Operation::value_deserialize"
         )]
         #[schemars(schema_with = "Operation::value_schema")]
-        value: Box<dyn Any + Send>,
+        value: Value,
 
         /// The number of items added
         length: usize,
@@ -312,7 +318,7 @@ impl Operation {
     ///
     /// This is mainly for debugging and testing. Serialization of types is added as
     /// needed.
-    fn value_serialize<S>(value: &Box<dyn Any + Send>, serializer: S) -> Result<S::Ok, S::Error>
+    fn value_serialize<S>(value: &Value, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -352,8 +358,8 @@ impl Operation {
     /// Deserialize the `value` field of an operation
     ///
     /// This is needed so that the server can receive a `Patch` from the client and
-    /// deserialize the JSON value into a `Box<dyn Any + Send>`.
-    fn value_deserialize<'de, D>(deserializer: D) -> Result<Box<dyn Any + Send>, D::Error>
+    /// deserialize the JSON value into a `Value`.
+    fn value_deserialize<'de, D>(deserializer: D) -> Result<Value, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -483,7 +489,7 @@ impl DomOperation {
     }
 
     /// Generate HTML for the `value` field of an operation
-    fn value_html(address: &Address, value: &Box<dyn Any + Send>) -> String {
+    fn value_html(address: &Address, value: &Value) -> String {
         use crate::methods::encode::html::{Context, ToHtml};
 
         let slot = address.back().unwrap();
@@ -711,7 +717,7 @@ pub trait Patchable {
     }
 
     /// Apply an `Add` patch operation
-    fn apply_add(&mut self, _address: &mut Address, _value: &Box<dyn Any + Send>) -> Result<()> {
+    fn apply_add(&mut self, _address: &mut Address, _value: &Value) -> Result<()> {
         bail!(invalid_patch_operation("add", self))
     }
 
@@ -725,7 +731,7 @@ pub trait Patchable {
         &mut self,
         _address: &mut Address,
         _items: usize,
-        _value: &Box<dyn Any + Send>,
+        _value: &Value,
     ) -> Result<()> {
         bail!(invalid_patch_operation("replace", self))
     }
@@ -741,7 +747,7 @@ pub trait Patchable {
     }
 
     /// Cast a value, as stored in a `Add` or `Replace` operation, into a valid value for the type
-    fn cast_value(value: &Box<dyn Any + Send>) -> Result<Self>
+    fn cast_value(value: &Value) -> Result<Self>
     where
         Self: Clone + Sized + 'static,
     {

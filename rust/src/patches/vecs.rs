@@ -307,7 +307,7 @@ where
         Ok(false)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
         if address.len() == 1 {
             if let Some(Slot::Index(index)) = address.pop_front() {
                 let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
@@ -350,12 +350,7 @@ where
         Ok(())
     }
 
-    fn apply_replace(
-        &mut self,
-        address: &mut Address,
-        items: usize,
-        value: &Box<dyn Any + Send>,
-    ) -> Result<()> {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
         if address.len() == 1 {
             let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
                 value

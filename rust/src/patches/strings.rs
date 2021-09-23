@@ -119,7 +119,7 @@ impl Patchable for String {
         Ok(false)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
+    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value
         } else {
@@ -152,12 +152,7 @@ impl Patchable for String {
         }
     }
 
-    fn apply_replace(
-        &mut self,
-        address: &mut Address,
-        items: usize,
-        value: &Box<dyn Any + Send>,
-    ) -> Result<()> {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
         let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
             value
         } else if let Some(value) = value
@@ -185,7 +180,7 @@ impl Patchable for String {
         Ok(())
     }
 
-    fn cast_value(value: &Box<dyn Any + Send>) -> Result<Self>
+    fn cast_value(value: &Value) -> Result<Self>
     where
         Self: Clone + Sized + 'static,
     {

@@ -38,7 +38,7 @@ macro_rules! patchable_enum_apply_replace {
             &mut self,
             _address: &mut Address,
             _items: usize,
-            value: &Box<dyn Any + Send>,
+            value: &Value,
         ) -> Result<()> {
             if let Some(value) = value.deref().downcast_ref::<Self>() {
                 *self = value.clone();
@@ -112,7 +112,7 @@ macro_rules! patchable_variants_apply_maybe {
 /// Generate the `apply_add` method for an `enum` having variants of different types
 macro_rules! patchable_variants_apply_add {
     ($( $variant:path )*) => {
-        fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
+        fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
             match self {
                 $(
                     $variant(me) => me.apply_add(address, value),
@@ -142,7 +142,7 @@ macro_rules! patchable_variants_apply_remove {
 /// Generate the `apply_replace` method for an `enum` having variants of different types
 macro_rules! patchable_variants_apply_replace {
     ($( $variant:path )*) => {
-        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) -> Result<()> {
+        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
             match self {
                 $(
                     $variant(me) => me.apply_replace(address, items, value),

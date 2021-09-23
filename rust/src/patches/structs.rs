@@ -65,7 +65,7 @@ macro_rules! patchable_struct_apply_maybe {
 macro_rules! patchable_struct_apply_add {
     ($( $field:ident )*) => {
         #[allow(unused_variables)]
-        fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any + Send>) -> Result<()> {
+        fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
             if let Some(Slot::Name(name)) = address.pop_front() {
                 match name.as_str() {
                     $(
@@ -103,7 +103,7 @@ macro_rules! patchable_struct_apply_remove {
 macro_rules! patchable_struct_apply_replace {
     ($( $field:ident )*) => {
         #[allow(unused_variables)]
-        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any + Send>) -> Result<()> {
+        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
             if let Some(Slot::Name(name)) = address.pop_front() {
                 match name.as_str() {
                     $(

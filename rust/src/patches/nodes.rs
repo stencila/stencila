@@ -19,7 +19,7 @@ macro_rules! patchable_node {
             patchable_variants_apply_move!($( $variant )*);
             patchable_variants_apply_transform!($( $variant )*);
 
-            fn cast_value(value: &Box<dyn Any + Send>) -> Result<Self>
+            fn cast_value(value: &Value) -> Result<Self>
             where
                 Self: Clone + Sized + 'static,
             {
