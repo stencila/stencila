@@ -338,6 +338,7 @@ impl Operation {
     where
         S: Serializer,
     {
+        // Most value types just get serialized as normal
         macro_rules! serialize {
             ($( $type:ty )*) => {
                 $(
@@ -347,7 +348,6 @@ impl Operation {
                 )*
             }
         }
-
         serialize!(
             u8
             i32
@@ -368,6 +368,24 @@ impl Operation {
             serde_json::Value
         );
 
+        // Other types get printed as their type name
+        macro_rules! boxed {
+            ($( $type:ty )*) => {
+                $(
+                    if value.downcast_ref::<$type>().is_some() {
+                        return serializer.serialize_str(stringify!($type));
+                    }
+                )*
+            }
+        }
+        boxed!(
+            Box<Boolean>
+            Box<Integer>
+            Box<Number>
+            Box<String>
+        );
+
+        // Fallback to messaged that unserialized
         serializer.serialize_str("<unserialized type>")
     }
 

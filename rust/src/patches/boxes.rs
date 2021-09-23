@@ -51,8 +51,17 @@ where
         self.deref_mut().apply_transform(address, from, to)
     }
 
+    /// Cast a [`Value`] to a `Box<Type>` instance
+    ///
+    /// If the value is a `Box<Type>`: then just use it. Otherwise, attempt to convert
+    /// to and instance of `Type` and then box it.
     fn from_value(value: &Value) -> Result<Self> {
-        Ok(Box::new(Type::from_value(value)?))
+        let instance = if let Some(value) = value.downcast_ref::<Self>() {
+            value.clone()
+        } else {
+            Box::new(Type::from_value(value)?)
+        };
+        Ok(instance)
     }
 
     fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
@@ -64,10 +73,10 @@ where
 mod tests {
     use super::*;
     use crate::{
-        assert_json,
+        assert_json, assert_json_eq,
         patches::{apply_new, diff, equal},
     };
-    use stencila_schema::Integer;
+    use stencila_schema::{CodeBlock, Integer};
 
     #[test]
     fn basic() -> Result<()> {
@@ -86,6 +95,23 @@ mod tests {
             ]
         );
         assert_json!(apply_new(&a, &patch)?, b);
+
+        Ok(())
+    }
+
+    // Regression, found by proptest, related to bug in `from_value`
+    #[test]
+    fn regression_1() -> Result<()> {
+        let a = CodeBlock::default();
+        let b = CodeBlock {
+            programming_language: Some(Box::new("a".to_string())),
+            ..Default::default()
+        };
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            { "type": "Add", "address": ["programming_language"], "value": "Box<String>", "length": 1 },
+        ]);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
 
         Ok(())
     }
