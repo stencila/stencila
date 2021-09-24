@@ -43,7 +43,7 @@ pub struct Args {
     pub display: Option<String>,
 
     /// Enter interactive mode (with any command and options as the prefix)
-    #[structopt(short, long, global = true)]
+    #[structopt(short, long, global = true, aliases = &["interactive"])]
     pub interact: bool,
 
     /// Print debug level log events and additional diagnostics
@@ -66,7 +66,7 @@ pub struct Args {
 /// Global arguments that should be removed when entering interactive mode
 /// because they can only be set / are relevant at startup. Other global arguments,
 /// which need to be accessible at the line level, should be added to `interact::Line` below.
-pub const GLOBAL_ARGS: [&str; 5] = ["--interact", "-i", "--debug", "--log-level", "--log-format"];
+pub const GLOBAL_ARGS: [&str; 6] = ["--interactive", "--interact", "-i", "--debug", "--log-level", "--log-format"];
 
 #[derive(Debug, StructOpt)]
 #[structopt(
