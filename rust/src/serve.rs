@@ -1055,6 +1055,10 @@ pub mod cli {
         #[structopt(short, long, env = "STENCILA_KEY")]
         key: Option<String>,
 
+        /// Serve in a background thread (when in interactive mode)
+        #[structopt(short, long)]
+        background: bool,
+
         /// Do not require a JSON Web Token to access the server
         #[structopt(long)]
         insecure: bool,
@@ -1069,6 +1073,7 @@ pub mod cli {
             let Command {
                 url,
                 key,
+                background,
                 insecure,
                 root,
             } = self;
@@ -1117,7 +1122,11 @@ pub mod cli {
                 }
             }
 
-            super::serve_on(protocol, address, port, key).await?;
+            if background {
+                super::serve_background(&format!("{}://{}:{}", protocol, address, port), key)?;
+            } else {
+                super::serve_on(protocol, address, port, key).await?;
+            }
 
             display::nothing()
         }
