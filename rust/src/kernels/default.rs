@@ -11,6 +11,12 @@ pub struct DefaultKernel {
     variables: HashMap<String, Node>,
 }
 
+impl DefaultKernel {
+    pub fn new() -> Self {
+        DefaultKernel::default()
+    }
+}
+
 impl KernelTrait for DefaultKernel {
     fn get(&mut self, name: &str) -> Result<Node> {
         match self.variables.get(name) {

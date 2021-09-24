@@ -140,7 +140,6 @@ macro_rules! patchable_struct_apply_transform {
 macro_rules! patchable_struct {
     ($type:ty $(, $field:ident )*) => {
         impl Patchable for $type {
-
             /// Resolve an [`Address`] into a node [`Pointer`].
             ///
             /// Delegate to child fields, erroring if address is invalid.

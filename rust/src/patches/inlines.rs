@@ -272,6 +272,8 @@ mod tests {
         assert_json, assert_json_eq,
         patches::{apply_new, diff, equal},
     };
+    use serde_json::json;
+    use stencila_schema::Node;
 
     // Test that operations with address are passed through
     #[test]
@@ -448,6 +450,41 @@ mod tests {
                 "value": [{ "type": "AudioObject", "contentUrl": "a.flac"}], "length": 1
             }
         ]);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
+    }
+
+    #[test]
+    fn regression_2() -> Result<()> {
+        let a = InlineContent::Parameter(Parameter {
+            ..Default::default()
+        });
+        let b = InlineContent::Parameter(Parameter {
+            value: Some(Box::new(Node::Number(3.14))),
+            ..Default::default()
+        });
+
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            {
+                "type": "Add",
+                "address": ["value"],
+                "value": "Box<Node>",
+                "length": 1
+            },
+        ]);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
+
+        let patch: Patch = serde_json::from_value(json!([
+            {
+                "type": "Replace",
+                "address": ["value"],
+                "items": 1,
+                "value": 3.14,
+                "length": 1
+            },
+        ]))?;
         assert_json_eq!(apply_new(&a, &patch)?, b);
 
         Ok(())

@@ -2,7 +2,7 @@ use crate::{
     errors::attempt,
     formats::{Format, FORMATS},
     graphs::{Relation, Resource},
-    kernels::Kernel,
+    kernels::KernelSpace,
     methods::{
         compile::compile,
         decode::decode,
@@ -194,9 +194,6 @@ pub struct Document {
     #[serde(skip)]
     pub root: Option<Node>,
 
-    /// The set of variables in this document's namespace
-    variables: HashMap<String, Kernel>,
-
     /// Addresses of nodes in `root` that have an `id`
     ///
     /// Used to fetch a particular node (and do something with it like `patch`
@@ -215,6 +212,9 @@ pub struct Document {
     #[schemars(schema_with = "Document::schema_relations")]
     #[serde(skip_deserializing, serialize_with = "Document::serialize_relations")]
     pub relations: HashMap<Resource, Vec<(Relation, Resource)>>,
+
+    #[serde(flatten)]
+    kernels: KernelSpace,
 
     /// The clients that are subscribed to each topic for this document
     ///
@@ -617,8 +617,15 @@ impl Document {
     }
 
     /// Resolve a node within the current document using an id
-    pub fn resolve(&mut self, node_id: Option<String>) -> Result<Pointer> {
-        let root = match &mut self.root {
+    ///
+    /// This does not use `&mut self` to avoid the "cannot borrow as mutable more than once at a time"
+    /// error in other methods where it is used.
+    pub fn resolve<'root>(
+        root: &'root mut Option<Node>,
+        addresses: &HashMap<String, Address>,
+        node_id: Option<String>,
+    ) -> Result<Pointer<'root>> {
+        let root = match root {
             Some(root) => root,
             None => bail!("Document does not have a `root` node from which to resolve"),
         };
@@ -629,7 +636,7 @@ impl Document {
             return Ok(Pointer::Node(root));
         };
 
-        let address = if let Some(address) = self.addresses.get(&node_id) {
+        let address = if let Some(address) = addresses.get(&node_id) {
             Some(address.clone())
         } else {
             tracing::warn!(
@@ -649,17 +656,17 @@ impl Document {
     /// - `node_id`:  the id of the node at the origin of the patch; defaults to `root`
     /// - `patch`: the patch to apply
     pub fn patch(&mut self, node_id: Option<String>, patch: &Patch) -> Result<()> {
-        let mut pointer = self.resolve(node_id)?;
-        pointer.apply_patch(patch)
+        let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id)?;
+        pointer.patch(patch)
     }
 
     /// Execute the document, optionally providing a [`Patch`] to apply before execution.
     pub async fn execute(&mut self, node_id: Option<String>, patch: Option<Patch>) -> Result<()> {
-        let mut pointer = self.resolve(node_id)?;
+        let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id)?;
         if let Some(patch) = patch {
-            pointer.apply_patch(&patch)?;
+            pointer.patch(&patch)?;
         }
-        pointer.execute()
+        pointer.execute(&mut self.kernels)
     }
 
     /// Get the SHA-256 of the document
@@ -1294,7 +1301,7 @@ pub fn schemas() -> Result<serde_json::Value> {
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
-    use crate::{cli::display, patches::diff_display};
+    use crate::{cli::display, patches::diff_display, utils::json};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -1405,6 +1412,9 @@ pub mod cli {
         /// The path of the document file
         pub file: String,
 
+        /// The pointer of the document to show e.g. `variables`
+        pub pointer: Option<String>,
+
         /// The format of the file
         #[structopt(short, long)]
         format: Option<String>,
@@ -1412,9 +1422,22 @@ pub mod cli {
 
     impl Show {
         pub async fn run(&self) -> display::Result {
-            let Self { file, format } = self;
+            let Self {
+                file,
+                pointer,
+                format,
+            } = self;
             let document = DOCUMENTS.open(file, format.clone()).await?;
-            display::value(document)
+            if let Some(pointer) = pointer {
+                let data = serde_json::to_value(document)?;
+                if let Some(part) = data.pointer(&json::pointer(pointer)) {
+                    Ok(display::value(part)?)
+                } else {
+                    bail!("Invalid pointer for document: {}", pointer)
+                }
+            } else {
+                display::value(document)
+            }
         }
     }
 

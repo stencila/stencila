@@ -38,7 +38,6 @@ pub mod methods {
     pub mod reshape;
 
     pub mod compile;
-    pub mod execute;
 }
 
 // Features
@@ -89,6 +88,7 @@ pub mod utils {
     pub mod fs;
     pub mod hash;
     pub mod http;
+    pub mod json;
     pub mod path;
     pub mod schemas;
     pub mod urls;

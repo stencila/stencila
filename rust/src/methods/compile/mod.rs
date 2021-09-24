@@ -1,6 +1,7 @@
 use crate::{
     dispatch_block, dispatch_inline, dispatch_node, dispatch_work,
     graphs::{relations, resources, Relation, Resource, NULL_RANGE},
+    kernels::KernelSpace,
     patches::{Address, Slot},
     utils::{hash::str_sha256_hex, path::merge, uuids},
 };
@@ -49,6 +50,13 @@ pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresse
     Ok((addresses, relations))
 }
 
+pub fn execute<Type>(node: &mut Type, kernels: &mut KernelSpace) -> Result<()>
+where
+    Type: Compile,
+{
+    node.execute(kernels)
+}
+
 /// The compilation context, used to pass down properties of the
 /// root node and to record inputs and outputs etc during compilation
 #[derive(Debug, Default)]
@@ -73,8 +81,14 @@ pub struct Context {
 ///
 /// This trait is implemented below for all (or at least most)
 /// node types.
-trait Compile {
-    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()>;
+pub trait Compile {
+    fn compile(&mut self, _address: &mut Address, _context: &mut Context) -> Result<()> {
+        Ok(())
+    }
+
+    fn execute(&mut self, _kernels: &mut KernelSpace) -> Result<()> {
+        Ok(())
+    }
 }
 
 /// Identify a node
@@ -229,6 +243,14 @@ impl Compile for Parameter {
 
         Ok(())
     }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        tracing::debug!("Executing parameter {} #{:?}", self.name, self.id);
+        if let Some(value) = self.value.as_deref() {
+            kernels.set(&self.name, value.clone(), "")?;
+        }
+        Ok(())
+    }
 }
 
 /// Compile a `CodeChunk` node
@@ -316,90 +338,15 @@ impl Compile for Include {
     }
 }
 
-// The following are simple "dispatching" implementations of `compile`.
-// They implement the depth first walk across a node tree by calling `compile`
-// on child nodes and where necessary pushing slots onto the address.
+/// Do nothing for these types
 
-impl Compile for Node {
-    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        dispatch_node!(self, Ok(()), compile, address, context)
-    }
-}
-
-impl Compile for CreativeWorkTypes {
-    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        dispatch_work!(self, compile, address, context)
-    }
-}
-
-impl Compile for BlockContent {
-    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        dispatch_block!(self, compile, address, context)
-    }
-}
-
-impl Compile for InlineContent {
-    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        dispatch_inline!(self, Ok(()), compile, address, context)
-    }
-}
-
-impl<T> Compile for Option<T>
-where
-    T: Compile,
-{
-    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        if let Some(value) = self {
-            value.compile(address, context)
-        } else {
-            Ok(())
-        }
-    }
-}
-
-impl<T> Compile for Box<T>
-where
-    T: Compile,
-{
-    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        (**self).compile(address, context)
-    }
-}
-
-impl<T> Compile for Vec<T>
-where
-    T: Compile,
-{
-    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        for (index, item) in self.iter_mut().enumerate() {
-            address.push_back(Slot::Index(index));
-            item.compile(address, context)?;
-            address.pop_back();
-        }
-        Ok(())
-    }
-}
-
-/// Compile nothing
-macro_rules! compile_nothing {
-    ($type:ty) => {
-        impl Compile for $type {
-            fn compile(&mut self, _address: &mut Address, _context: &mut Context) -> Result<()> {
-                Ok(())
-            }
-        }
-    };
-}
-
-/// Compile nothing for several types
 macro_rules! compile_nothing_for {
     ( $( $type:ty ),* ) => {
         $(
-            compile_nothing!($type);
+            impl Compile for $type {}
         )*
     };
 }
-
 compile_nothing_for!(
     // Primitives
     bool, // Boolean
@@ -425,6 +372,105 @@ compile_nothing_for!(
     SoftwareApplication
 );
 
+// The following are simple "dispatching" implementations of `compile`.
+// They implement the depth first walk across a node tree by calling `compile`
+// on child nodes and where necessary pushing slots onto the address.
+
+impl Compile for Node {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_node!(self, Ok(()), compile, address, context)
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_node!(self, Ok(()), execute, kernels)
+    }
+}
+
+impl Compile for CreativeWorkTypes {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_work!(self, compile, address, context)
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_work!(self, execute, kernels)
+    }
+}
+
+impl Compile for BlockContent {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_block!(self, compile, address, context)
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_block!(self, execute, kernels)
+    }
+}
+
+impl Compile for InlineContent {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_inline!(self, Ok(()), compile, address, context)
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_inline!(self, Ok(()), execute, kernels)
+    }
+}
+
+impl<T> Compile for Option<T>
+where
+    T: Compile,
+{
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        if let Some(value) = self {
+            value.compile(address, context)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        if let Some(value) = self {
+            value.execute(kernels)
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl<T> Compile for Box<T>
+where
+    T: Compile,
+{
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        (**self).compile(address, context)
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        (**self).execute(kernels)
+    }
+}
+
+impl<T> Compile for Vec<T>
+where
+    T: Compile,
+{
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        for (index, item) in self.iter_mut().enumerate() {
+            address.push_back(Slot::Index(index));
+            item.compile(address, context)?;
+            address.pop_back();
+        }
+        Ok(())
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        for item in self.iter_mut() {
+            item.execute(kernels)?;
+        }
+        Ok(())
+    }
+}
+
 /// Compile fields of a struct
 macro_rules! compile_fields {
     ($type:ty $(, $field:ident)* ) => {
@@ -434,6 +480,13 @@ macro_rules! compile_fields {
                     address.push_back(Slot::Name(stringify!($field).to_string()));
                     self.$field.compile(address, context)?;
                     address.pop_back();
+                )*
+                Ok(())
+            }
+
+            fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+                $(
+                    self.$field.execute(kernels)?;
                 )*
                 Ok(())
             }
@@ -495,6 +548,14 @@ macro_rules! compile_variants {
                 match self {
                     $(
                         $variant(node) => node.compile(address, context),
+                    )*
+                }
+            }
+
+            fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+                match self {
+                    $(
+                        $variant(node) => node.execute(kernels),
                     )*
                 }
             }

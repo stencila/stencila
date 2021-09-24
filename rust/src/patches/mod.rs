@@ -1,6 +1,7 @@
 use crate::{
     errors::{invalid_patch_operation, invalid_patch_value},
-    methods::encode::encode,
+    kernels::KernelSpace,
+    methods::{compile::execute, encode::encode},
     utils::schemas,
 };
 use defaults::Defaults;
@@ -255,7 +256,7 @@ pub enum Pointer<'lt> {
 }
 
 impl<'lt> Pointer<'lt> {
-    pub fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
+    pub fn patch(&mut self, patch: &Patch) -> Result<()> {
         match self {
             Pointer::Inline(node) => node.apply_patch(patch),
             Pointer::Block(node) => node.apply_patch(patch),
@@ -264,9 +265,13 @@ impl<'lt> Pointer<'lt> {
         }
     }
 
-    pub fn execute(&self) -> Result<()> {
-        tracing::info!("Executing {:?}", self);
-        Ok(())
+    pub fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        match self {
+            Pointer::Inline(node) => execute(*node, kernels),
+            Pointer::Block(node) => execute(*node, kernels),
+            Pointer::Node(node) => execute(*node, kernels),
+            _ => bail!("Invalid node pointer: {:?}", self),
+        }
     }
 }
 
@@ -395,6 +400,7 @@ impl Operation {
         serialize!(
             u8
             i32
+            f32
             Boolean
             Integer
             Number
@@ -403,6 +409,7 @@ impl Operation {
             BlockContent
             Vec<u8>
             Vec<i32>
+            Vec<f32>
             Vec<Boolean>
             Vec<Integer>
             Vec<Number>
@@ -413,7 +420,7 @@ impl Operation {
         );
 
         // Other types get printed as their type name
-        macro_rules! boxed {
+        macro_rules! typename {
             ($( $type:ty )*) => {
                 $(
                     if value.downcast_ref::<$type>().is_some() {
@@ -422,11 +429,22 @@ impl Operation {
                 )*
             }
         }
-        boxed!(
+        typename!(
+            Option<Boolean>
+            Option<Integer>
+            Option<Number>
+            Option<String>
+            Option<Node>
             Box<Boolean>
             Box<Integer>
             Box<Number>
             Box<String>
+            Box<Node>
+            Option<Box<Boolean>>
+            Option<Box<Integer>>
+            Option<Box<Number>>
+            Option<Box<String>>
+            Option<Box<Node>>
         );
 
         // Fallback to messaged that unserialized
