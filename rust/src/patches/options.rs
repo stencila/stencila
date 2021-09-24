@@ -12,6 +12,26 @@ impl<Type: Patchable> Patchable for Option<Type>
 where
     Type: Clone + Send + 'static,
 {
+    /// Resolve an [`Address`] into a node [`Pointer`].
+    ///
+    /// Delegate to value, if any.
+    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+        match self {
+            Some(me) => me.resolve(address),
+            None => Ok(Pointer::None),
+        }
+    }
+
+    /// Find a node based on its `id` and return a [`Pointer`] to it.
+    ///
+    /// Delegate to value, if any.
+    fn find(&mut self, id: &str) -> Pointer {
+        match self {
+            Some(me) => me.find(id),
+            None => Pointer::None,
+        }
+    }
+
     patchable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {
@@ -36,14 +56,6 @@ where
             (None, Some(value)) => differ.add(value),
             (Some(_), None) => differ.remove(),
             (Some(me), Some(other)) => me.diff_same(differ, other),
-        }
-    }
-
-    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
-        if let Some(me) = self {
-            me.apply_maybe(id, patch)
-        } else {
-            Ok(false)
         }
     }
 
@@ -98,14 +110,6 @@ where
 
     fn from_value(value: &Value) -> Result<Self> {
         Ok(Some(Type::from_value(value)?))
-    }
-
-    fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
-        if let Some(me) = self {
-            me.resolve(address)
-        } else {
-            Ok(None)
-        }
     }
 }
 

@@ -1,4 +1,7 @@
-use crate::methods::Method;
+use crate::{
+    methods::Method,
+    patches::{Address, Slot},
+};
 use eyre::Result;
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaSettings, JsonSchema};
@@ -19,7 +22,7 @@ use thiserror::Error;
 #[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
 pub enum Error {
-    /// An identifer was supplied that does not match the pattern for the
+    /// An identifier was supplied that does not match the pattern for the
     /// expected family of identifiers.
     #[error("Invalid universal identifier for family '{family}': {id}")]
     InvalidUUID { family: String, id: String },
@@ -33,6 +36,16 @@ pub enum Error {
     /// return `false`, this error allows for convenient early return via `?`).
     #[error("Values are not equal (type is equal but their value differs")]
     NotEqual,
+
+    /// An address resolved to a type that is not able to be pointed to
+    /// (does not have a [`Pointer`] variant)
+    #[error("Address '{address}' resolved to a type that can not be pointed to '{type_name}'")]
+    UnpointableType { address: Address, type_name: String },
+
+    /// The user attempted to apply a patch operation with an invalid
+    /// address for the type.
+    #[error("Invalid node address '{address}' for type '{type_name}'")]
+    InvalidAddress { address: Address, type_name: String },
 
     /// The user attempted to apply a patch operation that is invalid for
     /// the type.
@@ -97,7 +110,23 @@ pub enum Error {
     Unspecified { message: String },
 }
 
-/// Create an `InvalidPatchOp` error
+/// Create an `UnpointableType` error
+pub fn unpointable_type<Type: ?Sized>(address: &Address) -> Error {
+    Error::UnpointableType {
+        address: address.clone(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidAddress` error
+pub fn invalid_address<Type: ?Sized>(address: &Address) -> Error {
+    Error::InvalidAddress {
+        address: address.clone(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidPatchOperation` error
 pub fn invalid_patch_operation<Type: ?Sized>(op: &str) -> Error {
     Error::InvalidPatchOperation {
         op: op.into(),
@@ -120,10 +149,10 @@ pub fn invalid_patch_value<Type: ?Sized>() -> Error {
     }
 }
 
-/// Create an `InvalidSlotType` error
-pub fn invalid_slot_variant<Type: ?Sized>(variant: &str) -> Error {
+/// Create an `InvalidSlotVariant` error
+pub fn invalid_slot_variant<Type: ?Sized>(slot: Slot) -> Error {
     Error::InvalidSlotVariant {
-        variant: variant.into(),
+        variant: slot.as_ref().into(),
         type_name: type_name::<Type>().into(),
     }
 }

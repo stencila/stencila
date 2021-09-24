@@ -313,23 +313,23 @@ async fn documents_unsubscribe(
 
 async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
-    let node_id = required_string(params, "nodeId")?;
+    let node_id = optional_string(params, "nodeId")?;
     let patch = required_value(params, "patch")?;
     let patch: Patch = serde_json::from_value(patch)?;
 
-    let document = DOCUMENTS.patch(&id, &node_id, patch).await?;
+    let document = DOCUMENTS.patch(&id, node_id, patch).await?;
     Ok((json!(document), Subscription::None))
 }
 
 async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
-    let node_id = required_string(params, "nodeId")?;
+    let node_id = optional_string(params, "nodeId")?;
     let patch = match optional_value(params, "patch") {
         Some(patch) => serde_json::from_value(patch)?,
         None => None,
     };
 
-    let document = DOCUMENTS.execute(&id, &node_id, patch).await?;
+    let document = DOCUMENTS.execute(&id, node_id, patch).await?;
     Ok((json!(document), Subscription::None))
 }
 
@@ -354,6 +354,22 @@ fn optional_value(params: &Params, name: &str) -> Option<serde_json::Value> {
 fn required_string(params: &Params, name: &str) -> Result<String> {
     if let Some(param) = required_value(params, name)?.as_str() {
         Ok(param.to_string())
+    } else {
+        bail!(Error::invalid_param_error(&format!(
+            "Parameter `{}` is expected to be a string",
+            name
+        )))
+    }
+}
+
+fn optional_string(params: &Params, name: &str) -> Result<Option<String>> {
+    let param = if let Some(param) = params.get(name) {
+        param
+    } else {
+        return Ok(None);
+    };
+    if let Some(param) = param.as_str() {
+        Ok(Some(param.to_string()))
     } else {
         bail!(Error::invalid_param_error(&format!(
             "Parameter `{}` is expected to be a string",

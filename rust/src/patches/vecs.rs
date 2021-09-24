@@ -11,6 +11,34 @@ impl<Type: Patchable> Patchable for Vec<Type>
 where
     Type: Clone + Send + 'static,
 {
+    /// Resolve an [`Address`] into a node [`Pointer`].
+    ///
+    /// Delegate to child items, erroring if address is invalid.
+    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+        match address.pop_front() {
+            Some(Slot::Index(index)) => match self.get_mut(index) {
+                Some(item) => item.resolve(address),
+                None => bail!(invalid_slot_index::<Self>(index)),
+            },
+            Some(slot) => bail!(invalid_slot_variant::<Self>(slot)),
+            None => bail!(unpointable_type::<Self>(address)),
+        }
+    }
+
+    /// Find a node based on its `id` and return a [`Pointer`] to it.
+    ///
+    /// Delegate to child items and return `Pointer::None` if not found.
+    fn find(&mut self, id: &str) -> Pointer {
+        for item in self {
+            let pointer = item.find(id);
+            match pointer {
+                Pointer::None => continue,
+                _ => return pointer,
+            }
+        }
+        Pointer::None
+    }
+
     patchable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {
@@ -298,15 +326,6 @@ where
         differ.append(ops);
     }
 
-    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
-        for item in self {
-            if item.apply_maybe(id, patch)? {
-                return Ok(true);
-            }
-        }
-        Ok(false)
-    }
-
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
         if address.len() == 1 {
             if let Some(Slot::Index(index)) = address.pop_front() {
@@ -418,18 +437,6 @@ where
             bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
         Ok(())
-    }
-
-    fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
-        if let Some(Slot::Index(index)) = address.pop_front() {
-            if let Some(item) = self.get_mut(index) {
-                item.resolve(address)
-            } else {
-                bail!(invalid_slot_index::<Self>(index))
-            }
-        } else {
-            bail!(invalid_patch_address::<Self>(&address.to_string()))
-        }
     }
 }
 

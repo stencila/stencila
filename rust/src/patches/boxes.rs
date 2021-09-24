@@ -11,6 +11,20 @@ impl<Type: Patchable> Patchable for Box<Type>
 where
     Type: Clone + Send + 'static,
 {
+    /// Resolve an [`Address`] into a node [`Pointer`].
+    ///
+    /// Delegate to boxed value.
+    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+        self.deref_mut().resolve(address)
+    }
+
+    /// Find a node based on its `id` and return a [`Pointer`] to it.
+    ///
+    /// Delegate to boxed value.
+    fn find(&mut self, id: &str) -> Pointer {
+        self.deref_mut().find(id)
+    }
+
     patchable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {
@@ -25,10 +39,6 @@ where
 
     fn diff_same(&self, differ: &mut Differ, other: &Self) {
         self.deref().diff_same(differ, other)
-    }
-
-    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
-        self.deref_mut().apply_maybe(id, patch)
     }
 
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
@@ -62,10 +72,6 @@ where
             Box::new(Type::from_value(value)?)
         };
         Ok(instance)
-    }
-
-    fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
-        self.deref_mut().resolve(address)
     }
 }
 

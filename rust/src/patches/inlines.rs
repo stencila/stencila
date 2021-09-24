@@ -12,6 +12,28 @@ use stencila_schema::{
 /// Generates and applies `Replace` and `Transform` operations between variants of inline content.
 /// All other operations are passed through to variants.
 impl Patchable for InlineContent {
+    /// Resolve an [`Address`] into a node [`Pointer`].
+    ///
+    /// `InlineContent` is one of the pointer variants so return a `Pointer::Inline` if
+    /// the address is empty. Otherwise dispatch to variant.
+    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+        match address.is_empty() {
+            true => Ok(Pointer::Inline(self)),
+            false => dispatch_inline!(self, Ok(Pointer::None), resolve, address),
+        }
+    }
+
+    /// Find a node based on its `id` and return a [`Pointer`] to it.
+    ///
+    /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Inline`
+    fn find(&mut self, id: &str) -> Pointer {
+        let pointer = dispatch_inline!(self, Pointer::None, find, id);
+        match pointer {
+            Pointer::Some => Pointer::Inline(self),
+            _ => Pointer::None,
+        }
+    }
+
     patchable_is_same!();
 
     #[rustfmt::skip]
@@ -86,10 +108,6 @@ impl Patchable for InlineContent {
         }
     }
 
-    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
-        dispatch_inline!(self, Ok(false), apply_maybe, id, patch)
-    }
-
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
         dispatch_inline!(self, Ok(()), apply_add, address, value)
     }
@@ -118,14 +136,6 @@ impl Patchable for InlineContent {
             Ok(())
         } else {
             dispatch_inline!(self, Ok(()), apply_transform, address, from, to)
-        }
-    }
-
-    fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
-        if address.is_empty() {
-            Ok(Some(Pointer::Inline(self)))
-        } else {
-            dispatch_inline!(self, Ok(None), resolve, address)
         }
     }
 }

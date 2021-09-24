@@ -5,6 +5,9 @@ use stencila_schema::Node;
 macro_rules! patchable_node {
     ($( $variant:path )*) => {
         impl Patchable for Node {
+            patchable_variants_resolve!($( $variant )*);
+            patchable_variants_find!($( $variant )*);
+
             patchable_is_same!();
             patchable_variants_is_equal!($( $variant )*);
             patchable_variants_hash!($( $variant )*);
@@ -12,14 +15,11 @@ macro_rules! patchable_node {
             patchable_diff!();
             patchable_variants_diff_same!($( $variant )*);
 
-            patchable_variants_apply_maybe!($( $variant )*);
             patchable_variants_apply_add!($( $variant )*);
             patchable_variants_apply_remove!($( $variant )*);
             patchable_variants_apply_replace!($( $variant )*);
             patchable_variants_apply_move!($( $variant )*);
             patchable_variants_apply_transform!($( $variant )*);
-
-            patchable_variants_resolve!($( $variant )*);
 
             fn from_value(value: &Value) -> Result<Self>
             where

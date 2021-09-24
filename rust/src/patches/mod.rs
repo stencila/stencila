@@ -7,13 +7,14 @@ use defaults::Defaults;
 use derive_more::{Deref, DerefMut};
 use eyre::{bail, Result};
 use itertools::Itertools;
+use prelude::{invalid_address, unpointable_type};
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use similar::TextDiff;
 use std::{
     any::{type_name, Any},
     collections::VecDeque,
-    fmt::Debug,
+    fmt::{self, Debug, Display},
     hash::Hasher,
     iter::FromIterator,
 };
@@ -73,17 +74,11 @@ pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<St
 }
 
 /// Apply a [`Patch`] to a node.
-pub fn apply<Type>(node: &mut Type, id: Option<String>, patch: &Patch) -> Result<()>
+pub fn apply<Type>(node: &mut Type, patch: &Patch) -> Result<()>
 where
     Type: Patchable,
 {
-    match id {
-        Some(id) => match node.apply_maybe(&id, patch)? {
-            true => Ok(()),
-            false => bail!("Unable to apply patch. Is the node id {} correct?", id),
-        },
-        None => node.apply_patch(patch),
-    }
+    node.apply_patch(patch)
 }
 
 /// Apply a [`Patch`] to a clone of a node.
@@ -122,19 +117,46 @@ where
     tracing::warn!("Merging is work in progress");
 
     for patch in patches {
-        apply(ancestor, None, &patch)?;
+        apply(ancestor, &patch)?;
     }
     Ok(())
 }
 
-pub fn resolve<'lt, Type>(node: &'lt mut Type, address: &Address) -> Result<Pointer<'lt>>
+/// Resolve a child node from within a node using an address or id.
+///
+/// Intended to be able to fallback to using `id` if address can not be resolved
+/// or resolves to a node with the incorrect `id`. However, borrow checker is not
+/// making that possible yet.
+pub fn resolve<Type>(
+    node: &mut Type,
+    address: Option<Address>,
+    node_id: Option<String>,
+) -> Result<Pointer>
 where
     Type: Patchable,
 {
-    let mut address = address.clone();
-    match node.resolve(&mut address)? {
-        Some(pointer) => Ok(pointer),
-        None => bail!("Unable to resolve address {}", address.to_string()),
+    if let Some(mut address) = address {
+        let pointer = node.resolve(&mut address)?;
+        match pointer {
+            Pointer::None => {
+                bail!("Unable to resolve address `{}`", address.to_string())
+                // TODO Do not bail, just warn and then find
+            }
+            _ => {
+                // TODO check pointer id is consistent with node_id if supplied
+                Ok(pointer)
+            }
+        }
+    } else if let Some(node_id) = node_id {
+        let pointer = node.find(&node_id);
+        match pointer {
+            Pointer::None => {
+                bail!("Unable to find node with id `{}`", node_id)
+            }
+            _ => Ok(pointer),
+        }
+    } else {
+        bail!("One of address or node id must be supplied to resolve a node")
     }
 }
 
@@ -186,12 +208,14 @@ impl ToString for Slot {
 #[schemars(deny_unknown_fields)]
 pub struct Address(VecDeque<Slot>);
 
-impl ToString for Address {
-    fn to_string(&self) -> String {
-        self.iter()
+impl Display for Address {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let me = self
+            .iter()
             .map(|slot| slot.to_string())
             .collect_vec()
-            .join(".")
+            .join(".");
+        write!(f, "{}", me)
     }
 }
 
@@ -221,9 +245,29 @@ impl From<&str> for Address {
     }
 }
 
+#[derive(Debug)]
 pub enum Pointer<'lt> {
+    None,
+    Some,
     Inline(&'lt mut InlineContent),
     Block(&'lt mut BlockContent),
+    Node(&'lt mut Node),
+}
+
+impl<'lt> Pointer<'lt> {
+    pub fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
+        match self {
+            Pointer::Inline(node) => node.apply_patch(patch),
+            Pointer::Block(node) => node.apply_patch(patch),
+            Pointer::Node(node) => node.apply_patch(patch),
+            _ => bail!("Invalid node pointer: {:?}", self),
+        }
+    }
+
+    pub fn execute(&self) -> Result<()> {
+        tracing::info!("Executing {:?}", self);
+        Ok(())
+    }
 }
 
 /// Type for the `value` property of `Add` and `Replace` operations
@@ -677,6 +721,42 @@ impl Differ {
 }
 
 pub trait Patchable {
+    /// Resolve an [`Address`] into a node [`Pointer`].
+    ///
+    /// If the address in empty, and the node is represented in one of the variants of [`Pointer`]
+    /// (at the time of writing `Node`, `BlockContent` and `InlineContent`), then it should return
+    /// a pointer to itself. Otherwise it should return an "unpointable" type error.
+    ///
+    /// If the address is not empty then it should be passed on to any child nodes.
+    ///
+    /// If the address is invalid for the type (e.g. a non-empty address for a leaf node, a name
+    /// slot used for a vector) then implementations should return an error.
+    ///
+    /// The default implementation is only suitable for leaf nodes that are not pointable.
+    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+        match address.is_empty() {
+            true => bail!(unpointable_type::<Self>(address)),
+            false => bail!(invalid_address::<Self>(address)),
+        }
+    }
+
+    /// Find a node based on its `id` and return a [`Pointer`] to it.
+    ///
+    /// This is less efficient than `resolve` (given that it must visit all nodes until one is
+    /// found with a matching id). However, it may be necessary to use when an [`Address`] is not available.
+    ///
+    /// If the node has a matching `id` property then it should return `Pointer::Some` which indicates
+    /// that the `id` is matched . This allows the parent type e.g `InlineContent` to populate the
+    /// "useable" pointer variants e.g. `Pointer::InlineContent`.
+    ///
+    /// Otherwise, if the node has children it should call `find` on them and return `Pointer::None` if
+    /// no children have a matching `id`.
+    ///
+    /// The default implementation is only suitable for leaf nodes that do not have an `id` property.
+    fn find(&mut self, _id: &str) -> Pointer {
+        Pointer::None
+    }
+
     /// Test whether a node is the same as (i.e. equal type and equal value)
     /// another node of any type.
     fn is_same<Other: Any + Clone + Send>(&self, other: &Other) -> Result<()>;
@@ -713,9 +793,6 @@ pub trait Patchable {
     fn diff_other<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other) {
         differ.replace(other)
     }
-
-    /// Apply a patch to this node if the id matches the node's id
-    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool>;
 
     /// Apply a patch to this node.
     fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
@@ -791,17 +868,6 @@ pub trait Patchable {
             bail!(invalid_patch_value::<Self>())
         };
         Ok(instance)
-    }
-
-    /// Resolve an address
-    ///
-    /// Only needs to be implemented for types that may contain one of the variants
-    /// in [`Pointer`] (at the time of writing `BlockContent` and `InlineContent`)
-    fn resolve(&mut self, _address: &mut Address) -> Result<Option<Pointer>> {
-        bail!(
-            "Method `resolve` is not implemented for type `{}`",
-            type_name::<Self>()
-        )
     }
 }
 
@@ -921,7 +987,7 @@ mod tests {
         assert_json!(patch, []);
 
         let mut patched = empty.clone();
-        apply(&mut patched, None, &patch)?;
+        apply(&mut patched, &patch)?;
         assert_json_eq!(patched, empty);
 
         // Patching `empty` to `a` should:
@@ -939,7 +1005,7 @@ mod tests {
         );
 
         let mut patched = empty.clone();
-        apply(&mut patched, None, &patch)?;
+        apply(&mut patched, &patch)?;
         assert_json_eq!(patched, a);
 
         // Patching `a` to `b` should:
@@ -964,7 +1030,7 @@ mod tests {
         );
 
         let mut patched = a.clone();
-        apply(&mut patched, None, &patch)?;
+        apply(&mut patched, &patch)?;
         assert_json_eq!(patched, b);
 
         Ok(())

@@ -13,6 +13,28 @@ use stencila_schema::{
 /// Generates and applies `Replace` and `Transform` operations between variants of block content.
 /// All other operations are passed through to variants.
 impl Patchable for BlockContent {
+    /// Resolve an [`Address`] into a node [`Pointer`].
+    ///
+    /// `BlockContent` is one of the pointer variants so return a `Pointer::Block` if
+    /// the address is empty. Otherwise dispatch to variant.
+    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+        match address.is_empty() {
+            true => Ok(Pointer::Block(self)),
+            false => dispatch_block!(self, resolve, address),
+        }
+    }
+
+    /// Find a node based on its `id` and return a [`Pointer`] to it.
+    ///
+    /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Block`
+    fn find(&mut self, id: &str) -> Pointer {
+        let pointer = dispatch_block!(self, find, id);
+        match pointer {
+            Pointer::Some => Pointer::Block(self),
+            _ => Pointer::None,
+        }
+    }
+
     patchable_is_same!();
 
     #[rustfmt::skip]
@@ -67,10 +89,6 @@ impl Patchable for BlockContent {
         }
     }
 
-    fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
-        dispatch_block!(self, apply_maybe, id, patch)
-    }
-
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
         dispatch_block!(self, apply_add, address, value)
     }
@@ -99,14 +117,6 @@ impl Patchable for BlockContent {
             Ok(())
         } else {
             dispatch_block!(self, apply_transform, address, from, to)
-        }
-    }
-
-    fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
-        if address.is_empty() {
-            Ok(Some(Pointer::Block(self)))
-        } else {
-            dispatch_block!(self, resolve, address)
         }
     }
 }

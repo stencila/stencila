@@ -7,9 +7,8 @@ use crate::{
         compile::compile,
         decode::decode,
         encode::{self, encode},
-        execute::execute,
     },
-    patches::{apply, diff, merge, resolve, Address, DomPatch, Patch, Pointer},
+    patches::{diff, merge, resolve, Address, DomPatch, Patch, Pointer},
     pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
@@ -579,20 +578,6 @@ impl Document {
         Ok(patch)
     }
 
-    /// Apply a [`Patch`] to this document
-    ///
-    /// # Arguments
-    ///
-    /// - `node`:  the id of the node at the origin of the patch (may be the root node
-    ///            or some child of it)
-    /// - `patch`: the patch to apply
-    pub fn patch(&mut self, node: &str, patch: &Patch) -> Result<()> {
-        match self.root.as_mut() {
-            Some(root) => apply(root, Some(node.to_string()), patch),
-            None => bail!("Document does not have a root node to patch"),
-        }
-    }
-
     /// Merge changes from two or more derived version into this document.
     ///
     /// See documentation on the [`merge`] function for how any conflicts
@@ -631,26 +616,50 @@ impl Document {
         Ok(())
     }
 
+    /// Resolve a node within the current document using an id
+    pub fn resolve(&mut self, node_id: Option<String>) -> Result<Pointer> {
+        let root = match &mut self.root {
+            Some(root) => root,
+            None => bail!("Document does not have a `root` node from which to resolve"),
+        };
+
+        let node_id = if let Some(node_id) = node_id {
+            node_id
+        } else {
+            return Ok(Pointer::Node(root));
+        };
+
+        let address = if let Some(address) = self.addresses.get(&node_id) {
+            Some(address.clone())
+        } else {
+            tracing::warn!(
+                "Unregistered node id `{}`; will attempt to `find()` node",
+                node_id
+            );
+            None
+        };
+
+        resolve(root, address, Some(node_id))
+    }
+
+    /// Apply a [`Patch`] to this document
+    ///
+    /// # Arguments
+    ///
+    /// - `node_id`:  the id of the node at the origin of the patch; defaults to `root`
+    /// - `patch`: the patch to apply
+    pub fn patch(&mut self, node_id: Option<String>, patch: &Patch) -> Result<()> {
+        let mut pointer = self.resolve(node_id)?;
+        pointer.apply_patch(patch)
+    }
+
     /// Execute the document, optionally providing a [`Patch`] to apply before execution.
-    pub async fn execute(&mut self, node_id: &str, patch: Option<Patch>) -> Result<()> {
-        match self.root.as_mut() {
-            Some(root) => {
-                //if let Some(patch) = patch {
-                //    apply(root, Some(node_id.to_string()), &patch)?
-                //}
-                let address = match self.addresses.get(node_id) {
-                    Some(address) => address,
-                    None => bail!("No node with id in addresses: {}", node_id),
-                };
-                let pointer = resolve(root, address)?;
-                match pointer {
-                    Pointer::Inline(inline) => tracing::debug!("Execute inline {:?}", inline),
-                    Pointer::Block(block) => tracing::debug!("Execute block {:?}", block),
-                };
-                Ok(())
-            }
-            None => bail!("Document does not have a root node to execute"),
+    pub async fn execute(&mut self, node_id: Option<String>, patch: Option<Patch>) -> Result<()> {
+        let mut pointer = self.resolve(node_id)?;
+        if let Some(patch) = patch {
+            pointer.apply_patch(&patch)?;
         }
+        pointer.execute()
     }
 
     /// Get the SHA-256 of the document
@@ -1239,7 +1248,7 @@ impl Documents {
     ///
     /// Given that this function is likely to be called often, to avoid a `clone()` and
     /// to reduce WebSocket message sizes, unlike other functions it does not return the object.
-    pub async fn patch(&self, id: &str, node_id: &str, patch: Patch) -> Result<()> {
+    pub async fn patch(&self, id: &str, node_id: Option<String>, patch: Patch) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
         document_guard.patch(node_id, &patch)
@@ -1249,7 +1258,12 @@ impl Documents {
     ///
     /// Like `patch()`, given this function is likely to be called often, do not return
     /// the document.
-    pub async fn execute(&self, id: &str, node_id: &str, patch: Option<Patch>) -> Result<()> {
+    pub async fn execute(
+        &self,
+        id: &str,
+        node_id: Option<String>,
+        patch: Option<Patch>,
+    ) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
         document_guard.execute(node_id, patch).await

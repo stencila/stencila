@@ -40,27 +40,6 @@ macro_rules! patchable_struct_diff_same {
     };
 }
 
-/// Generate the `apply_maybe` method for a `struct`
-macro_rules! patchable_struct_apply_maybe {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn apply_maybe(&mut self, id: &str, patch: &Patch) -> Result<bool> {
-            if id == self.id.as_deref().map_or_else(|| "", |id| id) {
-                self.apply_patch(patch)?;
-                return Ok(true)
-            }
-
-            $(
-                if self.$field.apply_maybe(id, patch)? {
-                    return Ok(true);
-                }
-            )*
-
-            Ok(false)
-        }
-    };
-}
-
 /// Generate the `apply_add` method for a `struct`
 macro_rules! patchable_struct_apply_add {
     ($( $field:ident )*) => {
@@ -156,30 +135,49 @@ macro_rules! patchable_struct_apply_transform {
     };
 }
 
-/// Generate the `resolve` method for a `struct`
-macro_rules! patchable_struct_resolve {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn resolve(&mut self, address: &mut Address) -> Result<Option<Pointer>> {
-            if let Some(Slot::Name(name)) = address.pop_front() {
-                match name.as_str() {
-                    $(
-                        stringify!($field) => self.$field.resolve(address),
-                    )*
-                    _ => bail!(invalid_slot_name::<Self>(&name)),
-                }
-            } else {
-                bail!(invalid_patch_address::<Self>(&address.to_string()))
-            }
-        }
-    };
-}
-
 /// Generate a `impl Patchable` for a `struct`, passing
 /// a list of fields for comparison, diffing, and applying ops.
 macro_rules! patchable_struct {
     ($type:ty $(, $field:ident )*) => {
         impl Patchable for $type {
+
+            /// Resolve an [`Address`] into a node [`Pointer`].
+            ///
+            /// Delegate to child fields, erroring if address is invalid.
+            fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+                match address.pop_front() {
+                    Some(Slot::Name(name)) => match name.as_str() {
+                        $(
+                            stringify!($field) => self.$field.resolve(address),
+                        )*
+                        _ => bail!(invalid_slot_name::<Self>(&name)),
+                    },
+                    Some(slot) => bail!(invalid_slot_variant::<Self>(slot)),
+                    None => bail!(unpointable_type::<Self>(address)),
+                }
+            }
+
+            /// Find a node based on its `id` and return a [`Pointer`] to it.
+            ///
+            /// If the `id` matches `self.id` then return `Pointer::Some`. Otherwise, delegate to
+            /// child fields, returning `Pointer::None` if not found there.
+            fn find(&mut self, id: &str) -> Pointer {
+                if let Some(my_id) = self.id.as_ref() {
+                    if id == **my_id {
+                        return Pointer::Some
+                    }
+                }
+
+                $(
+                    let pointer = self.$field.find(id);
+                    match pointer {
+                        Pointer::None => (),
+                        _ => return pointer
+                    }
+                )*
+
+                Pointer::None
+            }
 
             patchable_is_same!();
             patchable_struct_is_equal!($( $field )*);
@@ -188,14 +186,11 @@ macro_rules! patchable_struct {
             patchable_diff!();
             patchable_struct_diff_same!($( $field )*);
 
-            patchable_struct_apply_maybe!($( $field )*);
             patchable_struct_apply_add!($( $field )*);
             patchable_struct_apply_remove!($( $field )*);
             patchable_struct_apply_replace!($( $field )*);
             patchable_struct_apply_move!($( $field )*);
             patchable_struct_apply_transform!($( $field )*);
-
-            patchable_struct_resolve!($( $field )*);
         }
     };
 }

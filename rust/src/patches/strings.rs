@@ -114,10 +114,6 @@ impl Patchable for String {
         differ.append(ops)
     }
 
-    fn apply_maybe(&mut self, _id: &str, _patch: &Patch) -> Result<bool> {
-        Ok(false)
-    }
-
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
         let value = Self::from_value(value)?;
         if let Some(Slot::Index(index)) = address.pop_front() {
