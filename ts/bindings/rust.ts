@@ -181,7 +181,6 @@ async function buildTypes(): Promise<void> {
 
 #![allow(clippy::large_enum_variant)]
 
-use crate::{impl_enum, impl_struct};
 use crate::prelude::*;
 
 /*********************************************************************
@@ -312,9 +311,7 @@ ${fields}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ${title}_ {
   ${typeName ?? title}
-}
-
-impl_struct!(${title});`
+}`
 }
 
 /**
@@ -375,8 +372,7 @@ export function enumSchemaToEnum(
   return `${docComment(description)}
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ${title} {\n${variants}}
-impl_enum!(${title});`
+pub enum ${title} {\n${variants}}`
 }
 
 /**
@@ -395,7 +391,6 @@ export function unionSchemaToEnum(
   const variants = anyOf
     ?.map((schema) => {
       const type = schemaToType(schema, context)
-      if (type === 'Null') return `    Null,\n`
       if (
         (title === 'InlineContent' || title === 'BlockContent') &&
         isCreativeWorkContent(type)
@@ -407,12 +402,7 @@ export function unionSchemaToEnum(
     })
     .join('')
 
-  return `${docComment(description)}${
-    // Can not use enum dispatch on enums that include `Null`
-    !['Node', 'InlineContent'].includes(title)
-      ? '\n#[enum_dispatch(NodeTrait)]'
-      : ''
-  }
+  return `${docComment(description)}
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${title} {\n${variants}}\n`

@@ -5,37 +5,37 @@ use maplit::btreemap;
 use pretty_assertions::assert_eq;
 use serde_json::{json, Result, Value};
 use stencila_schema::{
-    Article, BlockContent, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle,
-    CreativeWorkTypes, Entity, InlineContent, NodeTrait, Paragraph, Person, Primitive,
+    Article, BlockContent, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle, InlineContent,
+    Null, Paragraph, Person, Primitive,
 };
 
 #[test]
 fn primitives_deserialize() -> Result<()> {
     let null: Primitive = serde_json::from_str("null")?;
-    assert!(matches!(null, Primitive::Null));
+    assert!(matches!(null, Primitive::Null(..)));
 
     let bool: Primitive = serde_json::from_str("true")?;
-    assert!(matches!(bool, Primitive::Boolean(_)));
+    assert!(matches!(bool, Primitive::Boolean(..)));
 
     let bool: Primitive = serde_json::from_str("false")?;
-    assert!(matches!(bool, Primitive::Boolean(_)));
+    assert!(matches!(bool, Primitive::Boolean(..)));
 
     let integer: Primitive = serde_json::from_str("42")?;
-    assert!(matches!(integer, Primitive::Integer(_)));
+    assert!(matches!(integer, Primitive::Integer(..)));
 
     let number: Primitive = serde_json::from_str("3.14")?;
-    assert!(matches!(number, Primitive::Number(_)));
+    assert!(matches!(number, Primitive::Number(..)));
 
     let string: Primitive = serde_json::from_str("\"str  ing\"")?;
-    assert!(matches!(string, Primitive::String(_)));
+    assert!(matches!(string, Primitive::String(..)));
 
     let array: Primitive = serde_json::from_str(r#"[null, false, 42, 3.14, "string"]"#)?;
     if let Primitive::Array(array) = array {
-        assert!(matches!(array[0], Primitive::Null));
+        assert!(matches!(array[0], Primitive::Null(..)));
         assert!(matches!(array[1], Primitive::Boolean(false)));
-        assert!(matches!(array[2], Primitive::Integer(_)));
-        assert!(matches!(array[3], Primitive::Number(_)));
-        assert!(matches!(array[4], Primitive::String(_)));
+        assert!(matches!(array[2], Primitive::Integer(..)));
+        assert!(matches!(array[3], Primitive::Number(..)));
+        assert!(matches!(array[4], Primitive::String(..)));
     } else {
         panic!("Not an array!")
     };
@@ -50,11 +50,11 @@ fn primitives_deserialize() -> Result<()> {
         }"#,
     )?;
     if let Primitive::Object(object) = object {
-        assert!(matches!(object["a"], Primitive::Null));
+        assert!(matches!(object["a"], Primitive::Null(..)));
         assert!(matches!(object["b"], Primitive::Boolean(false)));
-        assert!(matches!(object["c"], Primitive::Integer(_)));
-        assert!(matches!(object["d"], Primitive::Number(_)));
-        assert!(matches!(object["e"], Primitive::String(_)));
+        assert!(matches!(object["c"], Primitive::Integer(..)));
+        assert!(matches!(object["d"], Primitive::Number(..)));
+        assert!(matches!(object["e"], Primitive::String(..)));
     } else {
         panic!("Not an object!")
     };
@@ -64,7 +64,7 @@ fn primitives_deserialize() -> Result<()> {
 
 #[test]
 fn primitives_serialize() -> Result<()> {
-    let null = Primitive::Null;
+    let null = Primitive::Null(Null {});
     assert_eq!(serde_json::to_string(&null)?, "null");
 
     let bool = Primitive::Boolean(true);
@@ -83,7 +83,7 @@ fn primitives_serialize() -> Result<()> {
     assert_eq!(serde_json::to_string(&string)?, "\"string\"");
 
     let array = Primitive::Array(vec![
-        Primitive::Null,
+        Primitive::Null(Null {}),
         Primitive::Boolean(false),
         Primitive::Integer(42),
         Primitive::Number(3.14),
@@ -95,7 +95,7 @@ fn primitives_serialize() -> Result<()> {
     );
 
     let object = Primitive::Object(btreemap! {
-        "a".to_string() => Primitive::Null,
+        "a".to_string() => Primitive::Null(Null{}),
         "b".to_string() => Primitive::Boolean(false),
         "c".to_string() => Primitive::Integer(42),
         "d".to_string() => Primitive::Number(3.14),
@@ -195,34 +195,4 @@ fn entity_is_serdeable() -> Result<()> {
     assert_eq!(json_val2, json_val1);
 
     Ok(())
-}
-
-#[test]
-fn entity_has_type_name() {
-    let article = Article::default();
-
-    assert_eq!(article.type_name(), "Article")
-}
-
-#[test]
-fn entity_has_id() {
-    let id = Some("whateva".into());
-    let entity = Entity {
-        id: Some(Box::new("whateva".into())),
-        ..Default::default()
-    };
-
-    assert_eq!(entity.id(), id)
-}
-
-#[test]
-fn union_types_have_typename_and_id() {
-    let id = Some("whateva".into());
-    let work = CreativeWorkTypes::Article(Article {
-        id: Some(Box::new("whateva".into())),
-        ..Default::default()
-    });
-
-    assert_eq!(work.type_name(), "Article");
-    assert_eq!(work.id(), id)
 }
