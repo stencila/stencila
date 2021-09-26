@@ -79,7 +79,7 @@
     "@sentry/electron": "2.5.4",
     "@stencil/router": "2.0.0-2",
     "@stencil/store": "1.4.1",
-    "@stencila/brand": "0.7.4",
+    "@stencila/brand": "0.7.7",
     "@stencila/components": "0.40.0",
     "@stencila/schema": "1.11.1",
     "debounce": "1.2.1",
