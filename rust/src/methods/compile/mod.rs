@@ -7,7 +7,7 @@ use crate::{
 };
 use eyre::Result;
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::HashMap,
     path::{Path, PathBuf},
 };
 use stencila_schema::*;
@@ -123,7 +123,7 @@ impl Compile for Link {
         let id = identify!(self);
         context.addresses.insert(id.clone(), address.clone());
 
-        let subject = resources::node(&context.path, &id, &self.type_name());
+        let subject = resources::node(&context.path, &id, "Link");
         let target = &self.target;
         let object = if target.starts_with("http://") || target.starts_with("https://") {
             resources::url(target)
@@ -189,7 +189,7 @@ macro_rules! compile_media_object {
                     let id = identify!(self);
                     context.addresses.insert(id.clone(), address.clone());
 
-                    let subject = resources::node(&context.path, &id, &self.type_name());
+                    let subject = resources::node(&context.path, &id, stringify!($type));
                     let url = compile_content_url(&self.content_url, context);
                     let object = if url.starts_with("http") {
                         resources::url(&url)
@@ -226,7 +226,7 @@ impl Compile for Parameter {
         let id = identify!(self);
         context.addresses.insert(id.clone(), address.clone());
 
-        let subject = resources::node(&context.path, &id, &self.type_name());
+        let subject = resources::node(&context.path, &id, "Parameter");
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
             Some(ValidatorTypes::IntegerValidator(..)) => "Integer",
@@ -265,7 +265,7 @@ impl Compile for CodeChunk {
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
         if Some(digest.clone()) != self.compile_digest {
-            let subject = resources::node(&context.path, &id, &self.type_name());
+            let subject = resources::node(&context.path, &id, "CodeChunk");
             let relations = code::compile(&context.path, &self.text, &self.programming_language);
             context.relations.push((subject, relations));
             self.compile_digest = Some(digest)
@@ -287,7 +287,7 @@ impl Compile for CodeExpression {
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
         if Some(digest.clone()) != self.compile_digest {
-            let subject = resources::node(&context.path, &id, &self.type_name());
+            let subject = resources::node(&context.path, &id, "CodeExpression");
             let relations = code::compile(&context.path, &self.text, &self.programming_language);
             context.relations.push((subject, relations));
             self.compile_digest = Some(digest);
@@ -326,7 +326,7 @@ impl Compile for Include {
         let id = identify!(self);
         context.addresses.insert(id.clone(), address.clone());
 
-        let subject = resources::node(&context.path, &id, &self.type_name());
+        let subject = resources::node(&context.path, &id, "Include");
         let path = merge(&context.path, &self.source);
         let object = resources::file(&path);
 
@@ -349,16 +349,15 @@ macro_rules! compile_nothing_for {
 }
 compile_nothing_for!(
     // Primitives
-    bool, // Boolean
-    i64, // Integer
-    f64, // Number
+    Null,
+    Boolean,
+    Integer,
+    Number,
     String,
-    Vec<Primitive>, // Array
-    BTreeMap<String, Primitive>, // Object
-
+    Array,
+    Object,
     // Entity types that are unlikely to need anything else done to them
     ThematicBreak,
-
     // Entity types that may need to be compiled but are here for now
     CodeBlock,
     CodeFragment,
@@ -408,11 +407,11 @@ impl Compile for BlockContent {
 
 impl Compile for InlineContent {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        dispatch_inline!(self, Ok(()), compile, address, context)
+        dispatch_inline!(self, compile, address, context)
     }
 
     fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        dispatch_inline!(self, Ok(()), execute, kernels)
+        dispatch_inline!(self, execute, kernels)
     }
 }
 

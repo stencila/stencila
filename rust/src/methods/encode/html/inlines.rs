@@ -1,6 +1,6 @@
 use super::{
     attr, attr_id, attr_itemtype, attr_itemtype_string, attr_slot, concat, elem, elem_empty, json,
-    primitives::null_to_html, Context, ToHtml,
+    Context, ToHtml,
 };
 use crate::methods::encode::txt::ToTxt;
 use html_escape::encode_safe;
@@ -43,7 +43,7 @@ impl ToHtml for InlineContent {
             InlineContent::MathFragment(node) => node.to_html(slot, context),
             InlineContent::NontextualAnnotation(node) => node.to_html(slot, context),
             InlineContent::Note(node) => node.to_html(slot, context),
-            InlineContent::Null => null_to_html(),
+            InlineContent::Null(node) => node.to_html(slot, context),
             InlineContent::Number(node) => node.to_html(slot, context),
             InlineContent::Parameter(node) => node.to_html(slot, context),
             InlineContent::Quote(node) => node.to_html(slot, context),
@@ -195,13 +195,20 @@ impl ToHtml for Cite {
                                 }
                             }
                             // A `CreativeWork` reference so match against its `id`/
-                            CreativeWorkReferences::CreativeWorkTypes(work) => {
-                                if self.target == work.id().unwrap_or_default() {
-                                    Some((index, reference))
-                                } else {
-                                    None
+                            CreativeWorkReferences::CreativeWorkTypes(work) => match work {
+                                CreativeWorkTypes::Article(Article { id, .. }) => {
+                                    if let Some(id) = id.as_deref() {
+                                        if self.target == *id {
+                                            Some((index, reference))
+                                        } else {
+                                            None
+                                        }
+                                    } else {
+                                        None
+                                    }
                                 }
-                            }
+                                _ => None,
+                            },
                         });
                     // Create the content for the citation
                     match reference {

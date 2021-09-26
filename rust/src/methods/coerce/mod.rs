@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JsonValue};
 use serde_with::skip_serializing_none;
 use std::{collections::HashMap, sync::Mutex};
-use stencila_schema::{self, Node, Object, Primitive};
+use stencila_schema::{self, Node, Null, Object, Primitive};
 
 /// Coerce a JSON value to the Stencila JSON Schema
 ///
@@ -40,7 +40,7 @@ pub fn coerce(value: JsonValue, type_: Option<String>) -> Result<Node> {
     }
 
     Ok(match coerce_to_primitive(value) {
-        Primitive::Null => Node::Null,
+        Primitive::Null(node) => Node::Null(node),
         Primitive::Boolean(node) => Node::Boolean(node),
         Primitive::Integer(node) => Node::Integer(node),
         Primitive::Number(node) => Node::Number(node),
@@ -148,7 +148,7 @@ impl JsonSchema {
 /// Coerce a JSON value to a `Primitive` node.
 fn coerce_to_primitive(value: JsonValue) -> Primitive {
     match value {
-        JsonValue::Null => Primitive::Null,
+        JsonValue::Null => Primitive::Null(Null {}),
         JsonValue::Bool(value) => Primitive::Boolean(value),
         JsonValue::Number(value) => {
             if value.is_i64() {

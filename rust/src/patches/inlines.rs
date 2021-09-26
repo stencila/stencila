@@ -19,7 +19,7 @@ impl Patchable for InlineContent {
     fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
         match address.is_empty() {
             true => Ok(Pointer::Inline(self)),
-            false => dispatch_inline!(self, Ok(Pointer::None), resolve, address),
+            false => dispatch_inline!(self, resolve, address),
         }
     }
 
@@ -27,7 +27,7 @@ impl Patchable for InlineContent {
     ///
     /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Inline`
     fn find(&mut self, id: &str) -> Pointer {
-        let pointer = dispatch_inline!(self, Pointer::None, find, id);
+        let pointer = dispatch_inline!(self, find, id);
         match pointer {
             Pointer::Some => Pointer::Inline(self),
             _ => Pointer::None,
@@ -54,7 +54,7 @@ impl Patchable for InlineContent {
             (InlineContent::MathFragment(me), InlineContent::MathFragment(other)) => me.is_equal(other),
             (InlineContent::NontextualAnnotation(me), InlineContent::NontextualAnnotation(other)) => me.is_equal(other),
             (InlineContent::Note(me), InlineContent::Note(other)) => me.is_equal(other),
-            (InlineContent::Null, InlineContent::Null) => Ok(()),
+            (InlineContent::Null(me), InlineContent::Null(other)) => me.is_equal(other),
             (InlineContent::Number(me), InlineContent::Number(other)) => me.is_equal(other),
             (InlineContent::Parameter(me), InlineContent::Parameter(other)) => me.is_equal(other),
             (InlineContent::Quote(me), InlineContent::Quote(other)) => me.is_equal(other),
@@ -70,7 +70,7 @@ impl Patchable for InlineContent {
     }
 
     fn make_hash<H: Hasher>(&self, state: &mut H) {
-        dispatch_inline!(self, (), make_hash, state)
+        dispatch_inline!(self, make_hash, state)
     }
 
     patchable_diff!();
@@ -93,7 +93,7 @@ impl Patchable for InlineContent {
             (InlineContent::MathFragment(me), InlineContent::MathFragment(other)) => me.diff_same(differ, other),
             (InlineContent::NontextualAnnotation(me), InlineContent::NontextualAnnotation(other)) => me.diff_same(differ, other),
             (InlineContent::Note(me), InlineContent::Note(other)) => me.diff_same(differ, other),
-            (InlineContent::Null, InlineContent::Null) => {},
+            (InlineContent::Null(me), InlineContent::Null(other)) => me.diff_same(differ, other),
             (InlineContent::Number(me), InlineContent::Number(other)) => me.diff_same(differ, other),
             (InlineContent::Parameter(me), InlineContent::Parameter(other)) => me.diff_same(differ, other),
             (InlineContent::Quote(me), InlineContent::Quote(other)) => me.diff_same(differ, other),
@@ -109,11 +109,11 @@ impl Patchable for InlineContent {
     }
 
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
-        dispatch_inline!(self, Ok(()), apply_add, address, value)
+        dispatch_inline!(self, apply_add, address, value)
     }
 
     fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
-        dispatch_inline!(self, Ok(()), apply_remove, address, items)
+        dispatch_inline!(self, apply_remove, address, items)
     }
 
     fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
@@ -121,12 +121,12 @@ impl Patchable for InlineContent {
             *self = Self::from_value(value)?;
             Ok(())
         } else {
-            dispatch_inline!(self, Ok(()), apply_replace, address, items, value)
+            dispatch_inline!(self, apply_replace, address, items, value)
         }
     }
 
     fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
-        dispatch_inline!(self, Ok(()), apply_move, from, items, to)
+        dispatch_inline!(self, apply_move, from, items, to)
     }
 
     fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
@@ -135,7 +135,7 @@ impl Patchable for InlineContent {
             *self = apply_transform(self, to);
             Ok(())
         } else {
-            dispatch_inline!(self, Ok(()), apply_transform, address, from, to)
+            dispatch_inline!(self, apply_transform, address, from, to)
         }
     }
 }

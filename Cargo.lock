@@ -3827,9 +3827,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.67"
+version = "1.0.68"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7f9e390c27c3c0ce8bc5d725f6e4d30a29d26659494aa4b17535f7522c5c950"
+checksum = "0f690853975602e1bfe1ccbf50504d67174e3bcf340f23b5ea9992e0587a52d8"
 dependencies = [
  "indexmap",
  "itoa",
@@ -4186,13 +4186,12 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.11.1"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bb44b53d0906576a738dc82795e12495af5206296dcd79fee157a61c7b4397a"
+checksum = "28b2f5c0d8d63d306063450c4551c8560c1dbb559cdb196769b6f77fcffd0175"
 dependencies = [
  "chrono",
  "defaults",
- "enum_dispatch",
  "serde",
  "serde_json",
  "serde_with",

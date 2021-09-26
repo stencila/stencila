@@ -1,11 +1,6 @@
 use super::{attr_itemtype_string, attr_slot, elem, json, Context, ToHtml};
 use html_escape::encode_safe;
-use stencila_schema::{Array, Boolean, Integer, Number, Object};
-
-/// Encode a `Null` to HTML
-pub(crate) fn null_to_html() -> String {
-    elem("span", &[attr_itemtype_string("Null")], &"null".to_string())
-}
+use stencila_schema::{Array, Boolean, Integer, Null, Number, Object};
 
 /// Encode an atomic primitive to HTML
 macro_rules! atomic_to_html {
@@ -21,6 +16,7 @@ macro_rules! atomic_to_html {
         }
     };
 }
+atomic_to_html!(Null);
 atomic_to_html!(Boolean);
 atomic_to_html!(Integer);
 atomic_to_html!(Number);

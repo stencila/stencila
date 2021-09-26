@@ -1,4 +1,4 @@
-use super::{attr, attr_slot, elem, json, primitives::null_to_html, Context, ToHtml};
+use super::{attr, attr_slot, elem, json, Context, ToHtml};
 use stencila_schema::Node;
 
 impl ToHtml for Vec<Node> {
@@ -45,7 +45,7 @@ impl ToHtml for Node {
             Node::MathFragment(node) => node.to_html(slot, context),
             Node::NontextualAnnotation(node) => node.to_html(slot, context),
             Node::Note(node) => node.to_html(slot, context),
-            Node::Null => null_to_html(),
+            Node::Null(node) => node.to_html(slot, context),
             Node::Number(node) => node.to_html(slot, context),
             Node::Object(node) => node.to_html(slot, context),
             Node::Paragraph(node) => node.to_html(slot, context),

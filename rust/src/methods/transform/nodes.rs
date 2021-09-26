@@ -77,7 +77,7 @@ impl Transform for Node {
             Node::MathFragment(node) => InlineContent::MathFragment(node),
             Node::NontextualAnnotation(node) => InlineContent::NontextualAnnotation(node),
             Node::Note(node) => InlineContent::Note(node),
-            Node::Null => InlineContent::Null,
+            Node::Null(node) => InlineContent::Null(node),
             Node::Number(node) => InlineContent::Number(node),
             Node::Parameter(node) => InlineContent::Parameter(node),
             Node::Quote(node) => InlineContent::Quote(node),

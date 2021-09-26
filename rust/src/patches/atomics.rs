@@ -1,6 +1,25 @@
 use super::prelude::*;
 use std::hash::{Hash, Hasher};
-use stencila_schema::{Boolean, Integer, Number};
+use stencila_schema::{Boolean, Integer, Null, Number};
+
+impl Patchable for Null {
+    patchable_is_same!();
+
+    fn is_equal(&self, _other: &Self) -> Result<()> {
+        // By definition, equal
+        Ok(())
+    }
+
+    fn make_hash<H: Hasher>(&self, state: &mut H) {
+        self.to_string().hash(state);
+    }
+
+    patchable_diff!();
+
+    fn diff_same(&self, _differ: &mut Differ, _other: &Self) {
+        // By definition, no difference
+    }
+}
 
 /// Macro to generate `impl Patchable` for atomic types
 macro_rules! patchable_atomic {

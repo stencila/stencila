@@ -139,7 +139,7 @@ impl<'a> Context<'a> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Context {
-            root: &Node::Null,
+            root: &Node::Null(Null {}),
             bundle: false,
         }
     }

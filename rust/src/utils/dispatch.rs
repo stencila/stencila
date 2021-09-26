@@ -57,7 +57,7 @@ macro_rules! dispatch_node {
 
 #[macro_export]
 macro_rules! dispatch_inline {
-    ($node:expr, $null:expr, $method:ident $(,$arg:expr)*) => {
+    ($node:expr, $method:ident $(,$arg:expr)*) => {
         match $node {
             InlineContent::AudioObject(node) => node.$method($($arg),*),
             InlineContent::Boolean(node) => node.$method($($arg),*),
@@ -73,7 +73,7 @@ macro_rules! dispatch_inline {
             InlineContent::MathFragment(node) => node.$method($($arg),*),
             InlineContent::NontextualAnnotation(node) => node.$method($($arg),*),
             InlineContent::Note(node) => node.$method($($arg),*),
-            InlineContent::Null => $null,
+            InlineContent::Null(node) => node.$method($($arg),*),
             InlineContent::Number(node) => node.$method($($arg),*),
             InlineContent::Parameter(node) => node.$method($($arg),*),
             InlineContent::Quote(node) => node.$method($($arg),*),

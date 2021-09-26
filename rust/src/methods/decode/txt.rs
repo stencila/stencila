@@ -1,6 +1,6 @@
 use super::json5;
 use eyre::Result;
-use stencila_schema::Node;
+use stencila_schema::{Node, Null};
 
 /// Decode plain text to a `Node`
 ///
@@ -28,7 +28,7 @@ pub fn decode_fragment(txt: &str) -> Node {
     match txt.trim() {
         "true" | "TRUE" | "True" => return Node::Boolean(true),
         "false" | "FALSE" | "False" => return Node::Boolean(false),
-        "null" | "NULL" | "Null" => return Node::Null,
+        "null" | "NULL" | "Null" => return Node::Null(Null {}),
         _ => (),
     };
 
@@ -45,6 +45,7 @@ mod tests {
     use crate::assert_json_eq;
     use eyre::bail;
     use serde_json::json;
+    use stencila_schema::Null;
 
     #[test]
     fn booleans() -> Result<()> {
@@ -57,9 +58,9 @@ mod tests {
 
     #[test]
     fn nulls() -> Result<()> {
-        assert!(matches!(decode("null")?, Node::Null));
-        assert!(matches!(decode("NULL")?, Node::Null));
-        assert!(matches!(decode("  Null  ")?, Node::Null));
+        assert!(matches!(decode("null")?, Node::Null(Null {})));
+        assert!(matches!(decode("NULL")?, Node::Null(Null {})));
+        assert!(matches!(decode("  Null  ")?, Node::Null(Null {})));
         assert_json_eq!(decode("nUll")?, json!("nUll"));
         Ok(())
     }
