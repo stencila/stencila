@@ -1,105 +1,81 @@
 pub use defaults::Defaults;
-pub use enum_dispatch::enum_dispatch;
-pub use serde::{de, Deserialize, Deserializer, Serialize};
+pub use serde::{Deserialize, Serialize};
 pub use serde_json::Value;
 pub use serde_with::skip_serializing_none;
-use std::collections::BTreeMap;
-pub use std::convert::AsRef;
-pub use std::sync::Arc;
+pub use std::{
+    collections::BTreeMap,
+    convert::AsRef,
+    fmt::{self, Display},
+    sync::Arc,
+};
 pub use strum::AsRefStr;
 
-/// A trait for methods that can be called on all types of nodes
-#[enum_dispatch]
-pub trait NodeTrait {
-    /// Retrieve the `type` of an entity
-    /// Needs to be called `type_name` because `type` is a reserved word
-    fn type_name(&self) -> String;
+/// A null value
+///
+/// This is a struct, rather than a unit variant of `Primitive`, so that
+/// it can be treated the same way as other variants when dispatching to
+/// trait methods.
+#[derive(Clone, Debug)]
+pub struct Null {}
 
-    /// Retrieve the `id` of an entity
-    fn id(&self) -> Option<String>;
+impl Display for Null {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "null")
+    }
 }
 
-macro_rules! impl_primitive {
-    ($type:ident) => {
-        impl NodeTrait for $type {
-            fn type_name(&self) -> String {
-                stringify!($type).into()
-            }
+impl Serialize for Null {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_none()
+    }
+}
 
-            fn id(&self) -> Option<String> {
-                None
-            }
+impl<'de> Deserialize<'de> for Null {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = serde_json::Value::deserialize(deserializer)?;
+        match value.is_null() {
+            true => Ok(Null {}),
+            false => Err(serde::de::Error::custom("Exepected")),
         }
-    };
+    }
 }
+
+/// A boolean value
+pub type Boolean = bool;
+
+/// An integer value
+///
+/// Uses `i64` for maximum precision.
+pub type Integer = i64;
+
+/// A floating point value (a.k.a real number)
+///
+/// Uses `i64` for maximum precision.
+pub type Number = f64;
+
+/// An array value (a.k.a. vector)
+pub type Array = Vec<Primitive>;
+
+/// An object value (a.k.a map, dictionary)
+///
+/// Uses `BTreeMap` to preserve order.
+pub type Object = BTreeMap<String, Primitive>;
 
 /// The set of primitive (non-Entity) node types
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Primitive {
-    Null,
+    Null(Null),
     Boolean(Boolean),
     Integer(Integer),
     Number(Number),
     String(String),
     Object(Object),
     Array(Array),
-}
-
-/// A boolean value
-pub type Boolean = bool;
-impl_primitive!(Boolean);
-
-/// An integer value
-///
-/// Uses `i64` for maximum precision.
-pub type Integer = i64;
-impl_primitive!(Integer);
-
-/// A floating point value (a.k.a real number)
-///
-/// Uses `i64` for maximum precision.
-pub type Number = f64;
-impl_primitive!(Number);
-
-/// An array value (a.k.a. vector)
-pub type Array = Vec<Primitive>;
-impl_primitive!(Array);
-
-/// An object value (a.k.a map, dictionary)
-///
-/// Uses `BTreeMap` to preserve order.
-pub type Object = BTreeMap<String, Primitive>;
-impl_primitive!(Object);
-
-/// Macro to implement functions for struct schemas
-#[macro_export]
-macro_rules! impl_struct {
-    ($type:ident) => {
-        impl NodeTrait for $type {
-            fn type_name(&self) -> String {
-                stringify!($type).into()
-            }
-
-            fn id(&self) -> Option<String> {
-                self.id.as_ref().map(|id| *id.clone())
-            }
-        }
-    };
-}
-
-/// Macro to implement functions for enum schemas
-#[macro_export]
-macro_rules! impl_enum {
-    ($type:ident) => {
-        impl NodeTrait for $type {
-            fn type_name(&self) -> String {
-                stringify!($type).into()
-            }
-
-            fn id(&self) -> Option<String> {
-                None
-            }
-        }
-    };
 }

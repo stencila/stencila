@@ -4,7 +4,7 @@ mod prelude;
 pub use prelude::Array;
 pub use prelude::Boolean;
 pub use prelude::Integer;
-pub use prelude::NodeTrait;
+pub use prelude::Null;
 pub use prelude::Number;
 pub use prelude::Object;
 pub use prelude::Primitive;

@@ -2,7 +2,6 @@
 
 #![allow(clippy::large_enum_variant)]
 
-use crate::{impl_enum, impl_struct};
 use crate::prelude::*;
 
 /*********************************************************************
@@ -27,8 +26,6 @@ pub struct Entity {
 pub enum Entity_ {
   Entity
 }
-
-impl_struct!(Entity);
 
 /// A reference to a CreativeWork that is cited in another CreativeWork.
 #[skip_serializing_none]
@@ -75,8 +72,6 @@ pub enum Cite_ {
   Cite
 }
 
-impl_struct!(Cite);
-
 /// A group of Cite nodes.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -97,8 +92,6 @@ pub struct CiteGroup {
 pub enum CiteGroup_ {
   CiteGroup
 }
-
-impl_struct!(CiteGroup);
 
 /// Base type for non-executable (e.g. `CodeBlock`) and executable (e.g. `CodeExpression`) code nodes.
 #[skip_serializing_none]
@@ -127,8 +120,6 @@ pub enum Code_ {
   Code
 }
 
-impl_struct!(Code);
-
 /// A code block.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -155,8 +146,6 @@ pub struct CodeBlock {
 pub enum CodeBlock_ {
   CodeBlock
 }
-
-impl_struct!(CodeBlock);
 
 /// Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
 #[skip_serializing_none]
@@ -197,8 +186,6 @@ pub struct CodeExecutable {
 pub enum CodeExecutable_ {
   CodeExecutable
 }
-
-impl_struct!(CodeExecutable);
 
 /// A executable chunk of code.
 #[skip_serializing_none]
@@ -249,8 +236,6 @@ pub enum CodeChunk_ {
   CodeChunk
 }
 
-impl_struct!(CodeChunk);
-
 /// An executable programming code expression.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -286,7 +271,6 @@ pub struct CodeExpression {
     pub media_type: Option<Box<String>>,
 
     /// The value of the expression when it was last evaluated.
-    #[serde(skip)]
     pub output: Option<Box<Node>>,
 }
 
@@ -294,8 +278,6 @@ pub struct CodeExpression {
 pub enum CodeExpression_ {
   CodeExpression
 }
-
-impl_struct!(CodeExpression);
 
 /// Inline code.
 #[skip_serializing_none]
@@ -324,8 +306,6 @@ pub enum CodeFragment_ {
   CodeFragment
 }
 
-impl_struct!(CodeFragment);
-
 /// An error that occurred when parsing, compiling or executing a Code node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -353,8 +333,6 @@ pub enum CodeError_ {
   CodeError
 }
 
-impl_struct!(CodeError);
-
 /// A date encoded as a ISO 8601 string.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -377,8 +355,6 @@ pub enum Date_ {
   Date
 }
 
-impl_struct!(Date);
-
 /// A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -399,8 +375,6 @@ pub struct Mark {
 pub enum Mark_ {
   Mark
 }
-
-impl_struct!(Mark);
 
 /// Content that is marked for deletion
 #[skip_serializing_none]
@@ -423,8 +397,6 @@ pub enum Delete_ {
   Delete
 }
 
-impl_struct!(Delete);
-
 /// Emphasised content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -445,8 +417,6 @@ pub struct Emphasis {
 pub enum Emphasis_ {
   Emphasis
 }
-
-impl_struct!(Emphasis);
 
 /// The most generic type of item.
 #[skip_serializing_none]
@@ -483,8 +453,6 @@ pub struct Thing {
 pub enum Thing_ {
   Thing
 }
-
-impl_struct!(Thing);
 
 /// A brand used by an organization or person for labeling a product, product group, or similar.
 #[skip_serializing_none]
@@ -527,8 +495,6 @@ pub struct Brand {
 pub enum Brand_ {
   Brand
 }
-
-impl_struct!(Brand);
 
 /// A contact point, usually within an organization.
 #[skip_serializing_none]
@@ -574,8 +540,6 @@ pub struct ContactPoint {
 pub enum ContactPoint_ {
   ContactPoint
 }
-
-impl_struct!(ContactPoint);
 
 /// A creative work, including books, movies, photographs, software programs, etc.
 #[skip_serializing_none]
@@ -641,7 +605,6 @@ pub struct CreativeWork {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -682,8 +645,6 @@ pub struct CreativeWork {
 pub enum CreativeWork_ {
   CreativeWork
 }
-
-impl_struct!(CreativeWork);
 
 /// An article, including news and scholarly articles.
 #[skip_serializing_none]
@@ -749,7 +710,6 @@ pub struct Article {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -799,8 +759,6 @@ pub struct Article {
 pub enum Article_ {
   Article
 }
-
-impl_struct!(Article);
 
 /// A claim represents specific reviewable facts or statements.
 #[skip_serializing_none]
@@ -869,7 +827,6 @@ pub struct Claim {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -913,8 +870,6 @@ pub struct Claim {
 pub enum Claim_ {
   Claim
 }
-
-impl_struct!(Claim);
 /// A claim represents specific reviewable facts or statements.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -947,8 +902,6 @@ pub struct ClaimSimple {
 pub enum ClaimSimple_ {
   Claim
 }
-
-impl_struct!(ClaimSimple);
 
 /// A collection of CreativeWorks or other artifacts.
 #[skip_serializing_none]
@@ -1017,7 +970,6 @@ pub struct Collection {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -1055,8 +1007,6 @@ pub struct Collection {
 pub enum Collection_ {
   Collection
 }
-
-impl_struct!(Collection);
 /// A collection of CreativeWorks or other artifacts.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1083,8 +1033,6 @@ pub struct CollectionSimple {
 pub enum CollectionSimple_ {
   Collection
 }
-
-impl_struct!(CollectionSimple);
 
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
 #[skip_serializing_none]
@@ -1153,7 +1101,6 @@ pub struct Comment {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -1169,7 +1116,6 @@ pub struct Comment {
     pub name: Option<Box<String>>,
 
     /// The parent comment of this comment.
-    #[serde(skip)]
     pub parent_item: Option<Box<Comment>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
@@ -1198,8 +1144,6 @@ pub struct Comment {
 pub enum Comment_ {
   Comment
 }
-
-impl_struct!(Comment);
 
 /// A table of data.
 #[skip_serializing_none]
@@ -1268,7 +1212,6 @@ pub struct Datatable {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -1309,8 +1252,6 @@ pub struct Datatable {
 pub enum Datatable_ {
   Datatable
 }
-
-impl_struct!(Datatable);
 
 /// A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
 #[skip_serializing_none]
@@ -1388,7 +1329,6 @@ pub struct MediaObject {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -1432,8 +1372,6 @@ pub struct MediaObject {
 pub enum MediaObject_ {
   MediaObject
 }
-
-impl_struct!(MediaObject);
 
 /// An audio file
 #[skip_serializing_none]
@@ -1514,7 +1452,6 @@ pub struct AudioObject {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -1561,8 +1498,6 @@ pub struct AudioObject {
 pub enum AudioObject_ {
   AudioObject
 }
-
-impl_struct!(AudioObject);
 /// An audio file
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1604,8 +1539,6 @@ pub struct AudioObjectSimple {
 pub enum AudioObjectSimple_ {
   AudioObject
 }
-
-impl_struct!(AudioObjectSimple);
 
 /// A column of data within a Datatable.
 #[skip_serializing_none]
@@ -1649,8 +1582,6 @@ pub enum DatatableColumn_ {
   DatatableColumn
 }
 
-impl_struct!(DatatableColumn);
-
 /// A word, name, acronym, phrase, etc. with a formal definition.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1690,8 +1621,6 @@ pub enum DefinedTerm_ {
   DefinedTerm
 }
 
-impl_struct!(DefinedTerm);
-
 /// A base for all validator types.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1710,8 +1639,6 @@ pub enum Validator_ {
   Validator
 }
 
-impl_struct!(Validator);
-
 /// A validator specifying constraints on an array node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1722,14 +1649,12 @@ pub struct ArrayValidator {
     pub type_: ArrayValidator_,
 
     /// An array node is valid if at least one of its items is valid against the `contains` schema.
-    #[serde(skip)]
     pub contains: Option<Box<ValidatorTypes>>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
     /// Another validator node specifying the constraints on all items in the array.
-    #[serde(skip)]
     pub items_validator: Option<Box<ValidatorTypes>>,
 
     /// An array node is valid if its size is less than, or equal to, this value.
@@ -1746,8 +1671,6 @@ pub struct ArrayValidator {
 pub enum ArrayValidator_ {
   ArrayValidator
 }
-
-impl_struct!(ArrayValidator);
 
 /// A schema specifying that a node must be a boolean value.
 #[skip_serializing_none]
@@ -1767,8 +1690,6 @@ pub enum BooleanValidator_ {
   BooleanValidator
 }
 
-impl_struct!(BooleanValidator);
-
 /// A validator specifying a constant value that a node must have.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1782,7 +1703,6 @@ pub struct ConstantValidator {
     pub id: Option<Box<String>>,
 
     /// The value that the node must have.
-    #[serde(skip)]
     pub value: Option<Box<Node>>,
 }
 
@@ -1790,8 +1710,6 @@ pub struct ConstantValidator {
 pub enum ConstantValidator_ {
   ConstantValidator
 }
-
-impl_struct!(ConstantValidator);
 
 /// A schema specifying that a node must be one of several values.
 #[skip_serializing_none]
@@ -1813,8 +1731,6 @@ pub struct EnumValidator {
 pub enum EnumValidator_ {
   EnumValidator
 }
-
-impl_struct!(EnumValidator);
 
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
 #[skip_serializing_none]
@@ -1851,8 +1767,6 @@ pub struct Enumeration {
 pub enum Enumeration_ {
   Enumeration
 }
-
-impl_struct!(Enumeration);
 
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 #[skip_serializing_none]
@@ -1921,7 +1835,6 @@ pub struct Figure {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -1965,8 +1878,6 @@ pub struct Figure {
 pub enum Figure_ {
   Figure
 }
-
-impl_struct!(Figure);
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2000,8 +1911,6 @@ pub enum FigureSimple_ {
   Figure
 }
 
-impl_struct!(FigureSimple);
-
 /// A function with a name, which might take Parameters and return a value of a certain type.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2028,8 +1937,6 @@ pub struct Function {
 pub enum Function_ {
   Function
 }
-
-impl_struct!(Function);
 
 /// A grant, typically financial or otherwise quantifiable, of resources.
 #[skip_serializing_none]
@@ -2073,8 +1980,6 @@ pub enum Grant_ {
   Grant
 }
 
-impl_struct!(Grant);
-
 /// A heading.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2098,8 +2003,6 @@ pub struct Heading {
 pub enum Heading_ {
   Heading
 }
-
-impl_struct!(Heading);
 
 /// An image file.
 #[skip_serializing_none]
@@ -2180,7 +2083,6 @@ pub struct ImageObject {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -2202,7 +2104,6 @@ pub struct ImageObject {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip)]
     pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
@@ -2212,7 +2113,6 @@ pub struct ImageObject {
     pub text: Option<Box<String>>,
 
     /// Thumbnail image of this image.
-    #[serde(skip)]
     pub thumbnail: Option<Box<ImageObject>>,
 
     /// The title of the creative work.
@@ -2229,8 +2129,6 @@ pub struct ImageObject {
 pub enum ImageObject_ {
   ImageObject
 }
-
-impl_struct!(ImageObject);
 /// An image file.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2273,8 +2171,6 @@ pub enum ImageObjectSimple_ {
   ImageObject
 }
 
-impl_struct!(ImageObjectSimple);
-
 /// Include content from an external source (e.g. file, URL).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2305,8 +2201,6 @@ pub enum Include_ {
   Include
 }
 
-impl_struct!(Include);
-
 /// A validator specifying the constraints on an integer node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2324,8 +2218,6 @@ pub struct IntegerValidator {
 pub enum IntegerValidator_ {
   IntegerValidator
 }
-
-impl_struct!(IntegerValidator);
 
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
 #[skip_serializing_none]
@@ -2363,8 +2255,6 @@ pub enum Link_ {
   Link
 }
 
-impl_struct!(Link);
-
 /// A list of items.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2388,8 +2278,6 @@ pub struct List {
 pub enum List_ {
   List
 }
-
-impl_struct!(List);
 
 /// A single item in a list.
 #[skip_serializing_none]
@@ -2422,7 +2310,6 @@ pub struct ListItem {
     pub is_checked: Option<Boolean>,
 
     /// The item represented by this list item.
-    #[serde(skip)]
     pub item: Option<Box<Node>>,
 
     /// The name of the item.
@@ -2439,8 +2326,6 @@ pub struct ListItem {
 pub enum ListItem_ {
   ListItem
 }
-
-impl_struct!(ListItem);
 
 /// A mathematical variable or equation.
 #[skip_serializing_none]
@@ -2468,8 +2353,6 @@ pub struct Math {
 pub enum Math_ {
   Math
 }
-
-impl_struct!(Math);
 
 /// A block of math, e.g an equation, to be treated as block content.
 #[skip_serializing_none]
@@ -2501,8 +2384,6 @@ pub enum MathBlock_ {
   MathBlock
 }
 
-impl_struct!(MathBlock);
-
 /// A fragment of math, e.g a variable name, to be treated as inline content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2529,8 +2410,6 @@ pub struct MathFragment {
 pub enum MathFragment_ {
   MathFragment
 }
-
-impl_struct!(MathFragment);
 
 /// A monetary grant.
 #[skip_serializing_none]
@@ -2580,8 +2459,6 @@ pub enum MonetaryGrant_ {
   MonetaryGrant
 }
 
-impl_struct!(MonetaryGrant);
-
 /// Inline text that has a non-textual annotation.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2602,8 +2479,6 @@ pub struct NontextualAnnotation {
 pub enum NontextualAnnotation_ {
   NontextualAnnotation
 }
-
-impl_struct!(NontextualAnnotation);
 
 /// Additional content which is not part of the main content of a document.
 #[skip_serializing_none]
@@ -2628,8 +2503,6 @@ pub struct Note {
 pub enum Note_ {
   Note
 }
-
-impl_struct!(Note);
 
 /// A validator specifying the constraints on a numeric node.
 #[skip_serializing_none]
@@ -2663,8 +2536,6 @@ pub struct NumberValidator {
 pub enum NumberValidator_ {
   NumberValidator
 }
-
-impl_struct!(NumberValidator);
 
 /// An organization such as a school, NGO, corporation, club, etc.
 #[skip_serializing_none]
@@ -2718,7 +2589,6 @@ pub struct Organization {
     pub name: Option<Box<String>>,
 
     /// Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
-    #[serde(skip)]
     pub parent_organization: Option<Box<Organization>>,
 
     /// The URL of the item.
@@ -2729,8 +2599,6 @@ pub struct Organization {
 pub enum Organization_ {
   Organization
 }
-
-impl_struct!(Organization);
 
 /// Paragraph
 #[skip_serializing_none]
@@ -2753,8 +2621,6 @@ pub enum Paragraph_ {
   Paragraph
 }
 
-impl_struct!(Paragraph);
-
 /// A parameter of a document or function.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2768,7 +2634,6 @@ pub struct Parameter {
     pub name: String,
 
     /// The default value of the parameter.
-    #[serde(skip)]
     pub default: Option<Box<Node>>,
 
     /// The SHA-256 digest of the `value` property the last time the node was executed.
@@ -2790,7 +2655,6 @@ pub struct Parameter {
     pub validator: Option<Box<ValidatorTypes>>,
 
     /// The current value of the parameter.
-    #[serde(skip)]
     pub value: Option<Box<Node>>,
 }
 
@@ -2798,8 +2662,6 @@ pub struct Parameter {
 pub enum Parameter_ {
   Parameter
 }
-
-impl_struct!(Parameter);
 
 /// A periodical publication.
 #[skip_serializing_none]
@@ -2871,7 +2733,6 @@ pub struct Periodical {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
@@ -2915,8 +2776,6 @@ pub struct Periodical {
 pub enum Periodical_ {
   Periodical
 }
-
-impl_struct!(Periodical);
 
 /// A person (alive, dead, undead, or fictional).
 #[skip_serializing_none]
@@ -2987,8 +2846,6 @@ pub enum Person_ {
   Person
 }
 
-impl_struct!(Person);
-
 /// A physical mailing address.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3052,8 +2909,6 @@ pub enum PostalAddress_ {
   PostalAddress
 }
 
-impl_struct!(PostalAddress);
-
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3099,8 +2954,6 @@ pub enum Product_ {
   Product
 }
 
-impl_struct!(Product);
-
 /// A property-value pair.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3143,8 +2996,6 @@ pub struct PropertyValue {
 pub enum PropertyValue_ {
   PropertyValue
 }
-
-impl_struct!(PropertyValue);
 
 /// A part of a successively published publication such as a periodical or publication volume, often numbered.
 #[skip_serializing_none]
@@ -3210,7 +3061,6 @@ pub struct PublicationIssue {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Identifies the issue of publication; for example, "iii" or "2".
@@ -3263,8 +3113,6 @@ pub struct PublicationIssue {
 pub enum PublicationIssue_ {
   PublicationIssue
 }
-
-impl_struct!(PublicationIssue);
 
 /// A part of a successively published publication such as a periodical or multi-volume work.
 #[skip_serializing_none]
@@ -3330,7 +3178,6 @@ pub struct PublicationVolume {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -3384,8 +3231,6 @@ pub enum PublicationVolume_ {
   PublicationVolume
 }
 
-impl_struct!(PublicationVolume);
-
 /// Inline, quoted content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3410,8 +3255,6 @@ pub enum Quote_ {
   Quote
 }
 
-impl_struct!(Quote);
-
 /// A section quoted from somewhere else.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3435,8 +3278,6 @@ pub struct QuoteBlock {
 pub enum QuoteBlock_ {
   QuoteBlock
 }
-
-impl_struct!(QuoteBlock);
 
 /// A review of an item, e.g of an Article, or SoftwareSourceCode.
 #[skip_serializing_none]
@@ -3502,7 +3343,6 @@ pub struct Review {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// The item that is being reviewed.
@@ -3549,8 +3389,6 @@ pub struct Review {
 pub enum Review_ {
   Review
 }
-
-impl_struct!(Review);
 
 /// A software application.
 #[skip_serializing_none]
@@ -3616,7 +3454,6 @@ pub struct SoftwareApplication {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -3664,8 +3501,6 @@ pub enum SoftwareApplication_ {
   SoftwareApplication
 }
 
-impl_struct!(SoftwareApplication);
-
 /// A computational environment.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3710,8 +3545,6 @@ pub struct SoftwareEnvironment {
 pub enum SoftwareEnvironment_ {
   SoftwareEnvironment
 }
-
-impl_struct!(SoftwareEnvironment);
 
 /// Definition of a compute session, including its software and compute resource requirements and status.
 #[skip_serializing_none]
@@ -3800,8 +3633,6 @@ pub enum SoftwareSession_ {
   SoftwareSession
 }
 
-impl_struct!(SoftwareSession);
-
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3872,7 +3703,6 @@ pub struct SoftwareSourceCode {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -3926,8 +3756,6 @@ pub enum SoftwareSourceCode_ {
   SoftwareSourceCode
 }
 
-impl_struct!(SoftwareSourceCode);
-
 /// A schema specifying constraints on a string node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3955,8 +3783,6 @@ pub enum StringValidator_ {
   StringValidator
 }
 
-impl_struct!(StringValidator);
-
 /// Strongly emphasised content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3977,8 +3803,6 @@ pub struct Strong {
 pub enum Strong_ {
   Strong
 }
-
-impl_struct!(Strong);
 
 /// Subscripted content.
 #[skip_serializing_none]
@@ -4001,8 +3825,6 @@ pub enum Subscript_ {
   Subscript
 }
 
-impl_struct!(Subscript);
-
 /// Superscripted content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4023,8 +3845,6 @@ pub struct Superscript {
 pub enum Superscript_ {
   Superscript
 }
-
-impl_struct!(Superscript);
 
 /// A table.
 #[skip_serializing_none]
@@ -4096,7 +3916,6 @@ pub struct Table {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -4140,8 +3959,6 @@ pub struct Table {
 pub enum Table_ {
   Table
 }
-
-impl_struct!(Table);
 /// A table.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4178,8 +3995,6 @@ pub enum TableSimple_ {
   Table
 }
 
-impl_struct!(TableSimple);
-
 /// A cell within a `Table`.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4213,8 +4028,6 @@ pub enum TableCell_ {
   TableCell
 }
 
-impl_struct!(TableCell);
-
 /// A row within a Table.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4239,8 +4052,6 @@ pub enum TableRow_ {
   TableRow
 }
 
-impl_struct!(TableRow);
-
 /// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4258,8 +4069,6 @@ pub struct ThematicBreak {
 pub enum ThematicBreak_ {
   ThematicBreak
 }
-
-impl_struct!(ThematicBreak);
 
 /// A validator specifying constraints on an array of heterogeneous items.
 #[skip_serializing_none]
@@ -4281,8 +4090,6 @@ pub struct TupleValidator {
 pub enum TupleValidator_ {
   TupleValidator
 }
-
-impl_struct!(TupleValidator);
 
 /// A variable representing a name / value pair.
 #[skip_serializing_none]
@@ -4313,8 +4120,6 @@ pub struct Variable {
 pub enum Variable_ {
   Variable
 }
-
-impl_struct!(Variable);
 
 /// A video file.
 #[skip_serializing_none]
@@ -4395,7 +4200,6 @@ pub struct VideoObject {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -4445,8 +4249,6 @@ pub struct VideoObject {
 pub enum VideoObject_ {
   VideoObject
 }
-
-impl_struct!(VideoObject);
 /// A video file.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4491,8 +4293,6 @@ pub struct VideoObjectSimple {
 pub enum VideoObjectSimple_ {
   VideoObject
 }
-
-impl_struct!(VideoObjectSimple);
 
 /// Describes a volume mount from a host to container.
 #[skip_serializing_none]
@@ -4541,8 +4341,6 @@ pub struct VolumeMount {
 pub enum VolumeMount_ {
   VolumeMount
 }
-
-impl_struct!(VolumeMount);
 
 /*********************************************************************
  * Enums for struct properties which use JSON Schema 'enum' or 'anyOf'
@@ -5138,14 +4936,12 @@ pub enum CitationIntentEnumeration {
     /// The citing entity describes work that uses a method detailed in the cited entity
     UsesMethodIn,
 }
-impl_enum!(CitationIntentEnumeration);
 
 /*********************************************************************
  * Enums for "union" schemas
  ********************************************************************/
   
 /// Union type for valid block content.
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BlockContent {
@@ -5165,7 +4961,6 @@ pub enum BlockContent {
 }
 
 /// All type schemas that are derived from CodeExecutable
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeExecutableTypes {
@@ -5175,7 +4970,6 @@ pub enum CodeExecutableTypes {
 }
 
 /// All type schemas that are derived from Code
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeTypes {
@@ -5188,7 +4982,6 @@ pub enum CodeTypes {
 }
 
 /// All type schemas that are derived from ContactPoint
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointTypes {
@@ -5197,7 +4990,6 @@ pub enum ContactPointTypes {
 }
 
 /// All type schemas that are derived from CreativeWork
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkTypes {
@@ -5222,7 +5014,6 @@ pub enum CreativeWorkTypes {
 }
 
 /// All type schemas that are derived from Entity
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EntityTypes {
@@ -5309,7 +5100,6 @@ pub enum EntityTypes {
 }
 
 /// All type schemas that are derived from Enumeration
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnumerationTypes {
@@ -5318,7 +5108,6 @@ pub enum EnumerationTypes {
 }
 
 /// All type schemas that are derived from Grant
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantTypes {
@@ -5348,7 +5137,7 @@ pub enum InlineContent {
     Subscript(Subscript),
     Superscript(Superscript),
     VideoObject(VideoObjectSimple),
-    Null,
+    Null(Null),
     Boolean(Boolean),
     Integer(Integer),
     Number(Number),
@@ -5356,7 +5145,6 @@ pub enum InlineContent {
 }
 
 /// All type schemas that are derived from Mark
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MarkTypes {
@@ -5371,7 +5159,6 @@ pub enum MarkTypes {
 }
 
 /// All type schemas that are derived from Math
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MathTypes {
@@ -5381,7 +5168,6 @@ pub enum MathTypes {
 }
 
 /// All type schemas that are derived from MediaObject
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectTypes {
@@ -5475,7 +5261,7 @@ pub enum Node {
     Variable(Variable),
     VideoObject(VideoObject),
     VolumeMount(VolumeMount),
-    Null,
+    Null(Null),
     Boolean(Boolean),
     Integer(Integer),
     Number(Number),
@@ -5485,7 +5271,6 @@ pub enum Node {
 }
 
 /// All type schemas that are derived from Thing
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingTypes {
@@ -5528,7 +5313,6 @@ pub enum ThingTypes {
 }
 
 /// All type schemas that are derived from Validator
-#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ValidatorTypes {
