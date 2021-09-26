@@ -1,3 +1,15 @@
+# [1.12.0](https://github.com/stencila/schema/compare/v1.11.4...v1.12.0) (2021-09-26)
+
+
+### Bug Fixes
+
+* **Rust:** Remove `serde(skip)` for pointer fields ([d18ed5b](https://github.com/stencila/schema/commit/d18ed5b5d993a7534400dd7b10db2b0f0e203833))
+
+
+### Features
+
+* **Rust:** Remove `NodeTrait`; `Null` as struct ([976c2af](https://github.com/stencila/schema/commit/976c2af0812ddb497e92c7e98715a0adbd554689))
+
 ## [1.11.4](https://github.com/stencila/schema/compare/v1.11.3...v1.11.4) (2021-09-20)
 
 
