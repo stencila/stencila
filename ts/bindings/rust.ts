@@ -264,7 +264,6 @@ export function interfaceSchemaToStruct(
         propertyAttributes[propertyPath] ??
         propertyAttributes[`*.${name}`] ??
         []
-      if (isPointer) attrs = [...attrs, '#[serde(skip)]']
 
       let type = propertyTypes[propertyPath] ?? propertyTypes[`*.${name}`]
       if (type === undefined) {

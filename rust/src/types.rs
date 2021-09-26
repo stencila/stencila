@@ -271,7 +271,6 @@ pub struct CodeExpression {
     pub media_type: Option<Box<String>>,
 
     /// The value of the expression when it was last evaluated.
-    #[serde(skip)]
     pub output: Option<Box<Node>>,
 }
 
@@ -606,7 +605,6 @@ pub struct CreativeWork {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -712,7 +710,6 @@ pub struct Article {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -830,7 +827,6 @@ pub struct Claim {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -974,7 +970,6 @@ pub struct Collection {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -1106,7 +1101,6 @@ pub struct Comment {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -1122,7 +1116,6 @@ pub struct Comment {
     pub name: Option<Box<String>>,
 
     /// The parent comment of this comment.
-    #[serde(skip)]
     pub parent_item: Option<Box<Comment>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
@@ -1219,7 +1212,6 @@ pub struct Datatable {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -1337,7 +1329,6 @@ pub struct MediaObject {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -1461,7 +1452,6 @@ pub struct AudioObject {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -1659,14 +1649,12 @@ pub struct ArrayValidator {
     pub type_: ArrayValidator_,
 
     /// An array node is valid if at least one of its items is valid against the `contains` schema.
-    #[serde(skip)]
     pub contains: Option<Box<ValidatorTypes>>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
     /// Another validator node specifying the constraints on all items in the array.
-    #[serde(skip)]
     pub items_validator: Option<Box<ValidatorTypes>>,
 
     /// An array node is valid if its size is less than, or equal to, this value.
@@ -1715,7 +1703,6 @@ pub struct ConstantValidator {
     pub id: Option<Box<String>>,
 
     /// The value that the node must have.
-    #[serde(skip)]
     pub value: Option<Box<Node>>,
 }
 
@@ -1848,7 +1835,6 @@ pub struct Figure {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -2097,7 +2083,6 @@ pub struct ImageObject {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -2119,7 +2104,6 @@ pub struct ImageObject {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip)]
     pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
@@ -2129,7 +2113,6 @@ pub struct ImageObject {
     pub text: Option<Box<String>>,
 
     /// Thumbnail image of this image.
-    #[serde(skip)]
     pub thumbnail: Option<Box<ImageObject>>,
 
     /// The title of the creative work.
@@ -2327,7 +2310,6 @@ pub struct ListItem {
     pub is_checked: Option<Boolean>,
 
     /// The item represented by this list item.
-    #[serde(skip)]
     pub item: Option<Box<Node>>,
 
     /// The name of the item.
@@ -2607,7 +2589,6 @@ pub struct Organization {
     pub name: Option<Box<String>>,
 
     /// Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
-    #[serde(skip)]
     pub parent_organization: Option<Box<Organization>>,
 
     /// The URL of the item.
@@ -2653,7 +2634,6 @@ pub struct Parameter {
     pub name: String,
 
     /// The default value of the parameter.
-    #[serde(skip)]
     pub default: Option<Box<Node>>,
 
     /// The SHA-256 digest of the `value` property the last time the node was executed.
@@ -2675,7 +2655,6 @@ pub struct Parameter {
     pub validator: Option<Box<ValidatorTypes>>,
 
     /// The current value of the parameter.
-    #[serde(skip)]
     pub value: Option<Box<Node>>,
 }
 
@@ -2754,7 +2733,6 @@ pub struct Periodical {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
@@ -3083,7 +3061,6 @@ pub struct PublicationIssue {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Identifies the issue of publication; for example, "iii" or "2".
@@ -3201,7 +3178,6 @@ pub struct PublicationVolume {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -3367,7 +3343,6 @@ pub struct Review {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// The item that is being reviewed.
@@ -3479,7 +3454,6 @@ pub struct SoftwareApplication {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -3729,7 +3703,6 @@ pub struct SoftwareSourceCode {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -3943,7 +3916,6 @@ pub struct Table {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -4228,7 +4200,6 @@ pub struct VideoObject {
     pub images: Option<Vec<ThingImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
-    #[serde(skip)]
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
