@@ -219,7 +219,7 @@ serde_yaml = "=0.8.21"
 sha2 = "0.9.8"
 similar = "=2.0.0"
 slug = "=0.1.4"
-stencila-schema = "=1.11.1"
+stencila-schema = "=1.12.0"
 strip-ansi-escapes = { version = "0.1.1", optional = true }
 structopt = { version = "=0.3.23", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
