@@ -1,3 +1,12 @@
+## [0.118.4](https://github.com/stencila/stencila/compare/v0.118.3...v0.118.4) (2021-09-26)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate json5 to v0.4.1 ([dd7e08b](https://github.com/stencila/stencila/commit/dd7e08bd41f9476a2a56a95b2476cb81eafb043f))
+* **dependencies:** update rust crate schemars to v0.8.5 ([82741f6](https://github.com/stencila/stencila/commit/82741f6671ddfedbb685bfb71d67b2611777593c))
+* **dependencies:** update rust crate tracing-subscriber to v0.2.24 ([8fc8c66](https://github.com/stencila/stencila/commit/8fc8c66d5d8e45c461c8a514d863dd9081a53546))
+
 ## [0.118.3](https://github.com/stencila/stencila/compare/v0.118.2...v0.118.3) (2021-09-23)
 
 
