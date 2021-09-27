@@ -137,7 +137,7 @@ fn apply_transform(_from: &BlockContent, _to: &str) -> BlockContent {
 
 patchable_struct!(ClaimSimple, content, claim_type);
 patchable_struct!(CodeBlock, programming_language, text);
-patchable_struct!(CodeChunk, programming_language, text);
+patchable_struct!(CodeChunk, programming_language, text, outputs);
 patchable_struct!(CollectionSimple);
 patchable_struct!(FigureSimple);
 patchable_struct!(Heading, content, depth);

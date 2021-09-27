@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use stencila_schema::Node;
 
 #[derive(Debug, Clone, Default, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
 pub struct DefaultKernel {
     #[serde(skip)]
     variables: HashMap<String, Node>,
@@ -18,7 +19,7 @@ impl DefaultKernel {
 }
 
 impl KernelTrait for DefaultKernel {
-    fn get(&mut self, name: &str) -> Result<Node> {
+    fn get(&self, name: &str) -> Result<Node> {
         match self.variables.get(name) {
             Some(node) => Ok(node.clone()),
             None => bail!("Variable does not exist in kernel {}", name),
@@ -31,11 +32,11 @@ impl KernelTrait for DefaultKernel {
     }
 
     fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
-        let mut nodes = Vec::new();
+        let mut outputs = Vec::new();
         for line in code.lines() {
             let node = self.get(line.trim())?;
-            nodes.push(node)
+            outputs.push(node)
         }
-        Ok(nodes)
+        Ok(outputs)
     }
 }

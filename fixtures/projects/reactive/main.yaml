@@ -7,23 +7,49 @@ type: Article
 content:
     - type: Paragraph
       content:
-        - "Parameter 'a' : "
+        - "Parameters "
+        - type: CodeFragment
+          text: a
+        - " "
         - type: Parameter
           id: par-a
           name: a
-          value: 1
+          value: 3
           validator:
             type: NumberValidator
-    - type: Paragraph
-      content:
-        - "Parameter 'b' : "
+        - " and "
+        - type: CodeFragment
+          text: b
+        - " "
         - type: Parameter
           id: par-b
           name: b
           value: 2
           validator:
             type: NumberValidator
+        - "."
+    - type: Paragraph
+      content:
+        - "A code chunk which assigns a document variable "
+        - type: CodeFragment
+          text: c
+        - " that is based on parameters "
+        - type: CodeFragment
+          text: a
+        - " and "
+        - type: CodeFragment
+          text: b
+        - ":"
     - type: CodeChunk
       id: chunk-1
-      programmingLanguage: calc
-      text: "a"
+      programmingLanguage: "calc"
+      text: "c = a + b\nc"
+    - type: Paragraph
+      content:
+        - "A code expression which doubles variable "
+        - type: CodeFragment
+          text: c
+        - " assigned in the above code chunk "
+        - type: CodeExpression
+          text: c * 2
+        - "."

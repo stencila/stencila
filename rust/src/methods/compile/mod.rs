@@ -245,7 +245,7 @@ impl Compile for Parameter {
     }
 
     fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        tracing::debug!("Executing parameter {} #{:?}", self.name, self.id);
+        tracing::debug!("Executing `Parameter`");
         if let Some(value) = self.value.as_deref() {
             kernels.set(&self.name, value.clone(), "")?;
         }
@@ -273,6 +273,19 @@ impl Compile for CodeChunk {
 
         Ok(())
     }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        tracing::debug!("Executing `CodeChunk`");
+
+        let outputs = kernels.exec(&self.text, &self.programming_language)?;
+        self.outputs = if outputs.is_empty() {
+            None
+        } else {
+            Some(outputs)
+        };
+
+        Ok(())
+    }
 }
 
 /// Compile a `CodeExpression` node
@@ -292,6 +305,15 @@ impl Compile for CodeExpression {
             context.relations.push((subject, relations));
             self.compile_digest = Some(digest);
         }
+
+        Ok(())
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        tracing::debug!("Executing `CodeExpression`");
+
+        let outputs = kernels.exec(&self.text, &self.programming_language)?;
+        self.output = outputs.get(0).map(|output| Box::new(output.clone()));
 
         Ok(())
     }

@@ -7,7 +7,7 @@ macro_rules! patchable_variants_resolve {
                     $variant(me) => me.resolve(address),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => bail!("Unhandled variant")
+                _ => bail!("Unhandled variant `{}` of `{}`", self.as_ref(), type_name::<Self>())
             }
         }
     };
@@ -51,7 +51,7 @@ macro_rules! patchable_variants_hash {
                     $variant(me) => me.make_hash(state),
                 )*
                 #[allow(unreachable_patterns)]
-                _ => unimplemented!()
+                _ => tracing::error!("Unhandled variant `{}` of `{}`", self.as_ref(), type_name::<Self>())
             }
         }
     };

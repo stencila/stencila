@@ -47,4 +47,12 @@ macro_rules! patchable_node {
     };
 }
 
-patchable_node!(Node::Article);
+patchable_node!(
+    Node::Article
+
+    Node::Null
+    Node::Boolean
+    Node::Integer
+    Node::Number
+    Node::String
+);
