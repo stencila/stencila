@@ -55,6 +55,9 @@ pub enum Family {
     #[strum(serialize = "se")]
     Session,
 
+    #[strum(serialize = "ke")]
+    Kernel,
+
     #[strum(serialize = "cl")]
     Client,
 }

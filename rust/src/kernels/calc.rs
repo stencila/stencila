@@ -1,3 +1,5 @@
+use crate::errors::incompatible_language;
+
 use super::KernelTrait;
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
@@ -21,6 +23,15 @@ impl CalcKernel {
 }
 
 impl KernelTrait for CalcKernel {
+    fn language(&self, language: Option<String>) -> Result<String> {
+        let canonical = Ok("calc".to_string());
+        match language.as_deref() {
+            Some("calc") => canonical,
+            Some(language) => bail!(incompatible_language::<Self>(language)),
+            None => canonical,
+        }
+    }
+
     fn get(&self, name: &str) -> Result<Node> {
         match self.variables.get(name) {
             Some(number) => Ok(Node::Number(*number)),

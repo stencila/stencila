@@ -1,3 +1,4 @@
+use crate::utils::uuids;
 use enum_dispatch::enum_dispatch;
 use eyre::{eyre, Result};
 use schemars::JsonSchema;
@@ -9,6 +10,15 @@ type KernelId = String;
 
 #[enum_dispatch]
 pub trait KernelTrait {
+    /// Get the name of the kernel's programming language, and/or
+    /// check that it is able to execute a given language.
+    ///
+    /// If a `language` identifier is supplied, e.g. `Some("py")`, and the kernel
+    /// can execute that language, should return the canonical name of the language
+    /// e.g. `Ok("python3")`. If the language can not execute the language should
+    /// return a `IncompatibleLanguage` error.
+    fn language(&self, language: Option<String>) -> Result<String>;
+
     /// Get a variable from the kernel
     fn get(&self, name: &str) -> Result<Node>;
 
@@ -27,7 +37,7 @@ use calc::*;
 
 #[enum_dispatch(KernelTrait)]
 #[derive(Debug, Clone, JsonSchema, Serialize)]
-#[serde(tag="type")]
+#[serde(tag = "type")]
 pub enum Kernel {
     Default(DefaultKernel),
     Calc(CalcKernel),
@@ -62,10 +72,12 @@ impl KernelSpace {
         tracing::debug!("Setting variable `{}`", name);
 
         let kernel_id = self.ensure_kernel(language)?;
-        self.variables.insert(name.to_string(), kernel_id.clone());
-
         let kernel = self.get_kernel_mut(&kernel_id)?;
-        kernel.set(name, value)
+        kernel.set(name, value)?;
+
+        self.variables.insert(name.to_string(), kernel_id);
+
+        Ok(())
     }
 
     /// Execute some code in the kernel space
@@ -79,17 +91,25 @@ impl KernelSpace {
     }
 
     /// Ensure that a kernel exists for a language
-    fn ensure_kernel(&mut self, _language: &str) -> Result<KernelId> {
-        for (kernel_id, _kernel) in self.kernels.iter_mut() {
-            return Ok(kernel_id.clone());
+    ///
+    /// Returns a tuple of the kernel's canonical language name and id.
+    fn ensure_kernel(&mut self, language: &str) -> Result<KernelId> {
+        // Is there already a kernel capable of executing the language?
+        for (kernel_id, kernel) in self.kernels.iter_mut() {
+            if kernel.language(Some(language.to_string())).is_ok() {
+                return Ok(kernel_id.clone());
+            }
         }
 
         // If unable to set in an existing kernel then start a new kernel
-        // for the language
-        //let kernel = Kernel::Default(DefaultKernel::new());
-        let kernel = Kernel::Calc(CalcKernel::new());
-        let kernel_id = "todo-kernel-id".to_string();
+        // for the language.
+        let kernel = match language {
+            "calc" => Kernel::Calc(CalcKernel::new()),
+            _ => Kernel::Default(DefaultKernel::new()),
+        };
+        let kernel_id = uuids::generate(uuids::Family::Kernel);
         self.kernels.insert(kernel_id.clone(), kernel);
+
         Ok(kernel_id)
     }
 

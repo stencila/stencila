@@ -1,4 +1,8 @@
-use crate::{methods::Method, patches::{Address, Slot}, utils::schemas};
+use crate::{
+    methods::Method,
+    patches::{Address, Slot},
+    utils::schemas,
+};
 use eyre::Result;
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaSettings, JsonSchema};
@@ -40,7 +44,7 @@ pub enum Error {
     UnpointableType {
         #[schemars(schema_with = "address_schema")]
         address: Address,
-        type_name: String
+        type_name: String,
     },
 
     /// The user attempted to apply a patch operation with an invalid
@@ -49,7 +53,7 @@ pub enum Error {
     InvalidAddress {
         #[schemars(schema_with = "address_schema")]
         address: Address,
-        type_name: String
+        type_name: String,
     },
 
     /// The user attempted to apply a patch operation that is invalid for
@@ -85,6 +89,13 @@ pub enum Error {
     /// The user attempted to open a document with an unknown format
     #[error("Unknown format '{format}'")]
     UnknownFormat { format: String },
+
+    /// A kernel was asked to execute code in an incompatible programming language
+    #[error("Incompatible programming language '{language}' for kernel type '{kernel_type}'")]
+    IncompatibleLanguage {
+        language: String,
+        kernel_type: String,
+    },
 
     /// The user attempted to call a method that is not implemented internally
     /// and so must be delegated to a plugin. However, none of the registered
@@ -180,6 +191,14 @@ pub fn invalid_slot_index<Type: ?Sized>(index: usize) -> Error {
     Error::InvalidSlotIndex {
         index,
         type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `IncompatibleLanguage` error
+pub fn incompatible_language<Type: ?Sized>(language: &str) -> Error {
+    Error::IncompatibleLanguage {
+        language: language.to_string(),
+        kernel_type: type_name::<Type>().into(),
     }
 }
 

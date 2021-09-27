@@ -770,7 +770,7 @@ impl Document {
             if subscription == "patched" {
                 if let Some(current_root) = &self.root {
                     tracing::debug!("Generating patch for document '{}'", self.id);
-                    
+
                     let patch = diff(current_root, &root);
 
                     let dom_patch = DomPatch::new(&patch, None);
