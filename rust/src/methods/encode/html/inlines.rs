@@ -297,7 +297,7 @@ impl ToHtml for CiteGroup {
 impl ToHtml for CodeExpression {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         let output = match &self.output {
-            Some(output) => elem("pre", &[], &output.to_html("", context)),
+            Some(output) => output.to_html("", context),
             None => "".to_string(),
         };
         elem(
