@@ -1,4 +1,5 @@
 import { DomOperationRemove, Slot } from '@stencila/stencila'
+import { ElementId } from '../types'
 import {
   assert,
   assertNumber,
@@ -13,9 +14,9 @@ import {
 /**
  * Apply a remove operation
  */
-export function applyRemove(op: DomOperationRemove): void {
+export function applyRemove(op: DomOperationRemove, target?: ElementId): void {
   const { address, items } = op
-  const [parent, slot] = resolveParent(address)
+  const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {
     if (isString(slot)) applyRemoveOption(parent, slot, items)

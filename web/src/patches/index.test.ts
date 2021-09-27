@@ -4,5 +4,5 @@ import { applyPatch } from '.'
 // for each type of operation.
 
 test('applyPatch', () => {
-  applyPatch([])
+  applyPatch({ ops: [] })
 })

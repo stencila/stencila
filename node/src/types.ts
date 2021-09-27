@@ -24,6 +24,14 @@ export interface Format {
   extensions: string[]
 }
 
+export type Kernel =
+  | {
+      type: 'Default'
+    }
+  | {
+      type: 'Calc'
+    }
+
 /**
  * An in-memory representation of a document
  */
@@ -71,6 +79,12 @@ export interface Document {
    */
   previewable: boolean
   /**
+   * Addresses of nodes in `root` that have an `id`
+   *
+   * Used to fetch a particular node (and do something with it like `patch` or `execute` it) rather than walking the node tree looking for it. It is necessary to use [`Address`] here (rather than say raw pointers) because pointers or references will change as the document is patched. These addresses are shifted when the document is patched to account for this.
+   */
+  addresses: Record<string, Address>
+  /**
    * The set of relations between this document, or nodes in this document, and other resources.
    *
    * Relations may be external (e.g. this document links to another file) or internal (e.g. the second code chunk uses a variable defined in the first code chunk).
@@ -85,6 +99,18 @@ export interface Document {
    */
   subscriptions: {
     [k: string]: string[]
+  }
+  /**
+   * The kernels in the document kernel space
+   */
+  kernels: {
+    [k: string]: Kernel
+  }
+  /**
+   * The variables in the document kernel space
+   */
+  variables: {
+    [k: string]: string
   }
 }
 
@@ -189,10 +215,6 @@ export type DomOperation =
   | DomOperationReplace
   | DomOperationMove
   | DomOperationTransform
-/**
- * A set of [`DomOperation`]s
- */
-export type DomPatch = DomOperation[]
 
 /**
  * Add a value
@@ -307,6 +329,19 @@ export interface OperationTransform {
    * The type of `Node` to transform to
    */
   to: string
+}
+/**
+ * A set of [`DomOperation`]s to be applied to some `target` DOM element
+ */
+export interface DomPatch {
+  /**
+   * The [`DomOperation`]s to apply
+   */
+  ops: DomOperation[]
+  /**
+   * The id of the DOM element to which to apply the patch
+   */
+  target?: string
 }
 /**
  * Add one or more DOM nodes
@@ -1107,6 +1142,18 @@ export type Error =
       [k: string]: unknown
     }
   | {
+      type: 'UnpointableType'
+      address: Address
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidAddress'
+      address: Address
+      type_name: string
+      message: string
+    }
+  | {
       type: 'InvalidPatchOperation'
       op: string
       type_name: string
@@ -1115,6 +1162,11 @@ export type Error =
   | {
       type: 'InvalidPatchAddress'
       address: string
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidPatchValue'
       type_name: string
       message: string
     }
@@ -1133,11 +1185,6 @@ export type Error =
   | {
       type: 'InvalidSlotIndex'
       index: number
-      type_name: string
-      message: string
-    }
-  | {
-      type: 'InvalidPatchValue'
       type_name: string
       message: string
     }

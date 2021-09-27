@@ -1,4 +1,5 @@
 import { main } from './index'
+export type ElementId = string
 export type ProjectId = string
 export type SnapshotId = string
 

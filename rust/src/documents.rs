@@ -201,6 +201,7 @@ pub struct Document {
     /// It is necessary to use [`Address`] here (rather than say raw pointers) because
     /// pointers or references will change as the document is patched.
     /// These addresses are shifted when the document is patched to account for this.
+    #[schemars(schema_with = "Document::schema_addresses")]
     addresses: HashMap<String, Address>,
 
     /// The set of relations between this document, or nodes in this document, and other
@@ -213,6 +214,10 @@ pub struct Document {
     #[serde(skip_deserializing, serialize_with = "Document::serialize_relations")]
     pub relations: HashMap<Resource, Vec<(Relation, Resource)>>,
 
+    /// The kernel space for this document.
+    ///
+    /// This is where document variables are stored and executable nodes such as
+    /// `CodeChunk`s and `Parameters`s are executed.
     #[serde(flatten)]
     kernels: KernelSpace,
 
@@ -239,6 +244,11 @@ impl Document {
     /// inline type.
     fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
         schemas::typescript("Format", true)
+    }
+
+    /// Generate the JSON Schema for the `addresses` property to avoid duplicated types.
+    fn schema_addresses(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("Record<string, Address>", true)
     }
 
     /// Generate the JSON Schema for the `relations` property to avoid duplicated
@@ -660,13 +670,29 @@ impl Document {
         pointer.patch(patch)
     }
 
-    /// Execute the document, optionally providing a [`Patch`] to apply before execution.
+    /// Execute the document, optionally providing a [`Patch`] to apply before execution, and
+    /// publishing a patch if there are any subscribers.
     pub async fn execute(&mut self, node_id: Option<String>, patch: Option<Patch>) -> Result<()> {
-        let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id)?;
+        let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id.clone())?;
         if let Some(patch) = patch {
             pointer.patch(&patch)?;
         }
-        pointer.execute(&mut self.kernels)
+
+        let patch = pointer.execute(&mut self.kernels)?;
+
+        let dom_patch = DomPatch::new(&patch, node_id);
+        publish(
+            &["documents:", &self.id, ":patched"].concat(),
+            &DocumentEvent {
+                type_: DocumentEventType::Patched,
+                document: self.clone(),
+                content: None,
+                format: None,
+                patch: Some(dom_patch),
+            },
+        );
+
+        Ok(())
     }
 
     /// Get the SHA-256 of the document
@@ -744,7 +770,10 @@ impl Document {
             if subscription == "patched" {
                 if let Some(current_root) = &self.root {
                     tracing::debug!("Generating patch for document '{}'", self.id);
-                    let patch = DomPatch::from(&diff(current_root, &root));
+                    
+                    let patch = diff(current_root, &root);
+
+                    let dom_patch = DomPatch::new(&patch, None);
                     publish(
                         &["documents:", &self.id, ":patched"].concat(),
                         &DocumentEvent {
@@ -752,7 +781,7 @@ impl Document {
                             document: self.clone(),
                             content: None,
                             format: None,
-                            patch: Some(patch),
+                            patch: Some(dom_patch),
                         },
                     )
                 }

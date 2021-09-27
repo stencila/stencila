@@ -1,4 +1,5 @@
 import { DomOperationReplace, Slot } from '@stencila/stencila'
+import { ElementId } from '../types'
 import {
   assert,
   assertElement,
@@ -16,9 +17,12 @@ import {
 /**
  * Apply a replace operation
  */
-export function applyReplace(op: DomOperationReplace): void {
+export function applyReplace(
+  op: DomOperationReplace,
+  target?: ElementId
+): void {
   const { address, items, html } = op
-  const [parent, slot] = resolveParent(address)
+  const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {
     if (isString(slot)) applyReplaceOption(parent, slot, items, html)

@@ -103,8 +103,10 @@ export const main = (
     }
   })
 
-  // Temporary `onChange` event handler to `Parameter` nodes
+  // Temporary event handlers for executable nodes until we work out how this
+  // will be done long term
   window.onload = () => {
+    // `onChange` event handler for `Parameter` nodes
     window.document.querySelectorAll('input').forEach((input) => {
       input.addEventListener('change', () => {
         window.dispatchEvent(
@@ -126,5 +128,32 @@ export const main = (
         )
       })
     })
+
+    // `executeHandler` for code chunks
+    window.document
+      .querySelectorAll('stencila-code-chunk,stencila-code-expression')
+      .forEach((elem) => {
+        // @ts-expect-error because not importing types
+        elem.executeHandler = (node) => {
+          window.dispatchEvent(
+            new CustomEvent<documents.NodeExecute>('document:execute', {
+              detail: {
+                nodeId: elem.id,
+                patch: [
+                  {
+                    type: 'Replace',
+                    address: ['text'],
+                    /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+                    value: node.text,
+                    items: 1,
+                    length: 1,
+                  },
+                ],
+              },
+            })
+          )
+          return '{}'
+        }
+      })
   }
 }

@@ -1,7 +1,4 @@
-use crate::{
-    methods::Method,
-    patches::{Address, Slot},
-};
+use crate::{methods::Method, patches::{Address, Slot}, utils::schemas};
 use eyre::Result;
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaSettings, JsonSchema};
@@ -40,12 +37,20 @@ pub enum Error {
     /// An address resolved to a type that is not able to be pointed to
     /// (does not have a [`Pointer`] variant)
     #[error("Address '{address}' resolved to a type that can not be pointed to '{type_name}'")]
-    UnpointableType { address: Address, type_name: String },
+    UnpointableType {
+        #[schemars(schema_with = "address_schema")]
+        address: Address,
+        type_name: String
+    },
 
     /// The user attempted to apply a patch operation with an invalid
     /// address for the type.
     #[error("Invalid node address '{address}' for type '{type_name}'")]
-    InvalidAddress { address: Address, type_name: String },
+    InvalidAddress {
+        #[schemars(schema_with = "address_schema")]
+        address: Address,
+        type_name: String
+    },
 
     /// The user attempted to apply a patch operation that is invalid for
     /// the type.
@@ -108,6 +113,11 @@ pub enum Error {
     /// An error of unspecified type
     #[error("{message}")]
     Unspecified { message: String },
+}
+
+/// Generate the JSON Schema for the `addresses` property to avoid duplicated types.
+fn address_schema(_generator: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+    schemas::typescript("Address", true)
 }
 
 /// Create an `UnpointableType` error

@@ -1,5 +1,6 @@
 import { Address, Slot } from '@stencila/stencila'
 import GraphemeSplitter from 'grapheme-splitter'
+import { ElementId } from '../types'
 
 /**
  * Panic if there is a conflict between a `DomPatch` and the current DOM.
@@ -79,10 +80,11 @@ export function isText(node: Node): node is Text {
 }
 
 /**
- * Resolve the root node.
+ * Resolve the root DOM element.
  *
- * Addresses are relative to the root, so it is always necessary
- * to resolve this first.
+ * The root node corresponds to the `root` node of the `Document`
+ * in Rust. By default addresses are relative to the "root" node of the
+ * document.
  *
  * Panics if unable to find the `[slot="root"]` node in the
  * body of the DOM document.
@@ -91,6 +93,25 @@ export function resolveRoot(): Element {
   const root = document.body.querySelector('[slot="root"]')
   if (root === null) throw panic('Unable to resolve root node')
   return root
+}
+
+/**
+ * Resolve the target of a patch.
+ *
+ * If a `target` is specified for a patch then return the element
+ * with a matching `id`, otherwise return the root element.
+ */
+export function resolveTarget(target?: ElementId): Element {
+  if (target === undefined) {
+    return resolveRoot()
+  } else {
+    const elem = document.getElementById(target)
+    if (elem === null)
+      throw panic(
+        `Unable to resolve target node; no element with id '${target}'`
+      )
+    return elem
+  }
 }
 
 /**
@@ -137,8 +158,11 @@ export function resolveSlot(parent: Element, slot: Slot): Element | Text {
  * the node on which to perform the action and the terminal slot
  * refers to the location within that node to add or replace.
  */
-export function resolveParent(address: Address): [Element | Text, Slot] {
-  let parent: Element | Text = resolveRoot()
+export function resolveParent(
+  address: Address,
+  target?: ElementId
+): [Element | Text, Slot] {
+  let parent: Element | Text = resolveTarget(target)
 
   for (const slot of address.slice(0, -1)) {
     assertElement(parent)
@@ -154,8 +178,11 @@ export function resolveParent(address: Address): [Element | Text, Slot] {
 /**
  * Resolve the node at the address.
  */
-export function resolveNode(address: Address): Element | Text {
-  let node: Element | Text = resolveRoot()
+export function resolveNode(
+  address: Address,
+  target?: ElementId
+): Element | Text {
+  let node: Element | Text = resolveTarget(target)
 
   for (const slot of address) {
     assertElement(node)

@@ -1,4 +1,5 @@
 import { DomOperationAdd, Slot } from '@stencila/stencila'
+import { ElementId } from '../types'
 import {
   assert,
   assertNumber,
@@ -14,9 +15,9 @@ import {
 /**
  * Apply an add operation
  */
-export function applyAdd(op: DomOperationAdd): void {
+export function applyAdd(op: DomOperationAdd, target?: ElementId): void {
   const { address, html } = op
-  const [parent, slot] = resolveParent(address)
+  const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {
     if (isString(slot)) applyAddOption(parent, slot, html)

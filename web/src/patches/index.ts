@@ -11,6 +11,7 @@
  */
 
 import { DomOperation, DomPatch } from '@stencila/stencila'
+import { ElementId } from '../types'
 import { applyAdd } from './add'
 import { applyMove } from './move'
 import { applyRemove } from './remove'
@@ -21,8 +22,9 @@ import { applyTransform } from './transform'
  * Apply a `DomPatch` to the `root` node of the current document
  */
 export function applyPatch(patch: DomPatch): void {
-  for (const op of patch) {
-    applyOp(op)
+  const { ops, target } = patch
+  for (const op of ops) {
+    applyOp(op, target)
   }
 }
 
@@ -32,17 +34,17 @@ export function applyPatch(patch: DomPatch): void {
  * Uses the `type` discriminant to dispatch to specific functions for
  * each operation variant.
  */
-export function applyOp(op: DomOperation): void {
+export function applyOp(op: DomOperation, target?: ElementId): void {
   switch (op.type) {
     case 'Add':
-      return applyAdd(op)
+      return applyAdd(op, target)
     case 'Remove':
-      return applyRemove(op)
+      return applyRemove(op, target)
     case 'Replace':
-      return applyReplace(op)
+      return applyReplace(op, target)
     case 'Move':
-      return applyMove(op)
+      return applyMove(op, target)
     case 'Transform':
-      return applyTransform(op)
+      return applyTransform(op, target)
   }
 }

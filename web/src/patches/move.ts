@@ -1,4 +1,5 @@
 import { DomOperationMove, Slot } from '@stencila/stencila'
+import { ElementId } from '../types'
 import {
   assert,
   assertElement,
@@ -14,11 +15,11 @@ import {
  * for `Vec`s so this panics if the operation is on a string
  * or has string terminal slots.
  */
-export function applyMove(op: DomOperationMove): void {
+export function applyMove(op: DomOperationMove, target?: ElementId): void {
   const { from, items, to } = op
 
-  const [fromParent, fromSlot] = resolveParent(from)
-  const [toParent, toSlot] = resolveParent(to)
+  const [fromParent, fromSlot] = resolveParent(from, target)
+  const [toParent, toSlot] = resolveParent(to, target)
 
   assert(
     toParent.isSameNode(fromParent),

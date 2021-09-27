@@ -11,6 +11,7 @@ use itertools::Itertools;
 use prelude::{invalid_address, unpointable_type};
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_with::skip_serializing_none;
 use similar::TextDiff;
 use std::{
     any::{type_name, Any},
@@ -265,13 +266,26 @@ impl<'lt> Pointer<'lt> {
         }
     }
 
-    pub fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        match self {
-            Pointer::Inline(node) => execute(*node, kernels),
-            Pointer::Block(node) => execute(*node, kernels),
-            Pointer::Node(node) => execute(*node, kernels),
+    pub fn execute(&mut self, kernels: &mut KernelSpace) -> Result<Patch> {
+        let patch = match self {
+            Pointer::Inline(node) => {
+                let pre = node.clone();
+                execute(*node, kernels)?;
+                diff(&pre, &node)
+            }
+            Pointer::Block(node) => {
+                let pre = node.clone();
+                execute(*node, kernels)?;
+                diff(&pre, &node)
+            }
+            Pointer::Node(node) => {
+                let pre = node.clone();
+                execute(*node, kernels)?;
+                diff(&pre, &node)
+            }
             _ => bail!("Invalid node pointer: {:?}", self),
-        }
+        };
+        Ok(patch)
     }
 }
 
@@ -590,41 +604,85 @@ impl DomOperation {
 
         let slot = address.back().unwrap();
         let context = Context::new();
-        if let Some(string) = value.downcast_ref::<String>() {
-            string.clone()
-        } else if let Some(inline) = value.downcast_ref::<InlineContent>() {
-            inline.to_html(&slot.to_string(), &context)
-        } else if let Some(block) = value.downcast_ref::<BlockContent>() {
-            block.to_html(&slot.to_string(), &context)
-        } else if let Some(inlines) = value.downcast_ref::<Vec<InlineContent>>() {
-            match slot {
+
+        macro_rules! node {
+            ($( $type:ty )*) => {
+                $(
+                    if let Some(node) = value.downcast_ref::<$type>() {
+                        return node.to_html(&slot.to_string(), &context)
+                    }
+                )*
+            }
+        }
+        node!(
+            Boolean
+            Integer
+            Number
+            String
+            InlineContent
+            BlockContent
+            Node
+        );
+
+        macro_rules! boxed {
+            ($( $type:ty )*) => {
+                $(
+                    if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
+                        return boxed.to_html(&slot.to_string(), &context)
+                    }
+                )*
+            }
+        }
+        boxed!(
+            Boolean
+            Integer
+            Number
+            String
+            Node
+        );
+
+        if let Some(inlines) = value.downcast_ref::<Vec<InlineContent>>() {
+            return match slot {
                 // If the slot is a name then we're adding or replacing a property so we
                 // want the `Vec` to have a wrapper element with the name as the slot attribute
                 Slot::Name(name) => inlines.to_html(name, &context),
                 // If the slot is an index then we're adding or replacing items in a
                 // vector so we don't want a wrapper element
                 Slot::Index(..) => inlines.to_html("", &context),
-            }
-        } else if let Some(blocks) = value.downcast_ref::<Vec<BlockContent>>() {
-            match slot {
+            };
+        }
+
+        if let Some(blocks) = value.downcast_ref::<Vec<BlockContent>>() {
+            return match slot {
                 // As above, but for blocks...
                 Slot::Name(name) => blocks.to_html(name, &context),
                 Slot::Index(..) => blocks.to_html("", &context),
-            }
-        } else {
-            tracing::error!("Unhandled value type when generating `DomOperation`");
-            "<span class=\"todo\">TODO</span>".to_string()
+            };
         }
+
+        tracing::error!("Unhandled value type when generating HTML for `DomOperation`");
+        "<span class=\"todo\">TODO</span>".to_string()
     }
 }
 
-/// A set of [`DomOperation`]s
-#[derive(Debug, Deref, JsonSchema, Serialize)]
-pub struct DomPatch(Vec<DomOperation>);
+/// A set of [`DomOperation`]s to be applied to some `target` DOM element
+#[skip_serializing_none]
+#[derive(Debug, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct DomPatch {
+    /// The [`DomOperation`]s to apply
+    ops: Vec<DomOperation>,
 
-impl From<&Patch> for DomPatch {
-    fn from(patch: &Patch) -> DomPatch {
-        DomPatch(patch.iter().map(|op| DomOperation::from_op(op)).collect())
+    /// The id of the DOM element to which to apply the patch
+    target: Option<String>,
+}
+
+impl DomPatch {
+    pub fn new(patch: &Patch, target: Option<String>) -> DomPatch {
+        DomPatch {
+            ops: patch.iter().map(|op| DomOperation::from_op(op)).collect(),
+            target,
+        }
     }
 }
 
@@ -1104,7 +1162,7 @@ mod tests {
         // one to one -> empty patch
         let patch = diff(&one, &one);
         assert_json_eq!(patch, json!([]));
-        let dom_patch = DomPatch::from(&patch);
+        let dom_patch = DomPatch::new(&patch, None);
         assert_json_eq!(dom_patch, json!([]));
 
         // one to two -> `Add` operation on the article's optional content
@@ -1118,7 +1176,7 @@ mod tests {
                 "length": 1
             }])
         );
-        let dom_patch = DomPatch::from(&patch);
+        let dom_patch = DomPatch::new(&patch, None);
         assert_json_eq!(
             dom_patch,
             json!([{
@@ -1139,7 +1197,7 @@ mod tests {
                 "length": 2
             }])
         );
-        let dom_patch = DomPatch::from(&patch);
+        let dom_patch = DomPatch::new(&patch, None);
         assert_json_eq!(
             dom_patch,
             json!([{
@@ -1161,7 +1219,7 @@ mod tests {
                 "length": 2
             }])
         );
-        let dom_patch = DomPatch::from(&patch);
+        let dom_patch = DomPatch::new(&patch, None);
         assert_json_eq!(
             dom_patch,
             json!([{
@@ -1183,7 +1241,7 @@ mod tests {
                 "to": ["content", 0, "content", 0],
             }])
         );
-        let dom_patch = DomPatch::from(&patch);
+        let dom_patch = DomPatch::new(&patch, None);
         assert_json_eq!(
             dom_patch,
             json!([{
