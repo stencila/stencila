@@ -104,25 +104,25 @@ export function resolveSlot(parent: Element, slot: Slot): Element | Text {
     // Select the first child element with the slot.
     // This could perhaps be loosened, by removing `:scope` so the first descendent is selected.
     assertElement(parent)
-    const next: Element | null = parent.querySelector(
+    const child: Element | null = parent.querySelector(
       `:scope > [slot="${slot}"]`
     )
-    if (next === null) {
+    if (child === null) {
       // The `content` property can be is an "implicit" slot; if it is not
       // present then just return the parent.
       if (slot === 'content') return parent
-      else throw panic(`Unable to resolve slot '${slot}''`)
+      else throw panic(`Unable to resolve slot '${slot}'`)
     }
-    return next
+    return child
   } else {
     // Select the child at the slot index.
-    const next: ChildNode | undefined = parent.childNodes[slot]
-    if (next === undefined) {
+    const child: ChildNode | undefined = parent.childNodes[slot]
+    if (child === undefined) {
       throw panic(
         `Unable to get slot '${slot}' from element of with ${parent.childNodes.length} children`
       )
-    } else if (isElement(next) || isText(next)) {
-      return next
+    } else if (isElement(child) || isText(child)) {
+      return child
     } else {
       throw panic('Unexpected node type')
     }
