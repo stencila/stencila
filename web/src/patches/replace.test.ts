@@ -23,7 +23,7 @@ test('applyReplaceOption', () => {
     /Unexpected replace items 100/
   )
   expect(() => applyReplaceOption(elem, 'foo', 1, '')).toThrow(
-    /Unable to resolve slot foo/
+    /Unable to resolve slot 'foo'/
   )
 })
 
@@ -48,10 +48,10 @@ test('applyReplaceVec', () => {
     /Expected number slot/
   )
   expect(() => applyReplaceVec(elem, -1, 1, '')).toThrow(
-    /Unexpected replace slot -1/
+    /Unexpected replace slot '-1'/
   )
   expect(() => applyReplaceVec(elem, 42, 1, '')).toThrow(
-    /Unexpected replace slot 42/
+    /Unexpected replace slot '42'/
   )
 })
 
@@ -68,10 +68,10 @@ test('applyReplaceString', () => {
     /Expected number slot/
   )
   expect(() => applyReplaceString(node, -1, 1, '')).toThrow(
-    /Unexpected replace slot -1/
+    /Unexpected replace slot '-1'/
   )
   expect(() => applyReplaceString(node, 42, 1, '')).toThrow(
-    /Unexpected replace slot 42/
+    /Unexpected replace slot '42'/
   )
   expect(() => applyReplaceString(node, 0, 100, '')).toThrow(
     /Unexpected replace items 100/

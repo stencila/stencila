@@ -31,8 +31,8 @@ test('applyAddVec', () => {
   )
 
   expect(() => applyAddVec(elem, 'string', '')).toThrow(/Expected number slot/)
-  expect(() => applyAddVec(elem, -1, '')).toThrow(/Unexpected add slot -1/)
-  expect(() => applyAddVec(elem, 42, '')).toThrow(/Unexpected add slot 42/)
+  expect(() => applyAddVec(elem, -1, '')).toThrow(/Unexpected add slot '-1'/)
+  expect(() => applyAddVec(elem, 42, '')).toThrow(/Unexpected add slot '42'/)
 })
 
 test('applyAddString', () => {
@@ -56,8 +56,8 @@ test('applyAddString', () => {
   expect(() => applyAddString(node, 'string', '')).toThrow(
     /Expected number slot/
   )
-  expect(() => applyAddString(node, -1, '')).toThrow(/Unexpected add slot -1/)
-  expect(() => applyAddString(node, 42, '')).toThrow(/Unexpected add slot 42/)
+  expect(() => applyAddString(node, -1, '')).toThrow(/Unexpected add slot '-1'/)
+  expect(() => applyAddString(node, 42, '')).toThrow(/Unexpected add slot '42'/)
 })
 
 test('applyAdd', () => {

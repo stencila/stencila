@@ -48,7 +48,7 @@ export function applyAddVec(node: Element, slot: Slot, html: string): void {
     const sibling = node.childNodes[slot]
     if (sibling === undefined)
       throw panic(
-        `Unexpected add slot ${slot} for element with ${children.length} children`
+        `Unexpected add slot '${slot}' for element with ${children.length} children`
       )
     node.insertBefore(fragment, sibling)
   }
@@ -63,7 +63,7 @@ export function applyAddString(node: Text, slot: Slot, value: string): void {
   const graphemes = toGraphemes(node.textContent ?? '')
   assert(
     slot >= 0 && slot <= graphemes.length,
-    `Unexpected add slot ${slot} for text node of length ${graphemes.length}`
+    `Unexpected add slot '${slot}' for text node of length ${graphemes.length}`
   )
   node.textContent =
     graphemes.slice(0, slot).join('') + value + graphemes.slice(slot).join('')

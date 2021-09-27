@@ -111,7 +111,7 @@ export function resolveSlot(parent: Element, slot: Slot): Element | Text {
       // The `content` property can be is an "implicit" slot; if it is not
       // present then just return the parent.
       if (slot === 'content') return parent
-      else throw panic(`Unable to resolve slot ${slot}`)
+      else throw panic(`Unable to resolve slot '${slot}''`)
     }
     return next
   } else {
@@ -119,7 +119,7 @@ export function resolveSlot(parent: Element, slot: Slot): Element | Text {
     const next: ChildNode | undefined = parent.childNodes[slot]
     if (next === undefined) {
       throw panic(
-        `Unable to get slot ${slot} from element of with ${parent.childNodes.length} children`
+        `Unable to get slot '${slot}' from element of with ${parent.childNodes.length} children`
       )
     } else if (isElement(next) || isText(next)) {
       return next

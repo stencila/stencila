@@ -38,7 +38,7 @@ export function applyReplaceOption(
   assertString(slot)
   assert(
     items === 1,
-    `Unexpected replace items ${items} for option slot ${slot}`
+    `Unexpected replace items ${items} for option slot '${slot}'`
   )
 
   const target = resolveSlot(node, slot)
@@ -65,7 +65,7 @@ export function applyReplaceVec(
     const child = children[slot]
     if (child === undefined) {
       throw panic(
-        `Unexpected replace slot ${slot} for element with ${children.length} children`
+        `Unexpected replace slot '${slot}' for element with ${children.length} children`
       )
     }
     node.insertBefore(fragment, child)
@@ -92,7 +92,7 @@ export function applyReplaceString(
   const graphemes = toGraphemes(node.textContent ?? '')
   assert(
     slot >= 0 && slot <= graphemes.length,
-    `Unexpected replace slot ${slot} for text node of length ${graphemes.length}`
+    `Unexpected replace slot '${slot}' for text node of length ${graphemes.length}`
   )
   assert(
     items > 0 && slot + items <= graphemes.length,

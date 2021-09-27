@@ -34,7 +34,7 @@ export function applyRemoveOption(
   assertString(slot)
   assert(
     items === 1,
-    `Unexpected remove items ${items} for option slot ${slot}`
+    `Unexpected remove items ${items} for option slot '${slot}'`
   )
 
   const target = resolveSlot(node, slot)
@@ -50,7 +50,7 @@ export function applyRemoveVec(node: Element, slot: Slot, items: number): void {
   const children = node.childNodes
   assert(
     slot >= 0 && slot < children.length,
-    `Unexpected remove slot ${slot} for element with ${children.length} children`
+    `Unexpected remove slot '${slot}' for element with ${children.length} children`
   )
   assert(
     items > 0 && slot + items <= children.length,
@@ -73,7 +73,7 @@ export function applyRemoveString(node: Text, slot: Slot, items: number): void {
   const graphemes = toGraphemes(node.textContent ?? '')
   assert(
     slot >= 0 && slot <= graphemes.length,
-    `Unexpected remove slot ${slot} for text node of length ${graphemes.length}`
+    `Unexpected remove slot '${slot}' for text node of length ${graphemes.length}`
   )
   assert(
     items > 0 && slot + items <= graphemes.length,

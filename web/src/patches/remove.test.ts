@@ -17,7 +17,7 @@ test('applyRemoveOption', () => {
     /Unexpected remove items/
   )
   expect(() => applyRemoveOption(elem, 'property', 1)).toThrow(
-    /Unable to resolve slot property/
+    /Unable to resolve slot 'property'/
   )
 })
 
@@ -37,9 +37,11 @@ test('applyRemoveVec', () => {
   expect(() => applyRemoveVec(elem, 'string', 1)).toThrow(
     /Expected number slot/
   )
-  expect(() => applyRemoveVec(elem, -1, 1)).toThrow(/Unexpected remove slot -1/)
+  expect(() => applyRemoveVec(elem, -1, 1)).toThrow(
+    /Unexpected remove slot '-1'/
+  )
   expect(() => applyRemoveVec(elem, 100, 1)).toThrow(
-    /Unexpected remove slot 100/
+    /Unexpected remove slot '100'/
   )
   expect(() => applyRemoveVec(elem, 0, 100)).toThrow(
     /Unexpected remove items 100/
@@ -62,10 +64,10 @@ test('applyRemoveString', () => {
     /Expected number slot/
   )
   expect(() => applyRemoveString(node, -1, 1)).toThrow(
-    /Unexpected remove slot -1/
+    /Unexpected remove slot '-1'/
   )
   expect(() => applyRemoveString(node, 100, 1)).toThrow(
-    /Unexpected remove slot 100/
+    /Unexpected remove slot '100'/
   )
   expect(() => applyRemoveString(node, 0, 100)).toThrow(
     /Unexpected remove items 100/
