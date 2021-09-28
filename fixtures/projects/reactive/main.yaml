@@ -42,7 +42,7 @@ content:
         - ":"
     - type: CodeChunk
       id: chunk-1
-      programmingLanguage: "calc"
+      programmingLanguage: calc
       text: "c = a + b\nc"
     - type: Paragraph
       content:
@@ -51,5 +51,6 @@ content:
           text: c
         - " assigned in the above code chunk "
         - type: CodeExpression
+          programmingLanguage: calc
           text: c * 2
         - "."

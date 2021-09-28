@@ -660,6 +660,14 @@ impl DomOperation {
             };
         }
 
+        if let Some(nodes) = value.downcast_ref::<Vec<Node>>() {
+            return match slot {
+                // As above, but for nodes...
+                Slot::Name(name) => nodes.to_html(name, &context),
+                Slot::Index(..) => nodes.to_html("", &context),
+            };
+        }
+
         tracing::error!("Unhandled value type when generating HTML for `DomOperation`");
         "<span class=\"todo\">TODO</span>".to_string()
     }
