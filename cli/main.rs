@@ -812,7 +812,6 @@ mod interact {
                                     .join("\n");
                                 print!("{}", lines)
                             } else {
-                                tracing::debug!("{:?}", error.kind);
                                 print_error(eyre!(error))
                             }
                         }

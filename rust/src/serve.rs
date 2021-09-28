@@ -273,8 +273,6 @@ impl Clients {
     ) {
         let mut receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(receiver);
         while let Some((topic, event)) = receiver.next().await {
-            tracing::debug!("Received event for topic: {}", topic);
-
             // Get a list of clients that are subscribed to this topic
             let clients = clients.read().await;
             let clients = clients
@@ -286,8 +284,6 @@ impl Clients {
             if clients.is_empty() {
                 continue;
             }
-
-            tracing::debug!("Publishing event to {} clients", clients.len());
 
             // Create a JSON-RPC notification for the event and serialize it
             // so that does not need to be repeated for each client

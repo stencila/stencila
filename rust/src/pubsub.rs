@@ -55,8 +55,6 @@ pub fn publish<Event>(topic: &str, event: &Event)
 where
     Event: Serialize,
 {
-    tracing::debug!("Publishing event for topic: {}", topic);
-
     match obtain() {
         Ok(subscriptions) => {
             for subscription in &*subscriptions {
