@@ -59,7 +59,7 @@ pub struct VariableInfo {
 }
 
 impl VariableInfo {
-    pub fn new(kernel_id: &KernelId) -> Self {
+    pub fn new(kernel_id: &str) -> Self {
         VariableInfo {
             home: kernel_id.into(),
             set_last: Utc::now(),
@@ -78,14 +78,14 @@ struct KernelMap(BTreeMap<KernelId, Kernel>);
 
 impl KernelMap {
     /// Get a reference to a kernel
-    fn get(&self, kernel_id: &KernelId) -> Result<&Kernel> {
+    fn get(&self, kernel_id: &str) -> Result<&Kernel> {
         (**self)
             .get(kernel_id)
             .ok_or_else(|| eyre!("Unknown kernel `{}`", kernel_id))
     }
 
     /// Get a mutable reference to a kernel
-    fn get_mut(&mut self, kernel_id: &KernelId) -> Result<&mut Kernel> {
+    fn get_mut(&mut self, kernel_id: &str) -> Result<&mut Kernel> {
         (**self)
             .get_mut(kernel_id)
             .ok_or_else(|| eyre!("Unknown kernel `{}`", kernel_id))

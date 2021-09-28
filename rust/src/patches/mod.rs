@@ -271,17 +271,17 @@ impl<'lt> Pointer<'lt> {
             Pointer::Inline(node) => {
                 let pre = node.clone();
                 execute(*node, kernels)?;
-                diff(&pre, &node)
+                diff(&pre, node)
             }
             Pointer::Block(node) => {
                 let pre = node.clone();
                 execute(*node, kernels)?;
-                diff(&pre, &node)
+                diff(&pre, node)
             }
             Pointer::Node(node) => {
                 let pre = node.clone();
                 execute(*node, kernels)?;
-                diff(&pre, &node)
+                diff(&pre, node)
             }
             _ => bail!("Invalid node pointer: {:?}", self),
         };
