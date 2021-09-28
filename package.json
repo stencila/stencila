@@ -20,7 +20,7 @@
     "url": "https://github.com/stencila/stencila/issues"
   },
   "devDependencies": {
-    "@semantic-release/exec": "5.0.0",
+    "@semantic-release/exec": "6.0.1",
     "@stencila/dev-config": "2.0.18"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
