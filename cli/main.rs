@@ -66,7 +66,14 @@ pub struct Args {
 /// Global arguments that should be removed when entering interactive mode
 /// because they can only be set / are relevant at startup. Other global arguments,
 /// which need to be accessible at the line level, should be added to `interact::Line` below.
-pub const GLOBAL_ARGS: [&str; 6] = ["--interactive", "--interact", "-i", "--debug", "--log-level", "--log-format"];
+pub const GLOBAL_ARGS: [&str; 6] = [
+    "--interactive",
+    "--interact",
+    "-i",
+    "--debug",
+    "--log-level",
+    "--log-format",
+];
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -718,14 +725,16 @@ mod interact {
         help += &Yellow.paint("SHORTCUTS:\n").to_string();
         for (keys, desc) in &[
             ("--help", "Get help for the current command prefix"),
-            ("^     ", "Prints the current command prefix"),
-            ("<     ", "Sets the command prefix"),
-            (">     ", "Clears the command prefix"),
+            ("^     ", "Print the current command prefix"),
+            ("<     ", "Set the command prefix"),
+            (">     ", "Clear the command prefix"),
+            ("<<    ", "Append arguments to the command prefix"),
+            (">>    ", "Remove the last argument from the command prefix"),
             ("↑     ", "Go back through command history"),
             ("↓     ", "Go forward through command history"),
-            ("?     ", "Prints this message"),
-            ("Ctrl+C", "Cancels the current command"),
-            ("Ctrl+D", "Exits interactive application"),
+            ("?     ", "Print this message"),
+            ("Ctrl+C", "Cancel the current command"),
+            ("Ctrl+D", "Exit interactive application"),
         ] {
             help += &format!("    {} {}\n", Green.paint(*keys), desc)
         }
@@ -756,28 +765,35 @@ mod interact {
                 Ok(line) => {
                     rl.add_history_entry(&line);
 
+                    let line = line.trim();
                     let args = line
                         .split_whitespace()
                         .map(str::to_string)
                         .collect::<Vec<String>>();
 
-                    if let Some(first) = line.trim_start().chars().next() {
-                        if first == '^' {
-                            println!("Command prefix is currently {:?}", prefix);
-                            continue;
-                        } else if first == '<' {
-                            prefix = args[1..].into();
-                            println!("Command prefix was set to {:?}", prefix);
-                            continue;
-                        } else if first == '>' {
-                            prefix.clear();
-                            println!("Command prefix was cleared");
-                            continue;
-                        } else if first == '?' {
-                            println!("{}", help());
-                            continue;
-                        }
-                    };
+                    if line.starts_with('^') {
+                        tracing::info!("Command prefix is: `{}`", prefix.join(" "));
+                        continue;
+                    } else if line.starts_with("<<") {
+                        prefix = [prefix, args[1..].into()].concat();
+                        tracing::info!("Command prefix was appended to: `{}`", prefix.join(" "));
+                        continue;
+                    } else if line.starts_with('<') {
+                        prefix = args[1..].into();
+                        tracing::info!("Command prefix was set to: `{}`", prefix.join(" "));
+                        continue;
+                    } else if line.starts_with(">>") {
+                        prefix.truncate(prefix.len() - 1);
+                        tracing::info!("Command prefix was truncated to: `{}`", prefix.join(" "));
+                        continue;
+                    } else if line.starts_with('>') {
+                        prefix.clear();
+                        tracing::info!("Command prefix was cleared");
+                        continue;
+                    } else if line.starts_with('?') {
+                        tracing::info!("{}", help());
+                        continue;
+                    }
 
                     let args = [prefix.as_slice(), args.as_slice()].concat();
                     match Line::clap().get_matches_from_safe(args) {
