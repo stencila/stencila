@@ -67,9 +67,9 @@ pub struct Args {
 /// because they can only be set / are relevant at startup. Other global arguments,
 /// which need to be accessible at the line level, should be added to `interact::Line` below.
 pub const GLOBAL_ARGS: [&str; 6] = [
-    "--interactive",
-    "--interact",
     "-i",
+    "--interact",
+    "--interactive",
     "--debug",
     "--log-level",
     "--log-format",
@@ -329,13 +329,17 @@ pub async fn main() -> Result<()> {
         debug,
         log_level,
         log_format,
+        interact,
         ..
     } = match parsed_args {
         Ok(args) => args,
         Err(error) => {
-            if args.contains(&"-i".to_string()) || args.contains(&"--interact".to_string()) {
-                // Parse the global options ourselves so that user can
-                // pass an incomplete command prefix to interactive mode
+            // An argument parsing error happened, possibly because the user
+            // provided incomplete command prefix to interactive mode. Handle that.
+            if args.contains(&"-i".to_string())
+                || args.contains(&"--interact".to_string())
+                || args.contains(&"--interactive".to_string())
+            {
                 Args {
                     command: None,
                     display: None,
@@ -422,7 +426,7 @@ pub async fn main() -> Result<()> {
     };
 
     // Get the result of running the command
-    let result = if let Some(command) = command {
+    let result = if let (false, Some(command)) = (interact, command) {
         run_command(command, &formats, &mut context).await
     } else {
         #[cfg(feature = "interact")]
