@@ -49,21 +49,31 @@ pub enum Kernel {
 #[schemars(deny_unknown_fields)]
 pub struct VariableInfo {
     /// The home kernel of the variable
+    ///
+    /// The home kernel of a variable is the kernel that it was last assigned in.
+    /// As such, a variable's home kernel can change, although this is discouraged.
     home: KernelId,
 
-    /// The time that the variable was last set in the home kernel
-    set_last: DateTime<Utc>,
+    /// The time that the variable was last assigned in the home kernel
+    ///
+    /// A variable is considered assigned when  a `CodeChunk` with an `Assign` relation
+    /// to the variable is executed or the `kernel.set` method is called.
+    assigned: DateTime<Utc>,
 
     /// The time that the variable was last mirrored to other kernels
-    mirrors: HashMap<KernelId, DateTime<Utc>>,
+    ///
+    /// A timestamp is recorded for each time that a variable is mirrored to another
+    /// kernel. This allows unnecessary mirroring to be avoided if the variable has
+    /// not been assigned since it was last mirrored to that kernel.
+    mirrored: HashMap<KernelId, DateTime<Utc>>,
 }
 
 impl VariableInfo {
     pub fn new(kernel_id: &str) -> Self {
         VariableInfo {
             home: kernel_id.into(),
-            set_last: Utc::now(),
-            mirrors: HashMap::new(),
+            assigned: Utc::now(),
+            mirrored: HashMap::new(),
         }
     }
 }
@@ -116,16 +126,17 @@ impl KernelSpace {
 
     /// Set a variable in the kernel space
     pub fn set(&mut self, name: &str, value: Node, language: &str) -> Result<()> {
-        tracing::debug!("Setting variable `{}`", name);
-
         let kernel_id = self.ensure_kernel(language)?;
+        tracing::debug!("Setting variable in kernel `{}`", kernel_id);
+
         let kernel = self.kernels.get_mut(&kernel_id)?;
         kernel.set(name, value)?;
 
         match self.variables.entry(name.to_string()) {
             Entry::Occupied(mut occupied) => {
                 let info = occupied.get_mut();
-                info.set_last = Utc::now();
+                info.home = kernel_id;
+                info.assigned = Utc::now();
             }
             Entry::Vacant(vacant) => {
                 vacant.insert(VariableInfo::new(&kernel_id));
@@ -139,39 +150,57 @@ impl KernelSpace {
     ///
     /// Variables that the code uses, but have a different home kernel, are mirrored to the kernel.
     pub fn exec(&mut self, code: &str, language: &str) -> Result<Vec<Node>> {
-        tracing::debug!("Executing code");
-
         let kernel_id = self.ensure_kernel(language)?;
+        tracing::debug!("Executing code in kernel `{}`", kernel_id);
 
         // TODO: Pass the list of used variables to this function
         let uses = self.variables.clone();
         for name in uses.keys() {
-            let variable_info = self
+            let VariableInfo {
+                home,
+                assigned,
+                mirrored,
+            } = self
                 .variables
                 .get_mut(name)
                 .ok_or_else(|| eyre!("Unknown variable `{}`", name))?;
 
-            if variable_info.home != *kernel_id {
-                let home_kernel = self.kernels.get(&variable_info.home)?;
-                let value = home_kernel.get(name)?;
+            // Skip if home is the target kernel
+            if *home == kernel_id {
+                continue;
+            }
 
-                let kernel = self.kernels.get_mut(&kernel_id)?;
-                kernel.set(name, value)?;
+            // Skip if already mirrored since last assigned
+            if let Some(mirrored) = mirrored.get(&kernel_id) {
+                if mirrored >= assigned {
+                    continue;
+                }
+            }
 
-                match variable_info.mirrors.entry(kernel_id.clone()) {
-                    Entry::Occupied(mut occupied) => {
-                        let datetime = occupied.get_mut();
-                        *datetime = Utc::now();
-                    }
-                    Entry::Vacant(vacant) => {
-                        vacant.insert(Utc::now());
-                    }
+            tracing::debug!("Mirroring variable `{}` in kernel `{}`", name, kernel_id);
+
+            let home_kernel = self.kernels.get(home)?;
+            let value = home_kernel.get(name)?;
+
+            let mirror_kernel = self.kernels.get_mut(&kernel_id)?;
+            mirror_kernel.set(name, value)?;
+
+            match mirrored.entry(kernel_id.clone()) {
+                Entry::Occupied(mut occupied) => {
+                    let datetime = occupied.get_mut();
+                    *datetime = Utc::now();
+                }
+                Entry::Vacant(vacant) => {
+                    vacant.insert(Utc::now());
                 }
             }
         }
 
         let kernel = self.kernels.get_mut(&kernel_id)?;
         kernel.exec(code)
+
+        // TODO: If the code chunk assigns a variable then update the variable info
+        // with the kernel and assigned time. Should this be done if there is an error in exec?
     }
 
     /// Ensure that a kernel exists for a language
