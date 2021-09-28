@@ -1171,7 +1171,7 @@ mod tests {
         let patch = diff(&one, &one);
         assert_json_eq!(patch, json!([]));
         let dom_patch = DomPatch::new(&patch, None);
-        assert_json_eq!(dom_patch, json!([]));
+        assert_json_eq!(dom_patch, json!({"ops": []}));
 
         // one to two -> `Add` operation on the article's optional content
         let patch = diff(&one, &two);
@@ -1187,11 +1187,11 @@ mod tests {
         let dom_patch = DomPatch::new(&patch, None);
         assert_json_eq!(
             dom_patch,
-            json!([{
+            json!({"ops":[{
                 "type": "Add",
                 "address": ["content"],
                 "html": "<div slot=\"content\"><p itemtype=\"https://stenci.la/Paragraph\" itemscope></p></div>"
-            }])
+            }]})
         );
 
         // two to three -> `Add` operation on the paragraph's content
@@ -1208,11 +1208,11 @@ mod tests {
         let dom_patch = DomPatch::new(&patch, None);
         assert_json_eq!(
             dom_patch,
-            json!([{
+            json!({"ops":[{
                 "type": "Add",
                 "address": ["content", 0, "content", 0],
                 "html": "first second"
-            }])
+            }]})
         );
 
         // three to four -> `Replace` operation on a word
@@ -1230,12 +1230,12 @@ mod tests {
         let dom_patch = DomPatch::new(&patch, None);
         assert_json_eq!(
             dom_patch,
-            json!([{
+            json!({"ops":[{
                 "type": "Replace",
                 "address": ["content", 0, "content", 0, 1],
                 "items": 3,
                 "html": "oo"
-            }])
+            }]})
         );
 
         // four to five -> `Move` operation on the word
@@ -1252,12 +1252,12 @@ mod tests {
         let dom_patch = DomPatch::new(&patch, None);
         assert_json_eq!(
             dom_patch,
-            json!([{
+            json!({"ops":[{
                 "type": "Move",
                 "from": ["content", 0, "content", 1],
                 "items": 1,
                 "to": ["content", 0, "content", 0],
-            }])
+            }]})
         );
     }
 }
