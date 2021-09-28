@@ -1,3 +1,11 @@
+## [0.118.5](https://github.com/stencila/stencila/compare/v0.118.4...v0.118.5) (2021-09-28)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/brand to v0.7.7 ([5a4b32a](https://github.com/stencila/stencila/commit/5a4b32a1393ff820de92b8cbcaed6c2bf96ca1c8))
+* **dependencies:** update dependency i18next to v21 ([e189292](https://github.com/stencila/stencila/commit/e189292a2adb2477fe288a31e4b3814ff01fd641))
+
 ## [0.118.4](https://github.com/stencila/stencila/compare/v0.118.3...v0.118.4) (2021-09-26)
 
 

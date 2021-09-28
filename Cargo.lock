@@ -2155,9 +2155,9 @@ checksum = "441225017b106b9f902e97947a6d31e44ebcf274b91bdbfb51e5c477fcd468e5"
 
 [[package]]
 name = "libc"
-version = "0.2.102"
+version = "0.2.103"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2a5ac8f984bfcf3a823267e5fde638acc3325f6496633a5da6bb6eb2171e103"
+checksum = "dd8f7255a17a627354f321ef0055d63b898c6fb27eff628af4d1b66b7331edf6"
 
 [[package]]
 name = "libflate"
@@ -4039,7 +4039,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
 name = "stencila"
-version = "0.118.4"
+version = "0.118.5"
 dependencies = [
  "Inflector",
  "ansi_term 0.12.1",
@@ -4137,7 +4137,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.118.4"
+version = "0.118.5"
 dependencies = [
  "ansi_term 0.12.1",
  "atty",
@@ -4155,7 +4155,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.118.4"
+version = "0.118.5"
 dependencies = [
  "neon",
  "stencila",
