@@ -277,7 +277,9 @@ impl Compile for CodeChunk {
     fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
         tracing::debug!("Executing `CodeChunk`");
 
-        let outputs = kernels.exec(&self.text, &self.programming_language)?;
+        // TODO: Pass relations hashmap in context for lookup instead of re-compiling
+        let relations = code::compile("", &self.text, &self.programming_language);
+        let outputs = kernels.exec(&self.text, &self.programming_language, Some(relations))?;
         self.outputs = if outputs.is_empty() {
             None
         } else {
@@ -312,7 +314,9 @@ impl Compile for CodeExpression {
     fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
         tracing::debug!("Executing `CodeExpression`");
 
-        let outputs = kernels.exec(&self.text, &self.programming_language)?;
+        // TODO: Pass relations hashmap in context for lookup instead of re-compiling
+        let relations = code::compile("", &self.text, &self.programming_language);
+        let outputs = kernels.exec(&self.text, &self.programming_language, Some(relations))?;
         self.output = outputs.get(0).map(|output| Box::new(output.clone()));
 
         Ok(())
