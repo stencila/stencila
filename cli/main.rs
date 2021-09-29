@@ -114,7 +114,6 @@ pub struct Context {
 }
 
 /// Run a command
-#[tracing::instrument]
 pub async fn run_command(
     command: Command,
     formats: &[String],

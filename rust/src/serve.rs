@@ -860,7 +860,7 @@ fn ws_handshake(ws: warp::ws::Ws, params: WsParams, _claims: jwt::Claims) -> imp
 ///
 /// This function is called after the handshake, when a WebSocket client
 /// has successfully connected.
-#[tracing::instrument]
+#[tracing::instrument(skip(socket))]
 async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
     tracing::debug!("WebSocket connected");
 
