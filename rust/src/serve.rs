@@ -177,13 +177,13 @@ impl Client {
     pub fn send(&self, message: impl Serialize) {
         match serde_json::to_string(&message) {
             Ok(json) => self.send_text(&json),
-            Err(error) => tracing::error!("Error serializing to JSON: {}", error),
+            Err(error) => tracing::error!("Error serializing to JSON `{}`", error),
         }
     }
 
     pub fn send_text(&self, text: &str) {
         if let Err(error) = self.sender.send(warp::ws::Message::text(text)) {
-            tracing::error!("Client send error: {}", error)
+            tracing::error!("Client send error `{}`", error)
         }
     }
 }
@@ -209,12 +209,12 @@ impl Clients {
         let mut clients = self.clients.write().await;
         match clients.entry(id.to_string()) {
             Entry::Occupied(mut occupied) => {
-                tracing::debug!("Re-connection for client: {}", id);
+                tracing::debug!("Re-connection for client `{}`", id);
                 let client = occupied.get_mut();
                 client.sender = sender;
             }
             Entry::Vacant(vacant) => {
-                tracing::debug!("New connection for client: {}", id);
+                tracing::debug!("New connection for client `{}`", id);
                 vacant.insert(Client {
                     subscriptions: HashSet::new(),
                     sender,
@@ -228,9 +228,9 @@ impl Clients {
         clients.remove(id);
 
         if gracefully {
-            tracing::debug!("Graceful disconnection by client {}", id)
+            tracing::debug!("Graceful disconnection by client `{}`", id)
         } else {
-            tracing::warn!("Ungraceful disconnection by client: {}", id)
+            tracing::warn!("Ungraceful disconnection by client `{}`", id)
         }
     }
 
@@ -239,27 +239,27 @@ impl Clients {
         if let Some(client) = clients.get(id) {
             client.send(message);
         } else {
-            tracing::error!("No such client: {}", id);
+            tracing::error!("No such client `{}`", id);
         }
     }
 
     pub async fn subscribe(&self, id: &str, topic: &str) {
         let mut clients = self.clients.write().await;
         if let Some(client) = clients.get_mut(id) {
-            tracing::debug!("Subscribing client {} to topic: {}", id, topic);
+            tracing::debug!("Subscribing client `{}` to topic `{}`", id, topic);
             client.subscribe(topic);
         } else {
-            tracing::error!("No such client: {}", id);
+            tracing::error!("No such client `{}`", id);
         }
     }
 
     pub async fn unsubscribe(&self, id: &str, topic: &str) {
         let mut clients = self.clients.write().await;
         if let Some(client) = clients.get_mut(id) {
-            tracing::debug!("Unsubscribing client {} from topic: {}", id, topic);
+            tracing::debug!("Unsubscribing client `{}` from topic `{}`", id, topic);
             client.unsubscribe(topic);
         } else {
-            tracing::error!("No such client: {}", id);
+            tracing::error!("No such client `{}`", id);
         }
     }
 
@@ -298,7 +298,7 @@ impl Clients {
             let json = match serde_json::to_string(&notification) {
                 Ok(json) => json,
                 Err(error) => {
-                    tracing::error!("Error serializing to JSON: {}", error);
+                    tracing::error!("Error serializing to JSON `{}`", error);
                     continue;
                 }
             };
@@ -625,7 +625,7 @@ async fn get_local(
         Err(error) => {
             return error_response(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                &format!("When reading file: {}", error),
+                &format!("When reading file `{}`", error),
             )
         }
     };
@@ -690,7 +690,7 @@ async fn get_handler(
                 Err(error) => {
                     return error_response(
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        &format!("While converting document to {}: {}", format, error),
+                        &format!("While converting document to {} `{}`", format, error),
                     )
                 }
             };
@@ -711,7 +711,7 @@ async fn get_handler(
         }
         Err(error) => error_response(
             StatusCode::INTERNAL_SERVER_ERROR,
-            &format!("While opening document: {}", error),
+            &format!("While opening document `{}`", error),
         ),
     }
 }
@@ -879,7 +879,7 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
                 if message == "Connection closed normally" {
                     CLIENTS.disconnected(&client_clone, true).await
                 } else {
-                    tracing::error!("Websocket send error: {}", error);
+                    tracing::error!("Websocket send error `{}`", error);
                 }
             }
         }
@@ -898,7 +898,7 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
                 {
                     CLIENTS.disconnected(&client, false).await
                 } else {
-                    tracing::error!("Websocket receive error: {}", error);
+                    tracing::error!("Websocket receive error `{}`", error);
                 }
                 continue;
             }
