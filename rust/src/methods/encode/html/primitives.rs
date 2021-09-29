@@ -4,7 +4,7 @@ use stencila_schema::{Array, Boolean, Integer, Null, Number, Object};
 
 /// Encode an atomic primitive to HTML
 macro_rules! atomic_to_html {
-    ($type:ident) => {
+    ($type:ty) => {
         impl ToHtml for $type {
             fn to_html(&self, slot: &str, _context: &Context) -> String {
                 elem(
@@ -56,3 +56,36 @@ impl ToHtml for Object {
         )
     }
 }
+
+/// Encode a vector of a primitive type as HTML
+macro_rules! vec_primitive_to_html {
+    ($type:ty) => {
+        impl ToHtml for Vec<$type> {
+            fn to_html(&self, slot: &str, context: &Context) -> String {
+                let items = self
+                    .iter()
+                    .map(|item| item.to_html("", context))
+                    .collect::<Vec<String>>()
+                    .concat();
+                if slot.is_empty() {
+                    items
+                } else {
+                    elem("span", &[attr_slot(slot)], &items)
+                }
+            }
+        }
+    };
+    ($($type:ty)*) => {
+        $(vec_primitive_to_html!($type);)*
+    }
+}
+
+vec_primitive_to_html!(
+    Null
+    Boolean
+    Integer
+    Number
+    String
+    Array
+    Object
+);
