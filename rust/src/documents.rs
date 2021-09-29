@@ -4,7 +4,7 @@ use crate::{
     graphs::{Relation, Resource},
     kernels::KernelSpace,
     methods::{
-        compile::compile,
+        compile::{self, compile},
         decode::decode,
         encode::{self, encode},
     },
@@ -1353,6 +1353,8 @@ pub mod cli {
         Open(Open),
         Close(Close),
         Show(Show),
+        #[structopt(aliases = &["exec"])]
+        Execute(Execute),
         Query(Query),
         Convert(Convert),
         Diff(Diff),
@@ -1368,6 +1370,7 @@ pub mod cli {
                 Action::Open(action) => action.run().await,
                 Action::Close(action) => action.run().await,
                 Action::Show(action) => action.run().await,
+                Action::Execute(action) => action.run().await,
                 Action::Query(action) => action.run().await,
                 Action::Convert(action) => action.run().await,
                 Action::Diff(action) => action.run().await,
@@ -1470,9 +1473,78 @@ pub mod cli {
         }
     }
 
+    /// Execute a document
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Show a document",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Execute {
+        /// The path of the document file
+        file: String,
+
+        /// Code to execute within the document's kernel space
+        ///
+        /// This code will be run after all executable nodes in the document
+        /// have been run.
+        // Using a Vec and the `multiple` option allows for spaces in the code
+        #[structopt(multiple = true)]
+        code: Vec<String>,
+
+        /// The format of the file
+        #[structopt(short, long)]
+        format: Option<String>,
+
+        /// The programming language of the code
+        #[structopt(
+            short,
+            long,
+            default_value = "calc",
+            possible_values = &EXEC_LANGS
+        )]
+        lang: String,
+    }
+
+    const EXEC_LANGS: [&str; 2] = ["calc", "none"];
+
+    impl Execute {
+        pub async fn run(&self) -> display::Result {
+            let Self {
+                file,
+                format,
+                code,
+                lang,
+            } = self;
+            let document = DOCUMENTS.open(file, format.clone()).await?;
+            let document = DOCUMENTS.get(&document.id).await?;
+            let mut document = document.lock().await;
+            if !code.is_empty() {
+                // Join the separate arguments that make up code and unescape newlines
+                let code = code.join(" ").replace("\\n", "\n");
+                // Detect shortcuts for execute interactive mode
+                if code == "%symbols" {
+                    let symbols = document.kernels.symbols();
+                    display::value(symbols)
+                } else {
+                    // Compile the code so that we can use the relations to determine
+                    // the need for variable mirroring
+                    let relations = compile::code::compile("<cli>", &code, lang);
+                    let nodes = document.kernels.exec(&code, lang, Some(relations))?;
+                    match nodes.len() {
+                        0 => display::nothing(),
+                        1 => display::value(nodes[0].clone()),
+                        _ => display::value(nodes),
+                    }
+                }
+            } else {
+                display::nothing()
+            }
+        }
+    }
+
+    /// Query a document
+    #[derive(Debug, StructOpt)]
+    #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
