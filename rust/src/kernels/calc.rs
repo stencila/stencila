@@ -13,7 +13,7 @@ use stencila_schema::Node;
 #[schemars(deny_unknown_fields)]
 pub struct CalcKernel {
     #[serde(skip)]
-    variables: BTreeMap<String, f64>,
+    symbols: BTreeMap<String, f64>,
 }
 
 impl CalcKernel {
@@ -33,9 +33,9 @@ impl KernelTrait for CalcKernel {
     }
 
     fn get(&self, name: &str) -> Result<Node> {
-        match self.variables.get(name) {
+        match self.symbols.get(name) {
             Some(number) => Ok(Node::Number(*number)),
-            None => bail!("Variable does not exist in kernel: {}", name),
+            None => bail!("Symbol `{}` does not exist in this kernel", name),
         }
     }
 
@@ -44,37 +44,39 @@ impl KernelTrait for CalcKernel {
             Node::Number(number) => number,
             _ => bail!("Unable to convert node to a number"),
         };
-        self.variables.insert(name.to_string(), value);
+        self.symbols.insert(name.to_string(), value);
         Ok(())
     }
 
     fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
+        static STATEMENTS_REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r"\r?\n|;").expect("Unable to create regex"));
         static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*=(.*)").expect("Unable to create regex")
         });
 
         let mut outputs = Vec::new();
-        for line in code.lines() {
-            let line = line.trim();
+        for statement in STATEMENTS_REGEX.split(code) {
+            let statement = statement.trim();
 
-            // Skip the line if it is blank or is a comment
-            if line.is_empty() || line.starts_with('#') {
+            // Skip the statement if it is blank or is a comment
+            if statement.is_empty() || statement.starts_with('#') {
                 continue;
             }
 
             // Get the name of any assigned variable, and the expression to be evaluated
-            let (symbol, expr) = if let Some(captures) = ASSIGN_REGEX.captures(line) {
+            let (symbol, expr) = if let Some(captures) = ASSIGN_REGEX.captures(statement) {
                 let symbol = captures.get(1).expect("Should always have group 1");
                 let expr = captures.get(2).expect("Should always have group 2");
                 (Some(symbol.as_str()), expr.as_str())
             } else {
-                (None, line)
+                (None, statement)
             };
 
             // Evaluate the expression, and assign it or add it to outputs
-            let num = fasteval::ez_eval(expr, &mut self.variables)?;
+            let num = fasteval::ez_eval(expr, &mut self.symbols)?;
             if let Some(symbol) = symbol {
-                self.variables.insert(symbol.to_string(), num);
+                self.symbols.insert(symbol.to_string(), num);
             } else {
                 outputs.push(Node::Number(num))
             }

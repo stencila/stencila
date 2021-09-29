@@ -10,7 +10,7 @@ use stencila_schema::Node;
 #[schemars(deny_unknown_fields)]
 pub struct DefaultKernel {
     #[serde(skip)]
-    variables: HashMap<String, Node>,
+    symbols: HashMap<String, Node>,
 }
 
 impl DefaultKernel {
@@ -30,14 +30,14 @@ impl KernelTrait for DefaultKernel {
     }
 
     fn get(&self, name: &str) -> Result<Node> {
-        match self.variables.get(name) {
+        match self.symbols.get(name) {
             Some(node) => Ok(node.clone()),
-            None => bail!("Variable does not exist in kernel {}", name),
+            None => bail!("Symbol `{}` does not exist in this kernel", name),
         }
     }
 
     fn set(&mut self, name: &str, value: Node) -> Result<()> {
-        self.variables.insert(name.to_string(), value);
+        self.symbols.insert(name.to_string(), value);
         Ok(())
     }
 

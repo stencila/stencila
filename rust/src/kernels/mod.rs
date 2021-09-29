@@ -1,4 +1,7 @@
-use crate::utils::uuids;
+use crate::{
+    graphs::{Relation, Resource},
+    utils::uuids,
+};
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
 use enum_dispatch::enum_dispatch;
@@ -7,6 +10,7 @@ use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::{hash_map::Entry, BTreeMap, HashMap};
 use stencila_schema::Node;
+use validator::Contains;
 
 type KernelId = String;
 
@@ -21,10 +25,10 @@ pub trait KernelTrait {
     /// return a `IncompatibleLanguage` error.
     fn language(&self, language: Option<String>) -> Result<String>;
 
-    /// Get a variable from the kernel
+    /// Get a symbol from the kernel
     fn get(&self, name: &str) -> Result<Node>;
 
-    /// Set a variable in the kernel
+    /// Set a symbol in the kernel
     fn set(&mut self, name: &str, value: Node) -> Result<()>;
 
     /// Execute some code in the kernel
@@ -47,30 +51,36 @@ pub enum Kernel {
 
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
-pub struct VariableInfo {
-    /// The home kernel of the variable
+pub struct SymbolInfo {
+    /// The type of the object that the symbol refers to (e.g `Number`, `Function`)
     ///
-    /// The home kernel of a variable is the kernel that it was last assigned in.
-    /// As such, a variable's home kernel can change, although this is discouraged.
+    /// Should be used as a hint only, to the underlying, native type of the symbol.
+    kind: String,
+
+    /// The home kernel of the symbol
+    ///
+    /// The home kernel of a symbol is the kernel that it was last assigned in.
+    /// As such, a symbol's home kernel can change, although this is discouraged.
     home: KernelId,
 
-    /// The time that the variable was last assigned in the home kernel
+    /// The time that the symbol was last assigned in the home kernel
     ///
-    /// A variable is considered assigned when  a `CodeChunk` with an `Assign` relation
-    /// to the variable is executed or the `kernel.set` method is called.
+    /// A symbol is considered assigned when  a `CodeChunk` with an `Assign` relation
+    /// to the symbol is executed or the `kernel.set` method is called.
     assigned: DateTime<Utc>,
 
-    /// The time that the variable was last mirrored to other kernels
+    /// The time that the symbol was last mirrored to other kernels
     ///
-    /// A timestamp is recorded for each time that a variable is mirrored to another
-    /// kernel. This allows unnecessary mirroring to be avoided if the variable has
+    /// A timestamp is recorded for each time that a symbol is mirrored to another
+    /// kernel. This allows unnecessary mirroring to be avoided if the symbol has
     /// not been assigned since it was last mirrored to that kernel.
     mirrored: HashMap<KernelId, DateTime<Utc>>,
 }
 
-impl VariableInfo {
-    pub fn new(kernel_id: &str) -> Self {
-        VariableInfo {
+impl SymbolInfo {
+    pub fn new(kind: &str, kernel_id: &str) -> Self {
+        SymbolInfo {
+            kind: kind.into(),
             home: kernel_id.into(),
             assigned: Utc::now(),
             mirrored: HashMap::new(),
@@ -108,38 +118,46 @@ pub struct KernelSpace {
     /// The kernels in the document kernel space
     kernels: KernelMap,
 
-    /// The variables in the document kernel space
-    variables: HashMap<String, VariableInfo>,
+    /// The symbols in the document kernel space
+    symbols: HashMap<String, SymbolInfo>,
 }
 
 impl KernelSpace {
-    /// Get a variable from the kernel space
-    pub fn get(&self, name: &str) -> Result<Node> {
-        let variable_info = self
-            .variables
-            .get(name)
-            .ok_or_else(|| eyre!("Unknown variable `{}`", name))?;
+    /// Get a list of symbols in the kernel space
+    ///
+    /// Mainly for inspection, in the future may return a list with
+    /// more information e.g. the type of symbol.
+    pub fn symbols(&self) -> HashMap<String, SymbolInfo> {
+        self.symbols.clone()
+    }
 
-        let kernel = self.kernels.get(&variable_info.home)?;
+    /// Get a symbol from the kernel space
+    pub fn get(&self, name: &str) -> Result<Node> {
+        let symbol_info = self
+            .symbols
+            .get(name)
+            .ok_or_else(|| eyre!("Unknown symbol `{}`", name))?;
+
+        let kernel = self.kernels.get(&symbol_info.home)?;
         kernel.get(name)
     }
 
-    /// Set a variable in the kernel space
+    /// Set a symbol in the kernel space
     pub fn set(&mut self, name: &str, value: Node, language: &str) -> Result<()> {
         let kernel_id = self.ensure_kernel(language)?;
-        tracing::debug!("Setting variable in kernel `{}`", kernel_id);
+        tracing::debug!("Setting symbol `{}` in kernel `{}`", name, kernel_id);
 
         let kernel = self.kernels.get_mut(&kernel_id)?;
         kernel.set(name, value)?;
 
-        match self.variables.entry(name.to_string()) {
+        match self.symbols.entry(name.to_string()) {
             Entry::Occupied(mut occupied) => {
                 let info = occupied.get_mut();
                 info.home = kernel_id;
                 info.assigned = Utc::now();
             }
             Entry::Vacant(vacant) => {
-                vacant.insert(VariableInfo::new(&kernel_id));
+                vacant.insert(SymbolInfo::new("", &kernel_id));
             }
         }
 
@@ -148,59 +166,105 @@ impl KernelSpace {
 
     /// Execute some code in the kernel space
     ///
-    /// Variables that the code uses, but have a different home kernel, are mirrored to the kernel.
-    pub fn exec(&mut self, code: &str, language: &str) -> Result<Vec<Node>> {
+    /// Symbols that the code uses, but have a different home kernel, are mirrored to the kernel.
+    pub fn exec(
+        &mut self,
+        code: &str,
+        language: &str,
+        relations: Option<Vec<(Relation, Resource)>>,
+    ) -> Result<Vec<Node>> {
+        // Determine the kernel to execute in
         let kernel_id = self.ensure_kernel(language)?;
         tracing::debug!("Executing code in kernel `{}`", kernel_id);
 
-        // TODO: Pass the list of used variables to this function
-        let uses = self.variables.clone();
-        for name in uses.keys() {
-            let VariableInfo {
-                home,
-                assigned,
-                mirrored,
-            } = self
-                .variables
-                .get_mut(name)
-                .ok_or_else(|| eyre!("Unknown variable `{}`", name))?;
+        // Mirror used symbols into the kernel
+        if let Some(relations) = &relations {
+            for relation in relations {
+                let name = if let (Relation::Use(..), Resource::Symbol(symbol)) = relation {
+                    if self.symbols.has_element(&symbol.name) {
+                        &symbol.name
+                    } else {
+                        continue;
+                    }
+                } else {
+                    continue;
+                };
 
-            // Skip if home is the target kernel
-            if *home == kernel_id {
-                continue;
-            }
+                let SymbolInfo {
+                    home,
+                    assigned,
+                    mirrored,
+                    ..
+                } = self
+                    .symbols
+                    .get_mut(name)
+                    .ok_or_else(|| eyre!("Unknown symbol `{}`", name))?;
 
-            // Skip if already mirrored since last assigned
-            if let Some(mirrored) = mirrored.get(&kernel_id) {
-                if mirrored >= assigned {
+                // Skip if home is the target kernel
+                if *home == kernel_id {
                     continue;
                 }
-            }
 
-            tracing::debug!("Mirroring variable `{}` in kernel `{}`", name, kernel_id);
-
-            let home_kernel = self.kernels.get(home)?;
-            let value = home_kernel.get(name)?;
-
-            let mirror_kernel = self.kernels.get_mut(&kernel_id)?;
-            mirror_kernel.set(name, value)?;
-
-            match mirrored.entry(kernel_id.clone()) {
-                Entry::Occupied(mut occupied) => {
-                    let datetime = occupied.get_mut();
-                    *datetime = Utc::now();
+                // Skip if already mirrored since last assigned
+                if let Some(mirrored) = mirrored.get(&kernel_id) {
+                    if mirrored >= assigned {
+                        continue;
+                    }
                 }
-                Entry::Vacant(vacant) => {
-                    vacant.insert(Utc::now());
+
+                tracing::debug!(
+                    "Mirroring symbol `{}` from kernel `{}` to kernel `{}`",
+                    name,
+                    home,
+                    kernel_id
+                );
+
+                let home_kernel = self.kernels.get(home)?;
+                let value = home_kernel.get(name)?;
+
+                let mirror_kernel = self.kernels.get_mut(&kernel_id)?;
+                mirror_kernel.set(name, value)?;
+
+                match mirrored.entry(kernel_id.clone()) {
+                    Entry::Occupied(mut occupied) => {
+                        let datetime = occupied.get_mut();
+                        *datetime = Utc::now();
+                    }
+                    Entry::Vacant(vacant) => {
+                        vacant.insert(Utc::now());
+                    }
                 }
             }
         }
 
+        // Execute the code
         let kernel = self.kernels.get_mut(&kernel_id)?;
-        kernel.exec(code)
+        let nodes = kernel.exec(code)?;
 
-        // TODO: If the code chunk assigns a variable then update the variable info
-        // with the kernel and assigned time. Should this be done if there is an error in exec?
+        // Record symbols assigned in kernel
+        if let Some(relations) = relations {
+            for relation in relations {
+                let (name, kind) =
+                    if let (Relation::Assign(..), Resource::Symbol(symbol)) = relation {
+                        (symbol.name, symbol.kind)
+                    } else {
+                        continue;
+                    };
+
+                match self.symbols.entry(name) {
+                    Entry::Occupied(mut occupied) => {
+                        let info = occupied.get_mut();
+                        info.home = kernel_id.clone();
+                        info.assigned = Utc::now();
+                    }
+                    Entry::Vacant(vacant) => {
+                        vacant.insert(SymbolInfo::new(&kind, &kernel_id));
+                    }
+                }
+            }
+        }
+
+        Ok(nodes)
     }
 
     /// Ensure that a kernel exists for a language
