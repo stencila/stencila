@@ -28,7 +28,8 @@ pub mod r;
 pub mod ts;
 
 /// Compile code in a particular language
-pub fn compile(path: &Path, code: &str, language: &str) -> Vec<(Relation, Resource)> {
+pub fn compile<P: AsRef<Path>>(path: P, code: &str, language: &str) -> Vec<(Relation, Resource)> {
+    let path = path.as_ref();
     let pairs = match language {
         #[cfg(feature = "compile-code-js")]
         "js" | "javascript" => js::compile(path, code),
