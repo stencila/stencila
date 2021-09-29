@@ -43,9 +43,6 @@ test('basic', async () => {
     })
   )
 
-  // Send a document patch
-  document = await patch(client, document.id, 'nodeId', [])
-
   // Unsubscribe from document
   document = await unsubscribe(client, document.id, 'patched')
   expect(document).toEqual(
