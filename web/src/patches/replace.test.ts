@@ -91,6 +91,7 @@ test('applyReplace', () => {
     address: ['content', 0, 'content', 1, 'content', 0, 1],
     items: 1,
     html: '-',
+    json: {},
   })
   expect(document.body).toMatchInlineSnapshot(`
 <body>
@@ -118,6 +119,7 @@ test('applyReplace', () => {
     address: ['content', 0, 'content', 0],
     items: 2,
     html: 'one, two',
+    json: {},
   })
   expect(document.body).toMatchInlineSnapshot(`
 <body>
@@ -142,6 +144,7 @@ test('applyReplace', () => {
     address: ['content'],
     items: 1,
     html: '<div slot="content"><p>Hello</p></div>',
+    json: {},
   })
   expect(document.body).toMatchInlineSnapshot(`
 <body>
