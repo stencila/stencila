@@ -749,7 +749,8 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path, document: &Path) -> Str
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <script src="/~static/web/browser/index.js"></script>
         <script>
-            stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}")
+            const startup = stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}");
+            startup().catch((err) => console.error('Error during startup', err))
         </script>
         <link
             href="https://unpkg.com/@stencila/thema/dist/themes/{theme}/styles.css"
