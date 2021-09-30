@@ -5,7 +5,7 @@ use crate::{
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
 use enum_dispatch::enum_dispatch;
-use eyre::{eyre, Result};
+use eyre::{bail, eyre, Result};
 use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::{hash_map::Entry, BTreeMap, HashMap};
@@ -282,7 +282,11 @@ impl KernelSpace {
         // for the language.
         let kernel = match language {
             "calc" => Kernel::Calc(CalcKernel::new()),
-            _ => Kernel::Default(DefaultKernel::new()),
+            "none" | "" => Kernel::Default(DefaultKernel::new()),
+            _ => bail!(
+                "Unable to create an execution kernel for language `{}`",
+                language
+            ),
         };
         let kernel_id = uuids::generate(uuids::Family::Kernel);
         self.kernels.insert(kernel_id.clone(), kernel);
