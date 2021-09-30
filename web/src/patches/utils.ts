@@ -61,8 +61,8 @@ export function assertNumber(slot: Slot): asserts slot is number {
 /**
  * Is a DOM node an element?
  */
-export function isElement(node: Node): node is Element {
-  return node.nodeType === Node.ELEMENT_NODE
+export function isElement(node: Node | undefined): node is Element {
+  return node !== undefined && node.nodeType === Node.ELEMENT_NODE
 }
 
 /**
@@ -73,10 +73,17 @@ export function assertElement(node: Node): asserts node is Element {
 }
 
 /**
+ * Is a DOM node an attribute?
+ */
+ export function isAttr(node: Node | undefined): node is Attr {
+  return node !== undefined && node.nodeType === Node.ATTRIBUTE_NODE
+}
+
+/**
  * Is a DOM node a text node?
  */
-export function isText(node: Node): node is Text {
-  return node.nodeType === Node.TEXT_NODE
+export function isText(node: Node | undefined): node is Text {
+  return node !== undefined && node.nodeType === Node.TEXT_NODE
 }
 
 /**
@@ -118,23 +125,47 @@ export function resolveTarget(target?: ElementId): Element {
  * Resolve a slot in a parent DOM node.
  *
  * Note that the `parent` must be an `Element` but that the returned
- * node may be an `Element` or a `Text` DOM node.
+ * node may be an `Element`, `Attr`, or `Text` DOM node.
  */
-export function resolveSlot(parent: Element, slot: Slot): Element | Text {
+export function resolveSlot(
+  parent: Element,
+  slot: Slot
+): Element | Attr | Text {
   if (isString(slot)) {
-    // Select the first child element with the slot.
+    // Select the first child element with the slot name.
     // This could perhaps be loosened, by removing `:scope` so the first descendent is selected.
     assertElement(parent)
     const child: Element | null = parent.querySelector(
       `:scope > [slot="${slot}"]`
     )
-    if (child === null) {
-      // The `content` property can be is an "implicit" slot; if it is not
-      // present then just return the parent.
-      if (slot === 'content') return parent
-      else throw panic(`Unable to resolve slot '${slot}'`)
+
+    // The `text` slot is usually "implicit" and is always represented by the text content
+    // of the selected element
+    // So, if there is no explicitly marked text slot, use the parent and in either case
+    // return the text content.
+    if (slot === 'text') {
+      const elem = child != null ? child : parent
+      if (elem.childNodes.length == 1 && isText(elem.childNodes[0])) {
+        return elem.childNodes[0]
+      } else {
+        panic!(
+          `Expected the 'text' slot to resolve to a single text node child`
+        )
+      }
     }
-    return child
+
+    if (child !== null) return child
+
+    // The `content` slot is usually "implicit" (i.e. not represented by an element) but
+    // instead represented by the child nodes of the parent element.
+    // So, if there is no explicitly marked content slot, return the parent
+    if (slot === 'content') return parent
+
+    // See if the slot is represented as a standard HTML attribute e.g. `id`, `value`
+    const attr = parent.attributes.getNamedItem(slot)
+    if (attr !== null) return attr
+
+    throw panic(`Unable to resolve slot '${slot}'`)
   } else {
     // Select the child at the slot index.
     const child: ChildNode | undefined = parent.childNodes[slot]
@@ -151,9 +182,9 @@ export function resolveSlot(parent: Element, slot: Slot): Element | Text {
 }
 
 /**
- * Resolve the parent of the node at the address.
+ * Resolve the parent of the DOM node at the address.
  *
- * Returns the parent node and the target node's slot.
+ * Returns the parent DOM node and the target node's slot.
  * This is used for `Add` and `Replace` operations where we need
  * the node on which to perform the action and the terminal slot
  * refers to the location within that node to add or replace.
@@ -161,8 +192,8 @@ export function resolveSlot(parent: Element, slot: Slot): Element | Text {
 export function resolveParent(
   address: Address,
   target?: ElementId
-): [Element | Text, Slot] {
-  let parent: Element | Text = resolveTarget(target)
+): [Element | Attr | Text, Slot] {
+  let parent: Element | Attr | Text = resolveTarget(target)
 
   for (const slot of address.slice(0, -1)) {
     assertElement(parent)
@@ -176,13 +207,13 @@ export function resolveParent(
 }
 
 /**
- * Resolve the node at the address.
+ * Resolve the DOME node at the address.
  */
 export function resolveNode(
   address: Address,
   target?: ElementId
-): Element | Text {
-  let node: Element | Text = resolveTarget(target)
+): Element | Attr | Text {
+  let node: Element | Attr | Text = resolveTarget(target)
 
   for (const slot of address) {
     assertElement(node)

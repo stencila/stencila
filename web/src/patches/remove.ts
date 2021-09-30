@@ -4,8 +4,10 @@ import {
   assert,
   assertNumber,
   assertString,
+  isAttr,
   isElement,
   isString,
+  panic,
   resolveParent,
   resolveSlot,
   toGraphemes,
@@ -25,7 +27,7 @@ export function applyRemove(op: DomOperationRemove, target?: ElementId): void {
 }
 
 /**
- * Apply a remove operation to an element representing an `Option`
+ * Apply a remove operation to an `Option` slot
  */
 export function applyRemoveOption(
   node: Element,
@@ -38,12 +40,14 @@ export function applyRemoveOption(
     `Unexpected remove items ${items} for option slot '${slot}'`
   )
 
-  const target = resolveSlot(node, slot)
-  target.remove()
+  const child = resolveSlot(node, slot)
+  if (isElement(child))  child.remove()
+  else if (isAttr(child)) node.removeAttribute(child.name)
+  else throw panic(`Unexpected remove child DOM node`)
 }
 
 /**
- * Apply a remove operation to an element representing a `Vec`
+ * Apply a remove operation to a `Vec` slot
  */
 export function applyRemoveVec(node: Element, slot: Slot, items: number): void {
   assertNumber(slot)
@@ -66,9 +70,13 @@ export function applyRemoveVec(node: Element, slot: Slot, items: number): void {
 }
 
 /**
- * Apply a remove operation to a text node representing a `String`
+ * Apply a remove operation to a `String` slot
  */
-export function applyRemoveString(node: Text, slot: Slot, items: number): void {
+export function applyRemoveString(
+  node: Attr | Text,
+  slot: Slot,
+  items: number
+): void {
   assertNumber(slot)
 
   const graphemes = toGraphemes(node.textContent ?? '')

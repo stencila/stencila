@@ -31,7 +31,7 @@ export function applyMove(op: DomOperationMove, target?: ElementId): void {
 }
 
 /**
- * Apply a move operation to an element representing a `Vec`
+ * Apply a move operation to a `Vec` slot
  */
 export function applyMoveVec(
   elem: Element,

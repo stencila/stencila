@@ -6,6 +6,7 @@ import {
   assertNumber,
   assertString,
   createFragment,
+  isAttr,
   isElement,
   isString,
   panic,
@@ -31,7 +32,7 @@ export function applyReplace(
 }
 
 /**
- * Apply a replace operation to an element representing an `Option`
+ * Apply a replace operation to an `Option` slot
  */
 export function applyReplaceOption(
   node: Element,
@@ -45,13 +46,17 @@ export function applyReplaceOption(
     `Unexpected replace items ${items} for option slot '${slot}'`
   )
 
-  const target = resolveSlot(node, slot)
-  assertElement(target)
-  target.outerHTML = html
+  const child = resolveSlot(node, slot)
+  if (isElement(child)) child.outerHTML = html
+  else if (isAttr(child)) {
+    const fragment = createFragment(html)
+    node.setAttribute(child.name, fragment.textContent ?? '')
+  }
+  else child.textContent = html
 }
 
 /**
- * Apply a replace operation to an element representing a `Vec`
+ * Apply a replace operation to a `Vec` slot
  */
 export function applyReplaceVec(
   node: Element,
@@ -83,10 +88,10 @@ export function applyReplaceVec(
 }
 
 /**
- * Apply a replace operation to a text node representing a `String`
+ * Apply a replace operation to a `String` slot
  */
 export function applyReplaceString(
-  node: Text,
+  node: Attr | Text,
   slot: Slot,
   items: number,
   value: string

@@ -1,6 +1,6 @@
 import { DomOperationTransform } from '@stencila/stencila'
 import { ElementId } from '../types'
-import { assert, isText, panic, resolveNode } from './utils'
+import { assert, isElement, isText, panic, resolveNode } from './utils'
 
 /**
  * Apply a transform operation
@@ -20,11 +20,12 @@ export function applyTransform(
 
   const node = resolveNode(address, target)
   if (isText(node)) applyTransformString(node, from, to)
-  else applyTransformElem(node, from, to)
+  else if (isElement(node)) applyTransformElem(node, from, to)
+  else throw panic(`Unexpected transform node`)
 }
 
 /**
- * Apply a transform operation to a text node representing a `String`
+ * Apply a transform operation to a `String` slot
  */
 export function applyTransformString(
   text: Text,
@@ -44,7 +45,7 @@ export function applyTransformString(
 }
 
 /**
- * Apply a transform operation to an element representing a `Node`
+ * Apply a transform operation a `Node` slot
  */
 export function applyTransformElem(
   elem: Element,

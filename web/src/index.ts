@@ -25,7 +25,7 @@ export const main = (
   projectId: ProjectId,
   snapshotId: SnapshotId,
   documentPath: documents.DocumentPath
-): void => {
+): () => Promise<[Client, Document, Session]> => {
   let client: Client | undefined
   let session: Session | undefined
   let document: Document | undefined
@@ -42,9 +42,13 @@ export const main = (
         console.warn(`Couldn't subscribe to session updates`, err)
       })
 
-      sessions.subscribe(client, session.id, 'heartbeat').catch((err) => {
-        console.warn(`Couldn't subscribe to session updates`, err)
-      })
+      // Don't subscribe to heartbeats during development because it generates
+      // distracting WebSocket messages
+      //if (process.env.NODE_ENV !== 'development') {
+      //  sessions.subscribe(client, session.id, 'heartbeat').catch((err) => {
+      //    console.warn(`Couldn't subscribe to session updates`, err)
+      //  })
+      //}
     }
 
     if (document === undefined) {
@@ -189,4 +193,6 @@ export const main = (
       disconnect(client)
     }
   })
+
+  return startup
 }

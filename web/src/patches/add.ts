@@ -22,21 +22,43 @@ export function applyAdd(op: DomOperationAdd, target?: ElementId): void {
   if (isElement(parent)) {
     if (isString(slot)) applyAddOption(parent, slot, html)
     else applyAddVec(parent, slot, html)
-  } else applyAddString(parent, slot, html)
+  } else {
+    applyAddString(parent, slot, html)
+  }
 }
 
 /**
- * Apply an add operation to an element representing an `Option`
+ * The HTML element attributes that may be added if the slot name is matching.
+ * 
+ * These are [HTML attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes)
+ * that are also Stencila Schema property names.
+ */
+const ADD_ATTRIBUTES = ['id', 'value', 'rowspan', 'colspan']
+
+/**
+ * Apply an add operation to an `Option` slot
+ *
+ * If the provided HTML does not start with an opening angle bracket `<` then the value
+ * being added must be a string (the only value type that does not get wrapped in an element)
+ * so wrap it.
  */
 export function applyAddOption(node: Element, slot: Slot, html: string): void {
   assertString(slot)
 
+  if (!html.startsWith('<')) {
+    html = `<span slot="${slot}">${html}</span>`
+  }
+
   const fragment = createFragment(html)
-  node.appendChild(fragment)
+  if (ADD_ATTRIBUTES.includes(slot)) {
+    node.setAttribute(slot, fragment.textContent ?? '')
+  } else {
+    node.appendChild(fragment)
+  }
 }
 
 /**
- * Apply an add operation to an element representing a `Vec`
+ * Apply an add operation to a `Vec` slot
  */
 export function applyAddVec(node: Element, slot: Slot, html: string): void {
   assertNumber(slot)
@@ -56,9 +78,13 @@ export function applyAddVec(node: Element, slot: Slot, html: string): void {
 }
 
 /**
- * Apply an add operation to a text node representing a `String`
+ * Apply an add operation to a `String` slot
  */
-export function applyAddString(node: Text, slot: Slot, value: string): void {
+export function applyAddString(
+  node: Attr | Text,
+  slot: Slot,
+  value: string
+): void {
   assertNumber(slot)
 
   const graphemes = toGraphemes(node.textContent ?? '')

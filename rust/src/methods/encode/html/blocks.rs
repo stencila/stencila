@@ -1,6 +1,6 @@
 use super::{
-    attr, attr_data_itemprop, attr_id, attr_itemtype, attr_slot, concat, elem, elem_empty, json,
-    Context, ToHtml,
+    attr, attr_data_itemprop, attr_id, attr_itemprop, attr_itemtype, attr_slot, concat, elem,
+    elem_empty, json, Context, ToHtml,
 };
 use html_escape::encode_safe;
 use stencila_schema::*;
@@ -62,17 +62,23 @@ impl ToHtml for ClaimSimple {
 
 impl ToHtml for CodeBlock {
     fn to_html(&self, slot: &str, _context: &Context) -> String {
+        let programming_language = match &self.programming_language {
+            Some(programming_language) => elem_empty(
+                "meta",
+                &[
+                    attr_itemprop("programmingLanguage"),
+                    attr("content", programming_language),
+                ],
+            ),
+            None => "".to_string(),
+        };
+
+        let text = elem("code", &[attr_itemprop("text")], &encode_safe(&self.text));
+
         elem(
             "pre",
             &[attr_slot(slot), attr_itemtype(self), attr_id(&self.id)],
-            &elem(
-                "code",
-                &[match &self.programming_language {
-                    Some(lang) => attr("class", &["language-", lang].concat()),
-                    None => "".to_string(),
-                }],
-                &encode_safe(&self.text),
-            ),
+            &[programming_language, text].concat(),
         )
     }
 }

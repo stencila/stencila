@@ -1,7 +1,4 @@
-use super::{
-    attr, attr_id, attr_itemtype, attr_itemtype_string, attr_slot, concat, elem, elem_empty, json,
-    Context, ToHtml,
-};
+use super::{Context, ToHtml, attr, attr_id, attr_itemtype, attr_itemtype_string, attr_slot, concat, elem, elem_empty, json};
 use crate::methods::encode::txt::ToTxt;
 use html_escape::encode_safe;
 use std::{fs, path::PathBuf};
@@ -325,10 +322,6 @@ impl ToHtml for CodeFragment {
                 attr_slot(slot),
                 attr_itemtype(self),
                 attr_id(&self.id),
-                match &self.programming_language {
-                    Some(lang) => attr("class", &["language-", lang].concat()),
-                    None => "".to_string(),
-                },
             ],
             &encode_safe(&self.text),
         )
