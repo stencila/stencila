@@ -75,7 +75,7 @@ export function assertElement(node: Node): asserts node is Element {
 /**
  * Is a DOM node an attribute?
  */
- export function isAttr(node: Node | undefined): node is Attr {
+export function isAttr(node: Node | undefined): node is Attr {
   return node !== undefined && node.nodeType === Node.ATTRIBUTE_NODE
 }
 
@@ -87,37 +87,34 @@ export function isText(node: Node | undefined): node is Text {
 }
 
 /**
- * Resolve the root DOM element.
- *
- * The root node corresponds to the `root` node of the `Document`
- * in Rust. By default addresses are relative to the "root" node of the
- * document.
- *
- * Panics if unable to find the `[slot="root"]` node in the
- * body of the DOM document.
- */
-export function resolveRoot(): Element {
-  const root = document.body.querySelector('[slot="root"]')
-  if (root === null) throw panic('Unable to resolve root node')
-  return root
-}
-
-/**
  * Resolve the target of a patch.
  *
  * If a `target` is specified for a patch then return the element
- * with a matching `id`, otherwise return the root element.
+ * with a matching `id`.
+ *
+ * Otherwise, return the "root" element corresponding to the `root` node of
+ * the `Document` in Rust.If unable to find the `[slot="root"]` node in the
+ * `<body>` will log a warning and return the first node child of the body.
  */
 export function resolveTarget(target?: ElementId): Element {
-  if (target === undefined) {
-    return resolveRoot()
-  } else {
+  if (target !== undefined) {
     const elem = document.getElementById(target)
     if (elem === null)
       throw panic(
         `Unable to resolve target node; no element with id '${target}'`
       )
     return elem
+  } else {
+    const root = document.body.querySelector('[slot="root"]')
+    if (root === null) {
+      console.warn('Unable to resolve root node; using first node of <body>')
+      const first = document.body.firstElementChild
+      if (first === null)
+        throw panic('The <body> does not have a child element!')
+      return first
+    } else {
+      return root
+    }
   }
 }
 
@@ -145,10 +142,10 @@ export function resolveSlot(
     // return the text content.
     if (slot === 'text') {
       const elem = child != null ? child : parent
-      if (elem.childNodes.length == 1 && isText(elem.childNodes[0])) {
+      if (elem.childNodes.length === 1 && isText(elem.childNodes[0])) {
         return elem.childNodes[0]
       } else {
-        panic!(
+        throw panic(
           `Expected the 'text' slot to resolve to a single text node child`
         )
       }
@@ -185,25 +182,39 @@ export function resolveSlot(
  * Resolve the parent of the DOM node at the address.
  *
  * Returns the parent DOM node and the target node's slot.
- * This is used for `Add` and `Replace` operations where we need
+ * This is used for `Add`, `Replace` and `Move` operations where we need
  * the node on which to perform the action and the terminal slot
  * refers to the location within that node to add or replace.
+ *
+ * If the address is empty, it means that the target node itself is
+ * being operated on. In that case, returns the parent element of the target
+ * and the index of the target relative to that parent.
  */
 export function resolveParent(
   address: Address,
   target?: ElementId
 ): [Element | Attr | Text, Slot] {
-  let parent: Element | Attr | Text = resolveTarget(target)
+  const targetElement = resolveTarget(target)
 
+  if (address.length === 0) {
+    const parentElement = targetElement.parentElement
+    if (parentElement == null) {
+      throw panic('The target node does not have a parent')
+    }
+    const slot = Array.from(parentElement.childNodes).indexOf(targetElement)
+    return [parentElement, slot]
+  }
+
+  let parentNode: Element | Attr | Text = targetElement
   for (const slot of address.slice(0, -1)) {
-    assertElement(parent)
-    parent = resolveSlot(parent, slot)
+    assertElement(parentNode)
+    parentNode = resolveSlot(parentNode, slot)
   }
 
   const slot = address[address.length - 1]
   if (slot === undefined) throw panic('Address is too short')
 
-  return [parent, slot]
+  return [parentNode, slot]
 }
 
 /**

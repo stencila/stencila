@@ -777,7 +777,7 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path, document: &Path) -> Str
         </style>
     </head>
     <body>
-        <div data-itemscope="root">{body}</div>
+        {body}
     </body>
 </html>"#,
         // TODO: pass url from outside this function?
