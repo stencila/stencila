@@ -312,12 +312,6 @@ pub async fn main() -> Result<()> {
     #[cfg(windows)]
     ansi_term::enable_ansi_support();
 
-    #[cfg(feature = "feedback")]
-    {
-        use ansi_term::Color::Red;
-        eprintln!("{}", Red.paint("Stencila CLI is in alpha testing.\n"));
-    }
-
     let args: Vec<String> = std::env::args().collect();
 
     // Parse args into a command
