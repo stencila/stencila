@@ -484,7 +484,7 @@ async fn get_static(
     path: warp::path::Tail,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    tracing::info!("GET ~static /{}", path);
+    tracing::debug!("GET ~static /{}", path);
 
     let asset = match Static::get(path) {
         Some(asset) => asset,
@@ -547,7 +547,7 @@ struct LoginParams {
 #[allow(clippy::unnecessary_unwrap)]
 #[tracing::instrument]
 fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Response {
-    tracing::info!("GET ~login");
+    tracing::debug!("GET ~login");
 
     let token = params.token;
     let next = params.next.unwrap_or_else(|| "/".to_string());
@@ -604,7 +604,7 @@ async fn get_local(
     _claims: jwt::Claims,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    tracing::info!("GET ~local /{}", path);
+    tracing::debug!("GET ~local /{}", path);
 
     let cwd = std::env::current_dir().expect("Unable to get current working directory");
 
@@ -663,7 +663,7 @@ async fn get_handler(
     _claims: jwt::Claims,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    tracing::info!("GET {}", path);
+    tracing::debug!("GET {}", path);
 
     let cwd = std::env::current_dir().expect("Unable to get current working directory");
 
@@ -1105,9 +1105,11 @@ pub mod cli {
                 key
             };
 
-            // Print the login URL to stdout so that it can be used by, for example, the
-            // parent process.
-            println!("{}", login_url(port, key.clone(), Some(300), None)?);
+            // If stdout is not a TTY then print the login URL to stdout so that it can be used
+            // by, for example, the parent process.
+            // TODO: Consider re-enabling this when/id `cli` modules are moved to the `cli` crate
+            // where the `atty` crate is available. Until then skip to avoid noise on stdout.
+            // println!("{}", login_url(port, key.clone(), Some(300), None)?);
 
             // Check for root usage
             #[cfg(any(target_os = "linux", target_os = "macos"))]
