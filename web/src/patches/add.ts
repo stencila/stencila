@@ -29,7 +29,7 @@ export function applyAdd(op: DomOperationAdd, target?: ElementId): void {
 
 /**
  * The HTML element attributes that may be added if the slot name is matching.
- * 
+ *
  * These are [HTML attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes)
  * that are also Stencila Schema property names.
  */

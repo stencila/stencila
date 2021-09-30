@@ -41,7 +41,7 @@ export function applyRemoveOption(
   )
 
   const child = resolveSlot(node, slot)
-  if (isElement(child))  child.remove()
+  if (isElement(child)) child.remove()
   else if (isAttr(child)) node.removeAttribute(child.name)
   else throw panic(`Unexpected remove child DOM node`)
 }

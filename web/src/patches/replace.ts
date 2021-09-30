@@ -2,7 +2,6 @@ import { DomOperationReplace, Slot } from '@stencila/stencila'
 import { ElementId } from '../types'
 import {
   assert,
-  assertElement,
   assertNumber,
   assertString,
   createFragment,
@@ -51,8 +50,7 @@ export function applyReplaceOption(
   else if (isAttr(child)) {
     const fragment = createFragment(html)
     node.setAttribute(child.name, fragment.textContent ?? '')
-  }
-  else child.textContent = html
+  } else child.textContent = html
 }
 
 /**
