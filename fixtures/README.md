@@ -39,3 +39,8 @@ All sample media files are from https://developer.mozilla.org/ and are in the pu
 ## 🍕 Fragments
 
 The [`fragments`](fragments) folder contains many small examples of parts of documents in a variety of formats. These are used in snapshot-based unit tests of decoding and encoding functions. Generally, each file should be focussed on one node type in one format.
+
+## 🍱 Nodes
+
+The [`nodes`](nodes) folder contains examples of Stencila Schema node types as JSON or YAML files (because these are lossless formats capable of representing all the properties of nodes). These are useful for tests where you do not want to be concerned about potential decoding (i.e. conversion) errors or loss when reading a node into memory.
+
