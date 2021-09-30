@@ -1,6 +1,5 @@
-import { Document, DocumentEvent, DomPatch, Patch } from '@stencila/stencila'
+import { Document, DocumentEvent, Patch } from '@stencila/stencila'
 import { Client } from './client'
-import { applyPatch } from './patches'
 
 export type DocumentPath = string
 
@@ -64,22 +63,13 @@ export async function close(
 }
 
 /**
- * Default handler for document events
- */
-function defaultHandler(event: DocumentEvent): void {
-  if (event.type === 'patched') {
-    applyPatch(event.patch as DomPatch)
-  }
-}
-
-/**
  * Subscribe to a document topic
  */
 export async function subscribe(
   client: Client,
   documentId: DocumentId,
   topic: DocumentTopic,
-  handler: (event: DocumentEvent) => void = defaultHandler
+  handler: (event: DocumentEvent) => void
 ): Promise<Document> {
   client.on(`documents:${documentId}:${topic}`, handler)
   return client.call('documents.subscribe', {

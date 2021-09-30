@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Document, DocumentEvent } from '@stencila/stencila'
 import { Client, connect, disconnect } from './client'
-import { close, open, patch, subscribe, unsubscribe } from './documents'
+import { close, open, subscribe, unsubscribe } from './documents'
 
 jest.setTimeout(10000)
 

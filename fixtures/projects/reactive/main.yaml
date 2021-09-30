@@ -51,6 +51,7 @@ content:
           text: c
         - " assigned in the above code chunk "
         - type: CodeExpression
+          id: expr-1
           programmingLanguage: calc
           text: c * 2
         - "."

@@ -5,7 +5,7 @@ use crate::{
     utils::schemas,
 };
 use defaults::Defaults;
-use derive_more::{Deref, DerefMut};
+use derive_more::{Constructor, Deref, DerefMut};
 use eyre::{bail, Result};
 use itertools::Itertools;
 use prelude::{invalid_address, unpointable_type};
@@ -20,7 +20,9 @@ use std::{
     hash::Hasher,
     iter::FromIterator,
 };
-use stencila_schema::{BlockContent, Boolean, InlineContent, Integer, Node, Number};
+use stencila_schema::{
+    Array, BlockContent, Boolean, InlineContent, Integer, Node, Null, Number, Object,
+};
 use strum::{AsRefStr, ToString};
 
 /// Are two nodes are the same type and value?
@@ -257,6 +259,7 @@ pub enum Pointer<'lt> {
 }
 
 impl<'lt> Pointer<'lt> {
+    /// Apply a patch to the node that is pointed to
     pub fn patch(&mut self, patch: &Patch) -> Result<()> {
         match self {
             Pointer::Inline(node) => node.apply_patch(patch),
@@ -266,17 +269,35 @@ impl<'lt> Pointer<'lt> {
         }
     }
 
+    /// Execute the node that is pointed to
+    ///
+    /// Returns a patch representing the change in the node resulting from
+    /// the execution (usually to it's outputs)
     pub fn execute(&mut self, kernels: &mut KernelSpace) -> Result<Patch> {
         let patch = match self {
             Pointer::Inline(node) => {
-                let pre = node.clone();
+                // TODO: Reinstate real diffing, rather than wholesale replacement
+                //let pre = node.clone();
                 execute(*node, kernels)?;
-                diff(&pre, node)
+                //diff(&pre, node)
+                Patch::new(vec![Operation::Replace {
+                    address: Address::new(),
+                    items: 1,
+                    value: Box::new(node.clone()),
+                    length: 1,
+                }])
             }
             Pointer::Block(node) => {
-                let pre = node.clone();
+                // TODO: Reinstate real diffing, rather than wholesale replacement
+                //let pre = node.clone();
                 execute(*node, kernels)?;
-                diff(&pre, node)
+                //diff(&pre, node)
+                Patch::new(vec![Operation::Replace {
+                    address: Address::new(),
+                    items: 1,
+                    value: Box::new(node.clone()),
+                    length: 1,
+                }])
             }
             Pointer::Node(node) => {
                 let pre = node.clone();
@@ -403,12 +424,16 @@ impl Operation {
     {
         // Most value types just get serialized as normal
         macro_rules! serialize {
-            ($( $type:ty )*) => {
-                $(
-                    if let Some(value) = value.downcast_ref::<$type>() {
-                        return value.serialize(serializer);
-                    }
-                )*
+            ($type:ty) => {
+                if let Some(value) = value.downcast_ref::<$type>() {
+                    return value.serialize(serializer);
+                }
+                if let Some(value) = value.downcast_ref::<Vec<$type>>() {
+                    return value.serialize(serializer);
+                }
+            };
+            ($($type:ty)*) => {
+                $(serialize!($type);)*
             }
         }
         serialize!(
@@ -421,26 +446,18 @@ impl Operation {
             String
             InlineContent
             BlockContent
-            Vec<u8>
-            Vec<i32>
-            Vec<f32>
-            Vec<Boolean>
-            Vec<Integer>
-            Vec<Number>
-            Vec<String>
-            Vec<InlineContent>
-            Vec<BlockContent>
             serde_json::Value
         );
 
-        // Other types get printed as their type name
+        // For debugging purposes, other types get printed as their type name
         macro_rules! typename {
-            ($( $type:ty )*) => {
-                $(
-                    if value.downcast_ref::<$type>().is_some() {
-                        return serializer.serialize_str(stringify!($type));
-                    }
-                )*
+            ($type:ty) => {
+                if value.downcast_ref::<$type>().is_some() {
+                    return serializer.serialize_str(stringify!($type));
+                }
+            };
+            ($($type:ty)*) => {
+                $(typename!($type);)*
             }
         }
         typename!(
@@ -484,7 +501,7 @@ impl Operation {
 }
 
 /// A set of [`Operation`]s
-#[derive(Debug, Default, Deref, DerefMut, JsonSchema, Serialize, Deserialize)]
+#[derive(Debug, Default, Constructor, Deref, DerefMut, JsonSchema, Serialize, Deserialize)]
 pub struct Patch(Vec<Operation>);
 
 /// A DOM operation used to mutate the DOM.
@@ -493,9 +510,9 @@ pub struct Patch(Vec<Operation>);
 /// The same names for operation variants and their properties
 /// are used with the following exception:
 ///
-/// - the `value` property of `Add` and `Replace` is renamed to `html` and is a string
-///   representing the HTML of the DOM node (usually a HTML `Element` or `Text` node)
-///   or part of it.
+/// - the `value` property of `Add` and `Replace` is replaced by `html`, a HTML string
+///   representing the node (usually a HTML `Element` or `Text` node), and `json`, a JSON
+///   representation of the node (used for updating WebComponents).
 ///
 /// - the `length` property of `Add` and `Replace` is not included because it is not
 ///   needed (for merge conflict resolution as it is in `Operation`).
@@ -511,6 +528,9 @@ pub enum DomOperation {
 
         /// The HTML to add
         html: String,
+
+        /// The JSON value to add
+        json: serde_json::Value,
     },
     /// Remove one or more DOM nodes
     #[schemars(title = "DomOperationRemove")]
@@ -532,6 +552,9 @@ pub enum DomOperation {
 
         /// The replacement HTML
         html: String,
+
+        /// The JSON value to replace
+        json: serde_json::Value,
     },
     /// Move a DOM node from one address to another
     #[schemars(title = "DomOperationMove")]
@@ -561,11 +584,12 @@ pub enum DomOperation {
 
 impl DomOperation {
     /// Create a `DomOperation` from an `Operation`
-    fn from_op(op: &Operation) -> DomOperation {
+    fn new(op: &Operation) -> DomOperation {
         match op {
             Operation::Add { address, value, .. } => DomOperation::Add {
                 address: address.clone(),
                 html: DomOperation::value_html(address, value),
+                json: DomOperation::value_json(value),
             },
 
             Operation::Remove { address, items, .. } => DomOperation::Remove {
@@ -582,6 +606,7 @@ impl DomOperation {
                 address: address.clone(),
                 items: *items,
                 html: DomOperation::value_html(address, value),
+                json: DomOperation::value_json(value),
             },
 
             Operation::Move { from, items, to } => DomOperation::Move {
@@ -602,74 +627,94 @@ impl DomOperation {
     fn value_html(address: &Address, value: &Value) -> String {
         use crate::methods::encode::html::{Context, ToHtml};
 
-        let slot = address.back().unwrap();
+        let slot = address.back();
         let context = Context::new();
 
-        macro_rules! node {
-            ($( $type:ty )*) => {
-                $(
-                    if let Some(node) = value.downcast_ref::<$type>() {
-                        return node.to_html(&slot.to_string(), &context)
-                    }
-                )*
+        // Convert a node, boxed node, or vector of nodes to HTML
+        macro_rules! to_html {
+            ($type:ty) => {
+                if let Some(node) = value.downcast_ref::<$type>() {
+                    return node.to_html(
+                        &slot.map(|slot| slot.to_string()).unwrap_or_default(),
+                        &context
+                    )
+                }
+                if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
+                    return boxed.to_html(
+                        &slot.map(|slot| slot.to_string()).unwrap_or_default(),
+                        &context
+                    )
+                }
+                if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
+                    return match slot {
+                        // If the slot is a name then we're adding or replacing a property so we
+                        // want the `Vec` to have a wrapper element with the name as the slot attribute
+                        Some(Slot::Name(name)) => nodes.to_html(name, &context),
+                        // If the slot is an index then we're adding or replacing items in a
+                        // vector so we don't want a wrapper element
+                        Some(Slot::Index(..)) | None => nodes.to_html("", &context),
+                    };
+                }
+            };
+            ($($type:ty)*) => {
+                $(to_html!($type);)*
             }
         }
-        node!(
-            Boolean
-            Integer
-            Number
-            String
+        // Types roughly ordered by expected incidence (more commonly used types in
+        // patches first)
+        to_html!(
             InlineContent
             BlockContent
             Node
-        );
 
-        macro_rules! boxed {
-            ($( $type:ty )*) => {
-                $(
-                    if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
-                        return boxed.to_html(&slot.to_string(), &context)
-                    }
-                )*
-            }
-        }
-        boxed!(
-            Boolean
-            Integer
-            Number
             String
-            Node
+            Number
+            Integer
+            Boolean
+            Array
+            Object
+            Null
         );
-
-        if let Some(inlines) = value.downcast_ref::<Vec<InlineContent>>() {
-            return match slot {
-                // If the slot is a name then we're adding or replacing a property so we
-                // want the `Vec` to have a wrapper element with the name as the slot attribute
-                Slot::Name(name) => inlines.to_html(name, &context),
-                // If the slot is an index then we're adding or replacing items in a
-                // vector so we don't want a wrapper element
-                Slot::Index(..) => inlines.to_html("", &context),
-            };
-        }
-
-        if let Some(blocks) = value.downcast_ref::<Vec<BlockContent>>() {
-            return match slot {
-                // As above, but for blocks...
-                Slot::Name(name) => blocks.to_html(name, &context),
-                Slot::Index(..) => blocks.to_html("", &context),
-            };
-        }
-
-        if let Some(nodes) = value.downcast_ref::<Vec<Node>>() {
-            return match slot {
-                // As above, but for nodes...
-                Slot::Name(name) => nodes.to_html(name, &context),
-                Slot::Index(..) => nodes.to_html("", &context),
-            };
-        }
 
         tracing::error!("Unhandled value type when generating HTML for `DomOperation`");
         "<span class=\"todo\">TODO</span>".to_string()
+    }
+
+    /// Generate JSON for the `value` field of an operation
+    fn value_json(value: &Value) -> serde_json::Value {
+        // Convert a node, boxed node, or vector of nodes to HTML
+        macro_rules! to_json {
+            ($type:ty) => {
+                if let Some(node) = value.downcast_ref::<$type>() {
+                    return serde_json::to_value(node).expect("Should convert to JSON")
+                }
+                if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
+                    return serde_json::to_value(boxed).expect("Should convert to JSON")
+                }
+                if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
+                    return serde_json::to_value(nodes).expect("Should convert to JSON")
+                }
+            };
+            ($($type:ty)*) => {
+                $(to_json!($type);)*
+            }
+        }
+        to_json!(
+            InlineContent
+            BlockContent
+            Node
+
+            String
+            Number
+            Integer
+            Boolean
+            Array
+            Object
+            Null
+        );
+
+        tracing::error!("Unhandled value type when generating JSON for `DomOperation`");
+        serde_json::Value::String("TODO".to_string())
     }
 }
 
@@ -688,7 +733,7 @@ pub struct DomPatch {
 impl DomPatch {
     pub fn new(patch: &Patch, target: Option<String>) -> DomPatch {
         DomPatch {
-            ops: patch.iter().map(|op| DomOperation::from_op(op)).collect(),
+            ops: patch.iter().map(|op| DomOperation::new(op)).collect(),
             target,
         }
     }
@@ -1186,7 +1231,8 @@ mod tests {
             json!({"ops":[{
                 "type": "Add",
                 "address": ["content"],
-                "html": "<div slot=\"content\"><p itemtype=\"https://stenci.la/Paragraph\" itemscope></p></div>"
+                "html": "<div slot=\"content\"><p itemtype=\"https://stenci.la/Paragraph\" itemscope></p></div>",
+                "json": [{"type": "Paragraph", "content": []}]
             }]})
         );
 
@@ -1207,7 +1253,8 @@ mod tests {
             json!({"ops":[{
                 "type": "Add",
                 "address": ["content", 0, "content", 0],
-                "html": "first second"
+                "html": "first second",
+                "json": ["first", " second"]
             }]})
         );
 
@@ -1230,7 +1277,8 @@ mod tests {
                 "type": "Replace",
                 "address": ["content", 0, "content", 0, 1],
                 "items": 3,
-                "html": "oo"
+                "html": "oo",
+                "json": "oo"
             }]})
         );
 

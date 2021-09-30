@@ -6,9 +6,16 @@
 // - How do we migrate old published documents
 // - Attach Node IDs for required elements in published article HTML
 
-import { Document, Session } from '@stencila/stencila'
+import {
+  Document,
+  DocumentEvent,
+  DomPatch,
+  Operation,
+  Session,
+} from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
+import { applyPatch } from './patches'
 import * as sessions from './sessions'
 import { ProjectId, SnapshotId } from './types'
 
@@ -42,9 +49,11 @@ export const main = (
 
     if (document === undefined) {
       document = await documents.open(client, documentPath)
-      documents.subscribe(client, document.id, 'patched').catch((err) => {
-        console.warn(`Couldn't subscribe to document 'patched'`, err)
-      })
+      documents
+        .subscribe(client, document.id, 'patched', patchNode)
+        .catch((err) => {
+          console.warn(`Couldn't subscribe to document 'patched'`, err)
+        })
     }
 
     return [client, document, session]
@@ -58,39 +67,117 @@ export const main = (
     }
   }
 
-  // Listen for a `session:start` event. Currently, mainly
-  // used for manual testing of events e.g. enter in the console
-  // `window.dispatchEvent(new CustomEvent('session:start'))`
-  window.addEventListener('session:start', () => {
-    startup().catch((err) => {
-      console.warn(`Couldn't start the session`, err)
-    })
-  })
-
-  // Listen for a `document:patched` custom event emitted from within browser window
-  // e.g. user changes the code of a `CodeChunk` without executing it
-  window.addEventListener('document:patch', async (e) => {
+  // Execute a node, optionally updating properties prior to execution.
+  async function executeNode(
+    nodeId: documents.NodeId,
+    properties: Record<string, unknown>
+  ): Promise<void> {
     const [client, document] = await startup()
-    const { nodeId, patch } = (e as CustomEvent<documents.NodePatch>).detail
-    await documents.patch(client, document.id, nodeId, patch)
-  })
+    const patch = Object.entries(properties).map(
+      ([key, value]): Operation => ({
+        type: 'Replace',
+        address: [key],
+        value,
+        items: 1,
+        length: 1,
+      })
+    )
+    return documents.execute(client, document.id, nodeId, patch)
+  }
 
-  // Listen for a `document:execute` custom event e.g. user presses
-  // the "run button" on a `CodeChunk` (to execute it without changing it)
-  // or on the document toolbar
-  window.addEventListener('document:execute', async (e) => {
-    const [client, document] = await startup()
-    const { nodeId, patch } = (e as CustomEvent<documents.NodeExecute>).detail
-    await documents.execute(client, document.id, nodeId, patch)
-  })
-
-  // Listen for a `session:stop` custom event e.g. user presses
-  // a document level "stop button".
-  window.addEventListener('session:stop', () => {
-    shutdown().catch((err) => {
-      console.warn(`Couldn't shut down the session`, err)
+  // Attach `executeNode` to event handlers
+  window.onload = () => {
+    // `onChange` for `Parameter` nodes
+    window.document.querySelectorAll('input').forEach((input) => {
+      input.addEventListener('change', () => {
+        // Using JSON.parse here but in the future we'd have the `Parameter` component
+        // be providing the correct value type, based on it's `validator`..
+        const value = JSON.parse(input.value) as unknown
+        executeNode(input.id, { value }).catch((err) => {
+          console.warn(`Couldn't execute the parameter`, err)
+        })
+      })
     })
-  })
+
+    // `executeHandler` for `CodeChunk` and `CodeExpression` nodes
+    window.document
+      .querySelectorAll('stencila-code-chunk,stencila-code-expression')
+      .forEach((elem) => {
+        /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return */
+        // @ts-expect-error because we're not importing component types
+        elem.executeHandler = (node) => {
+          executeNode(elem.id, {
+            text: node.text,
+            programming_language:
+              // This is a temporary hack for testing purposes. More work on
+              // normalizing language names needed.
+              node.programmingLanguage === 'plain text'
+                ? 'calc'
+                : node.programmingLanguage,
+          }).catch((err) => {
+            console.warn(`Couldn't execute the node`, err)
+          })
+          // The WebComponent for a `CodeExpression` has a `isOutputEmpty` property
+          // which is set based on the return value from this function and does not
+          // change later when we actually update the output. So, here's a hack to
+          // make that always true.
+          return { ...node, output: '' }
+        }
+        /* eslint-enable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return */
+      })
+  }
+
+  // Patch a node
+  ///
+  /// Handles a document 'patched' event by either sending it to the relevant WebComponent
+  /// so that it can make the necessary changes to the DOM, or by calling `applyPatch` which
+  /// makes changes to the DOM directly.
+  function patchNode(event: DocumentEvent): void {
+    let patch
+    if (event.type === 'patched') {
+      patch = event.patch as DomPatch
+    } else {
+      console.error(
+        `Expected document event to be of type 'patched', got type '${event.type}'`
+      )
+      return
+    }
+
+    // Patches for node types with WebComponents are handled differently
+    // from patches to other DOM elements.
+    if (patch.target !== undefined && patch.ops[0]?.type === 'Replace') {
+      const type = patch.ops[0]?.json.type as string
+      if (type === 'Parameter') {
+        // Nothing to do (?)
+        return
+      } else if (type === 'CodeChunk') {
+        window.dispatchEvent(
+          new CustomEvent('document:patched', {
+            detail: {
+              nodeId: patch.target,
+              value: patch.ops[0]?.json,
+            },
+          })
+        )
+        return
+      } else if (type === 'CodeExpression') {
+        window.dispatchEvent(
+          new CustomEvent('document:node:changed', {
+            detail: {
+              nodeId: patch.target,
+              value: patch.ops[0]?.json,
+            },
+          })
+        )
+        return
+      } else {
+        console.error(`Unexpected patch JSON value type '${type}'`)
+        return
+      }
+    }
+
+    applyPatch(patch)
+  }
 
   // Shutdown and disconnect on page unload
   window.addEventListener('unload', () => {
@@ -102,58 +189,4 @@ export const main = (
       disconnect(client)
     }
   })
-
-  // Temporary event handlers for executable nodes until we work out how this
-  // will be done long term
-  window.onload = () => {
-    // `onChange` event handler for `Parameter` nodes
-    window.document.querySelectorAll('input').forEach((input) => {
-      input.addEventListener('change', () => {
-        window.dispatchEvent(
-          new CustomEvent<documents.NodeExecute>('document:execute', {
-            detail: {
-              nodeId: input.id,
-              patch: [
-                {
-                  type: 'Replace',
-                  address: ['value'],
-                  /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
-                  value: JSON.parse(input.value),
-                  items: 1,
-                  length: 1,
-                },
-              ],
-            },
-          })
-        )
-      })
-    })
-
-    // `executeHandler` for code chunks
-    window.document
-      .querySelectorAll('stencila-code-chunk,stencila-code-expression')
-      .forEach((elem) => {
-        // @ts-expect-error because not importing types
-        elem.executeHandler = (node) => {
-          window.dispatchEvent(
-            new CustomEvent<documents.NodeExecute>('document:execute', {
-              detail: {
-                nodeId: elem.id,
-                patch: [
-                  {
-                    type: 'Replace',
-                    address: ['text'],
-                    /* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
-                    value: node.text,
-                    items: 1,
-                    length: 1,
-                  },
-                ],
-              },
-            })
-          )
-          return '{}'
-        }
-      })
-  }
 }

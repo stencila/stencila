@@ -107,9 +107,35 @@ export interface Document {
     [k: string]: Kernel
   }
   /**
-   * The variables in the document kernel space
+   * The symbols in the document kernel space
    */
-  variables: {
+  symbols: {
+    [k: string]: SymbolInfo
+  }
+}
+export interface SymbolInfo {
+  /**
+   * The type of the object that the symbol refers to (e.g `Number`, `Function`)
+   *
+   * Should be used as a hint only, to the underlying, native type of the symbol.
+   */
+  kind: string
+  /**
+   * The home kernel of the symbol
+   *
+   * The home kernel of a symbol is the kernel that it was last assigned in. As such, a symbol's home kernel can change, although this is discouraged.
+   */
+  home: string
+  /**
+   * The time that the symbol was last assigned in the home kernel
+   *
+   * A symbol is considered assigned when  a `CodeChunk` with an `Assign` relation to the symbol is executed or the `kernel.set` method is called.
+   */
+  assigned: string
+  /**
+   * A timestamp is recorded for each time that a symbol is mirrored to another kernel. This allows unnecessary mirroring to be avoided if the symbol has not been assigned since it was last mirrored to that kernel.
+   */
+  mirrored: {
     [k: string]: string
   }
 }
@@ -205,7 +231,7 @@ export type Patch = Operation[]
  *
  * A `DomOperation` is the DOM version of an [`Operation`]. The same names for operation variants and their properties are used with the following exception:
  *
- * - the `value` property of `Add` and `Replace` is renamed to `html` and is a string representing the HTML of the DOM node (usually a HTML `Element` or `Text` node) or part of it.
+ * - the `value` property of `Add` and `Replace` is replaced by `html`, a HTML string representing the node (usually a HTML `Element` or `Text` node), and `json`, a JSON representation of the node (used for updating WebComponents).
  *
  * - the `length` property of `Add` and `Replace` is not included because it is not needed (for merge conflict resolution as it is in `Operation`).
  */
@@ -360,6 +386,12 @@ export interface DomOperationAdd {
    * The HTML to add
    */
   html: string
+  /**
+   * The JSON value to add
+   */
+  json: {
+    [k: string]: unknown
+  }
 }
 /**
  * Remove one or more DOM nodes
@@ -400,6 +432,12 @@ export interface DomOperationReplace {
    * The replacement HTML
    */
   html: string
+  /**
+   * The JSON value to replace
+   */
+  json: {
+    [k: string]: unknown
+  }
 }
 /**
  * Move a DOM node from one address to another
@@ -1191,6 +1229,12 @@ export type Error =
   | {
       type: 'UnknownFormat'
       format: string
+      message: string
+    }
+  | {
+      type: 'IncompatibleLanguage'
+      language: string
+      kernel_type: string
       message: string
     }
   | {
