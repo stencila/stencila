@@ -93,7 +93,7 @@ export function isText(node: Node | undefined): node is Text {
  * with a matching `id`.
  *
  * Otherwise, return the "root" element corresponding to the `root` node of
- * the `Document` in Rust.If unable to find the `[slot="root"]` node in the
+ * the `Document` in Rust. If unable to find the root node in the
  * `<body>` will log a warning and return the first node child of the body.
  */
 export function resolveTarget(target?: ElementId): Element {
@@ -105,7 +105,7 @@ export function resolveTarget(target?: ElementId): Element {
       )
     return elem
   } else {
-    const root = document.body.querySelector('[slot="root"]')
+    const root = document.body.querySelector('[slot="root"], [itemprop="root"]')
     if (root === null) {
       console.warn('Unable to resolve root node; using first node of <body>')
       const first = document.body.firstElementChild
@@ -129,17 +129,15 @@ export function resolveSlot(
   slot: Slot
 ): Element | Attr | Text {
   if (isString(slot)) {
-    // Select the first child element with the slot name.
-    // This could perhaps be loosened, by removing `:scope` so the first descendent is selected.
+    // Select the first descendant element with an `itemprop` attribute matching the
+    // slot name.
     assertElement(parent)
     const child: Element | null = parent.querySelector(
-      `:scope > [slot="${slot}"]`
+      `[slot="${slot}"], [itemprop="${slot}"]`
     )
 
-    // The `text` slot is usually "implicit" and is always represented by the text content
-    // of the selected element
-    // So, if there is no explicitly marked text slot, use the parent and in either case
-    // return the text content.
+    // The `text` slot is always represented by the text content of the selected element
+    // and is usually "implicit" (so, if there is no explicitly marked text slot, use the parent)
     if (slot === 'text') {
       const elem = child != null ? child : parent
       if (elem.childNodes.length === 1 && isText(elem.childNodes[0])) {
@@ -149,6 +147,18 @@ export function resolveSlot(
           `Expected the 'text' slot to resolve to a single text node child`
         )
       }
+    }
+
+    // `<meta>` elements are used to represent properties that should not be visible
+    // but which are needed, if for nothing other than to provide Microdata for the property.
+    // Return the `content` attribute, rather than the element itself.
+    if (child?.tagName === 'META') {
+      const content = child.attributes.getNamedItem('content')
+      if (content === null)
+        throw panic(
+          `Expected <meta> element for slot '${slot}' to have a 'content' attribute`
+        )
+      return content
     }
 
     if (child !== null) return child

@@ -1,6 +1,7 @@
 use super::Options;
 use eyre::Result;
 use html_escape::{encode_double_quoted_attribute, encode_safe};
+use inflector::cases::camelcase::to_camel_case;
 use serde::Serialize;
 use std::any::type_name;
 use stencila_schema::*;
@@ -197,19 +198,23 @@ fn attr(name: &str, value: &str) -> String {
 }
 
 /// Encode a "slot" attribute of an HTML element
-fn attr_slot(slot: &str) -> String {
-    if slot.is_empty() {
+///
+/// Will ensure that the name is camelCased.
+fn attr_slot(name: &str) -> String {
+    if name.is_empty() {
         "".to_string()
     } else {
-        attr("slot", slot)
+        attr("slot", &to_camel_case(name))
     }
 }
 
 /// Encode the "itemtype" attribute of an HTML element
 ///
+/// Prefer to use `attr_itemtype::<Type>` but use this when the
+/// itemtype should differ from the Rust type name.
 /// Note: there should always be a sibling "itemscope" attribute on the
-/// element.
-fn attr_itemtype_string(name: &str) -> String {
+/// element so that is added.
+fn attr_itemtype_str(name: &str) -> String {
     let itemtype = match name {
         // TODO: complete list of schema.org types
         "Article" | "AudioObject" | "ImageObject" | "VideoObject" => {
@@ -221,7 +226,7 @@ fn attr_itemtype_string(name: &str) -> String {
 }
 
 /// Encode the "itemtype" attribute of an HTML element using the type of node
-fn attr_itemtype<Type>(_value: &Type) -> String {
+fn attr_itemtype<Type>() -> String {
     let name = type_name::<Type>();
     let name = if let Some(name) = name.strip_prefix("stencila_schema::types::") {
         name
@@ -229,17 +234,18 @@ fn attr_itemtype<Type>(_value: &Type) -> String {
         tracing::error!("Unexpected type: {}", name);
         name
     };
-    attr_itemtype_string(name)
+    attr_itemtype_str(name)
 }
 
-/// Encode an "itemprop" attribute of an HTML element
+/// Encode a "itemprop" attribute of an HTML element
+///
+/// Will ensure that the itemprop is camelCased.
 fn attr_itemprop(itemprop: &str) -> String {
-    attr("itemprop", itemprop)
-}
-
-/// Encode a "data-itemprop" attribute of an HTML element
-fn attr_data_itemprop(itemprop: &str) -> String {
-    attr("data-itemprop", itemprop)
+    if itemprop.is_empty() {
+        "".to_string()
+    } else {
+        attr("itemprop", &to_camel_case(itemprop))
+    }
 }
 
 /// Encode a node `id` as the "id" attribute of an HTML element

@@ -1,6 +1,5 @@
 use super::{
-    attr, attr_data_itemprop, attr_id, attr_itemprop, attr_itemtype, attr_slot, concat, elem, json,
-    Context, ToHtml,
+    attr, attr_id, attr_itemprop, attr_itemtype, attr_slot, concat, elem, json, Context, ToHtml,
 };
 use crate::methods::encode::html::elem_empty;
 use html_escape::encode_safe;
@@ -41,7 +40,7 @@ impl ToHtml for Article {
                     CreativeWorkTitle::String(title) => title.to_html("", context),
                     CreativeWorkTitle::VecInlineContent(title) => title.to_html("", context),
                 };
-                elem("h1", &[attr_itemprop("headline")], &title)
+                elem("h1", &[attr_slot(slot), attr_itemprop("headline")], &title)
             }
             None => "".to_string(),
         };
@@ -75,7 +74,7 @@ impl ToHtml for Article {
                     }
                     CreativeWorkAuthors::Organization(org) => author_org_to_html(org),
                 });
-                elem("ol", &[attr_data_itemprop("authors")], &authors)
+                elem("ol", &[attr_slot("authors")], &authors)
             }
             None => "".to_string(),
         };
@@ -83,7 +82,7 @@ impl ToHtml for Article {
         let affiliations = if !orgs.is_empty() {
             elem(
                 "ol",
-                &[attr_data_itemprop("affiliations")],
+                &[attr_slot("affiliations")],
                 &concat(&orgs, |org| affiliation_org_to_html(org)),
             )
         } else {
@@ -110,7 +109,7 @@ impl ToHtml for Article {
                 };
                 elem(
                     "section",
-                    &[attr_data_itemprop("description")],
+                    &[attr_slot("description")],
                     &[
                         elem_empty(
                             "meta",
@@ -128,7 +127,7 @@ impl ToHtml for Article {
 
         elem(
             "article",
-            &[attr_slot(slot), attr_itemtype(self), attr_id(&self.id)],
+            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &[title, authors, affiliations, abstract_, content].concat(),
         )
     }

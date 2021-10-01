@@ -55,4 +55,6 @@ patchable_node!(
     Node::Integer
     Node::Number
     Node::String
+
+    Node::CodeBlock
 );

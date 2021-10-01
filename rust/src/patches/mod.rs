@@ -7,6 +7,7 @@ use crate::{
 use defaults::Defaults;
 use derive_more::{Constructor, Deref, DerefMut};
 use eyre::{bail, Result};
+use inflector::cases::camelcase::to_camel_case;
 use itertools::Itertools;
 use prelude::{invalid_address, unpointable_type};
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
@@ -208,7 +209,9 @@ impl ToString for Slot {
 ///
 /// Note: This could instead have be called a "Path", but that name was avoided because
 /// of potential confusion with file system paths.
-#[derive(Debug, Clone, Default, Deref, DerefMut, JsonSchema, Serialize, Deserialize)]
+#[derive(
+    Debug, Clone, Default, Constructor, Deref, DerefMut, JsonSchema, Serialize, Deserialize,
+)]
 #[schemars(deny_unknown_fields)]
 pub struct Address(VecDeque<Slot>);
 
@@ -224,8 +227,8 @@ impl Display for Address {
 }
 
 impl Address {
-    /// Create a new address
-    pub fn new() -> Self {
+    /// Create an empty address
+    pub fn empty() -> Self {
         Self::default()
     }
 
@@ -234,6 +237,20 @@ impl Address {
         let mut concat = self.clone();
         concat.append(&mut other.clone());
         concat
+    }
+
+    /// Creates a DOM compatible address by ensuring an name slots
+    /// are camelCased (the convention used in Stencila Schema and thus
+    /// in `itemprop` attributes) rather than snake_cased (as in Rust).
+    fn to_dom_address(&self) -> Self {
+        Address::new(
+            self.iter()
+                .map(|slot| match slot {
+                    Slot::Index(..) => slot.clone(),
+                    Slot::Name(name) => Slot::Name(to_camel_case(name)),
+                })
+                .collect(),
+        )
     }
 }
 
@@ -281,7 +298,7 @@ impl<'lt> Pointer<'lt> {
                 execute(*node, kernels)?;
                 //diff(&pre, node)
                 Patch::new(vec![Operation::Replace {
-                    address: Address::new(),
+                    address: Address::empty(),
                     items: 1,
                     value: Box::new(node.clone()),
                     length: 1,
@@ -293,7 +310,7 @@ impl<'lt> Pointer<'lt> {
                 execute(*node, kernels)?;
                 //diff(&pre, node)
                 Patch::new(vec![Operation::Replace {
-                    address: Address::new(),
+                    address: Address::empty(),
                     items: 1,
                     value: Box::new(node.clone()),
                     length: 1,
@@ -587,13 +604,13 @@ impl DomOperation {
     fn new(op: &Operation) -> DomOperation {
         match op {
             Operation::Add { address, value, .. } => DomOperation::Add {
-                address: address.clone(),
+                address: address.to_dom_address(),
                 html: DomOperation::value_html(address, value),
                 json: DomOperation::value_json(value),
             },
 
             Operation::Remove { address, items, .. } => DomOperation::Remove {
-                address: address.clone(),
+                address: address.to_dom_address(),
                 items: *items,
             },
 
@@ -603,20 +620,20 @@ impl DomOperation {
                 value,
                 ..
             } => DomOperation::Replace {
-                address: address.clone(),
+                address: address.to_dom_address(),
                 items: *items,
                 html: DomOperation::value_html(address, value),
                 json: DomOperation::value_json(value),
             },
 
             Operation::Move { from, items, to } => DomOperation::Move {
-                from: from.clone(),
+                from: from.to_dom_address(),
                 items: *items,
-                to: to.clone(),
+                to: to.to_dom_address(),
             },
 
             Operation::Transform { address, from, to } => DomOperation::Transform {
-                address: address.clone(),
+                address: address.to_dom_address(),
                 from: from.clone(),
                 to: to.clone(),
             },
