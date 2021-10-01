@@ -1,0 +1,57 @@
+# A test fixture focussed on reactivity:
+#  - written in YAML to allow node types and attributes not supported
+#    by Markdown and because YAML is easier to write than JSON
+# - assigns `id`s to executable node types to avoid generation of random
+#   ids and thus changing snapshots
+type: Article
+content:
+    - type: Paragraph
+      content:
+        - "Parameters "
+        - type: CodeFragment
+          text: a
+        - " "
+        - type: Parameter
+          id: par-a
+          name: a
+          value: 3
+          validator:
+            type: NumberValidator
+        - " and "
+        - type: CodeFragment
+          text: b
+        - " "
+        - type: Parameter
+          id: par-b
+          name: b
+          value: 2
+          validator:
+            type: NumberValidator
+        - "."
+    - type: Paragraph
+      content:
+        - "A code chunk which assigns a document variable "
+        - type: CodeFragment
+          text: c
+        - " that is based on parameters "
+        - type: CodeFragment
+          text: a
+        - " and "
+        - type: CodeFragment
+          text: b
+        - ":"
+    - type: CodeChunk
+      id: chunk-1
+      programmingLanguage: calc
+      text: "c = a + b\nc"
+    - type: Paragraph
+      content:
+        - "A code expression which doubles variable "
+        - type: CodeFragment
+          text: c
+        - " assigned in the above code chunk "
+        - type: CodeExpression
+          id: expr-1
+          programmingLanguage: calc
+          text: c * 2
+        - "."

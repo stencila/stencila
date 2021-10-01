@@ -1,11 +1,11 @@
-import { Document } from '@stencila/stencila'
+import { Document, DocumentEvent, Patch } from '@stencila/stencila'
 import { Client } from './client'
 
 export type DocumentPath = string
 
 export type DocumentId = string
 
-type DocumentTopic = 'node:value' | 'node:html'
+type DocumentTopic = 'patched'
 
 export type NodeId = string
 
@@ -18,39 +18,21 @@ export type NodeValue =
   | { [key: string | number]: NodeValue }
 
 /**
- * A document event published by the server indicating
- * that a node has been updated
- */
-export type DocumentEvent =
-  | {
-      type: 'NodeValueUpdated'
-      documentId: string
-      nodeId: string
-      value: NodeValue
-    }
-  | {
-      type: 'NodeHtmlUpdated'
-      documentId: string
-      nodeId: string
-      html: string
-    }
-
-/**
  * The browser `CustomEvent` detail emitted when a node in the current
  * document is executed.
  */
 export interface NodeExecute {
   nodeId: NodeId
-  value?: NodeValue
+  patch?: Patch
 }
 
 /**
  * The browser `CustomEvent` detail emitted when a node in the current
  * document is changed by the user.
  */
-export interface NodeValueChanged {
+export interface NodePatch {
   nodeId: NodeId
-  value: NodeValue
+  patch: Patch
 }
 
 /**
@@ -81,27 +63,15 @@ export async function close(
 }
 
 /**
- * Default handler for document events
- *
- * Dispatches a `CustomEvent` with the type of the event
- * prefixed with "document:" e.g. "document:nodevalueupdated"
- */
-function defaultHandler(event: DocumentEvent): void {
-  window.dispatchEvent(
-    new CustomEvent(`document:${event.type}`.toLowerCase(), { detail: event })
-  )
-}
-
-/**
  * Subscribe to a document topic
  */
 export async function subscribe(
   client: Client,
   documentId: DocumentId,
   topic: DocumentTopic,
-  handler: (event: DocumentEvent) => void = defaultHandler
+  handler: (event: DocumentEvent) => void
 ): Promise<Document> {
-  client.on(`document:${documentId}:${topic}`, handler)
+  client.on(`documents:${documentId}:${topic}`, handler)
   return client.call('documents.subscribe', {
     documentId,
     topic,
@@ -116,7 +86,7 @@ export async function unsubscribe(
   documentId: DocumentId,
   topic: DocumentTopic
 ): Promise<Document> {
-  client.off(`document:${documentId}:${topic}`)
+  client.off(`documents:${documentId}:${topic}`)
   return client.call('documents.unsubscribe', {
     documentId,
     topic,
@@ -124,35 +94,40 @@ export async function unsubscribe(
 }
 
 /**
- * Change a document node
+ * Patch a document node
+ *
+ * Will generate an error if the patch could not be
+ * applied e.g. no node with the id could be found or
+ * the patch was inconsistent with the node.
  */
-export async function change(
+export async function patch(
   client: Client,
   documentId: DocumentId,
   nodeId: NodeId,
-  nodeValue: NodeValue
-): Promise<Document> {
-  return client.call('documents.change', {
+  patch: Patch
+): Promise<void> {
+  return client.call('documents.patch', {
     documentId,
     nodeId,
-    value: nodeValue,
-  }) as Promise<Document>
+    patch,
+  }) as Promise<void>
 }
 
 /**
  * Execute a document node
  *
- * Optionally, pass a new value for the node.
+ * Optionally, pass a patch to apply to the node
+ * prior to executing it.
  */
 export async function execute(
   client: Client,
   documentId: DocumentId,
   nodeId: NodeId,
-  nodeValue?: NodeValue
-): Promise<Document> {
+  patch?: Patch
+): Promise<void> {
   return client.call('documents.execute', {
     documentId,
     nodeId,
-    value: nodeValue,
-  }) as Promise<Document>
+    patch,
+  }) as Promise<void>
 }

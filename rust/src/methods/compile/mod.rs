@@ -1,14 +1,13 @@
 use crate::{
-    documents::DOCUMENTS,
+    dispatch_block, dispatch_inline, dispatch_node, dispatch_work,
     graphs::{relations, resources, Relation, Resource, NULL_RANGE},
-    methods::transform::Transform,
+    kernels::KernelSpace,
+    patches::{Address, Slot},
     utils::{hash::str_sha256_hex, path::merge, uuids},
 };
-use async_trait::async_trait;
-use defaults::Defaults;
 use eyre::Result;
 use std::{
-    collections::BTreeMap,
+    collections::HashMap,
     path::{Path, PathBuf},
 };
 use stencila_schema::*;
@@ -24,29 +23,43 @@ pub mod code {
     }
 }
 
+type Addresses = HashMap<String, Address>;
+type Relations = HashMap<Resource, Vec<(Relation, Resource)>>;
+
 /// Compile a node
 ///
 /// Compiling a document involves walking over the node tree and compiling each
 /// individual node so that it is ready to be built & executed. This includes
 /// (but is not limited to):
 ///
-/// - ensuring that each node has an `id`
-/// - for `Include` nodes actually including the included content and then compiling that
+/// - for those node types needing to be accesses directly (e.g. executable nodes) ensuring
+///   they have an `id` and recording their address
 /// - for executable nodes (e.g. `CodeChunk`) performing semantic analysis of the code
 /// - determining dependencies within and between documents and other resources
-pub async fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<Context> {
+pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresses, Relations)> {
+    let mut address = Address::default();
     let mut context = Context {
         path: PathBuf::from(path),
         project: PathBuf::from(project),
         ..Default::default()
     };
-    node.compile(&mut context).await?;
-    Ok(context)
+    node.compile(&mut address, &mut context)?;
+
+    let addresses = context.addresses;
+    let relations = context.relations.into_iter().collect();
+    Ok((addresses, relations))
+}
+
+pub fn execute<Type>(node: &mut Type, kernels: &mut KernelSpace) -> Result<()>
+where
+    Type: Compile,
+{
+    node.execute(kernels)
 }
 
 /// The compilation context, used to pass down properties of the
 /// root node and to record inputs and outputs etc during compilation
-#[derive(Defaults)]
+#[derive(Debug, Default)]
 pub struct Context {
     /// The path of the document being compiled.
     /// Used to resolve relative paths e.g. in `ImageObject` and `Include` nodes
@@ -55,6 +68,9 @@ pub struct Context {
     /// The project that the document is within.
     /// Used to restrict any file links to be within the project
     project: PathBuf,
+
+    /// A map of node ids to addresses
+    pub addresses: HashMap<String, Address>,
 
     /// Relations with other resources for each compiled resource
     /// in the document.
@@ -65,9 +81,14 @@ pub struct Context {
 ///
 /// This trait is implemented below for all (or at least most)
 /// node types.
-#[async_trait]
-trait Compile {
-    async fn compile(&mut self, context: &mut Context) -> Result<()>;
+pub trait Compile {
+    fn compile(&mut self, _address: &mut Address, _context: &mut Context) -> Result<()> {
+        Ok(())
+    }
+
+    fn execute(&mut self, _kernels: &mut KernelSpace) -> Result<()> {
+        Ok(())
+    }
 }
 
 /// Identify a node
@@ -91,310 +112,18 @@ macro_rules! identify {
     };
 }
 
-// The following `impl Compile` for enums try to include all variants so that
-// there is a context error if any variant is missing. This
-// forces us to have an explicit `impl Compile` for each node type which
-// rather than "silently" doing nothing for variants that have been omitted.
+// This first set of implementations are for node types that need
+// some sort of compilation.
 
-/// Compile a `Node`
-#[async_trait]
-impl Compile for Node {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        match self {
-            Node::Array(node) => node.compile(context).await,
-            Node::Article(node) => node.compile(context).await,
-            Node::AudioObject(node) => node.compile(context).await,
-            Node::Boolean(node) => node.compile(context).await,
-            Node::Cite(node) => node.compile(context).await,
-            Node::CiteGroup(node) => node.compile(context).await,
-            Node::Claim(node) => node.compile(context).await,
-            Node::CodeBlock(node) => node.compile(context).await,
-            Node::CodeChunk(node) => node.compile(context).await,
-            Node::CodeExpression(node) => node.compile(context).await,
-            Node::CodeFragment(node) => node.compile(context).await,
-            Node::Collection(node) => node.compile(context).await,
-            Node::Comment(node) => node.compile(context).await,
-            Node::CreativeWork(node) => node.compile(context).await,
-            Node::Datatable(node) => node.compile(context).await,
-            Node::Delete(node) => node.compile(context).await,
-            Node::Emphasis(node) => node.compile(context).await,
-            Node::Figure(node) => node.compile(context).await,
-            Node::Heading(node) => node.compile(context).await,
-            Node::ImageObject(node) => node.compile(context).await,
-            Node::Integer(node) => node.compile(context).await,
-            Node::Link(node) => node.compile(context).await,
-            Node::List(node) => node.compile(context).await,
-            Node::MathBlock(node) => node.compile(context).await,
-            Node::MathFragment(node) => node.compile(context).await,
-            Node::MediaObject(node) => node.compile(context).await,
-            Node::NontextualAnnotation(node) => node.compile(context).await,
-            Node::Note(node) => node.compile(context).await,
-            Node::Null => Ok(()),
-            Node::Number(node) => node.compile(context).await,
-            Node::Object(node) => node.compile(context).await,
-            Node::Paragraph(node) => node.compile(context).await,
-            Node::Periodical(node) => node.compile(context).await,
-            Node::PublicationIssue(node) => node.compile(context).await,
-            Node::PublicationVolume(node) => node.compile(context).await,
-            Node::Quote(node) => node.compile(context).await,
-            Node::QuoteBlock(node) => node.compile(context).await,
-            Node::Review(node) => node.compile(context).await,
-            Node::SoftwareApplication(node) => node.compile(context).await,
-            Node::SoftwareSourceCode(node) => node.compile(context).await,
-            Node::String(node) => node.compile(context).await,
-            Node::Strong(node) => node.compile(context).await,
-            Node::Subscript(node) => node.compile(context).await,
-            Node::Superscript(node) => node.compile(context).await,
-            Node::Table(node) => node.compile(context).await,
-            Node::ThematicBreak(node) => node.compile(context).await,
-            Node::VideoObject(node) => node.compile(context).await,
-            _ => {
-                tracing::debug!("Compile is not implemented for {:?}", self);
-                Ok(())
-            }
-        }
-    }
-}
-
-#[async_trait]
-impl Compile for InlineContent {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        match self {
-            InlineContent::AudioObject(node) => node.compile(context).await,
-            InlineContent::Boolean(node) => node.compile(context).await,
-            InlineContent::Cite(node) => node.compile(context).await,
-            InlineContent::CiteGroup(node) => node.compile(context).await,
-            InlineContent::CodeExpression(node) => node.compile(context).await,
-            InlineContent::CodeFragment(node) => node.compile(context).await,
-            InlineContent::Delete(node) => node.compile(context).await,
-            InlineContent::Emphasis(node) => node.compile(context).await,
-            InlineContent::ImageObject(node) => node.compile(context).await,
-            InlineContent::Integer(node) => node.compile(context).await,
-            InlineContent::Link(node) => node.compile(context).await,
-            InlineContent::MathFragment(node) => node.compile(context).await,
-            InlineContent::NontextualAnnotation(node) => node.compile(context).await,
-            InlineContent::Note(node) => node.compile(context).await,
-            InlineContent::Null => Ok(()),
-            InlineContent::Number(node) => node.compile(context).await,
-            InlineContent::Parameter(node) => node.compile(context).await,
-            InlineContent::Quote(node) => node.compile(context).await,
-            InlineContent::String(node) => node.compile(context).await,
-            InlineContent::Strong(node) => node.compile(context).await,
-            InlineContent::Subscript(node) => node.compile(context).await,
-            InlineContent::Superscript(node) => node.compile(context).await,
-            InlineContent::VideoObject(node) => node.compile(context).await,
-        }
-    }
-}
-
-#[async_trait]
-impl Compile for BlockContent {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        match self {
-            BlockContent::Claim(node) => node.compile(context).await,
-            BlockContent::CodeBlock(node) => node.compile(context).await,
-            BlockContent::CodeChunk(node) => node.compile(context).await,
-            BlockContent::Collection(node) => node.compile(context).await,
-            BlockContent::Figure(node) => node.compile(context).await,
-            BlockContent::Heading(node) => node.compile(context).await,
-            BlockContent::Include(node) => node.compile(context).await,
-            BlockContent::List(node) => node.compile(context).await,
-            BlockContent::MathBlock(node) => node.compile(context).await,
-            BlockContent::Paragraph(node) => node.compile(context).await,
-            BlockContent::QuoteBlock(node) => node.compile(context).await,
-            BlockContent::Table(node) => node.compile(context).await,
-            BlockContent::ThematicBreak(node) => node.compile(context).await,
-        }
-    }
-}
-
-#[async_trait]
-impl Compile for CreativeWorkTypes {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        match self {
-            CreativeWorkTypes::Article(node) => node.compile(context).await,
-            CreativeWorkTypes::AudioObject(node) => node.compile(context).await,
-            CreativeWorkTypes::Claim(node) => node.compile(context).await,
-            CreativeWorkTypes::Collection(node) => node.compile(context).await,
-            CreativeWorkTypes::Comment(node) => node.compile(context).await,
-            CreativeWorkTypes::CreativeWork(node) => node.compile(context).await,
-            CreativeWorkTypes::Datatable(node) => node.compile(context).await,
-            CreativeWorkTypes::Figure(node) => node.compile(context).await,
-            CreativeWorkTypes::ImageObject(node) => node.compile(context).await,
-            CreativeWorkTypes::MediaObject(node) => node.compile(context).await,
-            CreativeWorkTypes::Periodical(node) => node.compile(context).await,
-            CreativeWorkTypes::PublicationIssue(node) => node.compile(context).await,
-            CreativeWorkTypes::PublicationVolume(node) => node.compile(context).await,
-            CreativeWorkTypes::Review(node) => node.compile(context).await,
-            CreativeWorkTypes::SoftwareApplication(node) => node.compile(context).await,
-            CreativeWorkTypes::SoftwareSourceCode(node) => node.compile(context).await,
-            CreativeWorkTypes::Table(node) => node.compile(context).await,
-            CreativeWorkTypes::VideoObject(node) => node.compile(context).await,
-        }
-    }
-}
-
-// Implementations for `Option<Box>`, `Vec` etc that are often used in properties
-
-#[async_trait]
-impl<T> Compile for Option<T>
-where
-    T: Compile + Send,
-{
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        if let Some(value) = self {
-            value.compile(context).await
-        } else {
-            Ok(())
-        }
-    }
-}
-
-#[async_trait]
-impl<T> Compile for Box<T>
-where
-    T: Compile + Send,
-{
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        (**self).compile(context).await
-    }
-}
-
-#[async_trait]
-impl<T> Compile for Vec<T>
-where
-    T: Compile + Send,
-{
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        for item in self.iter_mut() {
-            item.compile(context).await?
-        }
-        Ok(())
-    }
-}
-
-/// An implementation of `compile` for primitive (non-Entity)
-/// node types (which do not have an `id` property).
-macro_rules! compile_primitive {
-    ( $( $type:ty ),* ) => {
-        $(
-            #[async_trait]
-            impl Compile for $type {
-                async fn compile(&mut self, _context: &mut Context) -> Result<()> {Ok(())}
-            }
-        )*
-    };
-}
-
-compile_primitive!(
-    bool, // Boolean
-    i64, // Integer
-    f64, // Number
-    String,
-    Vec<Primitive>, // Array
-    BTreeMap<String, Primitive> // Object
-);
-
-/// An implementation of `compile` for node types which only
-/// need to ensure they have an identifier
-macro_rules! compile_identify {
-    ( $( $type:ty ),* ) => {
-        $(
-            #[async_trait]
-            impl Compile for $type {
-                async fn compile(&mut self, _context: &mut Context) -> Result<()> {
-                    identify!(self);
-                    Ok(())
-                }
-            }
-        )*
-    };
-}
-
-compile_identify!(
-    // Nodes that are unlikely to need anything else done to them
-    ThematicBreak,
-    // Nodes that may need to be compiled but are here for now
-    CodeBlock,
-    CodeFragment,
-    Datatable,
-    MathBlock,
-    MathFragment,
-    Periodical,
-    PublicationIssue,
-    PublicationVolume,
-    Review,
-    SoftwareApplication
-);
-
-/// A default implementation for node types that have a `content` property
-macro_rules! compile_content {
-    ( $( $type:ty ),* ) => {
-        $(
-            #[async_trait]
-            impl Compile for $type {
-                async fn compile(&mut self, context: &mut Context) -> Result<()> {
-                    identify!(self);
-                    self.content.compile(context).await
-                }
-            }
-        )*
-    };
-}
-
-compile_content!(
-    Article,
-    Cite,
-    Claim,
-    ClaimSimple,
-    Comment,
-    CreativeWork,
-    Delete,
-    Emphasis,
-    Figure,
-    FigureSimple,
-    Heading,
-    NontextualAnnotation,
-    Note,
-    Paragraph,
-    Quote,
-    QuoteBlock,
-    Strong,
-    Subscript,
-    Superscript,
-    Table,
-    TableSimple
-);
-
-// Implementations for `content` property enums
-
-#[async_trait]
-impl Compile for CreativeWorkContent {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        match self {
-            CreativeWorkContent::String(node) => node.compile(context).await,
-            CreativeWorkContent::VecNode(nodes) => nodes.compile(context).await,
-        }
-    }
-}
-
-#[async_trait]
-impl Compile for ListItemContent {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        match self {
-            ListItemContent::VecInlineContent(nodes) => nodes.compile(context).await,
-            ListItemContent::VecBlockContent(nodes) => nodes.compile(context).await,
-        }
-    }
-}
-
-/// Compile a `Link` to add its `target` to the list of included files
-#[async_trait]
+/// Compile a `Link` node
+///
+/// Adds a `Link` relation
 impl Compile for Link {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
-        let subject = resources::node(&context.path, &id, &self.type_name());
+        context.addresses.insert(id.clone(), address.clone());
 
+        let subject = resources::node(&context.path, &id, "Link");
         let target = &self.target;
         let object = if target.starts_with("http://") || target.starts_with("https://") {
             resources::url(target)
@@ -451,16 +180,16 @@ fn compile_content_url(content_url: &str, context: &mut Context) -> String {
     format!("file://{}", path.display())
 }
 
-/// A `Compile` implementation for `MediaObject` node types
+/// Compile a `MediaObject` node type
 macro_rules! compile_media_object {
     ( $( $type:ty ),* ) => {
         $(
-            #[async_trait]
             impl Compile for $type {
-                async fn compile(&mut self, context: &mut Context) -> Result<()> {
+                fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
                     let id = identify!(self);
-                    let subject = resources::node(&context.path, &id, &self.type_name());
+                    context.addresses.insert(id.clone(), address.clone());
 
+                    let subject = resources::node(&context.path, &id, stringify!($type));
                     let url = compile_content_url(&self.content_url, context);
                     let object = if url.starts_with("http") {
                         resources::url(&url)
@@ -468,7 +197,6 @@ macro_rules! compile_media_object {
                         let url = url.strip_prefix("file://").unwrap_or(&url);
                         resources::file(&Path::new(&url))
                     };
-
                     context.relations.push((subject, vec![(Relation::Embed, object)]));
 
                     self.content_url = url;
@@ -490,11 +218,15 @@ compile_media_object!(
     VideoObjectSimple
 );
 
-#[async_trait]
+/// Compile a `Parameter` node
+///
+/// Adds an `Assign` relation.
 impl Compile for Parameter {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
-        let subject = resources::node(&context.path, &id, &self.type_name());
+        context.addresses.insert(id.clone(), address.clone());
+
+        let subject = resources::node(&context.path, &id, "Parameter");
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
             Some(ValidatorTypes::IntegerValidator(..)) => "Integer",
@@ -505,23 +237,35 @@ impl Compile for Parameter {
             _ => "",
         };
         let object = resources::symbol(&context.path, &self.name, kind);
+        let relations = vec![(relations::assigns(NULL_RANGE), object)];
 
-        context
-            .relations
-            .push((subject, vec![(relations::assigns(NULL_RANGE), object)]));
+        context.relations.push((subject, relations));
+
+        Ok(())
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        tracing::debug!("Executing `Parameter`");
+        if let Some(value) = self.value.as_deref() {
+            kernels.set(&self.name, value.clone(), "")?;
+        }
         Ok(())
     }
 }
 
-#[async_trait]
+/// Compile a `CodeChunk` node
+///
+/// Performs semantic analysis of the code (if necessary) and adds the resulting
+/// relations.
 impl Compile for CodeChunk {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
+        context.addresses.insert(id.clone(), address.clone());
+
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
-
         if Some(digest.clone()) != self.compile_digest {
-            let subject = resources::node(&context.path, &id, &self.type_name());
+            let subject = resources::node(&context.path, &id, "CodeChunk");
             let relations = code::compile(&context.path, &self.text, &self.programming_language);
             context.relations.push((subject, relations));
             self.compile_digest = Some(digest)
@@ -529,17 +273,36 @@ impl Compile for CodeChunk {
 
         Ok(())
     }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        tracing::debug!("Executing `CodeChunk`");
+
+        // TODO: Pass relations hashmap in context for lookup instead of re-compiling
+        let relations = code::compile("", &self.text, &self.programming_language);
+        let outputs = kernels.exec(&self.text, &self.programming_language, Some(relations))?;
+        self.outputs = if outputs.is_empty() {
+            None
+        } else {
+            Some(outputs)
+        };
+
+        Ok(())
+    }
 }
 
-#[async_trait]
+/// Compile a `CodeExpression` node
+///
+/// Performs semantic analysis of the code (if necessary) and adds the resulting
+/// relations.
 impl Compile for CodeExpression {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
+        context.addresses.insert(id.clone(), address.clone());
+
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
-
         if Some(digest.clone()) != self.compile_digest {
-            let subject = resources::node(&context.path, &id, &self.type_name());
+            let subject = resources::node(&context.path, &id, "CodeExpression");
             let relations = code::compile(&context.path, &self.text, &self.programming_language);
             context.relations.push((subject, relations));
             self.compile_digest = Some(digest);
@@ -547,37 +310,50 @@ impl Compile for CodeExpression {
 
         Ok(())
     }
-}
 
-#[async_trait]
-impl Compile for SoftwareSourceCode {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        identify!(self);
-        if let (Some(text), Some(programming_language)) =
-            (self.text.as_deref(), self.programming_language.as_deref())
-        {
-            let _digest = str_sha256_hex(&[text.as_str(), programming_language.as_str()].concat());
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        tracing::debug!("Executing `CodeExpression`");
 
-            let subject = resources::file(&context.path);
-            let relations = code::compile(&context.path, text, programming_language);
-            context.relations.push((subject, relations));
-        }
+        // TODO: Pass relations hashmap in context for lookup instead of re-compiling
+        let relations = code::compile("", &self.text, &self.programming_language);
+        let outputs = kernels.exec(&self.text, &self.programming_language, Some(relations))?;
+        self.output = outputs.get(0).map(|output| Box::new(output.clone()));
+
         Ok(())
     }
 }
 
-#[async_trait]
-impl Compile for Include {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
+/// Compile a `SoftwareSourceCode` node
+///
+/// Performs semantic analysis of the code (if necessary) and adds the resulting
+/// relations.
+impl Compile for SoftwareSourceCode {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
-        let subject = resources::node(&context.path, &id, &self.type_name());
+        context.addresses.insert(id, address.clone());
 
+        if let (Some(text), Some(programming_language)) =
+            (self.text.as_deref(), self.programming_language.as_deref())
+        {
+            let subject = resources::file(&context.path);
+            let relations = code::compile(&context.path, text, programming_language);
+            context.relations.push((subject, relations));
+        }
+
+        Ok(())
+    }
+}
+
+/// Compile an `Include` node
+///
+/// Adds an `Include` relation
+impl Compile for Include {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        let id = identify!(self);
+        context.addresses.insert(id.clone(), address.clone());
+
+        let subject = resources::node(&context.path, &id, "Include");
         let path = merge(&context.path, &self.source);
-        let format = self.media_type.as_deref().cloned();
-        let document = DOCUMENTS.open(&path, format).await?;
-        self.content = document.root.as_ref().map(|root| root.to_blocks());
-        //self.sha256 = Some(Box::new(document.sha256()?));
-
         let object = resources::file(&path);
 
         context
@@ -588,46 +364,238 @@ impl Compile for Include {
     }
 }
 
-// Custom implementations where necessary for other types
+/// Do nothing for these types
 
-#[async_trait]
-impl Compile for CiteGroup {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        identify!(self);
-        self.items.compile(context).await
+macro_rules! compile_nothing_for {
+    ( $( $type:ty ),* ) => {
+        $(
+            impl Compile for $type {}
+        )*
+    };
+}
+compile_nothing_for!(
+    // Primitives
+    Null,
+    Boolean,
+    Integer,
+    Number,
+    String,
+    Array,
+    Object,
+    // Entity types that are unlikely to need anything else done to them
+    ThematicBreak,
+    // Entity types that may need to be compiled but are here for now
+    CodeBlock,
+    CodeFragment,
+    Datatable,
+    MathBlock,
+    MathFragment,
+    Periodical,
+    PublicationIssue,
+    PublicationVolume,
+    Review,
+    SoftwareApplication
+);
+
+// The following are simple "dispatching" implementations of `compile`.
+// They implement the depth first walk across a node tree by calling `compile`
+// on child nodes and where necessary pushing slots onto the address.
+
+impl Compile for Node {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_node!(self, Ok(()), compile, address, context)
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_node!(self, Ok(()), execute, kernels)
     }
 }
 
-#[async_trait]
-impl Compile for Collection {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        identify!(self);
-        self.parts.compile(context).await
+impl Compile for CreativeWorkTypes {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_work!(self, compile, address, context)
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_work!(self, execute, kernels)
     }
 }
 
-#[async_trait]
-impl Compile for CollectionSimple {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        identify!(self);
-        self.parts.compile(context).await
+impl Compile for BlockContent {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_block!(self, compile, address, context)
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_block!(self, execute, kernels)
     }
 }
 
-#[async_trait]
-impl Compile for List {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        identify!(self);
-        self.items.compile(context).await
+impl Compile for InlineContent {
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        dispatch_inline!(self, compile, address, context)
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_inline!(self, execute, kernels)
     }
 }
 
-#[async_trait]
-impl Compile for ListItem {
-    async fn compile(&mut self, context: &mut Context) -> Result<()> {
-        identify!(self);
-        self.item.compile(context).await?;
-        self.content.compile(context).await?;
+impl<T> Compile for Option<T>
+where
+    T: Compile,
+{
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        if let Some(value) = self {
+            value.compile(address, context)
+        } else {
+            Ok(())
+        }
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        if let Some(value) = self {
+            value.execute(kernels)
+        } else {
+            Ok(())
+        }
+    }
+}
+
+impl<T> Compile for Box<T>
+where
+    T: Compile,
+{
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        (**self).compile(address, context)
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        (**self).execute(kernels)
+    }
+}
+
+impl<T> Compile for Vec<T>
+where
+    T: Compile,
+{
+    fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+        for (index, item) in self.iter_mut().enumerate() {
+            address.push_back(Slot::Index(index));
+            item.compile(address, context)?;
+            address.pop_back();
+        }
+        Ok(())
+    }
+
+    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        for item in self.iter_mut() {
+            item.execute(kernels)?;
+        }
         Ok(())
     }
 }
+
+/// Compile fields of a struct
+macro_rules! compile_fields {
+    ($type:ty $(, $field:ident)* ) => {
+        impl Compile for $type {
+            fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+                $(
+                    address.push_back(Slot::Name(stringify!($field).to_string()));
+                    self.$field.compile(address, context)?;
+                    address.pop_back();
+                )*
+                Ok(())
+            }
+
+            fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+                $(
+                    self.$field.execute(kernels)?;
+                )*
+                Ok(())
+            }
+        }
+    };
+}
+
+compile_fields!(CiteGroup, items);
+compile_fields!(Collection, parts);
+compile_fields!(CollectionSimple, parts);
+compile_fields!(List, items);
+compile_fields!(ListItem, item, content);
+
+/// Compile the content field of a struct only
+macro_rules! compile_content {
+    ($type:ty) => {
+        compile_fields!($type, content);
+    };
+}
+
+/// Compile content for several types
+macro_rules! compile_content_for {
+    ( $( $type:ty ),* ) => {
+        $(
+            compile_content!($type);
+        )*
+    };
+}
+
+compile_content_for!(
+    Article,
+    Cite,
+    Claim,
+    ClaimSimple,
+    Comment,
+    CreativeWork,
+    Delete,
+    Emphasis,
+    Figure,
+    FigureSimple,
+    Heading,
+    NontextualAnnotation,
+    Note,
+    Paragraph,
+    Quote,
+    QuoteBlock,
+    Strong,
+    Subscript,
+    Superscript,
+    Table,
+    TableSimple
+);
+
+/// Compile variants of an enum
+macro_rules! compile_variants {
+    ( $type:ty $(, $variant:path )* ) => {
+        impl Compile for $type {
+            fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+                match self {
+                    $(
+                        $variant(node) => node.compile(address, context),
+                    )*
+                }
+            }
+
+            fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+                match self {
+                    $(
+                        $variant(node) => node.execute(kernels),
+                    )*
+                }
+            }
+        }
+    };
+}
+
+compile_variants!(
+    CreativeWorkContent,
+    CreativeWorkContent::String,
+    CreativeWorkContent::VecNode
+);
+
+compile_variants!(
+    ListItemContent,
+    ListItemContent::VecInlineContent,
+    ListItemContent::VecBlockContent
+);

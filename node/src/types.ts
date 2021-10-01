@@ -24,6 +24,14 @@ export interface Format {
   extensions: string[]
 }
 
+export type Kernel =
+  | {
+      type: 'Default'
+    }
+  | {
+      type: 'Calc'
+    }
+
 /**
  * An in-memory representation of a document
  */
@@ -71,6 +79,12 @@ export interface Document {
    */
   previewable: boolean
   /**
+   * Addresses of nodes in `root` that have an `id`
+   *
+   * Used to fetch a particular node (and do something with it like `patch` or `execute` it) rather than walking the node tree looking for it. It is necessary to use [`Address`] here (rather than say raw pointers) because pointers or references will change as the document is patched. These addresses are shifted when the document is patched to account for this.
+   */
+  addresses: Record<string, Address>
+  /**
    * The set of relations between this document, or nodes in this document, and other resources.
    *
    * Relations may be external (e.g. this document links to another file) or internal (e.g. the second code chunk uses a variable defined in the first code chunk).
@@ -86,13 +100,51 @@ export interface Document {
   subscriptions: {
     [k: string]: string[]
   }
+  /**
+   * The kernels in the document kernel space
+   */
+  kernels: {
+    [k: string]: Kernel
+  }
+  /**
+   * The symbols in the document kernel space
+   */
+  symbols: {
+    [k: string]: SymbolInfo
+  }
+}
+export interface SymbolInfo {
+  /**
+   * The type of the object that the symbol refers to (e.g `Number`, `Function`)
+   *
+   * Should be used as a hint only, to the underlying, native type of the symbol.
+   */
+  kind: string
+  /**
+   * The home kernel of the symbol
+   *
+   * The home kernel of a symbol is the kernel that it was last assigned in. As such, a symbol's home kernel can change, although this is discouraged.
+   */
+  home: string
+  /**
+   * The time that the symbol was last assigned in the home kernel
+   *
+   * A symbol is considered assigned when  a `CodeChunk` with an `Assign` relation to the symbol is executed or the `kernel.set` method is called.
+   */
+  assigned: string
+  /**
+   * A timestamp is recorded for each time that a symbol is mirrored to another kernel. This allows unnecessary mirroring to be avoided if the symbol has not been assigned since it was last mirrored to that kernel.
+   */
+  mirrored: {
+    [k: string]: string
+  }
 }
 
 export interface DocumentEvent {
   /**
    * The type of event
    */
-  type: 'deleted' | 'renamed' | 'modified' | 'encoded'
+  type: 'deleted' | 'renamed' | 'modified' | 'patched' | 'encoded'
   /**
    * The document associated with the event
    */
@@ -105,6 +157,335 @@ export interface DocumentEvent {
    * The format of the document, only provided for `modified` (the format of the document) and `encoded` events (the format of the encoding).
    */
   format?: Format
+  /**
+   * The `DomPatch` associated with a `Patched` event
+   */
+  patch?: DomPatch
+}
+
+export type PatchesSchema =
+  | {
+      Slot: Slot
+    }
+  | {
+      Address: Address
+    }
+  | {
+      Patch: Patch
+    }
+  | {
+      Operation: Operation
+    }
+  | {
+      DomPatch: DomPatch
+    }
+  | {
+      DomOperation: DomOperation
+    }
+/**
+ * A slot, used as part of an [`Address`], to locate a value within a `Node` tree.
+ *
+ * Slots can be used to identify a part of a larger object.
+ *
+ * The `Name` variant can be used to identify:
+ *
+ * - the property name of a `struct` - the key of a `HashMap<String, ...>`
+ *
+ * The `Integer` variant can be used to identify:
+ *
+ * - the index of a `Vec` - the index of a Unicode character in a `String`
+ *
+ * The `None` variant is used in places where a `Slot` is required but none applies to the particular type or use case.
+ *
+ * In contrast to JSON Patch, which uses a [JSON Pointer](http://tools.ietf.org/html/rfc6901) to describe the location of additions and removals, slots offer improved performance and type safety.
+ */
+export type Slot = number | string
+/**
+ * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+ *
+ * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+ *
+ * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+ */
+export type Address = Slot[]
+/**
+ * The operations that can be used in a patch to mutate one node into another.
+ *
+ * These are the same operations as described in [JSON Patch](http://jsonpatch.com/) (with the exception of `copy` and `test`). Note that `Replace` and `Move` could be represented by combinations of `Remove` and `Add`. They are included as a means of providing more semantically meaningful patches, and more space efficient serializations (e.g. it is not necessary to represent the value being moved or copied).
+ *
+ * In addition, there is a `Transform` operation which can be used describe the transformation of a node to another type, having a similar structure. Examples includes:
+ *
+ * - a `String` to an `Emphasis` - a `Paragraph` to a `QuoteBlock` - a `CodeChunk` to a `CodeBlock`
+ *
+ * The `length` field on `Add` and `Replace` is not necessary for applying operations, but is useful for generating them and for determining if there are conflicts between two patches without having to downcast the `value`.
+ *
+ * Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode characters not bytes.
+ */
+export type Operation = OperationAdd | OperationRemove | OperationReplace | OperationMove | OperationTransform
+/**
+ * A set of [`Operation`]s
+ */
+export type Patch = Operation[]
+/**
+ * A DOM operation used to mutate the DOM.
+ *
+ * A `DomOperation` is the DOM version of an [`Operation`]. The same names for operation variants and their properties are used with the following exception:
+ *
+ * - the `value` property of `Add` and `Replace` is replaced by `html`, a HTML string representing the node (usually a HTML `Element` or `Text` node), and `json`, a JSON representation of the node (used for updating WebComponents).
+ *
+ * - the `length` property of `Add` and `Replace` is not included because it is not needed (for merge conflict resolution as it is in `Operation`).
+ */
+export type DomOperation =
+  | DomOperationAdd
+  | DomOperationRemove
+  | DomOperationReplace
+  | DomOperationMove
+  | DomOperationTransform
+
+/**
+ * Add a value
+ */
+export interface OperationAdd {
+  type: 'Add'
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  address: Slot[]
+  /**
+   * The value to add
+   */
+  value: any
+  /**
+   * The number of items added
+   */
+  length: number
+}
+/**
+ * Remove one or more values
+ */
+export interface OperationRemove {
+  type: 'Remove'
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  address: Slot[]
+  /**
+   * The number of items to remove
+   */
+  items: number
+}
+/**
+ * Replace one or more values
+ */
+export interface OperationReplace {
+  type: 'Replace'
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  address: Slot[]
+  /**
+   * The number of items to replace
+   */
+  items: number
+  /**
+   * The replacement value
+   */
+  value: any
+  /**
+   * The number of items added
+   */
+  length: number
+}
+/**
+ * Move a value from one address to another
+ */
+export interface OperationMove {
+  type: 'Move'
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  from: Slot[]
+  /**
+   * The number of items to move
+   */
+  items: number
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  to: Slot[]
+}
+/**
+ * Transform a value from one type to another
+ */
+export interface OperationTransform {
+  type: 'Transform'
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  address: Slot[]
+  /**
+   * The type of `Node` to transform from
+   */
+  from: string
+  /**
+   * The type of `Node` to transform to
+   */
+  to: string
+}
+/**
+ * A set of [`DomOperation`]s to be applied to some `target` DOM element
+ */
+export interface DomPatch {
+  /**
+   * The [`DomOperation`]s to apply
+   */
+  ops: DomOperation[]
+  /**
+   * The id of the DOM element to which to apply the patch
+   */
+  target?: string
+}
+/**
+ * Add one or more DOM nodes
+ */
+export interface DomOperationAdd {
+  type: 'Add'
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  address: Slot[]
+  /**
+   * The HTML to add
+   */
+  html: string
+  /**
+   * The JSON value to add
+   */
+  json: {
+    [k: string]: unknown
+  }
+}
+/**
+ * Remove one or more DOM nodes
+ */
+export interface DomOperationRemove {
+  type: 'Remove'
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  address: Slot[]
+  /**
+   * The number of items to remove
+   */
+  items: number
+}
+/**
+ * Replace one or more DOM nodes
+ */
+export interface DomOperationReplace {
+  type: 'Replace'
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  address: Slot[]
+  /**
+   * The number of items to replace
+   */
+  items: number
+  /**
+   * The replacement HTML
+   */
+  html: string
+  /**
+   * The JSON value to replace
+   */
+  json: {
+    [k: string]: unknown
+  }
+}
+/**
+ * Move a DOM node from one address to another
+ */
+export interface DomOperationMove {
+  type: 'Move'
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  from: Slot[]
+  /**
+   * The number of items to move
+   */
+  items: number
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  to: Slot[]
+}
+/**
+ * Transform a DOM node from one type to another
+ */
+export interface DomOperationTransform {
+  type: 'Transform'
+  /**
+   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+   *
+   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+   *
+   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
+   */
+  address: Slot[]
+  /**
+   * The type of `Node` to transform from
+   */
+  from: string
+  /**
+   * The type of `Node` to transform to
+   */
+  to: string
 }
 
 /**
@@ -144,28 +525,7 @@ export interface Project {
   /**
    * A list of file conversions
    */
-  conversions?: {
-    /**
-     * The path of the input document
-     */
-    input?: string
-    /**
-     * The path of the output document
-     */
-    output?: string
-    /**
-     * The format of the input (defaults to being inferred from the file extension of the input)
-     */
-    from?: string
-    /**
-     * The format of the output (defaults to being inferred from the file extension of the output)
-     */
-    to?: string
-    /**
-     * Whether or not the conversion is active
-     */
-    active?: boolean
-  }[]
+  conversions?: Conversion[]
   /**
    * Glob patterns for paths to be excluded from file watching
    *
@@ -192,6 +552,31 @@ export interface Project {
    * The project's dependency graph
    */
   graph: Graph
+}
+/**
+ * The definition of a conversion between files within a project
+ */
+export interface Conversion {
+  /**
+   * The path of the input document
+   */
+  input?: string
+  /**
+   * The path of the output document
+   */
+  output?: string
+  /**
+   * The format of the input (defaults to being inferred from the file extension of the input)
+   */
+  from?: string
+  /**
+   * The format of the output (defaults to being inferred from the file extension of the output)
+   */
+  to?: string
+  /**
+   * Whether or not the conversion is active
+   */
+  active?: boolean
 }
 
 export interface ProjectEvent {
@@ -583,6 +968,13 @@ export interface Plugin {
   alias?: string
 }
 
+/**
+ * Plugin installation method
+ *
+ * Which method to use to install a plugin.
+ */
+export type PluginInstallation = 'docker' | 'binary' | 'javascript' | 'python' | 'r' | 'link'
+
 export interface Config {
   /**
    * Configuration settings for project defaults
@@ -694,7 +1086,7 @@ export interface Config {
     /**
      * The order of preference of plugin installation method.
      */
-    installations?: ('docker' | 'binary' | 'javascript' | 'python' | 'r' | 'link')[]
+    installations?: PluginInstallation[]
     /**
      * The local plugin aliases that extends and/or override those in the global aliases at <https://github.com/stencila/stencila/blob/master/plugins.json>
      */
@@ -788,6 +1180,18 @@ export type Error =
       [k: string]: unknown
     }
   | {
+      type: 'UnpointableType'
+      address: Address
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidAddress'
+      address: Address
+      type_name: string
+      message: string
+    }
+  | {
       type: 'InvalidPatchOperation'
       op: string
       type_name: string
@@ -800,25 +1204,37 @@ export type Error =
       message: string
     }
   | {
-      type: 'InvalidPatchName'
+      type: 'InvalidPatchValue'
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidSlotVariant'
+      variant: string
+      type_name: string
+      message: string
+    }
+  | {
+      type: 'InvalidSlotName'
       name: string
       type_name: string
       message: string
     }
   | {
-      type: 'InvalidPatchIndex'
+      type: 'InvalidSlotIndex'
       index: number
-      type_name: string
-      message: string
-    }
-  | {
-      type: 'InvalidPatchValue'
       type_name: string
       message: string
     }
   | {
       type: 'UnknownFormat'
       format: string
+      message: string
+    }
+  | {
+      type: 'IncompatibleLanguage'
+      language: string
+      kernel_type: string
       message: string
     }
   | {

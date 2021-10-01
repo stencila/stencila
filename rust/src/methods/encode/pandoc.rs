@@ -180,10 +180,6 @@ macro_rules! unimplemented_to_pandoc {
     };
 }
 
-fn null_to_pandoc_inline() -> pandoc::Inline {
-    pandoc::Inline::Str("null".to_string())
-}
-
 macro_rules! inline_primitive_to_pandoc_str {
     ($type:ty) => {
         impl ToPandoc for $type {
@@ -194,6 +190,7 @@ macro_rules! inline_primitive_to_pandoc_str {
     };
 }
 
+inline_primitive_to_pandoc_str!(Null);
 inline_primitive_to_pandoc_str!(Boolean);
 inline_primitive_to_pandoc_str!(Integer);
 inline_primitive_to_pandoc_str!(Number);
@@ -300,7 +297,7 @@ impl ToPandoc for InlineContent {
             InlineContent::MathFragment(node) => node.to_pandoc_inline(context),
             InlineContent::NontextualAnnotation(node) => node.to_pandoc_inline(context),
             InlineContent::Note(node) => node.to_pandoc_inline(context),
-            InlineContent::Null => null_to_pandoc_inline(),
+            InlineContent::Null(node) => node.to_pandoc_inline(context),
             InlineContent::Number(node) => node.to_pandoc_inline(context),
             InlineContent::Parameter(node) => node.to_pandoc_inline(context),
             InlineContent::Quote(node) => node.to_pandoc_inline(context),

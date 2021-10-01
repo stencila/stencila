@@ -4,8 +4,10 @@
   "description": "Web client for interacting with Stencila document server",
   "scripts": {
     "build": "parcel build --no-cache",
-    "watch": "parcel watch",
+    "build:watch": "parcel watch",
     "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cover": "jest --coverage",
     "format": "prettier --write '**/*.ts'",
     "lint": "eslint 'src/**/*'",
     "lint:fix": "eslint 'src/**/*' --fix"
@@ -50,6 +52,7 @@
   },
   "dependencies": {
     "@stencila/stencila": "file:../node",
+    "grapheme-splitter": "^1.0.4",
     "rpc-websockets": "^7.4.14"
   },
   "browserslist": [

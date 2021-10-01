@@ -43,7 +43,7 @@ pub struct Args {
     pub display: Option<String>,
 
     /// Enter interactive mode (with any command and options as the prefix)
-    #[structopt(short, long, global = true)]
+    #[structopt(short, long, global = true, aliases = &["interactive"])]
     pub interact: bool,
 
     /// Print debug level log events and additional diagnostics
@@ -66,7 +66,14 @@ pub struct Args {
 /// Global arguments that should be removed when entering interactive mode
 /// because they can only be set / are relevant at startup. Other global arguments,
 /// which need to be accessible at the line level, should be added to `interact::Line` below.
-pub const GLOBAL_ARGS: [&str; 5] = ["--interact", "-i", "--debug", "--log-level", "--log-format"];
+pub const GLOBAL_ARGS: [&str; 6] = [
+    "-i",
+    "--interact",
+    "--interactive",
+    "--debug",
+    "--log-level",
+    "--log-format",
+];
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -107,7 +114,6 @@ pub struct Context {
 }
 
 /// Run a command
-#[tracing::instrument]
 pub async fn run_command(
     command: Command,
     formats: &[String],
@@ -306,12 +312,6 @@ pub async fn main() -> Result<()> {
     #[cfg(windows)]
     ansi_term::enable_ansi_support();
 
-    #[cfg(feature = "feedback")]
-    {
-        use ansi_term::Color::Red;
-        eprintln!("{}", Red.paint("Stencila CLI is in alpha testing.\n"));
-    }
-
     let args: Vec<String> = std::env::args().collect();
 
     // Parse args into a command
@@ -322,13 +322,17 @@ pub async fn main() -> Result<()> {
         debug,
         log_level,
         log_format,
+        interact,
         ..
     } = match parsed_args {
         Ok(args) => args,
         Err(error) => {
-            if args.contains(&"-i".to_string()) || args.contains(&"--interact".to_string()) {
-                // Parse the global options ourselves so that user can
-                // pass an incomplete command prefix to interactive mode
+            // An argument parsing error happened, possibly because the user
+            // provided incomplete command prefix to interactive mode. Handle that.
+            if args.contains(&"-i".to_string())
+                || args.contains(&"--interact".to_string())
+                || args.contains(&"--interactive".to_string())
+            {
                 Args {
                     command: None,
                     display: None,
@@ -415,7 +419,7 @@ pub async fn main() -> Result<()> {
     };
 
     // Get the result of running the command
-    let result = if let Some(command) = command {
+    let result = if let (false, Some(command)) = (interact, command) {
         run_command(command, &formats, &mut context).await
     } else {
         #[cfg(feature = "interact")]
@@ -718,14 +722,16 @@ mod interact {
         help += &Yellow.paint("SHORTCUTS:\n").to_string();
         for (keys, desc) in &[
             ("--help", "Get help for the current command prefix"),
-            ("^     ", "Prints the current command prefix"),
-            ("<     ", "Sets the command prefix"),
-            (">     ", "Clears the command prefix"),
+            ("^     ", "Print the current command prefix"),
+            ("<     ", "Set the command prefix"),
+            (">     ", "Clear the command prefix"),
+            ("<<    ", "Append arguments to the command prefix"),
+            (">>    ", "Remove the last argument from the command prefix"),
             ("↑     ", "Go back through command history"),
             ("↓     ", "Go forward through command history"),
-            ("?     ", "Prints this message"),
-            ("Ctrl+C", "Cancels the current command"),
-            ("Ctrl+D", "Exits interactive application"),
+            ("?     ", "Print this message"),
+            ("Ctrl+C", "Cancel the current command"),
+            ("Ctrl+D", "Exit interactive application"),
         ] {
             help += &format!("    {} {}\n", Green.paint(*keys), desc)
         }
@@ -756,28 +762,35 @@ mod interact {
                 Ok(line) => {
                     rl.add_history_entry(&line);
 
+                    let line = line.trim();
                     let args = line
                         .split_whitespace()
                         .map(str::to_string)
                         .collect::<Vec<String>>();
 
-                    if let Some(first) = line.trim_start().chars().next() {
-                        if first == '^' {
-                            println!("Command prefix is currently {:?}", prefix);
-                            continue;
-                        } else if first == '<' {
-                            prefix = args[1..].into();
-                            println!("Command prefix was set to {:?}", prefix);
-                            continue;
-                        } else if first == '>' {
-                            prefix.clear();
-                            println!("Command prefix was cleared");
-                            continue;
-                        } else if first == '?' {
-                            println!("{}", help());
-                            continue;
-                        }
-                    };
+                    if line.starts_with('^') {
+                        tracing::info!("Command prefix is: `{}`", prefix.join(" "));
+                        continue;
+                    } else if line.starts_with("<<") {
+                        prefix = [prefix, args[1..].into()].concat();
+                        tracing::info!("Command prefix was appended to: `{}`", prefix.join(" "));
+                        continue;
+                    } else if line.starts_with('<') {
+                        prefix = args[1..].into();
+                        tracing::info!("Command prefix was set to: `{}`", prefix.join(" "));
+                        continue;
+                    } else if line.starts_with(">>") {
+                        prefix.truncate(prefix.len() - 1);
+                        tracing::info!("Command prefix was truncated to: `{}`", prefix.join(" "));
+                        continue;
+                    } else if line.starts_with('>') {
+                        prefix.clear();
+                        tracing::info!("Command prefix was cleared");
+                        continue;
+                    } else if line.starts_with('?') {
+                        tracing::info!("{}", help());
+                        continue;
+                    }
 
                     let args = [prefix.as_slice(), args.as_slice()].concat();
                     match Line::clap().get_matches_from_safe(args) {
@@ -812,7 +825,6 @@ mod interact {
                                     .join("\n");
                                 print!("{}", lines)
                             } else {
-                                tracing::debug!("{:?}", error.kind);
                                 print_error(eyre!(error))
                             }
                         }

@@ -177,13 +177,13 @@ impl Client {
     pub fn send(&self, message: impl Serialize) {
         match serde_json::to_string(&message) {
             Ok(json) => self.send_text(&json),
-            Err(error) => tracing::error!("Error serializing to JSON: {}", error),
+            Err(error) => tracing::error!("Error serializing to JSON `{}`", error),
         }
     }
 
     pub fn send_text(&self, text: &str) {
         if let Err(error) = self.sender.send(warp::ws::Message::text(text)) {
-            tracing::error!("Client send error: {}", error)
+            tracing::error!("Client send error `{}`", error)
         }
     }
 }
@@ -209,12 +209,12 @@ impl Clients {
         let mut clients = self.clients.write().await;
         match clients.entry(id.to_string()) {
             Entry::Occupied(mut occupied) => {
-                tracing::debug!("Re-connection for client: {}", id);
+                tracing::debug!("Re-connection for client `{}`", id);
                 let client = occupied.get_mut();
                 client.sender = sender;
             }
             Entry::Vacant(vacant) => {
-                tracing::debug!("New connection for client: {}", id);
+                tracing::debug!("New connection for client `{}`", id);
                 vacant.insert(Client {
                     subscriptions: HashSet::new(),
                     sender,
@@ -228,9 +228,9 @@ impl Clients {
         clients.remove(id);
 
         if gracefully {
-            tracing::debug!("Graceful disconnection by client {}", id)
+            tracing::debug!("Graceful disconnection by client `{}`", id)
         } else {
-            tracing::warn!("Ungraceful disconnection by client: {}", id)
+            tracing::warn!("Ungraceful disconnection by client `{}`", id)
         }
     }
 
@@ -239,27 +239,27 @@ impl Clients {
         if let Some(client) = clients.get(id) {
             client.send(message);
         } else {
-            tracing::error!("No such client: {}", id);
+            tracing::error!("No such client `{}`", id);
         }
     }
 
     pub async fn subscribe(&self, id: &str, topic: &str) {
         let mut clients = self.clients.write().await;
         if let Some(client) = clients.get_mut(id) {
-            tracing::debug!("Subscribing client {} to topic: {}", id, topic);
+            tracing::debug!("Subscribing client `{}` to topic `{}`", id, topic);
             client.subscribe(topic);
         } else {
-            tracing::error!("No such client: {}", id);
+            tracing::error!("No such client `{}`", id);
         }
     }
 
     pub async fn unsubscribe(&self, id: &str, topic: &str) {
         let mut clients = self.clients.write().await;
         if let Some(client) = clients.get_mut(id) {
-            tracing::debug!("Unsubscribing client {} from topic: {}", id, topic);
+            tracing::debug!("Unsubscribing client `{}` from topic `{}`", id, topic);
             client.unsubscribe(topic);
         } else {
-            tracing::error!("No such client: {}", id);
+            tracing::error!("No such client `{}`", id);
         }
     }
 
@@ -273,8 +273,6 @@ impl Clients {
     ) {
         let mut receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(receiver);
         while let Some((topic, event)) = receiver.next().await {
-            tracing::debug!("Received event for topic: {}", topic);
-
             // Get a list of clients that are subscribed to this topic
             let clients = clients.read().await;
             let clients = clients
@@ -286,8 +284,6 @@ impl Clients {
             if clients.is_empty() {
                 continue;
             }
-
-            tracing::debug!("Publishing event to {} clients", clients.len());
 
             // Create a JSON-RPC notification for the event and serialize it
             // so that does not need to be repeated for each client
@@ -302,7 +298,7 @@ impl Clients {
             let json = match serde_json::to_string(&notification) {
                 Ok(json) => json,
                 Err(error) => {
-                    tracing::error!("Error serializing to JSON: {}", error);
+                    tracing::error!("Error serializing to JSON `{}`", error);
                     continue;
                 }
             };
@@ -488,7 +484,7 @@ async fn get_static(
     path: warp::path::Tail,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    tracing::info!("GET ~static /{}", path);
+    tracing::debug!("GET ~static /{}", path);
 
     let asset = match Static::get(path) {
         Some(asset) => asset,
@@ -551,7 +547,7 @@ struct LoginParams {
 #[allow(clippy::unnecessary_unwrap)]
 #[tracing::instrument]
 fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Response {
-    tracing::info!("GET ~login");
+    tracing::debug!("GET ~login");
 
     let token = params.token;
     let next = params.next.unwrap_or_else(|| "/".to_string());
@@ -608,7 +604,7 @@ async fn get_local(
     _claims: jwt::Claims,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    tracing::info!("GET ~local /{}", path);
+    tracing::debug!("GET ~local /{}", path);
 
     let cwd = std::env::current_dir().expect("Unable to get current working directory");
 
@@ -629,7 +625,7 @@ async fn get_local(
         Err(error) => {
             return error_response(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                &format!("When reading file: {}", error),
+                &format!("When reading file `{}`", error),
             )
         }
     };
@@ -667,7 +663,7 @@ async fn get_handler(
     _claims: jwt::Claims,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    tracing::info!("GET {}", path);
+    tracing::debug!("GET {}", path);
 
     let cwd = std::env::current_dir().expect("Unable to get current working directory");
 
@@ -694,7 +690,7 @@ async fn get_handler(
                 Err(error) => {
                     return error_response(
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        &format!("While converting document to {}: {}", format, error),
+                        &format!("While converting document to {} `{}`", format, error),
                     )
                 }
             };
@@ -715,7 +711,7 @@ async fn get_handler(
         }
         Err(error) => error_response(
             StatusCode::INTERNAL_SERVER_ERROR,
-            &format!("While opening document: {}", error),
+            &format!("While opening document `{}`", error),
         ),
     }
 }
@@ -753,7 +749,8 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path, document: &Path) -> Str
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <script src="/~static/web/browser/index.js"></script>
         <script>
-            stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}")
+            const startup = stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}");
+            startup().catch((err) => console.error('Error during startup', err))
         </script>
         <link
             href="https://unpkg.com/@stencila/thema/dist/themes/{theme}/styles.css"
@@ -780,7 +777,7 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path, document: &Path) -> Str
         </style>
     </head>
     <body>
-        <div data-itemscope="root">{body}</div>
+        {body}
     </body>
 </html>"#,
         // TODO: pass url from outside this function?
@@ -864,7 +861,7 @@ fn ws_handshake(ws: warp::ws::Ws, params: WsParams, _claims: jwt::Claims) -> imp
 ///
 /// This function is called after the handshake, when a WebSocket client
 /// has successfully connected.
-#[tracing::instrument]
+#[tracing::instrument(skip(socket))]
 async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
     tracing::debug!("WebSocket connected");
 
@@ -883,7 +880,7 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
                 if message == "Connection closed normally" {
                     CLIENTS.disconnected(&client_clone, true).await
                 } else {
-                    tracing::error!("Websocket send error: {}", error);
+                    tracing::error!("Websocket send error `{}`", error);
                 }
             }
         }
@@ -902,7 +899,7 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
                 {
                     CLIENTS.disconnected(&client, false).await
                 } else {
-                    tracing::error!("Websocket receive error: {}", error);
+                    tracing::error!("Websocket receive error `{}`", error);
                 }
                 continue;
             }
@@ -1055,6 +1052,10 @@ pub mod cli {
         #[structopt(short, long, env = "STENCILA_KEY")]
         key: Option<String>,
 
+        /// Serve in a background thread (when in interactive mode)
+        #[structopt(short, long)]
+        background: bool,
+
         /// Do not require a JSON Web Token to access the server
         #[structopt(long)]
         insecure: bool,
@@ -1069,6 +1070,7 @@ pub mod cli {
             let Command {
                 url,
                 key,
+                background,
                 insecure,
                 root,
             } = self;
@@ -1103,9 +1105,11 @@ pub mod cli {
                 key
             };
 
-            // Print the login URL to stdout so that it can be used by, for example, the
-            // parent process.
-            println!("{}", login_url(port, key.clone(), Some(300), None)?);
+            // If stdout is not a TTY then print the login URL to stdout so that it can be used
+            // by, for example, the parent process.
+            // TODO: Consider re-enabling this when/id `cli` modules are moved to the `cli` crate
+            // where the `atty` crate is available. Until then skip to avoid noise on stdout.
+            // println!("{}", login_url(port, key.clone(), Some(300), None)?);
 
             // Check for root usage
             #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -1117,7 +1121,11 @@ pub mod cli {
                 }
             }
 
-            super::serve_on(protocol, address, port, key).await?;
+            if background {
+                super::serve_background(&format!("{}://{}:{}", protocol, address, port), key)?;
+            } else {
+                super::serve_on(protocol, address, port, key).await?;
+            }
 
             display::nothing()
         }

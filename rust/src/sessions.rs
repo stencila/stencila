@@ -291,10 +291,6 @@ impl Sessions {
             drop(sessions_guard);
 
             if !sessions_heartbeats.is_empty() {
-                tracing::debug!(
-                    "Generating heartbeats for {} sessions",
-                    sessions_heartbeats.len()
-                );
                 for session in sessions_heartbeats {
                     session.heartbeat()
                 }

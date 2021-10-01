@@ -93,7 +93,7 @@ impl Transform for InlineContent {
             InlineContent::MathFragment(node) => Node::MathFragment(node),
             InlineContent::NontextualAnnotation(node) => Node::NontextualAnnotation(node),
             InlineContent::Note(node) => Node::Note(node),
-            InlineContent::Null => Node::Null,
+            InlineContent::Null(node) => Node::Null(node),
             InlineContent::Number(node) => Node::Number(node),
             InlineContent::Parameter(node) => Node::Parameter(node),
             InlineContent::Quote(node) => Node::Quote(node),

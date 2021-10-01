@@ -1,0 +1,11 @@
+---
+source: rust/src/methods/encode/html/mod.rs
+expression: encoded
+input_file: fixtures/fragments/html/superscript.html
+
+---
+<article slot="root" itemtype="https://schema.org/Article" itemscope>
+  <div slot="content">
+    <p itemtype="https://stenci.la/Paragraph" itemscope>Superscripts like CO<sup itemtype="https://stenci.la/Superscript" itemscope>2</sup>.</p>
+  </div>
+</article>

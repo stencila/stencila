@@ -28,7 +28,7 @@ test('create', async () => {
       name: 'Untitled',
       format: expect.objectContaining({
         name: 'md',
-        binary: false
+        binary: false,
       }),
     })
   )
@@ -38,38 +38,38 @@ test('create', async () => {
  * Test of a workflow involving creating a temporary document
  * and then specifying its format, and then later its path.
  */
- test('workflow-create-alter', async () => {
-  const doc = create();
+test('workflow-create-alter', async () => {
+  const doc = create()
   expect(doc).toEqual(
     expect.objectContaining({
       temporary: true,
       name: 'Untitled',
       format: expect.objectContaining({
-        name: "txt"
+        name: 'txt',
       }),
-      status: 'synced'
+      status: 'synced',
     })
   )
 
-  expect(alter(doc.id, undefined, "md")).toEqual(
+  expect(alter(doc.id, undefined, 'md')).toEqual(
     expect.objectContaining({
       temporary: true,
       name: 'Untitled',
       format: expect.objectContaining({
-        name: "md"
+        name: 'md',
       }),
-      status: 'synced'
-    }),
+      status: 'synced',
+    })
   )
 
-  expect(alter(doc.id, "myfile.tex")).toEqual(
+  expect(alter(doc.id, 'myfile.tex')).toEqual(
     expect.objectContaining({
       temporary: false,
       name: 'myfile.tex',
       format: expect.objectContaining({
-        name: "latex"
+        name: 'latex',
       }),
-      status: 'unwritten'
+      status: 'unwritten',
     })
   )
 })
@@ -79,7 +79,7 @@ test('create', async () => {
  * saving it as other files, in same, and other formats.
  */
 test('workflow-create-write-as', async () => {
-  const doc = create(undefined, 'json');
+  const doc = create(undefined, 'json')
   expect(doc).toEqual(
     expect.objectContaining({
       temporary: true,
@@ -92,7 +92,7 @@ test('workflow-create-write-as', async () => {
   fs.existsSync(path1)
 
   const path2 = tmp.fileSync({ postfix: '.markdown' }).name
-  writeAs(doc.id, path2, "md")
+  writeAs(doc.id, path2, 'md')
   fs.existsSync(path2)
 })
 
@@ -154,15 +154,17 @@ test('workflow-open-modify', async () => {
   }`
   )
   await new Promise((resolve) => setTimeout(resolve, 500))
-  expect(events).toEqual([
-    expect.objectContaining({
-      type: 'encoded',
-      format: expect.objectContaining({
-        name: "json",
-        binary: false
+  expect(events).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        type: 'encoded',
+        format: expect.objectContaining({
+          name: 'json',
+          binary: false,
+        }),
       }),
-    }),
-  ])
+    ])
+  )
 
   // Modify the file on disk (and wait a bit for events)
   events = []
@@ -186,8 +188,8 @@ test('workflow-open-modify', async () => {
       expect.objectContaining({
         type: 'encoded',
         format: expect.objectContaining({
-          name: "json",
-          binary: false
+          name: 'json',
+          binary: false,
         }),
       }),
     ])
@@ -211,8 +213,8 @@ test('workflow-open-modify', async () => {
       expect.objectContaining({
         type: 'encoded',
         format: expect.objectContaining({
-          name: "json",
-          binary: false
+          name: 'json',
+          binary: false,
         }),
       }),
     ])
@@ -231,4 +233,3 @@ test('workflow-open-modify', async () => {
 
   fs.unlinkSync(path)
 })
-

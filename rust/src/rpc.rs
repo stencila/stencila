@@ -1,4 +1,4 @@
-use crate::{documents::DOCUMENTS, sessions::SESSIONS};
+use crate::{documents::DOCUMENTS, patches::Patch, sessions::SESSIONS};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use serde::{Deserialize, Serialize};
@@ -61,8 +61,8 @@ impl Request {
             "sessions.unsubscribe" => sessions_unsubscribe(&self.params, client).await,
             "documents.open" => documents_open(&self.params).await,
             "documents.close" => documents_close(&self.params).await,
+            "documents.patch" => documents_patch(&self.params).await,
             "documents.execute" => documents_execute(&self.params).await,
-            "documents.change" => documents_change(&self.params).await,
             "documents.subscribe" => documents_subscribe(&self.params, client).await,
             "documents.unsubscribe" => documents_unsubscribe(&self.params, client).await,
             _ => {
@@ -77,11 +77,14 @@ impl Request {
             Ok((value, subscription)) => (Response::new(self.id, Some(value), None), subscription),
             Err(error) => {
                 // If the error is JSON-RPC error from this module, just return that.
-                // Otherwise, convert it into a generic `server_error`.
+                // Otherwise, convert it into a generic `server_error` and log it.
                 let message = error.to_string();
                 let error = match error.downcast::<Error>() {
                     Ok(error) => error,
-                    Err(_) => Error::server_error(&message),
+                    Err(_) => {
+                        tracing::error!("{}", message);
+                        Error::server_error(&message)
+                    }
                 };
                 (
                     Response::new(self.id, None, Some(error)),
@@ -308,21 +311,25 @@ async fn documents_unsubscribe(
     Ok((json!(document), Subscription::Unsubscribe(topic)))
 }
 
-async fn documents_change(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
-    let node = required_string(params, "nodeId")?;
-    let value = required_value(params, "value")?;
+    let node_id = optional_string(params, "nodeId")?;
+    let patch = required_value(params, "patch")?;
+    let patch: Patch = serde_json::from_value(patch)?;
 
-    let document = DOCUMENTS.change(&id, &node, value).await?;
+    let document = DOCUMENTS.patch(&id, node_id, patch).await?;
     Ok((json!(document), Subscription::None))
 }
 
 async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
-    let node = required_string(params, "nodeId")?;
-    let value = optional_value(params, "value");
+    let node_id = optional_string(params, "nodeId")?;
+    let patch = match optional_value(params, "patch") {
+        Some(patch) => serde_json::from_value(patch)?,
+        None => None,
+    };
 
-    let document = DOCUMENTS.execute(&id, &node, value).await?;
+    let document = DOCUMENTS.execute(&id, node_id, patch).await?;
     Ok((json!(document), Subscription::None))
 }
 
@@ -347,6 +354,22 @@ fn optional_value(params: &Params, name: &str) -> Option<serde_json::Value> {
 fn required_string(params: &Params, name: &str) -> Result<String> {
     if let Some(param) = required_value(params, name)?.as_str() {
         Ok(param.to_string())
+    } else {
+        bail!(Error::invalid_param_error(&format!(
+            "Parameter `{}` is expected to be a string",
+            name
+        )))
+    }
+}
+
+fn optional_string(params: &Params, name: &str) -> Result<Option<String>> {
+    let param = if let Some(param) = params.get(name) {
+        param
+    } else {
+        return Ok(None);
+    };
+    if let Some(param) = param.as_str() {
+        Ok(Some(param.to_string()))
     } else {
         bail!(Error::invalid_param_error(&format!(
             "Parameter `{}` is expected to be a string",

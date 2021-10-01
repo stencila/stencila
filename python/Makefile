@@ -9,7 +9,6 @@ format:
 	venv/bin/black . --exclude /venv/
 
 lint:
-	touch src/*.rs
 	cargo clippy
 
 audit:

@@ -14,10 +14,7 @@ test('schema', () => {
       $id: 'Config',
       type: 'object',
       properties: expect.objectContaining({
-        projects: expect.objectContaining({
-          title: 'Projects',
-          description: 'Configuration settings for project defaults',
-        }),
+        projects: expect.objectContaining({}),
         logging: expect.objectContaining({}),
         plugins: expect.objectContaining({}),
         serve: expect.objectContaining({}),

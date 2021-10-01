@@ -2,12 +2,13 @@ use crate::{
     errors::attempt,
     formats::{Format, FORMATS},
     graphs::{Relation, Resource},
+    kernels::KernelSpace,
     methods::{
-        compile::compile,
+        compile::{self, compile},
         decode::decode,
         encode::{self, encode},
     },
-    patches::{diff, merge, Patch},
+    patches::{diff, merge, resolve, Address, DomPatch, Patch, Pointer},
     pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
@@ -45,6 +46,7 @@ enum DocumentEventType {
     Deleted,
     Renamed,
     Modified,
+    Patched,
     Encoded,
 }
 
@@ -68,6 +70,10 @@ struct DocumentEvent {
     /// of the document) and `encoded` events (the format of the encoding).
     #[schemars(schema_with = "DocumentEvent::schema_format")]
     format: Option<Format>,
+
+    /// The `DomPatch` associated with a `Patched` event
+    #[schemars(schema_with = "DocumentEvent::schema_patch")]
+    patch: Option<DomPatch>,
 }
 
 impl DocumentEvent {
@@ -79,6 +85,11 @@ impl DocumentEvent {
     /// Generate the JSON Schema for the `format` property to avoid nesting
     fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
         schemas::typescript("Format", false)
+    }
+
+    /// Generate the JSON Schema for the `patch` property to avoid nesting
+    fn schema_patch(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("DomPatch", false)
     }
 }
 
@@ -102,7 +113,7 @@ enum DocumentStatus {
 }
 
 /// An in-memory representation of a document
-#[derive(Debug, Clone, JsonSchema, Defaults, Serialize)]
+#[derive(Debug, Clone, Defaults, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Document {
     /// The document identifier
@@ -172,12 +183,26 @@ pub struct Document {
     /// of the file. The `content` may subsequently be changed using
     /// the `load()` function. A call to `write()` will write the content
     /// back to `path`.
+    ///
+    /// Skipped during serialization because will often be large.
     #[serde(skip)]
     content: String,
 
     /// The root Stencila Schema node of the document
+    ///
+    /// Skipped during serialization will often be large.
     #[serde(skip)]
     pub root: Option<Node>,
+
+    /// Addresses of nodes in `root` that have an `id`
+    ///
+    /// Used to fetch a particular node (and do something with it like `patch`
+    /// or `execute` it) rather than walking the node tree looking for it.
+    /// It is necessary to use [`Address`] here (rather than say raw pointers) because
+    /// pointers or references will change as the document is patched.
+    /// These addresses are shifted when the document is patched to account for this.
+    #[schemars(schema_with = "Document::schema_addresses")]
+    addresses: HashMap<String, Address>,
 
     /// The set of relations between this document, or nodes in this document, and other
     /// resources.
@@ -188,6 +213,13 @@ pub struct Document {
     #[schemars(schema_with = "Document::schema_relations")]
     #[serde(skip_deserializing, serialize_with = "Document::serialize_relations")]
     pub relations: HashMap<Resource, Vec<(Relation, Resource)>>,
+
+    /// The kernel space for this document.
+    ///
+    /// This is where document variables are stored and executable nodes such as
+    /// `CodeChunk`s and `Parameters`s are executed.
+    #[serde(flatten)]
+    kernels: KernelSpace,
 
     /// The clients that are subscribed to each topic for this document
     ///
@@ -212,6 +244,11 @@ impl Document {
     /// inline type.
     fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
         schemas::typescript("Format", true)
+    }
+
+    /// Generate the JSON Schema for the `addresses` property to avoid duplicated types.
+    fn schema_addresses(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("Record<string, Address>", true)
     }
 
     /// Generate the JSON Schema for the `relations` property to avoid duplicated
@@ -589,6 +626,76 @@ impl Document {
         Ok(())
     }
 
+    /// Resolve a node within the current document using an id
+    ///
+    /// This does not use `&mut self` to avoid the "cannot borrow as mutable more than once at a time"
+    /// error in other methods where it is used.
+    pub fn resolve<'root>(
+        root: &'root mut Option<Node>,
+        addresses: &HashMap<String, Address>,
+        node_id: Option<String>,
+    ) -> Result<Pointer<'root>> {
+        let root = match root {
+            Some(root) => root,
+            None => bail!("Document does not have a `root` node from which to resolve"),
+        };
+
+        let node_id = if let Some(node_id) = node_id {
+            node_id
+        } else {
+            return Ok(Pointer::Node(root));
+        };
+
+        let address = if let Some(address) = addresses.get(&node_id) {
+            Some(address.clone())
+        } else {
+            tracing::warn!(
+                "Unregistered node id `{}`; will attempt to `find()` node",
+                node_id
+            );
+            None
+        };
+
+        resolve(root, address, Some(node_id))
+    }
+
+    /// Apply a [`Patch`] to this document
+    ///
+    /// # Arguments
+    ///
+    /// - `node_id`:  the id of the node at the origin of the patch; defaults to `root`
+    /// - `patch`: the patch to apply
+    pub fn patch(&mut self, node_id: Option<String>, patch: &Patch) -> Result<()> {
+        let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id)?;
+        pointer.patch(patch)
+    }
+
+    /// Execute the document, optionally providing a [`Patch`] to apply before execution, and
+    /// publishing a patch if there are any subscribers.
+    pub async fn execute(&mut self, node_id: Option<String>, patch: Option<Patch>) -> Result<()> {
+        let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id.clone())?;
+        if let Some(patch) = patch {
+            pointer.patch(&patch)?;
+        }
+
+        let patch = pointer.execute(&mut self.kernels)?;
+
+        // TODO: Only generate and publish a DomPatch if there are subscribers
+        let dom_patch = DomPatch::new(&patch, node_id);
+        publish(
+            &["documents:", &self.id, ":patched"].concat(),
+            &DocumentEvent {
+                type_: DocumentEventType::Patched,
+                document: self.clone(),
+                content: None,
+                format: None,
+                patch: Some(dom_patch),
+            },
+        );
+
+        Ok(())
+    }
+
     /// Get the SHA-256 of the document
     ///
     /// For text-based documents, returns the SHA-256 of the document's `content`.
@@ -654,12 +761,34 @@ impl Document {
         }
 
         // Compile the `root` and update document intra- and inter- dependencies
-        let compilation = compile(&mut root, &self.path, &self.project).await?;
-        self.relations = compilation.relations.into_iter().collect();
+        let (addresses, relations) = compile(&mut root, &self.path, &self.project)?;
+        self.addresses = addresses;
+        self.relations = relations;
 
-        // Encode the `root` into each of the formats for which there are subscriptions
+        // Publish any events for which there are subscriptions
         for subscription in self.subscriptions.keys() {
-            if let Some(format) = subscription.strip_prefix("encoded:") {
+            // Generate a diff if there are any `patched` subscriptions
+            if subscription == "patched" {
+                if let Some(current_root) = &self.root {
+                    tracing::debug!("Generating patch for document '{}'", self.id);
+
+                    let patch = diff(current_root, &root);
+
+                    let dom_patch = DomPatch::new(&patch, None);
+                    publish(
+                        &["documents:", &self.id, ":patched"].concat(),
+                        &DocumentEvent {
+                            type_: DocumentEventType::Patched,
+                            document: self.clone(),
+                            content: None,
+                            format: None,
+                            patch: Some(dom_patch),
+                        },
+                    )
+                }
+            }
+            // Encode the `root` into each of the formats for which there are subscriptions
+            else if let Some(format) = subscription.strip_prefix("encoded:") {
                 tracing::debug!("Encoding document '{}' to '{}'", self.id, format);
                 match encode(&root, "string://", format, None).await {
                     Ok(content) => {
@@ -778,6 +907,7 @@ impl Document {
                 document: self.clone(),
                 content,
                 format,
+                patch: None,
             },
         )
     }
@@ -1151,30 +1281,29 @@ impl Documents {
         Ok((document_guard.clone(), topic))
     }
 
-    /// Change a node within a document
-    pub async fn change(
-        &self,
-        id: &str,
-        _node: &str,
-        _value: serde_json::Value,
-    ) -> Result<Document> {
+    /// Patch a document
+    ///
+    /// Given that this function is likely to be called often, to avoid a `clone()` and
+    /// to reduce WebSocket message sizes, unlike other functions it does not return the object.
+    pub async fn patch(&self, id: &str, node_id: Option<String>, patch: Patch) -> Result<()> {
         let document_lock = self.get(id).await?;
-        let document_guard = document_lock.lock().await;
-        // TODO
-        Ok(document_guard.clone())
+        let mut document_guard = document_lock.lock().await;
+        document_guard.patch(node_id, &patch)
     }
 
     /// Execute a node within a document
+    ///
+    /// Like `patch()`, given this function is likely to be called often, do not return
+    /// the document.
     pub async fn execute(
         &self,
         id: &str,
-        _node: &str,
-        _value: Option<serde_json::Value>,
-    ) -> Result<Document> {
+        node_id: Option<String>,
+        patch: Option<Patch>,
+    ) -> Result<()> {
         let document_lock = self.get(id).await?;
-        let document_guard = document_lock.lock().await;
-        // TODO
-        Ok(document_guard.clone())
+        let mut document_guard = document_lock.lock().await;
+        document_guard.execute(node_id, patch).await
     }
 
     /// Get a document that has previously been opened
@@ -1202,7 +1331,7 @@ pub fn schemas() -> Result<serde_json::Value> {
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
-    use crate::{cli::display, patches::diff_display};
+    use crate::{cli::display, patches::diff_display, utils::json};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -1225,6 +1354,8 @@ pub mod cli {
         Open(Open),
         Close(Close),
         Show(Show),
+        #[structopt(aliases = &["exec"])]
+        Execute(Execute),
         Query(Query),
         Convert(Convert),
         Diff(Diff),
@@ -1240,6 +1371,7 @@ pub mod cli {
                 Action::Open(action) => action.run().await,
                 Action::Close(action) => action.run().await,
                 Action::Show(action) => action.run().await,
+                Action::Execute(action) => action.run().await,
                 Action::Query(action) => action.run().await,
                 Action::Convert(action) => action.run().await,
                 Action::Diff(action) => action.run().await,
@@ -1313,6 +1445,9 @@ pub mod cli {
         /// The path of the document file
         pub file: String,
 
+        /// The pointer of the document to show e.g. `variables`
+        pub pointer: Option<String>,
+
         /// The format of the file
         #[structopt(short, long)]
         format: Option<String>,
@@ -1320,15 +1455,97 @@ pub mod cli {
 
     impl Show {
         pub async fn run(&self) -> display::Result {
-            let Self { file, format } = self;
+            let Self {
+                file,
+                pointer,
+                format,
+            } = self;
             let document = DOCUMENTS.open(file, format.clone()).await?;
-            display::value(document)
+            if let Some(pointer) = pointer {
+                let data = serde_json::to_value(document)?;
+                if let Some(part) = data.pointer(&json::pointer(pointer)) {
+                    Ok(display::value(part)?)
+                } else {
+                    bail!("Invalid pointer for document: {}", pointer)
+                }
+            } else {
+                display::value(document)
+            }
         }
     }
 
+    /// Execute a document
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Show a document",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Execute {
+        /// The path of the document file
+        file: String,
+
+        /// Code to execute within the document's kernel space
+        ///
+        /// This code will be run after all executable nodes in the document
+        /// have been run.
+        // Using a Vec and the `multiple` option allows for spaces in the code
+        #[structopt(multiple = true)]
+        code: Vec<String>,
+
+        /// The format of the file
+        #[structopt(short, long)]
+        format: Option<String>,
+
+        /// The programming language of the code
+        #[structopt(
+            short,
+            long,
+            default_value = "calc",
+            possible_values = &EXEC_LANGS
+        )]
+        lang: String,
+    }
+
+    const EXEC_LANGS: [&str; 2] = ["calc", "none"];
+
+    impl Execute {
+        pub async fn run(&self) -> display::Result {
+            let Self {
+                file,
+                format,
+                code,
+                lang,
+            } = self;
+            let document = DOCUMENTS.open(file, format.clone()).await?;
+            let document = DOCUMENTS.get(&document.id).await?;
+            let mut document = document.lock().await;
+            if !code.is_empty() {
+                // Join the separate arguments that make up code and unescape newlines
+                let code = code.join(" ").replace("\\n", "\n");
+                // Detect shortcuts for execute interactive mode
+                if code == "%symbols" {
+                    let symbols = document.kernels.symbols();
+                    display::value(symbols)
+                } else {
+                    // Compile the code so that we can use the relations to determine
+                    // the need for variable mirroring
+                    let relations = compile::code::compile("<cli>", &code, lang);
+                    let nodes = document.kernels.exec(&code, lang, Some(relations))?;
+                    match nodes.len() {
+                        0 => display::nothing(),
+                        1 => display::value(nodes[0].clone()),
+                        _ => display::value(nodes),
+                    }
+                }
+            } else {
+                display::nothing()
+            }
+        }
+    }
+
+    /// Query a document
+    #[derive(Debug, StructOpt)]
+    #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]

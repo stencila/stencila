@@ -1,25 +1,36 @@
 use crate::{
-    errors::{report, Error},
-    methods::encode::encode,
+    errors::{invalid_patch_operation, invalid_patch_value},
+    kernels::KernelSpace,
+    methods::{compile::execute, encode::encode},
+    utils::schemas,
 };
 use defaults::Defaults;
-use eyre::Result;
-use serde::{Serialize, Serializer};
+use derive_more::{Constructor, Deref, DerefMut};
+use eyre::{bail, Result};
+use inflector::cases::camelcase::to_camel_case;
+use itertools::Itertools;
+use prelude::{invalid_address, unpointable_type};
+use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_with::skip_serializing_none;
 use similar::TextDiff;
 use std::{
     any::{type_name, Any},
     collections::VecDeque,
-    fmt::Debug,
+    fmt::{self, Debug, Display},
     hash::Hasher,
     iter::FromIterator,
 };
-use stencila_schema::{BlockContent, Boolean, InlineContent, Integer, Node, Number};
+use stencila_schema::{
+    Array, BlockContent, Boolean, InlineContent, Integer, Node, Null, Number, Object,
+};
+use strum::{AsRefStr, ToString};
 
 /// Are two nodes are the same type and value?
 pub fn same<Type1, Type2>(node1: &Type1, node2: &Type2) -> bool
 where
     Type1: Patchable,
-    Type2: Clone + 'static,
+    Type2: Clone + Send + 'static,
 {
     node1.is_same(node2).is_ok()
 }
@@ -52,7 +63,7 @@ where
 /// in this module will not appear in the difference.
 pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<String> {
     let patch = diff(node1, node2);
-    let patched = apply_new(node1, &patch);
+    let patched = apply_new(node1, &patch)?;
 
     let old = encode(node1, "string://", format, None).await?;
     let new = encode(&patched, "string://", format, None).await?;
@@ -68,7 +79,7 @@ pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<St
 }
 
 /// Apply a [`Patch`] to a node.
-pub fn apply<Type>(node: &mut Type, patch: &[Operation])
+pub fn apply<Type>(node: &mut Type, patch: &Patch) -> Result<()>
 where
     Type: Patchable,
 {
@@ -78,13 +89,13 @@ where
 /// Apply a [`Patch`] to a clone of a node.
 ///
 /// In contrast to `apply`, this does not alter the original node.
-pub fn apply_new<Type>(node: &Type, patch: &[Operation]) -> Type
+pub fn apply_new<Type>(node: &Type, patch: &Patch) -> Result<Type>
 where
     Type: Patchable + Clone,
 {
     let mut node = node.clone();
-    node.apply_patch(patch);
-    node
+    node.apply_patch(patch)?;
+    Ok(node)
 }
 
 /// Merge changes from two or more derived versions of a node into
@@ -101,7 +112,7 @@ where
 /// - `derived`: A list of derived nodes in ascending order of priority
 ///              when resolving merge conflicts i.e. the last in the list
 ///              will win over all other nodes that it conflicts with
-pub fn merge<Type>(ancestor: &mut Type, derived: &[&Type])
+pub fn merge<Type>(ancestor: &mut Type, derived: &[&Type]) -> Result<()>
 where
     Type: Patchable,
 {
@@ -111,18 +122,221 @@ where
     tracing::warn!("Merging is work in progress");
 
     for patch in patches {
-        apply(ancestor, &patch)
+        apply(ancestor, &patch)?;
+    }
+    Ok(())
+}
+
+/// Resolve a child node from within a node using an address or id.
+///
+/// Intended to be able to fallback to using `id` if address can not be resolved
+/// or resolves to a node with the incorrect `id`. However, borrow checker is not
+/// making that possible yet.
+pub fn resolve<Type>(
+    node: &mut Type,
+    address: Option<Address>,
+    node_id: Option<String>,
+) -> Result<Pointer>
+where
+    Type: Patchable,
+{
+    if let Some(mut address) = address {
+        let pointer = node.resolve(&mut address)?;
+        match pointer {
+            Pointer::None => {
+                bail!("Unable to resolve address `{}`", address.to_string())
+                // TODO Do not bail, just warn and then find
+            }
+            _ => {
+                // TODO check pointer id is consistent with node_id if supplied
+                Ok(pointer)
+            }
+        }
+    } else if let Some(node_id) = node_id {
+        let pointer = node.find(&node_id);
+        match pointer {
+            Pointer::None => {
+                bail!("Unable to find node with id `{}`", node_id)
+            }
+            _ => Ok(pointer),
+        }
+    } else {
+        bail!("One of address or node id must be supplied to resolve a node")
     }
 }
 
-/// A vector of [`Operation`]s describing the difference between two nodes.
-pub type Patch = Vec<Operation>;
+/// A slot, used as part of an [`Address`], to locate a value within a `Node` tree.
+///
+/// Slots can be used to identify a part of a larger object.
+///
+/// The `Name` variant can be used to identify:
+///
+/// - the property name of a `struct`
+/// - the key of a `HashMap<String, ...>`
+///
+/// The `Integer` variant can be used to identify:
+///
+/// - the index of a `Vec`
+/// - the index of a Unicode character in a `String`
+///
+/// The `None` variant is used in places where a `Slot` is required
+/// but none applies to the particular type or use case.
+///
+/// In contrast to JSON Patch, which uses a [JSON Pointer](http://tools.ietf.org/html/rfc6901)
+/// to describe the location of additions and removals, slots offer improved performance and
+/// type safety.
+#[derive(Debug, Clone, JsonSchema, Serialize, Deserialize, AsRefStr)]
+#[serde(untagged)]
+#[schemars(deny_unknown_fields)]
+pub enum Slot {
+    Index(usize),
+    Name(String),
+}
 
-/// An enumeration of the types of operations that can be used in a [`Patch`] to
-/// mutate one node into another.
+impl ToString for Slot {
+    fn to_string(&self) -> String {
+        match self {
+            Slot::Name(name) => name.clone(),
+            Slot::Index(index) => index.to_string(),
+        }
+    }
+}
+
+/// The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
+///
+/// Implemented as a double-ended queue. Given that addresses usually have less than
+/// six slots it may be more performant to use a stack allocated `tinyvec` here instead.
+///
+/// Note: This could instead have be called a "Path", but that name was avoided because
+/// of potential confusion with file system paths.
+#[derive(
+    Debug, Clone, Default, Constructor, Deref, DerefMut, JsonSchema, Serialize, Deserialize,
+)]
+#[schemars(deny_unknown_fields)]
+pub struct Address(VecDeque<Slot>);
+
+impl Display for Address {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let me = self
+            .iter()
+            .map(|slot| slot.to_string())
+            .collect_vec()
+            .join(".");
+        write!(f, "{}", me)
+    }
+}
+
+impl Address {
+    /// Create an empty address
+    pub fn empty() -> Self {
+        Self::default()
+    }
+
+    /// Concatenate an address with another
+    fn concat(&self, other: &Address) -> Self {
+        let mut concat = self.clone();
+        concat.append(&mut other.clone());
+        concat
+    }
+
+    /// Creates a DOM compatible address by ensuring an name slots
+    /// are camelCased (the convention used in Stencila Schema and thus
+    /// in `itemprop` attributes) rather than snake_cased (as in Rust).
+    fn to_dom_address(&self) -> Self {
+        Address::new(
+            self.iter()
+                .map(|slot| match slot {
+                    Slot::Index(..) => slot.clone(),
+                    Slot::Name(name) => Slot::Name(to_camel_case(name)),
+                })
+                .collect(),
+        )
+    }
+}
+
+impl From<usize> for Address {
+    fn from(index: usize) -> Address {
+        Address(VecDeque::from_iter([Slot::Index(index)]))
+    }
+}
+
+impl From<&str> for Address {
+    fn from(name: &str) -> Address {
+        Address(VecDeque::from_iter([Slot::Name(name.to_string())]))
+    }
+}
+
+#[derive(Debug)]
+pub enum Pointer<'lt> {
+    None,
+    Some,
+    Inline(&'lt mut InlineContent),
+    Block(&'lt mut BlockContent),
+    Node(&'lt mut Node),
+}
+
+impl<'lt> Pointer<'lt> {
+    /// Apply a patch to the node that is pointed to
+    pub fn patch(&mut self, patch: &Patch) -> Result<()> {
+        match self {
+            Pointer::Inline(node) => node.apply_patch(patch),
+            Pointer::Block(node) => node.apply_patch(patch),
+            Pointer::Node(node) => node.apply_patch(patch),
+            _ => bail!("Invalid node pointer: {:?}", self),
+        }
+    }
+
+    /// Execute the node that is pointed to
+    ///
+    /// Returns a patch representing the change in the node resulting from
+    /// the execution (usually to it's outputs)
+    pub fn execute(&mut self, kernels: &mut KernelSpace) -> Result<Patch> {
+        let patch = match self {
+            Pointer::Inline(node) => {
+                // TODO: Reinstate real diffing, rather than wholesale replacement
+                //let pre = node.clone();
+                execute(*node, kernels)?;
+                //diff(&pre, node)
+                Patch::new(vec![Operation::Replace {
+                    address: Address::empty(),
+                    items: 1,
+                    value: Box::new(node.clone()),
+                    length: 1,
+                }])
+            }
+            Pointer::Block(node) => {
+                // TODO: Reinstate real diffing, rather than wholesale replacement
+                //let pre = node.clone();
+                execute(*node, kernels)?;
+                //diff(&pre, node)
+                Patch::new(vec![Operation::Replace {
+                    address: Address::empty(),
+                    items: 1,
+                    value: Box::new(node.clone()),
+                    length: 1,
+                }])
+            }
+            Pointer::Node(node) => {
+                let pre = node.clone();
+                execute(*node, kernels)?;
+                diff(&pre, node)
+            }
+            _ => bail!("Invalid node pointer: {:?}", self),
+        };
+        Ok(patch)
+    }
+}
+
+/// Type for the `value` property of `Add` and `Replace` operations
+///
+/// This open, dynamic type could be replaced with a enum (with a fixed number
+/// of type variants) but that would require substantial refactoring
+pub type Value = Box<dyn Any + Send>;
+
+/// The operations that can be used in a patch to mutate one node into another.
 ///
 /// These are the same operations as described in [JSON Patch](http://jsonpatch.com/)
-/// (with the exception of `copy` and `test`). Note that `Replace` and `Move` can be
+/// (with the exception of `copy` and `test`). Note that `Replace` and `Move` could be
 /// represented by combinations of `Remove` and `Add`. They are included as a means of
 /// providing more semantically meaningful patches, and more space efficient serializations
 /// (e.g. it is not necessary to represent the value being moved or copied).
@@ -134,41 +348,44 @@ pub type Patch = Vec<Operation>;
 /// - a `Paragraph` to a `QuoteBlock`
 /// - a `CodeChunk` to a `CodeBlock`
 ///
-/// In contrast to JSON Patch, which uses a [JSON Pointer](http://tools.ietf.org/html/rfc6901)
-/// to describe the location of additions and removals, for improved performance and type safety,
-/// these operations use a double ended queue of either string property names, or integer indices,
-/// called an "address" (we avoided using "path", to avoid confusion with file system paths).
-///
 /// The `length` field on `Add` and `Replace` is not necessary for applying operations, but
 /// is useful for generating them and for determining if there are conflicts between two patches
 /// without having to downcast the `value`.
 ///
-/// Note that for `String`s indices in `address`, `items` and `length` all refer to Unicode characters,
-/// not bytes.
-#[derive(Debug, Serialize)]
-#[serde(tag = "op", rename_all = "lowercase")]
+/// Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode
+/// characters not bytes.
+#[derive(Debug, JsonSchema, Serialize, Deserialize, ToString)]
+#[serde(tag = "type")]
+#[schemars(deny_unknown_fields)]
 pub enum Operation {
     /// Add a value
+    #[schemars(title = "OperationAdd")]
     Add {
         /// The address to which to add the value
         address: Address,
 
         /// The value to add
-        #[serde(serialize_with = "serialize_value")]
-        value: Box<dyn Any>,
+        #[serde(
+            serialize_with = "Operation::value_serialize",
+            deserialize_with = "Operation::value_deserialize"
+        )]
+        #[schemars(schema_with = "Operation::value_schema")]
+        value: Value,
 
         /// The number of items added
         length: usize,
     },
     /// Remove one or more values
+    #[schemars(title = "OperationRemove")]
     Remove {
-        /// The address from which to remove the value/s
+        /// The address from which to remove the value(s)
         address: Address,
 
         /// The number of items to remove
         items: usize,
     },
     /// Replace one or more values
+    #[schemars(title = "OperationReplace")]
     Replace {
         /// The address which should be replaced
         address: Address,
@@ -177,13 +394,18 @@ pub enum Operation {
         items: usize,
 
         /// The replacement value
-        #[serde(serialize_with = "serialize_value")]
-        value: Box<dyn Any>,
+        #[serde(
+            serialize_with = "Operation::value_serialize",
+            deserialize_with = "Operation::value_deserialize"
+        )]
+        #[schemars(schema_with = "Operation::value_schema")]
+        value: Value,
 
         /// The number of items added
         length: usize,
     },
     /// Move a value from one address to another
+    #[schemars(title = "OperationMove")]
     Move {
         /// The address from which to remove the value
         from: Address,
@@ -195,73 +417,343 @@ pub enum Operation {
         to: Address,
     },
     /// Transform a value from one type to another
+    #[schemars(title = "OperationTransform")]
     Transform {
-        /// The address of the node to transform
+        /// The address of the `Node` to transform
         address: Address,
 
-        /// The type of node to transform from
+        /// The type of `Node` to transform from
         from: String,
 
-        /// The type of node to transform to
+        /// The type of `Node` to transform to
         to: String,
     },
 }
 
-/// Serialize the `value` field of an operation
-///
-/// This is mainly for debugging and testing. Serialization of types is added as
-/// needed.
-fn serialize_value<S>(value: &Box<dyn Any>, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    macro_rules! ser {
-        ($type:ty) => {
-            if let Some(value) = value.downcast_ref::<$type>() {
-                return value.serialize(serializer);
+impl Operation {
+    /// Serialize the `value` field of an operation
+    ///
+    /// This is mainly for debugging and testing. Serialization of types is added as
+    /// needed.
+    fn value_serialize<S>(value: &Value, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        // Most value types just get serialized as normal
+        macro_rules! serialize {
+            ($type:ty) => {
+                if let Some(value) = value.downcast_ref::<$type>() {
+                    return value.serialize(serializer);
+                }
+                if let Some(value) = value.downcast_ref::<Vec<$type>>() {
+                    return value.serialize(serializer);
+                }
+            };
+            ($($type:ty)*) => {
+                $(serialize!($type);)*
             }
-        };
+        }
+        serialize!(
+            u8
+            i32
+            f32
+            Boolean
+            Integer
+            Number
+            String
+            InlineContent
+            BlockContent
+            serde_json::Value
+        );
+
+        // For debugging purposes, other types get printed as their type name
+        macro_rules! typename {
+            ($type:ty) => {
+                if value.downcast_ref::<$type>().is_some() {
+                    return serializer.serialize_str(stringify!($type));
+                }
+            };
+            ($($type:ty)*) => {
+                $(typename!($type);)*
+            }
+        }
+        typename!(
+            Option<Boolean>
+            Option<Integer>
+            Option<Number>
+            Option<String>
+            Option<Node>
+            Box<Boolean>
+            Box<Integer>
+            Box<Number>
+            Box<String>
+            Box<Node>
+            Option<Box<Boolean>>
+            Option<Box<Integer>>
+            Option<Box<Number>>
+            Option<Box<String>>
+            Option<Box<Node>>
+        );
+
+        // Fallback to messaged that unserialized
+        serializer.serialize_str("<unserialized type>")
     }
 
-    ser!(u8);
-    ser!(i32);
-    ser!(Boolean);
-    ser!(Integer);
-    ser!(Number);
-    ser!(String);
-    ser!(InlineContent);
-    ser!(BlockContent);
+    /// Deserialize the `value` field of an operation
+    ///
+    /// This is needed so that the server can receive a `Patch` from the client and
+    /// deserialize the JSON value into a `Value`.
+    fn value_deserialize<'de, D>(deserializer: D) -> Result<Value, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
+        Ok(Box::new(value))
+    }
 
-    ser!(Vec<u8>);
-    ser!(Vec<i32>);
-    ser!(Vec<Boolean>);
-    ser!(Vec<Integer>);
-    ser!(Vec<Number>);
-    ser!(Vec<String>);
-    ser!(Vec<InlineContent>);
-    ser!(Vec<BlockContent>);
-
-    serializer.serialize_str("<unserialized type>")
+    /// Generate the JSON Schema for the `value` property
+    fn value_schema(_generator: &mut SchemaGenerator) -> Schema {
+        schemas::typescript("any", true)
+    }
 }
 
-/// A key of a `struct`, `HashMap`, or `Vec` used to locate an operation.
-#[derive(Debug, Clone, Serialize)]
-#[serde(untagged)]
-pub enum Key {
-    Index(usize),
-    Name(String),
+/// A set of [`Operation`]s
+#[derive(Debug, Default, Constructor, Deref, DerefMut, JsonSchema, Serialize, Deserialize)]
+pub struct Patch(Vec<Operation>);
+
+/// A DOM operation used to mutate the DOM.
+///
+/// A `DomOperation` is the DOM version of an [`Operation`].
+/// The same names for operation variants and their properties
+/// are used with the following exception:
+///
+/// - the `value` property of `Add` and `Replace` is replaced by `html`, a HTML string
+///   representing the node (usually a HTML `Element` or `Text` node), and `json`, a JSON
+///   representation of the node (used for updating WebComponents).
+///
+/// - the `length` property of `Add` and `Replace` is not included because it is not
+///   needed (for merge conflict resolution as it is in `Operation`).
+#[derive(Debug, JsonSchema, Serialize)]
+#[serde(tag = "type")]
+#[schemars(deny_unknown_fields)]
+pub enum DomOperation {
+    /// Add one or more DOM nodes
+    #[schemars(title = "DomOperationAdd")]
+    Add {
+        /// The address to which to add the DOM node(s)
+        address: Address,
+
+        /// The HTML to add
+        html: String,
+
+        /// The JSON value to add
+        json: serde_json::Value,
+    },
+    /// Remove one or more DOM nodes
+    #[schemars(title = "DomOperationRemove")]
+    Remove {
+        /// The address from which to remove the DOM node(s)
+        address: Address,
+
+        /// The number of items to remove
+        items: usize,
+    },
+    /// Replace one or more DOM nodes
+    #[schemars(title = "DomOperationReplace")]
+    Replace {
+        /// The address which should be replaced
+        address: Address,
+
+        /// The number of items to replace
+        items: usize,
+
+        /// The replacement HTML
+        html: String,
+
+        /// The JSON value to replace
+        json: serde_json::Value,
+    },
+    /// Move a DOM node from one address to another
+    #[schemars(title = "DomOperationMove")]
+    Move {
+        /// The address from which to remove the DOM node
+        from: Address,
+
+        /// The number of items to move
+        items: usize,
+
+        /// The address to which to add the items
+        to: Address,
+    },
+    /// Transform a DOM node from one type to another
+    #[schemars(title = "DomOperationTransform")]
+    Transform {
+        /// The address of the DOM node to transform
+        address: Address,
+
+        /// The type of `Node` to transform from
+        from: String,
+
+        /// The type of `Node` to transform to
+        to: String,
+    },
 }
 
-pub type Address = VecDeque<Key>;
+impl DomOperation {
+    /// Create a `DomOperation` from an `Operation`
+    fn new(op: &Operation) -> DomOperation {
+        match op {
+            Operation::Add { address, value, .. } => DomOperation::Add {
+                address: address.to_dom_address(),
+                html: DomOperation::value_html(address, value),
+                json: DomOperation::value_json(value),
+            },
 
-fn address_from_index(index: usize) -> Address {
-    VecDeque::from_iter(vec![Key::Index(index)])
+            Operation::Remove { address, items, .. } => DomOperation::Remove {
+                address: address.to_dom_address(),
+                items: *items,
+            },
+
+            Operation::Replace {
+                address,
+                items,
+                value,
+                ..
+            } => DomOperation::Replace {
+                address: address.to_dom_address(),
+                items: *items,
+                html: DomOperation::value_html(address, value),
+                json: DomOperation::value_json(value),
+            },
+
+            Operation::Move { from, items, to } => DomOperation::Move {
+                from: from.to_dom_address(),
+                items: *items,
+                to: to.to_dom_address(),
+            },
+
+            Operation::Transform { address, from, to } => DomOperation::Transform {
+                address: address.to_dom_address(),
+                from: from.clone(),
+                to: to.clone(),
+            },
+        }
+    }
+
+    /// Generate HTML for the `value` field of an operation
+    fn value_html(address: &Address, value: &Value) -> String {
+        use crate::methods::encode::html::{Context, ToHtml};
+
+        let slot = address.back();
+        let context = Context::new();
+
+        // Convert a node, boxed node, or vector of nodes to HTML
+        macro_rules! to_html {
+            ($type:ty) => {
+                if let Some(node) = value.downcast_ref::<$type>() {
+                    return node.to_html(
+                        &slot.map(|slot| slot.to_string()).unwrap_or_default(),
+                        &context
+                    )
+                }
+                if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
+                    return boxed.to_html(
+                        &slot.map(|slot| slot.to_string()).unwrap_or_default(),
+                        &context
+                    )
+                }
+                if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
+                    return match slot {
+                        // If the slot is a name then we're adding or replacing a property so we
+                        // want the `Vec` to have a wrapper element with the name as the slot attribute
+                        Some(Slot::Name(name)) => nodes.to_html(name, &context),
+                        // If the slot is an index then we're adding or replacing items in a
+                        // vector so we don't want a wrapper element
+                        Some(Slot::Index(..)) | None => nodes.to_html("", &context),
+                    };
+                }
+            };
+            ($($type:ty)*) => {
+                $(to_html!($type);)*
+            }
+        }
+        // Types roughly ordered by expected incidence (more commonly used types in
+        // patches first)
+        to_html!(
+            InlineContent
+            BlockContent
+            Node
+
+            String
+            Number
+            Integer
+            Boolean
+            Array
+            Object
+            Null
+        );
+
+        tracing::error!("Unhandled value type when generating HTML for `DomOperation`");
+        "<span class=\"todo\">TODO</span>".to_string()
+    }
+
+    /// Generate JSON for the `value` field of an operation
+    fn value_json(value: &Value) -> serde_json::Value {
+        // Convert a node, boxed node, or vector of nodes to HTML
+        macro_rules! to_json {
+            ($type:ty) => {
+                if let Some(node) = value.downcast_ref::<$type>() {
+                    return serde_json::to_value(node).expect("Should convert to JSON")
+                }
+                if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
+                    return serde_json::to_value(boxed).expect("Should convert to JSON")
+                }
+                if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
+                    return serde_json::to_value(nodes).expect("Should convert to JSON")
+                }
+            };
+            ($($type:ty)*) => {
+                $(to_json!($type);)*
+            }
+        }
+        to_json!(
+            InlineContent
+            BlockContent
+            Node
+
+            String
+            Number
+            Integer
+            Boolean
+            Array
+            Object
+            Null
+        );
+
+        tracing::error!("Unhandled value type when generating JSON for `DomOperation`");
+        serde_json::Value::String("TODO".to_string())
+    }
 }
 
-fn address_concat(begin: &Address, end: &Address) -> Address {
-    let mut address = begin.clone();
-    address.append(&mut end.clone());
-    address
+/// A set of [`DomOperation`]s to be applied to some `target` DOM element
+#[skip_serializing_none]
+#[derive(Debug, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct DomPatch {
+    /// The [`DomOperation`]s to apply
+    ops: Vec<DomOperation>,
+
+    /// The id of the DOM element to which to apply the patch
+    target: Option<String>,
+}
+
+impl DomPatch {
+    pub fn new(patch: &Patch, target: Option<String>) -> DomPatch {
+        DomPatch {
+            ops: patch.iter().map(|op| DomOperation::new(op)).collect(),
+            target,
+        }
+    }
 }
 
 /// A differencing `struct` used as an optimization to track the address describing the
@@ -271,7 +763,7 @@ pub struct Differ {
     /// The list of address describing the current location in a node tree.
     address: Address,
 
-    /// The patch generated by walking over a node tree.
+    /// The operations generated by walking over a node tree.
     patch: Patch,
 }
 
@@ -280,7 +772,7 @@ impl Differ {
     ///
     /// Adds a `Name` key to `address` and then differences the two values.
     pub fn field<Type: Patchable>(&mut self, name: &str, value1: &Type, value2: &Type) {
-        self.address.push_back(Key::Name(name.to_string()));
+        self.address.push_back(Slot::Name(name.to_string()));
         value1.diff_same(self, value2);
         self.address.pop_back();
     }
@@ -289,7 +781,7 @@ impl Differ {
     ///
     /// Adds an `Index` key to `address` and then differences the two values.
     pub fn item<Type: Patchable>(&mut self, index: usize, value1: &Type, value2: &Type) {
-        self.address.push_back(Key::Index(index));
+        self.address.push_back(Slot::Index(index));
         value1.diff_same(self, value2);
         self.address.pop_back();
     }
@@ -303,12 +795,12 @@ impl Differ {
                     value,
                     length,
                 } => Operation::Add {
-                    address: address_concat(&self.address, &address),
+                    address: self.address.concat(&address),
                     value,
                     length,
                 },
                 Operation::Remove { address, items } => Operation::Remove {
-                    address: address_concat(&self.address, &address),
+                    address: self.address.concat(&address),
                     items,
                 },
                 Operation::Replace {
@@ -317,18 +809,18 @@ impl Differ {
                     value,
                     length,
                 } => Operation::Replace {
-                    address: address_concat(&self.address, &address),
+                    address: self.address.concat(&address),
                     items,
                     value,
                     length,
                 },
                 Operation::Move { from, items, to } => Operation::Move {
-                    from: address_concat(&self.address, &from),
+                    from: self.address.concat(&from),
                     items,
-                    to: address_concat(&self.address, &to),
+                    to: self.address.concat(&to),
                 },
                 Operation::Transform { address, from, to } => Operation::Transform {
-                    address: address_concat(&self.address, &address),
+                    address: self.address.concat(&address),
                     from,
                     to,
                 },
@@ -338,7 +830,7 @@ impl Differ {
     }
 
     /// Add an `Add` operation to the patch.
-    pub fn add<Value: Clone + 'static>(&mut self, value: &Value) {
+    pub fn add<Value: Clone + Send + 'static>(&mut self, value: &Value) {
         self.patch.push(Operation::Add {
             address: self.address.clone(),
             value: Box::new(value.clone()),
@@ -355,7 +847,7 @@ impl Differ {
     }
 
     /// Add a `Replace` operation to the patch.
-    pub fn replace<Value: Clone + 'static>(&mut self, value: &Value) {
+    pub fn replace<Value: Clone + Send + 'static>(&mut self, value: &Value) {
         self.patch.push(Operation::Replace {
             address: self.address.clone(),
             items: 1,
@@ -374,54 +866,46 @@ impl Differ {
     }
 }
 
-macro_rules! invalid_op {
-    ($op:expr) => {
-        report(Error::InvalidPatchOperation {
-            op: $op.into(),
-            type_name: type_name::<Self>().into(),
-        })
-    };
-}
-
-macro_rules! invalid_address {
-    ($address:expr) => {
-        report(Error::InvalidPatchAddress {
-            address: format!("{:?}", $address),
-            type_name: type_name::<Self>().into(),
-        })
-    };
-}
-
-macro_rules! invalid_name {
-    ($name:expr) => {
-        report(Error::InvalidPatchName {
-            name: $name.into(),
-            type_name: type_name::<Self>().into(),
-        })
-    };
-}
-
-macro_rules! invalid_index {
-    ($index:expr) => {
-        report(Error::InvalidPatchIndex {
-            index: $index.into(),
-            type_name: type_name::<Self>().into(),
-        })
-    };
-}
-
-macro_rules! invalid_value {
-    () => {
-        report(Error::InvalidPatchValue {
-            type_name: type_name::<Self>().into(),
-        })
-    };
-}
-
 pub trait Patchable {
+    /// Resolve an [`Address`] into a node [`Pointer`].
+    ///
+    /// If the address in empty, and the node is represented in one of the variants of [`Pointer`]
+    /// (at the time of writing `Node`, `BlockContent` and `InlineContent`), then it should return
+    /// a pointer to itself. Otherwise it should return an "unpointable" type error.
+    ///
+    /// If the address is not empty then it should be passed on to any child nodes.
+    ///
+    /// If the address is invalid for the type (e.g. a non-empty address for a leaf node, a name
+    /// slot used for a vector) then implementations should return an error.
+    ///
+    /// The default implementation is only suitable for leaf nodes that are not pointable.
+    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+        match address.is_empty() {
+            true => bail!(unpointable_type::<Self>(address)),
+            false => bail!(invalid_address::<Self>(address)),
+        }
+    }
+
+    /// Find a node based on its `id` and return a [`Pointer`] to it.
+    ///
+    /// This is less efficient than `resolve` (given that it must visit all nodes until one is
+    /// found with a matching id). However, it may be necessary to use when an [`Address`] is not available.
+    ///
+    /// If the node has a matching `id` property then it should return `Pointer::Some` which indicates
+    /// that the `id` is matched . This allows the parent type e.g `InlineContent` to populate the
+    /// "useable" pointer variants e.g. `Pointer::InlineContent`.
+    ///
+    /// Otherwise, if the node has children it should call `find` on them and return `Pointer::None` if
+    /// no children have a matching `id`.
+    ///
+    /// The default implementation is only suitable for leaf nodes that do not have an `id` property.
+    fn find(&mut self, _id: &str) -> Pointer {
+        Pointer::None
+    }
+
     /// Test whether a node is the same as (i.e. equal type and equal value)
     /// another node of any type.
-    fn is_same<Other: Any + Clone>(&self, other: &Other) -> Result<()>;
+    fn is_same<Other: Any + Clone + Send>(&self, other: &Other) -> Result<()>;
 
     /// Test whether a node is equal to (i.e. equal value) a node of the same type.
     fn is_equal(&self, other: &Self) -> Result<()>;
@@ -436,7 +920,7 @@ pub trait Patchable {
     ///
     /// `Other` needs to be `Clone` so that if necessary, we can keep a copy of it in a
     /// `Add` or `Replace operation.
-    fn diff<Other: Any + Clone>(&self, differ: &mut Differ, other: &Other);
+    fn diff<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other);
 
     /// Generate the operations needed to mutate this node so that it is equal
     /// to a node of the same type.
@@ -452,19 +936,21 @@ pub trait Patchable {
     ///
     /// The default implementation simply replaces the current node. Override as
     /// suits.
-    fn diff_other<Other: Any + Clone>(&self, differ: &mut Differ, other: &Other) {
+    fn diff_other<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other) {
         differ.replace(other)
     }
 
     /// Apply a patch to this node.
-    fn apply_patch(&mut self, patch: &[Operation]) {
-        for op in patch {
-            self.apply_op(op)
+    fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
+        tracing::debug!("Applying patch to type '{}'", type_name::<Self>());
+        for op in patch.iter() {
+            self.apply_op(op)?
         }
+        Ok(())
     }
 
     /// Apply an operation to this node.
-    fn apply_op(&mut self, op: &Operation) {
+    fn apply_op(&mut self, op: &Operation) -> Result<()> {
         match op {
             Operation::Add { address, value, .. } => self.apply_add(&mut address.clone(), value),
             Operation::Remove { address, items } => self.apply_remove(&mut address.clone(), *items),
@@ -484,28 +970,46 @@ pub trait Patchable {
     }
 
     /// Apply an `Add` patch operation
-    fn apply_add(&mut self, _address: &mut Address, _value: &Box<dyn Any>) {
-        invalid_op!("add")
+    fn apply_add(&mut self, _address: &mut Address, _value: &Value) -> Result<()> {
+        bail!(invalid_patch_operation::<Self>("add"))
     }
 
     /// Apply a `Remove` patch operation
-    fn apply_remove(&mut self, _address: &mut Address, _items: usize) {
-        invalid_op!("remove")
+    fn apply_remove(&mut self, _address: &mut Address, _items: usize) -> Result<()> {
+        bail!(invalid_patch_operation::<Self>("remove"))
     }
 
     /// Apply a `Replace` patch operation
-    fn apply_replace(&mut self, _address: &mut Address, _items: usize, _value: &Box<dyn Any>) {
-        invalid_op!("replace")
+    fn apply_replace(
+        &mut self,
+        _address: &mut Address,
+        _items: usize,
+        _value: &Value,
+    ) -> Result<()> {
+        bail!(invalid_patch_operation::<Self>("replace"))
     }
 
     /// Apply a `Move` patch operation
-    fn apply_move(&mut self, _from: &mut Address, _items: usize, _to: &mut Address) {
-        invalid_op!("move")
+    fn apply_move(&mut self, _from: &mut Address, _items: usize, _to: &mut Address) -> Result<()> {
+        bail!(invalid_patch_operation::<Self>("move"))
     }
 
     /// Apply a `Transform` patch operation
-    fn apply_transform(&mut self, _address: &mut Address, _from: &str, _to: &str) {
-        invalid_op!("transform")
+    fn apply_transform(&mut self, _address: &mut Address, _from: &str, _to: &str) -> Result<()> {
+        bail!(invalid_patch_operation::<Self>("transform"))
+    }
+
+    /// Cast a [`Value`] to an instance of the type
+    fn from_value(value: &Value) -> Result<Self>
+    where
+        Self: Clone + Sized + 'static,
+    {
+        let instance = if let Some(value) = value.downcast_ref::<Self>() {
+            value.clone()
+        } else {
+            bail!(invalid_patch_value::<Self>())
+        };
+        Ok(instance)
     }
 }
 
@@ -525,7 +1029,7 @@ macro_rules! patchable_is_same {
 /// Generate the `diff` method for a type
 macro_rules! patchable_diff {
     () => {
-        fn diff<Other: Any + Clone>(&self, differ: &mut Differ, other: &Other) {
+        fn diff<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other) {
             if let Some(other) = (other as &dyn Any).downcast_ref::<Self>() {
                 self.diff_same(differ, other)
             } else {
@@ -535,385 +1039,45 @@ macro_rules! patchable_diff {
     };
 }
 
-/// Generate the `is_equal` method for a `struct`
-macro_rules! patchable_struct_is_equal {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn is_equal(&self, other: &Self) -> Result<()> {
-            $(
-                self.$field.is_equal(&other.$field)?;
-            )*
-            Ok(())
-        }
-    };
-}
-
-/// Generate the `make_hash` method for a `struct`
-macro_rules! patchable_struct_hash {
-    ($( $field:ident )*) => {
-        fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
-            // Include the type name in the hash (to avoid clash when structs
-            // of different types have the same values for different fields)
-            use std::hash::Hash;
-            type_name::<Self>().hash(state);
-            // Include the hash of supplied fields. Because we include the type
-            // name in the hash, we do no need to include the field names.
-            $(
-                self.$field.make_hash(state);
-            )*
-        }
-    };
-}
-
-/// Generate the `diff_same` method for a `struct`
-macro_rules! patchable_struct_diff_same {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn diff_same(&self, differ: &mut Differ, other: &Self) {
-            $(
-                differ.field(stringify!($field), &self.$field, &other.$field);
-            )*
-        }
-    };
-}
-
-/// Generate the `apply_add` method for a `struct`
-macro_rules! patchable_struct_apply_add {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
-            if let Some(Key::Name(name)) = address.pop_front() {
-                match name.as_str() {
-                    $(
-                        stringify!($field) => self.$field.apply_add(address, value),
-                    )*
-                    _ => invalid_name!(name),
-                }
-            } else {
-                invalid_address!(address)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_remove` method for a `struct`
-macro_rules! patchable_struct_apply_remove {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn apply_remove(&mut self, address: &mut Address, items: usize) {
-            if let Some(Key::Name(name)) = address.pop_front() {
-                match name.as_str() {
-                    $(
-                        stringify!($field) => self.$field.apply_remove(address, items),
-                    )*
-                    _ => invalid_name!(name),
-                }
-            } else {
-                invalid_address!(address)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_replace` method for a `struct`
-macro_rules! patchable_struct_apply_replace {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
-            if let Some(Key::Name(name)) = address.pop_front() {
-                match name.as_str() {
-                    $(
-                        stringify!($field) => self.$field.apply_replace(address, items, value),
-                    )*
-                    _ => invalid_name!(name),
-                }
-            } else {
-                invalid_address!(address)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_move` method for a `struct`
-macro_rules! patchable_struct_apply_move {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
-            if let (Some(Key::Name(name)), Some(Key::Name(_name_again))) = (from.pop_front(), to.pop_front()) {
-                match name.as_str() {
-                    $(
-                        stringify!($field) => self.$field.apply_move(from, items, to),
-                    )*
-                    _ => invalid_name!(name),
-                }
-            } else {
-                invalid_address!(from)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_transform` method for a `struct`
-macro_rules! patchable_struct_apply_transform {
-    ($( $field:ident )*) => {
-        #[allow(unused_variables)]
-        fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
-            if let Some(Key::Name(name)) = address.pop_front() {
-                match name.as_str() {
-                    $(
-                        stringify!($field) => self.$field.apply_transform(address, from, to),
-                    )*
-                    _ => invalid_name!(name),
-                }
-            } else {
-                invalid_address!(from)
-            }
-        }
-    };
-}
-
-/// Generate the `is_equal` method for an `enum`
-macro_rules! patchable_enum_is_equal {
-    () => {
-        fn is_equal(&self, other: &Self) -> Result<()> {
-            match std::mem::discriminant(self) == std::mem::discriminant(other) {
-                true => Ok(()),
-                false => bail!(Error::NotEqual),
-            }
-        }
-    };
-}
-
-/// Generate the `make_hash` method for an `enum`
-macro_rules! patchable_enum_hash {
-    () => {
-        fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
-            use std::hash::Hash;
-            std::mem::discriminant(self).hash(state)
-        }
-    };
-}
-
-/// Generate the `diff_same` method for an `enum`
-macro_rules! patchable_enum_diff_same {
-    () => {
-        fn diff_same(&self, differ: &mut Differ, other: &Self) {
-            if std::mem::discriminant(self) != std::mem::discriminant(other) {
-                differ.replace(other)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_replace` method for a `enum`
-macro_rules! patchable_enum_apply_replace {
-    () => {
-        fn apply_replace(&mut self, _address: &mut Address, _items: usize, value: &Box<dyn Any>) {
-            if let Some(value) = value.deref().downcast_ref::<Self>() {
-                *self = value.clone()
-            } else {
-                invalid_value!()
-            }
-        }
-    };
-}
-
-/// Generate the `is_equal` method for an `enum` having variants of different types
-macro_rules! patchable_variants_is_equal {
-    ($( $variant:path )*) => {
-        fn is_equal(&self, other: &Self) -> Result<()> {
-            match (self, other) {
-                $(
-                    ($variant(me), $variant(other)) => me.is_equal(other),
-                )*
-                _ => bail!(Error::NotEqual),
-            }
-        }
-    };
-}
-
-/// Generate the `make_hash` method for an `enum` having variants of different types
-macro_rules! patchable_variants_hash {
-    ($( $variant:path )*) => {
-        fn make_hash<H: std::hash::Hasher>(&self, state: &mut H) {
-            match self {
-                $(
-                    $variant(me) => me.make_hash(state),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => unimplemented!()
-            }
-        }
-    };
-}
-
-/// Generate the `diff_same` method for an `enum` having variants of different types
-macro_rules! patchable_variants_diff_same {
-    ($( $variant:path )*) => {
-        fn diff_same(&self, differ: &mut Differ, other: &Self) {
-            match (self, other) {
-                $(
-                    ($variant(me), $variant(other)) => me.diff_same(differ, other),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => differ.replace(other)
-            }
-        }
-    };
-}
-
-/// Generate the `apply_add` method for an `enum` having variants of different types
-macro_rules! patchable_variants_apply_add {
-    ($( $variant:path )*) => {
-        fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
-            match self {
-                $(
-                    $variant(me) => me.apply_add(address, value),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => invalid_op!("add")
-            }
-        }
-    };
-}
-
-/// Generate the `apply_remove` method for an `enum` having variants of different types
-macro_rules! patchable_variants_apply_remove {
-    ($( $variant:path )*) => {
-        fn apply_remove(&mut self, address: &mut Address, items: usize) {
-            match self {
-                $(
-                    $variant(me) => me.apply_remove(address, items),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => invalid_op!("remove")
-            }
-        }
-    };
-}
-
-/// Generate the `apply_replace` method for an `enum` having variants of different types
-macro_rules! patchable_variants_apply_replace {
-    ($( $variant:path )*) => {
-        fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
-            match self {
-                $(
-                    $variant(me) => me.apply_replace(address, items, value),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => invalid_op!("replace")
-            }
-        }
-    };
-}
-
-/// Generate the `apply_move` method for an `enum` having variants of different types
-macro_rules! patchable_variants_apply_move {
-    ($( $variant:path )*) => {
-        fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
-            match self {
-                $(
-                    $variant(me) => me.apply_move(from, items, to),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => invalid_op!("move")
-            }
-        }
-    };
-}
-
-/// Generate the `apply_transform` method for an `enum` having variants of different types
-macro_rules! patchable_variants_apply_transform {
-    ($( $variant:path )*) => {
-        fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
-            match self {
-                $(
-                    $variant(me) => me.apply_transform(address, from, to),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => invalid_op!("transform")
-            }
-        }
-    };
-}
-
-/// Generate a `impl Patchable` for a `struct`, passing
-/// a list of fields for comparison, diffing, and applying ops.
-macro_rules! patchable_struct {
-    ($type:ty $(, $field:ident )*) => {
-        impl Patchable for $type {
-            patchable_is_same!();
-            patchable_struct_is_equal!($( $field )*);
-            patchable_struct_hash!($( $field )*);
-
-            patchable_diff!();
-            patchable_struct_diff_same!($( $field )*);
-
-            patchable_struct_apply_add!($( $field )*);
-            patchable_struct_apply_remove!($( $field )*);
-            patchable_struct_apply_replace!($( $field )*);
-            patchable_struct_apply_move!($( $field )*);
-            patchable_struct_apply_transform!($( $field )*);
-        }
-    };
-}
-
-/// Generate a `impl Patchable` for a simple `enum`.
-macro_rules! patchable_enum {
-    ($type:ty) => {
-        impl Patchable for $type {
-            patchable_is_same!();
-            patchable_enum_is_equal!();
-            patchable_enum_hash!();
-
-            patchable_diff!();
-            patchable_enum_diff_same!();
-
-            patchable_enum_apply_replace!();
-        }
-    };
-}
-
-/// Generate a `impl Patchable` for an `enum` having variants of different types.
-macro_rules! patchable_variants{
-    ($type:ty $(, $variant:path )*) => {
-        impl Patchable for $type {
-            patchable_is_same!();
-            patchable_variants_is_equal!($( $variant )*);
-            patchable_variants_hash!($( $variant )*);
-
-            patchable_diff!();
-            patchable_variants_diff_same!($( $variant )*);
-
-            patchable_variants_apply_add!($( $variant )*);
-            patchable_variants_apply_remove!($( $variant )*);
-            patchable_variants_apply_replace!($( $variant )*);
-            patchable_variants_apply_move!($( $variant )*);
-            patchable_variants_apply_transform!($( $variant )*);
-        }
-    };
-}
-
 mod prelude;
 
 mod atomics;
-mod strings;
-
+#[macro_use]
+mod enums;
 mod boxes;
 mod options;
+mod strings;
+#[macro_use]
+mod structs;
 mod vecs;
 
 mod blocks;
 mod inlines;
+mod nodes;
 mod works;
 
-mod nodes;
+#[allow(dead_code)]
+#[derive(JsonSchema)]
+enum PatchesSchema {
+    Slot(Slot),
+    Address(Address),
+    Patch(Patch),
+    Operation(Operation),
+    DomPatch(DomPatch),
+    DomOperation(DomOperation),
+}
+
+/// Get JSON Schemas for this module
+pub fn schemas() -> Result<serde_json::Value> {
+    schemas::generate::<PatchesSchema>()
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{assert_json, assert_json_eq};
-    use stencila_schema::{Emphasis, InlineContent, Integer, Paragraph};
+    use serde_json::json;
+    use stencila_schema::{Article, Emphasis, InlineContent, Integer, Paragraph};
 
     #[test]
     fn test_same_equal() {
@@ -939,7 +1103,7 @@ mod tests {
     }
 
     #[test]
-    fn test_diff_apply() {
+    fn test_diff_apply() -> Result<()> {
         let empty = Paragraph::default();
         let a = Paragraph {
             content: vec![
@@ -965,7 +1129,7 @@ mod tests {
         assert_json!(patch, []);
 
         let mut patched = empty.clone();
-        apply(&mut patched, &patch);
+        apply(&mut patched, &patch)?;
         assert_json_eq!(patched, empty);
 
         // Patching `empty` to `a` should:
@@ -975,7 +1139,7 @@ mod tests {
         assert_json!(
             patch,
             [{
-                "op": "add",
+                "type": "Add",
                 "address": ["content", 0],
                 "value": ["word1", "word2"],
                 "length": 2
@@ -983,7 +1147,7 @@ mod tests {
         );
 
         let mut patched = empty.clone();
-        apply(&mut patched, &patch);
+        apply(&mut patched, &patch)?;
         assert_json_eq!(patched, a);
 
         // Patching `a` to `b` should:
@@ -994,12 +1158,12 @@ mod tests {
         assert_json!(
             patch,
             [{
-                "op": "transform",
+                "type": "Transform",
                 "address": ["content", 0],
                 "from": "String",
                 "to": "Emphasis"
             },{
-                "op": "replace",
+                "type": "Replace",
                 "address": ["content", 1, 2],
                 "items": 3,
                 "value": "two",
@@ -1008,7 +1172,153 @@ mod tests {
         );
 
         let mut patched = a.clone();
-        apply(&mut patched, &patch);
+        apply(&mut patched, &patch)?;
         assert_json_eq!(patched, b);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_dom_patch() {
+        // Empty article
+        let one = Article::default();
+
+        // Add an empty paragraph
+        let two = Article {
+            content: Some(vec![BlockContent::Paragraph(Paragraph::default())]),
+            ..Default::default()
+        };
+
+        // Add words to the paragraph
+        let three = Article {
+            content: Some(vec![BlockContent::Paragraph(Paragraph {
+                content: vec![
+                    InlineContent::String("first".to_string()),
+                    InlineContent::String(" second".to_string()),
+                ],
+                ..Default::default()
+            })]),
+            ..Default::default()
+        };
+
+        // Modify a word
+        let four = Article {
+            content: Some(vec![BlockContent::Paragraph(Paragraph {
+                content: vec![
+                    InlineContent::String("foot".to_string()),
+                    InlineContent::String(" second".to_string()),
+                ],
+                ..Default::default()
+            })]),
+            ..Default::default()
+        };
+
+        // Move words
+        let five = Article {
+            content: Some(vec![BlockContent::Paragraph(Paragraph {
+                content: vec![
+                    InlineContent::String(" second".to_string()),
+                    InlineContent::String("foot".to_string()),
+                ],
+                ..Default::default()
+            })]),
+            ..Default::default()
+        };
+
+        // one to one -> empty patch
+        let patch = diff(&one, &one);
+        assert_json_eq!(patch, json!([]));
+        let dom_patch = DomPatch::new(&patch, None);
+        assert_json_eq!(dom_patch, json!({"ops": []}));
+
+        // one to two -> `Add` operation on the article's optional content
+        let patch = diff(&one, &two);
+        assert_json_eq!(
+            patch,
+            json!([{
+                "type": "Add",
+                "address": ["content"],
+                "value": [{"type": "Paragraph", "content": []}],
+                "length": 1
+            }])
+        );
+        let dom_patch = DomPatch::new(&patch, None);
+        assert_json_eq!(
+            dom_patch,
+            json!({"ops":[{
+                "type": "Add",
+                "address": ["content"],
+                "html": "<div slot=\"content\"><p itemtype=\"https://stenci.la/Paragraph\" itemscope></p></div>",
+                "json": [{"type": "Paragraph", "content": []}]
+            }]})
+        );
+
+        // two to three -> `Add` operation on the paragraph's content
+        let patch = diff(&two, &three);
+        assert_json_eq!(
+            patch,
+            json!([{
+                "type": "Add",
+                "address": ["content", 0, "content", 0],
+                "value": ["first", " second"],
+                "length": 2
+            }])
+        );
+        let dom_patch = DomPatch::new(&patch, None);
+        assert_json_eq!(
+            dom_patch,
+            json!({"ops":[{
+                "type": "Add",
+                "address": ["content", 0, "content", 0],
+                "html": "first second",
+                "json": ["first", " second"]
+            }]})
+        );
+
+        // three to four -> `Replace` operation on a word
+        let patch = diff(&three, &four);
+        assert_json_eq!(
+            patch,
+            json!([{
+                "type": "Replace",
+                "address": ["content", 0, "content", 0, 1],
+                "items": 3,
+                "value": "oo",
+                "length": 2
+            }])
+        );
+        let dom_patch = DomPatch::new(&patch, None);
+        assert_json_eq!(
+            dom_patch,
+            json!({"ops":[{
+                "type": "Replace",
+                "address": ["content", 0, "content", 0, 1],
+                "items": 3,
+                "html": "oo",
+                "json": "oo"
+            }]})
+        );
+
+        // four to five -> `Move` operation on the word
+        let patch = diff(&four, &five);
+        assert_json_eq!(
+            patch,
+            json!([{
+                "type": "Move",
+                "from": ["content", 0, "content", 1],
+                "items": 1,
+                "to": ["content", 0, "content", 0],
+            }])
+        );
+        let dom_patch = DomPatch::new(&patch, None);
+        assert_json_eq!(
+            dom_patch,
+            json!({"ops":[{
+                "type": "Move",
+                "from": ["content", 0, "content", 1],
+                "items": 1,
+                "to": ["content", 0, "content", 0],
+            }]})
+        );
     }
 }

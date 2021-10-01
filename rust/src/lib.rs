@@ -1,5 +1,5 @@
 #![recursion_limit = "256"]
-#![deny(unsafe_code)]
+#![forbid(unsafe_code)]
 
 // Objects
 //
@@ -38,16 +38,6 @@ pub mod methods {
     pub mod reshape;
 
     pub mod compile;
-    pub mod execute;
-}
-
-// Macros
-//
-// Helper macros for `Node` enums etc
-
-pub mod macros {
-    mod dispatch_enums;
-    pub use dispatch_enums::*;
 }
 
 // Features
@@ -62,6 +52,9 @@ pub mod binaries;
 
 #[cfg(feature = "plugins")]
 pub mod plugins;
+
+#[cfg(feature = "kernels")]
+pub mod kernels;
 
 #[cfg(feature = "upgrade")]
 pub mod upgrade;
@@ -91,9 +84,11 @@ pub mod telemetry;
 // Usually just small functions that are often wrappers around other crates.
 
 pub mod utils {
+    pub mod dispatch;
     pub mod fs;
     pub mod hash;
     pub mod http;
+    pub mod json;
     pub mod path;
     pub mod schemas;
     pub mod urls;

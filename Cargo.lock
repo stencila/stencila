@@ -1256,6 +1256,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fasteval"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4f4cdac9e4065d7c48e30770f8665b8cef9a3a73a63a4056a33a5f395bc7cf75"
+
+[[package]]
 name = "fastrand"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2313,7 +2319,7 @@ version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "332592c2149fc7dd40a64fc9ef6f0d65607284b474cef9817d1fc8c7e7b3608e"
 dependencies = [
- "quick-xml",
+ "quick-xml 0.20.0",
 ]
 
 [[package]]
@@ -3212,6 +3218,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "quick-xml"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8533f14c8382aaad0d592c812ac3b826162128b65662331e1127b45c3d18536b"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "quote"
 version = "0.6.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3720,7 +3735,7 @@ dependencies = [
  "hyper",
  "indicatif",
  "log",
- "quick-xml",
+ "quick-xml 0.20.0",
  "regex",
  "reqwest",
  "semver 0.11.0",
@@ -3967,6 +3982,10 @@ name = "similar"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6bf11003835e462f07851028082d2a1c89d956180ce4b4b50e07fb085ec4131a"
+dependencies = [
+ "bstr",
+ "unicode-segmentation",
+]
 
 [[package]]
 name = "simple_asn1"
@@ -4053,10 +4072,12 @@ dependencies = [
  "crossbeam-channel",
  "defaults",
  "derivative",
+ "derive_more",
  "dirs-next",
  "dtparse",
  "enum_dispatch",
  "eyre",
+ "fasteval",
  "flate2",
  "futures",
  "gitignore",
@@ -4090,6 +4111,7 @@ dependencies = [
  "pretty_assertions",
  "proptest",
  "pulldown-cmark",
+ "quick-xml 0.22.0",
  "rand 0.8.4",
  "regex",
  "reqwest",
@@ -4127,6 +4149,7 @@ dependencies = [
  "tree-sitter-python",
  "tree-sitter-r",
  "tree-sitter-typescript",
+ "unicode-segmentation",
  "url",
  "validator",
  "warp",
@@ -4163,13 +4186,12 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.11.1"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bb44b53d0906576a738dc82795e12495af5206296dcd79fee157a61c7b4397a"
+checksum = "28b2f5c0d8d63d306063450c4551c8560c1dbb559cdb196769b6f77fcffd0175"
 dependencies = [
  "chrono",
  "defaults",
- "enum_dispatch",
  "serde",
  "serde_json",
  "serde_with",

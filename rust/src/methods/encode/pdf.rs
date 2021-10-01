@@ -20,6 +20,7 @@ pub async fn encode(node: &Node, output: &str, options: Option<Options>) -> Resu
             standalone: true,
             bundle: true,
             theme,
+            ..Default::default()
         }),
     )?;
 

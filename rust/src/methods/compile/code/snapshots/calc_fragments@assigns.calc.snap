@@ -1,0 +1,127 @@
+---
+source: rust/src/methods/compile/code/calc.rs
+expression: "compile(&PathBuf::from(path), code)"
+input_file: fixtures/fragments/calc/assigns.calc
+
+---
+[
+  [
+    {
+      "type": "Assign",
+      "range": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/calc/assigns.calc",
+      "name": "a",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "type": "Assign",
+      "range": [
+        1,
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/calc/assigns.calc",
+      "name": "b",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "type": "Assign",
+      "range": [
+        2,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/calc/assigns.calc",
+      "name": "c",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "type": "Use",
+      "range": [
+        2,
+        4,
+        2,
+        5
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/calc/assigns.calc",
+      "name": "a",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "type": "Use",
+      "range": [
+        2,
+        8,
+        2,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/calc/assigns.calc",
+      "name": "b",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "type": "Assign",
+      "range": [
+        3,
+        3,
+        3,
+        40
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/calc/assigns.calc",
+      "name": "with_preceding_spaces_and_underscores",
+      "kind": "Number"
+    }
+  ],
+  [
+    {
+      "type": "Assign",
+      "range": [
+        4,
+        0,
+        4,
+        11
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/calc/assigns.calc",
+      "name": "d",
+      "kind": "Number"
+    }
+  ]
+]

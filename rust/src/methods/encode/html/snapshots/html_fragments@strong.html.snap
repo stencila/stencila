@@ -1,0 +1,11 @@
+---
+source: rust/src/methods/encode/html/mod.rs
+expression: encoded
+input_file: fixtures/fragments/html/strong.html
+
+---
+<article slot="root" itemtype="https://schema.org/Article" itemscope>
+  <div slot="content">
+    <p itemtype="https://stenci.la/Paragraph" itemscope>A<strong itemtype="https://stenci.la/Strong" itemscope>strongly</strong>emphasized word.</p>
+  </div>
+</article>

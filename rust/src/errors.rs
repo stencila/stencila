@@ -1,9 +1,14 @@
-use crate::methods::Method;
+use crate::{
+    methods::Method,
+    patches::{Address, Slot},
+    utils::schemas,
+};
 use eyre::Result;
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaSettings, JsonSchema};
 use serde::Serialize;
 use std::{
+    any::type_name,
     collections::HashMap,
     sync::{atomic::AtomicBool, Mutex},
 };
@@ -18,7 +23,7 @@ use thiserror::Error;
 #[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
 pub enum Error {
-    /// An identifer was supplied that does not match the pattern for the
+    /// An identifier was supplied that does not match the pattern for the
     /// expected family of identifiers.
     #[error("Invalid universal identifier for family '{family}': {id}")]
     InvalidUUID { family: String, id: String },
@@ -33,34 +38,64 @@ pub enum Error {
     #[error("Values are not equal (type is equal but their value differs")]
     NotEqual,
 
+    /// An address resolved to a type that is not able to be pointed to
+    /// (does not have a [`Pointer`] variant)
+    #[error("Address '{address}' resolved to a type that can not be pointed to '{type_name}'")]
+    UnpointableType {
+        #[schemars(schema_with = "address_schema")]
+        address: Address,
+        type_name: String,
+    },
+
+    /// The user attempted to apply a patch operation with an invalid
+    /// address for the type.
+    #[error("Invalid node address '{address}' for type '{type_name}'")]
+    InvalidAddress {
+        #[schemars(schema_with = "address_schema")]
+        address: Address,
+        type_name: String,
+    },
+
     /// The user attempted to apply a patch operation that is invalid for
     /// the type.
     #[error("Invalid patch operation '{op}' for type '{type_name}'")]
     InvalidPatchOperation { op: String, type_name: String },
 
-    /// The user attempted to apply a patch operation with and invalid
+    /// The user attempted to apply a patch operation with an invalid
     /// address for the type.
     #[error("Invalid patch address '{address}' for type '{type_name}'")]
     InvalidPatchAddress { address: String, type_name: String },
-
-    /// The user attempted to apply a patch operation with an invalid
-    /// property name for the type as part of an address.
-    #[error("Invalid patch address name '{name}' for type '{type_name}'")]
-    InvalidPatchName { name: String, type_name: String },
-
-    /// The user attempted to apply a patch operation with an invalid
-    /// sequence index for the type as part of an address.
-    #[error("Invalid patch address index '{index}' for type '{type_name}'")]
-    InvalidPatchIndex { index: usize, type_name: String },
 
     /// The user attempted to apply a patch operation with an invalid
     /// value for the type.
     #[error("Invalid patch value for type '{type_name}'")]
     InvalidPatchValue { type_name: String },
 
+    /// The user attempted to use a slot with an invalid type for the
+    /// type of the object (e.g. a `Slot::Name` on a `Vector`).
+    #[error("Invalid slot type '{variant}' for type '{type_name}'")]
+    InvalidSlotVariant { variant: String, type_name: String },
+
+    /// The user attempted to use a slot with an invalid `Slot::Name`
+    /// for the type (e.g a key for a `HashMap` that is not occupied).
+    #[error("Invalid patch address name '{name}' for type '{type_name}'")]
+    InvalidSlotName { name: String, type_name: String },
+
+    /// The user attempted to use a slot with an invalid `Slot::Index`
+    /// for the type (e.g an index that is greater than the size of a vector).
+    #[error("Invalid patch address index '{index}' for type '{type_name}'")]
+    InvalidSlotIndex { index: usize, type_name: String },
+
     /// The user attempted to open a document with an unknown format
     #[error("Unknown format '{format}'")]
     UnknownFormat { format: String },
+
+    /// A kernel was asked to execute code in an incompatible programming language
+    #[error("Incompatible programming language '{language}' for kernel type '{kernel_type}'")]
+    IncompatibleLanguage {
+        language: String,
+        kernel_type: String,
+    },
 
     /// The user attempted to call a method that is not implemented internally
     /// and so must be delegated to a plugin. However, none of the registered
@@ -89,6 +124,82 @@ pub enum Error {
     /// An error of unspecified type
     #[error("{message}")]
     Unspecified { message: String },
+}
+
+/// Generate the JSON Schema for the `addresses` property to avoid duplicated types.
+fn address_schema(_generator: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+    schemas::typescript("Address", true)
+}
+
+/// Create an `UnpointableType` error
+pub fn unpointable_type<Type: ?Sized>(address: &Address) -> Error {
+    Error::UnpointableType {
+        address: address.clone(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidAddress` error
+pub fn invalid_address<Type: ?Sized>(address: &Address) -> Error {
+    Error::InvalidAddress {
+        address: address.clone(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidPatchOperation` error
+pub fn invalid_patch_operation<Type: ?Sized>(op: &str) -> Error {
+    Error::InvalidPatchOperation {
+        op: op.into(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidPatchAddress` error
+pub fn invalid_patch_address<Type: ?Sized>(address: &str) -> Error {
+    Error::InvalidPatchAddress {
+        address: address.into(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidPatchValue` error
+pub fn invalid_patch_value<Type: ?Sized>() -> Error {
+    Error::InvalidPatchValue {
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidSlotVariant` error
+pub fn invalid_slot_variant<Type: ?Sized>(slot: Slot) -> Error {
+    Error::InvalidSlotVariant {
+        variant: slot.as_ref().into(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidSlotName` error
+pub fn invalid_slot_name<Type: ?Sized>(name: &str) -> Error {
+    Error::InvalidSlotName {
+        name: name.into(),
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `InvalidSlotIndex` error
+pub fn invalid_slot_index<Type: ?Sized>(index: usize) -> Error {
+    Error::InvalidSlotIndex {
+        index,
+        type_name: type_name::<Type>().into(),
+    }
+}
+
+/// Create an `IncompatibleLanguage` error
+pub fn incompatible_language<Type: ?Sized>(language: &str) -> Error {
+    Error::IncompatibleLanguage {
+        language: language.to_string(),
+        kernel_type: type_name::<Type>().into(),
+    }
 }
 
 /// A global stack of errors that can be used have "sideband" errors i.e. those that

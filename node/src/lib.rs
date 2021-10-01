@@ -9,6 +9,7 @@ mod errors;
 mod formats;
 mod graphs;
 mod logging;
+mod patches;
 mod plugins;
 mod prelude;
 mod projects;
@@ -32,6 +33,8 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("documentsSubscribe", documents::subscribe)?;
     cx.export_function("documentsUnsubscribe", documents::unsubscribe)?;
     cx.export_function("documentsClose", documents::close)?;
+
+    cx.export_function("patchesSchemas", patches::schemas)?;
 
     cx.export_function("projectsSchemas", projects::schemas)?;
     cx.export_function("projectsList", projects::list)?;

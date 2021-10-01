@@ -1,7 +1,6 @@
 use super::prelude::*;
 use crate::dispatch_block;
 use std::hash::Hasher;
-use std::ops::Deref;
 use stencila_schema::{
     BlockContent, ClaimClaimType, ClaimSimple, CodeBlock, CodeChunk, CollectionSimple,
     FigureSimple, Heading, Include, List, ListItem, ListItemContent, ListOrder, MathBlock,
@@ -14,6 +13,28 @@ use stencila_schema::{
 /// Generates and applies `Replace` and `Transform` operations between variants of block content.
 /// All other operations are passed through to variants.
 impl Patchable for BlockContent {
+    /// Resolve an [`Address`] into a node [`Pointer`].
+    ///
+    /// `BlockContent` is one of the pointer variants so return a `Pointer::Block` if
+    /// the address is empty. Otherwise dispatch to variant.
+    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+        match address.is_empty() {
+            true => Ok(Pointer::Block(self)),
+            false => dispatch_block!(self, resolve, address),
+        }
+    }
+
+    /// Find a node based on its `id` and return a [`Pointer`] to it.
+    ///
+    /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Block`
+    fn find(&mut self, id: &str) -> Pointer {
+        let pointer = dispatch_block!(self, find, id);
+        match pointer {
+            Pointer::Some => Pointer::Block(self),
+            _ => Pointer::None,
+        }
+    }
+
     patchable_is_same!();
 
     #[rustfmt::skip]
@@ -68,34 +89,32 @@ impl Patchable for BlockContent {
         }
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
-        dispatch_block!(self, apply_add, address, value);
+    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+        dispatch_block!(self, apply_add, address, value)
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) {
-        dispatch_block!(self, apply_remove, address, items);
+    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
+        dispatch_block!(self, apply_remove, address, items)
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
         if address.is_empty() {
-            if let Some(value) = value.deref().downcast_ref::<Self>() {
-                *self = value.clone()
-            } else {
-                return invalid_value!();
-            };
+            *self = Self::from_value(value)?;
+            Ok(())
         } else {
             dispatch_block!(self, apply_replace, address, items, value)
         }
     }
 
-    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
-        dispatch_block!(self, apply_move, from, items, to);
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
+        dispatch_block!(self, apply_move, from, items, to)
     }
 
-    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
         if address.is_empty() {
             assert_eq!(from, self.as_ref(), "Expected the same type");
-            *self = apply_transform(self, to)
+            *self = apply_transform(self, to);
+            Ok(())
         } else {
             dispatch_block!(self, apply_transform, address, from, to)
         }
@@ -118,7 +137,7 @@ fn apply_transform(_from: &BlockContent, _to: &str) -> BlockContent {
 
 patchable_struct!(ClaimSimple, content, claim_type);
 patchable_struct!(CodeBlock, programming_language, text);
-patchable_struct!(CodeChunk, programming_language, text);
+patchable_struct!(CodeChunk, programming_language, text, outputs);
 patchable_struct!(CollectionSimple);
 patchable_struct!(FigureSimple);
 patchable_struct!(Heading, content, depth);

@@ -1,15 +1,21 @@
-use super::{address_from_index, prelude::*};
+use super::prelude::*;
 use itertools::Itertools;
 use similar::{ChangeTag, TextDiff};
-use std::any::{type_name, Any};
 use std::hash::{Hash, Hasher};
-use std::ops::Deref;
+use unicode_segmentation::UnicodeSegmentation;
 
 /// Implements patching for strings
 ///
+/// Diffing and patching of strings is done on the basis of Unicode graphemes.
+/// These more closely match the human unit of writing than Unicode characters or bytes
+/// (which are alternative sub-units that string diffing and patching could be based upon).
+/// Note then that patch string indices i.e. slot indices, `length`, `items` represent
+/// graphemes and that this has to be taken into account when applying `DomOperation`s
+/// in JavaScript.
+///
 /// `Add`, `Remove` and `Replace` operations are implemented.
 /// The `Move` operation, whilst possible for strings, adds complexity
-/// and a performance hit to diffing.
+/// and a performance hit to diffing so is not used.
 impl Patchable for String {
     patchable_is_same!();
 
@@ -32,7 +38,7 @@ impl Patchable for String {
             return;
         }
 
-        let diff = TextDiff::from_chars(self, other);
+        let diff = TextDiff::from_graphemes(self, other);
         let mut ops: Vec<Operation> = Vec::new();
         let mut curr: char = 'e';
         let mut replace = false;
@@ -83,7 +89,7 @@ impl Patchable for String {
 
             let end = index == changes.len() - 1;
             if (index > 0 && curr != last) || end {
-                let address = address_from_index(start);
+                let address = Address::from(start);
                 if (curr == 'e' && last == 'd') || (end && curr == 'd') {
                     ops.push(Operation::Remove { address, items });
                 } else if (curr == 'e' && last == 'i') || (end && curr == 'i') {
@@ -92,13 +98,13 @@ impl Patchable for String {
                             address,
                             items,
                             value: Box::new(value.clone()),
-                            length: value.chars().count(),
+                            length: value.graphemes(true).count(),
                         });
                     } else {
                         ops.push(Operation::Add {
                             address,
                             value: Box::new(value.clone()),
-                            length: value.chars().count(),
+                            length: value.graphemes(true).count(),
                         });
                     }
                 };
@@ -108,61 +114,69 @@ impl Patchable for String {
         differ.append(ops)
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
-        let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
-            value
-        } else {
-            return invalid_value!();
-        };
-
-        if let Some(Key::Index(index)) = address.pop_front() {
-            let chars: Vec<char> = self.chars().collect();
-            let chars = [
-                &chars[..index],
-                &value.chars().collect_vec(),
-                &chars[index..],
+    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+        let value = Self::from_value(value)?;
+        if let Some(Slot::Index(index)) = address.pop_front() {
+            let graphemes = self.graphemes(true).collect_vec();
+            let graphemes = [
+                &graphemes[..index],
+                &value.graphemes(true).collect_vec(),
+                &graphemes[index..],
             ]
             .concat();
-            *self = chars.into_iter().collect();
+            *self = graphemes.into_iter().collect();
+            Ok(())
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) {
-        if let Some(Key::Index(index)) = address.pop_front() {
-            let chars: Vec<char> = self.chars().collect();
-            let chars = [&chars[..index], &chars[(index + items)..]].concat();
-            *self = chars.into_iter().collect();
+    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
+        if let Some(Slot::Index(index)) = address.pop_front() {
+            let graphemes = self.graphemes(true).collect_vec();
+            let graphemes = [&graphemes[..index], &graphemes[(index + items)..]].concat();
+            *self = graphemes.into_iter().collect();
+            Ok(())
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
-        let value = if let Some(value) = value.deref().downcast_ref::<Self>() {
-            value
-        } else {
-            return invalid_value!();
-        };
-
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+        let value = Self::from_value(value)?;
         if address.is_empty() {
-            *self = value.clone();
-        } else if let Some(Key::Index(index)) = address.pop_front() {
-            let chars: Vec<char> = self.chars().collect();
-            let chars = [
-                &chars[..index],
-                &value.chars().collect_vec(),
-                &chars[(index + items)..],
+            *self = value
+        } else if let Some(Slot::Index(index)) = address.pop_front() {
+            let graphemes = self.graphemes(true).collect_vec();
+            let graphemes = [
+                &graphemes[..index],
+                &value.graphemes(true).collect_vec(),
+                &graphemes[(index + items)..],
             ]
             .concat();
-            *self = chars.into_iter().collect();
+            *self = graphemes.into_iter().collect();
         }
+        Ok(())
+    }
+
+    fn from_value(value: &Value) -> Result<Self>
+    where
+        Self: Clone + Sized + 'static,
+    {
+        if let Some(value) = value.downcast_ref::<String>() {
+            return Ok(value.clone());
+        } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
+            if let Some(string) = value.as_str() {
+                return Ok(string.to_string());
+            }
+        }
+        bail!(invalid_patch_value::<Self>())
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::{
         assert_json,
         patches::{apply_new, diff, equal},
@@ -170,7 +184,7 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     #[test]
-    fn basic() {
+    fn basic() -> Result<()> {
         let empty = "".to_string();
         let a = "1".to_string();
         let b = "123".to_string();
@@ -195,42 +209,42 @@ mod tests {
         let patch = diff(&empty, &a);
         assert_json!(
             patch,
-            [{ "op": "add", "address": [0], "value": "1", "length": 1 }]
+            [{ "type": "Add", "address": [0], "value": "1", "length": 1 }]
         );
-        assert_eq!(apply_new(&empty, &patch), a);
+        assert_eq!(apply_new(&empty, &patch)?, a);
 
         let patch = diff(&empty, &d);
         assert_json!(
             patch,
-            [{ "op": "add", "address": [0], "value": "abcdef", "length": 6 }]
+            [{ "type": "Add", "address": [0], "value": "abcdef", "length": 6 }]
         );
-        assert_eq!(apply_new(&empty, &patch), d);
+        assert_eq!(apply_new(&empty, &patch)?, d);
 
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{ "op": "add", "address": [1], "value": "23", "length": 2 }]
+            [{ "type": "Add", "address": [1], "value": "23", "length": 2 }]
         );
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         // Remove
 
         let patch = diff(&a, &empty);
         assert_json!(
             patch,
-            [{ "op": "remove", "address": [0], "items": 1 }]
+            [{ "type": "Remove", "address": [0], "items": 1 }]
         );
 
         let patch = diff(&d, &empty);
         assert_json!(
             patch,
-            [{ "op": "remove", "address": [0], "items": 6 }]
+            [{ "type": "Remove", "address": [0], "items": 6 }]
         );
 
         let patch = diff(&b, &a);
         assert_json!(
             patch,
-            [{ "op": "remove", "address": [1], "items": 2 }]
+            [{ "type": "Remove", "address": [1], "items": 2 }]
         );
 
         // Replace
@@ -238,16 +252,16 @@ mod tests {
         let patch = diff(&a, &c);
         assert_json!(
             patch,
-            [{ "op": "replace", "address": [0], "items": 1, "value": "a2b3", "length": 4 }]
+            [{ "type": "Replace", "address": [0], "items": 1, "value": "a2b3", "length": 4 }]
         );
-        assert_eq!(apply_new(&a, &patch), c);
+        assert_eq!(apply_new(&a, &patch)?, c);
 
         let patch = diff(&b, &d);
         assert_json!(
             patch,
-            [{ "op": "replace", "address": [0], "items": 3, "value": "abcdef", "length": 6 }]
+            [{ "type": "Replace", "address": [0], "items": 3, "value": "abcdef", "length": 6 }]
         );
-        assert_eq!(apply_new(&b, &patch), d);
+        assert_eq!(apply_new(&b, &patch)?, d);
 
         // Mixed
 
@@ -255,90 +269,119 @@ mod tests {
         assert_json!(
             patch,
             [
-                { "op": "remove", "address": [1], "items": 1 },
-                { "op": "replace", "address": [2], "items": 1, "value": "cdef", "length": 4 }
+                { "type": "Remove", "address": [1], "items": 1 },
+                { "type": "Replace", "address": [2], "items": 1, "value": "cdef", "length": 4 }
             ]
         );
-        assert_eq!(apply_new(&c, &patch), d);
+        assert_eq!(apply_new(&c, &patch)?, d);
 
         let patch = diff(&d, &c);
         assert_json!(
             patch,
             [
-                { "op": "add", "address": [1], "value": "2", "length": 1 },
-                { "op": "replace", "address": [3], "items": 4, "value": "3", "length": 1 }
+                { "type": "Add", "address": [1], "value": "2", "length": 1 },
+                { "type": "Replace", "address": [3], "items": 4, "value": "3", "length": 1 }
             ]
         );
-        assert_eq!(apply_new(&d, &patch), c);
+        assert_eq!(apply_new(&d, &patch)?, c);
 
         let patch = diff(&d, &e);
         assert_json!(
             patch,
             [
-                { "op": "add", "address": [1], "value": "d", "length": 1 },
-                { "op": "replace", "address": [4], "items": 1, "value": "f", "length": 1 },
-                { "op": "remove", "address": [6], "items": 1 }
+                { "type": "Add", "address": [1], "value": "d", "length": 1 },
+                { "type": "Replace", "address": [4], "items": 1, "value": "f", "length": 1 },
+                { "type": "Remove", "address": [6], "items": 1 }
             ]
         );
-        assert_eq!(apply_new(&d, &patch), e);
+        assert_eq!(apply_new(&d, &patch)?, e);
+
+        Ok(())
     }
 
-    /// Test that works with Unicode graphemes (which are made
-    /// up of multiple `char`s).
+    /// Test that works with Unicode graphemes (which are made up of multiple Unicode characters
+    /// which themselves can be made of several bytes).
     #[test]
-    fn unicode() {
+    fn unicode() -> Result<()> {
+        // ä = 1 Unicode char
+        // 👍🏻 and 👍🏿 = 2 Unicode chars each
         let a = "ä".to_string();
         let b = "ä1👍🏻2".to_string();
         let c = "1👍🏿2".to_string();
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "add", "address": [1], "value": "1👍🏻2", "length": 4 },
+            { "type": "Add", "address": [1], "value": "1👍🏻2", "length": 3 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &c);
         assert_json!(patch, [
-            { "op": "remove", "address": [0], "items": 1 },
-            { "op": "replace", "address": [2], "items": 1, "value": "🏿", "length": 1 },
+            { "type": "Remove", "address": [0], "items": 1 },
+            { "type": "Replace", "address": [1], "items": 1, "value": "👍🏿", "length": 1 },
         ]);
-        assert_eq!(apply_new(&b, &patch), c);
+        assert_eq!(apply_new(&b, &patch)?, c);
 
         let patch = diff(&c, &b);
         assert_json!(patch, [
-            { "op": "add", "address": [0], "value": "ä", "length": 1 },
-            { "op": "replace", "address": [3], "items": 1, "value": "🏻", "length": 1 },
+            { "type": "Add", "address": [0], "value": "ä", "length": 1 },
+            { "type": "Replace", "address": [2], "items": 1, "value": "👍🏻", "length": 1 },
         ]);
-        assert_eq!(apply_new(&c, &patch), b);
+        assert_eq!(apply_new(&c, &patch)?, b);
+
+        // 🌷 and 🎁 = 2 Unicode chars each
+        // 🏳️‍🌈 = 6 Unicode chars
+        let d = "🌷🏳️‍🌈🎁".to_string();
+        let e = "🎁🏳️‍🌈🌷".to_string();
+
+        let patch = diff(&d, &e);
+        assert_json!(patch, [
+            { "type": "Add", "address": [0], "value": "🎁🏳️‍🌈", "length": 2 },
+            { "type": "Remove", "address": [3], "items": 2 },
+        ]);
+        assert_eq!(apply_new(&d, &patch)?, e);
+
+        let patch = diff(&e, &d);
+        assert_json!(patch, [
+            { "type": "Add", "address": [0], "value": "🌷🏳️‍🌈", "length": 2 },
+            { "type": "Remove", "address": [3], "items": 2 },
+        ]);
+        assert_eq!(apply_new(&e, &patch)?, d);
+
+        Ok(())
     }
 
     // Regression tests of minimal failing cases found using property testing
     // and elsewhere.
 
     #[test]
-    fn regression_1() {
+    fn regression_1() -> Result<()> {
         let a = "ab".to_string();
         let b = "bc".to_string();
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            { "op": "remove", "address": [0], "items": 1 },
-            { "op": "add", "address": [1], "value": "c", "length": 1 },
+            { "type": "Remove", "address": [0], "items": 1 },
+            { "type": "Add", "address": [1], "value": "c", "length": 1 },
         ]);
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     #[test]
-    fn regression_2() {
+    fn regression_2() -> Result<()> {
         let a = "ac".to_string();
         let b = "bcd".to_string();
         let patch = diff(&a, &b);
         assert_json!(
             patch,
             [
-                { "op": "replace", "address": [0], "items": 1, "value": "b", "length": 1 },
-                { "op": "add", "address": [2], "value": "d", "length": 1 },
+                { "type": "Replace", "address": [0], "items": 1, "value": "b", "length": 1 },
+                { "type": "Add", "address": [2], "value": "d", "length": 1 },
             ]
         );
-        assert_eq!(apply_new(&a, &patch), b);
+        assert_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 }

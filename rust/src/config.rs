@@ -1,4 +1,9 @@
-use crate::{logging, projects, pubsub::publish, telemetry, utils::schemas};
+use crate::{
+    logging, projects,
+    pubsub::publish,
+    telemetry,
+    utils::{json, schemas},
+};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
@@ -124,20 +129,6 @@ impl Config {
         }
     }
 
-    /// Ensure that a string is a valid JSON pointer
-    ///
-    /// Replaces dots (`.`) with slashes (`/`) and ensures a
-    /// leading slash.
-    #[tracing::instrument]
-    pub fn json_pointer(pointer: &str) -> String {
-        let pointer = pointer.replace(".", "/");
-        if pointer.starts_with('/') {
-            pointer
-        } else {
-            format!("/{}", pointer)
-        }
-    }
-
     /// Read a config from the configuration file
     #[tracing::instrument]
     pub fn load() -> Result<Config> {
@@ -205,7 +196,7 @@ impl Config {
             None => Ok(serde_json::to_value(self)?),
             Some(pointer) => {
                 let config = serde_json::to_value(self)?;
-                if let Some(part) = config.pointer(Config::json_pointer(&pointer).as_str()) {
+                if let Some(part) = config.pointer(json::pointer(&pointer).as_str()) {
                     let json = serde_json::to_string(part)?;
                     let part: toml::Value = serde_json::from_str(&json)?;
                     Ok(serde_json::to_value(part)?)
@@ -221,7 +212,7 @@ impl Config {
     pub fn set(&mut self, pointer: &str, value: &str) -> Result<()> {
         // Serialize self to a JSON value and set property
         let mut config = serde_json::to_value(&self)?;
-        if let Some(property) = config.pointer_mut(Config::json_pointer(pointer).as_str()) {
+        if let Some(property) = config.pointer_mut(json::pointer(pointer).as_str()) {
             let value = match serde_json::from_str(value) {
                 Ok(value) => value,
                 Err(_) => serde_json::Value::String(value.into()),
@@ -405,14 +396,6 @@ mod tests {
         let path = Config::path()?;
         assert!(path.starts_with(std::env::temp_dir()));
         Ok(())
-    }
-
-    #[test]
-    fn test_json_pointer() {
-        assert_eq!(Config::json_pointer("a"), "/a");
-        assert_eq!(Config::json_pointer("a/b"), "/a/b");
-        assert_eq!(Config::json_pointer("/a.b"), "/a/b");
-        assert_eq!(Config::json_pointer("a.b.c"), "/a/b/c");
     }
 
     #[test]

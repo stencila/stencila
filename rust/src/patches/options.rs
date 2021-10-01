@@ -1,5 +1,5 @@
 use super::prelude::*;
-use std::{hash::Hasher, ops::Deref};
+use std::hash::Hasher;
 
 /// Implements patching for `Option`
 ///
@@ -10,8 +10,28 @@ use std::{hash::Hasher, ops::Deref};
 /// All other operations passed through.
 impl<Type: Patchable> Patchable for Option<Type>
 where
-    Type: Clone + 'static,
+    Type: Clone + Send + 'static,
 {
+    /// Resolve an [`Address`] into a node [`Pointer`].
+    ///
+    /// Delegate to value, if any.
+    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+        match self {
+            Some(me) => me.resolve(address),
+            None => Ok(Pointer::None),
+        }
+    }
+
+    /// Find a node based on its `id` and return a [`Pointer`] to it.
+    ///
+    /// Delegate to value, if any.
+    fn find(&mut self, id: &str) -> Pointer {
+        match self {
+            Some(me) => me.find(id),
+            None => Pointer::None,
+        }
+    }
+
     patchable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {
@@ -39,57 +59,63 @@ where
         }
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
+    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
         if address.is_empty() {
-            if let Some(value) = value.deref().downcast_ref::<Type>() {
-                *self = Some(value.clone())
-            } else {
-                invalid_value!()
-            }
+            *self = Self::from_value(value)?;
+            Ok(())
         } else if let Some(me) = self {
             me.apply_add(address, value)
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) {
+    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
         if address.is_empty() {
-            *self = None
+            *self = None;
+            Ok(())
         } else if let Some(me) = self {
             me.apply_remove(address, items)
         } else {
-            invalid_address!(address)
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
-        if let Some(me) = self {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+        if address.is_empty() {
+            *self = Self::from_value(value)?;
+            Ok(())
+        } else if let Some(me) = self {
             me.apply_replace(address, items, value)
         } else {
-            invalid_op!("replace")
+            bail!(invalid_patch_address::<Self>(&address.to_string()))
         }
     }
 
-    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
         if let Some(me) = self {
             me.apply_move(from, items, to)
         } else {
-            invalid_op!("move")
+            bail!(invalid_patch_operation::<Self>("move"))
         }
     }
 
-    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
         if let Some(me) = self {
             me.apply_transform(address, from, to)
         } else {
-            invalid_op!("transform")
+            bail!(invalid_patch_operation::<Self>("transform"))
         }
+    }
+
+    fn from_value(value: &Value) -> Result<Self> {
+        Ok(Some(Type::from_value(value)?))
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::{
         assert_json,
         patches::{apply_new, diff, equal},
@@ -97,7 +123,7 @@ mod tests {
     use stencila_schema::Integer;
 
     #[test]
-    fn basic() {
+    fn basic() -> Result<()> {
         assert!(equal::<Option<Integer>>(&None, &None));
         assert!(equal(&Some(1), &Some(1)));
 
@@ -115,9 +141,9 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "add", "address": [], "value": "abc".to_string(), "length": 1}]
+            [{"type": "Add", "address": [], "value": "abc".to_string(), "length": 1}]
         );
-        assert_json!(apply_new(&a, &patch), b);
+        assert_json!(apply_new(&a, &patch)?, b);
 
         // Some to Some: Add with a key
         let a = Some("a".to_string());
@@ -125,9 +151,9 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "add", "address": [1], "value": "bc".to_string(), "length": 2}]
+            [{"type": "Add", "address": [1], "value": "bc".to_string(), "length": 2}]
         );
-        assert_json!(apply_new(&a, &patch), b);
+        assert_json!(apply_new(&a, &patch)?, b);
 
         // Some to None: Remove with no key
         let a = Some("abc".to_string());
@@ -135,9 +161,9 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "remove", "address": [], "items": 1}]
+            [{"type": "Remove", "address": [], "items": 1}]
         );
-        assert_json!(apply_new(&a, &patch), b);
+        assert_json!(apply_new(&a, &patch)?, b);
 
         // Some to Some: Remove with key
         let a = Some("abc".to_string());
@@ -145,9 +171,9 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "remove", "address": [1], "items": 1}]
+            [{"type": "Remove", "address": [1], "items": 1}]
         );
-        assert_json!(apply_new(&a, &patch), b);
+        assert_json!(apply_new(&a, &patch)?, b);
 
         // Replace
         let a = Some("abc".to_string());
@@ -155,8 +181,10 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(
             patch,
-            [{"op": "replace", "address": [1], "items": 1, "value": "@", "length": 1}]
+            [{"type": "Replace", "address": [1], "items": 1, "value": "@", "length": 1}]
         );
-        assert_json!(apply_new(&a, &patch), b);
+        assert_json!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 }

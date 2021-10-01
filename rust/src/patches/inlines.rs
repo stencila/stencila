@@ -1,7 +1,6 @@
 use super::prelude::*;
 use crate::{dispatch_inline, methods::encode::txt::ToTxt};
 use std::hash::Hasher;
-use std::ops::Deref;
 use stencila_schema::{
     AudioObjectSimple, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis,
     ImageObjectSimple, InlineContent, Link, MathFragment, NontextualAnnotation, Note, Parameter,
@@ -13,6 +12,28 @@ use stencila_schema::{
 /// Generates and applies `Replace` and `Transform` operations between variants of inline content.
 /// All other operations are passed through to variants.
 impl Patchable for InlineContent {
+    /// Resolve an [`Address`] into a node [`Pointer`].
+    ///
+    /// `InlineContent` is one of the pointer variants so return a `Pointer::Inline` if
+    /// the address is empty. Otherwise dispatch to variant.
+    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+        match address.is_empty() {
+            true => Ok(Pointer::Inline(self)),
+            false => dispatch_inline!(self, resolve, address),
+        }
+    }
+
+    /// Find a node based on its `id` and return a [`Pointer`] to it.
+    ///
+    /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Inline`
+    fn find(&mut self, id: &str) -> Pointer {
+        let pointer = dispatch_inline!(self, find, id);
+        match pointer {
+            Pointer::Some => Pointer::Inline(self),
+            _ => Pointer::None,
+        }
+    }
+
     patchable_is_same!();
 
     #[rustfmt::skip]
@@ -33,7 +54,7 @@ impl Patchable for InlineContent {
             (InlineContent::MathFragment(me), InlineContent::MathFragment(other)) => me.is_equal(other),
             (InlineContent::NontextualAnnotation(me), InlineContent::NontextualAnnotation(other)) => me.is_equal(other),
             (InlineContent::Note(me), InlineContent::Note(other)) => me.is_equal(other),
-            (InlineContent::Null, InlineContent::Null) => Ok(()),
+            (InlineContent::Null(me), InlineContent::Null(other)) => me.is_equal(other),
             (InlineContent::Number(me), InlineContent::Number(other)) => me.is_equal(other),
             (InlineContent::Parameter(me), InlineContent::Parameter(other)) => me.is_equal(other),
             (InlineContent::Quote(me), InlineContent::Quote(other)) => me.is_equal(other),
@@ -72,7 +93,7 @@ impl Patchable for InlineContent {
             (InlineContent::MathFragment(me), InlineContent::MathFragment(other)) => me.diff_same(differ, other),
             (InlineContent::NontextualAnnotation(me), InlineContent::NontextualAnnotation(other)) => me.diff_same(differ, other),
             (InlineContent::Note(me), InlineContent::Note(other)) => me.diff_same(differ, other),
-            (InlineContent::Null, InlineContent::Null) => {},
+            (InlineContent::Null(me), InlineContent::Null(other)) => me.diff_same(differ, other),
             (InlineContent::Number(me), InlineContent::Number(other)) => me.diff_same(differ, other),
             (InlineContent::Parameter(me), InlineContent::Parameter(other)) => me.diff_same(differ, other),
             (InlineContent::Quote(me), InlineContent::Quote(other)) => me.diff_same(differ, other),
@@ -87,34 +108,32 @@ impl Patchable for InlineContent {
         }
     }
 
-    fn apply_add(&mut self, address: &mut Address, value: &Box<dyn Any>) {
-        dispatch_inline!(self, apply_add, address, value);
+    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+        dispatch_inline!(self, apply_add, address, value)
     }
 
-    fn apply_remove(&mut self, address: &mut Address, items: usize) {
-        dispatch_inline!(self, apply_remove, address, items);
+    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
+        dispatch_inline!(self, apply_remove, address, items)
     }
 
-    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Box<dyn Any>) {
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
         if address.is_empty() {
-            if let Some(value) = value.deref().downcast_ref::<Self>() {
-                *self = value.clone()
-            } else {
-                return invalid_value!();
-            };
+            *self = Self::from_value(value)?;
+            Ok(())
         } else {
             dispatch_inline!(self, apply_replace, address, items, value)
         }
     }
 
-    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) {
-        dispatch_inline!(self, apply_move, from, items, to);
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
+        dispatch_inline!(self, apply_move, from, items, to)
     }
 
-    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) {
+    fn apply_transform(&mut self, address: &mut Address, from: &str, to: &str) -> Result<()> {
         if address.is_empty() {
             assert_eq!(from, self.as_ref(), "Expected the same type");
-            *self = apply_transform(self, to)
+            *self = apply_transform(self, to);
+            Ok(())
         } else {
             dispatch_inline!(self, apply_transform, address, from, to)
         }
@@ -230,7 +249,7 @@ fn apply_transform(from: &InlineContent, to: &str) -> InlineContent {
 patchable_struct!(AudioObjectSimple, content_url);
 patchable_struct!(Cite);
 patchable_struct!(CiteGroup, items);
-patchable_struct!(CodeExpression, programming_language, text);
+patchable_struct!(CodeExpression, programming_language, text, output);
 patchable_struct!(CodeFragment, programming_language, text);
 patchable_struct!(Delete, content);
 patchable_struct!(Emphasis, content);
@@ -239,7 +258,7 @@ patchable_struct!(Link, content, target);
 patchable_struct!(MathFragment, math_language, text);
 patchable_struct!(NontextualAnnotation, content);
 patchable_struct!(Note, content);
-patchable_struct!(Parameter);
+patchable_struct!(Parameter, name, value);
 patchable_struct!(Quote, content);
 patchable_struct!(Strong, content);
 patchable_struct!(Subscript, content);
@@ -253,10 +272,12 @@ mod tests {
         assert_json, assert_json_eq,
         patches::{apply_new, diff, equal},
     };
+    use serde_json::json;
+    use stencila_schema::Node;
 
     // Test that operations with address are passed through
     #[test]
-    fn passthrough() {
+    fn passthrough() -> Result<()> {
         // Simple
         let a = InlineContent::String("abcd".to_string());
         let b = InlineContent::String("eacp".to_string());
@@ -267,11 +288,11 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            {"op": "add", "address": [0], "value": "e", "length": 1},
-            {"op": "remove", "address": [2], "items": 1},
-            {"op": "replace", "address": [3], "items": 1, "value": "p", "length": 1}
+            {"type": "Add", "address": [0], "value": "e", "length": 1},
+            {"type": "Remove", "address": [2], "items": 1},
+            {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
 
         // Nested
         let a = InlineContent::Delete(Delete {
@@ -288,14 +309,16 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            {"op": "remove", "address": ["content", 0, 2], "items": 2},
+            {"type": "Remove", "address": ["content", 0, 2], "items": 2},
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     // Test that strings and other simple inline content are transformed
     #[test]
-    fn transform() {
+    fn transform() -> Result<()> {
         let a = InlineContent::String("abcd".to_string());
         let b = InlineContent::Emphasis(Emphasis {
             content: vec![a.clone()],
@@ -308,32 +331,34 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(patch, [
-            {"op": "transform", "address": [], "from": "String", "to": "Emphasis"}
+            {"type": "Transform", "address": [], "from": "String", "to": "Emphasis"}
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
         assert_json!(patch, [
-            {"op": "transform", "address": [], "from": "Emphasis", "to": "String"}
+            {"type": "Transform", "address": [], "from": "Emphasis", "to": "String"}
         ]);
-        assert_json_eq!(apply_new(&b, &patch), a);
+        assert_json_eq!(apply_new(&b, &patch)?, a);
 
         let patch = diff(&b, &c);
         assert_json!(patch, [
-            {"op": "transform", "address": [], "from": "Emphasis", "to": "Strong"}
+            {"type": "Transform", "address": [], "from": "Emphasis", "to": "Strong"}
         ]);
-        assert_json_eq!(apply_new(&b, &patch), c);
+        assert_json_eq!(apply_new(&b, &patch)?, c);
 
         let patch = diff(&c, &b);
         assert_json!(patch, [
-            {"op": "transform", "address": [], "from": "Strong", "to": "Emphasis"}
+            {"type": "Transform", "address": [], "from": "Strong", "to": "Emphasis"}
         ]);
-        assert_json_eq!(apply_new(&c, &patch), b);
+        assert_json_eq!(apply_new(&c, &patch)?, b);
+
+        Ok(())
     }
 
     // Test that if content differs a replacement is done instead of a transform
     #[test]
-    fn replace_different_content() {
+    fn replace_different_content() -> Result<()> {
         let a = InlineContent::String("a".to_string());
         let b = InlineContent::Emphasis(Emphasis {
             content: vec![InlineContent::String("b".to_string())],
@@ -343,28 +368,30 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             {
-                "op": "replace", "address": [], "items": 1,
+                "type": "Replace", "address": [], "items": 1,
                 "value": {"type": "Emphasis", "content": ["b"]},
                 "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
         assert_json!(patch, [
             {
-                "op": "replace", "address": [], "items": 1,
+                "type": "Replace", "address": [], "items": 1,
                 "value": "a",
                 "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&b, &patch), a);
+        assert_json_eq!(apply_new(&b, &patch)?, a);
+
+        Ok(())
     }
 
     // Test that if content is same but types differ that replacement
     // is done.
     #[test]
-    fn replace_different_types() {
+    fn replace_different_types() -> Result<()> {
         let a = InlineContent::AudioObject(AudioObjectSimple {
             content_url: "a".to_string(),
             ..Default::default()
@@ -377,19 +404,21 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             {
-                "op": "replace", "address": [], "items": 1,
+                "type": "Replace", "address": [], "items": 1,
                 "value": {"type": "ImageObject", "contentUrl": "a"},
                 "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 
     // Regression tests of minimal failing cases found using property testing
     // and elsewhere.
 
     #[test]
-    fn regression_1() {
+    fn regression_1() -> Result<()> {
         let a = vec![
             InlineContent::Superscript(Superscript {
                 content: vec![InlineContent::String("a".to_string())],
@@ -413,14 +442,51 @@ mod tests {
         let patch = diff(&a, &b);
         assert_json!(patch, [
             {
-                "op": "replace", "address": [0, "content", 0, 0], "items": 1,
+                "type": "Replace", "address": [0, "content", 0, 0], "items": 1,
                 "value": "b", "length": 1
             },
             {
-                "op": "replace", "address": [1], "items": 1,
+                "type": "Replace", "address": [1], "items": 1,
                 "value": [{ "type": "AudioObject", "contentUrl": "a.flac"}], "length": 1
             }
         ]);
-        assert_json_eq!(apply_new(&a, &patch), b);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
+    }
+
+    #[test]
+    fn regression_2() -> Result<()> {
+        let a = InlineContent::Parameter(Parameter {
+            ..Default::default()
+        });
+        let b = InlineContent::Parameter(Parameter {
+            value: Some(Box::new(Node::Number(3.14))),
+            ..Default::default()
+        });
+
+        let patch = diff(&a, &b);
+        assert_json!(patch, [
+            {
+                "type": "Add",
+                "address": ["value"],
+                "value": "Box<Node>",
+                "length": 1
+            },
+        ]);
+        assert_json_eq!(apply_new(&a, &patch)?, b);
+
+        let patch: Patch = serde_json::from_value(json!([
+            {
+                "type": "Replace",
+                "address": ["value"],
+                "items": 1,
+                "value": 3.14,
+                "length": 1
+            },
+        ]))?;
+        assert_json_eq!(apply_new(&a, &patch)?, b);
+
+        Ok(())
     }
 }
