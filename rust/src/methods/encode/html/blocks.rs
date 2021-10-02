@@ -61,24 +61,37 @@ impl ToHtml for ClaimSimple {
 }
 
 impl ToHtml for CodeBlock {
+    /// Encode a [`CodeBlock`] as HTML
+    ///
+    /// The `programming_language` is encoded as both a `class` attribute and a `<meta>` element.
+    /// The `<meta>` element is for Microdata and Stencila WebComponent compatibility.
+    /// The `class` follows the recommendation of [HTML5 spec](https://html.spec.whatwg.org/#the-code-element)
+    /// to "use the class attribute, e.g. by adding a class prefixed with "language-" to the element."
     fn to_html(&self, slot: &str, _context: &Context) -> String {
-        let programming_language = match &self.programming_language {
-            Some(programming_language) => elem_empty(
-                "meta",
-                &[
-                    attr_itemprop("programming_language"),
-                    attr("content", programming_language),
-                ],
+        let (class, meta) = match &self.programming_language {
+            Some(programming_language) => (
+                attr("class", &["language-", programming_language].concat()),
+                elem_empty(
+                    "meta",
+                    &[
+                        attr_itemprop("programming_language"),
+                        attr("content", programming_language),
+                    ],
+                ),
             ),
-            None => "".to_string(),
+            None => ("".to_string(), "".to_string()),
         };
 
-        let text = elem("code", &[attr_itemprop("text")], &encode_safe(&self.text));
+        let text = elem(
+            "code",
+            &[attr_itemprop("text"), class],
+            &encode_safe(&self.text),
+        );
 
         elem(
             "pre",
             &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[programming_language, text].concat(),
+            &[meta, text].concat(),
         )
     }
 }

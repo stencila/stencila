@@ -115,8 +115,6 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
         match element.name.local {
             // TODO: Claim
             local_name!("pre") => {
-                // Follows the recommendation of [HTML5 spec](https://html.spec.whatwg.org/#the-code-element)
-                // to "use the class attribute, e.g. by adding a class prefixed with "language-" to the element."
                 let programming_language = if let Ok(code) = node.select_first("code") {
                     code.attributes
                         .borrow()

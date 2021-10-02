@@ -1,6 +1,6 @@
 use super::{
-    attr, attr_id, attr_itemtype, attr_itemtype_str, attr_slot, concat, elem, elem_empty, json,
-    Context, ToHtml,
+    attr, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_slot, concat, elem,
+    elem_empty, json, Context, ToHtml,
 };
 use crate::methods::encode::txt::ToTxt;
 use html_escape::encode_safe;
@@ -318,11 +318,36 @@ impl ToHtml for CodeExpression {
 }
 
 impl ToHtml for CodeFragment {
+    /// Encode a [`CodeFragment`] as HTML
+    ///
+    /// See `CodeBlock::to_html` for why `programming_language` is encoded
+    /// as both a `class` attribute and a `<meta>` element.
     fn to_html(&self, slot: &str, _context: &Context) -> String {
+        let (class, meta) = match &self.programming_language {
+            Some(programming_language) => (
+                attr("class", &["language-", programming_language].concat()),
+                elem_empty(
+                    "meta",
+                    &[
+                        attr_itemprop("programming_language"),
+                        attr("content", programming_language),
+                    ],
+                ),
+            ),
+            None => ("".to_string(), "".to_string()),
+        };
+
+        let text = encode_safe(&self.text);
+
         elem(
             "code",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &encode_safe(&self.text),
+            &[
+                attr_slot(slot),
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                class,
+            ],
+            &[meta, text.to_string()].concat(),
         )
     }
 }
