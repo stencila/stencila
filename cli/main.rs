@@ -91,6 +91,11 @@ pub enum Command {
     Diff(DiffCommand),
     Merge(MergeCommand),
 
+    // The special `with` command which enters interactive mode with
+    // `projects <placeholder> <path>` or `documents <placeholder> <path>`
+    // as the command prefix
+    With(WithCommand),
+
     // Module-specific commands defined in the `stencila` library
     #[structopt(aliases = &["project"])]
     Projects(projects::cli::Command),
@@ -127,6 +132,7 @@ pub async fn run_command(
         Command::Convert(command) => command.run().await,
         Command::Diff(command) => command.run().await,
         Command::Merge(command) => command.run().await,
+        Command::With(command) => command.run().await,
         Command::Documents(command) => command.run().await,
         Command::Projects(command) => command.run().await,
         Command::Sources(command) => command.run().await,
@@ -306,6 +312,24 @@ type ConvertCommand = documents::cli::Convert;
 type DiffCommand = documents::cli::Diff;
 type MergeCommand = documents::cli::Merge;
 
+/// Run commands interactively with a particular project or document
+///
+#[derive(Debug, StructOpt)]
+#[structopt(
+    setting = structopt::clap::AppSettings::NoBinaryName,
+    setting = structopt::clap::AppSettings::ColoredHelp,
+)]
+pub struct WithCommand {
+    /// The file or folder to run command with
+    path: PathBuf,
+}
+
+impl WithCommand {
+    pub async fn run(self) -> display::Result {
+        display::nothing()
+    }
+}
+
 /// Main entry point function
 #[tokio::main]
 pub async fn main() -> Result<()> {
@@ -418,19 +442,39 @@ pub async fn main() -> Result<()> {
         serving: false,
     };
 
+    // The `with` command is always interactive; need to work out
+    // if projects or documents module
+    let (interact, module) = match &command {
+        Some(Command::With(WithCommand { path })) => (
+            true,
+            if path.is_dir() {
+                "projects".to_string()
+            } else {
+                "documents".to_string()
+            },
+        ),
+        _ => (interact, "".to_string()),
+    };
+
     // Get the result of running the command
     let result = if let (false, Some(command)) = (interact, command) {
         run_command(command, &formats, &mut context).await
     } else {
         #[cfg(feature = "interact")]
         {
-            let prefix: Vec<String> = args
+            let mut prefix: Vec<String> = args
                 .into_iter()
                 // Remove executable name
                 .skip(1)
                 // Remove the global args which can not be applied to each interactive line
                 .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
                 .collect();
+
+            // Insert the module if this is the `with` command
+            if !module.is_empty() {
+                prefix.insert(0, module);
+            }
+
             interact::run(prefix, &formats, &mut context).await
         }
         #[cfg(not(feature = "interact"))]
@@ -727,6 +771,7 @@ mod interact {
             ("<     ", "Remove the last argument from the command prefix"),
             (">>    ", "Set the command prefix"),
             ("<<    ", "Clear the command prefix"),
+            ("$     ", "Ignore the command prefix for this command"),
             ("↑     ", "Go back through command history"),
             ("↓     ", "Go forward through command history"),
             ("?     ", "Print this message"),
@@ -763,11 +808,12 @@ mod interact {
                     rl.add_history_entry(&line);
 
                     let line = line.trim();
-                    let args = line
+                    let mut args = line
                         .split_whitespace()
                         .map(str::to_string)
                         .collect::<Vec<String>>();
 
+                    // Handle prefix inspection / manipulation shortcuts
                     if line.starts_with('^') {
                         tracing::info!("Command prefix is: `{}`", prefix.join(" "));
                         continue;
@@ -792,7 +838,30 @@ mod interact {
                         continue;
                     }
 
-                    let args = [prefix.as_slice(), args.as_slice()].concat();
+                    // Construct args vector for this line, handling bypassing the prefix and
+                    // reordering (and errors) if using the `with` command.
+                    let mut args = if line.starts_with('$') {
+                        args.remove(0);
+                        args
+                    } else {
+                        [prefix.as_slice(), args.as_slice()].concat()
+                    };
+                    if args.len() > 1 && args[1] == "with" {
+                        if args.len() == 2 {
+                            tracing::error!("Using the `with` command without a path; use `>` to append one to the command prefix.");
+                            continue;
+                        } else if args.len() == 3 {
+                            tracing::error!(
+                                "Using the `with` command without a subcommand e.g `show`."
+                            );
+                            continue;
+                        } else if args.len() > 3 {
+                            let subcommand = args.remove(3);
+                            args[1] = subcommand;
+                        }
+                    };
+
+                    // Parse args and run the command
                     match Line::clap().get_matches_from_safe(args) {
                         Ok(matches) => {
                             let Line { command, display } = Line::from_clap(&matches);
