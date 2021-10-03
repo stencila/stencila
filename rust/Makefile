@@ -23,7 +23,9 @@ test:
 	cargo test
 
 cover:
-	cargo tarpaulin --ignore-tests --exclude-files tests/* --out Xml --out Html --output-dir coverage 
+	cargo tarpaulin --ignore-tests --exclude-files tests/* \
+	  --out Xml --out Html --output-dir coverage \
+	  --timeout 600
 
 audit:
 	cargo +nightly udeps
