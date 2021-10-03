@@ -1,3 +1,53 @@
+# [0.119.0](https://github.com/stencila/stencila/compare/v0.118.5...v0.119.0) (2021-10-03)
+
+
+### Bug Fixes
+
+* **CLI:** Add interactive as an alias ([5420cc7](https://github.com/stencila/stencila/commit/5420cc70c2902579ccdf7ca8dc9ece111f05db4c))
+* **CLI:** Always enter interactive mode when option is supplied ([5b0bf7e](https://github.com/stencila/stencila/commit/5b0bf7e04fdf308299b180408789093958c81a4f))
+* **CLI:** Change arrow directions for interactive mode command prefix ([da93388](https://github.com/stencila/stencila/commit/da9338840ed1ad1c02212c9f097619e68dd0cb35))
+* **dependencies:** update rust crate pathdiff to v0.2.1 ([0d42a92](https://github.com/stencila/stencila/commit/0d42a921c19fe129f0ba674667612440fc7a79d3))
+* **dependencies:** update rust crate schemars to v0.8.6 ([1d87126](https://github.com/stencila/stencila/commit/1d871262190303beb36e4063c6e190953fe6808a))
+* **dependencies:** update rust crate termimad to v0.16.2 ([9e005ae](https://github.com/stencila/stencila/commit/9e005aef88e0c845f8da5b05526b13a69f28a744))
+* **dependencies:** update rust crate tokio to v1.12.0 ([8ae8653](https://github.com/stencila/stencila/commit/8ae86530e50f81e36b93b9534bffa189f9a834f0))
+* **DOM Patches:** Add JSON to add and replace operations for use on WebComponents ([45bf1cf](https://github.com/stencila/stencila/commit/45bf1cf74874a96608b63da01fba4d00c68bdb59))
+* **Execute:** Correct function signature ([8fd8347](https://github.com/stencila/stencila/commit/8fd83477a5ca9b89011acc403cb8ae3f2d9d254c))
+* **HTML encoding:** Use both class attribute and `meta` element for code language ([bba2864](https://github.com/stencila/stencila/commit/bba28649b86f4a9134d08536282b5766fca3e313))
+* **HTML Encoding:** Fix `CodeExpression` output ([c839560](https://github.com/stencila/stencila/commit/c8395604b81ba029d326af3c0583fd49d07f3960))
+* **Kernels:** Error if no matching language is found ([8e1959a](https://github.com/stencila/stencila/commit/8e1959a62572b6fcba609f05caafbca465386386))
+* **Patches:** Add `cast_value` method ([2dc13ed](https://github.com/stencila/stencila/commit/2dc13edeb5fe7f1250d0fece0f0a7642c9d7975c))
+* **Patches:** Fix handling of already boxed values ([6820881](https://github.com/stencila/stencila/commit/6820881a4a869b94f7e97529523e49907ca609c5))
+* **Rust:** Update Schema : new `Null` type and no `type_name` method ([fa78233](https://github.com/stencila/stencila/commit/fa782338e08acbbb5e472dbcf72eea6de7f2278b))
+* **Server:** Log errors on the server ([fe970d9](https://github.com/stencila/stencila/commit/fe970d9fdb55a7a947265630382eee436f2180a5))
+* **Server:** Startup web client on load ([410741a](https://github.com/stencila/stencila/commit/410741ae8691c040272f1a8c91e8e99c167f5d65))
+* **Web:** Implement move operation ([a58329b](https://github.com/stencila/stencila/commit/a58329bd23597c062f3c8bc42b52a4e039dc5782))
+* **Web:** Make able to handle empty addresses for add and replace operations ([69b5f57](https://github.com/stencila/stencila/commit/69b5f5787692979f471c7a7ebaba0e7c8e71da87))
+* **Web:** Quote slot in error messages for improve readability ([2fb45d5](https://github.com/stencila/stencila/commit/2fb45d59b09beeb32132700cf4746553fc08ca83))
+* **Web:** Use graphemes when applying string patch operations ([1d6f725](https://github.com/stencila/stencila/commit/1d6f725fbc0ed1a66ff4e122bfee079ac4bf94d5))
+
+
+### Features
+
+* **Cacl kernel:** Execute `calc` expressions and patch outputs ([022ab96](https://github.com/stencila/stencila/commit/022ab96969df768e65736fb5c8d2e388c58c53dd))
+* **Calc:** Add `calc` language ([46e8745](https://github.com/stencila/stencila/commit/46e874541c27194cf27454fdf305f8d402e5c953))
+* **CLI:** Add `with` command ([f1e1beb](https://github.com/stencila/stencila/commit/f1e1beb4e3d96aee92005c70aa9f1423b640537b))
+* **CLI:** Add shortcuts to allow appending and truncating the command prefix ([22f3f26](https://github.com/stencila/stencila/commit/22f3f2667b3c63cdf30882dac5f85b8bea90aedb))
+* **CLI:** Allow `documents show` to show `content` and `root` ([2f592bf](https://github.com/stencila/stencila/commit/2f592bf83a7954359cbba6d29937e1fcb7e174a9))
+* **Documents:** Add execute command ([8d213dd](https://github.com/stencila/stencila/commit/8d213ddfc10effefee285fcfc4c2873bf26e32f1))
+* **Documents:** Add resolve and find functions ([26bb387](https://github.com/stencila/stencila/commit/26bb387435629b2b32af5cf15690d8f7a781d58d))
+* **Documents:** Published `patched` events when documented is updated ([77f5778](https://github.com/stencila/stencila/commit/77f577885d5d9a4dd499c903b865199cf9477eaa))
+* **HTML:** Initial encoding and decoding of parameters ([62d3cce](https://github.com/stencila/stencila/commit/62d3cce2247d44fd2c57618a77c70f3175e590f8))
+* **HTML Encoding:** Add encoding for vectors of primitives ([a00ca9f](https://github.com/stencila/stencila/commit/a00ca9f0685eef32ce13113de21cb2797a889d4b))
+* **Kernels:** Add initial iteration of kernels ([0838353](https://github.com/stencila/stencila/commit/0838353ebee779a123ee461b6b79bc5ff9a779fa))
+* **Kernels:** Add mirroring of variables across kernels ([119fe88](https://github.com/stencila/stencila/commit/119fe884d9ad365cc071d4c58ab47b786baad442))
+* **Kernels:** Instantiate and resolve using language compatability ([e683cd6](https://github.com/stencila/stencila/commit/e683cd6ce0c2a3ddfd74cf9a47531490e55c6625))
+* **Kernels:** Only mirror variables if necessary ([dd1321f](https://github.com/stencila/stencila/commit/dd1321f743b5adae957a928db45600ea7e6211a0))
+* **Patches:** Add address resolution ([c95ad21](https://github.com/stencila/stencila/commit/c95ad21603b2fc816b65269cd59a882596c68e3d))
+* **Patches:** Add initial implementation of `DomOperation` ([a692e2b](https://github.com/stencila/stencila/commit/a692e2b648061fc350bab1bc4ec8b07de023e3c4))
+* **Patches:** Allow patches to be applied at a specific id in a node tree ([02a1056](https://github.com/stencila/stencila/commit/02a1056d203d37ff7a8cc13b0e360339129b7968))
+* **Server:** Add flag to run in background ([967e2a9](https://github.com/stencila/stencila/commit/967e2a9e3beadd3514292ce478530828e4051915))
+* **Web:** Add patches module for applying `DomPatch`s sent by server ([9931425](https://github.com/stencila/stencila/commit/99314257a4ccafd33ec42cfcd5801890dd746504))
+
 ## [0.118.5](https://github.com/stencila/stencila/compare/v0.118.4...v0.118.5) (2021-09-28)
 
 
