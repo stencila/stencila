@@ -58,14 +58,14 @@ test('basic', async () => {
   )
 
   // The above subscription should fire an `updated` event
-  expect(updates).toEqual([
+  expect(updates).toEqual(expect.arrayContaining([
     expect.objectContaining({
       type: 'Updated',
       session: expect.objectContaining({
         id: session.id,
       }),
     }),
-  ])
+  ]))
 
   // Wait for a heartbeat. If this isn't working, this test should timeout
   await new Promise<void>((resolve) => {
