@@ -723,10 +723,10 @@ mod interact {
         for (keys, desc) in &[
             ("--help", "Get help for the current command prefix"),
             ("^     ", "Print the current command prefix"),
-            ("<     ", "Set the command prefix"),
-            (">     ", "Clear the command prefix"),
-            ("<<    ", "Append arguments to the command prefix"),
-            (">>    ", "Remove the last argument from the command prefix"),
+            (">     ", "Append arguments to the command prefix"),
+            ("<     ", "Remove the last argument from the command prefix"),
+            (">>    ", "Set the command prefix"),
+            ("<<    ", "Clear the command prefix"),
             ("↑     ", "Go back through command history"),
             ("↓     ", "Go forward through command history"),
             ("?     ", "Print this message"),
@@ -771,21 +771,21 @@ mod interact {
                     if line.starts_with('^') {
                         tracing::info!("Command prefix is: `{}`", prefix.join(" "));
                         continue;
-                    } else if line.starts_with("<<") {
-                        prefix = [prefix, args[1..].into()].concat();
-                        tracing::info!("Command prefix was appended to: `{}`", prefix.join(" "));
-                        continue;
-                    } else if line.starts_with('<') {
+                    } else if line.starts_with(">>") {
                         prefix = args[1..].into();
                         tracing::info!("Command prefix was set to: `{}`", prefix.join(" "));
                         continue;
-                    } else if line.starts_with(">>") {
-                        prefix.truncate(prefix.len() - 1);
-                        tracing::info!("Command prefix was truncated to: `{}`", prefix.join(" "));
-                        continue;
                     } else if line.starts_with('>') {
+                        prefix = [prefix, args[1..].into()].concat();
+                        tracing::info!("Command prefix was appended to: `{}`", prefix.join(" "));
+                        continue;
+                    } else if line.starts_with("<<") {
                         prefix.clear();
                         tracing::info!("Command prefix was cleared");
+                        continue;
+                    } else if line.starts_with('<') {
+                        prefix.truncate(prefix.len() - 1);
+                        tracing::info!("Command prefix was truncated to: `{}`", prefix.join(" "));
                         continue;
                     } else if line.starts_with('?') {
                         tracing::info!("{}", help());
