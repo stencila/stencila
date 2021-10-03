@@ -14,7 +14,7 @@
     "test": "npm run ui:test",
     "ui:build": "cross-env NODE_ENV=production stencil build",
     "ui:start": "stencil build --dev --watch --serve",
-    "ui:test": "stencil test --spec --e2e",
+    "ui:test": "stencil test --spec --e2e --passWithNoTests",
     "ui:test:watch": "stencil test --spec --e2e --watchAll",
     "ui:generate": "stencil generate"
   },
