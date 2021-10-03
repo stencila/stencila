@@ -73,7 +73,7 @@ test('setProperty', () => {
   }
 })
 
-test('resetProperty', () => {
+test.skip('resetProperty', () => {
   resetProperty('all')
   resetProperty('logging')
   try {
