@@ -1445,7 +1445,10 @@ pub mod cli {
         /// The path of the document file
         pub file: String,
 
-        /// The pointer of the document to show e.g. `variables`
+        /// A pointer to the part of the document to show e.g. `variables`, `format.name`
+        ///
+        /// Some, usually large, document properties are only shown when specified with a
+        /// pointer (e.g. `content` and `root`).
         pub pointer: Option<String>,
 
         /// The format of the file
@@ -1462,11 +1465,17 @@ pub mod cli {
             } = self;
             let document = DOCUMENTS.open(file, format.clone()).await?;
             if let Some(pointer) = pointer {
-                let data = serde_json::to_value(document)?;
-                if let Some(part) = data.pointer(&json::pointer(pointer)) {
-                    Ok(display::value(part)?)
+                if pointer == "content" {
+                    display::content(&document.format.name, &document.content)
+                } else if pointer == "root" {
+                    display::value(&document.root)
                 } else {
-                    bail!("Invalid pointer for document: {}", pointer)
+                    let data = serde_json::to_value(document)?;
+                    if let Some(part) = data.pointer(&json::pointer(pointer)) {
+                        Ok(display::value(part)?)
+                    } else {
+                        bail!("Invalid pointer for document: {}", pointer)
+                    }
                 }
             } else {
                 display::value(document)
