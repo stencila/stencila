@@ -81,6 +81,12 @@ jobs:
           echo "##vso[task.setvariable variable=RUST_CACHING]true"
         displayName: 'Install build tools'
 
+      # Specify Node.js version to use for `node`, `desktop`, and `web` tests and builds
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '16.x'
+        displayName: 'Specify Node.js version'
+
       # Rust crate is linted if there are changes in the `rust` folder.
       - script: make -C rust lint
         condition: contains(variables.changed, 'rust')
@@ -120,12 +126,6 @@ jobs:
           bash <(curl -s https://codecov.io/bash) -F cli
         condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'cli'))
         displayName: 'CLI: Test'
-
-      # Use Node.js 16.x for `node` and `desktop` tests and builds
-      - task: NodeTool@0
-        inputs:
-          versionSpec: '16.x'
-        displayName: 'Node.js: Use 16.x'
 
       # Node.js package is tested if there are changes in the `rust` or `node` folders.
       - script: |
@@ -239,6 +239,11 @@ jobs:
           echo "##vso[task.setvariable variable=RUST_CACHING]true"
         displayName: 'Install build tools'
 
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '16.x'
+        displayName: 'Specify Node.js version'
+
       - script: |
           set -e
           cd rust
@@ -263,11 +268,6 @@ jobs:
         displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
-
-      - task: NodeTool@0
-        inputs:
-          versionSpec: '16.x'
-        displayName: 'Node.js: Use 16.x'
 
       - script: |
           set -e
@@ -323,6 +323,11 @@ jobs:
           echo ##vso[task.setvariable variable=RUST_CACHING]true
         displayName: 'Install build tools'
 
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '16.x'
+        displayName: 'Specify Node.js version'
+
       - script: |
           set -e
           cd rust
@@ -346,11 +351,6 @@ jobs:
         displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
-
-      - task: NodeTool@0
-        inputs:
-          versionSpec: '16.x'
-        displayName: 'Node.js: Use 16.x'
 
       - script: |
           make -C node build
