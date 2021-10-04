@@ -16,7 +16,10 @@ cover:
 audit:
 	cargo +nightly udeps
 
+# Build requires the `web` module's JavaScript to be built
+# so that it can be embedded in the binary.
 build:
+	make -C ../web build
 	cargo build --release
 	cargo strip
 
