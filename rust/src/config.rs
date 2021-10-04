@@ -315,6 +315,8 @@ pub mod cli {
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Get configuration properties",
+        // Provide `show` alias for consistency with `documents` and `projects`
+        aliases = &["show"],
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Get {
