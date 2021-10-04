@@ -231,7 +231,7 @@ serde_json = { version = "=1.0.68", features = ["preserve_order"] }
 serde_with = "=1.10.0"
 serde_yaml = "=0.8.21"
 sha2 = "0.9.8"
-similar = { version = "=2.0.0", features = ["unicode"], optional = true }
+similar = { version = "=2.1.0", features = ["unicode"], optional = true }
 slug = "=0.1.4"
 stencila-schema = "=1.12.0"
 strip-ansi-escapes = { version = "0.1.1", optional = true }

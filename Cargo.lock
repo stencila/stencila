@@ -3979,9 +3979,9 @@ checksum = "1ad1d488a557b235fc46dae55512ffbfc429d2482b08b4d9435ab07384ca8aec"
 
 [[package]]
 name = "similar"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6bf11003835e462f07851028082d2a1c89d956180ce4b4b50e07fb085ec4131a"
+checksum = "2e24979f63a11545f5f2c60141afe249d4f19f84581ea2138065e400941d83d3"
 dependencies = [
  "bstr",
  "unicode-segmentation",
@@ -4124,7 +4124,7 @@ dependencies = [
  "serde_with",
  "serde_yaml",
  "sha2",
- "similar 2.0.0",
+ "similar 2.1.0",
  "slug",
  "stencila-schema",
  "strip-ansi-escapes",
