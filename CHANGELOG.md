@@ -1,3 +1,12 @@
+## [0.119.1](https://github.com/stencila/stencila/compare/v0.119.0...v0.119.1) (2021-10-06)
+
+
+### Bug Fixes
+
+* **CLI:** Ensure web module is built and embedded ([f04938d](https://github.com/stencila/stencila/commit/f04938d919f89dfdf85cbd5335f3e96a33084afe))
+* **dependencies:** update rust crate similar to v2.1.0 ([e606746](https://github.com/stencila/stencila/commit/e60674625ebe955d27b28222d353b400ae2035ec))
+* **ELife Source:** Add a user agent header to avoid 403 ([f15125b](https://github.com/stencila/stencila/commit/f15125b8d4846c7e9273884d8d6e571b47f9fd2f))
+
 # [0.119.0](https://github.com/stencila/stencila/compare/v0.118.5...v0.119.0) (2021-10-03)
 
 
