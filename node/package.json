@@ -33,6 +33,9 @@
     "testEnvironment": "node",
     "testMatch": [
       "**/*.test.ts"
+    ],
+    "modulePathIgnorePatterns": [
+      "index.node"
     ]
   }
 }
