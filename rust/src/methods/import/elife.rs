@@ -12,7 +12,12 @@ pub async fn import(
     destination: Option<String>,
 ) -> Result<Vec<File>> {
     let url = format!("https://elifesciences.org/articles/{}.xml", source.article);
-    let response = reqwest::get(&url).await?;
+    let client = reqwest::Client::new();
+    let response = client
+        .get(&url)
+        .header(reqwest::header::USER_AGENT, "Stencila")
+        .send()
+        .await?;
     let response = match response.error_for_status() {
         Ok(response) => response,
         Err(error) => {
