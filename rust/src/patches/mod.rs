@@ -677,6 +677,7 @@ impl DomOperation {
                 $(to_html!($type);)*
             }
         }
+
         // Types roughly ordered by expected incidence (more commonly used types in
         // patches first)
         to_html!(
@@ -692,6 +693,15 @@ impl DomOperation {
             Object
             Null
         );
+
+        // The value may be a JSON value (if this patch was sent from a client)
+        if let Some(value) = value.downcast_ref::<serde_json::Value>() {
+            if let Some(str) = value.as_str() {
+                return str.to_string()
+            } else {
+                return value.to_string()
+            }
+        }
 
         tracing::error!("Unhandled value type when generating HTML for `DomOperation`");
         "<span class=\"todo\">TODO</span>".to_string()
@@ -716,6 +726,8 @@ impl DomOperation {
                 $(to_json!($type);)*
             }
         }
+
+        // As above, types roughly ordered by expected incidence
         to_json!(
             InlineContent
             BlockContent
@@ -729,6 +741,11 @@ impl DomOperation {
             Object
             Null
         );
+
+        // The value may be a JSON value (if this patch was sent from a client)
+        if let Some(value) = value.downcast_ref::<serde_json::Value>() {
+            return value.clone()
+        }
 
         tracing::error!("Unhandled value type when generating JSON for `DomOperation`");
         serde_json::Value::String("TODO".to_string())
