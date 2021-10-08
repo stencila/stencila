@@ -9,7 +9,7 @@ format: setup
 	npm run format
 
 lint: setup
-	npm run lint
+	npm run lint:fix
 
 test: setup
 	npm run test
