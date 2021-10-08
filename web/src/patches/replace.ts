@@ -10,6 +10,7 @@ import {
   isString,
   panic,
   resolveParent,
+  resolveReceiver,
   resolveSlot,
   toGraphemes,
 } from './utils'
@@ -22,6 +23,9 @@ export function applyReplace(
   target?: ElementId
 ): void {
   const { address, items, html } = op
+
+  if (resolveReceiver(address, op)) return
+
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {

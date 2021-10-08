@@ -149,7 +149,6 @@ export class Article extends StencilaElement {
     for (const step of steps) {
       try {
         const op = this.stepToOperation(step)
-        console.log(op)
         patch.push(op)
       } catch (error) {
         console.log(error)
@@ -182,13 +181,16 @@ export class Article extends StencilaElement {
   }
 
   /**
-   * Receive a Stencila `Patch` from the server and send `Steps` to the editor.
+   * Receive a Stencila `Operation` from the server.
    *
-   * Transforms each `Operation` in the patch into a ProseMirror `Step` and
-   * sends them to the editor.
+   * Transforms each `Operation` into a ProseMirror `Step` and sends them to the editor.
    */
-  receivePatch(patch: Patch) {
-    // for (const op of patch) {}
+  receiveOperation(op: DomOperation) {
+    // TODO: Currently just using default implem which logs
+    super.receiveOperation(op)
+    // Pretends to handle the operation, so that some other handler
+    // does not modify the ProseMirror managed DOM
+    return true
   }
 
   /**
@@ -334,7 +336,6 @@ export class Article extends StencilaElement {
    */
   sliceToValue(slice: Slice): any {
     const { content, openStart, openEnd } = slice
-    console.log(content, openStart, openEnd)
 
     // A text slice e.g. the value of a keypress
     if (content.childCount === 1 && content.child(0).isText) {

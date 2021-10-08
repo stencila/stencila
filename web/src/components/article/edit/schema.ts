@@ -1,3 +1,4 @@
+import { codeBlock } from '@stencila/schema'
 import {
   AttributeSpec,
   MarkSpec,
@@ -48,6 +49,7 @@ export const articleSchema = new Schema({
     Heading: heading(),
     List: list(),
     ListItem: listItem(),
+    CodeBlock: codeBlock(),
     QuoteBlock: block('QuoteBlock', 'blockquote', 'BlockContent+'),
     Table: table(),
     TableRow: tableRow(),
@@ -55,10 +57,11 @@ export const articleSchema = new Schema({
     TableHeader: tableHeader(),
     ThematicBreak: thematicBreak(),
 
-    // The equivalent of Stencila `String`.
+    // Inline content types, starting with `text` (equivalent of Stencila `String`), the default
     text: {
       group: 'InlineContent',
     },
+    CodeFragment: inline('CodeFragment', 'code', 'text*'),
   },
 
   marks: {
@@ -130,7 +133,11 @@ function block(
     defining: true,
     parseDOM: [{ tag }],
     toDOM(_node) {
-      return [tag, { itemtype: name, itemscope: '' }, 0]
+      return [
+        tag,
+        { itemtype: `http://schema.stenci.la/${name}`, itemscope: '' },
+        0,
+      ]
     },
   }
 }
@@ -209,6 +216,31 @@ function listItem(): NodeSpec {
         'li',
         { itemtype: 'http://schema.org/ListItem', itemscope: '' },
         0,
+      ]
+    },
+  }
+}
+
+/**
+ * Generate a `NodeSpec` to represent a Stencila `CodeBlock`
+ *
+ * This is temporary and wil be replaced with a CodeMirror editor.
+ * Based on https://github.com/ProseMirror/prosemirror-schema-basic/blob/b5ae707ab1be98a1d8735dfdc7d1845bcd126f18/src/schema-basic.js#L59
+ */
+function codeBlock(): NodeSpec {
+  return {
+    group: 'BlockContent',
+    content: 'text*',
+    contentProp: 'text',
+    marks: '',
+    code: true,
+    defining: true,
+    parseDOM: [{ tag: 'pre', preserveWhitespace: 'full' }],
+    toDOM(node) {
+      return [
+        'pre',
+        { itemtype: 'http://schema.stenci.la/CodeBlock', itemscope: '' },
+        ['code', 0],
       ]
     },
   }
@@ -358,6 +390,31 @@ function thematicBreak(): NodeSpec {
       return [
         'hr',
         { itemtype: 'http://schema.stenci.la/ThematicBreak', itemscope: '' },
+      ]
+    },
+  }
+}
+
+/**
+ * Generate a `NodeSpec` to represent a Stencila `InlineContent` node type.
+ */
+function inline(
+  name: string,
+  tag: string,
+  content: string,
+  marks = '_'
+): NodeSpec {
+  return {
+    group: 'InlineContent',
+    inline: true,
+    content,
+    marks,
+    parseDOM: [{ tag }],
+    toDOM(_node) {
+      return [
+        tag,
+        { itemtype: `http://schema.stenci.la/${name}`, itemscope: '' },
+        0,
       ]
     },
   }

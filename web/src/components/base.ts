@@ -1,4 +1,4 @@
-import { Patch } from '@stencila/stencila'
+import { DomOperation, Patch } from '@stencila/stencila'
 import { LitElement, html, TemplateResult } from 'lit'
 export { css, html } from 'lit'
 
@@ -64,8 +64,33 @@ export abstract class StencilaElement extends LitElement {
 
   abstract initialize(): void
 
+  /**
+   * Send a patch.
+   *
+   * Dispatches an event that is listened for, and passed on to the server.
+   */
   sendPatch(patch: Patch): void {
+    // During development it's very useful to see the patch operations being sent
+    if (process.env.NODE_ENV !== 'production') {
+      for (const op of patch) console.log('Sending op:', JSON.stringify(op))
+    }
     window.dispatchEvent(new CustomEvent('patched', { detail: patch }))
+  }
+
+  /**
+   * Receive and apply a patch operation.
+   *
+   * The `resolveReceiver` function in `patches/util.ts` calls this method.
+   * If the operation is handled by the custom element it should return `true`.
+   * Otherwise, should return `false` in which case, that function will continue to
+   * search along the address for a receiver.
+   */
+  receiveOperation(op: DomOperation): boolean {
+    // During development it's very useful to see the patch operation being received
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Received op:', JSON.stringify(op))
+    }
+    return false
   }
 
   getShadowRoot(): ShadowRoot {

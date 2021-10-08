@@ -9,6 +9,7 @@ import {
   isString,
   panic,
   resolveParent,
+  resolveReceiver,
   toGraphemes,
 } from './utils'
 
@@ -17,6 +18,9 @@ import {
  */
 export function applyAdd(op: DomOperationAdd, target?: ElementId): void {
   const { address, html } = op
+
+  if (resolveReceiver(address, op)) return
+
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {

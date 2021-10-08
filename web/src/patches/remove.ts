@@ -9,6 +9,7 @@ import {
   isString,
   panic,
   resolveParent,
+  resolveReceiver,
   resolveSlot,
   toGraphemes,
 } from './utils'
@@ -18,6 +19,9 @@ import {
  */
 export function applyRemove(op: DomOperationRemove, target?: ElementId): void {
   const { address, items } = op
+
+  if (resolveReceiver(address, op)) return
+
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {

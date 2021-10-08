@@ -1,5 +1,6 @@
-import { Address, Slot } from '@stencila/stencila'
+import { Address, DomOperation, Slot } from '@stencila/stencila'
 import GraphemeSplitter from 'grapheme-splitter'
+import { StencilaElement } from '../components/base'
 import { ElementId } from '../types'
 
 /**
@@ -62,7 +63,7 @@ export function assertNumber(slot: Slot): asserts slot is number {
  * Is a DOM node an element?
  */
 export function isElement(node: Node | undefined): node is Element {
-  return node !== undefined && node.nodeType === Node.ELEMENT_NODE
+  return node?.nodeType === Node.ELEMENT_NODE
 }
 
 /**
@@ -76,14 +77,14 @@ export function assertElement(node: Node): asserts node is Element {
  * Is a DOM node an attribute?
  */
 export function isAttr(node: Node | undefined): node is Attr {
-  return node !== undefined && node.nodeType === Node.ATTRIBUTE_NODE
+  return node?.nodeType === Node.ATTRIBUTE_NODE
 }
 
 /**
  * Is a DOM node a text node?
  */
 export function isText(node: Node | undefined): node is Text {
-  return node !== undefined && node.nodeType === Node.TEXT_NODE
+  return node?.nodeType === Node.TEXT_NODE
 }
 
 /**
@@ -232,7 +233,7 @@ export function resolveParent(
 }
 
 /**
- * Resolve the DOME node at the address.
+ * Resolve the DOM node at the address.
  */
 export function resolveNode(
   address: Address,
@@ -246,6 +247,41 @@ export function resolveNode(
   }
 
   return node
+}
+
+/**
+ * Resolve the DOM Element that should receive an operation.
+ *
+ * Searches along the address for a `<stencila-*>` element
+ * that will receive the operation. If such an element is
+ * found returns `true` (in which case any further handling of the
+ * operation should probably be avoided).
+ */
+export function resolveReceiver(
+  address: Address,
+  op: DomOperation,
+  target?: ElementId
+): boolean {
+  let node: Element | Attr | Text = resolveTarget(target)
+
+  let index = 0
+  while (isElement(node)) {
+    const parent = node.parentElement
+    if (parent?.tagName.toLowerCase().startsWith('stencila-')) {
+      const elem = parent as StencilaElement
+      if (elem.receiveOperation(op)) return true
+    }
+
+    const slot = address[index]
+    if (slot === undefined) {
+      break
+    }
+    node = resolveSlot(node, slot)
+
+    index++
+  }
+
+  return false
 }
 
 /**
