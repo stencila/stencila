@@ -77,7 +77,7 @@ export const articleInputRules = inputRules({
       /^(\d+)\.\s$/,
       articleSchema.nodes.List,
       (match) => ({ order: match?.[1] }),
-      (match, node) => node.childCount + node.attrs.order == match[1]
+      (match, node) => node.childCount + node.attrs.order === match[1]
     ),
 
     // Markdown quote block
@@ -96,11 +96,11 @@ function markInputRule(
   getAttrs: Function | {} = {}
 ) {
   return new InputRule(regexp, (state, match, start, end) => {
-    let attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs
-    let tr = state.tr
+    const attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs
+    const tr = state.tr
     if (match[0] && match[1]) {
-      let textStart = start + match[0].indexOf(match[1])
-      let textEnd = textStart + match[1].length
+      const textStart = start + match[0].indexOf(match[1])
+      const textEnd = textStart + match[1].length
       if (textEnd < end) tr.delete(textEnd, end)
       if (textStart > start) tr.delete(start, textStart)
       end = start + match[1].length

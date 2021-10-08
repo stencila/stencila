@@ -20,10 +20,43 @@ import { articleInputRules } from './inputRules'
 import { articleKeymap } from './keymap'
 import { articleSchema } from './schema'
 
-export class Article extends StencilaElement {
-  initialized: boolean = false
+// The following interfaces were necessary because the way they are defined
+// in @types/prosemirror-transform (as classes with only constructors) does
+// not seem to permit typed access to properties
 
-  version: number = 0
+interface ReplaceStepInterface extends Step {
+  from: number
+  to: number
+  slice: Slice
+  structure?: boolean
+}
+
+interface ReplaceAroundStepInterface extends Step {
+  from: number
+  to: number
+  gapFrom: number
+  gapTo: number
+  slice: Slice
+  insert: number
+  structure?: boolean
+}
+
+interface AddMarkStepInterface extends Step {
+  from: number
+  to: number
+  mark: Mark
+}
+
+interface RemoveMarkStepInterface extends Step {
+  from: number
+  to: number
+  mark: Mark
+}
+
+export class Article extends StencilaElement {
+  initialized = false
+
+  version = 0
 
   doc?: Node
 
@@ -110,12 +143,12 @@ export class Article extends StencilaElement {
 
     const { version, steps, clientID } = sendable
 
-    if (version != this.version) return
+    if (version !== this.version) return
 
-    let patch = []
+    const patch = []
     for (const step of steps) {
       try {
-        let op = this.stepToOperation(step)
+        const op = this.stepToOperation(step)
         console.log(op)
         patch.push(op)
       } catch (error) {
@@ -123,7 +156,7 @@ export class Article extends StencilaElement {
       }
 
       const { failed, doc } = step.apply(this.doc)
-      if (failed) {
+      if (typeof failed === 'string') {
         console.error(failed)
       } else if (doc) {
         this.doc = doc
@@ -155,20 +188,19 @@ export class Article extends StencilaElement {
    * sends them to the editor.
    */
   receivePatch(patch: Patch) {
-    for (const op in patch) {
-    }
+    // for (const op of patch) {}
   }
 
   /**
    * Convert a ProseMirror transaction step to a Stencila document operation
    */
   stepToOperation(step: Step): Operation {
-    if (step.constructor == ReplaceStep) {
+    if (step.constructor === ReplaceStep) {
       const { from, to, slice } = step as ReplaceStepInterface
       if (slice.size !== 0) {
         const value = this.sliceToValue(slice)
         const length = value.length
-        if (from == to) {
+        if (from === to) {
           return {
             type: 'Add',
             address: this.offsetToAddress(from),
@@ -191,10 +223,10 @@ export class Article extends StencilaElement {
           items: to - from,
         }
       }
-    } else if (step.constructor == ReplaceAroundStep) {
+    } else if (step.constructor === ReplaceAroundStep) {
       const { from, to } = step as ReplaceAroundStepInterface
       console.error(`TODO: ReplaceAroundStep ${step}`)
-    } else if (step.constructor == AddMarkStep) {
+    } else if (step.constructor === AddMarkStep) {
       const { from, to, mark } = step as AddMarkStepInterface
       return {
         type: 'Transform',
@@ -204,7 +236,7 @@ export class Article extends StencilaElement {
         from: 'String',
         to: mark.type.name,
       }
-    } else if (step.constructor == RemoveMarkStep) {
+    } else if (step.constructor === RemoveMarkStep) {
       const { from, to, mark } = step as RemoveMarkStepInterface
       return {
         type: 'Transform',
@@ -265,7 +297,7 @@ export class Article extends StencilaElement {
         index = ancestor.content.childCount - 1
         textOffset = ancestor.child(index).nodeSize
       }
-      if (depth == 1) {
+      if (depth === 1) {
         // The ancestor should be one of the article attributes e.g. `content`, `title`, `abstract`
         address.push(ancestor.type.name)
         address.push(index)
@@ -280,10 +312,10 @@ export class Article extends StencilaElement {
     // If the position has ProseMirror marks the we need to add additional nesting to
     // the address
     // TODO
-    //for (const mark in position.marks()) {
-    //address.push('content')
-    //address.push(0)
-    //}
+    // for (const mark in position.marks()) {
+    // address.push('content')
+    // address.push(0)
+    // }
 
     address.push(textOffset)
     return address
@@ -305,13 +337,13 @@ export class Article extends StencilaElement {
     console.log(content, openStart, openEnd)
 
     // A text slice e.g. the value of a keypress
-    if (content.childCount == 1 && content.child(0).isText) {
+    if (content.childCount === 1 && content.child(0).isText) {
       return content.child(0).textContent
     }
 
     // A slice resulting from a `splitBlock` operation where `openStart` and `openEnd`
     // indicate the "open depth" at each end of the slice
-    if (openStart == openEnd) {
+    if (openStart === openEnd) {
       return '<split>'
     }
 
@@ -320,36 +352,3 @@ export class Article extends StencilaElement {
 }
 
 stencilaElement('stencila-article')(Article)
-
-// The following interfaces were necessary because the way they are defined
-// in @types/prosemirror-transform (as classes with only constructors) does
-// not seem to permit typed access to properties
-
-interface ReplaceStepInterface extends Step {
-  from: number
-  to: number
-  slice: Slice
-  structure?: boolean
-}
-
-interface ReplaceAroundStepInterface extends Step {
-  from: number
-  to: number
-  gapFrom: number
-  gapTo: number
-  slice: Slice
-  insert: number
-  structure?: boolean
-}
-
-interface AddMarkStepInterface extends Step {
-  from: number
-  to: number
-  mark: Mark
-}
-
-interface RemoveMarkStepInterface extends Step {
-  from: number
-  to: number
-  mark: Mark
-}

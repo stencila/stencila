@@ -143,7 +143,7 @@ export function resolveSlot(
     // The `text` slot is always represented by the text content of the selected element
     // and is usually "implicit" (so, if there is no explicitly marked text slot, use the parent)
     if (slot === 'text') {
-      const elem = child != null ? child : parent
+      const elem = child !== null ? child : parent
       if (elem.childNodes.length === 1 && isText(elem.childNodes[0])) {
         return elem.childNodes[0]
       } else {
@@ -212,7 +212,7 @@ export function resolveParent(
 
   if (address.length === 0) {
     const parentElement = targetElement.parentElement
-    if (parentElement == null) {
+    if (parentElement === null) {
       throw panic('The target node does not have a parent')
     }
     const slot = Array.from(parentElement.childNodes).indexOf(targetElement)

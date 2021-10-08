@@ -1,22 +1,20 @@
 import {
-  toggleMark,
-  wrapIn,
-  setBlockType,
-  chainCommands,
-  exitCode,
-  joinUp,
   joinDown,
+  joinUp,
+  Keymap,
   lift,
   selectParentNode,
-  Keymap,
+  setBlockType,
+  toggleMark,
+  wrapIn,
 } from 'prosemirror-commands'
 import { redo, undo } from 'prosemirror-history'
 import { undoInputRule } from 'prosemirror-inputrules'
 import {
-  wrapInList,
-  splitListItem,
   liftListItem,
   sinkListItem,
+  splitListItem,
+  wrapInList,
 } from 'prosemirror-schema-list'
 import { articleSchema } from './schema'
 

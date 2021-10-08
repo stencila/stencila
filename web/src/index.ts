@@ -93,7 +93,8 @@ export const main = (
   window.onload = () => {
     window.addEventListener('patched', async (event) => {
       const [client, document] = await startup()
-      // @ts-ignore
+      // @ts-expect-error because this is temporary
+      // eslint-disable-next-line
       const patch = event.detail
       return documents.patch(client, document.id, undefined, patch)
     })

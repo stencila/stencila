@@ -1,6 +1,10 @@
 import { Patch } from '@stencila/stencila'
-import { LitElement, html } from 'lit'
+import { LitElement, html, TemplateResult } from 'lit'
 export { css, html } from 'lit'
+
+export interface StencilaElementConstructor extends CustomElementConstructor {
+  hydrate(): void
+}
 
 /**
  * A registry of `StencilaElement` available in the browser window.
@@ -24,19 +28,21 @@ window.stencilaElements = {}
  * @param tagName The name of the custom element's tag. Should be prefixed
  *                with `stencila-`.
  */
-export function stencilaElement(tagName: string) {
-  return (cls: StencilaElementConstructor) => {
+export function stencilaElement(
+  tagName: string
+): (cls: StencilaElementConstructor) => void {
+  return (cls: StencilaElementConstructor): void => {
     window.customElements.define(tagName, cls)
     window.stencilaElements[cls.name] = [cls, tagName]
   }
 }
 
-export class StencilaElement extends LitElement {
+export abstract class StencilaElement extends LitElement {
   static hydrate(
     cls: StencilaElementConstructor,
     itemType: string,
     hydrater = (elem: Element, tagName: string) => wrap(elem, tagName)
-  ) {
+  ): void {
     console.log(`Hydrating custom element '${cls.name}'`)
 
     if (!itemType.startsWith('http://')) {
@@ -56,9 +62,9 @@ export class StencilaElement extends LitElement {
     }
   }
 
-  initialize() {}
+  abstract initialize(): void
 
-  sendPatch(patch: Patch) {
+  sendPatch(patch: Patch): void {
     window.dispatchEvent(new CustomEvent('patched', { detail: patch }))
   }
 
@@ -67,15 +73,11 @@ export class StencilaElement extends LitElement {
     return this.shadowRoot
   }
 
-  getSlot(which: number = 0): HTMLElement {
+  getSlot(which = 0): HTMLElement {
     const elements = this.getShadowRoot()
       .querySelector('slot')
       ?.assignedElements()
     return elements?.[which] as HTMLElement
-  }
-
-  hideSlot() {
-    this.getSlot().style.display = 'none'
   }
 
   getPropertyElem(name: string): HTMLElement {
@@ -87,32 +89,24 @@ export class StencilaElement extends LitElement {
   }
 
   getProperty(name: string): string | undefined {
-    let elem = this.getPropertyElem(name)
+    const elem = this.getPropertyElem(name)
     if (!elem) {
       return undefined
     } else {
-      if (elem.tagName == 'META')
+      if (elem.tagName === 'META')
         return elem.getAttribute('content') ?? undefined
       else return elem.textContent ?? undefined
     }
   }
 
-  hideProperty(name: string) {
-    this.getPropertyElem(name).style.display = 'none'
-  }
-
-  render() {
-    return html`<slot @slotchange=${this.initialize}></slot>`
+  render(): TemplateResult {
+    return html`<slot @slotchange=${() => this.initialize()}></slot>`
   }
 }
 
-export interface StencilaElementConstructor extends CustomElementConstructor {
-  hydrate(): void
-}
-
-export function hydrate() {
+export function hydrate(): void {
   console.log('Hydrating Stencila custom elements')
-  for (const [cls, tagName] of Object.values(window.stencilaElements)) {
+  for (const [cls, _tagName] of Object.values(window.stencilaElements)) {
     cls.hydrate()
   }
 }

@@ -95,14 +95,14 @@ function prop(
   name: string,
   tag: string,
   content: string,
-  marks: string = '_'
+  marks = '_'
 ): NodeSpec {
   return {
     content,
     marks,
     defining: true,
     parseDOM: [{ tag: `${tag}[data-itemprop=${name}]` }],
-    toDOM(node) {
+    toDOM(_node) {
       return [tag, { 'data-itemprop': name }, 0]
     },
   }
@@ -121,7 +121,7 @@ function block(
   name: string,
   tag: string,
   content: string,
-  marks: string = '_'
+  marks = '_'
 ): NodeSpec {
   return {
     group: 'BlockContent',
@@ -129,7 +129,7 @@ function block(
     marks,
     defining: true,
     parseDOM: [{ tag }],
-    toDOM(node) {
+    toDOM(_node) {
       return [tag, { itemtype: name, itemscope: '' }, 0]
     },
   }
@@ -185,7 +185,7 @@ function list(): NodeSpec {
     ],
     toDOM(node) {
       return [
-        node.attrs.order == 'Unordered' ? 'ul' : 'ol',
+        node.attrs.order === 'Unordered' ? 'ul' : 'ol',
         { itemtype: 'http://schema.org/ItemList', itemscope: '' },
         0,
       ]
@@ -284,7 +284,7 @@ function tableCellAttrsGet(dom: HTMLElement) {
   return {
     colspan,
     rowspan: Number(dom.getAttribute('rowspan') || 1),
-    colwidth: widths && widths.length == colspan ? widths : null,
+    colwidth: widths && widths.length === colspan ? widths : null,
   }
 }
 
@@ -292,13 +292,13 @@ function tableCellAttrsGet(dom: HTMLElement) {
  * Set `TableCell` attributes as part of `toDOM`
  */
 function tableCellAttrsSet(node: Node): Record<string, string> {
-  let attrs: Record<string, string> = {
+  const attrs: Record<string, string> = {
     itemtype: 'http://schema.stenci.la/TableCell',
     itemscope: '',
   }
 
-  if (node.attrs.colspan != 1) attrs.colspan = node.attrs.colspan
-  if (node.attrs.rowspan != 1) attrs.rowspan = node.attrs.rowspan
+  if (node.attrs.colspan !== 1) attrs.colspan = node.attrs.colspan
+  if (node.attrs.rowspan !== 1) attrs.rowspan = node.attrs.rowspan
   if (node.attrs.colwidth)
     attrs['data-colwidth'] = node.attrs.colwidth.join(',')
 
