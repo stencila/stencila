@@ -4,12 +4,12 @@ expression: encoded
 input_file: fixtures/fragments/html/code-block.html
 
 ---
-<article slot="root" itemtype="https://schema.org/Article" itemscope>
-  <div slot="content">
-    <pre itemtype="https://stenci.la/CodeBlock" itemscope>
+<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <div data-itemprop="content">
+    <pre itemtype="http://schema.stenci.la/CodeBlock" itemscope>
       <code itemprop="text">Code with no language</code>
     </pre>
-    <pre itemtype="https://stenci.la/CodeBlock" itemscope>
+    <pre itemtype="http://schema.stenci.la/CodeBlock" itemscope>
       <meta itemprop="programmingLanguage" content="python"/>
       <code itemprop="text" class="language-python"># Some Python code
 1 + 1</code>

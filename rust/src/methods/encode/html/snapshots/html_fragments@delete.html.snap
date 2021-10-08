@@ -4,8 +4,8 @@ expression: encoded
 input_file: fixtures/fragments/html/delete.html
 
 ---
-<article slot="root" itemtype="https://schema.org/Article" itemscope>
-  <div slot="content">
-    <p itemtype="https://stenci.la/Paragraph" itemscope>Some<del itemtype="https://stenci.la/Delete" itemscope>deleted</del>text.</p>
+<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <div data-itemprop="content">
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Some<del itemtype="http://schema.stenci.la/Delete" itemscope>deleted</del>text.</p>
   </div>
 </article>

@@ -4,11 +4,11 @@ expression: encoded
 input_file: fixtures/fragments/html/paragraph.html
 
 ---
-<article slot="root" itemtype="https://schema.org/Article" itemscope>
-  <div slot="content">
-    <p itemtype="https://stenci.la/Paragraph" itemscope>First paragraph.</p>
-    <p itemtype="https://stenci.la/Paragraph" itemscope>Second paragraph.</p>
-    <p itemtype="https://stenci.la/Paragraph" itemscope>Third paragraph,
+<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <div data-itemprop="content">
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>First paragraph.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Second paragraph.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Third paragraph,
 split over multiple
 lines.</p>
   </div>

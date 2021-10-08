@@ -4,14 +4,14 @@ expression: encoded
 input_file: fixtures/fragments/html/video.html
 
 ---
-<article slot="root" itemtype="https://schema.org/Article" itemscope>
-  <div slot="content">
-    <p itemtype="https://stenci.la/Paragraph" itemscope>Prefers to use `source` element:<video itemtype="https://schema.org/VideoObject" itemscope  controls>
+<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <div data-itemprop="content">
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Prefers to use `source` element:<video itemtype="http://schema.org/VideoObject" itemscope  controls>
         <source src="video.mp4" type="video/mp4">
         </source>
       </video>
     </p>
-    <p itemtype="https://stenci.la/Paragraph" itemscope>Falls back to using `src` on `video` element:<video itemtype="https://schema.org/VideoObject" itemscope  controls>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Falls back to using `src` on `video` element:<video itemtype="http://schema.org/VideoObject" itemscope  controls>
         <source src="video.mp4">
         </source>
       </video>

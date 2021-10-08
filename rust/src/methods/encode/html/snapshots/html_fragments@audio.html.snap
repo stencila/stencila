@@ -4,10 +4,10 @@ expression: encoded
 input_file: fixtures/fragments/html/audio.html
 
 ---
-<article slot="root" itemtype="https://schema.org/Article" itemscope>
-  <div slot="content">
-    <p itemtype="https://stenci.la/Paragraph" itemscope>
-      <audio itemtype="https://schema.org/AudioObject" itemscope  controls src="audio.mp3">
+<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <div data-itemprop="content">
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <audio itemtype="http://schema.org/AudioObject" itemscope  controls src="audio.mp3">
       </audio>
     </p>
   </div>

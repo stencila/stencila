@@ -1248,7 +1248,7 @@ mod tests {
             json!({"ops":[{
                 "type": "Add",
                 "address": ["content"],
-                "html": "<div slot=\"content\"><p itemtype=\"https://stenci.la/Paragraph\" itemscope></p></div>",
+                "html": "<div data-itemprop=\"content\"><p itemtype=\"http://schema.stenci.la/Paragraph\" itemscope></p></div>",
                 "json": [{"type": "Paragraph", "content": []}]
             }]})
         );
