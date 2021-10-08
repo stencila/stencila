@@ -1,5 +1,5 @@
 use super::{
-    attr, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_slot, concat, elem,
+    attr, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_prop, concat, elem,
     elem_empty, json, Context, ToHtml,
 };
 use crate::methods::encode::txt::ToTxt;
@@ -21,7 +21,7 @@ impl ToHtml for Vec<InlineContent> {
         if slot.is_empty() {
             inlines
         } else {
-            elem("span", &[attr_slot(slot)], &inlines)
+            elem("span", &[attr_prop(slot)], &inlines)
         }
     }
 }
@@ -62,7 +62,7 @@ macro_rules! mark_to_html {
             fn to_html(&self, slot: &str, context: &Context) -> String {
                 elem(
                     $tag,
-                    &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+                    &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
                     &self.content.to_html("", context),
                 )
             }
@@ -119,7 +119,7 @@ impl ToHtml for AudioObjectSimple {
         elem(
             "audio",
             &[
-                attr_slot(slot),
+                attr_prop(slot),
                 attr_itemtype_str("AudioObject"),
                 attr_id(&self.id),
                 "controls".to_string(),
@@ -135,7 +135,7 @@ impl ToHtml for ImageObjectSimple {
         elem_empty(
             "img",
             &[
-                attr_slot(slot),
+                attr_prop(slot),
                 attr_itemtype_str("ImageObject"),
                 attr_id(&self.id),
                 content_url_to_src_attr(&self.content_url, context),
@@ -154,7 +154,7 @@ impl ToHtml for VideoObjectSimple {
         elem(
             "video",
             &[
-                attr_slot(slot),
+                attr_prop(slot),
                 attr_itemtype_str("VideoObject"),
                 attr_id(&self.id),
                 "controls".to_string(),
@@ -278,7 +278,7 @@ impl ToHtml for Cite {
         };
         elem(
             "cite",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &elem("a", &[attr("href", &self.target)], &content),
         )
     }
@@ -288,7 +288,7 @@ impl ToHtml for CiteGroup {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         elem(
             "span",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &concat(&self.items, |cite| cite.to_html("", context)),
         )
     }
@@ -303,7 +303,7 @@ impl ToHtml for CodeExpression {
         elem(
             "stencila-code-expression",
             &[
-                attr_slot(slot),
+                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("programming-language", &self.programming_language),
@@ -342,7 +342,7 @@ impl ToHtml for CodeFragment {
         elem(
             "code",
             &[
-                attr_slot(slot),
+                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 class,
@@ -357,7 +357,7 @@ impl ToHtml for Link {
         elem(
             "a",
             &[
-                attr_slot(slot),
+                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("href", &self.target),
@@ -371,7 +371,7 @@ impl ToHtml for MathFragment {
     fn to_html(&self, slot: &str, _context: &Context) -> String {
         elem(
             "code",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &encode_safe(&self.text),
         )
     }
@@ -382,7 +382,7 @@ impl ToHtml for Note {
         elem(
             "code",
             &[
-                attr_slot(slot),
+                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("class", "todo"),
@@ -405,7 +405,7 @@ impl ToHtml for Parameter {
         elem_empty(
             "input",
             &[
-                attr_slot(slot),
+                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("type", input_type),
@@ -420,7 +420,7 @@ impl ToHtml for Quote {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         elem(
             "q",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &self.content.to_html("", context),
         )
     }

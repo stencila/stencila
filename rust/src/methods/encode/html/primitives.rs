@@ -1,4 +1,4 @@
-use super::{attr_itemtype_str, attr_slot, elem, json, Context, ToHtml};
+use super::{attr_itemtype_str, attr_prop, elem, json, Context, ToHtml};
 use html_escape::encode_safe;
 use stencila_schema::{Array, Boolean, Integer, Null, Number, Object};
 
@@ -9,7 +9,7 @@ macro_rules! atomic_to_html {
             fn to_html(&self, slot: &str, _context: &Context) -> String {
                 elem(
                     "span",
-                    &[attr_slot(slot), attr_itemtype_str(stringify!($type))],
+                    &[attr_prop(slot), attr_itemtype_str(stringify!($type))],
                     &self.to_string(),
                 )
             }
@@ -40,7 +40,7 @@ impl ToHtml for Array {
     fn to_html(&self, slot: &str, _context: &Context) -> String {
         elem(
             "code",
-            &[attr_slot(slot), attr_itemtype_str("Array")],
+            &[attr_prop(slot), attr_itemtype_str("Array")],
             &json(self),
         )
     }
@@ -51,7 +51,7 @@ impl ToHtml for Object {
     fn to_html(&self, slot: &str, _context: &Context) -> String {
         elem(
             "code",
-            &[attr_slot(slot), attr_itemtype_str("Object")],
+            &[attr_prop(slot), attr_itemtype_str("Object")],
             &json(self),
         )
     }
@@ -70,7 +70,7 @@ macro_rules! vec_primitive_to_html {
                 if slot.is_empty() {
                     items
                 } else {
-                    elem("span", &[attr_slot(slot)], &items)
+                    elem("span", &[attr_prop(slot)], &items)
                 }
             }
         }

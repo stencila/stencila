@@ -105,7 +105,10 @@ export function resolveTarget(target?: ElementId): Element {
       )
     return elem
   } else {
-    const root = document.body.querySelector('[slot="root"], [itemprop="root"]')
+    // It is proposed that `data-root` replace `data-itemscope`. This allows for both
+    const root = document.body.querySelector(
+      '[data-root], [data-itemscope="root"]'
+    )
     if (root === null) {
       console.warn('Unable to resolve root node; using first node of <body>')
       const first = document.body.firstElementChild
@@ -129,11 +132,12 @@ export function resolveSlot(
   slot: Slot
 ): Element | Attr | Text {
   if (isString(slot)) {
-    // Select the first descendant element with an `itemprop` attribute matching the
-    // slot name.
+    // Select the first descendant element matching the slot name.
+    // It is proposed that `data-prop` replace `data-itemprop`.
+    // This currently allows for all options.
     assertElement(parent)
     const child: Element | null = parent.querySelector(
-      `[slot="${slot}"], [itemprop="${slot}"]`
+      `[data-prop="${slot}"], [data-itemprop="${slot}"], [itemprop="${slot}"]`
     )
 
     // The `text` slot is always represented by the text content of the selected element

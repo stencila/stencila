@@ -197,14 +197,16 @@ fn attr(name: &str, value: &str) -> String {
     .concat()
 }
 
-/// Encode a "slot" attribute of an HTML element
+/// Encode one of the attributes used to identify a property of a Stencila node
 ///
 /// Will ensure that the name is camelCased.
-fn attr_slot(name: &str) -> String {
+fn attr_prop(name: &str) -> String {
     if name.is_empty() {
         "".to_string()
+    } else if name == "root" {
+        attr("data-itemscope", "root")
     } else {
-        attr("slot", &to_camel_case(name))
+        attr("data-itemprop", &to_camel_case(name))
     }
 }
 
@@ -218,9 +220,9 @@ fn attr_itemtype_str(name: &str) -> String {
     let itemtype = match name {
         // TODO: complete list of schema.org types
         "Article" | "AudioObject" | "ImageObject" | "VideoObject" => {
-            ["https://schema.org/", name].concat()
+            ["http://schema.org/", name].concat()
         }
-        _ => ["https://stenci.la/", name].concat(),
+        _ => ["http://schema.stenci.la/", name].concat(),
     };
     [&attr("itemtype", &itemtype), " itemscope"].concat()
 }

@@ -1,5 +1,5 @@
 use super::{
-    attr, attr_id, attr_itemprop, attr_itemtype, attr_slot, concat, elem, elem_empty, json,
+    attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, concat, elem, elem_empty, json,
     Context, ToHtml,
 };
 use html_escape::encode_safe;
@@ -20,7 +20,7 @@ impl ToHtml for Vec<BlockContent> {
         if slot.is_empty() {
             blocks
         } else {
-            elem("div", &[attr_slot(slot)], &blocks)
+            elem("div", &[attr_prop(slot)], &blocks)
         }
     }
 }
@@ -50,7 +50,7 @@ impl ToHtml for ClaimSimple {
         elem(
             "pre",
             &[
-                attr_slot(slot),
+                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("class", "todo"),
@@ -90,7 +90,7 @@ impl ToHtml for CodeBlock {
 
         elem(
             "pre",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &[meta, text].concat(),
         )
     }
@@ -100,7 +100,7 @@ impl ToHtml for CodeChunk {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         let label = match &self.label {
             None => String::new(),
-            Some(label) => elem("label", &[attr_slot("label")], label),
+            Some(label) => elem("label", &[attr_prop("label")], label),
         };
 
         let caption = match &self.caption {
@@ -130,7 +130,7 @@ impl ToHtml for CodeChunk {
                 elem(
                     "stencila-code-chunk",
                     &[
-                        attr_slot(slot),
+                        attr_prop(slot),
                         attr_itemtype::<Self>(),
                         attr_id(&self.id),
                         attr("programming-language", &self.programming_language),
@@ -148,7 +148,7 @@ impl ToHtml for CollectionSimple {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         elem(
             "ol",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &concat(&self.parts, |part| {
                 elem("li", &[], &part.to_html("", context))
             }),
@@ -160,7 +160,7 @@ impl ToHtml for FigureSimple {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         let label = match &self.label {
             None => String::new(),
-            Some(label) => elem("label", &[attr_slot("label")], label),
+            Some(label) => elem("label", &[attr_prop("label")], label),
         };
 
         let content = match &self.content {
@@ -172,7 +172,7 @@ impl ToHtml for FigureSimple {
             None => String::new(),
             Some(caption) => elem(
                 "figcaption",
-                &[attr_slot("caption")],
+                &[attr_prop("caption")],
                 &match caption {
                     FigureCaption::String(string) => encode_safe(&string.clone()).to_string(),
                     FigureCaption::VecBlockContent(content) => content.to_html("", context),
@@ -182,7 +182,7 @@ impl ToHtml for FigureSimple {
 
         elem(
             "figure",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &[label, content, caption].concat(),
         )
     }
@@ -209,7 +209,7 @@ impl ToHtml for Heading {
 
         elem(
             &["h", &depth.to_string()].concat(),
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &self.content.to_html("", context),
         )
     }
@@ -224,7 +224,7 @@ impl ToHtml for Include {
 
         elem(
             "div",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &content,
         )
     }
@@ -239,7 +239,7 @@ impl ToHtml for List {
 
         let items = elem(
             tag,
-            &[attr("slot", "items")],
+            &[attr_prop("items")],
             &self
                 .items
                 .iter()
@@ -251,7 +251,7 @@ impl ToHtml for List {
 
         elem(
             "div",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &items,
         )
     }
@@ -295,7 +295,7 @@ impl ToHtml for ListItem {
 
         elem(
             "li",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &content,
         )
     }
@@ -306,7 +306,7 @@ impl ToHtml for MathBlock {
         elem(
             "pre",
             &[
-                attr_slot(slot),
+                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("class", "todo"),
@@ -320,7 +320,7 @@ impl ToHtml for Paragraph {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         elem(
             "p",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &self.content.to_html("", context),
         )
     }
@@ -330,7 +330,7 @@ impl ToHtml for QuoteBlock {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         elem(
             "blockquote",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &self.content.to_html("", context),
         )
     }
@@ -340,14 +340,14 @@ impl ToHtml for TableSimple {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         let label = match &self.label {
             None => String::new(),
-            Some(label) => elem("label", &[attr_slot("label")], label),
+            Some(label) => elem("label", &[attr_prop("label")], label),
         };
 
         let caption = match self.caption.as_deref() {
             None => String::new(),
             Some(caption) => elem(
                 "div",
-                &[attr_slot("caption")],
+                &[attr_prop("caption")],
                 &match caption {
                     TableCaption::String(string) => encode_safe(&string.clone()).to_string(),
                     TableCaption::VecBlockContent(content) => content.to_html("", context),
@@ -396,7 +396,7 @@ impl ToHtml for TableSimple {
 
         elem(
             "table",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &[caption, head, body, foot].concat(),
         )
     }
@@ -430,7 +430,7 @@ fn table_row_to_html(
     elem(
         "tr",
         &[
-            attr_slot(slot),
+            attr_prop(slot),
             attr_itemtype::<TableRow>(),
             attr_id(&row.id),
         ],
@@ -442,7 +442,7 @@ impl ToHtml for ThematicBreak {
     fn to_html(&self, slot: &str, _context: &Context) -> String {
         elem_empty(
             "hr",
-            &[attr_slot(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
         )
     }
 }
