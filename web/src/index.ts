@@ -91,6 +91,13 @@ export const main = (
 
   // Attach `executeNode` to event handlers
   window.onload = () => {
+    window.addEventListener('patched', async (event) => {
+      const [client, document] = await startup()
+      // @ts-ignore
+      const patch = event.detail
+      return documents.patch(client, document.id, undefined, patch)
+    })
+
     // `onChange` for `Parameter` nodes
     window.document.querySelectorAll('input').forEach((input) => {
       input.addEventListener('change', () => {
