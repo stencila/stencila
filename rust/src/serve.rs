@@ -647,10 +647,13 @@ async fn get_local(
 
 #[derive(Debug, Deserialize)]
 struct GetParams {
-    /// The format desired
+    /// The mode, "view", "exec", or "edit"
+    mode: Option<String>,
+
+    /// The format to view or edit
     format: Option<String>,
 
-    /// The theme desired (for format `html`)
+    /// The theme (when format is `html`)
     theme: Option<String>,
 }
 
@@ -686,6 +689,7 @@ async fn get_handler(
         );
     }
 
+    let mode = params.mode.unwrap_or_else(|| "view".into());
     let format = params.format.unwrap_or_else(|| "html".into());
     let theme = params.theme.unwrap_or_else(|| "wilmore".into());
 
@@ -702,7 +706,7 @@ async fn get_handler(
             };
 
             let content = match format.as_str() {
-                "html" => rewrite_html(&content, &theme, &cwd, &path),
+                "html" => rewrite_html(&content, &mode, &theme, &cwd, &path),
                 _ => content,
             };
 
@@ -726,7 +730,7 @@ async fn get_handler(
 ///
 /// Only local files somewhere withing the current working directory are
 /// served.
-pub fn rewrite_html(body: &str, theme: &str, cwd: &Path, document: &Path) -> String {
+pub fn rewrite_html(body: &str, mode: &str, theme: &str, cwd: &Path, document: &Path) -> String {
     static REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r#""file://(.*?)""#).expect("Unable to create regex"));
 
@@ -753,7 +757,7 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path, document: &Path) -> Str
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <script src="/~static/web/index.js"></script>
+        <script src="/~static/web/browser/{mode}.js"></script>
         <script>
             const startup = stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}");
             startup().catch((err) => console.error('Error during startup', err))
@@ -786,6 +790,7 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path, document: &Path) -> Str
         {body}
     </body>
 </html>"#,
+        mode = mode,
         // TODO: pass url from outside this function?
         url = "ws://127.0.0.1:9000/~ws",
         client = uuids::generate(Family::Client),

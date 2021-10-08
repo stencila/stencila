@@ -15,7 +15,9 @@
   "source": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
-  "browser": "dist/browser/index.js",
+  "view": "dist/browser/view.js",
+  "exec": "dist/browser/exec.js",
+  "edit": "dist/browser/edit.js",
   "targets": {
     "main": {
       "source": "src/index.ts"
@@ -23,10 +25,14 @@
     "module": {
       "source": "src/index.ts"
     },
-    "browser": {
-      "optimize": true,
-      "includeNodeModules": true,
-      "source": "src/index.browser.ts"
+    "view": {
+      "source": "src/index.view.ts"
+    },
+    "exec": {
+      "source": "src/index.exec.ts"
+    },
+    "edit": {
+      "source": "src/index.edit.ts"
     }
   },
   "author": "Stencila",
