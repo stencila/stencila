@@ -11,6 +11,7 @@ import {
   DocumentEvent,
   DomPatch,
   Operation,
+  Patch,
   Session,
 } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
@@ -54,7 +55,7 @@ export const main = (
     if (document === undefined) {
       document = await documents.open(client, documentPath)
       documents
-        .subscribe(client, document.id, 'patched', patchNode)
+        .subscribe(client, document.id, 'patched', receivePatch)
         .catch((err) => {
           console.warn(`Couldn't subscribe to document 'patched'`, err)
         })
@@ -77,7 +78,7 @@ export const main = (
     properties: Record<string, unknown>
   ): Promise<void> {
     const [client, document] = await startup()
-    const patch = Object.entries(properties).map(
+    const ops = Object.entries(properties).map(
       ([key, value]): Operation => ({
         type: 'Replace',
         address: [key],
@@ -86,18 +87,13 @@ export const main = (
         length: 1,
       })
     )
-    return documents.execute(client, document.id, nodeId, patch)
+    return documents.execute(client, document.id, nodeId, { ops })
   }
 
-  // Attach `executeNode` to event handlers
   window.onload = () => {
-    window.addEventListener('patched', async (event) => {
-      const [client, document] = await startup()
-      // @ts-expect-error because this is temporary
-      // eslint-disable-next-line
-      const patch = event.detail
-      return documents.patch(client, document.id, undefined, patch)
-    })
+    window.addEventListener('patched', (event) =>
+      sendPatch(event as CustomEvent)
+    )
 
     // `onChange` for `Parameter` nodes
     window.document.querySelectorAll('input').forEach((input) => {
@@ -139,12 +135,30 @@ export const main = (
       })
   }
 
-  // Patch a node
-  ///
-  /// Handles a document 'patched' event by either sending it to the relevant WebComponent
-  /// so that it can make the necessary changes to the DOM, or by calling `applyPatch` which
-  /// makes changes to the DOM directly.
-  function patchNode(event: DocumentEvent): void {
+  // Send a patch event
+  //
+  // Handles a 'patched' event by sending it on to the server.
+  async function sendPatch(event: CustomEvent): Promise<void> {
+    const patch = event.detail as Patch
+    patch.actor = clientId
+
+    // During development it's very useful to see the patch operations being sent
+    if (process.env.NODE_ENV !== 'production') {
+      const { actor, target, ops } = patch
+      console.log('Sending patch:', JSON.stringify({ actor, target }))
+      for (const op of ops) console.log('  ', JSON.stringify(op))
+    }
+
+    const [client, document] = await startup()
+    return documents.patch(client, document.id, undefined, patch)
+  }
+
+  // Receive a patch event
+  //
+  // Handles a 'patched' event by either sending it to the relevant WebComponent
+  // so that it can make the necessary changes to the DOM, or by calling `applyPatch` which
+  // makes changes to the DOM directly.
+  function receivePatch(event: DocumentEvent): void {
     let patch
     if (event.type === 'patched') {
       patch = event.patch as DomPatch
@@ -155,10 +169,21 @@ export const main = (
       return
     }
 
+    const { actor, target, ops } = patch
+
+    // Ignore any patches where this client was the actor
+    if (actor === clientId) return
+
+    // During development it's useful to see which patches are being received
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Received DOM patch:', JSON.stringify({ actor, target }))
+      for (const op of ops) console.log('  ', JSON.stringify(op))
+    }
+
     // Patches for node types with WebComponents are handled differently
     // from patches to other DOM elements.
-    if (patch.target !== undefined && patch.ops[0]?.type === 'Replace') {
-      const type = patch.ops[0]?.json.type as string
+    if (target !== undefined && ops[0]?.type === 'Replace') {
+      const type = ops[0]?.json.type as string
       if (type === 'Parameter') {
         // Nothing to do (?)
         return
@@ -166,8 +191,8 @@ export const main = (
         window.dispatchEvent(
           new CustomEvent('document:patched', {
             detail: {
-              nodeId: patch.target,
-              value: patch.ops[0]?.json,
+              nodeId: target,
+              value: ops[0]?.json,
             },
           })
         )
@@ -176,8 +201,8 @@ export const main = (
         window.dispatchEvent(
           new CustomEvent('document:node:changed', {
             detail: {
-              nodeId: patch.target,
-              value: patch.ops[0]?.json,
+              nodeId: target,
+              value: ops[0]?.json,
             },
           })
         )

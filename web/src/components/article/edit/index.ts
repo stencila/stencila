@@ -145,11 +145,11 @@ export class Article extends StencilaElement {
 
     if (version !== this.version) return
 
-    const patch = []
+    const ops = []
     for (const step of steps) {
       try {
         const op = this.stepToOperation(step)
-        patch.push(op)
+        ops.push(op)
       } catch (error) {
         console.log(error)
       }
@@ -162,7 +162,7 @@ export class Article extends StencilaElement {
       }
     }
 
-    this.sendPatch(patch)
+    this.sendPatch({ ops })
 
     this.version = this.version + steps.length
 

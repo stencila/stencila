@@ -242,7 +242,7 @@ where
                         );
                         index += 1;
 
-                        let mut item_ops = differ.patch;
+                        let mut item_ops = differ.ops;
                         // If there is only one operation...
                         if item_ops.len() == 1 {
                             // and its a `Replace`...
