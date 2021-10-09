@@ -40,16 +40,14 @@ const addon = require('./index.node')
         if (schema.title === 'Error') {
           // Add the error message that gets dynamically
           // added to the error object when it is translated to JSON
-          schema.anyOf = (schema.anyOf ?? []).map((subschema): JSONSchema4 => {
-            return {
-              ...subschema,
-              properties: {
-                ...subschema.properties,
-                message: { type: 'string' },
-              },
-              required: [...(subschema.required as string[]), 'message'],
+          if (schema.anyOf) {
+            for (const subschema of schema.anyOf) {
+              if (typeof subschema.properties == 'object')
+                subschema.properties.message = { type: 'string' }
+              if (Array.isArray(subschema.required))
+                subschema.required.push('message')
             }
-          })
+          }
         } else if (schema.title !== 'PatchesSchema') {
           modifyTitle(schema)
         }
