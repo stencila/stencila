@@ -1,4 +1,5 @@
 use super::prelude::*;
+use serde::de::DeserializeOwned;
 use std::{
     hash::Hasher,
     ops::{Deref, DerefMut},
@@ -9,7 +10,7 @@ use std::{
 /// All methods simply pass throught to the boxed value.
 impl<Type: Patchable> Patchable for Box<Type>
 where
-    Type: Clone + Send + 'static,
+    Type: Clone + DeserializeOwned + Send + 'static,
 {
     /// Resolve an [`Address`] into a node [`Pointer`].
     ///
@@ -93,7 +94,7 @@ mod tests {
         let b = Box::new("eacp".to_string());
         let patch = diff(&a, &b);
         assert_json!(
-            patch,
+            patch.ops,
             [
                 {"type": "Add", "address": [0], "value": "e", "length": 1},
                 {"type": "Remove", "address": [2], "items": 1},
@@ -114,7 +115,7 @@ mod tests {
             ..Default::default()
         };
         let patch = diff(&a, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             { "type": "Add", "address": ["programming_language"], "value": "Box<String>", "length": 1 },
         ]);
         assert_json_eq!(apply_new(&a, &patch)?, b);

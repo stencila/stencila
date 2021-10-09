@@ -158,20 +158,6 @@ impl Patchable for String {
         }
         Ok(())
     }
-
-    fn from_value(value: &Value) -> Result<Self>
-    where
-        Self: Clone + Sized + 'static,
-    {
-        if let Some(value) = value.downcast_ref::<String>() {
-            return Ok(value.clone());
-        } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-            if let Some(string) = value.as_str() {
-                return Ok(string.to_string());
-            }
-        }
-        bail!(invalid_patch_value::<Self>())
-    }
 }
 
 #[cfg(test)]
@@ -200,29 +186,29 @@ mod tests {
 
         // No diff
 
-        assert_json!(diff(&empty, &empty), []);
-        assert_json!(diff(&a, &a), []);
-        assert_json!(diff(&d, &d), []);
+        assert_json!(diff(&empty, &empty).ops, []);
+        assert_json!(diff(&a, &a).ops, []);
+        assert_json!(diff(&d, &d).ops, []);
 
         // Add
 
         let patch = diff(&empty, &a);
         assert_json!(
-            patch,
+            patch.ops,
             [{ "type": "Add", "address": [0], "value": "1", "length": 1 }]
         );
         assert_eq!(apply_new(&empty, &patch)?, a);
 
         let patch = diff(&empty, &d);
         assert_json!(
-            patch,
+            patch.ops,
             [{ "type": "Add", "address": [0], "value": "abcdef", "length": 6 }]
         );
         assert_eq!(apply_new(&empty, &patch)?, d);
 
         let patch = diff(&a, &b);
         assert_json!(
-            patch,
+            patch.ops,
             [{ "type": "Add", "address": [1], "value": "23", "length": 2 }]
         );
         assert_eq!(apply_new(&a, &patch)?, b);
@@ -231,19 +217,19 @@ mod tests {
 
         let patch = diff(&a, &empty);
         assert_json!(
-            patch,
+            patch.ops,
             [{ "type": "Remove", "address": [0], "items": 1 }]
         );
 
         let patch = diff(&d, &empty);
         assert_json!(
-            patch,
+            patch.ops,
             [{ "type": "Remove", "address": [0], "items": 6 }]
         );
 
         let patch = diff(&b, &a);
         assert_json!(
-            patch,
+            patch.ops,
             [{ "type": "Remove", "address": [1], "items": 2 }]
         );
 
@@ -251,14 +237,14 @@ mod tests {
 
         let patch = diff(&a, &c);
         assert_json!(
-            patch,
+            patch.ops,
             [{ "type": "Replace", "address": [0], "items": 1, "value": "a2b3", "length": 4 }]
         );
         assert_eq!(apply_new(&a, &patch)?, c);
 
         let patch = diff(&b, &d);
         assert_json!(
-            patch,
+            patch.ops,
             [{ "type": "Replace", "address": [0], "items": 3, "value": "abcdef", "length": 6 }]
         );
         assert_eq!(apply_new(&b, &patch)?, d);
@@ -267,7 +253,7 @@ mod tests {
 
         let patch = diff(&c, &d);
         assert_json!(
-            patch,
+            patch.ops,
             [
                 { "type": "Remove", "address": [1], "items": 1 },
                 { "type": "Replace", "address": [2], "items": 1, "value": "cdef", "length": 4 }
@@ -277,7 +263,7 @@ mod tests {
 
         let patch = diff(&d, &c);
         assert_json!(
-            patch,
+            patch.ops,
             [
                 { "type": "Add", "address": [1], "value": "2", "length": 1 },
                 { "type": "Replace", "address": [3], "items": 4, "value": "3", "length": 1 }
@@ -287,7 +273,7 @@ mod tests {
 
         let patch = diff(&d, &e);
         assert_json!(
-            patch,
+            patch.ops,
             [
                 { "type": "Add", "address": [1], "value": "d", "length": 1 },
                 { "type": "Replace", "address": [4], "items": 1, "value": "f", "length": 1 },
@@ -310,20 +296,20 @@ mod tests {
         let c = "1👍🏿2".to_string();
 
         let patch = diff(&a, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             { "type": "Add", "address": [1], "value": "1👍🏻2", "length": 3 },
         ]);
         assert_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &c);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             { "type": "Remove", "address": [0], "items": 1 },
             { "type": "Replace", "address": [1], "items": 1, "value": "👍🏿", "length": 1 },
         ]);
         assert_eq!(apply_new(&b, &patch)?, c);
 
         let patch = diff(&c, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             { "type": "Add", "address": [0], "value": "ä", "length": 1 },
             { "type": "Replace", "address": [2], "items": 1, "value": "👍🏻", "length": 1 },
         ]);
@@ -335,14 +321,14 @@ mod tests {
         let e = "🎁🏳️‍🌈🌷".to_string();
 
         let patch = diff(&d, &e);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             { "type": "Add", "address": [0], "value": "🎁🏳️‍🌈", "length": 2 },
             { "type": "Remove", "address": [3], "items": 2 },
         ]);
         assert_eq!(apply_new(&d, &patch)?, e);
 
         let patch = diff(&e, &d);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             { "type": "Add", "address": [0], "value": "🌷🏳️‍🌈", "length": 2 },
             { "type": "Remove", "address": [3], "items": 2 },
         ]);
@@ -359,7 +345,7 @@ mod tests {
         let a = "ab".to_string();
         let b = "bc".to_string();
         let patch = diff(&a, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             { "type": "Remove", "address": [0], "items": 1 },
             { "type": "Add", "address": [1], "value": "c", "length": 1 },
         ]);
@@ -374,7 +360,7 @@ mod tests {
         let b = "bcd".to_string();
         let patch = diff(&a, &b);
         assert_json!(
-            patch,
+            patch.ops,
             [
                 { "type": "Replace", "address": [0], "items": 1, "value": "b", "length": 1 },
                 { "type": "Add", "address": [2], "value": "d", "length": 1 },

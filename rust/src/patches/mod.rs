@@ -11,6 +11,7 @@ use inflector::cases::camelcase::to_camel_case;
 use itertools::Itertools;
 use prelude::{invalid_address, unpointable_type};
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_with::skip_serializing_none;
 use similar::TextDiff;
@@ -717,9 +718,15 @@ impl DomOperation {
         );
 
         // The value may be a JSON value (if this patch was sent from a client)
+        // In that case we want to deserialize it to one of the above types and
+        // then encode as HTML
         if let Some(value) = value.downcast_ref::<serde_json::Value>() {
             if let Some(str) = value.as_str() {
                 return str.to_string();
+            } else if let Ok(nodes) = serde_json::from_value::<Vec<InlineContent>>(value.clone()) {
+                return nodes.to_html("", &context);
+            } else if let Ok(nodes) = serde_json::from_value::<Vec<BlockContent>>(value.clone()) {
+                return nodes.to_html("", &context);
             } else {
                 return value.to_string();
             }
@@ -1046,10 +1053,12 @@ pub trait Patchable {
     /// Cast a [`Value`] to an instance of the type
     fn from_value(value: &Value) -> Result<Self>
     where
-        Self: Clone + Sized + 'static,
+        Self: Clone + DeserializeOwned + Sized + 'static,
     {
         let instance = if let Some(value) = value.downcast_ref::<Self>() {
             value.clone()
+        } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
+            serde_json::from_value::<Self>(value.clone())?
         } else {
             bail!(invalid_patch_value::<Self>())
         };
@@ -1170,7 +1179,7 @@ mod tests {
         // Patching `empty` to `a` should return no difference
 
         let patch = diff(&empty, &empty);
-        assert_json!(patch, []);
+        assert_json!(patch.ops, []);
 
         let mut patched = empty.clone();
         apply(&mut patched, &patch)?;
@@ -1181,7 +1190,7 @@ mod tests {
 
         let patch = diff(&empty, &a);
         assert_json!(
-            patch,
+            patch.ops,
             [{
                 "type": "Add",
                 "address": ["content", 0],
@@ -1200,7 +1209,7 @@ mod tests {
 
         let patch = diff(&a, &b);
         assert_json!(
-            patch,
+            patch.ops,
             [{
                 "type": "Transform",
                 "address": ["content", 0],
@@ -1271,14 +1280,14 @@ mod tests {
 
         // one to one -> empty patch
         let patch = diff(&one, &one);
-        assert_json_eq!(patch, json!([]));
+        assert!(patch.ops.is_empty());
         let dom_patch = DomPatch::new(&patch);
-        assert_json_eq!(dom_patch, json!({"ops": []}));
+        assert!(dom_patch.ops.is_empty());
 
         // one to two -> `Add` operation on the article's optional content
         let patch = diff(&one, &two);
         assert_json_eq!(
-            patch,
+            patch.ops,
             json!([{
                 "type": "Add",
                 "address": ["content"],
@@ -1288,19 +1297,19 @@ mod tests {
         );
         let dom_patch = DomPatch::new(&patch);
         assert_json_eq!(
-            dom_patch,
-            json!({"ops":[{
+            dom_patch.ops,
+            json!([{
                 "type": "Add",
                 "address": ["content"],
                 "html": "<div data-itemprop=\"content\"><p itemtype=\"http://schema.stenci.la/Paragraph\" itemscope></p></div>",
                 "json": [{"type": "Paragraph", "content": []}]
-            }]})
+            }])
         );
 
         // two to three -> `Add` operation on the paragraph's content
         let patch = diff(&two, &three);
         assert_json_eq!(
-            patch,
+            patch.ops,
             json!([{
                 "type": "Add",
                 "address": ["content", 0, "content", 0],
@@ -1310,19 +1319,19 @@ mod tests {
         );
         let dom_patch = DomPatch::new(&patch);
         assert_json_eq!(
-            dom_patch,
-            json!({"ops":[{
+            dom_patch.ops,
+            json!([{
                 "type": "Add",
                 "address": ["content", 0, "content", 0],
                 "html": "first second",
                 "json": ["first", " second"]
-            }]})
+            }])
         );
 
         // three to four -> `Replace` operation on a word
         let patch = diff(&three, &four);
         assert_json_eq!(
-            patch,
+            patch.ops,
             json!([{
                 "type": "Replace",
                 "address": ["content", 0, "content", 0, 1],
@@ -1333,20 +1342,20 @@ mod tests {
         );
         let dom_patch = DomPatch::new(&patch);
         assert_json_eq!(
-            dom_patch,
-            json!({"ops":[{
+            dom_patch.ops,
+            json!([{
                 "type": "Replace",
                 "address": ["content", 0, "content", 0, 1],
                 "items": 3,
                 "html": "oo",
                 "json": "oo"
-            }]})
+            }])
         );
 
         // four to five -> `Move` operation on the word
         let patch = diff(&four, &five);
         assert_json_eq!(
-            patch,
+            patch.ops,
             json!([{
                 "type": "Move",
                 "from": ["content", 0, "content", 1],
@@ -1356,13 +1365,13 @@ mod tests {
         );
         let dom_patch = DomPatch::new(&patch);
         assert_json_eq!(
-            dom_patch,
-            json!({"ops":[{
+            dom_patch.ops,
+            json!([{
                 "type": "Move",
                 "from": ["content", 0, "content", 1],
                 "items": 1,
                 "to": ["content", 0, "content", 0],
-            }]})
+            }])
         );
     }
 }
