@@ -40,8 +40,8 @@ const addon = require('./index.node')
         if (schema.title === 'Error') {
           // Add the error message that gets dynamically
           // added to the error object when it is translated to JSON
-          if (schema.anyOf) {
-            for (const subschema of schema.anyOf) {
+          if (schema.oneOf) {
+            for (const subschema of schema.oneOf) {
               if (typeof subschema.properties == 'object')
                 subschema.properties.message = { type: 'string' }
               if (Array.isArray(subschema.required))
