@@ -1184,66 +1184,80 @@ export type Error =
       type: 'InvalidUUID'
       family: string
       id: string
+      message: string
     }
   | {
       type: 'NotSame'
+      message: string
       [k: string]: unknown
     }
   | {
       type: 'NotEqual'
+      message: string
       [k: string]: unknown
     }
   | {
       type: 'UnpointableType'
       address: Address
       type_name: string
+      message: string
     }
   | {
       type: 'InvalidAddress'
       address: Address
       type_name: string
+      message: string
     }
   | {
       type: 'InvalidPatchOperation'
       op: string
       type_name: string
+      message: string
     }
   | {
       type: 'InvalidPatchAddress'
       address: string
       type_name: string
+      message: string
     }
   | {
       type: 'InvalidPatchValue'
       type_name: string
+      message: string
     }
   | {
       type: 'InvalidSlotVariant'
       variant: string
       type_name: string
+      message: string
     }
   | {
       type: 'InvalidSlotName'
       name: string
       type_name: string
+      message: string
     }
   | {
       type: 'InvalidSlotIndex'
       index: number
       type_name: string
+      message: string
     }
   | {
       type: 'UnknownFormat'
       format: string
+      message: string
     }
   | {
       type: 'IncompatibleLanguage'
       language: string
       kernel_type: string
+      message: string
     }
   | {
       type: 'UndelegatableMethod'
       method: Method
+      message: string
     }
   | {
       type: 'UndelegatableCall'
@@ -1251,10 +1265,12 @@ export type Error =
       params: {
         [k: string]: unknown
       }
+      message: string
     }
   | {
       type: 'PluginNotInstalled'
       plugin: string
+      message: string
     }
   | {
       type: 'Unspecified'
