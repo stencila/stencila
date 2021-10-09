@@ -80,6 +80,9 @@ export const articleInputRules = inputRules({
       (match, node) => node.childCount + node.attrs.order === match[1]
     ),
 
+    // Markdown code block
+    textblockTypeInputRule(/^```$/, articleSchema.nodes.CodeBlock),
+
     // Markdown quote block
     wrappingInputRule(/^\s*>\s$/, articleSchema.nodes.QuoteBlock),
   ],

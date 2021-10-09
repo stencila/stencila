@@ -1,4 +1,3 @@
-import { codeBlock } from '@stencila/schema'
 import {
   AttributeSpec,
   MarkSpec,
@@ -57,11 +56,12 @@ export const articleSchema = new Schema({
     TableHeader: tableHeader(),
     ThematicBreak: thematicBreak(),
 
-    // Inline content types, starting with `text` (equivalent of Stencila `String`), the default
+    // Inline content types, starting with `text` (equivalent of Stencila `String`),
+    // the default inline node type
     text: {
       group: 'InlineContent',
     },
-    CodeFragment: inline('CodeFragment', 'code', 'text*'),
+    CodeFragment: codeFragment(),
   },
 
   marks: {
@@ -166,7 +166,7 @@ function heading(): NodeSpec {
     ],
     toDOM(node) {
       return [
-        'h' + (node.attrs.depth + 1),
+        `h${node.attrs.depth + 1}`,
         { itemtype: 'http://schema.stenci.la/Heading', itemscope: '' },
         0,
       ]
@@ -211,7 +211,7 @@ function listItem(): NodeSpec {
   return {
     content: 'Paragraph BlockContent*',
     parseDOM: [{ tag: 'li' }],
-    toDOM(node) {
+    toDOM(_node) {
       return [
         'li',
         { itemtype: 'http://schema.org/ListItem', itemscope: '' },
@@ -224,7 +224,9 @@ function listItem(): NodeSpec {
 /**
  * Generate a `NodeSpec` to represent a Stencila `CodeBlock`
  *
- * This is temporary and wil be replaced with a CodeMirror editor.
+ * This is temporary and wil be replaced with a CodeMirror editor
+ * (see https://prosemirror.net/examples/codemirror/ and https://gist.github.com/BrianHung/08146f89ea903f893946963570263040).
+ *
  * Based on https://github.com/ProseMirror/prosemirror-schema-basic/blob/b5ae707ab1be98a1d8735dfdc7d1845bcd126f18/src/schema-basic.js#L59
  */
 function codeBlock(): NodeSpec {
@@ -233,14 +235,67 @@ function codeBlock(): NodeSpec {
     content: 'text*',
     contentProp: 'text',
     marks: '',
+    attrs: {
+      programmingLanguage: { default: '' },
+    },
     code: true,
     defining: true,
-    parseDOM: [{ tag: 'pre', preserveWhitespace: 'full' }],
+    parseDOM: [
+      {
+        tag: 'pre',
+        preserveWhitespace: 'full',
+        getAttrs(dom) {
+          const elem = dom as HTMLElement
+          return {
+            programmingLanguage:
+              elem
+                .querySelector('meta[itemprop="programmingLanguage"][content]')
+                ?.getAttribute('content') ??
+              elem
+                .querySelector('code[class^="language-"]')
+                ?.getAttribute('class')
+                ?.substring(9),
+          }
+        },
+      },
+    ],
     toDOM(node) {
       return [
         'pre',
-        { itemtype: 'http://schema.stenci.la/CodeBlock', itemscope: '' },
+        {
+          itemtype: 'http://schema.stenci.la/CodeBlock',
+          itemscope: '',
+          // This is just for inspection that language is parsed properly
+          title: node.attrs.programmingLanguage,
+        },
         ['code', 0],
+      ]
+    },
+  }
+}
+
+/**
+ * Generate a `NodeSpec` to represent a Stencila `CodeFragment`
+ *
+ * This is temporary and wil be replaced with a CodeMirror editor (as with `CodeBlock`)
+ */
+function codeFragment(): NodeSpec {
+  return {
+    inline: true,
+    group: 'InlineContent',
+    content: 'text*',
+    contentProp: 'text',
+    marks: '',
+    attrs: {
+      programmingLanguage: { default: '' },
+    },
+    code: true,
+    parseDOM: [{ tag: 'pre', preserveWhitespace: 'full' }],
+    toDOM(_node) {
+      return [
+        'code',
+        { itemtype: 'http://schema.stenci.la/CodeFragment', itemscope: '' },
+        0,
       ]
     },
   }
@@ -262,7 +317,7 @@ function table(): NodeSpec {
     tableRole: 'table',
     isolating: true,
     parseDOM: [{ tag: 'table' }],
-    toDOM(node) {
+    toDOM(_node) {
       return [
         'table',
         { itemtype: 'http://schema.org/Table', itemscope: '' },
@@ -281,7 +336,7 @@ function tableRow(): NodeSpec {
     contentProp: 'cells',
     tableRole: 'row',
     parseDOM: [{ tag: 'tr' }],
-    toDOM(node) {
+    toDOM(_node) {
       return [
         'tr',
         { itemtype: 'http://schema.stenci.la/TableRow', itemscope: '' },
@@ -305,7 +360,7 @@ function tableCellAttrsSpec(): Record<string, AttributeSpec> {
 /**
  * Get `TableCell` attributes as part of `parseDOM`
  */
-function tableCellAttrsGet(dom: HTMLElement) {
+function tableCellAttrsGet(dom: HTMLElement): Record<string, any> {
   const widthAttr = dom.getAttribute('data-colwidth')
   const widths =
     widthAttr && /^\d+(,\d+)*$/.test(widthAttr)
@@ -386,7 +441,7 @@ function thematicBreak(): NodeSpec {
   return {
     group: 'BlockContent',
     parseDOM: [{ tag: 'hr' }],
-    toDOM(node) {
+    toDOM(_node) {
       return [
         'hr',
         { itemtype: 'http://schema.stenci.la/ThematicBreak', itemscope: '' },
@@ -430,7 +485,7 @@ function inline(
 function mark(name: string, tag: string, parseDOM?: ParseRule[]): MarkSpec {
   return {
     parseDOM: parseDOM ?? [{ tag }],
-    toDOM(node) {
+    toDOM(_node) {
       return [tag, { itemtype: name, itemscope: '' }, 0]
     },
   }

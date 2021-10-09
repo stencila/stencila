@@ -145,7 +145,7 @@ export const main = (
     // During development it's very useful to see the patch operations being sent
     if (process.env.NODE_ENV !== 'production') {
       const { actor, target, ops } = patch
-      console.log('Sending patch:', JSON.stringify({ actor, target }))
+      console.log('📢 Sending patch:', JSON.stringify({ actor, target }))
       for (const op of ops) console.log('  ', JSON.stringify(op))
     }
 
@@ -176,7 +176,7 @@ export const main = (
 
     // During development it's useful to see which patches are being received
     if (process.env.NODE_ENV !== 'production') {
-      console.log('Received DOM patch:', JSON.stringify({ actor, target }))
+      console.log('📩 Received DOM patch:', JSON.stringify({ actor, target }))
       for (const op of ops) console.log('  ', JSON.stringify(op))
     }
 
