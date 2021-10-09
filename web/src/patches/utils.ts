@@ -179,11 +179,20 @@ export function resolveSlot(
 
     throw panic(`Unable to resolve slot '${slot}'`)
   } else {
+    // If the parent is empty (e.g. an empty paragraph) and the index is 0 then add
+    // an empty text node to it so the operation can be performed on it (e.g. adding
+    // the first character).
+    if (parent.childNodes.length == 0 && slot == 0) {
+      const text = document.createTextNode('')
+      parent.appendChild(text)
+      return text
+    }
+
     // Select the child at the slot index.
     const child: ChildNode | undefined = parent.childNodes[slot]
     if (child === undefined) {
       throw panic(
-        `Unable to get slot '${slot}' from element of with ${parent.childNodes.length} children`
+        `Unable to get slot '${slot}' from element with ${parent.childNodes.length} children`
       )
     } else if (isElement(child) || isText(child)) {
       return child
