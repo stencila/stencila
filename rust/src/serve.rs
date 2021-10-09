@@ -139,9 +139,15 @@ pub fn serve_background(url: &str, key: Option<String>) -> Result<()> {
 }
 
 /// Static assets
+/// 
+/// During development, these are served from the `static` folder (which
+/// has a symlink to `web/dist/browser` (and maybe in the future other folders).
+/// At build time these are embedded in the binary. Use `include` and `exclude`
+/// glob patterns to only include the assets that are required.
 #[cfg(feature = "serve-static")]
 #[derive(RustEmbed)]
 #[folder = "static"]
+#[exclude = "web/*.js.map"]
 struct Static;
 
 struct Client {
@@ -747,7 +753,7 @@ pub fn rewrite_html(body: &str, theme: &str, cwd: &Path, document: &Path) -> Str
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <script src="/~static/web/browser/index.js"></script>
+        <script src="/~static/web/index.js"></script>
         <script>
             const startup = stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}");
             startup().catch((err) => console.error('Error during startup', err))
