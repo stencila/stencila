@@ -670,7 +670,7 @@ impl Document {
         pointer.patch(patch)?;
 
         // TODO: Only generate and publish a DomPatch if there are subscribers
-        let dom_patch = DomPatch::new(&patch, node_id);
+        let dom_patch = DomPatch::new(patch, node_id);
         publish(
             &["documents:", &self.id, ":patched"].concat(),
             &DocumentEvent {

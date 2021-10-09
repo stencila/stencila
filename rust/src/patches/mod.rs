@@ -697,9 +697,9 @@ impl DomOperation {
         // The value may be a JSON value (if this patch was sent from a client)
         if let Some(value) = value.downcast_ref::<serde_json::Value>() {
             if let Some(str) = value.as_str() {
-                return str.to_string()
+                return str.to_string();
             } else {
-                return value.to_string()
+                return value.to_string();
             }
         }
 
@@ -744,7 +744,7 @@ impl DomOperation {
 
         // The value may be a JSON value (if this patch was sent from a client)
         if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-            return value.clone()
+            return value.clone();
         }
 
         tracing::error!("Unhandled value type when generating JSON for `DomOperation`");

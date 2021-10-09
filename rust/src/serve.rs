@@ -139,7 +139,7 @@ pub fn serve_background(url: &str, key: Option<String>) -> Result<()> {
 }
 
 /// Static assets
-/// 
+///
 /// During development, these are served from the `static` folder (which
 /// has a symlink to `web/dist/browser` (and maybe in the future other folders).
 /// At build time these are embedded in the binary. Use `include` and `exclude`
