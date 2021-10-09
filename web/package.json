@@ -15,6 +15,7 @@
   "source": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
+  "read": "dist/browser/read.js",
   "view": "dist/browser/view.js",
   "exec": "dist/browser/exec.js",
   "edit": "dist/browser/edit.js",
@@ -25,13 +26,20 @@
     "module": {
       "source": "src/index.ts"
     },
+    "read": {
+      "optimize": true,
+      "source": "src/index.read.ts"
+    },
     "view": {
+      "optimize": true,
       "source": "src/index.view.ts"
     },
     "exec": {
+      "optimize": true,
       "source": "src/index.exec.ts"
     },
     "edit": {
+      "optimize": true,
       "source": "src/index.edit.ts"
     }
   },
