@@ -1,4 +1,18 @@
-import { applyAdd, applyRemove, applyReplace } from '.'
+import { applyAdd, applyRemove, applyReplace, diff } from '.'
+
+test('diff', () => {
+  expect(diff('', '').ops).toEqual([])
+  expect(diff('', 'ab').ops).toEqual([
+    { type: 'Add', address: [0], value: 'ab', length: 2 },
+  ])
+  expect(diff('aa', 'a🏳️‍🌈b').ops).toEqual([
+    { type: 'Remove', address: [1], items: 1 },
+    { type: 'Add', address: [1], value: '🏳️‍🌈b', length: 2 },
+  ])
+  expect(diff('a🏳️‍🌈bc', 'ac').ops).toEqual([
+    { type: 'Remove', address: [1], items: 2 },
+  ])
+})
 
 test('applyAdd', () => {
   expect(applyAdd('', 0, 'a')).toEqual('a')

@@ -1,6 +1,31 @@
-import { DomOperation, Slot } from '@stencila/stencila'
-import { assert, assertIndex, panic } from '../checks'
+import { Operation, DomOperation, Patch, Slot } from '@stencila/stencila'
+import { getPatch } from 'fast-array-diff'
 import GraphemeSplitter from 'grapheme-splitter'
+import { assert, assertIndex, panic } from '../checks'
+
+/**
+ * Generate a `Patch` describing the difference between two strings
+ */
+export function diff(a: string, b: string): Patch {
+  const patch = getPatch(toGraphemes(a), toGraphemes(b))
+  const ops = patch.map((op): Operation => {
+    if (op.type === 'add') {
+      return {
+        type: 'Add',
+        address: [op.newPos],
+        value: op.items.join(''),
+        length: op.items.length,
+      }
+    } else {
+      return {
+        type: 'Remove',
+        address: [op.newPos],
+        items: op.items.length,
+      }
+    }
+  })
+  return { ops }
+}
 
 /**
  * Apply a `DomOperation` to a string.

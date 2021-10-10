@@ -80,6 +80,7 @@
     "@types/prosemirror-tables": "^0.9.1",
     "@types/prosemirror-transform": "^1.1.4",
     "@types/prosemirror-view": "^1.19.1",
+    "fast-array-diff": "^1.0.1",
     "grapheme-splitter": "^1.0.4",
     "lit": "^2.0.0",
     "prosemirror-collab": "^1.2.2",
