@@ -1,6 +1,6 @@
 /**
  * View mode
- * 
+ *
  * Just imports web client for live, updating, previews of the document.
  */
 

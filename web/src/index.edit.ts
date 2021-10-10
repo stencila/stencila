@@ -1,6 +1,6 @@
 /**
  * Edit mode
- * 
+ *
  * Brings in the web client and the article editor.
  */
 
