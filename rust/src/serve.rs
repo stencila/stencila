@@ -713,10 +713,23 @@ async fn get_handler(
             let mime = mime_guess::from_ext(&format).first_or_octet_stream();
 
             let mut response = warp::reply::Response::new(content.into());
-            response.headers_mut().insert(
-                "content-type",
-                warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
-            );
+            match format.as_str() {
+                "html" | "json" => {
+                    response.headers_mut().insert(
+                        "content-type",
+                        warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
+                    );
+                }
+                _ => {
+                    // Temporary serve other content as plain text to avoid browser download
+                    // In the future, this will be replace with a code editing view.
+                    response.headers_mut().insert(
+                        "content-type",
+                        warp::http::header::HeaderValue::from_str("text/plain; charset=utf-8")
+                            .unwrap(),
+                    );
+                }
+            }
             Ok(response)
         }
         Err(error) => error_response(
@@ -757,7 +770,7 @@ pub fn rewrite_html(body: &str, mode: &str, theme: &str, cwd: &Path, document: &
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <script src="/~static/web/browser/{mode}.js"></script>
+        <script src="/~static/web/{mode}.js"></script>
         <script>
             const startup = stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}");
             startup().catch((err) => console.error('Error during startup', err))
