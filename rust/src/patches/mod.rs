@@ -1058,7 +1058,11 @@ pub trait Patchable {
         let instance = if let Some(value) = value.downcast_ref::<Self>() {
             value.clone()
         } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-            serde_json::from_value::<Self>(value.clone())?
+            if let Ok(value) = serde_json::from_value::<Self>(value.clone()) {
+                value
+            } else {
+                bail!(invalid_patch_value::<Self>())
+            }
         } else {
             bail!(invalid_patch_value::<Self>())
         };

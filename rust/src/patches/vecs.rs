@@ -439,6 +439,33 @@ where
         }
         Ok(())
     }
+
+    /// Cast a [`Value`] to a `Vec<Type>`
+    ///
+    /// # Why?
+    ///
+    /// An override to be able to handle single items of `Type`.
+    fn from_value(value: &Value) -> Result<Self>
+    where
+        Self: Clone + DeserializeOwned + Sized + 'static,
+    {
+        let instance = if let Some(vec) = value.downcast_ref::<Vec<Type>>() {
+            vec.clone()
+        } else if let Some(item) = value.downcast_ref::<Type>() {
+            vec![item.clone()]
+        } else if let Some(json) = value.downcast_ref::<serde_json::Value>() {
+            if let Ok(vec) = serde_json::from_value::<Vec<Type>>(json.clone()) {
+                vec
+            } else if let Ok(item) = serde_json::from_value::<Type>(json.clone()) {
+                vec![item]
+            } else {
+                bail!(invalid_patch_value::<Self>())
+            }
+        } else {
+            bail!(invalid_patch_value::<Self>())
+        };
+        Ok(instance)
+    }
 }
 
 /// An item used in the hash map for the `unique_items` function below
