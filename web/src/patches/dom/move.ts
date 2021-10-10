@@ -1,12 +1,7 @@
 import { DomOperationMove, Slot } from '@stencila/stencila'
-import { ElementId } from '../types'
-import {
-  assert,
-  assertElement,
-  assertNumber,
-  panic,
-  resolveParent,
-} from './utils'
+import { ElementId } from '../../types'
+import { assert, assertElement, assertNumber, panic } from '../checks'
+import { resolveParent } from './resolve'
 
 /**
  * Apply a move operation

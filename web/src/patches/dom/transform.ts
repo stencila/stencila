@@ -1,6 +1,7 @@
 import { DomOperationTransform } from '@stencila/stencila'
-import { ElementId } from '../types'
-import { assert, isElement, isText, panic, resolveNode } from './utils'
+import { ElementId } from '../../types'
+import { assert, isElement, isText, panic } from '../checks'
+import { resolveNode } from './resolve'
 
 /**
  * Apply a transform operation

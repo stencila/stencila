@@ -1,91 +1,7 @@
 import { Address, DomOperation, Slot } from '@stencila/stencila'
-import GraphemeSplitter from 'grapheme-splitter'
-import { StencilaElement } from '../components/base'
-import { ElementId } from '../types'
-
-/**
- * Panic if there is a conflict between a `DomPatch` and the current DOM.
- *
- * This module make liberal use of assertions of consistency between `DomOperation`s
- * and the current DOM with the view that if there is any inconsistency detected then
- * it is best to simply exit the `applyPatch` function early and reload the page.
- *
- * This should only happen if there (a) the client has missed a `DomPatch`
- * such that the state of the DOM is out of sync with the server-side document, or
- * (b) if there is a bug in the following code. Hopefully testing rules out (b).
- *
- * Reloads the document to get a new DOM state and then throws an exception for
- * early exit from the calling function.
- */
-export function panic(message: string): Error {
-  // TODO reload the document
-  return new Error(message)
-}
-
-/**
- * Assert that a condition is true and panic if it is not.
- */
-export function assert(condition: boolean, message: string): void {
-  if (!condition) {
-    throw panic(message)
-  }
-}
-
-/**
- * Is a slot a string variant?
- */
-export function isString(slot: Slot): slot is string {
-  return typeof slot === 'string'
-}
-
-/**
- * Assert that a slot is a string variant.
- */
-export function assertString(slot: Slot): asserts slot is string {
-  assert(isString(slot), 'Expected string slot')
-}
-
-/**
- * Is a slot a number variant?
- */
-export function isNumber(slot: Slot): slot is number {
-  return typeof slot === 'number'
-}
-
-/**
- * Assert that a slot is a number variant.
- */
-export function assertNumber(slot: Slot): asserts slot is number {
-  assert(isNumber(slot), 'Expected number slot')
-}
-
-/**
- * Is a DOM node an element?
- */
-export function isElement(node: Node | undefined): node is Element {
-  return node?.nodeType === Node.ELEMENT_NODE
-}
-
-/**
- * Assert that a DOM node is an element
- */
-export function assertElement(node: Node): asserts node is Element {
-  assert(isElement(node), 'Expected element node')
-}
-
-/**
- * Is a DOM node an attribute?
- */
-export function isAttr(node: Node | undefined): node is Attr {
-  return node?.nodeType === Node.ATTRIBUTE_NODE
-}
-
-/**
- * Is a DOM node a text node?
- */
-export function isText(node: Node | undefined): node is Text {
-  return node?.nodeType === Node.TEXT_NODE
-}
+import { StencilaElement } from '../../components/base'
+import { ElementId } from '../../types'
+import { assertElement, isElement, isString, isText, panic } from '../checks'
 
 /**
  * Resolve the target of a patch.
@@ -179,15 +95,6 @@ export function resolveSlot(
 
     throw panic(`Unable to resolve slot '${slot}'`)
   } else {
-    // If the parent is empty (e.g. an empty paragraph) and the index is 0 then add
-    // an empty text node to it so the operation can be performed on it (e.g. adding
-    // the first character).
-    if (parent.childNodes.length == 0 && slot == 0) {
-      const text = document.createTextNode('')
-      parent.appendChild(text)
-      return text
-    }
-
     // Select the child at the slot index.
     const child: ChildNode | undefined = parent.childNodes[slot]
     if (child === undefined) {
@@ -298,13 +205,4 @@ export function resolveReceiver(
  */
 export function createFragment(html: string): DocumentFragment {
   return document.createRange().createContextualFragment(html)
-}
-
-const GRAPHEME_SPLITTER = new GraphemeSplitter()
-
-/**
- * Split a string into Unicode graphemes
- */
-export function toGraphemes(text: string): string[] {
-  return GRAPHEME_SPLITTER.splitGraphemes(text)
 }

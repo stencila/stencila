@@ -11,7 +11,7 @@
  */
 
 import { DomOperation, DomPatch } from '@stencila/stencila'
-import { ElementId } from '../types'
+import { ElementId } from '../../types'
 import { applyAdd } from './add'
 import { applyMove } from './move'
 import { applyRemove } from './remove'

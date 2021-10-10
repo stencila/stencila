@@ -16,7 +16,7 @@ import {
 } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
-import { applyPatch } from './patches'
+import { applyPatch } from './patches/dom'
 import * as sessions from './sessions'
 import { ProjectId, SnapshotId } from './types'
 
