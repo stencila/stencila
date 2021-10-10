@@ -75,7 +75,7 @@
     "typescript": "4.4.2"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "1.6.1",
+    "@reduxjs/toolkit": "1.6.2",
     "@sentry/electron": "2.5.4",
     "@stencil/router": "2.0.0-2",
     "@stencil/store": "1.4.1",
