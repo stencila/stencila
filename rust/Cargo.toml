@@ -241,7 +241,7 @@ strum_macros = "=0.21.1"
 sudo = { version = "=0.6.0", optional = true }
 tar = { version = "=0.4.37", optional = true }
 tempfile = "3.2.0"
-thiserror = "=1.0.29"
+thiserror = "=1.0.30"
 tokio = { version = "=1.12.0", features = ["full"] }
 tokio-stream = "=0.1.7"
 tokio-tungstenite = { version = "=0.15.0", optional = true }
