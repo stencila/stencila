@@ -7,8 +7,12 @@ import {
   DomOperationReplace,
   DomOperationTransform,
   DomPatch,
+  Operation,
+  Patch,
   Slot,
 } from '@stencila/stencila'
+import { getPatch, PatchItem } from 'fast-array-diff'
+import equal from 'fast-deep-equal'
 import {
   assert,
   assertArray,
@@ -18,6 +22,7 @@ import {
   assertString,
   isArray,
   isObject,
+  isString,
   JsonValue,
   panic,
 } from '../checks'
@@ -25,7 +30,97 @@ import {
   applyAdd as applyAddString,
   applyRemove as applyRemoveString,
   applyReplace as applyReplaceString,
+  diff as diffString,
 } from '../string'
+
+/**
+ * Generate a `Patch` describing the difference between two JSON values.
+ *
+ * @why To be able to generate a `Patch` from two JSON values (usually whole
+ * documents, or nodes within documents) to send to the server to represent
+ * a change to a document.
+ *
+ * @how Mimics the `diff` function in Rust including (a) for arrays attempting to
+ * generate smaller diffs by calling itself when Remove/Add pairs are found,
+ * (b) for objects, using `type` to decide whether to replace, or attempt to
+ * generate smaller diffs.
+ */
+export function diff(a: JsonValue, b: JsonValue, address: Address = []): Patch {
+  if (isString(a) && isString(b)) {
+    return diffString(a, b, address)
+  } else if (isArray(a) && isArray(b)) {
+    const ops: Operation[] = []
+    let prev: PatchItem<JsonValue> | undefined
+    for (const curr of getPatch(a, b, equal)) {
+      if (curr.type === 'add') {
+        if (
+          prev?.type === 'remove' &&
+          prev?.newPos === curr.newPos &&
+          prev.items.length === 1 &&
+          curr.items.length === 1
+        ) {
+          // Replace the previous `Remove` with the inner diff
+          ops.pop()
+          const inner = diff(prev.items[0] ?? null, curr.items[0] ?? null, [
+            ...address,
+            prev.oldPos,
+          ])
+          ops.push(...inner.ops)
+        } else {
+          ops.push({
+            type: 'Add',
+            address: [...address, curr.newPos],
+            value: curr.items,
+            length: curr.items.length,
+          })
+        }
+      } else {
+        ops.push({
+          type: 'Remove',
+          address: [...address, curr.newPos],
+          items: curr.items.length,
+        })
+      }
+      prev = curr
+    }
+    return { ops }
+  } else if (isObject(a) && isObject(b)) {
+    if (a.type !== b.type) {
+      return {
+        ops: [{ type: 'Replace', address, items: 1, value: b, length: 1 }],
+      }
+    }
+
+    const ops: Operation[] = []
+    for (const key in a) {
+      if (key === 'type') continue
+      if (key in b) {
+        ops.push(
+          ...diff(a[key] as JsonValue, b[key] as JsonValue, [...address, key])
+            .ops
+        )
+      } else {
+        ops.push({ type: 'Remove', address: [...address, key], items: 1 })
+      }
+    }
+    for (const key in b) {
+      if (key === 'type') continue
+      if (!(key in a)) {
+        ops.push({
+          type: 'Add',
+          address: [...address, key],
+          value: b[key],
+          length: 1,
+        })
+      }
+    }
+    return { ops }
+  } else {
+    return {
+      ops: [{ type: 'Replace', address, items: 1, value: b, length: 1 }],
+    }
+  }
+}
 
 /**
  * Apply a `DomPatch` to a JSON value.

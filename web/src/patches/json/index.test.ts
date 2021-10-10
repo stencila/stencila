@@ -1,6 +1,54 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck because the `DomOperationAdd` has incorrect type for `json`
 
-import { applyAdd, applyRemove, applyReplace } from '.'
+import { applyAdd, applyRemove, applyReplace, diff } from '.'
+
+test('diff:array', () => {
+  const arraySimple = [1, 2, 3]
+  expect(diff(arraySimple, [1, 2, 3]).ops).toEqual([])
+  expect(diff(arraySimple, [1, 3]).ops).toEqual([
+    {
+      type: 'Remove',
+      address: [1],
+      items: 1,
+    },
+  ])
+  expect(diff(arraySimple, [1, 2, 4, 5, 3]).ops).toEqual([
+    {
+      type: 'Add',
+      address: [2],
+      value: [4, 5],
+      length: 2,
+    },
+  ])
+
+  const arrayNested = [[1], [2], [3]]
+  expect(diff(arrayNested, [[1], [2], [3]]).ops).toEqual([])
+  expect(diff(arrayNested, [[1], [2, 4], [3]]).ops).toEqual([
+    {
+      type: 'Add',
+      address: [1, 1],
+      value: [4],
+      length: 1,
+    },
+  ])
+})
+
+test('diff:object', () => {
+  const obj = { a: 'foo', b: [1, 2, 3] }
+  expect(diff(obj, { a: 'foo', b: [1, 2, 3] }).ops).toEqual([])
+  expect(diff(obj, { a: 'foo', b: [1, 3] }).ops).toEqual([
+    { type: 'Remove', address: ['b', 1], items: 1 },
+  ])
+  expect(diff(obj, { a: 'foo' }).ops).toEqual([
+    { type: 'Remove', address: ['b'], items: 1 },
+  ])
+  expect(diff(obj, { a: true, c: 42 }).ops).toEqual([
+    { type: 'Replace', address: ['a'], items: 1, value: true, length: 1 },
+    { type: 'Remove', address: ['b'], items: 1 },
+    { type: 'Add', address: ['c'], value: 42, length: 1 },
+  ])
+})
 
 test('applyAdd', () => {
   const value = { string: '', array: [], object: {} }

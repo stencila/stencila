@@ -112,30 +112,41 @@ export function assertDefined(
 }
 
 /**
+ * Is a JSON value a string?
+ */
+export function isString(value: JsonValue | undefined): value is string {
+  return typeof value === 'string'
+}
+
+/**
  * Assert that a JSON value is a string
  */
-export function assertString(value: JsonValue): asserts value is string {
-  assert(typeof value === 'string', 'Expected a JSON string')
+export function assertString(
+  value: JsonValue | undefined
+): asserts value is string {
+  assert(isString(value), 'Expected a JSON string')
 }
 
 /**
  * Is a JSON value an array?
  */
-export function isArray(value: JsonValue): value is JsonArray {
+export function isArray(value: JsonValue | undefined): value is JsonArray {
   return Array.isArray(value)
 }
 
 /**
  * Is a JSON value an object?
  */
-export function isObject(value: JsonValue): value is JsonObject {
+export function isObject(value: JsonValue | undefined): value is JsonObject {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 /**
  * Assert that a JSON value is an array
  */
-export function assertArray(value: JsonValue): asserts value is JsonArray {
+export function assertArray(
+  value: JsonValue | undefined
+): asserts value is JsonArray {
   assert(isArray(value), 'Expected a JSON array')
 }
 
