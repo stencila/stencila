@@ -86,6 +86,8 @@ export const articleSchema = new Schema({
   },
 })
 
+export const articleMarks = Object.keys(articleSchema.marks)
+
 /**
  * Generate a `NodeSpec` to represent the property of a Stencila node type.
  *
