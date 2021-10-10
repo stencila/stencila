@@ -1,12 +1,12 @@
 import { DomOperationRemove, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
 import {
+  isName,
   assert,
-  assertNumber,
-  assertString,
+  assertIndex,
+  assertName,
   isAttr,
   isElement,
-  isString,
   panic,
 } from '../checks'
 import { applyRemove as applyRemoveString } from '../string'
@@ -23,7 +23,7 @@ export function applyRemove(op: DomOperationRemove, target?: ElementId): void {
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {
-    if (isString(slot)) applyRemoveOption(parent, slot, items)
+    if (isName(slot)) applyRemoveOption(parent, slot, items)
     else applyRemoveVec(parent, slot, items)
   } else applyRemoveText(parent, slot, items)
 }
@@ -36,7 +36,7 @@ export function applyRemoveOption(
   slot: Slot,
   items: number
 ): void {
-  assertString(slot)
+  assertName(slot)
   assert(
     items === 1,
     `Unexpected remove items ${items} for option slot '${slot}'`
@@ -52,7 +52,7 @@ export function applyRemoveOption(
  * Apply a `Remove` operation to a `Vec` slot
  */
 export function applyRemoveVec(node: Element, slot: Slot, items: number): void {
-  assertNumber(slot)
+  assertIndex(slot)
 
   const children = node.childNodes
   assert(

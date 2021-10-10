@@ -1,6 +1,6 @@
 import { DomOperationMove, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
-import { assert, assertElement, assertNumber, panic } from '../checks'
+import { assert, assertElement, assertIndex, panic } from '../checks'
 import { resolveParent } from './resolve'
 
 /**
@@ -34,8 +34,8 @@ export function applyMoveVec(
   to: Slot,
   items: number
 ): void {
-  assertNumber(from)
-  assertNumber(to)
+  assertIndex(from)
+  assertIndex(to)
 
   const children = elem.childNodes
   assert(

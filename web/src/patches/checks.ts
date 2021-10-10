@@ -37,31 +37,31 @@ export function assert(condition: boolean, message: string): void {
 }
 
 /**
- * Is a slot a string variant?
+ * Is a slot a name (string) variant?
  */
-export function isString(slot: Slot | undefined): slot is string {
+export function isName(slot: Slot | undefined): slot is string {
   return typeof slot === 'string'
 }
 
 /**
- * Assert that a slot is a string variant.
+ * Assert that a slot is a name (string)  variant.
  */
-export function assertString(slot: Slot | undefined): asserts slot is string {
-  assert(isString(slot), 'Expected string slot')
+export function assertName(slot: Slot | undefined): asserts slot is string {
+  assert(isName(slot), 'Expected string slot')
 }
 
 /**
- * Is a slot a number variant?
+ * Is a slot an index (integer) variant?
  */
-export function isNumber(slot: Slot | undefined): slot is number {
+export function isIndex(slot: Slot | undefined): slot is number {
   return typeof slot === 'number'
 }
 
 /**
- * Assert that a slot is a number variant.
+ * Assert that a slot is an index (integer) variant.
  */
-export function assertNumber(slot: Slot | undefined): asserts slot is number {
-  assert(isNumber(slot), 'Expected number slot')
+export function assertIndex(slot: Slot | undefined): asserts slot is number {
+  assert(isIndex(slot), 'Expected number slot')
 }
 
 /**
@@ -90,4 +90,60 @@ export function isAttr(node: Node | undefined): node is Attr {
  */
 export function isText(node: Node | undefined): node is Text {
   return node?.nodeType === Node.TEXT_NODE
+}
+
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue }
+export type JsonArray = JsonValue[]
+export type JsonObject = { [key: string]: JsonValue }
+
+/**
+ * Assert that a JSON value is defined.
+ */
+export function assertDefined(
+  value: JsonValue | undefined
+): asserts value is JsonValue {
+  assert(value !== undefined, 'Expected value to be defined')
+}
+
+/**
+ * Assert that a JSON value is a string
+ */
+export function assertString(value: JsonValue): asserts value is string {
+  assert(typeof value === 'string', 'Expected a JSON string')
+}
+
+/**
+ * Is a JSON value an array?
+ */
+export function isArray(value: JsonValue): value is JsonArray {
+  return Array.isArray(value)
+}
+
+/**
+ * Is a JSON value an object?
+ */
+export function isObject(value: JsonValue): value is JsonObject {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+/**
+ * Assert that a JSON value is an array
+ */
+export function assertArray(value: JsonValue): asserts value is JsonArray {
+  assert(isArray(value), 'Expected a JSON array')
+}
+
+/**
+ * Assert that a JSON value is an array or object
+ */
+export function assertArrayOrObject(
+  value: JsonValue
+): asserts value is JsonArray | JsonObject {
+  assert(isArray(value) || isObject(value), 'Expected a JSON array or object')
 }

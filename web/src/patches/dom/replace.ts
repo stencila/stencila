@@ -2,11 +2,11 @@ import { DomOperationReplace, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
 import {
   assert,
-  assertNumber,
-  assertString,
+  assertIndex,
+  assertName,
   isAttr,
   isElement,
-  isString,
+  isName,
   panic,
 } from '../checks'
 import { createFragment, resolveParent, resolveSlot } from './resolve'
@@ -26,7 +26,7 @@ export function applyReplace(
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {
-    if (isString(slot)) applyReplaceOption(parent, slot, items, html)
+    if (isName(slot)) applyReplaceOption(parent, slot, items, html)
     else applyReplaceVec(parent, slot, items, html)
   } else applyReplaceText(parent, slot, items, html)
 }
@@ -40,7 +40,7 @@ export function applyReplaceOption(
   items: number,
   html: string
 ): void {
-  assertString(slot)
+  assertName(slot)
   assert(
     items === 1,
     `Unexpected replace items ${items} for option slot '${slot}'`
@@ -63,7 +63,7 @@ export function applyReplaceVec(
   items: number,
   html: string
 ): void {
-  assertNumber(slot)
+  assertIndex(slot)
 
   const fragment = createFragment(html)
   const children = node.childNodes

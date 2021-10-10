@@ -1,43 +1,37 @@
 import { DomOperation, Slot } from '@stencila/stencila'
-import { assert, assertNumber, panic } from '../checks'
+import { assert, assertIndex, panic } from '../checks'
 import GraphemeSplitter from 'grapheme-splitter'
 
 /**
- * Apply a `DomOperation` to a string
+ * Apply a `DomOperation` to a string.
  */
 export function applyOp(text: string, op: DomOperation): string {
   const type = op.type
-  switch (op.type) {
-    case 'Add':
-    case 'Remove':
-    case 'Replace':
-      {
-        const address = op.address
-        assert(address.length === 1, `Expected address to be of length`)
+  if (type === 'Add' || type === 'Remove' || type === 'Replace') {
+    const address = op.address
+    assert(address.length === 1, `Expected address to be of length`)
 
-        const slot = address[0]
-        assertNumber(slot)
+    const slot = address[0]
+    assertIndex(slot)
 
-        switch (type) {
-          case 'Add':
-            return applyAdd(text, slot, op.html)
-          case 'Remove':
-            return applyRemove(text, slot, op.items)
-          case 'Replace':
-            return applyReplace(text, slot, op.items, op.html)
-        }
-      }
-      break
-    default:
-      throw panic(`Unexpected operation '${type}' for a string`)
+    switch (type) {
+      case 'Add':
+        return applyAdd(text, slot, op.html)
+      case 'Remove':
+        return applyRemove(text, slot, op.items)
+      case 'Replace':
+        return applyReplace(text, slot, op.items, op.html)
+    }
   }
+
+  throw panic(`Unexpected operation '${type}' for a string`)
 }
 
 /**
- * Apply an `Add` operation to a `string`.
+ * Apply an `Add` operation to a string.
  */
 export function applyAdd(text: string, slot: Slot, value: string): string {
-  assertNumber(slot)
+  assertIndex(slot)
 
   const graphemes = toGraphemes(text)
   assert(
@@ -51,10 +45,10 @@ export function applyAdd(text: string, slot: Slot, value: string): string {
 }
 
 /**
- * Apply a `Remove` operation to a `string`.
+ * Apply a `Remove` operation to a string.
  */
 export function applyRemove(text: string, slot: Slot, items: number): string {
-  assertNumber(slot)
+  assertIndex(slot)
 
   const graphemes = toGraphemes(text)
   assert(
@@ -80,7 +74,7 @@ export function applyReplace(
   items: number,
   value: string
 ): string {
-  assertNumber(slot)
+  assertIndex(slot)
 
   const graphemes = toGraphemes(text)
   assert(

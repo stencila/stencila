@@ -1,12 +1,6 @@
 import { DomOperationAdd, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
-import {
-  assertNumber,
-  assertString,
-  isElement,
-  isString,
-  panic,
-} from '../checks'
+import { assertIndex, assertName, isElement, isName, panic } from '../checks'
 import { applyAdd as applyAddString } from '../string'
 import { createFragment, resolveParent } from './resolve'
 
@@ -21,7 +15,7 @@ export function applyAdd(op: DomOperationAdd, target?: ElementId): void {
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {
-    if (isString(slot)) applyAddOption(parent, slot, html)
+    if (isName(slot)) applyAddOption(parent, slot, html)
     else applyAddVec(parent, slot, html)
   } else {
     applyAddText(parent, slot, html)
@@ -44,7 +38,7 @@ const ADD_ATTRIBUTES = ['id', 'value', 'rowspan', 'colspan']
  * so wrap it.
  */
 export function applyAddOption(node: Element, slot: Slot, html: string): void {
-  assertString(slot)
+  assertName(slot)
 
   if (!html.startsWith('<')) {
     html = `<span slot="${slot}">${html}</span>`
@@ -62,7 +56,7 @@ export function applyAddOption(node: Element, slot: Slot, html: string): void {
  * Apply an `Add` operation to an element representing a `Vec`.
  */
 export function applyAddVec(node: Element, slot: Slot, html: string): void {
-  assertNumber(slot)
+  assertIndex(slot)
 
   const fragment = createFragment(html)
   const children = node.childNodes

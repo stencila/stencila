@@ -1,7 +1,7 @@
 import { Address, DomOperation, Slot } from '@stencila/stencila'
 import { StencilaElement } from '../../components/base'
 import { ElementId } from '../../types'
-import { assertElement, isElement, isString, isText, panic } from '../checks'
+import { assertElement, isElement, isName, isText, panic } from '../checks'
 
 /**
  * Resolve the target of a patch.
@@ -48,7 +48,7 @@ export function resolveSlot(
   parent: Element,
   slot: Slot
 ): Element | Attr | Text {
-  if (isString(slot)) {
+  if (isName(slot)) {
     // Select the first descendant element matching the slot name.
     // It is proposed that `data-prop` replace `data-itemprop`.
     // This currently allows for all options.
