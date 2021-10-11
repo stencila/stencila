@@ -115,10 +115,12 @@ export function diff(a: JsonValue, b: JsonValue, address: Address = []): Patch {
       }
     }
     return { ops }
-  } else {
+  } else if (!equal(a, b)) {
     return {
       ops: [{ type: 'Replace', address, items: 1, value: b, length: 1 }],
     }
+  } else {
+    return { ops: [] }
   }
 }
 
