@@ -5,17 +5,12 @@ import { dropCursor } from 'prosemirror-dropcursor'
 import { gapCursor } from 'prosemirror-gapcursor'
 import { history } from 'prosemirror-history'
 import { keymap } from 'prosemirror-keymap'
-import { DOMParser, Mark, Node, Slice } from 'prosemirror-model'
+import { DOMParser, Mark, Node, ResolvedPos, Slice } from 'prosemirror-model'
 import { EditorState, Transaction } from 'prosemirror-state'
-import {
-  AddMarkStep,
-  RemoveMarkStep,
-  ReplaceAroundStep,
-  ReplaceStep,
-  Step,
-} from 'prosemirror-transform'
+import { ReplaceStep, Step } from 'prosemirror-transform'
 import { EditorView } from 'prosemirror-view'
-import { diff } from '../../../patches/json'
+import { isNumber, JsonValue } from '../../../patches/checks'
+import { applyPatch, diff } from '../../../patches/json'
 import { stencilaElement, StencilaElement } from '../../base'
 import { prosemirrorToStencila } from './convert'
 import { articleInputRules } from './inputRules'
@@ -62,6 +57,8 @@ export class Article extends StencilaElement {
 
   doc?: Node
 
+  root?: JsonValue
+
   view?: EditorView
 
   static hydrate() {
@@ -86,6 +83,7 @@ export class Article extends StencilaElement {
     // so that we can use it to map reconcile and map operations
     const parser = DOMParser.fromSchema(articleSchema)
     this.doc = parser.parse(sourceElem)
+    this.root = prosemirrorToStencila(this.doc)
 
     // Create the editor state
     const state = EditorState.create({
@@ -142,7 +140,10 @@ export class Article extends StencilaElement {
    * more `Operation`s, and sends them as a `Patch` to the server.
    */
   receiveState(newState: EditorState) {
-    if (!this.doc) throw new Error('The `doc` has not been initialized')
+    if (this.doc === undefined)
+      throw new Error('The `doc` has not been initialized')
+    if (this.root === undefined)
+      throw new Error('The `root` has not been initialized')
 
     // Get any new steps
     const sendable = sendableSteps(newState)
@@ -153,28 +154,50 @@ export class Article extends StencilaElement {
     // TODO: instead of ignoring this, is some sort of reset required
     if (version !== this.version) return
 
-    const pre = prosemirrorToStencila(this.doc)
-
-    const ops = []
+    // Each step is converted to an operation, which is then applied to `this.root`,
+    // and the step is applied to the ProseMirror document
+    const ops: Operation[] = []
     for (const step of steps) {
-      // try {
-      //  const op = this.stepToOperation(step)
-      //  ops.push(op)
-      // } catch (error) {
-      //  console.log(error)
-      // }
+      // Attempt to generate an operation from the step
+      // TODO: enable this call when stepToOperation is fixed
+      const op = undefined // this.stepToOperation(step)
 
+      // Apply the step
       const { failed, doc } = step.apply(this.doc)
       if (typeof failed === 'string') {
         console.error(failed)
       } else if (doc) {
         this.doc = doc
       }
+
+      // If necessary, generate operations from the change in the `this.root`,
+      // otherwise apply the operation so that `this.root` stays up to date
+      if (op === undefined) {
+        console.debug('⚠️ Generating patch from diff')
+        // TODO: do diff on the smallest part of the doc possible e.g a single paragraph
+        const newRoot = prosemirrorToStencila(this.doc)
+        const patch = diff(this.root, newRoot)
+        ops.push(...patch.ops)
+        this.root = newRoot
+      } else {
+        ops.push(op)
+        try {
+          applyPatch(this.root, {
+            ops: ops.map((op): DomOperation => {
+              // @ts-expect-error because this is a temporary until we unify Operation and DomOperation
+              return { ...op, json: op.value }
+            }),
+          })
+        } catch (error) {
+          // There was an error applying the patch so recover by setting root to
+          // the current state of the document
+          console.error(error)
+          this.root = prosemirrorToStencila(this.doc)
+        }
+      }
     }
 
-    const post = prosemirrorToStencila(this.doc)
-    const patch = diff(pre, post)
-    this.sendPatch(patch)
+    this.sendPatch({ ops })
 
     this.version = this.version + steps.length
 
@@ -205,119 +228,85 @@ export class Article extends StencilaElement {
   }
 
   /**
-   * Convert a ProseMirror transaction `Step` to a Stencila document `Operation`.
+   * Convert a ProseMirror transaction `Step` to a Stencila patch `Operation`.
+   *
+   * Return `undefined` if the conversion has not been implemented yet, in which
+   * case diff-based operations will be created.
    */
-  stepToOperation(step: Step): Operation {
+  stepToOperation(step: Step): Operation | undefined {
     if (!this.doc) throw new Error('The `doc` has not been initialized')
 
     if (step.constructor === ReplaceStep) {
       const { from, to, slice } = step as ReplaceStepInterface
-      let address = this.offsetToAddress(from)
       if (slice.size !== 0) {
         // Slice has content, so adding or replacing
         const { content, openStart, openEnd } = slice
-        console.log(from, to, content, openStart, openEnd)
-
-        let value: any = ''
-        if (openStart === 0 && openStart === 0) {
-          // Adding a character e.g. a keypress
+        if (openStart === 0 && openEnd === 0) {
+          // Adding text e.g. a keypress or pasting
           if (content.childCount === 1 && content.child(0).isText) {
-            value = content.child(0).textContent
-          } else {
-            throw new Error('Unexpected content')
-          }
-        } else if (content.size > 1 && openStart > 0 && openEnd == openStart) {
-          // Splitting e.g. pressing Enter within or at end of a paragraph
-          // Need to replace the existing node with two new ones containing the
-          // child nodes before and after the split
-          // So go up to the blocks and add one
-          address = address.slice(0, -3)
-          const last = (address[address.length - 1] as number) + 1
-          address = [...address.slice(0, -1), last]
-          // TODO split content
-          value = [{ type: 'Paragraph', content: [''] }]
-        }
+            const position = this.doc.resolve(from)
+            const address = this.offsetToAddress(position)
+            if (address === undefined) return
 
-        const length = value.length
-        if (from === to) {
-          return {
-            type: 'Add',
-            address,
-            value,
-            length,
-          }
-        } else {
-          return {
-            type: 'Replace',
-            address,
-            items: to - from,
-            value,
-            length,
+            const value = content.child(0).textContent
+            const length = value.length
+            if (from === to) {
+              if (position.parent.childCount === 0) {
+                // The parent does not have any children yet, so add the value as the
+                // first child of the parent
+                return {
+                  type: 'Add',
+                  address: address.slice(0, -1),
+                  value: [value],
+                  length,
+                }
+              } else {
+                // Add the text to the existing text node
+                return {
+                  type: 'Add',
+                  address,
+                  value,
+                  length,
+                }
+              }
+            } else {
+              return {
+                type: 'Replace',
+                address,
+                items: to - from,
+                value,
+                length,
+              }
+            }
+          } else {
+            console.log('Unexpected content')
           }
         }
       } else {
-        // Slice is empty, so removing
-        return {
-          type: 'Remove',
-          address,
-          items: to - from,
+        // Slice is empty, so removing something.
+        // If the parent node (e.g. a Paragraph) is the same for the `to` and `from`
+        // positions then do the remove with the items calculated form the addresses
+        const fromPos = this.doc.resolve(from)
+        const toPos = this.doc.resolve(to)
+        if (fromPos.parent === toPos.parent) {
+          const address = this.offsetToAddress(fromPos)
+          if (address === undefined) return
+
+          const toAddress = this.offsetToAddress(toPos)
+          if (toAddress === undefined) return
+
+          const lastFrom = address[address.length - 1]
+          const lastTo = toAddress[toAddress.length - 1]
+          if (isNumber(lastFrom) && isNumber(lastTo)) {
+            return {
+              type: 'Remove',
+              address,
+              items: lastTo - lastFrom,
+            }
+          }
         }
       }
-    } else if (step.constructor === ReplaceAroundStep) {
-      const { from, to } = step as ReplaceAroundStepInterface
-      console.error(`TODO: ReplaceAroundStep ${step}`)
-    } else if (step.constructor === AddMarkStep) {
-      const { from, to, mark } = step as AddMarkStepInterface
-      console.log('from', from, this.offsetToAddress(from))
-      console.log('to', to, this.offsetToAddress(to))
-      console.log('mark', mark.type.name)
-      // Replace the surrounding node with up to three nodes:
-      // 1. the content before (if from address is greater than 0)
-      // 2. the new mark
-      // 3. the content after
-      const fromAddress = this.offsetToAddress(from)
-
-      const node = this.doc.nodeAt(from)
-      if (!node) throw new Error('Unexpected nullish node')
-      const text = node.text
-      if (!text) throw new Error('Unexpected nullish text')
-
-      const position = this.doc.resolve(from)
-      const parent = position.parent
-      console.log(parent.content)
-
-      const before = text.slice(0, 2)
-      const marked = text.slice(2, 3)
-      const after = text.slice(3)
-      return {
-        type: 'Replace',
-        address: fromAddress.slice(0, -1),
-        items: 1,
-        value: [before, { type: mark.type.name, content: [marked] }, after],
-        length: 3,
-      }
-      return {
-        type: 'Transform',
-        address: this.offsetToAddress(from),
-        // @ts-expect-error because not yet a property
-        items: to - from,
-        from: 'String',
-        to: mark.type.name,
-      }
-    } else if (step.constructor === RemoveMarkStep) {
-      const { from, to, mark } = step as RemoveMarkStepInterface
-      return {
-        type: 'Transform',
-        address: this.offsetToAddress(from),
-        // @ts-expect-error because not yet a property
-        items: to - from,
-        from: mark.type.name,
-        to: 'String',
-      }
     }
-
-    // Should be unreachable as the above handle all step types
-    throw new Error(`Unhandled step type ${JSON.stringify(step)}`)
   }
 
   /**
@@ -340,22 +329,27 @@ export class Article extends StencilaElement {
   }
 
   /**
-   * Convert a ProseMirror document offset into a Stencila document address.
+   * Convert a ProseMirror `ResolvedPos` into a Stencila document address.
    *
    * For relevant ProseMirror documentation see:
    *   - https://prosemirror.net/docs/guide/#doc.indexing
    *   - https://prosemirror.net/docs/ref/#model.Resolved_Positions
    */
-  offsetToAddress(offset: number): Address {
-    if (!this.doc) throw new Error('The `doc` has not been initialized')
+  offsetToAddress(position: ResolvedPos): Address | undefined {
+    // Check that there are no ProseMirror nodes before this one in the parent
+    // node that have multiple marks as that will invalidate the address
+    // This may be able to be dealt with; rather than throwing a wobbly like this
+    for (let index = 0; index < position.index(position.depth); index++) {
+      if (position.parent.content.child(index).marks.length > 1) {
+        return
+      }
+    }
 
-    // Get the ProseMirror `ResolvedPos` from the offset
-    const position = this.doc.resolve(offset)
     let textOffset = position.textOffset
 
     // For each depth level that the position is in the node tree
-    // calculate the Stencila slot(s) o add to the address
-    const address = []
+    // calculate the Stencila slot(s) to add to the address
+    const address: Address = []
     for (let depth = 1; depth <= position.depth; depth++) {
       const ancestor = position.node(depth)
       let index = position.index(depth)
@@ -383,13 +377,15 @@ export class Article extends StencilaElement {
       }
     }
 
-    // If the position has ProseMirror marks the we need to add additional nesting to
-    // the address
-    // TODO
-    // for (const mark in position.marks()) {
-    // address.push('content')
-    // address.push(0)
-    // }
+    // If there are marks on this node then we need to add to the address
+    const marks = position.marks()
+    if (marks.length === 1) {
+      address.push('content')
+      address.push(0)
+    } else if (marks.length > 1) {
+      // Currently unable to determine address if more than one mark
+      return
+    }
 
     address.push(textOffset)
     return address

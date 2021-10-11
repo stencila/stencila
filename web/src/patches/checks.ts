@@ -112,6 +112,22 @@ export function assertDefined(
 }
 
 /**
+ * Is a JSON value a number?
+ */
+export function isNumber(value: JsonValue | undefined): value is number {
+  return typeof value === 'number'
+}
+
+/**
+ * Assert that a JSON value is a number
+ */
+export function assertNumber(
+  value: JsonValue | undefined
+): asserts value is number {
+  assert(isNumber(value), `Expected a number, got a ${typeof value}`)
+}
+
+/**
  * Is a JSON value a string?
  */
 export function isString(value: JsonValue | undefined): value is string {
@@ -124,7 +140,7 @@ export function isString(value: JsonValue | undefined): value is string {
 export function assertString(
   value: JsonValue | undefined
 ): asserts value is string {
-  assert(isString(value), 'Expected a JSON string')
+  assert(isString(value), `Expected a string, got a ${typeof value}`)
 }
 
 /**
@@ -147,7 +163,7 @@ export function isObject(value: JsonValue | undefined): value is JsonObject {
 export function assertArray(
   value: JsonValue | undefined
 ): asserts value is JsonArray {
-  assert(isArray(value), 'Expected a JSON array')
+  assert(isArray(value), `Expected an array, got a ${typeof value}`)
 }
 
 /**
@@ -156,5 +172,8 @@ export function assertArray(
 export function assertArrayOrObject(
   value: JsonValue
 ): asserts value is JsonArray | JsonObject {
-  assert(isArray(value) || isObject(value), 'Expected a JSON array or object')
+  assert(
+    isArray(value) || isObject(value),
+    `Expected an array or object, got a ${typeof value}`
+  )
 }

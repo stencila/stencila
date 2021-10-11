@@ -77,7 +77,7 @@ export function diff(a: JsonValue, b: JsonValue, address: Address = []): Patch {
       } else {
         ops.push({
           type: 'Remove',
-          address: [...address, curr.newPos],
+          address: [...address, Math.max(0, curr.newPos)],
           items: curr.items.length,
         })
       }
@@ -219,16 +219,21 @@ export function applyAdd(value: JsonValue, op: DomOperationAdd): void {
   const [parent, key, target, slot] = resolveAddress(value, address)
 
   if (isArray(target)) {
+    // Adding item/s to an array
     assertIndex(slot)
     assertArray(json)
     target.splice(slot, 0, ...json)
   } else if (isObject(target)) {
+    // Adding a property to an object
     assertName(slot)
     target[slot] = json
-  } else if (typeof target === 'string') {
+  } else if (isString(target)) {
+    // Add a substring to a string
     assertIndex(slot)
     assertString(json)
     replaceString(parent, key, applyAddString(target, slot, json))
+  } else {
+    panic(`Add operation has unexpected target type: ${typeof target}`)
   }
 }
 
