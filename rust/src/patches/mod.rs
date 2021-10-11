@@ -1318,7 +1318,7 @@ mod tests {
             dom_patch.ops,
             json!([{
                 "type": "Add",
-                "address": ["content"],
+                "address": ["content", 0],
                 "html": "<p itemtype=\"http://schema.stenci.la/Paragraph\" itemscope></p>",
                 "json": [{"type": "Paragraph", "content": []}]
             }])

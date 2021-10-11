@@ -7,25 +7,6 @@ use html_escape::encode_safe;
 use std::{fs, path::PathBuf};
 use stencila_schema::*;
 
-/// Encode a vector of `InlineContent` as HTML
-///
-/// Note that, as for blocks, if the `slot` is an empty string, then no wrapping `<div>`
-/// will be generated.
-impl ToHtml for Vec<InlineContent> {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
-        let inlines = self
-            .iter()
-            .map(|item| item.to_html("", context))
-            .collect::<Vec<String>>()
-            .concat();
-        if slot.is_empty() {
-            inlines
-        } else {
-            elem("span", &[attr_prop(slot)], &inlines)
-        }
-    }
-}
-
 impl ToHtml for InlineContent {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         match self {

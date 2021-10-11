@@ -123,7 +123,11 @@ impl ToHtml for Article {
             None => "".to_string(),
         };
 
-        let content = self.content.to_html("content", context);
+        let content = elem(
+            "div",
+            &[attr_prop("content")],
+            &self.content.to_html("", context),
+        );
 
         elem(
             "article",

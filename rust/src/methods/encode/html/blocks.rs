@@ -5,26 +5,6 @@ use super::{
 use html_escape::encode_safe;
 use stencila_schema::*;
 
-/// Encode a vector of `BlockContent` as HTML
-///
-/// Note that if the `slot` is an empty string, then no wrapping `<div>`
-/// will be generated. This allows the `content` property of nodes to be "implicit".
-/// Use this when there are no other properties of a block that need to be encoded.
-impl ToHtml for Vec<BlockContent> {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
-        let blocks = self
-            .iter()
-            .map(|item| item.to_html("", context))
-            .collect::<Vec<String>>()
-            .concat();
-        if slot.is_empty() {
-            blocks
-        } else {
-            elem("div", &[attr_prop(slot)], &blocks)
-        }
-    }
-}
-
 impl ToHtml for BlockContent {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         match self {

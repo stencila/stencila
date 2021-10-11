@@ -1,19 +1,5 @@
-use super::{attr, attr_prop, elem, json, Context, ToHtml};
+use super::{attr, elem, json, Context, ToHtml};
 use stencila_schema::Node;
-
-impl ToHtml for Vec<Node> {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
-        elem(
-            "div",
-            &[attr_prop(slot)],
-            &self
-                .iter()
-                .map(|item| item.to_html("", context))
-                .collect::<Vec<String>>()
-                .concat(),
-        )
-    }
-}
 
 /// Encode a `Node` to HTML
 ///
