@@ -171,7 +171,7 @@ function heading(): NodeSpec {
     ],
     toDOM(node) {
       return [
-        `h${node.attrs.depth + 1}`,
+        `h${(node.attrs.depth as number) + 1}`,
         { itemtype: 'http://schema.stenci.la/Heading', itemscope: '' },
         0,
       ]
@@ -271,7 +271,7 @@ function codeBlock(): NodeSpec {
           itemtype: 'http://schema.stenci.la/CodeBlock',
           itemscope: '',
           // This is just for inspection that language is parsed properly
-          title: node.attrs.programmingLanguage,
+          title: node.attrs.programmingLanguage as string,
         },
         ['code', 0],
       ]
@@ -365,17 +365,16 @@ function tableCellAttrsSpec(): Record<string, AttributeSpec> {
 /**
  * Get `TableCell` attributes as part of `parseDOM`
  */
-function tableCellAttrsGet(dom: HTMLElement): Record<string, any> {
-  const widthAttr = dom.getAttribute('data-colwidth')
-  const widths =
-    widthAttr && /^\d+(,\d+)*$/.test(widthAttr)
-      ? widthAttr.split(',').map((s) => Number(s))
-      : null
-  const colspan = Number(dom.getAttribute('colspan') || 1)
+function tableCellAttrsGet(dom: HTMLElement): Record<string, unknown> {
+  const widthAttr = dom.getAttribute('data-colwidth') ?? ''
+  const widths = /^\d+(,\d+)*$/.test(widthAttr)
+    ? widthAttr.split(',').map((s) => Number(s))
+    : null
+  const colspan = Number(dom.getAttribute('colspan') ?? 1)
 
   return {
     colspan,
-    rowspan: Number(dom.getAttribute('rowspan') || 1),
+    rowspan: Number(dom.getAttribute('rowspan') ?? 1),
     colwidth: widths && widths.length === colspan ? widths : null,
   }
 }
@@ -383,16 +382,16 @@ function tableCellAttrsGet(dom: HTMLElement): Record<string, any> {
 /**
  * Set `TableCell` attributes as part of `toDOM`
  */
-function tableCellAttrsSet(node: Node): Record<string, string> {
-  const attrs: Record<string, string> = {
+function tableCellAttrsSet(node: Node): Record<string, string | number> {
+  const attrs: Record<string, string | number> = {
     itemtype: 'http://schema.stenci.la/TableCell',
     itemscope: '',
   }
 
-  if (node.attrs.colspan !== 1) attrs.colspan = node.attrs.colspan
-  if (node.attrs.rowspan !== 1) attrs.rowspan = node.attrs.rowspan
-  if (node.attrs.colwidth)
-    attrs['data-colwidth'] = node.attrs.colwidth.join(',')
+  if (node.attrs.colspan !== 1) attrs.colspan = node.attrs.colspan as number
+  if (node.attrs.rowspan !== 1) attrs.rowspan = node.attrs.rowspan as number
+  if (node.attrs.colwidth != null)
+    attrs['data-colwidth'] = (node.attrs.colwidth as string[]).join(',')
 
   return attrs
 }
@@ -458,7 +457,7 @@ function thematicBreak(): NodeSpec {
 /**
  * Generate a `NodeSpec` to represent a Stencila `InlineContent` node type.
  */
-function inline(
+function _inline(
   name: string,
   tag: string,
   content: string,

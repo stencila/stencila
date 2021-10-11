@@ -28,7 +28,7 @@ interface ReplaceStepInterface extends Step {
   structure?: boolean
 }
 
-interface ReplaceAroundStepInterface extends Step {
+interface _ReplaceAroundStepInterface extends Step {
   from: number
   to: number
   gapFrom: number
@@ -38,13 +38,13 @@ interface ReplaceAroundStepInterface extends Step {
   structure?: boolean
 }
 
-interface AddMarkStepInterface extends Step {
+interface _AddMarkStepInterface extends Step {
   from: number
   to: number
   mark: Mark
 }
 
-interface RemoveMarkStepInterface extends Step {
+interface _RemoveMarkStepInterface extends Step {
   from: number
   to: number
   mark: Mark
@@ -61,7 +61,7 @@ export class Article extends StencilaElement {
 
   view?: EditorView
 
-  static hydrate() {
+  static hydrate(): void {
     StencilaElement.hydrate(this, 'http://schema.org/Article')
   }
 
@@ -70,7 +70,7 @@ export class Article extends StencilaElement {
    * rendering the editor as a child of this element, and hiding (or removing)
    * the original `<article>` element.
    */
-  initialize() {
+  initialize(): void {
     // Avoid recursion triggered by slotchange event
     if (this.initialized) return
     this.initialized = true
@@ -117,6 +117,7 @@ export class Article extends StencilaElement {
     this.appendChild(editorElem)
 
     // Render the editor view
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const me = this
     const view = new EditorView(editorElem, {
       state,
@@ -139,7 +140,7 @@ export class Article extends StencilaElement {
    * applies them to `this.doc`, transforms each into one or
    * more `Operation`s, and sends them as a `Patch` to the server.
    */
-  receiveState(newState: EditorState) {
+  receiveState(newState: EditorState): void {
     if (this.doc === undefined)
       throw new Error('The `doc` has not been initialized')
     if (this.root === undefined)
@@ -185,6 +186,7 @@ export class Article extends StencilaElement {
           applyPatch(this.root, {
             ops: ops.map((op): DomOperation => {
               // @ts-expect-error because this is a temporary until we unify Operation and DomOperation
+              // eslint-disable-next-line
               return { ...op, json: op.value }
             }),
           })
@@ -220,7 +222,7 @@ export class Article extends StencilaElement {
    *
    * Transforms each `Operation` into a ProseMirror `Step` and sends them to the editor.
    */
-  receiveOperation(op: DomOperation) {
+  receiveOperation(_op: DomOperation): boolean {
     // Pretends to handle the operation, so that some other handler
     // does not modify the ProseMirror managed DOM
     console.warn('TODO: Incoming patch operations are not currently handled')
@@ -318,7 +320,7 @@ export class Article extends StencilaElement {
     const transaction = new Transaction(this.doc)
     switch (op.type) {
       case 'Add': {
-        const { address, html } = op
+        const { address } = op
         return transaction.insert(this.addressToOffset(address), [])
       }
       default: {
@@ -394,7 +396,7 @@ export class Article extends StencilaElement {
   /**
    * Convert a Stencila document address to a ProseMirror document offset.
    */
-  addressToOffset(address: Address): number {
+  addressToOffset(_address: Address): number {
     // TODO calculate offsets
     return 0
   }

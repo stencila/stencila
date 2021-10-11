@@ -96,12 +96,14 @@ export const articleInputRules = inputRules({
 function markInputRule(
   regexp: RegExp,
   markType: MarkType,
-  getAttrs: Function | {} = {}
-) {
+  getAttrs: unknown = {}
+): InputRule {
   return new InputRule(regexp, (state, match, start, end) => {
-    const attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs
+    const attrs = (
+      getAttrs instanceof Function ? getAttrs(match) : getAttrs
+    ) as Record<string, string>
     const tr = state.tr
-    if (match[0] && match[1]) {
+    if (match[0] !== undefined && match[1] !== undefined) {
       const textStart = start + match[0].indexOf(match[1])
       const textEnd = textStart + match[1].length
       if (textEnd < end) tr.delete(textEnd, end)

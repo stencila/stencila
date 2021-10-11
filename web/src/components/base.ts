@@ -107,13 +107,9 @@ export abstract class StencilaElement extends LitElement {
 
   getProperty(name: string): string | undefined {
     const elem = this.getPropertyElem(name)
-    if (!elem) {
-      return undefined
-    } else {
-      if (elem.tagName === 'META')
-        return elem.getAttribute('content') ?? undefined
-      else return elem.textContent ?? undefined
-    }
+    if (elem.tagName === 'META')
+      return elem.getAttribute('content') ?? undefined
+    else return elem.textContent ?? undefined
   }
 
   render(): TemplateResult {

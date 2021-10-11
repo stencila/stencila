@@ -13,7 +13,7 @@ import { articleMarks } from './schema'
  * @why Used to generate Stencila patch `Operations` from more complicated
  * ProseMirror transactions which are difficult to transform into operations directly.
  */
-export function prosemirrorToStencila(node: Node) {
+export function prosemirrorToStencila(node: Node): JsonValue {
   const json = node.toJSON()
   // console.log('Prosemirror: ', JSON.stringify(json, null, '  '))
   const stencila = transformProsemirror(json)
@@ -49,7 +49,7 @@ export function transformProsemirror(value: JsonValue): JsonValue {
         isArray(prev.content) &&
         isObject(curr) &&
         isArray(curr.content) &&
-        prev.type == curr.type &&
+        prev.type === curr.type &&
         articleMarks.includes(curr.type as string)
       ) {
         value.splice(index, 1)
@@ -77,11 +77,8 @@ export function transformProsemirror(value: JsonValue): JsonValue {
       // Reshape the top-level article
       return {
         type: 'Article',
-        // @ts-ignore
-        title: object.title[0].content,
-        // @ts-ignore
-        abstract: object.abstract[0].content,
-        // @ts-ignore
+        // @ts-expect-error because this is temporary
+        // eslint-disable-next-line
         content: object.content[0].content,
       }
 
@@ -137,16 +134,16 @@ export function transformProsemirror(value: JsonValue): JsonValue {
       // Note: intentionally falls through to `TableCell` case
       object.type = 'TableCell'
       object.cellType = 'Header'
-
-    case 'TableCell':
+    // eslint-disable-next-line no-fallthrough
+    case 'TableCell': {
       // Get properties
       const attrs = object.attrs as JsonObject
       object.colspan = attrs.colspan ?? 1
       object.rowspan = attrs.rowspan ?? 1
       delete object.attrs
       return object
-
-    case 'text':
+    }
+    case 'text': {
       // Transform ProseMirror text nodes into a (possibly nested) set of
       // inline nodes e.g. String, Strong, Emphasis.
       // Note that with this algorithm, the first applied mark will be the outer one.
@@ -165,7 +162,7 @@ export function transformProsemirror(value: JsonValue): JsonValue {
         }
       }
       return node
-
+    }
     default:
       return object
   }
