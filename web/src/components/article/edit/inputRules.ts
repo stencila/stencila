@@ -52,7 +52,10 @@ export const articleInputRules = inputRules({
 
     // Custom Markdown underline
     // TODO: Requires disambiguation with emphasis rule (or removal)
-    markInputRule(/_{2}(\S(?:|.*?\S))_{2}$/, articleSchema.marks.Underline),
+    markInputRule(
+      /_{2}(\S(?:|.*?\S))_{2}$/,
+      articleSchema.marks.NontextualAnnotation
+    ),
 
     // Pandoc Markdown subscript
     markInputRule(/~(\S(?:|.*?\S))~$/, articleSchema.marks.Subscript),

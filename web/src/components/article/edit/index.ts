@@ -1,4 +1,4 @@
-import { Address, DomOperation, Operation, Patch } from '@stencila/stencila'
+import { Address, DomOperation, Operation } from '@stencila/stencila'
 import { collab, receiveTransaction, sendableSteps } from 'prosemirror-collab'
 import { baseKeymap } from 'prosemirror-commands'
 import { dropCursor } from 'prosemirror-dropcursor'
@@ -15,16 +15,12 @@ import {
   Step,
 } from 'prosemirror-transform'
 import { EditorView } from 'prosemirror-view'
-import {
-  isArray,
-  isObject,
-  JsonValue,
-} from '../../../patches/checks'
 import { diff } from '../../../patches/json'
 import { stencilaElement, StencilaElement } from '../../base'
+import { prosemirrorToStencila } from './convert'
 import { articleInputRules } from './inputRules'
 import { articleKeymap } from './keymap'
-import { articleMarks, articleSchema } from './schema'
+import { articleSchema } from './schema'
 
 // The following interfaces were necessary because the way they are defined
 // in @types/prosemirror-transform (as classes with only constructors) does
@@ -90,9 +86,6 @@ export class Article extends StencilaElement {
     // so that we can use it to map reconcile and map operations
     const parser = DOMParser.fromSchema(articleSchema)
     this.doc = parser.parse(sourceElem)
-
-    // DEBUG: Get an initial
-    nodeToJSON(this.doc)
 
     // Create the editor state
     const state = EditorState.create({
@@ -160,16 +153,16 @@ export class Article extends StencilaElement {
     // TODO: instead of ignoring this, is some sort of reset required
     if (version !== this.version) return
 
-    const pre = nodeToJSON(this.doc)
+    const pre = prosemirrorToStencila(this.doc)
 
-    let ops = []
+    const ops = []
     for (const step of steps) {
-      try {
-        const op = this.stepToOperation(step)
-        ops.push(op)
-      } catch (error) {
-        console.log(error)
-      }
+      // try {
+      //  const op = this.stepToOperation(step)
+      //  ops.push(op)
+      // } catch (error) {
+      //  console.log(error)
+      // }
 
       const { failed, doc } = step.apply(this.doc)
       if (typeof failed === 'string') {
@@ -179,7 +172,7 @@ export class Article extends StencilaElement {
       }
     }
 
-    const post = nodeToJSON(this.doc)
+    const post = prosemirrorToStencila(this.doc)
     const patch = diff(pre, post)
     this.sendPatch(patch)
 
@@ -408,110 +401,6 @@ export class Article extends StencilaElement {
   addressToOffset(address: Address): number {
     // TODO calculate offsets
     return 0
-  }
-}
-
-/**
- * Convert the ProseMirror document to Stencila JSON.
- *
- * This is used to generate Stencila patch `Operations` from more complicated
- * ProseMirror transactions which are difficult to transform into operations directly.
- */
-function nodeToJSON(node: Node) {
-  const json = node.toJSON()
-  console.log('JSON: ', JSON.stringify(json, null, '  '))
-  const transformed = transformJSON(json)
-  console.log('Transformed: ', JSON.stringify(transformed, null, '  '))
-  return transformed
-}
-
-/**
- * Transform a ProseMirror JSON representation of a document node
- * into a Stencila Schema representation.
- *
- * @why To generate a Stencila `Patch` for a ProseMirror transformation we
- * first need to represent the document as a Stencila document.
- *
- * @how Performance is important given that this function is recursively
- * called over potentially large documents. Given that, it favours mutation
- * and loops over restructuring and mapping etc.
- */
-function transformJSON(value: JsonValue): JsonValue {
-  if (typeof value === 'string') return value
-  if (typeof value === 'number') return value
-  if (typeof value === 'boolean') return value
-  if (value === null) return value
-
-  if (Array.isArray(value)) {
-    // Transform items of array and then merge adjacent inlines that mary have
-    // arisen from how ProseMirror marks are handled (see below)
-    let index = 0
-    let prev: JsonValue | undefined
-    while (index < value.length) {
-      const curr = transformJSON(value[index] as JsonValue)
-      if (
-        isObject(prev) &&
-        isArray(prev.content) &&
-        isObject(curr) &&
-        isArray(curr.content) &&
-        prev.type == curr.type &&
-        articleMarks.includes(curr.type as string)
-      ) {
-        value.splice(index, 1)
-        prev.content.push(...curr.content)
-      } else {
-        value[index] = curr
-        prev = curr
-        index++
-      }
-    }
-    return value
-  }
-
-  // Transform properties of objects
-  for (const key in value) {
-    value[key] = transformJSON(value[key] as JsonValue)
-  }
-
-  switch (value.type) {
-    case 'text': {
-      // Transform ProseMirror text nodes into a (possibly nested) set of
-      // inline nodes e.g. String, Strong, Emphasis.
-      // Note that with this algorithm, the first applied mark will be the outer one.
-      // This is related to the above merging of inline nodes.
-      const text = value as {
-        text: string
-        marks?: [{ type: string }]
-      }
-      let node: string | { type: string; content: [JsonValue] } = text.text
-      if (text.marks) {
-        for (const mark of text.marks) {
-          node = {
-            type: mark.type,
-            content: [node],
-          }
-        }
-      }
-      return node
-    }
-    case 'Paragraph': {
-      // Ensure that the `content` property is defined
-      // (wont be for empty paragraphs etc).
-      // Important for diffing
-      if (value.content === undefined) {
-        value.content = []
-      }
-      return value
-    }
-    case 'Article':
-      // Reshape the top-level article
-      return {
-        type: 'Article',
-        // @ts-ignore
-        content: value.content[0].content,
-      }
-    default:
-      return value
   }
 }
 

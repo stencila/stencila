@@ -45,7 +45,7 @@ export const articleKeymap: Keymap = {
   // These are consistent with Google Docs (and others?)
   'Mod-i': toggleMark(articleSchema.marks.Emphasis),
   'Mod-b': toggleMark(articleSchema.marks.Strong),
-  'Mod-u': toggleMark(articleSchema.marks.Underline),
+  'Mod-u': toggleMark(articleSchema.marks.NontextualAnnotation),
   'Alt-Shift-5': toggleMark(articleSchema.marks.Delete),
   'Mod-.': toggleMark(articleSchema.marks.Superscript),
   'Mod-,': toggleMark(articleSchema.marks.Subscript),

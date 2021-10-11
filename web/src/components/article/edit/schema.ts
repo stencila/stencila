@@ -28,6 +28,9 @@ import {
  * These conventions make it possible to convert a ProseMirror offset position e.g. `83`
  * into a Stencila address e.g. `["content", 1, "caption", 4]`.
  *
+ * Note: When adding types here, please ensure transformations are handled in the
+ * `transformProsemirror` function.
+ *
  * For docs and examples see:
  *  - https://prosemirror.net/docs/guide/#schema
  *  - https://prosemirror.net/examples/schema/
@@ -79,7 +82,7 @@ export const articleSchema = new Schema({
           /^(bold(er)?|[5-9]\d{2,})$/.test(value as string) && null,
       },
     ]),
-    Underline: mark('Underline', 'u'),
+    NontextualAnnotation: mark('NontextualAnnotation', 'u'),
     Delete: mark('Delete', 'del'),
     Subscript: mark('Subscript', 'sub'),
     Superscript: mark('Superscript', 'sup'),
