@@ -1,3 +1,34 @@
+# [0.120.0](https://github.com/stencila/stencila/compare/v0.119.1...v0.120.0) (2021-10-11)
+
+
+### Bug Fixes
+
+* **Article editor:** Add tranformations for node types ([44ec0ae](https://github.com/stencila/stencila/commit/44ec0aebe84a17f1fe7cd3076de49e701dff5514))
+* **Article editor:** Fix order attribute for ordered lists ([adf52cb](https://github.com/stencila/stencila/commit/adf52cb507ee091bf07fe42f1650ed5fed87413e))
+* **HTML:** Fixes to list and table encoding for compatability with address resolving algorithm ([a57d4b0](https://github.com/stencila/stencila/commit/a57d4b0f2fa67f616e8b6a1e92485fb14dbd1985))
+* **HTML Encoding:** Use attributes that are consistent with themes ([a0cbc9f](https://github.com/stencila/stencila/commit/a0cbc9f8c5f5c1c2cf62b0d9d48ff518be8fcfc2))
+* **Node bindings:** Use oneOf instead of anyOf ([a2e0d81](https://github.com/stencila/stencila/commit/a2e0d8156edfd267a9f58af3fac2f728f90af368))
+* **Patches:** Add `DeserializeOwned` bound to avoid manual`from_value` overrides; fix tests ([5c0cd10](https://github.com/stencila/stencila/commit/5c0cd1074f7a47d4df10fa3330abc11256972a29))
+* **Patches:** Allow single item values for vectors ([a2a5558](https://github.com/stencila/stencila/commit/a2a5558d2561cff226ab6e7e529e94e5392a3c9f))
+* **Patches:** Handle single item values ([b8ffeda](https://github.com/stencila/stencila/commit/b8ffedad4478a3a981f353c3d25184c35d5e58f2))
+* **Rust:** Republish patches to other subscribers ([a02b40e](https://github.com/stencila/stencila/commit/a02b40e04e67a2de313ab00232fb587c6874959d))
+* **Serve:** Return formats like Markdown as plain text ([d5355a6](https://github.com/stencila/stencila/commit/d5355a63e745805a63ac8d19a7a9deb9beb87fc2))
+* **Web:** Exclude map files from embedding ([fd2ea89](https://github.com/stencila/stencila/commit/fd2ea89adfb2a220ce90b2a42d0caa5d024fa5ef))
+* **Web:** Improve robustness of JSON patches ([921e881](https://github.com/stencila/stencila/commit/921e881f95a1df849458f39b51bd4338b7bd62d9))
+* **Web:** Optimize browser bundle ([6938653](https://github.com/stencila/stencila/commit/6938653a58e3f0fcf7eeab01393164f2aa363cc1))
+* **Web:** Use diffing to generate patches ([7f25135](https://github.com/stencila/stencila/commit/7f2513597842966ba5ee857904542f98a436bc53))
+* **Web patches:** Add JSON diffing ([41ab4b0](https://github.com/stencila/stencila/commit/41ab4b0bc8bbc66b2f7331debfc7d58b9b27256f))
+* **Web patches:** Allow for empty paragraphs ([b118e36](https://github.com/stencila/stencila/commit/b118e3664b5b4d37064f593e952d1ee59374dd7e))
+* **Web patches:** Check for deep equality before returning replace ([3d62ee4](https://github.com/stencila/stencila/commit/3d62ee4e5eaea0fafbebcc0ed945ad7d0e573fac))
+
+
+### Features
+
+* **Article editor:** Add support for code fragments and blocks ([3501e69](https://github.com/stencila/stencila/commit/3501e69075c419f419088a5dfc82168b36a4d012))
+* **Web:** Add article editor ([68601d0](https://github.com/stencila/stencila/commit/68601d096fd3b3d7b22ed514538332a374cec1f5))
+* **Web patches:** Add JSON patching module ([2002a96](https://github.com/stencila/stencila/commit/2002a96f9e706663e8c0916dc72eda1e040185f5))
+* **Web patches:** Diffing of strings ([ebf8e61](https://github.com/stencila/stencila/commit/ebf8e6101367a78464af8c547a968b195c02bf3a))
+
 ## [0.119.1](https://github.com/stencila/stencila/compare/v0.119.0...v0.119.1) (2021-10-06)
 
 
