@@ -23,7 +23,7 @@ use std::{
     iter::FromIterator,
 };
 use stencila_schema::{
-    Array, BlockContent, Boolean, InlineContent, Integer, Node, Null, Number, Object,
+    Array, BlockContent, Boolean, InlineContent, Integer, ListItem, Node, Null, Number, Object,
 };
 use strum::{AsRefStr, ToString};
 
@@ -725,14 +725,21 @@ impl DomOperation {
                 return str.to_string();
             } else if let Ok(nodes) = serde_json::from_value::<InlineContent>(value.clone()) {
                 return nodes.to_html("", &context);
-            } else if let Ok(nodes) = serde_json::from_value::<BlockContent>(value.clone()) {
-                return nodes.to_html("", &context);
             } else if let Ok(nodes) = serde_json::from_value::<Vec<InlineContent>>(value.clone()) {
+                return nodes.to_html("", &context);
+            } else if let Ok(nodes) = serde_json::from_value::<BlockContent>(value.clone()) {
                 return nodes.to_html("", &context);
             } else if let Ok(nodes) = serde_json::from_value::<Vec<BlockContent>>(value.clone()) {
                 return nodes.to_html("", &context);
+            } else if let Ok(nodes) = serde_json::from_value::<ListItem>(value.clone()) {
+                return nodes.to_html("", &context);
+            } else if let Ok(nodes) = serde_json::from_value::<Vec<ListItem>>(value.clone()) {
+                return nodes.to_html("", &context);
             } else {
-                return value.to_string();
+                tracing::error!(
+                    "Unhandled JSON value type when generating HTML for `DomOperation`"
+                );
+                return ["<span class=\"todo\">", &value.to_string(), "</span>"].concat();
             }
         }
 
@@ -1242,7 +1249,10 @@ mod tests {
     #[test]
     fn test_dom_patch() {
         // Empty article
-        let one = Article::default();
+        let one = Article {
+            content: Some(vec![]),
+            ..Default::default()
+        };
 
         // Add an empty paragraph
         let two = Article {
@@ -1292,13 +1302,13 @@ mod tests {
         let dom_patch = DomPatch::new(&patch);
         assert!(dom_patch.ops.is_empty());
 
-        // one to two -> `Add` operation on the article's optional content
+        // one to two -> `Add` operation on the article's content
         let patch = diff(&one, &two);
         assert_json_eq!(
             patch.ops,
             json!([{
                 "type": "Add",
-                "address": ["content"],
+                "address": ["content", 0],
                 "value": [{"type": "Paragraph", "content": []}],
                 "length": 1
             }])
@@ -1309,7 +1319,7 @@ mod tests {
             json!([{
                 "type": "Add",
                 "address": ["content"],
-                "html": "<div data-itemprop=\"content\"><p itemtype=\"http://schema.stenci.la/Paragraph\" itemscope></p></div>",
+                "html": "<p itemtype=\"http://schema.stenci.la/Paragraph\" itemscope></p>",
                 "json": [{"type": "Paragraph", "content": []}]
             }])
         );

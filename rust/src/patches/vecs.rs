@@ -1,6 +1,7 @@
 use super::prelude::*;
 use serde::de::DeserializeOwned;
 use similar::DiffOp;
+use std::any::type_name;
 use std::cmp::min;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
@@ -459,7 +460,11 @@ where
             } else if let Ok(item) = serde_json::from_value::<Type>(json.clone()) {
                 vec![item]
             } else {
-                bail!(invalid_patch_value::<Self>())
+                bail!(
+                    "Invalid JSON patch value for type `{}`: {}",
+                    type_name::<Self>(),
+                    json.to_string()
+                )
             }
         } else {
             bail!(invalid_patch_value::<Self>())
