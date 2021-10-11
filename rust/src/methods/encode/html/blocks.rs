@@ -237,22 +237,15 @@ impl ToHtml for List {
             _ => "ul",
         };
 
-        let items = elem(
+        elem(
             tag,
-            &[attr_prop("items")],
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
             &self
                 .items
                 .iter()
-                .enumerate()
-                .map(|(index, item)| item.to_html(&index.to_string(), context))
+                .map(|item| item.to_html("", context))
                 .collect::<Vec<String>>()
                 .concat(),
-        );
-
-        elem(
-            "div",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &items,
         )
     }
 }
@@ -336,6 +329,11 @@ impl ToHtml for QuoteBlock {
     }
 }
 
+/// Encode a table as HTML
+///
+/// Previously this function split the table cell's into `thead`, `tbody` and `tfoot` sections.
+/// However, that interferes with resolving cell addresses in the DOM, so we reverted to a
+/// simpler approach of placing all cell into `tbody`
 impl ToHtml for TableSimple {
     fn to_html(&self, slot: &str, context: &Context) -> String {
         let label = match &self.label {
@@ -357,85 +355,56 @@ impl ToHtml for TableSimple {
 
         let caption = elem("caption", &[], &[label, caption].concat());
 
-        // Partition rows into head, body and foot rows
-        let mut head = Vec::new();
-        let mut body = Vec::new();
-        let mut foot = Vec::new();
-        for row in &self.rows {
-            match &row.row_type {
-                Some(row_type) => match row_type {
-                    TableRowRowType::Header => head.push(row),
-                    TableRowRowType::Footer => foot.push(row),
-                },
-                _ => body.push(row),
-            }
-        }
-
-        // Generate table sections with cell types defaulting to appropriate variants
-        let head = elem(
-            "thead",
-            &[],
-            &concat(&head, |row| {
-                table_row_to_html(row, TableCellCellType::Header, "", context)
-            }),
-        );
         let body = elem(
             "tbody",
-            &[],
-            &concat(&body, |row| {
-                table_row_to_html(row, TableCellCellType::Data, "", context)
-            }),
-        );
-        let foot = elem(
-            "tfoot",
-            &[],
-            &concat(&foot, |row| {
-                table_row_to_html(row, TableCellCellType::Header, "", context)
-            }),
+            &[attr_prop("rows")],
+            &concat(&self.rows, |row| row.to_html(slot, context)),
         );
 
         elem(
             "table",
             &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[caption, head, body, foot].concat(),
+            &[caption, body].concat(),
         )
     }
 }
 
-fn table_row_to_html(
-    row: &TableRow,
-    cell_type: TableCellCellType,
-    slot: &str,
-    context: &Context,
-) -> String {
-    let cells = concat(&row.cells, |cell| {
-        let cell_type = match &cell.cell_type {
-            Some(cell_type) => cell_type.clone(),
-            None => cell_type.clone(),
-        };
-        let tag = match cell_type {
-            TableCellCellType::Header => "th",
-            TableCellCellType::Data => "td",
-        };
-        let content = match &cell.content {
-            None => String::new(),
-            Some(content) => match content {
-                TableCellContent::VecInlineContent(nodes) => nodes.to_html("", context),
-                TableCellContent::VecBlockContent(nodes) => nodes.to_html("", context),
-            },
-        };
-        elem(tag, &[attr_itemtype::<TableCell>()], &content)
-    });
+impl ToHtml for TableRow {
+    fn to_html(&self, slot: &str, context: &Context) -> String {
+        let cells = concat(&self.cells, |cell| {
+            let tag = match &cell.cell_type {
+                Some(cell_type) => match cell_type {
+                    TableCellCellType::Header => "th",
+                    TableCellCellType::Data => "td",
+                },
 
-    elem(
-        "tr",
-        &[
-            attr_prop(slot),
-            attr_itemtype::<TableRow>(),
-            attr_id(&row.id),
-        ],
-        &cells,
-    )
+                None => match &self.row_type {
+                    Some(TableRowRowType::Header) | Some(TableRowRowType::Footer) => "th",
+                    _ => "td",
+                },
+            };
+
+            let content = match &cell.content {
+                None => String::new(),
+                Some(content) => match content {
+                    TableCellContent::VecInlineContent(nodes) => nodes.to_html("", context),
+                    TableCellContent::VecBlockContent(nodes) => nodes.to_html("", context),
+                },
+            };
+
+            elem(tag, &[attr_itemtype::<TableCell>()], &content)
+        });
+
+        elem(
+            "tr",
+            &[
+                attr_prop(slot),
+                attr_itemtype::<TableRow>(),
+                attr_id(&self.id),
+            ],
+            &cells,
+        )
+    }
 }
 
 impl ToHtml for ThematicBreak {

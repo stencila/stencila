@@ -84,10 +84,17 @@ export function resolveSlot(
 
     if (child !== null) return child
 
-    // The `content` slot is usually "implicit" (i.e. not represented by an element) but
-    // instead represented by the child nodes of the parent element.
-    // So, if there is no explicitly marked content slot, return the parent
-    if (slot === 'content') return parent
+    // The `content`, `items`, `rows` and `cell` slots are usually "implicit"
+    // (i.e. not represented by an element) but instead represented by the child nodes of
+    // the parent element. So, if there is no explicitly marked content slot, return the parent
+    if (
+      slot === 'content' ||
+      (slot === 'items' &&
+        (parent.tagName === 'UL' || parent.tagName === 'OL')) ||
+      (slot === 'rows' && parent.tagName === 'TABLE') ||
+      (slot === 'cells' && parent.tagName === 'TR')
+    )
+      return parent
 
     // See if the slot is represented as a standard HTML attribute e.g. `id`, `value`
     const attr = parent.attributes.getNamedItem(slot)
