@@ -303,11 +303,14 @@ export class Article extends StencilaElement {
 
           const lastFrom = address[address.length - 1]
           const lastTo = toAddress[toAddress.length - 1]
-          if (isNumber(lastFrom) && isNumber(lastTo)) {
+          if (!(isNumber(lastFrom) && isNumber(lastTo))) return
+  
+          const items = lastTo - lastFrom
+          if (items > 0) {
             return {
               type: 'Remove',
               address,
-              items: lastTo - lastFrom,
+              items,
             }
           }
         }
