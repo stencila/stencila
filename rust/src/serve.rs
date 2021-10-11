@@ -147,7 +147,7 @@ pub fn serve_background(url: &str, key: Option<String>) -> Result<()> {
 #[cfg(feature = "serve-static")]
 #[derive(RustEmbed)]
 #[folder = "static"]
-#[exclude = "web/*.js.map"]
+#[exclude = "web/*.map"]
 struct Static;
 
 struct Client {
@@ -770,11 +770,14 @@ pub fn rewrite_html(body: &str, mode: &str, theme: &str, cwd: &Path, document: &
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link href="/~static/web/{mode}.css" rel="stylesheet">
         <script src="/~static/web/{mode}.js"></script>
         <script>
             const startup = stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}");
             startup().catch((err) => console.error('Error during startup', err))
         </script>
+
         <link
             href="https://unpkg.com/@stencila/thema/dist/themes/{theme}/styles.css"
             rel="stylesheet">
@@ -786,18 +789,6 @@ pub fn rewrite_html(body: &str, mode: &str, theme: &str, cwd: &Path, document: &
             src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.js"
             type="text/javascript" nomodule="">
         </script>
-        <style>
-            .todo {{
-                font-family: mono;
-                color: #f88;
-                background: #fff2f2;
-            }}
-            .unsupported {{
-                font-family: mono;
-                color: #777;
-                background: #eee;
-            }}
-        </style>
     </head>
     <body>
         {body}

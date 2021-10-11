@@ -17,6 +17,9 @@ import { articleInputRules } from './inputRules'
 import { articleKeymap } from './keymap'
 import { articleSchema } from './schema'
 
+// Import ProseMirror's `EditorView` styles for correct whitespace handling etc
+import 'prosemirror-view/style/prosemirror.css'
+
 // The following interfaces were necessary because the way they are defined
 // in @types/prosemirror-transform (as classes with only constructors) does
 // not seem to permit typed access to properties
@@ -162,8 +165,9 @@ export class Article extends StencilaElement {
       // Attempt to generate an operation from the step
       // TODO: enable this call when stepToOperation is fixed
       const op = undefined // this.stepToOperation(step)
-
-      // Apply the step
+  
+      // Apply the step this `this.doc` so it is up to date and
+      // so that positions in the step can be correctly resolved to addresses. 
       const { failed, doc } = step.apply(this.doc)
       if (typeof failed === 'string') {
         console.error(failed)

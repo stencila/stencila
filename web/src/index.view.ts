@@ -6,6 +6,8 @@
 
 import { main } from './index'
 
+import './index.view.css'
+
 window.stencilaWebClient = {
   main,
 }

@@ -8,6 +8,8 @@
 
 import { main } from './index'
 
+import './index.exec.css'
+
 window.stencilaWebClient = {
   main,
 }
