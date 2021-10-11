@@ -165,9 +165,9 @@ export class Article extends StencilaElement {
       // Attempt to generate an operation from the step
       // TODO: enable this call when stepToOperation is fixed
       const op = undefined // this.stepToOperation(step)
-  
+
       // Apply the step this `this.doc` so it is up to date and
-      // so that positions in the step can be correctly resolved to addresses. 
+      // so that positions in the step can be correctly resolved to addresses.
       const { failed, doc } = step.apply(this.doc)
       if (typeof failed === 'string') {
         console.error(failed)
@@ -304,7 +304,7 @@ export class Article extends StencilaElement {
           const lastFrom = address[address.length - 1]
           const lastTo = toAddress[toAddress.length - 1]
           if (!(isNumber(lastFrom) && isNumber(lastTo))) return
-  
+
           const items = lastTo - lastFrom
           if (items > 0) {
             return {

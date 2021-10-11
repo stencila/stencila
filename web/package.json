@@ -8,9 +8,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cover": "jest --coverage",
-    "format": "prettier --write '**/*.ts'",
-    "lint": "eslint 'src/**/*'",
-    "lint:fix": "eslint 'src/**/*' --fix"
+    "format": "prettier 'src/*.{ts,css}' --write",
+    "lint": "eslint 'src/**/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' --fix"
   },
   "source": "src/index.ts",
   "main": "dist/index.js",
