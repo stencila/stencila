@@ -76,12 +76,9 @@ export const articleInputRules = inputRules({
     }),
 
     // Markdown ordered list
-    wrappingInputRule(
-      /^(\d+)\.\s$/,
-      articleSchema.nodes.List,
-      (match) => ({ order: match?.[1] }),
-      (match, node) => node.childCount + node.attrs.order === match[1]
-    ),
+    wrappingInputRule(/^(\d+)\.\s$/, articleSchema.nodes.List, {
+      order: 'Ascending',
+    }),
 
     // Markdown code block
     textblockTypeInputRule(/^```$/, articleSchema.nodes.CodeBlock),
