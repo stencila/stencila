@@ -1,3 +1,16 @@
+## [0.120.1](https://github.com/stencila/stencila/compare/v0.120.0...v0.120.1) (2021-10-11)
+
+
+### Bug Fixes
+
+* **Article editor:** Add extra test for valid items ([c188226](https://github.com/stencila/stencila/commit/c18822667f2d40fb2f39894a856985278bbed73b))
+* **Article editor:** Include ProseMirror editor styles ([8db95bc](https://github.com/stencila/stencila/commit/8db95bc93a2f05a24fce51527740e0e8713e83f4))
+* **dependencies:** update dependency rpc-websockets to ^7.4.15 ([f2d6416](https://github.com/stencila/stencila/commit/f2d64163052da0ff813a28987784ed73a66fad9f))
+* **dependencies:** update rust crate reqwest to v0.11.5 ([950ec62](https://github.com/stencila/stencila/commit/950ec62d5742ebb70f97351918d8a3cead7317e9))
+* **dependencies:** update rust crate thiserror to v1.0.30 ([f8db6d2](https://github.com/stencila/stencila/commit/f8db6d23fd9f07cde2a54f6643fdf66997663cc9))
+* **dependencies:** update rust crate tracing to v0.1.29 ([b7e871f](https://github.com/stencila/stencila/commit/b7e871fd65a42bb32b804ed61ed4d71aa558ea6f))
+* **dependencies:** update rust crate tracing-subscriber to v0.2.25 ([c1c3342](https://github.com/stencila/stencila/commit/c1c334215c2e0a1670ff973b0bc451c4acbcfffb))
+
 # [0.120.0](https://github.com/stencila/stencila/compare/v0.119.1...v0.120.0) (2021-10-11)
 
 
