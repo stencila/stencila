@@ -666,11 +666,11 @@ impl Document {
     /// - `node_id`:  the id of the node at the origin of the patch; defaults to `root`
     /// - `patch`: the patch to apply
     pub fn patch(&mut self, node_id: Option<String>, patch: &Patch) -> Result<()> {
-        let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id.clone())?;
+        let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id)?;
         pointer.patch(patch)?;
 
         // TODO: Only generate and publish a DomPatch if there are subscribers
-        let dom_patch = DomPatch::new(patch, node_id);
+        let dom_patch = DomPatch::new(patch);
         publish(
             &["documents:", &self.id, ":patched"].concat(),
             &DocumentEvent {
@@ -696,7 +696,8 @@ impl Document {
         let patch = pointer.execute(&mut self.kernels)?;
 
         // TODO: Only generate and publish a DomPatch if there are subscribers
-        let dom_patch = DomPatch::new(&patch, node_id);
+        let mut dom_patch = DomPatch::new(&patch);
+        dom_patch.target = node_id;
         publish(
             &["documents:", &self.id, ":patched"].concat(),
             &DocumentEvent {
@@ -789,7 +790,7 @@ impl Document {
 
                     let patch = diff(current_root, &root);
 
-                    let dom_patch = DomPatch::new(&patch, None);
+                    let dom_patch = DomPatch::new(&patch);
                     publish(
                         &["documents:", &self.id, ":patched"].concat(),
                         &DocumentEvent {

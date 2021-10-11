@@ -1,13 +1,13 @@
 import {
   applyRemove,
   applyRemoveOption,
-  applyRemoveString,
+  applyRemoveText,
   applyRemoveVec,
 } from './remove'
 
 test('applyRemoveOption', () => {
   const elem = document.createElement('div')
-  elem.innerHTML = '<p slot="property"></p>'
+  elem.innerHTML = '<p data-itemprop="property"></p>'
 
   applyRemoveOption(elem, 'property', 1)
   expect(elem.innerHTML).toEqual('')
@@ -48,28 +48,28 @@ test('applyRemoveVec', () => {
   )
 })
 
-test('applyRemoveString', () => {
+test('applyRemoveText', () => {
   const node = document.createTextNode('ab🎁cde')
 
-  applyRemoveString(node, 0, 1)
+  applyRemoveText(node, 0, 1)
   expect(node.textContent).toEqual('b🎁cde')
 
-  applyRemoveString(node, 1, 3)
+  applyRemoveText(node, 1, 3)
   expect(node.textContent).toEqual('be')
 
-  applyRemoveString(node, 1, 1)
+  applyRemoveText(node, 1, 1)
   expect(node.textContent).toEqual('b')
 
-  expect(() => applyRemoveString(node, 'string', 1)).toThrow(
+  expect(() => applyRemoveText(node, 'string', 1)).toThrow(
     /Expected number slot/
   )
-  expect(() => applyRemoveString(node, -1, 1)).toThrow(
+  expect(() => applyRemoveText(node, -1, 1)).toThrow(
     /Unexpected remove slot '-1'/
   )
-  expect(() => applyRemoveString(node, 100, 1)).toThrow(
+  expect(() => applyRemoveText(node, 100, 1)).toThrow(
     /Unexpected remove slot '100'/
   )
-  expect(() => applyRemoveString(node, 0, 100)).toThrow(
+  expect(() => applyRemoveText(node, 0, 100)).toThrow(
     /Unexpected remove items 100/
   )
 })
@@ -77,7 +77,7 @@ test('applyRemoveString', () => {
 test('applyRemove', () => {
   // Start with `Article` with one paragraph with some content
   document.body.innerHTML =
-    '<article slot="root"><div slot="content"><p>' +
+    '<article data-itemscope="root"><div data-itemprop="content"><p>' +
     'One <strong>two</strong> three.' +
     '</p></div></article>'
 
@@ -90,10 +90,10 @@ test('applyRemove', () => {
   expect(document.body).toMatchInlineSnapshot(`
 <body>
   <article
-    slot="root"
+    data-itemscope="root"
   >
     <div
-      slot="content"
+      data-itemprop="content"
     >
       <p>
         One 
@@ -116,10 +116,10 @@ test('applyRemove', () => {
   expect(document.body).toMatchInlineSnapshot(`
 <body>
   <article
-    slot="root"
+    data-itemscope="root"
   >
     <div
-      slot="content"
+      data-itemprop="content"
     >
       <p>
         One 
@@ -138,7 +138,7 @@ test('applyRemove', () => {
   expect(document.body).toMatchInlineSnapshot(`
 <body>
   <article
-    slot="root"
+    data-itemscope="root"
   />
 </body>
 `)

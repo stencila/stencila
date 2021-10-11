@@ -1,4 +1,5 @@
 use super::prelude::*;
+use serde::de::DeserializeOwned;
 use std::hash::Hasher;
 
 /// Implements patching for `Option`
@@ -10,7 +11,7 @@ use std::hash::Hasher;
 /// All other operations passed through.
 impl<Type: Patchable> Patchable for Option<Type>
 where
-    Type: Clone + Send + 'static,
+    Type: Clone + DeserializeOwned + Send + 'static,
 {
     /// Resolve an [`Address`] into a node [`Pointer`].
     ///
@@ -132,15 +133,15 @@ mod tests {
 
         // No diff
 
-        assert_json!(diff::<Option<Integer>>(&None, &None), []);
-        assert_json!(diff(&Some(1), &Some(1)), []);
+        assert_json!(diff::<Option<Integer>>(&None, &None).ops, []);
+        assert_json!(diff(&Some(1), &Some(1)).ops, []);
 
         // None to Some: Add with no key
         let a = None;
         let b = Some("abc".to_string());
         let patch = diff(&a, &b);
         assert_json!(
-            patch,
+            patch.ops,
             [{"type": "Add", "address": [], "value": "abc".to_string(), "length": 1}]
         );
         assert_json!(apply_new(&a, &patch)?, b);
@@ -150,7 +151,7 @@ mod tests {
         let b = Some("abc".to_string());
         let patch = diff(&a, &b);
         assert_json!(
-            patch,
+            patch.ops,
             [{"type": "Add", "address": [1], "value": "bc".to_string(), "length": 2}]
         );
         assert_json!(apply_new(&a, &patch)?, b);
@@ -160,7 +161,7 @@ mod tests {
         let b = None;
         let patch = diff(&a, &b);
         assert_json!(
-            patch,
+            patch.ops,
             [{"type": "Remove", "address": [], "items": 1}]
         );
         assert_json!(apply_new(&a, &patch)?, b);
@@ -170,7 +171,7 @@ mod tests {
         let b = Some("ac".to_string());
         let patch = diff(&a, &b);
         assert_json!(
-            patch,
+            patch.ops,
             [{"type": "Remove", "address": [1], "items": 1}]
         );
         assert_json!(apply_new(&a, &patch)?, b);
@@ -180,7 +181,7 @@ mod tests {
         let b = Some("a@c".to_string());
         let patch = diff(&a, &b);
         assert_json!(
-            patch,
+            patch.ops,
             [{"type": "Replace", "address": [1], "items": 1, "value": "@", "length": 1}]
         );
         assert_json!(apply_new(&a, &patch)?, b);

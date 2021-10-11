@@ -1,40 +1,42 @@
 import { DomOperationRemove, Slot } from '@stencila/stencila'
-import { ElementId } from '../types'
+import { ElementId } from '../../types'
 import {
+  isName,
   assert,
-  assertNumber,
-  assertString,
+  assertIndex,
+  assertName,
   isAttr,
   isElement,
-  isString,
   panic,
-  resolveParent,
-  resolveSlot,
-  toGraphemes,
-} from './utils'
+} from '../checks'
+import { applyRemove as applyRemoveString } from '../string'
+import { resolveParent, resolveSlot } from './resolve'
 
 /**
- * Apply a remove operation
+ * Apply a `Remove` operation
  */
 export function applyRemove(op: DomOperationRemove, target?: ElementId): void {
   const { address, items } = op
+
+  // if (resolveReceiver(address, op)) return
+
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {
-    if (isString(slot)) applyRemoveOption(parent, slot, items)
+    if (isName(slot)) applyRemoveOption(parent, slot, items)
     else applyRemoveVec(parent, slot, items)
-  } else applyRemoveString(parent, slot, items)
+  } else applyRemoveText(parent, slot, items)
 }
 
 /**
- * Apply a remove operation to an `Option` slot
+ * Apply a `Remove` operation to an `Option` slot
  */
 export function applyRemoveOption(
   node: Element,
   slot: Slot,
   items: number
 ): void {
-  assertString(slot)
+  assertName(slot)
   assert(
     items === 1,
     `Unexpected remove items ${items} for option slot '${slot}'`
@@ -47,10 +49,10 @@ export function applyRemoveOption(
 }
 
 /**
- * Apply a remove operation to a `Vec` slot
+ * Apply a `Remove` operation to a `Vec` slot
  */
 export function applyRemoveVec(node: Element, slot: Slot, items: number): void {
-  assertNumber(slot)
+  assertIndex(slot)
 
   const children = node.childNodes
   assert(
@@ -70,25 +72,12 @@ export function applyRemoveVec(node: Element, slot: Slot, items: number): void {
 }
 
 /**
- * Apply a remove operation to a `String` slot
+ * Apply a `Remove` operation to a `Text` or `Attr` DOM node
  */
-export function applyRemoveString(
+export function applyRemoveText(
   node: Attr | Text,
   slot: Slot,
   items: number
 ): void {
-  assertNumber(slot)
-
-  const graphemes = toGraphemes(node.textContent ?? '')
-  assert(
-    slot >= 0 && slot <= graphemes.length,
-    `Unexpected remove slot '${slot}' for text node of length ${graphemes.length}`
-  )
-  assert(
-    items > 0 && slot + items <= graphemes.length,
-    `Unexpected remove items ${items} for text node of length ${graphemes.length}`
-  )
-
-  node.textContent =
-    graphemes.slice(0, slot).join('') + graphemes.slice(slot + items).join('')
+  node.textContent = applyRemoveString(node.textContent ?? '', slot, items)
 }

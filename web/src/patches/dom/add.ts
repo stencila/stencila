@@ -1,29 +1,24 @@
 import { DomOperationAdd, Slot } from '@stencila/stencila'
-import { ElementId } from '../types'
-import {
-  assert,
-  assertNumber,
-  assertString,
-  createFragment,
-  isElement,
-  isString,
-  panic,
-  resolveParent,
-  toGraphemes,
-} from './utils'
+import { ElementId } from '../../types'
+import { assertIndex, assertName, isElement, isName, panic } from '../checks'
+import { applyAdd as applyAddString } from '../string'
+import { createFragment, resolveParent } from './resolve'
 
 /**
  * Apply an add operation
  */
 export function applyAdd(op: DomOperationAdd, target?: ElementId): void {
   const { address, html } = op
+
+  // if (resolveReceiver(address, op)) return
+
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {
-    if (isString(slot)) applyAddOption(parent, slot, html)
+    if (isName(slot)) applyAddOption(parent, slot, html)
     else applyAddVec(parent, slot, html)
   } else {
-    applyAddString(parent, slot, html)
+    applyAddText(parent, slot, html)
   }
 }
 
@@ -36,14 +31,14 @@ export function applyAdd(op: DomOperationAdd, target?: ElementId): void {
 const ADD_ATTRIBUTES = ['id', 'value', 'rowspan', 'colspan']
 
 /**
- * Apply an add operation to an `Option` slot
+ * Apply an `Add` operation to an element representing an `Option`.
  *
  * If the provided HTML does not start with an opening angle bracket `<` then the value
  * being added must be a string (the only value type that does not get wrapped in an element)
  * so wrap it.
  */
 export function applyAddOption(node: Element, slot: Slot, html: string): void {
-  assertString(slot)
+  assertName(slot)
 
   if (!html.startsWith('<')) {
     html = `<span slot="${slot}">${html}</span>`
@@ -58,10 +53,10 @@ export function applyAddOption(node: Element, slot: Slot, html: string): void {
 }
 
 /**
- * Apply an add operation to a `Vec` slot
+ * Apply an `Add` operation to an element representing a `Vec`.
  */
 export function applyAddVec(node: Element, slot: Slot, html: string): void {
-  assertNumber(slot)
+  assertIndex(slot)
 
   const fragment = createFragment(html)
   const children = node.childNodes
@@ -78,20 +73,12 @@ export function applyAddVec(node: Element, slot: Slot, html: string): void {
 }
 
 /**
- * Apply an add operation to a `String` slot
+ * Apply an `Add` operation to a `Text` or `Attr` DOM node
  */
-export function applyAddString(
-  node: Attr | Text,
+export function applyAddText(
+  node: Text | Attr,
   slot: Slot,
-  value: string
+  html: string
 ): void {
-  assertNumber(slot)
-
-  const graphemes = toGraphemes(node.textContent ?? '')
-  assert(
-    slot >= 0 && slot <= graphemes.length,
-    `Unexpected add slot '${slot}' for text node of length ${graphemes.length}`
-  )
-  node.textContent =
-    graphemes.slice(0, slot).join('') + value + graphemes.slice(slot).join('')
+  node.textContent = applyAddString(node.textContent ?? '', slot, html)
 }

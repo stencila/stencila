@@ -1,18 +1,16 @@
 import { DomOperationReplace, Slot } from '@stencila/stencila'
-import { ElementId } from '../types'
+import { ElementId } from '../../types'
 import {
   assert,
-  assertNumber,
-  assertString,
-  createFragment,
+  assertIndex,
+  assertName,
   isAttr,
   isElement,
-  isString,
+  isName,
   panic,
-  resolveParent,
-  resolveSlot,
-  toGraphemes,
-} from './utils'
+} from '../checks'
+import { createFragment, resolveParent, resolveSlot } from './resolve'
+import { applyReplace as applyReplaceString } from '../string'
 
 /**
  * Apply a replace operation
@@ -22,12 +20,15 @@ export function applyReplace(
   target?: ElementId
 ): void {
   const { address, items, html } = op
+
+  // if (resolveReceiver(address, op)) return
+
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {
-    if (isString(slot)) applyReplaceOption(parent, slot, items, html)
+    if (isName(slot)) applyReplaceOption(parent, slot, items, html)
     else applyReplaceVec(parent, slot, items, html)
-  } else applyReplaceString(parent, slot, items, html)
+  } else applyReplaceText(parent, slot, items, html)
 }
 
 /**
@@ -39,7 +40,7 @@ export function applyReplaceOption(
   items: number,
   html: string
 ): void {
-  assertString(slot)
+  assertName(slot)
   assert(
     items === 1,
     `Unexpected replace items ${items} for option slot '${slot}'`
@@ -62,7 +63,7 @@ export function applyReplaceVec(
   items: number,
   html: string
 ): void {
-  assertNumber(slot)
+  assertIndex(slot)
 
   const fragment = createFragment(html)
   const children = node.childNodes
@@ -86,27 +87,18 @@ export function applyReplaceVec(
 }
 
 /**
- * Apply a replace operation to a `String` slot
+ * Apply a `Replace` operation to a `Text` or `Attr` DOM node
  */
-export function applyReplaceString(
+export function applyReplaceText(
   node: Attr | Text,
   slot: Slot,
   items: number,
-  value: string
+  html: string
 ): void {
-  assertNumber(slot)
-
-  const graphemes = toGraphemes(node.textContent ?? '')
-  assert(
-    slot >= 0 && slot <= graphemes.length,
-    `Unexpected replace slot '${slot}' for text node of length ${graphemes.length}`
+  node.textContent = applyReplaceString(
+    node.textContent ?? '',
+    slot,
+    items,
+    html
   )
-  assert(
-    items > 0 && slot + items <= graphemes.length,
-    `Unexpected replace items ${items} for text node of length ${graphemes.length}`
-  )
-  node.textContent =
-    graphemes.slice(0, slot).join('') +
-    value +
-    graphemes.slice(slot + items).join('')
 }

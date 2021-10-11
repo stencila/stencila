@@ -475,7 +475,7 @@ prop_compose! {
 prop_compose! {
     /// Generate a table.
     pub fn table(freedom: Freedom)(
-        head in vec(table_row(freedom, Some(TableRowRowType::Header)), 1..(match freedom {
+        head in vec(table_row(freedom, Some(TableCellCellType::Header)), 1..(match freedom {
             Freedom::Max => 3,
             // Markdown only supports a single header row
             _ => 1,
@@ -495,15 +495,14 @@ prop_compose! {
 
 prop_compose! {
     /// Generate a table row.
-    pub fn table_row(freedom: Freedom, row_type: Option<TableRowRowType>)(
-        cells in vec(table_cell(freedom), 1..(match freedom {
+    pub fn table_row(freedom: Freedom, cell_type: Option<TableCellCellType>)(
+        cells in vec(table_cell(freedom, cell_type), 1..(match freedom {
             Freedom::Min => 1,
             Freedom::Low => 5,
             _ => 10,
         } + 1))
     ) -> TableRow {
         TableRow{
-            row_type: row_type.clone(),
             cells,
             ..Default::default()
         }
@@ -512,11 +511,12 @@ prop_compose! {
 
 prop_compose! {
     /// Generate a table cell.
-    pub fn table_cell(freedom: Freedom)(
+    pub fn table_cell(freedom: Freedom, cell_type: Option<TableCellCellType>)(
         content in string(freedom)
     ) -> TableCell {
         TableCell{
             content: Some(TableCellContent::VecInlineContent(vec![content])),
+            cell_type: cell_type.clone(),
             ..Default::default()
         }
     }

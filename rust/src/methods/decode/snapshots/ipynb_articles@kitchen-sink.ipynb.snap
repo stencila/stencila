@@ -583,22 +583,26 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "type": "TableRow",
               "cells": [
                 {
-                  "type": "TableCell"
+                  "type": "TableCell",
+                  "cellType": "Header"
                 },
                 {
                   "type": "TableCell",
+                  "cellType": "Header",
                   "content": [
                     "a"
                   ]
                 },
                 {
                   "type": "TableCell",
+                  "cellType": "Header",
                   "content": [
                     "b"
                   ]
                 },
                 {
                   "type": "TableCell",
+                  "cellType": "Header",
                   "content": [
                     "c"
                   ]
@@ -611,6 +615,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "cells": [
                 {
                   "type": "TableCell",
+                  "cellType": "Header",
                   "content": [
                     "0"
                   ]
@@ -640,6 +645,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "cells": [
                 {
                   "type": "TableCell",
+                  "cellType": "Header",
                   "content": [
                     "1"
                   ]
@@ -669,6 +675,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "cells": [
                 {
                   "type": "TableCell",
+                  "cellType": "Header",
                   "content": [
                     "2"
                   ]

@@ -281,6 +281,7 @@ mod inlines;
 mod nodes;
 mod options;
 mod primitives;
+mod vecs;
 #[allow(clippy::deprecated_cfg_attr)]
 mod works;
 

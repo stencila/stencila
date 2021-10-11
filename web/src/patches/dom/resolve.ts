@@ -1,90 +1,7 @@
-import { Address, Slot } from '@stencila/stencila'
-import GraphemeSplitter from 'grapheme-splitter'
-import { ElementId } from '../types'
-
-/**
- * Panic if there is a conflict between a `DomPatch` and the current DOM.
- *
- * This module make liberal use of assertions of consistency between `DomOperation`s
- * and the current DOM with the view that if there is any inconsistency detected then
- * it is best to simply exit the `applyPatch` function early and reload the page.
- *
- * This should only happen if there (a) the client has missed a `DomPatch`
- * such that the state of the DOM is out of sync with the server-side document, or
- * (b) if there is a bug in the following code. Hopefully testing rules out (b).
- *
- * Reloads the document to get a new DOM state and then throws an exception for
- * early exit from the calling function.
- */
-export function panic(message: string): Error {
-  // TODO reload the document
-  return new Error(message)
-}
-
-/**
- * Assert that a condition is true and panic if it is not.
- */
-export function assert(condition: boolean, message: string): void {
-  if (!condition) {
-    throw panic(message)
-  }
-}
-
-/**
- * Is a slot a string variant?
- */
-export function isString(slot: Slot): slot is string {
-  return typeof slot === 'string'
-}
-
-/**
- * Assert that a slot is a string variant.
- */
-export function assertString(slot: Slot): asserts slot is string {
-  assert(isString(slot), 'Expected string slot')
-}
-
-/**
- * Is a slot a number variant?
- */
-export function isNumber(slot: Slot): slot is number {
-  return typeof slot === 'number'
-}
-
-/**
- * Assert that a slot is a number variant.
- */
-export function assertNumber(slot: Slot): asserts slot is number {
-  assert(isNumber(slot), 'Expected number slot')
-}
-
-/**
- * Is a DOM node an element?
- */
-export function isElement(node: Node | undefined): node is Element {
-  return node !== undefined && node.nodeType === Node.ELEMENT_NODE
-}
-
-/**
- * Assert that a DOM node is an element
- */
-export function assertElement(node: Node): asserts node is Element {
-  assert(isElement(node), 'Expected element node')
-}
-
-/**
- * Is a DOM node an attribute?
- */
-export function isAttr(node: Node | undefined): node is Attr {
-  return node !== undefined && node.nodeType === Node.ATTRIBUTE_NODE
-}
-
-/**
- * Is a DOM node a text node?
- */
-export function isText(node: Node | undefined): node is Text {
-  return node !== undefined && node.nodeType === Node.TEXT_NODE
-}
+import { Address, DomOperation, Slot } from '@stencila/stencila'
+import { StencilaElement } from '../../components/base'
+import { ElementId } from '../../types'
+import { assertElement, isElement, isName, isText, panic } from '../checks'
 
 /**
  * Resolve the target of a patch.
@@ -131,7 +48,7 @@ export function resolveSlot(
   parent: Element,
   slot: Slot
 ): Element | Attr | Text {
-  if (isString(slot)) {
+  if (isName(slot)) {
     // Select the first descendant element matching the slot name.
     // It is proposed that `data-prop` replace `data-itemprop`.
     // This currently allows for all options.
@@ -143,7 +60,7 @@ export function resolveSlot(
     // The `text` slot is always represented by the text content of the selected element
     // and is usually "implicit" (so, if there is no explicitly marked text slot, use the parent)
     if (slot === 'text') {
-      const elem = child != null ? child : parent
+      const elem = child !== null ? child : parent
       if (elem.childNodes.length === 1 && isText(elem.childNodes[0])) {
         return elem.childNodes[0]
       } else {
@@ -167,10 +84,17 @@ export function resolveSlot(
 
     if (child !== null) return child
 
-    // The `content` slot is usually "implicit" (i.e. not represented by an element) but
-    // instead represented by the child nodes of the parent element.
-    // So, if there is no explicitly marked content slot, return the parent
-    if (slot === 'content') return parent
+    // The `content`, `items`, `rows` and `cell` slots are usually "implicit"
+    // (i.e. not represented by an element) but instead represented by the child nodes of
+    // the parent element. So, if there is no explicitly marked content slot, return the parent
+    if (
+      slot === 'content' ||
+      (slot === 'items' &&
+        (parent.tagName === 'UL' || parent.tagName === 'OL')) ||
+      (slot === 'rows' && parent.tagName === 'TABLE') ||
+      (slot === 'cells' && parent.tagName === 'TR')
+    )
+      return parent
 
     // See if the slot is represented as a standard HTML attribute e.g. `id`, `value`
     const attr = parent.attributes.getNamedItem(slot)
@@ -182,7 +106,7 @@ export function resolveSlot(
     const child: ChildNode | undefined = parent.childNodes[slot]
     if (child === undefined) {
       throw panic(
-        `Unable to get slot '${slot}' from element of with ${parent.childNodes.length} children`
+        `Unable to get slot '${slot}' from element with ${parent.childNodes.length} children`
       )
     } else if (isElement(child) || isText(child)) {
       return child
@@ -212,7 +136,7 @@ export function resolveParent(
 
   if (address.length === 0) {
     const parentElement = targetElement.parentElement
-    if (parentElement == null) {
+    if (parentElement === null) {
       throw panic('The target node does not have a parent')
     }
     const slot = Array.from(parentElement.childNodes).indexOf(targetElement)
@@ -232,7 +156,7 @@ export function resolveParent(
 }
 
 /**
- * Resolve the DOME node at the address.
+ * Resolve the DOM node at the address.
  */
 export function resolveNode(
   address: Address,
@@ -249,17 +173,43 @@ export function resolveNode(
 }
 
 /**
+ * Resolve the DOM Element that should receive an operation.
+ *
+ * Searches along the address for a `<stencila-*>` element
+ * that will receive the operation. If such an element is
+ * found returns `true` (in which case any further handling of the
+ * operation should probably be avoided).
+ */
+export function resolveReceiver(
+  address: Address,
+  op: DomOperation,
+  target?: ElementId
+): boolean {
+  let node: Element | Attr | Text = resolveTarget(target)
+
+  let index = 0
+  while (isElement(node)) {
+    const parent = node.parentElement
+    if (parent?.tagName.toLowerCase().startsWith('stencila-')) {
+      const elem = parent as StencilaElement
+      if (elem.receiveOperation(op)) return true
+    }
+
+    const slot = address[index]
+    if (slot === undefined) {
+      break
+    }
+    node = resolveSlot(node, slot)
+
+    index++
+  }
+
+  return false
+}
+
+/**
  * Create a DOM fragment from a HTML string
  */
 export function createFragment(html: string): DocumentFragment {
   return document.createRange().createContextualFragment(html)
-}
-
-const GRAPHEME_SPLITTER = new GraphemeSplitter()
-
-/**
- * Split a string into Unicode graphemes
- */
-export function toGraphemes(text: string): string[] {
-  return GRAPHEME_SPLITTER.splitGraphemes(text)
 }

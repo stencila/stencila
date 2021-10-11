@@ -9,8 +9,8 @@ use stencila_schema::{
     Delete, Emphasis, Heading, ImageObjectSimple, InlineContent, Link, List, ListItem,
     ListItemContent, ListOrder, Node, NontextualAnnotation, NumberValidator, Paragraph, Parameter,
     Quote, QuoteBlock, StringValidator, Strong, Subscript, Superscript, TableCell,
-    TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, ValidatorTypes,
-    VideoObjectSimple,
+    TableCellCellType, TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak,
+    ValidatorTypes, VideoObjectSimple,
 };
 
 /// Decode a HTML document to a `Node`
@@ -535,6 +535,12 @@ fn decode_table_cells(node: &NodeRef, context: &Context) -> Vec<TableCell> {
         .filter_map(|child| {
             if let Some(element) = child.as_element() {
                 if matches!(element.name.local, local_name!("td") | local_name!("th")) {
+                    let cell_type = if matches!(element.name.local, local_name!("th")) {
+                        Some(TableCellCellType::Header)
+                    } else {
+                        None
+                    };
+
                     let blocks = decode_blocks(&child, context);
                     let content = if blocks.len() > 1 {
                         Some(TableCellContent::VecBlockContent(blocks))
@@ -548,7 +554,9 @@ fn decode_table_cells(node: &NodeRef, context: &Context) -> Vec<TableCell> {
                             None
                         }
                     };
+
                     return Some(TableCell {
+                        cell_type,
                         content,
                         ..Default::default()
                     });

@@ -287,7 +287,7 @@ mod tests {
         assert!(!equal(&a, &InlineContent::Boolean(true)));
 
         let patch = diff(&a, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             {"type": "Add", "address": [0], "value": "e", "length": 1},
             {"type": "Remove", "address": [2], "items": 1},
             {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
@@ -308,7 +308,7 @@ mod tests {
         assert!(!equal(&a, &b));
 
         let patch = diff(&a, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             {"type": "Remove", "address": ["content", 0, 2], "items": 2},
         ]);
         assert_json_eq!(apply_new(&a, &patch)?, b);
@@ -330,25 +330,25 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             {"type": "Transform", "address": [], "from": "String", "to": "Emphasis"}
         ]);
         assert_json_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Emphasis", "to": "String"}
         ]);
         assert_json_eq!(apply_new(&b, &patch)?, a);
 
         let patch = diff(&b, &c);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Emphasis", "to": "Strong"}
         ]);
         assert_json_eq!(apply_new(&b, &patch)?, c);
 
         let patch = diff(&c, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Strong", "to": "Emphasis"}
         ]);
         assert_json_eq!(apply_new(&c, &patch)?, b);
@@ -366,7 +366,7 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             {
                 "type": "Replace", "address": [], "items": 1,
                 "value": {"type": "Emphasis", "content": ["b"]},
@@ -376,7 +376,7 @@ mod tests {
         assert_json_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             {
                 "type": "Replace", "address": [], "items": 1,
                 "value": "a",
@@ -402,7 +402,7 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             {
                 "type": "Replace", "address": [], "items": 1,
                 "value": {"type": "ImageObject", "contentUrl": "a"},
@@ -440,7 +440,7 @@ mod tests {
             }),
         ];
         let patch = diff(&a, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             {
                 "type": "Replace", "address": [0, "content", 0, 0], "items": 1,
                 "value": "b", "length": 1
@@ -466,7 +466,7 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch, [
+        assert_json!(patch.ops, [
             {
                 "type": "Add",
                 "address": ["value"],
@@ -476,15 +476,17 @@ mod tests {
         ]);
         assert_json_eq!(apply_new(&a, &patch)?, b);
 
-        let patch: Patch = serde_json::from_value(json!([
-            {
-                "type": "Replace",
-                "address": ["value"],
-                "items": 1,
-                "value": 3.14,
-                "length": 1
-            },
-        ]))?;
+        let patch: Patch = serde_json::from_value(json!({
+            "ops": [
+                {
+                    "type": "Replace",
+                    "address": ["value"],
+                    "items": 1,
+                    "value": 3.14,
+                    "length": 1
+                },
+            ]
+        }))?;
         assert_json_eq!(apply_new(&a, &patch)?, b);
 
         Ok(())

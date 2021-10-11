@@ -223,10 +223,6 @@ export type Address = Slot[]
  */
 export type Operation = OperationAdd | OperationRemove | OperationReplace | OperationMove | OperationTransform
 /**
- * A set of [`Operation`]s
- */
-export type Patch = Operation[]
-/**
  * A DOM operation used to mutate the DOM.
  *
  * A `DomOperation` is the DOM version of an [`Operation`]. The same names for operation variants and their properties are used with the following exception:
@@ -242,6 +238,23 @@ export type DomOperation =
   | DomOperationMove
   | DomOperationTransform
 
+/**
+ * A set of [`Operation`]s
+ */
+export interface Patch {
+  /**
+   * The [`Operation`]s to apply
+   */
+  ops: Operation[]
+  /**
+   * The id of the node to which to apply this patch
+   */
+  target?: string
+  /**
+   * The id of the actor that generated this patch e.g. a web browser client, or file watcher
+   */
+  actor?: string
+}
 /**
  * Add a value
  */
@@ -357,7 +370,7 @@ export interface OperationTransform {
   to: string
 }
 /**
- * A set of [`DomOperation`]s to be applied to some `target` DOM element
+ * A set of [`DomOperation`]s to be applied to some DOM element
  */
 export interface DomPatch {
   /**
@@ -365,9 +378,13 @@ export interface DomPatch {
    */
   ops: DomOperation[]
   /**
-   * The id of the DOM element to which to apply the patch
+   * The id of the node to which to apply this patch
    */
   target?: string
+  /**
+   * The id of the actor that generated this patch e.g. a web browser client, or file watcher
+   */
+  actor?: string
 }
 /**
  * Add one or more DOM nodes

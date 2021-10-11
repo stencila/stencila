@@ -1,20 +1,31 @@
 import {
   applyReplace,
   applyReplaceOption,
-  applyReplaceString,
+  applyReplaceText,
   applyReplaceVec,
 } from './replace'
 
 test('applyReplaceOption', () => {
   const elem = document.createElement('div')
-  elem.innerHTML = '<p slot="property">One</p>'
-  expect(elem.querySelector('[slot="property"]')?.innerHTML).toEqual('One')
+  elem.innerHTML = '<p data-itemprop="property">One</p>'
+  expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
+    'One'
+  )
 
-  applyReplaceOption(elem, 'property', 1, '<p slot="property">Two</p>')
-  expect(elem.querySelector('[slot="property"]')?.innerHTML).toEqual('Two')
+  applyReplaceOption(elem, 'property', 1, '<p data-itemprop="property">Two</p>')
+  expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
+    'Two'
+  )
 
-  applyReplaceOption(elem, 'property', 1, '<p slot="property">Three</p>')
-  expect(elem.querySelector('[slot="property"]')?.innerHTML).toEqual('Three')
+  applyReplaceOption(
+    elem,
+    'property',
+    1,
+    '<p data-itemprop="property">Three</p>'
+  )
+  expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
+    'Three'
+  )
 
   expect(() => applyReplaceOption(elem, 1, 1, '')).toThrow(
     /Expected string slot/
@@ -55,25 +66,25 @@ test('applyReplaceVec', () => {
   )
 })
 
-test('applyReplaceString', () => {
+test('applyReplaceText', () => {
   const node = document.createTextNode('abc🎁de')
 
-  applyReplaceString(node, 0, 1, 'x🏳️‍🌈')
+  applyReplaceText(node, 0, 1, 'x🏳️‍🌈')
   expect(node.textContent).toEqual('x🏳️‍🌈bc🎁de')
 
-  applyReplaceString(node, 1, 6, 'yz')
+  applyReplaceText(node, 1, 6, 'yz')
   expect(node.textContent).toEqual('xyz')
 
-  expect(() => applyReplaceString(node, 'string', 1, '')).toThrow(
+  expect(() => applyReplaceText(node, 'string', 1, '')).toThrow(
     /Expected number slot/
   )
-  expect(() => applyReplaceString(node, -1, 1, '')).toThrow(
+  expect(() => applyReplaceText(node, -1, 1, '')).toThrow(
     /Unexpected replace slot '-1'/
   )
-  expect(() => applyReplaceString(node, 42, 1, '')).toThrow(
+  expect(() => applyReplaceText(node, 42, 1, '')).toThrow(
     /Unexpected replace slot '42'/
   )
-  expect(() => applyReplaceString(node, 0, 100, '')).toThrow(
+  expect(() => applyReplaceText(node, 0, 100, '')).toThrow(
     /Unexpected replace items 100/
   )
 })
@@ -81,7 +92,7 @@ test('applyReplaceString', () => {
 test('applyReplace', () => {
   // Start with `Article` with one paragraph with some content
   document.body.innerHTML =
-    '<article slot="root"><div slot="content"><p>' +
+    '<article data-itemscope="root"><div data-itemprop="content"><p>' +
     'One <strong>two</strong> three.' +
     '</p></div></article>'
 
@@ -96,10 +107,10 @@ test('applyReplace', () => {
   expect(document.body).toMatchInlineSnapshot(`
 <body>
   <article
-    slot="root"
+    data-itemscope="root"
   >
     <div
-      slot="content"
+      data-itemprop="content"
     >
       <p>
         One 
@@ -124,10 +135,10 @@ test('applyReplace', () => {
   expect(document.body).toMatchInlineSnapshot(`
 <body>
   <article
-    slot="root"
+    data-itemscope="root"
   >
     <div
-      slot="content"
+      data-itemprop="content"
     >
       <p>
         one, two
@@ -143,16 +154,16 @@ test('applyReplace', () => {
     type: 'Replace',
     address: ['content'],
     items: 1,
-    html: '<div slot="content"><p>Hello</p></div>',
+    html: '<div data-itemprop="content"><p>Hello</p></div>',
     json: {},
   })
   expect(document.body).toMatchInlineSnapshot(`
 <body>
   <article
-    slot="root"
+    data-itemscope="root"
   >
     <div
-      slot="content"
+      data-itemprop="content"
     >
       <p>
         Hello

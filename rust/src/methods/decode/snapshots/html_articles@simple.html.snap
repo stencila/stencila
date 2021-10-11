@@ -57,12 +57,14 @@ input_file: fixtures/articles/simple.html
           "cells": [
             {
               "type": "TableCell",
+              "cellType": "Header",
               "content": [
                 "Group"
               ]
             },
             {
               "type": "TableCell",
+              "cellType": "Header",
               "content": [
                 "Value"
               ]

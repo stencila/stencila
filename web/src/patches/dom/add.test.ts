@@ -1,4 +1,4 @@
-import { applyAdd, applyAddOption, applyAddString, applyAddVec } from './add'
+import { applyAdd, applyAddOption, applyAddText, applyAddVec } from './add'
 
 test('applyAddOption', () => {
   const elem = document.createElement('div')
@@ -35,38 +35,36 @@ test('applyAddVec', () => {
   expect(() => applyAddVec(elem, 42, '')).toThrow(/Unexpected add slot '42'/)
 })
 
-test('applyAddString', () => {
+test('applyAddText', () => {
   const node = document.createTextNode('')
 
-  applyAddString(node, 0, 'a')
+  applyAddText(node, 0, 'a')
   expect(node.textContent).toEqual('a')
 
-  applyAddString(node, 1, 'e')
+  applyAddText(node, 1, 'e')
   expect(node.textContent).toEqual('ae')
 
-  applyAddString(node, 1, 'bcd')
+  applyAddText(node, 1, 'bcd')
   expect(node.textContent).toEqual('abcde')
 
-  applyAddString(node, 2, '🏳️‍🌈')
+  applyAddText(node, 2, '🏳️‍🌈')
   expect(node.textContent).toEqual('ab🏳️‍🌈cde')
 
-  applyAddString(node, 4, '🎁')
+  applyAddText(node, 4, '🎁')
   expect(node.textContent).toEqual('ab🏳️‍🌈c🎁de')
 
-  expect(() => applyAddString(node, 'string', '')).toThrow(
-    /Expected number slot/
-  )
-  expect(() => applyAddString(node, -1, '')).toThrow(/Unexpected add slot '-1'/)
-  expect(() => applyAddString(node, 42, '')).toThrow(/Unexpected add slot '42'/)
+  expect(() => applyAddText(node, 'string', '')).toThrow(/Expected number slot/)
+  expect(() => applyAddText(node, -1, '')).toThrow(/Unexpected add slot '-1'/)
+  expect(() => applyAddText(node, 42, '')).toThrow(/Unexpected add slot '42'/)
 })
 
 test('applyAdd', () => {
   // Start with an empty `Article`
-  document.body.innerHTML = '<article slot="root"></article>'
+  document.body.innerHTML = '<article data-itemscope="root"></article>'
   expect(document.body).toMatchInlineSnapshot(`
     <body>
       <article
-        slot="root"
+        data-itemscope="root"
       />
     </body>
   `)
@@ -75,16 +73,16 @@ test('applyAdd', () => {
   applyAdd({
     type: 'Add',
     address: ['content'],
-    html: `<div slot="content"><p></p></div>`,
+    html: `<div data-itemprop="content"><p></p></div>`,
     json: {},
   })
   expect(document.body).toMatchInlineSnapshot(`
     <body>
       <article
-        slot="root"
+        data-itemscope="root"
       >
         <div
-          slot="content"
+          data-itemprop="content"
         >
           <p />
         </div>
@@ -100,20 +98,20 @@ test('applyAdd', () => {
     json: {},
   })
   expect(document.body).toMatchInlineSnapshot(`
-    <body>
-      <article
-        slot="root"
-      >
-        <div
-          slot="content"
-        >
-          <p>
-            Some text.
-          </p>
-        </div>
-      </article>
-    </body>
-  `)
+<body>
+  <article
+    data-itemscope="root"
+  >
+    <div
+      data-itemprop="content"
+    >
+      <p>
+        Some text.
+      </p>
+    </div>
+  </article>
+</body>
+`)
 
   // Insert some characters ito the `String` node
   applyAdd({
@@ -123,20 +121,20 @@ test('applyAdd', () => {
     json: {},
   })
   expect(document.body).toMatchInlineSnapshot(`
-    <body>
-      <article
-        slot="root"
-      >
-        <div
-          slot="content"
-        >
-          <p>
-            Some more text.
-          </p>
-        </div>
-      </article>
-    </body>
-  `)
+<body>
+  <article
+    data-itemscope="root"
+  >
+    <div
+      data-itemprop="content"
+    >
+      <p>
+        Some more text.
+      </p>
+    </div>
+  </article>
+</body>
+`)
 
   // Insert some inline content before the existing `String`
   applyAdd({
@@ -148,10 +146,10 @@ test('applyAdd', () => {
   expect(document.body).toMatchInlineSnapshot(`
 <body>
   <article
-    slot="root"
+    data-itemscope="root"
   >
     <div
-      slot="content"
+      data-itemprop="content"
     >
       <p>
         Some 

@@ -1,0 +1,140 @@
+---
+source: rust/src/methods/decode/html.rs
+expression: "decode_fragment(&content, false)"
+input_file: fixtures/fragments/html/table.html
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Example based on how a Pandas dat a frame is encoded to HTML in a Jupyter notebook:"
+    ]
+  },
+  {
+    "type": "Table",
+    "rows": [
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "cellType": "Header"
+          },
+          {
+            "type": "TableCell",
+            "cellType": "Header",
+            "content": [
+              "a"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "cellType": "Header",
+            "content": [
+              "b"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "cellType": "Header",
+            "content": [
+              "c"
+            ]
+          }
+        ],
+        "rowType": "Header"
+      },
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "cellType": "Header",
+            "content": [
+              "0"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "1"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "2"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "3"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "cellType": "Header",
+            "content": [
+              "1"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "4"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "5"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "6"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TableRow",
+        "cells": [
+          {
+            "type": "TableCell",
+            "cellType": "Header",
+            "content": [
+              "2"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "7"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "8"
+            ]
+          },
+          {
+            "type": "TableCell",
+            "content": [
+              "9"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

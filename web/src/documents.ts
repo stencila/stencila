@@ -103,7 +103,7 @@ export async function unsubscribe(
 export async function patch(
   client: Client,
   documentId: DocumentId,
-  nodeId: NodeId,
+  nodeId: NodeId | undefined,
   patch: Patch
 ): Promise<void> {
   return client.call('documents.patch', {
