@@ -723,6 +723,10 @@ impl DomOperation {
         if let Some(value) = value.downcast_ref::<serde_json::Value>() {
             if let Some(str) = value.as_str() {
                 return str.to_string();
+            } else if let Ok(nodes) = serde_json::from_value::<InlineContent>(value.clone()) {
+                return nodes.to_html("", &context);
+            } else if let Ok(nodes) = serde_json::from_value::<BlockContent>(value.clone()) {
+                return nodes.to_html("", &context);
             } else if let Ok(nodes) = serde_json::from_value::<Vec<InlineContent>>(value.clone()) {
                 return nodes.to_html("", &context);
             } else if let Ok(nodes) = serde_json::from_value::<Vec<BlockContent>>(value.clone()) {
