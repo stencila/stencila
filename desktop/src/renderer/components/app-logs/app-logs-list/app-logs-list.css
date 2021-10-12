@@ -7,7 +7,20 @@
   }
 }
 
+.secondaryText {
+  @apply text-base font-normal m-0;
+  color: var(--color-neutral-500);
+}
+
 h2 {
   @apply text-base font-normal pl-3;
   color: var(--color-neutral-500);
+}
+
+* + stencila-button {
+  @apply ml-2;
+}
+
+stencila-menu stencila-icon {
+  @apply pr-1;
 }

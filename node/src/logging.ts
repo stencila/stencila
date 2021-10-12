@@ -26,12 +26,8 @@ import { subscribe, unsubscribe } from './pubsub'
 const addon = require('../index.node')
 
 // Initialize this module (sets up logging handlers on the Rust side)
-if (process.env.NODE_ENV === 'development') {
-  const json = JSON.stringify({ logging: { desktop: { level: 'debug' } } })
-  addon.loggingInit(json)
-} else {
-  addon.loggingInit()
-}
+const json = JSON.stringify({ logging: { desktop: { level: 'debug' } } })
+addon.loggingInit(json)
 
 /**
  * Send pubsub events on the "logging" topic to Node's `console` object.

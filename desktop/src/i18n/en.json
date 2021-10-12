@@ -39,7 +39,9 @@
     "logs": {
       "title": "Application Logs",
       "clear": "Clear logs",
-      "empty": "Nothing has been logged yet"
+      "empty": "Nothing has been logged yet",
+      "filter": "Filter",
+      "filteredResults": "Showing {{visibleCount}} of {{totalCount}} messages"
     },
     "settings": {
       "title": "Settings",
