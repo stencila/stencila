@@ -13,6 +13,7 @@ export const config: Config = {
   globalScript: 'src/renderer/global/app.ts',
   taskQueue: 'async',
   tsconfig: 'tsconfig.ui.json',
+  sourceMap: process.env.NODE_ENV === 'development',
   devServer: {
     openBrowser: false,
   },
