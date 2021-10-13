@@ -1,6 +1,6 @@
 import i18next from 'i18next'
 import { isDevelopment } from '../preload/utils/env'
-import en from './en.json'
+import en from './en-GB.json'
 
 export const resources = {
   en,

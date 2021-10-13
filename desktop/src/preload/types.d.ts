@@ -52,11 +52,6 @@ export type OpenLink = InvokeType<
   (url: string) => void
 >
 
-export type CaptureError = InvokeType<
-  typeof CHANNEL.CAPTURE_ERROR,
-  (payload: Error | PromiseRejectionEvent) => void
->
-
 export type GetAppVersion = InvokeType<
   typeof CHANNEL.GET_APP_VERSION,
   () => string
@@ -257,7 +252,6 @@ export type DocumentsUnsubscribe = InvokeType<
 
 type InvokeTypes =
   | OpenLink
-  | CaptureError
   | GetAppVersion
   | LogsWindowOpen
   | LogsGet
@@ -316,11 +310,6 @@ interface Invoke {
     channel: OpenLink['channel'],
     ...args: OpenLink['args']
   ): OpenLink['result']
-
-  invoke(
-    channel: CaptureError['channel'],
-    ...args: CaptureError['args']
-  ): CaptureError['result']
 
   invoke(
     channel: GetAppVersion['channel'],

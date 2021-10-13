@@ -39,5 +39,9 @@ export interface LogHandler extends LogEvent {
 }
 
 export const captureError = (error: Error | PromiseRejectionEvent) => {
-  Sentry.captureException(error)
+  if (error instanceof PromiseRejectionEvent) {
+    Sentry.captureException(error.reason)
+  } else {
+    Sentry.captureException(error)
+  }
 }
