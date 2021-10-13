@@ -1,3 +1,17 @@
+# [0.121.0](https://github.com/stencila/stencila/compare/v0.120.1...v0.121.0) (2021-10-13)
+
+
+### Bug Fixes
+
+* **Deps:** Update dependencies ([b41ae00](https://github.com/stencila/stencila/commit/b41ae0034d72511c4827a08dab0c60f908b3e074))
+* **Desktop:** Fix capturing of unhandled promise rejection errors ([e95b5e2](https://github.com/stencila/stencila/commit/e95b5e22ac512e990fb67edee9a54445e763c529))
+* **Launcher:** Fix project directory name being clipped vertically ([561d197](https://github.com/stencila/stencila/commit/561d1977a6f5f709d7fc38de1e7c77b521260320))
+
+
+### Features
+
+* **Logs:** Capture all logs, & add filter UI to Desktop ([3a58f73](https://github.com/stencila/stencila/commit/3a58f73ca3848b2139fee46f635ccc64b4eaed7e))
+
 ## [0.120.1](https://github.com/stencila/stencila/compare/v0.120.0...v0.120.1) (2021-10-11)
 
 
