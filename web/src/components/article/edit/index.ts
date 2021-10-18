@@ -20,6 +20,7 @@ import { articleSchema } from './schema'
 // Import ProseMirror's `EditorView` styles for correct whitespace handling etc
 import 'prosemirror-view/style/prosemirror.css'
 import { CodeBlockView } from './components/codeBlockView'
+import { editorMenuPlugin } from './menu'
 
 // The following interfaces were necessary because the way they are defined
 // in @types/prosemirror-transform (as classes with only constructors) does
@@ -110,6 +111,7 @@ export class Article extends StencilaElement {
         dropCursor({ class: 'drop-cursor' }),
         // Plugin that provides "a block-level cursor that can be used to focus places that don't allow regular selection"
         gapCursor(),
+        editorMenuPlugin
       ],
     })
 
