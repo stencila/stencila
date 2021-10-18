@@ -36,17 +36,24 @@ pub trait KernelTrait {
 }
 
 mod default;
-use default::*;
 
+#[cfg(feature = "kernels-calc")]
 mod calc;
-use calc::*;
+
+#[cfg(feature = "kernels-jupyter")]
+mod jupyter;
 
 #[enum_dispatch(KernelTrait)]
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(tag = "type")]
 pub enum Kernel {
     Default(DefaultKernel),
-    Calc(CalcKernel),
+
+    #[cfg(feature = "kernels-calc")]
+    Calc(calc::CalcKernel),
+
+    #[cfg(feature = "kernels-jupyter")]
+    Jupyter(jupyter::JupyterKernel),
 }
 
 #[derive(Debug, Clone, JsonSchema, Serialize)]

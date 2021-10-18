@@ -39,6 +39,8 @@ plugins-python = ["plugins"]
 plugins-r = ["plugins"]
 
 kernels = []
+kernels-calc = ["kernels", "fasteval"]
+kernels-jupyter = ["kernels"]
 
 upgrade = ["self_update"]
 
@@ -83,12 +85,10 @@ reshape = ["decode-date", "decode-person"]
 
 compile-code = ["tree-sitter"]
 compile-code-js = ["compile-code", "tree-sitter-javascript"]
-compile-code-calc = ["compile-code", "fasteval"]
+compile-code-calc = ["compile-code"]
 compile-code-py = ["compile-code", "tree-sitter-python"]
 compile-code-r = ["compile-code", "tree-sitter-r"]
 compile-code-ts = ["compile-code", "compile-code-js", "tree-sitter-typescript"]
-
-execute-calc = ["kernels", "fasteval"]
 
 query-jmespath = ["jmespatch"]
 query-jsonptr = []
@@ -116,6 +116,8 @@ default = [
   "plugins-python",
   "plugins-r",
   "kernels",
+  "kernels-calc",
+  "kernels-jupyter",
   "upgrade",
   "import-elife",
   "import-github",
@@ -157,7 +159,6 @@ default = [
   "compile-code-py",
   "compile-code-r",
   "compile-code-ts",
-  "execute-calc",
   "query-jsonptr",
   "query-jmespath",
   "patches"
