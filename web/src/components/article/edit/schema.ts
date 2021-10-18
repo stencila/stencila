@@ -6,6 +6,7 @@ import {
   ParseRule,
   Schema,
 } from 'prosemirror-model'
+import { codeBlock } from './components/codeBlock'
 
 /**
  * ProseMirror schema for a Stencila `Article`.
@@ -221,59 +222,6 @@ function listItem(): NodeSpec {
         'li',
         { itemtype: 'http://schema.org/ListItem', itemscope: '' },
         0,
-      ]
-    },
-  }
-}
-
-/**
- * Generate a `NodeSpec` to represent a Stencila `CodeBlock`
- *
- * This is temporary and wil be replaced with a CodeMirror editor
- * (see https://prosemirror.net/examples/codemirror/ and https://gist.github.com/BrianHung/08146f89ea903f893946963570263040).
- *
- * Based on https://github.com/ProseMirror/prosemirror-schema-basic/blob/b5ae707ab1be98a1d8735dfdc7d1845bcd126f18/src/schema-basic.js#L59
- */
-function codeBlock(): NodeSpec {
-  return {
-    group: 'BlockContent',
-    content: 'text*',
-    contentProp: 'text',
-    marks: '',
-    attrs: {
-      programmingLanguage: { default: '' },
-    },
-    code: true,
-    defining: true,
-    parseDOM: [
-      {
-        tag: 'pre',
-        preserveWhitespace: 'full',
-        getAttrs(dom) {
-          const elem = dom as HTMLElement
-          return {
-            programmingLanguage:
-              elem
-                .querySelector('meta[itemprop="programmingLanguage"][content]')
-                ?.getAttribute('content') ??
-              elem
-                .querySelector('code[class^="language-"]')
-                ?.getAttribute('class')
-                ?.substring(9),
-          }
-        },
-      },
-    ],
-    toDOM(node) {
-      return [
-        'pre',
-        {
-          itemtype: 'http://schema.stenci.la/CodeBlock',
-          itemscope: '',
-          // This is just for inspection that language is parsed properly
-          title: node.attrs.programmingLanguage as string,
-        },
-        ['code', 0],
       ]
     },
   }
