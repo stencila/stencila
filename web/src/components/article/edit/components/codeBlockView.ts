@@ -13,7 +13,7 @@ export class CodeBlockView implements NodeView {
   cm: CMEditorView | null = null
   dom: HTMLStencilaEditorElement
   getPos: () => number
-  ignoreMutation: NodeView['ignoreMutation']
+  ignoreMutation?: NodeView['ignoreMutation']
   incomingChanges: boolean
   updating: boolean
   view: EditorView
@@ -29,10 +29,6 @@ export class CodeBlockView implements NodeView {
     }
     this.incomingChanges = false
 
-    // this.ignoreMutation = (m) => {
-    //   return m.type !== 'attributes'
-    // }
-
     this.dom = document.createElement('stencila-editor')
 
     this.dom.contents = node.textContent
@@ -41,7 +37,6 @@ export class CodeBlockView implements NodeView {
       typeof node.attrs.programmingLanguage === 'string'
         ? node.attrs.programmingLanguage
         : ''
-    this.dom.contentChangeHandler = () => this.valueChanged()
 
     this.dom.addEventListener('setLanguage', (e) => {
       const evt = e as CustomEvent<{ name: string }>
@@ -91,6 +86,7 @@ export class CodeBlockView implements NodeView {
     //   }
     //   this.incomingChanges = false
     // })
+    this.dom.contentChangeHandler = () => this.valueChanged()
 
     // this.cm?.on('focus', () => this.forwardSelection())
   }
@@ -119,7 +115,6 @@ export class CodeBlockView implements NodeView {
           undo(view.state, dispatch)
           return true
         },
-        preventDefault: true,
       },
       {
         key: 'Shift-Mod-z',
@@ -152,31 +147,34 @@ export class CodeBlockView implements NodeView {
   }
 
   forwardSelection(): void {
-    // if (!this.cm?.hasFocus()) return
+    if (!this.cm?.hasFocus) return
+
     const state = this.view.state
     const selection = this.asProseMirrorSelection(state.doc)
-    if (!selection.eq(state.selection))
+    if (!selection.eq(state.selection)) {
       this.view.dispatch(state.tr.setSelection(selection))
+    }
   }
 
   asProseMirrorSelection(doc: Node): TextSelection {
     const offset = this.getPos() + 1
-    // const anchor = this.cm?.indexFromPos(this.cm?.getCursor('anchor')) + offset
-    // const head = this.cm?.indexFromPos(this.cm?.getCursor('head')) + offset
-    const anchor = offset
-    const head = offset
+    const anchor = offset + (this.cm?.state.selection.main.anchor ?? 0)
+    const head = offset + (this.cm?.state.selection.main.head ?? 0)
     return TextSelection.create(doc, anchor, head)
   }
 
-  setSelection(anchor: number, head: number): void {
-    this.cm?.focus()
-    this.updating = true
-    // this.cm?.setSelection(
-    //   this.cm?.posFromIndex(anchor),
-    //   this.cm?.posFromIndex(head)
-    // )
-    this.updating = false
-  }
+  // FIX: This doesn't seem to get called
+  // setSelection(anchor: number, head: number): void {
+  //   console.log('setting selection:', anchor, head)
+  //
+  //   this.cm?.focus()
+  //   this.updating = true
+  //   // this.cm?.setSelection(
+  //   // this.cm?.posFromIndex(anchor),
+  //   // this.cm?.posFromIndex(head)
+  //   // )
+  //   this.updating = false
+  // }
 
   computeChange(
     oldVal: string,
@@ -227,52 +225,29 @@ export class CodeBlockView implements NodeView {
   }
 
   update(node: Node): boolean {
-    // console.log('updating', isEqual(this.node.type, node.type), node)
     if (!isEqual(this.node.type, node.type)) {
       return false
     }
 
-    // console.log('update: ', node, decorations)
-    // console.log('this.type: ', this.node.type)
-    // console.log('node.type: ', node.type)
-    // console.log('type: ', node.type !== this.node.type)
-    // console.log('type: ', isEqual(this.node.type, node.type))
-    // console.log('END -------------')
-
     this.node = node
 
-    // let change = this.computeChange(this.cm?.getValue(), node.textContent)
-    // console.log('updating: PRE: change:', node.textContent)
-    // console.log('updating: PRE: change:', this.cm?.state.doc)
-    // console.log('updating: PRE: change:', this.cm?.state.doc.toString())
-    // console.log('updating: PRE: change:', Text.of([node.textContent]))
-    // const change = this.cm?.state.doc.eq(Text.of([node.textContent]))
     const change = node.textContent !== this.cm?.state.doc.toString()
-    // console.log('updating: change:', change)
 
-    if (change) {
-      const changeRange = this.computeChange(
-        this.node.textContent,
-        this.cm?.state.doc.toString() ?? ''
-      )
+    const changeRange = this.computeChange(
+      this.node.textContent,
+      this.cm?.state.doc.toString() ?? ''
+    )
 
+    if (change && changeRange) {
       this.updating = true
 
-      // TODO: Apply atomic text change
-      // this.cm?.replaceRange(
-      //   change.text,
-      //   this.cm?.posFromIndex(change.from),
-      //   this.cm?.posFromIndex(change.to)
-      // )
-
-      // const range = EditorSelection.cursor(changeRange.to)
-
       this.dom.setStateFromString(node.textContent).catch((err) => {
-        console.log('could not update editor state\n', err)
+        console.log('could not set editor state\n', err)
       })
 
-      //       const tr = this.cm?.state.changeByRange((range) => ({
-      //         range: range,
+      // TODO: Fix change range being incorrect, resulting in duplicate text fragments
+      //       const changeTransaction = this.cm?.state.changeByRange(() => ({
+      //         range: EditorSelection.cursor(changeRange.to),
       //         changes: [
       //           {
       //             from: changeRange.from,
@@ -282,8 +257,8 @@ export class CodeBlockView implements NodeView {
       //         ],
       //       }))
       //
-      //       if (tr) {
-      //         this.cm?.dispatch(tr)
+      //       if (changeTransaction) {
+      //         this.cm?.dispatch(changeTransaction)
       //       }
 
       this.updating = false
@@ -296,9 +271,14 @@ export class CodeBlockView implements NodeView {
     this.cm?.focus()
   }
 
-  deselectNode(): void {
-    this.dom.blur()
-  }
+  // deselectNode(): void {
+  //   console.log('deselecting:  ', document.activeElement?.classList.contains('cm-content'))
+  //   if (document.activeElement?.classList.contains('cm-content')) {
+  //     const editor = this.dom.querySelector('cm-content')
+  //     // @ts-ignore
+  //     editor?.blur()
+  //   }
+  // }
 
   stopEvent(e: Event): boolean {
     return !e.type.startsWith('drag')
