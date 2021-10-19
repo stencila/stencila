@@ -18,7 +18,11 @@ pub mod code;
 #[cfg(not(feature = "compile-code"))]
 pub mod code {
     use super::*;
-    pub fn compile(path: &Path, code: &str, language: &str) -> Vec<(Relation, Resource)> {
+    pub fn compile<P: AsRef<Path>>(
+        path: P,
+        code: &str,
+        language: &str,
+    ) -> Vec<(Relation, Resource)> {
         Vec::new()
     }
 }

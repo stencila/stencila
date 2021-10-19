@@ -1,4 +1,4 @@
-use super::KernelTrait;
+use super::{Kernel, KernelTrait};
 use crate::errors::incompatible_language;
 use eyre::{bail, Result};
 use schemars::JsonSchema;
@@ -14,8 +14,8 @@ pub struct DefaultKernel {
 }
 
 impl DefaultKernel {
-    pub fn new() -> Self {
-        DefaultKernel::default()
+    pub fn create() -> Kernel {
+        Kernel::Default(DefaultKernel::default())
     }
 }
 

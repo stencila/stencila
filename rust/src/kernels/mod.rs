@@ -5,7 +5,7 @@ use crate::{
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
 use enum_dispatch::enum_dispatch;
-use eyre::{bail, eyre, Result};
+use eyre::{eyre, Result};
 use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::{hash_map::Entry, BTreeMap, HashMap};
@@ -20,10 +20,20 @@ pub trait KernelTrait {
     /// check that it is able to execute a given language.
     ///
     /// If a `language` identifier is supplied, e.g. `Some("py")`, and the kernel
-    /// can execute that language, should return the canonical name of the language
+    /// can execute that language, should return the kernel's canonical name of the language
     /// e.g. `Ok("python3")`. If the language can not execute the language should
     /// return a `IncompatibleLanguage` error.
     fn language(&self, language: Option<String>) -> Result<String>;
+
+    /// Start the kernel
+    fn start(&mut self) -> Result<()> {
+        Ok(())
+    }
+
+    /// Stop the kernel
+    fn stop(&mut self) -> Result<()> {
+        Ok(())
+    }
 
     /// Get a symbol from the kernel
     fn get(&self, name: &str) -> Result<Node>;
@@ -36,6 +46,7 @@ pub trait KernelTrait {
 }
 
 mod default;
+use default::*;
 
 #[cfg(feature = "kernels-calc")]
 mod calc;
@@ -43,6 +54,7 @@ mod calc;
 #[cfg(feature = "kernels-jupyter")]
 mod jupyter;
 
+#[allow(clippy::large_enum_variant)]
 #[enum_dispatch(KernelTrait)]
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(tag = "type")]
@@ -287,15 +299,23 @@ impl KernelSpace {
 
         // If unable to set in an existing kernel then start a new kernel
         // for the language.
-        let kernel = match language {
-            "calc" => Kernel::Calc(CalcKernel::new()),
-            "none" | "" => Kernel::Default(DefaultKernel::new()),
+        let kernel_id = uuids::generate(uuids::Family::Kernel);
+        let mut kernel = match language {
+            "none" | "" => DefaultKernel::create(),
+
+            #[cfg(feature = "kernels-calc")]
+            "calc" => calc::CalcKernel::create(),
+
+            #[cfg(feature = "kernels-jupyter")]
+            _ => jupyter::JupyterKernel::create(&kernel_id, language)?,
+
+            #[cfg(not(feature = "kernels-jupyter"))]
             _ => bail!(
                 "Unable to create an execution kernel for language `{}`",
                 language
             ),
         };
-        let kernel_id = uuids::generate(uuids::Family::Kernel);
+        kernel.start()?;
         self.kernels.insert(kernel_id.clone(), kernel);
 
         Ok(kernel_id)

@@ -1522,16 +1522,9 @@ pub mod cli {
         format: Option<String>,
 
         /// The programming language of the code
-        #[structopt(
-            short,
-            long,
-            default_value = "calc",
-            possible_values = &EXEC_LANGS
-        )]
+        #[structopt(short, long, default_value = "calc")]
         lang: String,
     }
-
-    const EXEC_LANGS: [&str; 2] = ["calc", "none"];
 
     impl Execute {
         pub async fn run(&self) -> display::Result {

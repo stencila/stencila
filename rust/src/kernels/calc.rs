@@ -1,6 +1,6 @@
 use crate::errors::incompatible_language;
 
-use super::KernelTrait;
+use super::{Kernel, KernelTrait};
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -17,8 +17,8 @@ pub struct CalcKernel {
 }
 
 impl CalcKernel {
-    pub fn new() -> Self {
-        CalcKernel::default()
+    pub fn create() -> Kernel {
+        Kernel::Calc(CalcKernel::default())
     }
 }
 
