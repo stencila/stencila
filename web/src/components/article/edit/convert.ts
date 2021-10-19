@@ -108,8 +108,9 @@ export function transformProsemirror(value: JsonValue): JsonValue {
       // Ensure `text` and get properties
       object.text = (object.content as [string] | undefined)?.[0] ?? ''
       delete object.content
-      object.programmingLanguage = (object.attrs as JsonObject)
+      object.programming_language = (object.attrs as JsonObject)
         .programmingLanguage as string
+      delete object.attrs
       return object
 
     case 'QuoteBlock':
