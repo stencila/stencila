@@ -230,7 +230,7 @@ function listItem(): NodeSpec {
 /**
  * Generate a `NodeSpec` to represent a Stencila `CodeFragment`
  *
- * This is temporary and wil be replaced with a CodeMirror editor (as with `CodeBlock`)
+ * This is temporary and will be replaced with a CodeMirror editor (as with `CodeBlock`)
  */
 function codeFragment(): NodeSpec {
   return {
@@ -243,7 +243,7 @@ function codeFragment(): NodeSpec {
       programmingLanguage: { default: '' },
     },
     code: true,
-    parseDOM: [{ tag: 'pre', preserveWhitespace: 'full' }],
+    parseDOM: [{ tag: 'code', preserveWhitespace: 'full' }],
     toDOM(_node) {
       return [
         'code',
