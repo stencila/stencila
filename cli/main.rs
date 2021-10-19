@@ -1,24 +1,11 @@
 #![recursion_limit = "256"]
 
 use std::{collections::HashMap, path::PathBuf};
-use stencila::{
-    binaries,
-    cli::display,
-    config::{self, CONFIG},
-    documents::{self, DOCUMENTS},
-    eyre::{bail, Error, Result},
-    logging::{
+use stencila::{binaries, cli::display, config::{self, CONFIG}, documents::{self, DOCUMENTS}, eyre::{bail, Error, Result}, logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
         LoggingFormat, LoggingLevel,
-    },
-    plugins,
-    projects::{self, PROJECTS},
-    regex::Regex,
-    serde_json, serde_yaml, serve, sources,
-    strum::VariantNames,
-    tokio, tracing, upgrade,
-};
+    }, plugins, projects::{self, PROJECTS}, regex::Regex, serde_json, serde_yaml, serve, sources, strum::VariantNames, tokio, tracing, upgrade, utils::keys};
 use structopt::StructOpt;
 
 /// Stencila, in a terminal console, on your own machine
@@ -228,7 +215,7 @@ impl OpenCommand {
         // Generate a key and a corresponding login URL and open browser at the login page (will
         // redirect to document page).
         let port = 9000u16;
-        let key = Some(serve::generate_key());
+        let key = Some(keys::generate());
         let login_url = serve::login_url(port, key.clone(), Some(60), Some(path))?;
         webbrowser::open(login_url.as_str())?;
 
@@ -830,7 +817,7 @@ mod interact {
                         tracing::info!("Command prefix was cleared");
                         continue;
                     } else if line.starts_with('<') {
-                        prefix.truncate(prefix.len() - 1);
+                        prefix.truncate(std::cmp::max(1, prefix.len()) - 1);
                         tracing::info!("Command prefix was truncated to: `{}`", prefix.join(" "));
                         continue;
                     } else if line.starts_with('?') {
