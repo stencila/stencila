@@ -1,33 +1,25 @@
-import { Text } from '@codemirror/text'
 import { EditorView as CMEditorView } from '@codemirror/view'
-import { setAssetPath } from '@stencila/components/dist/components'
-import { StencilaEditor } from '@stencila/components/dist/components/stencila-editor'
+import '@stencila/components'
 import { Keymap } from '@stencila/components/dist/types/components/editor/editor'
+import isEqual from 'lodash.isequal'
 import { exitCode } from 'prosemirror-commands'
 import { redo, undo } from 'prosemirror-history'
 import { Node } from 'prosemirror-model'
 import { Selection, TextSelection } from 'prosemirror-state'
 import { EditorView, NodeView } from 'prosemirror-view'
-
-setAssetPath(
-  'https://unpkg.com/@stencila/components@latest/dist/stencila-components/'
-)
+import { articleSchema } from '../schema'
 
 export class CodeBlockView implements NodeView {
-  node: Node
-  view: EditorView
+  cm: CMEditorView | null = null
+  dom: HTMLStencilaEditorElement
   getPos: () => number
+  ignoreMutation: NodeView['ignoreMutation']
   incomingChanges: boolean
   updating: boolean
-  ref: StencilaEditor
-  cm: CMEditorView | null = null
-  doc: CMEditorView | null = null
-  dom: HTMLElement | null
+  view: EditorView
+  node: Node
 
   constructor(node: Node, view: EditorView, getPos: boolean | (() => number)) {
-    console.log('CODEBLOCK nodeView', node, view)
-
-    // Store for later
     this.node = node
     this.view = view
     if (typeof getPos === 'boolean') {
@@ -37,32 +29,44 @@ export class CodeBlockView implements NodeView {
     }
     this.incomingChanges = false
 
-    // Create a CodeMirror instance
-    // this.cm = new CodeMirror(null, {
-    //   value: this.node.textContent,
-    //   lineNumbers: true,
-    //   extraKeys: this.codeMirrorKeymap(),
-    // })
+    // this.ignoreMutation = (m) => {
+    //   return m.type !== 'attributes'
+    // }
 
-    this.ref = new StencilaEditor()
-    this.dom = this.ref
+    this.dom = document.createElement('stencila-editor')
 
-    this.ref.contents = node.textContent
-    this.ref.keymap = this.codeMirrorKeymap()
-    this.ref.activeLanguage = node.attrs.programmingLanguage
+    this.dom.contents = node.textContent
+    this.dom.keymap = this.codeMirrorKeymap()
+    this.dom.activeLanguage =
+      typeof node.attrs.programmingLanguage === 'string'
+        ? node.attrs.programmingLanguage
+        : ''
+    this.dom.contentChangeHandler = () => this.valueChanged()
 
-    this.ref.addEventListener('setLanguage', (e) => {
-      // TODO: Update node language
-      console.log('activeLanguageChanged: ', e)
+    this.dom.addEventListener('setLanguage', (e) => {
+      const evt = e as CustomEvent<{ name: string }>
+
+      console.log('active Language Changed: ', evt.detail, this.getPos())
+
+      const tr = this.view.state.tr.setNodeMarkup(this.getPos(), undefined, {
+        programmingLanguage: evt.detail.name,
+      })
+
+      this.view.dispatch(tr)
     })
 
-    this.ref.getRef().then((ref) => {
-      this.cm = ref
-    })
+    this.dom
+      .getRef()
+      .then((ref) => {
+        this.cm = ref
+      })
+      .catch((err) => {
+        console.log(err)
+      })
 
     // The editor's outer node is our DOM representation
-    // this.dom = this.ref.parentElement
-    // console.log(this.ref?.parentElement)
+    // this.dom = this.dom.parentElement
+    // console.log(this.dom?.parentElement)
 
     // CodeMirror needs to be in the DOM to properly initialize, so
     // schedule it to update itself
@@ -91,24 +95,80 @@ export class CodeBlockView implements NodeView {
     // this.cm?.on('focus', () => this.forwardSelection())
   }
 
-  forwardSelection() {
+  codeMirrorKeymap = (): Keymap[] => {
+    const view = this.view
+    const dispatch = view.dispatch.bind(this)
+
+    return [
+      { key: 'ArrowUp', run: () => this.maybeEscape(-1) },
+      { key: 'ArrowLeft', run: () => this.maybeEscape(-1) },
+      { key: 'ArrowDown', run: () => this.maybeEscape(1) },
+      { key: 'ArrowRight', run: () => this.maybeEscape(1) },
+      {
+        key: 'Ctrl-Enter',
+        run: () => {
+          if (exitCode(view.state, dispatch)) {
+            view.focus()
+          }
+          return true
+        },
+      },
+      {
+        key: 'Mod-z',
+        run: () => {
+          undo(view.state, dispatch)
+          return true
+        },
+        preventDefault: true,
+      },
+      {
+        key: 'Shift-Mod-z',
+        run: () => {
+          redo(view.state, dispatch)
+          return true
+        },
+      },
+      {
+        key: 'Mod-Y',
+        run: () => {
+          redo(view.state, dispatch)
+          return true
+        },
+      },
+    ]
+  }
+
+  maybeEscape(dir: number): boolean {
+    this.view.focus()
+    const targetPos = this.getPos() + (dir < 0 ? 0 : this.node.nodeSize)
+    const selection = Selection.near(
+      this.view.state.doc.resolve(targetPos),
+      dir
+    )
+    this.view.dispatch(
+      this.view.state.tr.setSelection(selection).scrollIntoView()
+    )
+    return false
+  }
+
+  forwardSelection(): void {
     // if (!this.cm?.hasFocus()) return
-    let state = this.view.state
-    let selection = this.asProseMirrorSelection(state.doc)
+    const state = this.view.state
+    const selection = this.asProseMirrorSelection(state.doc)
     if (!selection.eq(state.selection))
       this.view.dispatch(state.tr.setSelection(selection))
   }
 
-  asProseMirrorSelection(doc: Node) {
-    let offset = this.getPos() + 1
-    // let anchor = this.cm?.indexFromPos(this.cm?.getCursor('anchor')) + offset
-    // let head = this.cm?.indexFromPos(this.cm?.getCursor('head')) + offset
-    let anchor = offset
-    let head = offset
+  asProseMirrorSelection(doc: Node): TextSelection {
+    const offset = this.getPos() + 1
+    // const anchor = this.cm?.indexFromPos(this.cm?.getCursor('anchor')) + offset
+    // const head = this.cm?.indexFromPos(this.cm?.getCursor('head')) + offset
+    const anchor = offset
+    const head = offset
     return TextSelection.create(doc, anchor, head)
   }
 
-  setSelection(anchor: number, head: number) {
+  setSelection(anchor: number, head: number): void {
     this.cm?.focus()
     this.updating = true
     // this.cm?.setSelection(
@@ -118,123 +178,135 @@ export class CodeBlockView implements NodeView {
     this.updating = false
   }
 
-  computeChange(oldVal: string, newVal: string) {
+  computeChange(
+    oldVal: string,
+    newVal: string
+  ): null | { from: number; to: number; text: string } {
     if (oldVal === newVal) return null
-    let start = 0,
-      oldEnd = oldVal.length,
-      newEnd = newVal.length
+
+    let start = 0
+    let oldEnd = oldVal.length
+    let newEnd = newVal.length
+
     while (
       start < oldEnd &&
-      oldVal.charCodeAt(start) == newVal.charCodeAt(start)
-    )
+      oldVal.charCodeAt(start) === newVal.charCodeAt(start)
+    ) {
       ++start
+    }
+
     while (
       oldEnd > start &&
       newEnd > start &&
-      oldVal.charCodeAt(oldEnd - 1) == newVal.charCodeAt(newEnd - 1)
+      oldVal.charCodeAt(oldEnd - 1) === newVal.charCodeAt(newEnd - 1)
     ) {
       oldEnd--
       newEnd--
     }
+
     return { from: start, to: oldEnd, text: newVal.slice(start, newEnd) }
   }
 
-  valueChanged() {
-    // TODO: Fix undefined
-    let change = this.computeChange(
+  valueChanged(): void {
+    const change = this.computeChange(
       this.node.textContent,
       this.cm?.state.doc.toString() ?? ''
     )
-    if (change) {
-      let start = this.getPos() + 1
-      let tr = this.view.state.tr.replaceWith(
+
+    if (change && change.text !== '') {
+      const start = this.getPos() + 1
+
+      const changeTransaction = this.view.state.tr.replaceWith(
         start + change.from,
         start + change.to,
-        // TODO: Fix
-        // change.text ? codeBlockSchema.text(change.text) : null
-        // baseSchema()
-        // @ts-ignore
-        null
+        articleSchema.nodes.CodeBlock.schema.text(change.text)
       )
-      this.view.dispatch(tr)
+
+      this.view.dispatch(changeTransaction)
     }
   }
 
-  codeMirrorKeymap(): Keymap[] {
-    let view = this.view
-    return [
-      { key: 'ArrowUp', run: () => this.maybeEscape('line', -1) },
-      { key: 'ArrowLeft', run: () => this.maybeEscape('char', -1) },
-      { key: 'ArrowDown', run: () => this.maybeEscape('line', 1) },
-      { key: 'ArrowRight', run: () => this.maybeEscape('char', 1) },
-      {
-        key: 'Ctrl-Enter',
-        run: () => {
-          if (exitCode(view.state, view.dispatch)) {
-            view.focus()
-          }
-          return true
-        },
-      },
-      {
-        key: 'Mod-Z',
-        run: () => {
-          undo(view.state, view.dispatch)
-          return true
-        },
-      },
-      {
-        key: 'Shift-Mod-Z',
-        run: () => {
-          redo(view.state, view.dispatch)
-          return true
-        },
-      },
-      {
-        key: 'Mod-Y',
-        run: () => {
-          redo(view.state, view.dispatch)
-          return true
-        },
-      },
-    ]
-  }
+  update(node: Node): boolean {
+    // console.log('updating', isEqual(this.node.type, node.type), node)
+    if (!isEqual(this.node.type, node.type)) {
+      return false
+    }
 
-  maybeEscape(unit: 'line' | 'char', dir: number): boolean {
-    this.view.focus()
-    let targetPos = this.getPos() + (dir < 0 ? 0 : this.node.nodeSize)
-    let selection = Selection.near(this.view.state.doc.resolve(targetPos), dir)
-    this.view.dispatch(
-      this.view.state.tr.setSelection(selection).scrollIntoView()
-    )
-    return false
-  }
+    // console.log('update: ', node, decorations)
+    // console.log('this.type: ', this.node.type)
+    // console.log('node.type: ', node.type)
+    // console.log('type: ', node.type !== this.node.type)
+    // console.log('type: ', isEqual(this.node.type, node.type))
+    // console.log('END -------------')
 
-  update(node: Node) {
-    if (node.type !== this.node.type) return false
     this.node = node
+
     // let change = this.computeChange(this.cm?.getValue(), node.textContent)
-    const change = this.cm?.state.doc.eq(Text.of([node.textContent]))
+    // console.log('updating: PRE: change:', node.textContent)
+    // console.log('updating: PRE: change:', this.cm?.state.doc)
+    // console.log('updating: PRE: change:', this.cm?.state.doc.toString())
+    // console.log('updating: PRE: change:', Text.of([node.textContent]))
+    // const change = this.cm?.state.doc.eq(Text.of([node.textContent]))
+    const change = node.textContent !== this.cm?.state.doc.toString()
+    // console.log('updating: change:', change)
+
     if (change) {
+      const changeRange = this.computeChange(
+        this.node.textContent,
+        this.cm?.state.doc.toString() ?? ''
+      )
+
       this.updating = true
 
+      // TODO: Apply atomic text change
       // this.cm?.replaceRange(
       //   change.text,
       //   this.cm?.posFromIndex(change.from),
       //   this.cm?.posFromIndex(change.to)
       // )
 
-      this.ref.setStateFromString(node.textContent)
+      // const range = EditorSelection.cursor(changeRange.to)
+
+      this.dom.setStateFromString(node.textContent).catch((err) => {
+        console.log('could not update editor state\n', err)
+      })
+
+      //       const tr = this.cm?.state.changeByRange((range) => ({
+      //         range: range,
+      //         changes: [
+      //           {
+      //             from: changeRange.from,
+      //             to: changeRange.to,
+      //             insert: changeRange.text,
+      //           },
+      //         ],
+      //       }))
+      //
+      //       if (tr) {
+      //         this.cm?.dispatch(tr)
+      //       }
+
       this.updating = false
     }
+
     return true
   }
 
-  selectNode() {
+  selectNode(): void {
     this.cm?.focus()
   }
 
-  stopEvent() {
-    return true
+  deselectNode(): void {
+    this.dom.blur()
+  }
+
+  stopEvent(e: Event): boolean {
+    return !e.type.startsWith('drag')
+  }
+
+  destroy(): void {
+    this.cm?.destroy()
+    // TODO: Check if it's necessary to remove this.dom
+    // this.dom.remove()
   }
 }

@@ -10,40 +10,35 @@ import { NodeSpec } from 'prosemirror-model'
  */
 export function codeBlock(): NodeSpec {
   return {
-    content: 'text*',
-    marks: '',
-    code: true,
-    atom: false,
     allowGapCursor: true,
-    isolating: true,
-    selectable: true,
-    group: 'BlockContent',
-    inline: false,
+    atom: true,
+    code: true,
+    content: 'text*',
     defining: true,
     draggable: true,
+    inline: false,
+    isolating: false,
+    marks: '',
+    selectable: true,
+    group: 'BlockContent',
     attrs: {
       programmingLanguage: { default: '' },
     },
     toDOM(node) {
-      const textContent: string[] = []
-
-      node.content.forEach((n) => {
-        if (n.text) {
-          textContent.push(n.text)
-        }
-      })
-
       return [
         'stencila-editor',
         {
-          'active-language': node.attrs.programmingLanguage,
+          'active-language':
+            typeof node.attrs.programmingLanguage === 'string'
+              ? node.attrs.programmingLanguage
+              : undefined,
         },
         [
           'pre',
           {
             slot: 'text',
           },
-          ['code', { spellcheck: 'false' }, textContent.join('/n')],
+          0,
         ],
       ]
     },
