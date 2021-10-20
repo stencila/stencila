@@ -409,7 +409,7 @@ pub async fn main() -> Result<()> {
             std::env::set_var("RUST_SPANTRACE", if debug { "1" } else { "0" });
         }
         if std::env::var("RUST_BACKTRACE").is_err() {
-            std::env::set_var("RUST_BACKTRACE", if debug { "full" } else { "0" });
+            std::env::set_var("RUST_BACKTRACE", if debug { "1" } else { "0" });
         }
         color_eyre::config::HookBuilder::default()
             .display_env_section(false)
