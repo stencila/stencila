@@ -3,10 +3,7 @@ import { NodeSpec } from 'prosemirror-model'
 /**
  * Generate a `NodeSpec` to represent a Stencila `CodeBlock`
  *
- * This is temporary and will be replaced with a CodeMirror editor
- * (see https://prosemirror.net/examples/codemirror/ and https://gist.github.com/BrianHung/08146f89ea903f893946963570263040).
- *
- * Based on https://github.com/ProseMirror/prosemirror-schema-basic/blob/b5ae707ab1be98a1d8735dfdc7d1845bcd126f18/src/schema-basic.js#L59
+ * Based on https://prosemirror.net/examples/codemirror/ and https://github.com/ProseMirror/prosemirror-schema-basic/blob/b5ae707ab1be98a1d8735dfdc7d1845bcd126f18/src/schema-basic.js#L59
  */
 export function codeBlock(): NodeSpec {
   return {

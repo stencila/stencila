@@ -9,6 +9,11 @@ import { Selection, TextSelection } from 'prosemirror-state'
 import { EditorView, NodeView } from 'prosemirror-view'
 import { articleSchema } from '../schema'
 
+/**
+ * Generate a `NodeView` to represent a Stencila `CodeBlock`
+ *
+ * Based on https://prosemirror.net/examples/codemirror/ and https://github.com/ProseMirror/prosemirror-schema-basic/blob/b5ae707ab1be98a1d8735dfdc7d1845bcd126f18/src/schema-basic.js#L59
+ */
 export class CodeBlockView implements NodeView {
   cm: CMEditorView | null = null
   dom: HTMLStencilaEditorElement
