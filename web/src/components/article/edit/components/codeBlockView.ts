@@ -41,13 +41,15 @@ export class CodeBlockView implements NodeView {
     this.dom.addEventListener('setLanguage', (e) => {
       const evt = e as CustomEvent<{ name: string }>
 
-      console.log('active Language Changed: ', evt.detail, this.getPos())
+      const languageChangeTransaction = this.view.state.tr.setNodeMarkup(
+        this.getPos(),
+        undefined,
+        {
+          programmingLanguage: evt.detail.name,
+        }
+      )
 
-      const tr = this.view.state.tr.setNodeMarkup(this.getPos(), undefined, {
-        programmingLanguage: evt.detail.name,
-      })
-
-      this.view.dispatch(tr)
+      this.view.dispatch(languageChangeTransaction)
     })
 
     this.dom
@@ -59,36 +61,16 @@ export class CodeBlockView implements NodeView {
         console.log(err)
       })
 
-    // The editor's outer node is our DOM representation
-    // this.dom = this.dom.parentElement
-    // console.log(this.dom?.parentElement)
-
-    // CodeMirror needs to be in the DOM to properly initialize, so
-    // schedule it to update itself
-    // setTimeout(() => this.cm?.refresh(), 20)
-
-    // This flag is used to avoid an update loop between the outer and
-    // inner editor
+    // This flag is used to avoid an update loop between the outer and inner editor
     this.updating = false
 
-    // Track whether changes are have been made but not yet propagated
-    // this.cm?.on('beforeChange', () => (this.incomingChanges = true))
+    this.dom.contentChangeHandler = () => {
+      this.valueChanged()
+    }
 
-    // Propagate updates from the code editor to ProseMirror
-    // this.cm?.on('cursorActivity', () => {
-    //   if (!this.updating && !this.incomingChanges) this.forwardSelection()
-    // })
-
-    // this.cm?.on('changes', () => {
-    //   if (!this.updating) {
-    //     this.valueChanged()
-    //     this.forwardSelection()
-    //   }
-    //   this.incomingChanges = false
-    // })
-    this.dom.contentChangeHandler = () => this.valueChanged()
-
-    // this.cm?.on('focus', () => this.forwardSelection())
+    this.dom.addEventListener('focusin', () => {
+      this.forwardSelection()
+    })
   }
 
   codeMirrorKeymap = (): Keymap[] => {
@@ -111,6 +93,7 @@ export class CodeBlockView implements NodeView {
       },
       {
         key: 'Mod-z',
+        preventDefault: true,
         run: () => {
           undo(view.state, dispatch)
           return true
@@ -118,6 +101,7 @@ export class CodeBlockView implements NodeView {
       },
       {
         key: 'Shift-Mod-z',
+        preventDefault: true,
         run: () => {
           redo(view.state, dispatch)
           return true
@@ -125,6 +109,7 @@ export class CodeBlockView implements NodeView {
       },
       {
         key: 'Mod-Y',
+        preventDefault: true,
         run: () => {
           redo(view.state, dispatch)
           return true
@@ -163,18 +148,18 @@ export class CodeBlockView implements NodeView {
     return TextSelection.create(doc, anchor, head)
   }
 
-  // FIX: This doesn't seem to get called
-  // setSelection(anchor: number, head: number): void {
-  //   console.log('setting selection:', anchor, head)
+  // FIX: This doesn't seem to get called, but doesn't seem to be necessary
+  //   setSelection(anchor: number, head: number): void {
+  //     console.log('setting selection:', anchor, head)
   //
-  //   this.cm?.focus()
-  //   this.updating = true
-  //   // this.cm?.setSelection(
-  //   // this.cm?.posFromIndex(anchor),
-  //   // this.cm?.posFromIndex(head)
-  //   // )
-  //   this.updating = false
-  // }
+  //     this.cm?.focus()
+  //     this.updating = true
+  //     // this.cm?.setSelection(
+  //     //   this.cm?.posFromIndex(anchor),
+  //     //   this.cm?.posFromIndex(head)
+  //     // )
+  //     this.updating = false
+  //   }
 
   computeChange(
     oldVal: string,
@@ -206,22 +191,29 @@ export class CodeBlockView implements NodeView {
   }
 
   valueChanged(): void {
-    const change = this.computeChange(
-      this.node.textContent,
-      this.cm?.state.doc.toString() ?? ''
-    )
-
-    if (change && change.text !== '') {
-      const start = this.getPos() + 1
-
-      const changeTransaction = this.view.state.tr.replaceWith(
-        start + change.from,
-        start + change.to,
-        articleSchema.nodes.CodeBlock.schema.text(change.text)
+    if (!this.updating) {
+      const change = this.computeChange(
+        this.node.textContent,
+        this.cm?.state.doc.toString() ?? ''
       )
 
-      this.view.dispatch(changeTransaction)
+      if (change && change.text !== '') {
+        const start = this.getPos() + 1
+
+        const changeTransaction = this.view.state.tr.replaceWith(
+          start + change.from,
+          start + change.to,
+          articleSchema.nodes.CodeBlock.schema.text(change.text)
+        )
+
+        this.view.dispatch(changeTransaction)
+      }
+
+      // TODO: Check whether it's necessary
+      // this.forwardSelection()
     }
+
+    this.incomingChanges = false
   }
 
   update(node: Node): boolean {
@@ -241,25 +233,23 @@ export class CodeBlockView implements NodeView {
     if (change && changeRange) {
       this.updating = true
 
-      this.dom.setStateFromString(node.textContent).catch((err) => {
-        console.log('could not set editor state\n', err)
-      })
+      this.dom
+        .setStateFromString(node.textContent)
+        .then(() => {
+          // Set cursor to changed location within the code editor
+          const changeTransaction = this.cm?.state.update({
+            selection: {
+              anchor: changeRange.to,
+            },
+          })
 
-      // TODO: Fix change range being incorrect, resulting in duplicate text fragments
-      //       const changeTransaction = this.cm?.state.changeByRange(() => ({
-      //         range: EditorSelection.cursor(changeRange.to),
-      //         changes: [
-      //           {
-      //             from: changeRange.from,
-      //             to: changeRange.to,
-      //             insert: changeRange.text,
-      //           },
-      //         ],
-      //       }))
-      //
-      //       if (changeTransaction) {
-      //         this.cm?.dispatch(changeTransaction)
-      //       }
+          if (changeTransaction) {
+            this.cm?.dispatch(changeTransaction)
+          }
+        })
+        .catch((err) => {
+          console.log('could not set editor state\n', err)
+        })
 
       this.updating = false
     }
@@ -271,14 +261,11 @@ export class CodeBlockView implements NodeView {
     this.cm?.focus()
   }
 
-  // deselectNode(): void {
-  //   console.log('deselecting:  ', document.activeElement?.classList.contains('cm-content'))
-  //   if (document.activeElement?.classList.contains('cm-content')) {
-  //     const editor = this.dom.querySelector('cm-content')
-  //     // @ts-ignore
-  //     editor?.blur()
-  //   }
-  // }
+  deselectNode(): void {
+    if (!this.view.hasFocus()) {
+      this.view.focus()
+    }
+  }
 
   stopEvent(e: Event): boolean {
     return !e.type.startsWith('drag')
@@ -286,7 +273,6 @@ export class CodeBlockView implements NodeView {
 
   destroy(): void {
     this.cm?.destroy()
-    // TODO: Check if it's necessary to remove this.dom
-    // this.dom.remove()
+    this.dom.remove()
   }
 }
