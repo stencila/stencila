@@ -1,29 +1,33 @@
-use super::{Kernel, KernelTrait};
-use crate::{errors::incompatible_language, utils::keys};
+use super::{Kernel, KernelStatus, KernelTrait};
+use crate::{
+    errors::incompatible_language,
+    utils::{keys, uuids},
+};
+use async_trait::async_trait;
 use defaults::Defaults;
-use eyre::{bail, Result};
+use derivative::Derivative;
+use eyre::{bail, eyre, Result};
+use hmac::{Hmac, NewMac};
 use once_cell::sync::Lazy;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use serde_with::skip_serializing_none;
+use sha2::Sha256;
 use std::{
     collections::HashMap,
     env, fs,
     path::{Path, PathBuf},
     process::Stdio,
-    sync::{Arc, RwLock},
+    sync::Arc,
 };
 use stencila_schema::Node;
-use tokio::{process::Command, task::JoinHandle};
-
-#[derive(Debug, Clone, JsonSchema, Deserialize, Serialize)]
-enum Status {
-    Pending,
-    Started,
-    Unresponsive,
-    Finished,
-    Failed,
-}
+use tokio::{
+    process::Command,
+    sync::{broadcast, Mutex, RwLock},
+    task::JoinHandle,
+};
+use zmq::Socket;
 
 /// A Jupyter kernel
 ///
@@ -75,25 +79,64 @@ pub struct JupyterKernel {
     /// Metadata added here should be namespaced for the tool reading and writing that metadata.
     metadata: Option<HashMap<String, serde_json::Value>>,
 
-    /// The details (e.g. port numbers) of the connection to the kernel
+    /// The details (e.g. port numbers, HMAC keys) of the connection to the kernel
+    ///
+    /// Written to a connection file and passed to the kernel when it is started.
     #[serde(skip_deserializing)]
-    connection: Option<Connection>,
+    connection: Option<JupyterConnection>,
 
-    /// The system id of the kernel process
-    pid: Option<u32>,
+    /// The kernel session id
+    ///
+    /// Note that within a Stencila project session there may be several Jupyter kernel sessions.
+    /// These are independent concepts. From the Jupyter docs:
+    ///
+    /// "A client session id, in message headers from a client, should be unique among all clients
+    /// connected to a kernel. When a client reconnects to a kernel, it should use the same client
+    /// session id in its message headers. When a client restarts, it should generate a new client
+    /// session id."
+    #[def = "uuids::generate(uuids::Family::Generic)"]
+    session: String,
 
     /// The status of the kernel
-    #[def = "Arc::new(tokio::sync::RwLock::new(Status::Pending))"]
+    #[def = "Arc::new(RwLock::new(KernelStatus::Pending))"]
     #[serde(skip)]
-    status: Arc<tokio::sync::RwLock<Status>>,
+    status: Arc<RwLock<KernelStatus>>,
+
+    /// Details of the kernel and connection to it once started
+    #[serde(skip)]
+    details: Option<JupyterDetails>,
+}
+
+/// Runtime details of a kernel and the connection to it
+///
+/// Used to group most of the details that do not / can not be serialized
+/// and which are only available once the kernel has been started
+#[derive(Derivative)]
+#[derivative(Debug)]
+struct JupyterDetails {
+    /// The system id of the kernel process
+    pid: u32,
+
+    /// The HMAC used when signing messages
+    ///
+    /// Derived from the connection's `key`.
+    hmac: HmacSha256,
+
+    /// The socket to send Jupyter "shell" commands to
+    #[derivative(Debug = "ignore")]
+    shell_socket: Arc<Mutex<Socket>>,
+
+    /// The reciever for IOPub messages
+    iopub_receiver: broadcast::Receiver<JupyterMessage>,
 
     /// The async task that runs the kernel
-    #[serde(skip)]
-    run_task: Option<JoinHandle<()>>,
+    run_task: JoinHandle<()>,
+
+    /// The async task that subscribes to messages from the kernel
+    subscribe_task: JoinHandle<()>,
 
     /// The async task that monitors the kernel
-    #[serde(skip)]
-    monitor_task: Option<JoinHandle<()>>,
+    monitor_task: JoinHandle<()>,
 }
 
 impl Clone for JupyterKernel {
@@ -114,7 +157,7 @@ impl Clone for JupyterKernel {
             env: self.env.clone(),
             metadata: self.metadata.clone(),
             connection: self.connection.clone(),
-            pid: self.pid,
+            session: self.session.clone(),
             status: self.status.clone(),
 
             ..Default::default()
@@ -124,8 +167,8 @@ impl Clone for JupyterKernel {
 
 impl JupyterKernel {
     /// Create a `JupyterKernel` variant.
-    pub fn create(id: &str, language: &str) -> Result<Kernel> {
-        let mut kernel = JupyterKernel::find(language)?;
+    pub async fn create(id: &str, language: &str) -> Result<Kernel> {
+        let mut kernel = JupyterKernel::find(language).await?;
         kernel.id = id.to_string();
 
         Ok(Kernel::Jupyter(kernel))
@@ -135,8 +178,8 @@ impl JupyterKernel {
     ///
     /// Searches for an installed kernel with support for the language.
     /// Is optimized to avoid unnecessary disk reads.
-    pub fn find(language: &str) -> Result<JupyterKernel> {
-        let specs = KERNEL_SPECS.read().unwrap();
+    pub async fn find(language: &str) -> Result<JupyterKernel> {
+        let specs = KERNEL_SPECS.read().await;
 
         // Is there is a kernelspec already read with the same name?
         if let Some(kernel) = specs.get(language) {
@@ -155,11 +198,14 @@ impl JupyterKernel {
         // For each Jupyter data directory..
         for dir in JupyterKernel::data_dirs() {
             let kernels = dir.join("kernels");
+            if !kernels.exists() {
+                continue;
+            }
 
             // Is there is a kernelspec with the same name?
             let path = kernels.join(language).join("kernel.json");
             if path.exists() {
-                let kernel = JupyterKernel::read(language, &path)?;
+                let kernel = JupyterKernel::read(language, &path).await?;
                 if kernel.language(Some(language.to_string())).is_ok() {
                     return Ok(kernel);
                 }
@@ -170,7 +216,7 @@ impl JupyterKernel {
                 let path = dir.path().join("kernel.json");
                 if path.exists() {
                     let name = dir.file_name().to_string_lossy().to_string();
-                    let kernel = JupyterKernel::read(&name, &path)?;
+                    let kernel = JupyterKernel::read(&name, &path).await?;
                     if kernel.language(Some(language.to_string())).is_ok() {
                         return Ok(kernel);
                     }
@@ -246,19 +292,20 @@ impl JupyterKernel {
     }
 
     /// Read a `kernel.json` file and store in `KERNEL_SPECS`
-    fn read(name: &str, path: &Path) -> Result<JupyterKernel> {
+    async fn read(name: &str, path: &Path) -> Result<JupyterKernel> {
         let json = fs::read_to_string(path)?;
         let mut kernel: JupyterKernel = serde_json::from_str(&json)?;
         kernel.name = name.to_string();
         kernel.path = path.to_path_buf();
 
-        let mut specs = KERNEL_SPECS.write().unwrap();
+        let mut specs = KERNEL_SPECS.write().await;
         specs.insert(name.to_string(), kernel.clone());
 
         Ok(kernel)
     }
 }
 
+#[async_trait]
 impl KernelTrait for JupyterKernel {
     fn language(&self, language: Option<String>) -> Result<String> {
         let canonical = Ok(self.language.clone());
@@ -274,12 +321,11 @@ impl KernelTrait for JupyterKernel {
     }
 
     fn start(&mut self) -> Result<()> {
-        if self.run_task.is_some() {
-            return Ok(());
-        }
-
-        let connection = Connection::new(&self.id);
+        let connection = JupyterConnection::new(&self.id);
         connection.write_file()?;
+
+        let hmac =
+            HmacSha256::new_from_slice(connection.key.as_bytes()).expect("Unable to generate HMAC");
 
         let args: Vec<String> = self
             .argv
@@ -298,13 +344,13 @@ impl KernelTrait for JupyterKernel {
             .stderr(Stdio::piped())
             .kill_on_drop(true)
             .spawn()?;
-        let pid = child.id();
+        let pid = child.id().expect("Unable to get child process id");
 
+        // Spawn a task to wait on the kernel process and update status
+        // when it exits.
         let id = self.id.clone();
         let status = self.status.clone();
         let run_task = tokio::spawn(async move {
-            tracing::debug!("Running kernel `{}` with args `{:?}`", id, args);
-
             let output = child
                 .wait_with_output()
                 .await
@@ -312,14 +358,14 @@ impl KernelTrait for JupyterKernel {
 
             if output.status.success() {
                 tracing::debug!("Kernel `{}` exited successfully", id);
-                *(status.write().await) = Status::Finished;
+                *(status.write().await) = KernelStatus::Finished;
             } else {
                 tracing::error!(
                     "Kernel `{}` had non-zero exit status: {}",
                     id,
                     output.status
                 );
-                *(status.write().await) = Status::Failed;
+                *(status.write().await) = KernelStatus::Failed;
             }
 
             if !output.stderr.is_empty() {
@@ -331,6 +377,65 @@ impl KernelTrait for JupyterKernel {
             }
         });
 
+        let ctx = zmq::Context::new();
+
+        // Create the shell socket
+        let shell_socket = ctx.socket(zmq::REQ)?;
+        shell_socket.connect(&connection.shell_url())?;
+
+        // Create the channel that IOPub messages get broadcast on
+        let (iopub_sender, iopub_receiver) = broadcast::channel(100);
+
+        // Spawn a task to listen to IOPub messages from the kernel and publish
+        // them on a Rust channel so that `exec()` and other methods can listen for
+        // them.
+        let id = self.id.clone();
+        let status = self.status.clone();
+        let url = connection.iopub_url();
+        let hmac_clone = hmac.clone();
+        let subscribe_task = tokio::spawn(async move {
+            let socket = ctx.socket(zmq::SUB).expect("Unable to create IOPub socket");
+
+            let result = socket
+                .connect(&url)
+                .and_then(|_| socket.set_subscribe("".as_bytes()));
+            if let Err(error) = result {
+                tracing::error!(
+                    "When connecting or subscribing to IOPub socket for kernel `{}`: {}",
+                    id,
+                    error
+                );
+                *(status.write().await) = KernelStatus::Unresponsive;
+                return;
+            }
+
+            loop {
+                let result = JupyterMessage::receive(&hmac_clone.clone(), &socket);
+                match result {
+                    Ok(message) => {
+                        tracing::debug!(
+                            "Received IOPub message from kernel `{}`:\n{:#?}",
+                            id,
+                            message
+                        );
+                        if let Err(error) = iopub_sender.send(message) {
+                            tracing::error!(
+                                "Unable to broadcast IOPub message for kernel `{}`: {}",
+                                id,
+                                error
+                            )
+                        }
+                    }
+                    Err(error) => tracing::error!(
+                        "When receiving on IOPub socket for kernel `{}`: {}",
+                        id,
+                        error
+                    ),
+                }
+            }
+        });
+
+        // Spawn a task to monitor the kernel
         let id = self.id.clone();
         let status = self.status.clone();
         let url = connection.heartbeat_url();
@@ -338,7 +443,9 @@ impl KernelTrait for JupyterKernel {
             use tokio::time::{sleep, Duration};
 
             let ctx = zmq::Context::new();
-            let socket = ctx.socket(zmq::REQ).expect("UNable to create socket");
+            let socket = ctx
+                .socket(zmq::REQ)
+                .expect("Unable to create heartbeat socket");
 
             let result = socket.connect(&url);
             if let Err(error) = result {
@@ -347,7 +454,7 @@ impl KernelTrait for JupyterKernel {
                     id,
                     error
                 );
-                *(status.write().await) = Status::Unresponsive;
+                *(status.write().await) = KernelStatus::Unresponsive;
                 return;
             }
 
@@ -355,30 +462,46 @@ impl KernelTrait for JupyterKernel {
                 let result = socket.send("", 0).and_then(|_| socket.recv_msg(0));
                 if let Err(error) = result {
                     tracing::error!("When checking for heartbeat for kernel `{}`: {}", id, error);
-                    *(status.write().await) = Status::Unresponsive;
+                    *(status.write().await) = KernelStatus::Unresponsive;
                     return;
                 } else {
                     tracing::debug!("Got heartbeat reply from kernel `{}`", id)
                 }
-                sleep(Duration::from_secs(1)).await;
+                sleep(Duration::from_secs(30)).await;
             }
         });
 
         self.connection = Some(connection);
-        self.pid = pid;
-        self.run_task = Some(run_task);
-        self.monitor_task = Some(monitor_task);
+        self.details = Some(JupyterDetails {
+            hmac,
+            pid,
+            shell_socket: Arc::new(Mutex::new(shell_socket)),
+            iopub_receiver,
+            run_task,
+            subscribe_task,
+            monitor_task,
+        });
 
         Ok(())
     }
 
     fn stop(&mut self) -> Result<()> {
-        match &self.run_task {
-            Some(join_handle) => join_handle.abort(),
-            None => {}
+        if let Some(JupyterDetails {
+            run_task,
+            subscribe_task,
+            monitor_task,
+            ..
+        }) = &self.details
+        {
+            run_task.abort();
+            subscribe_task.abort();
+            monitor_task.abort();
         }
-
         Ok(())
+    }
+
+    async fn status(&self) -> KernelStatus {
+        self.status.read().await.clone()
     }
 
     fn get(&self, _name: &str) -> Result<Node> {
@@ -389,8 +512,73 @@ impl KernelTrait for JupyterKernel {
         Ok(())
     }
 
-    fn exec(&mut self, _code: &str) -> Result<Vec<Node>> {
-        Ok(vec![Node::String("TODO".to_string())])
+    async fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
+        let JupyterDetails {
+            hmac,
+            shell_socket,
+            iopub_receiver,
+            ..
+        } = self.details.as_mut().expect("Should be started");
+
+        let socket = shell_socket.lock().await;
+
+        let request = JupyterMessage::execute_request(code);
+        tracing::debug!("Sending request: {:#?}", request);
+        request.send(&self.session, hmac, &socket)?;
+
+        let mut outputs: Vec<Node> = Vec::new();
+        let stdout = "".to_string();
+        let stderr = "".to_string();
+
+        // TODO: timeout or recv()?
+        while let Ok(message) = iopub_receiver.recv().await {
+            if let Some(parent_header) = message.parent_header {
+                if parent_header.msg_id == request.header.msg_id {
+                    match message.header.msg_type {
+                        // Some kernels use `execute_result`, others `display_data`, even
+                        // for simple, text outputs
+                        JupyterMessageType::execute_result | JupyterMessageType::display_data => {
+                            // TODO decode output
+                            outputs.push(Node::String(message.content.to_string()));
+                        }
+                        JupyterMessageType::stream => {
+                            // TODO accumulate stdout and stderr
+                        }
+                        JupyterMessageType::status => {
+                            match message
+                                .content
+                                .get("execution_state")
+                                .and_then(|value| value.as_str())
+                                .unwrap_or_default()
+                            {
+                                "idle" => {
+                                    *(self.status.write().await) = KernelStatus::Idle;
+                                    break;
+                                }
+                                "busy" => {
+                                    *(self.status.write().await) = KernelStatus::Busy;
+                                }
+                                _ => (),
+                            }
+                        }
+                        _ => (),
+                    }
+                }
+            }
+        }
+        if !stdout.is_empty() {
+            outputs.push(Node::String(stdout))
+        }
+        if !stderr.is_empty() {
+            // TODO: add to errors
+            outputs.push(Node::String(stderr))
+        }
+
+        let response = JupyterMessage::receive(hmac, &socket)?;
+        tracing::debug!("Received response {:#?}", response);
+        // TODO deal with response.content.status == 'error' and "aborted"
+
+        Ok(outputs)
     }
 }
 
@@ -407,48 +595,59 @@ static KERNEL_SPECS: Lazy<Arc<RwLock<HashMap<String, JupyterKernel>>>> =
 /// See https://jupyter-client.readthedocs.io/en/stable/kernels.html#connection-files
 #[derive(Debug, Clone, Defaults, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
-struct Connection {
+struct JupyterConnection {
+    /// The path to the connection file
     path: PathBuf,
 
+    /// The transport protocol to use for ZeroMQ
     #[def = "\"tcp\".to_string()"]
     transport: String,
 
+    /// The IP address of the kernel
     #[def = "\"127.0.0.1\".to_string()"]
     ip: String,
 
+    /// The message signature scheme
     #[def = "\"hmac-sha256\".to_string()"]
     signature_scheme: String,
 
-    #[def = "Connection::generate_key()"]
+    /// The HMAC key
     key: String,
 
-    #[def = "Connection::pick_port()"]
+    /// The control port
+    #[def = "JupyterConnection::pick_port()"]
     control_port: u16,
 
-    #[def = "Connection::pick_port()"]
+    /// The shell port
+    #[def = "JupyterConnection::pick_port()"]
     shell_port: u16,
 
-    #[def = "Connection::pick_port()"]
+    /// The stdin port
+    #[def = "JupyterConnection::pick_port()"]
     stdin_port: u16,
 
-    #[def = "Connection::pick_port()"]
+    /// The heartbeat port
+    #[def = "JupyterConnection::pick_port()"]
     hb_port: u16,
 
-    #[def = "Connection::pick_port()"]
+    /// The iopub port
+    #[def = "JupyterConnection::pick_port()"]
     iopub_port: u16,
 }
 
-impl Connection {
+type HmacSha256 = Hmac<Sha256>;
+
+impl JupyterConnection {
     fn new(id: &str) -> Self {
         let name = format!("stencila-{}.json", id);
-        Connection {
-            path: JupyterKernel::runtime_dir().join(name),
+        let path = JupyterKernel::runtime_dir().join(name);
+        let key = keys::generate();
+
+        JupyterConnection {
+            path,
+            key,
             ..Default::default()
         }
-    }
-
-    fn generate_key() -> String {
-        keys::generate()
     }
 
     fn pick_port() -> u16 {
@@ -468,7 +667,295 @@ impl Connection {
         format!("{}://{}:", transport = self.transport, ip = self.ip)
     }
 
+    fn _control_url(&self) -> String {
+        [self.base_url(), self.control_port.to_string()].concat()
+    }
+
+    fn shell_url(&self) -> String {
+        [self.base_url(), self.shell_port.to_string()].concat()
+    }
+
+    fn iopub_url(&self) -> String {
+        [self.base_url(), self.iopub_port.to_string()].concat()
+    }
+
     fn heartbeat_url(&self) -> String {
         [self.base_url(), self.hb_port.to_string()].concat()
+    }
+}
+
+/// The type of a Jupyter message
+///
+/// This list is from https://jupyter-client.readthedocs.io/en/stable/messaging.html.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[allow(non_camel_case_types)]
+enum JupyterMessageType {
+    // Messages on the shell (ROUTER/DEALER) channel
+    execute_request,
+    execute_reply,
+    inspect_request,
+    inspect_reply,
+    complete_request,
+    complete_reply,
+    history_request,
+    history_reply,
+    is_complete_request,
+    is_complete_reply,
+    connect_request,
+    connect_reply,
+    comm_info_request,
+    comm_info_reply,
+    kernel_info_request,
+    kernel_info_reply,
+    // Messages on the Control (ROUTER/DEALER) channel
+    shutdown_request,
+    shutdown_reply,
+    interrupt_request,
+    interrupt_reply,
+    debug_request,
+    debug_reply,
+    // Messages on the IOPub (PUB/SUB) channel
+    stream,
+    display_data,
+    update_display_data,
+    execute_input,
+    execute_result,
+    error,
+    status,
+    clear_output,
+    debug_event,
+    // Messages on the stdin (ROUTER/DEALER) channel
+    input_request,
+    input_reply,
+}
+
+/// The header of a Jupyter message
+///
+/// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#message-header.
+#[derive(Debug, Clone, Defaults, Deserialize, Serialize)]
+#[serde(default)]
+struct JupyterMessageHeader {
+    /// The version of the message protocol
+    #[def = "\"5.3\".to_string()"]
+    version: String,
+
+    /// The type of message
+    #[def = "JupyterMessageType::execute_request"]
+    msg_type: JupyterMessageType,
+
+    /// A unique identifier for the message
+    #[def = "uuids::generate(uuids::Family::Generic)"]
+    msg_id: String,
+
+    /// A unique identifier for the kernel session
+    session: String,
+
+    /// ISO 8601 timestamp for when the message was created
+    #[def = "chrono::Utc::now().to_rfc3339()"]
+    date: String,
+}
+
+impl JupyterMessageHeader {
+    /// Create a new message header
+    fn new(msg_type: JupyterMessageType) -> Self {
+        JupyterMessageHeader {
+            msg_type,
+            ..Default::default()
+        }
+    }
+}
+
+/// A Jupyter message
+///
+/// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#general-message-format.
+/// Some of the below documentation is copied from there.
+#[derive(Debug, Clone, Defaults, Deserialize, Serialize)]
+struct JupyterMessage {
+    /// ZeroMQ socket identities
+    identities: Vec<String>,
+
+    /// The message header
+    ///
+    /// "The message header contains information about the message, such as unique identifiers
+    /// for the originating session and the actual message id, the type of message, the version
+    /// of the Jupyter protocol, and the date the message was created."
+    header: JupyterMessageHeader,
+
+    /// The header of the parent message
+    ///
+    /// "When a message is the “result” of another message, such as a side-effect (output or status)
+    /// or direct reply, the `parent_header` is a copy of the `header` of the message that “caused”
+    /// the current message. `_reply` messages MUST have a `parent_header`, and side-effects typically
+    /// have a parent. If there is no parent, an empty dict should be used. This parent is used by
+    /// clients to route message handling to the right place, such as outputs to a cell.""
+    parent_header: Option<JupyterMessageHeader>,
+
+    /// Metadata about the message
+    ///
+    /// "The metadata dict contains information about the message that is not part of the content.
+    /// This is not often used, but can be an extra location to store information about requests and
+    /// replies, such as extensions adding information about request or execution context.""
+    metadata: serde_json::Value,
+
+    /// The content of the message
+    ///
+    /// "The content dict is the body of the message. Its structure is dictated by the `msg_type`
+    /// field in the header, described in detail for each message below."
+    content: serde_json::Value,
+}
+
+const DELIMITER: &[u8] = b"<IDS|MSG>";
+
+/// A Jupyter message
+///
+/// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#the-wire-protocol
+impl JupyterMessage {
+    /// Create a new message
+    fn new(msg_type: JupyterMessageType, content: serde_json::Value) -> Self {
+        Self {
+            identities: Vec::new(),
+            header: JupyterMessageHeader::new(msg_type),
+            parent_header: None,
+            metadata: json!({}),
+            content,
+        }
+    }
+
+    /// Create an `execute_request` message
+    ///
+    /// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#execute
+    /// Document below copied from there.
+    fn execute_request(code: &str) -> Self {
+        Self::new(
+            JupyterMessageType::execute_request,
+            json!({
+               // Source code to be executed by the kernel, one or more lines.
+               "code": code,
+
+               // A boolean flag which, if True, signals the kernel to execute
+               // this code as quietly as possible.
+               // silent=True forces store_history to be False,
+               // and will *not*:
+               //   - broadcast output on the IOPUB channel
+               //   - have an execute_result
+               // The default is False.
+               "silent" : false,
+
+               // A boolean flag which, if True, signals the kernel to populate history
+               // The default is True if silent is False.  If silent is True, store_history
+               // is forced to be False.
+               "store_history" : false,
+
+               // A dict mapping names to expressions to be evaluated in the
+               // user's dict. The rich display-data representation of each will be evaluated after execution.
+               // See the display_data content for the structure of the representation data.
+               "user_expressions" : json!({}),
+
+               // Some frontends do not support stdin requests.
+               // If this is true, code running in the kernel can prompt the user for input
+               // with an input_request message (see below). If it is false, the kernel
+               // should not send these messages.
+               "allow_stdin" : true,
+
+               // A boolean flag, which, if True, aborts the execution queue if an exception is encountered.
+               // If False, queued execute_requests will execute even if this request generates an exception.
+               "stop_on_error" : true,
+            }),
+        )
+    }
+
+    /// Send the message
+    fn send(&self, session: &str, hmac: &HmacSha256, socket: &Socket) -> Result<()> {
+        let mut parts: Vec<&[u8]> = Vec::with_capacity(7);
+
+        for part in &self.identities {
+            parts.push(part.as_bytes());
+        }
+
+        parts.push(DELIMITER);
+
+        let mut header = self.header.clone();
+        header.session = session.to_string();
+        let header = serde_json::to_string(&header)?;
+        let header = header.as_bytes();
+
+        // "If there is no parent, an empty dict should be used"
+        let parent_header = match &self.parent_header {
+            Some(header) => serde_json::to_string(header)?,
+            None => "{}".to_string(),
+        };
+        let parent_header = parent_header.as_bytes();
+
+        let metadata = serde_json::to_string(&self.metadata)?;
+        let metadata = metadata.as_bytes();
+
+        let content = serde_json::to_string(&self.content)?;
+        let content = content.as_bytes();
+
+        use hmac::Mac;
+        let mut hmac = hmac.clone();
+        hmac.update(header);
+        hmac.update(parent_header);
+        hmac.update(metadata);
+        hmac.update(content);
+        let output = hmac.finalize();
+        let hmac = hex::encode(output.into_bytes().as_slice());
+        parts.push(hmac.as_bytes());
+
+        parts.push(header);
+        parts.push(parent_header);
+        parts.push(metadata);
+        parts.push(content);
+
+        socket.send_multipart(&parts, 0)?;
+
+        Ok(())
+    }
+
+    /// Receive a message
+    fn receive(hmac: &HmacSha256, socket: &Socket) -> Result<Self> {
+        let parts = socket.recv_multipart(0)?;
+
+        let delimiter = parts
+            .iter()
+            .position(|part| &part[..] == DELIMITER)
+            .ok_or_else(|| eyre!("Message is missing delimiter"))?;
+
+        let identities = parts[..delimiter]
+            .iter()
+            .map(|identity| String::from_utf8_lossy(identity).to_string())
+            .collect();
+
+        if parts.len() < delimiter + 5 {
+            bail!("Message does not have enough parts")
+        }
+        let msg_hmac = &parts[delimiter + 1];
+        let header = &parts[delimiter + 2];
+        let parent_header = &parts[delimiter + 3];
+        let metadata = &parts[delimiter + 4];
+        let content = &parts[delimiter + 5];
+
+        use hmac::Mac;
+        let mut hmac = hmac.clone();
+        hmac.update(header);
+        hmac.update(parent_header);
+        hmac.update(metadata);
+        hmac.update(content);
+        if let Err(error) = hmac.verify(&hex::decode(&msg_hmac)?) {
+            bail!("Unable to verify message HMAC: {}", error);
+        }
+
+        let header = serde_json::from_slice(header)?;
+        let parent_header = serde_json::from_slice(parent_header)?;
+        let metadata = serde_json::from_slice(metadata)?;
+        let content = serde_json::from_slice(content)?;
+
+        Ok(Self {
+            identities,
+            header,
+            parent_header,
+            metadata,
+            content,
+        })
     }
 }

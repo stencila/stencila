@@ -1,6 +1,7 @@
 use crate::errors::incompatible_language;
 
 use super::{Kernel, KernelTrait};
+use async_trait::async_trait;
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -22,6 +23,7 @@ impl CalcKernel {
     }
 }
 
+#[async_trait]
 impl KernelTrait for CalcKernel {
     fn language(&self, language: Option<String>) -> Result<String> {
         let canonical = Ok("calc".to_string());
@@ -48,7 +50,7 @@ impl KernelTrait for CalcKernel {
         Ok(())
     }
 
-    fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
+    async fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
         static STATEMENTS_REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new(r"\r?\n|;").expect("Unable to create regex"));
         static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {

@@ -693,7 +693,7 @@ impl Document {
             pointer.patch(&patch)?;
         }
 
-        let mut patch = pointer.execute(&mut self.kernels)?;
+        let patch = pointer.execute(&mut self.kernels).await?;
 
         // TODO: Only publish the patch if there are subscribers
         patch.target = node_id;
@@ -1544,11 +1544,14 @@ pub mod cli {
                 if code == "%symbols" {
                     let symbols = document.kernels.symbols();
                     display::value(symbols)
+                } else if code == "%kernels" {
+                    let kernels = document.kernels.kernels().await;
+                    display::value(kernels)
                 } else {
                     // Compile the code so that we can use the relations to determine
                     // the need for variable mirroring
                     let relations = compile::code::compile("<cli>", &code, lang);
-                    let nodes = document.kernels.exec(&code, lang, Some(relations))?;
+                    let nodes = document.kernels.exec(&code, lang, Some(relations)).await?;
                     match nodes.len() {
                         0 => display::nothing(),
                         1 => display::value(nodes[0].clone()),

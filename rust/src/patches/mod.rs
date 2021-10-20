@@ -316,12 +316,12 @@ impl<'lt> Pointer<'lt> {
     ///
     /// Returns a patch representing the change in the node resulting from
     /// the execution (usually to it's outputs)
-    pub fn execute(&mut self, kernels: &mut KernelSpace) -> Result<Patch> {
+    pub async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<Patch> {
         let patch = match self {
             Pointer::Inline(node) => {
                 // TODO: Reinstate real diffing, rather than wholesale replacement
                 //let pre = node.clone();
-                execute(*node, kernels)?;
+                execute(*node, kernels).await?;
                 //diff(&pre, node)
                 Patch::new(vec![Operation::Replace {
                     address: Address::empty(),
@@ -334,7 +334,7 @@ impl<'lt> Pointer<'lt> {
             Pointer::Block(node) => {
                 // TODO: Reinstate real diffing, rather than wholesale replacement
                 //let pre = node.clone();
-                execute(*node, kernels)?;
+                execute(*node, kernels).await?;
                 //diff(&pre, node)
                 Patch::new(vec![Operation::Replace {
                     address: Address::empty(),
@@ -346,7 +346,7 @@ impl<'lt> Pointer<'lt> {
             }
             Pointer::Node(node) => {
                 let pre = node.clone();
-                execute(*node, kernels)?;
+                execute(*node, kernels).await?;
                 diff(&pre, node)
             }
             _ => bail!("Invalid node pointer: {:?}", self),

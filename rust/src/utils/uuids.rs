@@ -60,6 +60,9 @@ pub enum Family {
 
     #[strum(serialize = "cl")]
     Client,
+
+    #[strum(serialize = "id")]
+    Generic,
 }
 
 /// The separator between the family and random parts of the identifier

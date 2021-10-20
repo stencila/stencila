@@ -2,6 +2,7 @@ use crate::{
     graphs::{Relation, Resource},
     utils::uuids,
 };
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
 use enum_dispatch::enum_dispatch;
@@ -10,10 +11,26 @@ use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::{hash_map::Entry, BTreeMap, HashMap};
 use stencila_schema::Node;
+use strum::ToString;
 use validator::Contains;
 
 type KernelId = String;
 
+/// The status of a kernel
+#[derive(Debug, Clone, JsonSchema, Serialize, ToString)]
+#[allow(dead_code)]
+pub enum KernelStatus {
+    Pending,
+    Starting,
+    Idle,
+    Busy,
+    Unresponsive,
+    Stopping,
+    Finished,
+    Failed,
+}
+
+#[async_trait]
 #[enum_dispatch]
 pub trait KernelTrait {
     /// Get the name of the kernel's programming language, and/or
@@ -35,6 +52,11 @@ pub trait KernelTrait {
         Ok(())
     }
 
+    /// Get the status of the kernel
+    async fn status(&self) -> KernelStatus {
+        KernelStatus::Idle
+    }
+
     /// Get a symbol from the kernel
     fn get(&self, name: &str) -> Result<Node>;
 
@@ -42,7 +64,7 @@ pub trait KernelTrait {
     fn set(&mut self, name: &str, value: Node) -> Result<()>;
 
     /// Execute some code in the kernel
-    fn exec(&mut self, code: &str) -> Result<Vec<Node>>;
+    async fn exec(&mut self, code: &str) -> Result<Vec<Node>>;
 }
 
 mod default;
@@ -66,6 +88,19 @@ pub enum Kernel {
 
     #[cfg(feature = "kernels-jupyter")]
     Jupyter(jupyter::JupyterKernel),
+}
+
+#[derive(Debug, Clone, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct KernelInfo {
+    /// The id of the kernel.
+    id: String,
+
+    /// The language of the kernel
+    language: String,
+
+    /// The status of the kernel
+    status: String,
 }
 
 #[derive(Debug, Clone, JsonSchema, Serialize)]
@@ -142,6 +177,19 @@ pub struct KernelSpace {
 }
 
 impl KernelSpace {
+    /// Get a list of kernels in the kernel space
+    pub async fn kernels(&self) -> Vec<KernelInfo> {
+        let mut info = Vec::new();
+        for (id, kernel) in self.kernels.iter() {
+            info.push(KernelInfo {
+                id: id.to_string(),
+                language: kernel.language(None).unwrap_or_else(|_| "-".to_string()),
+                status: kernel.status().await.to_string(),
+            })
+        }
+        info
+    }
+
     /// Get a list of symbols in the kernel space
     ///
     /// Mainly for inspection, in the future may return a list with
@@ -151,7 +199,7 @@ impl KernelSpace {
     }
 
     /// Get a symbol from the kernel space
-    pub fn get(&self, name: &str) -> Result<Node> {
+    pub async fn get(&self, name: &str) -> Result<Node> {
         let symbol_info = self
             .symbols
             .get(name)
@@ -162,8 +210,8 @@ impl KernelSpace {
     }
 
     /// Set a symbol in the kernel space
-    pub fn set(&mut self, name: &str, value: Node, language: &str) -> Result<()> {
-        let kernel_id = self.ensure_kernel(language)?;
+    pub async fn set(&mut self, name: &str, value: Node, language: &str) -> Result<()> {
+        let kernel_id = self.ensure_kernel(language).await?;
         tracing::debug!("Setting symbol `{}` in kernel `{}`", name, kernel_id);
 
         let kernel = self.kernels.get_mut(&kernel_id)?;
@@ -186,14 +234,14 @@ impl KernelSpace {
     /// Execute some code in the kernel space
     ///
     /// Symbols that the code uses, but have a different home kernel, are mirrored to the kernel.
-    pub fn exec(
+    pub async fn exec(
         &mut self,
         code: &str,
         language: &str,
         relations: Option<Vec<(Relation, Resource)>>,
     ) -> Result<Vec<Node>> {
         // Determine the kernel to execute in
-        let kernel_id = self.ensure_kernel(language)?;
+        let kernel_id = self.ensure_kernel(language).await?;
         tracing::debug!("Executing code in kernel `{}`", kernel_id);
 
         // Mirror used symbols into the kernel
@@ -258,7 +306,7 @@ impl KernelSpace {
 
         // Execute the code
         let kernel = self.kernels.get_mut(&kernel_id)?;
-        let nodes = kernel.exec(code)?;
+        let nodes = kernel.exec(code).await?;
 
         // Record symbols assigned in kernel
         if let Some(relations) = relations {
@@ -289,7 +337,7 @@ impl KernelSpace {
     /// Ensure that a kernel exists for a language
     ///
     /// Returns a tuple of the kernel's canonical language name and id.
-    fn ensure_kernel(&mut self, language: &str) -> Result<KernelId> {
+    async fn ensure_kernel(&mut self, language: &str) -> Result<KernelId> {
         // Is there already a kernel capable of executing the language?
         for (kernel_id, kernel) in self.kernels.iter_mut() {
             if kernel.language(Some(language.to_string())).is_ok() {
@@ -307,7 +355,7 @@ impl KernelSpace {
             "calc" => calc::CalcKernel::create(),
 
             #[cfg(feature = "kernels-jupyter")]
-            _ => jupyter::JupyterKernel::create(&kernel_id, language)?,
+            _ => jupyter::JupyterKernel::create(&kernel_id, language).await?,
 
             #[cfg(not(feature = "kernels-jupyter"))]
             _ => bail!(

@@ -1,5 +1,6 @@
 use super::{Kernel, KernelTrait};
 use crate::errors::incompatible_language;
+use async_trait::async_trait;
 use eyre::{bail, Result};
 use schemars::JsonSchema;
 use serde::Serialize;
@@ -19,6 +20,7 @@ impl DefaultKernel {
     }
 }
 
+#[async_trait]
 impl KernelTrait for DefaultKernel {
     fn language(&self, language: Option<String>) -> Result<String> {
         let canonical = Ok("none".to_string());
@@ -41,7 +43,7 @@ impl KernelTrait for DefaultKernel {
         Ok(())
     }
 
-    fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
+    async fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
         let mut outputs = Vec::new();
         for line in code.lines() {
             let node = self.get(line.trim())?;
