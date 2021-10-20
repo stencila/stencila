@@ -81,7 +81,13 @@ export const articleInputRules = inputRules({
     }),
 
     // Markdown code block
-    textblockTypeInputRule(/^```$/, articleSchema.nodes.CodeBlock),
+    textblockTypeInputRule(
+      /^```(\w+)?\s$/,
+      articleSchema.nodes.CodeBlock,
+      (match) => ({
+        programmingLanguage: match?.[1],
+      })
+    ),
 
     // Markdown quote block
     wrappingInputRule(/^\s*>\s$/, articleSchema.nodes.QuoteBlock),
