@@ -61,6 +61,20 @@ export function codeBlock(): NodeSpec {
           }
         },
       },
+      {
+        tag: 'stencila-editor',
+        preserveWhitespace: 'full',
+        contentElement: '.cm-content',
+        getAttrs(dom) {
+          const elem = dom as HTMLStencilaEditorElement
+          return {
+            programmingLanguage:
+              elem.querySelector<HTMLSelectElement>(
+                '[aria-label="Programming Language"] select'
+              )?.value ?? elem.getAttribute('active-language'),
+          }
+        },
+      },
     ],
   }
 }
