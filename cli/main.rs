@@ -1,11 +1,24 @@
 #![recursion_limit = "256"]
 
 use std::{collections::HashMap, path::PathBuf};
-use stencila::{binaries, cli::display, config::{self, CONFIG}, documents::{self, DOCUMENTS}, eyre::{bail, Error, Result}, logging::{
+use stencila::{
+    binaries,
+    cli::display,
+    config::{self, CONFIG},
+    documents::{self, DOCUMENTS},
+    eyre::{bail, Result},
+    logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
         LoggingFormat, LoggingLevel,
-    }, plugins, projects::{self, PROJECTS}, regex::Regex, serde_json, serde_yaml, serve, sources, strum::VariantNames, tokio, tracing, upgrade, utils::keys};
+    },
+    plugins,
+    projects::{self, PROJECTS},
+    serde_json, serde_yaml, serve, sources,
+    strum::VariantNames,
+    tokio, tracing, upgrade,
+    utils::keys,
+};
 use structopt::StructOpt;
 
 /// Stencila, in a terminal console, on your own machine
@@ -481,25 +494,13 @@ pub async fn main() -> Result<()> {
     #[cfg(feature = "feedback")]
     match result {
         Ok(_) => Ok(()),
-        Err(error) => feedback::error_reporter(error),
+        Err(error) => feedback::enrich_error(error),
     }
 
     #[cfg(not(feature = "feedback"))]
     result
 }
 
-/// Print an error
-pub fn print_error(error: Error) {
-    // Remove any error label already in error string
-    let re = Regex::new(r"\s*error\s*:?").unwrap();
-    let error = error.to_string();
-    let error = if let Some(captures) = re.captures(error.as_str()) {
-        error.replace(&captures[0], "").trim().into()
-    } else {
-        error
-    };
-    eprintln!("ERROR: {}", error);
-}
 /// Module for feedback features
 ///
 /// These features are aimed at providing better feedback on
@@ -562,15 +563,38 @@ mod feedback {
         }
     }
 
-    pub fn error_reporter(error: eyre::Report) -> eyre::Result<()> {
+    /// Enrich an `eyre` error report
+    ///
+    /// Add additional section to error report for user to get help in various ways.
+    pub fn enrich_error(error: eyre::Report) -> eyre::Result<()> {
+        let title = format!("CLI: {}", error);
+        let body = format!(
+            "Version: {}\nOS: {}\n\nPlease describe the error a little more...",
+            env!("CARGO_PKG_VERSION").to_string(),
+            std::env::consts::OS
+        );
+        let issue_url = format!(
+            "https://github.com/stencila/stencila/issues/new?title={}&body={}",
+            urlencoding::encode(&title),
+            urlencoding::encode(&body)
+        );
+
         Err(error).with_section(move || {
             format!(
-                "Get help at {}.\nReport bugs at {}.",
-                Blue.paint("https://help.stenci.la"),
-                Blue.paint("https://github.com/stencila/stencila/issues")
+                "Report issue: {}.\nRead docs: {}.",
+                Blue.paint(issue_url),
+                Blue.paint("https://help.stenci.la")
             )
             .header("Help:")
         })?
+    }
+
+    /// Print an error
+    ///
+    /// Mimics how errors are printed when returned from the CLI (see `eyre` docs).
+    /// For use in interactive mode.
+    pub fn print_error(error: eyre::Report) {
+        println!("Error:{:?}", error);
     }
 }
 
@@ -701,6 +725,7 @@ mod display {
 #[cfg(feature = "interact")]
 mod interact {
     use super::*;
+    use crate::feedback::print_error;
     use rustyline::error::ReadlineError;
     use stencila::{config, eyre::eyre};
 
@@ -902,6 +927,7 @@ mod interact {
         Ok(())
     }
 }
+
 /// Module for interactive mode line editor
 ///
 /// Implements traits for `rustyline`
