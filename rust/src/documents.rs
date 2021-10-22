@@ -687,13 +687,16 @@ impl Document {
 
     /// Execute the document, optionally providing a [`Patch`] to apply before execution, and
     /// publishing a patch if there are any subscribers.
+    #[tracing::instrument(skip(self, patch))]
     pub async fn execute(&mut self, node_id: Option<String>, patch: Option<Patch>) -> Result<()> {
+        tracing::debug!("Executing document `{}`", self.id);
+
         let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id.clone())?;
         if let Some(patch) = patch {
             pointer.patch(&patch)?;
         }
 
-        let patch = pointer.execute(&mut self.kernels).await?;
+        let mut patch = pointer.execute(&mut self.kernels).await?;
 
         // TODO: Only publish the patch if there are subscribers
         patch.target = node_id;
@@ -1311,6 +1314,7 @@ impl Documents {
     ///
     /// Like `patch()`, given this function is likely to be called often, do not return
     /// the document.
+    #[tracing::instrument(skip(self, patch))]
     pub async fn execute(
         &self,
         id: &str,

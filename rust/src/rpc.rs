@@ -53,7 +53,10 @@ impl Request {
         }
     }
 
+    #[tracing::instrument(skip(self))]
     pub async fn dispatch(self, client: &str) -> (Response, Subscription) {
+        tracing::debug!("Dispatching request for client `{}`", client);
+
         let result: Result<(serde_json::Value, Subscription)> = match self.method.as_str() {
             "sessions.start" => sessions_start(&self.params).await,
             "sessions.stop" => sessions_stop(&self.params).await,
