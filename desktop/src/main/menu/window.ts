@@ -21,7 +21,7 @@ export const baseWindowSubMenu: MenuItemConstructorOptions[] = [
         { type: 'separator' as const },
         { role: 'window' as const },
       ]
-    : [{ role: 'close' as const }]),
+    : []),
   { type: 'separator' },
   {
     label: 'Advanced',
