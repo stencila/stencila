@@ -85,7 +85,7 @@
     "debounce": "1.2.1",
     "electron-log": "4.4.1",
     "electron-squirrel-startup": "1.0.0",
-    "fp-ts": "2.11.4",
+    "fp-ts": "2.11.5",
     "i18next": "21.3.3",
     "normalizr": "3.6.1",
     "redux-thunk": "2.3.0",
