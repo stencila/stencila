@@ -5,7 +5,7 @@ stencila-button {
     text-transform: uppercase;
 
     &[disabled] {
-      opacity: 1 !important;
+      opacity: 100% !important;
     }
   }
 

@@ -165,6 +165,7 @@
       content: ',\00a0';
       order: 100;
     }
+
     &:last-of-type::after {
       content: normal;
     }
@@ -280,10 +281,7 @@
 :--Heading {
   font-family: var(--font-family-title);
   line-height: 1.25;
-  margin-bottom: var(--spacer-sm);
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: var(--spacer-lg);
+  margin: var(--spacer-lg) auto var(--spacer-sm);
 
   @media (--mq-md) {
     max-width: var(--max-width);
@@ -342,10 +340,7 @@ h2:--Heading {
 }
 
 :--Paragraph {
-  margin-bottom: 1em;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 1em;
+  margin: 1em auto;
 
   @media (--mq-md) {
     max-width: var(--max-width);

@@ -59,8 +59,7 @@
   background-color: var(--color-stock);
   color: var(--color-key);
   display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
+  flex-flow: column wrap;
   font-family: var(--font-family-body);
   line-height: 1.75;
   font-size: var(--font-size-body);
@@ -474,7 +473,7 @@ h6:--Heading {
 :--Figure {
   border-radius: 4px;
   border: 1px solid var(--color-neutral-300);
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 0 8px rgb(0 0 0 / 16%);
   margin: 1.25rem auto;
   max-width: var(--max-width-media);
   overflow-x: auto;

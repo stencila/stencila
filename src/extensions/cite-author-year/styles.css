@@ -43,6 +43,7 @@
   &::before {
     content: '(';
   }
+
   &::after {
     content: ')';
   }
@@ -54,6 +55,7 @@
     &::before {
       content: '\00a0(';
     }
+
     &::after {
       content: ')';
     }

@@ -76,6 +76,7 @@
 
   & > :--authors {
     font-size: var(--font-size-90);
+
     :--givenNames,
     :--familyNames {
       color: var(--color-headings);

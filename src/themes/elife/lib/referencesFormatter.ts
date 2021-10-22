@@ -1,4 +1,4 @@
-import { prepend, first, append } from '../../../util'
+import { prepend, first } from '../../../util'
 
 const moveVolumeNames = (references: Element[]): Element[] => {
   references.forEach((reference: Element): void => {

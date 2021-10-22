@@ -68,7 +68,7 @@ export const getPreviewHead = (): HTMLHeadElement | null => {
   return getPreviewDoc()?.getElementsByTagName('head')[0] ?? null
 }
 
-const injectExecutableToolbar = () => {
+const injectExecutableToolbar = (): void => {
   const query = window.location.search
   const toolbarDisabled: boolean = query.includes('toolbar=false')
 

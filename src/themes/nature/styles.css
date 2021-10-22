@@ -78,8 +78,7 @@
   --color-neutral-600: #666;
 
   display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
+  flex-flow: column wrap;
   font-family: var(--font-family-body);
   font-size: var(--font-size-body);
   line-height: 1.55;

@@ -10,7 +10,7 @@
 }
 
 @font-face {
-  font-family: 'latobold';
+  font-family: latobold;
   src:
     url('./lato-bold-webfont.woff2') format('woff2'),
     url('./lato-bold-webfont.woff') format('woff');
@@ -19,7 +19,7 @@
 }
 
 @font-face {
-  font-family: 'latoitalic';
+  font-family: latoitalic;
   src:
     url('./lato-regularitalic-webfont.woff2') format('woff2'),
     url('./lato-regularitalic-webfont.woff') format('woff');
@@ -28,7 +28,7 @@
 }
 
 @font-face {
-  font-family: 'latoregular';
+  font-family: latoregular;
   src:
     url('./lato-regular-webfont.woff2') format('woff2'),
     url('./lato-regular-webfont.woff') format('woff');
