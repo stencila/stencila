@@ -1,4 +1,4 @@
-import { DomOperationRemove, Slot } from '@stencila/stencila'
+import { OperationRemove, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
 import {
   isName,
@@ -15,7 +15,7 @@ import { resolveParent, resolveSlot } from './resolve'
 /**
  * Apply a `Remove` operation
  */
-export function applyRemove(op: DomOperationRemove, target?: ElementId): void {
+export function applyRemove(op: OperationRemove, target?: ElementId): void {
   const { address, items } = op
 
   // if (resolveReceiver(address, op)) return

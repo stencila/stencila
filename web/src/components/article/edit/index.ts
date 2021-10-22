@@ -1,4 +1,4 @@
-import { Address, DomOperation, Operation } from '@stencila/stencila'
+import { Address, Operation } from '@stencila/stencila'
 import { collab, receiveTransaction, sendableSteps } from 'prosemirror-collab'
 import { baseKeymap } from 'prosemirror-commands'
 import { dropCursor } from 'prosemirror-dropcursor'
@@ -192,13 +192,7 @@ export class Article extends StencilaElement {
       } else {
         ops.push(op)
         try {
-          applyPatch(this.root, {
-            ops: ops.map((op): DomOperation => {
-              // @ts-expect-error because this is a temporary until we unify Operation and DomOperation
-              // eslint-disable-next-line
-              return { ...op, json: op.value }
-            }),
-          })
+          applyPatch(this.root, { ops })
         } catch (error) {
           // There was an error applying the patch so recover by setting root to
           // the current state of the document
@@ -231,7 +225,7 @@ export class Article extends StencilaElement {
    *
    * Transforms each `Operation` into a ProseMirror `Step` and sends them to the editor.
    */
-  receiveOperation(_op: DomOperation): boolean {
+  receiveOperation(_op: Operation): boolean {
     // Pretends to handle the operation, so that some other handler
     // does not modify the ProseMirror managed DOM
     console.warn('TODO: Incoming patch operations are not currently handled')
@@ -326,7 +320,7 @@ export class Article extends StencilaElement {
   /**
    * Convert a Stencila document operation to a ProseMirror document transaction
    */
-  operationToStep(op: DomOperation): Transaction {
+  operationToStep(op: Operation): Transaction {
     if (!this.doc) throw new Error('The `doc` has not been initialized')
 
     const transaction = new Transaction(this.doc)

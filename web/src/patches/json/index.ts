@@ -1,13 +1,11 @@
 import {
   Address,
-  DomOperation,
-  DomOperationAdd,
-  DomOperationMove,
-  DomOperationRemove,
-  DomOperationReplace,
-  DomOperationTransform,
-  DomPatch,
   Operation,
+  OperationAdd,
+  OperationMove,
+  OperationRemove,
+  OperationReplace,
+  OperationTransform,
   Patch,
   Slot,
 } from '@stencila/stencila'
@@ -125,18 +123,18 @@ export function diff(a: JsonValue, b: JsonValue, address: Address = []): Patch {
 }
 
 /**
- * Apply a `DomPatch` to a JSON value.
+ * Apply a `Patch` to a JSON value.
  */
-export function applyPatch(value: JsonValue, patch: DomPatch): void {
+export function applyPatch(value: JsonValue, patch: Patch): void {
   for (const op of patch.ops) {
     applyOp(value, op)
   }
 }
 
 /**
- * Apply a `DomOperation` to a JSON value.
+ * Apply a `Operation` to a JSON value.
  */
-export function applyOp(value: JsonValue, op: DomOperation): void {
+export function applyOp(value: JsonValue, op: Operation): void {
   switch (op.type) {
     case 'Add':
       return applyAdd(value, op)
@@ -213,25 +211,25 @@ export function replaceString(
 /**
  * Apply an `Add` operation to a JSON value.
  */
-export function applyAdd(value: JsonValue, op: DomOperationAdd): void {
+export function applyAdd(value: JsonValue, op: OperationAdd): void {
   const { address } = op
-  const json = op.json as JsonValue
   const [parent, key, target, slot] = resolveAddress(value, address)
+  const newValue = op.value as JsonValue
 
   if (isArray(target)) {
     // Adding item/s to an array
     assertIndex(slot)
-    assertArray(json)
-    target.splice(slot, 0, ...json)
+    assertArray(newValue)
+    target.splice(slot, 0, ...newValue)
   } else if (isObject(target)) {
     // Adding a property to an object
     assertName(slot)
-    target[slot] = json
+    target[slot] = newValue
   } else if (isString(target)) {
     // Add a substring to a string
     assertIndex(slot)
-    assertString(json)
-    replaceString(parent, key, applyAddString(target, slot, json))
+    assertString(newValue)
+    replaceString(parent, key, applyAddString(target, slot, newValue))
   } else {
     panic(`Add operation has unexpected target type: ${typeof target}`)
   }
@@ -240,7 +238,7 @@ export function applyAdd(value: JsonValue, op: DomOperationAdd): void {
 /**
  * Apply a `Remove` operation to a JSON value.
  */
-export function applyRemove(value: JsonValue, op: DomOperationRemove): void {
+export function applyRemove(value: JsonValue, op: OperationRemove): void {
   const { address, items } = op
   const [parent, key, target, slot] = resolveAddress(value, address)
 
@@ -263,33 +261,37 @@ export function applyRemove(value: JsonValue, op: DomOperationRemove): void {
 /**
  * Apply a `Replace` operation to a JSON value.
  */
-export function applyReplace(value: JsonValue, op: DomOperationReplace): void {
+export function applyReplace(value: JsonValue, op: OperationReplace): void {
   const { address, items } = op
-  const json = op.json as JsonValue
   const [parent, key, target, slot] = resolveAddress(value, address)
+  const newValue = op.value as JsonValue
 
   if (isArray(target)) {
     assertIndex(slot)
-    assertArray(json)
-    target.splice(slot, items, ...json)
+    assertArray(newValue)
+    target.splice(slot, items, ...newValue)
   } else if (isObject(target)) {
     assertName(slot)
     assert(
       items === 1,
       `Replace 'items' for object is not equal to one: ${items}`
     )
-    target[slot] = json
+    target[slot] = newValue
   } else if (typeof target === 'string') {
     assertIndex(slot)
-    assertString(json)
-    replaceString(parent, key, applyReplaceString(target, slot, items, json))
+    assertString(newValue)
+    replaceString(
+      parent,
+      key,
+      applyReplaceString(target, slot, items, newValue)
+    )
   }
 }
 
 /**
  * Apply a `Move` operation to a JSON value.
  */
-export function applyMove(_value: JsonValue, _op: DomOperationMove): void {
+export function applyMove(_value: JsonValue, _op: OperationMove): void {
   panic('Not yet implemented')
 }
 
@@ -298,7 +300,7 @@ export function applyMove(_value: JsonValue, _op: DomOperationMove): void {
  */
 export function applyTransform(
   _value: JsonValue,
-  _op: DomOperationTransform
+  _op: OperationTransform
 ): void {
   panic('Not yet implemented')
 }

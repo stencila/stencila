@@ -1,14 +1,22 @@
-import { DomOperationAdd, Slot } from '@stencila/stencila'
+import { OperationAdd, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
-import { assertIndex, assertName, isElement, isName, panic } from '../checks'
+import {
+  assertIndex,
+  assertName,
+  assertString,
+  isElement,
+  isName,
+  panic,
+} from '../checks'
 import { applyAdd as applyAddString } from '../string'
 import { createFragment, resolveParent } from './resolve'
 
 /**
  * Apply an add operation
  */
-export function applyAdd(op: DomOperationAdd, target?: ElementId): void {
+export function applyAdd(op: OperationAdd, target?: ElementId): void {
   const { address, html } = op
+  assertString(html)
 
   // if (resolveReceiver(address, op)) return
 

@@ -1,13 +1,7 @@
-import {
-  Operation,
-  DomOperation,
-  Patch,
-  Slot,
-  Address,
-} from '@stencila/stencila'
+import { Address, Operation, Patch, Slot } from '@stencila/stencila'
 import { getPatch } from 'fast-array-diff'
 import GraphemeSplitter from 'grapheme-splitter'
-import { assert, assertIndex, panic } from '../checks'
+import { assert, assertIndex, assertString, panic } from '../checks'
 
 /**
  * Generate a `Patch` describing the difference between two strings
@@ -34,9 +28,9 @@ export function diff(a: string, b: string, address: Address = []): Patch {
 }
 
 /**
- * Apply a `DomOperation` to a string.
+ * Apply a `Operation` to a string.
  */
-export function applyOp(text: string, op: DomOperation): string {
+export function applyOp(text: string, op: Operation): string {
   const type = op.type
   if (type === 'Add' || type === 'Remove' || type === 'Replace') {
     const address = op.address
@@ -47,10 +41,12 @@ export function applyOp(text: string, op: DomOperation): string {
 
     switch (type) {
       case 'Add':
+        assertString(op.html)
         return applyAdd(text, slot, op.html)
       case 'Remove':
         return applyRemove(text, slot, op.items)
       case 'Replace':
+        assertString(op.html)
         return applyReplace(text, slot, op.items, op.html)
     }
   }

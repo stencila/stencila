@@ -158,9 +158,9 @@ export interface DocumentEvent {
    */
   format?: Format
   /**
-   * The `DomPatch` associated with a `Patched` event
+   * The `Patch` associated with a `Patched` event
    */
-  patch?: DomPatch
+  patch?: Patch
 }
 
 export type PatchesSchema =
@@ -175,12 +175,6 @@ export type PatchesSchema =
     }
   | {
       Operation: Operation
-    }
-  | {
-      DomPatch: DomPatch
-    }
-  | {
-      DomOperation: DomOperation
     }
 /**
  * A slot, used as part of an [`Address`], to locate a value within a `Node` tree.
@@ -222,21 +216,6 @@ export type Address = Slot[]
  * Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode characters not bytes.
  */
 export type Operation = OperationAdd | OperationRemove | OperationReplace | OperationMove | OperationTransform
-/**
- * A DOM operation used to mutate the DOM.
- *
- * A `DomOperation` is the DOM version of an [`Operation`]. The same names for operation variants and their properties are used with the following exception:
- *
- * - the `value` property of `Add` and `Replace` is replaced by `html`, a HTML string representing the node (usually a HTML `Element` or `Text` node), and `json`, a JSON representation of the node (used for updating WebComponents).
- *
- * - the `length` property of `Add` and `Replace` is not included because it is not needed (for merge conflict resolution as it is in `Operation`).
- */
-export type DomOperation =
-  | DomOperationAdd
-  | DomOperationRemove
-  | DomOperationReplace
-  | DomOperationMove
-  | DomOperationTransform
 
 /**
  * A set of [`Operation`]s
@@ -276,6 +255,10 @@ export interface OperationAdd {
    * The number of items added
    */
   length: number
+  /**
+   * The HTML encoding of `value`
+   */
+  html?: string
 }
 /**
  * Remove one or more values
@@ -320,6 +303,10 @@ export interface OperationReplace {
    * The number of items added
    */
   length: number
+  /**
+   * The HTML encoding of `value`
+   */
+  html?: string
 }
 /**
  * Move a value from one address to another
@@ -351,141 +338,6 @@ export interface OperationMove {
  * Transform a value from one type to another
  */
 export interface OperationTransform {
-  type: 'Transform'
-  /**
-   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
-   *
-   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
-   *
-   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
-   */
-  address: Slot[]
-  /**
-   * The type of `Node` to transform from
-   */
-  from: string
-  /**
-   * The type of `Node` to transform to
-   */
-  to: string
-}
-/**
- * A set of [`DomOperation`]s to be applied to some DOM element
- */
-export interface DomPatch {
-  /**
-   * The [`DomOperation`]s to apply
-   */
-  ops: DomOperation[]
-  /**
-   * The id of the node to which to apply this patch
-   */
-  target?: string
-  /**
-   * The id of the actor that generated this patch e.g. a web browser client, or file watcher
-   */
-  actor?: string
-}
-/**
- * Add one or more DOM nodes
- */
-export interface DomOperationAdd {
-  type: 'Add'
-  /**
-   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
-   *
-   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
-   *
-   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
-   */
-  address: Slot[]
-  /**
-   * The HTML to add
-   */
-  html: string
-  /**
-   * The JSON value to add
-   */
-  json: {
-    [k: string]: unknown
-  }
-}
-/**
- * Remove one or more DOM nodes
- */
-export interface DomOperationRemove {
-  type: 'Remove'
-  /**
-   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
-   *
-   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
-   *
-   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
-   */
-  address: Slot[]
-  /**
-   * The number of items to remove
-   */
-  items: number
-}
-/**
- * Replace one or more DOM nodes
- */
-export interface DomOperationReplace {
-  type: 'Replace'
-  /**
-   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
-   *
-   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
-   *
-   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
-   */
-  address: Slot[]
-  /**
-   * The number of items to replace
-   */
-  items: number
-  /**
-   * The replacement HTML
-   */
-  html: string
-  /**
-   * The JSON value to replace
-   */
-  json: {
-    [k: string]: unknown
-  }
-}
-/**
- * Move a DOM node from one address to another
- */
-export interface DomOperationMove {
-  type: 'Move'
-  /**
-   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
-   *
-   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
-   *
-   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
-   */
-  from: Slot[]
-  /**
-   * The number of items to move
-   */
-  items: number
-  /**
-   * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
-   *
-   * Implemented as a double-ended queue. Given that addresses usually have less than six slots it may be more performant to use a stack allocated `tinyvec` here instead.
-   *
-   * Note: This could instead have be called a "Path", but that name was avoided because of potential confusion with file system paths.
-   */
-  to: Slot[]
-}
-/**
- * Transform a DOM node from one type to another
- */
-export interface DomOperationTransform {
   type: 'Transform'
   /**
    * The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
@@ -1204,19 +1056,13 @@ export type Error =
     }
   | {
       type: 'InvalidAddress'
-      address: Address
       type_name: string
+      details: string
       message: string
     }
   | {
       type: 'InvalidPatchOperation'
       op: string
-      type_name: string
-      message: string
-    }
-  | {
-      type: 'InvalidPatchAddress'
-      address: string
       type_name: string
       message: string
     }

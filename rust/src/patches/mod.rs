@@ -328,6 +328,7 @@ impl<'lt> Pointer<'lt> {
                     items: 1,
                     value: Box::new(node.clone()),
                     length: 1,
+                    html: None,
                 }])
             }
             Pointer::Block(node) => {
@@ -340,6 +341,7 @@ impl<'lt> Pointer<'lt> {
                     items: 1,
                     value: Box::new(node.clone()),
                     length: 1,
+                    html: None,
                 }])
             }
             Pointer::Node(node) => {
@@ -380,6 +382,7 @@ pub type Value = Box<dyn Any + Send>;
 ///
 /// Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode
 /// characters not bytes.
+#[skip_serializing_none]
 #[derive(Debug, JsonSchema, Serialize, Deserialize, ToString)]
 #[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
@@ -400,6 +403,9 @@ pub enum Operation {
 
         /// The number of items added
         length: usize,
+
+        /// The HTML encoding of `value`
+        html: Option<String>,
     },
     /// Remove one or more values
     #[schemars(title = "OperationRemove")]
@@ -429,6 +435,9 @@ pub enum Operation {
 
         /// The number of items added
         length: usize,
+
+        /// The HTML encoding of `value`
+        html: Option<String>,
     },
     /// Move a value from one address to another
     #[schemars(title = "OperationMove")]
@@ -457,6 +466,23 @@ pub enum Operation {
 }
 
 impl Operation {
+    /// Generate the JSON Schema for the `value` property
+    fn value_schema(_generator: &mut SchemaGenerator) -> Schema {
+        schemas::typescript("any", true)
+    }
+
+    /// Deserialize the `value` field of an operation
+    ///
+    /// This is needed so that the server can receive a `Patch` from the client and
+    /// deserialize the JSON value into a `Value`.
+    fn value_deserialize<'de, D>(deserializer: D) -> Result<Value, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
+        Ok(Box::new(value))
+    }
+
     /// Serialize the `value` field of an operation
     ///
     /// This is mainly for debugging and testing. Serialization of types is added as
@@ -525,171 +551,8 @@ impl Operation {
         serializer.serialize_str("<unserialized type>")
     }
 
-    /// Deserialize the `value` field of an operation
-    ///
-    /// This is needed so that the server can receive a `Patch` from the client and
-    /// deserialize the JSON value into a `Value`.
-    fn value_deserialize<'de, D>(deserializer: D) -> Result<Value, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
-        Ok(Box::new(value))
-    }
-
-    /// Generate the JSON Schema for the `value` property
-    fn value_schema(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("any", true)
-    }
-}
-
-/// A set of [`Operation`]s
-#[skip_serializing_none]
-#[derive(Debug, Default, JsonSchema, Serialize, Deserialize)]
-#[schemars(deny_unknown_fields)]
-pub struct Patch {
-    /// The [`Operation`]s to apply
-    ops: Vec<Operation>,
-
-    /// The id of the node to which to apply this patch
-    target: Option<String>,
-
-    /// The id of the actor that generated this patch
-    /// e.g. a web browser client, or file watcher
-    actor: Option<String>,
-}
-
-impl Patch {
-    fn new(ops: Vec<Operation>) -> Self {
-        Patch {
-            ops,
-            target: None,
-            actor: None,
-        }
-    }
-}
-
-/// A DOM operation used to mutate the DOM.
-///
-/// A `DomOperation` is the DOM version of an [`Operation`].
-/// The same names for operation variants and their properties
-/// are used with the following exception:
-///
-/// - the `value` property of `Add` and `Replace` is replaced by `html`, a HTML string
-///   representing the node (usually a HTML `Element` or `Text` node), and `json`, a JSON
-///   representation of the node (used for updating WebComponents).
-///
-/// - the `length` property of `Add` and `Replace` is not included because it is not
-///   needed (for merge conflict resolution as it is in `Operation`).
-#[derive(Debug, JsonSchema, Serialize)]
-#[serde(tag = "type")]
-#[schemars(deny_unknown_fields)]
-pub enum DomOperation {
-    /// Add one or more DOM nodes
-    #[schemars(title = "DomOperationAdd")]
-    Add {
-        /// The address to which to add the DOM node(s)
-        address: Address,
-
-        /// The HTML to add
-        html: String,
-
-        /// The JSON value to add
-        json: serde_json::Value,
-    },
-    /// Remove one or more DOM nodes
-    #[schemars(title = "DomOperationRemove")]
-    Remove {
-        /// The address from which to remove the DOM node(s)
-        address: Address,
-
-        /// The number of items to remove
-        items: usize,
-    },
-    /// Replace one or more DOM nodes
-    #[schemars(title = "DomOperationReplace")]
-    Replace {
-        /// The address which should be replaced
-        address: Address,
-
-        /// The number of items to replace
-        items: usize,
-
-        /// The replacement HTML
-        html: String,
-
-        /// The JSON value to replace
-        json: serde_json::Value,
-    },
-    /// Move a DOM node from one address to another
-    #[schemars(title = "DomOperationMove")]
-    Move {
-        /// The address from which to remove the DOM node
-        from: Address,
-
-        /// The number of items to move
-        items: usize,
-
-        /// The address to which to add the items
-        to: Address,
-    },
-    /// Transform a DOM node from one type to another
-    #[schemars(title = "DomOperationTransform")]
-    Transform {
-        /// The address of the DOM node to transform
-        address: Address,
-
-        /// The type of `Node` to transform from
-        from: String,
-
-        /// The type of `Node` to transform to
-        to: String,
-    },
-}
-
-impl DomOperation {
-    /// Create a `DomOperation` from an `Operation`
-    fn new(op: &Operation) -> DomOperation {
-        match op {
-            Operation::Add { address, value, .. } => DomOperation::Add {
-                address: address.clone(),
-                html: DomOperation::value_html(address, value),
-                json: DomOperation::value_json(value),
-            },
-
-            Operation::Remove { address, items, .. } => DomOperation::Remove {
-                address: address.clone(),
-                items: *items,
-            },
-
-            Operation::Replace {
-                address,
-                items,
-                value,
-                ..
-            } => DomOperation::Replace {
-                address: address.clone(),
-                items: *items,
-                html: DomOperation::value_html(address, value),
-                json: DomOperation::value_json(value),
-            },
-
-            Operation::Move { from, items, to } => DomOperation::Move {
-                from: from.clone(),
-                items: *items,
-                to: to.clone(),
-            },
-
-            Operation::Transform { address, from, to } => DomOperation::Transform {
-                address: address.clone(),
-                from: from.clone(),
-                to: to.clone(),
-            },
-        }
-    }
-
     /// Generate HTML for the `value` field of an operation
-    fn value_html(address: &Address, value: &Value) -> String {
+    fn value_html(value: &Value, address: &Address) -> String {
         use crate::methods::encode::html::{Context, ToHtml};
 
         let slot = address.back();
@@ -697,34 +560,34 @@ impl DomOperation {
 
         // Convert a node, boxed node, or vector of nodes to HTML
         macro_rules! to_html {
-            ($type:ty) => {
-                if let Some(node) = value.downcast_ref::<$type>() {
-                    return node.to_html(
-                        &slot.map(|slot| slot.to_string()).unwrap_or_default(),
-                        &context
-                    )
-                }
-                if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
-                    return boxed.to_html(
-                        &slot.map(|slot| slot.to_string()).unwrap_or_default(),
-                        &context
-                    )
-                }
-                if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
-                    return match slot {
-                        // If the slot is a name then we're adding or replacing a property so we
-                        // want the `Vec` to have a wrapper element with the name as the slot attribute
-                        Some(Slot::Name(name)) => nodes.to_html(name, &context),
-                        // If the slot is an index then we're adding or replacing items in a
-                        // vector so we don't want a wrapper element
-                        Some(Slot::Index(..)) | None => nodes.to_html("", &context),
-                    };
-                }
-            };
-            ($($type:ty)*) => {
-                $(to_html!($type);)*
+        ($type:ty) => {
+            if let Some(node) = value.downcast_ref::<$type>() {
+                return node.to_html(
+                    &slot.map(|slot| slot.to_string()).unwrap_or_default(),
+                    &context
+                )
             }
+            if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
+                return boxed.to_html(
+                    &slot.map(|slot| slot.to_string()).unwrap_or_default(),
+                    &context
+                )
+            }
+            if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
+                return match slot {
+                    // If the slot is a name then we're adding or replacing a property so we
+                    // want the `Vec` to have a wrapper element with the name as the slot attribute
+                    Some(Slot::Name(name)) => nodes.to_html(name, &context),
+                    // If the slot is an index then we're adding or replacing items in a
+                    // vector so we don't want a wrapper element
+                    Some(Slot::Index(..)) | None => nodes.to_html("", &context),
+                };
+            }
+        };
+        ($($type:ty)*) => {
+            $(to_html!($type);)*
         }
+    }
 
         // Types roughly ordered by expected incidence (more commonly used types in
         // patches first)
@@ -772,74 +635,64 @@ impl DomOperation {
         "<span class=\"todo\">TODO</span>".to_string()
     }
 
-    /// Generate JSON for the `value` field of an operation
-    fn value_json(value: &Value) -> serde_json::Value {
-        // Convert a node, boxed node, or vector of nodes to HTML
-        macro_rules! to_json {
-            ($type:ty) => {
-                if let Some(node) = value.downcast_ref::<$type>() {
-                    return serde_json::to_value(node).expect("Should convert to JSON")
-                }
-                if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
-                    return serde_json::to_value(boxed).expect("Should convert to JSON")
-                }
-                if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
-                    return serde_json::to_value(nodes).expect("Should convert to JSON")
-                }
-            };
-            ($($type:ty)*) => {
-                $(to_json!($type);)*
+    /// Set the `html` field from the `value` field
+    fn html_set(&mut self) -> &mut Self {
+        match self {
+            Operation::Add {
+                value,
+                address,
+                html,
+                ..
             }
+            | Operation::Replace {
+                value,
+                address,
+                html,
+                ..
+            } => {
+                *html = Some(Operation::value_html(value, address));
+            }
+            _ => {}
         }
-
-        // As above, types roughly ordered by expected incidence
-        to_json!(
-            InlineContent
-            BlockContent
-            Node
-
-            String
-            Number
-            Integer
-            Boolean
-            Array
-            Object
-            Null
-        );
-
-        // The value may be a JSON value (if this patch was sent from a client)
-        if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-            return value.clone();
-        }
-
-        tracing::error!("Unhandled value type when generating JSON for `DomOperation`");
-        serde_json::Value::String("TODO".to_string())
+        self
     }
 }
 
-/// A set of [`DomOperation`]s to be applied to some DOM element
+/// A set of [`Operation`]s
 #[skip_serializing_none]
-#[derive(Debug, JsonSchema, Serialize)]
+#[derive(Debug, Default, JsonSchema, Serialize, Deserialize)]
 #[schemars(deny_unknown_fields)]
-pub struct DomPatch {
-    /// The [`DomOperation`]s to apply
-    ops: Vec<DomOperation>,
+pub struct Patch {
+    /// The [`Operation`]s to apply
+    ops: Vec<Operation>,
 
     /// The id of the node to which to apply this patch
     pub target: Option<String>,
 
     /// The id of the actor that generated this patch
     /// e.g. a web browser client, or file watcher
-    actor: Option<String>,
+    pub actor: Option<String>,
 }
 
-impl DomPatch {
-    pub fn new(patch: &Patch) -> DomPatch {
-        DomPatch {
-            ops: patch.ops.iter().map(|op| DomOperation::new(op)).collect(),
-            target: patch.target.clone(),
-            actor: patch.actor.clone(),
+impl Patch {
+    /// Create a new patch from a set of operations
+    fn new(ops: Vec<Operation>) -> Self {
+        Self {
+            ops,
+            target: None,
+            actor: None,
         }
+    }
+
+    /// Prepare the patch for publishing
+    ///
+    /// The main purpose of this function is to generate HTML for each `Add` and `Replace`
+    /// operation in the patch before it is sent to clients.
+    pub fn prepublish(&mut self) -> &mut Self {
+        for op in self.ops.iter_mut() {
+            op.html_set();
+        }
+        self
     }
 }
 
@@ -881,10 +734,12 @@ impl Differ {
                     address,
                     value,
                     length,
+                    html,
                 } => Operation::Add {
                     address: self.address.concat(&address),
                     value,
                     length,
+                    html,
                 },
                 Operation::Remove { address, items } => Operation::Remove {
                     address: self.address.concat(&address),
@@ -895,11 +750,13 @@ impl Differ {
                     items,
                     value,
                     length,
+                    html,
                 } => Operation::Replace {
                     address: self.address.concat(&address),
                     items,
                     value,
                     length,
+                    html,
                 },
                 Operation::Move { from, items, to } => Operation::Move {
                     from: self.address.concat(&from),
@@ -922,6 +779,7 @@ impl Differ {
             address: self.address.clone(),
             value: Box::new(value.clone()),
             length: 1,
+            html: None,
         })
     }
 
@@ -940,6 +798,7 @@ impl Differ {
             items: 1,
             value: Box::new(value.clone()),
             length: 1,
+            html: None,
         })
     }
 
@@ -1156,8 +1015,6 @@ enum PatchesSchema {
     Address(Address),
     Patch(Patch),
     Operation(Operation),
-    DomPatch(DomPatch),
-    DomOperation(DomOperation),
 }
 
 /// Get JSON Schemas for this module
@@ -1272,7 +1129,7 @@ mod tests {
     }
 
     #[test]
-    fn test_dom_patch() {
+    fn test_serialization() {
         // Empty article
         let one = Article {
             content: Some(vec![]),
@@ -1324,55 +1181,38 @@ mod tests {
         // one to one -> empty patch
         let patch = diff(&one, &one);
         assert!(patch.ops.is_empty());
-        let dom_patch = DomPatch::new(&patch);
-        assert!(dom_patch.ops.is_empty());
 
         // one to two -> `Add` operation on the article's content
-        let patch = diff(&one, &two);
+        let mut patch = diff(&one, &two);
+        patch.prepublish();
         assert_json_eq!(
             patch.ops,
             json!([{
                 "type": "Add",
                 "address": ["content", 0],
                 "value": [{"type": "Paragraph", "content": []}],
-                "length": 1
-            }])
-        );
-        let dom_patch = DomPatch::new(&patch);
-        assert_json_eq!(
-            dom_patch.ops,
-            json!([{
-                "type": "Add",
-                "address": ["content", 0],
+                "length": 1,
                 "html": "<p itemtype=\"http://schema.stenci.la/Paragraph\" itemscope></p>",
-                "json": [{"type": "Paragraph", "content": []}]
             }])
         );
 
         // two to three -> `Add` operation on the paragraph's content
-        let patch = diff(&two, &three);
+        let mut patch = diff(&two, &three);
+        patch.prepublish();
         assert_json_eq!(
             patch.ops,
             json!([{
                 "type": "Add",
                 "address": ["content", 0, "content", 0],
                 "value": ["first", " second"],
-                "length": 2
-            }])
-        );
-        let dom_patch = DomPatch::new(&patch);
-        assert_json_eq!(
-            dom_patch.ops,
-            json!([{
-                "type": "Add",
-                "address": ["content", 0, "content", 0],
+                "length": 2,
                 "html": "first second",
-                "json": ["first", " second"]
             }])
         );
 
         // three to four -> `Replace` operation on a word
-        let patch = diff(&three, &four);
+        let mut patch = diff(&three, &four);
+        patch.prepublish();
         assert_json_eq!(
             patch.ops,
             json!([{
@@ -1380,35 +1220,16 @@ mod tests {
                 "address": ["content", 0, "content", 0, 1],
                 "items": 3,
                 "value": "oo",
-                "length": 2
-            }])
-        );
-        let dom_patch = DomPatch::new(&patch);
-        assert_json_eq!(
-            dom_patch.ops,
-            json!([{
-                "type": "Replace",
-                "address": ["content", 0, "content", 0, 1],
-                "items": 3,
+                "length": 2,
                 "html": "oo",
-                "json": "oo"
             }])
         );
 
         // four to five -> `Move` operation on the word
-        let patch = diff(&four, &five);
+        let mut patch = diff(&four, &five);
+        patch.prepublish();
         assert_json_eq!(
             patch.ops,
-            json!([{
-                "type": "Move",
-                "from": ["content", 0, "content", 1],
-                "items": 1,
-                "to": ["content", 0, "content", 0],
-            }])
-        );
-        let dom_patch = DomPatch::new(&patch);
-        assert_json_eq!(
-            dom_patch.ops,
             json!([{
                 "type": "Move",
                 "from": ["content", 0, "content", 1],

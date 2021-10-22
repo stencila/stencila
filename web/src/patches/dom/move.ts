@@ -1,4 +1,4 @@
-import { DomOperationMove, Slot } from '@stencila/stencila'
+import { OperationMove, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
 import { assert, assertElement, assertIndex, panic } from '../checks'
 import { resolveParent } from './resolve'
@@ -10,7 +10,7 @@ import { resolveParent } from './resolve'
  * for `Vec`s so this panics if the operation is on a string
  * or has string terminal slots.
  */
-export function applyMove(op: DomOperationMove, target?: ElementId): void {
+export function applyMove(op: OperationMove, target?: ElementId): void {
   const { from, items, to } = op
 
   const [fromParent, fromSlot] = resolveParent(from, target)

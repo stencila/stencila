@@ -77,6 +77,7 @@ where
                 address: Address::from(0),
                 value: Box::new(other.clone()),
                 length: other.len(),
+                html: None,
             }]);
         }
 
@@ -158,6 +159,7 @@ where
                             address: Address::from(index),
                             value: Box::new(added_value),
                             length: new_len,
+                            html: None,
                         })
                     }
 
@@ -178,6 +180,7 @@ where
                                 address,
                                 value,
                                 length,
+                                ..
                             } => {
                                 if address.len() == 1 {
                                     shift -= *length as i32;
@@ -279,6 +282,7 @@ where
                                             vec![other[new_index + item_index].clone()],
                                         ),
                                         length: 1,
+                                        html: None,
                                     });
                                     continue;
                                 }
@@ -298,6 +302,7 @@ where
                                 other[(new_index + old_len)..(new_index + new_len)].to_vec(),
                             ),
                             length,
+                            html: None,
                         });
                         index += length;
                     } else if new_len < old_len {

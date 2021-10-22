@@ -99,12 +99,14 @@ impl Patchable for String {
                             items,
                             value: Box::new(value.clone()),
                             length: value.graphemes(true).count(),
+                            html: None,
                         });
                     } else {
                         ops.push(Operation::Add {
                             address,
                             value: Box::new(value.clone()),
                             length: value.graphemes(true).count(),
+                            html: None,
                         });
                     }
                 };
