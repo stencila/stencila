@@ -9,13 +9,13 @@
 import { Slot } from '@stencila/stencila'
 
 /**
- * Panic if there is a conflict between a `DomPatch` and the current DOM.
+ * Panic if there is a conflict between a `Patch` and the current DOM.
  *
- * This module make liberal use of assertions of consistency between `DomOperation`s
+ * This module make liberal use of assertions of consistency between `Operation`s
  * and the current DOM with the view that if there is any inconsistency detected then
  * it is best to simply exit the `applyPatch` function early and reload the page.
  *
- * This should only happen if there (a) the client has missed a `DomPatch`
+ * This should only happen if there (a) the client has missed a `Patch`
  * such that the state of the DOM is out of sync with the server-side document, or
  * (b) if there is a bug in the following code. Hopefully testing rules out (b).
  *

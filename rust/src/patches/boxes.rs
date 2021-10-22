@@ -116,7 +116,7 @@ mod tests {
         };
         let patch = diff(&a, &b);
         assert_json!(patch.ops, [
-            { "type": "Add", "address": ["programmingLanguage"], "value": "Box<String>", "length": 1 },
+            { "type": "Add", "address": ["programmingLanguage"], "value": "a", "length": 1 },
         ]);
         assert_json_eq!(apply_new(&a, &patch)?, b);
 

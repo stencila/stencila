@@ -8,7 +8,7 @@ use crate::{
         decode::decode,
         encode::{self, encode},
     },
-    patches::{diff, merge, resolve, Address, DomPatch, Patch, Pointer},
+    patches::{diff, merge, resolve, Address, Patch, Pointer},
     pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
@@ -71,9 +71,9 @@ struct DocumentEvent {
     #[schemars(schema_with = "DocumentEvent::schema_format")]
     format: Option<Format>,
 
-    /// The `DomPatch` associated with a `Patched` event
+    /// The `Patch` associated with a `Patched` event
     #[schemars(schema_with = "DocumentEvent::schema_patch")]
-    patch: Option<DomPatch>,
+    patch: Option<Patch>,
 }
 
 impl DocumentEvent {
@@ -89,7 +89,7 @@ impl DocumentEvent {
 
     /// Generate the JSON Schema for the `patch` property to avoid nesting
     fn schema_patch(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("DomPatch", false)
+        schemas::typescript("Patch", false)
     }
 }
 
@@ -665,12 +665,12 @@ impl Document {
     ///
     /// - `node_id`:  the id of the node at the origin of the patch; defaults to `root`
     /// - `patch`: the patch to apply
-    pub fn patch(&mut self, node_id: Option<String>, patch: &Patch) -> Result<()> {
+    pub fn patch(&mut self, node_id: Option<String>, mut patch: Patch) -> Result<()> {
         let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id)?;
-        pointer.patch(patch)?;
+        pointer.patch(&patch)?;
 
-        // TODO: Only generate and publish a DomPatch if there are subscribers
-        let dom_patch = DomPatch::new(patch);
+        // TODO: Only publish the patch if there are subscribers
+        patch.prepublish();
         publish(
             &["documents:", &self.id, ":patched"].concat(),
             &DocumentEvent {
@@ -678,7 +678,7 @@ impl Document {
                 document: self.clone(),
                 content: None,
                 format: None,
-                patch: Some(dom_patch),
+                patch: Some(patch),
             },
         );
 
@@ -693,11 +693,11 @@ impl Document {
             pointer.patch(&patch)?;
         }
 
-        let patch = pointer.execute(&mut self.kernels)?;
+        let mut patch = pointer.execute(&mut self.kernels)?;
 
-        // TODO: Only generate and publish a DomPatch if there are subscribers
-        let mut dom_patch = DomPatch::new(&patch);
-        dom_patch.target = node_id;
+        // TODO: Only publish the patch if there are subscribers
+        patch.target = node_id;
+        patch.prepublish();
         publish(
             &["documents:", &self.id, ":patched"].concat(),
             &DocumentEvent {
@@ -705,7 +705,7 @@ impl Document {
                 document: self.clone(),
                 content: None,
                 format: None,
-                patch: Some(dom_patch),
+                patch: Some(patch),
             },
         );
 
@@ -788,9 +788,8 @@ impl Document {
                 if let Some(current_root) = &self.root {
                     tracing::debug!("Generating patch for document '{}'", self.id);
 
-                    let patch = diff(current_root, &root);
-
-                    let dom_patch = DomPatch::new(&patch);
+                    let mut patch = diff(current_root, &root);
+                    patch.prepublish();
                     publish(
                         &["documents:", &self.id, ":patched"].concat(),
                         &DocumentEvent {
@@ -798,7 +797,7 @@ impl Document {
                             document: self.clone(),
                             content: None,
                             format: None,
-                            patch: Some(dom_patch),
+                            patch: Some(patch),
                         },
                     )
                 }
@@ -1305,7 +1304,7 @@ impl Documents {
     pub async fn patch(&self, id: &str, node_id: Option<String>, patch: Patch) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        document_guard.patch(node_id, &patch)
+        document_guard.patch(node_id, patch)
     }
 
     /// Execute a node within a document

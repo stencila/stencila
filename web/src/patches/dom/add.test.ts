@@ -74,7 +74,8 @@ test('applyAdd', () => {
     type: 'Add',
     address: ['content'],
     html: `<div data-itemprop="content"><p></p></div>`,
-    json: {},
+    value: {},
+    length: 1,
   })
   expect(document.body).toMatchInlineSnapshot(`
     <body>
@@ -95,7 +96,8 @@ test('applyAdd', () => {
     type: 'Add',
     address: ['content', 0, 'content', 0],
     html: 'Some text.',
-    json: {},
+    value: {},
+    length: 1,
   })
   expect(document.body).toMatchInlineSnapshot(`
 <body>
@@ -118,7 +120,8 @@ test('applyAdd', () => {
     type: 'Add',
     address: ['content', 0, 'content', 0, 5],
     html: 'more ',
-    json: {},
+    value: {},
+    length: 1,
   })
   expect(document.body).toMatchInlineSnapshot(`
 <body>
@@ -141,7 +144,8 @@ test('applyAdd', () => {
     type: 'Add',
     address: ['content', 0, 'content', 0],
     html: 'Some <strong>strong</strong> text. ',
-    json: {},
+    value: {},
+    length: 1,
   })
   expect(document.body).toMatchInlineSnapshot(`
 <body>

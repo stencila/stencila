@@ -1,4 +1,4 @@
-import { DomOperationTransform } from '@stencila/stencila'
+import { OperationTransform } from '@stencila/stencila'
 import { ElementId } from '../../types'
 import { assert, isElement, isText, panic } from '../checks'
 import { resolveNode } from './resolve'
@@ -14,7 +14,7 @@ import { resolveNode } from './resolve'
  * Asserts that the element type is as expect in the `from` property of the operation.
  */
 export function applyTransform(
-  op: DomOperationTransform,
+  op: OperationTransform,
   target?: ElementId
 ): void {
   const { address, from, to } = op

@@ -9,13 +9,13 @@
 import {
   Document,
   DocumentEvent,
-  DomPatch,
   Operation,
   Patch,
   Session,
 } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
+import { JsonValue } from './patches/checks'
 import { applyPatch } from './patches/dom'
 import * as sessions from './sessions'
 import { ProjectId, SnapshotId } from './types'
@@ -161,7 +161,7 @@ export const main = (
   function receivePatch(event: DocumentEvent): void {
     let patch
     if (event.type === 'patched') {
-      patch = event.patch as DomPatch
+      patch = event.patch as Patch
     } else {
       console.error(
         `Expected document event to be of type 'patched', got type '${event.type}'`
@@ -183,7 +183,9 @@ export const main = (
     // Patches for node types with WebComponents are handled differently
     // from patches to other DOM elements.
     if (target !== undefined && ops[0]?.type === 'Replace') {
-      const type = ops[0]?.json.type as string
+      const value = ops[0]?.value as JsonValue
+      // @ts-expect-error TODO this is temporary
+      const type = value?.type as string
       if (type === 'Parameter') {
         // Nothing to do (?)
         return
@@ -192,7 +194,7 @@ export const main = (
           new CustomEvent('document:patched', {
             detail: {
               nodeId: target,
-              value: ops[0]?.json,
+              value,
             },
           })
         )
@@ -202,7 +204,7 @@ export const main = (
           new CustomEvent('document:node:changed', {
             detail: {
               nodeId: target,
-              value: ops[0]?.json,
+              value,
             },
           })
         )

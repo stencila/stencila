@@ -1,4 +1,4 @@
-import { DomOperation, Patch } from '@stencila/stencila'
+import { Operation, Patch } from '@stencila/stencila'
 import { LitElement, html, TemplateResult } from 'lit'
 export { css, html } from 'lit'
 
@@ -81,7 +81,7 @@ export abstract class StencilaElement extends LitElement {
    * Otherwise, should return `false` in which case, that function will continue to
    * search along the address for a receiver.
    */
-  receiveOperation(_op: DomOperation): boolean {
+  receiveOperation(_op: Operation): boolean {
     return false
   }
 

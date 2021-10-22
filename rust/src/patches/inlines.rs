@@ -470,7 +470,7 @@ mod tests {
             {
                 "type": "Add",
                 "address": ["value"],
-                "value": "Box<Node>",
+                "value": 3.14,
                 "length": 1
             },
         ]);

@@ -1,4 +1,4 @@
-import { Address, DomOperation, Slot } from '@stencila/stencila'
+import { Address, Operation, Slot } from '@stencila/stencila'
 import { StencilaElement } from '../../components/base'
 import { ElementId } from '../../types'
 import { assertElement, isElement, isName, isText, panic } from '../checks'
@@ -182,7 +182,7 @@ export function resolveNode(
  */
 export function resolveReceiver(
   address: Address,
-  op: DomOperation,
+  op: Operation,
   target?: ElementId
 ): boolean {
   let node: Element | Attr | Text = resolveTarget(target)

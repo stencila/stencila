@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck because the `DomOperationAdd` has incorrect type for `json`
-
 import { applyAdd, applyRemove, applyReplace, diff } from '.'
 
 test('diff:array', () => {
@@ -53,34 +50,74 @@ test('diff:object', () => {
 test('applyAdd', () => {
   const value = { string: '', array: [], object: {} }
 
-  applyAdd(value, { type: 'Add', address: ['string', 0], json: '' })
+  applyAdd(value, { type: 'Add', address: ['string', 0], value: '', length: 1 })
   expect(value.string).toEqual('')
 
-  applyAdd(value, { type: 'Add', address: ['string', 0], json: '12' })
+  applyAdd(value, {
+    type: 'Add',
+    address: ['string', 0],
+    value: '12',
+    length: 1,
+  })
   expect(value.string).toEqual('12')
 
-  applyAdd(value, { type: 'Add', address: ['string', 1], json: '34' })
+  applyAdd(value, {
+    type: 'Add',
+    address: ['string', 1],
+    value: '34',
+    length: 1,
+  })
   expect(value.string).toEqual('1342')
 
-  applyAdd(value, { type: 'Add', address: ['array', 0], json: [] })
+  applyAdd(value, { type: 'Add', address: ['array', 0], value: [], length: 1 })
   expect(value.array).toEqual([])
 
-  applyAdd(value, { type: 'Add', address: ['array', 0], json: [1, 2] })
+  applyAdd(value, {
+    type: 'Add',
+    address: ['array', 0],
+    value: [1, 2],
+    length: 1,
+  })
   expect(value.array).toEqual([1, 2])
 
-  applyAdd(value, { type: 'Add', address: ['array', 1], json: [3, 4] })
+  applyAdd(value, {
+    type: 'Add',
+    address: ['array', 1],
+    value: [3, 4],
+    length: 1,
+  })
   expect(value.array).toEqual([1, 3, 4, 2])
 
-  applyAdd(value, { type: 'Add', address: ['object', 'a'], json: true })
+  applyAdd(value, {
+    type: 'Add',
+    address: ['object', 'a'],
+    value: true,
+    length: 1,
+  })
   expect(value.object).toEqual({ a: true })
 
-  applyAdd(value, { type: 'Add', address: ['object', 'b'], json: 'foo' })
+  applyAdd(value, {
+    type: 'Add',
+    address: ['object', 'b'],
+    value: 'foo',
+    length: 1,
+  })
   expect(value.object).toEqual({ a: true, b: 'foo' })
 
-  applyAdd(value, { type: 'Add', address: ['object', 'c'], json: 42 })
+  applyAdd(value, {
+    type: 'Add',
+    address: ['object', 'c'],
+    value: 42,
+    length: 1,
+  })
   expect(value.object).toEqual({ a: true, b: 'foo', c: 42 })
 
-  applyAdd(value, { type: 'Add', address: ['object', 'b', 3], json: 'd' })
+  applyAdd(value, {
+    type: 'Add',
+    address: ['object', 'b', 3],
+    value: 'd',
+    length: 1,
+  })
   expect(value.object).toEqual({ a: true, b: 'food', c: 42 })
 })
 
@@ -113,7 +150,8 @@ test('applyReplace', () => {
     type: 'Replace',
     address: ['string', 1],
     items: 2,
-    json: 'ef',
+    value: 'ef',
+    length: 1,
   })
   expect(value.string).toEqual('aefd')
 
@@ -121,7 +159,8 @@ test('applyReplace', () => {
     type: 'Replace',
     address: ['array', 1],
     items: 2,
-    json: [5, 6, 7],
+    value: [5, 6, 7],
+    length: 1,
   })
   expect(value.array).toEqual([1, 5, 6, 7, 4])
 
@@ -129,7 +168,8 @@ test('applyReplace', () => {
     type: 'Replace',
     address: ['object', 'a'],
     items: 1,
-    json: false,
+    value: false,
+    length: 1,
   })
   expect(value.object).toEqual({ a: false, b: 2 })
 })
