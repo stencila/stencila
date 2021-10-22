@@ -1,7 +1,7 @@
 import { EditorView as CMEditorView } from '@codemirror/view'
 import '@stencila/components'
 import { Keymap } from '@stencila/components/dist/types/components/editor/editor'
-import isEqual from 'lodash.isequal'
+import equal from 'fast-deep-equal'
 import { exitCode } from 'prosemirror-commands'
 import { redo, undo } from 'prosemirror-history'
 import { Node } from 'prosemirror-model'
@@ -27,6 +27,7 @@ export class CodeBlockView implements NodeView {
   constructor(node: Node, view: EditorView, getPos: boolean | (() => number)) {
     this.node = node
     this.view = view
+
     if (typeof getPos === 'boolean') {
       this.getPos = () => 0
     } else {
@@ -123,6 +124,7 @@ export class CodeBlockView implements NodeView {
     ]
   }
 
+  // Allow cursor position to break out of code editor and into ProseMirror
   maybeEscape(dir: number): boolean {
     this.view.focus()
     const targetPos = this.getPos() + (dir < 0 ? 0 : this.node.nodeSize)
@@ -222,7 +224,7 @@ export class CodeBlockView implements NodeView {
   }
 
   update(node: Node): boolean {
-    if (!isEqual(this.node.type, node.type)) {
+    if (!equal(this.node.type, node.type)) {
       return false
     }
 
