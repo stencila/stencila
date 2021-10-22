@@ -57,6 +57,7 @@
     "@stencila/dev-config": "2.0.19",
     "@stencila/schema": "1.11.1",
     "@types/jest": "27.0.1",
+    "@types/lodash.isequal": "^4.5.5",
     "jest": "27.1.0",
     "parcel": "2.0.0-rc.0",
     "ts-jest": "27.0.5",
@@ -66,6 +67,7 @@
     "@stencila/schema": "^1.11.1"
   },
   "dependencies": {
+    "@stencila/components": "^0.41.6",
     "@stencila/stencila": "file:../node",
     "@types/prosemirror-collab": "^1.1.2",
     "@types/prosemirror-commands": "^1.0.4",
@@ -115,6 +117,9 @@
   "eslintConfig": {
     "root": true,
     "extends": "@stencila/eslint-config",
+    "parserOptions": {
+      "project": "./tsconfig.json"
+    },
     "rules": {
       "@typescript-eslint/no-misused-promises": [
         "error",

@@ -110,6 +110,7 @@ export function transformProsemirror(value: JsonValue): JsonValue {
       delete object.content
       object.programmingLanguage = (object.attrs as JsonObject)
         .programmingLanguage as string
+      delete object.attrs
       return object
 
     case 'QuoteBlock':

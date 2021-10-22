@@ -1301,6 +1301,7 @@ impl Documents {
     ///
     /// Given that this function is likely to be called often, to avoid a `clone()` and
     /// to reduce WebSocket message sizes, unlike other functions it does not return the object.
+    #[tracing::instrument(skip(self))]
     pub async fn patch(&self, id: &str, node_id: Option<String>, patch: Patch) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;

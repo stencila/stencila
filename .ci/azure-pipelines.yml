@@ -24,6 +24,8 @@ jobs:
   # Create variables indicating whether or not there are changes in
   # each product folder
   - job: Changes
+    pool:
+      vmImage: ubuntu-latest
     steps:
       - script: bash .ci/folder-changes.sh
         name: folders

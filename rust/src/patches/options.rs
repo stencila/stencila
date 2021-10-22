@@ -67,7 +67,9 @@ where
         } else if let Some(me) = self {
             me.apply_add(address, value)
         } else {
-            bail!(invalid_patch_address::<Self>(&address.to_string()))
+            bail!(invalid_address::<Self>(
+                "option is empty but address is not"
+            ))
         }
     }
 
@@ -78,7 +80,9 @@ where
         } else if let Some(me) = self {
             me.apply_remove(address, items)
         } else {
-            bail!(invalid_patch_address::<Self>(&address.to_string()))
+            bail!(invalid_address::<Self>(
+                "option is empty but address is not"
+            ))
         }
     }
 
@@ -89,7 +93,9 @@ where
         } else if let Some(me) = self {
             me.apply_replace(address, items, value)
         } else {
-            bail!(invalid_patch_address::<Self>(&address.to_string()))
+            bail!(invalid_address::<Self>(
+                "option is empty but address is not"
+            ))
         }
     }
 

@@ -53,7 +53,7 @@ macro_rules! patchable_struct_apply_add {
                     _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
             } else {
-                bail!(invalid_patch_address::<Self>(&address.to_string()))
+                bail!(invalid_address::<Self>("first slot should be a name"))
             }
         }
     };
@@ -72,7 +72,7 @@ macro_rules! patchable_struct_apply_remove {
                     _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
             } else {
-                bail!(invalid_patch_address::<Self>(&address.to_string()))
+                bail!(invalid_address::<Self>("first slot should be a name"))
             }
         }
     };
@@ -91,7 +91,7 @@ macro_rules! patchable_struct_apply_replace {
                     _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
             } else {
-                bail!(invalid_patch_address::<Self>(&address.to_string()))
+                bail!(invalid_address::<Self>("first slot should be a name"))
             }
         }
     };
@@ -110,7 +110,7 @@ macro_rules! patchable_struct_apply_move {
                     _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
             } else {
-                bail!(invalid_patch_address::<Self>(&from.to_string()))
+                bail!(invalid_address::<Self>("first slot should be a name"))
             }
         }
     };
@@ -129,7 +129,7 @@ macro_rules! patchable_struct_apply_transform {
                     _ => bail!(invalid_slot_name::<Self>(&name)),
                 }
             } else {
-                bail!(invalid_patch_address::<Self>(&from.to_string()))
+                bail!(invalid_address::<Self>("first slot should be a name"))
             }
         }
     };

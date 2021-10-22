@@ -19,6 +19,7 @@ import { articleSchema } from './schema'
 
 // Import ProseMirror's `EditorView` styles for correct whitespace handling etc
 import 'prosemirror-view/style/prosemirror.css'
+import { CodeBlockView } from './components/codeBlockView'
 
 // The following interfaces were necessary because the way they are defined
 // in @types/prosemirror-transform (as classes with only constructors) does
@@ -129,6 +130,10 @@ export class Article extends StencilaElement {
         const newState = view.state.apply(transaction)
         view.updateState(newState)
         me.receiveState(newState)
+      },
+      nodeViews: {
+        CodeBlock: (node, view, getPos) =>
+          new CodeBlockView(node, view, getPos),
       },
     })
 
