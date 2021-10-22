@@ -458,9 +458,7 @@ where
 
     /// Cast a [`Value`] to a `Vec<Type>`
     ///
-    /// # Why?
-    ///
-    /// An override to be able to handle single items of `Type`.
+    /// Why? To be able to handle single items of `Type` in addition to a `Vec<Type>`
     fn from_value(value: &Value) -> Result<Self>
     where
         Self: Clone + DeserializeOwned + Sized + 'static,

@@ -485,16 +485,25 @@ impl Operation {
 
     /// Serialize the `value` field of an operation
     ///
-    /// This is mainly for debugging and testing. Serialization of types is added as
-    /// needed.
+    /// This is needed so that the server can send a `Patch` to a client with
+    /// the `value` field as JSON. It is also, more generally useful for serializing
+    /// patches e.g. for test snapshots.
     fn value_serialize<S>(value: &Value, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        // Most value types just get serialized as normal
         macro_rules! serialize {
             ($type:ty) => {
                 if let Some(value) = value.downcast_ref::<$type>() {
+                    return value.serialize(serializer);
+                }
+                if let Some(value) = value.downcast_ref::<Option<$type>>() {
+                    return value.serialize(serializer);
+                }
+                if let Some(value) = value.downcast_ref::<Box<$type>>() {
+                    return value.serialize(serializer);
+                }
+                if let Some(value) = value.downcast_ref::<Option<Box<$type>>>() {
                     return value.serialize(serializer);
                 }
                 if let Some(value) = value.downcast_ref::<Vec<$type>>() {
@@ -505,50 +514,28 @@ impl Operation {
                 $(serialize!($type);)*
             }
         }
+
+        // For performance, types roughly ordered by expected incidence (more commonly used
+        // types in patches first).
         serialize!(
+            InlineContent
+            BlockContent
+            Node
+
+            String
+            Number
+            Integer
             u8
             i32
             f32
             Boolean
-            Integer
-            Number
-            String
-            InlineContent
-            BlockContent
-            serde_json::Value
+            Array
+            Object
+            Null
         );
 
-        // For debugging purposes, other types get printed as their type name
-        macro_rules! typename {
-            ($type:ty) => {
-                if value.downcast_ref::<$type>().is_some() {
-                    return serializer.serialize_str(stringify!($type));
-                }
-            };
-            ($($type:ty)*) => {
-                $(typename!($type);)*
-            }
-        }
-        typename!(
-            Option<Boolean>
-            Option<Integer>
-            Option<Number>
-            Option<String>
-            Option<Node>
-            Box<Boolean>
-            Box<Integer>
-            Box<Number>
-            Box<String>
-            Box<Node>
-            Option<Box<Boolean>>
-            Option<Box<Integer>>
-            Option<Box<Number>>
-            Option<Box<String>>
-            Option<Box<Node>>
-        );
-
-        // Fallback to messaged that unserialized
-        serializer.serialize_str("<unserialized type>")
+        tracing::error!("Unhandled `value` type when serializing an `Operation`");
+        "<unserialized type>".serialize(serializer)
     }
 
     /// Generate HTML for the `value` field of an operation
@@ -589,8 +576,8 @@ impl Operation {
         }
     }
 
-        // Types roughly ordered by expected incidence (more commonly used types in
-        // patches first)
+        // For performance, types roughly ordered by expected incidence (more commonly used
+        // types in patches first).
         to_html!(
             InlineContent
             BlockContent
