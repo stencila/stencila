@@ -7,7 +7,7 @@ use crate::{
 use defaults::Defaults;
 use derive_more::{Constructor, Deref, DerefMut};
 use eyre::{bail, Result};
-use inflector::cases::camelcase::to_camel_case;
+use inflector::cases::{camelcase::to_camel_case, snakecase::to_snake_case};
 use itertools::Itertools;
 use prelude::{invalid_address, unpointable_type};
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
@@ -210,9 +210,7 @@ impl ToString for Slot {
 ///
 /// Note: This could instead have be called a "Path", but that name was avoided because
 /// of potential confusion with file system paths.
-#[derive(
-    Debug, Clone, Default, Constructor, Deref, DerefMut, JsonSchema, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Default, Constructor, Deref, DerefMut, JsonSchema)]
 #[schemars(deny_unknown_fields)]
 pub struct Address(VecDeque<Slot>);
 
@@ -227,31 +225,44 @@ impl Display for Address {
     }
 }
 
-impl Address {
-    /// Create an empty address
-    pub fn empty() -> Self {
-        Self::default()
+impl Serialize for Address {
+    /// Custom serialization to convert `Name` slots to camelCase
+    ///
+    /// This is done here for consistency with how Stencila Schema nodes are
+    /// serialized using the Serde option `#[serde(rename_all = "camelCase")]`.
+    ///
+    /// It avoids incompatability with patches sent to the `web` module and the
+    /// camelCase convention used for both DOM element attributed and JSON/JavaScript
+    /// property names.
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let camel_cased: Vec<Slot> = self
+            .iter()
+            .map(|slot| match slot {
+                Slot::Index(..) => slot.clone(),
+                Slot::Name(name) => Slot::Name(to_camel_case(name)),
+            })
+            .collect();
+        camel_cased.serialize(serializer)
     }
+}
 
-    /// Concatenate an address with another
-    fn concat(&self, other: &Address) -> Self {
-        let mut concat = self.clone();
-        concat.append(&mut other.clone());
-        concat
-    }
-
-    /// Creates a DOM compatible address by ensuring an name slots
-    /// are camelCased (the convention used in Stencila Schema and thus
-    /// in `itemprop` attributes) rather than snake_cased (as in Rust).
-    fn to_dom_address(&self) -> Self {
-        Address::new(
-            self.iter()
-                .map(|slot| match slot {
-                    Slot::Index(..) => slot.clone(),
-                    Slot::Name(name) => Slot::Name(to_camel_case(name)),
-                })
-                .collect(),
-        )
+impl<'de> Deserialize<'de> for Address {
+    /// Custom deserialization to convert `Name` slots to snake_case
+    ///
+    /// See notes for `impl Serialize for Address`.
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let slots: Vec<Slot> = Deserialize::deserialize(deserializer)?;
+        let snake_cased = slots.into_iter().map(|slot| match slot {
+            Slot::Index(..) => slot,
+            Slot::Name(name) => Slot::Name(to_snake_case(&name)),
+        });
+        Ok(Address(VecDeque::from_iter(snake_cased)))
     }
 }
 
@@ -264,6 +275,20 @@ impl From<usize> for Address {
 impl From<&str> for Address {
     fn from(name: &str) -> Address {
         Address(VecDeque::from_iter([Slot::Name(name.to_string())]))
+    }
+}
+
+impl Address {
+    /// Create an empty address
+    pub fn empty() -> Self {
+        Self::default()
+    }
+
+    /// Concatenate an address with another
+    fn concat(&self, other: &Address) -> Self {
+        let mut concat = self.clone();
+        concat.append(&mut other.clone());
+        concat
     }
 }
 
@@ -627,13 +652,13 @@ impl DomOperation {
     fn new(op: &Operation) -> DomOperation {
         match op {
             Operation::Add { address, value, .. } => DomOperation::Add {
-                address: address.to_dom_address(),
+                address: address.clone(),
                 html: DomOperation::value_html(address, value),
                 json: DomOperation::value_json(value),
             },
 
             Operation::Remove { address, items, .. } => DomOperation::Remove {
-                address: address.to_dom_address(),
+                address: address.clone(),
                 items: *items,
             },
 
@@ -643,20 +668,20 @@ impl DomOperation {
                 value,
                 ..
             } => DomOperation::Replace {
-                address: address.to_dom_address(),
+                address: address.clone(),
                 items: *items,
                 html: DomOperation::value_html(address, value),
                 json: DomOperation::value_json(value),
             },
 
             Operation::Move { from, items, to } => DomOperation::Move {
-                from: from.to_dom_address(),
+                from: from.clone(),
                 items: *items,
-                to: to.to_dom_address(),
+                to: to.clone(),
             },
 
             Operation::Transform { address, from, to } => DomOperation::Transform {
-                address: address.to_dom_address(),
+                address: address.clone(),
                 from: from.clone(),
                 to: to.clone(),
             },
