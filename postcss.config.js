@@ -17,7 +17,7 @@ module.exports = {
     require('postcss-nested'),
     require('postcss-nested-import'),
     // Many browsers don’t support compound `:not()` selectors, this splits it
-    require('postcss-selector-not'),
+    require('postcss-selector-not').default,
     // We remove the PrismJS specific modifier when used in `:not()` selectors
     // see ./src/scripts/selectors.ts:61
     require('postcss-selector-replace')({
@@ -28,7 +28,9 @@ module.exports = {
     require('postcss-extend'),
     require('postcss-mixins'),
     require('cssnano')({ preset: 'default' }),
-    require('postcss-combine-media-query'),
+    // TODO: Fix compatability with PostCSS v8. Currently this plugin drops several selectors
+    // in the generated stylesheets.
+    // require('postcss-combine-media-query'),
     require('postcss-sort-media-queries'),
   ],
 }
