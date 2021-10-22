@@ -108,13 +108,13 @@ jobs:
       # However, given that this is run at the top level is will audit all dependencies
       # including those used by `cli`, `node` etc
       #
-      # Note: The `set -e` has been removed for now so that this will fail silently
-      # That is until the CVEs on time and chrono (which are depended upon my several of our dependencies
-      # and by us directly) are sorted out.
+      # Note: The has been disabled until the CVEs on time and chrono (which are depended upon by 
+      # several of our dependencies and by us directly) are sorted out.
       - script: |
+          set -e
           cargo list | grep --quiet audit || cargo install cargo-audit
           cargo audit
-        condition: and(contains(variables.changed, 'rust'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        condition: and(false, contains(variables.changed, 'rust'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
         displayName: 'Rust: Audit'
 
       # CLI is linted if there are changes in the `cli` folder.
