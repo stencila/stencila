@@ -43,12 +43,12 @@ pub trait KernelTrait {
     fn language(&self, language: Option<String>) -> Result<String>;
 
     /// Start the kernel
-    fn start(&mut self) -> Result<()> {
+    async fn start(&mut self) -> Result<()> {
         Ok(())
     }
 
     /// Stop the kernel
-    fn stop(&mut self) -> Result<()> {
+    async fn stop(&mut self) -> Result<()> {
         Ok(())
     }
 
@@ -58,10 +58,10 @@ pub trait KernelTrait {
     }
 
     /// Get a symbol from the kernel
-    fn get(&self, name: &str) -> Result<Node>;
+    async fn get(&self, name: &str) -> Result<Node>;
 
     /// Set a symbol in the kernel
-    fn set(&mut self, name: &str, value: Node) -> Result<()>;
+    async fn set(&mut self, name: &str, value: Node) -> Result<()>;
 
     /// Execute some code in the kernel
     async fn exec(&mut self, code: &str) -> Result<Vec<Node>>;
@@ -206,7 +206,7 @@ impl KernelSpace {
             .ok_or_else(|| eyre!("Unknown symbol `{}`", name))?;
 
         let kernel = self.kernels.get(&symbol_info.home)?;
-        kernel.get(name)
+        kernel.get(name).await
     }
 
     /// Set a symbol in the kernel space
@@ -215,7 +215,7 @@ impl KernelSpace {
         tracing::debug!("Setting symbol `{}` in kernel `{}`", name, kernel_id);
 
         let kernel = self.kernels.get_mut(&kernel_id)?;
-        kernel.set(name, value)?;
+        kernel.set(name, value).await?;
 
         match self.symbols.entry(name.to_string()) {
             Entry::Occupied(mut occupied) => {
@@ -287,10 +287,10 @@ impl KernelSpace {
                 );
 
                 let home_kernel = self.kernels.get(home)?;
-                let value = home_kernel.get(name)?;
+                let value = home_kernel.get(name).await?;
 
                 let mirror_kernel = self.kernels.get_mut(&kernel_id)?;
-                mirror_kernel.set(name, value)?;
+                mirror_kernel.set(name, value).await?;
 
                 match mirrored.entry(kernel_id.clone()) {
                     Entry::Occupied(mut occupied) => {
@@ -363,7 +363,7 @@ impl KernelSpace {
                 language
             ),
         };
-        kernel.start()?;
+        kernel.start().await?;
         self.kernels.insert(kernel_id.clone(), kernel);
 
         Ok(kernel_id)

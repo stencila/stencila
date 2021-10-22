@@ -31,14 +31,14 @@ impl KernelTrait for DefaultKernel {
         }
     }
 
-    fn get(&self, name: &str) -> Result<Node> {
+    async fn get(&self, name: &str) -> Result<Node> {
         match self.symbols.get(name) {
             Some(node) => Ok(node.clone()),
             None => bail!("Symbol `{}` does not exist in this kernel", name),
         }
     }
 
-    fn set(&mut self, name: &str, value: Node) -> Result<()> {
+    async fn set(&mut self, name: &str, value: Node) -> Result<()> {
         self.symbols.insert(name.to_string(), value);
         Ok(())
     }
@@ -46,7 +46,7 @@ impl KernelTrait for DefaultKernel {
     async fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
         let mut outputs = Vec::new();
         for line in code.lines() {
-            let node = self.get(line.trim())?;
+            let node = self.get(line.trim()).await?;
             outputs.push(node)
         }
         Ok(outputs)

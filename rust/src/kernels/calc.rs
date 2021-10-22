@@ -34,14 +34,14 @@ impl KernelTrait for CalcKernel {
         }
     }
 
-    fn get(&self, name: &str) -> Result<Node> {
+    async fn get(&self, name: &str) -> Result<Node> {
         match self.symbols.get(name) {
             Some(number) => Ok(Node::Number(*number)),
             None => bail!("Symbol `{}` does not exist in this kernel", name),
         }
     }
 
-    fn set(&mut self, name: &str, value: Node) -> Result<()> {
+    async fn set(&mut self, name: &str, value: Node) -> Result<()> {
         let value = match value {
             Node::Number(number) => number,
             _ => bail!("Unable to convert node to a number"),
