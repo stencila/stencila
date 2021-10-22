@@ -56,13 +56,13 @@
   "homepage": "https://github.com/stencila/thema#readme",
   "dependencies": {
     "@elifesciences/pattern-library": "0.0.6",
-    "@simonwep/pickr": "^1.8.0",
+    "@simonwep/pickr": "^1.8.2",
     "@stencila/components": "^0.41.0",
     "bootstrap": "^3.4.1",
     "project-name-generator": "^2.1.9",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "tufte-css": "^1.7.2"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "tufte-css": "^1.8.0"
   },
   "devDependencies": {
     "@percy/cli": "1.0.0-beta.70",
