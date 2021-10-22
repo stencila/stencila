@@ -25,7 +25,7 @@ use thiserror::Error;
 pub enum Error {
     /// An identifier was supplied that does not match the pattern for the
     /// expected family of identifiers.
-    #[error("Invalid universal identifier for family '{family}': {id}")]
+    #[error("Invalid universal identifier for family `{family}`: {id}")]
     InvalidUUID { family: String, id: String },
 
     /// Used to indicate that two values are not the same (rather than
@@ -40,58 +40,52 @@ pub enum Error {
 
     /// An address resolved to a type that is not able to be pointed to
     /// (does not have a [`Pointer`] variant)
-    #[error("Address '{address}' resolved to a type that can not be pointed to '{type_name}'")]
+    #[error("Address `{address}` resolved to a type that can not be pointed to `{type_name}`")]
     UnpointableType {
         #[schemars(schema_with = "address_schema")]
         address: Address,
         type_name: String,
     },
 
-    /// The user attempted to apply a patch operation with an invalid
-    /// address for the type.
-    #[error("Invalid node address '{address}' for type '{type_name}'")]
-    InvalidAddress {
-        #[schemars(schema_with = "address_schema")]
-        address: Address,
-        type_name: String,
-    },
+    /// The user attempted to use an an address (e.g. in a patch operation) that
+    /// is invalid address for the type.
+    ///
+    /// Does not include the address because in places that this error is used
+    /// that is usually modified e.g. `pop_front`.
+    #[error("Invalid node address for type `{type_name}`: {details}")]
+    InvalidAddress { type_name: String, details: String },
 
     /// The user attempted to apply a patch operation that is invalid for
     /// the type.
-    #[error("Invalid patch operation '{op}' for type '{type_name}'")]
+    #[error("Invalid patch operation `{op}` for type `{type_name}`")]
     InvalidPatchOperation { op: String, type_name: String },
 
     /// The user attempted to apply a patch operation with an invalid
-    /// address for the type.
-    #[error("Invalid patch address '{address}' for type '{type_name}'")]
-    InvalidPatchAddress { address: String, type_name: String },
-
-    /// The user attempted to apply a patch operation with an invalid
     /// value for the type.
-    #[error("Invalid patch value for type '{type_name}'")]
+    #[error("Invalid patch value for type `{type_name}`")]
     InvalidPatchValue { type_name: String },
 
     /// The user attempted to use a slot with an invalid type for the
     /// type of the object (e.g. a `Slot::Name` on a `Vector`).
-    #[error("Invalid slot type '{variant}' for type '{type_name}'")]
+    #[error("Invalid slot type `{variant}` for type `{type_name}`")]
     InvalidSlotVariant { variant: String, type_name: String },
 
     /// The user attempted to use a slot with an invalid `Slot::Name`
     /// for the type (e.g a key for a `HashMap` that is not occupied).
-    #[error("Invalid patch address name '{name}' for type '{type_name}'")]
+    #[error("Invalid patch address name `{name}` for type `{type_name}`")]
     InvalidSlotName { name: String, type_name: String },
 
     /// The user attempted to use a slot with an invalid `Slot::Index`
     /// for the type (e.g an index that is greater than the size of a vector).
-    #[error("Invalid patch address index '{index}' for type '{type_name}'")]
+    #[error("Invalid patch address index `{index}` for type `{type_name}`")]
     InvalidSlotIndex { index: usize, type_name: String },
 
     /// The user attempted to open a document with an unknown format
-    #[error("Unknown format '{format}'")]
+    #[error("Unknown format `{format}`")]
     UnknownFormat { format: String },
 
     /// A kernel was asked to execute code in an incompatible programming language
-    #[error("Incompatible programming language '{language}' for kernel type '{kernel_type}'")]
+    #[error("Incompatible programming language `{language}` for kernel type `{kernel_type}`")]
     IncompatibleLanguage {
         language: String,
         kernel_type: String,
@@ -102,14 +96,14 @@ pub enum Error {
     /// plugins implement this method. It may be that the user needs to do
     /// `stencila plugins refresh` to fetch the manifests for the plugins.
     /// Or it may be that the method name is just plain wrong.
-    #[error("None of the registered plugins implement method '{method}'")]
+    #[error("None of the registered plugins implement method `{method}`")]
     UndelegatableMethod { method: Method },
 
     /// The user attempted to call a method that is not implemented internally
     /// and so must be delegated to a plugin. At least one of the plugins implements
     /// this method but not with the values for the supplied parameters e.g.
     /// `decode(content, format)` which `format = 'some-unknown-format'`.
-    #[error("None of the registered plugins implement method '{method}' with given parameters")]
+    #[error("None of the registered plugins implement method `{method}` with given parameters")]
     UndelegatableCall {
         method: Method,
         params: HashMap<String, serde_json::Value>,
@@ -118,7 +112,7 @@ pub enum Error {
     /// The user attempted to call a method that is not implemented internally
     /// and so must be delegated to a plugin. There is a matching implementation
     /// for the call but plugin which implements it is not yet installed.
-    #[error("Plugin '{plugin}' is not yet installed")]
+    #[error("Plugin `{plugin}` is not yet installed")]
     PluginNotInstalled { plugin: String },
 
     /// An error of unspecified type
@@ -140,10 +134,10 @@ pub fn unpointable_type<Type: ?Sized>(address: &Address) -> Error {
 }
 
 /// Create an `InvalidAddress` error
-pub fn invalid_address<Type: ?Sized>(address: &Address) -> Error {
+pub fn invalid_address<Type: ?Sized>(details: &str) -> Error {
     Error::InvalidAddress {
-        address: address.clone(),
         type_name: type_name::<Type>().into(),
+        details: details.into(),
     }
 }
 
@@ -151,14 +145,6 @@ pub fn invalid_address<Type: ?Sized>(address: &Address) -> Error {
 pub fn invalid_patch_operation<Type: ?Sized>(op: &str) -> Error {
     Error::InvalidPatchOperation {
         op: op.into(),
-        type_name: type_name::<Type>().into(),
-    }
-}
-
-/// Create an `InvalidPatchAddress` error
-pub fn invalid_patch_address<Type: ?Sized>(address: &str) -> Error {
-    Error::InvalidPatchAddress {
-        address: address.into(),
         type_name: type_name::<Type>().into(),
     }
 }

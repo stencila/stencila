@@ -127,7 +127,7 @@ impl Patchable for String {
             *self = graphemes.into_iter().collect();
             Ok(())
         } else {
-            bail!(invalid_patch_address::<Self>(&address.to_string()))
+            bail!(invalid_address::<Self>("first slot should be an index"))
         }
     }
 
@@ -138,7 +138,7 @@ impl Patchable for String {
             *self = graphemes.into_iter().collect();
             Ok(())
         } else {
-            bail!(invalid_patch_address::<Self>(&address.to_string()))
+            bail!(invalid_address::<Self>("first slot should be an index"))
         }
     }
 

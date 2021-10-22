@@ -944,7 +944,7 @@ pub trait Patchable {
     fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
         match address.is_empty() {
             true => bail!(unpointable_type::<Self>(address)),
-            false => bail!(invalid_address::<Self>(address)),
+            false => bail!(invalid_address::<Self>("resolve() needs to be overriden?")),
         }
     }
 

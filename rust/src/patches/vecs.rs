@@ -334,7 +334,7 @@ where
                 let value = Self::from_value(value)?;
                 *self = [&self[..index], &value, &self[index..]].concat().to_vec();
             } else {
-                bail!(invalid_patch_address::<Self>(&address.to_string()))
+                bail!(invalid_address::<Self>("first slot should be an index"))
             }
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
@@ -343,7 +343,9 @@ where
                 bail!(invalid_slot_index::<Self>(index))
             }
         } else {
-            bail!(invalid_patch_address::<Self>(&address.to_string()))
+            bail!(invalid_address::<Self>(
+                "address is empty or does not start with an index slot"
+            ))
         }
         Ok(())
     }
@@ -353,7 +355,7 @@ where
             if let Some(Slot::Index(index)) = address.pop_front() {
                 *self = [&self[..index], &self[(index + items)..]].concat().to_vec();
             } else {
-                bail!(invalid_patch_address::<Self>(&address.to_string()))
+                bail!(invalid_address::<Self>("first slot should be an index"))
             }
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
@@ -362,7 +364,9 @@ where
                 bail!(invalid_slot_index::<Self>(index))
             }
         } else {
-            bail!(invalid_patch_address::<Self>(&address.to_string()))
+            bail!(invalid_address::<Self>(
+                "address is empty or does not start with an index slot"
+            ))
         }
         Ok(())
     }
@@ -375,7 +379,7 @@ where
                     .concat()
                     .to_vec();
             } else {
-                bail!(invalid_patch_address::<Self>(&address.to_string()))
+                bail!(invalid_address::<Self>("first slot should be an index"))
             }
         } else if let Some(Slot::Index(index)) = address.pop_front() {
             if let Some(item) = self.get_mut(index) {
@@ -384,7 +388,9 @@ where
                 bail!(invalid_slot_index::<Self>(index))
             }
         } else {
-            bail!(invalid_patch_address::<Self>(&address.to_string()))
+            bail!(invalid_address::<Self>(
+                "address is empty or does not start with an index slot"
+            ))
         }
         Ok(())
     }
@@ -412,7 +418,7 @@ where
                 .concat()
                 .to_vec();
             } else {
-                bail!(invalid_patch_address::<Self>(&from.to_string()))
+                bail!(invalid_address::<Self>("first slot should be an index"))
             }
         } else if let Some(Slot::Index(index)) = from.pop_front() {
             if let Some(item) = self.get_mut(index) {
@@ -421,7 +427,9 @@ where
                 bail!(invalid_slot_index::<Self>(index))
             }
         } else {
-            bail!(invalid_patch_address::<Self>(&from.to_string()))
+            bail!(invalid_address::<Self>(
+                "address is empty or does not start with an index slot"
+            ))
         }
         Ok(())
     }
@@ -436,7 +444,9 @@ where
                 }
             }
         } else {
-            bail!(invalid_patch_address::<Self>(&address.to_string()))
+            bail!(invalid_address::<Self>(
+                "address should have a single index slot"
+            ))
         }
         Ok(())
     }
