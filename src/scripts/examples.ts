@@ -129,7 +129,12 @@ async function articleReplication(): Promise<string | undefined> {
               ex(`articleReplicationFigure${id.slice(-1)}.R`),
               'utf8'
             ),
-            outputs: node.content,
+            outputs:
+              node.content === undefined
+                ? undefined
+                : Array.isArray(node.content)
+                ? node.content
+                : [node.content],
           }),
         ]
       }

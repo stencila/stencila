@@ -110,6 +110,7 @@ async function generateGallery(): Promise<void> {
         items: Object.entries(summaries).map(([theme, summary]) => {
           return listItem({
             url: `?theme=${theme}`,
+            // @ts-ignore
             content: [summary],
           })
         }),
