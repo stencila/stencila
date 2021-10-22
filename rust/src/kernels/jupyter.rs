@@ -24,7 +24,7 @@ use std::{
 use stencila_schema::Node;
 use tokio::{
     process::Command,
-    sync::{broadcast, Mutex, RwLock},
+    sync::{mpsc, Mutex, RwLock},
     task::JoinHandle,
 };
 use zmq::Socket;
@@ -126,8 +126,8 @@ struct JupyterDetails {
     #[derivative(Debug = "ignore")]
     shell_socket: Arc<Mutex<Socket>>,
 
-    /// The reciever for IOPub messages
-    iopub_receiver: broadcast::Receiver<JupyterMessage>,
+    /// The receiver for IOPub messages
+    iopub_receiver: mpsc::Receiver<JupyterMessage>,
 
     /// The async task that runs the kernel
     run_task: JoinHandle<()>,
@@ -320,7 +320,7 @@ impl KernelTrait for JupyterKernel {
         }
     }
 
-    fn start(&mut self) -> Result<()> {
+    async fn start(&mut self) -> Result<()> {
         let connection = JupyterConnection::new(&self.id);
         connection.write_file()?;
 
@@ -383,8 +383,8 @@ impl KernelTrait for JupyterKernel {
         let shell_socket = ctx.socket(zmq::REQ)?;
         shell_socket.connect(&connection.shell_url())?;
 
-        // Create the channel that IOPub messages get broadcast on
-        let (iopub_sender, iopub_receiver) = broadcast::channel(100);
+        // Create the channel that IOPub messages get sent on
+        let (iopub_sender, mut iopub_receiver) = mpsc::channel(100);
 
         // Spawn a task to listen to IOPub messages from the kernel and publish
         // them on a Rust channel so that `exec()` and other methods can listen for
@@ -409,21 +409,34 @@ impl KernelTrait for JupyterKernel {
                 return;
             }
 
+            // Send an initial "fake" message to signal that this thread is ready to start receiving
+            let init_message =
+                JupyterMessage::new(JupyterMessageType::stream, json!({"name": "<init>"}));
+            if let Err(error) = iopub_sender.send(init_message).await {
+                tracing::error!(
+                    "Unable to send IOPub init message for kernel `{}`: {}",
+                    id,
+                    error
+                )
+            }
+
             loop {
                 let result = JupyterMessage::receive(&hmac_clone.clone(), &socket);
                 match result {
                     Ok(message) => {
-                        tracing::debug!(
-                            "Received IOPub message from kernel `{}`:\n{:#?}",
-                            id,
-                            message
-                        );
-                        if let Err(error) = iopub_sender.send(message) {
+                        let msg_type = message.header.msg_type.clone();
+                        if let Err(error) = iopub_sender.send(message).await {
                             tracing::error!(
-                                "Unable to broadcast IOPub message for kernel `{}`: {}",
+                                "Unable to send IOPub message for kernel `{}`: {}",
                                 id,
                                 error
                             )
+                        } else {
+                            tracing::debug!(
+                                "Sent IOPub message from kernel `{}`: {:?}",
+                                id,
+                                msg_type
+                            );
                         }
                     }
                     Err(error) => tracing::error!(
@@ -471,6 +484,40 @@ impl KernelTrait for JupyterKernel {
             }
         });
 
+        // Wait for IOPub init message from the `subscribe_task`. This needs to be done before any `execute_request`
+        // messages are sent to ensure that we are already listening for results.
+        while let Some(message) = iopub_receiver.recv().await {
+            if matches!(message.header.msg_type, JupyterMessageType::stream)
+                && message
+                    .content
+                    .get("name")
+                    .and_then(|value| value.as_str())
+                    .unwrap_or_default()
+                    == "<init>"
+            {
+                tracing::debug!("Got IOPub init message for kernel `{}`", self.id);
+                break;
+            }
+        }
+
+        // Get the kernel info. Apart from getting the info this seems to be necessary before
+        // sending an `execute_request` to give time for the kernel to "get started" (and confirm
+        // that it has).
+        let request = JupyterMessage::kernel_info_request();
+        request.send(&self.session, &hmac, &shell_socket)?;
+        let response = JupyterMessage::receive(&hmac, &shell_socket)?;
+        tracing::debug!(
+            "Got kernel info for kernel `{}`: {:#?}",
+            self.id,
+            response.content
+        );
+
+        // Despite the above checks, for some kernels (e.g Python and Javascript), it seems
+        // necessary to wait for a little before making an execution request to avoid it
+        // hanging waiting for IOPub messages
+        use tokio::time::{sleep, Duration};
+        sleep(Duration::from_millis(100)).await;
+
         self.connection = Some(connection);
         self.details = Some(JupyterDetails {
             hmac,
@@ -485,7 +532,7 @@ impl KernelTrait for JupyterKernel {
         Ok(())
     }
 
-    fn stop(&mut self) -> Result<()> {
+    async fn stop(&mut self) -> Result<()> {
         if let Some(JupyterDetails {
             run_task,
             subscribe_task,
@@ -504,11 +551,11 @@ impl KernelTrait for JupyterKernel {
         self.status.read().await.clone()
     }
 
-    fn get(&self, _name: &str) -> Result<Node> {
+    async fn get(&self, _name: &str) -> Result<Node> {
         Ok(Node::String("TODO".to_string()))
     }
 
-    fn set(&mut self, _name: &str, _value: Node) -> Result<()> {
+    async fn set(&mut self, _name: &str, _value: Node) -> Result<()> {
         Ok(())
     }
 
@@ -530,10 +577,15 @@ impl KernelTrait for JupyterKernel {
         let stdout = "".to_string();
         let stderr = "".to_string();
 
-        // TODO: timeout or recv()?
-        while let Ok(message) = iopub_receiver.recv().await {
+        // TODO: timeout on recv()?
+        while let Some(message) = iopub_receiver.recv().await {
             if let Some(parent_header) = message.parent_header {
                 if parent_header.msg_id == request.header.msg_id {
+                    tracing::debug!(
+                        "Handling IOPub message {:?}: {:#?}",
+                        message.header.msg_type,
+                        message.content
+                    );
                     match message.header.msg_type {
                         // Some kernels use `execute_result`, others `display_data`, even
                         // for simple, text outputs
@@ -553,6 +605,7 @@ impl KernelTrait for JupyterKernel {
                             {
                                 "idle" => {
                                     *(self.status.write().await) = KernelStatus::Idle;
+                                    tracing::debug!("Received idle status");
                                     break;
                                 }
                                 "busy" => {
@@ -563,6 +616,12 @@ impl KernelTrait for JupyterKernel {
                         }
                         _ => (),
                     }
+                } else {
+                    tracing::debug!(
+                        "Ignoring IOPub message because {:?} != {:#?}",
+                        parent_header.msg_id,
+                        request.header.msg_id
+                    );
                 }
             }
         }
@@ -819,6 +878,13 @@ impl JupyterMessage {
             metadata: json!({}),
             content,
         }
+    }
+
+    /// Create an `kernel_info_request` message
+    ///
+    /// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#kernel-info
+    fn kernel_info_request() -> Self {
+        Self::new(JupyterMessageType::kernel_info_request, json!({}))
     }
 
     /// Create an `execute_request` message
