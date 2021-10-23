@@ -1,8 +1,8 @@
-use crate::errors::incompatible_language;
-
 use super::{Kernel, KernelTrait};
+use crate::errors::incompatible_language;
 use async_trait::async_trait;
 use eyre::{bail, Result};
+use fasteval::{ez_eval, Error};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use schemars::JsonSchema;
@@ -75,8 +75,32 @@ impl KernelTrait for CalcKernel {
                 (None, statement)
             };
 
-            // Evaluate the expression, and assign it or add it to outputs
-            let num = fasteval::ez_eval(expr, &mut self.symbols)?;
+            // Evaluate the expression
+            let num = match ez_eval(expr, &mut self.symbols) {
+                Ok(num) => num,
+                Err(error) => {
+                    let error = match error {
+                        // Custom error strings for common errors
+                        Error::EOF | Error::EofWhileParsing(..) => {
+                            "Unexpected end of Calc expression".to_string()
+                        }
+                        Error::Undefined(name) => {
+                            format!("Undefined variable or function: {}", name)
+                        }
+                        Error::WrongArgs(msg) => {
+                            format!("Function called with wrong number of arguments: {}", msg)
+                        }
+                        Error::InvalidValue => "Unexpected value in expression".to_string(),
+                        Error::TooLong => "Calc expression was too long".to_string(),
+                        Error::TooDeep => "Calc expression was too recursive".to_string(),
+                        // Use the debug string for others
+                        _ => format!("Could not execute Calc expression: {:?}", error),
+                    };
+                    bail!(error)
+                }
+            };
+
+            // Either assign it, or add it to outputs
             if let Some(symbol) = symbol {
                 self.symbols.insert(symbol.to_string(), num);
             } else {
