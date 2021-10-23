@@ -166,6 +166,29 @@ impl Clone for JupyterKernel {
 }
 
 impl JupyterKernel {
+    /// Get a list of Jupyter kernels available in the current environment
+    pub async fn list() -> Result<Vec<String>> {
+        let mut list = Vec::new();
+
+        for dir in JupyterKernel::data_dirs() {
+            let kernels = dir.join("kernels");
+            if !kernels.exists() {
+                continue;
+            }
+
+            for dir in kernels.read_dir()?.flatten() {
+                let path = dir.path().join("kernel.json");
+                if path.exists() {
+                    let name = dir.file_name().to_string_lossy().to_string();
+                    let kernel = JupyterKernel::read(&name, &path).await?;
+                    list.push(kernel.language(None)?)
+                }
+            }
+        }
+
+        Ok(list)
+    }
+
     /// Create a `JupyterKernel` variant.
     pub async fn create(id: &str, language: &str) -> Result<Kernel> {
         let mut kernel = JupyterKernel::find(language).await?;
@@ -308,7 +331,7 @@ impl JupyterKernel {
 #[async_trait]
 impl KernelTrait for JupyterKernel {
     fn language(&self, language: Option<String>) -> Result<String> {
-        let canonical = Ok(self.language.clone());
+        let canonical = Ok(self.language.to_lowercase());
         if let Some(language) = language {
             if self.language.to_lowercase() == language.to_lowercase() {
                 canonical

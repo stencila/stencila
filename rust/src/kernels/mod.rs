@@ -1,5 +1,7 @@
 use crate::{
+    cli::display,
     graphs::{Relation, Resource},
+    methods::compile,
     utils::uuids,
 };
 use async_trait::async_trait;
@@ -90,6 +92,22 @@ pub enum Kernel {
     Jupyter(jupyter::JupyterKernel),
 }
 
+impl Kernel {
+    /// Get a list of available kernels
+    pub async fn list() -> Result<Vec<String>> {
+        let mut list: Vec<String> = Vec::new();
+
+        #[cfg(feature = "kernels-calc")]
+        #[allow(clippy::vec_init_then_push)]
+        list.push("calc".to_string());
+
+        #[cfg(feature = "kernels-jupyter")]
+        list.append(&mut jupyter::JupyterKernel::list().await?);
+
+        Ok(list)
+    }
+}
+
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct KernelInfo {
@@ -177,6 +195,10 @@ pub struct KernelSpace {
 }
 
 impl KernelSpace {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     /// Get a list of kernels in the kernel space
     pub async fn kernels(&self) -> Vec<KernelInfo> {
         let mut info = Vec::new();
@@ -367,5 +389,124 @@ impl KernelSpace {
         self.kernels.insert(kernel_id.clone(), kernel);
 
         Ok(kernel_id)
+    }
+
+    /// A read-evaluate-print function
+    ///
+    /// Primarily intended for use in interactive mode as an execution REPL.
+    /// Adds execution related shortcuts e.g. `%symbols` for changing the language.
+    pub async fn repl(&mut self, code: &str, language: &str) -> display::Result {
+        if !code.is_empty() {
+            let code = code.replace("\\n", "\n");
+            if code == "%symbols" {
+                let symbols = self.symbols();
+                display::value(symbols)
+            } else if code == "%kernels" {
+                let kernels = self.kernels().await;
+                display::value(kernels)
+            } else {
+                // Compile the code so that we can use the relations to determine variables that
+                // are assigned or used (needed for variable mirroring).
+                let relations = compile::code::compile("<cli>", &code, language);
+                let nodes = self.exec(&code, language, Some(relations)).await?;
+                match nodes.len() {
+                    0 => display::nothing(),
+                    1 => display::value(nodes[0].clone()),
+                    _ => display::value(nodes),
+                }
+            }
+        } else {
+            display::nothing()
+        }
+    }
+}
+
+#[cfg(feature = "cli")]
+pub mod cli {
+    use super::*;
+    use crate::cli::display;
+    use once_cell::sync::Lazy;
+    use structopt::StructOpt;
+    use tokio::sync::Mutex;
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        about = "Manage kernels",
+        setting = structopt::clap::AppSettings::ColoredHelp,
+        setting = structopt::clap::AppSettings::VersionlessSubcommands
+    )]
+    pub struct Command {
+        #[structopt(subcommand)]
+        pub action: Action,
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder
+    )]
+    pub enum Action {
+        List(List),
+        Execute(Execute),
+    }
+
+    impl Command {
+        pub async fn run(self) -> display::Result {
+            let Self { action } = self;
+            match action {
+                Action::List(action) => action.run().await,
+                Action::Execute(action) => action.run().await,
+            }
+        }
+    }
+
+    /// List the available kernels
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct List {}
+
+    impl List {
+        pub async fn run(&self) -> display::Result {
+            let list = Kernel::list().await?;
+            display::value(list)
+        }
+    }
+
+    /// Execute code within a temporary "kernel space"
+    ///
+    /// This command is mainly intended for testing that Stencila is able to talk
+    /// to Jupyter kernels and execute code within them.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Execute {
+        /// Code to execute within the document's kernel space
+        ///
+        /// This code will be run after all executable nodes in the document
+        /// have been run.
+        // Using a Vec and the `multiple` option allows for spaces in the code
+        #[structopt(multiple = true)]
+        code: Vec<String>,
+
+        /// The programming language of the code
+        #[structopt(short, long, default_value = "calc")]
+        lang: String,
+    }
+
+    /// A lazily initialized kernel space for the execute command. Required so that
+    /// kernel state is maintained in successive calls to `Execute::run` when in
+    /// interactive mode
+    static KERNEL_SPACE: Lazy<Mutex<KernelSpace>> = Lazy::new(|| Mutex::new(KernelSpace::new()));
+
+    impl Execute {
+        pub async fn run(&self) -> display::Result {
+            KERNEL_SPACE
+                .lock()
+                .await
+                .repl(&self.code.join(" "), &self.lang)
+                .await
+        }
     }
 }

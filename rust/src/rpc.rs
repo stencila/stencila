@@ -1,4 +1,4 @@
-use crate::{documents::DOCUMENTS, patches::Patch, sessions::SESSIONS};
+use crate::{documents::DOCUMENTS, kernels::Kernel, patches::Patch, sessions::SESSIONS};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use serde::{Deserialize, Serialize};
@@ -62,6 +62,7 @@ impl Request {
             "sessions.stop" => sessions_stop(&self.params).await,
             "sessions.subscribe" => sessions_subscribe(&self.params, client).await,
             "sessions.unsubscribe" => sessions_unsubscribe(&self.params, client).await,
+            "kernels.list" => kernels_list(&self.params).await,
             "documents.open" => documents_open(&self.params).await,
             "documents.close" => documents_close(&self.params).await,
             "documents.patch" => documents_patch(&self.params).await,
@@ -276,6 +277,14 @@ async fn sessions_unsubscribe(
 
     let (session, topic) = SESSIONS.unsubscribe(&id, &topic, client).await?;
     Ok((json!(session), Subscription::Unsubscribe(topic)))
+}
+
+async fn kernels_list(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    // TODO The kernel list will be dependant upon the session
+    let _id = required_string(params, "sessionId")?;
+
+    let kernels = Kernel::list().await?;
+    Ok((json!(kernels), Subscription::None))
 }
 
 async fn documents_open(params: &Params) -> Result<(serde_json::Value, Subscription)> {

@@ -4,7 +4,7 @@ use crate::{
     graphs::{Relation, Resource},
     kernels::KernelSpace,
     methods::{
-        compile::{self, compile},
+        compile::compile,
         decode::decode,
         encode::{self, encode},
     },
@@ -1541,30 +1541,8 @@ pub mod cli {
             let document = DOCUMENTS.open(file, format.clone()).await?;
             let document = DOCUMENTS.get(&document.id).await?;
             let mut document = document.lock().await;
-            if !code.is_empty() {
-                // Join the separate arguments that make up code and unescape newlines
-                let code = code.join(" ").replace("\\n", "\n");
-                // Detect shortcuts for execute interactive mode
-                if code == "%symbols" {
-                    let symbols = document.kernels.symbols();
-                    display::value(symbols)
-                } else if code == "%kernels" {
-                    let kernels = document.kernels.kernels().await;
-                    display::value(kernels)
-                } else {
-                    // Compile the code so that we can use the relations to determine
-                    // the need for variable mirroring
-                    let relations = compile::code::compile("<cli>", &code, lang);
-                    let nodes = document.kernels.exec(&code, lang, Some(relations)).await?;
-                    match nodes.len() {
-                        0 => display::nothing(),
-                        1 => display::value(nodes[0].clone()),
-                        _ => display::value(nodes),
-                    }
-                }
-            } else {
-                display::nothing()
-            }
+
+            document.kernels.repl(&code.join(" "), lang).await
         }
     }
 

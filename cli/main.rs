@@ -7,6 +7,7 @@ use stencila::{
     config::{self, CONFIG},
     documents::{self, DOCUMENTS},
     eyre::{bail, Result},
+    kernels,
     logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
@@ -107,6 +108,8 @@ pub enum Command {
     Plugins(plugins::cli::Command),
     #[structopt(aliases = &["binary"])]
     Binaries(binaries::cli::Command),
+    #[structopt(aliases = &["kernel"])]
+    Kernels(kernels::cli::Command),
     Config(config::cli::Command),
     Upgrade(upgrade::cli::Args),
     Serve(serve::cli::Command),
@@ -138,6 +141,7 @@ pub async fn run_command(
         Command::Sources(command) => command.run().await,
         Command::Plugins(command) => plugins::cli::run(command).await,
         Command::Binaries(command) => command.run().await,
+        Command::Kernels(command) => command.run().await,
         Command::Config(command) => config::cli::run(command).await,
         Command::Upgrade(command) => upgrade::cli::run(command).await,
         Command::Serve(command) => command.run().await,
