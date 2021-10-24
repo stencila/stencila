@@ -235,7 +235,7 @@ similar = { version = "=2.1.0", features = ["unicode"], optional = true }
 slug = "=0.1.4"
 stencila-schema = "=1.12.0"
 strip-ansi-escapes = { version = "0.1.1", optional = true }
-structopt = { version = "=0.3.23", optional = true }
+structopt = { version = "=0.3.25", optional = true }
 strum = { version = "=0.21", features = ["derive"] }
 strum_macros = "=0.21.1"
 sudo = { version = "=0.6.0", optional = true }
