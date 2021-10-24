@@ -601,7 +601,7 @@ dependencies = [
  "num-integer",
  "num-traits",
  "serde",
- "time",
+ "time 0.1.44",
  "winapi 0.3.9",
 ]
 
@@ -1676,7 +1676,7 @@ dependencies = [
  "http",
  "mime",
  "sha-1 0.9.8",
- "time",
+ "time 0.1.44",
 ]
 
 [[package]]
@@ -2075,13 +2075,12 @@ dependencies = [
 
 [[package]]
 name = "jsonschema"
-version = "0.12.1"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "033569cfbdf25f87a5d74cb373efa466cd7a2c069338e62d6944615c7995dd47"
+checksum = "f866fd6aaffb6be509b844f988b8c8cef3194418a08f9223294c4c676f2b497f"
 dependencies = [
  "ahash",
  "base64 0.13.0",
- "chrono",
  "fancy-regex",
  "fraction",
  "itoa",
@@ -2093,6 +2092,7 @@ dependencies = [
  "reqwest",
  "serde_json",
  "structopt",
+ "time 0.3.3",
  "url",
 ]
 
@@ -4491,6 +4491,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "time"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cde1cf55178e0293453ba2cca0d5f8392a922e52aa958aee9c28ed02becc6d03"
+dependencies = [
+ "libc",
+ "time-macros",
+]
+
+[[package]]
+name = "time-macros"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25eb0ca3468fc0acc11828786797f6ef9aa1555e4a211a60d64cc8e4d1be47d6"
+
+[[package]]
 name = "tinytemplate"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5347,5 +5363,5 @@ dependencies = [
  "crc32fast",
  "flate2",
  "thiserror",
- "time",
+ "time 0.1.44",
 ]
