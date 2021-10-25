@@ -54,7 +54,7 @@ pub async fn encode_to_rpngs(nodes: &[&Node]) -> Result<Vec<Vec<u8>>> {
         let mut encoder = png::Encoder::new(&mut image_bytes, image_info.width, image_info.height);
         encoder.set_color(image_info.color_type);
         encoder.set_depth(image_info.bit_depth);
-        encoder.add_itxt_chunk("json", &json).unwrap();
+        encoder.add_itxt_chunk("json".to_string(), json).unwrap();
         let mut writer = encoder.write_header()?;
         writer.write_image_data(&image_data)?;
         drop(writer);

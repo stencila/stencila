@@ -211,7 +211,7 @@ pandoc_types = { version = "=0.4.0", optional = true }
 path-slash = "=0.1.4"
 pathdiff = "=0.2.1"
 petgraph = { version = "=0.6.0", features = ["serde-1"] }
-png = { git = "https://github.com/sayantangkhan/image-png", rev = "eb39301f86b3019b3c4e4a015f7ec5f62ee5c782", optional = true }
+png = { version = "=0.17.2", optional = true }
 pulldown-cmark = { version = "=0.8.0", optional = true }
 quick-xml = { version = "=0.22.0", optional = true }
 rand = "=0.8.4"
