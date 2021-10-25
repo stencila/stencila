@@ -101,13 +101,17 @@ module.exports = (env = {}, { mode }) => {
       __dirname: false,
     },
     devServer: {
-      contentBase: path.join(__dirname, contentBase),
-      overlay: true,
+      static: {
+        directory: path.join(__dirname, contentBase),
+      },
+      client: {
+        overlay: true,
+      },
     },
     plugins: [
       new DefinePlugin({
         'process.env.ASSET_PATH': JSON.stringify(ASSET_PATH),
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+        'process.env.NODE_ENV': JSON.stringify(mode),
         'process.env.npm_package_version': JSON.stringify(
           process.env.npm_package_version
         ),
