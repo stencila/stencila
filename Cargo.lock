@@ -4130,7 +4130,7 @@ dependencies = [
  "strip-ansi-escapes",
  "structopt",
  "strum 0.22.0",
- "strum_macros 0.21.1",
+ "strum_macros 0.22.0",
  "sudo",
  "tar",
  "tempfile",
