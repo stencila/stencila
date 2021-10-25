@@ -15,7 +15,7 @@ use std::{
     collections::HashMap,
     path::{Path, PathBuf},
 };
-use strum::{Display, ToString};
+use strum::Display;
 
 /// A resource in a dependency graph (the nodes of the graph)
 #[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
@@ -598,7 +598,7 @@ impl Graph {
     }
 }
 
-#[derive(Debug, JsonSchema, Serialize, ToString)]
+#[derive(Debug, Display, JsonSchema, Serialize)]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 pub enum GraphEventType {

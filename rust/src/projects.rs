@@ -16,7 +16,6 @@ use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use slug::slugify;
-use std::string::ToString;
 use std::sync::Arc;
 use std::time::Duration;
 use std::{
@@ -24,11 +23,11 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-use strum::ToString;
+use strum::Display;
 use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
 
-#[derive(Debug, JsonSchema, Serialize, ToString)]
+#[derive(Debug, Display, JsonSchema, Serialize)]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 enum ProjectEventType {

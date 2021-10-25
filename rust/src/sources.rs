@@ -12,7 +12,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::{fs, path::Path};
-use strum::{EnumIter, IntoEnumIterator, ToString};
+use strum::{Display, EnumIter, IntoEnumIterator};
 
 /// Trait for project sources. This allows us to use `enum_dispatch` to
 /// dispatch these methods based on the type of source.
@@ -33,7 +33,7 @@ pub trait SourceTrait {
 /// A project source
 #[enum_dispatch(SourceTrait)]
 #[derive(
-    PartialEq, Clone, Debug, Defaults, ToString, EnumIter, JsonSchema, Deserialize, Serialize,
+    PartialEq, Clone, Debug, Display, Defaults, EnumIter, JsonSchema, Deserialize, Serialize,
 )]
 #[def = "Null(Null{})"]
 #[serde(tag = "type")]

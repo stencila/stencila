@@ -12,7 +12,7 @@ use std::{
     path::{Path, PathBuf},
     time::UNIX_EPOCH,
 };
-use strum::ToString;
+use strum::Display;
 
 /// A file or directory within a `Project`
 #[skip_serializing_none]
@@ -117,7 +117,7 @@ impl File {
     }
 }
 
-#[derive(JsonSchema, Serialize, ToString)]
+#[derive(Display, JsonSchema, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum FileEventType {
     Refreshed,

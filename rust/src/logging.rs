@@ -3,13 +3,14 @@ use eyre::Result;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
-use strum::{EnumString, EnumVariantNames, ToString};
+use strum::{Display, EnumString, EnumVariantNames};
 use tracing::Event;
 use validator::Validate;
 
 /// Logging level
 #[derive(
     Debug,
+    Display,
     Clone,
     Copy,
     PartialEq,
@@ -19,7 +20,6 @@ use validator::Validate;
     Serialize,
     EnumString,
     EnumVariantNames,
-    ToString,
 )]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]

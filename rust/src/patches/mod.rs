@@ -18,14 +18,14 @@ use similar::TextDiff;
 use std::{
     any::{type_name, Any},
     collections::VecDeque,
-    fmt::{self, Debug, Display},
+    fmt::{self, Debug},
     hash::Hasher,
     iter::FromIterator,
 };
 use stencila_schema::{
     Array, BlockContent, Boolean, InlineContent, Integer, ListItem, Node, Null, Number, Object,
 };
-use strum::{AsRefStr, ToString};
+use strum::{AsRefStr, Display};
 
 /// Are two nodes are the same type and value?
 pub fn same<Type1, Type2>(node1: &Type1, node2: &Type2) -> bool
@@ -194,11 +194,11 @@ pub enum Slot {
     Name(String),
 }
 
-impl ToString for Slot {
-    fn to_string(&self) -> String {
+impl fmt::Display for Slot {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Slot::Name(name) => name.clone(),
-            Slot::Index(index) => index.to_string(),
+            Slot::Name(name) => write!(formatter, "{}", name),
+            Slot::Index(index) => write!(formatter, "{}", index),
         }
     }
 }
@@ -214,14 +214,14 @@ impl ToString for Slot {
 #[schemars(deny_unknown_fields)]
 pub struct Address(VecDeque<Slot>);
 
-impl Display for Address {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl fmt::Display for Address {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         let me = self
             .iter()
             .map(|slot| slot.to_string())
             .collect_vec()
             .join(".");
-        write!(f, "{}", me)
+        write!(formatter, "{}", me)
     }
 }
 
@@ -383,7 +383,7 @@ pub type Value = Box<dyn Any + Send>;
 /// Note that for `String`s the integers in `address`, `items` and `length` all refer to Unicode
 /// characters not bytes.
 #[skip_serializing_none]
-#[derive(Debug, JsonSchema, Serialize, Deserialize, ToString)]
+#[derive(Debug, Display, JsonSchema, Serialize, Deserialize)]
 #[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
 pub enum Operation {

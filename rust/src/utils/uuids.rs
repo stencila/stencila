@@ -30,12 +30,12 @@
 use eyre::{bail, Result};
 use nanoid::nanoid;
 use regex::Regex;
-use strum::ToString;
+use strum::Display;
 
 use crate::errors::Error;
 
 /// The available families of identifiers
-#[derive(Debug, Clone, ToString)]
+#[derive(Debug, Clone, Display)]
 pub enum Family {
     #[strum(serialize = "no")]
     Node,

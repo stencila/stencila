@@ -36,10 +36,10 @@ use std::{
     sync::Arc,
 };
 use stencila_schema::{Article, Node};
-use strum::ToString;
+use strum::Display;
 use tokio::{sync::Mutex, task::JoinHandle};
 
-#[derive(Debug, JsonSchema, Serialize, ToString)]
+#[derive(Debug, JsonSchema, Serialize, Display)]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 enum DocumentEventType {
@@ -94,7 +94,7 @@ impl DocumentEvent {
 }
 
 /// The status of a document with respect to on-disk synchronization
-#[derive(Debug, Clone, JsonSchema, Serialize, ToString)]
+#[derive(Debug, Clone, JsonSchema, Serialize, Display)]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 enum DocumentStatus {
