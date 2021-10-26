@@ -1,5 +1,5 @@
 node_modules: package.json
-	npm install
+	npm install --legacy-peer-deps
 
 setup: node_modules
 
