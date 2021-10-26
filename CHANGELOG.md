@@ -1,3 +1,12 @@
+## [2.24.4](https://github.com/stencila/thema/compare/v2.24.3...v2.24.4) (2021-10-26)
+
+
+### Bug Fixes
+
+* **Bootstrap:** Extend correct Button style class ([73fac61](https://github.com/stencila/thema/commit/73fac61eab7bb538aa9a45e17697aef21ea0c188))
+* **CSS:** Work around css-nano bug with opacity values ([f9d67b8](https://github.com/stencila/thema/commit/f9d67b8a708bcbdaa20b735ed63e5e46a95483fb))
+* **Deps:** Update dependencies ([5d455e8](https://github.com/stencila/thema/commit/5d455e888a415e268e23adc4ab89777bbbaffbb9))
+
 ## [2.24.3](https://github.com/stencila/thema/compare/v2.24.2...v2.24.3) (2021-10-18)
 
 
