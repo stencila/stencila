@@ -110,7 +110,7 @@ body {
 
   th {
     color: var(--color-neutral-600);
-    background: rgb(0 0 0 / 10%);
+    background: rgb(0 0 0 / 0.1);
   }
 
   th,
