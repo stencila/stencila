@@ -145,7 +145,8 @@ function check(name?: string, fix = false): number {
 
     // Extensions
     {
-      const cssRegex = /^@import\s+'\.\.\/\.\.\/extensions\/([\w-]+)\/styles\.css'/gm
+      const cssRegex =
+        /^@import\s+'\.\.\/\.\.\/extensions\/([\w-]+)\/styles\.css'/gm
       let cssMatch
       while ((cssMatch = cssRegex.exec(css)) !== null) {
         const extension = cssMatch[1]

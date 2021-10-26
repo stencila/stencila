@@ -97,9 +97,9 @@ export function first(
 export function first(
   ...args: (string | Document | Element)[]
 ): Element | null {
-  const [elem, selector] = (args.length === 1
-    ? [document, args[0]]
-    : args.slice(0, 2)) as [Element, string]
+  const [elem, selector] = (
+    args.length === 1 ? [document, args[0]] : args.slice(0, 2)
+  ) as [Element, string]
   return elem.querySelector(translate(selector))
 }
 
@@ -125,9 +125,9 @@ export function select(elem: Document | Element, selector: string): Element[]
  * @returns {Element[]} An array of elements
  */
 export function select(...args: (string | Document | Element)[]): Element[] {
-  const [elem, selector] = (args.length === 1
-    ? [document, args[0]]
-    : args.slice(0, 2)) as [Element, string]
+  const [elem, selector] = (
+    args.length === 1 ? [document, args[0]] : args.slice(0, 2)
+  ) as [Element, string]
   return Array.from(elem.querySelectorAll(translate(selector)))
 }
 

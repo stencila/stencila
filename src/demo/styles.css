@@ -57,9 +57,7 @@ body {
 }
 
 body > * {
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 30ch;
+  flex: 1 1 30ch;
 }
 
 :root {
@@ -85,7 +83,7 @@ header {
   opacity: 0.95;
   border-bottom: 1px solid var(--color-neutral-400);
   height: 3rem;
-  padding: 0.5rem 1rem 1rem 1rem;
+  padding: 0.5rem 1rem 1rem;
   box-sizing: border-box;
   color: var(--color-neutral-600);
   font-size: var(--font-size-90);
@@ -136,14 +134,14 @@ header {
 }
 
 :--root > :--List > :--ListItem {
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.035), 0 0 40px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 0 8px rgb(0 0 0 / 0.035), 0 0 40px rgb(0 0 0 / 0.07);
   overflow: hidden;
   transition: box-shadow 200ms ease-out;
   padding-bottom: var(--spacer-sm);
 
   &:hover,
   &:focus {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.045), 0 0 40px rgba(0, 0, 0, 0.17);
+    box-shadow: 0 0 8px rgb(0 0 0 / 0.045), 0 0 40px rgb(0 0 0 / 0.17);
   }
 }
 
@@ -224,7 +222,7 @@ header {
   & > :--Paragraph:last-of-type > a {
     background-color: var(--color-neutral-300);
     border-radius: 4px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.035), 0 0 40px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 0 8px rgb(0 0 0 / 0.035), 0 0 40px rgb(0 0 0 / 0.07);
     border: 1px solid var(--color-neutral-400);
     font-size: 12px;
     font-weight: bold;
@@ -263,7 +261,7 @@ header {
 iframe {
   background-color: white;
   border: 1px solid var(--color-neutral-300);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.035), 0 0 80px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 0 10px rgb(0 0 0 / 0.035), 0 0 80px rgb(0 0 0 / 0.07);
   display: block;
   height: calc(100vh - 6rem);
   margin: 1.5rem auto;
@@ -310,7 +308,7 @@ menu p {
   background-color: var(--color-neutral-400);
   border-radius: 2px;
   border: 1px solid var(--color-neutral-500);
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.035), 0 0 40px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 0 8px rgb(0 0 0 / 0.035), 0 0 40px rgb(0 0 0 / 0.07);
   color: var(--color-key);
   font-weight: bold;
   line-height: 1;
@@ -360,7 +358,7 @@ menu p {
 #sidebar h3::after {
   content: '';
   position: absolute;
-  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
   transform: translateY(-0.85em);
   width: 68%;
   right: 0;
@@ -528,7 +526,7 @@ input {
 }
 
 #contributeModal {
-  background-color: rgba(0, 0, 0, 0.16);
+  background-color: rgb(0 0 0 / 0.16);
   height: 100vh;
   left: 0;
   overflow: auto;
@@ -543,7 +541,7 @@ input {
     background-color: white;
     border-radius: 4px;
     border: 1px solid var(--color-neutral-500);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.035), 0 0 80px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 0 10px rgb(0 0 0 / 0.035), 0 0 80px rgb(0 0 0 / 0.07);
     padding: 1rem;
     width: 400px;
   }

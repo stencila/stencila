@@ -85,33 +85,31 @@ const generateSelectors = async (): Promise<void> => {
   const props = await jsonSchemaProperties()
 
   const propSelectors = Object.entries(props)
-    .map(
-      ([name, prop]): Record<string, string> => {
-        if (prop.isPlural) {
-          const [[arrayAttr, arrayValue]] = Object.entries(
-            microdataProperty(name, 'array')
-          ) as [string, string][]
+    .map(([name, prop]): Record<string, string> => {
+      if (prop.isPlural) {
+        const [[arrayAttr, arrayValue]] = Object.entries(
+          microdataProperty(name, 'array')
+        ) as [string, string][]
 
-          const [[itemAttr, itemValue]] = Object.entries(
-            microdataProperty(name, 'item')
-          ) as [string, string][]
+        const [[itemAttr, itemValue]] = Object.entries(
+          microdataProperty(name, 'item')
+        ) as [string, string][]
 
-          return {
-            [name]: `[${arrayAttr}~='${arrayValue}']`,
-            [name.slice(0, -1)]: `[${itemAttr}~='${itemValue}']`,
-          }
-        } else {
-          const [[attr, value]] = Object.entries(microdataProperty(name)) as [
-            string,
-            string
-          ][]
+        return {
+          [name]: `[${arrayAttr}~='${arrayValue}']`,
+          [name.slice(0, -1)]: `[${itemAttr}~='${itemValue}']`,
+        }
+      } else {
+        const [[attr, value]] = Object.entries(microdataProperty(name)) as [
+          string,
+          string
+        ][]
 
-          return {
-            [name]: `[${attr}~='${value}']`,
-          }
+        return {
+          [name]: `[${attr}~='${value}']`,
         }
       }
-    )
+    })
     .reduce((prev, curr) => {
       for (const [key, value] of Object.entries(curr)) {
         if (key in prev && !prev[key].includes(value)) prev[key] += `, ${value}`

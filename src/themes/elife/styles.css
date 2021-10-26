@@ -332,7 +332,7 @@
       height: 24px;
       text-align: center;
       border-radius: 3px;
-      background-color: rgb(33, 33, 33);
+      background-color: rgb(33 33 33);
       fill: var(--COLOR-TEXT-UI-BACKGROUND);
       stroke: none; /* stylelint-disable-line scale-unlimited/declaration-strict-value */
       transition: 25ms ease-in-out;
@@ -421,6 +421,7 @@
     & > :--authors {
       margin-bottom: var(--BASELINE-MEASURE-REM);
     }
+
     & :--affiliations {
       @mixin visuallyhidden;
     }

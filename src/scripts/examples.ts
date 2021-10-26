@@ -129,7 +129,12 @@ async function articleReplication(): Promise<string | undefined> {
               ex(`articleReplicationFigure${id.slice(-1)}.R`),
               'utf8'
             ),
-            outputs: node.content,
+            outputs:
+              node.content === undefined
+                ? undefined
+                : Array.isArray(node.content)
+                ? node.content
+                : [node.content],
           }),
         ]
       }
@@ -154,15 +159,13 @@ async function articleReplication(): Promise<string | undefined> {
                 '). For silent genes, ',
                 schema.codeExpression({
                   programmingLanguage: 'r',
-                  text:
-                    'round(length(which((silent_1hr_l1-silent_0hr_l1)>0))/length(silent_0hr_l1)*100)',
+                  text: 'round(length(which((silent_1hr_l1-silent_0hr_l1)>0))/length(silent_0hr_l1)*100)',
                   output: 74,
                 }),
                 '% of the genes increased from 0 hr to 1 hr, ',
                 schema.codeExpression({
                   programmingLanguage: 'r',
-                  text:
-                    'round(length(which((silent_1hr_l1-silent_0hr_l1)>0))/length(silent_0hr_l1)*100)',
+                  text: 'round(length(which((silent_1hr_l1-silent_0hr_l1)>0))/length(silent_0hr_l1)*100)',
                   output: 66,
                 }),
                 '% increased from 0 hr to 24 hr, and 50% increased from 1 hr to 24 hr, corresponding to a ',

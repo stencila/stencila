@@ -15,28 +15,29 @@ enum Browser {
 }
 
 // Read browser to be tested with from the environment, falling back to Chrome
-const testBrowser = (process.env.TEST_BROWSER
-  ? process.env.TEST_BROWSER
-  : 'chrome') as Browser
+const testBrowser = (
+  process.env.TEST_BROWSER ? process.env.TEST_BROWSER : 'chrome'
+) as Browser
 
 /**
  * Given a `screenshotType`, returns a function expecting a VisualRegressionCompare context
  * @see https://github.com/Jnegrier/wdio-novus-visual-regression-service#visualregressioncomparelocalcompare
  * @param {ScreenshotType} screenshotType
  */
-const getScreenshotName = (screenshotType: keyof typeof screenshotDirs) => (
-  context: any
-) => {
-  const [, example, theme] = context.meta.url.match(/example=(\w+)&theme=(\w+)/)
-  const testName = theme + '_' + example
-  const browserName = context.browser.name
-  const { width } = context.meta.viewport
+const getScreenshotName =
+  (screenshotType: keyof typeof screenshotDirs) => (context: any) => {
+    const [, example, theme] = context.meta.url.match(
+      /example=(\w+)&theme=(\w+)/
+    )
+    const testName = theme + '_' + example
+    const browserName = context.browser.name
+    const { width } = context.meta.viewport
 
-  return path.join(
-    screenshotDirs[screenshotType],
-    normalizeName(testName, browserName, width)
-  )
-}
+    return path.join(
+      screenshotDirs[screenshotType],
+      normalizeName(testName, browserName, width)
+    )
+  }
 
 // When running on CI, don't compare images, as we'll be using a cloud testing service to compare them
 const compareStrategy =
@@ -107,10 +108,8 @@ const services = [
         'sauce',
         {
           sauceConnect: true,
-          sauceConnectOpts: {
-            // Connect to SauceLabs EU service https://github.com/bermi/sauce-connect-launcher/issues/141
-            x: 'https://eu-central-1.saucelabs.com/rest/v1',
-          },
+          setJobName: (config: unknown, capabilities: unknown, suiteTitle) =>
+            `Thema: ${suiteTitle}`,
         },
       ]
     : browserServices[testBrowser],
@@ -233,7 +232,6 @@ export const config = Object.assign(
     ? {
         user: useSauce && env.SAUCE_USERNAME,
         key: useSauce && env.SAUCE_ACCESS_KEY,
-        region: 'eu',
       }
     : {}
 )

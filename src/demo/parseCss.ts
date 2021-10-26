@@ -22,7 +22,7 @@ const isOutsideRootNode = (rule: Rule): boolean => {
     // TODO: Remove once this branch is rebased on https://github.com/stencila/thema/pull/85
     rule.selectors[0] === '[itemscope=root]' ||
     rule.selectors[0] === translate(':--Article') ||
-    rule.parent.type === 'root'
+    rule.parent?.type === 'root'
   )
 }
 

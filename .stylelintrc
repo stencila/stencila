@@ -7,12 +7,18 @@
     "stylelint-selector-tag-no-without-class"
   ],
   "rules": {
+    "alpha-value-notation": "number",
     "at-rule-no-unknown": [
       true,
       { "ignoreAtRules": ["extend", "define-mixin", "mixin"] }
     ],
     "selector-pseudo-class-case": null,
+    "selector-class-pattern": null,
+    "selector-id-pattern": null,
+    "custom-property-pattern": null,
+    "number-max-precision": null,
     "no-descending-specificity": null,
+    "no-invalid-position-at-import-rule": null,
     "plugin/declaration-block-no-ignored-properties": true,
     "plugin/selector-tag-no-without-class": "tag",
     "selector-type-no-unknown": [
