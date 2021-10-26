@@ -170,7 +170,6 @@ struct KernelMap(BTreeMap<KernelId, Kernel>);
 
 impl KernelMap {
     /// Get a reference to a kernel
-    #[allow(dead_code)]
     fn get(&self, kernel_id: &str) -> Result<&Kernel> {
         (**self)
             .get(kernel_id)
@@ -234,7 +233,7 @@ impl KernelSpace {
 
     /// Set a symbol in the kernel space
     pub async fn set(&mut self, name: &str, value: Node, language: &str) -> Result<()> {
-        let kernel_id = self.ensure_kernel(language).await?;
+        let kernel_id = self.ensure(language).await?;
         tracing::debug!("Setting symbol `{}` in kernel `{}`", name, kernel_id);
 
         let kernel = self.kernels.get_mut(&kernel_id)?;
@@ -264,7 +263,7 @@ impl KernelSpace {
         relations: Option<Vec<(Relation, Resource)>>,
     ) -> Result<Vec<Node>> {
         // Determine the kernel to execute in
-        let kernel_id = self.ensure_kernel(language).await?;
+        let kernel_id = self.ensure(language).await?;
         tracing::debug!("Executing code in kernel `{}`", kernel_id);
 
         // Mirror used symbols into the kernel
@@ -360,16 +359,20 @@ impl KernelSpace {
     /// Ensure that a kernel exists for a language
     ///
     /// Returns a tuple of the kernel's canonical language name and id.
-    async fn ensure_kernel(&mut self, language: &str) -> Result<KernelId> {
+    async fn ensure(&mut self, language: &str) -> Result<KernelId> {
         // Is there already a kernel capable of executing the language?
         for (kernel_id, kernel) in self.kernels.iter_mut() {
             if kernel.language(Some(language.to_string())).is_ok() {
                 return Ok(kernel_id.clone());
             }
         }
-
         // If unable to set in an existing kernel then start a new kernel
         // for the language.
+        self.start(language).await
+    }
+
+    /// Start a kernel for a language
+    async fn start(&mut self, language: &str) -> Result<KernelId> {
         let kernel_id = uuids::generate(uuids::Family::Kernel);
         let mut kernel = match language {
             "none" | "" => DefaultKernel::create(),
@@ -390,6 +393,13 @@ impl KernelSpace {
         self.kernels.insert(kernel_id.clone(), kernel);
 
         Ok(kernel_id)
+    }
+
+    /// Stop one of the kernels and remove it from the kernel space
+    async fn stop(&mut self, id: &str) -> Result<()> {
+        self.kernels.get_mut(id)?.stop().await?;
+        self.kernels.remove(id);
+        Ok(())
     }
 
     /// A read-evaluate-print function
@@ -448,6 +458,10 @@ pub mod cli {
     pub enum Action {
         List(List),
         Execute(Execute),
+        Start(Start),
+        Stop(Stop),
+        Status(Status),
+        Show(Show),
     }
 
     impl Command {
@@ -456,6 +470,10 @@ pub mod cli {
             match action {
                 Action::List(action) => action.run().await,
                 Action::Execute(action) => action.run().await,
+                Action::Start(action) => action.run().await,
+                Action::Stop(action) => action.run().await,
+                Action::Status(action) => action.run().await,
+                Action::Show(action) => action.run().await,
             }
         }
     }
@@ -466,13 +484,17 @@ pub mod cli {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct List {}
-
     impl List {
         pub async fn run(&self) -> display::Result {
             let list = Kernel::list().await?;
             display::value(list)
         }
     }
+
+    /// A lazily initialized kernel space for the execute command. Required so that
+    /// kernel state is maintained in successive calls to `Execute::run` when in
+    /// interactive mode
+    static KERNEL_SPACE: Lazy<Mutex<KernelSpace>> = Lazy::new(|| Mutex::new(KernelSpace::new()));
 
     /// Execute code within a temporary "kernel space"
     ///
@@ -495,12 +517,6 @@ pub mod cli {
         #[structopt(short, long, default_value = "calc")]
         lang: String,
     }
-
-    /// A lazily initialized kernel space for the execute command. Required so that
-    /// kernel state is maintained in successive calls to `Execute::run` when in
-    /// interactive mode
-    static KERNEL_SPACE: Lazy<Mutex<KernelSpace>> = Lazy::new(|| Mutex::new(KernelSpace::new()));
-
     impl Execute {
         pub async fn run(&self) -> display::Result {
             KERNEL_SPACE
@@ -508,6 +524,76 @@ pub mod cli {
                 .await
                 .repl(&self.code.join(" "), &self.lang)
                 .await
+        }
+    }
+
+    /// Start a kernel for a particular programming language
+    ///
+    /// Mainly intended for interactive mode testing.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Start {
+        /// The programming language of the kernel
+        lang: String,
+    }
+    impl Start {
+        pub async fn run(&self) -> display::Result {
+            KERNEL_SPACE.lock().await.ensure(&self.lang).await?;
+            display::nothing()
+        }
+    }
+
+    /// Stop a kernel
+    ///
+    /// Mainly intended for interactive mode testing.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Stop {
+        /// The id of the kernel (see `kernels status`)
+        id: String,
+    }
+    impl Stop {
+        pub async fn run(&self) -> display::Result {
+            KERNEL_SPACE.lock().await.stop(&self.id).await?;
+            display::nothing()
+        }
+    }
+
+    /// Get a list of the kernels in the current kernel space
+    ///
+    /// Mainly intended for interactive mode testing.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Status {}
+    impl Status {
+        pub async fn run(&self) -> display::Result {
+            let status = KERNEL_SPACE.lock().await.kernels().await;
+            display::value(status)
+        }
+    }
+
+    /// Show the details of a current kernel
+    ///
+    /// Mainly intended for interactive mode testing.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Show {
+        /// The id of the kernel (see `kernels status`)
+        id: String,
+    }
+    impl Show {
+        pub async fn run(&self) -> display::Result {
+            let kernels = KERNEL_SPACE.lock().await;
+            let kernel = kernels.kernels.get(&self.id)?;
+            display::value(kernel)
         }
     }
 }
