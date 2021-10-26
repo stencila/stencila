@@ -16,7 +16,9 @@ use serde_with::skip_serializing_none;
 use sha2::Sha256;
 use std::{
     collections::HashMap,
-    env, fs,
+    env,
+    fs::{self, OpenOptions},
+    io::Write,
     path::{Path, PathBuf},
     process::Stdio,
     sync::Arc,
@@ -548,6 +550,9 @@ impl KernelTrait for JupyterKernel {
         use tokio::time::{sleep, Duration};
         sleep(Duration::from_millis(100)).await;
 
+        // Update status
+        *(self.status.write().await) = KernelStatus::Idle;
+
         self.connection = Some(connection);
         self.details = Some(JupyterDetails {
             hmac,
@@ -584,6 +589,13 @@ impl KernelTrait for JupyterKernel {
             subscribe_task.abort();
             monitor_task.abort();
         }
+
+        if let Some(connection) = &self.connection {
+            if let Err(error) = connection.remove_file() {
+                tracing::warn!("While deleting Jupyter kernel connection file: {}", error)
+            };
+        }
+
         Ok(())
     }
 
@@ -775,6 +787,11 @@ struct JupyterConnection {
 type HmacSha256 = Hmac<Sha256>;
 
 impl JupyterConnection {
+    /// Create a new connection
+    ///
+    /// # Arguments
+    ///
+    /// `id`: The id of the kernel
     fn new(id: &str) -> Self {
         let name = format!("stencila-{}.json", id);
         let path = JupyterKernel::runtime_dir().join(name);
@@ -787,35 +804,75 @@ impl JupyterConnection {
         }
     }
 
+    /// Pick a port to use for one of the connection sockets
     fn pick_port() -> u16 {
         portpicker::pick_unused_port().expect("There are no free ports")
     }
 
+    /// Write the connection file to disk
+    ///
+    /// The file is created with permissions that only allow the current user to read the file.
+    /// On Mac and Linux using mode `600` and on Windows using share mode `0`.
     fn write_file(&self) -> Result<()> {
-        let json = serde_json::to_string_pretty(&self)?;
         if let Some(dir) = self.path.parent() {
             fs::create_dir_all(dir)?;
         }
-        fs::write(&self.path, json)?;
+
+        let mut options = OpenOptions::new();
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        #[cfg(any(target_os = "windows"))]
+        {
+            use std::os::windows::fs::OpenOptionsExt;
+            options.share_mode(0);
+        }
+
+        // Using `create_new` is the safest way to create the file to
+        // avoid a time-of-check to time-of-use race condition / attack
+        let mut file = options
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .open(&self.path)?;
+
+        let json = serde_json::to_string_pretty(&self)?;
+        file.write_all(json.as_bytes())?;
+
         Ok(())
     }
 
+    /// Remove the connection file from disk
+    fn remove_file(&self) -> Result<()> {
+        if self.path.exists() {
+            fs::remove_file(&self.path)?
+        }
+        Ok(())
+    }
+
+    /// Get the base URI for the connection
     fn base_url(&self) -> String {
         format!("{}://{}:", transport = self.transport, ip = self.ip)
     }
 
+    /// Get the URL of the control channel
     fn _control_url(&self) -> String {
         [self.base_url(), self.control_port.to_string()].concat()
     }
 
+    /// Get the URL of the shell channel
     fn shell_url(&self) -> String {
         [self.base_url(), self.shell_port.to_string()].concat()
     }
 
+    /// Get the URL of the iopub channel
     fn iopub_url(&self) -> String {
         [self.base_url(), self.iopub_port.to_string()].concat()
     }
 
+    /// Get the URL of the heartbeat channel
     fn heartbeat_url(&self) -> String {
         [self.base_url(), self.hb_port.to_string()].concat()
     }
