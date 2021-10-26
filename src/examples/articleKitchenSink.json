@@ -499,7 +499,7 @@
     },
     {
       "type": "List",
-      "order": "unordered",
+      "order": "Unordered",
       "items": [
         {
           "type": "ListItem",
@@ -527,7 +527,7 @@
     },
     {
       "type": "List",
-      "order": "ascending",
+      "order": "Ascending",
       "items": [
         {
           "type": "ListItem",
@@ -559,7 +559,7 @@
     },
     {
       "type": "List",
-      "order": "unordered",
+      "order": "Unordered",
       "items": [
         {
           "type": "ListItem",
@@ -597,7 +597,7 @@
     },
     {
       "type": "List",
-      "order": "ascending",
+      "order": "Ascending",
       "items": [
         {
           "type": "ListItem",
@@ -609,7 +609,7 @@
             "B",
             {
               "type": "List",
-              "order": "unordered",
+              "order": "Unordered",
               "items": [
                 {
                   "type": "ListItem",
@@ -617,7 +617,7 @@
                     "B1",
                     {
                       "type": "List",
-                      "order": "ascending",
+                      "order": "Ascending",
                       "items": [
                         {
                           "type": "ListItem",
@@ -637,7 +637,7 @@
                     "B2",
                     {
                       "type": "List",
-                      "order": "unordered",
+                      "order": "Unordered",
                       "items": [
                         {
                           "type": "ListItem",
@@ -667,7 +667,7 @@
         },
         {
           "type": "List",
-          "order": "unordered",
+          "order": "Unordered",
           "items": [
             {
               "type": "ListItem",
