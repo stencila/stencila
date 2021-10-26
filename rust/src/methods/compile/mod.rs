@@ -13,20 +13,7 @@ use std::{
 };
 use stencila_schema::*;
 
-#[cfg(feature = "compile-code")]
 pub mod code;
-
-#[cfg(not(feature = "compile-code"))]
-pub mod code {
-    use super::*;
-    pub fn compile<P: AsRef<Path>>(
-        path: P,
-        code: &str,
-        language: &str,
-    ) -> Vec<(Relation, Resource)> {
-        Vec::new()
-    }
-}
 
 type Addresses = HashMap<String, Address>;
 type Relations = HashMap<Resource, Vec<(Relation, Resource)>>;

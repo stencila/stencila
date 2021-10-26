@@ -1,7 +1,5 @@
-use crate::{
-    graphs::{relations, resources, Relation, Resource},
-    methods::compile::code::parse_tags,
-};
+use super::utils::parse_tags;
+use crate::graphs::{relations, resources, Relation, Resource};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::Path;

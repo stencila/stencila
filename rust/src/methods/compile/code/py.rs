@@ -1,4 +1,7 @@
-use super::{apply_tags, captures_as_args_map, is_quoted, remove_quotes, Compiler};
+use super::{
+    helpers::{apply_tags, captures_as_args_map, Compiler},
+    utils::{is_quoted, remove_quotes},
+};
 use crate::{
     graphs::{relations, resources, Relation, Resource},
     utils::path::merge,

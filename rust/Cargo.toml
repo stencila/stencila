@@ -83,12 +83,11 @@ coerce = ["decode-date", "decode-person"]
 
 reshape = ["decode-date", "decode-person"]
 
-compile-code = ["tree-sitter"]
-compile-code-js = ["compile-code", "tree-sitter-javascript"]
-compile-code-calc = ["compile-code"]
-compile-code-py = ["compile-code", "tree-sitter-python"]
-compile-code-r = ["compile-code", "tree-sitter-r"]
-compile-code-ts = ["compile-code", "compile-code-js", "tree-sitter-typescript"]
+compile-calc = []
+compile-js = ["tree-sitter", "tree-sitter-javascript"]
+compile-py = ["tree-sitter", "tree-sitter-python"]
+compile-r = ["tree-sitter", "tree-sitter-r"]
+compile-ts = ["tree-sitter", "tree-sitter-javascript", "tree-sitter-typescript"]
 
 query-jmespath = ["jmespatch"]
 query-jsonptr = []
@@ -153,12 +152,11 @@ default = [
   "encode-yaml",
   "coerce",
   "reshape",
-  "compile-code",
-  "compile-code-calc",
-  "compile-code-js",
-  "compile-code-py",
-  "compile-code-r",
-  "compile-code-ts",
+  "compile-calc",
+  "compile-js",
+  "compile-py",
+  "compile-r",
+  "compile-ts",
   "query-jsonptr",
   "query-jmespath",
   "patches"
