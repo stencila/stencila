@@ -4072,7 +4072,7 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
 name = "stencila"
-version = "0.121.0"
+version = "0.122.0"
 dependencies = [
  "Inflector",
  "ansi_term 0.12.1",
@@ -4174,7 +4174,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.121.0"
+version = "0.122.0"
 dependencies = [
  "ansi_term 0.12.1",
  "atty",
@@ -4192,7 +4192,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.121.0"
+version = "0.122.0"
 dependencies = [
  "neon",
  "stencila",

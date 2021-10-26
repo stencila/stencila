@@ -1,3 +1,35 @@
+# [0.122.0](https://github.com/stencila/stencila/compare/v0.121.0...v0.122.0) (2021-10-26)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency fp-ts to v2.11.5 ([009eed7](https://github.com/stencila/stencila/commit/009eed74575ab9e33eec427e9b356f1d0a4c015f))
+* **dependencies:** update dependency i18next to v21.3.3 ([30c4559](https://github.com/stencila/stencila/commit/30c455947443553ba22af3ae0ebf9b4400d3d232))
+* **dependencies:** update dependency lit to ^2.0.2 ([96988be](https://github.com/stencila/stencila/commit/96988bea040ff28e5592558e808c427adcdf12c9))
+* **dependencies:** update dependency prosemirror-commands to ^1.1.11 ([e7ca347](https://github.com/stencila/stencila/commit/e7ca3471256744820ad5fe9711924f3399e4e281))
+* **dependencies:** update dependency prosemirror-view to ^1.20.3 ([d7feff8](https://github.com/stencila/stencila/commit/d7feff8d10bd766c6269b353741688b4e39b4ca0))
+* **dependencies:** update docusaurus monorepo to v2.0.0-beta.8 ([4fdd859](https://github.com/stencila/stencila/commit/4fdd8593b161cde1835b0756d58e96de043e2289))
+* **dependencies:** update rust crate jsonschema to v0.12.2 ([571a5ca](https://github.com/stencila/stencila/commit/571a5ca4b1b42bd033e3edae57414054ff8d4e9b))
+* **dependencies:** update rust crate reqwest to v0.11.6 ([3a99729](https://github.com/stencila/stencila/commit/3a99729ca2d83ff5518d3d1c9e1e3b44bb2a663a))
+* **dependencies:** update rust crate serde_with to v1.11.0 ([4f81182](https://github.com/stencila/stencila/commit/4f811828e397ad67f27c0559cf5aa078a44083e3))
+* **dependencies:** update rust crate structopt to v0.3.25 ([7c738cf](https://github.com/stencila/stencila/commit/7c738cf8f3a552c58b2a323d86186f9633f0acc7))
+* **dependencies:** update rust crate strum to v0.22.0 ([987858e](https://github.com/stencila/stencila/commit/987858e181e4dba1c6786e6b06c59cb72b13d50f))
+* **dependencies:** update rust crate strum_macros to v0.22.0 ([6e27fae](https://github.com/stencila/stencila/commit/6e27fae19d84ec4934074cf22623e71a7a73aa3c))
+* **dependencies:** update rust crate termimad to v0.16.4 ([14e1cff](https://github.com/stencila/stencila/commit/14e1cffefef18993940aa7863c5212ce8ba1d03b))
+* **Dependencies:** Use latest version of `png` crate ([a9763d7](https://github.com/stencila/stencila/commit/a9763d702822be5dc1da09b857f142e2edd1c74f))
+* **Desktop:** Remove duplicated Window Close menu item ([b467ca1](https://github.com/stencila/stencila/commit/b467ca185ab0505098e80aa6a7657995a33ba2b6)), closes [#1176](https://github.com/stencila/stencila/issues/1176)
+* **Editor:** Fix parsing of `CodeFragment` nodes ([0296876](https://github.com/stencila/stencila/commit/0296876b8627dc7baff8e31aac67a92fd4f4e6ed))
+* **Editor:** Fix programming language update event ([cbf30f0](https://github.com/stencila/stencila/commit/cbf30f026bf598df4dfc836c3cfe615c65384ca3))
+* **Editor:** Preserve node type when copy/pasting CodeBlock elements ([d3958b2](https://github.com/stencila/stencila/commit/d3958b22f428df38391252313da0046ac5428316))
+* **Patches:** Ensure case conversion of property names in addresses ([227202b](https://github.com/stencila/stencila/commit/227202bba0002de8c05fd75dd545ad6ee96ca593)), closes [#1213](https://github.com/stencila/stencila/issues/1213)
+* **Patches:** Serialization of value to JSON ([61523cb](https://github.com/stencila/stencila/commit/61523cb02ef83563b297dbf3f0bc92b31cf39091))
+
+
+### Features
+
+* **Editor:** Render CodeBlocks in a stencila-editor component ([e0aaf93](https://github.com/stencila/stencila/commit/e0aaf939a7822aa1283e225aad6fae6b4324d54f))
+* **Editor:** Support setting CodeBlock language with Markdown syntax ([152b680](https://github.com/stencila/stencila/commit/152b680db21f2fd37c59dc95115985c71d44cf29)), closes [#1211](https://github.com/stencila/stencila/issues/1211)
+
 # [0.121.0](https://github.com/stencila/stencila/compare/v0.120.1...v0.121.0) (2021-10-13)
 
 
