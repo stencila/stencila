@@ -9,8 +9,6 @@ import { dump, read, shutdown, write } from '@stencila/encoda'
 import {
   Article,
   article,
-  CreativeWork,
-  creativeWork,
   date,
   heading,
   imageObject,
@@ -41,7 +39,7 @@ if (module.parent === null)
   })
 
 /**
- * Generate the "gallery", an `Article` with a `List` of `CreativeWork` nodes,
+ * Generate the "gallery", an `Article` with a `List` of `Article` nodes,
  * one for each theme.
  *
  * Also outputs a JSON file that can be used by the demo page to provide for
@@ -65,7 +63,7 @@ async function generateGallery(): Promise<void> {
   const summaries = (
     await Promise.all(
       sortedThemes.map(
-        async (theme): Promise<[string, CreativeWork]> => [
+        async (theme): Promise<[string, Article]> => [
           theme,
           await generateSummary(
             theme,
@@ -76,7 +74,7 @@ async function generateGallery(): Promise<void> {
       )
     )
   ).reduce(
-    (prev: Record<string, CreativeWork>, [key, value]) => ({
+    (prev: Record<string, Article>, [key, value]) => ({
       ...prev,
       [key]: value,
     }),
@@ -110,8 +108,7 @@ async function generateGallery(): Promise<void> {
         items: Object.entries(summaries).map(([theme, summary]) => {
           return listItem({
             url: `?theme=${theme}`,
-            // @ts-ignore
-            content: [summary],
+            content: summary.content,
           })
         }),
       }),
@@ -128,14 +125,14 @@ async function generateGallery(): Promise<void> {
 }
 
 /**
- * Generate a `CreativeWork` for each theme based on it's README.md
+ * Generate a `Article` for each theme based on its README.md
  * file and adding a screenshot.
  */
 async function generateSummary(
   theme: string,
   url: string,
   example: Article
-): Promise<CreativeWork> {
+): Promise<Article> {
   // Read the README and use defaults for undefined properties
   const {
     authors = [],
@@ -143,7 +140,7 @@ async function generateSummary(
     description,
     content = [],
     ...rest
-  } = (await read(path.join(themesDir, theme, 'README.md'))) as CreativeWork
+  } = (await read(path.join(themesDir, theme, 'README.md'))) as Article
 
   // Generate a screenshot using the local build of the theme
   const screenshot = path.join(tmpdir(), 'screenshots', `${theme}.png`)
@@ -155,14 +152,18 @@ async function generateSummary(
   })
 
   // Make the creative work
-  return creativeWork({
+  return article({
     ...rest,
     publisher,
     // New content includes the screenshot
     content: [
-      link({
-        target: url,
-        content: [imageObject({ contentUrl: screenshot })],
+      paragraph({
+        content: [
+          link({
+            target: url,
+            content: [imageObject({ contentUrl: screenshot })],
+          }),
+        ],
       }),
       heading({ depth: 3, content: [theme] }),
       ...content,
