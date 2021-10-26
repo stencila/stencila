@@ -92,7 +92,7 @@ cargo test compile::code::r
 You should get faster compile times using this:
 
 ```sh
-cargo test --no-default-features --features=compile-code-r compile::code::r
+cargo test --no-default-features --features=compile-r compile::code::r
 ```
 
 This approach is particularly useful when using `cargo watch`, for example to run the encode-decode ("ende") roundtrip integration test for HTML only when any source file changes:

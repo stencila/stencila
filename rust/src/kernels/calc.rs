@@ -34,7 +34,7 @@ impl KernelTrait for CalcKernel {
         }
     }
 
-    async fn get(&self, name: &str) -> Result<Node> {
+    async fn get(&mut self, name: &str) -> Result<Node> {
         match self.symbols.get(name) {
             Some(number) => Ok(Node::Number(*number)),
             None => bail!("Symbol `{}` does not exist in this kernel", name),

@@ -13,13 +13,13 @@ use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::{hash_map::Entry, BTreeMap, HashMap};
 use stencila_schema::Node;
-use strum::ToString;
+use strum::Display;
 use validator::Contains;
 
 type KernelId = String;
 
 /// The status of a kernel
-#[derive(Debug, Clone, JsonSchema, Serialize, ToString)]
+#[derive(Debug, Clone, JsonSchema, Serialize, Display)]
 #[allow(dead_code)]
 pub enum KernelStatus {
     Pending,
@@ -60,7 +60,7 @@ pub trait KernelTrait {
     }
 
     /// Get a symbol from the kernel
-    async fn get(&self, name: &str) -> Result<Node>;
+    async fn get(&mut self, name: &str) -> Result<Node>;
 
     /// Set a symbol in the kernel
     async fn set(&mut self, name: &str, value: Node) -> Result<()>;
@@ -94,11 +94,11 @@ pub enum Kernel {
 
 impl Kernel {
     /// Get a list of available kernels
+    #[allow(clippy::vec_init_then_push)]
     pub async fn list() -> Result<Vec<String>> {
         let mut list: Vec<String> = Vec::new();
 
         #[cfg(feature = "kernels-calc")]
-        #[allow(clippy::vec_init_then_push)]
         list.push("calc".to_string());
 
         #[cfg(feature = "kernels-jupyter")]
@@ -170,6 +170,7 @@ struct KernelMap(BTreeMap<KernelId, Kernel>);
 
 impl KernelMap {
     /// Get a reference to a kernel
+    #[allow(dead_code)]
     fn get(&self, kernel_id: &str) -> Result<&Kernel> {
         (**self)
             .get(kernel_id)
@@ -221,13 +222,13 @@ impl KernelSpace {
     }
 
     /// Get a symbol from the kernel space
-    pub async fn get(&self, name: &str) -> Result<Node> {
+    pub async fn get(&mut self, name: &str) -> Result<Node> {
         let symbol_info = self
             .symbols
             .get(name)
             .ok_or_else(|| eyre!("Unknown symbol `{}`", name))?;
 
-        let kernel = self.kernels.get(&symbol_info.home)?;
+        let kernel = self.kernels.get_mut(&symbol_info.home)?;
         kernel.get(name).await
     }
 
@@ -308,7 +309,7 @@ impl KernelSpace {
                     kernel_id
                 );
 
-                let home_kernel = self.kernels.get(home)?;
+                let home_kernel = self.kernels.get_mut(home)?;
                 let value = home_kernel.get(name).await?;
 
                 let mirror_kernel = self.kernels.get_mut(&kernel_id)?;

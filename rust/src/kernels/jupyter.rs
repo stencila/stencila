@@ -437,7 +437,7 @@ impl KernelTrait for JupyterKernel {
                 JupyterMessage::new(JupyterMessageType::stream, json!({"name": "<init>"}));
             if let Err(error) = iopub_sender.send(init_message).await {
                 tracing::error!(
-                    "Unable to send IOPub init message for kernel `{}`: {}",
+                    "Unable to on-send IOPub init message for kernel `{}`: {}",
                     id,
                     error
                 )
@@ -448,18 +448,25 @@ impl KernelTrait for JupyterKernel {
                 match result {
                     Ok(message) => {
                         let msg_type = message.header.msg_type.clone();
+                        if matches!(msg_type, JupyterMessageType::error) {
+                            tracing::debug!(
+                                "IOPub error message from kernel `{}`: {:?}",
+                                id,
+                                message.content
+                            )
+                        }
                         if let Err(error) = iopub_sender.send(message).await {
                             tracing::error!(
-                                "Unable to send IOPub message for kernel `{}`: {}",
+                                "Unable to on-send IOPub message for kernel `{}`: {}",
                                 id,
                                 error
                             )
                         } else {
                             tracing::debug!(
-                                "Sent IOPub message from kernel `{}`: {:?}",
+                                "On-sent IOPub message from kernel `{}`: {:?}",
                                 id,
                                 msg_type
-                            );
+                            )
                         }
                     }
                     Err(error) => tracing::error!(
@@ -552,10 +559,20 @@ impl KernelTrait for JupyterKernel {
             monitor_task,
         });
 
+        let language = self.language(None)?;
+        if let Some(code) = startup(&language)? {
+            self.exec(&code).await?;
+        }
+
         Ok(())
     }
 
     async fn stop(&mut self) -> Result<()> {
+        let language = self.language(None)?;
+        if let Some(code) = shutdown(&language)? {
+            self.exec(&code).await?;
+        }
+
         if let Some(JupyterDetails {
             run_task,
             subscribe_task,
@@ -574,12 +591,36 @@ impl KernelTrait for JupyterKernel {
         self.status.read().await.clone()
     }
 
-    async fn get(&self, _name: &str) -> Result<Node> {
-        Ok(Node::String("TODO".to_string()))
+    async fn get(&mut self, name: &str) -> Result<Node> {
+        let language = self.language(None)?;
+        if let Some(code) = get(&language, name)? {
+            let json = self.exec(&code).await?;
+            if let Some(Node::String(json)) = json.first() {
+                let node = serde_json::from_str(json)?;
+                Ok(node)
+            } else {
+                bail!("While getting symbol from Jupyter kernel did not get JSON string")
+            }
+        } else {
+            bail!(
+                "Getting a symbol from a `{}` language kernel is not currently supported",
+                language
+            )
+        }
     }
 
-    async fn set(&mut self, _name: &str, _value: Node) -> Result<()> {
-        Ok(())
+    async fn set(&mut self, name: &str, value: Node) -> Result<()> {
+        let language = self.language(None)?;
+        let json = serde_json::to_string(&value)?;
+        if let Some(code) = set(&language, name, &json)? {
+            self.exec(&code).await?;
+            Ok(())
+        } else {
+            bail!(
+                "Setting a symbol in a `{}` language kernel is not currently supported",
+                language
+            )
+        }
     }
 
     async fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
@@ -613,11 +654,25 @@ impl KernelTrait for JupyterKernel {
                         // Some kernels use `execute_result`, others `display_data`, even
                         // for simple, text outputs
                         JupyterMessageType::execute_result | JupyterMessageType::display_data => {
-                            // TODO decode output
-                            outputs.push(Node::String(message.content.to_string()));
+                            // TODO decode output properly, this just gets the plain
+                            // text representation.
+                            let output = message
+                                .content
+                                .get("data")
+                                .and_then(|value| value.get("text/plain"))
+                                .unwrap()
+                                .as_str()
+                                .unwrap()
+                                .to_string();
+                            let output = Node::String(output);
+                            outputs.push(output);
                         }
                         JupyterMessageType::stream => {
                             // TODO accumulate stdout and stderr
+                        }
+                        JupyterMessageType::error => {
+                            // TODO: convert to a `CodeError`
+                            tracing::error!("{:?}", message.content.get("evalue"))
                         }
                         JupyterMessageType::status => {
                             match message
@@ -814,6 +869,8 @@ enum JupyterMessageType {
 /// The header of a Jupyter message
 ///
 /// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#message-header.
+/// Note that communication with some kernels may fail if one of more of these fields
+/// is missing.
 #[derive(Debug, Clone, Defaults, Deserialize, Serialize)]
 #[serde(default)]
 struct JupyterMessageHeader {
@@ -831,6 +888,11 @@ struct JupyterMessageHeader {
 
     /// A unique identifier for the kernel session
     session: String,
+
+    /// The name of the user
+    ///
+    /// We currently leave this blank but it is required by some kernels (e.g. `IJulia`)
+    username: String,
 
     /// ISO 8601 timestamp for when the message was created
     #[def = "chrono::Utc::now().to_rfc3339()"]
@@ -1047,4 +1109,49 @@ impl JupyterMessage {
             content,
         })
     }
+}
+
+/// Language specific code to be run at kernel startup
+fn startup(language: &str) -> Result<Option<String>> {
+    Ok(match language {
+        "python" => Some("import json".to_string()),
+        _ => None,
+    })
+}
+
+/// Language specific code to be run at kernel shutdown
+fn shutdown(_language: &str) -> Result<Option<String>> {
+    Ok(None)
+}
+
+/// Language specific code for getting a variable
+fn get(language: &str, name: &str) -> Result<Option<String>> {
+    Ok(match language {
+        "javascript" => Some(format!("JSON.stringify({})", name)),
+        "python" => Some(format!("json.dumps({})", name)),
+        "r" => Some(format!("jsonlite::toJSON({})", name)),
+        _ => None,
+    })
+}
+
+/// Language specific code for setting a variable
+fn set(language: &str, name: &str, json: &str) -> Result<Option<String>> {
+    Ok(match language {
+        "javascript" => Some(format!(
+            "let {} = JSON.parse(\"{}\")",
+            name,
+            json.replace("\"", "\\\"")
+        )),
+        "python" => Some(format!(
+            "{} = json.loads(\"{}\")",
+            name,
+            json.replace("\"", "\\\"")
+        )),
+        "r" => Some(format!(
+            "{} = jsonlite::fromJSON(\"{}\")",
+            name,
+            json.replace("\"", "\\\"")
+        )),
+        _ => None,
+    })
 }
