@@ -700,7 +700,7 @@ mod tests {
         let runtime = tokio::runtime::Runtime::new().unwrap();
         snapshot_fixtures("fragments/pandoc/*.json", |_path, content| {
             let json =
-                runtime.block_on(async { decode_fragment(&content, "pandoc", &[]).await.unwrap() });
+                runtime.block_on(async { decode_fragment(content, "pandoc", &[]).await.unwrap() });
             assert_json_snapshot!(json);
         });
     }

@@ -1028,14 +1028,14 @@ mod tests {
     #[test]
     fn md_articles() {
         snapshot_fixtures("articles/*.md", |_path, content| {
-            assert_json_snapshot!(decode(&content).expect("Unable to decode Markdown"));
+            assert_json_snapshot!(decode(content).expect("Unable to decode Markdown"));
         });
     }
 
     #[test]
     fn md_fragments() {
         snapshot_fixtures("fragments/md/*.md", |_path, content| {
-            assert_json_snapshot!(decode_fragment(&content, None));
+            assert_json_snapshot!(decode_fragment(content, None));
         });
     }
 }

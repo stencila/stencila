@@ -596,14 +596,14 @@ mod tests {
     #[test]
     fn html_articles() {
         snapshot_fixtures("articles/*.html", |_path, content| {
-            assert_json_snapshot!(decode(&content, false).expect("Unable to decode HTML"));
+            assert_json_snapshot!(decode(content, false).expect("Unable to decode HTML"));
         });
     }
 
     #[test]
     fn html_fragments() {
         snapshot_fixtures("fragments/html/*.html", |_path, content| {
-            assert_json_snapshot!(decode_fragment(&content, false));
+            assert_json_snapshot!(decode_fragment(content, false));
         });
     }
 }

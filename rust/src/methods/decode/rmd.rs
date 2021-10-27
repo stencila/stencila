@@ -87,14 +87,14 @@ mod tests {
     #[test]
     fn rmd_articles() {
         snapshot_fixtures("articles/*.Rmd", |_path, content| {
-            assert_json_snapshot!(decode(&content).unwrap());
+            assert_json_snapshot!(decode(content).unwrap());
         });
     }
 
     #[test]
     fn rmd_fragments() {
         snapshot_fixtures("fragments/rmd/*.Rmd", |_path, content| {
-            assert_json_snapshot!(decode(&content).unwrap());
+            assert_json_snapshot!(decode(content).unwrap());
         });
     }
 }

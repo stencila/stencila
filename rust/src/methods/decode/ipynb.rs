@@ -238,7 +238,7 @@ mod test {
     #[test]
     fn ipynb_articles() {
         snapshot_fixtures("articles/*.ipynb", |_path, content| {
-            assert_json_snapshot!(decode(&content).unwrap());
+            assert_json_snapshot!(decode(content).unwrap());
         });
     }
 }

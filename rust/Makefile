@@ -13,11 +13,12 @@ setup:
 	# Nightly is required to run `cargo udeps`
 	rustup toolchain install nightly
 
-format:
+fix:
 	cargo fmt
+	cargo clippy --tests --fix --allow-dirty
 
 lint:
-	cargo clippy
+	cargo clippy --tests
 
 test:
 	cargo test

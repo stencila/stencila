@@ -303,7 +303,7 @@ mod tests {
         use crate::methods::decode::html::decode;
 
         snapshot_fixtures("fragments/html/*.html", |_path, content| {
-            let decoded = decode(&content, false).unwrap();
+            let decoded = decode(content, false).unwrap();
             let encoded = encode(
                 &decoded,
                 Some(Options {

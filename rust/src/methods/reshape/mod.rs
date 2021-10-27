@@ -376,7 +376,7 @@ mod tests {
     #[test]
     fn reshape_yaml_articles() {
         snapshot_fixtures("articles/reshape-*.yaml", |_path, content| {
-            let mut article = yaml::decode(&content).expect("Unable to decode YAML");
+            let mut article = yaml::decode(content).expect("Unable to decode YAML");
             reshape(&mut article, Options::default()).expect("Unable to reshape");
             assert_json_snapshot!(article);
         });

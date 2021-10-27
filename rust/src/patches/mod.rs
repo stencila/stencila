@@ -1083,7 +1083,7 @@ mod tests {
             }]
         );
 
-        let mut patched = empty.clone();
+        let mut patched = empty;
         apply(&mut patched, &patch)?;
         assert_json_eq!(patched, a);
 
@@ -1108,7 +1108,7 @@ mod tests {
             }]
         );
 
-        let mut patched = a.clone();
+        let mut patched = a;
         apply(&mut patched, &patch)?;
         assert_json_eq!(patched, b);
 

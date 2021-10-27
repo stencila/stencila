@@ -272,7 +272,7 @@ mod test {
     #[test]
     fn ipynb_articles() {
         snapshot_fixtures("articles/*.ipynb", |_path, content| {
-            let decoded = decode(&content).unwrap();
+            let decoded = decode(content).unwrap();
             let encoded = encode(&decoded).unwrap();
             let json = serde_json::from_str::<serde_json::Value>(&encoded).unwrap();
             assert_json_snapshot!(json);

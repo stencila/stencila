@@ -125,13 +125,13 @@ mod tests {
 
     #[test]
     fn numbers() -> Result<()> {
-        assert!(equal(&3.14, &3.14));
-        assert!(!equal(&3.14, &1e6));
+        assert!(equal(&1.23, &1.23));
+        assert!(!equal(&1.23, &1e6));
 
-        assert_json!(diff(&3.14, &3.14).ops, []);
-        assert_json!(diff(&3.14, &1e6).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1e6, "length": 1}]);
+        assert_json!(diff(&1.23, &1.23).ops, []);
+        assert_json!(diff(&1.23, &1e6).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1e6, "length": 1}]);
 
-        assert_json!(apply_new(&1e6, &diff(&1e6, &3.14))?, 3.14);
+        assert_json!(apply_new(&1e6, &diff(&1e6, &1.23))?, 1.23);
 
         Ok(())
     }

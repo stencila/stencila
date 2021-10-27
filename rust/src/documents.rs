@@ -1802,13 +1802,13 @@ mod tests {
             .join("articles")
             .canonicalize()?;
 
-        for file in vec!["elife-small.json", "era-plotly.json"] {
+        for file in &["elife-small.json", "era-plotly.json"] {
             let doc = Document::open(fixtures.join(file), None).await?;
             assert!(doc.path.starts_with(fixtures));
             assert!(!doc.temporary);
             assert!(matches!(doc.status, DocumentStatus::Synced));
             assert_eq!(doc.format.name, "json");
-            assert!(doc.content.len() > 0);
+            assert!(!doc.content.is_empty());
             assert!(doc.root.is_some());
             assert_eq!(doc.subscriptions, hashmap! {});
         }
