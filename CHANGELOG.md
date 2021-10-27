@@ -1,3 +1,10 @@
+# [0.123.0](https://github.com/stencila/stencila/compare/v0.122.0...v0.123.0) (2021-10-27)
+
+
+### Features
+
+* **Editor:** Add basic WYSIWYG editor menu ([39dd2f9](https://github.com/stencila/stencila/commit/39dd2f91a44c75be3ffeb07da8e07e2d8e111483)), closes [#1200](https://github.com/stencila/stencila/issues/1200)
+
 # [0.122.0](https://github.com/stencila/stencila/compare/v0.121.0...v0.122.0) (2021-10-26)
 
 
