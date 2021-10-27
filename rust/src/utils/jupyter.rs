@@ -8,7 +8,6 @@ use crate::methods::{
     decode::{html, txt},
     transform::Transform,
 };
-use itertools::Itertools;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use stencila_schema::{CodeBlock, CodeError, ImageObject, Node};
@@ -103,34 +102,73 @@ pub fn translate_stderr(text: &serde_json::Value) -> Option<Node> {
     }))
 }
 
-/// Translate a cell error into a `CodeError`
-pub fn translate_error(error: &serde_json::Value) -> Option<Node> {
-    let error_message = error
-        .get("evalue")
-        .and_then(|value| value.as_str())
-        .map_or_else(|| "Unknown error".to_string(), |str| str.to_string());
+/// Language specific conversion of a `JupyterError` to a Stencila `CodeError`.
+///
+/// This function attempts to normalize error messages and stack traces
+/// across kernels and remove extraneous (and thereby distracting) content
+/// usually associated with running code in a kernel.
+///
+/// General approaches to normalization:
+///
+/// - remove lines in stack trace that are already in the error message
+/// - remove text in error message or in the stack trace related to running in
+///   a kernel
+pub fn translate_error(error: &serde_json::Value, language: &str) -> CodeError {
     let error_type = error
         .get("ename")
         .and_then(|value| value.as_str())
-        .map(|str| Box::new(str.to_string()));
-    let stack_trace = error
+        .unwrap_or_default()
+        .to_string();
+    let error_message = error
+        .get("evalue")
+        .and_then(|value| value.as_str())
+        .unwrap_or_else(|| "Unknown error")
+        .to_string();
+    let mut stack_trace: Vec<String> = error
         .get("traceback")
         .and_then(|value| value.as_array())
         .map(|vec| {
-            let trace = vec.iter().filter_map(|line| line.as_str()).join("\n");
-            let stripped = strip_ansi_escapes::strip(&trace).map_or_else(
-                |_| trace,
-                |bytes| String::from_utf8_lossy(&bytes).to_string(),
-            );
-            Box::new(stripped)
-        });
+            vec.iter()
+                .filter_map(|item| item.as_str().map(|str| str.to_string()))
+                .collect()
+        })
+        .unwrap_or_default();
 
-    Some(Node::CodeError(CodeError {
-        error_message,
+    // Remove unnecessary lines from stack trace
+    stack_trace.retain(|line| {
+        let line = line.trim();
+        !line.is_empty() && line != error_message && !line.starts_with("Traceback")
+    });
+
+    // Do language specific tidy ups
+    match language {
+        "python" => {
+            // Remove ANSI colour codes
+            stack_trace.iter_mut().for_each(|line| {
+                if let Ok(bytes) = strip_ansi_escapes::strip(line.clone()) {
+                    *line = String::from_utf8_lossy(&bytes).to_string();
+                }
+            });
+        }
+        _ => (),
+    };
+
+    let error_type = if error_type.to_lowercase() == "error" {
+        None
+    } else {
+        Some(Box::new(error_type))
+    };
+    let stack_trace = if stack_trace.is_empty() {
+        None
+    } else {
+        Some(Box::new(stack_trace.join("\n")))
+    };
+    CodeError {
         error_type,
+        error_message,
         stack_trace,
         ..Default::default()
-    }))
+    }
 }
 
 /// Translates a Jupyter `multiline_string` (either a plain string, or an array of strings)

@@ -1,7 +1,7 @@
 use super::{Kernel, KernelStatus, KernelTrait};
 use crate::{
     errors::incompatible_language,
-    utils::{keys, uuids},
+    utils::{jupyter::translate_error, keys, uuids},
 };
 use async_trait::async_trait;
 use defaults::Defaults;
@@ -12,7 +12,7 @@ use once_cell::sync::Lazy;
 use path_slash::PathBufExt;
 use reqwest::StatusCode;
 use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::json;
 use serde_with::skip_serializing_none;
 use sha2::Sha256;
@@ -573,18 +573,15 @@ impl JupyterKernel {
         // that it has).
         let request = JupyterMessage::kernel_info_request();
         request.send(&self.session, &hmac, &shell_socket)?;
-        let kernel_info = JupyterMessage::receive(&hmac, &shell_socket)?.content;
-        tracing::debug!(
-            "Got kernel info for kernel `{}`: {:#?}",
-            self.id,
-            kernel_info
-        );
+        let reply = JupyterMessage::receive(&hmac, &shell_socket)?;
+        tracing::debug!("Got kernel info for kernel `{}`: {:#?}", self.id, reply);
+        let kernel_info: JupyterKernelInfoReply = reply.content()?;
 
         // Set the language if its empty (e.g. connected to an already running kernel)
         if self.language.is_empty() {
             if let Some(language) = kernel_info
-                .get("language_info")
-                .and_then(|info| info.get("name"))
+                .language_info
+                .get("name")
                 .and_then(|name| name.as_str())
             {
                 self.language = language.to_string()
@@ -854,7 +851,7 @@ impl KernelTrait for JupyterKernel {
 
         // TODO: timeout on recv()?
         while let Some(message) = iopub_receiver.recv().await {
-            if let Some(parent_header) = message.parent_header {
+            if let Some(parent_header) = &message.parent_header {
                 if parent_header.msg_id == request.header.msg_id {
                     tracing::debug!(
                         "Handling IOPub message {:?}: {:#?}",
@@ -882,23 +879,22 @@ impl KernelTrait for JupyterKernel {
                             // TODO accumulate stdout and stderr
                         }
                         JupyterMessageType::error => {
-                            // TODO: convert to a `CodeError`
-                            tracing::error!("{:?}", message.content.get("evalue"))
+                            let error = translate_error(&message.content, &self.language);
+                            tracing::error!("{}", error.error_message)
                         }
                         JupyterMessageType::status => {
-                            match message
-                                .content
-                                .get("execution_state")
-                                .and_then(|value| value.as_str())
-                                .unwrap_or_default()
-                            {
+                            let status: JupyterStatus = message.content()?;
+                            match status.execution_state.as_str() {
+                                "starting" => {
+                                    *(self.status.write().await) = KernelStatus::Starting;
+                                }
+                                "busy" => {
+                                    *(self.status.write().await) = KernelStatus::Busy;
+                                }
                                 "idle" => {
                                     *(self.status.write().await) = KernelStatus::Idle;
                                     tracing::debug!("Received idle status");
                                     break;
-                                }
-                                "busy" => {
-                                    *(self.status.write().await) = KernelStatus::Busy;
                                 }
                                 _ => (),
                             }
@@ -1178,11 +1174,148 @@ impl JupyterMessageHeader {
     }
 }
 
+// Each message type has its own structure to the message `content`.
+// The following content type definitions implement some of those structures
+// on an as needed bases to reduce the need to use lots of `get("...")` calls
+// on `serde_json::Value` (the default content type). Note that,
+// for both convenience and robustness, `serde_json::Value` is still used for
+// some fields in these structs.
+//
+// Those definitions, including comments, are taken from
+// https://jupyter-client.readthedocs.io/en/stable/messaging.html.
+
+/// Content of a `kernel_info_reply` message
+///
+/// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#kernel-info
+#[derive(Debug, Defaults, Deserialize)]
+#[serde(default)]
+struct JupyterKernelInfoReply {
+    /// 'ok' if the request succeeded or 'error', with error information as in all other replies.
+    status: String,
+
+    /// Version of messaging protocol.
+    /// The first integer indicates major version.  It is incremented when
+    /// there is any backward incompatible change.
+    /// The second integer indicates minor version.  It is incremented when
+    /// there is any backward compatible change.
+    protocol_version: String,
+
+    /// The kernel implementation name
+    /// (e.g. 'ipython' for the IPython kernel)
+    implementation: String,
+
+    /// Implementation version number.
+    /// The version number of the kernel's implementation
+    /// (e.g. IPython.__version__ for the IPython kernel)
+    implementation_version: String,
+
+    /// Information about the language of code for the kernel
+    language_info: serde_json::Value,
+
+    /// A banner of information about the kernel,
+    /// which may be displayed in console environments.
+    banner: String,
+
+    /// A boolean flag which tells if the kernel supports debugging in the notebook.
+    /// Default is False
+    debugger: bool,
+
+    /// Optional: A list of dictionaries, each with keys 'text' and 'url'.
+    /// These will be displayed in the help menu in the notebook UI.
+    help_links: serde_json::Value,
+}
+
+/// Content of an `execute_request` message
+#[derive(Debug, Defaults, Serialize)]
+#[serde(default)]
+struct JupyterExecuteRequest {
+    // Source code to be executed by the kernel, one or more lines.
+    code: String,
+
+    // A boolean flag which, if True, signals the kernel to execute
+    // this code as quietly as possible.
+    // silent=True forces store_history to be False,
+    // and will *not*:
+    //   - broadcast output on the IOPUB channel
+    //   - have an execute_result
+    // The default is False.
+    #[def = "false"]
+    silent: bool,
+
+    // A boolean flag which, if True, signals the kernel to populate history
+    // The default is True if silent is False.  If silent is True, store_history
+    // is forced to be False.
+    #[def = "true"]
+    store_history: bool,
+
+    // A dict mapping names to expressions to be evaluated in the
+    // user's dict. The rich display-data representation of each will be evaluated after execution.
+    // See the display_data content for the structure of the representation data.
+    #[def = "json!({})"]
+    user_expressions: serde_json::Value,
+
+    // Some frontends do not support stdin requests.
+    // If this is true, code running in the kernel can prompt the user for input
+    // with an input_request message (see below). If it is false, the kernel
+    // should not send these messages.
+    #[def = "false"]
+    allow_stdin: bool,
+
+    // A boolean flag, which, if True, aborts the execution queue if an exception is encountered.
+    // If False, queued execute_requests will execute even if this request generates an exception.
+    #[def = "false"]
+    stop_on_error: bool,
+}
+
+/// Content of a `display_data` message
+#[derive(Debug, Defaults, Deserialize)]
+#[serde(default)]
+struct JupyterDisplayData {
+    /// The data dict contains key/value pairs, where the keys are MIME
+    /// types and the values are the raw data of the representation in that
+    /// format.
+    data: HashMap<String, serde_json::Value>,
+
+    /// Any metadata that describes the data
+    metadata: HashMap<String, serde_json::Value>,
+
+    /// Optional transient data introduced in 5.1. Information not to be
+    /// persisted to a notebook or other documents. Intended to live only
+    /// during a live kernel session.
+    transient: HashMap<String, serde_json::Value>,
+}
+
+/// Content of an `execute_result` message
+#[derive(Debug, Defaults, Deserialize)]
+#[serde(default)]
+struct JupyterExecuteResult {
+    // The counter for this execution is also provided so that clients can
+    // display it, since IPython automatically creates variables called _N
+    // (for prompt N).
+    execution_count: u32,
+
+    // `data` and `metadata` are identical to a display_data message.
+    // the object being displayed is that passed to the display hook,
+    // i.e. the *result* of the execution.
+    data: HashMap<String, serde_json::Value>,
+    metadata: HashMap<String, serde_json::Value>,
+}
+
+/// Content of a `status` message
+#[derive(Debug, Defaults, Deserialize)]
+#[serde(default)]
+struct JupyterStatus {
+    /// When the kernel starts to handle a message, it will enter the 'busy'
+    /// state and when it finishes, it will enter the 'idle' state.
+    /// The kernel will publish state 'starting' exactly once at process startup.
+    execution_state: String,
+}
+
 /// A Jupyter message
 ///
 /// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#general-message-format.
 /// Some of the below documentation is copied from there.
-#[derive(Debug, Clone, Defaults, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct JupyterMessage {
     /// ZeroMQ socket identities
     identities: Vec<String>,
@@ -1224,13 +1357,13 @@ const DELIMITER: &[u8] = b"<IDS|MSG>";
 /// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#the-wire-protocol
 impl JupyterMessage {
     /// Create a new message
-    fn new(msg_type: JupyterMessageType, content: serde_json::Value) -> Self {
+    fn new<Content: Serialize>(msg_type: JupyterMessageType, content: Content) -> Self {
         Self {
             identities: Vec::new(),
             header: JupyterMessageHeader::new(msg_type),
             parent_header: None,
             metadata: json!({}),
-            content,
+            content: serde_json::to_value(content).expect("Unable to serialize to a value"),
         }
     }
 
@@ -1242,45 +1375,13 @@ impl JupyterMessage {
     }
 
     /// Create an `execute_request` message
-    ///
-    /// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#execute
-    /// Document below copied from there.
     fn execute_request(code: &str) -> Self {
         Self::new(
             JupyterMessageType::execute_request,
-            json!({
-               // Source code to be executed by the kernel, one or more lines.
-               "code": code,
-
-               // A boolean flag which, if True, signals the kernel to execute
-               // this code as quietly as possible.
-               // silent=True forces store_history to be False,
-               // and will *not*:
-               //   - broadcast output on the IOPUB channel
-               //   - have an execute_result
-               // The default is False.
-               "silent" : false,
-
-               // A boolean flag which, if True, signals the kernel to populate history
-               // The default is True if silent is False.  If silent is True, store_history
-               // is forced to be False.
-               "store_history" : false,
-
-               // A dict mapping names to expressions to be evaluated in the
-               // user's dict. The rich display-data representation of each will be evaluated after execution.
-               // See the display_data content for the structure of the representation data.
-               "user_expressions" : json!({}),
-
-               // Some frontends do not support stdin requests.
-               // If this is true, code running in the kernel can prompt the user for input
-               // with an input_request message (see below). If it is false, the kernel
-               // should not send these messages.
-               "allow_stdin" : true,
-
-               // A boolean flag, which, if True, aborts the execution queue if an exception is encountered.
-               // If False, queued execute_requests will execute even if this request generates an exception.
-               "stop_on_error" : true,
-            }),
+            JupyterExecuteRequest {
+                code: code.to_string(),
+                ..Default::default()
+            },
         )
     }
 
@@ -1377,6 +1478,12 @@ impl JupyterMessage {
             metadata,
             content,
         })
+    }
+
+    /// Get the content of a message as a particular type
+    fn content<Content: DeserializeOwned>(self) -> Result<Content> {
+        let content = serde_json::from_value(self.content)?;
+        Ok(content)
     }
 }
 

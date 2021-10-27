@@ -156,7 +156,7 @@ fn translate_code_cell(cell: &serde_json::Value, notebook_lang: &str) -> Vec<Blo
 
     if let Some(cell_outputs) = cell.get("outputs").and_then(|value| value.as_array()) {
         for output in cell_outputs {
-            match translate_output(output) {
+            match translate_output(output, &programming_language) {
                 Some(Node::CodeError(error)) => errors.push(error),
                 Some(node) => outputs.push(node),
                 None => (),
@@ -187,7 +187,7 @@ fn translate_code_cell(cell: &serde_json::Value, notebook_lang: &str) -> Vec<Blo
 }
 
 /// Translate a cell output
-fn translate_output(output: &serde_json::Value) -> Option<Node> {
+fn translate_output(output: &serde_json::Value, language: &str) -> Option<Node> {
     let output_type = output
         .get("output_type")
         .and_then(|value| value.as_str())
@@ -202,7 +202,7 @@ fn translate_output(output: &serde_json::Value) -> Option<Node> {
                 _ => text.and_then(translate_text),
             }
         }
-        "error" => translate_error(output),
+        "error" => Some(Node::CodeError(translate_error(output, language))),
         _ => {
             tracing::warn!("Unhandled output type: {}", output_type);
             None
