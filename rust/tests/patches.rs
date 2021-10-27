@@ -16,7 +16,7 @@ macro_rules! assert_json_eq {
         pretty_assertions::assert_eq!(
             serde_json::to_value(&$expr1).unwrap(),
             serde_json::to_value(&$expr2).unwrap()
-        );
+        )
     };
 }
 

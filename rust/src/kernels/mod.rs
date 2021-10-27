@@ -554,14 +554,14 @@ pub mod cli {
     /// Use the `--lang` option to specify which language the code should be executed
     /// in e.g.,
     ///
-    ///     > kernels execute Math.PI --lang=javascript
+    /// > kernels execute Math.PI --lang=javascript
     ///
     /// In interactive mode, you can set the command prefix to "stay" in a particular
     /// language and mimic a REPL in that language e.g.,
     ///
-    ///     > >> kernels execute --lang=javascript
-    ///     > let r = 10
-    ///     > 2 * Math.PI * r
+    /// > >> kernels execute --lang=javascript
+    /// > let r = 10
+    /// > 2 * Math.PI * r
     ///
     /// If a kernel is not yet running for the language then one will be started
     /// (if installed on the machine).
@@ -597,7 +597,7 @@ pub mod cli {
     /// Mainly intended for testing that a Jupyter kernel can be
     /// started successfully e.g.,
     ///
-    ///     > kernels start python
+    /// > kernels start python
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
@@ -645,16 +645,16 @@ pub mod cli {
     ///
     /// To get a list of externally started kernels that can be connected to run,
     ///
-    ///     > kernels running
+    /// > kernels running
     ///
     /// and then connect to a kernel using its Jupyter id e.g.,
     ///
-    ///     > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
+    /// > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
     ///
     /// Alternatively, use the path (relative or absolute) of the Jupyter notebook
     /// whose (already started) kernel you wish to connect to e.g.,
     ///
-    ///     > kernels connect ../main.ipynb
+    /// > kernels connect ../main.ipynb
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
@@ -678,15 +678,15 @@ pub mod cli {
     /// Mainly intended for interactive mode testing / inspection. Note that
     /// for a kernel to be in this list it must have either been started by Stencila,
     ///
-    ///     > kernels start r
+    /// > kernels start r
     ///
     /// or connected to from Stencila,
     ///  
-    ///     > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
+    /// > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
     ///
     /// To get a list of externally started kernels that can be connected to run,
     ///
-    ///     > kernels running
+    /// > kernels running
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp

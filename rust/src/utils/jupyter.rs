@@ -122,7 +122,7 @@ pub fn translate_error(error: &serde_json::Value, language: &str) -> CodeError {
     let error_message = error
         .get("evalue")
         .and_then(|value| value.as_str())
-        .unwrap_or_else(|| "Unknown error")
+        .unwrap_or("Unknown error")
         .to_string();
     let mut stack_trace: Vec<String> = error
         .get("traceback")
@@ -141,17 +141,14 @@ pub fn translate_error(error: &serde_json::Value, language: &str) -> CodeError {
     });
 
     // Do language specific tidy ups
-    match language {
-        "python" => {
-            // Remove ANSI colour codes
-            stack_trace.iter_mut().for_each(|line| {
-                if let Ok(bytes) = strip_ansi_escapes::strip(line.clone()) {
-                    *line = String::from_utf8_lossy(&bytes).to_string();
-                }
-            });
-        }
-        _ => (),
-    };
+    if language == "python" {
+        // Remove ANSI colour codes
+        stack_trace.iter_mut().for_each(|line| {
+            if let Ok(bytes) = strip_ansi_escapes::strip(line.clone()) {
+                *line = String::from_utf8_lossy(&bytes).to_string();
+            }
+        });
+    }
 
     let error_type = if error_type.to_lowercase() == "error" {
         None

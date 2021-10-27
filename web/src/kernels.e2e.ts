@@ -1,5 +1,5 @@
 import { Client, connect, disconnect } from './client'
-import { list } from './kernels'
+import { available } from './kernels'
 
 jest.setTimeout(10000)
 
@@ -16,6 +16,6 @@ afterAll(() => {
 })
 
 test('basic', async () => {
-  const kernels = await list(client, 'sessionId')
+  const kernels = await available(client, 'sessionId')
   expect(kernels).toEqual(expect.arrayContaining(['calc']))
 })

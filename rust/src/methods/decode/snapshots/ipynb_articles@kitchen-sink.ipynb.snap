@@ -344,7 +344,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
           "type": "CodeError",
           "errorMessage": "invalid syntax (781833322.py, line 1)",
           "errorType": "SyntaxError",
-          "stackTrace": "  File \"/tmp/ipykernel_17412/781833322.py\", line 1\n    // JavaScript\n    ^\nSyntaxError: invalid syntax\n"
+          "stackTrace": "\u001b[0;36m  File \u001b[0;32m\"/tmp/ipykernel_17412/781833322.py\"\u001b[0;36m, line \u001b[0;32m1\u001b[0m\n\u001b[0;31m    // JavaScript\u001b[0m\n\u001b[0m    ^\u001b[0m\n\u001b[0;31mSyntaxError\u001b[0m\u001b[0;31m:\u001b[0m invalid syntax\n"
         }
       ]
     },
