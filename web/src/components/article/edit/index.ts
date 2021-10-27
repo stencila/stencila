@@ -20,10 +20,24 @@ import { articleSchema } from './schema'
 // Import ProseMirror's `EditorView` styles for correct whitespace handling etc
 import 'prosemirror-view/style/prosemirror.css'
 import { CodeBlockView } from './components/codeBlockView'
+import { editorMenuPlugin } from './menu'
 
 // The following interfaces were necessary because the way they are defined
 // in @types/prosemirror-transform (as classes with only constructors) does
 // not seem to permit typed access to properties
+
+// TODO: Remove once Designa is updated to allow setting icons which don't have `line` fill variant
+window.addEventListener('appload', () => {
+  document
+    .querySelector('.menubar')
+    ?.querySelectorAll('stencila-button stencila-icon svg use')
+    .forEach((el) => {
+      const currentHref = el.getAttribute('href')
+      if (currentHref !== null) {
+        el.setAttribute('href', currentHref.replace('-line', ''))
+      }
+    })
+})
 
 interface ReplaceStepInterface extends Step {
   from: number
@@ -110,6 +124,7 @@ export class Article extends StencilaElement {
         dropCursor({ class: 'drop-cursor' }),
         // Plugin that provides "a block-level cursor that can be used to focus places that don't allow regular selection"
         gapCursor(),
+        editorMenuPlugin,
       ],
     })
 

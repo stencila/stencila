@@ -57,18 +57,6 @@
     "@stencila/dev-config": "2.0.19",
     "@stencila/schema": "1.11.1",
     "@types/jest": "27.0.1",
-    "@types/lodash.isequal": "^4.5.5",
-    "jest": "27.1.0",
-    "parcel": "2.0.0-rc.0",
-    "ts-jest": "27.0.5",
-    "typescript": "4.4.2"
-  },
-  "peerDependencies": {
-    "@stencila/schema": "^1.11.1"
-  },
-  "dependencies": {
-    "@stencila/components": "^0.41.6",
-    "@stencila/stencila": "file:../node",
     "@types/prosemirror-collab": "^1.1.2",
     "@types/prosemirror-commands": "^1.0.4",
     "@types/prosemirror-dropcursor": "^1.0.3",
@@ -82,6 +70,17 @@
     "@types/prosemirror-tables": "^0.9.1",
     "@types/prosemirror-transform": "^1.1.4",
     "@types/prosemirror-view": "^1.19.1",
+    "jest": "27.1.0",
+    "parcel": "2.0.0-rc.0",
+    "ts-jest": "27.0.5",
+    "typescript": "4.4.2"
+  },
+  "peerDependencies": {
+    "@stencila/schema": "^1.11.1"
+  },
+  "dependencies": {
+    "@stencila/components": "^0.41.6",
+    "@stencila/stencila": "file:../node",
     "fast-array-diff": "^1.0.1",
     "fast-deep-equal": "^3.1.3",
     "grapheme-splitter": "^1.0.4",
