@@ -9,6 +9,8 @@ use derivative::Derivative;
 use eyre::{bail, eyre, Result};
 use hmac::{Hmac, NewMac};
 use once_cell::sync::Lazy;
+use path_slash::PathBufExt;
+use reqwest::StatusCode;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -17,7 +19,7 @@ use sha2::Sha256;
 use std::{
     collections::HashMap,
     env,
-    fs::{self, OpenOptions},
+    fs::{self, File, OpenOptions},
     io::Write,
     path::{Path, PathBuf},
     process::Stdio,
@@ -30,6 +32,69 @@ use tokio::{
     task::JoinHandle,
 };
 use zmq::Socket;
+
+/// A Jupyter server
+///
+/// Used to access information about currently running kernels so that they
+/// can be associated with notebook files and connected to if necessary.
+#[skip_serializing_none]
+#[derive(Debug, Defaults, JsonSchema, Deserialize, Serialize)]
+#[serde(default)]
+#[schemars(deny_unknown_fields)]
+pub struct JupyterServer {
+    base_url: String,
+    hostname: String,
+    notebook_dir: PathBuf,
+    password: bool,
+    pid: u32,
+    port: u32,
+    secure: bool,
+    sock: String,
+    token: String,
+    url: String,
+}
+
+impl JupyterServer {
+    /// Get a list of running Jupyter servers
+    ///
+    /// Scans the Jupyter runtime directory for `nbserver-*.json` files and
+    /// checks that they are running by requesting from the URL with the token.
+    /// This avoids issues with "zombie" `nbserver-*.json` files.
+    pub async fn running() -> Result<HashMap<String, JupyterServer>> {
+        let pattern = JupyterKernel::data_dir()
+            .join("runtime")
+            .join("nbserver-*.json")
+            .to_slash_lossy();
+
+        let files = glob::glob(&pattern)?.flatten();
+
+        let client = reqwest::Client::new();
+
+        let mut map = HashMap::new();
+        for entry in files {
+            let json = fs::read_to_string(entry)?;
+            let server: JupyterServer = serde_json::from_str(&json)?;
+
+            let url = format!("{}api/status?token={}", server.url, server.token);
+            match client.get(url).send().await {
+                Ok(response) => {
+                    if response.status() == StatusCode::FORBIDDEN {
+                        tracing::debug!("Unable to authenticate with Jupyter server; skipping");
+                        continue;
+                    }
+                }
+                Err(..) => {
+                    tracing::debug!("Unable to send request to Jupyter server; skipping");
+                    continue;
+                }
+            };
+
+            map.insert(server.url.clone(), server);
+        }
+
+        Ok(map)
+    }
+}
 
 /// A Jupyter kernel
 ///
@@ -117,7 +182,9 @@ pub struct JupyterKernel {
 #[derivative(Debug)]
 struct JupyterDetails {
     /// The system id of the kernel process
-    pid: u32,
+    ///
+    /// Will be `None` if the kernel was started externally.
+    pid: Option<u32>,
 
     /// The HMAC used when signing messages
     ///
@@ -132,7 +199,9 @@ struct JupyterDetails {
     iopub_receiver: mpsc::Receiver<JupyterMessage>,
 
     /// The async task that runs the kernel
-    run_task: JoinHandle<()>,
+    ///
+    /// Will be `None` if the kernel was started externally.
+    run_task: Option<JoinHandle<()>>,
 
     /// The async task that subscribes to messages from the kernel
     subscribe_task: JoinHandle<()>,
@@ -169,7 +238,7 @@ impl Clone for JupyterKernel {
 
 impl JupyterKernel {
     /// Get a list of Jupyter kernels available in the current environment
-    pub async fn list() -> Result<Vec<String>> {
+    pub async fn available() -> Result<Vec<String>> {
         let mut list = Vec::new();
 
         for dir in JupyterKernel::data_dirs() {
@@ -191,12 +260,113 @@ impl JupyterKernel {
         Ok(list)
     }
 
-    /// Create a `JupyterKernel` variant.
+    /// Get a list of Jupyter kernels that are currently running
+    ///
+    /// Generating a kernel list could be done by scanning the disk for kernel connection files instead.
+    /// However, to be able to associate each kernel with a `ipynb` file (and generate the
+    /// kernel's `notebook` field) we need to access the Jupyter Server API .
+    pub async fn running() -> Result<HashMap<String, serde_json::Value>> {
+        let mut map: HashMap<String, serde_json::Value> = HashMap::new();
+
+        let client = reqwest::Client::new();
+        for (url, server) in JupyterServer::running().await? {
+            // Get the list of sessions (which allow association of notebooks and kernels)
+            let url = format!("{}api/sessions?token={}", url, server.token);
+            let response = match client.get(url).send().await {
+                Ok(response) => response,
+                Err(error) => {
+                    tracing::debug!(
+                        "Unable to send request to Jupyter server; it is probably not running: {}",
+                        error
+                    );
+                    continue;
+                }
+            };
+            let response = match response.error_for_status() {
+                Ok(response) => response,
+                Err(error) => bail!(error),
+            };
+            let json = response.text().await?;
+
+            let sessions: Vec<serde_json::Value> = serde_json::from_str(&json)?;
+            for session in sessions.into_iter() {
+                if let Some(kernel) = session.get("kernel") {
+                    let mut kernel = kernel.clone();
+                    let id = kernel
+                        .get("id")
+                        .and_then(|id| id.as_str())
+                        .unwrap_or_default()
+                        .to_string();
+                    if let Some(notebook) = session.get("notebook").and_then(|nb| nb.get("path")) {
+                        if let Ok(notebook) = server
+                            .notebook_dir
+                            .join(notebook.as_str().unwrap_or_default())
+                            .canonicalize()
+                            .map(|path| path.to_slash_lossy())
+                        {
+                            kernel["notebook"] = serde_json::to_value(notebook)?;
+                        }
+                    }
+                    map.insert(id, kernel);
+                }
+            }
+        }
+
+        Ok(map)
+    }
+
+    /// Create a `JupyterKernel`.
     pub async fn create(id: &str, language: &str) -> Result<Kernel> {
         let mut kernel = JupyterKernel::find(language).await?;
         kernel.id = id.to_string();
 
         Ok(Kernel::Jupyter(kernel))
+    }
+
+    /// Connect to a running kernel
+    ///
+    /// Gets a list of running kernels (see `running()`) and matches the `id_or_path` against
+    /// the kernel's id or path.
+    pub async fn connect(id_or_path: &str) -> Result<(String, Kernel)> {
+        // Attempt to resolve the `id_or_path` into an `id`.
+        let running = JupyterKernel::running().await?;
+        let id = (|| {
+            if let Ok(path) = PathBuf::from(id_or_path).canonicalize() {
+                // Path of a file was passed so see if it is matched
+                let path = path.to_slash_lossy();
+                for (id, kernel) in running {
+                    if kernel
+                        .get("notebook")
+                        .and_then(|nb| nb.as_str())
+                        .unwrap_or_default()
+                        == path
+                    {
+                        return Ok(id);
+                    }
+                }
+                bail!("Unable to find running kernel for notebook file `{}`. Perhaps you need to start one?", path)
+            } else {
+                // Assume that an id was passed; check that it is running
+                for id in running.keys() {
+                    if id_or_path == id {
+                        return Ok(id.to_string());
+                    }
+                }
+                bail!(
+                    "Unable to find a running kernel with an id matching `{}`",
+                    id_or_path
+                )
+            };
+        })()?;
+
+        // Use the id to read the connection file
+        let connection = JupyterConnection::read_file(&id)?;
+
+        // Create a new kernel instance with the connection and initialize it
+        let mut kernel = Self::default();
+        kernel.initialize(connection, None, None).await?;
+
+        Ok((id, Kernel::Jupyter(kernel)))
     }
 
     /// Find a `JupyterKernel` for the given language.
@@ -253,6 +423,202 @@ impl JupyterKernel {
             "Unable to find a Jupyter kernel for language `{}`; perhaps you need to install one?",
             language
         )
+    }
+
+    /// Initialize the kernel
+    ///
+    /// - Establishes the necessary socket connections and monitoring tasks for the kernel.
+    /// - Gets the kernel info (e.g. language, which if not started by Stencila will otherwise be unavailable)
+    /// - Runs any startup code for the language needed to interact with the kernel from Stencila
+    async fn initialize(
+        &mut self,
+        connection: JupyterConnection,
+        pid: Option<u32>,
+        run_task: Option<JoinHandle<()>>,
+    ) -> Result<()> {
+        let ctx = zmq::Context::new();
+
+        // Generate HMAC template
+        let hmac =
+            HmacSha256::new_from_slice(connection.key.as_bytes()).expect("Unable to generate HMAC");
+
+        // Create the shell socket
+        let shell_socket = ctx.socket(zmq::REQ)?;
+        shell_socket.connect(&connection.shell_url())?;
+
+        // Create the channel that IOPub messages get sent on
+        let (iopub_sender, mut iopub_receiver) = mpsc::channel(100);
+
+        // Spawn a task to listen to IOPub messages from the kernel and publish
+        // them on a Rust channel so that `exec()` and other methods can listen for
+        // them.
+        let id = self.id.clone();
+        let status = self.status.clone();
+        let url = connection.iopub_url();
+        let hmac_clone = hmac.clone();
+        let subscribe_task = tokio::spawn(async move {
+            let socket = ctx.socket(zmq::SUB).expect("Unable to create IOPub socket");
+
+            let result = socket
+                .connect(&url)
+                .and_then(|_| socket.set_subscribe("".as_bytes()));
+            if let Err(error) = result {
+                tracing::error!(
+                    "When connecting or subscribing to IOPub socket for kernel `{}`: {}",
+                    id,
+                    error
+                );
+                *(status.write().await) = KernelStatus::Unresponsive;
+                return;
+            }
+
+            // Send an initial "fake" message to signal that this thread is ready to start receiving
+            let init_message =
+                JupyterMessage::new(JupyterMessageType::stream, json!({"name": "<init>"}));
+            if let Err(error) = iopub_sender.send(init_message).await {
+                tracing::error!(
+                    "Unable to on-send IOPub init message for kernel `{}`: {}",
+                    id,
+                    error
+                )
+            }
+
+            loop {
+                let result = JupyterMessage::receive(&hmac_clone.clone(), &socket);
+                match result {
+                    Ok(message) => {
+                        let msg_type = message.header.msg_type.clone();
+                        if matches!(msg_type, JupyterMessageType::error) {
+                            tracing::debug!(
+                                "IOPub error message from kernel `{}`: {:?}",
+                                id,
+                                message.content
+                            )
+                        }
+                        if let Err(error) = iopub_sender.send(message).await {
+                            tracing::error!(
+                                "Unable to on-send IOPub message for kernel `{}`: {}",
+                                id,
+                                error
+                            )
+                        } else {
+                            tracing::debug!(
+                                "On-sent IOPub message from kernel `{}`: {:?}",
+                                id,
+                                msg_type
+                            )
+                        }
+                    }
+                    Err(error) => tracing::error!(
+                        "When receiving on IOPub socket for kernel `{}`: {}",
+                        id,
+                        error
+                    ),
+                }
+            }
+        });
+
+        // Spawn a task to monitor the kernel
+        let id = self.id.clone();
+        let status = self.status.clone();
+        let url = connection.heartbeat_url();
+        let monitor_task = tokio::spawn(async move {
+            let ctx = zmq::Context::new();
+            let socket = ctx
+                .socket(zmq::REQ)
+                .expect("Unable to create heartbeat socket");
+
+            let result = socket.connect(&url);
+            if let Err(error) = result {
+                tracing::error!(
+                    "When connecting to heartbeat socket for kernel `{}`: {}",
+                    id,
+                    error
+                );
+                *(status.write().await) = KernelStatus::Unresponsive;
+                return;
+            }
+
+            loop {
+                let result = socket.send("", 0).and_then(|_| socket.recv_msg(0));
+                if let Err(error) = result {
+                    tracing::error!("When checking for heartbeat for kernel `{}`: {}", id, error);
+                    *(status.write().await) = KernelStatus::Unresponsive;
+                    return;
+                } else {
+                    tracing::debug!("Got heartbeat reply from kernel `{}`", id)
+                }
+                sleep(Duration::from_secs(30)).await;
+            }
+        });
+
+        // Wait for IOPub init message from the `subscribe_task`. This needs to be done before any `execute_request`
+        // messages are sent to ensure that we are already listening for results.
+        while let Some(message) = iopub_receiver.recv().await {
+            if matches!(message.header.msg_type, JupyterMessageType::stream)
+                && message
+                    .content
+                    .get("name")
+                    .and_then(|value| value.as_str())
+                    .unwrap_or_default()
+                    == "<init>"
+            {
+                tracing::debug!("Got IOPub init message for kernel `{}`", self.id);
+                break;
+            }
+        }
+
+        // Get the kernel info. Apart from getting the info this seems to be necessary before
+        // sending an `execute_request` to give time for the kernel to "get started" (and confirm
+        // that it has).
+        let request = JupyterMessage::kernel_info_request();
+        request.send(&self.session, &hmac, &shell_socket)?;
+        let kernel_info = JupyterMessage::receive(&hmac, &shell_socket)?.content;
+        tracing::debug!(
+            "Got kernel info for kernel `{}`: {:#?}",
+            self.id,
+            kernel_info
+        );
+
+        // Set the language if its empty (e.g. connected to an already running kernel)
+        if self.language.is_empty() {
+            if let Some(language) = kernel_info
+                .get("language_info")
+                .and_then(|info| info.get("name"))
+                .and_then(|name| name.as_str())
+            {
+                self.language = language.to_string()
+            }
+        }
+
+        // Despite the above checks, for some kernels (e.g Python and Javascript), it seems
+        // necessary to wait for a little before making an execution request to avoid it
+        // hanging waiting for IOPub messages
+        use tokio::time::{sleep, Duration};
+        sleep(Duration::from_millis(100)).await;
+
+        // Update status
+        *(self.status.write().await) = KernelStatus::Idle;
+
+        // Store details
+        self.connection = Some(connection);
+        self.details = Some(JupyterDetails {
+            hmac,
+            pid,
+            shell_socket: Arc::new(Mutex::new(shell_socket)),
+            iopub_receiver,
+            run_task,
+            subscribe_task,
+            monitor_task,
+        });
+
+        // Run any startup code
+        let language = self.language(None)?;
+        if let Some(code) = startup(&language)? {
+            self.exec(&code).await?;
+        }
+
+        Ok(())
     }
 
     /// Get *the* Jupyter data directory.
@@ -349,9 +715,6 @@ impl KernelTrait for JupyterKernel {
         let connection = JupyterConnection::new(&self.id);
         connection.write_file()?;
 
-        let hmac =
-            HmacSha256::new_from_slice(connection.key.as_bytes()).expect("Unable to generate HMAC");
-
         let args: Vec<String> = self
             .argv
             .iter()
@@ -402,174 +765,8 @@ impl KernelTrait for JupyterKernel {
             }
         });
 
-        let ctx = zmq::Context::new();
-
-        // Create the shell socket
-        let shell_socket = ctx.socket(zmq::REQ)?;
-        shell_socket.connect(&connection.shell_url())?;
-
-        // Create the channel that IOPub messages get sent on
-        let (iopub_sender, mut iopub_receiver) = mpsc::channel(100);
-
-        // Spawn a task to listen to IOPub messages from the kernel and publish
-        // them on a Rust channel so that `exec()` and other methods can listen for
-        // them.
-        let id = self.id.clone();
-        let status = self.status.clone();
-        let url = connection.iopub_url();
-        let hmac_clone = hmac.clone();
-        let subscribe_task = tokio::spawn(async move {
-            let socket = ctx.socket(zmq::SUB).expect("Unable to create IOPub socket");
-
-            let result = socket
-                .connect(&url)
-                .and_then(|_| socket.set_subscribe("".as_bytes()));
-            if let Err(error) = result {
-                tracing::error!(
-                    "When connecting or subscribing to IOPub socket for kernel `{}`: {}",
-                    id,
-                    error
-                );
-                *(status.write().await) = KernelStatus::Unresponsive;
-                return;
-            }
-
-            // Send an initial "fake" message to signal that this thread is ready to start receiving
-            let init_message =
-                JupyterMessage::new(JupyterMessageType::stream, json!({"name": "<init>"}));
-            if let Err(error) = iopub_sender.send(init_message).await {
-                tracing::error!(
-                    "Unable to on-send IOPub init message for kernel `{}`: {}",
-                    id,
-                    error
-                )
-            }
-
-            loop {
-                let result = JupyterMessage::receive(&hmac_clone.clone(), &socket);
-                match result {
-                    Ok(message) => {
-                        let msg_type = message.header.msg_type.clone();
-                        if matches!(msg_type, JupyterMessageType::error) {
-                            tracing::debug!(
-                                "IOPub error message from kernel `{}`: {:?}",
-                                id,
-                                message.content
-                            )
-                        }
-                        if let Err(error) = iopub_sender.send(message).await {
-                            tracing::error!(
-                                "Unable to on-send IOPub message for kernel `{}`: {}",
-                                id,
-                                error
-                            )
-                        } else {
-                            tracing::debug!(
-                                "On-sent IOPub message from kernel `{}`: {:?}",
-                                id,
-                                msg_type
-                            )
-                        }
-                    }
-                    Err(error) => tracing::error!(
-                        "When receiving on IOPub socket for kernel `{}`: {}",
-                        id,
-                        error
-                    ),
-                }
-            }
-        });
-
-        // Spawn a task to monitor the kernel
-        let id = self.id.clone();
-        let status = self.status.clone();
-        let url = connection.heartbeat_url();
-        let monitor_task = tokio::spawn(async move {
-            use tokio::time::{sleep, Duration};
-
-            let ctx = zmq::Context::new();
-            let socket = ctx
-                .socket(zmq::REQ)
-                .expect("Unable to create heartbeat socket");
-
-            let result = socket.connect(&url);
-            if let Err(error) = result {
-                tracing::error!(
-                    "When connecting to heartbeat socket for kernel `{}`: {}",
-                    id,
-                    error
-                );
-                *(status.write().await) = KernelStatus::Unresponsive;
-                return;
-            }
-
-            loop {
-                let result = socket.send("", 0).and_then(|_| socket.recv_msg(0));
-                if let Err(error) = result {
-                    tracing::error!("When checking for heartbeat for kernel `{}`: {}", id, error);
-                    *(status.write().await) = KernelStatus::Unresponsive;
-                    return;
-                } else {
-                    tracing::debug!("Got heartbeat reply from kernel `{}`", id)
-                }
-                sleep(Duration::from_secs(30)).await;
-            }
-        });
-
-        // Wait for IOPub init message from the `subscribe_task`. This needs to be done before any `execute_request`
-        // messages are sent to ensure that we are already listening for results.
-        while let Some(message) = iopub_receiver.recv().await {
-            if matches!(message.header.msg_type, JupyterMessageType::stream)
-                && message
-                    .content
-                    .get("name")
-                    .and_then(|value| value.as_str())
-                    .unwrap_or_default()
-                    == "<init>"
-            {
-                tracing::debug!("Got IOPub init message for kernel `{}`", self.id);
-                break;
-            }
-        }
-
-        // Get the kernel info. Apart from getting the info this seems to be necessary before
-        // sending an `execute_request` to give time for the kernel to "get started" (and confirm
-        // that it has).
-        let request = JupyterMessage::kernel_info_request();
-        request.send(&self.session, &hmac, &shell_socket)?;
-        let response = JupyterMessage::receive(&hmac, &shell_socket)?;
-        tracing::debug!(
-            "Got kernel info for kernel `{}`: {:#?}",
-            self.id,
-            response.content
-        );
-
-        // Despite the above checks, for some kernels (e.g Python and Javascript), it seems
-        // necessary to wait for a little before making an execution request to avoid it
-        // hanging waiting for IOPub messages
-        use tokio::time::{sleep, Duration};
-        sleep(Duration::from_millis(100)).await;
-
-        // Update status
-        *(self.status.write().await) = KernelStatus::Idle;
-
-        self.connection = Some(connection);
-        self.details = Some(JupyterDetails {
-            hmac,
-            pid,
-            shell_socket: Arc::new(Mutex::new(shell_socket)),
-            iopub_receiver,
-            run_task,
-            subscribe_task,
-            monitor_task,
-        });
-
-        let language = self.language(None)?;
-        if let Some(code) = startup(&language)? {
-            self.exec(&code).await?;
-        }
-
-        Ok(())
+        // Initialize the connection
+        self.initialize(connection, Some(pid), Some(run_task)).await
     }
 
     async fn stop(&mut self) -> Result<()> {
@@ -585,9 +782,11 @@ impl KernelTrait for JupyterKernel {
             ..
         }) = &self.details
         {
-            run_task.abort();
             subscribe_task.abort();
             monitor_task.abort();
+            if let Some(run_task) = run_task {
+                run_task.abort()
+            }
         }
 
         if let Some(connection) = &self.connection {
@@ -742,10 +941,12 @@ static KERNEL_SPECS: Lazy<Arc<RwLock<HashMap<String, JupyterKernel>>>> =
 /// A Jupyter kernel connection
 ///
 /// See https://jupyter-client.readthedocs.io/en/stable/kernels.html#connection-files
-#[derive(Debug, Clone, Defaults, JsonSchema, Serialize)]
+#[derive(Debug, Clone, Defaults, JsonSchema, Deserialize, Serialize)]
 #[schemars(deny_unknown_fields)]
+#[serde(default)]
 struct JupyterConnection {
     /// The path to the connection file
+    #[serde(skip_deserializing)]
     path: PathBuf,
 
     /// The transport protocol to use for ZeroMQ
@@ -807,6 +1008,17 @@ impl JupyterConnection {
     /// Pick a port to use for one of the connection sockets
     fn pick_port() -> u16 {
         portpicker::pick_unused_port().expect("There are no free ports")
+    }
+
+    /// Read a connection file from disk
+    fn read_file(id: &str) -> Result<Self> {
+        let path = JupyterKernel::data_dir()
+            .join("runtime")
+            .join(format!("kernel-{}.json", id));
+        let file = File::open(&path)?;
+        let mut connection: Self = serde_json::from_reader(file)?;
+        connection.path = path;
+        Ok(connection)
     }
 
     /// Write the connection file to disk
