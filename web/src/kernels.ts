@@ -4,9 +4,9 @@ import { SessionId } from './sessions'
 /**
  * Get a list of language kernels available in the current environment
  */
-export async function list(
+export async function available(
   client: Client,
   sessionId: SessionId
 ): Promise<string[]> {
-  return client.call('kernels.list', { sessionId }) as Promise<string[]>
+  return client.call('kernels.available', { sessionId }) as Promise<string[]>
 }

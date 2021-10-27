@@ -62,7 +62,7 @@ impl Request {
             "sessions.stop" => sessions_stop(&self.params).await,
             "sessions.subscribe" => sessions_subscribe(&self.params, client).await,
             "sessions.unsubscribe" => sessions_unsubscribe(&self.params, client).await,
-            "kernels.list" => kernels_list(&self.params).await,
+            "kernels.available" => kernels_available(&self.params).await,
             "documents.open" => documents_open(&self.params).await,
             "documents.close" => documents_close(&self.params).await,
             "documents.patch" => documents_patch(&self.params).await,
@@ -279,11 +279,11 @@ async fn sessions_unsubscribe(
     Ok((json!(session), Subscription::Unsubscribe(topic)))
 }
 
-async fn kernels_list(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+async fn kernels_available(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     // TODO The kernel list will be dependant upon the session
     let _id = required_string(params, "sessionId")?;
 
-    let kernels = Kernel::list().await?;
+    let kernels = Kernel::available().await?;
     Ok((json!(kernels), Subscription::None))
 }
 

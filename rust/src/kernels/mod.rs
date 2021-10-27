@@ -95,14 +95,14 @@ pub enum Kernel {
 impl Kernel {
     /// Get a list of available kernels
     #[allow(clippy::vec_init_then_push)]
-    pub async fn list() -> Result<Vec<String>> {
+    pub async fn available() -> Result<Vec<String>> {
         let mut list: Vec<String> = Vec::new();
 
         #[cfg(feature = "kernels-calc")]
         list.push("calc".to_string());
 
         #[cfg(feature = "kernels-jupyter")]
-        list.append(&mut jupyter::JupyterKernel::list().await?);
+        list.append(&mut jupyter::JupyterKernel::available().await?);
 
         Ok(list)
     }
@@ -385,11 +385,24 @@ impl KernelSpace {
 
             #[cfg(not(feature = "kernels-jupyter"))]
             _ => bail!(
-                "Unable to create an execution kernel for language `{}`",
+                "Unable to create an execution kernel for language `{}` because support for Jupyter kernels is not enabled",
                 language
             ),
         };
         kernel.start().await?;
+        self.kernels.insert(kernel_id.clone(), kernel);
+
+        Ok(kernel_id)
+    }
+
+    /// Connect to a running kernel
+    async fn connect(&mut self, id_or_path: &str) -> Result<KernelId> {
+        #[cfg(not(feature = "kernels-jupyter"))]
+        bail!(
+            "Unable to connect to running kernel because support for Jupyter kernels is not enabled",
+        );
+
+        let (kernel_id, kernel) = jupyter::JupyterKernel::connect(id_or_path).await?;
         self.kernels.insert(kernel_id.clone(), kernel);
 
         Ok(kernel_id)
@@ -437,6 +450,7 @@ pub mod cli {
     use super::*;
     use crate::cli::display;
     use once_cell::sync::Lazy;
+    use serde_json::json;
     use structopt::StructOpt;
     use tokio::sync::Mutex;
 
@@ -456,9 +470,11 @@ pub mod cli {
         setting = structopt::clap::AppSettings::DeriveDisplayOrder
     )]
     pub enum Action {
-        List(List),
+        Available(Available),
+        Running(Running),
         Execute(Execute),
         Start(Start),
+        Connect(Connect),
         Stop(Stop),
         Status(Status),
         Show(Show),
@@ -468,9 +484,11 @@ pub mod cli {
         pub async fn run(self) -> display::Result {
             let Self { action } = self;
             match action {
-                Action::List(action) => action.run().await,
+                Action::Available(action) => action.run().await,
+                Action::Running(action) => action.run().await,
                 Action::Execute(action) => action.run().await,
                 Action::Start(action) => action.run().await,
+                Action::Connect(action) => action.run().await,
                 Action::Stop(action) => action.run().await,
                 Action::Status(action) => action.run().await,
                 Action::Show(action) => action.run().await,
@@ -478,16 +496,48 @@ pub mod cli {
         }
     }
 
-    /// List the available kernels
+    /// List the kernels that are available on this machine
+    ///
+    /// The list of available kernels includes those that are built into the Stencila
+    /// binary (e.g. `calc`) as well as any Jupyter kernels installed on the machine
+    /// (e.g. `python`).
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct List {}
-    impl List {
+    pub struct Available {}
+    impl Available {
         pub async fn run(&self) -> display::Result {
-            let list = Kernel::list().await?;
+            let list = Kernel::available().await?;
             display::value(list)
+        }
+    }
+
+    /// List the kernels (and servers) that are currently running on this machine
+    ///
+    /// This command scans the Jupyter `runtime` directory to get a list of running
+    /// Jupyter notebook servers. It then gets a list of kernels from the REST API
+    /// of each of those servers.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Running {}
+    impl Running {
+        pub async fn run(&self) -> display::Result {
+            #[cfg(feature = "kernels-jupyter")]
+            {
+                let kernels = jupyter::JupyterKernel::running().await?;
+                let servers = jupyter::JupyterServer::running().await?;
+                display::value(json!({
+                    "kernels": kernels,
+                    "servers": servers
+                }))
+            }
+            #[cfg(not(feature = "kernels-jupyter"))]
+            {
+                bail!("Jupyter kernels are not enabled")
+            }
         }
     }
 
@@ -498,8 +548,23 @@ pub mod cli {
 
     /// Execute code within a temporary "kernel space"
     ///
-    /// This command is mainly intended for testing that Stencila is able to talk
+    /// Mainly intended for testing that Stencila is able to talk
     /// to Jupyter kernels and execute code within them.
+    ///
+    /// Use the `--lang` option to specify which language the code should be executed
+    /// in e.g.,
+    ///
+    ///     > kernels execute Math.PI --lang=javascript
+    ///
+    /// In interactive mode, you can set the command prefix to "stay" in a particular
+    /// language and mimic a REPL in that language e.g.,
+    ///
+    ///     > >> kernels execute --lang=javascript
+    ///     > let r = 10
+    ///     > 2 * Math.PI * r
+    ///
+    /// If a kernel is not yet running for the language then one will be started
+    /// (if installed on the machine).
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
@@ -529,7 +594,10 @@ pub mod cli {
 
     /// Start a kernel for a particular programming language
     ///
-    /// Mainly intended for interactive mode testing.
+    /// Mainly intended for testing that a Jupyter kernel can be
+    /// started successfully e.g.,
+    ///
+    ///     > kernels start python
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
@@ -541,13 +609,19 @@ pub mod cli {
     impl Start {
         pub async fn run(&self) -> display::Result {
             KERNEL_SPACE.lock().await.ensure(&self.lang).await?;
+            tracing::info!("Started kernel for language `{}`", self.lang);
             display::nothing()
         }
     }
 
     /// Stop a kernel
     ///
-    /// Mainly intended for interactive mode testing.
+    /// Mainly intended for testing that Jupyter kernels are successfully
+    /// stopped (e.g. cleanup of connection files).
+    ///
+    /// Only kernels that were started by Stencila can be stopped. A kernel
+    /// that were started externally by a Jupyter server and then connected to
+    /// will still run but Stencila will clone any connections to it.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
@@ -559,13 +633,60 @@ pub mod cli {
     impl Stop {
         pub async fn run(&self) -> display::Result {
             KERNEL_SPACE.lock().await.stop(&self.id).await?;
+            tracing::info!("Stopped kernel `{}`", self.id);
+            display::nothing()
+        }
+    }
+
+    /// Connect to a running kernel
+    ///
+    /// Mainly intended for testing that Stencila is able to connect
+    /// to an existing kernel (e.g. one that was started from Jupyter notebook).
+    ///
+    /// To get a list of externally started kernels that can be connected to run,
+    ///
+    ///     > kernels running
+    ///
+    /// and then connect to a kernel using its Jupyter id e.g.,
+    ///
+    ///     > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
+    ///
+    /// Alternatively, use the path (relative or absolute) of the Jupyter notebook
+    /// whose (already started) kernel you wish to connect to e.g.,
+    ///
+    ///     > kernels connect ../main.ipynb
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Connect {
+        /// The id of the kernel e.g. `31248fc2-38d0-4d11-80a1-f8a1bd3842fb`
+        /// or the relative path of the notebook
+        id_or_path: String,
+    }
+    impl Connect {
+        pub async fn run(&self) -> display::Result {
+            let mut kernels = KERNEL_SPACE.lock().await;
+            let id = kernels.connect(&self.id_or_path).await?;
+            tracing::info!("Connected to kernel `{}`", id);
             display::nothing()
         }
     }
 
     /// Get a list of the kernels in the current kernel space
     ///
-    /// Mainly intended for interactive mode testing.
+    /// Mainly intended for interactive mode testing / inspection. Note that
+    /// for a kernel to be in this list it must have either been started by Stencila,
+    ///
+    ///     > kernels start r
+    ///
+    /// or connected to from Stencila,
+    ///  
+    ///     > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
+    ///
+    /// To get a list of externally started kernels that can be connected to run,
+    ///
+    ///     > kernels running
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
@@ -580,7 +701,7 @@ pub mod cli {
 
     /// Show the details of a current kernel
     ///
-    /// Mainly intended for interactive mode testing.
+    /// Mainly intended for interactive mode testing / inspection.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
