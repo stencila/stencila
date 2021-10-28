@@ -94,12 +94,12 @@ pub fn translate_text(text: &serde_json::Value) -> Option<Node> {
 }
 
 /// Translate text from a standard error stream into a `CodeError`.
-pub fn translate_stderr(text: &serde_json::Value) -> Option<Node> {
-    Some(Node::CodeError(CodeError {
+pub fn translate_stderr(text: &serde_json::Value) -> CodeError {
+    CodeError {
         error_message: translate_multiline_string(text),
         error_type: Some(Box::new("stderr".to_string())),
         ..Default::default()
-    }))
+    }
 }
 
 /// Language specific conversion of a `JupyterError` to a Stencila `CodeError`.

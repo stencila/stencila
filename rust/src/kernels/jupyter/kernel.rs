@@ -2,14 +2,18 @@ use super::{
     connection::JupyterConnection,
     dirs::data_dirs,
     messages::{
-        HmacSha256, JupyterKernelInfoReply, JupyterMessage, JupyterMessageType, JupyterStatus,
+        HmacSha256, JupyterDisplayData, JupyterExecuteResult, JupyterKernelInfoReply,
+        JupyterMessage, JupyterMessageType, JupyterStatus, JupyterStream,
     },
     server::JupyterServer,
 };
 use crate::{
     errors::incompatible_language,
     kernels::{Kernel, KernelStatus, KernelTrait},
-    utils::{jupyter::translate_error, uuids},
+    utils::{
+        jupyter::{translate_error, translate_mime_bundle, translate_stderr},
+        uuids,
+    },
 };
 use async_trait::async_trait;
 use defaults::Defaults;
@@ -724,37 +728,41 @@ impl KernelTrait for JupyterKernel {
         request.send(&self.session, hmac, &socket)?;
 
         let mut outputs: Vec<Node> = Vec::new();
-        let stdout = "".to_string();
-        let stderr = "".to_string();
+        let mut stdout = "".to_string();
+        let mut stderr = "".to_string();
 
         // TODO: timeout on recv()?
         while let Some(message) = iopub_receiver.recv().await {
             if let Some(parent_header) = &message.parent_header {
                 if parent_header.msg_id == request.header.msg_id {
+                    let msg_type = &message.header.msg_type;
                     tracing::debug!(
                         "Handling IOPub message {:?}: {:#?}",
-                        message.header.msg_type,
+                        msg_type,
                         message.content
                     );
-                    match message.header.msg_type {
-                        // Some kernels use `execute_result`, others `display_data`, even
-                        // for simple, text outputs
+                    match &msg_type {
                         JupyterMessageType::execute_result | JupyterMessageType::display_data => {
-                            // TODO decode output properly, this just gets the plain
-                            // text representation.
-                            let output = message
-                                .content
-                                .get("data")
-                                .and_then(|value| value.get("text/plain"))
-                                .unwrap()
-                                .as_str()
-                                .unwrap()
-                                .to_string();
-                            let output = Node::String(output);
-                            outputs.push(output);
+                            let bundle = match msg_type {
+                                JupyterMessageType::execute_result => {
+                                    message.content::<JupyterExecuteResult>()?.data
+                                }
+                                JupyterMessageType::display_data => {
+                                    message.content::<JupyterDisplayData>()?.data
+                                }
+                                _ => unreachable!(),
+                            };
+                            if let Some(output) = translate_mime_bundle(&bundle) {
+                                outputs.push(output);
+                            }
                         }
                         JupyterMessageType::stream => {
-                            // TODO accumulate stdout and stderr
+                            let JupyterStream { name, text } = message.content()?;
+                            match name.as_str() {
+                                "stdout" => stdout.push_str(&text),
+                                "stderr" => stderr.push_str(&text),
+                                _ => (),
+                            }
                         }
                         JupyterMessageType::error => {
                             let error = translate_error(&message.content, &self.language);
@@ -789,11 +797,13 @@ impl KernelTrait for JupyterKernel {
             }
         }
         if !stdout.is_empty() {
+            // TODO send as output for the node
             outputs.push(Node::String(stdout))
         }
         if !stderr.is_empty() {
-            // TODO: add to errors
-            outputs.push(Node::String(stderr))
+            let error = translate_stderr(&serde_json::Value::String(stderr));
+            // TODO send as error for the node
+            tracing::error!("{}", error.error_message)
         }
 
         let response = JupyterMessage::receive(hmac, &socket)?;

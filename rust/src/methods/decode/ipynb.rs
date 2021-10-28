@@ -198,7 +198,10 @@ fn translate_output(output: &serde_json::Value, language: &str) -> Option<Node> 
             let text = output.get("text");
             let name = output.get("name").and_then(|value| value.as_str());
             match name {
-                Some("stderr") => text.and_then(translate_stderr),
+                Some("stderr") => text.map(|value| {
+                    let error = translate_stderr(value);
+                    Node::CodeError(error)
+                }),
                 _ => text.and_then(translate_text),
             }
         }

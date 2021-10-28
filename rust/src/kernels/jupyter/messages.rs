@@ -4,7 +4,6 @@ use eyre::{bail, eyre, Result};
 use hmac::Mac;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::json;
-use std::collections::HashMap;
 use zmq::Socket;
 
 pub type HmacSha256 = hmac::Hmac<sha2::Sha256>;
@@ -190,6 +189,17 @@ pub struct JupyterExecuteRequest {
     pub(crate) stop_on_error: bool,
 }
 
+/// Content of a `stream` message
+#[derive(Debug, Defaults, Deserialize)]
+#[serde(default)]
+pub struct JupyterStream {
+    /// The name of the stream is one of 'stdout', 'stderr'
+    pub(crate) name: String,
+
+    /// The text is an arbitrary string to be written to that stream
+    pub(crate) text: String,
+}
+
 /// Content of a `display_data` message
 #[derive(Debug, Defaults, Deserialize)]
 #[serde(default)]
@@ -197,15 +207,15 @@ pub struct JupyterDisplayData {
     /// The data dict contains key/value pairs, where the keys are MIME
     /// types and the values are the raw data of the representation in that
     /// format.
-    pub(crate) data: HashMap<String, serde_json::Value>,
+    pub(crate) data: serde_json::Value,
 
     /// Any metadata that describes the data
-    pub(crate) metadata: HashMap<String, serde_json::Value>,
+    pub(crate) metadata: serde_json::Value,
 
     /// Optional transient data introduced in 5.1. Information not to be
     /// persisted to a notebook or other documents. Intended to live only
     /// during a live kernel session.
-    pub(crate) transient: HashMap<String, serde_json::Value>,
+    pub(crate) transient: serde_json::Value,
 }
 
 /// Content of an `execute_result` message
@@ -220,8 +230,8 @@ pub struct JupyterExecuteResult {
     // `data` and `metadata` are identical to a display_data message.
     // the object being displayed is that passed to the display hook,
     // i.e. the *result* of the execution.
-    pub(crate) data: HashMap<String, serde_json::Value>,
-    pub(crate) metadata: HashMap<String, serde_json::Value>,
+    pub(crate) data: serde_json::Value,
+    pub(crate) metadata: serde_json::Value,
 }
 
 /// Content of a `status` message

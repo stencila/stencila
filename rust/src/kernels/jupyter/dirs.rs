@@ -57,6 +57,6 @@ pub fn runtime_dir() -> PathBuf {
         };
 
         #[cfg(not(target_os = "linux"))]
-        return JupyterKernel::data_dir().join("runtime");
+        return data_dir().join("runtime");
     }
 }
