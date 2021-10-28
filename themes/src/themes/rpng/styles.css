@@ -1,0 +1,121 @@
+@import '../../extensions/cite-apa/styles.css';
+@import '../../extensions/math/styles.css';
+
+/* stylelint-disable scale-unlimited/declaration-strict-value, xi/selector-pattern */
+
+/* Basic CSS reset to remove default browser padding */
+body {
+  margin: 0;
+}
+
+:--root {
+  --color-ok: #95e8af;
+  --symbol-width: 18px;
+
+  display: inline-block;
+  font-family: monospace;
+  font-size: 11pt;
+  line-height: 150%;
+  color: #333;
+  padding: 0;
+}
+
+:--ImageObject {
+  max-width: 100%;
+  height: auto;
+}
+
+:--CodeChunk,
+:--CodeExpression,
+:--MathBlock,
+:--MathFragment {
+  /* For rPNG generation there should be no margin
+  and they should have a minimum size. */
+  display: inline-block;
+  margin: 0 !important;
+  min-width: 1em;
+  min-height: 16px;
+  overflow: visible;
+  position: relative;
+  width: auto !important;
+
+  /* Remove borders and add a green dot affordance */
+  border: none;
+
+  &::before {
+    background-color: var(--color-ok);
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 4px;
+    color: #4e6751;
+    content: '';
+    height: 14px;
+    left: 0;
+    padding: 1px;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 14px;
+    z-index: 1;
+  }
+}
+
+:--CodeChunk,
+:--CodeExpression {
+  &::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='10' height='10'%3E%3Cpath fill='none' d='M0 0h24v24H0z'/%3E%3Cpath d='M11 12l-7.071 7.071-1.414-1.414L8.172 12 2.515 6.343 3.929 4.93 11 12zm0 7h10v2H11v-2z'/%3E%3C/svg%3E");
+  }
+}
+
+:--MathBlock,
+:--MathFragment {
+  &::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='10' height='10'%3E%3Cpath fill='none' d='M0 0h24v24H0z'/%3E%3Cpath d='M5 18l7.68-6L5 6V4h14v2H8.263L16 12l-7.737 6H19v2H5v-2z'/%3E%3C/svg%3E");
+  }
+}
+
+/* Hide the UI chrome etc that is not wanted */
+:--CodeChunk stencila-action-menu,
+:--CodeChunk [slot='text'],
+:--CodeChunk .emptyContentMessage,
+:--CodeExpression .actions,
+:--CodeExpression .divider {
+  display: none !important;
+}
+
+/* Make font-size a little bigger for outputs */
+:--CodeChunk *,
+:--CodeExpression * {
+  font-size: 0.9rem !important;
+}
+
+:--CodeChunk stencila-node-list,
+:--CodeExpression .output,
+:--MathBlock > :first-child,
+:--MathFragment > :first-child {
+  /* Ensure that the icon does not overlap the content */
+  padding: 0 0 0 var(--symbol-width) !important;
+}
+
+/* Make display of datatables a little more pleasing */
+:--Datatable {
+  border: 1px solid grey;
+
+  table,
+  tr,
+  th,
+  td {
+    border-collapse: collapse;
+  }
+
+  th {
+    color: var(--color-neutral-600);
+    background: rgb(0 0 0 / 0.1);
+  }
+
+  th,
+  td {
+    padding: 0.5em;
+    border: 1px solid lightgrey;
+  }
+}

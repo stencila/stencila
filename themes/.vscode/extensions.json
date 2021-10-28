@@ -1,0 +1,25 @@
+{
+  "recommendations": [
+    "aaron-bond.better-comments",
+    "bierner.markdown-preview-github-styles",
+    "bradlc.vscode-tailwindcss",
+    "cpylua.language-postcss",
+    "dbaeumer.vscode-eslint",
+    "eamodio.gitlens",
+    "editorconfig.editorconfig",
+    "esbenp.prettier-vscode",
+    "formulahendry.auto-rename-tag",
+    "gruntfuggly.todo-tree",
+    "joelday.docthis",
+    "ms-vsliveshare.vsliveshare-pack",
+    "msjsdiag.debugger-for-chrome",
+    "orta.vscode-jest",
+    "redhat.vscode-yaml",
+    "ryanluker.vscode-coverage-gutters",
+    "silvenon.mdx",
+    "streetsidesoftware.code-spell-checker",
+    "wallabyjs.quokka-vscode",
+    "wix.vscode-import-cost",
+    "yzhang.markdown-all-in-one"
+  ]
+}

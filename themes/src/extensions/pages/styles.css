@@ -1,0 +1,22 @@
+@media print {
+  /* Document nodes to avoid a break after */
+  :--Heading {
+    page-break-after: avoid;
+  }
+
+  /* Document nodes to avoid a break inside */
+  :--Figure,
+  :--Table,
+  :--Datatable,
+  :--MathBlock,
+  :--CodeBlock,
+  :--CodeChunk {
+    page-break-inside: avoid;
+  }
+
+  /* Elements not to display */
+  /* stylelint-disable xi/selector-pattern, selector-type-no-unknown */
+  stencila-action-menu {
+    display: none;
+  }
+}

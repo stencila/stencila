@@ -1,0 +1,108 @@
+:--references {
+  ol,
+  ul {
+    padding-left: 0;
+    list-style: none;
+  }
+
+  :--authors {
+    display: inline;
+
+    :--Person {
+      display: inline-flex;
+
+      * {
+        display: inline-flex;
+      }
+
+      :--familyName {
+        order: 2;
+        white-space: nowrap;
+
+        &::after {
+          content: ', ';
+          white-space: pre;
+        }
+      }
+
+      :--givenName {
+        order: 1;
+        white-space: nowrap;
+
+        &::after {
+          content: ' ';
+          white-space: pre;
+        }
+      }
+
+      &:last-child :--familyName {
+        &::after {
+          content: normal;
+        }
+      }
+
+      a {
+        border-bottom: none;
+      }
+    }
+  }
+
+  :--datePublished {
+    &::before {
+      content: '(';
+    }
+
+    &::after {
+      content: ')';
+    }
+
+    + :--headline {
+      display: none;
+    }
+  }
+
+  :--pagination {
+    &::before {
+      content: ':';
+    }
+
+    &::after {
+      content: '.';
+    }
+  }
+
+  :--PublicationIssue {
+    :--headline {
+      &::after {
+        content: ' ';
+        white-space: pre;
+      }
+    }
+
+    + :--datePublished {
+      display: none;
+    }
+  }
+
+  :--url {
+    border-bottom: none;
+  }
+
+  :--description {
+    li {
+      display: inline;
+
+      a {
+        border-bottom: none;
+      }
+
+      &::after {
+        content: ' | ';
+      }
+
+      &:last-child::after {
+        content: normal;
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+@font-face {
+  font-display: fallback;
+  font-family: "Noto Sans";
+  src: url("./NotoSans-Regular-webfont-custom-2-subsetting.woff2") format("woff2");
+}
+
+@font-face {
+  font-display: fallback;
+  font-family: "Noto Sans";
+  src: url("./NotoSans-SemiBold-webfont-custom-2-subsetting.woff2") format("woff2");
+  font-weight: bold;
+}
