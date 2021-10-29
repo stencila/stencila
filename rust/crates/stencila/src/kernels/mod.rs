@@ -550,7 +550,7 @@ pub mod cli {
             }
             #[cfg(not(feature = "kernels-jupyter"))]
             {
-                bail!("Jupyter kernels are not enabled")
+                eyre::bail!("Jupyter kernels are not enabled")
             }
         }
     }

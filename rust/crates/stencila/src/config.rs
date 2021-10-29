@@ -9,6 +9,7 @@ use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::{env, fs, io::Write, path::PathBuf};
 use tokio::sync::Mutex;
 use validator::Validate;
@@ -369,16 +370,23 @@ pub mod cli {
                 display::nothing()
             }
             Action::Dirs => {
-                let config_dir = dir(false)?.display().to_string();
-                let logs_dir = crate::logging::config::dir(false)?.display().to_string();
-                let plugins_dir = crate::plugins::plugins_dir(false)?.display().to_string();
-                let binaries_dir = crate::binaries::binaries_dir().display().to_string();
-                let value = serde_json::json!({
-                    "config": config_dir,
-                    "logs": logs_dir,
-                    "plugins": plugins_dir,
-                    "binaries": binaries_dir
+                let mut value = json!({
+                    "config": dir(false)?.display().to_string(),
+                    "logs": crate::logging::config::dir(false)?.display().to_string(),
                 });
+
+                #[cfg(feature = "plugins")]
+                {
+                    value["plugins"] =
+                        json!(crate::plugins::plugins_dir(false)?.display().to_string());
+                }
+
+                #[cfg(feature = "binaries")]
+                {
+                    value["binaries"] =
+                        json!(crate::binaries::binaries_dir().display().to_string());
+                }
+
                 display::value(value)
             }
             Action::Schemas => {

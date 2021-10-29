@@ -1,8 +1,13 @@
+//! The main file for the `stencila` CLI tool
+//!
+//! This module requires the `cli` feature to be enabled e.g.
+//! 
+//! cargo run --no-default-features --features cli help
+
 #![recursion_limit = "256"]
 
 use std::{collections::HashMap, path::PathBuf};
 use stencila::{
-    binaries,
     cli::display,
     config::{self, CONFIG},
     documents::{self, DOCUMENTS},
@@ -13,14 +18,12 @@ use stencila::{
         config::{LoggingConfig, LoggingStdErrConfig},
         LoggingFormat, LoggingLevel,
     },
-    plugins,
     projects::{self, PROJECTS},
-    serde_json, serde_yaml, serve, sources,
-    strum::VariantNames,
-    tokio, tracing, upgrade,
+    sources, tracing,
     utils::keys,
 };
 use structopt::StructOpt;
+use strum::VariantNames;
 
 /// Stencila, in a terminal console, on your own machine
 ///
@@ -104,15 +107,20 @@ pub enum Command {
     Documents(documents::cli::Command),
     #[structopt(aliases = &["source"])]
     Sources(sources::cli::Command),
-    #[structopt(aliases = &["plugin"])]
-    Plugins(plugins::cli::Command),
-    #[structopt(aliases = &["binary"])]
-    Binaries(binaries::cli::Command),
     #[structopt(aliases = &["kernel"])]
     Kernels(kernels::cli::Command),
     Config(config::cli::Command),
-    Upgrade(upgrade::cli::Args),
-    Serve(serve::cli::Command),
+
+    #[cfg(feature = "binaries")]
+    #[structopt(aliases = &["binary"])]
+    Binaries(stencila::binaries::cli::Command),
+    #[cfg(feature = "plugins")]
+    #[structopt(aliases = &["plugin"])]
+    Plugins(stencila::plugins::cli::Command),
+    #[cfg(feature = "upgrade")]
+    Upgrade(stencila::upgrade::cli::Args),
+    #[cfg(feature = "serve")]
+    Serve(stencila::serve::cli::Command),
 }
 #[derive(Debug)]
 pub struct Context {
@@ -139,11 +147,16 @@ pub async fn run_command(
         Command::Documents(command) => command.run().await,
         Command::Projects(command) => command.run().await,
         Command::Sources(command) => command.run().await,
-        Command::Plugins(command) => plugins::cli::run(command).await,
-        Command::Binaries(command) => command.run().await,
         Command::Kernels(command) => command.run().await,
         Command::Config(command) => config::cli::run(command).await,
-        Command::Upgrade(command) => upgrade::cli::run(command).await,
+
+        #[cfg(feature = "binaries")]
+        Command::Binaries(command) => command.run().await,
+        #[cfg(feature = "plugins")]
+        Command::Plugins(command) => stencila::plugins::cli::run(command).await,
+        #[cfg(feature = "upgrade")]
+        Command::Upgrade(command) => stencila::upgrade::cli::run(command).await,
+        #[cfg(feature = "serve")]
         Command::Serve(command) => command.run().await,
     };
     render::render(formats, result?)
@@ -189,7 +202,10 @@ pub struct OpenCommand {
 }
 
 impl OpenCommand {
+    #[cfg(feature = "serve")]
     pub async fn run(self, context: &mut Context) -> display::Result {
+        use stencila::serve;
+
         let Self { path, theme } = self;
 
         let (is_project, path) = match path {
@@ -250,6 +266,11 @@ impl OpenCommand {
         }
 
         display::nothing()
+    }
+
+    #[cfg(not(feature = "serve"))]
+    pub async fn run(self, _context: &mut Context) -> display::Result {
+        bail!("The `serve` feature has not been enabled")
     }
 }
 
@@ -429,10 +450,13 @@ pub async fn main() -> Result<()> {
     }
 
     // If not explicitly upgrading then run an upgrade check in the background
-    let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
-        None
-    } else {
-        Some(stencila::upgrade::upgrade_auto())
+    #[cfg(feature = "upgrade")]
+    let upgrade_thread = {
+        if let Some(Command::Upgrade(_)) = command {
+            None
+        } else {
+            Some(stencila::upgrade::upgrade_auto())
+        }
     };
 
     // Use the desired display format, falling back to configured values
@@ -490,9 +514,12 @@ pub async fn main() -> Result<()> {
     };
 
     // Join the upgrade thread and log any errors
-    if let Some(upgrade_thread) = upgrade_thread {
-        if let Err(_error) = upgrade_thread.await.await {
-            tracing::warn!("Error while attempting to join upgrade thread")
+    #[cfg(feature = "upgrade")]
+    {
+        if let Some(upgrade_thread) = upgrade_thread {
+            if let Err(_error) = upgrade_thread.await.await {
+                tracing::warn!("Error while attempting to join upgrade thread")
+            }
         }
     }
 

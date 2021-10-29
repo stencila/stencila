@@ -182,28 +182,28 @@ impl tracing::field::Visit for StderrVisitor {
 
 impl<S: tracing::subscriber::Subscriber> tracing_subscriber::layer::Layer<S> for StderrPlainLayer {
     fn on_event(&self, event: &Event<'_>, _ctx: tracing_subscriber::layer::Context<'_, S>) {
-        use ansi_term::Color::{Blue, Green, Purple, Red, White, Yellow};
-
         let level = LoggingLevel::from(event.metadata().level());
         if level >= self.level {
             let level_name = level.to_string().to_uppercase();
-            let level_color = match level {
-                LoggingLevel::Trace => Purple,
-                LoggingLevel::Debug => Blue,
-                LoggingLevel::Info => Green,
-                LoggingLevel::Warn => Yellow,
-                LoggingLevel::Error => Red,
-                _ => White,
+
+            #[cfg(feature = "ansi_term")]
+            let level_name = {
+                use ansi_term::Color::{Blue, Green, Purple, Red, White, Yellow};
+                match level {
+                    LoggingLevel::Trace => Purple,
+                    LoggingLevel::Debug => Blue,
+                    LoggingLevel::Info => Green,
+                    LoggingLevel::Warn => Yellow,
+                    LoggingLevel::Error => Red,
+                    _ => White,
+                }
+                .bold()
+                .paint(format!("{:5}", level_name))
             };
 
             let mut visitor = StderrVisitor::default();
             event.record(&mut visitor);
-
-            eprintln!(
-                "{} {}",
-                level_color.bold().paint(format!("{:5}", level_name)),
-                visitor.message
-            )
+            eprintln!("{} {}", level_name, visitor.message)
         }
     }
 }
