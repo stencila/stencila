@@ -11,5 +11,5 @@ exclude = ["index.node"]
 crate-type = ["cdylib"]
 
 [dependencies]
-stencila = { path = "../rust" }
+stencila = { path = "../rust/crates/stencila" }
 neon = { version = "=0.9.1", default-features = false, features = ["napi-6", "event-queue-api"] }

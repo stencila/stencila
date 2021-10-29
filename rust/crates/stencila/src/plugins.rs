@@ -1488,7 +1488,7 @@ impl Plugins {
 
     /// Load the registry, aliases, and any plugin manifests
     pub fn load() -> Result<Self> {
-        let mut plugins: Plugins = serde_json::from_str(include_str!("../../plugins.json"))?;
+        let mut plugins: Plugins = serde_json::from_str(include_str!("../../../../plugins.json"))?;
 
         // Create an entry for all plugins in the registry
         for (name, _url) in plugins.registry.clone() {
