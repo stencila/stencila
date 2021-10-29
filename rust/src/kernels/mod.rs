@@ -12,7 +12,7 @@ use eyre::{eyre, Result};
 use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::{hash_map::Entry, BTreeMap, HashMap};
-use stencila_schema::Node;
+use stencila_schema::{CodeError, Node};
 use strum::Display;
 use validator::Contains;
 
@@ -66,7 +66,7 @@ pub trait KernelTrait {
     async fn set(&mut self, name: &str, value: Node) -> Result<()>;
 
     /// Execute some code in the kernel
-    async fn exec(&mut self, code: &str) -> Result<Vec<Node>>;
+    async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)>;
 }
 
 mod default;
@@ -261,7 +261,7 @@ impl KernelSpace {
         code: &str,
         language: &str,
         relations: Option<Vec<(Relation, Resource)>>,
-    ) -> Result<Vec<Node>> {
+    ) -> Result<(Vec<Node>, Vec<CodeError>)> {
         // Determine the kernel to execute in
         let kernel_id = self.ensure(language).await?;
         tracing::debug!("Executing code in kernel `{}`", kernel_id);
@@ -432,7 +432,16 @@ impl KernelSpace {
                 // Compile the code so that we can use the relations to determine variables that
                 // are assigned or used (needed for variable mirroring).
                 let relations = compile::code::compile("<cli>", &code, language);
-                let nodes = self.exec(&code, language, Some(relations)).await?;
+                let (nodes, errors) = self.exec(&code, language, Some(relations)).await?;
+                if !errors.is_empty() {
+                    for error in errors {
+                        let mut err = error.error_message;
+                        if let Some(trace) = error.stack_trace {
+                            err += &format!("\n{}", trace);
+                        }
+                        tracing::error!("{}", err)
+                    }
+                }
                 match nodes.len() {
                     0 => display::nothing(),
                     1 => display::value(nodes[0].clone()),

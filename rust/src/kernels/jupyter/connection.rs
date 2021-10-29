@@ -4,7 +4,7 @@ use super::{
 };
 use crate::utils::keys;
 use defaults::Defaults;
-use eyre::Result;
+use eyre::{eyre, Result};
 use hmac::NewMac;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -135,8 +135,9 @@ impl JupyterConnection {
     }
 
     /// Get the HMAC for the connection
-    pub fn hmac(&self) -> HmacSha256 {
-        HmacSha256::new_from_slice(self.key.as_bytes()).expect("Unable to generate HMAC")
+    pub fn hmac(&self) -> Result<HmacSha256> {
+        HmacSha256::new_from_slice(self.key.as_bytes())
+            .map_err(|error| eyre!("When generating HMAC: {}", error))
     }
 
     /// Get the base URI for the connection

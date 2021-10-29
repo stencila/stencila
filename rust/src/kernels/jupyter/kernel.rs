@@ -18,7 +18,7 @@ use crate::{
 use async_trait::async_trait;
 use defaults::Defaults;
 use derivative::Derivative;
-use eyre::{bail, Result};
+use eyre::{bail, eyre, Result};
 use once_cell::sync::Lazy;
 use path_slash::PathBufExt;
 use schemars::JsonSchema;
@@ -31,12 +31,14 @@ use std::{
     path::{Path, PathBuf},
     process::Stdio,
     sync::Arc,
+    time::Duration,
 };
-use stencila_schema::Node;
+use stencila_schema::{CodeError, Node};
 use tokio::{
     process::Command,
-    sync::{mpsc, Mutex, RwLock},
+    sync::{broadcast, Mutex, RwLock},
     task::JoinHandle,
+    time::{sleep, timeout},
 };
 use zmq::Socket;
 
@@ -139,8 +141,8 @@ struct JupyterDetails {
     #[derivative(Debug = "ignore")]
     shell_socket: Arc<Mutex<Socket>>,
 
-    /// The receiver for IOPub messages
-    iopub_receiver: mpsc::Receiver<JupyterMessage>,
+    /// The sender for IOPub messages
+    iopub_sender: broadcast::Sender<JupyterMessage>,
 
     /// The async task that runs the kernel
     ///
@@ -380,17 +382,16 @@ impl JupyterKernel {
         pid: Option<u32>,
         run_task: Option<JoinHandle<()>>,
     ) -> Result<()> {
-        let ctx = zmq::Context::new();
-
         // Generate HMAC template
-        let hmac = connection.hmac();
+        let hmac = connection.hmac()?;
 
         // Create the shell socket
+        let ctx = zmq::Context::new();
         let shell_socket = ctx.socket(zmq::REQ)?;
         shell_socket.connect(&connection.shell_url())?;
 
         // Create the channel that IOPub messages get sent on
-        let (iopub_sender, mut iopub_receiver) = mpsc::channel(100);
+        let (iopub_sender, mut iopub_receiver) = broadcast::channel(256);
 
         // Spawn a task to listen to IOPub messages from the kernel and publish
         // them on a Rust channel so that `exec()` and other methods can listen for
@@ -398,8 +399,10 @@ impl JupyterKernel {
         let id = self.id.clone();
         let status = self.status.clone();
         let url = connection.iopub_url();
+        let iopub_sender_clone = iopub_sender.clone();
         let hmac_clone = hmac.clone();
         let subscribe_task = tokio::spawn(async move {
+            let ctx = zmq::Context::new();
             let socket = ctx.socket(zmq::SUB).expect("Unable to create IOPub socket");
 
             let result = socket
@@ -418,16 +421,18 @@ impl JupyterKernel {
             // Send an initial "fake" message to signal that this thread is ready to start receiving
             let init_message =
                 JupyterMessage::new(JupyterMessageType::stream, json!({"name": "<init>"}));
-            if let Err(error) = iopub_sender.send(init_message).await {
+            if let Err(error) = iopub_sender_clone.send(init_message) {
                 tracing::error!(
-                    "Unable to on-send IOPub init message for kernel `{}`: {}",
+                    "Unable to send IOPub init message for kernel `{}`: {}",
                     id,
                     error
                 )
+            } else {
+                tracing::debug!("Sent IOPub init message for kernel `{}`", id);
             }
 
             loop {
-                let result = JupyterMessage::receive(&hmac_clone.clone(), &socket);
+                let result = JupyterMessage::receive(&hmac_clone.clone(), &socket, None);
                 match result {
                     Ok(message) => {
                         let msg_type = message.header.msg_type.clone();
@@ -438,15 +443,15 @@ impl JupyterKernel {
                                 message.content
                             )
                         }
-                        if let Err(error) = iopub_sender.send(message).await {
+                        if let Err(error) = iopub_sender_clone.send(message) {
                             tracing::error!(
-                                "Unable to on-send IOPub message for kernel `{}`: {}",
+                                "Unable to broadcast IOPub message for kernel `{}`: {}",
                                 id,
                                 error
                             )
                         } else {
                             tracing::debug!(
-                                "On-sent IOPub message from kernel `{}`: {:?}",
+                                "Broadcast IOPub message from kernel `{}`: {:?}",
                                 id,
                                 msg_type
                             )
@@ -497,7 +502,8 @@ impl JupyterKernel {
 
         // Wait for IOPub init message from the `subscribe_task`. This needs to be done before any `execute_request`
         // messages are sent to ensure that we are already listening for results.
-        while let Some(message) = iopub_receiver.recv().await {
+        tracing::debug!("Waiting for IOPub init message for kernel `{}`", self.id);
+        while let Ok(message) = iopub_receiver.recv().await {
             if matches!(message.header.msg_type, JupyterMessageType::stream)
                 && message
                     .content
@@ -516,9 +522,9 @@ impl JupyterKernel {
         // that it has).
         let request = JupyterMessage::kernel_info_request();
         request.send(&self.session, &hmac, &shell_socket)?;
-        let reply = JupyterMessage::receive(&hmac, &shell_socket)?;
+        let reply = JupyterMessage::receive(&hmac, &shell_socket, None)?;
         tracing::debug!("Got kernel info for kernel `{}`: {:#?}", self.id, reply);
-        let kernel_info: JupyterKernelInfoReply = reply.content()?;
+        let kernel_info: JupyterKernelInfoReply = reply.content();
 
         // Set the language if its empty (e.g. connected to an already running kernel)
         if self.language.is_empty() {
@@ -534,7 +540,6 @@ impl JupyterKernel {
         // Despite the above checks, for some kernels (e.g Python and Javascript), it seems
         // necessary to wait for a little before making an execution request to avoid it
         // hanging waiting for IOPub messages
-        use tokio::time::{sleep, Duration};
         sleep(Duration::from_millis(100)).await;
 
         // Update status
@@ -546,7 +551,7 @@ impl JupyterKernel {
             hmac,
             pid,
             shell_socket: Arc::new(Mutex::new(shell_socket)),
-            iopub_receiver,
+            iopub_sender,
             run_task,
             subscribe_task,
             monitor_task,
@@ -559,6 +564,100 @@ impl JupyterKernel {
         }
 
         Ok(())
+    }
+
+    async fn exec_results(
+        request_id: &str,
+        language: &str,
+        status: Arc<RwLock<KernelStatus>>,
+        mut iopub_receiver: broadcast::Receiver<JupyterMessage>,
+    ) -> Result<(Vec<Node>, Vec<CodeError>)> {
+        let mut outputs: Vec<Node> = Vec::new();
+        let mut errors: Vec<CodeError> = Vec::new();
+
+        let mut stdout = "".to_string();
+        let mut stderr = "".to_string();
+
+        while let Ok(message) = iopub_receiver.recv().await {
+            if let Some(parent_header) = &message.parent_header {
+                if parent_header.msg_id == request_id {
+                    let msg_type = &message.header.msg_type;
+                    tracing::debug!(
+                        "Handling IOPub message {:?}: {:#?}",
+                        msg_type,
+                        message.content
+                    );
+                    match &msg_type {
+                        JupyterMessageType::execute_result | JupyterMessageType::display_data => {
+                            let bundle = match msg_type {
+                                JupyterMessageType::execute_result => {
+                                    message.content::<JupyterExecuteResult>().data
+                                }
+                                JupyterMessageType::display_data => {
+                                    message.content::<JupyterDisplayData>().data
+                                }
+                                _ => unreachable!(),
+                            };
+                            if let Some(output) = translate_mime_bundle(&bundle) {
+                                outputs.push(output);
+                            }
+                            // TODO: consider removing this in favour of waiting for idle
+                            break;
+                        }
+                        JupyterMessageType::stream => {
+                            let JupyterStream { name, text } = message.content();
+                            match name.as_str() {
+                                "stdout" => stdout.push_str(&text),
+                                "stderr" => stderr.push_str(&text),
+                                _ => (),
+                            }
+                        }
+                        JupyterMessageType::error => {
+                            let error = translate_error(&message.content, language);
+                            errors.push(error);
+                            // TODO: consider removing this in favour of waiting for idle
+                            break;
+                        }
+                        JupyterMessageType::status => {
+                            let mut guard = status.write().await;
+                            let status: JupyterStatus = message.content();
+                            match status.execution_state.as_str() {
+                                "starting" => {
+                                    *guard = KernelStatus::Starting;
+                                }
+                                "busy" => {
+                                    *guard = KernelStatus::Busy;
+                                }
+                                "idle" => {
+                                    *guard = KernelStatus::Idle;
+                                    tracing::debug!("Received idle status");
+                                    break;
+                                }
+                                _ => (),
+                            }
+                        }
+                        _ => (),
+                    }
+                } else {
+                    tracing::debug!(
+                        "Ignoring IOPub message because {:?} != {:#?}",
+                        parent_header.msg_id,
+                        request_id
+                    );
+                }
+            }
+        }
+
+        if !stdout.is_empty() {
+            let node = Node::String(stdout);
+            outputs.push(node);
+        }
+        if !stderr.is_empty() {
+            let error = translate_stderr(&serde_json::Value::String(stderr));
+            errors.push(error);
+        }
+
+        Ok((outputs, errors))
     }
 
     /// Read a `kernel.json` file and store in `KERNEL_SPECS`
@@ -611,7 +710,7 @@ impl KernelTrait for JupyterKernel {
             .stderr(Stdio::piped())
             .kill_on_drop(true)
             .spawn()?;
-        let pid = child.id().expect("Unable to get child process id");
+        let pid = child.id().ok_or_else(|| eyre!("Unable to get child pid"))?;
 
         // Spawn a task to wait on the kernel process and update status
         // when it exits.
@@ -684,13 +783,14 @@ impl KernelTrait for JupyterKernel {
     async fn get(&mut self, name: &str) -> Result<Node> {
         let language = self.language(None)?;
         if let Some(code) = get(&language, name)? {
-            let json = self.exec(&code).await?;
-            if let Some(Node::String(json)) = json.first() {
+            let (outputs, _errors) = self.exec(&code).await?;
+            if let Some(Node::String(json)) = outputs.first() {
                 let node = serde_json::from_str(json)?;
                 Ok(node)
             } else {
                 bail!("While getting symbol from Jupyter kernel did not get JSON string")
             }
+            // TODO: Check for any errors
         } else {
             bail!(
                 "Getting a symbol from a `{}` language kernel is not currently supported",
@@ -703,7 +803,8 @@ impl KernelTrait for JupyterKernel {
         let language = self.language(None)?;
         let json = serde_json::to_string(&value)?;
         if let Some(code) = set(&language, name, &json)? {
-            self.exec(&code).await?;
+            let (.., _errors) = self.exec(&code).await?;
+            // TODO: Check for any errors
             Ok(())
         } else {
             bail!(
@@ -713,104 +814,46 @@ impl KernelTrait for JupyterKernel {
         }
     }
 
-    async fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
+    async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
         let JupyterDetails {
             hmac,
             shell_socket,
-            iopub_receiver,
+            iopub_sender,
             ..
         } = self.details.as_mut().expect("Should be started");
 
         let socket = shell_socket.lock().await;
 
+        // Send the request
         let request = JupyterMessage::execute_request(code);
         tracing::debug!("Sending request: {:#?}", request);
         request.send(&self.session, hmac, &socket)?;
 
-        let mut outputs: Vec<Node> = Vec::new();
-        let mut stdout = "".to_string();
-        let mut stderr = "".to_string();
+        // Start a background task to gather the results of the execute request (outputs and errors)
+        // TODO have a channel to make the wait task and return the results it has already received
+        let language = self.language.clone();
+        let status = self.status.clone();
+        let iopub_receiver = iopub_sender.subscribe();
+        let results_task = tokio::spawn(async move {
+            JupyterKernel::exec_results(&request.header.msg_id, &language, status, iopub_receiver)
+                .await
+        });
 
-        // TODO: timeout on recv()?
-        while let Some(message) = iopub_receiver.recv().await {
-            if let Some(parent_header) = &message.parent_header {
-                if parent_header.msg_id == request.header.msg_id {
-                    let msg_type = &message.header.msg_type;
-                    tracing::debug!(
-                        "Handling IOPub message {:?}: {:#?}",
-                        msg_type,
-                        message.content
-                    );
-                    match &msg_type {
-                        JupyterMessageType::execute_result | JupyterMessageType::display_data => {
-                            let bundle = match msg_type {
-                                JupyterMessageType::execute_result => {
-                                    message.content::<JupyterExecuteResult>()?.data
-                                }
-                                JupyterMessageType::display_data => {
-                                    message.content::<JupyterDisplayData>()?.data
-                                }
-                                _ => unreachable!(),
-                            };
-                            if let Some(output) = translate_mime_bundle(&bundle) {
-                                outputs.push(output);
-                            }
-                        }
-                        JupyterMessageType::stream => {
-                            let JupyterStream { name, text } = message.content()?;
-                            match name.as_str() {
-                                "stdout" => stdout.push_str(&text),
-                                "stderr" => stderr.push_str(&text),
-                                _ => (),
-                            }
-                        }
-                        JupyterMessageType::error => {
-                            let error = translate_error(&message.content, &self.language);
-                            tracing::error!("{}", error.error_message)
-                        }
-                        JupyterMessageType::status => {
-                            let status: JupyterStatus = message.content()?;
-                            match status.execution_state.as_str() {
-                                "starting" => {
-                                    *(self.status.write().await) = KernelStatus::Starting;
-                                }
-                                "busy" => {
-                                    *(self.status.write().await) = KernelStatus::Busy;
-                                }
-                                "idle" => {
-                                    *(self.status.write().await) = KernelStatus::Idle;
-                                    tracing::debug!("Received idle status");
-                                    break;
-                                }
-                                _ => (),
-                            }
-                        }
-                        _ => (),
-                    }
-                } else {
-                    tracing::debug!(
-                        "Ignoring IOPub message because {:?} != {:#?}",
-                        parent_header.msg_id,
-                        request.header.msg_id
-                    );
-                }
-            }
-        }
-        if !stdout.is_empty() {
-            // TODO send as output for the node
-            outputs.push(Node::String(stdout))
-        }
-        if !stderr.is_empty() {
-            let error = translate_stderr(&serde_json::Value::String(stderr));
-            // TODO send as error for the node
-            tracing::error!("{}", error.error_message)
-        }
-
-        let response = JupyterMessage::receive(hmac, &socket)?;
-        tracing::debug!("Received response {:#?}", response);
+        // Wait for the reply
+        let reply = JupyterMessage::receive(hmac, &socket, None)?;
+        tracing::debug!("Received response {:#?}", reply);
         // TODO deal with response.content.status == 'error' and "aborted"
 
-        Ok(outputs)
+        // Wait for the outputs
+        let (outputs, errors) = match timeout(Duration::from_millis(1000), results_task).await {
+            Ok(joined) => joined??,
+            Err(_) => {
+                tracing::warn!("Timed-out waiting for results");
+                (Vec::new(), Vec::new())
+            }
+        };
+
+        Ok((outputs, errors))
     }
 }
 

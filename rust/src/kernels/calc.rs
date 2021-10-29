@@ -8,7 +8,7 @@ use regex::Regex;
 use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::BTreeMap;
-use stencila_schema::Node;
+use stencila_schema::{CodeError, Node};
 
 #[derive(Debug, Clone, Default, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
@@ -50,7 +50,7 @@ impl KernelTrait for CalcKernel {
         Ok(())
     }
 
-    async fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
+    async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
         static STATEMENTS_REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new(r"\r?\n|;").expect("Unable to create regex"));
         static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -58,6 +58,7 @@ impl KernelTrait for CalcKernel {
         });
 
         let mut outputs = Vec::new();
+        let mut errors = Vec::new();
         for statement in STATEMENTS_REGEX.split(code) {
             let statement = statement.trim();
 
@@ -76,10 +77,17 @@ impl KernelTrait for CalcKernel {
             };
 
             // Evaluate the expression
-            let num = match ez_eval(expr, &mut self.symbols) {
-                Ok(num) => num,
+            match ez_eval(expr, &mut self.symbols) {
+                Ok(num) => {
+                    // Either assign the result, or add it to outputs
+                    if let Some(symbol) = symbol {
+                        self.symbols.insert(symbol.to_string(), num);
+                    } else {
+                        outputs.push(Node::Number(num))
+                    }
+                }
                 Err(error) => {
-                    let error = match error {
+                    let error_message = match error {
                         // Custom error strings for common errors
                         Error::EOF | Error::EofWhileParsing(..) => {
                             "Unexpected end of Calc expression".to_string()
@@ -96,17 +104,13 @@ impl KernelTrait for CalcKernel {
                         // Use the debug string for others
                         _ => format!("Could not execute Calc expression: {:?}", error),
                     };
-                    bail!(error)
+                    errors.push(CodeError {
+                        error_message,
+                        ..Default::default()
+                    });
                 }
-            };
-
-            // Either assign it, or add it to outputs
-            if let Some(symbol) = symbol {
-                self.symbols.insert(symbol.to_string(), num);
-            } else {
-                outputs.push(Node::Number(num))
             }
         }
-        Ok(outputs)
+        Ok((outputs, errors))
     }
 }

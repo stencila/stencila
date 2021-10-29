@@ -4,6 +4,7 @@ use eyre::{bail, eyre, Result};
 use hmac::Mac;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::json;
+use std::any::type_name;
 use zmq::Socket;
 
 pub type HmacSha256 = hmac::Hmac<sha2::Sha256>;
@@ -248,7 +249,7 @@ pub struct JupyterStatus {
 ///
 /// See https://jupyter-client.readthedocs.io/en/stable/messaging.html#general-message-format.
 /// Some of the below documentation is copied from there.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct JupyterMessage {
     /// ZeroMQ socket identities
     pub(crate) identities: Vec<String>,
@@ -366,7 +367,13 @@ impl JupyterMessage {
     }
 
     /// Receive a message
-    pub fn receive(hmac: &HmacSha256, socket: &Socket) -> Result<Self> {
+    pub fn receive(hmac: &HmacSha256, socket: &Socket, timeout: Option<i32>) -> Result<Self> {
+        if let Some(timeout) = timeout {
+            socket.set_rcvtimeo(timeout)?;
+        } else {
+            socket.set_rcvtimeo(-1)?;
+        }
+
         let parts = socket.recv_multipart(0)?;
 
         let delimiter = parts
@@ -412,8 +419,20 @@ impl JupyterMessage {
     }
 
     /// Get the content of a message as a particular type
-    pub fn content<Content: DeserializeOwned>(self) -> Result<Content> {
-        let content = serde_json::from_value(self.content)?;
-        Ok(content)
+    pub fn content<Content>(self) -> Content
+    where
+        Content: DeserializeOwned + Default,
+    {
+        match serde_json::from_value(self.content) {
+            Ok(content) => content,
+            Err(error) => {
+                tracing::error!(
+                    "While attempting to convert message content to `{}`: {}",
+                    type_name::<Content>(),
+                    error
+                );
+                Content::default()
+            }
+        }
     }
 }

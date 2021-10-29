@@ -274,13 +274,19 @@ impl Compile for CodeChunk {
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let relations = code::compile("", &self.text, &self.programming_language);
-        let outputs = kernels
+        let (outputs, errors) = kernels
             .exec(&self.text, &self.programming_language, Some(relations))
             .await?;
+
         self.outputs = if outputs.is_empty() {
             None
         } else {
             Some(outputs)
+        };
+        self.errors = if errors.is_empty() {
+            None
+        } else {
+            Some(errors)
         };
 
         Ok(())
@@ -314,10 +320,16 @@ impl Compile for CodeExpression {
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let relations = code::compile("", &self.text, &self.programming_language);
-        let outputs = kernels
+        let (outputs, errors) = kernels
             .exec(&self.text, &self.programming_language, Some(relations))
             .await?;
+
         self.output = outputs.get(0).map(|output| Box::new(output.clone()));
+        self.errors = if errors.is_empty() {
+            None
+        } else {
+            Some(errors)
+        };
 
         Ok(())
     }

@@ -5,7 +5,7 @@ use eyre::{bail, Result};
 use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::HashMap;
-use stencila_schema::Node;
+use stencila_schema::{CodeError, Node};
 
 #[derive(Debug, Clone, Default, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
@@ -43,12 +43,12 @@ impl KernelTrait for DefaultKernel {
         Ok(())
     }
 
-    async fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
+    async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
         let mut outputs = Vec::new();
         for line in code.lines() {
             let node = self.get(line.trim()).await?;
             outputs.push(node)
         }
-        Ok(outputs)
+        Ok((outputs, Vec::new()))
     }
 }
