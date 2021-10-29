@@ -20,11 +20,10 @@ cli-pretty = ["atty", "syntect", "termimad"]
 cli-view = ["webbrowser"]
 cli-interact = ["ansi_term", "rustyline", "rustyline-derive"]
 
-serve = ["sudo"]
-serve-http = ["serve", "warp", "jsonwebtoken"]
-serve-static = ["serve", "warp", "rust-embed"]
+serve = []
 serve-stdio = ["serve"]
-serve-ws = ["serve", "warp", "jsonwebtoken"]
+serve-http = ["serve", "sudo", "warp", "jsonwebtoken", "rust-embed"]
+serve-ws = ["serve-http"]
 
 request = []
 request-docker = ["bollard"]
@@ -109,7 +108,6 @@ default = [
   "serve-stdio",
   "serve-http",
   "serve-ws",
-  "serve-static",
   "request",
   "request-docker",
   "request-http",

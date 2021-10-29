@@ -16,7 +16,6 @@ use itertools::Itertools;
 use jwt::JwtError;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
-use reqwest::{header::HeaderValue, StatusCode};
 use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -29,7 +28,10 @@ use std::{
 };
 use thiserror::private::PathAsDisplay;
 use tokio::sync::{mpsc, RwLock};
-use warp::{ws, Filter, Reply};
+use warp::{
+    http::{header::HeaderValue, StatusCode},
+    ws, Filter, Reply,
+};
 
 /// Parse a URL into protocol, address and port components
 pub fn parse_url(url: &str) -> Result<(Protocol, String, u16)> {
@@ -122,7 +124,7 @@ pub fn serve_background(url: &str, key: Option<String>) -> Result<()> {
 /// has a symlink to `web/dist/browser` (and maybe in the future other folders).
 /// At build time these are embedded in the binary. Use `include` and `exclude`
 /// glob patterns to only include the assets that are required.
-#[cfg(feature = "serve-static")]
+#[cfg(feature = "serve-http")]
 #[derive(RustEmbed)]
 #[folder = "static"]
 #[exclude = "web/*.map"]
@@ -333,25 +335,6 @@ pub async fn serve_on(
     tracing::info!("Serving on {}://{}:{}", protocol, address, port);
 
     match protocol {
-        Protocol::Stdio => {
-            use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
-
-            let stdin = tokio::io::stdin();
-            let mut stdout = tokio::io::stdout();
-
-            let buffer = tokio::io::BufReader::new(stdin);
-            let mut lines = buffer.lines();
-            // TODO capture next_line errors and log them
-            while let Some(line) = lines.next_line().await? {
-                // TODO capture any json errors and send
-                let request = serde_json::from_str::<Request>(&line)?;
-                let (response, ..) = request.dispatch("stdio").await;
-                let json = serde_json::to_string(&response)? + "\n";
-                // TODO: unwrap any of these errors and log them
-                stdout.write_all(json.as_bytes()).await?;
-                stdout.flush().await?
-            }
-        }
         Protocol::Http | Protocol::Ws => {
             // Static files (assets embedded in binary for which authorization is not required)
 
@@ -441,6 +424,30 @@ pub async fn serve_on(
             let (_address, future) = warp::serve(routes).try_bind_ephemeral((address, port))?;
             future.await
         }
+        #[cfg(feature = "serve-stdio")]
+        Protocol::Stdio => {
+            use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
+
+            let stdin = tokio::io::stdin();
+            let mut stdout = tokio::io::stdout();
+
+            let buffer = tokio::io::BufReader::new(stdin);
+            let mut lines = buffer.lines();
+            // TODO capture next_line errors and log them
+            while let Some(line) = lines.next_line().await? {
+                // TODO capture any json errors and send
+                let request = serde_json::from_str::<Request>(&line)?;
+                let (response, ..) = request.dispatch("stdio").await;
+                let json = serde_json::to_string(&response)? + "\n";
+                // TODO: unwrap any of these errors and log them
+                stdout.write_all(json.as_bytes()).await?;
+                stdout.flush().await?
+            }
+        }
+        #[allow(unreachable_patterns)]
+        _ => {
+            bail!("Serving over protocol `{:?}` is not enabled", protocol)
+        }
     };
 
     Ok(())
@@ -452,7 +459,7 @@ pub async fn serve_on(
 /// handler functions below.
 #[allow(clippy::unnecessary_wraps)]
 fn error_response(
-    code: warp::http::StatusCode,
+    code: StatusCode,
     message: &str,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     Ok(warp::reply::with_status(
@@ -538,7 +545,7 @@ fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Respo
 
     fn redirect(next: String) -> warp::reply::Response {
         warp::reply::with_header(
-            warp::http::StatusCode::MOVED_PERMANENTLY,
+            StatusCode::MOVED_PERMANENTLY,
             warp::http::header::LOCATION,
             next.as_str(),
         )
@@ -550,11 +557,8 @@ fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Respo
         redirect(next)
     } else if token.is_none() {
         // There is no `?token=` query parameter
-        warp::reply::with_status(
-            warp::reply::html("No token"),
-            warp::http::StatusCode::UNAUTHORIZED,
-        )
-        .into_response()
+        warp::reply::with_status(warp::reply::html("No token"), StatusCode::UNAUTHORIZED)
+            .into_response()
     } else {
         let key = key.unwrap();
         let token = token.unwrap();
@@ -564,19 +568,14 @@ fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Respo
             let mut response = redirect(next);
             const DAY: i64 = 24 * 60 * 60;
             let cookie_token = jwt::encode(key, Some(30 * DAY)).unwrap();
-            let cookie =
-                warp::http::HeaderValue::from_str(format!("token={}", cookie_token).as_str())
-                    .unwrap();
+            let cookie = HeaderValue::from_str(format!("token={}", cookie_token).as_str()).unwrap();
             let headers = response.headers_mut();
             headers.insert("set-cookie", cookie);
             response
         } else {
             // Invalid token
-            warp::reply::with_status(
-                warp::reply::html("Invalid token"),
-                warp::http::StatusCode::UNAUTHORIZED,
-            )
-            .into_response()
+            warp::reply::with_status(warp::reply::html("Invalid token"), StatusCode::UNAUTHORIZED)
+                .into_response()
         }
     }
 }
@@ -961,7 +960,7 @@ async fn rejection_handler(
             error: Some(error),
             ..Default::default()
         }),
-        warp::http::StatusCode::BAD_REQUEST,
+        StatusCode::BAD_REQUEST,
     ))
 }
 
