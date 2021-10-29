@@ -254,7 +254,7 @@ tracing-error = "=0.1.2"
 tracing-serde = "=0.1.2"
 tracing-subscriber = "=0.2.25"
 tree-sitter = { version = "=0.19.5", optional = true }
-tree-sitter-javascript = { version = "=0.19.0", optional = true }
+tree-sitter-javascript = { version = "=0.20.0", optional = true }
 tree-sitter-python = { version = "=0.19.0", optional = true }
 tree-sitter-r = { version = "=0.19.3", optional = true }
 tree-sitter-typescript = { version = "=0.19.0", optional = true }
