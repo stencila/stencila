@@ -400,10 +400,10 @@ impl KernelSpace {
     async fn connect(&mut self, id_or_path: &str) -> Result<KernelId> {
         #[cfg(feature = "kernels-jupyter")]
         {
-        let (kernel_id, kernel) = jupyter::JupyterKernel::connect(id_or_path).await?;
-        self.kernels.insert(kernel_id.clone(), kernel);
+            let (kernel_id, kernel) = jupyter::JupyterKernel::connect(id_or_path).await?;
+            self.kernels.insert(kernel_id.clone(), kernel);
 
-        Ok(kernel_id)
+            Ok(kernel_id)
         }
 
         #[cfg(not(feature = "kernels-jupyter"))]

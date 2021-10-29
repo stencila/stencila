@@ -1,7 +1,7 @@
 //! The main file for the `stencila` CLI tool
 //!
 //! This module requires the `cli` feature to be enabled e.g.
-//! 
+//!
 //! cargo run --no-default-features --features cli help
 
 #![recursion_limit = "256"]
@@ -19,7 +19,7 @@ use stencila::{
         LoggingFormat, LoggingLevel,
     },
     projects::{self, PROJECTS},
-    sources
+    sources,
 };
 use structopt::StructOpt;
 use strum::VariantNames;
@@ -472,7 +472,8 @@ pub async fn main() -> Result<()> {
 
     // The `with` command is always interactive; need to work out
     // if projects or documents module
-    let (interact, _module) = match &command {
+    #[allow(unused_variables)]
+    let (interact, module) = match &command {
         Some(Command::With(WithCommand { path })) => (
             true,
             if path.is_dir() {
