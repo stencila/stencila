@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.browser.json",
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "lib": ["dom", "dom.iterable", "es2017"],
+    "sourceMap": true,
+    "jsx": "react",
+    "resolveJsonModule": false
+  }
+}

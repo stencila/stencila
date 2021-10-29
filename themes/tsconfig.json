@@ -1,0 +1,10 @@
+{
+  "extends": "@stencila/dev-config/tsconfig.json",
+  "include": ["src"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "es2017"],
+    "outDir": "dist",
+    "module": "CommonJS"
+  }
+}

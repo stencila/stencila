@@ -1,0 +1,429 @@
+@import '@elifesciences/pattern-library';
+
+@import '../../extensions/cite-author-year/styles.css';
+@import '../../extensions/person/styles.css';
+@import '../../extensions/math/styles.css';
+
+@import 'staticCustomProperties.css';
+@import 'stencilaComponents.css';
+
+/* @extend-ing eLife's CSS may not take into account the cascade of styles
+ * applied to an element upstream of the extended style. Add @mixins here for such styles
+ * that apply to more than one element, that would otherwise be missed. */
+@define-mixin inline-list {
+  list-style: none;
+  padding: 0;
+}
+
+@define-mixin visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  user-select: none;
+}
+
+@custom-media --medium-viewport (min-width: 45.625em);
+@custom-media --medium-viewport-max (max-width: 45.625em);
+
+:--root {
+  @extend .wrapper;
+  @extend .content-container;
+  @extend .grid__item;
+
+  float: none;
+  padding-left: 7%;
+  padding-right: 7%;
+
+  @extend .grid-column;
+
+  --main-title-font-size: var(--TEXT-SIZE-MAIN-TITLE--NARROWER-VIEWPORTS);
+  --main-title-block-height: var(--BLOCK-HEIGHT-MAIN-TITLE--NARROWER-VIEWPORTS);
+  --download-icon-block-size: var(
+    --BLOCK-SIZE-DOWNLOAD-ICON-PX--NARROWER-VIEWPORTS
+  );
+}
+
+@media only screen and (--medium-viewport) {
+  :--root {
+    padding-left: 3%;
+    padding-right: 3%;
+
+    --main-title-font-size: var(--TEXT-SIZE-MAIN-TITLE--WIDER-VIEWPORTS);
+    --main-title-block-height: var(--BLOCK-HEIGHT-MAIN-TITLE--WIDER-VIEWPORTS);
+    --download-icon-block-size: var(
+      --BLOCK-SIZE-DOWNLOAD-ICON-PX--WIDER-VIEWPORTS
+    );
+  }
+}
+
+:--Article {
+  position: relative;
+
+  .content-header__icons {
+    left: 0;
+  }
+
+  .content-header__icon {
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    display: block;
+    width: 17px;
+    height: 22px;
+  }
+
+  .content-header__icon--cc,
+  .content-header__icon--cc:hover {
+    background-image: url('@elifesciences/pattern-library/source/assets/img/icons/cc.svg');
+  }
+
+  .content-header__icon--oa,
+  .content-header__icon--oa:hover {
+    background-image: url('@elifesciences/pattern-library/source/assets/img/icons/oa.svg');
+  }
+
+  & :--authors {
+    @extend .content-header__author_list;
+
+    :--Person {
+      @extend .content-header__author_list_item;
+
+      font-size: var(--TEXT-SIZE-MEDIUM-REM);
+
+      :--familyName::after {
+        content: ', ';
+      }
+
+      &:last-child {
+        :--familyName::after {
+          content: '';
+        }
+      }
+
+      :--emails::after {
+        content: url('@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+      }
+    }
+
+    :--Organization {
+      @extend .content-header__author_list_item;
+
+      font-size: var(--TEXT-SIZE-MEDIUM-REM);
+
+      :--name::after {
+        content: ', ';
+      }
+
+      &:last-child {
+        :--name::after {
+          content: '';
+        }
+      }
+
+      :--emails::after {
+        content: url('@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+      }
+    }
+
+    /* Hide until requirement is established */
+    :--affiliations {
+      display: none;
+    }
+  }
+
+  & :--affiliations {
+    @mixin inline-list;
+    @extend .content-header__institution_list;
+
+    margin-bottom: var(--BASELINE-MEASURE-REM);
+
+    :--Organization {
+      display: inline;
+
+      :--name,
+      :--address {
+        @extend .content-header__institution_list_item;
+      }
+
+      & :--parentOrganization::before {
+        content: ', ';
+      }
+
+      & :--address::after {
+        content: '; ';
+      }
+
+      &:last-child :--address::after {
+        content: '';
+      }
+
+      & :--address span::before {
+        content: ', ';
+      }
+
+      :--addressCountry::before {
+        content: ' ';
+      }
+    }
+  }
+
+  /* Hide article metadata */
+  & > [data-itemprop='about'],
+  & > [data-itemprop='genre'],
+  & > :--keywords,
+  & > :--identifiers {
+    display: none;
+  }
+
+  /* Hide Collaborative group/organization author emails/list */
+  & > :--authors :--Organization :--email,
+  & > :--authors :--Organization :--members {
+    display: none;
+  }
+
+  & :--references {
+    font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+
+    ol {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    :--reference {
+      font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+      font-size: var(--TEXT-SIZE-DEFAULT-REM);
+      margin-right: 2.5rem;
+      margin-bottom: 0.75rem;
+
+      :--title {
+        display: inline;
+        font-size: var(--TEXT-SIZE-DEFAULT-REM);
+        font-weight: bold;
+
+        &::before {
+          content: ' ';
+        }
+      }
+
+      :--author {
+        font-size: var(--TEXT-SIZE-DEFAULT-REM);
+        line-height: 27px;
+      }
+
+      :--authors {
+        display: inline;
+      }
+
+      :--datePublished {
+        display: inline;
+
+        &::before {
+          content: ' (';
+        }
+
+        &::after {
+          content: ')';
+        }
+      }
+
+      :--isPartOf :--name {
+        font-style: italic;
+
+        &::before {
+          content: ' ';
+        }
+
+        &::after {
+          content: ' ';
+          white-space: pre;
+        }
+      }
+
+      :--volumeNumber {
+        font-weight: bold;
+
+        &::after {
+          content: ':';
+        }
+      }
+
+      :--pageEnd::before {
+        content: '-';
+      }
+    }
+  }
+
+  & .content-header {
+    display: flex;
+    flex-direction: row-reverse;
+    margin-bottom: calc(var(--BASELINE-MEASURE-REM) / 2);
+
+    & > .download-link {
+      flex: 0 0 var(--download-icon-block-size);
+      height: var(--download-icon-block-size);
+      background: url('@elifesciences/pattern-library/source/assets/img/icons/download.svg')
+        transparent no-repeat;
+
+      @media only screen and (--medium-viewport) {
+        background-image: url('@elifesciences/pattern-library/source/assets/img/icons/download-full.svg');
+      }
+
+      & > .download-link-text {
+        @mixin visuallyhidden;
+      }
+    }
+  }
+
+  & .downloads {
+    --link-color: var(--COLOR-TEXT);
+
+    .downloads--link {
+      margin-top: 6px;
+      font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+
+      a {
+        color: var(--COLOR-PRIMARY);
+        font-size: var(--TEXT-SIZE-MEDIUM-REM);
+        font-weight: normal;
+        line-height: 1.5rem;
+        border-bottom: 0;
+      }
+    }
+
+    ul {
+      margin-top: 0;
+      margin-bottom: var(--BASELINE-MEASURE-REM);
+
+      li {
+        font-size: var(--TEXT-SIZE-DEFAULT-REM);
+
+        a {
+          background-color: var(--COLOR-TEXT-UI-BACKGROUND);
+          color: var(--link-color);
+          border-bottom: 1px dotted var(--COLOR-TEXT);
+          text-decoration: none;
+
+          &:hover {
+            --link-color: var(--COLOR-PRIMARY);
+
+            border-bottom-color: var(--COLOR-PRIMARY);
+          }
+        }
+      }
+    }
+  }
+
+  & .social-sharers {
+    height: 20px;
+    text-align: center;
+
+    /* Added 4px because height of social sharer link is 20px instead of 24px; */
+    margin-bottom: calc(var(--BASELINE-MEASURE-REM) + 4px);
+
+    & .social-sharer-link {
+      display: inline-block;
+      margin: 0 8px;
+      padding: 3px 0 1px;
+      width: 24px;
+      height: 24px;
+      text-align: center;
+      border-radius: 3px;
+      background-color: rgb(33 33 33);
+      fill: var(--COLOR-TEXT-UI-BACKGROUND);
+      stroke: none; /* stylelint-disable-line scale-unlimited/declaration-strict-value */
+      transition: 25ms ease-in-out;
+
+      &:hover {
+        background-color: var(--COLOR-PRIMARY);
+      }
+
+      & > svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
+  /* Target the 'content header' at the top of the article */
+  &:not(:--reference) {
+    & > :--title,
+    & > :--authors,
+    & > :--affiliations,
+    & > :--datePublished {
+      text-align: center;
+    }
+
+    & > :--title {
+      font-size: calc(var(--main-title-font-size) * 1rem);
+      line-height: calc(
+        var(--main-title-block-height) / var(--main-title-font-size)
+      );
+      margin-bottom: var(--BASELINE-MEASURE-REM);
+    }
+
+    & > :--datePublished {
+      color: var(--COLOR-TEXT-SECONDARY);
+      display: block;
+      font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+      font-size: var(--TEXT-SIZE-SMALL-REM);
+      letter-spacing: var(--LETTER-SPACING);
+      line-height: calc(var(--BASELINE-MEASURE) / var(--TEXT-SIZE-SMALL));
+      text-align: center;
+      text-transform: capitalize;
+    }
+  }
+
+  :--Figure {
+    margin: 1em 0;
+
+    img {
+      outline: 1px solid #e0e0e0;
+      padding: 0.75rem;
+    }
+
+    :--Heading {
+      font-size: var(--TEXT-SIZE-SMALL-MEDIUM-REM);
+      line-height: 1.84615;
+      padding-bottom: 0;
+    }
+
+    :--Paragraph {
+      font-size: var(--TEXT-SIZE-SMALL-MEDIUM-REM);
+      line-height: 1.84615;
+    }
+  }
+
+  :--label {
+    display: block;
+    font-size: var(--TEXT-SIZE-MEDIUM-REM);
+    font-weight: bold;
+    line-height: 1.71429;
+    padding: 0.75rem 0;
+  }
+}
+
+:--Collection {
+  padding-left: 0;
+
+  li {
+    list-style-type: none;
+  }
+}
+
+/* Visually hide 'content header' affiliations at narrower viewports, maintaining vertical whitespace */
+@media screen and (--medium-viewport-max) {
+  /* Target the 'content header' at the top of the article */
+  :--Article:not(:--reference) {
+    & > :--authors {
+      margin-bottom: var(--BASELINE-MEASURE-REM);
+    }
+
+    & :--affiliations {
+      @mixin visuallyhidden;
+    }
+  }
+}

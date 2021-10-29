@@ -1,0 +1,164 @@
+/**
+ * This theme is designed as an illustration of deriving a theme entirely
+ * from an existing stylesheet. It does not use an styles or mixins from
+ * the `shared` folder. See README.md for more.
+ */
+
+/**
+ * Import the Bootstrap CSS
+ *
+ * Many of Bootstrap's typographic styles target semantic HTML elements
+ * e.g. `<del>`, `<blockquote>` etc. So we get those "for free" without
+ * having to do any mapping. However, for other styles we need to explicitly
+ * map between Bootstrap's class based selectors and Thema's semantic selectors
+ * using `@extend` e.g. `:--Table` to `.table`
+ */
+@import 'bootstrap/dist/css/bootstrap.css';
+@import './components.css';
+
+/* Import semantic selectors so that we can map Bootstrap styles to them */
+@import '../../selectors.css';
+
+/* Import some Thema extensions to re-use styling for certain node types */
+@import '../../extensions/cite-apa/styles.css';
+
+/* Hide article metadata */
+:--identifiers {
+  display: none;
+}
+
+:--root {
+  /* Use Bootstrap's `container` class but with a maximum width for readability */
+  @extend .container;
+
+  max-width: 70rem;
+
+  :--ImageObject {
+    max-width: 100%;
+    height: auto;
+  }
+
+  :--authors :--Organization :--members,
+  :--authors {
+    /* Use Bootstrap's `list-inline` class  */
+    @extend .list-inline;
+
+    /* For each author... */
+    :--author,
+    :--member {
+      /* Separate authors using a comma */
+      &::after {
+        content: ', ';
+      }
+
+      &:last-child::after {
+        content: normal;
+      }
+
+      /* Place a space after each given name */
+      :--givenName {
+        &::after {
+          content: '\00a0';
+        }
+      }
+
+      /* Display affiliations as a space separated list of Use Bootstrap label */
+      :--affiliations {
+        @extend .list-inline;
+
+        display: inline-block;
+        margin: -5px 0 0 5px;
+
+        :--affiliation {
+          @extend .label;
+          @extend .label-info;
+        }
+      }
+
+      /* Display emails with an icon */
+      :--emails {
+        @extend .list-inline;
+
+        display: inline-block;
+        margin-left: 5px;
+
+        :--email {
+          @extend .glyphicon;
+          @extend .glyphicon-envelope;
+
+          width: 1em;
+          text-overflow: clip;
+          overflow: hidden;
+          display: inline-flex;
+
+          &::before {
+            padding-right: 5px;
+          }
+
+          & + :--email {
+            margin-left: 5px;
+          }
+        }
+      }
+    }
+  }
+
+  :--authors :--Organization :--members {
+    display: inline;
+    padding-left: 5px;
+    padding-right: 5px;
+
+    &::before {
+      content: '(';
+    }
+
+    &::after {
+      content: ')';
+    }
+
+    :--member {
+      padding: 0;
+    }
+  }
+
+  /**
+   * Use Bootstrap's `list-group` class for affiliations list
+   */
+  :--affiliations {
+    @extend .list-group;
+
+    margin-top: 2em;
+
+    :--Organization {
+      @extend .list-group-item;
+    }
+  }
+
+  & > [data-itemprop='about'],
+  & > [data-itemprop='genre'],
+  & > :--identifiers,
+  & > :--keywords {
+    display: none;
+  }
+
+  /**
+   * Use Bootstrap's `panel` class to emphasize the Article's abstract.
+   * See `./index.ts` for how we add wrapping elements to the content
+   * to enable this styling.
+   */
+  :--description {
+    @extend .panel;
+    @extend .panel-info;
+
+    h2 {
+      @extend .panel-title;
+    }
+  }
+
+  /* Apply Bootstrap's table styling */
+  :--Table,
+  :--Datatable > table {
+    @extend .table;
+    @extend .table-bordered;
+  }
+}

@@ -1,0 +1,119 @@
+/* Stencila theme
+* This theme extends the Skeleton theme and demonstrates how by overriding a handful of CSS variables you can create a
+* theme with a distinct look. */
+
+@import '../skeleton/styles.css';
+@import './components.css';
+@import url('https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Montserrat:600,600i&display=swap');
+
+:--root {
+  --max-width: 560px;
+  --max-width-media: 720px;
+
+  /* Font Families */
+  --font-family-title: 'Montserrat', sans-serif;
+  --font-family-body: 'Lato', serif;
+  --font-family-mono: 'IBM Plex Mono', 'Fira Code', monospace;
+
+  /* Font Sizes */
+  --font-size-body: 16px;
+  --font-size-title: calc(16 * 1.953 * 1px);
+  --font-size-blockquote: calc(16 * 5 * 1px);
+  --font-size-h1: calc(16 * 1.5 * 1px);
+  --font-size-h2: calc(16 * 1.25 * 1px);
+  --font-size-h3: calc(16 * 1.25 * 1px);
+  --font-size-h4: calc(16 * 1 * 1px);
+  --font-size-h5: calc(16 * 0.8 * 1px);
+  --font-size-h6: calc(16 * 0.725 * 1px);
+  --line-height: 1.45;
+
+  /* Theme Colors */
+  --color-stock: #fff;
+  --color-key: #363636;
+
+  /* Primary: Used for primary tone of the theme, for buttons, links, and other elements */
+  --color-primary-100: #cdddfc;
+  --color-primary-200: #b0c8fa;
+  --color-primary-300: #8db0f8;
+  --color-primary-400: #6092f6;
+  --color-primary-500: #1d64f3;
+  --color-primary-600: #1a5adb;
+  --color-primary-700: #164ebf;
+  --color-primary-800: #12409d;
+  --color-primary-900: #0d2d6f;
+
+  /* Neutral: For backgrounds and borders.
+  * Note that there are 5 variables, instead of the usual 3. */
+  --color-neutral-100: #f7fafc;
+  --color-neutral-200: #edf2f7;
+  --color-neutral-300: #e2e8f0;
+  --color-neutral-400: #cbd5e0;
+  --color-neutral-500: #a0aec0;
+  --color-neutral-600: #718096;
+  --color-neutral-700: #4a5568;
+  --color-neutral-800: #2d3748;
+  --color-neutral-900: #1a202c;
+
+  & > [data-itemprop='about'],
+  & > [data-itemprop='genre'],
+  & > :--identifiers,
+  & > :--keywords {
+    display: none;
+  }
+}
+
+:--Heading {
+  font-weight: 600;
+
+  & + & {
+    margin-top: 0;
+  }
+
+  & + :--Paragraph {
+    margin-top: 0;
+  }
+}
+
+h2:--Heading:not(:--Heading + h2:--Heading):not(figcaption h2) {
+  border-top: 1px solid var(--color-neutral-500);
+  margin-top: var(--spacer-xl);
+  padding-top: var(--spacer-xl);
+}
+
+h3:--Heading,
+h4:--Heading,
+h5:--Heading {
+  color: var(--color-neutral-600);
+}
+
+h4:--Heading {
+  font-size: var(--font-size-h4);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+:--CodeTypes {
+  font-size: var(--font-size-h4);
+}
+
+:--Table {
+  border-collapse: collapse;
+  border: 1px solid var(--color-neutral-400);
+}
+
+:--TableRow {
+  border: 1px solid var(--color-neutral-300);
+
+  &:nth-child(even) {
+    background-color: var(--color-neutral-100);
+  }
+}
+
+:--TableCell {
+  padding: 8px;
+}
+
+:--references ol li {
+  list-style-type: number;
+}

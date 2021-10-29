@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["./src/lib"],
+  "exclude": [
+    "node_modules",
+    "src/themes/**/*",
+    "src/**/*.test.*",
+    "src/demo/**",
+    "src/examples/**",
+    "src/extensions/extensions.ts",
+    "src/extensions/math/update.ts",
+    "src/browser/**",
+    "src/scripts/**"
+  ],
+  "compilerOptions": {
+    "lib": ["es2017"],
+    "skipLibCheck": true
+  }
+}
