@@ -369,6 +369,7 @@ pub mod cli {
                 config.reset(&property)?;
                 display::nothing()
             }
+            #[allow(unused_mut)]
             Action::Dirs => {
                 let mut value = json!({
                     "config": dir(false)?.display().to_string(),

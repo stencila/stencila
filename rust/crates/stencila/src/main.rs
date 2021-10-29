@@ -19,8 +19,7 @@ use stencila::{
         LoggingFormat, LoggingLevel,
     },
     projects::{self, PROJECTS},
-    sources, tracing,
-    utils::keys,
+    sources
 };
 use structopt::StructOpt;
 use strum::VariantNames;
@@ -248,7 +247,7 @@ impl OpenCommand {
         // Generate a key and a corresponding login URL and open browser at the login page (will
         // redirect to document page).
         let port = 9000u16;
-        let key = Some(keys::generate());
+        let key = Some(stencila::utils::keys::generate());
         let login_url = serve::login_url(port, key.clone(), Some(60), Some(path))?;
         #[cfg(feature = "cli-view")]
         webbrowser::open(login_url.as_str())?;
@@ -473,7 +472,7 @@ pub async fn main() -> Result<()> {
 
     // The `with` command is always interactive; need to work out
     // if projects or documents module
-    let (interact, module) = match &command {
+    let (interact, _module) = match &command {
         Some(Command::With(WithCommand { path })) => (
             true,
             if path.is_dir() {
@@ -736,7 +735,7 @@ mod render {
     use stencila::cli::display::Display;
 
     // Display the result of a command without prettiness
-    pub fn render(formats: &[String], display: Display) -> Result<()> {
+    pub fn render(_formats: &[String], display: Display) -> Result<()> {
         match display {
             Display {
                 content: Some(content),

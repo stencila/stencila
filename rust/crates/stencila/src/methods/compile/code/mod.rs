@@ -2,6 +2,7 @@
 use crate::graphs::{Relation, Resource};
 use std::path::Path;
 
+#[allow(dead_code)]
 mod utils;
 
 #[cfg(feature = "tree-sitter")]
@@ -23,6 +24,7 @@ pub mod r;
 pub mod ts;
 
 /// Compile code in a particular language
+#[allow(unused_variables)]
 pub fn compile<P: AsRef<Path>>(path: P, code: &str, language: &str) -> Vec<(Relation, Resource)> {
     let path = path.as_ref();
     let pairs = match language {

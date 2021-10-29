@@ -1,6 +1,5 @@
 use crate::formats::{format_type, FormatType};
 use eyre::Result;
-use maplit::hashmap;
 use stencila_schema::Node;
 
 #[cfg(feature = "decode-date")]
@@ -126,7 +125,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
                     #[cfg(feature = "request")]
                     return crate::plugins::delegate(
                         super::Method::Decode,
-                        hashmap! {
+                        maplit::hashmap! {
                             "innput".to_string() => serde_json::to_value(input)?,
                             "format".to_string() => serde_json::to_value(format)?
                         },

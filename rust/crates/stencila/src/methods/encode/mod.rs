@@ -1,6 +1,5 @@
 use defaults::Defaults;
 use eyre::{bail, Result};
-use maplit::hashmap;
 use stencila_schema::Node;
 
 // Core target formats needed for basic functionality
@@ -97,6 +96,7 @@ pub struct Options {
 ///
 /// The encoded content, or if a file was written, a file:// URL with the
 /// path of the file (which should equal the `output` argument).
+#[allow(unused_variables)]
 pub async fn encode(
     node: &Node,
     output: &str,
@@ -153,7 +153,7 @@ pub async fn encode(
             {
                 let node = crate::plugins::delegate(
                     super::Method::Encode,
-                    hashmap! {
+                    maplit::hashmap! {
                         "node".to_string() => serde_json::to_value(node)?,
                         "format".to_string() => serde_json::to_value(format)?
                     },

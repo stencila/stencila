@@ -95,6 +95,7 @@ impl Kernel {
     /// Get a list of available kernels
     #[allow(clippy::vec_init_then_push)]
     pub async fn available() -> Result<Vec<String>> {
+        #[allow(unused_mut)]
         let mut list: Vec<String> = Vec::new();
 
         #[cfg(feature = "kernels-calc")]
@@ -395,6 +396,7 @@ impl KernelSpace {
     }
 
     /// Connect to a running kernel
+    #[allow(unused_variables)]
     async fn connect(&mut self, id_or_path: &str) -> Result<KernelId> {
         #[cfg(feature = "kernels-jupyter")]
         {
@@ -464,7 +466,6 @@ pub mod cli {
     use super::*;
     use crate::cli::display;
     use once_cell::sync::Lazy;
-    use serde_json::json;
     use structopt::StructOpt;
     use tokio::sync::Mutex;
 
@@ -543,7 +544,7 @@ pub mod cli {
             {
                 let kernels = jupyter::JupyterKernel::running().await?;
                 let servers = jupyter::JupyterServer::running().await?;
-                display::value(json!({
+                display::value(serde_json::json!({
                     "kernels": kernels,
                     "servers": servers
                 }))
