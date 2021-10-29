@@ -3,11 +3,13 @@ use eyre::{bail, Result};
 use maplit::hashmap;
 use stencila_schema::Node;
 
+// Core target formats needed for basic functionality
+// (e.g. previews) so not behind feature flags
+pub mod html;
+pub mod txt;
+
 #[cfg(feature = "encode-docx")]
 pub mod docx;
-
-#[cfg(feature = "encode-html")]
-pub mod html;
 
 #[cfg(feature = "encode-ipynb")]
 pub mod ipynb;
@@ -41,8 +43,6 @@ pub mod rpng;
 
 #[cfg(feature = "encode-toml")]
 pub mod toml;
-
-pub mod txt;
 
 #[cfg(feature = "encode-yaml")]
 pub mod yaml;
@@ -106,11 +106,11 @@ pub async fn encode(
     // Allow these for when no features are enabled
     #[allow(unused_variables, unreachable_code)]
     Ok(match format {
+        "html" => html::encode(node, options)?,
+        "txt" => txt::encode(node)?,
+
         #[cfg(feature = "decode-docx")]
         "docx" => docx::encode(node, output).await?,
-
-        #[cfg(feature = "encode-html")]
-        "html" => html::encode(node, options)?,
 
         #[cfg(feature = "encode-ipynb")]
         "ipynb" => ipynb::encode(node)?,
@@ -144,9 +144,6 @@ pub async fn encode(
 
         #[cfg(feature = "encode-toml")]
         "toml" => toml::encode(node)?,
-
-        #[cfg(feature = "encode-txt")]
-        "txt" => txt::encode(node)?,
 
         #[cfg(feature = "encode-yaml")]
         "yaml" => yaml::encode(node)?,

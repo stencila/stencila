@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use stencila::{graphs::resources, methods::compile::code::compile};
+use stencila::{methods::compile::code::compile};
 
 fn criterion_benchmark(criterion: &mut Criterion) {
     criterion.bench_function("compile r", |bencher| {

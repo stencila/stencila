@@ -91,7 +91,7 @@ proptest! {
     // we reduce the number of test cases from the default of 256
     #![proptest_config(ProptestConfig::with_cases(100))]
 
-    #[cfg(all(feature="encode-html", feature="decode-html"))]
+    #[cfg(feature="decode-html")]
     #[test]
     fn html(input in article(Freedom::Max)) {
         let content = encode::html::encode(&input, None).unwrap();

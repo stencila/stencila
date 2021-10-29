@@ -10,6 +10,7 @@ pub mod documents;
 pub mod files;
 pub mod formats;
 pub mod graphs;
+pub mod kernels;
 pub mod patches;
 pub mod projects;
 pub mod sessions;
@@ -52,9 +53,6 @@ pub mod binaries;
 
 #[cfg(feature = "plugins")]
 pub mod plugins;
-
-#[cfg(feature = "kernels")]
-pub mod kernels;
 
 #[cfg(feature = "upgrade")]
 pub mod upgrade;

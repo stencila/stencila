@@ -1,5 +1,4 @@
 use crate::{
-    cli::display,
     graphs::{Relation, Resource},
     methods::compile,
     utils::uuids,
@@ -384,7 +383,7 @@ impl KernelSpace {
             _ => jupyter::JupyterKernel::create(&kernel_id, language).await?,
 
             #[cfg(not(feature = "kernels-jupyter"))]
-            _ => bail!(
+            _ => eyre::bail!(
                 "Unable to create an execution kernel for language `{}` because support for Jupyter kernels is not enabled",
                 language
             ),
@@ -397,15 +396,18 @@ impl KernelSpace {
 
     /// Connect to a running kernel
     async fn connect(&mut self, id_or_path: &str) -> Result<KernelId> {
-        #[cfg(not(feature = "kernels-jupyter"))]
-        bail!(
-            "Unable to connect to running kernel because support for Jupyter kernels is not enabled",
-        );
-
+        #[cfg(feature = "kernels-jupyter")]
+        {
         let (kernel_id, kernel) = jupyter::JupyterKernel::connect(id_or_path).await?;
         self.kernels.insert(kernel_id.clone(), kernel);
 
         Ok(kernel_id)
+        }
+
+        #[cfg(not(feature = "kernels-jupyter"))]
+        eyre::bail!(
+            "Unable to connect to running kernel because support for Jupyter kernels is not enabled",
+        )
     }
 
     /// Stop one of the kernels and remove it from the kernel space
@@ -419,7 +421,10 @@ impl KernelSpace {
     ///
     /// Primarily intended for use in interactive mode as an execution REPL.
     /// Adds execution related shortcuts e.g. `%symbols` for changing the language.
-    pub async fn repl(&mut self, code: &str, language: &str) -> display::Result {
+    #[cfg(feature = "cli")]
+    pub async fn repl(&mut self, code: &str, language: &str) -> crate::cli::display::Result {
+        use crate::cli::display;
+
         if !code.is_empty() {
             let code = code.replace("\\n", "\n");
             if code == "%symbols" {

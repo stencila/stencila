@@ -38,9 +38,8 @@ plugins-link = ["plugins"]
 plugins-python = ["plugins"]
 plugins-r = ["plugins"]
 
-kernels = []
-kernels-calc = ["kernels", "fasteval"]
-kernels-jupyter = ["kernels", "zmq/vendored"]
+kernels-calc = ["fasteval"]
+kernels-jupyter = ["zmq/vendored"]
 
 upgrade = ["self_update"]
 
@@ -52,9 +51,9 @@ decode-docx = ["decode-pandoc"]
 decode-html = ["decode-md", "kuchiki", "markup5ever"]
 decode-ipynb = ["coerce", "decode-md", "decode-html", "decode-txt", "strip-ansi-escapes"]
 decode-json = []
-decode-json5 = ["coerce", "json5"]
+decode-json5 = ["coerce"]
 decode-latex = ["decode-pandoc"]
-decode-md = ["pulldown-cmark", "nom", "coerce", "decode-html", "encode-txt"]
+decode-md = ["pulldown-cmark", "nom", "coerce", "decode-html"]
 decode-pandoc = ["binaries", "pandoc_types"]
 decode-person = ["human_name"]
 decode-rmd = ["decode-md"]
@@ -64,10 +63,9 @@ decode-txt = ["decode-json5"]
 decode-yaml = []
 
 encode-docx = ["encode-pandoc"]
-encode-html = ["encode-txt", "html-escape", "quick-xml"]
-encode-ipynb = ["encode-md", "encode-txt"]
+encode-ipynb = ["encode-md"]
 encode-json = []
-encode-json5 = ["json5"]
+encode-json5 = []
 encode-latex = ["encode-pandoc"]
 encode-md = []
 encode-pandoc = ["binaries", "pandoc_types"]
@@ -76,7 +74,6 @@ encode-png = ["chromiumoxide"]
 encode-rmd = ["encode-md"]
 encode-rpng = ["encode-png", "png"]
 encode-toml = []
-encode-txt = ["json5"]
 encode-yaml = []
 
 coerce = ["decode-date", "decode-person"]
@@ -91,8 +88,6 @@ compile-ts = ["tree-sitter", "tree-sitter-javascript", "tree-sitter-typescript"]
 
 query-jmespath = ["jmespatch"]
 query-jsonptr = []
-
-patches = ["encode-txt", "encode-html", "similar", "unicode-segmentation"]
 
 default = [
   "cli",
@@ -114,7 +109,6 @@ default = [
   "plugins-javascript",
   "plugins-python",
   "plugins-r",
-  "kernels",
   "kernels-calc",
   "kernels-jupyter",
   "upgrade",
@@ -136,7 +130,6 @@ default = [
   "decode-txt",
   "decode-yaml",
   "encode-docx",
-  "encode-html",
   "encode-ipynb",
   "encode-json",
   "encode-json5",
@@ -148,7 +141,6 @@ default = [
   "encode-rmd",
   "encode-rpng",
   "encode-toml",
-  "encode-txt",
   "encode-yaml",
   "coerce",
   "reshape",
@@ -158,8 +150,7 @@ default = [
   "compile-r",
   "compile-ts",
   "query-jsonptr",
-  "query-jmespath",
-  "patches"
+  "query-jmespath"
 ]
 
 [dependencies]
@@ -189,13 +180,13 @@ glob = "=0.3.0"
 handlebars = "=4.1.3"
 hex = "0.4.3"
 hmac = "0.11.0"
-html-escape = { version = "=0.2.9", optional = true }
+html-escape = "=0.2.9"
 human_name = { version = "=1.0.2", optional = true }
 humantime = "=2.1.0"
 ignore = "=0.4.18"
 itertools = "0.10.1"
 jmespatch = { version = "=0.3.0", optional = true }
-json5 = { version = "=0.4.1", optional = true }
+json5 = "=0.4.1"
 jsonschema = { version = "=0.12.2", optional = true }
 jsonwebtoken = { version = "=7.2.0", optional = true }
 kuchiki = { version = "=0.8.1", optional = true }
@@ -215,7 +206,7 @@ petgraph = { version = "=0.6.0", features = ["serde-1"] }
 png = { version = "=0.17.2", optional = true }
 portpicker = "0.1.1"
 pulldown-cmark = { version = "=0.8.0", optional = true }
-quick-xml = { version = "=0.22.0", optional = true }
+quick-xml = "=0.22.0"
 rand = "=0.8.4"
 regex = "=1.5.4"
 reqwest = { version = "=0.11.6", optional = true, features = ["json"] }
@@ -233,7 +224,7 @@ serde_json = { version = "=1.0.68", features = ["preserve_order"] }
 serde_with = "=1.11.0"
 serde_yaml = "=0.8.21"
 sha2 = "0.9.8"
-similar = { version = "=2.1.0", features = ["unicode"], optional = true }
+similar = { version = "=2.1.0", features = ["unicode"] }
 slug = "=0.1.4"
 stencila-schema = "=1.12.0"
 strip-ansi-escapes = { version = "0.1.1", optional = true }
@@ -258,7 +249,7 @@ tree-sitter-javascript = { version = "=0.19.0", optional = true }
 tree-sitter-python = { version = "=0.19.0", optional = true }
 tree-sitter-r = { version = "=0.19.3", optional = true }
 tree-sitter-typescript = { version = "=0.19.0", optional = true }
-unicode-segmentation = { version = "1.8.0", optional = true }
+unicode-segmentation = "=1.8.0"
 url = "=2.2.2"
 validator = { version = "=0.14.0", features = ["derive"] }
 warp = { version = "=0.3.1", optional = true }
