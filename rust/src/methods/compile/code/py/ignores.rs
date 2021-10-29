@@ -2,7 +2,7 @@ use maplit::hashset;
 use once_cell::sync::Lazy;
 use std::collections::HashSet;
 
-/// A list of Python symbols to ignore
+/// A list of builtin Python functions to ignore when generating relations of type `Relation::Use`.
 ///
 /// This list was generated using
 ///    print(",\n".join([f"\"{symbol}\"" for symbol in dir(__builtins__)]))

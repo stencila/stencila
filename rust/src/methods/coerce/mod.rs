@@ -804,17 +804,17 @@ mod tests {
         coerce_to_integer_schema(&mut value, &schema);
         assert_eq!(value, json!(42));
 
-        value = json!(3.14);
+        value = json!(1.23);
         coerce_to_integer_schema(&mut value, &schema);
-        assert_eq!(value, json!(3));
+        assert_eq!(value, json!(1));
 
         value = json!("42");
         coerce_to_integer_schema(&mut value, &schema);
         assert_eq!(value, json!(42));
 
-        value = json!("3.14");
+        value = json!("1.23");
         coerce_to_integer_schema(&mut value, &schema);
-        assert_eq!(value, json!(3));
+        assert_eq!(value, json!(1));
 
         value = json!("not a number");
         coerce_to_integer_schema(&mut value, &schema);
@@ -852,17 +852,17 @@ mod tests {
         coerce_to_number_schema(&mut value, &schema);
         assert_eq!(value, json!(42.));
 
-        value = json!(3.14);
+        value = json!(1.23);
         coerce_to_number_schema(&mut value, &schema);
-        assert_eq!(value, json!(3.14));
+        assert_eq!(value, json!(1.23));
 
         value = json!("42");
         coerce_to_number_schema(&mut value, &schema);
         assert_eq!(value, json!(42.0));
 
-        value = json!("3.14");
+        value = json!("1.23");
         coerce_to_number_schema(&mut value, &schema);
-        assert_eq!(value, json!(3.14));
+        assert_eq!(value, json!(1.23));
 
         value = json!("not a number");
         coerce_to_number_schema(&mut value, &schema);
@@ -900,9 +900,9 @@ mod tests {
         coerce_to_string_schema(&mut value, &schema);
         assert_eq!("42", value);
 
-        value = json!(3.14);
+        value = json!(1.23);
         coerce_to_string_schema(&mut value, &schema);
-        assert_eq!("3.14", value);
+        assert_eq!("1.23", value);
 
         value = json!("foo");
         schema.min_length = Some(10);
@@ -917,7 +917,7 @@ mod tests {
     #[test]
     fn coerce_yaml_articles() {
         snapshot_fixtures("articles/coerce-*.yaml", |_path, content| {
-            let value = serde_yaml::from_str(&content).expect("Unable to deserialize YAML");
+            let value = serde_yaml::from_str(content).expect("Unable to deserialize YAML");
             let node = coerce(value, None).expect("Unable to coerce");
             assert!(matches!(node, Node::Article(_)));
             assert_json_snapshot!(node);

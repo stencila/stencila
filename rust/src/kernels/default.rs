@@ -1,10 +1,11 @@
-use super::KernelTrait;
+use super::{Kernel, KernelTrait};
 use crate::errors::incompatible_language;
+use async_trait::async_trait;
 use eyre::{bail, Result};
 use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::HashMap;
-use stencila_schema::Node;
+use stencila_schema::{CodeError, Node};
 
 #[derive(Debug, Clone, Default, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
@@ -14,11 +15,12 @@ pub struct DefaultKernel {
 }
 
 impl DefaultKernel {
-    pub fn new() -> Self {
-        DefaultKernel::default()
+    pub fn create() -> Kernel {
+        Kernel::Default(DefaultKernel::default())
     }
 }
 
+#[async_trait]
 impl KernelTrait for DefaultKernel {
     fn language(&self, language: Option<String>) -> Result<String> {
         let canonical = Ok("none".to_string());
@@ -29,24 +31,24 @@ impl KernelTrait for DefaultKernel {
         }
     }
 
-    fn get(&self, name: &str) -> Result<Node> {
+    async fn get(&mut self, name: &str) -> Result<Node> {
         match self.symbols.get(name) {
             Some(node) => Ok(node.clone()),
             None => bail!("Symbol `{}` does not exist in this kernel", name),
         }
     }
 
-    fn set(&mut self, name: &str, value: Node) -> Result<()> {
+    async fn set(&mut self, name: &str, value: Node) -> Result<()> {
         self.symbols.insert(name.to_string(), value);
         Ok(())
     }
 
-    fn exec(&mut self, code: &str) -> Result<Vec<Node>> {
+    async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
         let mut outputs = Vec::new();
         for line in code.lines() {
-            let node = self.get(line.trim())?;
+            let node = self.get(line.trim()).await?;
             outputs.push(node)
         }
-        Ok(outputs)
+        Ok((outputs, Vec::new()))
     }
 }

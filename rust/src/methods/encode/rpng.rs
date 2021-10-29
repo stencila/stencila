@@ -66,13 +66,13 @@ pub async fn encode_to_rpngs(nodes: &[&Node]) -> Result<Vec<Vec<u8>>> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use path_slash::PathExt;
-    use stencila_schema::CodeChunk;
-
     #[cfg(target_os = "linux")]
     #[tokio::test]
-    async fn test_encode() -> Result<()> {
+    async fn test_encode() -> super::Result<()> {
+        use super::*;
+        use path_slash::PathExt;
+        use stencila_schema::CodeChunk;
+
         let node = Node::CodeChunk(CodeChunk {
             programming_language: "python".to_string(),
             text: "print(\"Hello world!\")".to_string(),

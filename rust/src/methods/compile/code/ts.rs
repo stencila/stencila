@@ -1,7 +1,6 @@
 use super::{
-    apply_tags,
+    helpers::{apply_tags, Compiler},
     js::{self, handle_patterns},
-    Compiler,
 };
 use crate::graphs::{relations, resources, Relation, Resource};
 use once_cell::sync::Lazy;

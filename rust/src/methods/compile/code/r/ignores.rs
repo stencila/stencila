@@ -2,7 +2,7 @@ use maplit::hashset;
 use once_cell::sync::Lazy;
 use std::collections::HashSet;
 
-/// A list of R functions to ignore when generating relations of type `Relation::Uses`.
+/// A list of global R functions to ignore when generating relations of type `Relation::Use`.
 ///
 /// This list was generated using `./use-ignore.R` with
 /// R version 4.1.0 (2021-05-18).

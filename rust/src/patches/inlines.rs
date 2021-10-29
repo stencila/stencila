@@ -461,7 +461,7 @@ mod tests {
             ..Default::default()
         });
         let b = InlineContent::Parameter(Parameter {
-            value: Some(Box::new(Node::Number(3.14))),
+            value: Some(Box::new(Node::Number(1.23))),
             ..Default::default()
         });
 
@@ -470,7 +470,7 @@ mod tests {
             {
                 "type": "Add",
                 "address": ["value"],
-                "value": 3.14,
+                "value": 1.23,
                 "length": 1
             },
         ]);
@@ -482,7 +482,7 @@ mod tests {
                     "type": "Replace",
                     "address": ["value"],
                     "items": 1,
-                    "value": 3.14,
+                    "value": 1.23,
                     "length": 1
                 },
             ]

@@ -4,7 +4,7 @@ use crate::{
     graphs::{Relation, Resource},
     kernels::KernelSpace,
     methods::{
-        compile::{self, compile},
+        compile::compile,
         decode::decode,
         encode::{self, encode},
     },
@@ -687,13 +687,16 @@ impl Document {
 
     /// Execute the document, optionally providing a [`Patch`] to apply before execution, and
     /// publishing a patch if there are any subscribers.
+    #[tracing::instrument(skip(self, patch))]
     pub async fn execute(&mut self, node_id: Option<String>, patch: Option<Patch>) -> Result<()> {
+        tracing::debug!("Executing document `{}`", self.id);
+
         let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id.clone())?;
         if let Some(patch) = patch {
             pointer.patch(&patch)?;
         }
 
-        let mut patch = pointer.execute(&mut self.kernels)?;
+        let mut patch = pointer.execute(&mut self.kernels).await?;
 
         // TODO: Only publish the patch if there are subscribers
         patch.target = node_id;
@@ -1311,6 +1314,7 @@ impl Documents {
     ///
     /// Like `patch()`, given this function is likely to be called often, do not return
     /// the document.
+    #[tracing::instrument(skip(self, patch))]
     pub async fn execute(
         &self,
         id: &str,
@@ -1522,16 +1526,9 @@ pub mod cli {
         format: Option<String>,
 
         /// The programming language of the code
-        #[structopt(
-            short,
-            long,
-            default_value = "calc",
-            possible_values = &EXEC_LANGS
-        )]
+        #[structopt(short, long, default_value = "calc")]
         lang: String,
     }
-
-    const EXEC_LANGS: [&str; 2] = ["calc", "none"];
 
     impl Execute {
         pub async fn run(&self) -> display::Result {
@@ -1544,27 +1541,8 @@ pub mod cli {
             let document = DOCUMENTS.open(file, format.clone()).await?;
             let document = DOCUMENTS.get(&document.id).await?;
             let mut document = document.lock().await;
-            if !code.is_empty() {
-                // Join the separate arguments that make up code and unescape newlines
-                let code = code.join(" ").replace("\\n", "\n");
-                // Detect shortcuts for execute interactive mode
-                if code == "%symbols" {
-                    let symbols = document.kernels.symbols();
-                    display::value(symbols)
-                } else {
-                    // Compile the code so that we can use the relations to determine
-                    // the need for variable mirroring
-                    let relations = compile::code::compile("<cli>", &code, lang);
-                    let nodes = document.kernels.exec(&code, lang, Some(relations))?;
-                    match nodes.len() {
-                        0 => display::nothing(),
-                        1 => display::value(nodes[0].clone()),
-                        _ => display::value(nodes),
-                    }
-                }
-            } else {
-                display::nothing()
-            }
+
+            document.kernels.repl(&code.join(" "), lang).await
         }
     }
 
@@ -1824,13 +1802,13 @@ mod tests {
             .join("articles")
             .canonicalize()?;
 
-        for file in vec!["elife-small.json", "era-plotly.json"] {
+        for file in &["elife-small.json", "era-plotly.json"] {
             let doc = Document::open(fixtures.join(file), None).await?;
             assert!(doc.path.starts_with(fixtures));
             assert!(!doc.temporary);
             assert!(matches!(doc.status, DocumentStatus::Synced));
             assert_eq!(doc.format.name, "json");
-            assert!(doc.content.len() > 0);
+            assert!(!doc.content.is_empty());
             assert!(doc.root.is_some());
             assert_eq!(doc.subscriptions, hashmap! {});
         }

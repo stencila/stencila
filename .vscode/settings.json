@@ -28,6 +28,7 @@
   "liveshare.showInStatusBar": "whileCollaborating",
   "markdown.extension.showExplorer": false,
   "markdown.extension.toc.levels": "2..4",
+  "rust-analyzer.checkOnSave.command": "clippy",
   "search.showLineNumbers": true,
   "search.useGlobalIgnoreFiles": true,
   "typescript.preferences.importModuleSpecifier": "relative",

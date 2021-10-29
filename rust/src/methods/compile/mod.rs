@@ -5,6 +5,7 @@ use crate::{
     patches::{Address, Slot},
     utils::{hash::str_sha256_hex, path::merge, uuids},
 };
+use async_trait::async_trait;
 use eyre::Result;
 use std::{
     collections::HashMap,
@@ -12,16 +13,7 @@ use std::{
 };
 use stencila_schema::*;
 
-#[cfg(feature = "compile-code")]
 pub mod code;
-
-#[cfg(not(feature = "compile-code"))]
-pub mod code {
-    use super::*;
-    pub fn compile(path: &Path, code: &str, language: &str) -> Vec<(Relation, Resource)> {
-        Vec::new()
-    }
-}
 
 type Addresses = HashMap<String, Address>;
 type Relations = HashMap<Resource, Vec<(Relation, Resource)>>;
@@ -50,11 +42,11 @@ pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresse
     Ok((addresses, relations))
 }
 
-pub fn execute<Type>(node: &mut Type, kernels: &mut KernelSpace) -> Result<()>
+pub async fn execute<Type>(node: &mut Type, kernels: &mut KernelSpace) -> Result<()>
 where
-    Type: Compile,
+    Type: Compile + Send,
 {
-    node.execute(kernels)
+    node.execute(kernels).await
 }
 
 /// The compilation context, used to pass down properties of the
@@ -81,12 +73,13 @@ pub struct Context {
 ///
 /// This trait is implemented below for all (or at least most)
 /// node types.
+#[async_trait]
 pub trait Compile {
     fn compile(&mut self, _address: &mut Address, _context: &mut Context) -> Result<()> {
         Ok(())
     }
 
-    fn execute(&mut self, _kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(&mut self, _kernels: &mut KernelSpace) -> Result<()> {
         Ok(())
     }
 }
@@ -221,6 +214,7 @@ compile_media_object!(
 /// Compile a `Parameter` node
 ///
 /// Adds an `Assign` relation.
+#[async_trait]
 impl Compile for Parameter {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
@@ -244,10 +238,10 @@ impl Compile for Parameter {
         Ok(())
     }
 
-    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
         tracing::debug!("Executing `Parameter`");
         if let Some(value) = self.value.as_deref() {
-            kernels.set(&self.name, value.clone(), "")?;
+            kernels.set(&self.name, value.clone(), "").await?;
         }
         Ok(())
     }
@@ -257,6 +251,7 @@ impl Compile for Parameter {
 ///
 /// Performs semantic analysis of the code (if necessary) and adds the resulting
 /// relations.
+#[async_trait]
 impl Compile for CodeChunk {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
@@ -274,16 +269,24 @@ impl Compile for CodeChunk {
         Ok(())
     }
 
-    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
         tracing::debug!("Executing `CodeChunk`");
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let relations = code::compile("", &self.text, &self.programming_language);
-        let outputs = kernels.exec(&self.text, &self.programming_language, Some(relations))?;
+        let (outputs, errors) = kernels
+            .exec(&self.text, &self.programming_language, Some(relations))
+            .await?;
+
         self.outputs = if outputs.is_empty() {
             None
         } else {
             Some(outputs)
+        };
+        self.errors = if errors.is_empty() {
+            None
+        } else {
+            Some(errors)
         };
 
         Ok(())
@@ -294,6 +297,7 @@ impl Compile for CodeChunk {
 ///
 /// Performs semantic analysis of the code (if necessary) and adds the resulting
 /// relations.
+#[async_trait]
 impl Compile for CodeExpression {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self);
@@ -311,13 +315,21 @@ impl Compile for CodeExpression {
         Ok(())
     }
 
-    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
         tracing::debug!("Executing `CodeExpression`");
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let relations = code::compile("", &self.text, &self.programming_language);
-        let outputs = kernels.exec(&self.text, &self.programming_language, Some(relations))?;
+        let (outputs, errors) = kernels
+            .exec(&self.text, &self.programming_language, Some(relations))
+            .await?;
+
         self.output = outputs.get(0).map(|output| Box::new(output.clone()));
+        self.errors = if errors.is_empty() {
+            None
+        } else {
+            Some(errors)
+        };
 
         Ok(())
     }
@@ -401,49 +413,54 @@ compile_nothing_for!(
 // They implement the depth first walk across a node tree by calling `compile`
 // on child nodes and where necessary pushing slots onto the address.
 
+#[async_trait]
 impl Compile for Node {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         dispatch_node!(self, Ok(()), compile, address, context)
     }
 
-    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        dispatch_node!(self, Ok(()), execute, kernels)
+    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_node!(self, Box::pin(async { Ok(()) }), execute, kernels).await
     }
 }
 
+#[async_trait]
 impl Compile for CreativeWorkTypes {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         dispatch_work!(self, compile, address, context)
     }
 
-    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        dispatch_work!(self, execute, kernels)
+    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_work!(self, execute, kernels).await
     }
 }
 
+#[async_trait]
 impl Compile for BlockContent {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         dispatch_block!(self, compile, address, context)
     }
 
-    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        dispatch_block!(self, execute, kernels)
+    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_block!(self, execute, kernels).await
     }
 }
 
+#[async_trait]
 impl Compile for InlineContent {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         dispatch_inline!(self, compile, address, context)
     }
 
-    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        dispatch_inline!(self, execute, kernels)
+    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        dispatch_inline!(self, execute, kernels).await
     }
 }
 
+#[async_trait]
 impl<T> Compile for Option<T>
 where
-    T: Compile,
+    T: Compile + Send,
 {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         if let Some(value) = self {
@@ -453,31 +470,33 @@ where
         }
     }
 
-    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
         if let Some(value) = self {
-            value.execute(kernels)
+            value.execute(kernels).await
         } else {
             Ok(())
         }
     }
 }
 
+#[async_trait]
 impl<T> Compile for Box<T>
 where
-    T: Compile,
+    T: Compile + Send,
 {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         (**self).compile(address, context)
     }
 
-    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        (**self).execute(kernels)
+    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+        (**self).execute(kernels).await
     }
 }
 
+#[async_trait]
 impl<T> Compile for Vec<T>
 where
-    T: Compile,
+    T: Compile + Send,
 {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         for (index, item) in self.iter_mut().enumerate() {
@@ -488,9 +507,9 @@ where
         Ok(())
     }
 
-    fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
         for item in self.iter_mut() {
-            item.execute(kernels)?;
+            item.execute(kernels).await?;
         }
         Ok(())
     }
@@ -499,6 +518,7 @@ where
 /// Compile fields of a struct
 macro_rules! compile_fields {
     ($type:ty $(, $field:ident)* ) => {
+        #[async_trait]
         impl Compile for $type {
             fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
                 $(
@@ -509,9 +529,9 @@ macro_rules! compile_fields {
                 Ok(())
             }
 
-            fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+            async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
                 $(
-                    self.$field.execute(kernels)?;
+                    self.$field.execute(kernels).await?;
                 )*
                 Ok(())
             }
@@ -568,6 +588,7 @@ compile_content_for!(
 /// Compile variants of an enum
 macro_rules! compile_variants {
     ( $type:ty $(, $variant:path )* ) => {
+        #[async_trait]
         impl Compile for $type {
             fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
                 match self {
@@ -577,10 +598,10 @@ macro_rules! compile_variants {
                 }
             }
 
-            fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+            async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
                 match self {
                     $(
-                        $variant(node) => node.execute(kernels),
+                        $variant(node) => node.execute(kernels).await,
                     )*
                 }
             }

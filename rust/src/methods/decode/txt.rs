@@ -66,10 +66,11 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::float_cmp)]
     fn numbers() -> Result<()> {
         assert!(matches!(decode("1")?, Node::Integer(1)));
-        match decode("3.14")? {
-            Node::Number(value) => assert_eq!(value, 3.14),
+        match decode("1.23")? {
+            Node::Number(value) => assert_eq!(value, 1.23),
             _ => bail!("Wrong type {:?}",),
         }
         Ok(())

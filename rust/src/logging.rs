@@ -339,6 +339,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[allow(clippy::eq_op)]
     fn test_logging_level_ordering() -> Result<()> {
         assert!(LoggingLevel::Debug > LoggingLevel::Trace);
         assert!(LoggingLevel::Debug >= LoggingLevel::Debug);

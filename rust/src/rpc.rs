@@ -1,4 +1,4 @@
-use crate::{documents::DOCUMENTS, patches::Patch, sessions::SESSIONS};
+use crate::{documents::DOCUMENTS, kernels::Kernel, patches::Patch, sessions::SESSIONS};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use serde::{Deserialize, Serialize};
@@ -53,12 +53,16 @@ impl Request {
         }
     }
 
+    #[tracing::instrument(skip(self))]
     pub async fn dispatch(self, client: &str) -> (Response, Subscription) {
+        tracing::debug!("Dispatching request for client `{}`", client);
+
         let result: Result<(serde_json::Value, Subscription)> = match self.method.as_str() {
             "sessions.start" => sessions_start(&self.params).await,
             "sessions.stop" => sessions_stop(&self.params).await,
             "sessions.subscribe" => sessions_subscribe(&self.params, client).await,
             "sessions.unsubscribe" => sessions_unsubscribe(&self.params, client).await,
+            "kernels.available" => kernels_available(&self.params).await,
             "documents.open" => documents_open(&self.params).await,
             "documents.close" => documents_close(&self.params).await,
             "documents.patch" => documents_patch(&self.params).await,
@@ -273,6 +277,14 @@ async fn sessions_unsubscribe(
 
     let (session, topic) = SESSIONS.unsubscribe(&id, &topic, client).await?;
     Ok((json!(session), Subscription::Unsubscribe(topic)))
+}
+
+async fn kernels_available(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    // TODO The kernel list will be dependant upon the session
+    let _id = required_string(params, "sessionId")?;
+
+    let kernels = Kernel::available().await?;
+    Ok((json!(kernels), Subscription::None))
 }
 
 async fn documents_open(params: &Params) -> Result<(serde_json::Value, Subscription)> {

@@ -992,15 +992,12 @@ mod tests {
                 value.get("name"),
                 Some(&serde_json::Value::String(name.clone()))
             );
-            assert!(
-                value
-                    .get("installs")
-                    .expect("To have installs")
-                    .as_array()
-                    .expect("To be array")
-                    .len()
-                    > 0
-            );
+            assert!(!value
+                .get("installs")
+                .expect("To have installs")
+                .as_array()
+                .expect("To be array")
+                .is_empty());
         }
 
         Ok(())

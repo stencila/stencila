@@ -430,7 +430,7 @@ mod tests {
         assert_eq!(config.upgrade.auto, "off");
 
         config.set("upgrade.verbose", "true")?;
-        assert_eq!(config.upgrade.verbose, true);
+        assert!(config.upgrade.verbose);
 
         assert_eq!(
             config.set("foo.bar", "baz").unwrap_err().to_string(),
