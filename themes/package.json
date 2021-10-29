@@ -171,6 +171,7 @@
     }
   },
   "eslintConfig": {
+    "root": true,
     "extends": [
       "@stencila/eslint-config",
       "plugin:react/recommended"
@@ -223,10 +224,5 @@
         "unpkg.com"
       ]
     }
-  },
-  "renovate": {
-    "extends": [
-      "@stencila"
-    ]
   }
 }

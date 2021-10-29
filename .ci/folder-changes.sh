@@ -30,7 +30,7 @@ else
 fi
 
 CHANGED=""
-for FOLDER in cli desktop docker help node rust web; do
+for FOLDER in cli desktop docker help node rust themes web; do
     git diff --quiet $BASE$DOTS$HEAD -- $FOLDER
     if [ $? -eq 1 ]; then
         CHANGED="$CHANGED$FOLDER,"

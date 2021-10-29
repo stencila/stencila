@@ -108,7 +108,7 @@ jobs:
       # However, given that this is run at the top level is will audit all dependencies
       # including those used by `cli`, `node` etc
       #
-      # Note: The has been disabled until the CVEs on time and chrono (which are depended upon by 
+      # Note: The has been disabled until the CVEs on time and chrono (which are depended upon by
       # several of our dependencies and by us directly) are sorted out.
       - script: |
           set -e
@@ -449,6 +449,95 @@ jobs:
             $(Build.BuildNumber)
             $(GitVersion.SemVer)
             latest
+
+  # Themes are only built if there are changes in the `themes` folder
+  # then only published once changes land on the `master` branch
+  - job: Themes
+    dependsOn: [Changes]
+    condition: contains(dependencies.Changes.outputs['folders.changed'], 'themes')
+    pool:
+      vmImage: ubuntu-latest
+    variables:
+      CI: true
+      isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
+      npm_config_cache: $(Pipeline.Workspace)/.npm
+
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 14.x
+        displayName: Install Node.js
+
+      - task: Cache@2
+        inputs:
+          key: 'npm | "$(Agent.OS)" | package-lock.json'
+          restoreKeys: |
+            npm | "$(Agent.OS)"
+          path: $(npm_config_cache)
+        displayName: Cache npm
+
+      - script: npm ci
+        displayName: Install dependencies
+        workingDirectory: themes
+
+      - script: |
+          npm run check:themes
+          npm run lint
+        displayName: Run linting
+        workingDirectory: themes
+        failOnStderr: true
+
+      - task: Npm@1
+        displayName: Run unit tests
+        inputs:
+          command: 'custom'
+          customCommand: 'run -s test:unit -- --coverage --ci --reporters=default --reporters=jest-junit'
+          workingDir: themes
+
+      - script: bash <(curl -s https://codecov.io/bash)
+        displayName: Report test coverage
+        workingDirectory: themes
+        condition: succeededOrFailed()
+
+      - task: PublishTestResults@2
+        displayName: Upload test results to CI
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: 'junit.xml'
+          failTaskOnFailedTests: true
+          searchFolder: themes
+
+      - script: |
+          npm run docs
+          npm run test:visual
+          npx percy upload test/screenshots/local
+        displayName: Run visual regression tests
+        workingDirectory: themes
+        condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['PERCY_TOKEN'], ''), not(contains(variables['Build.SourceBranch'], 'renovate')))
+        env:
+          PERCY_TOKEN: $(PERCY_TOKEN)
+          SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
+          SAUCE_USERNAME: $(SAUCE_USERNAME)
+
+      - script: npm run build
+        condition: succeeded()
+        workingDirectory: themes
+        displayName: 'Build package'
+
+      # - script: ASSET_PATH=/themes/ npm run docs
+      #   condition: succeeded()
+      #   displayName: 'Build documentation site'
+      #   workingDirectory: themes
+
+      - script: npx semantic-release
+        condition: and(succeeded(), eq(variables.isMain, true))
+        displayName: Release package & Publish documentation site
+        workingDirectory: themes
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+          NPM_TOKEN: $(NPM_TOKEN)
+
 
   # Help site is only built if there are changes in the `help` folder
   # and only published on `master` branch
