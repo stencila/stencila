@@ -8,11 +8,11 @@ name = "stencila"
 path = "main.rs"
 
 [features]
-feedback = ["ansi_term", "color-eyre", "linya"]
-pretty = ["atty", "syntect", "termimad"]
-view = ["webbrowser"]
-interact = ["ansi_term", "rustyline", "rustyline-derive"]
-default = ["feedback", "pretty", "view", "interact"]
+cli-feedback = ["ansi_term", "color-eyre", "linya"]
+cli-pretty = ["atty", "syntect", "termimad"]
+cli-view = ["webbrowser"]
+cli-interact = ["ansi_term", "rustyline", "rustyline-derive"]
+default = ["cli-feedback", "cli-pretty", "cli-view", "cli-interact"]
 
 [dependencies]
 ansi_term = { version = "=0.12.1", optional = true }

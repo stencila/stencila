@@ -234,6 +234,7 @@ impl OpenCommand {
         let port = 9000u16;
         let key = Some(keys::generate());
         let login_url = serve::login_url(port, key.clone(), Some(60), Some(path))?;
+        #[cfg(feature = "cli-view")]
         webbrowser::open(login_url.as_str())?;
 
         // If not yet serving, serve in the background, or in the current thread,
@@ -406,7 +407,7 @@ pub async fn main() -> Result<()> {
     let _logging_guards = logging::init(true, false, true, &logging_config)?;
 
     // Set up error reporting and progress indicators for better feedback to user
-    #[cfg(feature = "feedback")]
+    #[cfg(feature = "cli-feedback")]
     {
         // Setup `color_eyre` crate for better error reporting with span and back traces
         if std::env::var("RUST_SPANTRACE").is_err() {
@@ -464,7 +465,7 @@ pub async fn main() -> Result<()> {
     let result = if let (false, Some(command)) = (interact, command) {
         run_command(command, &formats, &mut context).await
     } else {
-        #[cfg(feature = "interact")]
+        #[cfg(feature = "cli-interact")]
         {
             let mut prefix: Vec<String> = args
                 .into_iter()
@@ -481,7 +482,7 @@ pub async fn main() -> Result<()> {
 
             interact::run(prefix, &formats, &mut context).await
         }
-        #[cfg(not(feature = "interact"))]
+        #[cfg(not(feature = "cli-interact"))]
         {
             eprintln!("Compiled with `interact` feature disabled.");
             std::process::exit(exitcode::USAGE);
@@ -495,13 +496,13 @@ pub async fn main() -> Result<()> {
         }
     }
 
-    #[cfg(feature = "feedback")]
+    #[cfg(feature = "cli-feedback")]
     match result {
         Ok(_) => Ok(()),
         Err(error) => feedback::enrich_error(error),
     }
 
-    #[cfg(not(feature = "feedback"))]
+    #[cfg(not(feature = "cli-feedback"))]
     result
 }
 
@@ -509,7 +510,7 @@ pub async fn main() -> Result<()> {
 ///
 /// These features are aimed at providing better feedback on
 /// errors and progress
-#[cfg(feature = "feedback")]
+#[cfg(feature = "cli-feedback")]
 mod feedback {
     use std::{collections::HashMap, sync::Mutex};
 
@@ -603,7 +604,7 @@ mod feedback {
 }
 
 /// Module for displaying command results prettily
-#[cfg(feature = "pretty")]
+#[cfg(feature = "cli-pretty")]
 mod render {
     use super::*;
     use stencila::{cli::display::Display, once_cell::sync::Lazy};
@@ -702,13 +703,13 @@ mod render {
 }
 
 /// Module for displaying command results plainly
-#[cfg(not(feature = "pretty"))]
-mod display {
+#[cfg(not(feature = "cli-pretty"))]
+mod render {
     use super::*;
     use stencila::cli::display::Display;
 
     // Display the result of a command without prettiness
-    pub fn render(_interactive: bool, _formats: &[String], display: Display) -> Result<()> {
+    pub fn render(formats: &[String], display: Display) -> Result<()> {
         match display {
             Display {
                 content: Some(content),
@@ -726,7 +727,7 @@ mod display {
 /// Module for interactive mode
 ///
 /// Implements the the parsing and handling of user input when in interactive mode
-#[cfg(feature = "interact")]
+#[cfg(feature = "cli-interact")]
 mod interact {
     use super::*;
     use crate::feedback::print_error;
@@ -935,7 +936,7 @@ mod interact {
 /// Module for interactive mode line editor
 ///
 /// Implements traits for `rustyline`
-#[cfg(feature = "interact")]
+#[cfg(feature = "cli-interact")]
 mod interact_editor {
     use ansi_term::Colour::{Blue, White, Yellow};
     use rustyline::{
