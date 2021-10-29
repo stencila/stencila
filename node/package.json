@@ -16,7 +16,7 @@
     "docs": "typedoc src/index.ts"
   },
   "devDependencies": {
-    "@types/jest": "26.0.24",
+    "@types/jest": "27.0.2",
     "@types/json-schema": "7.0.9",
     "@types/tmp": "0.2.1",
     "cargo-cp-artifact": "0.1.4",

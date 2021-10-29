@@ -70,7 +70,7 @@
     "@stencila/encoda": "0.119.0",
     "@stencila/schema": "1.12.0",
     "@types/chromedriver": "81.0.0",
-    "@types/jest": "26.0.24",
+    "@types/jest": "27.0.2",
     "@types/jsdoc-to-markdown": "7.0.1",
     "@types/prismjs": "1.16.6",
     "@types/react": "17.0.31",

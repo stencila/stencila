@@ -45,7 +45,7 @@
     "@stencil/postcss": "2.1.0",
     "@stencila/dev-config": "2.0.18",
     "@types/debounce": "1.2.1",
-    "@types/jest": "26.0.24",
+    "@types/jest": "27.0.2",
     "@types/puppeteer": "5.4.4",
     "@types/uuid": "8.3.1",
     "@typescript-eslint/eslint-plugin": "4.30.0",
