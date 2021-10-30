@@ -1,4 +1,5 @@
-use super::json5;
+use codec_json5::Json5Codec;
+use codec_trait::Codec;
 use eyre::Result;
 use stencila_schema::{Node, Null};
 
@@ -32,7 +33,7 @@ pub fn decode_fragment(txt: &str) -> Node {
         _ => (),
     };
 
-    if let Ok(node) = json5::decode(txt) {
+    if let Ok(node) = Json5Codec::from_str(txt) {
         return node;
     }
 

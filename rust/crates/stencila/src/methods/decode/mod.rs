@@ -6,9 +6,6 @@ use stencila_schema::Node;
 #[cfg(feature = "decode-docx")]
 pub mod docx;
 
-#[cfg(feature = "decode-json5")]
-pub mod json5;
-
 #[cfg(feature = "decode-html")]
 pub mod html;
 
@@ -29,9 +26,6 @@ pub mod pandoc;
 
 #[cfg(feature = "decode-rpng")]
 pub mod rpng;
-
-#[cfg(feature = "decode-toml")]
-pub mod toml;
 
 #[cfg(feature = "decode-txt")]
 pub mod txt;
@@ -74,7 +68,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "json" => codec_json::JsonCodec::from_str(input)?,
 
         #[cfg(feature = "decode-json5")]
-        "json5" => json5::decode(input)?,
+        "json5" => codec_json5::Json5Codec::from_str(input)?,
 
         #[cfg(feature = "decode-latex")]
         "latex" => latex::decode(input).await?,
@@ -95,7 +89,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "rpng" => rpng::decode(input)?,
 
         #[cfg(feature = "decode-toml")]
-        "toml" => toml::decode(input)?,
+        "toml" => codec_toml::TomlCodec::from_str(input)?,
 
         #[cfg(feature = "decode-txt")]
         "txt" => txt::decode(input)?,
