@@ -696,6 +696,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-toml"
+version = "0.0.0"
+dependencies = [
+ "codec-trait",
+ "node-coerce",
+ "test-props",
+ "test-utils",
+ "toml 0.5.8",
+]
+
+[[package]]
 name = "codec-trait"
 version = "0.0.0"
 dependencies = [
@@ -4225,6 +4236,7 @@ dependencies = [
  "codec-json",
  "codec-json5",
  "codec-person",
+ "codec-toml",
  "codec-trait",
  "codec-yaml",
  "color-eyre",

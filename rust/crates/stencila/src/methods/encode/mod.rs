@@ -35,9 +35,6 @@ pub mod rmd;
 #[cfg(feature = "encode-rpng")]
 pub mod rpng;
 
-#[cfg(feature = "encode-toml")]
-pub mod toml;
-
 /// Common encoding options
 ///
 /// Encoding functions (including those in plugins) are encouraged to respect these options
@@ -136,7 +133,7 @@ pub async fn encode(
         "rpng" => rpng::encode(node, output).await?,
 
         #[cfg(feature = "encode-toml")]
-        "toml" => toml::encode(node)?,
+        "toml" => codec_toml::TomlCodec::to_string(node, None)?,
 
         #[cfg(feature = "encode-yaml")]
         "yaml" => codec_yaml::YamlCodec::to_string(node, None)?,
