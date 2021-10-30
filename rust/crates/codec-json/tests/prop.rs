@@ -8,7 +8,7 @@ proptest! {
 
     #[test]
     fn test(input in node(Freedom::Max)) {
-        let string = JsonCodec::to_string(&input).unwrap();
+        let string = JsonCodec::to_string(&input, None).unwrap();
         let output = JsonCodec::from_str(&string).unwrap();
         assert_debug_eq(&input, &output)
     }

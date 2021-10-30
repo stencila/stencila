@@ -1,6 +1,6 @@
 //! A codec for JSON
 
-use codec_trait::{eyre::Result, stencila_schema::Node, Codec};
+use codec_trait::{eyre::Result, stencila_schema::Node, Codec, EncodeOptions};
 use node_coerce::coerce;
 
 pub struct JsonCodec {}
@@ -10,15 +10,20 @@ impl Codec for JsonCodec {
         coerce(serde_json::from_str(str)?, None)
     }
 
-    fn to_string(node: &Node) -> Result<String> {
-        Ok(serde_json::to_string(node)?)
+    fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+        let compact = options.map_or_else(|| false, |options| options.compact);
+        let json = match compact {
+            true => serde_json::to_string::<Node>(node)?,
+            false => serde_json::to_string_pretty::<Node>(node)?,
+        };
+        Ok(json)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use codec_trait::stencila_schema::Paragraph;
+    use codec_trait::stencila_schema::{Paragraph, Primitive};
     use std::collections::BTreeMap;
     use test_utils::assert_debug_eq;
 
@@ -66,28 +71,40 @@ mod tests {
     #[test]
     fn to_str() {
         assert_eq!(
-            JsonCodec::to_string(&Node::Boolean(true)).unwrap(),
+            JsonCodec::to_string(&Node::Boolean(true), None).unwrap(),
             "true".to_string()
         );
 
         assert_eq!(
-            JsonCodec::to_string(&Node::Integer(42)).unwrap(),
+            JsonCodec::to_string(&Node::Integer(42), None).unwrap(),
             "42".to_string()
         );
 
         assert_eq!(
-            JsonCodec::to_string(&Node::Number(1.23)).unwrap(),
+            JsonCodec::to_string(&Node::Number(1.23), None).unwrap(),
             "1.23".to_string()
         );
 
         assert_eq!(
-            JsonCodec::to_string(&Node::Array(Vec::new())).unwrap(),
+            JsonCodec::to_string(&Node::Array(Vec::new()), None).unwrap(),
             "[]".to_string()
         );
 
         assert_eq!(
-            JsonCodec::to_string(&Node::Object(BTreeMap::new())).unwrap(),
+            JsonCodec::to_string(&Node::Object(BTreeMap::new()), None).unwrap(),
             "{}".to_string()
+        );
+
+        assert_eq!(
+            JsonCodec::to_string(
+                &Node::Array(vec![Primitive::Integer(42)]),
+                Some(EncodeOptions {
+                    compact: false,
+                    ..Default::default()
+                })
+            )
+            .unwrap(),
+            "[\n  42\n]".to_string()
         );
     }
 }
