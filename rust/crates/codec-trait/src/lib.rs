@@ -1,6 +1,11 @@
 //! Defines the codec trait for decoding/encoding nodes
 
 use eyre::{bail, Result};
+use std::{
+    fs::File,
+    io::{BufReader, BufWriter, Read, Write},
+    path::Path,
+};
 use stencila_schema::Node;
 
 // Export for use by other crates
@@ -13,11 +18,53 @@ pub use stencila_schema;
 /// converting nodes to/from strings, files, readers etc.
 pub trait Codec {
     fn from_str(_str: &str) -> Result<Node> {
-        bail!("Decoding is not implemented for this format")
+        bail!("Decoding from string is not implemented for this format")
+    }
+
+    fn from_buffer<T: Read>(reader: &mut BufReader<T>) -> Result<Node> {
+        let mut content = String::new();
+        reader.read_to_string(&mut content)?;
+        Self::from_str(&content)
+    }
+
+    fn from_file(file: &mut File) -> Result<Node> {
+        let mut content = String::new();
+        file.read_to_string(&mut content)?;
+        Self::from_str(&content)
+    }
+
+    fn from_path<T: AsRef<Path>>(path: &T) -> Result<Node> {
+        let mut file = File::open(path)?;
+        Self::from_file(&mut file)
     }
 
     fn to_string(_node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
-        bail!("Encoding is not implemented for this format")
+        bail!("Encoding to string is not implemented for this format")
+    }
+
+    fn to_buffer<T: Write>(
+        node: &Node,
+        writer: &mut BufWriter<T>,
+        options: Option<EncodeOptions>,
+    ) -> Result<()> {
+        let content = Self::to_string(node, options)?;
+        writer.write_all(content.as_bytes())?;
+        Ok(())
+    }
+
+    fn to_file(node: &Node, file: &mut File, options: Option<EncodeOptions>) -> Result<()> {
+        let content = Self::to_string(node, options)?;
+        file.write_all(content.as_bytes())?;
+        Ok(())
+    }
+
+    fn to_path<T: AsRef<Path>>(
+        node: &Node,
+        path: &T,
+        options: Option<EncodeOptions>,
+    ) -> Result<()> {
+        let mut file = File::open(path)?;
+        Self::to_file(node, &mut file, options)
     }
 }
 
