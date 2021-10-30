@@ -60,8 +60,8 @@ mod tests {
         ));
 
         assert_debug_eq(
-            JsonCodec::from_str("{\"type\": \"Paragraph\"}").unwrap(),
-            Node::Paragraph(Paragraph {
+            &JsonCodec::from_str("{\"type\": \"Paragraph\"}").unwrap(),
+            &Node::Paragraph(Paragraph {
                 content: vec![],
                 ..Default::default()
             }),

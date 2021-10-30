@@ -22,6 +22,6 @@ pub fn fixtures() -> PathBuf {
 ///
 /// Indented debug display is used as it more easily allows differences to be
 /// seen. It has the advantage over JSOn of not requiring another dependency
-pub fn assert_debug_eq<T: std::fmt::Debug>(a: T, b: T) {
+pub fn assert_debug_eq<T: std::fmt::Debug>(a: &T, b: &T) {
     pretty_assertions::assert_eq!(format!("{:#?}", a), format!("{:#?}", b))
 }

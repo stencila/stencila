@@ -36,8 +36,8 @@ mod tests {
         ));
 
         assert_debug_eq(
-            Json5Codec::from_str("{type: 'Paragraph'}").unwrap(),
-            Node::Paragraph(Paragraph {
+            &Json5Codec::from_str("{type: 'Paragraph'}").unwrap(),
+            &Node::Paragraph(Paragraph {
                 content: vec![],
                 ..Default::default()
             }),
