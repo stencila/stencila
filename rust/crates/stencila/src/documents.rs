@@ -1771,6 +1771,7 @@ pub mod cli {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::utils::tests::fixtures;
     use maplit::hashmap;
 
     #[test]
@@ -1796,15 +1797,8 @@ mod tests {
 
     #[tokio::test]
     async fn document_open() -> Result<()> {
-        let fixtures = &PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("..")
-            .join("fixtures")
-            .join("articles")
-            .canonicalize()?;
-
-        for file in &["elife-small.json", "era-plotly.json"] {
-            let doc = Document::open(fixtures.join(file), None).await?;
-            assert!(doc.path.starts_with(fixtures));
+        for file in &["articles/elife-small.json", "articles/era-plotly.json"] {
+            let doc = Document::open(fixtures().join(file), None).await?;
             assert!(!doc.temporary);
             assert!(matches!(doc.status, DocumentStatus::Synced));
             assert_eq!(doc.format.name, "json");

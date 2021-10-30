@@ -1,15 +1,10 @@
 use crate::formats::{format_type, FormatType};
+use codec_trait::Codec;
 use eyre::Result;
 use stencila_schema::Node;
 
-#[cfg(feature = "decode-date")]
-pub mod date;
-
 #[cfg(feature = "decode-docx")]
 pub mod docx;
-
-#[cfg(feature = "decode-json")]
-pub mod json;
 
 #[cfg(feature = "decode-json5")]
 pub mod json5;
@@ -31,9 +26,6 @@ pub mod latex;
 
 #[cfg(feature = "decode-pandoc")]
 pub mod pandoc;
-
-#[cfg(feature = "decode-person")]
-pub mod person;
 
 #[cfg(feature = "decode-rpng")]
 pub mod rpng;
@@ -70,7 +62,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
     #[allow(unused_variables, unreachable_code)]
     Ok(match format {
         #[cfg(feature = "decode-date")]
-        "date" => date::decode(input)?,
+        "date" => codec_date::DateCodec::from_str(input)?,
 
         #[cfg(feature = "decode-docx")]
         "docx" => docx::decode(input).await?,
@@ -82,7 +74,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "ipynb" => ipynb::decode(input)?,
 
         #[cfg(feature = "decode-json")]
-        "json" => json::decode(input)?,
+        "json" => codec_json::JsonCodec::from_str(input)?,
 
         #[cfg(feature = "decode-json5")]
         "json5" => json5::decode(input)?,
@@ -94,7 +86,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "pandoc" => pandoc::decode(input, "pandoc", &[]).await?,
 
         #[cfg(feature = "decode-person")]
-        "person" => person::decode(input)?,
+        "person" => codec_person::PersonCodec::from_str(input)?,
 
         #[cfg(feature = "decode-md")]
         "md" => md::decode(input)?,

@@ -1,4 +1,3 @@
-use super::json;
 use eyre::{bail, Result};
 use std::fs;
 use stencila_schema::Node;
@@ -38,8 +37,9 @@ pub fn decode(input: &str) -> Result<Node> {
             false => None,
         });
 
+    use codec_trait::Codec;
     match json {
-        Some(json) => json::decode(&json),
+        Some(json) => codec_json::JsonCodec::from_str(&json),
         None => bail!("The PNG does not have an embedded Stencila node"),
     }
 }

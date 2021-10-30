@@ -3,9 +3,10 @@ use std::path::PathBuf;
 use super::html;
 use crate::{
     formats::{format_type, FormatType},
-    methods::{coerce::coerce, encode::txt::ToTxt, transform::Transform},
+    methods::{encode::txt::ToTxt, transform::Transform},
 };
 use eyre::{bail, Result};
+use node_coerce::coerce;
 use nom::{
     branch::alt,
     bytes::complete::{tag, take, take_until, take_while1},

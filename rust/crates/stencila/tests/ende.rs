@@ -30,14 +30,6 @@ proptest! {
     // following formats the number of test cases is minimal
     #![proptest_config(ProptestConfig::with_cases(30))]
 
-    #[cfg(all(feature="encode-json", feature="decode-json"))]
-    #[test]
-    fn json(input in node(Freedom::Max)) {
-        let content = encode::json::encode(&input, None).unwrap();
-        let output = decode::json::decode(&content).unwrap();
-        assert_json_eq!(input, output);
-    }
-
     // JSON5 does not appear to deal with Unicode characters (?)
     // so this test uses `Low` freedom for now
     #[cfg(all(feature="encode-json5", feature="decode-json5"))]

@@ -30,9 +30,6 @@ pub mod methods {
     pub mod decode;
     pub mod encode;
 
-    #[cfg(feature = "coerce")]
-    pub mod coerce;
-
     pub mod transform;
 
     #[cfg(feature = "reshape")]

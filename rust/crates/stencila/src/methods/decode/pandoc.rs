@@ -1,9 +1,11 @@
 use crate::{
     binaries,
     formats::{format_type, FormatType},
-    methods::{coerce::coerce, encode::txt::ToTxt},
+    methods::encode::txt::ToTxt,
 };
+use codec_trait::Codec;
 use eyre::{bail, Result};
+use node_coerce::coerce;
 use pandoc_types::definition::{self as pandoc};
 use std::{collections::HashMap, io::Write, path::PathBuf, process::Stdio};
 use stencila_schema::{
@@ -14,7 +16,7 @@ use stencila_schema::{
     TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
 };
 
-use super::{json, rpng};
+use super::rpng;
 
 /// The semver requirement for Pandoc
 /// Used on the `decode::pandoc` module as well.
@@ -645,7 +647,7 @@ fn try_code_expression(inline: &InlineContent) -> Option<InlineContent> {
         InlineContent::ImageObject(image) => {
             // Try to get the code expression from the caption
             if let Some(caption) = image.caption.as_deref() {
-                if let Ok(Node::CodeExpression(expr)) = json::decode(caption) {
+                if let Ok(Node::CodeExpression(expr)) = codec_json::JsonCodec::from_str(caption) {
                     return Some(InlineContent::CodeExpression(expr));
                 }
             }
@@ -675,7 +677,7 @@ fn try_code_chunk(inline: &InlineContent) -> Option<BlockContent> {
         InlineContent::ImageObject(image) => {
             // Try to get the code chunk from the caption
             if let Some(caption) = image.caption.as_deref() {
-                if let Ok(Node::CodeChunk(chunk)) = json::decode(caption) {
+                if let Ok(Node::CodeChunk(chunk)) = codec_json::JsonCodec::from_str(caption) {
                     return Some(BlockContent::CodeChunk(chunk));
                 }
             }

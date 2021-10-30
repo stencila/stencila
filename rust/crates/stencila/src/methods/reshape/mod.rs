@@ -1,6 +1,7 @@
-use super::decode::date::decode_date_maybe;
-use super::decode::person::decode_person;
 use super::encode::txt::ToTxt;
+use codec_date::DateCodec;
+use codec_person::PersonCodec;
+use codec_trait::Codec;
 use defaults::Defaults;
 use eyre::Result;
 use once_cell::sync::Lazy;
@@ -219,7 +220,17 @@ fn detect_authors(
         if let Some(captures) = BEGINS_REGEX.captures(&txt) {
             let authors_ = SPLIT_REGEX
                 .split(&captures[1])
-                .map(|str| CreativeWorkAuthors::Person(decode_person(str)))
+                .map(|str| {
+                    let person = if let Ok(Node::Person(person)) = PersonCodec::from_str(str) {
+                        person
+                    } else {
+                        Person {
+                            name: Some(Box::new(str.to_string())),
+                            ..Default::default()
+                        }
+                    };
+                    CreativeWorkAuthors::Person(person)
+                })
                 .collect();
             *authors = Some(authors_);
             blocks.remove(index);
@@ -269,7 +280,7 @@ fn detect_date(date: &mut Option<Box<Date>>, blocks: &mut Vec<BlockContent>, ind
     if let BlockContent::Paragraph(paragraph) = &blocks[index] {
         let txt = paragraph.to_txt();
         if let Some(captures) = BEGINS_REGEX.captures(&txt) {
-            if let Some(date_) = decode_date_maybe(&captures[1]) {
+            if let Ok(Node::Date(date_)) = DateCodec::from_str(&captures[1]) {
                 *date = Some(Box::new(date_));
                 blocks.remove(index);
                 return -1;
@@ -284,7 +295,7 @@ fn detect_date(date: &mut Option<Box<Date>>, blocks: &mut Vec<BlockContent>, ind
 fn infer_date(date: &mut Option<Box<Date>>, blocks: &mut Vec<BlockContent>, index: usize) -> i32 {
     if let BlockContent::Paragraph(paragraph) = &blocks[index] {
         let txt = paragraph.to_txt();
-        if let Some(date_) = decode_date_maybe(&txt) {
+        if let Ok(Node::Date(date_)) = DateCodec::from_str(&txt) {
             *date = Some(Box::new(date_));
             blocks.remove(index);
             return -1;
