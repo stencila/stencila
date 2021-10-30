@@ -652,6 +652,45 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-date"
+version = "0.0.0"
+dependencies = [
+ "chrono",
+ "codec-trait",
+ "dtparse",
+ "test-utils",
+]
+
+[[package]]
+name = "codec-json"
+version = "0.0.0"
+dependencies = [
+ "codec-trait",
+ "serde_json",
+ "test-props",
+ "test-utils",
+]
+
+[[package]]
+name = "codec-person"
+version = "0.0.0"
+dependencies = [
+ "codec-trait",
+ "human_name",
+ "once_cell",
+ "regex",
+ "test-utils",
+]
+
+[[package]]
+name = "codec-trait"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "stencila-schema",
+]
+
+[[package]]
 name = "color-eyre"
 version = "0.5.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2597,6 +2636,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-coerce"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "codec-date",
+ "codec-person",
+ "codec-trait",
+ "eyre",
+ "once_cell",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "stencila-schema",
+ "test-snaps",
+ "test-utils",
+ "tracing",
+]
+
+[[package]]
 name = "nodrop"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4524,6 +4583,30 @@ checksum = "633c1a546cee861a1a6d0dc69ebeca693bf4296661ba7852b9d21d159e0506df"
 dependencies = [
  "libc",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "test-props"
+version = "0.0.0"
+dependencies = [
+ "itertools",
+ "proptest",
+ "stencila-schema",
+]
+
+[[package]]
+name = "test-snaps"
+version = "0.0.0"
+dependencies = [
+ "insta",
+ "test-utils",
+]
+
+[[package]]
+name = "test-utils"
+version = "0.0.0"
+dependencies = [
+ "pretty_assertions",
 ]
 
 [[package]]
