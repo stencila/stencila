@@ -12,7 +12,7 @@ use stencila::methods::{decode, encode};
 use stencila_schema::{BlockContent, Node};
 
 mod strategies;
-use strategies::{article, code_chunk, node, Freedom};
+use strategies::{article, code_chunk, Freedom};
 
 macro_rules! assert_json_eq {
     ($expr1:expr, $expr2:expr) => {
@@ -21,24 +21,6 @@ macro_rules! assert_json_eq {
             serde_json::to_value(&$expr2).unwrap()
         );
     };
-}
-
-proptest! {
-    // Tests for generic data serialization formats
-
-    // Given the high confidence for encoding/decoding for the
-    // following formats the number of test cases is minimal
-    #![proptest_config(ProptestConfig::with_cases(30))]
-
-    // JSON5 does not appear to deal with Unicode characters (?)
-    // so this test uses `Low` freedom for now
-    #[cfg(all(feature="encode-json5", feature="decode-json5"))]
-    #[test]
-    fn json5(input in node(Freedom::Low)) {
-        let content = encode::json5::encode(&input, None).unwrap();
-        let output = decode::json5::decode(&content).unwrap();
-        assert_json_eq!(input, output);
-    }
 }
 
 proptest! {

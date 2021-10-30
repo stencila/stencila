@@ -14,9 +14,6 @@ pub mod docx;
 #[cfg(feature = "encode-ipynb")]
 pub mod ipynb;
 
-#[cfg(feature = "encode-json5")]
-pub mod json5;
-
 #[cfg(feature = "encode-latex")]
 pub mod latex;
 
@@ -99,6 +96,7 @@ pub async fn encode(
     options: Option<Options>,
 ) -> Result<String> {
     // Allow these for when no features are enabled
+    // TODO: pass through options when all codecs are refactored
     #[allow(unused_variables, unreachable_code)]
     Ok(match format {
         "html" => html::encode(node, options)?,
@@ -114,7 +112,7 @@ pub async fn encode(
         "json" => codec_json::JsonCodec::to_string(node, None)?,
 
         #[cfg(feature = "encode-json5")]
-        "json5" => json5::encode(node, options)?,
+        "json5" => codec_json5::Json5Codec::to_string(node, None)?,
 
         #[cfg(feature = "encode-latex")]
         "latex" => latex::encode(node).await?,

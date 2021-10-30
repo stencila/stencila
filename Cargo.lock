@@ -673,6 +673,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-json5"
+version = "0.0.0"
+dependencies = [
+ "codec-trait",
+ "json5",
+ "node-coerce",
+ "serde_json",
+ "test-props",
+ "test-utils",
+]
+
+[[package]]
 name = "codec-person"
 version = "0.0.0"
 dependencies = [
@@ -4211,6 +4223,7 @@ dependencies = [
  "chrono",
  "codec-date",
  "codec-json",
+ "codec-json5",
  "codec-person",
  "codec-trait",
  "codec-yaml",
