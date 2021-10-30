@@ -1,3 +1,4 @@
+use codec_trait::Codec;
 use defaults::Defaults;
 use eyre::{bail, Result};
 use stencila_schema::Node;
@@ -12,9 +13,6 @@ pub mod docx;
 
 #[cfg(feature = "encode-ipynb")]
 pub mod ipynb;
-
-#[cfg(feature = "encode-json")]
-pub mod json;
 
 #[cfg(feature = "encode-json5")]
 pub mod json5;
@@ -42,9 +40,6 @@ pub mod rpng;
 
 #[cfg(feature = "encode-toml")]
 pub mod toml;
-
-#[cfg(feature = "encode-yaml")]
-pub mod yaml;
 
 /// Common encoding options
 ///
@@ -116,7 +111,7 @@ pub async fn encode(
         "ipynb" => ipynb::encode(node)?,
 
         #[cfg(feature = "encode-json")]
-        "json" => json::encode(node, options)?,
+        "json" => codec_json::JsonCodec::to_string(node, None)?,
 
         #[cfg(feature = "encode-json5")]
         "json5" => json5::encode(node, options)?,
@@ -146,7 +141,7 @@ pub async fn encode(
         "toml" => toml::encode(node)?,
 
         #[cfg(feature = "encode-yaml")]
-        "yaml" => yaml::encode(node)?,
+        "yaml" => codec_yaml::YamlCodec::to_string(node, None)?,
 
         _ => {
             #[cfg(feature = "request")]

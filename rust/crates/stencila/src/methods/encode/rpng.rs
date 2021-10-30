@@ -1,8 +1,9 @@
 use super::{
-    json,
     png::{encode_to_output, encode_to_pngs},
     Options,
 };
+use codec_json::JsonCodec;
+use codec_trait::{Codec, EncodeOptions};
 use eyre::Result;
 use stencila_schema::Node;
 
@@ -34,9 +35,9 @@ pub async fn encode_to_rpngs(nodes: &[&Node]) -> Result<Vec<Vec<u8>>> {
     let mut rpngs = Vec::with_capacity(nodes.len());
     for index in 0..nodes.len() {
         // Encode the node to JSON for embedding in the PNG
-        let json = json::encode(
+        let json = JsonCodec::to_string(
             nodes[index],
-            Some(Options {
+            Some(EncodeOptions {
                 theme: "compact".to_string(),
                 ..Default::default()
             }),

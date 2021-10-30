@@ -380,14 +380,14 @@ fn detect_abstract(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::methods::decode::yaml;
     use crate::utils::tests::snapshot_fixtures;
+    use codec_yaml::YamlCodec;
     use insta::assert_json_snapshot;
 
     #[test]
     fn reshape_yaml_articles() {
         snapshot_fixtures("articles/reshape-*.yaml", |_path, content| {
-            let mut article = yaml::decode(content).expect("Unable to decode YAML");
+            let mut article = YamlCodec::from_str(content).expect("Unable to decode YAML");
             reshape(&mut article, Options::default()).expect("Unable to reshape");
             assert_json_snapshot!(article);
         });

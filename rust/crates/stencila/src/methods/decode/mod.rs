@@ -36,9 +36,6 @@ pub mod toml;
 #[cfg(feature = "decode-txt")]
 pub mod txt;
 
-#[cfg(feature = "decode-yaml")]
-pub mod yaml;
-
 // Modules for types of content, rather than specific formats
 
 pub mod code;
@@ -104,7 +101,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "txt" => txt::decode(input)?,
 
         #[cfg(feature = "decode-yaml")]
-        "yaml" => yaml::decode(input)?,
+        "yaml" => codec_yaml::YamlCodec::from_str(input)?,
 
         _ => {
             let format_type = format_type(format);

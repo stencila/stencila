@@ -39,14 +39,6 @@ proptest! {
         let output = decode::json5::decode(&content).unwrap();
         assert_json_eq!(input, output);
     }
-
-    #[cfg(all(feature="encode-yaml", feature="decode-yaml"))]
-    #[test]
-    fn yaml(input in node(Freedom::Max)) {
-        let content = encode::yaml::encode(&input).unwrap();
-        let output = decode::yaml::decode(&content).unwrap();
-        assert_json_eq!(input, output);
-    }
 }
 
 proptest! {

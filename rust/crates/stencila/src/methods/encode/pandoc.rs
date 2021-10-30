@@ -1,12 +1,10 @@
 use crate::{
     binaries,
-    methods::{
-        decode::pandoc::PANDOC_SEMVER,
-        encode::{json, Options},
-        transform::Transform,
-    },
+    methods::{decode::pandoc::PANDOC_SEMVER, transform::Transform},
     utils::uuids,
 };
+use codec_json::JsonCodec;
+use codec_trait::{Codec, EncodeOptions};
 use eyre::Result;
 use itertools::Itertools;
 use pandoc_types::definition as pandoc;
@@ -107,9 +105,9 @@ impl Context {
             .to_slash_lossy();
         let url = ["https://hub.stenci.la/api/nodes/", &id].concat();
 
-        let json = json::encode(
+        let json = JsonCodec::to_string(
             &node,
-            Some(Options {
+            Some(EncodeOptions {
                 theme: "compact".to_string(),
                 ..Default::default()
             }),

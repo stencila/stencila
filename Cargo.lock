@@ -692,6 +692,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-yaml"
+version = "0.0.0"
+dependencies = [
+ "codec-trait",
+ "node-coerce",
+ "serde_yaml",
+ "test-props",
+ "test-utils",
+]
+
+[[package]]
 name = "color-eyre"
 version = "0.5.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4202,6 +4213,7 @@ dependencies = [
  "codec-json",
  "codec-person",
  "codec-trait",
+ "codec-yaml",
  "color-eyre",
  "criterion",
  "crossbeam-channel",
