@@ -1,0 +1,13 @@
+[package]
+name = "codec-txt"
+description = "A codec for plain text"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec-trait = { path = "../codec-trait", version = "0.0.0" }
+json5 = "0.4.1"
+node-coerce = { path = "../node-coerce", version = "0.0.0" }
+
+[dev-dependencies]
+test-utils = { path = "../test-utils", version = "0.0.0" }
