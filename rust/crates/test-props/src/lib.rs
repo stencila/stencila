@@ -8,14 +8,6 @@ use stencila_schema::*;
 // Export proptest for use in other internal crates
 pub use proptest;
 
-/// Assert that two nodes are equal based on their `Debug` display
-///
-/// Indented debug display is used as it more easily allows differences to be
-/// seen. It has the advantage over JSOn of not requiring another dependency
-pub fn assert_debug_eq(a: &Node, b: &Node) {
-    pretty_assertions::assert_eq!(format!("{:#?}", a), format!("{:#?}", b))
-}
-
 /// The degree of freedom when generating arbitrary nodes.
 ///
 /// Generally, when adding a `proptest` it is wise to start with `Nil`

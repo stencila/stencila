@@ -1,6 +1,7 @@
 use codec_json::JsonCodec;
 use codec_trait::Codec;
-use test_props::{assert_debug_eq, node, proptest::prelude::*, Freedom};
+use test_props::{node, proptest::prelude::*, Freedom};
+use test_utils::assert_debug_eq;
 
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(30))]

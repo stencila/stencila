@@ -6,3 +6,4 @@ edition = "2021"
 
 [dependencies]
 insta = { version = "1.8.0", features = ["glob"] }
+test-utils = { path = "../test-utils", version = "0.0.0" }
