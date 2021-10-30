@@ -1,0 +1,11 @@
+[package]
+name = "codec-date"
+description = "A codec for date(time)s"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+chrono = "0.4.19"
+codec-trait = { path = "../codec-trait", version = "0.0.0" }
+dtparse = "1.2.0"
+test-utils = { path = "../test-utils", version = "0.0.0" }
