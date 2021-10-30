@@ -1,0 +1,9 @@
+[package]
+name = "codec-trait"
+description = "Defines the codec trait for decoding/encoding nodes"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+eyre = "0.6.5"
+stencila-schema = "1.12.0"
