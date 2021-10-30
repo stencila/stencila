@@ -1,12 +1,13 @@
 //! A codec for JSON
 
 use codec_trait::{eyre::Result, stencila_schema::Node, Codec};
+use node_coerce::coerce;
 
 pub struct JsonCodec {}
 
 impl Codec for JsonCodec {
     fn from_str(str: &str) -> Result<Node> {
-        Ok(serde_json::from_str(str)?)
+        coerce(serde_json::from_str(str)?, None)
     }
 
     fn to_string(node: &Node) -> Result<String> {
@@ -16,9 +17,10 @@ impl Codec for JsonCodec {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::BTreeMap;
-
     use super::*;
+    use codec_trait::stencila_schema::Paragraph;
+    use std::collections::BTreeMap;
+    use test_utils::assert_debug_eq;
 
     #[test]
     fn from_str() {
@@ -41,6 +43,24 @@ mod tests {
             JsonCodec::from_str("[1, 2, 3]").unwrap(),
             Node::Array(..)
         ));
+
+        assert!(matches!(
+            JsonCodec::from_str("{}").unwrap(),
+            Node::Object(..)
+        ));
+
+        assert!(matches!(
+            JsonCodec::from_str("{\"type\": \"Entity\"}").unwrap(),
+            Node::Entity(..)
+        ));
+
+        assert_debug_eq(
+            JsonCodec::from_str("{\"type\": \"Paragraph\"}").unwrap(),
+            Node::Paragraph(Paragraph {
+                content: vec![],
+                ..Default::default()
+            }),
+        );
     }
 
     #[test]

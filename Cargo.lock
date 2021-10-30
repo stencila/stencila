@@ -666,6 +666,7 @@ name = "codec-json"
 version = "0.0.0"
 dependencies = [
  "codec-trait",
+ "node-coerce",
  "serde_json",
  "test-props",
  "test-utils",
