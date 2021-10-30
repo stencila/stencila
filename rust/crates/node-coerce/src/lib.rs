@@ -918,8 +918,9 @@ mod tests {
 
     #[test]
     fn coerce_yaml_articles() {
-        snapshot_fixtures("articles/coerce-*.yaml", |_path, yaml| {
-            let value = serde_yaml::from_str(yaml).expect("Unable to deserialize YAML");
+        snapshot_fixtures("articles/coerce-*.yaml", |path| {
+            let reader = std::fs::File::open(path).expect("Unable to open file");
+            let value = serde_yaml::from_reader(reader).expect("Unable to deserialize YAML");
             let article = coerce(value, None).expect("Unable to coerce");
             assert_json_snapshot!(article);
         });
