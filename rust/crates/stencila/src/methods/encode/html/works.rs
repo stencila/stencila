@@ -2,6 +2,7 @@ use super::{
     attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, concat, elem, json, Context, ToHtml,
 };
 use crate::methods::encode::html::elem_empty;
+use codec_txt::ToTxt;
 use html_escape::encode_safe;
 use itertools::Itertools;
 use std::collections::BTreeMap;
@@ -91,8 +92,6 @@ impl ToHtml for Article {
 
         let abstract_ = match &self.description {
             Some(desc) => {
-                use crate::methods::encode::txt::ToTxt;
-
                 let meta = (**desc).to_txt();
                 let content = match &**desc {
                     ThingDescription::String(string) => Paragraph {

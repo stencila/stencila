@@ -1,9 +1,9 @@
 use crate::{
     binaries,
     formats::{format_type, FormatType},
-    methods::encode::txt::ToTxt,
 };
 use codec_trait::Codec;
+use codec_txt::ToTxt;
 use eyre::{bail, Result};
 use node_coerce::coerce;
 use pandoc_types::definition::{self as pandoc};

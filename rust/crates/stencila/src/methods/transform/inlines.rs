@@ -1,5 +1,5 @@
 use super::Transform;
-use crate::methods::encode::txt::ToTxt;
+use codec_txt::ToTxt;
 use stencila_schema::{
     AudioObject, AudioObjectSimple, BlockContent, ImageObject, ImageObjectSimple, InlineContent,
     Node, Paragraph, VideoObject, VideoObjectSimple,

@@ -1,5 +1,7 @@
 use super::md;
-use crate::methods::{decode::txt, transform::Transform};
+use crate::methods::transform::Transform;
+use codec_trait::Codec;
+use codec_txt::TxtCodec;
 use eyre::Result;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::{local_name, LocalName};
@@ -389,7 +391,7 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
                 };
                 let value = attrs
                     .get(local_name!("value"))
-                    .and_then(|value| txt::decode(value).ok())
+                    .and_then(|value| TxtCodec::from_str(value).ok())
                     .map(Box::new);
 
                 vec![InlineContent::Parameter(Parameter {

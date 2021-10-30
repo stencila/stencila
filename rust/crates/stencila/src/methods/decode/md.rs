@@ -3,8 +3,9 @@ use std::path::PathBuf;
 use super::html;
 use crate::{
     formats::{format_type, FormatType},
-    methods::{encode::txt::ToTxt, transform::Transform},
+    methods::transform::Transform,
 };
+use codec_txt::ToTxt;
 use eyre::{bail, Result};
 use node_coerce::coerce;
 use nom::{

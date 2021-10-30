@@ -1,3 +1,4 @@
+use codec_txt::ToTxt;
 use eyre::{bail, Result};
 use serde::Serialize;
 use serde_json::json;
@@ -6,8 +7,6 @@ use stencila_schema::{
     Article, BlockContent, CodeBlock, CodeChunk, CodeChunkCaption, CreativeWorkAuthors,
     CreativeWorkTitle, ImageObject, Node, Person,
 };
-
-use crate::methods::encode::txt::ToTxt;
 
 use super::md::ToMd;
 

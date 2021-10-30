@@ -27,9 +27,6 @@ pub mod pandoc;
 #[cfg(feature = "decode-rpng")]
 pub mod rpng;
 
-#[cfg(feature = "decode-txt")]
-pub mod txt;
-
 // Modules for types of content, rather than specific formats
 
 pub mod code;
@@ -92,7 +89,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "toml" => codec_toml::TomlCodec::from_str(input)?,
 
         #[cfg(feature = "decode-txt")]
-        "txt" => txt::decode(input)?,
+        "txt" => codec_txt::TxtCodec::from_str(input)?,
 
         #[cfg(feature = "decode-yaml")]
         "yaml" => codec_yaml::YamlCodec::from_str(input)?,

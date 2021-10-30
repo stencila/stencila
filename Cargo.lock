@@ -715,6 +715,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-txt"
+version = "0.0.0"
+dependencies = [
+ "codec-trait",
+ "json5",
+ "node-coerce",
+ "test-utils",
+]
+
+[[package]]
 name = "codec-yaml"
 version = "0.0.0"
 dependencies = [
@@ -4238,6 +4248,7 @@ dependencies = [
  "codec-person",
  "codec-toml",
  "codec-trait",
+ "codec-txt",
  "codec-yaml",
  "color-eyre",
  "criterion",

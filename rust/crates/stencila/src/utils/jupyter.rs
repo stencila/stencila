@@ -4,10 +4,10 @@
 //! for executing code within them. They use them to translate Jupyter outputs
 //! and errors into their Stencila equivalents.
 
-use crate::methods::{
-    decode::{html, txt},
-    transform::Transform,
-};
+use crate::methods::{decode::html, transform::Transform};
+
+use codec_trait::Codec;
+use codec_txt::TxtCodec;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use stencila_schema::{CodeBlock, CodeError, ImageObject, Node};
@@ -74,13 +74,13 @@ pub fn translate_image_data(data: &serde_json::Value, media_type: &str) -> Optio
 
 /// Translate text from a cell result or standard output stream into a `Node`.
 ///
-/// Uses `txt:decode` to attempt to parse the text to something other
-/// than a string. However, if the result is a `String` (i.e. `txt:decode` could not
+/// Uses `TxtCodec` to attempt to parse the text to something other
+/// than a string. However, if the result is a `String` (i.e. `TxtCodec` could not
 /// parse the text), and it contains pre-formatting (tabs, newlines or more than one consecutive space),
 // then decode as a `CodeBlock` since formatting is often important in text output of cells.
 pub fn translate_text(text: &serde_json::Value) -> Option<Node> {
-    let node = txt::decode_fragment(&translate_multiline_string(text));
-    if let Node::String(text) = &node {
+    let node = TxtCodec::from_str(&translate_multiline_string(text)).ok();
+    if let Some(Node::String(text)) = &node {
         static REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new("[ ]{2,}|\t|\n").expect("Unable to create regex"));
         if REGEX.is_match(text.trim()) {
@@ -90,7 +90,7 @@ pub fn translate_text(text: &serde_json::Value) -> Option<Node> {
             }));
         }
     }
-    Some(node)
+    node
 }
 
 /// Translate text from a standard error stream into a `CodeError`.

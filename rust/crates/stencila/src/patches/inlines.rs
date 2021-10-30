@@ -1,5 +1,6 @@
 use super::prelude::*;
-use crate::{dispatch_inline, methods::encode::txt::ToTxt};
+use crate::dispatch_inline;
+use codec_txt::ToTxt;
 use std::hash::Hasher;
 use stencila_schema::{
     AudioObjectSimple, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis,

@@ -6,7 +6,6 @@ use stencila_schema::Node;
 // Core target formats needed for basic functionality
 // (e.g. previews) so not behind feature flags
 pub mod html;
-pub mod txt;
 
 #[cfg(feature = "encode-docx")]
 pub mod docx;
@@ -97,7 +96,7 @@ pub async fn encode(
     #[allow(unused_variables, unreachable_code)]
     Ok(match format {
         "html" => html::encode(node, options)?,
-        "txt" => txt::encode(node)?,
+        "txt" => codec_txt::TxtCodec::to_string(node, None)?,
 
         #[cfg(feature = "decode-docx")]
         "docx" => docx::encode(node, output).await?,

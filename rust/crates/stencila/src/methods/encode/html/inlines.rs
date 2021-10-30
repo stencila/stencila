@@ -2,7 +2,7 @@ use super::{
     attr, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_prop, concat, elem,
     elem_empty, json, Context, ToHtml,
 };
-use crate::methods::encode::txt::ToTxt;
+use codec_txt::ToTxt;
 use html_escape::encode_safe;
 use std::{fs, path::PathBuf};
 use stencila_schema::*;

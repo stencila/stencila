@@ -1,6 +1,5 @@
-use crate::methods::encode::txt::ToTxt;
-
 use super::Transform;
+use codec_txt::ToTxt;
 use stencila_schema::{
     BlockContent, Claim, ClaimSimple, CodeFragment, Collection, CollectionSimple, Emphasis, Figure,
     FigureSimple, InlineContent, MathFragment, Node, Quote, QuoteBlock, QuoteBlockCite, QuoteCite,
