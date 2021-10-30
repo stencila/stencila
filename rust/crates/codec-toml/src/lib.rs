@@ -34,7 +34,7 @@ mod tests {
 
         let toml = "type = \"Person\"\ngivenNames = [\"Sarah\"]\n".to_string();
 
-        assert_debug_eq(&TomlCodec::from_str(&toml).unwrap(), &sarah);
+        assert_debug_eq!(TomlCodec::from_str(&toml).unwrap(), sarah);
         assert_eq!(TomlCodec::to_string(&sarah, None).unwrap(), toml);
     }
 }

@@ -42,26 +42,26 @@ mod tests {
     fn from_str() -> Result<()> {
         // Adding timezone avoids failures due to different local time on
         // test host machines.
-        assert_debug_eq(
-            &DateCodec::from_str("11 Jul 2021; 12 am +00:00")?,
-            &Node::Date(Date {
+        assert_debug_eq!(
+            DateCodec::from_str("11 Jul 2021; 12 am +00:00")?,
+            Node::Date(Date {
                 value: "2021-07-11T00:00:00+00:00".to_string(),
                 ..Default::default()
-            }),
+            })
         );
-        assert_debug_eq(
-            &DateCodec::from_str("July 11 2021; 6 am +06:00")?,
-            &Node::Date(Date {
+        assert_debug_eq!(
+            DateCodec::from_str("July 11 2021; 6 am +06:00")?,
+            Node::Date(Date {
                 value: "2021-07-11T00:00:00+00:00".to_string(),
                 ..Default::default()
-            }),
+            })
         );
-        assert_debug_eq(
-            &DateCodec::from_str("2021-07-11; 13:00 +13:00")?,
-            &Node::Date(Date {
+        assert_debug_eq!(
+            DateCodec::from_str("2021-07-11; 13:00 +13:00")?,
+            Node::Date(Date {
                 value: "2021-07-11T00:00:00+00:00".to_string(),
                 ..Default::default()
-            }),
+            })
         );
         Ok(())
     }

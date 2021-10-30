@@ -35,12 +35,12 @@ mod tests {
             Node::Entity(..)
         ));
 
-        assert_debug_eq(
-            &Json5Codec::from_str("{type: 'Paragraph'}").unwrap(),
-            &Node::Paragraph(Paragraph {
+        assert_debug_eq!(
+            Json5Codec::from_str("{type: 'Paragraph'}").unwrap(),
+            Node::Paragraph(Paragraph {
                 content: vec![],
                 ..Default::default()
-            }),
+            })
         );
     }
 

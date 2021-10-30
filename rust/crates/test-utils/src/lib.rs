@@ -21,7 +21,21 @@ pub fn fixtures() -> PathBuf {
 /// Assert that two nodes are equal based on their `Debug` display
 ///
 /// Indented debug display is used as it more easily allows differences to be
-/// seen. It has the advantage over JSOn of not requiring another dependency
-pub fn assert_debug_eq<T: std::fmt::Debug>(a: &T, b: &T) {
-    pretty_assertions::assert_eq!(format!("{:#?}", a), format!("{:#?}", b))
+/// seen. It has the advantage over `assert_json_eq` of not requiring another dependency
+#[macro_export]
+macro_rules! assert_debug_eq {
+    ($a:expr, $b:expr) => {
+        test_utils::pretty_assertions::assert_eq!(format!("{:#?}", $a), format!("{:#?}", $b));
+    };
+}
+
+/// Assert that two nodes are equal based on their JSON representation
+#[macro_export]
+macro_rules! assert_json_eq {
+    ($a:expr, $b:expr) => {
+        test_utils::pretty_assertions::assert_eq!(
+            serde_json::to_value(&$a).unwrap(),
+            serde_json::to_value(&$b).unwrap()
+        );
+    };
 }
