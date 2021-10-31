@@ -4,10 +4,10 @@
 //! for executing code within them. They use them to translate Jupyter outputs
 //! and errors into their Stencila equivalents.
 
-use crate::methods::{decode::html, transform::Transform};
-
+use crate::methods::decode::html;
 use codec_trait::Codec;
 use codec_txt::TxtCodec;
+use node_transform::Transform;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use stencila_schema::{CodeBlock, CodeError, ImageObject, Node};

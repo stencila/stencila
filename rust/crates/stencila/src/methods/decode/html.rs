@@ -1,10 +1,10 @@
 use super::md;
-use crate::methods::transform::Transform;
 use codec_trait::Codec;
 use codec_txt::TxtCodec;
 use eyre::Result;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::{local_name, LocalName};
+use node_transform::Transform;
 use std::cmp::max;
 use stencila_schema::{
     Article, AudioObjectSimple, BlockContent, CodeBlock, CodeChunk, CodeExpression, CodeFragment,

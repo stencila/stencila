@@ -2701,6 +2701,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-transform"
+version = "0.0.0"
+dependencies = [
+ "codec-txt",
+ "stencila-schema",
+]
+
+[[package]]
 name = "nodrop"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4288,6 +4296,7 @@ dependencies = [
  "minidom",
  "nanoid",
  "node-coerce",
+ "node-transform",
  "nom",
  "notify",
  "once_cell",

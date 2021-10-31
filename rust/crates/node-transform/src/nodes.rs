@@ -1,9 +1,5 @@
 use super::Transform;
-use stencila_schema::{
-    Article, AudioObject, AudioObjectSimple, BlockContent, Claim, ClaimSimple, CodeChunk,
-    Collection, CollectionSimple, Emphasis, Figure, FigureSimple, ImageObject, ImageObjectSimple,
-    InlineContent, Node, Table, TableSimple, VideoObject, VideoObjectSimple,
-};
+use stencila_schema::*;
 
 impl Transform for Node {
     /// Transform a `Node` variant to a `InlineContent` variant

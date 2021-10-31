@@ -1,13 +1,11 @@
 use super::md;
-use crate::{
-    methods::transform::Transform,
-    utils::jupyter::{
-        translate_error, translate_mime_bundle, translate_multiline_string, translate_stderr,
-        translate_text,
-    },
+use crate::utils::jupyter::{
+    translate_error, translate_mime_bundle, translate_multiline_string, translate_stderr,
+    translate_text,
 };
 use eyre::Result;
 use node_coerce::coerce;
+use node_transform::Transform;
 use stencila_schema::{Article, BlockContent, CodeChunk, CodeChunkCaption, Node};
 
 /// Decode a Jupyter Notebook to a `Node`.

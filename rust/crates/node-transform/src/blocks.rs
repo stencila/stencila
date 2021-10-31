@@ -1,10 +1,6 @@
 use super::Transform;
 use codec_txt::ToTxt;
-use stencila_schema::{
-    BlockContent, Claim, ClaimSimple, CodeFragment, Collection, CollectionSimple, Emphasis, Figure,
-    FigureSimple, InlineContent, MathFragment, Node, Quote, QuoteBlock, QuoteBlockCite, QuoteCite,
-    Table, TableSimple,
-};
+use stencila_schema::*;
 
 impl Transform for BlockContent {
     /// Transform a `BlockContent` variant to a `InlineContent` variant

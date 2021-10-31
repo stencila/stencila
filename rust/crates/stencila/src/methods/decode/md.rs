@@ -1,13 +1,9 @@
-use std::path::PathBuf;
-
 use super::html;
-use crate::{
-    formats::{format_type, FormatType},
-    methods::transform::Transform,
-};
+use crate::formats::{format_type, FormatType};
 use codec_txt::ToTxt;
 use eyre::{bail, Result};
 use node_coerce::coerce;
+use node_transform::Transform;
 use nom::{
     branch::alt,
     bytes::complete::{tag, take, take_until, take_while1},
@@ -20,6 +16,7 @@ use nom::{
 use once_cell::sync::Lazy;
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use regex::Regex;
+use std::path::PathBuf;
 use stencila_schema::{
     Article, AudioObjectSimple, BlockContent, Cite, CiteGroup, CodeBlock, CodeChunk,
     CodeExpression, CodeFragment, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObjectSimple,

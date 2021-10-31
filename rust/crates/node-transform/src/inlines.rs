@@ -1,9 +1,6 @@
 use super::Transform;
 use codec_txt::ToTxt;
-use stencila_schema::{
-    AudioObject, AudioObjectSimple, BlockContent, ImageObject, ImageObjectSimple, InlineContent,
-    Node, Paragraph, VideoObject, VideoObjectSimple,
-};
+use stencila_schema::*;
 
 impl Transform for InlineContent {
     /// Transform an `InlineContent` variant to a `InlineContent` variant

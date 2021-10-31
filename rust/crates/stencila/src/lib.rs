@@ -30,8 +30,6 @@ pub mod methods {
     pub mod decode;
     pub mod encode;
 
-    pub mod transform;
-
     #[cfg(feature = "reshape")]
     pub mod reshape;
 
