@@ -8,4 +8,6 @@ edition = "2021"
 chrono = "0.4.19"
 codec-trait = { path = "../codec-trait", version = "0.0.0" }
 dtparse = "1.2.0"
+
+[dev-dependencies]
 test-utils = { path = "../test-utils", version = "0.0.0" }
