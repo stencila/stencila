@@ -1,4 +1,4 @@
-//! Coerce a JSON value to the Stencila Schema
+//! Coerce a JSON value to a Stencila document `Node`
 
 use codec_date::DateCodec;
 use codec_person::PersonCodec;
@@ -12,7 +12,7 @@ use serde_json::{json, Value as JsonValue};
 use std::{collections::HashMap, sync::Mutex};
 use stencila_schema::{self, Node, Null, Object, Primitive};
 
-/// Coerce a JSON value to the Stencila Schema
+/// Coerce a JSON value to a Stencila document `Node`
 ///
 /// This function is intended to be used prior to deserializing
 /// generic data formats e.g JSON, YAML to to a `Node`.
