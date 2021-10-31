@@ -8,10 +8,10 @@ use codec_trait::{
     stencila_schema::{Node, Null},
     Codec, EncodeOptions,
 };
-
-mod to_txt;
 use node_coerce::coerce;
-pub use to_txt::ToTxt;
+
+mod encode;
+pub use encode::ToTxt;
 
 pub struct TxtCodec {}
 
