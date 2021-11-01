@@ -1,4 +1,5 @@
-use super::md;
+use codec_md::MarkdownCodec;
+use codec_trait::Codec;
 use eyre::Result;
 use stencila_schema::{
     BlockContent, CodeBlock, CodeChunk, CodeExpression, CodeFragment, Delete, Emphasis,
@@ -9,7 +10,7 @@ const LANGUAGES: &[&str] = &["r", "py", "python", "js", "javascript"];
 
 /// Decode a R Markdown document to a `Node`
 pub fn decode(input: &str) -> Result<Node> {
-    let mut node = md::decode(input)?;
+    let mut node = MarkdownCodec::from_str(input)?;
     if let Node::Article(article) = &mut node {
         if let Some(content) = &mut article.content {
             transform_blocks(content)

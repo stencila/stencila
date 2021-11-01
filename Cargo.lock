@@ -712,6 +712,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-md"
+version = "0.0.0"
+dependencies = [
+ "codec-html",
+ "codec-trait",
+ "codec-txt",
+ "itertools",
+ "node-coerce",
+ "node-transform",
+ "nom",
+ "once_cell",
+ "pulldown-cmark",
+ "regex",
+ "serde_json",
+ "serde_yaml",
+ "stencila-schema",
+ "test-props",
+ "test-snaps",
+ "test-utils",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "codec-person"
 version = "0.0.0"
 dependencies = [
@@ -4281,6 +4305,7 @@ dependencies = [
  "codec-html",
  "codec-json",
  "codec-json5",
+ "codec-md",
  "codec-person",
  "codec-toml",
  "codec-trait",

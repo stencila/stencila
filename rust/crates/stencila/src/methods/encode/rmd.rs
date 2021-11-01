@@ -1,4 +1,5 @@
-use super::md;
+use codec_md::MarkdownCodec;
+use codec_trait::Codec;
 use eyre::Result;
 use stencila_schema::{
     BlockContent, CodeBlock, CodeChunk, CodeExpression, CodeFragment, Delete, Emphasis,
@@ -13,7 +14,7 @@ pub fn encode(node: &Node) -> Result<String> {
             transform_blocks(content)
         }
     }
-    md::encode(&node)
+    MarkdownCodec::to_string(&node, None)
 }
 
 fn transform_blocks(blocks: &mut Vec<BlockContent>) {

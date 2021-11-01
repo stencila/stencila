@@ -1,4 +1,3 @@
-use super::md;
 use crate::utils::jupyter::{
     translate_error, translate_mime_bundle, translate_multiline_string, translate_stderr,
     translate_text,
@@ -101,7 +100,7 @@ fn translate_code_cell(cell: &serde_json::Value, notebook_lang: &str) -> Vec<Blo
 
         let caption = if let Some(caption) = metadata.get("caption") {
             let blocks = if let Some(string) = caption.as_str() {
-                md::decode_fragment(string, Some(notebook_lang.to_string()))
+                codec_md::decode_fragment(string, Some(notebook_lang.to_string()))
             } else if let Some(array) = caption.as_array() {
                 array
                     .iter()
@@ -215,7 +214,7 @@ fn translate_output(output: &serde_json::Value, language: &str) -> Option<Node> 
 /// Translate a Jupyter "markdown" cell
 fn translate_markdown_cell(cell: &serde_json::Value, default_lang: &str) -> Vec<BlockContent> {
     if let Some(source) = cell.get("source") {
-        md::decode_fragment(
+        codec_md::decode_fragment(
             &translate_multiline_string(source),
             Some(default_lang.to_string()),
         )

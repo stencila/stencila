@@ -1,10 +1,10 @@
-use eyre::Result;
+use codec_trait::{eyre::Result, EncodeOptions};
 use itertools::Itertools;
 use std::cmp::max;
 use stencila_schema::*;
 
 /// Encode a `Node` to Markdown
-pub fn encode(node: &Node) -> Result<String> {
+pub fn encode(node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
     Ok(node.to_md().trim().to_string())
 }
 

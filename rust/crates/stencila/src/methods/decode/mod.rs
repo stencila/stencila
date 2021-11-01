@@ -9,9 +9,6 @@ pub mod docx;
 #[cfg(feature = "decode-ipynb")]
 pub mod ipynb;
 
-#[cfg(feature = "decode-md")]
-pub mod md;
-
 #[cfg(feature = "decode-rmd")]
 pub mod rmd;
 
@@ -74,7 +71,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "person" => codec_person::PersonCodec::from_str(input)?,
 
         #[cfg(feature = "decode-md")]
-        "md" => md::decode(input)?,
+        "md" => codec_md::MarkdownCodec::from_str(input)?,
 
         #[cfg(feature = "decode-rmd")]
         "rmd" => rmd::decode(input)?,

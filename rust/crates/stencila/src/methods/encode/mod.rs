@@ -12,9 +12,6 @@ pub mod ipynb;
 #[cfg(feature = "encode-latex")]
 pub mod latex;
 
-#[cfg(feature = "encode-md")]
-pub mod md;
-
 #[cfg(feature = "encode-pandoc")]
 pub mod pandoc;
 
@@ -111,7 +108,7 @@ pub async fn encode(
         "latex" => latex::encode(node).await?,
 
         #[cfg(feature = "encode-md")]
-        "md" => md::encode(node)?,
+        "md" => codec_md::MarkdownCodec::to_string(node, None)?,
 
         #[cfg(feature = "encode-pandoc")]
         "pandoc" => pandoc::encode(node, output, "pandoc", &[]).await?,

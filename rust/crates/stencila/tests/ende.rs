@@ -65,14 +65,6 @@ proptest! {
         assert_json_eq!(input, output);
     }
 
-    #[cfg(all(feature="encode-md", feature="decode-md"))]
-    #[test]
-    fn md(input in article(Freedom::Min)) {
-        let content = encode::md::encode(&input).unwrap();
-        let output = decode::md::decode(&content).unwrap();
-        assert_json_eq!(input, output);
-    }
-
     #[cfg(all(feature="encode-rmd", feature="decode-rmd"))]
     #[test]
     fn rmd(input in article(Freedom::Min)) {

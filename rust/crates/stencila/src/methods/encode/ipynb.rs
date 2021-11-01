@@ -1,3 +1,4 @@
+use codec_md::ToMd;
 use codec_txt::ToTxt;
 use eyre::{bail, Result};
 use serde::Serialize;
@@ -7,8 +8,6 @@ use stencila_schema::{
     Article, BlockContent, CodeBlock, CodeChunk, CodeChunkCaption, CreativeWorkAuthors,
     CreativeWorkTitle, ImageObject, Node, Person,
 };
-
-use super::md::ToMd;
 
 /// Encode a `Node` to a Jupyter Notebook.
 ///

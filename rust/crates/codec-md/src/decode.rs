@@ -1,6 +1,5 @@
-use crate::formats::{format_type, FormatType};
+use codec_trait::eyre::{bail, Result};
 use codec_txt::ToTxt;
-use eyre::{bail, Result};
 use node_coerce::coerce;
 use node_transform::Transform;
 use nom::{
@@ -15,14 +14,7 @@ use nom::{
 use once_cell::sync::Lazy;
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use regex::Regex;
-use std::path::PathBuf;
-use stencila_schema::{
-    Article, AudioObjectSimple, BlockContent, Cite, CiteGroup, CodeBlock, CodeChunk,
-    CodeExpression, CodeFragment, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObjectSimple,
-    InlineContent, Link, List, ListItem, ListItemContent, MathFragment, Node, Paragraph,
-    QuoteBlock, Strong, Subscript, Superscript, TableCell, TableCellContent, TableRow,
-    TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
-};
+use stencila_schema::*;
 
 /// Decode a Markdown document to a `Node`
 ///
@@ -55,8 +47,10 @@ pub fn decode(md: &str) -> Result<Node> {
 
 /// Decode any front matter in a Markdown document into a `Node`
 ///
-/// Any front matter will be coerced into a `Node`, defaulting to the
-/// `Node::Article` variant, if `type` is not defined.
+/// Any front matter will be coerced into an `Node`, defaulting to the
+/// `Node::Article` variant, if `type` is not defined. This allows
+/// properties such as `authors` to be coerced properly.
+///
 /// If there is no front matter detected, will return `None`.
 pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
     static REGEX: Lazy<Regex> =
@@ -86,7 +80,7 @@ pub fn decode_frontmatter(md: &str) -> Result<(Option<usize>, Option<Node>)> {
             }
             Err(error) => {
                 tracing::warn!(
-                    "Error while parsing YAML frontmatter, will be ignored {}",
+                    "Error while parsing YAML frontmatter (will be ignored): {}",
                     error
                 );
                 return Ok((end, None));
@@ -355,12 +349,21 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         }
                     };
 
-                    let extension = PathBuf::from(&url.to_string()).extension().map_or_else(
+                    let media_object = InlineContent::ImageObject(ImageObjectSimple {
+                        caption,
+                        content_url: url.to_string(),
+                        title,
+                        ..Default::default()
+                    });
+
+                    /*
+                    TODO: Reinstate "smart" media types (not just images) if/when there is a formats
+                    crate.
+                    let _extension = PathBuf::from(&url.to_string()).extension().map_or_else(
                         || "".to_string(),
                         |ext| ext.to_string_lossy().to_string().to_ascii_lowercase(),
                     );
-
-                    let media_object = match format_type(extension.as_str()) {
+                    match format_type(extension.as_str()) {
                         FormatType::AudioObject => InlineContent::AudioObject(AudioObjectSimple {
                             caption,
                             content_url: url.to_string(),
@@ -380,6 +383,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                             ..Default::default()
                         }),
                     };
+                    */
 
                     inlines.push_node(media_object)
                 }
@@ -999,9 +1003,7 @@ impl Html {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_fixtures;
-    use insta::assert_json_snapshot;
-    use pretty_assertions::assert_eq;
+    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
 
     #[test]
     fn md_frontmatter() -> Result<()> {
@@ -1024,16 +1026,18 @@ mod tests {
     }
 
     #[test]
-    fn md_articles() {
-        snapshot_fixtures("articles/*.md", |_path, content| {
-            assert_json_snapshot!(decode(content).expect("Unable to decode Markdown"));
+    fn decode_md_articles() {
+        snapshot_fixtures("articles/*.md", |path| {
+            let content = std::fs::read_to_string(path).expect("Unable to read file");
+            assert_json_snapshot!(decode(&content).expect("Unable to decode Markdown"));
         });
     }
 
     #[test]
-    fn md_fragments() {
-        snapshot_fixtures("fragments/md/*.md", |_path, content| {
-            assert_json_snapshot!(decode_fragment(content, None));
+    fn decode_md_fragments() {
+        snapshot_fixtures("fragments/md/*.md", |path| {
+            let content = std::fs::read_to_string(path).expect("Unable to read file");
+            assert_json_snapshot!(decode_fragment(&content, None));
         });
     }
 }
