@@ -9,8 +9,5 @@ pub mod schemas;
 pub mod urls;
 pub mod uuids;
 
-#[cfg(any(feature = "decode-ipynb", feature = "kernels-jupyter"))]
-pub mod jupyter;
-
 #[cfg(test)]
 pub mod tests;

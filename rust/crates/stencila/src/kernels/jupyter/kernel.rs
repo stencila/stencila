@@ -10,12 +10,10 @@ use super::{
 use crate::{
     errors::incompatible_language,
     kernels::{Kernel, KernelStatus, KernelTrait},
-    utils::{
-        jupyter::{translate_error, translate_mime_bundle, translate_stderr},
-        uuids,
-    },
+    utils::uuids,
 };
 use async_trait::async_trait;
+use codec_ipynb::{translate_error, translate_mime_bundle, translate_stderr};
 use defaults::Defaults;
 use derivative::Derivative;
 use eyre::{bail, eyre, Result};

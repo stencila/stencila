@@ -10,6 +10,7 @@ mod encode;
 
 #[cfg(feature = "translate")]
 mod translate;
+pub use translate::*;
 
 pub struct IpynbCodec {}
 
