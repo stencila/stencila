@@ -1,6 +1,8 @@
-use super::{html, Options};
+use super::Options;
 use crate::binaries;
 use chromiumoxide::{cdp::browser_protocol::page::PrintToPdfParamsBuilder, Browser, BrowserConfig};
+use codec_html::HtmlCodec;
+use codec_trait::{Codec, EncodeOptions};
 use eyre::{bail, Result};
 use futures::StreamExt;
 use stencila_schema::Node;
@@ -14,9 +16,9 @@ pub async fn encode(node: &Node, output: &str, options: Option<Options>) -> Resu
     };
     let Options { theme, .. } = options.unwrap_or_default();
 
-    let html = html::encode(
+    let html = HtmlCodec::to_string(
         node,
-        Some(Options {
+        Some(EncodeOptions {
             standalone: true,
             bundle: true,
             theme,

@@ -4,7 +4,6 @@
 //! for executing code within them. They use them to translate Jupyter outputs
 //! and errors into their Stencila equivalents.
 
-use crate::methods::decode::html;
 use codec_trait::Codec;
 use codec_txt::TxtCodec;
 use node_transform::Transform;
@@ -44,7 +43,7 @@ pub fn translate_mime_bundle(bundle: &serde_json::Value) -> Option<Node> {
     }
     if let Some(html) = bundle.get("text/html") {
         let html = translate_multiline_string(html);
-        let blocks = html::decode_fragment(&html, false);
+        let blocks = codec_html::decode_fragment(&html, false);
         if let Some(first) = blocks.first() {
             let node = first.clone().to_node();
             return Some(node);

@@ -1,6 +1,8 @@
-use super::{html, Options};
+use super::Options;
 use crate::binaries;
 use chromiumoxide::{cdp::browser_protocol::page::CaptureScreenshotFormat, Browser, BrowserConfig};
+use codec_html::HtmlCodec;
+use codec_trait::{Codec, EncodeOptions};
 use eyre::Result;
 use futures::StreamExt;
 use std::fs;
@@ -22,9 +24,9 @@ pub async fn encode_to_pngs(nodes: &[&Node], options: Option<Options>) -> Result
     // Generate HTML for each node
     let mut html = String::new();
     for (index, node) in nodes.iter().enumerate() {
-        let node_html = html::encode(
+        let node_html = HtmlCodec::to_string(
             node,
-            Some(Options {
+            Some(EncodeOptions {
                 standalone: false,
                 bundle: true,
                 ..Default::default()
@@ -35,7 +37,7 @@ pub async fn encode_to_pngs(nodes: &[&Node], options: Option<Options>) -> Result
 
     // Wrap the HTML with a header etc so that the theme is set and CSS is loaded
     let Options { theme, .. } = options.unwrap_or_default();
-    let html = html::wrap_standalone("PNG", &theme, &html);
+    let html = codec_html::wrap_standalone("PNG", &theme, &html);
 
     // Launch the browser
     let chrome = binaries::require("chrome", "*").await?;

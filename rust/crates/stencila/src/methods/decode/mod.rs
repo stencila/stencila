@@ -6,9 +6,6 @@ use stencila_schema::Node;
 #[cfg(feature = "decode-docx")]
 pub mod docx;
 
-#[cfg(feature = "decode-html")]
-pub mod html;
-
 #[cfg(feature = "decode-ipynb")]
 pub mod ipynb;
 
@@ -56,7 +53,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "docx" => docx::decode(input).await?,
 
         #[cfg(feature = "decode-html")]
-        "html" => html::decode(input, false)?,
+        "html" => codec_html::HtmlCodec::from_str(input)?,
 
         #[cfg(feature = "decode-ipynb")]
         "ipynb" => ipynb::decode(input)?,

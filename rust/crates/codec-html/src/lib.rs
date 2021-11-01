@@ -4,11 +4,14 @@ use stencila_schema::Node;
 #[cfg(feature = "decode")]
 mod decode;
 
+#[cfg(feature = "decode")]
+pub use decode::decode_fragment;
+
 #[cfg(feature = "encode")]
 mod encode;
 
 #[cfg(feature = "encode")]
-pub use encode::ToHtml;
+pub use encode::{wrap_standalone, EncodeContext, ToHtml};
 
 pub struct HtmlCodec {}
 

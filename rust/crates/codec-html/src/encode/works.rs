@@ -2,7 +2,7 @@
 
 use super::{
     attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, concat, elem, elem_empty, json,
-    Context, ToHtml,
+    EncodeContext, ToHtml,
 };
 use codec_txt::ToTxt;
 use html_escape::encode_safe;
@@ -11,7 +11,7 @@ use std::collections::BTreeMap;
 use stencila_schema::*;
 
 impl ToHtml for CreativeWorkTypes {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         match self {
             CreativeWorkTypes::Article(node) => node.to_html(slot, context),
             CreativeWorkTypes::AudioObject(node) => node.to_html(slot, context),
@@ -27,7 +27,7 @@ impl ToHtml for CreativeWorkTypes {
 }
 
 impl ToHtml for CreativeWorkContent {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         match self {
             CreativeWorkContent::String(node) => node.to_html(slot, context),
             CreativeWorkContent::VecNode(nodes) => nodes.to_html(slot, context),
@@ -36,7 +36,7 @@ impl ToHtml for CreativeWorkContent {
 }
 
 impl ToHtml for Article {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let title = match &self.title {
             Some(title) => {
                 let title = match &**title {
@@ -278,7 +278,7 @@ fn affiliation_org_to_html(org: &Organization) -> String {
 }
 
 impl ToHtml for AudioObject {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         AudioObjectSimple {
             content_url: self.content_url.clone(),
             ..Default::default()
@@ -288,7 +288,7 @@ impl ToHtml for AudioObject {
 }
 
 impl ToHtml for ImageObject {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         ImageObjectSimple {
             content_url: self.content_url.clone(),
             ..Default::default()
@@ -298,7 +298,7 @@ impl ToHtml for ImageObject {
 }
 
 impl ToHtml for VideoObject {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         VideoObjectSimple {
             media_type: self.media_type.clone(),
             content_url: self.content_url.clone(),
@@ -309,7 +309,7 @@ impl ToHtml for VideoObject {
 }
 
 impl ToHtml for Collection {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let Collection { parts, .. } = self;
         CollectionSimple {
             parts: parts.clone(),
@@ -320,7 +320,7 @@ impl ToHtml for Collection {
 }
 
 impl ToHtml for Claim {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let Claim { content, .. } = self;
         ClaimSimple {
             content: content.clone(),
@@ -331,7 +331,7 @@ impl ToHtml for Claim {
 }
 
 impl ToHtml for Figure {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let Figure {
             caption, content, ..
         } = self;
@@ -345,7 +345,7 @@ impl ToHtml for Figure {
 }
 
 impl ToHtml for Table {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let Table { caption, rows, .. } = self;
         TableSimple {
             caption: caption.clone(),

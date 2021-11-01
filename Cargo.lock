@@ -4278,6 +4278,7 @@ dependencies = [
  "chromiumoxide",
  "chrono",
  "codec-date",
+ "codec-html",
  "codec-json",
  "codec-json5",
  "codec-person",

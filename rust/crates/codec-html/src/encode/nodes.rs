@@ -1,6 +1,6 @@
 //! Encode `Node` nodes to HTML
 
-use super::{attr, elem, json, Context, ToHtml};
+use super::{attr, elem, json, EncodeContext, ToHtml};
 use stencila_schema::Node;
 
 /// Encode a `Node` to HTML
@@ -8,7 +8,7 @@ use stencila_schema::Node;
 /// All node types that have an `impl ToHtml` should be listed here. Not all node types
 /// are supported, in which case this function returns HTML indicating that that is the case.
 impl ToHtml for Node {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         match self {
             Node::Array(node) => node.to_html(slot, context),
             Node::Article(node) => node.to_html(slot, context),

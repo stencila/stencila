@@ -31,7 +31,7 @@ pub fn encode_address(node: &Node, options: Option<EncodeOptions>) -> String {
         bundle, compact, ..
     } = options.unwrap_or_default();
 
-    let context = Context { root: node, bundle };
+    let context = EncodeContext { root: node, bundle };
     let html = node.to_html("root", &context);
 
     if compact {
@@ -126,7 +126,7 @@ pub fn wrap_standalone(title: &str, theme: &str, html: &str) -> String {
 ///
 /// Used by child nodes to retrieve necessary information about the
 /// parent nodes when rendering themselves.
-pub struct Context<'a> {
+pub struct EncodeContext<'a> {
     /// The root node being encoded
     root: &'a Node,
 
@@ -134,10 +134,10 @@ pub struct Context<'a> {
     bundle: bool,
 }
 
-impl<'a> Context<'a> {
+impl<'a> EncodeContext<'a> {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
-        Context {
+        EncodeContext {
             root: &Node::Null(Null {}),
             bundle: false,
         }
@@ -146,7 +146,7 @@ impl<'a> Context<'a> {
 
 /// Trait for encoding a node as HTML
 pub trait ToHtml {
-    fn to_html(&self, slot: &str, context: &Context) -> String;
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String;
 }
 
 /// Encode a HTML element

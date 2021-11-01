@@ -57,14 +57,6 @@ proptest! {
     // we reduce the number of test cases from the default of 256
     #![proptest_config(ProptestConfig::with_cases(100))]
 
-    #[cfg(feature="decode-html")]
-    #[test]
-    fn html(input in article(Freedom::Max)) {
-        let content = encode::html::encode(&input, None).unwrap();
-        let output = decode::html::decode(&content, false).unwrap();
-        assert_json_eq!(input, output);
-    }
-
     #[cfg(all(feature="encode-ipynb", feature="decode-ipynb"))]
     #[test]
     fn ipynb(input in article(Freedom::Min)) {

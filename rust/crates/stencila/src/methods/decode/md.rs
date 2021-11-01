@@ -1,4 +1,3 @@
-use super::html;
 use crate::formats::{format_type, FormatType};
 use codec_txt::ToTxt;
 use eyre::{bail, Result};
@@ -989,7 +988,7 @@ impl Html {
         if self.tags.is_empty() {
             let html = self.html.clone() + html;
             self.html.clear();
-            html::decode_fragment(&html, true)
+            codec_html::decode_fragment(&html, true)
         } else {
             self.html.push_str(html);
             vec![]

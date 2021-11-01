@@ -2,13 +2,13 @@
 
 use super::{
     attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, concat, elem, elem_empty, json,
-    Context, ToHtml,
+    EncodeContext, ToHtml,
 };
 use html_escape::encode_safe;
 use stencila_schema::*;
 
 impl ToHtml for BlockContent {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         match self {
             BlockContent::Claim(node) => node.to_html(slot, context),
             BlockContent::CodeBlock(node) => node.to_html(slot, context),
@@ -28,7 +28,7 @@ impl ToHtml for BlockContent {
 }
 
 impl ToHtml for ClaimSimple {
-    fn to_html(&self, slot: &str, _context: &Context) -> String {
+    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
         elem(
             "pre",
             &[
@@ -49,7 +49,7 @@ impl ToHtml for CodeBlock {
     /// The `<meta>` element is for Microdata and Stencila WebComponent compatibility.
     /// The `class` follows the recommendation of [HTML5 spec](https://html.spec.whatwg.org/#the-code-element)
     /// to "use the class attribute, e.g. by adding a class prefixed with "language-" to the element."
-    fn to_html(&self, slot: &str, _context: &Context) -> String {
+    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
         let (class, meta) = match &self.programming_language {
             Some(programming_language) => (
                 attr("class", &["language-", programming_language].concat()),
@@ -79,7 +79,7 @@ impl ToHtml for CodeBlock {
 }
 
 impl ToHtml for CodeChunk {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let label = match &self.label {
             None => String::new(),
             Some(label) => elem("label", &[attr_prop("label")], label),
@@ -127,7 +127,7 @@ impl ToHtml for CodeChunk {
 }
 
 impl ToHtml for CollectionSimple {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         elem(
             "ol",
             &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -139,7 +139,7 @@ impl ToHtml for CollectionSimple {
 }
 
 impl ToHtml for FigureSimple {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let label = match &self.label {
             None => String::new(),
             Some(label) => elem("label", &[attr_prop("label")], label),
@@ -183,7 +183,7 @@ impl ToHtml for Heading {
     ///
     /// In rare cases that there is no content in the heading, return an empty
     /// text node to avoid the 'Heading tag found with no content' accessibility error.
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let depth = match &self.depth {
             Some(depth) => std::cmp::min(*depth + 1, 6),
             None => 2,
@@ -198,7 +198,7 @@ impl ToHtml for Heading {
 }
 
 impl ToHtml for Include {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let content = self
             .content
             .as_ref()
@@ -213,7 +213,7 @@ impl ToHtml for Include {
 }
 
 impl ToHtml for List {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let tag = match &self.order {
             Some(ListOrder::Ascending) => "ol",
             _ => "ul",
@@ -233,7 +233,7 @@ impl ToHtml for List {
 }
 
 impl ToHtml for ListItem {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let checkbox = self.is_checked.map(|is_checked| match is_checked {
             true => InlineContent::String("☑ ".to_string()),
             false => InlineContent::String("☐ ".to_string()),
@@ -277,7 +277,7 @@ impl ToHtml for ListItem {
 }
 
 impl ToHtml for MathBlock {
-    fn to_html(&self, slot: &str, _context: &Context) -> String {
+    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
         elem(
             "pre",
             &[
@@ -292,7 +292,7 @@ impl ToHtml for MathBlock {
 }
 
 impl ToHtml for Paragraph {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         elem(
             "p",
             &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -302,7 +302,7 @@ impl ToHtml for Paragraph {
 }
 
 impl ToHtml for QuoteBlock {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         elem(
             "blockquote",
             &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
@@ -317,7 +317,7 @@ impl ToHtml for QuoteBlock {
 /// However, that interferes with resolving cell addresses in the DOM, so we reverted to a
 /// simpler approach of placing all cell into `tbody`
 impl ToHtml for TableSimple {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let label = match &self.label {
             None => String::new(),
             Some(label) => elem("label", &[attr_prop("label")], label),
@@ -352,7 +352,7 @@ impl ToHtml for TableSimple {
 }
 
 impl ToHtml for TableRow {
-    fn to_html(&self, slot: &str, context: &Context) -> String {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let cells = concat(&self.cells, |cell| {
             let tag = match &cell.cell_type {
                 Some(cell_type) => match cell_type {
@@ -390,7 +390,7 @@ impl ToHtml for TableRow {
 }
 
 impl ToHtml for ThematicBreak {
-    fn to_html(&self, slot: &str, _context: &Context) -> String {
+    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
         elem_empty(
             "hr",
             &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],

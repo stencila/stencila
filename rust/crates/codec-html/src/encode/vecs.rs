@@ -1,12 +1,12 @@
 //! Encode `Vec<>`s to HTML
 
-use super::{Context, ToHtml};
+use super::{EncodeContext, ToHtml};
 
 impl<Type> ToHtml for Vec<Type>
 where
     Type: ToHtml,
 {
-    fn to_html(&self, _slot: &str, context: &Context) -> String {
+    fn to_html(&self, _slot: &str, context: &EncodeContext) -> String {
         self.iter()
             .map(|item| item.to_html("", context))
             .collect::<Vec<String>>()

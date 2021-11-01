@@ -281,12 +281,13 @@ zip = { version = "=0.5.13", optional = true }
 zmq = { version = "=0.9.2", optional = true, default-features = false }
 
 codec-date = { path = "../codec-date", version = "0.0.0" }
+codec-html = { path = "../codec-html", version = "0.0.0" }
 codec-json = { path = "../codec-json", version = "0.0.0" }
 codec-json5 = { path = "../codec-json5", version = "0.0.0" }
 codec-person = { path = "../codec-person", version = "0.0.0" }
 codec-toml = { path = "../codec-toml", version = "0.0.0" }
-codec-txt = { path = "../codec-txt", version = "0.0.0" }
 codec-trait = { path = "../codec-trait", version = "0.0.0" }
+codec-txt = { path = "../codec-txt", version = "0.0.0" }
 codec-yaml = { path = "../codec-yaml", version = "0.0.0" }
 node-coerce = { path = "../node-coerce", version = "0.0.0" }
 node-transform = { path = "../node-transform", version = "0.0.0" }

@@ -540,10 +540,10 @@ impl Operation {
 
     /// Generate HTML for the `value` field of an operation
     fn value_html(value: &Value, address: &Address) -> String {
-        use crate::methods::encode::html::{Context, ToHtml};
+        use codec_html::{EncodeContext, ToHtml};
 
         let slot = address.back();
-        let context = Context::new();
+        let context = EncodeContext::new();
 
         // Convert a node, boxed node, or vector of nodes to HTML
         macro_rules! to_html {
