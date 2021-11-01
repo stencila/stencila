@@ -1,7 +1,6 @@
 //! A codec for Markdown
 
-use codec_trait::{eyre::Result, Codec, EncodeOptions};
-use stencila_schema::Node;
+use codec_trait::{eyre::Result, stencila_schema::Node, Codec, EncodeOptions};
 
 #[cfg(feature = "decode")]
 mod decode;

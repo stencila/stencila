@@ -1,7 +1,6 @@
-use codec_trait::{eyre::Result, EncodeOptions};
+use codec_trait::{eyre::Result, stencila_schema::*, EncodeOptions};
 use itertools::Itertools;
 use std::cmp::max;
-use stencila_schema::*;
 
 /// Encode a `Node` to Markdown
 pub fn encode(node: &Node, _options: Option<EncodeOptions>) -> Result<String> {

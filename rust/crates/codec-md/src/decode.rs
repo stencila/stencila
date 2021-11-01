@@ -1,4 +1,7 @@
-use codec_trait::eyre::{bail, Result};
+use codec_trait::{
+    eyre::{bail, Result},
+    stencila_schema::*,
+};
 use codec_txt::ToTxt;
 use node_coerce::coerce;
 use node_transform::Transform;
@@ -14,7 +17,6 @@ use nom::{
 use once_cell::sync::Lazy;
 use pulldown_cmark::{CodeBlockKind, Event, Options, Parser, Tag};
 use regex::Regex;
-use stencila_schema::*;
 
 /// Decode a Markdown document to a `Node`
 ///
@@ -184,9 +186,9 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 }
                 Tag::List(start) => {
                     let order = if start.is_some() {
-                        Some(stencila_schema::ListOrder::Ascending)
+                        Some(ListOrder::Ascending)
                     } else {
-                        Some(stencila_schema::ListOrder::Unordered)
+                        Some(ListOrder::Unordered)
                     };
 
                     let items = lists.pop_tail();
@@ -1003,7 +1005,7 @@ impl Html {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
+    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     #[test]
     fn md_frontmatter() -> Result<()> {
@@ -1027,17 +1029,15 @@ mod tests {
 
     #[test]
     fn decode_md_articles() {
-        snapshot_fixtures("articles/*.md", |path| {
-            let content = std::fs::read_to_string(path).expect("Unable to read file");
-            assert_json_snapshot!(decode(&content).expect("Unable to decode Markdown"));
+        snapshot_fixtures_content("articles/*.md", |content| {
+            assert_json_snapshot!(decode(content).expect("Unable to decode Markdown"));
         });
     }
 
     #[test]
     fn decode_md_fragments() {
-        snapshot_fixtures("fragments/md/*.md", |path| {
-            let content = std::fs::read_to_string(path).expect("Unable to read file");
-            assert_json_snapshot!(decode_fragment(&content, None));
+        snapshot_fixtures_content("fragments/md/*.md", |content| {
+            assert_json_snapshot!(decode_fragment(content, None));
         });
     }
 }
