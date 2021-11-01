@@ -14,12 +14,6 @@ edition = "2018"
 
 [features]
 
-cli = ["structopt"]
-cli-feedback = ["ansi_term", "color-eyre", "linya"]
-cli-pretty = ["atty", "syntect", "termimad"]
-cli-view = ["webbrowser"]
-cli-interact = ["ansi_term", "rustyline", "rustyline-derive"]
-
 serve = []
 serve-stdio = ["serve"]
 serve-http = ["serve", "sudo", "warp", "jsonwebtoken", "rust-embed"]
@@ -100,10 +94,9 @@ query-jsonptr = []
 
 default = [
   "cli",
-  "cli-feedback",
-  "cli-pretty",
-  "cli-view",
-  "cli-interact",
+  "cli/progress",
+  "cli/pretty",
+  "cli/interact",
   "serve",
   "serve-stdio",
   "serve-http",
@@ -163,6 +156,8 @@ default = [
   "compile-ts",
   "query-jsonptr",
   "query-jmespath",
+  "webbrowser",
+  "structopt",
 ]
 
 [dependencies]
@@ -280,6 +275,7 @@ xz2 = { version = "=0.1.6", optional = true }
 zip = { version = "=0.5.13", optional = true }
 zmq = { version = "=0.9.2", optional = true, default-features = false }
 
+cli = { path = "../cli", version = "0.0.0", optional = true }
 codec-date = { path = "../codec-date", version = "0.0.0" }
 codec-html = { path = "../codec-html", version = "0.0.0" }
 codec-ipynb = { path = "../codec-ipynb", version = "0.0.0" }

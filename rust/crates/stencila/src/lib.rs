@@ -40,9 +40,6 @@ pub mod methods {
 //
 // Features that can be turned off
 
-#[cfg(feature = "cli")]
-pub mod cli;
-
 #[cfg(feature = "binaries")]
 pub mod binaries;
 
