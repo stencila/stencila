@@ -1,6 +1,6 @@
 ---
-source: rust/src/methods/decode/rmd.rs
-expression: decode(&content).unwrap()
+source: rust/crates/codec-rmd/src/decode.rs
+expression: decode(content).unwrap()
 input_file: fixtures/fragments/rmd/code-expression.rmd
 
 ---

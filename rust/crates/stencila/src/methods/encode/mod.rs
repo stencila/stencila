@@ -21,9 +21,6 @@ pub mod pdf;
 #[cfg(feature = "encode-png")]
 pub mod png;
 
-#[cfg(feature = "encode-rmd")]
-pub mod rmd;
-
 #[cfg(feature = "encode-rpng")]
 pub mod rpng;
 
@@ -120,7 +117,7 @@ pub async fn encode(
         "png" => png::encode(node, output, options).await?,
 
         #[cfg(feature = "encode-rmd")]
-        "rmd" => rmd::encode(node)?,
+        "rmd" => codec_rmd::RmdCodec::to_string(node, None)?,
 
         #[cfg(feature = "encode-rpng")]
         "rpng" => rpng::encode(node, output).await?,

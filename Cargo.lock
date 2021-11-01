@@ -727,7 +727,6 @@ dependencies = [
  "regex",
  "serde_json",
  "serde_yaml",
- "stencila-schema",
  "test-props",
  "test-snaps",
  "test-utils",
@@ -743,6 +742,17 @@ dependencies = [
  "human_name",
  "once_cell",
  "regex",
+ "test-utils",
+]
+
+[[package]]
+name = "codec-rmd"
+version = "0.0.0"
+dependencies = [
+ "codec-md",
+ "codec-trait",
+ "test-props",
+ "test-snaps",
  "test-utils",
 ]
 
@@ -4307,6 +4317,7 @@ dependencies = [
  "codec-json5",
  "codec-md",
  "codec-person",
+ "codec-rmd",
  "codec-toml",
  "codec-trait",
  "codec-txt",

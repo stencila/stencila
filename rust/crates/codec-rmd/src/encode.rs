@@ -1,10 +1,5 @@
 use codec_md::MarkdownCodec;
-use codec_trait::Codec;
-use eyre::Result;
-use stencila_schema::{
-    BlockContent, CodeBlock, CodeChunk, CodeExpression, CodeFragment, Delete, Emphasis,
-    InlineContent, Node, NontextualAnnotation, Paragraph, Strong, Subscript, Superscript,
-};
+use codec_trait::{eyre::Result, stencila_schema::*, Codec};
 
 /// Encode a `Node` to R Markdown
 pub fn encode(node: &Node) -> Result<String> {

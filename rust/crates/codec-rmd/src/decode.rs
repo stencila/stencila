@@ -1,10 +1,5 @@
 use codec_md::MarkdownCodec;
-use codec_trait::Codec;
-use eyre::Result;
-use stencila_schema::{
-    BlockContent, CodeBlock, CodeChunk, CodeExpression, CodeFragment, Delete, Emphasis,
-    InlineContent, Node, NontextualAnnotation, Paragraph, Strong, Subscript, Superscript,
-};
+use codec_trait::{eyre::Result, stencila_schema::*, Codec};
 
 const LANGUAGES: &[&str] = &["r", "py", "python", "js", "javascript"];
 
@@ -80,21 +75,21 @@ fn transform_inlines(inlines: &mut Vec<InlineContent>) {
 
 #[cfg(test)]
 mod tests {
+    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
+
     use super::*;
-    use crate::utils::tests::snapshot_fixtures;
-    use insta::assert_json_snapshot;
 
     #[ignore]
     #[test]
-    fn rmd_articles() {
-        snapshot_fixtures("articles/*.Rmd", |_path, content| {
+    fn decode_rmd_articles() {
+        snapshot_fixtures_content("articles/*.Rmd", |content| {
             assert_json_snapshot!(decode(content).unwrap());
         });
     }
 
     #[test]
-    fn rmd_fragments() {
-        snapshot_fixtures("fragments/rmd/*.Rmd", |_path, content| {
+    fn decode_rmd_fragments() {
+        snapshot_fixtures_content("fragments/rmd/*.Rmd", |content| {
             assert_json_snapshot!(decode(content).unwrap());
         });
     }
