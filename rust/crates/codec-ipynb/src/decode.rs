@@ -1,11 +1,10 @@
-use crate::utils::jupyter::{
+use super::translate::{
     translate_error, translate_mime_bundle, translate_multiline_string, translate_stderr,
     translate_text,
 };
-use eyre::Result;
+use codec_trait::{eyre::Result, stencila_schema::*};
 use node_coerce::coerce;
 use node_transform::Transform;
-use stencila_schema::{Article, BlockContent, CodeChunk, CodeChunkCaption, Node};
 
 /// Decode a Jupyter Notebook to a `Node`.
 ///
@@ -233,12 +232,11 @@ fn translate_raw_cell(_cell: &serde_json::Value) -> Vec<BlockContent> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::utils::tests::snapshot_fixtures;
-    use insta::assert_json_snapshot;
+    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     #[test]
-    fn ipynb_articles() {
-        snapshot_fixtures("articles/*.ipynb", |_path, content| {
+    fn decode_ipynb_articles() {
+        snapshot_fixtures_content("articles/*.ipynb", |content| {
             assert_json_snapshot!(decode(content).unwrap());
         });
     }

@@ -1,6 +1,6 @@
 ---
-source: rust/src/methods/decode/ipynb.rs
-expression: decode(&content).unwrap()
+source: rust/crates/codec-ipynb/src/decode.rs
+expression: decode(content).unwrap()
 input_file: fixtures/articles/kitchen-sink.ipynb
 
 ---

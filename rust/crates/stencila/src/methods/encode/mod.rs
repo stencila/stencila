@@ -6,9 +6,6 @@ use stencila_schema::Node;
 #[cfg(feature = "encode-docx")]
 pub mod docx;
 
-#[cfg(feature = "encode-ipynb")]
-pub mod ipynb;
-
 #[cfg(feature = "encode-latex")]
 pub mod latex;
 
@@ -93,7 +90,7 @@ pub async fn encode(
         "docx" => docx::encode(node, output).await?,
 
         #[cfg(feature = "encode-ipynb")]
-        "ipynb" => ipynb::encode(node)?,
+        "ipynb" => codec_ipynb::IpynbCodec::to_string(node, None)?,
 
         #[cfg(feature = "encode-json")]
         "json" => codec_json::JsonCodec::to_string(node, None)?,

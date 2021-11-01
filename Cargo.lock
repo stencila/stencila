@@ -689,6 +689,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-ipynb"
+version = "0.0.0"
+dependencies = [
+ "base64 0.13.0",
+ "codec-html",
+ "codec-md",
+ "codec-trait",
+ "codec-txt",
+ "node-coerce",
+ "node-transform",
+ "once_cell",
+ "regex",
+ "serde",
+ "serde_json",
+ "stencila-schema",
+ "strip-ansi-escapes",
+ "test-props",
+ "test-snaps",
+ "test-utils",
+ "tracing",
+]
+
+[[package]]
 name = "codec-json"
 version = "0.0.0"
 dependencies = [
@@ -4313,6 +4336,7 @@ dependencies = [
  "chrono",
  "codec-date",
  "codec-html",
+ "codec-ipynb",
  "codec-json",
  "codec-json5",
  "codec-md",

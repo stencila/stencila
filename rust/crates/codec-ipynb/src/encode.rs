@@ -1,13 +1,12 @@
 use codec_md::ToMd;
+use codec_trait::{
+    eyre::{bail, Result},
+    stencila_schema::*,
+};
 use codec_txt::ToTxt;
-use eyre::{bail, Result};
 use serde::Serialize;
 use serde_json::json;
 use std::collections::HashMap;
-use stencila_schema::{
-    Article, BlockContent, CodeBlock, CodeChunk, CodeChunkCaption, CreativeWorkAuthors,
-    CreativeWorkTitle, ImageObject, Node, Person,
-};
 
 /// Encode a `Node` to a Jupyter Notebook.
 ///
@@ -264,12 +263,12 @@ fn encode_multiline_string(string: &str) -> Vec<&str> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{methods::decode::ipynb::decode, utils::tests::snapshot_fixtures};
-    use insta::assert_json_snapshot;
+    use crate::decode::decode;
+    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     #[test]
-    fn ipynb_articles() {
-        snapshot_fixtures("articles/*.ipynb", |_path, content| {
+    fn encode_ipynb_articles() {
+        snapshot_fixtures_content("articles/*.ipynb", |content| {
             let decoded = decode(content).unwrap();
             let encoded = encode(&decoded).unwrap();
             let json = serde_json::from_str::<serde_json::Value>(&encoded).unwrap();

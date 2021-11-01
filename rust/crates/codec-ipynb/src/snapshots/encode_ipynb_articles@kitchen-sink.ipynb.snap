@@ -1,5 +1,5 @@
 ---
-source: rust/src/methods/encode/ipynb.rs
+source: rust/crates/codec-ipynb/src/encode.rs
 expression: json
 input_file: fixtures/articles/kitchen-sink.ipynb
 
