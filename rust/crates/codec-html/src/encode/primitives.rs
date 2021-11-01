@@ -1,3 +1,5 @@
+//! Encode `Primitive` nodes to HTML
+
 use super::{attr_itemtype_str, attr_prop, elem, json, Context, ToHtml};
 use html_escape::encode_safe;
 use stencila_schema::{Array, Boolean, Integer, Null, Number, Object};

@@ -1,3 +1,5 @@
+//! Encode a `BlockContent` nodes to HTML
+
 use super::{
     attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, concat, elem, elem_empty, json,
     Context, ToHtml,

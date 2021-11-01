@@ -1,7 +1,9 @@
+//! Encode `CreativeWork` nodes to HTML
+
 use super::{
-    attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, concat, elem, json, Context, ToHtml,
+    attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, concat, elem, elem_empty, json,
+    Context, ToHtml,
 };
-use crate::methods::encode::html::elem_empty;
 use codec_txt::ToTxt;
 use html_escape::encode_safe;
 use itertools::Itertools;

@@ -1,5 +1,5 @@
 ---
-source: rust/src/methods/encode/html/mod.rs
+source: rust/crates/codec-html/src/encode.rs
 expression: encoded
 input_file: fixtures/fragments/html/table.html
 

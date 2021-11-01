@@ -1,3 +1,5 @@
+//! Encode `InlineContent` nodes to HTML
+
 use super::{
     attr, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_prop, concat, elem,
     elem_empty, json, Context, ToHtml,

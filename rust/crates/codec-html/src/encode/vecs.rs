@@ -1,3 +1,5 @@
+//! Encode `Vec<>`s to HTML
+
 use super::{Context, ToHtml};
 
 impl<Type> ToHtml for Vec<Type>

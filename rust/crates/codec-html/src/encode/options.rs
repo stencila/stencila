@@ -1,3 +1,5 @@
+//! Encode `Option<>`s to HTML
+
 use super::{Context, ToHtml};
 
 impl<Type> ToHtml for Option<Type>

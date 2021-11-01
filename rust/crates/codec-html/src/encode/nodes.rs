@@ -1,3 +1,5 @@
+//! Encode `Node` nodes to HTML
+
 use super::{attr, elem, json, Context, ToHtml};
 use stencila_schema::Node;
 

@@ -1,16 +1,14 @@
-use super::Options;
-use eyre::Result;
+use codec_trait::{eyre::Result, EncodeOptions};
 use html_escape::{encode_double_quoted_attribute, encode_safe};
 use inflector::cases::camelcase::to_camel_case;
-use serde::Serialize;
 use std::any::type_name;
 use stencila_schema::*;
 
 /// Encode a `Node` to a HTML document
-pub fn encode(node: &Node, options: Option<Options>) -> Result<String> {
+pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
     let html = encode_address(node, options.clone());
 
-    let Options {
+    let EncodeOptions {
         theme, standalone, ..
     } = options.unwrap_or_default();
 
@@ -28,8 +26,8 @@ pub fn encode(node: &Node, options: Option<Options>) -> Result<String> {
 /// This function is used when translating a `Operation` (where any value of
 /// the operation is a `Node` and the operation is applied to a `Node`) to a `DomOperation`
 /// (where any value is either a HTML or JSON string and the operation is applied to a browser DOM).
-pub fn encode_address(node: &Node, options: Option<Options>) -> String {
-    let Options {
+pub fn encode_address(node: &Node, options: Option<EncodeOptions>) -> String {
+    let EncodeOptions {
         bundle, compact, ..
     } = options.unwrap_or_default();
 
@@ -263,7 +261,7 @@ fn attr_id(id: &Option<Box<String>>) -> String {
 /// Several of the below implementations use this, mainly as a placeholder,
 /// until a complete implementation is finished. Ensures that the JSON is
 /// properly escaped
-fn json(node: &impl Serialize) -> String {
+fn json(node: &impl serde::Serialize) -> String {
     encode_safe(&serde_json::to_string_pretty(node).unwrap_or_default()).to_string()
 }
 
@@ -288,25 +286,21 @@ mod works;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        assert_json_eq,
-        utils::tests::{home, skip_slow_tests, snapshot_fixtures},
-    };
-    use eyre::bail;
-    use insta::assert_display_snapshot;
+    use crate::decode::decode;
+    use codec_trait::eyre::bail;
     use serde_json::json;
+    use test_snaps::{insta::assert_display_snapshot, snapshot_fixtures};
+    use test_utils::{assert_json_eq, home, skip_slow_tests};
 
     /// Encode the HTML fragment fixtures
-    #[cfg(feature = "decode-html")]
     #[test]
-    fn html_fragments() {
-        use crate::methods::decode::html::decode;
-
-        snapshot_fixtures("fragments/html/*.html", |_path, content| {
-            let decoded = decode(content, false).unwrap();
+    fn encode_html_fragments() {
+        snapshot_fixtures("fragments/html/*.html", |path| {
+            let content = std::fs::read_to_string(path).expect("Unable to read file");
+            let decoded = decode(&content, false).expect("Unable to decode");
             let encoded = encode(
                 &decoded,
-                Some(Options {
+                Some(EncodeOptions {
                     compact: false,
                     ..Default::default()
                 }),
@@ -325,41 +319,39 @@ mod tests {
     ///
     /// See https://github.com/validator/validator/wiki/Service-%C2%BB-Input-%C2%BB-POST-body
     /// for more on the API.
-    #[cfg(all(feature = "reqwest", feature = "decode-html"))]
     #[tokio::test]
     async fn nu_validate() -> Result<()> {
-        use crate::methods::decode::html::decode;
-
         if skip_slow_tests() {
             return Ok(());
         }
 
         // Read the existing snapshot
         // We only do this for one, kitchen sink like, snapshot.
-        let html = std::fs::read_to_string(
-            home().join("rust/src/methods/encode/snapshots/html_fragments@heading.html.snap"),
-        )?;
-        let decoded = decode(&html, false).unwrap();
+        let html =
+            std::fs::read_to_string(home().join(
+                "rust/crates/codec-html/src/snapshots/encode_html_fragments@heading.html.snap",
+            ))?;
+        let decoded = decode(&html, false)?;
         let html = encode(
             &decoded,
-            Some(Options {
+            Some(EncodeOptions {
                 standalone: true,
                 compact: false,
                 ..Default::default()
             }),
-        )
-        .unwrap();
+        )?;
 
         // Make the POST request
         let url = if let Ok(url) = std::env::var("HTML_VALIDATOR") {
             url
         } else {
-            "https://validator.w3.org/nu".to_string()
+            "https://validator.w3.org/nu/".to_string()
         };
         let client = reqwest::Client::new();
         let response = client
             .post([&url, "?out=json"].concat())
             .header("Content-Type", "text/html; charset=UTF-8")
+            .header("Accept", "application/json")
             .header(
                 "User-Agent",
                 "Stencila tests (https://github.com/stencila/stencila/)",
