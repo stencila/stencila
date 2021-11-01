@@ -125,14 +125,10 @@ pub enum Command {
 
 #[async_trait]
 impl Run for Command {
-    async fn run(
-        &self,
-        //formats: &[String],
-        //context: &mut Context,
-    ) -> Result {
+    async fn run(&self) -> Result {
         match self {
             Command::List(command) => command.run().await,
-            Command::Open(command) => command.run(/*context*/).await,
+            Command::Open(command) => command.run().await,
             Command::Close(command) => command.run().await,
             Command::Show(command) => command.run().await,
             Command::Convert(command) => command.run().await,
@@ -157,6 +153,7 @@ impl Run for Command {
     }
 }
 
+// The structopt used in interactive mode
 #[derive(Debug, StructOpt)]
 #[structopt(
     setting = structopt::clap::AppSettings::NoBinaryName,
@@ -174,11 +171,35 @@ pub struct Line {
     pub display: Option<String>,
 }
 
-#[derive(Debug)]
-pub struct Context {
-    interactive: bool,
+#[async_trait]
+impl Run for Line {
+    /// Run the command
+    async fn run(&self) -> Result {
+        self.command.run().await
+    }
 
-    serving: bool,
+    /// Run the command and print it to the console
+    ///
+    /// This override allow the user to override the display format on a
+    /// per-line basis.
+    async fn print(&self, formats: &[String]) {
+        match self.run().await {
+            Ok(value) => {
+                let formats = if let Some(format) = &value.format {
+                    vec![format.clone()]
+                } else if let Some(format) = &self.display {
+                    vec![format.clone()]
+                } else {
+                    formats.into()
+                };
+
+                if let Err(error) = result::print::value(value, &formats) {
+                    result::print::error(error)
+                }
+            }
+            Err(error) => result::print::error(error),
+        }
+    }
 }
 
 /// List all open project and documents.
@@ -266,24 +287,25 @@ impl Run for OpenCommand {
         // redirect to document page).
         let port = 9000u16;
         let key = Some(stencila::utils::keys::generate());
-        let login_url = serve::login_url(port, key, Some(60), Some(path))?;
+        let login_url = serve::login_url(port, key.clone(), Some(60), Some(path))?;
         #[cfg(feature = "webbrowser")]
         webbrowser::open(login_url.as_str())?;
 
         // If not yet serving, serve in the background, or in the current thread,
         // depending upon mode.
-        // TODO: reinstate
-        /*
-        if !context.serving {
-            context.serving = true;
-            let url = format!(":{}", port);
-            if context.interactive {
-                serve::serve_background(&url, key)?
+        let url = format!(":{}", port);
+        if let Err(error) =
+            if std::env::var("STENCILA_INTERACT_MODE").unwrap_or_else(|_| "0".to_string()) == "1" {
+                serve::serve_background(&url, key)
             } else {
-                serve::serve(&url, key).await?;
+                serve::serve(&url, key).await
+            }
+        {
+            // Ignore the error if a server is already started on that address
+            if !error.to_string().contains("Address already in use") {
+                bail!(error)
             }
         }
-        */
 
         result::nothing()
     }
@@ -444,7 +466,7 @@ pub async fn main() -> eyre::Result<()> {
     let _logging_guards = logging::init(true, false, true, &logging_config)?;
 
     // Set up error reporting and progress indicators for better feedback to user
-    #[cfg(feature = "cli-feedback")]
+    #[cfg(feature = "cli-pretty")]
     {
         // Setup `color_eyre` crate for better error reporting with span and back traces
         if std::env::var("RUST_SPANTRACE").is_err() {
@@ -453,16 +475,13 @@ pub async fn main() -> eyre::Result<()> {
         if std::env::var("RUST_BACKTRACE").is_err() {
             std::env::set_var("RUST_BACKTRACE", if debug { "1" } else { "0" });
         }
-        color_eyre::config::HookBuilder::default()
+        cli::color_eyre::config::HookBuilder::default()
             .display_env_section(false)
             .install()?;
 
         // Subscribe to progress events and display them on console
         use stencila::pubsub::{subscribe, Subscriber};
-        subscribe(
-            "progress",
-            Subscriber::Function(feedback::progress_subscriber),
-        )?;
+        subscribe("progress", Subscriber::Function(cli::progress::subscriber))?;
     }
 
     // If not explicitly upgrading then run an upgrade check in the background
@@ -476,15 +495,9 @@ pub async fn main() -> eyre::Result<()> {
     };
 
     // Use the desired display format, falling back to configured values
-    let _formats = match display {
+    let formats = match display {
         Some(display) => vec![display],
         None => vec!["md".to_string(), "yaml".to_string(), "json".to_string()],
-    };
-
-    // Create the CLI context to pass down
-    let _context = Context {
-        interactive: command.is_none(),
-        serving: false,
     };
 
     // The `with` command is always interactive; need to work out
@@ -502,11 +515,11 @@ pub async fn main() -> eyre::Result<()> {
         _ => (interact, "".to_string()),
     };
 
-    // Get the result of running the command
+    // Run the command and print result
     if let (false, Some(command)) = (interact, command) {
-        command.print(/*&formats, &mut context*/).await
+        command.print(&formats).await;
     } else {
-        #[cfg(feature = "cli/interact")]
+        #[cfg(feature = "cli-interact")]
         {
             let mut prefix: Vec<String> = args
                 .into_iter()
@@ -521,9 +534,11 @@ pub async fn main() -> eyre::Result<()> {
                 prefix.insert(0, module);
             }
 
-            interact::run(prefix, &formats, &mut context).await
+            let history = config::dir(true)?.join("history.txt");
+            std::env::set_var("STENCILA_INTERACT_MODE", "1");
+            cli::interact::run::<Line>(prefix, &formats, &history).await?;
         }
-        #[cfg(not(feature = "cli/interact"))]
+        #[cfg(not(feature = "cli-interact"))]
         {
             eprintln!("Compiled with `interact` feature disabled.");
             std::process::exit(exitcode::USAGE);

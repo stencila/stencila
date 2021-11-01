@@ -11,7 +11,7 @@ pub static PROGRESS: Lazy<Mutex<Progress>> = Lazy::new(|| Mutex::new(Progress::n
 pub static PROGRESS_BARS: Lazy<Mutex<HashMap<String, Bar>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
 
-pub fn progress_subscriber(_topic: String, event: serde_json::Value) {
+pub fn subscriber(_topic: String, event: serde_json::Value) {
     let mut progress = PROGRESS.lock().expect("Unable to lock progress");
 
     let ProgressEvent {

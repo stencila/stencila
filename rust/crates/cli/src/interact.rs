@@ -1,9 +1,9 @@
 //! Functions for an interactive mode command line (REPL)
 
+use std::path::Path;
 use crate::command::Run;
 use eyre::{bail, eyre, Result};
 use rustyline::error::ReadlineError;
-use std::path::PathBuf;
 use structopt::StructOpt;
 
 fn help() -> String {
@@ -58,21 +58,17 @@ interactive session (see the shortcut keystrokes below).
 
 /// Run the interactive REPL
 #[tracing::instrument]
-pub async fn run<T>(prefix: Vec<String>, formats: &[String], history: Option<PathBuf>) -> Result<()>
+pub async fn run<T>(mut prefix: Vec<String>, formats: &[String], history: &Path) -> Result<()>
 where
     T: StructOpt + Run + Send + Sync,
 {
     let mut rl = editor::new();
-
-    if let Some(history) = &history {
-        if rl.load_history(history).is_err() {
-            tracing::debug!("History file not found")
-        }
+    if rl.load_history(history).is_err() {
+        tracing::debug!("History file not found")
     }
 
     println!("{}", help());
 
-    let mut prefix = prefix.clone();
     if !prefix.is_empty() {
         println!("Starting command prefix is {:?}", prefix);
     }
@@ -141,7 +137,7 @@ where
                 match T::clap().get_matches_from_safe(args) {
                     Ok(matches) => {
                         let command = T::from_clap(&matches);
-                        command.print().await
+                        command.print(formats).await
                     }
                     Err(error) => {
                         if error.kind == structopt::clap::ErrorKind::VersionDisplayed {
@@ -176,9 +172,7 @@ where
         }
     }
 
-    if let Some(history) = &history {
-        rl.save_history(history)?;
-    }
+    rl.save_history(history)?;
 
     Ok(())
 }

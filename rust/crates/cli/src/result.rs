@@ -57,7 +57,7 @@ pub struct Value {
 
 /// Printing without prettiness
 #[cfg(not(feature = "pretty"))]
-pub(crate) mod print {
+pub mod print {
     use super::*;
 
     /// Print a value
@@ -76,16 +76,14 @@ pub(crate) mod print {
     }
 
     /// Print an error
-    pub fn error(error: eyre::Report) -> eyre::Result<()> {
-        eprintln!("{:?}", error);
-
-        Ok(())
+    pub fn error(error: eyre::Report) {
+        eprintln!("ERROR {:?}", error);
     }
 }
 
 /// Printing with prettiness
 #[cfg(feature = "pretty")]
-pub(crate) mod print {
+pub mod print {
     use super::*;
 
     /// Print a value
@@ -185,8 +183,8 @@ pub(crate) mod print {
     }
 
     /// Print an error
-    pub fn error(error: eyre::Report) -> eyre::Result<()> {
-        use ansi_term::Color::Blue;
+    pub fn error(error: eyre::Report) {
+        use ansi_term::Color::{Blue, Red};
         use color_eyre::{Help, SectionExt};
 
         let title = format!("CLI: {}", error);
@@ -201,16 +199,14 @@ pub(crate) mod print {
             urlencoding::encode(&body)
         );
 
-        let error = Err(error).with_section(move || {
+        let error = error.with_section(move || {
             format!(
                 "Report issue: {}.\nRead docs: {}.",
                 Blue.paint(issue_url),
                 Blue.paint("https://help.stenci.la")
             )
             .header("Help:")
-        })?;
-        eprintln!("{:?}", error);
-
-        Ok(())
+        });
+        eprintln!("{} {:?}", Red.bold().paint("ERROR"), error);
     }
 }

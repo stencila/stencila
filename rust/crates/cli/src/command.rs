@@ -7,23 +7,21 @@ pub trait Run {
     async fn run(&self) -> Result;
 
     /// Run the command and print it to the console
-    async fn print(&self) {
-        let result = self.run().await;
+    async fn print(&self, formats: &[String]) {
+        match self.run().await {
+            Ok(value) => {
+                // Use the result format or fallback to preferences passed in
+                let formats = if let Some(format) = &value.format {
+                    vec![format.clone()]
+                } else {
+                    formats.into()
+                };
 
-        // TODO
-        // Use current display format or fallback to configured preferences
-        //let formats = if let Some(display) = display {
-        //    vec![display]
-        //} else {
-        //    formats.into()
-        //};
-        let formats = &["".to_string()];
-
-        if let Err(error) = match result {
-            Ok(value) => result::print::value(value, formats),
+                if let Err(error) = result::print::value(value, &formats) {
+                    result::print::error(error)
+                }
+            }
             Err(error) => result::print::error(error),
-        } {
-            eprintln!("Error printing result: {}", error)
         }
     }
 }

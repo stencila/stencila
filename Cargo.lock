@@ -651,7 +651,7 @@ dependencies = [
  "serde_yaml",
  "structopt",
  "syntect",
- "termimad 0.17.0",
+ "termimad",
  "tracing",
  "urlencoding",
 ]
@@ -699,8 +699,6 @@ dependencies = [
  "kuchiki",
  "markup5ever",
  "mime_guess",
- "node-coerce",
- "node-transform",
  "quick-xml 0.22.0",
  "reqwest",
  "serde",
@@ -4361,7 +4359,6 @@ dependencies = [
  "ansi_term 0.12.1",
  "async-recursion",
  "async-trait",
- "atty",
  "base64 0.13.0",
  "bollard",
  "chromiumoxide",
@@ -4386,7 +4383,6 @@ dependencies = [
  "derivative",
  "derive_more",
  "dirs-next",
- "dtparse",
  "enum_dispatch",
  "exitcode",
  "eyre",
@@ -4398,8 +4394,6 @@ dependencies = [
  "handlebars",
  "hex",
  "hmac",
- "html-escape",
- "human_name",
  "humantime 2.1.0",
  "ignore",
  "insta",
@@ -4408,17 +4402,13 @@ dependencies = [
  "json5",
  "jsonschema",
  "jsonwebtoken",
- "kuchiki",
  "lexiclean",
- "linya",
  "maplit",
- "markup5ever",
  "mime_guess",
  "minidom",
  "nanoid",
  "node-coerce",
  "node-transform",
- "nom",
  "notify",
  "once_cell",
  "pandoc_types",
@@ -4429,14 +4419,10 @@ dependencies = [
  "portpicker",
  "pretty_assertions",
  "proptest",
- "pulldown-cmark",
- "quick-xml 0.22.0",
  "rand 0.8.4",
  "regex",
  "reqwest",
  "rust-embed",
- "rustyline",
- "rustyline-derive",
  "schemars",
  "self_update",
  "semver 1.0.4",
@@ -4448,15 +4434,12 @@ dependencies = [
  "similar 2.1.0",
  "slug",
  "stencila-schema",
- "strip-ansi-escapes",
  "structopt",
  "strum 0.22.0",
  "strum_macros 0.22.0",
  "sudo",
- "syntect",
  "tar",
  "tempfile",
- "termimad 0.16.4",
  "thiserror",
  "tokio",
  "tokio-stream",
@@ -4744,19 +4727,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2dfed899f0eb03f32ee8c6a0aabdb8a7949659e3466561fc0adf54e26d88c5f4"
 dependencies = [
  "winapi-util",
-]
-
-[[package]]
-name = "termimad"
-version = "0.16.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d88221817ef21964ccccf7d8ccc35fed3bae3066a177d1fcda72d694a016a47d"
-dependencies = [
- "crossbeam",
- "crossterm",
- "minimad",
- "thiserror",
- "unicode-width",
 ]
 
 [[package]]
