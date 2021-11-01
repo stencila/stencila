@@ -1,5 +1,5 @@
-use codec_trait::Codec;
 use codec_html::HtmlCodec;
+use codec_trait::Codec;
 use test_props::{node, proptest::prelude::*, Freedom};
 use test_utils::assert_debug_eq;
 
