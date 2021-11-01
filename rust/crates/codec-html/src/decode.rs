@@ -587,21 +587,19 @@ fn collect_text(node: &NodeRef) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
+    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     #[test]
     fn decode_html_articles() {
-        snapshot_fixtures("articles/*.html", |path| {
-            let content = std::fs::read_to_string(path).expect("Unable to read file");
-            assert_json_snapshot!(decode(&content, false).expect("Unable to decode HTML"));
+        snapshot_fixtures_content("articles/*.html", |content| {
+            assert_json_snapshot!(decode(content, false).expect("Unable to decode HTML"));
         });
     }
 
     #[test]
     fn decode_html_fragments() {
-        snapshot_fixtures("fragments/html/*.html", |path| {
-            let content = std::fs::read_to_string(path).expect("Unable to read file");
-            assert_json_snapshot!(decode_fragment(&content, false));
+        snapshot_fixtures_content("fragments/html/*.html", |content| {
+            assert_json_snapshot!(decode_fragment(content, false));
         });
     }
 }

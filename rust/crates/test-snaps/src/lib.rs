@@ -5,14 +5,12 @@ use test_utils::fixtures;
 // Expose `insta` for use by other internal crates
 pub use insta;
 
-/// Generate snapshots from the string content of fixtures matching
-/// a glob pattern.
+/// Generate snapshots from the paths of fixtures matching a glob pattern.
 ///
 /// # Arguments
 ///
 /// - `pattern`: glob pattern _within_ the fixtures folder
-/// - `func`: the test function to run on the string content of each
-///           file matching the `pattern`.
+/// - `func`: the test function to run on the path of each file matching the `pattern`.
 ///
 /// `insta`'s `glob` macro seems to have difficulties with our Rust module
 /// layout (workspaces and nested modules). This function deals with that
@@ -24,4 +22,17 @@ pub fn snapshot_fixtures<F: FnMut(&Path)>(pattern: &str, func: F) {
     settings.bind(|| {
         insta::_macro_support::glob_exec(&fixtures(), pattern, func);
     });
+}
+
+/// Generate snapshots from the contents of fixtures matching a glob pattern.
+///
+/// # Arguments
+///
+/// - `pattern`: glob pattern _within_ the fixtures folder
+/// - `func`: the test function to run on the content of each file matching the `pattern`.
+pub fn snapshot_fixtures_content<F: FnMut(&str)>(pattern: &str, mut func: F) {
+    snapshot_fixtures(pattern, |path| {
+        let content = std::fs::read_to_string(path).expect("Unable to read file");
+        func(&content)
+    })
 }

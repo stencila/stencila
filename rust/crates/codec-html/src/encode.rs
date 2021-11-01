@@ -289,15 +289,14 @@ mod tests {
     use crate::decode::decode;
     use codec_trait::eyre::bail;
     use serde_json::json;
-    use test_snaps::{insta::assert_display_snapshot, snapshot_fixtures};
+    use test_snaps::{insta::assert_display_snapshot, snapshot_fixtures_content};
     use test_utils::{assert_json_eq, home, skip_slow_tests};
 
     /// Encode the HTML fragment fixtures
     #[test]
     fn encode_html_fragments() {
-        snapshot_fixtures("fragments/html/*.html", |path| {
-            let content = std::fs::read_to_string(path).expect("Unable to read file");
-            let decoded = decode(&content, false).expect("Unable to decode");
+        snapshot_fixtures_content("fragments/html/*.html", |content| {
+            let decoded = decode(content, false).expect("Unable to decode");
             let encoded = encode(
                 &decoded,
                 Some(EncodeOptions {
