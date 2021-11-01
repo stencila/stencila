@@ -6,11 +6,13 @@
 
 #![recursion_limit = "256"]
 
+use async_trait::async_trait;
+use cli::{result, Result, Run};
 use std::{collections::HashMap, path::PathBuf};
 use stencila::{
     config::{self, CONFIG},
     documents::{self, DOCUMENTS},
-    eyre::{bail, Result},
+    eyre::bail,
     kernels,
     logging::{
         self,
@@ -20,7 +22,7 @@ use stencila::{
     projects::{self, PROJECTS},
     sources,
 };
-use cli::structopt::StructOpt;
+use structopt::StructOpt;
 use strum::VariantNames;
 
 /// Stencila, in a terminal console, on your own machine
@@ -100,58 +102,59 @@ pub enum Command {
 
     // Module-specific commands defined in the `stencila` library
     #[structopt(aliases = &["project"])]
-    Projects(projects::cli::Command),
+    Projects(projects::commands::Command),
     #[structopt(aliases = &["document", "docs", "doc"])]
-    Documents(documents::cli::Command),
+    Documents(documents::commands::Command),
     #[structopt(aliases = &["source"])]
-    Sources(sources::cli::Command),
+    Sources(sources::commands::Command),
     #[structopt(aliases = &["kernel"])]
-    Kernels(kernels::cli::Command),
-    Config(config::cli::Command),
+    Kernels(kernels::commands::Command),
+    Config(config::commands::Command),
 
     #[cfg(feature = "binaries")]
     #[structopt(aliases = &["binary"])]
-    Binaries(stencila::binaries::cli::Command),
+    Binaries(stencila::binaries::commands::Command),
     #[cfg(feature = "plugins")]
     #[structopt(aliases = &["plugin"])]
-    Plugins(stencila::plugins::cli::Command),
+    Plugins(stencila::plugins::commands::Command),
     #[cfg(feature = "upgrade")]
-    Upgrade(stencila::upgrade::cli::Args),
+    Upgrade(stencila::upgrade::commands::Command),
     #[cfg(feature = "serve")]
-    Serve(stencila::serve::cli::Command),
+    Serve(stencila::serve::commands::Command),
 }
 
-/// Run a command
-pub async fn run_command(
-    command: Command,
-    formats: &[String],
-    context: &mut Context,
-) -> Result<()> {
-    let result = match command {
-        Command::List(command) => command.run().await,
-        Command::Open(command) => command.run(context).await,
-        Command::Close(command) => command.run().await,
-        Command::Show(command) => command.run().await,
-        Command::Convert(command) => command.run().await,
-        Command::Diff(command) => command.run().await,
-        Command::Merge(command) => command.run().await,
-        Command::With(command) => command.run().await,
-        Command::Documents(command) => command.run().await,
-        Command::Projects(command) => command.run().await,
-        Command::Sources(command) => command.run().await,
-        Command::Kernels(command) => command.run().await,
-        Command::Config(command) => config::cli::run(command).await,
+#[async_trait]
+impl Run for Command {
+    async fn run(
+        &self,
+        //formats: &[String],
+        //context: &mut Context,
+    ) -> Result {
+        match self {
+            Command::List(command) => command.run().await,
+            Command::Open(command) => command.run(/*context*/).await,
+            Command::Close(command) => command.run().await,
+            Command::Show(command) => command.run().await,
+            Command::Convert(command) => command.run().await,
+            Command::Diff(command) => command.run().await,
+            Command::Merge(command) => command.run().await,
+            Command::With(command) => command.run().await,
+            Command::Documents(command) => command.run().await,
+            Command::Projects(command) => command.run().await,
+            Command::Sources(command) => command.run().await,
+            Command::Kernels(command) => command.run().await,
+            Command::Config(command) => command.run().await,
 
-        #[cfg(feature = "binaries")]
-        Command::Binaries(command) => command.run().await,
-        #[cfg(feature = "plugins")]
-        Command::Plugins(command) => stencila::plugins::cli::run(command).await,
-        #[cfg(feature = "upgrade")]
-        Command::Upgrade(command) => stencila::upgrade::cli::run(command).await,
-        #[cfg(feature = "serve")]
-        Command::Serve(command) => command.run().await,
-    };
-    render::render(formats, result?)
+            #[cfg(feature = "binaries")]
+            Command::Binaries(command) => command.run().await,
+            #[cfg(feature = "plugins")]
+            Command::Plugins(command) => command.run().await,
+            #[cfg(feature = "upgrade")]
+            Command::Upgrade(command) => command.run().await,
+            #[cfg(feature = "serve")]
+            Command::Serve(command) => command.run().await,
+        }
+    }
 }
 
 #[derive(Debug, StructOpt)]
@@ -185,13 +188,13 @@ pub struct Context {
     setting = structopt::clap::AppSettings::ColoredHelp,
 )]
 pub struct ListCommand {}
-
-impl ListCommand {
-    pub async fn run(self) -> display::Result {
+#[async_trait]
+impl Run for ListCommand {
+    async fn run(&self) -> Result {
         let mut value = HashMap::new();
         value.insert("projects", PROJECTS.list().await?);
         value.insert("documents", DOCUMENTS.list().await?);
-        display::value(value)
+        result::value(value)
     }
 }
 
@@ -216,16 +219,14 @@ pub struct OpenCommand {
     #[structopt(short, long)]
     theme: Option<String>,
 }
-
-impl OpenCommand {
+#[async_trait]
+impl Run for OpenCommand {
     #[cfg(feature = "serve")]
-    pub async fn run(self, context: &mut Context) -> display::Result {
+    async fn run(&self /*, context: &mut Context*/) -> Result {
         use stencila::serve;
 
-        let Self { path, theme } = self;
-
-        let (is_project, path) = match path {
-            Some(path) => (path.is_dir(), path),
+        let (is_project, path) = match &self.path {
+            Some(path) => (path.is_dir(), path.clone()),
             None => (true, std::env::current_dir()?),
         };
 
@@ -235,7 +236,7 @@ impl OpenCommand {
                 Some(path) => path,
                 None => {
                     tracing::info!("Project has no main document to display");
-                    return display::nothing();
+                    return result::nothing();
                 }
             }
         } else {
@@ -251,7 +252,7 @@ impl OpenCommand {
         };
 
         // Append the theme query parameter if set
-        let path = if let Some(theme) = theme {
+        let path = if let Some(theme) = &self.theme {
             format!(
                 "{path}?theme={theme}",
                 path = path,
@@ -265,12 +266,14 @@ impl OpenCommand {
         // redirect to document page).
         let port = 9000u16;
         let key = Some(stencila::utils::keys::generate());
-        let login_url = serve::login_url(port, key.clone(), Some(60), Some(path))?;
-        #[cfg(feature = "cli-view")]
+        let login_url = serve::login_url(port, key, Some(60), Some(path))?;
+        #[cfg(feature = "webbrowser")]
         webbrowser::open(login_url.as_str())?;
 
         // If not yet serving, serve in the background, or in the current thread,
         // depending upon mode.
+        // TODO: reinstate
+        /*
         if !context.serving {
             context.serving = true;
             let url = format!(":{}", port);
@@ -280,12 +283,13 @@ impl OpenCommand {
                 serve::serve(&url, key).await?;
             }
         }
+        */
 
-        display::nothing()
+        result::nothing()
     }
 
     #[cfg(not(feature = "serve"))]
-    pub async fn run(self, _context: &mut Context) -> display::Result {
+    async fn run(self, _context: &mut Context) -> Result {
         bail!("The `serve` feature has not been enabled")
     }
 }
@@ -306,18 +310,16 @@ pub struct CloseCommand {
     #[structopt(default_value = ".")]
     path: PathBuf,
 }
-
-impl CloseCommand {
-    pub async fn run(self) -> display::Result {
-        let Self { path } = self;
-
-        if path.is_dir() {
-            PROJECTS.close(&path).await?;
+#[async_trait]
+impl Run for CloseCommand {
+    async fn run(&self) -> Result {
+        if self.path.is_dir() {
+            PROJECTS.close(&self.path).await?;
         } else {
-            DOCUMENTS.close(&path).await?;
+            DOCUMENTS.close(&self.path).await?;
         }
 
-        display::nothing()
+        result::nothing()
     }
 }
 
@@ -334,25 +336,23 @@ pub struct ShowCommand {
     /// The file or folder to close
     path: Option<PathBuf>,
 }
-
-impl ShowCommand {
-    pub async fn run(self) -> display::Result {
-        let Self { path } = self;
-
-        if let Some(path) = &path {
+#[async_trait]
+impl Run for ShowCommand {
+    async fn run(&self) -> Result {
+        if let Some(path) = &self.path {
             if path.is_file() {
-                return display::value(DOCUMENTS.open(&path, None).await?);
+                return result::value(DOCUMENTS.open(&path, None).await?);
             }
         }
 
-        display::value(PROJECTS.open(path, true).await?)
+        result::value(PROJECTS.open(self.path.clone(), true).await?)
     }
 }
 
 /// Currently, these commands simply delegate to the `documents` module
-type ConvertCommand = documents::cli::Convert;
-type DiffCommand = documents::cli::Diff;
-type MergeCommand = documents::cli::Merge;
+type ConvertCommand = documents::commands::Convert;
+type DiffCommand = documents::commands::Diff;
+type MergeCommand = documents::commands::Merge;
 
 /// Run commands interactively with a particular project or document
 ///
@@ -365,16 +365,16 @@ pub struct WithCommand {
     /// The file or folder to run command with
     path: PathBuf,
 }
-
-impl WithCommand {
-    pub async fn run(self) -> display::Result {
-        display::nothing()
+#[async_trait]
+impl Run for WithCommand {
+    async fn run(&self) -> Result {
+        result::nothing()
     }
 }
 
 /// Main entry point function
 #[tokio::main]
-pub async fn main() -> Result<()> {
+pub async fn main() -> eyre::Result<()> {
     #[cfg(windows)]
     ansi_term::enable_ansi_support();
 
@@ -476,13 +476,13 @@ pub async fn main() -> Result<()> {
     };
 
     // Use the desired display format, falling back to configured values
-    let formats = match display {
+    let _formats = match display {
         Some(display) => vec![display],
         None => vec!["md".to_string(), "yaml".to_string(), "json".to_string()],
     };
 
     // Create the CLI context to pass down
-    let mut context = Context {
+    let _context = Context {
         interactive: command.is_none(),
         serving: false,
     };
@@ -503,8 +503,8 @@ pub async fn main() -> Result<()> {
     };
 
     // Get the result of running the command
-    let result = if let (false, Some(command)) = (interact, command) {
-        run_command(command, &formats, &mut context).await
+    if let (false, Some(command)) = (interact, command) {
+        command.print(/*&formats, &mut context*/).await
     } else {
         #[cfg(feature = "cli/interact")]
         {
@@ -532,20 +532,11 @@ pub async fn main() -> Result<()> {
 
     // Join the upgrade thread and log any errors
     #[cfg(feature = "upgrade")]
-    {
-        if let Some(upgrade_thread) = upgrade_thread {
-            if let Err(_error) = upgrade_thread.await.await {
-                tracing::warn!("Error while attempting to join upgrade thread")
-            }
+    if let Some(upgrade_thread) = upgrade_thread {
+        if let Err(_error) = upgrade_thread.await.await {
+            tracing::warn!("Error while attempting to join upgrade thread")
         }
     }
 
-    #[cfg(feature = "cli-feedback")]
-    match result {
-        Ok(_) => Ok(()),
-        Err(error) => feedback::enrich_error(error),
-    }
-
-    #[cfg(not(feature = "cli-feedback"))]
-    result
+    Ok(())
 }

@@ -275,9 +275,10 @@ pub fn schemas() -> Result<serde_json::Value> {
 
 /// CLI options for the `config` command
 #[cfg(feature = "cli")]
-pub mod cli {
+pub mod commands {
     use super::*;
-    use crate::cli::display;
+    use async_trait::async_trait;
+    use cli::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -348,51 +349,49 @@ pub mod cli {
         pub property: String,
     }
 
-    pub async fn run(args: Command) -> display::Result {
-        let Command { action } = args;
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
+            let config = &mut *CONFIG.lock().await;
 
-        let config = &mut *CONFIG.lock().await;
-
-        match action {
-            Action::Get(action) => {
-                let Get { pointer } = action;
-                let value = config.get(pointer)?;
-                display::value(value)
-            }
-            Action::Set(action) => {
-                let Set { pointer, value } = action;
-                config.set(&pointer, &value)?;
-                display::nothing()
-            }
-            Action::Reset(action) => {
-                let Reset { property } = action;
-                config.reset(&property)?;
-                display::nothing()
-            }
-            #[allow(unused_mut)]
-            Action::Dirs => {
-                let mut value = json!({
-                    "config": dir(false)?.display().to_string(),
-                    "logs": crate::logging::config::dir(false)?.display().to_string(),
-                });
-
-                #[cfg(feature = "plugins")]
-                {
-                    value["plugins"] =
-                        json!(crate::plugins::plugins_dir(false)?.display().to_string());
+            match &self.action {
+                Action::Get(action) => {
+                    let value = config.get(action.pointer.clone())?;
+                    result::value(value)
                 }
-
-                #[cfg(feature = "binaries")]
-                {
-                    value["binaries"] =
-                        json!(crate::binaries::binaries_dir().display().to_string());
+                Action::Set(action) => {
+                    config.set(&action.pointer, &action.value)?;
+                    result::nothing()
                 }
+                Action::Reset(action) => {
+                    config.reset(&action.property)?;
+                    result::nothing()
+                }
+                #[allow(unused_mut)]
+                Action::Dirs => {
+                    let mut value = json!({
+                        "config": dir(false)?.display().to_string(),
+                        "logs": crate::logging::config::dir(false)?.display().to_string(),
+                    });
 
-                display::value(value)
-            }
-            Action::Schemas => {
-                let value = schemas()?;
-                display::value(value)
+                    #[cfg(feature = "plugins")]
+                    {
+                        value["plugins"] =
+                            json!(crate::plugins::plugins_dir(false)?.display().to_string());
+                    }
+
+                    #[cfg(feature = "binaries")]
+                    {
+                        value["binaries"] =
+                            json!(crate::binaries::binaries_dir().display().to_string());
+                    }
+
+                    result::value(value)
+                }
+                Action::Schemas => {
+                    let value = schemas()?;
+                    result::value(value)
+                }
             }
         }
     }
@@ -482,31 +481,36 @@ mod tests {
     #[cfg(feature = "cli")]
     #[tokio::test]
     async fn test_cli() -> Result<()> {
-        use super::cli::*;
+        use super::commands::*;
+        use cli::Run;
 
-        run(Command {
+        Command {
             action: Action::Get(Get { pointer: None }),
-        })
+        }
+        .run()
         .await?;
 
-        run(Command {
+        Command {
             action: Action::Set(Set {
                 pointer: "upgrade.confirm".to_string(),
                 value: "true".to_string(),
             }),
-        })
+        }
+        .run()
         .await?;
 
-        run(Command {
+        Command {
             action: Action::Reset(Reset {
                 property: "upgrade".to_string(),
             }),
-        })
+        }
+        .run()
         .await?;
 
-        run(Command {
+        Command {
             action: Action::Dirs,
-        })
+        }
+        .run()
         .await?;
 
         Ok(())

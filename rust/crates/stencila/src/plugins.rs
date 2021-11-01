@@ -1887,9 +1887,11 @@ pub mod config {
 }
 
 #[cfg(feature = "cli")]
-pub mod cli {
+pub mod commands {
     use super::*;
-    use crate::{cli::display, config::CONFIG};
+    use crate::config::CONFIG;
+    use async_trait::async_trait;
+    use cli::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -2065,16 +2067,15 @@ pub mod cli {
         #[structopt()]
         pub method: Option<String>,
     }
-
     impl Methods {
-        pub async fn run(&self, plugins: &mut Plugins) -> display::Result {
+        async fn run_with(&self, plugins: &mut Plugins) -> Result {
             let Methods { method } = self;
 
             let content = match method {
                 None => plugins.display_methods()?,
                 Some(method) => plugins.display_method(method)?,
             };
-            display::content("md", &content)
+            result::content("md", &content)
         }
     }
 
@@ -2096,125 +2097,104 @@ pub mod cli {
         #[structopt(raw(true))]
         params: Vec<String>,
     }
-
     impl Delegate {
-        pub async fn run(self, plugins: &mut Plugins) -> display::Result {
-            let Delegate {
-                method,
-                plugin,
-                params,
-            } = self;
-            let params = crate::cli::args::params(&params);
-            let result = match plugin {
-                Some(plugin) => plugins.delegate_to_plugin(&plugin, method, params).await?,
+        async fn run_with(&self, plugins: &mut Plugins) -> Result {
+            let method = self.method;
+            let params = cli::args::params(&self.params);
+            let result = match &self.plugin {
+                Some(plugin) => plugins.delegate_to_plugin(plugin, method, params).await?,
                 None => plugins.delegate(method, params).await?,
             };
-            display::value(&result)
+            result::value(&result)
         }
     }
 
-    pub async fn run(args: Command) -> display::Result {
-        let Command { action } = args;
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
+            let config::PluginsConfig {
+                aliases,
+                installations,
+            } = &CONFIG.lock().await.plugins;
 
-        let config::PluginsConfig {
-            aliases,
-            installations,
-        } = &CONFIG.lock().await.plugins;
+            let plugins = &mut *PLUGINS.lock().await;
 
-        let plugins = &mut *PLUGINS.lock().await;
-
-        match action {
-            Action::List => {
-                let list = plugins.list_plugins(aliases);
-                let content = Plugins::display_plugins(&list)?;
-                display::new("md", &content, list)
-            }
-            Action::Show(action) => {
-                let Show { plugin } = action;
-
-                let (plugin, content) = plugins.display_plugin(&plugin, aliases)?;
-                display::new("md", &content, plugin)
-            }
-            Action::Install(action) => {
-                let Install {
-                    docker,
-                    binary,
-                    javascript,
-                    python,
-                    r,
-                    link,
-                    plugins: list,
-                } = action;
-
-                let mut installs = vec![];
-                if docker {
-                    installs.push(PluginInstallation::Docker)
+            match &self.action {
+                Action::List => {
+                    let list = plugins.list_plugins(aliases);
+                    let content = Plugins::display_plugins(&list)?;
+                    result::new("md", &content, list)
                 }
-                if binary {
-                    installs.push(PluginInstallation::Binary)
+                Action::Show(action) => {
+                    let Show { plugin } = action;
+
+                    let (plugin, content) = plugins.display_plugin(plugin, aliases)?;
+                    result::new("md", &content, plugin)
                 }
-                if javascript {
-                    installs.push(PluginInstallation::Javascript)
+                Action::Install(action) => {
+                    let mut installs = vec![];
+                    if action.docker {
+                        installs.push(PluginInstallation::Docker)
+                    }
+                    if action.binary {
+                        installs.push(PluginInstallation::Binary)
+                    }
+                    if action.javascript {
+                        installs.push(PluginInstallation::Javascript)
+                    }
+                    if action.python {
+                        installs.push(PluginInstallation::Python)
+                    }
+                    if action.r {
+                        installs.push(PluginInstallation::R)
+                    }
+                    if action.link {
+                        installs.push(PluginInstallation::Link)
+                    }
+
+                    let installs = if installs.is_empty() {
+                        &installations
+                    } else {
+                        &installs
+                    };
+
+                    Plugin::install_list(action.plugins.clone(), installs, aliases, plugins)
+                        .await?;
+                    result::nothing()
                 }
-                if python {
-                    installs.push(PluginInstallation::Python)
+                Action::Link(action) => {
+                    const INSTALLS: &[PluginInstallation] = &[PluginInstallation::Link];
+                    Plugin::install(&action.path, INSTALLS, aliases, plugins, None).await?;
+                    result::nothing()
                 }
-                if r {
-                    installs.push(PluginInstallation::R)
+                Action::Upgrade(action) => {
+                    Plugin::upgrade_list(action.plugins.clone(), installations, aliases, plugins)
+                        .await?;
+                    result::nothing()
                 }
-                if link {
-                    installs.push(PluginInstallation::Link)
+                Action::Uninstall(action) => {
+                    Plugin::uninstall_list(action.plugins.clone(), aliases, plugins)?;
+                    result::nothing()
                 }
-
-                let installs = if installs.is_empty() {
-                    &installations
-                } else {
-                    &installs
-                };
-
-                Plugin::install_list(list, installs, aliases, plugins).await?;
-                display::nothing()
-            }
-            Action::Link(action) => {
-                let Link { path } = action;
-
-                Plugin::install(&path, &[PluginInstallation::Link], aliases, plugins, None).await?;
-                display::nothing()
-            }
-            Action::Upgrade(action) => {
-                let Upgrade { plugins: list } = action;
-
-                Plugin::upgrade_list(list, installations, aliases, plugins).await?;
-                display::nothing()
-            }
-            Action::Uninstall(action) => {
-                let Uninstall { plugins: list } = action;
-
-                Plugin::uninstall_list(list, aliases, plugins)?;
-                display::nothing()
-            }
-            Action::Unlink(action) => {
-                let Unlink { plugin } = action;
-
-                Plugin::uninstall(&plugin, aliases, plugins)?;
-                display::nothing()
-            }
-            Action::Refresh(action) => {
-                let Refresh { plugins: list } = action;
-
-                Plugin::refresh_list(list, aliases, plugins).await?;
-                display::nothing()
-            }
-            Action::Aliases => {
-                let md = plugins.display_aliases(aliases)?;
-                display::content("md", &md)
-            }
-            Action::Instances => display::value(&plugins.instances),
-            Action::Methods(methods) => methods.run(plugins).await,
-            Action::Delegate(delegate) => delegate.run(plugins).await,
-            Action::Schema => {
-                let value = Plugin::schema()?;
-                display::value(value)
+                Action::Unlink(action) => {
+                    Plugin::uninstall(&action.plugin, aliases, plugins)?;
+                    result::nothing()
+                }
+                Action::Refresh(action) => {
+                    Plugin::refresh_list(action.plugins.clone(), aliases, plugins).await?;
+                    result::nothing()
+                }
+                Action::Aliases => {
+                    let md = plugins.display_aliases(aliases)?;
+                    result::content("md", &md)
+                }
+                Action::Instances => result::value(&plugins.instances),
+                Action::Methods(methods) => methods.run_with(plugins).await,
+                Action::Delegate(delegate) => delegate.run_with(plugins).await,
+                Action::Schema => {
+                    let value = Plugin::schema()?;
+                    result::value(value)
+                }
             }
         }
     }
@@ -2229,26 +2209,30 @@ mod tests {
         // These tests don't do anything other test that
         // actions run with expected `Ok` or `Err`.
 
-        use super::cli::*;
+        use super::commands::*;
+        use cli::Run;
 
-        run(Command {
+        Command {
             action: Action::List,
-        })
+        }
+        .run()
         .await?;
 
-        run(Command {
+        Command {
             action: Action::Show(Show {
                 plugin: "foo".to_string(),
             }),
-        })
+        }
+        .run()
         .await
         .expect_err("Expected an error!");
 
-        run(Command {
+        Command {
             action: Action::Link(Link {
                 path: "../foo".to_string(),
             }),
-        })
+        }
+        .run()
         .await
         .expect_err("Expected an error!");
 
@@ -2260,26 +2244,30 @@ mod tests {
     async fn test_cli_slow() -> Result<()> {
         // Slow tests that are usually not run
 
-        use super::cli::*;
+        use super::commands::*;
+        use cli::Run;
 
-        run(Command {
+        Command {
             action: Action::Install(Install {
                 plugins: vec![],
                 ..Default::default()
             }),
-        })
+        }
+        .run()
         .await?;
 
-        run(Command {
+        Command {
             action: Action::Upgrade(Upgrade {
                 plugins: vec!["jesta".to_string()],
             }),
-        })
+        }
+        .run()
         .await?;
 
-        run(Command {
+        Command {
             action: Action::Uninstall(Uninstall { plugins: vec![] }),
-        })
+        }
+        .run()
         .await?;
 
         Ok(())

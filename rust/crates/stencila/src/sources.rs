@@ -237,9 +237,11 @@ pub fn schemas() -> Result<serde_json::Value> {
 }
 
 #[cfg(feature = "cli")]
-pub mod cli {
+pub mod commands {
     use super::*;
-    use crate::{cli::display, projects::PROJECTS};
+    use crate::projects::PROJECTS;
+    use async_trait::async_trait;
+    use cli::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -264,9 +266,9 @@ pub mod cli {
         Import(Import),
         Schemas(Schemas),
     }
-
-    impl Command {
-        pub async fn run(self) -> display::Result {
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
             let Self { action } = self;
             match action {
                 Action::List(action) => action.run().await,
@@ -284,11 +286,11 @@ pub mod cli {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct List {}
-
-    impl List {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for List {
+        async fn run(&self) -> Result {
             let project = PROJECTS.current(false).await?;
-            display::value(project.sources)
+            result::value(project.sources)
         }
     }
 
@@ -310,17 +312,14 @@ pub mod cli {
         /// The name to give the source
         pub name: Option<String>,
     }
-
-    impl Add {
-        pub async fn run(self) -> display::Result {
-            let Self {
-                source,
-                destination,
-                name,
-            } = self;
+    #[async_trait]
+    impl Run for Add {
+        async fn run(&self) -> Result {
             let mut project = PROJECTS.current(false).await?;
-            let files = project.add_source(&source, destination, name).await?;
-            display::value(files)
+            let files = project
+                .add_source(&self.source, self.destination.clone(), self.name.clone())
+                .await?;
+            result::value(files)
         }
     }
 
@@ -337,13 +336,12 @@ pub mod cli {
         /// Name of the source to remove
         pub name: String,
     }
-
-    impl Remove {
-        pub async fn run(self) -> display::Result {
-            let Self { name } = self;
+    #[async_trait]
+    impl Run for Remove {
+        async fn run(&self) -> Result {
             let mut project = PROJECTS.current(false).await?;
-            project.remove_source(&name).await?;
-            display::nothing()
+            project.remove_source(&self.name).await?;
+            result::nothing()
         }
     }
 
@@ -360,16 +358,14 @@ pub mod cli {
         /// The path to import the source to
         pub destination: Option<String>,
     }
-
-    impl Import {
-        pub async fn run(self) -> display::Result {
-            let Self {
-                source,
-                destination,
-            } = self;
+    #[async_trait]
+    impl Run for Import {
+        async fn run(&self) -> Result {
             let mut project = PROJECTS.current(false).await?;
-            let files = project.import_source(&source, destination).await?;
-            display::value(files)
+            let files = project
+                .import_source(&self.source, self.destination.clone())
+                .await?;
+            result::value(files)
         }
     }
 
@@ -381,9 +377,9 @@ pub mod cli {
     pub struct Schemas {}
 
     impl Schemas {
-        pub fn run(&self) -> display::Result {
+        pub fn run(&self) -> Result {
             let schema = schemas()?;
-            display::value(schema)
+            result::value(schema)
         }
     }
 }

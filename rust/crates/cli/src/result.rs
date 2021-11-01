@@ -43,7 +43,7 @@ where
 }
 
 /// A value resulting from a command
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Value {
     /// The value to be displayed
     pub value: Option<serde_json::Value>,

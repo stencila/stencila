@@ -1349,9 +1349,11 @@ pub fn schemas() -> Result<serde_json::Value> {
 }
 
 #[cfg(feature = "cli")]
-pub mod cli {
+pub mod commands {
     use super::*;
-    use crate::{cli::display, patches::diff_display, utils::json};
+    use crate::{patches::diff_display, utils::json};
+    use async_trait::async_trait;
+    use cli::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -1383,8 +1385,9 @@ pub mod cli {
         Schemas(Schemas),
     }
 
-    impl Command {
-        pub async fn run(self) -> display::Result {
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
             let Self { action } = self;
             match action {
                 Action::List(action) => action.run().await,
@@ -1407,11 +1410,11 @@ pub mod cli {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct List {}
-
-    impl List {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for List {
+        async fn run(&self) -> Result {
             let list = DOCUMENTS.list().await?;
-            display::value(list)
+            result::value(list)
         }
     }
 
@@ -1426,12 +1429,12 @@ pub mod cli {
         #[structopt(default_value = ".")]
         pub file: String,
     }
-
-    impl Open {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for Open {
+        async fn run(&self) -> Result {
             let Self { file } = self;
             DOCUMENTS.open(file, None).await?;
-            display::nothing()
+            result::nothing()
         }
     }
 
@@ -1446,12 +1449,12 @@ pub mod cli {
         #[structopt(default_value = ".")]
         pub file: String,
     }
-
-    impl Close {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for Close {
+        async fn run(&self) -> Result {
             let Self { file } = self;
             DOCUMENTS.close(file).await?;
-            display::nothing()
+            result::nothing()
         }
     }
 
@@ -1475,9 +1478,9 @@ pub mod cli {
         #[structopt(short, long)]
         format: Option<String>,
     }
-
-    impl Show {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for Show {
+        async fn run(&self) -> Result {
             let Self {
                 file,
                 pointer,
@@ -1486,19 +1489,19 @@ pub mod cli {
             let document = DOCUMENTS.open(file, format.clone()).await?;
             if let Some(pointer) = pointer {
                 if pointer == "content" {
-                    display::content(&document.format.name, &document.content)
+                    result::content(&document.format.name, &document.content)
                 } else if pointer == "root" {
-                    display::value(&document.root)
+                    result::value(&document.root)
                 } else {
                     let data = serde_json::to_value(document)?;
                     if let Some(part) = data.pointer(&json::pointer(pointer)) {
-                        Ok(display::value(part)?)
+                        Ok(result::value(part)?)
                     } else {
                         bail!("Invalid pointer for document: {}", pointer)
                     }
                 }
             } else {
-                display::value(document)
+                result::value(document)
             }
         }
     }
@@ -1529,9 +1532,9 @@ pub mod cli {
         #[structopt(short, long, default_value = "calc")]
         lang: String,
     }
-
-    impl Execute {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for Execute {
+        async fn run(&self) -> Result {
             let Self {
                 file,
                 format,
@@ -1574,9 +1577,9 @@ pub mod cli {
     }
 
     const QUERY_LANGS: [&str; 2] = ["jmespath", "jsonptr"];
-
-    impl Query {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for Query {
+        async fn run(&self) -> Result {
             let Self {
                 file,
                 format,
@@ -1585,7 +1588,7 @@ pub mod cli {
             } = self;
             let document = DOCUMENTS.open(file, format.clone()).await?;
             let result = document.query(query, lang)?;
-            display::value(result)
+            result::value(result)
         }
     }
 
@@ -1616,30 +1619,24 @@ pub mod cli {
         #[structopt(short = "e", long)]
         theme: Option<String>,
     }
+    #[async_trait]
+    impl Run for Convert {
+        async fn run(&self) -> Result {
+            let document = Document::open(&self.input, self.from.clone()).await?;
 
-    impl Convert {
-        pub async fn run(self) -> display::Result {
-            let Self {
-                input,
-                output,
-                from,
-                to,
-                theme,
-            } = self;
-
-            let document = Document::open(input, from).await?;
-
-            let out = output.display().to_string();
+            let out = self.output.display().to_string();
             if out == "-" {
-                let format = match to {
+                let format = match &self.to {
                     None => "json".to_string(),
-                    Some(format) => format,
+                    Some(format) => format.clone(),
                 };
                 let content = document.dump(Some(format.clone())).await?;
-                display::content(&format, &content)
+                result::content(&format, &content)
             } else {
-                document.write_as(output, to, theme).await?;
-                display::nothing()
+                document
+                    .write_as(&self.output, self.to.clone(), self.theme.clone())
+                    .await?;
+                result::nothing()
             }
         }
     }
@@ -1666,9 +1663,9 @@ pub mod cli {
         #[structopt(short, long, default_value = "json")]
         format: String,
     }
-
-    impl Diff {
-        pub async fn run(self) -> display::Result {
+    #[async_trait]
+    impl Run for Diff {
+        async fn run(&self) -> Result {
             let Self {
                 first,
                 second,
@@ -1684,10 +1681,10 @@ pub mod cli {
 
             if format == "raw" {
                 let patch = diff(first, second);
-                display::value(patch)
+                result::value(patch)
             } else {
-                let diff = diff_display(first, second, &format).await?;
-                display::content("patch", &diff)
+                let diff = diff_display(first, second, format).await?;
+                result::content("patch", &diff)
             }
         }
     }
@@ -1731,10 +1728,10 @@ pub mod cli {
         #[structopt(short, long)]
         git: bool,
     }
-
-    impl Merge {
-        pub async fn run(self) -> display::Result {
-            let mut original = Document::open(self.original, None).await?;
+    #[async_trait]
+    impl Run for Merge {
+        async fn run(&self) -> Result {
+            let mut original = Document::open(&self.original, None).await?;
 
             let mut docs: Vec<Document> = Vec::new();
             for path in &self.derived {
@@ -1749,7 +1746,7 @@ pub mod cli {
                 original.write(None, None).await?;
             }
 
-            display::nothing()
+            result::nothing()
         }
     }
 
@@ -1761,9 +1758,9 @@ pub mod cli {
     pub struct Schemas {}
 
     impl Schemas {
-        pub fn run(&self) -> display::Result {
+        pub fn run(&self) -> Result {
             let schema = schemas()?;
-            display::value(schema)
+            result::value(schema)
         }
     }
 }

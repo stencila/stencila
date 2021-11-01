@@ -701,9 +701,10 @@ pub mod config {
 }
 
 #[cfg(feature = "cli")]
-pub mod cli {
+pub mod commands {
     use super::*;
-    use crate::cli::display;
+    use async_trait::async_trait;
+    use cli::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -726,11 +727,11 @@ pub mod cli {
         Show(Show),
         Install(Install),
         Uninstall(Uninstall),
-        Run(Run),
+        Run(Run_),
     }
-
-    impl Command {
-        pub async fn run(self) -> display::Result {
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
             let Self { action } = self;
             match action {
                 Action::List(action) => action.run().await,
@@ -752,9 +753,9 @@ pub mod cli {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct List {}
-
-    impl List {
-        pub async fn run(self) -> display::Result {
+    #[async_trait]
+    impl Run for List {
+        async fn run(&self) -> Result {
             let binaries = &*BINARIES.lock().await;
             let list: Vec<serde_json::Value> = binaries
                 .values()
@@ -765,7 +766,7 @@ pub mod cli {
                     })
                 })
                 .collect();
-            display::value(list)
+            result::value(list)
         }
     }
 
@@ -793,30 +794,28 @@ pub mod cli {
         /// requirement nothing will be shown
         pub semver: Option<String>,
     }
-
-    impl Show {
-        pub async fn run(self) -> display::Result {
-            let Self { name, semver } = self;
-
-            let binary = if let Some(binary) = BINARIES.lock().await.get_mut(&name) {
+    #[async_trait]
+    impl Run for Show {
+        async fn run(&self) -> Result {
+            let binary = if let Some(binary) = BINARIES.lock().await.get_mut(&self.name) {
                 binary.resolve();
                 binary.clone()
             } else {
                 let mut binary = Binary {
-                    name,
+                    name: self.name.clone(),
                     ..Default::default()
                 };
                 binary.resolve();
                 binary
             };
 
-            if binary.installation(semver)?.is_some() {
-                display::value(binary)
+            if binary.installation(self.semver.clone())?.is_some() {
+                result::value(binary)
             } else {
                 tracing::info!(
                     "No matching binary found. Perhaps try `stencila binaries install`."
                 );
-                display::nothing()
+                result::nothing()
             }
         }
     }
@@ -850,23 +849,19 @@ pub mod cli {
     const OS_VALUES: [&str; 3] = ["macos", "windows", "linux"];
     const ARCH_VALUES: [&str; 3] = ["x86", "x86_64", "arm"];
 
-    impl Install {
-        pub async fn run(self) -> display::Result {
-            let Self {
-                name,
-                semver,
-                os,
-                arch,
-            } = self;
-
-            if let Some(binary) = BINARIES.lock().await.get_mut(&name) {
-                binary.install(semver, os, arch).await?;
-                tracing::info!("📦 Installed {}", name);
+    #[async_trait]
+    impl Run for Install {
+        async fn run(&self) -> Result {
+            if let Some(binary) = BINARIES.lock().await.get_mut(&self.name) {
+                binary
+                    .install(self.semver.clone(), self.os.clone(), self.arch.clone())
+                    .await?;
+                tracing::info!("📦 Installed {}", self.name);
             } else {
                 tracing::warn!("No registered binary with that name. See `stencila binaries list`.")
             }
 
-            display::nothing()
+            result::nothing()
         }
     }
 
@@ -889,19 +884,17 @@ pub mod cli {
         /// If this is not provided, all versions will be removed.
         pub version: Option<String>,
     }
-
-    impl Uninstall {
-        pub async fn run(self) -> display::Result {
-            let Self { name, version } = self;
-
-            if let Some(binary) = BINARIES.lock().await.get_mut(&name) {
-                binary.uninstall(version).await?;
-                tracing::info!("🗑️ Uninstalled {}", name);
+    #[async_trait]
+    impl Run for Uninstall {
+        async fn run(&self) -> Result {
+            if let Some(binary) = BINARIES.lock().await.get_mut(&self.name) {
+                binary.uninstall(self.version.clone()).await?;
+                tracing::info!("🗑️ Uninstalled {}", self.name);
             } else {
                 tracing::warn!("No registered binary with that name. See `stencila binaries list`.")
             }
 
-            display::nothing()
+            result::nothing()
         }
     }
 
@@ -915,7 +908,7 @@ pub mod cli {
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Run {
+    pub struct Run_ {
         /// The name of the binary e.g. node
         pub name: String,
 
@@ -926,19 +919,21 @@ pub mod cli {
         #[structopt(raw(true))]
         pub args: Vec<String>,
     }
-
-    impl Run {
-        pub async fn run(self) -> display::Result {
-            let Self { name, semver, args } = self;
-
-            let installation = require(&name, &semver.unwrap_or_else(|| "*".to_string())).await?;
-            let output = installation.run(&args)?;
+    #[async_trait]
+    impl Run for Run_ {
+        async fn run(&self) -> Result {
+            let installation = require(
+                &self.name,
+                &self.semver.clone().unwrap_or_else(|| "*".to_string()),
+            )
+            .await?;
+            let output = installation.run(&self.args)?;
 
             use std::io::Write;
             std::io::stdout().write_all(output.stdout.as_ref())?;
             std::io::stderr().write_all(output.stderr.as_ref())?;
 
-            display::nothing()
+            result::nothing()
         }
     }
 }
@@ -946,6 +941,7 @@ pub mod cli {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use cli::Run;
 
     // End to end CLI test that install, show and uninstall
     // the latest version of each binary. Intended as a coarse
@@ -961,13 +957,13 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn install() -> Result<()> {
-        cli::List {}.run().await?;
+        commands::List {}.run().await?;
 
         let binaries = (*BINARIES.lock().await).clone();
         for name in binaries.keys() {
             eprintln!("Testing {}", name);
 
-            cli::Install {
+            commands::Install {
                 name: name.clone(),
                 semver: None,
                 os: None,
@@ -976,7 +972,7 @@ mod tests {
             .run()
             .await?;
 
-            let display = cli::Show {
+            let display = commands::Show {
                 name: name.clone(),
                 semver: None,
             }
@@ -1011,7 +1007,7 @@ mod tests {
     async fn uninstall() -> Result<()> {
         let binaries = (*BINARIES.lock().await).clone();
         for name in binaries.keys() {
-            cli::Uninstall {
+            commands::Uninstall {
                 name: name.clone(),
                 version: None,
             }

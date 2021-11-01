@@ -1003,9 +1003,10 @@ pub mod config {
 }
 
 #[cfg(feature = "cli")]
-pub mod cli {
+pub mod commands {
     use super::*;
-    use crate::cli::display;
+    use async_trait::async_trait;
+    use cli::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -1032,9 +1033,9 @@ pub mod cli {
         Graph(Graph),
         Schemas(Schemas),
     }
-
-    impl Command {
-        pub async fn run(self) -> display::Result {
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
             let Self { action } = self;
             match action {
                 Action::Init(action) => action.run().await,
@@ -1063,12 +1064,11 @@ pub mod cli {
         #[structopt(default_value = ".")]
         pub folder: PathBuf,
     }
-
-    impl Init {
-        pub async fn run(&self) -> display::Result {
-            let Self { folder } = self;
-            Project::init(folder).await?;
-            display::nothing()
+    #[async_trait]
+    impl Run for Init {
+        async fn run(&self) -> Result {
+            Project::init(&self.folder).await?;
+            result::nothing()
         }
     }
 
@@ -1078,11 +1078,11 @@ pub mod cli {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct List {}
-
-    impl List {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for List {
+        async fn run(&self) -> Result {
             let list = PROJECTS.list().await?;
-            display::value(list)
+            result::value(list)
         }
     }
 
@@ -1096,12 +1096,11 @@ pub mod cli {
         /// The path of the project folder (defaults to the current project)
         pub folder: Option<PathBuf>,
     }
-
-    impl Open {
-        pub async fn run(self) -> display::Result {
-            let Self { folder } = self;
-            let Project { name, .. } = PROJECTS.open(folder, true).await?;
-            display::value(name)
+    #[async_trait]
+    impl Run for Open {
+        async fn run(&self) -> Result {
+            let Project { name, .. } = PROJECTS.open(self.folder.clone(), true).await?;
+            result::value(name)
         }
     }
 
@@ -1116,12 +1115,11 @@ pub mod cli {
         #[structopt(default_value = ".")]
         pub folder: PathBuf,
     }
-
-    impl Close {
-        pub async fn run(&self) -> display::Result {
-            let Self { folder } = self;
-            PROJECTS.close(folder).await?;
-            display::nothing()
+    #[async_trait]
+    impl Run for Close {
+        async fn run(&self) -> Result {
+            PROJECTS.close(self.folder.clone()).await?;
+            result::nothing()
         }
     }
 
@@ -1135,13 +1133,12 @@ pub mod cli {
         /// The path of the project folder (defaults to the current project)
         pub folder: Option<PathBuf>,
     }
-
-    impl Show {
-        pub async fn run(self) -> display::Result {
-            let Self { folder } = self;
-            let project = PROJECTS.open(folder, false).await?;
+    #[async_trait]
+    impl Run for Show {
+        async fn run(&self) -> Result {
+            let project = PROJECTS.open(self.folder.clone(), false).await?;
             let content = project.show()?;
-            display::new("md", &content, Some(project))
+            result::new("md", &content, Some(project))
         }
     }
 
@@ -1170,13 +1167,12 @@ pub mod cli {
     }
 
     const GRAPH_FORMATS: [&str; 3] = ["dot", "json", "yaml"];
-
-    impl Graph {
-        pub async fn run(self) -> display::Result {
-            let Self { folder, format } = self;
-            let project = &mut PROJECTS.open(folder, false).await?;
-            let content = project.graph(&format)?;
-            display::content(&format, &content)
+    #[async_trait]
+    impl Run for Graph {
+        async fn run(&self) -> Result {
+            let project = &mut PROJECTS.open(self.folder.clone(), false).await?;
+            let content = project.graph(&self.format)?;
+            result::content(&self.format, &content)
         }
     }
 
@@ -1188,9 +1184,9 @@ pub mod cli {
     pub struct Schemas {}
 
     impl Schemas {
-        pub fn run(&self) -> display::Result {
+        pub fn run(&self) -> Result {
             let schema = schemas()?;
-            display::value(schema)
+            result::value(schema)
         }
     }
 }

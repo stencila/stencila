@@ -632,6 +632,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "cli"
+version = "0.0.0"
+dependencies = [
+ "ansi_term 0.12.1",
+ "async-trait",
+ "atty",
+ "color-eyre",
+ "events",
+ "eyre",
+ "linya",
+ "once_cell",
+ "regex",
+ "rustyline",
+ "rustyline-derive",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "structopt",
+ "syntect",
+ "termimad 0.17.0",
+ "tracing",
+ "urlencoding",
+]
+
+[[package]]
 name = "clipboard-win"
 version = "4.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1428,6 +1453,13 @@ name = "event-listener"
 version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7531096570974c3a9dcf9e4b8e1cede1ec26cf5046219fb3b9d897503b9be59"
+
+[[package]]
+name = "events"
+version = "0.0.0"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "exitcode"
@@ -4334,6 +4366,7 @@ dependencies = [
  "bollard",
  "chromiumoxide",
  "chrono",
+ "cli",
  "codec-date",
  "codec-html",
  "codec-ipynb",
@@ -4423,7 +4456,7 @@ dependencies = [
  "syntect",
  "tar",
  "tempfile",
- "termimad",
+ "termimad 0.16.4",
  "thiserror",
  "tokio",
  "tokio-stream",
@@ -4718,6 +4751,19 @@ name = "termimad"
 version = "0.16.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d88221817ef21964ccccf7d8ccc35fed3bae3066a177d1fcda72d694a016a47d"
+dependencies = [
+ "crossbeam",
+ "crossterm",
+ "minimad",
+ "thiserror",
+ "unicode-width",
+]
+
+[[package]]
+name = "termimad"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "65099744de84765fa303b9dbf5fe7756844c2b5ffdaa571609220f271e90d747"
 dependencies = [
  "crossbeam",
  "crossterm",

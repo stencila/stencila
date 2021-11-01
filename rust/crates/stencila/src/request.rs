@@ -324,8 +324,10 @@ impl ClientTrait for ClientWs {
 }
 
 #[cfg(feature = "cli")]
-pub mod cli {
+pub mod commands {
     use super::*;
+    use async_trait::async_trait;
+    use cli::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -333,7 +335,7 @@ pub mod cli {
         about = "Request a method call on a plugin or peer",
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Args {
+    pub struct Command {
         /// URL of the peer (e.g. ws://example.org:9001, :9000)
         url: String,
 
@@ -349,20 +351,13 @@ pub mod cli {
         #[structopt(short, long)]
         key: Option<String>,
     }
-
-    pub async fn run(args: Args) -> Result<()> {
-        let Args {
-            url,
-            method,
-            params,
-            key,
-        } = args;
-
-        let mut client = Client::new(&url, key)?;
-        let params = crate::cli::args::params(&params);
-        let result = client.call(method, params).await?;
-        println!("{}", serde_json::to_string_pretty(&result)?);
-
-        Ok(())
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
+            let mut client = Client::new(&self.url, self.key.clone())?;
+            let params = cli::args::params(&self.params);
+            let result = client.call(self.method, params).await?;
+            result::value(result)
+        }
     }
 }

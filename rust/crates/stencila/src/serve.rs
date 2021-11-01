@@ -994,9 +994,10 @@ pub mod config {
 }
 
 #[cfg(feature = "cli")]
-pub mod cli {
+pub mod commands {
     use super::*;
-    use crate::cli::display;
+    use async_trait::async_trait;
+    use cli::{result, Result, Run};
     use structopt::StructOpt;
 
     /// Serve over HTTP and WebSockets
@@ -1056,33 +1057,25 @@ pub mod cli {
         #[structopt(long)]
         root: bool,
     }
-
-    impl Command {
-        pub async fn run(self) -> display::Result {
-            let Command {
-                url,
-                key,
-                background,
-                insecure,
-                root,
-            } = self;
-
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
             let config = &CONFIG.lock().await.serve;
 
-            let url = url.unwrap_or_else(|| config.url.clone());
+            let url = self.url.clone().unwrap_or_else(|| config.url.clone());
             let (protocol, address, port) = parse_url(&url)?;
 
             // Get key configured on command line or config file
-            let key = match key {
+            let key = match &self.key {
                 Some(key) => {
                     tracing::warn!("Server key set on command line can be sniffed by malicious processes; prefer to set it in config file.");
-                    Some(key)
+                    Some(key.clone())
                 }
                 None => config.key.clone(),
             };
 
             // Check that user is explicitly allowing no key to be used
-            let insecure = insecure || config.insecure;
+            let insecure = self.insecure || config.insecure;
             if insecure {
                 tracing::warn!("Serving in insecure mode is dangerous and discouraged.")
             }
@@ -1106,20 +1099,20 @@ pub mod cli {
             // Check for root usage
             #[cfg(any(target_os = "linux", target_os = "macos"))]
             if let sudo::RunningAs::Root = sudo::check() {
-                if root {
+                if self.root {
                     tracing::warn!("Serving as root/administrator is dangerous and discouraged.")
                 } else {
                     bail!("Serving as root/administrator is not permitted by default, use the `--root` option to bypass this safety measure.")
                 }
             }
 
-            if background {
+            if self.background {
                 super::serve_background(&format!("{}://{}:{}", protocol, address, port), key)?;
             } else {
                 super::serve_on(protocol, address, port, key).await?;
             }
 
-            display::nothing()
+            result::nothing()
         }
     }
 }

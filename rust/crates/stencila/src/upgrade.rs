@@ -173,9 +173,10 @@ pub mod config {
 }
 
 #[cfg(feature = "cli")]
-pub mod cli {
+pub mod commands {
     use super::*;
-    use crate::cli::display;
+    use async_trait::async_trait;
+    use cli::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -184,7 +185,7 @@ pub mod cli {
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Args {
+    pub struct Command {
         /// Version to upgrade (or downgrade) to (defaults to the latest)
         #[structopt(short, long)]
         pub to: Option<String>,
@@ -207,18 +208,19 @@ pub mod cli {
     /// Note that the in-memory state of application and plugins is unchanged after this call
     /// (e.g. if called in interactive mode). A restart is required to upload both the new
     /// version and plugin versions.
-    pub async fn run(args: Args) -> display::Result {
-        let Args {
-            to,
-            plugins: include_plugins,
-            confirm,
-            verbose,
-            ..
-        } = args;
-
-        upgrade(None, to, include_plugins, confirm, verbose).await?;
-
-        display::nothing()
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
+            upgrade(
+                None,
+                self.to.clone(),
+                self.plugins,
+                self.confirm,
+                self.verbose,
+            )
+            .await?;
+            result::nothing()
+        }
     }
 }
 
@@ -249,12 +251,16 @@ mod tests {
     #[ignore]
     #[tokio::test]
     async fn test_cli() -> Result<()> {
-        cli::run(cli::Args {
+        use super::commands::Command;
+        use cli::Run;
+
+        Command {
             to: None,
             plugins: false,
             confirm: false,
             verbose: false,
-        })
+        }
+        .run()
         .await?;
 
         Ok(())

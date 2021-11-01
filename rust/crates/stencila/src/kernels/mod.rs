@@ -424,17 +424,17 @@ impl KernelSpace {
     /// Primarily intended for use in interactive mode as an execution REPL.
     /// Adds execution related shortcuts e.g. `%symbols` for changing the language.
     #[cfg(feature = "cli")]
-    pub async fn repl(&mut self, code: &str, language: &str) -> crate::cli::display::Result {
-        use crate::cli::display;
+    pub async fn repl(&mut self, code: &str, language: &str) -> cli::Result {
+        use cli::result;
 
         if !code.is_empty() {
             let code = code.replace("\\n", "\n");
             if code == "%symbols" {
                 let symbols = self.symbols();
-                display::value(symbols)
+                result::value(symbols)
             } else if code == "%kernels" {
                 let kernels = self.kernels().await;
-                display::value(kernels)
+                result::value(kernels)
             } else {
                 // Compile the code so that we can use the relations to determine variables that
                 // are assigned or used (needed for variable mirroring).
@@ -450,21 +450,21 @@ impl KernelSpace {
                     }
                 }
                 match nodes.len() {
-                    0 => display::nothing(),
-                    1 => display::value(nodes[0].clone()),
-                    _ => display::value(nodes),
+                    0 => result::nothing(),
+                    1 => result::value(nodes[0].clone()),
+                    _ => result::value(nodes),
                 }
             }
         } else {
-            display::nothing()
+            result::nothing()
         }
     }
 }
 
 #[cfg(feature = "cli")]
-pub mod cli {
+pub mod commands {
     use super::*;
-    use crate::cli::display;
+    use cli::{result, Result, Run};
     use once_cell::sync::Lazy;
     use structopt::StructOpt;
     use tokio::sync::Mutex;
@@ -495,8 +495,9 @@ pub mod cli {
         Show(Show),
     }
 
-    impl Command {
-        pub async fn run(self) -> display::Result {
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
             let Self { action } = self;
             match action {
                 Action::Available(action) => action.run().await,
@@ -521,10 +522,11 @@ pub mod cli {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Available {}
-    impl Available {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for Available {
+        async fn run(&self) -> Result {
             let list = Kernel::available().await?;
-            display::value(list)
+            result::value(list)
         }
     }
 
@@ -538,13 +540,14 @@ pub mod cli {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Running {}
-    impl Running {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for Running {
+        async fn run(&self) -> Result {
             #[cfg(feature = "kernels-jupyter")]
             {
                 let kernels = jupyter::JupyterKernel::running().await?;
                 let servers = jupyter::JupyterServer::running().await?;
-                display::value(serde_json::json!({
+                result::value(serde_json::json!({
                     "kernels": kernels,
                     "servers": servers
                 }))
@@ -597,8 +600,9 @@ pub mod cli {
         #[structopt(short, long, default_value = "calc")]
         lang: String,
     }
-    impl Execute {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for Execute {
+        async fn run(&self) -> Result {
             KERNEL_SPACE
                 .lock()
                 .await
@@ -621,11 +625,12 @@ pub mod cli {
         /// The programming language of the kernel
         lang: String,
     }
-    impl Start {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for Start {
+        async fn run(&self) -> Result {
             KERNEL_SPACE.lock().await.ensure(&self.lang).await?;
             tracing::info!("Started kernel for language `{}`", self.lang);
-            display::nothing()
+            result::nothing()
         }
     }
 
@@ -645,11 +650,12 @@ pub mod cli {
         /// The id of the kernel (see `kernels status`)
         id: String,
     }
-    impl Stop {
-        pub async fn run(&self) -> display::Result {
+    #[async_trait]
+    impl Run for Stop {
+        async fn run(&self) -> Result {
             KERNEL_SPACE.lock().await.stop(&self.id).await?;
             tracing::info!("Stopped kernel `{}`", self.id);
-            display::nothing()
+            result::nothing()
         }
     }
 
@@ -680,11 +686,11 @@ pub mod cli {
         id_or_path: String,
     }
     impl Connect {
-        pub async fn run(&self) -> display::Result {
+        pub async fn run(&self) -> Result {
             let mut kernels = KERNEL_SPACE.lock().await;
             let id = kernels.connect(&self.id_or_path).await?;
             tracing::info!("Connected to kernel `{}`", id);
-            display::nothing()
+            result::nothing()
         }
     }
 
@@ -708,9 +714,9 @@ pub mod cli {
     )]
     pub struct Status {}
     impl Status {
-        pub async fn run(&self) -> display::Result {
+        pub async fn run(&self) -> Result {
             let status = KERNEL_SPACE.lock().await.kernels().await;
-            display::value(status)
+            result::value(status)
         }
     }
 
@@ -726,10 +732,10 @@ pub mod cli {
         id: String,
     }
     impl Show {
-        pub async fn run(&self) -> display::Result {
+        pub async fn run(&self) -> Result {
             let kernels = KERNEL_SPACE.lock().await;
             let kernel = kernels.kernels.get(&self.id)?;
-            display::value(kernel)
+            result::value(kernel)
         }
     }
 }
