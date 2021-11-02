@@ -57,7 +57,7 @@ decode-md = ["codec-md"]
 decode-pandoc = ["node-transform", "binaries", "pandoc_types"]
 decode-person = ["codec-person"]
 decode-rmd = ["codec-rmd"]
-decode-rpng = ["png"]
+decode-rpng = ["codec-rpng"]
 decode-toml = ["codec-toml"]
 decode-txt = ["codec-txt"]
 decode-yaml = ["codec-yaml"]
@@ -69,10 +69,10 @@ encode-json5 = ["codec-json5"]
 encode-latex = ["encode-pandoc"]
 encode-md = ["codec-md"]
 encode-pandoc = ["node-transform", "binaries", "pandoc_types"]
-encode-pdf = ["chromiumoxide"]
+encode-pdf = ["codec-pdf"]
 encode-png = ["codec-png"]
 encode-rmd = ["codec-rmd"]
-encode-rpng = ["encode-png", "png"]
+encode-rpng = ["codec-rpng"]
 encode-toml = ["codec-toml"]
 encode-yaml = ["codec-yaml"]
 
@@ -161,11 +161,7 @@ default = [
 ansi_term = { version = "=0.12.1", optional = true }
 async-recursion = "0.3.2"
 async-trait = "=0.1.51"
-base64 = "=0.13.0"
 bollard = { version = "=0.11.0", optional = true }
-chromiumoxide = { version = "=0.3.1", optional = true, features = [
-  "tokio-runtime",
-] }
 chrono = { version = "=0.4.19", features = ["serde"] }
 color-eyre = { version = "=0.5.11", optional = true }
 crossbeam-channel = "=0.5.1"
@@ -202,7 +198,6 @@ pandoc_types = { version = "=0.4.0", optional = true }
 path-slash = "=0.1.4"
 pathdiff = "=0.2.1"
 petgraph = { version = "=0.6.0", features = ["serde-1"] }
-png = { version = "=0.17.2", optional = true }
 portpicker = "0.1.1"
 rand = "=0.8.4"
 regex = "=1.5.4"
@@ -261,6 +256,7 @@ codec-ipynb = { path = "../codec-ipynb", version = "0.0.0", optional = true }
 codec-json = { path = "../codec-json", version = "0.0.0", optional = true }
 codec-json5 = { path = "../codec-json5", version = "0.0.0", optional = true }
 codec-md = { path = "../codec-md", version = "0.0.0", optional = true }
+codec-pdf = { path = "../codec-pdf", version = "0.0.0", optional = true }
 codec-person = { path = "../codec-person", version = "0.0.0", optional = true }
 codec-png = { path = "../codec-png", version = "0.0.0", optional = true }
 codec-rmd = { path = "../codec-rmd", version = "0.0.0", optional = true }

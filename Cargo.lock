@@ -808,6 +808,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-pdf"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "chromiumoxide",
+ "codec-html",
+ "codec-trait",
+ "futures",
+ "tempfile",
+ "tokio",
+]
+
+[[package]]
 name = "codec-person"
 version = "0.0.0"
 dependencies = [
@@ -829,7 +842,6 @@ dependencies = [
  "codec-trait",
  "futures",
  "tempfile",
- "test-utils",
  "tokio",
 ]
 
@@ -4437,10 +4449,8 @@ dependencies = [
  "ansi_term 0.12.1",
  "async-recursion",
  "async-trait",
- "base64 0.13.0",
  "binaries",
  "bollard",
- "chromiumoxide",
  "chrono",
  "cli",
  "codec-date",
@@ -4449,6 +4459,7 @@ dependencies = [
  "codec-json",
  "codec-json5",
  "codec-md",
+ "codec-pdf",
  "codec-person",
  "codec-png",
  "codec-rmd",
@@ -4495,7 +4506,6 @@ dependencies = [
  "path-slash",
  "pathdiff",
  "petgraph",
- "png",
  "portpicker",
  "pretty_assertions",
  "proptest",

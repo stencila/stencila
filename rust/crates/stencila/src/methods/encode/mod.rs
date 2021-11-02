@@ -12,9 +12,6 @@ pub mod latex;
 #[cfg(feature = "encode-pandoc")]
 pub mod pandoc;
 
-#[cfg(feature = "encode-pdf")]
-pub mod pdf;
-
 /// Common encoding options
 ///
 /// Encoding functions (including those in plugins) are encouraged to respect these options
@@ -102,7 +99,7 @@ pub async fn encode(
         "pandoc" => pandoc::encode(node, output, "pandoc", &[]).await?,
 
         #[cfg(feature = "encode-pdf")]
-        "pdf" => pdf::encode(node, output, options).await?,
+        "pdf" => codec_pdf::PdfCodec::to_string_async(node, None).await?,
 
         #[cfg(feature = "encode-png")]
         "png" => codec_png::PngCodec::to_string_async(node, None).await?,
