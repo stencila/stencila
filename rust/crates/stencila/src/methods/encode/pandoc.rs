@@ -9,7 +9,7 @@ use path_slash::PathBufExt;
 use std::{collections::HashMap, io::Write, process::Stdio};
 use stencila_schema::*;
 
-use super::{png::encode_to_output, rpng::encode_to_rpngs};
+use super::rpng::nodes_to_rpngs;
 
 /// Encode a `Node` to a document via Pandoc
 pub async fn encode(node: &Node, output: &str, format: &str, args: &[String]) -> Result<String> {
@@ -127,10 +127,10 @@ impl Context {
     /// Generate all the RPNGS
     async fn generate_rpngs(&self) -> Result<()> {
         let nodes = self.rpng_nodes.iter().map(|(_id, node)| node).collect_vec();
-        let rpngs = encode_to_rpngs(&nodes).await?;
-        for (index, rpng) in rpngs.iter().enumerate() {
+        let rpngs = nodes_to_rpngs(&nodes).await?;
+        for (index, bytes) in rpngs.iter().enumerate() {
             let (path, ..) = &self.rpng_nodes[index];
-            encode_to_output(rpng, path)?;
+            std::fs::write(path, bytes)?;
         }
         Ok(())
     }

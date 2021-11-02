@@ -1,5 +1,6 @@
 //! Defines the codec trait for decoding/encoding nodes
 
+use async_trait::async_trait;
 use eyre::{bail, Result};
 use std::{
     fs::File,
@@ -9,6 +10,7 @@ use std::{
 use stencila_schema::Node;
 
 // Export for use by other crates
+pub use ::async_trait;
 pub use eyre;
 pub use stencila_schema;
 
@@ -16,55 +18,76 @@ pub use stencila_schema;
 ///
 /// Defines similar functions to `serde_json` (and other `serde` crates) for
 /// converting nodes to/from strings, files, readers etc.
+#[async_trait]
 pub trait Codec {
     fn from_str(_str: &str) -> Result<Node> {
         bail!("Decoding from string is not implemented for this format")
     }
 
-    fn from_buffer<T: Read>(reader: &mut BufReader<T>) -> Result<Node> {
+    async fn from_str_async(str: &str) -> Result<Node> {
+        Self::from_str(str)
+    }
+
+    async fn from_buffer<T: Read>(reader: &mut BufReader<T>) -> Result<Node>
+    where
+        T: Send + Sync,
+    {
         let mut content = String::new();
         reader.read_to_string(&mut content)?;
         Self::from_str(&content)
     }
 
-    fn from_file(file: &mut File) -> Result<Node> {
+    async fn from_file(file: &mut File) -> Result<Node> {
         let mut content = String::new();
         file.read_to_string(&mut content)?;
         Self::from_str(&content)
     }
 
-    fn from_path<T: AsRef<Path>>(path: &T) -> Result<Node> {
+    async fn from_path<T: AsRef<Path>>(path: &T) -> Result<Node>
+    where
+        T: Send + Sync,
+    {
         let mut file = File::open(path)?;
-        Self::from_file(&mut file)
+        Self::from_file(&mut file).await
     }
 
     fn to_string(_node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
         bail!("Encoding to string is not implemented for this format")
     }
 
-    fn to_buffer<T: Write>(
+    async fn to_string_async(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+        Self::to_string(node, options)
+    }
+
+    async fn to_buffer<T: Write>(
         node: &Node,
         writer: &mut BufWriter<T>,
         options: Option<EncodeOptions>,
-    ) -> Result<()> {
+    ) -> Result<()>
+    where
+        T: Send + Sync,
+    {
         let content = Self::to_string(node, options)?;
         writer.write_all(content.as_bytes())?;
         Ok(())
     }
 
-    fn to_file(node: &Node, file: &mut File, options: Option<EncodeOptions>) -> Result<()> {
+    async fn to_file(node: &Node, file: &mut File, options: Option<EncodeOptions>) -> Result<()> {
         let content = Self::to_string(node, options)?;
         file.write_all(content.as_bytes())?;
         Ok(())
     }
 
-    fn to_path<T: AsRef<Path>>(
+    async fn to_path<T: AsRef<Path>>(
         node: &Node,
         path: &T,
         options: Option<EncodeOptions>,
-    ) -> Result<()> {
+    ) -> Result<()>
+    where
+        T: Send + Sync,
+    {
         let mut file = File::open(path)?;
-        Self::to_file(node, &mut file, options)
+        Self::to_file(node, &mut file, options).await
     }
 }
 

@@ -1,8 +1,5 @@
-use super::{
-    png::{encode_to_output, encode_to_pngs},
-    Options,
-};
 use codec_json::JsonCodec;
+use codec_png::nodes_to_pngs;
 use codec_trait::{Codec, EncodeOptions};
 use eyre::Result;
 use stencila_schema::Node;
@@ -17,16 +14,18 @@ use stencila_schema::Node;
 ///
 /// For reference, there is a previous implementation of this function, written
 /// in Node.js at https://github.com/stencila/encoda/blob/v0.119.0/src/codecs/rpng/index.ts.
-pub async fn encode(node: &Node, output: &str) -> Result<String> {
-    let pngs = encode_to_rpngs(&[node]).await?;
-    encode_to_output(&pngs[0], output)
+pub async fn encode(node: &Node, _output: &str) -> Result<String> {
+    let _pngs = nodes_to_rpngs(&[node]).await?;
+    // TODO Wrap as with PngCodec
+    // encode_to_output(&pngs[0], output)
+    Ok(String::new())
 }
 
 /// Encode a list of `Node`s to RPNGs (as bytes)
-pub async fn encode_to_rpngs(nodes: &[&Node]) -> Result<Vec<Vec<u8>>> {
-    let pngs = encode_to_pngs(
+pub async fn nodes_to_rpngs(nodes: &[&Node]) -> Result<Vec<Vec<u8>>> {
+    let pngs = nodes_to_pngs(
         nodes,
-        Some(Options {
+        Some(EncodeOptions {
             theme: "rpng".to_string(),
             ..Default::default()
         }),

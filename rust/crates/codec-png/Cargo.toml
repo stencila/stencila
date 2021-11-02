@@ -1,0 +1,20 @@
+[package]
+name = "codec-png"
+description = "A codec for PNG images"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+base64 = "0.13.0"
+binaries = { path = "../binaries", version = "0.0.0" }
+chromiumoxide = { version = "0.3.1", features = ["tokio-runtime"] }
+codec-html = { path = "../codec-html", version = "0.0.0" }
+codec-trait = { path = "../codec-trait", version = "0.0.0" }
+futures = "0.3.17"
+tokio = { version = "1.12.0", features = ["macros"] }
+
+[dev-dependencies]
+path-slash = "0.1.4"
+tempfile = "3.2.0"
+test-props = { path = "../test-props", version = "0.0.0" }
+test-utils = { path = "../test-utils", version = "0.0.0" }

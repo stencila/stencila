@@ -15,9 +15,6 @@ pub mod pandoc;
 #[cfg(feature = "encode-pdf")]
 pub mod pdf;
 
-#[cfg(feature = "encode-png")]
-pub mod png;
-
 #[cfg(feature = "encode-rpng")]
 pub mod rpng;
 
@@ -111,7 +108,7 @@ pub async fn encode(
         "pdf" => pdf::encode(node, output, options).await?,
 
         #[cfg(feature = "encode-png")]
-        "png" => png::encode(node, output, options).await?,
+        "png" => codec_png::PngCodec::to_string_async(node, None).await?,
 
         #[cfg(feature = "encode-rmd")]
         "rmd" => codec_rmd::RmdCodec::to_string(node, None)?,

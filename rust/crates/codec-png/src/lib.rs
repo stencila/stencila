@@ -1,20 +1,46 @@
-use super::Options;
+//! A codec for PNG images
+
 use chromiumoxide::{cdp::browser_protocol::page::CaptureScreenshotFormat, Browser, BrowserConfig};
 use codec_html::HtmlCodec;
-use codec_trait::{Codec, EncodeOptions};
-use eyre::Result;
+use codec_trait::{
+    async_trait::async_trait, eyre::Result, stencila_schema::Node, Codec, EncodeOptions,
+};
 use futures::StreamExt;
-use std::fs;
-use stencila_schema::Node;
+use std::{fs, path::Path};
 
-/// Encode a `Node` to a PNG file or Base64 encoded data URI.
-pub async fn encode(node: &Node, output: &str, options: Option<Options>) -> Result<String> {
-    let pngs = encode_to_pngs(&[node], options).await?;
-    encode_to_output(&pngs[0], output)
+pub struct PngCodec {}
+#[async_trait]
+impl Codec for PngCodec {
+    /// Encode a `Node` to a Base64 encoded PNG image
+    async fn to_string_async(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
+        let bytes = nodes_to_pngs(&[node], options).await?;
+        let string = ["data:image/png;base64,", &base64::encode(&bytes[0])].concat();
+        Ok(string)
+    }
+
+    /// Encode a `Node` to a PNG file
+    async fn to_path<T: AsRef<Path>>(
+        node: &Node,
+        path: &T,
+        options: Option<EncodeOptions>,
+    ) -> Result<()>
+    where
+        T: Send + Sync,
+    {
+        let bytes = nodes_to_pngs(&[node], options).await?;
+        fs::write(path, &bytes[0])?;
+        Ok(())
+    }
 }
 
 /// Encode a list of `Node`s to PNGs (as bytes)
-pub async fn encode_to_pngs(nodes: &[&Node], options: Option<Options>) -> Result<Vec<Vec<u8>>> {
+///
+/// This function is based around creating a list of PNGs, rather than a single one, to
+/// reduce the per-image overhead of starting the browser, loading the theme etc.
+pub async fn nodes_to_pngs(
+    nodes: &[&Node],
+    options: Option<EncodeOptions>,
+) -> Result<Vec<Vec<u8>>> {
     // Return early if possible to avoid the following, including requiring Chrome.
     if nodes.is_empty() {
         return Ok(Vec::new());
@@ -35,7 +61,7 @@ pub async fn encode_to_pngs(nodes: &[&Node], options: Option<Options>) -> Result
     }
 
     // Wrap the HTML with a header etc so that the theme is set and CSS is loaded
-    let Options { theme, .. } = options.unwrap_or_default();
+    let EncodeOptions { theme, .. } = options.unwrap_or_default();
     let html = codec_html::wrap_standalone("PNG", &theme, &html);
 
     // Launch the browser
@@ -66,31 +92,15 @@ pub async fn encode_to_pngs(nodes: &[&Node], options: Option<Options>) -> Result
     Ok(pngs)
 }
 
-/// Encode a PNG (as bytes) to a data URI or a file
-pub fn encode_to_output(bytes: &[u8], output: &str) -> Result<String> {
-    let content = if output.starts_with("data:") {
-        ["data:image/png;base64,", &base64::encode(&bytes)].concat()
-    } else {
-        let path = if let Some(path) = output.strip_prefix("file://") {
-            path
-        } else {
-            output
-        };
-        fs::write(path, bytes)?;
-        ["file://", path].concat()
-    };
-    Ok(content)
-}
-
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use codec_trait::stencila_schema::CodeChunk;
+    use path_slash::PathExt;
+
     #[cfg(target_os = "linux")]
     #[tokio::test]
     async fn test_encode() -> super::Result<()> {
-        use super::*;
-        use path_slash::PathExt;
-        use stencila_schema::CodeChunk;
-
         let node = Node::CodeChunk(CodeChunk {
             programming_language: "python".to_string(),
             text: "print(\"Hello world!\")".to_string(),
@@ -100,19 +110,18 @@ mod tests {
 
         let dir = tempfile::tempdir()?;
         let path = dir.path().join("temp.png");
-        let output = encode(
+        PngCodec::to_path(
             &node,
             &path.to_slash_lossy(),
-            Some(Options {
+            Some(EncodeOptions {
                 theme: "rpng".to_string(),
                 ..Default::default()
             }),
         )
         .await?;
-        assert_eq!(output, ["file://", &path.to_slash_lossy()].concat());
         assert!(path.exists());
 
-        let data = encode(&node, "data://", None).await?;
+        let data = PngCodec::to_string_async(&node, None).await?;
         assert!(data.starts_with("data:image/png;base64,"));
 
         Ok(())

@@ -46,35 +46,35 @@ upgrade = ["self_update"]
 import-elife = ["minidom"]
 import-github = []
 
-decode-date = ["codec-trait", "codec-date"]
+decode-date = ["codec-date"]
 decode-docx = ["decode-pandoc"]
-decode-html = ["codec-trait", "codec-html"]
-decode-ipynb = ["codec-trait", "codec-ipynb"]
-decode-json = ["codec-trait", "codec-json"]
-decode-json5 = ["codec-trait", "codec-json5"]
+decode-html = ["codec-html"]
+decode-ipynb = ["codec-ipynb"]
+decode-json = ["codec-json"]
+decode-json5 = ["codec-json5"]
 decode-latex = ["decode-pandoc"]
-decode-md = ["codec-trait", "codec-md"]
+decode-md = ["codec-md"]
 decode-pandoc = ["node-transform", "binaries", "pandoc_types"]
-decode-person = ["codec-trait", "codec-person"]
-decode-rmd = ["codec-trait", "codec-rmd"]
+decode-person = ["codec-person"]
+decode-rmd = ["codec-rmd"]
 decode-rpng = ["png"]
-decode-toml = ["codec-trait", "codec-toml"]
-decode-txt = ["codec-trait", "codec-txt"]
-decode-yaml = ["codec-trait", "codec-yaml"]
+decode-toml = ["codec-toml"]
+decode-txt = ["codec-txt"]
+decode-yaml = ["codec-yaml"]
 
 encode-docx = ["encode-pandoc"]
-encode-ipynb = ["codec-trait", "codec-ipynb"]
-encode-json = ["codec-trait", "codec-json"]
-encode-json5 = ["codec-trait", "codec-json5"]
+encode-ipynb = ["codec-ipynb"]
+encode-json = ["codec-json"]
+encode-json5 = ["codec-json5"]
 encode-latex = ["encode-pandoc"]
-encode-md = ["codec-trait", "codec-md"]
+encode-md = ["codec-md"]
 encode-pandoc = ["node-transform", "binaries", "pandoc_types"]
 encode-pdf = ["chromiumoxide"]
-encode-png = ["chromiumoxide"]
-encode-rmd = ["codec-trait", "codec-rmd"]
+encode-png = ["codec-png"]
+encode-rmd = ["codec-rmd"]
 encode-rpng = ["encode-png", "png"]
-encode-toml = ["codec-trait", "codec-toml"]
-encode-yaml = ["codec-trait", "codec-yaml"]
+encode-toml = ["codec-toml"]
+encode-yaml = ["codec-yaml"]
 
 coerce = ["node-coerce"]
 
@@ -262,9 +262,10 @@ codec-json = { path = "../codec-json", version = "0.0.0", optional = true }
 codec-json5 = { path = "../codec-json5", version = "0.0.0", optional = true }
 codec-md = { path = "../codec-md", version = "0.0.0", optional = true }
 codec-person = { path = "../codec-person", version = "0.0.0", optional = true }
+codec-png = { path = "../codec-png", version = "0.0.0", optional = true }
 codec-rmd = { path = "../codec-rmd", version = "0.0.0", optional = true }
 codec-toml = { path = "../codec-toml", version = "0.0.0", optional = true }
-codec-trait = { path = "../codec-trait", version = "0.0.0", optional = true }
+codec-trait = { path = "../codec-trait", version = "0.0.0" }
 codec-txt = { path = "../codec-txt", version = "0.0.0", optional = true }
 codec-yaml = { path = "../codec-yaml", version = "0.0.0", optional = true }
 node-coerce = { path = "../node-coerce", version = "0.0.0", optional = true }

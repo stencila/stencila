@@ -819,6 +819,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-png"
+version = "0.0.0"
+dependencies = [
+ "base64 0.13.0",
+ "binaries",
+ "chromiumoxide",
+ "codec-html",
+ "codec-trait",
+ "futures",
+ "path-slash",
+ "tempfile",
+ "test-props",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "codec-rmd"
 version = "0.0.0"
 dependencies = [
@@ -844,6 +861,7 @@ dependencies = [
 name = "codec-trait"
 version = "0.0.0"
 dependencies = [
+ "async-trait",
  "eyre",
  "stencila-schema",
 ]
@@ -4419,6 +4437,7 @@ dependencies = [
  "codec-json5",
  "codec-md",
  "codec-person",
+ "codec-png",
  "codec-rmd",
  "codec-toml",
  "codec-trait",
