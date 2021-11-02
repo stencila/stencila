@@ -1,4 +1,6 @@
 use crate::formats::{format_type, FormatType};
+use codec_json::JsonCodec;
+use codec_rpng::RpngCodec;
 use codec_trait::Codec;
 use codec_txt::ToTxt;
 use eyre::{bail, Result};
@@ -12,8 +14,6 @@ use stencila_schema::{
     Paragraph, Quote, QuoteBlock, Strong, Subscript, Superscript, TableCaption, TableCell,
     TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
 };
-
-use super::rpng;
 
 /// The semver requirement for Pandoc
 /// Used on the `decode::pandoc` module as well.
@@ -644,12 +644,12 @@ fn try_code_expression(inline: &InlineContent) -> Option<InlineContent> {
         InlineContent::ImageObject(image) => {
             // Try to get the code expression from the caption
             if let Some(caption) = image.caption.as_deref() {
-                if let Ok(Node::CodeExpression(expr)) = codec_json::JsonCodec::from_str(caption) {
+                if let Ok(Node::CodeExpression(expr)) = JsonCodec::from_str(caption) {
                     return Some(InlineContent::CodeExpression(expr));
                 }
             }
             // Fallback to getting from the image
-            if let Ok(Node::CodeExpression(expr)) = rpng::decode(&image.content_url) {
+            if let Ok(Node::CodeExpression(expr)) = RpngCodec::from_str(&image.content_url) {
                 return Some(InlineContent::CodeExpression(expr));
             }
         }
@@ -674,12 +674,12 @@ fn try_code_chunk(inline: &InlineContent) -> Option<BlockContent> {
         InlineContent::ImageObject(image) => {
             // Try to get the code chunk from the caption
             if let Some(caption) = image.caption.as_deref() {
-                if let Ok(Node::CodeChunk(chunk)) = codec_json::JsonCodec::from_str(caption) {
+                if let Ok(Node::CodeChunk(chunk)) = JsonCodec::from_str(caption) {
                     return Some(BlockContent::CodeChunk(chunk));
                 }
             }
             // Fallback to getting from the image
-            if let Ok(Node::CodeChunk(chunk)) = rpng::decode(&image.content_url) {
+            if let Ok(Node::CodeChunk(chunk)) = RpngCodec::from_str(&image.content_url) {
                 return Some(BlockContent::CodeChunk(chunk));
             }
         }

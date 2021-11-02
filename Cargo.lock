@@ -4452,6 +4452,7 @@ dependencies = [
  "codec-person",
  "codec-png",
  "codec-rmd",
+ "codec-rpng",
  "codec-toml",
  "codec-trait",
  "codec-txt",

@@ -15,9 +15,6 @@ pub mod pandoc;
 #[cfg(feature = "encode-pdf")]
 pub mod pdf;
 
-#[cfg(feature = "encode-rpng")]
-pub mod rpng;
-
 /// Common encoding options
 ///
 /// Encoding functions (including those in plugins) are encouraged to respect these options
@@ -114,7 +111,7 @@ pub async fn encode(
         "rmd" => codec_rmd::RmdCodec::to_string(node, None)?,
 
         #[cfg(feature = "encode-rpng")]
-        "rpng" => rpng::encode(node, output).await?,
+        "rpng" => codec_rpng::RpngCodec::to_string_async(node, None).await?,
 
         #[cfg(feature = "encode-toml")]
         "toml" => codec_toml::TomlCodec::to_string(node, None)?,

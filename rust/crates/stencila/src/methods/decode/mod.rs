@@ -12,9 +12,6 @@ pub mod latex;
 #[cfg(feature = "decode-pandoc")]
 pub mod pandoc;
 
-#[cfg(feature = "decode-rpng")]
-pub mod rpng;
-
 // Modules for types of content, rather than specific formats
 
 pub mod code;
@@ -71,7 +68,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "rmd" => codec_rmd::RmdCodec::from_str(input)?,
 
         #[cfg(feature = "decode-rpng")]
-        "rpng" => rpng::decode(input)?,
+        "rpng" => codec_rpng::RpngCodec::from_str(input)?,
 
         #[cfg(feature = "decode-toml")]
         "toml" => codec_toml::TomlCodec::from_str(input)?,
