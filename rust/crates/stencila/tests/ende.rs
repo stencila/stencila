@@ -9,10 +9,9 @@
 ///! way to compare.
 use proptest::prelude::*;
 use stencila::methods::{decode, encode};
-use stencila_schema::{BlockContent, Node};
 
 mod strategies;
-use strategies::{article, code_chunk, Freedom};
+use strategies::{article, Freedom};
 
 macro_rules! assert_json_eq {
     ($expr1:expr, $expr2:expr) => {
@@ -21,33 +20,6 @@ macro_rules! assert_json_eq {
             serde_json::to_value(&$expr2).unwrap()
         );
     };
-}
-
-proptest! {
-    // Tests for RPNGs
-    //
-    // RPNGs can be used for all node types but theses tests
-    // focus on the types for which they are most predominately used.
-    // Given the slowness of generating PNGs only use very few cases.
-    #![proptest_config(ProptestConfig::with_cases(3))]
-
-    #[cfg(all(target_os="linux", feature="encode-rpng", feature="decode-rpng"))]
-    #[test]
-    fn rpng(chunk in code_chunk(Freedom::Max)) {
-        let input = if let BlockContent::CodeChunk(chunk) = chunk {
-            Node::CodeChunk(chunk)
-        } else {
-            panic!("Whaaat?!@#!!")
-        };
-        let content = tokio::runtime::Runtime::new().unwrap().block_on(async {
-            encode::rpng::encode(&input, "data://").await.unwrap()
-        });
-        let output = decode::rpng::decode(&content).unwrap();
-        assert_eq!(
-            serde_json::to_value(&input).unwrap(),
-            serde_json::to_value(&output).unwrap()
-        )
-    }
 }
 
 proptest! {

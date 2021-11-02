@@ -828,9 +828,7 @@ dependencies = [
  "codec-html",
  "codec-trait",
  "futures",
- "path-slash",
  "tempfile",
- "test-props",
  "test-utils",
  "tokio",
 ]
@@ -844,6 +842,21 @@ dependencies = [
  "test-props",
  "test-snaps",
  "test-utils",
+]
+
+[[package]]
+name = "codec-rpng"
+version = "0.0.0"
+dependencies = [
+ "base64 0.13.0",
+ "codec-json",
+ "codec-png",
+ "codec-trait",
+ "png",
+ "tempfile",
+ "test-props",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]
