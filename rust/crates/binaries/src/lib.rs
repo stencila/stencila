@@ -591,6 +591,7 @@ impl Binary {
     }
 
     /// Uninstall a version, or all versions, of a binary
+    #[allow(dead_code)]
     pub async fn uninstall(&mut self, version: Option<String>) -> Result<()> {
         let dir = self.dir(version, false)?;
         if dir.exists() {
