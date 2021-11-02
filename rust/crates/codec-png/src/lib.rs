@@ -8,17 +8,27 @@ use codec_trait::{
 use futures::StreamExt;
 use std::{fs, path::Path};
 
+/// Encode and decode a document node to a PNG image.
+///
+/// This codec uses a headless browser to take a screenshot of the HTML
+/// encoding of the node.
 pub struct PngCodec {}
+
 #[async_trait]
 impl Codec for PngCodec {
-    /// Encode a `Node` to a Base64 encoded PNG image
+    /// Encode a document node to a string
+    ///
+    /// Returns a Base64 encoded dataURI with media type `image/png`.
     async fn to_string_async(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-        let bytes = nodes_to_pngs(&[node], options).await?;
+        let bytes = nodes_to_bytes(&[node], options).await?;
         let string = ["data:image/png;base64,", &base64::encode(&bytes[0])].concat();
         Ok(string)
     }
 
-    /// Encode a `Node` to a PNG file
+    /// Encode a document node to a file system path
+    ///
+    /// This override is necessary to avoid the dataURI prefix and Base64 encoding that `to_string_async`
+    /// does. It simply writes that bytes to a file at the path.
     async fn to_path<T: AsRef<Path>>(
         node: &Node,
         path: &T,
@@ -27,17 +37,17 @@ impl Codec for PngCodec {
     where
         T: Send + Sync,
     {
-        let bytes = nodes_to_pngs(&[node], options).await?;
+        let bytes = nodes_to_bytes(&[node], options).await?;
         fs::write(path, &bytes[0])?;
         Ok(())
     }
 }
 
-/// Encode a list of `Node`s to PNGs (as bytes)
+/// Encode a set of document nodes to PNGs as bytes
 ///
-/// This function is based around creating a list of PNGs, rather than a single one, to
+/// This function is based around creating multiple PNGs, rather than a single one, to
 /// reduce the per-image overhead of starting the browser, loading the theme etc.
-pub async fn nodes_to_pngs(
+pub async fn nodes_to_bytes(
     nodes: &[&Node],
     options: Option<EncodeOptions>,
 ) -> Result<Vec<Vec<u8>>> {
@@ -96,11 +106,10 @@ pub async fn nodes_to_pngs(
 mod tests {
     use super::*;
     use codec_trait::stencila_schema::CodeChunk;
-    use path_slash::PathExt;
 
     #[cfg(target_os = "linux")]
     #[tokio::test]
-    async fn test_encode() -> super::Result<()> {
+    async fn encode() -> super::Result<()> {
         let node = Node::CodeChunk(CodeChunk {
             programming_language: "python".to_string(),
             text: "print(\"Hello world!\")".to_string(),
@@ -112,7 +121,7 @@ mod tests {
         let path = dir.path().join("temp.png");
         PngCodec::to_path(
             &node,
-            &path.to_slash_lossy(),
+            &path,
             Some(EncodeOptions {
                 theme: "rpng".to_string(),
                 ..Default::default()
