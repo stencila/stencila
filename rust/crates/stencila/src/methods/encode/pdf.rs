@@ -1,5 +1,4 @@
 use super::Options;
-use crate::binaries;
 use chromiumoxide::{cdp::browser_protocol::page::PrintToPdfParamsBuilder, Browser, BrowserConfig};
 use codec_html::HtmlCodec;
 use codec_trait::{Codec, EncodeOptions};

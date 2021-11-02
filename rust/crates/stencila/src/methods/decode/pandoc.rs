@@ -1,7 +1,4 @@
-use crate::{
-    binaries,
-    formats::{format_type, FormatType},
-};
+use crate::formats::{format_type, FormatType};
 use codec_trait::Codec;
 use codec_txt::ToTxt;
 use eyre::{bail, Result};

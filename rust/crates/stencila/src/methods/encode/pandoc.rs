@@ -1,4 +1,4 @@
-use crate::{binaries, methods::decode::pandoc::PANDOC_SEMVER, utils::uuids};
+use crate::{methods::decode::pandoc::PANDOC_SEMVER, utils::uuids};
 use codec_json::JsonCodec;
 use codec_trait::{Codec, EncodeOptions};
 use eyre::Result;

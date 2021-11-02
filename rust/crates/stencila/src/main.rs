@@ -113,7 +113,7 @@ pub enum Command {
 
     #[cfg(feature = "binaries")]
     #[structopt(aliases = &["binary"])]
-    Binaries(stencila::binaries::commands::Command),
+    Binaries(binaries::commands::Command),
     #[cfg(feature = "plugins")]
     #[structopt(aliases = &["plugin"])]
     Plugins(stencila::plugins::commands::Command),
@@ -466,7 +466,7 @@ pub async fn main() -> eyre::Result<()> {
     let _logging_guards = logging::init(true, false, true, &logging_config)?;
 
     // Set up error reporting and progress indicators for better feedback to user
-    #[cfg(feature = "cli-pretty")]
+    #[cfg(feature = "clis-pretty")]
     {
         // Setup `color_eyre` crate for better error reporting with span and back traces
         if std::env::var("RUST_SPANTRACE").is_err() {
@@ -519,7 +519,7 @@ pub async fn main() -> eyre::Result<()> {
     if let (false, Some(command)) = (interact, command) {
         command.print(&formats).await;
     } else {
-        #[cfg(feature = "cli-interact")]
+        #[cfg(feature = "clis-interact")]
         {
             let mut prefix: Vec<String> = args
                 .into_iter()
@@ -538,7 +538,7 @@ pub async fn main() -> eyre::Result<()> {
             std::env::set_var("STENCILA_INTERACT_MODE", "1");
             cli::interact::run::<Line>(prefix, &formats, &history).await?;
         }
-        #[cfg(not(feature = "cli-interact"))]
+        #[cfg(not(feature = "clis-interact"))]
         {
             eprintln!("Compiled with `interact` feature disabled.");
             std::process::exit(exitcode::USAGE);

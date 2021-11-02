@@ -1,10 +1,11 @@
-use crate::config::CONFIG;
+//! Utilities for managing and calling external binaries
+
 use defaults::Defaults;
 use eyre::{bail, Result};
 use itertools::Itertools;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::{
     cmp::Ordering,
     collections::HashMap,
@@ -31,7 +32,7 @@ use tokio::sync::Mutex;
 
 /// Get the directory where binaries are stored
 pub fn binaries_dir() -> PathBuf {
-    let user_data_dir = dirs_next::data_dir().unwrap_or_else(|| env::current_dir().unwrap());
+    let user_data_dir = dirs::data_dir().unwrap_or_else(|| env::current_dir().unwrap());
     match env::consts::OS {
         "macos" | "windows" => user_data_dir.join("Stencila").join("Binaries"),
         _ => user_data_dir.join("stencila").join("binaries"),
@@ -506,26 +507,28 @@ impl Binary {
             _ => bail!("Unhandled archive extension {}", ext),
         });
 
-        let extracted = archive
-            .entries()?
-            .filter_map(|entry| entry.ok())
-            .map(|mut entry| -> Result<()> {
-                let mut path = entry.path()?.display().to_string();
-                if strip > 0 {
-                    let mut components: Vec<String> = path.split('/').map(String::from).collect();
-                    components.drain(0..strip);
-                    path = components.join("/")
-                }
+        tracing::debug!(
+            "Extracted {} entries",
+            archive
+                .entries()?
+                .filter_map(|entry| entry.ok())
+                .map(|mut entry| -> Result<()> {
+                    let mut path = entry.path()?.display().to_string();
+                    if strip > 0 {
+                        let mut components: Vec<String> =
+                            path.split('/').map(String::from).collect();
+                        components.drain(0..strip);
+                        path = components.join("/")
+                    }
 
-                let out_path = dest.join(&path);
-                entry.unpack(&out_path).expect("Unable to unpack");
+                    let out_path = dest.join(&path);
+                    entry.unpack(&out_path).expect("Unable to unpack");
 
-                Ok(())
-            })
-            .filter_map(|result| result.ok())
-            .collect::<Vec<()>>();
-
-        tracing::debug!("Extracted {} entries", extracted.len());
+                    Ok(())
+                })
+                .filter_map(|result| result.ok())
+                .count()
+        );
         Ok(())
     }
 
@@ -577,7 +580,11 @@ impl Binary {
         for file in files {
             let path = dir.join(file);
             if path.exists() {
-                crate::utils::fs::set_perms(path, 0o755)?;
+                #[cfg(any(target_os = "linux", target_os = "macos"))]
+                {
+                    use std::os::unix::fs::PermissionsExt;
+                    std::fs::set_permissions(path, std::fs::Permissions::from_mode(0o755))?;
+                }
             }
         }
         Ok(())
@@ -668,7 +675,8 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
         return Ok(installation);
     }
 
-    let config::BinariesConfig { auto } = CONFIG.lock().await.binaries;
+    // TODO: Use an env var to set this
+    let auto = true;
     if auto {
         binary.install(semver.clone(), None, None).await?;
         if let Some(installation) = binary.installation(semver)? {
@@ -682,30 +690,11 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
     }
 }
 
-pub mod config {
-    use super::*;
-    use defaults::Defaults;
-    use schemars::JsonSchema;
-    use validator::Validate;
-    /// Binaries
-    ///
-    /// Configuration settings for installation and management of third party binaries
-    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-    #[serde(default)]
-    #[schemars(deny_unknown_fields)]
-    pub struct BinariesConfig {
-        /// Whether binaries should be automatically installed when they are required
-        #[def = "true"]
-        pub auto: bool,
-    }
-}
-
 #[cfg(feature = "cli")]
 pub mod commands {
     use super::*;
-    use async_trait::async_trait;
-    use cli::{result, Result, Run};
-    use structopt::StructOpt;
+    use cli::structopt::StructOpt;
+    use cli::{async_trait::async_trait, result, Result, Run};
 
     #[derive(Debug, StructOpt)]
     #[structopt(
@@ -940,8 +929,7 @@ pub mod commands {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use cli::Run;
+    use super::Result;
 
     // End to end CLI test that install, show and uninstall
     // the latest version of each binary. Intended as a coarse
@@ -957,13 +945,18 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn install() -> Result<()> {
-        commands::List {}.run().await?;
+        use super::commands::{Install, List, Show};
+        use cli::Run;
+        use eyre::bail;
+        use test_utils::assert_debug_eq;
 
-        let binaries = (*BINARIES.lock().await).clone();
+        List {}.run().await?;
+
+        let binaries = (*super::BINARIES.lock().await).clone();
         for name in binaries.keys() {
             eprintln!("Testing {}", name);
 
-            commands::Install {
+            Install {
                 name: name.clone(),
                 semver: None,
                 os: None,
@@ -972,7 +965,7 @@ mod tests {
             .run()
             .await?;
 
-            let display = commands::Show {
+            let display = Show {
                 name: name.clone(),
                 semver: None,
             }
@@ -984,10 +977,7 @@ mod tests {
             } else {
                 bail!("Expected value")
             };
-            assert_eq!(
-                value.get("name"),
-                Some(&serde_json::Value::String(name.clone()))
-            );
+            assert_debug_eq!(value.get("name"), Some(name.clone()));
             assert!(!value
                 .get("installs")
                 .expect("To have installs")
@@ -1005,9 +995,12 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn uninstall() -> Result<()> {
-        let binaries = (*BINARIES.lock().await).clone();
+        use super::commands::Uninstall;
+        use cli::Run;
+
+        let binaries = (*super::BINARIES.lock().await).clone();
         for name in binaries.keys() {
-            commands::Uninstall {
+            Uninstall {
                 name: name.clone(),
                 version: None,
             }

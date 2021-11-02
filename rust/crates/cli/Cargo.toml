@@ -6,14 +6,7 @@ edition = "2021"
 
 [features]
 default = []
-pretty = [
-    "atty",
-    "color-eyre",
-    "syntect",
-    "serde_yaml",
-    "termimad",
-    "urlencoding",
-]
+pretty = ["atty", "syntect", "serde_yaml", "termimad", "urlencoding"]
 progress = ["ansi_term", "events", "linya", "once_cell"]
 interact = ["ansi_term", "rustyline", "rustyline-derive", "tracing"]
 
@@ -21,7 +14,7 @@ interact = ["ansi_term", "rustyline", "rustyline-derive", "tracing"]
 ansi_term = { version = "0.12.1", optional = true }
 async-trait = "0.1.51"
 atty = { version = "0.2.14", optional = true }
-color-eyre = { version = "0.5.11", optional = true }
+color-eyre = "0.5.11"
 eyre = "0.6.5"
 events = { path = "../events", version = "0.0.0", optional = true }
 linya = { version = "0.2.1", optional = true }

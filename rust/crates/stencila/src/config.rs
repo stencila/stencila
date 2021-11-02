@@ -80,9 +80,6 @@ pub struct Config {
     #[cfg(feature = "plugins")]
     pub plugins: crate::plugins::config::PluginsConfig,
 
-    #[cfg(feature = "binaries")]
-    pub binaries: crate::binaries::config::BinariesConfig,
-
     pub editors: EditorsConfig,
 
     #[cfg(feature = "upgrade")]
@@ -378,12 +375,6 @@ pub mod commands {
                     {
                         value["plugins"] =
                             json!(crate::plugins::plugins_dir(false)?.display().to_string());
-                    }
-
-                    #[cfg(feature = "binaries")]
-                    {
-                        value["binaries"] =
-                            json!(crate::binaries::binaries_dir().display().to_string());
                     }
 
                     result::value(value)
