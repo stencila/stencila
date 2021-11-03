@@ -1,0 +1,11 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: encoded
+input_file: fixtures/fragments/html/subscript.html
+
+---
+<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <div data-itemprop="content">
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Subscripts like H<sub itemtype="http://schema.stenci.la/Subscript" itemscope>2</sub>0.</p>
+  </div>
+</article>

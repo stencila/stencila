@@ -1,0 +1,809 @@
+---
+source: rust/codec-ipynb/src/decode.rs
+expression: decode(content).unwrap()
+input_file: fixtures/articles/kitchen-sink.ipynb
+
+---
+{
+  "type": "Article",
+  "authors": [
+    {
+      "type": "Person",
+      "emails": [
+        "nokome@stenci.la"
+      ],
+      "familyNames": [
+        "Bentley"
+      ],
+      "givenNames": [
+        "Nokome"
+      ]
+    }
+  ],
+  "content": [
+    {
+      "type": "Heading",
+      "content": [
+        "Introduction"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "This is a “kitchen sink” test fixture for the Jupyter Notebook (",
+        {
+          "type": "CodeFragment",
+          "text": "ipynb"
+        },
+        ") format. It’s principal use is in testing Stencila’s conversion to / from Jupyter Notebooks but also serves to document that conversion. It contains a variety of document node types and Jupyter cell types."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Meta data"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stencila parses the ",
+        {
+          "type": "CodeFragment",
+          "text": "metadata"
+        },
+        " property of a notebook by coercing it to an ",
+        {
+          "type": "CodeFragment",
+          "text": "Article"
+        },
+        ". This allows article properties such as ",
+        {
+          "type": "CodeFragment",
+          "text": "title"
+        },
+        ", ",
+        {
+          "type": "CodeFragment",
+          "text": "authors"
+        },
+        ", ",
+        {
+          "type": "CodeFragment",
+          "text": "funders"
+        },
+        " and ",
+        {
+          "type": "CodeFragment",
+          "text": "references"
+        },
+        " to be encoded into the ",
+        {
+          "type": "CodeFragment",
+          "text": "ipynb"
+        },
+        " format and then extracted, for conversion to other formats e.g. HTML."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Markdown cells"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "This Markdown cell illustrates that Stencila supports the same Markdown syntax (including extensions) in Jupyter Notebooks, as in plain Markdown files."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Including inline node types like ",
+        {
+          "type": "Emphasis",
+          "content": [
+            "emphasis"
+          ]
+        },
+        ", ",
+        {
+          "type": "Strong",
+          "content": [
+            "strong emphasis"
+          ]
+        },
+        ", ",
+        {
+          "type": "Delete",
+          "content": [
+            "delete"
+          ]
+        },
+        ", super",
+        {
+          "type": "Superscript",
+          "content": [
+            "script"
+          ]
+        },
+        ", and sub",
+        {
+          "type": "Subscript",
+          "content": [
+            "script"
+          ]
+        },
+        "."
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "Also lists"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "like this"
+              ]
+            }
+          ]
+        }
+      ],
+      "order": "Unordered"
+    },
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "And block quotes like this"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Markdown cells get decoded into arrays of ",
+        {
+          "type": "CodeFragment",
+          "text": "BlockContent"
+        },
+        " and merged together, so the the fact that this cell is separate from the preceding and following cells will not be apparent."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Code expressions"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stencila supports inline executable code expressions and variable interpolation using either:"
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "the ",
+                {
+                  "type": "CodeFragment",
+                  "text": "exec"
+                },
+                " keyword on backticked inline code e.g. ",
+                {
+                  "type": "CodeExpression",
+                  "programmingLanguage": "python",
+                  "text": "1+1"
+                },
+                ", optionally with a language e.g. ",
+                {
+                  "type": "CodeExpression",
+                  "programmingLanguage": "r",
+                  "text": "2*2"
+                },
+                "."
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "double curly braces ",
+                {
+                  "type": "CodeExpression",
+                  "programmingLanguage": "python",
+                  "text": "3+3"
+                },
+                ", optionally with a language ",
+                {
+                  "type": "CodeExpression",
+                  "programmingLanguage": "r",
+                  "text": "4+4"
+                },
+                "."
+              ]
+            }
+          ]
+        }
+      ],
+      "order": "Unordered"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Using backticks with ",
+        {
+          "type": "CodeFragment",
+          "text": "exec"
+        },
+        " is recommend as most Markdown parsers will properly escape symbols like ",
+        {
+          "type": "CodeFragment",
+          "text": "*"
+        },
+        " within backticks. If code expressions do not specify a language, then Stencila falls back to the language of the notebook e.g. ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "python",
+          "text": "4*4"
+        },
+        " and ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "python",
+          "text": "5+5"
+        },
+        "."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Code chunks"
+      ],
+      "depth": 1
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Jupyter code cells are converted into Stencila ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeChunk"
+        },
+        "s."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Cell languages"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "All cells in a notebook normally all use the same language. However, if a cell has a ",
+        {
+          "type": "CodeFragment",
+          "text": "language_info.name"
+        },
+        " specified in their ",
+        {
+          "type": "CodeFragment",
+          "text": "metadata"
+        },
+        " property then Stencila will use that, rather than the language from the top-level metadata of the notebook."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# Python"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "javascript",
+      "text": "// JavaScript",
+      "errors": [
+        {
+          "type": "CodeError",
+          "errorMessage": "invalid syntax (781833322.py, line 1)",
+          "errorType": "SyntaxError",
+          "stackTrace": "\u001b[0;36m  File \u001b[0;32m\"/tmp/ipykernel_17412/781833322.py\"\u001b[0;36m, line \u001b[0;32m1\u001b[0m\n\u001b[0;31m    // JavaScript\u001b[0m\n\u001b[0m    ^\u001b[0m\n\u001b[0;31mSyntaxError\u001b[0m\u001b[0;31m:\u001b[0m invalid syntax\n"
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "The following code cells illustrate how different types of cell outputs are decoded."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# No output"
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Primitive outputs"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stencila will attempt to parse the ",
+        {
+          "type": "CodeFragment",
+          "text": "text/plain"
+        },
+        " outputs of cells (including stream outputs) into node types such as ",
+        {
+          "type": "CodeFragment",
+          "text": "Boolean"
+        },
+        ", ",
+        {
+          "type": "CodeFragment",
+          "text": "Number"
+        },
+        ", ",
+        {
+          "type": "CodeFragment",
+          "text": "Array"
+        },
+        ", ",
+        {
+          "type": "CodeFragment",
+          "text": "Object"
+        },
+        " etc, falling back to ",
+        {
+          "type": "CodeFragment",
+          "text": "String"
+        },
+        "."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# Plain text output\n\"Hello world\"",
+      "outputs": [
+        "Hello world"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "True",
+      "outputs": [
+        true
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "False",
+      "outputs": [
+        false
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "42",
+      "outputs": [
+        42
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "import math\nmath.pi",
+      "outputs": [
+        3.141592653589793
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "dict(a=1,b=2)",
+      "outputs": [
+        {
+          "a": 1,
+          "b": 2
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "list(range(10))",
+      "outputs": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "dict(a='string', b=1, c=3.14, d=[1, 2, 3], e=dict(f=1))",
+      "outputs": [
+        {
+          "a": "string",
+          "b": 1,
+          "c": 3.14,
+          "d": [
+            1,
+            2,
+            3
+          ],
+          "e": {
+            "f": 1
+          }
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# Stream output\nprint(\"Just a string\")",
+      "outputs": [
+        "Just a string\n"
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Image outputs"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stencila supports several image formats, including dynamic formats such as Plotly and Altair (Vega/Vega-Lite)."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# Matplotlib\nimport matplotlib.pyplot as plt\nimport numpy as np\n\nx = np.linspace(0, 10, 100)\nplt.plot(x, np.sin(x))\nplt.show()",
+      "outputs": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYIAAAD4CAYAAADhNOGaAAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjQuMywgaHR0cHM6Ly9tYXRwbG90bGliLm9yZy/MnkTPAAAACXBIWXMAAAsTAAALEwEAmpwYAAA3FUlEQVR4nO3dd3hU95Xw8e8ZVSRAQr2CBIgiAQIsgzGumG4bXOLYjhOXFO++G2/yJrvZ2MlusutsNs7uprzJxkkcdydxiWMMxmCQMW4YDLJpkuggkIQaEiqoS/N7/9DIK2OJoil3Zu75PM88zNy5d+4ZezRn7vk1McaglFLKvhxWB6CUUspamgiUUsrmNBEopZTNaSJQSimb00SglFI2F2p1AMORkJBgsrKyrA5DKaUCykcffXTKGJN49vaATARZWVkUFRVZHYZSSgUUETk+2HYtDSmllM1pIlBKKZvTRKCUUjaniUAppWxOE4FSStmcRxKBiDwpIrUiUjzE8yIivxKRwyKyR0RmD3juHhE55Lrd44l4lFJKXThPXRE8DSw9x/PLgBzX7X7gtwAiEgf8EJgLzAF+KCJjPBSTUkqpC+CRcQTGmHdFJOscu6wEnjV9c15vE5FYEUkFrgEKjTENACJSSF9Ced4TcQUDYwx7K5soPdlMj9PQ0+tkZGQYV09KJHFUhNXhKeVVB6pbOHaqlYbWLhpaO0mJGcHc7DgyxoxARKwOL2j4akBZOlA+4HGFa9tQ2z9DRO6n72qCsWPHeidKP1Le0MaLO8p5bc9Jjte3feZ5EZg9dgzXT0/lrsvGEhEaYkGUSnlee1cva3ZX8sdtJ9hb2TToPmkxkayYmc7fXTuB0ZFhPo4w+ATMyGJjzGPAYwAFBQVBu5qO02l4dmsZP33jAJ09vcyfmMDXr5nIvAnxRIaFEOoQTja182ZpLRtLq3l4bSl/+vA4j9w6g0uz4qwOXym3bNpXw3de3kNDaxc5SSP5txV5XDJuDAkjI4iNCqOsvpXtxxp479Apfv/uEf5SVM4/LJ7M7ZdmEuLQK4Th8lUiqAQyBzzOcG2rpK88NHD72z6Kye+UN7Txj3/ZzYfHGrh6UiL/cct00mNHfGa/MdHh5KXF8M2FOWw+UMs/ryrmtt9t5a65Y/nBjbl6daACTmdPL4+s389TW8rITR3No3fNZm523GfKP1NSRjMlZTR3z8tib0UTP1pbyvdW7eWVjyv4w90FjIkOt+gdBDbx1FKVrjaCtcaYaYM8dz3wALCcvobhXxlj5rgaiz8C+nsRfQxc0t9mMJSCggITbHMN7a9u5q4/fEhXj5N/uSGX2woyLrgG2trZw88LD/LE+8e4MieBx75UwIhwTQYqMJw608m9T22nuLKZey/P4qHlUy74x4wxhlU7K3nwlb1kjBnBM/fNITMuyssRBy4R+cgYU/CZ7Z5IBCLyPH2/7BOAGvp6AoUBGGN+J33faP9DX0NwG3CfMabIdeyXge+5XurHxpinzne+YEsEpSeb+eITHxIWIjz/tcsYnzhyWK/zUlE5D/51DwXj4nji3gJGae1U+bnGti7ueGwbZfWt/OqOWSzOSxnW6+woa+CrzxQRFuLg6fsuZVp6jIcjDQ5eTQS+FkyJoLiyiS8+8SEjwkJ4/muXkZUQ7dbrvbb7JN96cRd5aaP541fnajJQfutMZw93Pf4h+04288S9BVyZ85nZkS/KoZoW7nlyO23dvbz6d/Pd/lsKRkMlAh1ZbKGa5g7ufWo70eGhvHj/PI98cG/MT+N3X7yE4pPN/MNLu3E6Ay/Rq+DX0d3LV57eQXFlE7+5a7bbSQAgJ3kUz99/GQBffbaI5o5ut1/TLjQRWKS718nX//QxbV29PPPlSxkb77m65sLcZL63fCobS2t49O3DHntdpTzlx6/v48NjDfz88/ksyk322OuOi4/mt3ddQtmpVh748056ep0ee+1gponAIj9Zt5+i46f56a0zmJg0yuOv/+X5WaycmcbPCg+y+UCtx19fqeFav7eK57Yd52tXZrNy5qDDhtwyb0I8P7ppGu8erOM/1u33+OsHI00EFli75yRPbjnGvZdncWN+mlfOISI8cssMpqSM5pvP76S84bOD0pTytfKGNv7pr3vIz4zlO0umeO08d84Zyz3zxvHklmO8d6jOa+cJFpoIfKymuYOH/rqX2WNj+d7yqV4914jwEH7/xUvodRq+t2ovgdgxQAWP7l4n33hhJxj49R2zCA/17tfPQ8unMj4xmu++vIcWbS84J00EPvava0ro6nXy88/P9PofAsDY+Cj+aekU3jt0ilU7K71+PqWG8of3jrLzRCM/uXW6R9vEhhIZFsJ/35ZPdXMH/7Fun9fPF8g0EfhQYWkN64ur+cZ1OT7t2valy8Yxe2wsD68t5dSZTp+dV6l+Fafb+NWmQyzJS+aGGd4phw5m9tgxfO3K8Ty/vZx3D2qJaCiaCHzkTGcPP1hdzOTkUdx/1XifntvhEH566wzaOnt5+LVSn55bKYB/e60UQfjBjXk+P/e3Fk1iQmI0D72yl/auXp+fPxBoIvCR/95wgOrmDn5y63TCQnz/nz0neRRfv3Yia3af5B39ZaR8aNO+GgpLa/jmwpxB587ytsiwEH5yywwqG9t5/L2jPj9/INBE4AOHalp4dmsZd80dy+yx1q2783+umcC4+Ch+sm4fvTrQTPlAe1cvP1xTQk7SSL48P9uyOOZkx7E0L4XfvnOE2uYOy+LwV5oIfOC/NhwgKjyUby+abGkc4aEOvrNkMvurW3jl4wpLY1H28OSWY1ScbufhldN80jniXB5cNoXuXic/23jQ0jj8kSYCL/vo+Gk2ltbwN1eNJ84Ppsi9fnoq+Rkx/LzwIB3dWi9V3tPU3s3v3znCwqlJzJsQb3U4ZCVEc8+8LF76qJzSk81Wh+NXNBF4kTGGn67fT8LICL5ypXWXxQOJCA8tn0pVUwdPbSmzOhwVxP7w7lGaO3osvxIe6O8X5BAzIowfryvVcTUDaCLwos0Hatle1sA3r5tIVLj/LAZ32fh4FkxJ4tG3D3O6tcvqcFQQOnWmkye3HOPG/DRy00ZbHc4nYqLC+PsFOWw5XM+2o+dc9sRWNBF4idNp+M83DpAVH8Udc/xvjeUHl03hTGcPj2kvCuUFj24+QmePk28tzLE6lM+4a+5YEkZG8Ou3Dlkdit/QROAlG0tr2F/dwrcWTbKku+j5TEoexfLpqTy39ThN7Tr8XnnOycZ2/rjtOJ+bnTHsRZa8KTIshL+9ejwfHKmnqEyvCsBDiUBElorIARE5LCIPDvL8L0Rkl+t2UEQaBzzXO+C5NZ6Ix2rGGH77zhHGxkVx/fRUq8MZ0t9dM4EznT08t7XM6lBUEHns3aMYDN/ww6uBfl+YO5a46HB+9ZZO0w4eSAQiEgL8BlgG5AJ3ikjuwH2MMd8yxsw0xswEfg28MuDp9v7njDEr3I3HH2w9Us/u8kb+5urxhPrh1UC/vLQYrp2cyJNbymjr6rE6HBUEGlq7eGHHCW6amW7J4LELFRUeylevzObdg3XsKm+0OhzLeeJbag5w2Bhz1BjTBbwArDzH/ncCz3vgvH7r0bePkDgqgltnZ1gdynk9sGBi3x/v9nKrQ1FB4Lmtx+nodvp8GpXhuHteFjEjwvgfbSvwSCJIBwZ+i1S4tn2GiIwDsoG3BmyOFJEiEdkmIjcNdRIRud+1X1Fdnf9OkbCnopH3D5/iK1dkExkWYnU453XJuDjmZsfx2LtH6erR1ZzU8LV39fLM1jIWTk0iJ9nziy152siIUL48P5s399VyoLrF6nAs5eu6xR3Ay8aYgSOZxrkWU/4C8EsRmTDYgcaYx4wxBcaYgsRE99c39Zbfvn2EUZGh3DXX/3oKDeXr106kurmDVTt1tLEavpc/KqehtYv7rxr0T9gv3T1vHBGhDp7acszqUCzliURQCWQOeJzh2jaYOzirLGSMqXT9exR4G5jlgZgsUXaqlTdKqrl73jhGRYZZHc4FuzIngampo3lqS5kOslHD0tPr5A/vHWPW2FguzbJuPq2LNSY6nFtmZ7BqZyUNNh5T44lEsAPIEZFsEQmn78v+M71/RGQKMAbYOmDbGBGJcN1PAOYDATtP8rNbjxMiwj3zsqwO5aKICPddnsX+6hYdZKOG5Y2Sak40tPE3V01ARKwO56J8eX4WnT1Ont9+wupQLON2IjDG9AAPABuAfcBLxpgSEXlYRAb2AroDeMF8+ifnVKBIRHYDm4FHjDEBmQhaO3v4S1E5y6ankjQ60upwLtqKmWmMiQrjmQ/KrA5FBaBnPihjXHwUi3KTrQ7louUkj+LKnASe3Vpm23Yyj8x7YIxZB6w7a9sPznr8r4Mc9wEw3RMxWG3VzkpaOnu49/JxVocyLJFhIdwxZyy/f+cIFafbyBjj/aUEVXDYV9XMjrLTfH/5VEIcgXU10O/L87O57+kdrC+uYuXMQfu6BDX/7eQeQIwxPLu1jGnpoy1db8BdX7ysL4k9t+24xZGoQPLctuNEhDq4rcD/u0sP5epJiYxPiOaJ94/Zsp1ME4EHbD1az8GaM9w9Lyvg6qMDpceOYEleCi/uKNcl/dQFae7o5tWdlazITyM2yvpp1ofL4RDum5/FnoomdtpwgJkmAg945oMyxkSFsSLfd4tye8s9l2fR2NbN6l1DdfxS6n+98lEFbV293B1gHSQGc9OsdKLCQ3jBho3GmgjcdLKxncLSGm6/dGxADCA7n7nZcUxOHsWfbfjHoC6OMYbnth0nPzOW6RkxVofjtlGRfT/mXttdRXOHvSZi1ETgpr8UVeA0BNQAsnMREe6Yk8meiiZKTjZZHY7yY1uP1HOkrpW7LwvMDhKDuXPOWNq7e1m966TVofiUJgI3OJ2Gl4rKuWJiAplxwdPL5uZZ6YSHOnhxh84/pIb2p+0niI0K4/oZ/jvD7sWakRFDbupo/vzhCVs1GmsicMOWI6eobGzn9kszz79zAImNCmfZtBRW7azUdY3VoE63dlFYUsPNs9KDoiTaT0S4c+5Y9lU1s6fCPlfEmgjc8MKOcmKjwlicF3iDaM7n9kszaenoYX1xldWhKD+0elclXb1ObrskuH4EAaycmcaIsBBbjTTWRDBMDQN+EUWEBs8von6XZcczLj6K53V6ajWIl4oqmJ4e41frEXvKaFej8ZrdJ2mxSaOxJoJhWrWz7xdRsJWF+jkcwu2XZrL9WANH685YHY7yI8WVTZRWNfP5AB5Adj53zMmkrauXtXvscUWsiWAYjDG8tKOc/MxYpqQE3y+ifp+bnUGIQ7TRWH3KX4rKCQ91sCI/eKdimJkZy/jEaF752B5Ts2siGIbdFU0cqGnh9oLgvBrolzQ6kmsnJ/Lqrkp6nfbpQaGG1tHdy6u7TrI0L4WYqMCZav1iiQi3zs5gR9lpjte3Wh2O12kiGIZVH1cQEerghvzg6TY3lJtnZVDT3MkHR05ZHYryA4WlNTS1d/P5IP8RBH3dqEXglY+Df5S9JoKL1N3r5LU9VSzMTWZ0AC0+M1zXTU1iVGSoLf4Y1Pm9/FEF6bEjuHxCvNWheF2a632+srMCZ5BfEWsiuEjvHKijobWLW2YFb310oMiwEG6YkcobxdW0dvZYHY6yUF1LJ+8dquOmWWk4AnS66Yt16+wMyhvaKTp+2upQvMojiUBElorIARE5LCIPDvL8vSJSJyK7XLevDnjuHhE55Lrd44l4vGnVzkrio8O5apL/rpvsabfMzqC9u5c3iqutDkVZaO2ekzgN3GSj+fqXTkshKjyEv34U3I3GbicCEQkBfgMsA3KBO0Ukd5BdXzTGzHTdHncdGwf8EJgLzAF+KCJ+O6F/U3s3hftquDE/jbAQ+1xMFYwbQ2bcCFbt1PKQnb26s5K8tNHkJI+yOhSfiQoPZdm0VF7fWxXUo+w98W02BzhsjDlqjOkCXgBWXuCxS4BCY0yDMeY0UAgs9UBMXrF+bxVdPU5utklZqJ+IcPOsDLYcOUV1U4fV4SgLHK07w+6KJtt99gFuvSSdM509bCytsToUr/FEIkgHBnY0r3BtO9utIrJHRF4Wkf4uBxd6rF94ZWcl4xOimREEU+5erJtnpWMMvKrrFNjSq7tOIgI3BsGaGxfrsux4UkZHsiaIZyT1VX3jNSDLGDODvl/9z1zsC4jI/SJSJCJFdXV1Hg/wfCpOt7H9WIOrS5k9GsoGyk6IZtbYWF7V8pDtGGN4dWcl8yckkDw60upwfM7hEG6Ykco7B2tpbOuyOhyv8EQiqAQGdirOcG37hDGm3hjT6Xr4OHDJhR474DUeM8YUGGMKEhN931D72u6+oeY32fDSuN/K/DT2V7dwqKbF6lCUD+0sb+REQ5utP/srZqbR3WuCtsOEJxLBDiBHRLJFJBy4A1gzcAcRGTjyagWwz3V/A7BYRMa4GokXu7b5ndd2n2TW2NigWnfgYi2fkYpD4DWbzL+i+ry6s5KIUAdLgnCW3Qs1PT2G7IRo1uwOzvKQ24nAGNMDPEDfF/g+4CVjTImIPCwiK1y7fUNESkRkN/AN4F7XsQ3Aj+hLJjuAh13b/Mrh2jOUVjVz4wz71UcHShoVyWXj41m7+6StFu2ws55eJ+v2VrFwajKjbDCAcigiwo35aWw9Wk9tc/B1mPBIG4ExZp0xZpIxZoIx5seubT8wxqxx3X/IGJNnjMk3xlxrjNk/4NgnjTETXbenPBGPp63d09dQFkwrMQ3XjflpHD3VSsnJZqtDUT7w4bEGTp3p4kYbTKdyPivy0zCGoJyR1D6d4YfJGMNru08yJyvOlg1lZ1ual0KoQ3gtSC+R1aet3XOS6PAQrpmcZHUolpuYNJLc1NGsDsLPviaC89hf3cKRulZbdpsbzJjocK7MSWDtnqqgn3/F7rp7nawvrmZhbnJQLUfpjhUz09hd3hh0M5JqIjiP13afJMQhLJuWYnUofmPFzDQqG9vZWR7c86/Y3ZbDp2hs6+YGm7eNDdT/gzDYykOaCM7BGMPaPVVcPiGe+JERVofjNxZOTSYi1PFJl1oVnNbuqWJUZChXTUqwOhS/kR47glljY3ldE4F97Klo4kRDm5aFzjIqMoxrJyfx+t4qXbAmSHX29LKhpJrFuSlBuSa3O66fnkppVTNlp4KnPKSJ4Bxe31tFWIiwJFfLQmdbPiOVupZOPgry6Xnt6r2Dp2jp6LHF4ksXa9n0vv8mr+8NnqsCTQRDMMawbm8VV0xMCOol+YZrwZQkIkIdrAuiPwb1v17fW0XMiDDmT9Cy0NnSY0cwMzM2qD77mgiGUFzZTMXp9k+yv/q0kRGhXD0pkfXF2nso2HT29PJmaQ1L8pIJD9WviMFcPz2VkpPNQdN7SP8vD2FdcRWhDmFxrn2H1Z/P9TNSqWnu1N5DQWbL4VO0dPboj6BzWDa9r1wcLOUhTQSDMMawfm8V8ybEExsVbnU4fmvBlCTCQxy8vic4J+Kyq3V7qxkVGaploXPIGBNFfhCVhzQRDGJfVQtl9W0s119E5zQqMoyrJiVoeSiIdPc6KSytYdFULQudz/XTUyiubOZEfZvVobhN/08PYn1xFQ5By0IXYPn0VKqaOthd0Wh1KMoDth6pp6m9m6U6gPK8lk0Lnt5DmgjOYozh9b1VXDZeB5FdiOumJhMWIkFziWx364uriQ4P4apJvl/zI9BkxkUxIyOGDSWBXxrVRHCWgzVnOFrXqg1lFyhmRBhX5iSybm+1Tk0d4Hqdho0l1Vw7JUnnFrpAS/JS2FXeSFVTu9WhuEUTwVnWF1chgq0X4bhYS/NSqGxs16mpA9z2Yw3Ut3Zp29hF6C+hbQjwlcs0EZzljeJqCsaNIWmUTjl9oRbmJuMQguIS2c7WF1cRGebgmslaFrpQExJHkpM0kjcC/LPvkUQgIktF5ICIHBaRBwd5/tsiUioie0Rkk4iMG/Bcr4jsct3WnH2sLx2vb2V/dQtL8rSh7GLERYczJzsuaNdztQOn07ChpJqrJyUSFR5qdTgBZem0lL6rqTOd59/ZT7mdCEQkBPgNsAzIBe4UkdyzdtsJFBhjZgAvA/854Ll2Y8xM120FFur/RauJ4OItzUvhUO0ZjtSdsToUNQy7Khqpae7U3kLDsCQvBaeBN/fVWB3KsHniimAOcNgYc9QY0wW8AKwcuIMxZrMxpr+z7TYgwwPn9bgNJTXkpo629QL1w7XYlTy1PBSYNpRUE+oQFkzWtrGLlZc2msy4EQF9ReyJRJAOlA94XOHaNpSvAOsHPI4UkSIR2SYiNw11kIjc79qvqK6uzq2AB1Pb3MHHJ07rL6JhSosdQX5GDBtKAvdXkV0ZY9hYUsO8CfE6weIwiAhL81LYcrie5o5uq8MZFp82FovIF4EC4L8GbB5njCkAvgD8UkQmDHasMeYxY0yBMaYgMdHzjVkbS2swRstC7lgyLYXdQdCVzm4O1Z7h2KnWT67q1MVbOi2Frl4nm/fXWh3KsHgiEVQCmQMeZ7i2fYqILAS+D6wwxnzSqmKMqXT9exR4G5jlgZgu2oaSarITopmUPNKK0weF/iS6Ua8KAkp/10cdST98szLHkDgqImBLo55IBDuAHBHJFpFw4A7gU71/RGQW8Hv6kkDtgO1jRCTCdT8BmA+UeiCmi9LU3s3WI/UszktGRHx9+qDxSVe6AK6V2tGG0mpmjY0lebR2mR4uh0NYlJvM2wfq6OjutTqci+Z2IjDG9AAPABuAfcBLxpgSEXlYRPp7Af0XMBL4y1ndRKcCRSKyG9gMPGKM8XkieGt/DT1Oo2UhD1iSl8KHx+ppaO2yOhR1ASpOt1Fc2ayffQ9YnJtMW1cvHxw5ZXUoF80jHYaNMeuAdWdt+8GA+wuHOO4DYLonYnDHxpIakkZFMDMj1upQAt6SvBT+Z/Nh3tpfy+cu8cvOYWqA/jKeJgL3XT4hgVERoWwsqWHBlMAqs9l+ZHFHdy/vHKxjcV4yDoeWhdw1LX00qTGRbAzQWqndbCipZlLySLIToq0OJeCFhzq4ZkoSb+6roTfApmW3fSL44Mgp2rp6WaQL1HuESF+t9N1DdbR3BV6t1E4aWrvYUdbAYv3se8zi3GROneli54nAWrXP9olgY0kNoyJCmTc+3upQgsbi3BQ6up28d8jz4z2U52zaV4NTu0x71DWTEwkPcbCxNLB6ztk6EfQ6DW/uq+GaKUm6GpMHzR0fx6jIUAoD7I/BbgpLa0iNiWRa+mirQwkaoyLDuHxiPBtKAmtadlt/++08cZpTZ7q0/7SHhYU4uM5VK+3pdVodjhpEe1cv7x6qY1Gudpn2tMW5KRyvb+NgTeDMu2XrRFBYWkNYiOi0u16wOC+F023dfHQ8sGqldvH+4VN0dDtZpD+CPG5hbhISYNOy2zYRGNM37e68CQmMitT5VTztqkmJhIcGXq3ULjaWVDMqMpS52do25mlJoyKZlRkbUKVR2yaCw7VnKKtv07KQl4yMCOWKiQkBVyu1g16nYdP+Wq6drG1j3rIoN4W9lU0BM++WbT8F/b9U9dLYexblJlNxup391S1Wh6IG+Oj4aRpau1isy7F6Tf/3ypsBclVg60SQn6nzq3jTdVP7aqWBdIlsB4Wl1YSFCFdP0rYxb5mYNJLxCdEBUxq1ZSKoae5gd3mjloW8LGlUJDMDrFYa7IwxbCyt6ZsOQdvGvGpRbjLbjgbGGgW2TAT9S8ppWcj7FuUmB1StNNgdqj3D8fo2/ez7wKLcZLp7De8c8P+BlbZMBIWlNYyLjyInSdce8LbFAVYrDXaF2jbmM7PGjiE+OjwgrohtlwjOdPbwweF6Fk3VgTS+MCGxb0KzQKmVBruNpTXkZ8Ro25gPhDiE66YmsflALd1+PrDSdong3YN1dPXqQBpf6Z+ELlBqpcGsv21MP/u+syg3hZaOHj482mB1KOdku0RQWFrDmKgwLhk3xupQbCOQaqXB7H/bxnSSOV+5YmICkWEOCkv9e5SxRxKBiCwVkQMiclhEHhzk+QgRedH1/IcikjXguYdc2w+IyBJPxDOU7l4nb+2v5dopSYSG2C4HWmZ2ANVKg9mbpTWMjYvSdbl9aER4CFfmJFJYWuPXAyvd/jYUkRDgN8AyIBe4U0Ryz9rtK8BpY8xE4BfAT13H5tK3xnEesBR41PV6XrGjrIGm9m7tNupjIQ5hwZTAqJUGq9bOHrYcqddJ5iywaGoyJ5s6KDnZbHUoQ/LEz+I5wGFjzFFjTBfwArDyrH1WAs+47r8MXCd9n8aVwAvGmE5jzDHgsOv1vKKwtIbwUAdX5uhAGl9blJscELXSYPXuwTq6epwsnKo/gnxtQQAMrPREIkgHygc8rnBtG3Qf12L3TUD8BR4LgIjcLyJFIlJUVze8WnNHt5PrpiQRHeGRpZrVRbgyJ5HIMMcndWrlW4WlNcRGhXFplraN+VrCyAguGTsm6BOBTxhjHjPGFBhjChITh/eL/ie3TOfRu2Z7ODJ1IUaEh3DFRP+vlQajnl4nbx2oZcFkbRuzyqLcZEqrmqls9M+BlZ74VFQCmQMeZ7i2DbqPiIQCMUD9BR7rUVoftc6i3CQqG9sprfLfWmkw2lF2msa2bu02aiF/n4TOE4lgB5AjItkiEk5f4++as/ZZA9zjuv854C3T97NwDXCHq1dRNpADbPdATMoPLZiS7Pe10mDU3zZ2lU4yZ5nxiSOZkBjtt599txOBq+b/ALAB2Ae8ZIwpEZGHRWSFa7cngHgROQx8G3jQdWwJ8BJQCrwBfN0Y0+tuTMo/JY6KYLaf10qDjTGGwn3VzJ8Qr21jFluUm8K2o/U0tfvfwEqPFAyNMeuMMZOMMROMMT92bfuBMWaN636HMeY2Y8xEY8wcY8zRAcf+2HXcZGPMek/Eo/zXotxkSk76b6002ByoaaG8oV0HkfmBRbnJ9DgNbx+otTqUz9CWI+VT/l4rDTaFJX3/nRdOTbI4EjUrM5aEkRF+eUWsiUD51ITEkYz341ppsCncV8PMzFiSdJI5yzkcwsKpSbxzoG9Mhz/RRKB8rn8SOn+slQaT6qYO9lQ0aW8hP7IoN5mWzh62Ha23OpRP0USgfG6xH9dKg0mha/CeTqniP+ZPTCAqPISNfjYJnSYC5XMzM8eQMDJC1yjwssLSGrLio5ioCzD5jciwEK7KSeTN0lq/GlipiUD5XMiAWmlnj/YW9oaWjm62Hjmlk8z5ocV5yVQ3d7C3ssnqUD6hiUBZYnFeMmc6e9h6xL9qpcHinYN1dPca7TbqhxZMSSLEIWws8Z8rYk0EyhKXT+irlWrvIe/YUFJDfHS4LsDkh2Kjwrk0y78GVmoiUJaIDAvh6kl9k9A5nf5TKw0GnT29bN5fy8KpyYQ4tCzkjxbnpnCgpoXj9a1WhwJoIlAWWpyXTG1LJ7srGq0OJahsO9rAmc4eFudpbyF/1d+l11+uCjQRKMtcO7mvVuovfwzBYmNJNVHhIcyfmGB1KGoImXFRTEkZ5TftBJoIlGVio8KZmx2n3Ug9yOk0FJbWcPWkRCLDvLbqq/KAxXkpFB1v4NSZTqtD0USgrLUoN5nDtWc4WnfG6lCCwu6KRmpbOrUsFACW5CXjNLDJD1bt00SgLLU4r6974wY/uUQOdBtLawhxCAsmayLwd7mpo8kYM8IvPvuaCJSl0mNHMD09hg0l/jXkPlBtLKnmsvFxxESFWR2KOg8RYUleCu8fOsWZzh5LY9FEoCy3JC+ZXeWNVDd1WB1KQDtSd4Yjda0s1kFkAWNxbjJdvU7L591yKxGISJyIFIrIIde/nxm9IiIzRWSriJSIyB4RuX3Ac0+LyDER2eW6zXQnHhWYlrjKQ4V+NhFXoOm/qtLZRgNHQVYc8dHhlpeH3L0ieBDYZIzJATa5Hp+tDbjbGJMHLAV+KSKxA57/jjFmpuu2y814VACamNS3RoHVfwyBbkNxNfkZMaTFjrA6FHWB+ubdSmbz/lpL591yNxGsBJ5x3X8GuOnsHYwxB40xh1z3TwK1gK6irT7RXyvddrSepjZdo2A4Khvb2V3RxJJpWhYKNEumWT/vlruJINkYU+W6Xw2c85pUROYA4cCRAZt/7CoZ/UJEIs5x7P0iUiQiRXV1dW6GrfzNkrwUepyGTfv1qmA4NrrKQkvzNBEEmssnJBAdHmLpFfF5E4GIvCkixYPcVg7cz/RNrj3kpDEikgo8B9xnjOlfp+0hYApwKRAHfHeo440xjxljCowxBYmJekERbGakx5AyOpI3irWdYDjeKK5mUvJIxifq2gOBJjIshGsmJ1FYWkOvRfNunTcRGGMWGmOmDXJbDdS4vuD7v+gHbfoWkdHA68D3jTHbBrx2lenTCTwFzPHEm1KBx+EQluQl8+6hOtq7dI2Ci1F/ppMdZQ16NRDAlkxL4dSZTj46ftqS87tbGloD3OO6fw+w+uwdRCQcWAU8a4x5+azn+pOI0Ne+UOxmPCqALclLoaPbyTsHdQnLi/HmvhqcBm0fCGALpiQRHupgfXHV+Xf2AncTwSPAIhE5BCx0PUZECkTkcdc+nweuAu4dpJvon0RkL7AXSAD+3c14VACbkx3HmKgw1mt56KK8UVxNZtwIclNHWx2KGqaREaFclZPIhuJqS5awDHXnYGNMPXDdINuLgK+67v8R+OMQxy9w5/wquISGOFiSl8LaPVV09vQSEaqTpp1Pc0c3Ww7Xc/e8cbokZYBbNi2FN/fVsLuiiZmZsT49t44sVn5l6bQUznT28P6hU1aHEhA276+lq9fJUi0LBbyFU5MJdQjr9/q+PKSJQPmVyyckMDoylHV7tTx0IdbtrSJ5dASzx+qSlIEuJiqMyycmsN6C8pAmAuVXwkMdLMxNprC0mq4e5/kPsLHWzh7ePlDHsmmpOHRJyqCwbFoKJxraKK1q9ul5NREov7N8WirNHT1sPWrdSMtA8Nb+Wjp7nCzTslDQWJybjEPw+XgaTQTK71yRk8DIiFBLaqWBZN3eKhJHRVCQFWd1KMpD4kdGMDc73uc95zQRKL8TGRbCgilJbCippqdXy0ODaevqYfOBWpZNSyFEy0JBZfn0FA7XnuFgTYvPzqmJQPml5dNTON3WzbajDVaH4pc276+jo9vJ8umpVoeiPGzJtBQcAmv3+O6KWBOB8ktXT0oiKjyE17U8NKh1e6tIGBnBpVoWCjpJoyKZmx3P2j0nfdZ7SBOB8ksjwkNYODWZ9cVVdGt56FPau3p5a38tS6cla1koSN2Qn8rRulb2V/umPKSJQPmtG2ak0tjWzZbDOrhsoM0Hamnv7tWyUBBbmtfX9rN2z0mfnE8TgfJbV09OZFREqE9rpYFg7Z6TJLh6l6jgFD8ygssnxLN2T5VPykOaCJTfiggNYVFeMhtKqi1dxs+ftHR0s2lfLTfMSNWyUJC7fnoqx+vbKDnp/cFlmgiUX7sxP42Wjh7ePajlIYDC0ho6e5zcmJ9mdSjKy5bkpRDqEF7zQXlIE4Hya1dMTCA2KsxntVJ/99ruk6THjmD22FirQ1FeNiY6nPkTE3jdB+UhTQTKr4WFOFial8KbpTW2X7nsdGsX7x06xY35aTrltE3cMCOVitPt7Cxv9Op53EoEIhInIoUicsj176BTIIpI74BFadYM2J4tIh+KyGERedG1mplSn3JjfhqtXb1sPmDvlcvWFVfR4zTcmK+9hexiybQUIkIdrN5Z6dXzuHtF8CCwyRiTA2xyPR5MuzFmpuu2YsD2nwK/MMZMBE4DX3EzHhWE5mbHkTAygtW7vPvH4O9e232SCYnRuhKZjYyODGPh1GTW7vHueBp3E8FK4BnX/WfoW3f4grjWKV4A9K9jfFHHK/sIDXGwIj+NzfvraGzrsjocS1Q3dfDhsQZW5KdrWchmVs5Mo761i/e9OJ7G3USQbIzp7+RdDSQPsV+kiBSJyDYRucm1LR5oNMb0uB5XAOluxqOC1C2z0+nqddp2wZq+6QbQspANXTM5iZgRYV4tD513zWIReRMYbMLz7w98YIwxIjJU0/Y4Y0yliIwH3nItWN90MYGKyP3A/QBjx469mENVEMhLG83EpJG8urOSL8y13///Vz6uJD8jhvGJI60ORflYeKiD5dNTWb2rkrauHqLC3VpqflDnvSIwxiw0xkwb5LYaqBGRVADXv4O25hljKl3/HgXeBmYB9UCsiPS/qwxgyJRnjHnMGFNgjClITEy8iLeogoGIcPOsdLaXNVDe0GZ1OD61r6qZ0qpmbpmdYXUoyiI3zUyjrauXwtIar7y+u6WhNcA9rvv3AKvP3kFExohIhOt+AjAfKDV9HWM3A5871/FK9Vs5s28Qld0ajVftrCTUITqIzMYuzYojLSaSV71UHnI3ETwCLBKRQ8BC12NEpEBEHnftMxUoEpHd9H3xP2KMKXU9913g2yJymL42gyfcjEcFsYwxUczJjmPVzkqfL+5tlZ5eJ6t2VnLtlCTiorV3tV05HMKKmem8e+gU9Wc6Pf76bhWbjDH1wHWDbC8Cvuq6/wEwfYjjjwJz3IlB2cvNs9J56JW9FFc2Mz0jxupwvG7LkXrqWjq5dbb2o7C7m2elU9nYTltXL56eblBHFquAsnx6KuGhDv76cYXVofjEKx9XEDMijGunJFkdirLY5JRR/PrOWWTGRXn8tTURqIASMyKMxbnJvLqrMuhnJG3p6GZDSTU35qcSERpidTgqiGkiUAHn9kszaWzr9loPCn+xvriajm6n9hZSXqeJQAWc+RMSSI8dwYs7yq0Oxate2lHO+IRoZmXGWh2KCnKaCFTAcTiEz12SwfuHT1FxOjjHFBysaaHo+GnumJOpU0oor9NEoALSbQV95ZKXPwrORuMXtpcTFiLcqmUh5QOaCFRAyhgTxRUTE/hLUQVOZ3CNKejo7uWVnRUszk0hfmSE1eEoG9BEoALW5wsyqWxs54Mj9VaH4lEbSqppbOvmjjmZVoeibEITgQpYi3KTiY0K4/ntJ6wOxaNe2F5OZtwI5k9IsDoUZROaCFTAigwL4bZLMthQUk1Nc4fV4XhE2alWth6t5/aCTBwObSRWvqGJQAW0L142jl5j+POHwXFV8PyOE4Q4hNsKtCykfEcTgQpo4+KjuWZSIn/efoKuHu8t5ecL7V29vLijnEVTk0keHWl1OMpGNBGogHf3vCzqWjrZUBLYq5e9uquSxrZu7pufZXUoymY0EaiAd/WkRMbGRfHc1uNWhzJsxhie2nKMqamjmZMdZ3U4ymY0EaiA53AIX7psHNvLGthX1Wx1OMOy9Ug9B2vOcN/8LB1JrHxOE4EKCrcVZBAR6uDZrWVWhzIsT24pIz46nBW6CpmygFuJQETiRKRQRA65/h0zyD7XisiuAbcOEbnJ9dzTInJswHMz3YlH2VdsVDi3zM7grx9XUtsSWF1JT9S3sWl/DV+YO5bIMJ1uWvmeu1cEDwKbjDE5wCbX408xxmw2xsw0xswEFgBtwMYBu3yn/3ljzC4341E29jdXjaen18lTW8qsDuWiPP1BGSEifPGycVaHomzK3USwEnjGdf8Z4Kbz7P85YL0xJjinjFSWykqIZtm0VP647TgtHd1Wh3NBGlq7eGHHCW7MT9Muo8oy7iaCZGNMlet+NZB8nv3vAJ4/a9uPRWSPiPxCRIacYUtE7heRIhEpqqurcyNkFcz+9uoJtHT0BMwAs6e2HKOtq5e/u2aC1aEoGztvIhCRN0WkeJDbyoH7GWMMMOQ0kCKSSt8i9hsGbH4ImAJcCsQB3x3qeGPMY8aYAmNMQWJi4vnCVjY1PSOG+RPjeeL9Y36/lGVzRzdPf1DGsmkp5CSPsjocZWPnTQTGmIXGmGmD3FYDNa4v+P4v+tpzvNTngVXGmE+u2Y0xVaZPJ/AUMMe9t6MU/J+rJ1Lb0smqjyutDuWcntt6nJaOHr5+7USrQ1E2525paA1wj+v+PcDqc+x7J2eVhQYkEaGvfaHYzXiUYv7EeKanx/Do20fo7vXPaSfaunp4/L2jXDs5kWnpMVaHo2zO3UTwCLBIRA4BC12PEZECEXm8fycRyQIygXfOOv5PIrIX2AskAP/uZjxKISJ8a1EOJxra/HZd4z9/eILTbd08sCDH6lCUItSdg40x9cB1g2wvAr464HEZkD7IfgvcOb9SQ7l2chKXZo3hV5sOcevsDEaE+0///JaObn73zhEunxDPJeM+M/RGKZ/TkcUqKIkI/7R0CrUtnTz9QZnV4XzK7985yqkzXXx36RSrQ1EK0ESggtilWXFcOzmR371zhKZ2/xhXUNXUzuPvH2VFfhr5mbFWh6MUoIlABbnvLJlCU3s3v3/niNWhAPCzjQdxOuE7SyZbHYpSn9BEoIJabtpobpqZxuPvH6PsVKulsZSebOavH1dw7/wsMuOiLI1FqYE0Eaig99DyqYSHOPiX1cX0jXv0PWMM//56KTEjwvj6NTpuQPkXTQQq6CWPjuQfF0/ivUOnWLun6vwHeMFfPqrggyP1/MOiScREhVkSg1JD0USgbOFL87KYnh7Dw2tLfd5wXNPcwY/WljInO4675uoMo8r/aCJQthDiEP7j5unUn+nkvzcc8Nl5jTF8f1UxXT1OfnrrDBwOXX1M+R9NBMo2pmfEcO/l2Ty37Tib9tX45Jyv7anizX01/OPiyWQnRPvknEpdLE0Eylb+aelkclNH8+2XdlNx2rvLYpyob+MHq4vJz4zly1dke/VcSrlDE4GylciwEB69azZOp+GBP++kq8c7k9K1dvbwtWeLMAb+3+0zCdGSkPJjmgiU7WQlRPOfn5vBrvJGfrJ+n8df3+k0fPulXRyqbeF/vjCLLC0JKT+niUDZ0rLpqdw3P4untpTx6NuHPfrav3rrEBtKavje8qlcmaOLKCn/59bso0oFsn++PpeG1i7+840DhDkcfO2q8W69njGG32w+zC/fPMQts9P5irYLqAChiUDZVohD+Nlt+fQ4DT9etw+HQ4b95e10Gv799X08ueUYt8xK56e3zqBvvSWl/J8mAmVroSEOfnn7TJxOw4/WllJc2cS/rcxjdOSFj/5t6ejmX14t5tVdJ/ny/Gz++fqpOl5ABRS32ghE5DYRKRERp4gUnGO/pSJyQEQOi8iDA7Zni8iHru0viki4O/EoNRxhIQ5+fecsvrVwEmt2n2TZL99j65H68x5njGH1rkoW/OwdVu8+yXeWTOZfbtAkoAKPuDMJl4hMBZzA74F/dK1MdvY+IcBBYBFQAewA7jTGlIrIS8ArxpgXROR3wG5jzG/Pd96CggJTVPSZUynltp0nTvOtF3dRVt9GfmYst12SwY35acSM+N8rhBP1bbxzqI41uyrZUXaaGRkx/GjlNF1fQPk9EfnIGPOZH+1uJYIBL/42QyeCecC/GmOWuB4/5HrqEaAOSDHG9Jy937loIlDe1NrZw/PbT/CXogoO1LQgAiPDQ4mOCEUEqpo6AMgYM4K/vXoCd84Zq+MEVEAYKhH4oo0gHRi4gngFMBeIBxqNMT0Dtn9mXeN+InI/cD/A2LFjvROpUkB0RChfvXI8X7kim+LKZt7cV0NzRzetnT109TjJz4zl6kmJZCdEa4OwCgrnTQQi8iaQMshT3zfGrPZ8SIMzxjwGPAZ9VwS+Oq+yLxFhekYM0zNirA5FKa86byIwxix08xyVQOaAxxmubfVArIiEuq4K+rcrpZTyIV+MLN4B5Lh6CIUDdwBrTF/jxGbgc6797gF8doWhlFKqj7vdR28WkQpgHvC6iGxwbU8TkXUArl/7DwAbgH3AS8aYEtdLfBf4togcpq/N4Al34lFKKXXxPNJryNe015BSSl28oXoN6aRzSillc5oIlFLK5jQRKKWUzWkiUEopmwvIxmIRqQOOD/PwBOCUB8MJBPqe7UHfc/Bz9/2OM8Z8ZrWkgEwE7hCRosFazYOZvmd70Pcc/Lz1frU0pJRSNqeJQCmlbM6OieAxqwOwgL5ne9D3HPy88n5t10aglFLq0+x4RaCUUmoATQRKKWVztkoEIrJURA6IyGERedDqeLxJRDJFZLOIlIpIiYh80+qYfEVEQkRkp4istToWXxCRWBF5WUT2i8g+17KvQU1EvuX6XBeLyPMiEml1TJ4mIk+KSK2IFA/YFicihSJyyPXvGE+cyzaJQERCgN8Ay4Bc4E4RybU2Kq/qAf7BGJMLXAZ8Pcjf70DfpG/Kc7v4f8AbxpgpQD5B/t5FJB34BlBgjJkGhNC3zkmweRpYeta2B4FNxpgcYJPrsdtskwiAOcBhY8xRY0wX8AKw0uKYvMYYU2WM+dh1v4W+L4ch14QOFiKSAVwPPG51LL4gIjHAVbjW8jDGdBljGi0NyjdCgREiEgpEASctjsfjjDHvAg1nbV4JPOO6/wxwkyfOZadEkA6UD3hcgQ2+GAFEJAuYBXxocSi+8EvgnwCnxXH4SjZQBzzlKoc9LiLRVgflTcaYSuC/gRNAFdBkjNlobVQ+k2yMqXLdrwaSPfGidkoEtiQiI4G/Av/XGNNsdTzeJCI3ALXGmI+sjsWHQoHZwG+NMbOAVjxULvBXrrr4SvqSYBoQLSJftDYq33Mt9+uR/v92SgSVQOaAxxmubUFLRMLoSwJ/Msa8YnU8PjAfWCEiZfSV/haIyB+tDcnrKoAKY0z/1d7L9CWGYLYQOGaMqTPGdAOvAJdbHJOv1IhIKoDr31pPvKidEsEOIEdEskUknL7GpTUWx+Q1IiL01Y33GWN+bnU8vmCMecgYk2GMyaLv/+9bxpig/qVojKkGykVksmvTdUCphSH5wgngMhGJcn3OryPIG8gHWAPc47p/D7DaEy8a6okXCQTGmB4ReQDYQF8vgyeNMSUWh+VN84EvAXtFZJdr2/eMMeusC0l5yd8Df3L9wDkK3GdxPF5ljPlQRF4GPqavd9xOgnCqCRF5HrgGSBCRCuCHwCPASyLyFfqm4v+8R86lU0wopZS92ak0pJRSahCaCJRSyuY0ESillM1pIlBKKZvTRKCUUjaniUAppWxOE4FSStnc/wcdLppKIy/IggAAAABJRU5ErkJggg==",
+          "mediaType": "image/png"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# Plotly\nimport plotly.express as px\nfig = px.scatter(px.data.iris(), x=\"sepal_width\", y=\"sepal_length\")\nfig.show()\n",
+      "outputs": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "data:application/vnd.plotly.v1+json;base64,eyJjb25maWciOnsicGxvdGx5U2VydmVyVVJMIjoiaHR0cHM6Ly9wbG90Lmx5In0sImRhdGEiOlt7ImhvdmVydGVtcGxhdGUiOiJzZXBhbF93aWR0aD0le3h9PGJyPnNlcGFsX2xlbmd0aD0le3l9PGV4dHJhPjwvZXh0cmE+IiwibGVnZW5kZ3JvdXAiOiIiLCJtYXJrZXIiOnsiY29sb3IiOiIjNjM2ZWZhIiwic3ltYm9sIjoiY2lyY2xlIn0sIm1vZGUiOiJtYXJrZXJzIiwibmFtZSI6IiIsIm9yaWVudGF0aW9uIjoidiIsInNob3dsZWdlbmQiOmZhbHNlLCJ0eXBlIjoic2NhdHRlciIsIngiOlszLjUsMywzLjIsMy4xLDMuNiwzLjksMy40LDMuNCwyLjksMy4xLDMuNywzLjQsMywzLDQsNC40LDMuOSwzLjUsMy44LDMuOCwzLjQsMy43LDMuNiwzLjMsMy40LDMsMy40LDMuNSwzLjQsMy4yLDMuMSwzLjQsNC4xLDQuMiwzLjEsMy4yLDMuNSwzLjEsMywzLjQsMy41LDIuMywzLjIsMy41LDMuOCwzLDMuOCwzLjIsMy43LDMuMywzLjIsMy4yLDMuMSwyLjMsMi44LDIuOCwzLjMsMi40LDIuOSwyLjcsMiwzLDIuMiwyLjksMi45LDMuMSwzLDIuNywyLjIsMi41LDMuMiwyLjgsMi41LDIuOCwyLjksMywyLjgsMywyLjksMi42LDIuNCwyLjQsMi43LDIuNywzLDMuNCwzLjEsMi4zLDMsMi41LDIuNiwzLDIuNiwyLjMsMi43LDMsMi45LDIuOSwyLjUsMi44LDMuMywyLjcsMywyLjksMywzLDIuNSwyLjksMi41LDMuNiwzLjIsMi43LDMsMi41LDIuOCwzLjIsMywzLjgsMi42LDIuMiwzLjIsMi44LDIuOCwyLjcsMy4zLDMuMiwyLjgsMywyLjgsMywyLjgsMy44LDIuOCwyLjgsMi42LDMsMy40LDMuMSwzLDMuMSwzLjEsMy4xLDIuNywzLjIsMy4zLDMsMi41LDMsMy40LDNdLCJ4YXhpcyI6IngiLCJ5IjpbNS4xLDQuOSw0LjcsNC42LDUsNS40LDQuNiw1LDQuNCw0LjksNS40LDQuOCw0LjgsNC4zLDUuOCw1LjcsNS40LDUuMSw1LjcsNS4xLDUuNCw1LjEsNC42LDUuMSw0LjgsNSw1LDUuMiw1LjIsNC43LDQuOCw1LjQsNS4yLDUuNSw0LjksNSw1LjUsNC45LDQuNCw1LjEsNSw0LjUsNC40LDUsNS4xLDQuOCw1LjEsNC42LDUuMyw1LDcsNi40LDYuOSw1LjUsNi41LDUuNyw2LjMsNC45LDYuNiw1LjIsNSw1LjksNiw2LjEsNS42LDYuNyw1LjYsNS44LDYuMiw1LjYsNS45LDYuMSw2LjMsNi4xLDYuNCw2LjYsNi44LDYuNyw2LDUuNyw1LjUsNS41LDUuOCw2LDUuNCw2LDYuNyw2LjMsNS42LDUuNSw1LjUsNi4xLDUuOCw1LDUuNiw1LjcsNS43LDYuMiw1LjEsNS43LDYuMyw1LjgsNy4xLDYuMyw2LjUsNy42LDQuOSw3LjMsNi43LDcuMiw2LjUsNi40LDYuOCw1LjcsNS44LDYuNCw2LjUsNy43LDcuNyw2LDYuOSw1LjYsNy43LDYuMyw2LjcsNy4yLDYuMiw2LjEsNi40LDcuMiw3LjQsNy45LDYuNCw2LjMsNi4xLDcuNyw2LjMsNi40LDYsNi45LDYuNyw2LjksNS44LDYuOCw2LjcsNi43LDYuMyw2LjUsNi4yLDUuOV0sInlheGlzIjoieSJ9XSwibGF5b3V0Ijp7ImxlZ2VuZCI6eyJ0cmFjZWdyb3VwZ2FwIjowfSwibWFyZ2luIjp7InQiOjYwfSwidGVtcGxhdGUiOnsiZGF0YSI6eyJiYXIiOlt7ImVycm9yX3giOnsiY29sb3IiOiIjMmEzZjVmIn0sImVycm9yX3kiOnsiY29sb3IiOiIjMmEzZjVmIn0sIm1hcmtlciI6eyJsaW5lIjp7ImNvbG9yIjoiI0U1RUNGNiIsIndpZHRoIjowLjV9LCJwYXR0ZXJuIjp7ImZpbGxtb2RlIjoib3ZlcmxheSIsInNpemUiOjEwLCJzb2xpZGl0eSI6MC4yfX0sInR5cGUiOiJiYXIifV0sImJhcnBvbGFyIjpbeyJtYXJrZXIiOnsibGluZSI6eyJjb2xvciI6IiNFNUVDRjYiLCJ3aWR0aCI6MC41fSwicGF0dGVybiI6eyJmaWxsbW9kZSI6Im92ZXJsYXkiLCJzaXplIjoxMCwic29saWRpdHkiOjAuMn19LCJ0eXBlIjoiYmFycG9sYXIifV0sImNhcnBldCI6W3siYWF4aXMiOnsiZW5kbGluZWNvbG9yIjoiIzJhM2Y1ZiIsImdyaWRjb2xvciI6IndoaXRlIiwibGluZWNvbG9yIjoid2hpdGUiLCJtaW5vcmdyaWRjb2xvciI6IndoaXRlIiwic3RhcnRsaW5lY29sb3IiOiIjMmEzZjVmIn0sImJheGlzIjp7ImVuZGxpbmVjb2xvciI6IiMyYTNmNWYiLCJncmlkY29sb3IiOiJ3aGl0ZSIsImxpbmVjb2xvciI6IndoaXRlIiwibWlub3JncmlkY29sb3IiOiJ3aGl0ZSIsInN0YXJ0bGluZWNvbG9yIjoiIzJhM2Y1ZiJ9LCJ0eXBlIjoiY2FycGV0In1dLCJjaG9yb3BsZXRoIjpbeyJjb2xvcmJhciI6eyJvdXRsaW5ld2lkdGgiOjAsInRpY2tzIjoiIn0sInR5cGUiOiJjaG9yb3BsZXRoIn1dLCJjb250b3VyIjpbeyJjb2xvcmJhciI6eyJvdXRsaW5ld2lkdGgiOjAsInRpY2tzIjoiIn0sImNvbG9yc2NhbGUiOltbMCwiIzBkMDg4NyJdLFswLjExMTExMTExMTExMTExMTEsIiM0NjAzOWYiXSxbMC4yMjIyMjIyMjIyMjIyMjIyLCIjNzIwMWE4Il0sWzAuMzMzMzMzMzMzMzMzMzMzMywiIzljMTc5ZSJdLFswLjQ0NDQ0NDQ0NDQ0NDQ0NDQsIiNiZDM3ODYiXSxbMC41NTU1NTU1NTU1NTU1NTU2LCIjZDg1NzZiIl0sWzAuNjY2NjY2NjY2NjY2NjY2NiwiI2VkNzk1MyJdLFswLjc3Nzc3Nzc3Nzc3Nzc3NzgsIiNmYjlmM2EiXSxbMC44ODg4ODg4ODg4ODg4ODg4LCIjZmRjYTI2Il0sWzEsIiNmMGY5MjEiXV0sInR5cGUiOiJjb250b3VyIn1dLCJjb250b3VyY2FycGV0IjpbeyJjb2xvcmJhciI6eyJvdXRsaW5ld2lkdGgiOjAsInRpY2tzIjoiIn0sInR5cGUiOiJjb250b3VyY2FycGV0In1dLCJoZWF0bWFwIjpbeyJjb2xvcmJhciI6eyJvdXRsaW5ld2lkdGgiOjAsInRpY2tzIjoiIn0sImNvbG9yc2NhbGUiOltbMCwiIzBkMDg4NyJdLFswLjExMTExMTExMTExMTExMTEsIiM0NjAzOWYiXSxbMC4yMjIyMjIyMjIyMjIyMjIyLCIjNzIwMWE4Il0sWzAuMzMzMzMzMzMzMzMzMzMzMywiIzljMTc5ZSJdLFswLjQ0NDQ0NDQ0NDQ0NDQ0NDQsIiNiZDM3ODYiXSxbMC41NTU1NTU1NTU1NTU1NTU2LCIjZDg1NzZiIl0sWzAuNjY2NjY2NjY2NjY2NjY2NiwiI2VkNzk1MyJdLFswLjc3Nzc3Nzc3Nzc3Nzc3NzgsIiNmYjlmM2EiXSxbMC44ODg4ODg4ODg4ODg4ODg4LCIjZmRjYTI2Il0sWzEsIiNmMGY5MjEiXV0sInR5cGUiOiJoZWF0bWFwIn1dLCJoZWF0bWFwZ2wiOlt7ImNvbG9yYmFyIjp7Im91dGxpbmV3aWR0aCI6MCwidGlja3MiOiIifSwiY29sb3JzY2FsZSI6W1swLCIjMGQwODg3Il0sWzAuMTExMTExMTExMTExMTExMSwiIzQ2MDM5ZiJdLFswLjIyMjIyMjIyMjIyMjIyMjIsIiM3MjAxYTgiXSxbMC4zMzMzMzMzMzMzMzMzMzMzLCIjOWMxNzllIl0sWzAuNDQ0NDQ0NDQ0NDQ0NDQ0NCwiI2JkMzc4NiJdLFswLjU1NTU1NTU1NTU1NTU1NTYsIiNkODU3NmIiXSxbMC42NjY2NjY2NjY2NjY2NjY2LCIjZWQ3OTUzIl0sWzAuNzc3Nzc3Nzc3Nzc3Nzc3OCwiI2ZiOWYzYSJdLFswLjg4ODg4ODg4ODg4ODg4ODgsIiNmZGNhMjYiXSxbMSwiI2YwZjkyMSJdXSwidHlwZSI6ImhlYXRtYXBnbCJ9XSwiaGlzdG9ncmFtIjpbeyJtYXJrZXIiOnsicGF0dGVybiI6eyJmaWxsbW9kZSI6Im92ZXJsYXkiLCJzaXplIjoxMCwic29saWRpdHkiOjAuMn19LCJ0eXBlIjoiaGlzdG9ncmFtIn1dLCJoaXN0b2dyYW0yZCI6W3siY29sb3JiYXIiOnsib3V0bGluZXdpZHRoIjowLCJ0aWNrcyI6IiJ9LCJjb2xvcnNjYWxlIjpbWzAsIiMwZDA4ODciXSxbMC4xMTExMTExMTExMTExMTExLCIjNDYwMzlmIl0sWzAuMjIyMjIyMjIyMjIyMjIyMiwiIzcyMDFhOCJdLFswLjMzMzMzMzMzMzMzMzMzMzMsIiM5YzE3OWUiXSxbMC40NDQ0NDQ0NDQ0NDQ0NDQ0LCIjYmQzNzg2Il0sWzAuNTU1NTU1NTU1NTU1NTU1NiwiI2Q4NTc2YiJdLFswLjY2NjY2NjY2NjY2NjY2NjYsIiNlZDc5NTMiXSxbMC43Nzc3Nzc3Nzc3Nzc3Nzc4LCIjZmI5ZjNhIl0sWzAuODg4ODg4ODg4ODg4ODg4OCwiI2ZkY2EyNiJdLFsxLCIjZjBmOTIxIl1dLCJ0eXBlIjoiaGlzdG9ncmFtMmQifV0sImhpc3RvZ3JhbTJkY29udG91ciI6W3siY29sb3JiYXIiOnsib3V0bGluZXdpZHRoIjowLCJ0aWNrcyI6IiJ9LCJjb2xvcnNjYWxlIjpbWzAsIiMwZDA4ODciXSxbMC4xMTExMTExMTExMTExMTExLCIjNDYwMzlmIl0sWzAuMjIyMjIyMjIyMjIyMjIyMiwiIzcyMDFhOCJdLFswLjMzMzMzMzMzMzMzMzMzMzMsIiM5YzE3OWUiXSxbMC40NDQ0NDQ0NDQ0NDQ0NDQ0LCIjYmQzNzg2Il0sWzAuNTU1NTU1NTU1NTU1NTU1NiwiI2Q4NTc2YiJdLFswLjY2NjY2NjY2NjY2NjY2NjYsIiNlZDc5NTMiXSxbMC43Nzc3Nzc3Nzc3Nzc3Nzc4LCIjZmI5ZjNhIl0sWzAuODg4ODg4ODg4ODg4ODg4OCwiI2ZkY2EyNiJdLFsxLCIjZjBmOTIxIl1dLCJ0eXBlIjoiaGlzdG9ncmFtMmRjb250b3VyIn1dLCJtZXNoM2QiOlt7ImNvbG9yYmFyIjp7Im91dGxpbmV3aWR0aCI6MCwidGlja3MiOiIifSwidHlwZSI6Im1lc2gzZCJ9XSwicGFyY29vcmRzIjpbeyJsaW5lIjp7ImNvbG9yYmFyIjp7Im91dGxpbmV3aWR0aCI6MCwidGlja3MiOiIifX0sInR5cGUiOiJwYXJjb29yZHMifV0sInBpZSI6W3siYXV0b21hcmdpbiI6dHJ1ZSwidHlwZSI6InBpZSJ9XSwic2NhdHRlciI6W3sibWFya2VyIjp7ImNvbG9yYmFyIjp7Im91dGxpbmV3aWR0aCI6MCwidGlja3MiOiIifX0sInR5cGUiOiJzY2F0dGVyIn1dLCJzY2F0dGVyM2QiOlt7ImxpbmUiOnsiY29sb3JiYXIiOnsib3V0bGluZXdpZHRoIjowLCJ0aWNrcyI6IiJ9fSwibWFya2VyIjp7ImNvbG9yYmFyIjp7Im91dGxpbmV3aWR0aCI6MCwidGlja3MiOiIifX0sInR5cGUiOiJzY2F0dGVyM2QifV0sInNjYXR0ZXJjYXJwZXQiOlt7Im1hcmtlciI6eyJjb2xvcmJhciI6eyJvdXRsaW5ld2lkdGgiOjAsInRpY2tzIjoiIn19LCJ0eXBlIjoic2NhdHRlcmNhcnBldCJ9XSwic2NhdHRlcmdlbyI6W3sibWFya2VyIjp7ImNvbG9yYmFyIjp7Im91dGxpbmV3aWR0aCI6MCwidGlja3MiOiIifX0sInR5cGUiOiJzY2F0dGVyZ2VvIn1dLCJzY2F0dGVyZ2wiOlt7Im1hcmtlciI6eyJjb2xvcmJhciI6eyJvdXRsaW5ld2lkdGgiOjAsInRpY2tzIjoiIn19LCJ0eXBlIjoic2NhdHRlcmdsIn1dLCJzY2F0dGVybWFwYm94IjpbeyJtYXJrZXIiOnsiY29sb3JiYXIiOnsib3V0bGluZXdpZHRoIjowLCJ0aWNrcyI6IiJ9fSwidHlwZSI6InNjYXR0ZXJtYXBib3gifV0sInNjYXR0ZXJwb2xhciI6W3sibWFya2VyIjp7ImNvbG9yYmFyIjp7Im91dGxpbmV3aWR0aCI6MCwidGlja3MiOiIifX0sInR5cGUiOiJzY2F0dGVycG9sYXIifV0sInNjYXR0ZXJwb2xhcmdsIjpbeyJtYXJrZXIiOnsiY29sb3JiYXIiOnsib3V0bGluZXdpZHRoIjowLCJ0aWNrcyI6IiJ9fSwidHlwZSI6InNjYXR0ZXJwb2xhcmdsIn1dLCJzY2F0dGVydGVybmFyeSI6W3sibWFya2VyIjp7ImNvbG9yYmFyIjp7Im91dGxpbmV3aWR0aCI6MCwidGlja3MiOiIifX0sInR5cGUiOiJzY2F0dGVydGVybmFyeSJ9XSwic3VyZmFjZSI6W3siY29sb3JiYXIiOnsib3V0bGluZXdpZHRoIjowLCJ0aWNrcyI6IiJ9LCJjb2xvcnNjYWxlIjpbWzAsIiMwZDA4ODciXSxbMC4xMTExMTExMTExMTExMTExLCIjNDYwMzlmIl0sWzAuMjIyMjIyMjIyMjIyMjIyMiwiIzcyMDFhOCJdLFswLjMzMzMzMzMzMzMzMzMzMzMsIiM5YzE3OWUiXSxbMC40NDQ0NDQ0NDQ0NDQ0NDQ0LCIjYmQzNzg2Il0sWzAuNTU1NTU1NTU1NTU1NTU1NiwiI2Q4NTc2YiJdLFswLjY2NjY2NjY2NjY2NjY2NjYsIiNlZDc5NTMiXSxbMC43Nzc3Nzc3Nzc3Nzc3Nzc4LCIjZmI5ZjNhIl0sWzAuODg4ODg4ODg4ODg4ODg4OCwiI2ZkY2EyNiJdLFsxLCIjZjBmOTIxIl1dLCJ0eXBlIjoic3VyZmFjZSJ9XSwidGFibGUiOlt7ImNlbGxzIjp7ImZpbGwiOnsiY29sb3IiOiIjRUJGMEY4In0sImxpbmUiOnsiY29sb3IiOiJ3aGl0ZSJ9fSwiaGVhZGVyIjp7ImZpbGwiOnsiY29sb3IiOiIjQzhENEUzIn0sImxpbmUiOnsiY29sb3IiOiJ3aGl0ZSJ9fSwidHlwZSI6InRhYmxlIn1dfSwibGF5b3V0Ijp7ImFubm90YXRpb25kZWZhdWx0cyI6eyJhcnJvd2NvbG9yIjoiIzJhM2Y1ZiIsImFycm93aGVhZCI6MCwiYXJyb3d3aWR0aCI6MX0sImF1dG90eXBlbnVtYmVycyI6InN0cmljdCIsImNvbG9yYXhpcyI6eyJjb2xvcmJhciI6eyJvdXRsaW5ld2lkdGgiOjAsInRpY2tzIjoiIn19LCJjb2xvcnNjYWxlIjp7ImRpdmVyZ2luZyI6W1swLCIjOGUwMTUyIl0sWzAuMSwiI2M1MWI3ZCJdLFswLjIsIiNkZTc3YWUiXSxbMC4zLCIjZjFiNmRhIl0sWzAuNCwiI2ZkZTBlZiJdLFswLjUsIiNmN2Y3ZjciXSxbMC42LCIjZTZmNWQwIl0sWzAuNywiI2I4ZTE4NiJdLFswLjgsIiM3ZmJjNDEiXSxbMC45LCIjNGQ5MjIxIl0sWzEsIiMyNzY0MTkiXV0sInNlcXVlbnRpYWwiOltbMCwiIzBkMDg4NyJdLFswLjExMTExMTExMTExMTExMTEsIiM0NjAzOWYiXSxbMC4yMjIyMjIyMjIyMjIyMjIyLCIjNzIwMWE4Il0sWzAuMzMzMzMzMzMzMzMzMzMzMywiIzljMTc5ZSJdLFswLjQ0NDQ0NDQ0NDQ0NDQ0NDQsIiNiZDM3ODYiXSxbMC41NTU1NTU1NTU1NTU1NTU2LCIjZDg1NzZiIl0sWzAuNjY2NjY2NjY2NjY2NjY2NiwiI2VkNzk1MyJdLFswLjc3Nzc3Nzc3Nzc3Nzc3NzgsIiNmYjlmM2EiXSxbMC44ODg4ODg4ODg4ODg4ODg4LCIjZmRjYTI2Il0sWzEsIiNmMGY5MjEiXV0sInNlcXVlbnRpYWxtaW51cyI6W1swLCIjMGQwODg3Il0sWzAuMTExMTExMTExMTExMTExMSwiIzQ2MDM5ZiJdLFswLjIyMjIyMjIyMjIyMjIyMjIsIiM3MjAxYTgiXSxbMC4zMzMzMzMzMzMzMzMzMzMzLCIjOWMxNzllIl0sWzAuNDQ0NDQ0NDQ0NDQ0NDQ0NCwiI2JkMzc4NiJdLFswLjU1NTU1NTU1NTU1NTU1NTYsIiNkODU3NmIiXSxbMC42NjY2NjY2NjY2NjY2NjY2LCIjZWQ3OTUzIl0sWzAuNzc3Nzc3Nzc3Nzc3Nzc3OCwiI2ZiOWYzYSJdLFswLjg4ODg4ODg4ODg4ODg4ODgsIiNmZGNhMjYiXSxbMSwiI2YwZjkyMSJdXX0sImNvbG9yd2F5IjpbIiM2MzZlZmEiLCIjRUY1NTNCIiwiIzAwY2M5NiIsIiNhYjYzZmEiLCIjRkZBMTVBIiwiIzE5ZDNmMyIsIiNGRjY2OTIiLCIjQjZFODgwIiwiI0ZGOTdGRiIsIiNGRUNCNTIiXSwiZm9udCI6eyJjb2xvciI6IiMyYTNmNWYifSwiZ2VvIjp7ImJnY29sb3IiOiJ3aGl0ZSIsImxha2Vjb2xvciI6IndoaXRlIiwibGFuZGNvbG9yIjoiI0U1RUNGNiIsInNob3dsYWtlcyI6dHJ1ZSwic2hvd2xhbmQiOnRydWUsInN1YnVuaXRjb2xvciI6IndoaXRlIn0sImhvdmVybGFiZWwiOnsiYWxpZ24iOiJsZWZ0In0sImhvdmVybW9kZSI6ImNsb3Nlc3QiLCJtYXBib3giOnsic3R5bGUiOiJsaWdodCJ9LCJwYXBlcl9iZ2NvbG9yIjoid2hpdGUiLCJwbG90X2JnY29sb3IiOiIjRTVFQ0Y2IiwicG9sYXIiOnsiYW5ndWxhcmF4aXMiOnsiZ3JpZGNvbG9yIjoid2hpdGUiLCJsaW5lY29sb3IiOiJ3aGl0ZSIsInRpY2tzIjoiIn0sImJnY29sb3IiOiIjRTVFQ0Y2IiwicmFkaWFsYXhpcyI6eyJncmlkY29sb3IiOiJ3aGl0ZSIsImxpbmVjb2xvciI6IndoaXRlIiwidGlja3MiOiIifX0sInNjZW5lIjp7InhheGlzIjp7ImJhY2tncm91bmRjb2xvciI6IiNFNUVDRjYiLCJncmlkY29sb3IiOiJ3aGl0ZSIsImdyaWR3aWR0aCI6MiwibGluZWNvbG9yIjoid2hpdGUiLCJzaG93YmFja2dyb3VuZCI6dHJ1ZSwidGlja3MiOiIiLCJ6ZXJvbGluZWNvbG9yIjoid2hpdGUifSwieWF4aXMiOnsiYmFja2dyb3VuZGNvbG9yIjoiI0U1RUNGNiIsImdyaWRjb2xvciI6IndoaXRlIiwiZ3JpZHdpZHRoIjoyLCJsaW5lY29sb3IiOiJ3aGl0ZSIsInNob3diYWNrZ3JvdW5kIjp0cnVlLCJ0aWNrcyI6IiIsInplcm9saW5lY29sb3IiOiJ3aGl0ZSJ9LCJ6YXhpcyI6eyJiYWNrZ3JvdW5kY29sb3IiOiIjRTVFQ0Y2IiwiZ3JpZGNvbG9yIjoid2hpdGUiLCJncmlkd2lkdGgiOjIsImxpbmVjb2xvciI6IndoaXRlIiwic2hvd2JhY2tncm91bmQiOnRydWUsInRpY2tzIjoiIiwiemVyb2xpbmVjb2xvciI6IndoaXRlIn19LCJzaGFwZWRlZmF1bHRzIjp7ImxpbmUiOnsiY29sb3IiOiIjMmEzZjVmIn19LCJ0ZXJuYXJ5Ijp7ImFheGlzIjp7ImdyaWRjb2xvciI6IndoaXRlIiwibGluZWNvbG9yIjoid2hpdGUiLCJ0aWNrcyI6IiJ9LCJiYXhpcyI6eyJncmlkY29sb3IiOiJ3aGl0ZSIsImxpbmVjb2xvciI6IndoaXRlIiwidGlja3MiOiIifSwiYmdjb2xvciI6IiNFNUVDRjYiLCJjYXhpcyI6eyJncmlkY29sb3IiOiJ3aGl0ZSIsImxpbmVjb2xvciI6IndoaXRlIiwidGlja3MiOiIifX0sInRpdGxlIjp7IngiOjAuMDV9LCJ4YXhpcyI6eyJhdXRvbWFyZ2luIjp0cnVlLCJncmlkY29sb3IiOiJ3aGl0ZSIsImxpbmVjb2xvciI6IndoaXRlIiwidGlja3MiOiIiLCJ0aXRsZSI6eyJzdGFuZG9mZiI6MTV9LCJ6ZXJvbGluZWNvbG9yIjoid2hpdGUiLCJ6ZXJvbGluZXdpZHRoIjoyfSwieWF4aXMiOnsiYXV0b21hcmdpbiI6dHJ1ZSwiZ3JpZGNvbG9yIjoid2hpdGUiLCJsaW5lY29sb3IiOiJ3aGl0ZSIsInRpY2tzIjoiIiwidGl0bGUiOnsic3RhbmRvZmYiOjE1fSwiemVyb2xpbmVjb2xvciI6IndoaXRlIiwiemVyb2xpbmV3aWR0aCI6Mn19fSwieGF4aXMiOnsiYW5jaG9yIjoieSIsImRvbWFpbiI6WzAsMV0sInRpdGxlIjp7InRleHQiOiJzZXBhbF93aWR0aCJ9fSwieWF4aXMiOnsiYW5jaG9yIjoieCIsImRvbWFpbiI6WzAsMV0sInRpdGxlIjp7InRleHQiOiJzZXBhbF9sZW5ndGgifX19fQ==",
+          "mediaType": "application/vnd.plotly.v1+json"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# Altair\nimport altair as alt\nimport pandas as pd\n\nalt.renderers.enable('mimetype')\n\nsource = pd.DataFrame({\n    'a': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],\n    'b': [28, 55, 43, 91, 81, 53, 19, 87, 52]\n})\n\nalt.Chart(source).mark_bar().encode(\n    x='a',\n    y='b'\n)",
+      "outputs": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "data:application/vnd.vegalite.v4+json;base64,eyJjb25maWciOnsidmlldyI6eyJjb250aW51b3VzV2lkdGgiOjQwMCwiY29udGludW91c0hlaWdodCI6MzAwfX0sImRhdGEiOnsibmFtZSI6ImRhdGEtYzJhM2U4OWJhOWQ1ZDE2ODdkNWU4YzI4ZDYzMGEwMzMifSwibWFyayI6ImJhciIsImVuY29kaW5nIjp7IngiOnsidHlwZSI6Im5vbWluYWwiLCJmaWVsZCI6ImEifSwieSI6eyJ0eXBlIjoicXVhbnRpdGF0aXZlIiwiZmllbGQiOiJiIn19LCIkc2NoZW1hIjoiaHR0cHM6Ly92ZWdhLmdpdGh1Yi5pby9zY2hlbWEvdmVnYS1saXRlL3Y0LjguMS5qc29uIiwiZGF0YXNldHMiOnsiZGF0YS1jMmEzZTg5YmE5ZDVkMTY4N2Q1ZThjMjhkNjMwYTAzMyI6W3siYSI6IkEiLCJiIjoyOH0seyJhIjoiQiIsImIiOjU1fSx7ImEiOiJDIiwiYiI6NDN9LHsiYSI6IkQiLCJiIjo5MX0seyJhIjoiRSIsImIiOjgxfSx7ImEiOiJGIiwiYiI6NTN9LHsiYSI6IkciLCJiIjoxOX0seyJhIjoiSCIsImIiOjg3fSx7ImEiOiJJIiwiYiI6NTJ9XX19",
+          "mediaType": "application/vnd.vegalite.v4+json"
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "HTML outputs"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stencila will attempt to convert ",
+        {
+          "type": "CodeFragment",
+          "text": "text/html"
+        },
+        " outputs into rich node types e.g. ",
+        {
+          "type": "CodeFragment",
+          "text": "Table"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "import pandas as pd\nimport numpy as np\n\ndf = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]]), columns=['a', 'b', 'c'])\n\n# By default a `text/html` representation of the data frame is generated\ndf",
+      "outputs": [
+        {
+          "type": "Table",
+          "rows": [
+            {
+              "type": "TableRow",
+              "cells": [
+                {
+                  "type": "TableCell",
+                  "cellType": "Header"
+                },
+                {
+                  "type": "TableCell",
+                  "cellType": "Header",
+                  "content": [
+                    "a"
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "cellType": "Header",
+                  "content": [
+                    "b"
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "cellType": "Header",
+                  "content": [
+                    "c"
+                  ]
+                }
+              ],
+              "rowType": "Header"
+            },
+            {
+              "type": "TableRow",
+              "cells": [
+                {
+                  "type": "TableCell",
+                  "cellType": "Header",
+                  "content": [
+                    "0"
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "content": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "content": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "content": [
+                    "3"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableRow",
+              "cells": [
+                {
+                  "type": "TableCell",
+                  "cellType": "Header",
+                  "content": [
+                    "1"
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "content": [
+                    "4"
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "content": [
+                    "5"
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "content": [
+                    "6"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableRow",
+              "cells": [
+                {
+                  "type": "TableCell",
+                  "cellType": "Header",
+                  "content": [
+                    "2"
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "content": [
+                    "7"
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "content": [
+                    "8"
+                  ]
+                },
+                {
+                  "type": "TableCell",
+                  "content": [
+                    "9"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Preformatted text outputs"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "If a string output of the cell includes newlines, tabs or more than two consecutive spaces (other than leading or trailing whitespace) it is treated as preformatted text and converted to a Stencila ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeBlock"
+        },
+        "."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# Print the data.frame so that is output as `text/plain`\nprint(df)",
+      "outputs": [
+        {
+          "type": "CodeBlock",
+          "text": "   a  b  c\n0  1  2  3\n1  4  5  6\n2  7  8  9\n"
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Errors"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stencila converts any cell outputs that are errors into a ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeError"
+        },
+        " with message, type and stack trace. In addition, any output to the ",
+        {
+          "type": "CodeFragment",
+          "text": "stderr"
+        },
+        " stream is converted to a ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeError"
+        },
+        " with ",
+        {
+          "type": "CodeFragment",
+          "text": "errorType: \"stderr\""
+        },
+        "."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "A syntax error",
+      "errors": [
+        {
+          "type": "CodeError",
+          "errorMessage": "invalid syntax (3992919514.py, line 1)",
+          "errorType": "SyntaxError",
+          "stackTrace": "  File \"/tmp/ipykernel_21154/3992919514.py\", line 1\n    A syntax error\n      ^\nSyntaxError: invalid syntax\n"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "foo()",
+      "errors": [
+        {
+          "type": "CodeError",
+          "errorMessage": "name 'foo' is not defined",
+          "errorType": "NameError",
+          "stackTrace": "---------------------------------------------------------------------------\nNameError                                 Traceback (most recent call last)\n/tmp/ipykernel_69408/3160684747.py in <module>\n----> 1 foo()\n\nNameError: name 'foo' is not defined"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "import sys\nprint(\"Whooaah!\", file=sys.stderr)",
+      "errors": [
+        {
+          "type": "CodeError",
+          "errorMessage": "Whooaah!\n",
+          "errorType": "stderr"
+        }
+      ]
+    }
+  ],
+  "title": "Kitchen sink Jupyter Notebook test fixture"
+}

@@ -1,0 +1,14 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: encoded
+input_file: fixtures/fragments/html/audio.html
+
+---
+<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <div data-itemprop="content">
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <audio itemtype="http://schema.org/AudioObject" itemscope  controls src="audio.mp3">
+      </audio>
+    </p>
+  </div>
+</article>

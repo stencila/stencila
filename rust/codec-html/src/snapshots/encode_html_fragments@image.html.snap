@@ -1,0 +1,12 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: encoded
+input_file: fixtures/fragments/html/image.html
+
+---
+<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <div data-itemprop="content">
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>An image<img itemtype="http://schema.org/ImageObject" itemscope  src="image.png"/>.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>An image with a title<img itemtype="http://schema.org/ImageObject" itemscope  src="image.png"/>.</p>
+  </div>
+</article>
