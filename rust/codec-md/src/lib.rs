@@ -29,10 +29,7 @@ impl CodecTrait for MarkdownCodec {
             to_path: cfg!(feature = "encode"),
             unsupported_types: vec_string![
                 // TODO: Fix handling of table headers
-                "Table",
-                // TODO: Fix these inline nodes that use HTML notation
-                "NontextualAnnotation",
-                "Quote"
+                "Table"
             ],
             ..Default::default()
         }

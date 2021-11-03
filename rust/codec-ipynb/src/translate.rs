@@ -43,7 +43,7 @@ pub fn translate_mime_bundle(bundle: &serde_json::Value) -> Option<Node> {
     }
     if let Some(html) = bundle.get("text/html") {
         let html = translate_multiline_string(html);
-        let blocks = codec_html::decode_fragment(&html, false);
+        let blocks = codec_html::decode_fragment(&html, None);
         if let Some(first) = blocks.first() {
             let node = first.clone().to_node();
             return Some(node);

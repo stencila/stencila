@@ -4,12 +4,13 @@ use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::{local_name, LocalName};
 use std::cmp::max;
 use stencila_schema::*;
+use node_transform::Transform;
 
 /// Decode a HTML document to a `Node`
 ///
 /// Intended for decoding an entire document into an `Article`.
-pub fn decode(html: &str, decode_text_as_markdown: bool) -> Result<Node> {
-    let content = decode_fragment(html, decode_text_as_markdown);
+pub fn decode(html: &str, text_decoder: TextDecoder) -> Result<Node> {
+    let content = decode_fragment(html, text_decoder);
 
     let article = Article {
         content: Some(content),
@@ -27,14 +28,12 @@ pub fn decode(html: &str, decode_text_as_markdown: bool) -> Result<Node> {
 /// If any block content is present in the fragment then that will be returned.
 /// Otherwise, if the fragment only consists of inline content a vector with
 /// a single paragraph containing that content will be returned.
-pub fn decode_fragment(html: &str, decode_text_as_markdown: bool) -> Vec<BlockContent> {
+pub fn decode_fragment(html: &str, text_decoder: TextDecoder) -> Vec<BlockContent> {
     if html.is_empty() {
         return vec![];
     }
 
-    let context = Context {
-        decode_text_as_markdown,
-    };
+    let context = DecodeContext { text_decoder };
     let document = kuchiki::parse_html().one(html);
 
     let content = decode_blocks(&document, &context);
@@ -53,15 +52,16 @@ pub fn decode_fragment(html: &str, decode_text_as_markdown: bool) -> Vec<BlockCo
     vec![]
 }
 
-// Private implementation structs and functions...
+/// Function for optionally decoding text withing HTML elements
+type TextDecoder = Option<Box<dyn Fn(&str) -> Vec<BlockContent>>>;
 
 /// Decoding context
-struct Context {
-    decode_text_as_markdown: bool,
+struct DecodeContext {
+    text_decoder: TextDecoder,
 }
 
 /// Decode the children of a HTML node into a vector of `BlockContent`
-fn decode_blocks(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
+fn decode_blocks(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
     node.children()
         .flat_map(|child| decode_block(&child, context))
         .collect()
@@ -70,7 +70,7 @@ fn decode_blocks(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
 /// Decode a HTML node into a zero or more `BlockContent` nodes
 ///
 /// Will ignore elements that are dealt with by `decode_inline`
-fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
+fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
     if let Some(_document) = node.as_document() {
         // Recurse into document
         decode_blocks(node, context)
@@ -228,14 +228,10 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
             _ => vec![],
         }
     } else if let Some(text) = node.as_text() {
-        // Decode HTML non-whitespace text by optionally parsing it as a
-        // Markdown fragment
+        // Decode HTML non-whitespace text by optionally parsing it to the `text_decoder` callback
         if !text.borrow().trim().is_empty() {
-            if context.decode_text_as_markdown {
-                // TODO: Allow for optional callback to decode content, rather than
-                // specifically markdown
-                // md::decode_fragment(&text.borrow(), None)
-                vec![]
+            if let Some(text_decoder) = &context.text_decoder {
+                text_decoder(&text.borrow())
             } else {
                 vec![BlockContent::Paragraph(Paragraph {
                     content: vec![InlineContent::String(text.borrow().clone())],
@@ -252,7 +248,7 @@ fn decode_block(node: &NodeRef, context: &Context) -> Vec<BlockContent> {
 }
 
 /// Decode the children of a HTML node into a vector of `InlineContent`
-fn decode_inlines(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
+fn decode_inlines(node: &NodeRef, context: &DecodeContext) -> Vec<InlineContent> {
     node.children()
         .flat_map(|child| decode_inline(&child, context))
         .collect()
@@ -262,7 +258,7 @@ fn decode_inlines(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
 ///
 /// This function should handle most of the HTML "Phrasing content"
 /// [elements](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#phrasing_content)
-fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
+fn decode_inline(node: &NodeRef, context: &DecodeContext) -> Vec<InlineContent> {
     if let Some(element) = node.as_element() {
         // Decode a HTML element
         //
@@ -447,10 +443,8 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
         // Decode HTML text by optionally parsing it as a Markdown fragment
         // and unwrapping from `Vec<BlockContent>` to `Vec<InlineContent>`.
         if !text.borrow().is_empty() {
-            if context.decode_text_as_markdown {
-                // TODO use call back instead of dependeing on md crate
-                // md::decode_fragment(&text.borrow(), None).to_inlines()
-                vec![]
+            if let Some(text_decoder) = &context.text_decoder {
+                text_decoder(&text.borrow()).to_inlines()
             } else {
                 vec![InlineContent::String(text.borrow().clone())]
             }
@@ -466,7 +460,7 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
 /// Decode list items from a `<ul>` or `<ol>`.
 ///
 /// Only `<li>` children (and their descendants) are returned.
-fn decode_list_items(node: &NodeRef, context: &Context) -> Vec<ListItem> {
+fn decode_list_items(node: &NodeRef, context: &DecodeContext) -> Vec<ListItem> {
     node.children()
         .filter_map(|child| {
             if let Some(element) = child.as_element() {
@@ -498,7 +492,7 @@ fn decode_list_items(node: &NodeRef, context: &Context) -> Vec<ListItem> {
 fn decode_table_rows(
     node: &NodeRef,
     row_type: &Option<TableRowRowType>,
-    context: &Context,
+    context: &DecodeContext,
 ) -> Vec<TableRow> {
     node.children()
         .filter_map(|child| {
@@ -516,7 +510,7 @@ fn decode_table_rows(
 fn decode_table_row(
     node: &NodeRef,
     row_type: &Option<TableRowRowType>,
-    context: &Context,
+    context: &DecodeContext,
 ) -> TableRow {
     let cells = decode_table_cells(node, context);
     TableRow {
@@ -527,7 +521,7 @@ fn decode_table_row(
 }
 
 /// Decode table cells from a `<td>` or `<th> elements.
-fn decode_table_cells(node: &NodeRef, context: &Context) -> Vec<TableCell> {
+fn decode_table_cells(node: &NodeRef, context: &DecodeContext) -> Vec<TableCell> {
     node.children()
         .filter_map(|child| {
             if let Some(element) = child.as_element() {
@@ -592,14 +586,14 @@ mod tests {
     #[test]
     fn decode_html_articles() {
         snapshot_fixtures_content("articles/*.html", |content| {
-            assert_json_snapshot!(decode(content, false).expect("Unable to decode HTML"));
+            assert_json_snapshot!(decode(content, None).expect("Unable to decode HTML"));
         });
     }
 
     #[test]
     fn decode_html_fragments() {
         snapshot_fixtures_content("fragments/html/*.html", |content| {
-            assert_json_snapshot!(decode_fragment(content, false));
+            assert_json_snapshot!(decode_fragment(content, None));
         });
     }
 }

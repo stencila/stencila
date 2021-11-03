@@ -758,6 +758,7 @@ dependencies = [
  "kuchiki",
  "markup5ever",
  "mime_guess",
+ "node-transform",
  "quick-xml 0.22.0",
  "reqwest",
  "serde",

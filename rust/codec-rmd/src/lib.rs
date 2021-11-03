@@ -2,6 +2,7 @@ use codec::{
     eyre::Result, stencila_schema::Node, utils::vec_string, Codec, CodecTrait, DecodeOptions,
     EncodeOptions,
 };
+use codec_md::MarkdownCodec;
 
 #[cfg(feature = "decode")]
 mod decode;
@@ -14,6 +15,7 @@ pub struct RmdCodec {}
 
 impl CodecTrait for RmdCodec {
     fn spec() -> Codec {
+        let md_codec = MarkdownCodec::spec();
         Codec {
             status: "alpha".to_string(),
             formats: vec_string!["rmd"],
@@ -22,13 +24,8 @@ impl CodecTrait for RmdCodec {
             from_path: cfg!(feature = "decode"),
             to_string: cfg!(feature = "encode"),
             to_path: cfg!(feature = "encode"),
-            unsupported_types: vec_string![
-                // TODO: Remove these when they are fixed in Markdown codec
-                "Table",
-                "NontextualAnnotation",
-                "Quote"
-            ],
-            ..Default::default()
+            unsupported_types: md_codec.unsupported_types,
+            unsupported_properties: md_codec.unsupported_properties
         }
     }
 

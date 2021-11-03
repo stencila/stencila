@@ -984,7 +984,7 @@ impl Html {
         if self.tags.is_empty() {
             let html = self.html.clone() + html;
             self.html.clear();
-            codec_html::decode_fragment(&html, true)
+            codec_html::decode_fragment(&html, Some(Box::new(|text| decode_fragment(text, None))))
         } else {
             self.html.push_str(html);
             vec![]

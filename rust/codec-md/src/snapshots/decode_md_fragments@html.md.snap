@@ -1,6 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
-expression: "decode_fragment(&content, None)"
+expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/md/html.md
 
 ---
@@ -11,22 +11,30 @@ input_file: fixtures/fragments/md/html.md
       "Inline HTML like ",
       {
         "type": "Superscript",
-        "content": []
+        "content": [
+          "1"
+        ]
       },
       ", ",
       {
         "type": "Subscript",
-        "content": []
+        "content": [
+          "2"
+        ]
       },
       ", ",
       {
         "type": "Emphasis",
-        "content": []
+        "content": [
+          "3"
+        ]
       },
       ", ",
       {
         "type": "Strong",
-        "content": []
+        "content": [
+          "4"
+        ]
       },
       " and ",
       {
@@ -44,10 +52,53 @@ input_file: fixtures/fragments/md/html.md
   },
   {
     "type": "Paragraph",
-    "content": []
+    "content": [
+      "A HTML paragraph on one line."
+    ]
   },
   {
     "type": "Paragraph",
-    "content": []
+    "content": [
+      "A HTML paragraph on several lines."
+    ]
+  },
+  {
+    "type": "List",
+    "items": [
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "markdown"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "list within"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "content": [
+          {
+            "type": "Paragraph",
+            "content": [
+              "a div"
+            ]
+          }
+        ]
+      }
+    ],
+    "order": "Unordered"
   }
 ]

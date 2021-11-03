@@ -296,7 +296,7 @@ mod tests {
     #[test]
     fn encode_html_fragments() {
         snapshot_fixtures_content("fragments/html/*.html", |content| {
-            let decoded = decode(content, false).expect("Unable to decode");
+            let decoded = decode(content, None).expect("Unable to decode");
             let encoded = encode(
                 &decoded,
                 Some(EncodeOptions {
@@ -329,7 +329,7 @@ mod tests {
         let html = std::fs::read_to_string(
             home().join("rust/codec-html/src/snapshots/encode_html_fragments@heading.html.snap"),
         )?;
-        let decoded = decode(&html, false)?;
+        let decoded = decode(&html, None)?;
         let html = encode(
             &decoded,
             Some(EncodeOptions {

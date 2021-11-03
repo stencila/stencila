@@ -31,7 +31,7 @@ impl CodecTrait for HtmlCodec {
 
     #[cfg(feature = "decode")]
     fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        decode::decode(str, false)
+        decode::decode(str, None)
     }
 
     #[cfg(feature = "encode")]
