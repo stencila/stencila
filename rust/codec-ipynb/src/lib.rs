@@ -1,6 +1,7 @@
-//! A codec for Jupter Notebooks
-
-use codec_trait::{eyre::Result, stencila_schema::Node, Codec, DecodeOptions, EncodeOptions};
+use codec::{
+    eyre::Result, stencila_schema::Node, utils::vec_string, Codec, CodecTrait, DecodeOptions,
+    EncodeOptions,
+};
 
 #[cfg(feature = "decode")]
 mod decode;
@@ -12,10 +13,30 @@ mod encode;
 mod translate;
 pub use translate::*;
 
+// A codec for Jupter Notebook (.ipynb) files
 pub struct IpynbCodec {}
 
 #[cfg(any(feature = "decode", feature = "encode"))]
-impl Codec for IpynbCodec {
+impl CodecTrait for IpynbCodec {
+    fn spec() -> Codec {
+        Codec {
+            status: "alpha".to_string(),
+            formats: vec_string!["html"],
+            root_types: vec_string!["*"],
+            from_string: cfg!(feature = "decode"),
+            from_path: cfg!(feature = "decode"),
+            to_string: cfg!(feature = "encode"),
+            to_path: cfg!(feature = "encode"),
+            unsupported_types: vec_string![
+                // TODO: Remove these when they are fixed in Markdown codec
+                "Table",
+                "NontextualAnnotation",
+                "Quote"
+            ],
+            ..Default::default()
+        }
+    }
+
     #[cfg(feature = "decode")]
     fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         decode::decode(str)

@@ -2,7 +2,7 @@ use super::translate::{
     translate_error, translate_mime_bundle, translate_multiline_string, translate_stderr,
     translate_text,
 };
-use codec_trait::{eyre::Result, stencila_schema::*};
+use codec::{eyre::Result, stencila_schema::*};
 use node_coerce::coerce;
 use node_transform::Transform;
 

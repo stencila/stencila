@@ -1,5 +1,5 @@
+use codec::{eyre::Result, stencila_schema::*, CodecTrait, EncodeOptions};
 use codec_md::MarkdownCodec;
-use codec_trait::{eyre::Result, stencila_schema::*, Codec, EncodeOptions};
 
 /// Encode a `Node` to R Markdown
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {

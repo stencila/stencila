@@ -1,4 +1,4 @@
-use codec_trait::Codec;
+use codec::CodecTrait;
 use eyre::Result;
 use stencila_schema::Node;
 

@@ -1,5 +1,5 @@
-use codec_pandoc::decode_pandoc;
-use codec_pandoc::encode_node;
+use codec::CodecTrait;
+use codec_pandoc::{decode_pandoc, encode_node, PandocCodec};
 use test_props::{article, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
 
@@ -9,11 +9,8 @@ proptest! {
     #[test]
     fn test(input in article(
         Freedom::Min,
-        // TODO: Apply fixes to allow this excluded types to be included
-        // Blocks to exclude
-        "Table".to_string(),
-        // Inlines to exclude
-        "AudioObject ImageObject VideoObject".to_string()
+        PandocCodec::spec().unsupported_types,
+        PandocCodec::spec().unsupported_properties,
     )) {
         let pandoc = encode_node(&input).unwrap();
         let output = decode_pandoc(pandoc).unwrap();

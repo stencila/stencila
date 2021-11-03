@@ -1,6 +1,6 @@
+use codec::CodecTrait;
 use codec_date::DateCodec;
 use codec_person::PersonCodec;
-use codec_trait::Codec;
 use codec_txt::ToTxt;
 use defaults::Defaults;
 use eyre::Result;

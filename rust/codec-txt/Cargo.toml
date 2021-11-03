@@ -5,7 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-codec-trait = { path = "../codec-trait", version = "0.0.0" }
+codec = { path = "../codec", version = "0.0.0" }
 json5 = "0.4.1"
 node-coerce = { path = "../node-coerce", version = "0.0.0" }
 

@@ -7,7 +7,7 @@ edition = "2021"
 [features]
 default = ["decode", "encode", "translate"]
 decode = [
-    "codec-trait",
+    "codec",
     "node-coerce",
     "node-transform",
     "tracing",
@@ -17,7 +17,7 @@ encode = [
     "base64",
     "codec-html",
     "codec-md",
-    "codec-trait",
+    "codec",
     "codec-txt",
     "serde_json",
     "serde",
@@ -34,7 +34,7 @@ translate = [
 base64 = { version = "0.13.0", optional = true }
 codec-html = { path = "../codec-html", version = "0.0.0", optional = true }
 codec-md = { path = "../codec-md", version = "0.0.0", optional = true }
-codec-trait = { path = "../codec-trait", version = "0.0.0", optional = true }
+codec = { path = "../codec", version = "0.0.0", optional = true }
 codec-txt = { path = "../codec-txt", version = "0.0.0", optional = true }
 node-coerce = { path = "../node-coerce", version = "0.0.0", optional = true }
 node-transform = { path = "../node-transform", version = "0.0.0", optional = true }

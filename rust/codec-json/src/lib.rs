@@ -1,11 +1,25 @@
-//! A codec for JSON
-
-use codec_trait::{eyre::Result, stencila_schema::Node, Codec, DecodeOptions, EncodeOptions};
+use codec::{
+    eyre::Result, stencila_schema::Node, utils::vec_string, Codec, CodecTrait, DecodeOptions,
+    EncodeOptions,
+};
 use node_coerce::coerce;
 
+/// A codec for JSON
 pub struct JsonCodec {}
 
-impl Codec for JsonCodec {
+impl CodecTrait for JsonCodec {
+    fn spec() -> Codec {
+        Codec {
+            formats: vec_string!["json"],
+            root_types: vec_string!["*"],
+            from_string: true,
+            from_path: true,
+            to_string: true,
+            to_path: true,
+            ..Default::default()
+        }
+    }
+
     fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         coerce(serde_json::from_str(str)?, None)
     }
@@ -23,7 +37,7 @@ impl Codec for JsonCodec {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use codec_trait::stencila_schema::{Paragraph, Primitive};
+    use codec::stencila_schema::{Paragraph, Primitive};
     use std::collections::BTreeMap;
     use test_utils::assert_json_eq;
 

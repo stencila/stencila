@@ -1,5 +1,5 @@
+use codec::CodecTrait;
 use codec_docx::DocxCodec;
-use codec_trait::Codec;
 use once_cell::sync::Lazy;
 use test_props::{article, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
@@ -13,11 +13,8 @@ proptest! {
     #[test]
     fn test(input in article(
         Freedom::Min,
-        // TODO: Apply fixes to allow this excluded types to be included
-        // Blocks to exclude
-        "Heading Table".to_string(),
-        // Inlines to exclude
-        "AudioObject ImageObject VideoObject Quote".to_string()
+        DocxCodec::spec().unsupported_types,
+        DocxCodec::spec().unsupported_properties
     )) {
         RUNTIME.block_on(async {
             let file = tempfile::NamedTempFile::new().unwrap();

@@ -1,11 +1,11 @@
 use crate::from_pandoc;
-use codec_json::JsonCodec;
-use codec_rpng::RpngCodec;
-use codec_trait::{
+use codec::{
     eyre::{bail, Result},
     stencila_schema::*,
-    Codec,
+    CodecTrait,
 };
+use codec_json::JsonCodec;
+use codec_rpng::RpngCodec;
 use codec_txt::ToTxt;
 use formats::{FormatNodeType, FORMATS};
 use node_coerce::coerce;

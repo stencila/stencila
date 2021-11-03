@@ -1,8 +1,8 @@
-use codec_rpng::RpngCodec;
-use codec_trait::{
+use codec::{
     stencila_schema::{BlockContent, Node},
-    Codec,
+    CodecTrait,
 };
+use codec_rpng::RpngCodec;
 use test_props::{code_chunk, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
 

@@ -4,7 +4,7 @@
 //! for executing code within them. They use them to translate Jupyter outputs
 //! and errors into their Stencila equivalents.
 
-use codec_trait::Codec;
+use codec::CodecTrait;
 use codec_txt::TxtCodec;
 use node_transform::Transform;
 use once_cell::sync::Lazy;

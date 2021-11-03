@@ -1,16 +1,26 @@
-//! A codec for date(time)s
-
 use chrono::{DateTime, Local, TimeZone, Utc};
-use codec_trait::{
+use codec::{
     eyre::{bail, Result},
     stencila_schema::{Date, Node},
-    Codec, DecodeOptions,
+    utils::vec_string,
+    Codec, CodecTrait, DecodeOptions,
 };
 use dtparse::parse;
 
+// A codec for `Date` nodes
 pub struct DateCodec {}
 
-impl Codec for DateCodec {
+impl CodecTrait for DateCodec {
+    fn spec() -> Codec {
+        Codec {
+            formats: vec_string!["date"],
+            root_types: vec_string!["Date"],
+            from_string: true,
+            from_path: true,
+            ..Default::default()
+        }
+    }
+
     fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         if let Ok((naive, offset)) = parse(str) {
             let utc = match offset {

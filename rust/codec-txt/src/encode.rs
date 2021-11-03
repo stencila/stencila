@@ -1,4 +1,4 @@
-use codec_trait::stencila_schema::*;
+use codec::stencila_schema::*;
 
 /// A trait to encode a `Node` as plain text
 ///

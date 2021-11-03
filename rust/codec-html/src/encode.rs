@@ -1,4 +1,4 @@
-use codec_trait::{eyre::Result, EncodeOptions};
+use codec::{eyre::Result, EncodeOptions};
 use html_escape::{encode_double_quoted_attribute, encode_safe};
 use inflector::cases::camelcase::to_camel_case;
 use std::any::type_name;
@@ -287,7 +287,7 @@ mod works;
 mod tests {
     use super::*;
     use crate::decode::decode;
-    use codec_trait::eyre::bail;
+    use codec::eyre::bail;
     use serde_json::json;
     use test_snaps::{insta::assert_display_snapshot, snapshot_fixtures_content};
     use test_utils::{assert_json_eq, home, skip_slow_tests};

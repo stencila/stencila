@@ -1,8 +1,8 @@
 //! Coerce a JSON value to a Stencila document `Node`
 
+use codec::CodecTrait;
 use codec_date::DateCodec;
 use codec_person::PersonCodec;
-use codec_trait::Codec;
 use eyre::{bail, Result};
 use inflector::Inflector;
 use once_cell::sync::Lazy;

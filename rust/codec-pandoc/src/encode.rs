@@ -1,6 +1,6 @@
 use crate::to_pandoc;
+use codec::{eyre::Result, stencila_schema::*, CodecTrait, EncodeOptions};
 use codec_json::JsonCodec;
-use codec_trait::{eyre::Result, stencila_schema::*, Codec, EncodeOptions};
 use node_transform::Transform;
 use pandoc_types::definition as pandoc;
 use path_slash::PathBufExt;

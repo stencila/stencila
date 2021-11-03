@@ -1,4 +1,4 @@
-use codec_trait::{eyre::Result, Codec};
+use codec::{eyre::Result, CodecTrait};
 use codec_txt::TxtCodec;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::{local_name, LocalName};

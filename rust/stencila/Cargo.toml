@@ -265,7 +265,7 @@ codec-png = { path = "../codec-png", version = "0.0.0", optional = true }
 codec-rmd = { path = "../codec-rmd", version = "0.0.0", optional = true }
 codec-rpng = { path = "../codec-rpng", version = "0.0.0", optional = true }
 codec-toml = { path = "../codec-toml", version = "0.0.0", optional = true }
-codec-trait = { path = "../codec-trait", version = "0.0.0" }
+codec = { path = "../codec", version = "0.0.0" }
 codec-txt = { path = "../codec-txt", version = "0.0.0", optional = true }
 codec-yaml = { path = "../codec-yaml", version = "0.0.0", optional = true }
 formats = { path = "../formats", version = "0.0.0" }

@@ -1,10 +1,11 @@
-use codec_json::JsonCodec;
-use codec_trait::{
+use codec::{
     async_trait::async_trait,
     eyre::{bail, Result},
     stencila_schema::Node,
-    Codec, DecodeOptions, EncodeOptions,
+    utils::vec_string,
+    Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
+use codec_json::JsonCodec;
 use std::{fs, path::Path};
 
 /// Encode and decode a document node to a reproducible PNG image.
@@ -22,7 +23,20 @@ use std::{fs, path::Path};
 pub struct RpngCodec {}
 
 #[async_trait]
-impl Codec for RpngCodec {
+impl CodecTrait for RpngCodec {
+    fn spec() -> Codec {
+        Codec {
+            status: "alpha".to_string(),
+            formats: vec_string!["rpng"],
+            root_types: vec_string!["*"],
+            from_string: true,
+            from_path: true,
+            to_string: true,
+            to_path: true,
+            ..Default::default()
+        }
+    }
+
     /// Decode a document node from a string
     ///
     /// This function scans the PNG for a `iTXt` chunk with a matching keyword and then delegates
@@ -163,7 +177,7 @@ pub async fn nodes_to_bytes(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use codec_trait::stencila_schema::CodeChunk;
+    use codec::stencila_schema::CodeChunk;
     use test_utils::assert_json_eq;
 
     /// End-to-end test of encoding a node to a PNG and then decoding

@@ -8,7 +8,7 @@ edition = "2021"
 base64 = "0.13.0"
 codec-json = { path = "../codec-json", version = "0.0.0" }
 codec-png = { path = "../codec-png", version = "0.0.0" }
-codec-trait = { path = "../codec-trait", version = "0.0.0" }
+codec = { path = "../codec", version = "0.0.0" }
 png = "0.17.2"
 
 [dev-dependencies]

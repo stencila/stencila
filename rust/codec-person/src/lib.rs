@@ -1,17 +1,27 @@
-//! A codec for people's names, honorifics and contact details
-
-use codec_trait::{
+use codec::{
     eyre::{bail, Result},
     stencila_schema::{Node, Person},
-    Codec, DecodeOptions,
+    utils::vec_string,
+    Codec, CodecTrait, DecodeOptions,
 };
 use human_name::Name;
 use once_cell::sync::Lazy;
 use regex::Regex;
 
+// A codec for people's names, honorifics and contact details
 pub struct PersonCodec {}
 
-impl Codec for PersonCodec {
+impl CodecTrait for PersonCodec {
+    fn spec() -> Codec {
+        Codec {
+            formats: vec_string!["person"],
+            root_types: vec_string!["Person"],
+            from_string: true,
+            from_path: true,
+            ..Default::default()
+        }
+    }
+
     fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         if let Some(name) = Name::parse(str) {
             let given_names = if let Some(first_name) = name.given_name() {

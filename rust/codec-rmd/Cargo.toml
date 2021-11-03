@@ -10,7 +10,7 @@ decode = ["codec-md/decode"]
 encode = ["codec-md/encode"]
 
 [dependencies]
-codec-trait = { path = "../codec-trait", version = "0.0.0" }
+codec = { path = "../codec", version = "0.0.0" }
 codec-md = { path = "../codec-md", version = "0.0.0" }
 
 [dev-dependencies]

@@ -1,8 +1,8 @@
-use codec_md::ToMd;
-use codec_trait::{
+use codec::{
     eyre::{bail, Result},
     stencila_schema::*,
 };
+use codec_md::ToMd;
 use codec_txt::ToTxt;
 use serde::Serialize;
 use serde_json::json;

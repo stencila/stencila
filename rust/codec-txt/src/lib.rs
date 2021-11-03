@@ -1,21 +1,33 @@
-//! A codec for plain text
-//!
-//! This codec is intentionally lossy but is useful for when a
-//! plain text representation of a node is needed.
-
-use codec_trait::{
+use codec::{
     eyre::Result,
     stencila_schema::{Node, Null},
-    Codec, DecodeOptions, EncodeOptions,
+    utils::vec_string,
+    Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
 use node_coerce::coerce;
 
 mod encode;
 pub use encode::ToTxt;
 
+/// A codec for plain text
+///
+/// This codec is intentionally lossy but is useful for when a
+/// plain text representation of a node is needed.
 pub struct TxtCodec {}
 
-impl Codec for TxtCodec {
+impl CodecTrait for TxtCodec {
+    fn spec() -> Codec {
+        Codec {
+            formats: vec_string!["txt"],
+            root_types: vec_string!["*"],
+            from_string: true,
+            from_path: true,
+            to_string: true,
+            to_path: true,
+            ..Default::default()
+        }
+    }
+
     /// Decode plain text to a `Node`
     ///
     /// Attempts to decode as a JSON5 string first, falling back
@@ -59,7 +71,7 @@ mod tests {
     use std::collections::BTreeMap;
 
     use super::*;
-    use codec_trait::{eyre::bail, stencila_schema::Primitive};
+    use codec::{eyre::bail, stencila_schema::Primitive};
     use test_utils::assert_json_eq;
 
     #[test]

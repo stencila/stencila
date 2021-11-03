@@ -1,5 +1,5 @@
+use codec::CodecTrait;
 use codec_md::MarkdownCodec;
-use codec_trait::Codec;
 use test_props::{article, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
 
@@ -9,12 +9,8 @@ proptest! {
     #[test]
     fn test(input in article(
         Freedom::Min,
-        // Blocks to exclude
-        // TODO: Fix handling of table headers
-        "Table".to_string(),
-        // Inlines to exclude
-        // TODO: Fix these inline nodes that use HTML notation
-        "NontextualAnnotation Quote".to_string()
+        MarkdownCodec::spec().unsupported_types,
+        MarkdownCodec::spec().unsupported_properties,
     )) {
         let string = MarkdownCodec::to_string(&input, None).unwrap();
         let output = MarkdownCodec::from_str(&string, None).unwrap();

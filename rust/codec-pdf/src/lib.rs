@@ -1,8 +1,9 @@
 use chromiumoxide::{cdp::browser_protocol::page::PrintToPdfParamsBuilder, Browser, BrowserConfig};
-use codec_html::HtmlCodec;
-use codec_trait::{
-    async_trait::async_trait, eyre::Result, stencila_schema::Node, Codec, EncodeOptions,
+use codec::{
+    async_trait::async_trait, eyre::Result, stencila_schema::Node, utils::vec_string, Codec,
+    CodecTrait, EncodeOptions,
 };
+use codec_html::HtmlCodec;
 use futures::StreamExt;
 use std::path::Path;
 
@@ -13,7 +14,17 @@ use std::path::Path;
 pub struct PdfCodec {}
 
 #[async_trait]
-impl Codec for PdfCodec {
+impl CodecTrait for PdfCodec {
+    fn spec() -> Codec {
+        Codec {
+            status: "alpha".to_string(),
+            formats: vec_string!["pdf"],
+            root_types: vec_string!["Article"],
+            to_path: true,
+            ..Default::default()
+        }
+    }
+
     /// Encode a document node to a file system path
     async fn to_path<T: AsRef<Path>>(
         node: &Node,
@@ -65,7 +76,7 @@ impl Codec for PdfCodec {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use codec_trait::stencila_schema::Article;
+    use codec::stencila_schema::Article;
 
     #[cfg(target_os = "linux")]
     #[tokio::test]

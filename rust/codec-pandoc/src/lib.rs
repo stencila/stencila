@@ -1,8 +1,9 @@
-use codec_trait::{
+use codec::{
     async_trait::async_trait,
     eyre::{bail, Result},
     stencila_schema::Node,
-    Codec, DecodeOptions, EncodeOptions,
+    utils::vec_string,
+    Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
 use pandoc_types::definition as pandoc;
 use std::{io::Write, path::PathBuf, process::Stdio};
@@ -29,7 +30,27 @@ pub use encode::{encode, encode_node};
 pub struct PandocCodec {}
 
 #[async_trait]
-impl Codec for PandocCodec {
+impl CodecTrait for PandocCodec {
+    fn spec() -> Codec {
+        Codec {
+            status: "alpha".to_string(),
+            formats: vec_string!["pandoc"],
+            root_types: vec_string!["Article"],
+            from_string: cfg!(feature = "decode"),
+            from_path: cfg!(feature = "decode"),
+            to_string: cfg!(feature = "encode"),
+            to_path: cfg!(feature = "encode"),
+            unsupported_types: vec_string![
+                // TODO: Fix these
+                "Table",
+                "AudioObject",
+                "ImageObject",
+                "VideoObject"
+            ],
+            ..Default::default()
+        }
+    }
+
     #[cfg(feature = "decode")]
     async fn from_str_async(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         decode(str, None, "pandoc", &[]).await

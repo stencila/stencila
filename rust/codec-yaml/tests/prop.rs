@@ -1,4 +1,4 @@
-use codec_trait::Codec;
+use codec::CodecTrait;
 use codec_yaml::YamlCodec;
 use test_props::{node, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;

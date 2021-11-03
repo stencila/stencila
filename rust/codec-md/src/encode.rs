@@ -1,4 +1,4 @@
-use codec_trait::{eyre::Result, stencila_schema::*, EncodeOptions};
+use codec::{eyre::Result, stencila_schema::*, EncodeOptions};
 use itertools::Itertools;
 use std::cmp::max;
 

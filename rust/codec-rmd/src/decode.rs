@@ -1,5 +1,5 @@
+use codec::{eyre::Result, stencila_schema::*, CodecTrait, DecodeOptions};
 use codec_md::MarkdownCodec;
-use codec_trait::{eyre::Result, stencila_schema::*, Codec, DecodeOptions};
 
 const LANGUAGES: &[&str] = &["r", "py", "python", "js", "javascript"];
 

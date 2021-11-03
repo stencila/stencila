@@ -1,4 +1,4 @@
-use codec_trait::{eyre::Result, Codec, DecodeOptions, EncodeOptions};
+use codec::{eyre::Result, utils::vec_string, Codec, CodecTrait, DecodeOptions, EncodeOptions};
 use stencila_schema::Node;
 
 #[cfg(feature = "decode")]
@@ -13,9 +13,22 @@ mod encode;
 #[cfg(feature = "encode")]
 pub use encode::{wrap_standalone, EncodeContext, ToHtml};
 
+/// A codec for HTML
 pub struct HtmlCodec {}
 
-impl Codec for HtmlCodec {
+impl CodecTrait for HtmlCodec {
+    fn spec() -> Codec {
+        Codec {
+            formats: vec_string!["html"],
+            root_types: vec_string!["*"],
+            from_string: cfg!(feature = "decode"),
+            from_path: cfg!(feature = "decode"),
+            to_string: cfg!(feature = "encode"),
+            to_path: cfg!(feature = "encode"),
+            ..Default::default()
+        }
+    }
+
     #[cfg(feature = "decode")]
     fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         decode::decode(str, false)

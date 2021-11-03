@@ -11,7 +11,7 @@ use crate::{
         uuids::{self},
     },
 };
-use codec_trait::EncodeOptions;
+use codec::EncodeOptions;
 use defaults::Defaults;
 use eyre::{bail, Result};
 use formats::{Format, FORMATS};

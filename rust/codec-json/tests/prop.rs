@@ -1,5 +1,5 @@
+use codec::CodecTrait;
 use codec_json::JsonCodec;
-use codec_trait::Codec;
 use test_props::{node, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
 

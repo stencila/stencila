@@ -19,7 +19,7 @@ encode = ["itertools"]
 
 [dependencies]
 codec-html = { path = "../codec-html", version = "0.0.0" }
-codec-trait = { path = "../codec-trait", version = "0.0.0" }
+codec = { path = "../codec", version = "0.0.0" }
 codec-txt = { path = "../codec-txt", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }
 itertools = { version = "0.10.1", optional = true }

@@ -704,11 +704,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "eyre",
+ "serde",
+ "stencila-schema",
+ "utils",
+]
+
+[[package]]
 name = "codec-date"
 version = "0.0.0"
 dependencies = [
  "chrono",
- "codec-trait",
+ "codec",
  "dtparse",
  "test-utils",
 ]
@@ -717,8 +728,8 @@ dependencies = [
 name = "codec-docx"
 version = "0.0.0"
 dependencies = [
+ "codec",
  "codec-pandoc",
- "codec-trait",
  "once_cell",
  "tempfile",
  "test-props",
@@ -730,7 +741,7 @@ dependencies = [
 name = "codec-format"
 version = "0.0.0"
 dependencies = [
- "codec-trait",
+ "codec",
  "formats",
 ]
 
@@ -740,7 +751,7 @@ version = "0.0.0"
 dependencies = [
  "Inflector",
  "base64 0.13.0",
- "codec-trait",
+ "codec",
  "codec-txt",
  "html-escape",
  "itertools",
@@ -764,9 +775,9 @@ name = "codec-ipynb"
 version = "0.0.0"
 dependencies = [
  "base64 0.13.0",
+ "codec",
  "codec-html",
  "codec-md",
- "codec-trait",
  "codec-txt",
  "node-coerce",
  "node-transform",
@@ -786,7 +797,7 @@ dependencies = [
 name = "codec-json"
 version = "0.0.0"
 dependencies = [
- "codec-trait",
+ "codec",
  "node-coerce",
  "serde_json",
  "test-props",
@@ -797,7 +808,7 @@ dependencies = [
 name = "codec-json5"
 version = "0.0.0"
 dependencies = [
- "codec-trait",
+ "codec",
  "json5",
  "node-coerce",
  "serde_json",
@@ -809,8 +820,8 @@ dependencies = [
 name = "codec-latex"
 version = "0.0.0"
 dependencies = [
+ "codec",
  "codec-pandoc",
- "codec-trait",
  "once_cell",
  "test-props",
  "test-utils",
@@ -821,8 +832,8 @@ dependencies = [
 name = "codec-md"
 version = "0.0.0"
 dependencies = [
+ "codec",
  "codec-html",
- "codec-trait",
  "codec-txt",
  "formats",
  "itertools",
@@ -846,9 +857,9 @@ name = "codec-pandoc"
 version = "0.0.0"
 dependencies = [
  "binaries",
+ "codec",
  "codec-json",
  "codec-rpng",
- "codec-trait",
  "codec-txt",
  "formats",
  "node-coerce",
@@ -869,8 +880,8 @@ version = "0.0.0"
 dependencies = [
  "binaries",
  "chromiumoxide",
+ "codec",
  "codec-html",
- "codec-trait",
  "futures",
  "tempfile",
  "tokio",
@@ -880,7 +891,7 @@ dependencies = [
 name = "codec-person"
 version = "0.0.0"
 dependencies = [
- "codec-trait",
+ "codec",
  "human_name",
  "once_cell",
  "regex",
@@ -894,8 +905,8 @@ dependencies = [
  "base64 0.13.0",
  "binaries",
  "chromiumoxide",
+ "codec",
  "codec-html",
- "codec-trait",
  "futures",
  "tempfile",
  "tokio",
@@ -905,8 +916,8 @@ dependencies = [
 name = "codec-rmd"
 version = "0.0.0"
 dependencies = [
+ "codec",
  "codec-md",
- "codec-trait",
  "test-props",
  "test-snaps",
  "test-utils",
@@ -917,9 +928,9 @@ name = "codec-rpng"
 version = "0.0.0"
 dependencies = [
  "base64 0.13.0",
+ "codec",
  "codec-json",
  "codec-png",
- "codec-trait",
  "png",
  "tempfile",
  "test-props",
@@ -931,7 +942,7 @@ dependencies = [
 name = "codec-toml"
 version = "0.0.0"
 dependencies = [
- "codec-trait",
+ "codec",
  "node-coerce",
  "test-props",
  "test-utils",
@@ -939,19 +950,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "codec-trait"
-version = "0.0.0"
-dependencies = [
- "async-trait",
- "eyre",
- "stencila-schema",
-]
-
-[[package]]
 name = "codec-txt"
 version = "0.0.0"
 dependencies = [
- "codec-trait",
+ "codec",
  "json5",
  "node-coerce",
  "test-utils",
@@ -961,7 +963,7 @@ dependencies = [
 name = "codec-yaml"
 version = "0.0.0"
 dependencies = [
- "codec-trait",
+ "codec",
  "node-coerce",
  "serde_yaml",
  "test-props",
@@ -2957,9 +2959,9 @@ name = "node-coerce"
 version = "0.0.0"
 dependencies = [
  "Inflector",
+ "codec",
  "codec-date",
  "codec-person",
- "codec-trait",
  "eyre",
  "once_cell",
  "regex",
@@ -4521,6 +4523,7 @@ dependencies = [
  "bollard",
  "chrono",
  "cli",
+ "codec",
  "codec-date",
  "codec-docx",
  "codec-format",
@@ -4537,7 +4540,6 @@ dependencies = [
  "codec-rmd",
  "codec-rpng",
  "codec-toml",
- "codec-trait",
  "codec-txt",
  "codec-yaml",
  "color-eyre",
@@ -5473,6 +5475,10 @@ name = "utf8parse"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "936e4b492acfd135421d8dca4b1aa80a7bfc26e702ef3af710e0752684df5372"
+
+[[package]]
+name = "utils"
+version = "0.0.0"
 
 [[package]]
 name = "uuid"

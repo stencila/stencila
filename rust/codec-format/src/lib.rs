@@ -1,14 +1,31 @@
-use codec_trait::{
+use codec::{
     eyre::{bail, Result},
     stencila_schema::{Article, AudioObject, ImageObject, Node, SoftwareSourceCode, VideoObject},
-    Codec, DecodeOptions,
+    utils::vec_string,
+    Codec, CodecTrait, DecodeOptions,
 };
 use formats::{FormatNodeType, FORMATS};
 
 /// A fallback codec that decodes a node based on the format name provided
 pub struct FormatCodec {}
 
-impl Codec for FormatCodec {
+impl CodecTrait for FormatCodec {
+    fn spec() -> Codec {
+        Codec {
+            formats: vec_string!["*"],
+            root_types: vec_string![
+                "Article",
+                "AudioObject",
+                "ImageObject",
+                "VideoObject",
+                "SoftwareSourceCode"
+            ],
+            from_string: true,
+            from_path: true,
+            ..Default::default()
+        }
+    }
+
     fn from_str(content: &str, options: Option<DecodeOptions>) -> Result<Node> {
         let format_name = match options.unwrap_or_default().format {
             Some(format) => format,

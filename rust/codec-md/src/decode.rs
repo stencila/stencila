@@ -1,4 +1,4 @@
-use codec_trait::{
+use codec::{
     eyre::{bail, Result},
     stencila_schema::*,
 };

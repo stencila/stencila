@@ -13,7 +13,7 @@ encode = ["node-transform"]
 binaries = { path = "../binaries", version = "0.0.0" }
 codec-json = { path = "../codec-json", version = "0.0.0" }
 codec-rpng = { path = "../codec-rpng", version = "0.0.0" }
-codec-trait = { path = "../codec-trait", version = "0.0.0" }
+codec = { path = "../codec", version = "0.0.0" }
 codec-txt = { path = "../codec-txt", version = "0.0.0", optional = true }
 formats = { path = "../formats", version = "0.0.0" }
 node-coerce = { path = "../node-coerce", version = "0.0.0", optional = true }

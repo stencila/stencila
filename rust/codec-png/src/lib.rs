@@ -1,10 +1,9 @@
-//! A codec for PNG images
-
 use chromiumoxide::{cdp::browser_protocol::page::CaptureScreenshotFormat, Browser, BrowserConfig};
-use codec_html::HtmlCodec;
-use codec_trait::{
-    async_trait::async_trait, eyre::Result, stencila_schema::Node, Codec, EncodeOptions,
+use codec::{
+    async_trait::async_trait, eyre::Result, stencila_schema::Node, utils::vec_string, Codec,
+    CodecTrait, EncodeOptions,
 };
+use codec_html::HtmlCodec;
 use futures::StreamExt;
 use std::{fs, path::Path};
 
@@ -15,7 +14,18 @@ use std::{fs, path::Path};
 pub struct PngCodec {}
 
 #[async_trait]
-impl Codec for PngCodec {
+impl CodecTrait for PngCodec {
+    fn spec() -> Codec {
+        Codec {
+            status: "alpha".to_string(),
+            formats: vec_string!["png"],
+            root_types: vec_string!["*"],
+            to_string: true,
+            to_path: true,
+            ..Default::default()
+        }
+    }
+
     /// Encode a document node to a string
     ///
     /// Returns a Base64 encoded dataURI with media type `image/png`.
@@ -105,7 +115,7 @@ pub async fn nodes_to_bytes(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use codec_trait::stencila_schema::CodeChunk;
+    use codec::stencila_schema::CodeChunk;
 
     #[cfg(target_os = "linux")]
     #[tokio::test]

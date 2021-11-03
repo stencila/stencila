@@ -1,13 +1,17 @@
+use codec::CodecTrait;
 use codec_rmd::RmdCodec;
-use codec_trait::Codec;
-use test_props::{node, proptest::prelude::*, Freedom};
+use test_props::{article, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
 
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(100))]
 
     #[test]
-    fn test(input in node(Freedom::Min)) {
+    fn test(input in article(
+        Freedom::Min,
+        RmdCodec::spec().unsupported_types,
+        RmdCodec::spec().unsupported_properties,
+    ))  {
         let string = RmdCodec::to_string(&input, None).unwrap();
         let output = RmdCodec::from_str(&string, None).unwrap();
         assert_json_eq!(input, output)
