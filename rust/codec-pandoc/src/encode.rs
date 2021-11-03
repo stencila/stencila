@@ -4,16 +4,21 @@ use codec_trait::{eyre::Result, stencila_schema::*, Codec, EncodeOptions};
 use node_transform::Transform;
 use pandoc_types::definition as pandoc;
 use path_slash::PathBufExt;
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 /// Encode a `Node` to a document via Pandoc
 ///
 /// Intended primarily for use by other internal codec crates e.g. `codec-docx`, `codec-latex`
-pub async fn encode(node: &Node, output: &str, format: &str, args: &[String]) -> Result<String> {
+pub async fn encode(
+    node: &Node,
+    path: Option<PathBuf>,
+    format: &str,
+    args: &[String],
+) -> Result<String> {
     let mut context = EncodeContext::new()?;
     let pandoc = node.to_pandoc(&mut context);
     context.generate_rpngs().await?;
-    to_pandoc(pandoc, output, format, args).await
+    to_pandoc(pandoc, path, format, args).await
 }
 
 /// Encode a `Node` to a Pandoc document

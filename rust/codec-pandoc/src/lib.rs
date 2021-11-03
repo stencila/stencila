@@ -8,10 +8,16 @@ use pandoc_types::definition as pandoc;
 use std::{io::Write, path::PathBuf, process::Stdio};
 
 #[cfg(feature = "decode")]
-pub mod decode;
+mod decode;
+
+#[cfg(feature = "decode")]
+pub use decode::{decode, decode_fragment, decode_pandoc};
 
 #[cfg(feature = "encode")]
-pub mod encode;
+mod encode;
+
+#[cfg(feature = "encode")]
+pub use encode::{encode, encode_node};
 
 /// A codec for Pandoc JSON
 ///
@@ -26,12 +32,12 @@ pub struct PandocCodec {}
 impl Codec for PandocCodec {
     #[cfg(feature = "decode")]
     async fn from_str_async(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
-        decode::decode(str, "pandoc", &[]).await
+        decode(str, None, "pandoc", &[]).await
     }
 
     #[cfg(feature = "encode")]
     async fn to_string_async(node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
-        encode::encode(node, "string://", "pandoc", &[]).await
+        encode(node, None, "pandoc", &[]).await
     }
 }
 
@@ -48,7 +54,12 @@ impl Codec for PandocCodec {
 pub const PANDOC_SEMVER: &str = ">=2.11";
 
 /// Call Pandoc binary to convert some input content to Pandoc JSON.
-pub async fn from_pandoc(input: &str, format: &str, args: &[String]) -> Result<pandoc::Pandoc> {
+pub async fn from_pandoc(
+    input: &str,
+    path: Option<PathBuf>,
+    format: &str,
+    args: &[&str],
+) -> Result<pandoc::Pandoc> {
     let json = if format == "pandoc" {
         input.to_string()
     } else {
@@ -59,9 +70,9 @@ pub async fn from_pandoc(input: &str, format: &str, args: &[String]) -> Result<p
         command.args(args);
         command.stdout(Stdio::piped());
 
-        let child = if let Some(path) = input.strip_prefix("file://") {
-            if !PathBuf::from(path).exists() {
-                bail!("File does not exists: {}", path)
+        let child = if let Some(path) = path {
+            if !path.exists() {
+                bail!("File does not exists: {}", path.to_string_lossy())
             }
             command.arg(path).spawn()?
         } else {
@@ -82,7 +93,7 @@ pub async fn from_pandoc(input: &str, format: &str, args: &[String]) -> Result<p
 /// Call Pandoc binary to convert Pandoc JSON to some output format
 pub async fn to_pandoc(
     doc: pandoc::Pandoc,
-    output: &str,
+    path: Option<PathBuf>,
     format: &str,
     args: &[String],
 ) -> Result<String> {
@@ -96,8 +107,8 @@ pub async fn to_pandoc(
         let mut command = binary.command();
         command.args(["--from", "json", "--to", format]);
         command.args(args);
-        if let Some(path) = output.strip_prefix("file://") {
-            command.args(["--output", path]);
+        if let Some(path) = &path {
+            command.args(["--output", &path.to_string_lossy()]);
         }
 
         let mut child = command
@@ -111,8 +122,8 @@ pub async fn to_pandoc(
         let result = child.wait_with_output()?;
         let stdout = std::str::from_utf8(result.stdout.as_ref())?.to_string();
 
-        if output.starts_with("file://") {
-            Ok(output.into())
+        if let Some(path) = path {
+            Ok(path.to_string_lossy().to_string())
         } else {
             Ok(stdout)
         }

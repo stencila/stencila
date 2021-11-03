@@ -9,13 +9,18 @@ use codec_trait::{
 use codec_txt::ToTxt;
 use node_coerce::coerce;
 use pandoc_types::definition as pandoc;
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 /// Decode a document to a `Node`
 ///
 /// Intended primarily for use by other internal codec crates e.g. `codec-docx`, `codec-latex`
-pub async fn decode(input: &str, format: &str, args: &[String]) -> Result<Node> {
-    let pandoc = from_pandoc(input, format, args).await?;
+pub async fn decode(
+    input: &str,
+    path: Option<PathBuf>,
+    format: &str,
+    args: &[&str],
+) -> Result<Node> {
+    let pandoc = from_pandoc(input, path, format, args).await?;
     decode_pandoc(pandoc)
 }
 
@@ -26,13 +31,13 @@ pub async fn decode(input: &str, format: &str, args: &[String]) -> Result<Node> 
 pub async fn decode_fragment(
     input: &str,
     format: &str,
-    args: &[String],
+    args: &[&str],
 ) -> Result<Vec<BlockContent>> {
     if input.is_empty() {
         return Ok(vec![]);
     }
 
-    let pandoc = from_pandoc(input, format, args).await?;
+    let pandoc = from_pandoc(input, None, format, args).await?;
     let context = DecodeContext {};
     Ok(translate_blocks(&pandoc.1, &context))
 }
