@@ -9,7 +9,7 @@ pub use serde_json;
 /// Get the path of the home directory of this repository
 pub fn home() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../..")
+        .join("../..")
         .canonicalize()
         .expect("Unable to get repository home directory")
 }
