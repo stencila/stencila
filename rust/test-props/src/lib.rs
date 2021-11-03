@@ -276,22 +276,34 @@ prop_compose! {
 
 /// Generate one of the inline content node types excluding strings (which
 /// we usually want to be interleaved between them).
-pub fn inline_content(freedom: Freedom) -> impl Strategy<Value = InlineContent> {
-    Union::new(vec![
-        audio_object_simple(freedom).boxed(),
-        image_object_simple(freedom).boxed(),
-        video_object_simple(freedom).boxed(),
-        code_expression(freedom).boxed(),
-        code_fragment(freedom).boxed(),
-        delete(freedom).boxed(),
-        emphasis(freedom).boxed(),
-        link(freedom).boxed(),
-        nontextual_annotation(freedom).boxed(),
-        quote(freedom).boxed(),
-        strong(freedom).boxed(),
-        subscript(freedom).boxed(),
-        superscript(freedom).boxed(),
-    ])
+pub fn inline_content(
+    freedom: Freedom,
+    exclude_inlines: String,
+) -> impl Strategy<Value = InlineContent> {
+    let mut types = Vec::new();
+    for (name, strategy) in [
+        ("AudioObject", audio_object_simple(freedom).boxed()),
+        ("ImageObject", image_object_simple(freedom).boxed()),
+        ("VideoObject", video_object_simple(freedom).boxed()),
+        ("CodeExpression", code_expression(freedom).boxed()),
+        ("CodeFragment", code_fragment(freedom).boxed()),
+        ("Delete", delete(freedom).boxed()),
+        ("Emphasis", emphasis(freedom).boxed()),
+        ("Link", link(freedom).boxed()),
+        (
+            "NontexualAnnotation",
+            nontextual_annotation(freedom).boxed(),
+        ),
+        ("Quote", quote(freedom).boxed()),
+        ("Strong", strong(freedom).boxed()),
+        ("Subscript", subscript(freedom).boxed()),
+        ("Superscript", superscript(freedom).boxed()),
+    ] {
+        if !exclude_inlines.contains(&name.to_string()) {
+            types.push(strategy)
+        }
+    }
+    Union::new(types)
 }
 
 prop_compose! {
@@ -303,7 +315,7 @@ prop_compose! {
     ///   - Always starts and ends with a string.
     ///   - Ensures that nodes such as `Strong` and `Emphasis` are surrounded by spaces (for Markdown).
     ///   - No leading or trailing whitespace (for Markdown).
-    pub fn vec_inline_content(freedom: Freedom)(
+    pub fn vec_inline_content(freedom: Freedom, exclude_inlines: String)(
         length in 1usize..(match freedom {
             Freedom::Min => 1,
             Freedom::Low => 5,
@@ -311,7 +323,7 @@ prop_compose! {
         } + 1)
     )(
         strings in vec(string(freedom), size_range(length + 1)),
-        others in vec(inline_content(freedom), size_range(length))
+        others in vec(inline_content(freedom, exclude_inlines.clone()), size_range(length))
     ) -> Vec<InlineContent> {
         let mut content: Vec<InlineContent> = interleave(strings, others).collect();
         for index in 0..content.len() {
@@ -379,11 +391,11 @@ prop_compose! {
 
 prop_compose! {
     /// Generate a heading with arbitrary content and depth
-    pub fn heading(freedom: Freedom)(
+    pub fn heading(freedom: Freedom, exclude_inlines: String)(
         depth in 1..6,
         content in match freedom {
             Freedom::Min => vec(string(freedom), 1..2).boxed(),
-            _ => vec_inline_content(freedom).boxed()
+            _ => vec_inline_content(freedom, exclude_inlines).boxed()
         }
     ) -> BlockContent {
         BlockContent::Heading(Heading{
@@ -396,8 +408,8 @@ prop_compose! {
 
 prop_compose! {
     /// Generate a paragraph with arbitrary content
-    pub fn paragraph(freedom: Freedom)(
-        content in vec_inline_content(freedom)
+    pub fn paragraph(freedom: Freedom, exclude_inlines: String)(
+        content in vec_inline_content(freedom, exclude_inlines)
     ) -> BlockContent {
         BlockContent::Paragraph(Paragraph{
             content,
@@ -408,9 +420,9 @@ prop_compose! {
 
 prop_compose! {
     /// Generate a list with arbitrary items and order
-    pub fn list(freedom: Freedom)(
+    pub fn list(freedom: Freedom, exclude_inlines: String)(
         order in prop_oneof![Just(ListOrder::Ascending), Just(ListOrder::Unordered)],
-        items in vec(list_item(freedom), 1..(match freedom {
+        items in vec(list_item(freedom, exclude_inlines), 1..(match freedom {
             Freedom::Min => 1,
             Freedom::Low => 3,
             _ => 5,
@@ -429,9 +441,9 @@ prop_compose! {
     /// Unable to use block_content strategy here because that causes infinite recursion.
     /// Be careful increasing the length of content as that can slow down test
     /// significantly (given that this is an inner "loop").
-    pub fn list_item(freedom: Freedom)(
+    pub fn list_item(freedom: Freedom, exclude_inlines: String)(
         content in vec(Union::new(vec![
-            paragraph(freedom).boxed(),
+            paragraph(freedom, exclude_inlines).boxed(),
         ]), 1..(match freedom {
             Freedom::Min => 1,
             Freedom::Low => 2,
@@ -449,16 +461,16 @@ prop_compose! {
     /// Generate a quote block with arbitrary block content.
     /// Does no allow for quote blocks (because that would be a recursive
     /// strategy), or lists or thematic breaks (because they need filtering, see below)
-    pub fn quote_block(freedom: Freedom)(
+    pub fn quote_block(freedom: Freedom, exclude_inlines: String)(
         content in vec(Union::new(
             match freedom {
                 Freedom::Min => vec![
-                    paragraph(freedom).boxed(),
+                    paragraph(freedom, exclude_inlines).boxed(),
                 ],
                 _ => vec![
                     code_block(freedom).boxed(),
-                    heading(freedom).boxed(),
-                    paragraph(freedom).boxed(),
+                    heading(freedom, exclude_inlines.clone()).boxed(),
+                    paragraph(freedom, exclude_inlines).boxed(),
                 ]
             }),
             1..(match freedom {
@@ -557,17 +569,37 @@ pub fn thematic_break() -> impl Strategy<Value = BlockContent> {
 }
 
 /// Generate one of the block content node types
-pub fn block_content(freedom: Freedom) -> impl Strategy<Value = BlockContent> {
-    Union::new(vec![
-        code_block(freedom).boxed(),
-        code_chunk(freedom).boxed(),
-        heading(freedom).boxed(),
-        list(freedom).boxed(),
-        paragraph(freedom).boxed(),
-        quote_block(freedom).boxed(),
-        table(freedom).boxed(),
-        thematic_break().boxed(),
-    ])
+pub fn block_content(
+    freedom: Freedom,
+    exclude_blocks: String,
+    exclude_inlines: String,
+) -> impl Strategy<Value = BlockContent> {
+    let mut strategies = Vec::new();
+    if !exclude_blocks.contains(&"CodeBlock".to_string()) {
+        strategies.push(code_block(freedom).boxed())
+    }
+    if !exclude_blocks.contains(&"CodeChunk".to_string()) {
+        strategies.push(code_chunk(freedom).boxed())
+    }
+    if !exclude_blocks.contains(&"Heading".to_string()) {
+        strategies.push(heading(freedom, exclude_inlines.clone()).boxed())
+    }
+    if !exclude_blocks.contains(&"List".to_string()) {
+        strategies.push(list(freedom, exclude_inlines.clone()).boxed())
+    }
+    if !exclude_blocks.contains(&"Paragraph".to_string()) {
+        strategies.push(paragraph(freedom, exclude_inlines.clone()).boxed())
+    }
+    if !exclude_blocks.contains(&"QuoteBlock".to_string()) {
+        strategies.push(quote_block(freedom, exclude_inlines).boxed())
+    }
+    if !exclude_blocks.contains(&"Table".to_string()) {
+        strategies.push(table(freedom).boxed())
+    }
+    if !exclude_blocks.contains(&"ThematicBreak".to_string()) {
+        strategies.push(thematic_break().boxed())
+    }
+    Union::new(strategies)
 }
 
 prop_compose! {
@@ -578,20 +610,20 @@ prop_compose! {
     ///    be confused with YAML frontmatter)
     ///  - List of same ordering can not be adjacent to each other (in Markdown they
     ///    get decoded as the same list)
-    pub fn vec_block_content(freedom: Freedom)(
+    pub fn vec_block_content(freedom: Freedom, exclude_blocks: String, exclude_inlines: String)(
         length in 1usize..(match freedom {
             Freedom::Min => 1,
             Freedom::Low => 5,
             _ => 10,
         } + 1)
     )(
-        blocks in vec(block_content(freedom), size_range(length))
+        blocks in vec(block_content(freedom, exclude_blocks.clone(), exclude_inlines.clone()), size_range(length))
             .prop_filter(
                 "Should not start with thematic break",
                 |blocks| {
-                    matches!(blocks[0], BlockContent::ThematicBreak(..))
-                }
-            ).prop_filter(
+                    !(matches!(blocks[0], BlockContent::ThematicBreak(..)))
+            })
+            .prop_filter(
                 "Lists with same ordering should not be adjacent",
                 |blocks| {
                     for index in 1..blocks.len() {
@@ -616,8 +648,8 @@ prop_compose! {
 
 prop_compose! {
     /// Generate an article with arbitrary content (and in the future, other properties)
-    pub fn article(freedom: Freedom)(
-        content in vec_block_content(freedom)
+    pub fn article(freedom: Freedom, exclude_blocks: String, exclude_inlines: String)(
+        content in vec_block_content(freedom, exclude_blocks, exclude_inlines)
     ) -> Node {
         Node::Article(Article{content: Some(content), ..Default::default()})
     }
@@ -625,5 +657,7 @@ prop_compose! {
 
 /// Generate an arbitrary node
 pub fn node(freedom: Freedom) -> impl Strategy<Value = Node> {
-    Union::new(vec![article(freedom).boxed()])
+    Union::new(vec![
+        article(freedom, "".to_string(), "".to_string()).boxed()
+    ])
 }
