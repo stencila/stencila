@@ -326,10 +326,9 @@ mod tests {
 
         // Read the existing snapshot
         // We only do this for one, kitchen sink like, snapshot.
-        let html =
-            std::fs::read_to_string(home().join(
-                "rust/codec-html/src/snapshots/encode_html_fragments@heading.html.snap",
-            ))?;
+        let html = std::fs::read_to_string(
+            home().join("rust/codec-html/src/snapshots/encode_html_fragments@heading.html.snap"),
+        )?;
         let decoded = decode(&html, false)?;
         let html = encode(
             &decoded,
