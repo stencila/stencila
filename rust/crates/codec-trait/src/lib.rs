@@ -21,23 +21,26 @@ pub use stencila_schema;
 #[async_trait]
 pub trait Codec {
     /// Decode a document node from a string
-    fn from_str(_str: &str) -> Result<Node> {
+    fn from_str(_str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         bail!("Decoding from string is not implemented for this format")
     }
 
     /// Decode a document node from a string asynchronously
-    async fn from_str_async(str: &str) -> Result<Node> {
-        Self::from_str(str)
+    async fn from_str_async(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
+        Self::from_str(str, options)
     }
 
     /// Decode a document node from a `BufReader`
-    async fn from_buffer<T: Read>(reader: &mut BufReader<T>) -> Result<Node>
+    async fn from_buffer<T: Read>(
+        reader: &mut BufReader<T>,
+        options: Option<DecodeOptions>,
+    ) -> Result<Node>
     where
         T: Send + Sync,
     {
         let mut content = String::new();
         reader.read_to_string(&mut content)?;
-        Self::from_str(&content)
+        Self::from_str(&content, options)
     }
 
     /// Decode a document node from a file
@@ -45,19 +48,19 @@ pub trait Codec {
     /// This function reads the file as a string and passes that on to `from_str`
     /// for decoding. If working with binary formats, you should override this function
     /// to read the file as bytes instead.
-    async fn from_file(file: &mut File) -> Result<Node> {
+    async fn from_file(file: &mut File, options: Option<DecodeOptions>) -> Result<Node> {
         let mut content = String::new();
         file.read_to_string(&mut content)?;
-        Self::from_str(&content)
+        Self::from_str(&content, options)
     }
 
     /// Decode a document node from a file system path
-    async fn from_path<T: AsRef<Path>>(path: &T) -> Result<Node>
+    async fn from_path<T: AsRef<Path>>(path: &T, options: Option<DecodeOptions>) -> Result<Node>
     where
         T: Send + Sync,
     {
         let mut file = File::open(path)?;
-        Self::from_file(&mut file).await
+        Self::from_file(&mut file, options).await
     }
 
     /// Encode a document node to a string
@@ -105,7 +108,26 @@ pub trait Codec {
     }
 }
 
-/// Common encoding options
+/// Decoding options
+///
+/// Decoding functions (including those in plugins) are encouraged to respect these options
+/// but are not required to.
+#[derive(Clone)]
+pub struct DecodeOptions {
+    /// The format of the input to be decoded
+    ///
+    /// Most codecs only decode one format. However, for those that handle multiple
+    /// format it may be necessary to specify this option.
+    pub format: Option<String>,
+}
+
+impl Default for DecodeOptions {
+    fn default() -> Self {
+        Self { format: None }
+    }
+}
+
+/// Encoding options
 ///
 /// Encoding functions (including those in plugins) are encouraged to respect these options
 /// but are not required to. Indeed, some options do not apply for some formats.
@@ -136,6 +158,12 @@ pub struct EncodeOptions {
     ///
     /// Only applies to some formats (e.g. HTML, PDF, PNG).
     pub theme: String,
+
+    /// The format to encode to
+    ///
+    /// Most codecs only encode to one format. However, for those that handle multiple
+    /// formats it may be necessary to specify this option.
+    pub format: Option<String>,
 }
 
 impl Default for EncodeOptions {
@@ -145,6 +173,7 @@ impl Default for EncodeOptions {
             standalone: false,
             bundle: false,
             theme: "stencila".to_string(),
+            format: None,
         }
     }
 }

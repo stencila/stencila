@@ -9,7 +9,7 @@ proptest! {
     #[test]
     fn test(input in node(Freedom::Min)) {
         let string = MarkdownCodec::to_string(&input, None).unwrap();
-        let output = MarkdownCodec::from_str(&string).unwrap();
+        let output = MarkdownCodec::from_str(&string, None).unwrap();
         assert_debug_eq!(input, output)
     }
 }

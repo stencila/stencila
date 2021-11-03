@@ -3,12 +3,9 @@ use codec_trait::{
     async_trait::async_trait,
     eyre::{bail, Result},
     stencila_schema::Node,
-    Codec, EncodeOptions,
+    Codec, DecodeOptions, EncodeOptions,
 };
-use std::{
-    fs,
-    path::Path,
-};
+use std::{fs, path::Path};
 
 /// Encode and decode a document node to a reproducible PNG image.
 ///
@@ -26,6 +23,36 @@ pub struct RpngCodec {}
 
 #[async_trait]
 impl Codec for RpngCodec {
+    /// Decode a document node from a string
+    ///
+    /// This function scans the PNG for a `iTXt` chunk with a matching keyword and then delegates
+    /// to the [`JsonCodec`] to decode it.
+    fn from_str(content: &str, options: Option<DecodeOptions>) -> Result<Node> {
+        // Remove any dataURI prefix
+        let data = if let Some(data) = content.strip_prefix("data:image/png;base64,") {
+            data
+        } else {
+            content
+        };
+
+        // Decode the Base64 to bytes and then a node
+        let bytes = base64::decode(data)?;
+        bytes_to_node(bytes.as_slice(), options)
+    }
+
+    /// Decode a document node from a file system path
+    ///
+    /// This override is necessary to read the file as bytes, not as a string, and then to
+    /// directly decode those bytes, rather than Base64 decoding them first.
+    /// Decode a document node from a file system path
+    async fn from_path<T: AsRef<Path>>(path: &T, options: Option<DecodeOptions>) -> Result<Node>
+    where
+        T: Send + Sync,
+    {
+        let bytes = fs::read(path)?;
+        bytes_to_node(bytes.as_slice(), options)
+    }
+
     /// Encode a document node to a string
     ///
     /// Returns a Base64 encoded dataURI (with media type `image/png`) and the node embedded as JSON.
@@ -51,35 +78,31 @@ impl Codec for RpngCodec {
         fs::write(path, &bytes[0])?;
         Ok(())
     }
+}
 
-    /// Decode a document node from a string
-    ///
-    /// This function scans the PNG for a `iTXt` chunk with a matching keyword and then delegates
-    /// to the [`JsonCodec`] to decode it.
-    fn from_str(content: &str) -> Result<Node> {
-        // Remove any dataURI prefix
-        let data = if let Some(data) = content.strip_prefix("data:image/png;base64,") {
-            data
-        } else {
-            content
-        };
+/// Decode bytes to a document node
+fn bytes_to_node(bytes: &[u8], options: Option<DecodeOptions>) -> Result<Node> {
+    // Decode the bytes to PNG and extract any matching iTXt chunk
+    let decoder = png::Decoder::new(bytes);
+    let reader = decoder.read_info()?;
+    let info = reader.info();
+    let json = info
+        .utf8_text
+        .iter()
+        .find_map(|chunk| match chunk.keyword == "json" {
+            true => {
+                let mut chunk = chunk.clone();
+                if chunk.decompress_text().is_err() {
+                    return None;
+                }
+                chunk.get_text().ok()
+            }
+            false => None,
+        });
 
-        // Decode the Base64 to bytes and then a node
-        let bytes = base64::decode(data)?;
-        bytes_to_node(bytes.as_slice())
-    }
-
-    /// Decode a document node from a file system path
-    ///
-    /// This override is necessary to read the file as bytes, not as a string, and then to
-    /// directly decode those bytes, rather than Base64 decoding them first.
-    /// Decode a document node from a file system path
-    async fn from_path<T: AsRef<Path>>(path: &T) -> Result<Node>
-    where
-        T: Send + Sync,
-    {
-        let bytes = fs::read(path)?;
-        bytes_to_node(bytes.as_slice())
+    match json {
+        Some(json) => codec_json::JsonCodec::from_str(&json, options),
+        None => bail!("The PNG does not have an embedded Stencila node"),
     }
 }
 
@@ -90,14 +113,14 @@ impl Codec for RpngCodec {
 /// reduce the per-image overhead of starting the browser, loading the theme etc.
 pub async fn nodes_to_bytes(
     nodes: &[&Node],
-    _options: Option<EncodeOptions>,
+    options: Option<EncodeOptions>,
 ) -> Result<Vec<Vec<u8>>> {
     // Generate the plain old PNGs
     let pngs = codec_png::nodes_to_bytes(
         nodes,
         Some(EncodeOptions {
             theme: "rpng".to_string(),
-            ..Default::default()
+            ..options.unwrap_or_default()
         }),
     )
     .await?;
@@ -137,32 +160,6 @@ pub async fn nodes_to_bytes(
     Ok(rpngs)
 }
 
-/// Decode bytes to a document node
-fn bytes_to_node(bytes: &[u8]) -> Result<Node> {
-    // Decode the bytes to PNG and extract any matching iTXt chunk
-    let decoder = png::Decoder::new(bytes);
-    let reader = decoder.read_info()?;
-    let info = reader.info();
-    let json = info
-        .utf8_text
-        .iter()
-        .find_map(|chunk| match chunk.keyword == "json" {
-            true => {
-                let mut chunk = chunk.clone();
-                if chunk.decompress_text().is_err() {
-                    return None;
-                }
-                chunk.get_text().ok()
-            }
-            false => None,
-        });
-
-    match json {
-        Some(json) => codec_json::JsonCodec::from_str(&json),
-        None => bail!("The PNG does not have an embedded Stencila node"),
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -183,14 +180,14 @@ mod tests {
 
         let data_uri = RpngCodec::to_string_async(&input, None).await?;
         assert!(data_uri.starts_with("data:image/png;base64,"));
-        let output = RpngCodec::from_str(&data_uri)?;
+        let output = RpngCodec::from_str(&data_uri, None)?;
         assert_debug_eq!(input, output);
 
         let dir = tempfile::tempdir()?;
         let path = dir.path().join("temp.png");
         RpngCodec::to_path(&input, &path, None).await?;
         assert!(path.exists());
-        let output = RpngCodec::from_path(&path).await?;
+        let output = RpngCodec::from_path(&path, None).await?;
         assert_debug_eq!(input, output);
 
         Ok(())

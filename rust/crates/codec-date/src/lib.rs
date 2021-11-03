@@ -4,14 +4,14 @@ use chrono::{DateTime, Local, TimeZone, Utc};
 use codec_trait::{
     eyre::{bail, Result},
     stencila_schema::{Date, Node},
-    Codec,
+    Codec, DecodeOptions,
 };
 use dtparse::parse;
 
 pub struct DateCodec {}
 
 impl Codec for DateCodec {
-    fn from_str(str: &str) -> Result<Node> {
+    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         if let Ok((naive, offset)) = parse(str) {
             let utc = match offset {
                 Some(offset) => {
@@ -43,21 +43,21 @@ mod tests {
         // Adding timezone avoids failures due to different local time on
         // test host machines.
         assert_debug_eq!(
-            DateCodec::from_str("11 Jul 2021; 12 am +00:00")?,
+            DateCodec::from_str("11 Jul 2021; 12 am +00:00", None)?,
             Node::Date(Date {
                 value: "2021-07-11T00:00:00+00:00".to_string(),
                 ..Default::default()
             })
         );
         assert_debug_eq!(
-            DateCodec::from_str("July 11 2021; 6 am +06:00")?,
+            DateCodec::from_str("July 11 2021; 6 am +06:00", None)?,
             Node::Date(Date {
                 value: "2021-07-11T00:00:00+00:00".to_string(),
                 ..Default::default()
             })
         );
         assert_debug_eq!(
-            DateCodec::from_str("2021-07-11; 13:00 +13:00")?,
+            DateCodec::from_str("2021-07-11; 13:00 +13:00", None)?,
             Node::Date(Date {
                 value: "2021-07-11T00:00:00+00:00".to_string(),
                 ..Default::default()

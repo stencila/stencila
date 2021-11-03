@@ -9,7 +9,7 @@ proptest! {
     #[test]
     fn test(input in node(Freedom::Min)) {
         let string = IpynbCodec::to_string(&input, None).unwrap();
-        let output = IpynbCodec::from_str(&string).unwrap();
+        let output = IpynbCodec::from_str(&string, None).unwrap();
         assert_debug_eq!(input, output)
     }
 }

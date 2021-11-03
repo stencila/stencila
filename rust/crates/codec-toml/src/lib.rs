@@ -4,13 +4,13 @@
 //! TOML is not recommended for large complex documents and encoding
 //! may fail with the error "values must be emitted before tables".
 
-use codec_trait::{eyre::Result, stencila_schema::Node, Codec, EncodeOptions};
+use codec_trait::{eyre::Result, stencila_schema::Node, Codec, DecodeOptions, EncodeOptions};
 use node_coerce::coerce;
 
 pub struct TomlCodec {}
 
 impl Codec for TomlCodec {
-    fn from_str(str: &str) -> Result<Node> {
+    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         coerce(toml::from_str(str)?, None)
     }
 
@@ -34,7 +34,7 @@ mod tests {
 
         let toml = "type = \"Person\"\ngivenNames = [\"Sarah\"]\n".to_string();
 
-        assert_debug_eq!(TomlCodec::from_str(&toml).unwrap(), sarah);
+        assert_debug_eq!(TomlCodec::from_str(&toml, None).unwrap(), sarah);
         assert_eq!(TomlCodec::to_string(&sarah, None).unwrap(), toml);
     }
 }

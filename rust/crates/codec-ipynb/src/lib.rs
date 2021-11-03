@@ -1,6 +1,6 @@
 //! A codec for Jupter Notebooks
 
-use codec_trait::{eyre::Result, stencila_schema::Node, Codec, EncodeOptions};
+use codec_trait::{eyre::Result, stencila_schema::Node, Codec, DecodeOptions, EncodeOptions};
 
 #[cfg(feature = "decode")]
 mod decode;
@@ -17,7 +17,7 @@ pub struct IpynbCodec {}
 #[cfg(any(feature = "decode", feature = "encode"))]
 impl Codec for IpynbCodec {
     #[cfg(feature = "decode")]
-    fn from_str(str: &str) -> Result<Node> {
+    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         decode::decode(str)
     }
 

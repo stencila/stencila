@@ -1,12 +1,12 @@
 //! A codec for JSON
 
-use codec_trait::{eyre::Result, stencila_schema::Node, Codec, EncodeOptions};
+use codec_trait::{eyre::Result, stencila_schema::Node, Codec, DecodeOptions, EncodeOptions};
 use node_coerce::coerce;
 
 pub struct JsonCodec {}
 
 impl Codec for JsonCodec {
-    fn from_str(str: &str) -> Result<Node> {
+    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         coerce(serde_json::from_str(str)?, None)
     }
 
@@ -30,37 +30,37 @@ mod tests {
     #[test]
     fn from_str() {
         assert!(matches!(
-            JsonCodec::from_str("true").unwrap(),
+            JsonCodec::from_str("true", None).unwrap(),
             Node::Boolean(true)
         ));
 
         assert!(matches!(
-            JsonCodec::from_str("42").unwrap(),
+            JsonCodec::from_str("42", None).unwrap(),
             Node::Integer(42)
         ));
 
         #[allow(clippy::float_cmp)]
-        if let Node::Number(num) = JsonCodec::from_str("1.23").unwrap() {
+        if let Node::Number(num) = JsonCodec::from_str("1.23", None).unwrap() {
             assert_eq!(num, 1.23_f64)
         }
 
         assert!(matches!(
-            JsonCodec::from_str("[1, 2, 3]").unwrap(),
+            JsonCodec::from_str("[1, 2, 3]", None).unwrap(),
             Node::Array(..)
         ));
 
         assert!(matches!(
-            JsonCodec::from_str("{}").unwrap(),
+            JsonCodec::from_str("{}", None).unwrap(),
             Node::Object(..)
         ));
 
         assert!(matches!(
-            JsonCodec::from_str("{\"type\": \"Entity\"}").unwrap(),
+            JsonCodec::from_str("{\"type\": \"Entity\"}", None).unwrap(),
             Node::Entity(..)
         ));
 
         assert_debug_eq!(
-            JsonCodec::from_str("{\"type\": \"Paragraph\"}").unwrap(),
+            JsonCodec::from_str("{\"type\": \"Paragraph\"}", None).unwrap(),
             Node::Paragraph(Paragraph {
                 content: vec![],
                 ..Default::default()

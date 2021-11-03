@@ -1,11 +1,11 @@
 use codec_md::MarkdownCodec;
-use codec_trait::{eyre::Result, stencila_schema::*, Codec};
+use codec_trait::{eyre::Result, stencila_schema::*, Codec, DecodeOptions};
 
 const LANGUAGES: &[&str] = &["r", "py", "python", "js", "javascript"];
 
 /// Decode a R Markdown document to a `Node`
-pub fn decode(input: &str) -> Result<Node> {
-    let mut node = MarkdownCodec::from_str(input)?;
+pub fn decode(input: &str, options: Option<DecodeOptions>) -> Result<Node> {
+    let mut node = MarkdownCodec::from_str(input, options)?;
     if let Node::Article(article) = &mut node {
         if let Some(content) = &mut article.content {
             transform_blocks(content)
@@ -75,22 +75,20 @@ fn transform_inlines(inlines: &mut Vec<InlineContent>) {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
-    use super::*;
-
-    #[ignore]
     #[test]
     fn decode_rmd_articles() {
         snapshot_fixtures_content("articles/*.Rmd", |content| {
-            assert_json_snapshot!(decode(content).unwrap());
+            assert_json_snapshot!(decode(content, None).unwrap());
         });
     }
 
     #[test]
     fn decode_rmd_fragments() {
         snapshot_fixtures_content("fragments/rmd/*.Rmd", |content| {
-            assert_json_snapshot!(decode(content).unwrap());
+            assert_json_snapshot!(decode(content, None).unwrap());
         });
     }
 }

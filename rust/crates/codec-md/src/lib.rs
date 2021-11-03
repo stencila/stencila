@@ -1,6 +1,6 @@
 //! A codec for Markdown
 
-use codec_trait::{eyre::Result, stencila_schema::Node, Codec, EncodeOptions};
+use codec_trait::{eyre::Result, stencila_schema::Node, Codec, DecodeOptions, EncodeOptions};
 
 #[cfg(feature = "decode")]
 mod decode;
@@ -18,7 +18,7 @@ pub struct MarkdownCodec {}
 
 impl Codec for MarkdownCodec {
     #[cfg(feature = "decode")]
-    fn from_str(str: &str) -> Result<Node> {
+    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         decode::decode(str)
     }
 

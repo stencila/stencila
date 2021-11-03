@@ -1,4 +1,4 @@
-use codec_trait::{eyre::Result, Codec, EncodeOptions};
+use codec_trait::{eyre::Result, Codec, DecodeOptions, EncodeOptions};
 use stencila_schema::Node;
 
 #[cfg(feature = "decode")]
@@ -17,7 +17,7 @@ pub struct HtmlCodec {}
 
 impl Codec for HtmlCodec {
     #[cfg(feature = "decode")]
-    fn from_str(str: &str) -> Result<Node> {
+    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         decode::decode(str, false)
     }
 

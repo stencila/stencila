@@ -1,15 +1,15 @@
 use codec_md::MarkdownCodec;
-use codec_trait::{eyre::Result, stencila_schema::*, Codec};
+use codec_trait::{eyre::Result, stencila_schema::*, Codec, EncodeOptions};
 
 /// Encode a `Node` to R Markdown
-pub fn encode(node: &Node) -> Result<String> {
+pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
     let mut node = node.clone();
     if let Node::Article(article) = &mut node {
         if let Some(content) = &mut article.content {
             transform_blocks(content)
         }
     }
-    MarkdownCodec::to_string(&node, None)
+    MarkdownCodec::to_string(&node, options)
 }
 
 fn transform_blocks(blocks: &mut Vec<BlockContent>) {

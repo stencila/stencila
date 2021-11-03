@@ -349,11 +349,11 @@ fn coerce_using_parser(value: &mut JsonValue, text: &str, parser: &str) {
             Some(JsonValue::Array(items))
         }
 
-        "date" => DateCodec::from_str(text)
+        "date" => DateCodec::from_str(text, None)
             .ok()
             .map(|date| serde_json::to_value(date).expect("Unable to convert to value")),
 
-        "person" => PersonCodec::from_str(text)
+        "person" => PersonCodec::from_str(text, None)
             .ok()
             .map(|person| serde_json::to_value(person).expect("Unable to convert to value")),
 

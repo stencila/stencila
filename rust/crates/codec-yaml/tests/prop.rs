@@ -9,7 +9,7 @@ proptest! {
     #[test]
     fn test(input in node(Freedom::Max)) {
         let string = YamlCodec::to_string(&input, None).unwrap();
-        let output = YamlCodec::from_str(&string).unwrap();
+        let output = YamlCodec::from_str(&string, None).unwrap();
         assert_debug_eq!(input, output)
     }
 }

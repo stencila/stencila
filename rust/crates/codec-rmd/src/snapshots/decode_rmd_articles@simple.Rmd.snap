@@ -1,0 +1,171 @@
+---
+source: rust/crates/codec-rmd/src/decode.rs
+expression: "decode(content, None).unwrap()"
+input_file: fixtures/articles/simple.Rmd
+
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "This is a relatively simple test article written in R Markdown. For more details on using R Markdown see ",
+        {
+          "type": "Link",
+          "content": [
+            "http://rmarkdown.rstudio.com"
+          ],
+          "target": "http://rmarkdown.rstudio.com"
+        },
+        "."
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Code chunks"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A basic code chunk has the language code surrounded by curly braces e.g."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r",
+      "text": "summary(cars)"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Chunks can also have a label and options e.g."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r pressure, echo=FALSE",
+      "text": "plot(pressure)"
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Using fig.cap option"
+      ],
+      "depth": 3
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "The ",
+        {
+          "type": "CodeFragment",
+          "text": "fig.cap"
+        },
+        " option can be used to set the code chunk caption,"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r fig1, fig.width=8, fig.cap='A plot'",
+      "text": "plot(data)"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r table2, fig.cap='A table'",
+      "text": "head(data)"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Bookdown-style ",
+        {
+          "type": "CodeFragment",
+          "text": "fig.cap"
+        },
+        " “text references” are also supported,"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r figure3, fig.cap='(ref:fig3)'",
+      "text": "# R code here"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "(ref:fig3) A caption for figure 3."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Some intermediary content"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r figure4, fig.cap='(ref:figure-4)'",
+      "text": "# R code here but non-existent figure reference"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "And follow up with a duplicate figure reference"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r fig5, fig.cap='(ref:fig3)'",
+      "text": "# R code here"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "(ref:fig3) ",
+        {
+          "type": "Strong",
+          "content": [
+            "Distinct and dorsoventrally organized properties of layer 2 stellate cells."
+          ]
+        },
+        "(",
+        {
+          "type": "Strong",
+          "content": [
+            "A"
+          ]
+        },
+        ") Representative action potential after hyperpolarization waveforms from a SC (left), a pyramidal cell (middle) and an unidentified cell (right). The pyramidal and unidentified cells were…"
+      ]
+    },
+    {
+      "type": "Heading",
+      "content": [
+        "Code expressions"
+      ],
+      "depth": 2
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "In R Markdown code expressions are represented using back ticks prefixed with the language e.g. ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "r",
+          "text": "1+2"
+        },
+        "."
+      ]
+    }
+  ],
+  "keywords": [
+    "text",
+    "fixture",
+    "Markdown"
+  ],
+  "title": "A simple R Markdown article"
+}

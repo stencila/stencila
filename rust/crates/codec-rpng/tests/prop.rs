@@ -24,7 +24,7 @@ proptest! {
             RpngCodec::to_string_async(&input, None).await.unwrap()
         });
 
-        let output = RpngCodec::from_str(&content).unwrap();
+        let output = RpngCodec::from_str(&content, None).unwrap();
         assert_debug_eq!(input, output)
     }
 }

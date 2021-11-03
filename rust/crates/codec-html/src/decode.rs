@@ -384,7 +384,7 @@ fn decode_inline(node: &NodeRef, context: &Context) -> Vec<InlineContent> {
                 };
                 let value = attrs
                     .get(local_name!("value"))
-                    .and_then(|value| TxtCodec::from_str(value).ok())
+                    .and_then(|value| TxtCodec::from_str(value, None).ok())
                     .map(Box::new);
 
                 vec![InlineContent::Parameter(Parameter {

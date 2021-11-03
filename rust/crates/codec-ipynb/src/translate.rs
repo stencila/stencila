@@ -78,7 +78,7 @@ pub fn translate_image_data(data: &serde_json::Value, media_type: &str) -> Optio
 /// parse the text), and it contains pre-formatting (tabs, newlines or more than one consecutive space),
 // then decode as a `CodeBlock` since formatting is often important in text output of cells.
 pub fn translate_text(text: &serde_json::Value) -> Option<Node> {
-    let node = TxtCodec::from_str(&translate_multiline_string(text)).ok();
+    let node = TxtCodec::from_str(&translate_multiline_string(text), None).ok();
     if let Some(Node::String(text)) = &node {
         static REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new("[ ]{2,}|\t|\n").expect("Unable to create regex"));

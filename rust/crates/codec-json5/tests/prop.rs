@@ -11,7 +11,7 @@ proptest! {
     #[test]
     fn test(input in node(Freedom::Low)) {
         let string = Json5Codec::to_string(&input, None).unwrap();
-        let output = Json5Codec::from_str(&string).unwrap();
+        let output = Json5Codec::from_str(&string, None).unwrap();
         assert_debug_eq!(input, output)
     }
 }

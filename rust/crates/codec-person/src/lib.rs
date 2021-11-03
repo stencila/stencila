@@ -3,7 +3,7 @@
 use codec_trait::{
     eyre::{bail, Result},
     stencila_schema::{Node, Person},
-    Codec,
+    Codec, DecodeOptions,
 };
 use human_name::Name;
 use once_cell::sync::Lazy;
@@ -12,7 +12,7 @@ use regex::Regex;
 pub struct PersonCodec {}
 
 impl Codec for PersonCodec {
-    fn from_str(str: &str) -> Result<Node> {
+    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         if let Some(name) = Name::parse(str) {
             let given_names = if let Some(first_name) = name.given_name() {
                 let mut given_names = vec![first_name.to_string()];

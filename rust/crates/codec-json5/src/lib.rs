@@ -1,12 +1,12 @@
 //! A codec for JSON5
 
-use codec_trait::{eyre::Result, stencila_schema::Node, Codec, EncodeOptions};
+use codec_trait::{eyre::Result, stencila_schema::Node, Codec, DecodeOptions, EncodeOptions};
 use node_coerce::coerce;
 
 pub struct Json5Codec {}
 
 impl Codec for Json5Codec {
-    fn from_str(str: &str) -> Result<Node> {
+    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         coerce(json5::from_str(str)?, None)
     }
 
@@ -31,12 +31,12 @@ mod tests {
     #[test]
     fn from_str() {
         assert!(matches!(
-            Json5Codec::from_str("{type: 'Entity'}").unwrap(),
+            Json5Codec::from_str("{type: 'Entity'}", None).unwrap(),
             Node::Entity(..)
         ));
 
         assert_debug_eq!(
-            Json5Codec::from_str("{type: 'Paragraph'}").unwrap(),
+            Json5Codec::from_str("{type: 'Paragraph'}", None).unwrap(),
             Node::Paragraph(Paragraph {
                 content: vec![],
                 ..Default::default()

@@ -6,7 +6,7 @@
 use codec_trait::{
     eyre::Result,
     stencila_schema::{Node, Null},
-    Codec, EncodeOptions,
+    Codec, DecodeOptions, EncodeOptions,
 };
 use node_coerce::coerce;
 
@@ -30,7 +30,7 @@ impl Codec for TxtCodec {
     /// represent a boolean, number or some other JSON object, for example
     /// the output of a Jupyter code cell where a `dict` has a representation
     /// which can be parsed as a JSON object.
-    fn from_str(str: &str) -> Result<Node> {
+    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         match str.trim() {
             "true" | "TRUE" | "True" => return Ok(Node::Boolean(true)),
             "false" | "FALSE" | "False" => return Ok(Node::Boolean(false)),
@@ -64,10 +64,16 @@ mod tests {
 
     #[test]
     fn booleans() -> Result<()> {
-        assert!(matches!(TxtCodec::from_str("true")?, Node::Boolean(true)));
-        assert!(matches!(TxtCodec::from_str("TRUE")?, Node::Boolean(true)));
         assert!(matches!(
-            TxtCodec::from_str("  True  ")?,
+            TxtCodec::from_str("true", None)?,
+            Node::Boolean(true)
+        ));
+        assert!(matches!(
+            TxtCodec::from_str("TRUE", None)?,
+            Node::Boolean(true)
+        ));
+        assert!(matches!(
+            TxtCodec::from_str("  True  ", None)?,
             Node::Boolean(true)
         ));
         Ok(())
@@ -75,10 +81,16 @@ mod tests {
 
     #[test]
     fn nulls() -> Result<()> {
-        assert!(matches!(TxtCodec::from_str("null")?, Node::Null(Null {})));
-        assert!(matches!(TxtCodec::from_str("NULL")?, Node::Null(Null {})));
         assert!(matches!(
-            TxtCodec::from_str("  Null  ")?,
+            TxtCodec::from_str("null", None)?,
+            Node::Null(Null {})
+        ));
+        assert!(matches!(
+            TxtCodec::from_str("NULL", None)?,
+            Node::Null(Null {})
+        ));
+        assert!(matches!(
+            TxtCodec::from_str("  Null  ", None)?,
             Node::Null(Null {})
         ));
         Ok(())
@@ -87,8 +99,8 @@ mod tests {
     #[test]
     #[allow(clippy::float_cmp)]
     fn numbers() -> Result<()> {
-        assert!(matches!(TxtCodec::from_str("1")?, Node::Integer(1)));
-        match TxtCodec::from_str("1.23")? {
+        assert!(matches!(TxtCodec::from_str("1", None)?, Node::Integer(1)));
+        match TxtCodec::from_str("1.23", None)? {
             Node::Number(value) => assert_eq!(value, 1.23),
             _ => bail!("Wrong type {:?}",),
         }
@@ -99,9 +111,12 @@ mod tests {
     fn objects_arrays() -> Result<()> {
         let mut map = BTreeMap::new();
         map.insert("a".to_string(), Primitive::Integer(1));
-        assert_debug_eq!(TxtCodec::from_str(r#"{"a": 1}"#)?, Primitive::Object(map));
         assert_debug_eq!(
-            TxtCodec::from_str(r#"[1]"#)?,
+            TxtCodec::from_str(r#"{"a": 1}"#, None)?,
+            Primitive::Object(map)
+        );
+        assert_debug_eq!(
+            TxtCodec::from_str(r#"[1]"#, None)?,
             Node::Array(vec![Primitive::Integer(1)])
         );
         Ok(())
@@ -109,7 +124,7 @@ mod tests {
 
     #[test]
     fn strings() -> Result<()> {
-        match TxtCodec::from_str("not valid json")? {
+        match TxtCodec::from_str("not valid json", None)? {
             Node::String(value) => assert_eq!(value, "not valid json"),
             _ => bail!("Wrong type {:?}",),
         }
