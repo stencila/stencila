@@ -2,6 +2,7 @@
 
 use async_trait::async_trait;
 use eyre::{bail, Result};
+use serde::{Deserialize, Serialize};
 use std::{
     fs::File,
     io::{BufReader, BufWriter, Read, Write},
@@ -9,17 +10,75 @@ use std::{
 };
 use stencila_schema::Node;
 
-// Export for use by other crates
+// Export for the convenience of crates that implement `CodecTrait`
 pub use ::async_trait;
 pub use eyre;
+pub use serde;
 pub use stencila_schema;
+pub use utils;
 
-/// A codec for decoding and encoding Stencila document nodes to one or more formats
+/// A specification for codecs
 ///
-/// This trait defines similar functions to `serde_json` (and other `serde` crates) for
+/// All codecs, including those implemented in plugins, should provide this
+/// specification. Rust implementations return a `Codec` instance from the
+/// `spec` function of `CodecTrait`. Plugins provide a JSON or YAML serialization
+/// as part of their manifest.
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Codec {
+    /// A list of format names (or aliases) that the codec can handle
+    pub formats: Vec<String>,
+
+    /// Whether the codec supports decoding from string content
+    pub from_string: bool,
+
+    /// Whether the codec supports decoding from a file system path
+    pub from_path: bool,
+
+    /// Whether the codec supports encoding to string content
+    pub to_string: bool,
+
+    /// Whether the codec supports encoding to a file system path
+    pub to_path: bool,
+
+    /// A list of root node types that the codec can encode / decode
+    ///
+    /// Most codecs usually only handle one root type e.g. `Article`.
+    /// Used to provide a list of formats to the user that support
+    /// the current document type.
+    pub root_types: Vec<String>,
+
+    /// A list of node types that the codec does not support
+    ///
+    /// Used to provide warnings to the user on potential loss of content
+    /// when encoding using the codec.
+    pub unsupported_types: Vec<String>,
+
+    /// A list of node properties that the codec does not support
+    ///
+    /// The format for these strings is `<type>.<property>` e.g. `Article.funders`
+    /// Used to provide warnings to the user on potential loss of content
+    /// when encoding using the codec.
+    pub unsupported_properties: Vec<String>,
+
+    /// The status of the codec e.g. `alpha`, `beta`
+    ///
+    /// Leave a blank string for stable, production ready codecs.
+    pub status: String,
+}
+
+/// A trait for codecs
+///
+/// This trait can be used by Rust implementations of codecs, allowing them to
+/// be compiled into the Stencila binaries.
+///
+/// It defines similar functions to `serde_json` (and other `serde_` crates) for
 /// converting nodes to/from strings, files, readers etc.
 #[async_trait]
-pub trait Codec {
+pub trait CodecTrait {
+    /// Get the [`Codec`] specification
+    fn spec() -> Codec;
+
     /// Decode a document node from a string
     fn from_str(_str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
         bail!("Decoding from string is not implemented for this format")

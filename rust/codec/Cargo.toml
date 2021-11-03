@@ -1,5 +1,5 @@
 [package]
-name = "codec-trait"
+name = "codec"
 description = "Defines the codec trait for decoding/encoding nodes"
 version = "0.0.0"
 edition = "2021"
@@ -7,4 +7,6 @@ edition = "2021"
 [dependencies]
 async-trait = "0.1.51"
 eyre = "0.6.5"
+serde = { version = "1.0.130", features = ["derive"] }
 stencila-schema = "1.12.0"
+utils = { path = "../utils", version = "0.0.0" }
