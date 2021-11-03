@@ -1,5 +1,5 @@
 ---
-source: rust/src/methods/decode/pandoc.rs
+source: rust/crates/codec-pandoc/src/decode.rs
 expression: json
 input_file: fixtures/fragments/pandoc/thematic-break.json
 

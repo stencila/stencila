@@ -808,6 +808,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-pandoc"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "codec-json",
+ "codec-rpng",
+ "codec-trait",
+ "codec-txt",
+ "node-coerce",
+ "node-transform",
+ "pandoc_types",
+ "path-slash",
+ "serde_json",
+ "tempfile",
+ "test-props",
+ "test-snaps",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "codec-pdf"
 version = "0.0.0"
 dependencies = [
@@ -4459,6 +4480,7 @@ dependencies = [
  "codec-json",
  "codec-json5",
  "codec-md",
+ "codec-pandoc",
  "codec-pdf",
  "codec-person",
  "codec-png",
@@ -4502,7 +4524,6 @@ dependencies = [
  "node-transform",
  "notify",
  "once_cell",
- "pandoc_types",
  "path-slash",
  "pathdiff",
  "petgraph",

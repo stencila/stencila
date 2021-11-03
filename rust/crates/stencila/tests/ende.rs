@@ -23,22 +23,6 @@ macro_rules! assert_json_eq {
 }
 
 proptest! {
-    // Tests for article formats
-
-    // Given the relatively high randomness and complexity of each input
-    // we reduce the number of test cases from the default of 256
-    #![proptest_config(ProptestConfig::with_cases(100))]
-
-    #[cfg(all(feature="encode-pandoc", feature="decode-pandoc"))]
-    #[test]
-    fn pandoc(input in article(Freedom::Min)) {
-        let pandoc = encode::pandoc::encode_node(&input).unwrap();
-        let output = decode::pandoc::decode_pandoc(pandoc).unwrap();
-        assert_json_eq!(input, output);
-    }
-}
-
-proptest! {
     // Tests for formats that spawn Pandoc
 
     // Given the relative slowness of spawning a new process for

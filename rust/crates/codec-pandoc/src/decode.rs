@@ -1,36 +1,27 @@
-use crate::formats::{format_type, FormatType};
+use crate::from_pandoc;
 use codec_json::JsonCodec;
 use codec_rpng::RpngCodec;
-use codec_trait::Codec;
-use codec_txt::ToTxt;
-use eyre::{bail, Result};
-use node_coerce::coerce;
-use pandoc_types::definition::{self as pandoc};
-use std::{collections::HashMap, io::Write, path::PathBuf, process::Stdio};
-use stencila_schema::{
-    Article, AudioObjectSimple, BlockContent, Cite, CiteCitationMode, CiteGroup, CodeBlock,
-    CodeFragment, CreativeWorkTitle, Delete, Emphasis, Heading, ImageObjectSimple, InlineContent,
-    Link, List, ListItem, ListItemContent, ListOrder, MathFragment, Node, NontextualAnnotation,
-    Paragraph, Quote, QuoteBlock, Strong, Subscript, Superscript, TableCaption, TableCell,
-    TableCellContent, TableRow, TableRowRowType, TableSimple, ThematicBreak, VideoObjectSimple,
+use codec_trait::{
+    eyre::{bail, Result},
+    stencila_schema::*,
+    Codec,
 };
-
-/// The semver requirement for Pandoc
-/// Used on the `decode::pandoc` module as well.
-pub const PANDOC_SEMVER: &str = "2.11";
+use codec_txt::ToTxt;
+use node_coerce::coerce;
+use pandoc_types::definition as pandoc;
+use std::collections::HashMap;
 
 /// Decode a document to a `Node`
 ///
-/// Intended for decoding an entire document into an `Article`
-/// (and, in the future, potentially other types).
+/// Intended primarily for use by other internal codec crates e.g. `codec-docx`, `codec-latex`
 pub async fn decode(input: &str, format: &str, args: &[String]) -> Result<Node> {
-    let pandoc = decode_input(input, format, args).await?;
+    let pandoc = from_pandoc(input, format, args).await?;
     decode_pandoc(pandoc)
 }
 
 /// Decode a fragment to a vector of `BlockContent`
 ///
-/// Intended for decoding a fragment of a larger document (e.g. from some Latex in
+/// Intended for decoding a fragment of a larger document (e.g. from some LaTeX in
 /// a Markdown document). Ignores any meta data e.g. title
 pub async fn decode_fragment(
     input: &str,
@@ -41,55 +32,14 @@ pub async fn decode_fragment(
         return Ok(vec![]);
     }
 
-    let pandoc = decode_input(input, format, args).await?;
-    let context = Context {};
+    let pandoc = from_pandoc(input, format, args).await?;
+    let context = DecodeContext {};
     Ok(translate_blocks(&pandoc.1, &context))
-}
-
-/// Decode some content (either a string or file path) to a Pandoc document
-///
-/// Calls Pandoc binary to convert the content to Pandoc JSON which is then deserialized to
-/// a Pandoc element tree which is translated to a Stencila node tree.
-///
-/// The version of Pandoc required is partially based on compatibility with the `pandoc_types`
-/// crate. Some recent changes to pandoc to Pandoc types used by Pandoc (from https://pandoc.org/releases.html):
-///
-///   pandoc 2.11 (2020-10-11) : pandoc-types 1.22
-///   pandoc 2.10 (2020-06-29) : pandoc-types 1.21
-async fn decode_input(input: &str, format: &str, args: &[String]) -> Result<pandoc::Pandoc> {
-    let json = if format == "pandoc" {
-        input.to_string()
-    } else {
-        let binary = binaries::require("pandoc", PANDOC_SEMVER).await?;
-
-        let mut command = binary.command();
-        command.args(["--from", format, "--to", "json"]);
-        command.args(args);
-        command.stdout(Stdio::piped());
-
-        let child = if let Some(path) = input.strip_prefix("file://") {
-            if !PathBuf::from(path).exists() {
-                bail!("File does not exists: {}", path)
-            }
-            command.arg(path).spawn()?
-        } else {
-            let mut child = command.stdin(Stdio::piped()).spawn()?;
-            if let Some(mut stdin) = child.stdin.take() {
-                stdin.write_all(input.as_ref())?;
-            }
-            child
-        };
-
-        let result = child.wait_with_output()?;
-        std::str::from_utf8(result.stdout.as_ref())?.to_string()
-    };
-
-    Ok(serde_json::from_str(&json)?)
 }
 
 /// Decode a Pandoc document to a `Node`
 pub fn decode_pandoc(pandoc: pandoc::Pandoc) -> Result<Node> {
-    let context = Context {};
+    let context = DecodeContext {};
     let mut article = translate_meta(pandoc.0, &context)?;
 
     let content = translate_blocks(&pandoc.1, &context);
@@ -103,7 +53,7 @@ pub fn decode_pandoc(pandoc: pandoc::Pandoc) -> Result<Node> {
 }
 
 /// Translate Pandoc meta data into an `Article` node
-fn translate_meta(meta: pandoc::Meta, context: &Context) -> Result<Article> {
+fn translate_meta(meta: pandoc::Meta, context: &DecodeContext) -> Result<Article> {
     let mut article = translate_meta_map(&meta.0, context);
     article.insert("type".to_string(), serde_json::json!("Article"));
 
@@ -118,7 +68,7 @@ fn translate_meta(meta: pandoc::Meta, context: &Context) -> Result<Article> {
 /// Translate a map of `MetaValue` to a map of `serde_json::Value`
 fn translate_meta_map(
     map: &HashMap<String, pandoc::MetaValue>,
-    context: &Context,
+    context: &DecodeContext,
 ) -> serde_json::Map<String, serde_json::Value> {
     map.iter()
         .map(|(key, value)| (key.clone(), translate_meta_value(value, context)))
@@ -126,7 +76,7 @@ fn translate_meta_map(
 }
 
 /// Translate a meta value to a `serde_json::Value`
-fn translate_meta_value(value: &pandoc::MetaValue, context: &Context) -> serde_json::Value {
+fn translate_meta_value(value: &pandoc::MetaValue, context: &DecodeContext) -> serde_json::Value {
     match value {
         pandoc::MetaValue::MetaMap(map) => {
             serde_json::Value::Object(translate_meta_map(map, context))
@@ -154,10 +104,10 @@ fn translate_meta_value(value: &pandoc::MetaValue, context: &Context) -> serde_j
 }
 
 /// Decoding context
-struct Context {}
+struct DecodeContext {}
 
 /// Translate a vector of Pandoc `Block` elements to a vector of `BlockContent` nodes
-fn translate_blocks(elements: &[pandoc::Block], context: &Context) -> Vec<BlockContent> {
+fn translate_blocks(elements: &[pandoc::Block], context: &DecodeContext) -> Vec<BlockContent> {
     elements
         .iter()
         .flat_map(|child| translate_block(child, context))
@@ -167,7 +117,7 @@ fn translate_blocks(elements: &[pandoc::Block], context: &Context) -> Vec<BlockC
 /// Translate a Pandoc `Block` element into a zero or more `BlockContent` nodes
 ///
 /// Will ignore elements that are dealt with by `translate_inline`
-fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockContent> {
+fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<BlockContent> {
     match element {
         pandoc::Block::Header(depth, attrs, inlines) => {
             vec![BlockContent::Heading(Heading {
@@ -343,7 +293,7 @@ fn translate_block(element: &pandoc::Block, context: &Context) -> Vec<BlockConte
 /// Translate a Pandoc table row into a `TableRow`
 fn translate_row(
     row: &pandoc::Row,
-    context: &Context,
+    context: &DecodeContext,
     row_type: Option<TableRowRowType>,
 ) -> TableRow {
     let cells = row
@@ -364,7 +314,7 @@ fn translate_row(
 /// a single number it returns a paragraph. This is somewhat heavy weight,
 /// and inconsistent with other decoders in this repo, so here we unwrap
 /// a single paragraph to inlines.
-fn translate_cell(cell: &pandoc::Cell, context: &Context) -> TableCell {
+fn translate_cell(cell: &pandoc::Cell, context: &DecodeContext) -> TableCell {
     let pandoc::Cell(_attrs, _alignment, row_span, col_span, blocks) = cell;
     let blocks = translate_blocks(blocks, context);
     let content = match blocks.len() {
@@ -394,7 +344,7 @@ fn translate_cell(cell: &pandoc::Cell, context: &Context) -> TableCell {
 }
 
 /// Translate a vector of Pandoc `Inline` elements to a vector of `InlineContent` nodes
-fn translate_inlines(elements: &[pandoc::Inline], context: &Context) -> Vec<InlineContent> {
+fn translate_inlines(elements: &[pandoc::Inline], context: &DecodeContext) -> Vec<InlineContent> {
     let mut inlines: Vec<InlineContent> = elements
         .iter()
         .flat_map(|child| translate_inline(child, context))
@@ -421,7 +371,7 @@ fn translate_inlines(elements: &[pandoc::Inline], context: &Context) -> Vec<Inli
 }
 
 /// Translate a Pandoc `Inline` element into a zero or more `InlineContent` nodes
-fn translate_inline(element: &pandoc::Inline, context: &Context) -> Vec<InlineContent> {
+fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<InlineContent> {
     let inlines = match element {
         pandoc::Inline::Str(string) => vec![InlineContent::String(string.clone())],
         pandoc::Inline::Space => vec![InlineContent::String(" ".to_string())],
@@ -497,6 +447,16 @@ fn translate_inline(element: &pandoc::Inline, context: &Context) -> Vec<InlineCo
                 false => Some(Box::new(CreativeWorkTitle::String(title.to_string()))),
             };
 
+            vec![InlineContent::ImageObject(ImageObjectSimple {
+                content_url,
+                title,
+                caption,
+                id,
+                ..Default::default()
+            })]
+
+            /*
+            TODO: Reinstate "smart" media types (not just images) when there is a formats crate
             match format_type(&content_url) {
                 FormatType::AudioObject => vec![InlineContent::AudioObject(AudioObjectSimple {
                     content_url,
@@ -518,6 +478,7 @@ fn translate_inline(element: &pandoc::Inline, context: &Context) -> Vec<InlineCo
                     ..Default::default()
                 })],
             }
+            */
         }
 
         pandoc::Inline::Cite(citations, _inlines) => {
@@ -644,12 +605,12 @@ fn try_code_expression(inline: &InlineContent) -> Option<InlineContent> {
         InlineContent::ImageObject(image) => {
             // Try to get the code expression from the caption
             if let Some(caption) = image.caption.as_deref() {
-                if let Ok(Node::CodeExpression(expr)) = JsonCodec::from_str(caption) {
+                if let Ok(Node::CodeExpression(expr)) = JsonCodec::from_str(caption, None) {
                     return Some(InlineContent::CodeExpression(expr));
                 }
             }
             // Fallback to getting from the image
-            if let Ok(Node::CodeExpression(expr)) = RpngCodec::from_str(&image.content_url) {
+            if let Ok(Node::CodeExpression(expr)) = RpngCodec::from_str(&image.content_url, None) {
                 return Some(InlineContent::CodeExpression(expr));
             }
         }
@@ -674,12 +635,12 @@ fn try_code_chunk(inline: &InlineContent) -> Option<BlockContent> {
         InlineContent::ImageObject(image) => {
             // Try to get the code chunk from the caption
             if let Some(caption) = image.caption.as_deref() {
-                if let Ok(Node::CodeChunk(chunk)) = JsonCodec::from_str(caption) {
+                if let Ok(Node::CodeChunk(chunk)) = JsonCodec::from_str(caption, None) {
                     return Some(BlockContent::CodeChunk(chunk));
                 }
             }
             // Fallback to getting from the image
-            if let Ok(Node::CodeChunk(chunk)) = RpngCodec::from_str(&image.content_url) {
+            if let Ok(Node::CodeChunk(chunk)) = RpngCodec::from_str(&image.content_url, None) {
                 return Some(BlockContent::CodeChunk(chunk));
             }
         }
@@ -691,13 +652,12 @@ fn try_code_chunk(inline: &InlineContent) -> Option<BlockContent> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_fixtures;
-    use insta::assert_json_snapshot;
+    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
 
     #[test]
     fn pandoc_fragments() {
         let runtime = tokio::runtime::Runtime::new().unwrap();
-        snapshot_fixtures("fragments/pandoc/*.json", |_path, content| {
+        snapshot_fixtures_content("fragments/pandoc/*.json", |content| {
             let json =
                 runtime.block_on(async { decode_fragment(content, "pandoc", &[]).await.unwrap() });
             assert_json_snapshot!(json);
