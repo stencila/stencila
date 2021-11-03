@@ -727,6 +727,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-format"
+version = "0.0.0"
+dependencies = [
+ "codec-trait",
+ "formats",
+]
+
+[[package]]
 name = "codec-html"
 version = "0.0.0"
 dependencies = [
@@ -1712,6 +1720,18 @@ checksum = "5fc25a87fa4fd2094bffb06925852034d90a17f0d1e05197d4956d3555752191"
 dependencies = [
  "matches",
  "percent-encoding",
+]
+
+[[package]]
+name = "formats"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "once_cell",
+ "schemars",
+ "serde",
+ "serde_json",
+ "serde_with",
 ]
 
 [[package]]
@@ -4501,6 +4521,7 @@ dependencies = [
  "cli",
  "codec-date",
  "codec-docx",
+ "codec-format",
  "codec-html",
  "codec-ipynb",
  "codec-json",
@@ -4528,6 +4549,7 @@ dependencies = [
  "exitcode",
  "eyre",
  "fasteval",
+ "formats",
  "futures",
  "gitignore",
  "glob",

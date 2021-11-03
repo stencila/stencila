@@ -1,6 +1,5 @@
 use crate::{
     errors::attempt,
-    formats::{Format, FORMATS},
     graphs::{Relation, Resource},
     kernels::KernelSpace,
     methods::{compile::compile, decode::decode, encode::encode},
@@ -15,6 +14,7 @@ use crate::{
 use codec_trait::EncodeOptions;
 use defaults::Defaults;
 use eyre::{bail, Result};
+use formats::{Format, FORMATS};
 use itertools::Itertools;
 use maplit::hashset;
 use notify::DebouncedEvent;

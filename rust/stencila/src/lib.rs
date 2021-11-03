@@ -8,7 +8,6 @@
 pub mod conversions;
 pub mod documents;
 pub mod files;
-pub mod formats;
 pub mod graphs;
 pub mod kernels;
 pub mod patches;

@@ -1,12 +1,6 @@
-use crate::formats::{format_type, FormatType};
 use codec_trait::Codec;
 use eyre::Result;
 use stencila_schema::Node;
-
-// Modules for types of content, rather than specific formats
-
-pub mod code;
-pub mod media;
 
 /// Decode content in a particular format to a `Node`.
 ///
@@ -73,28 +67,6 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         #[cfg(feature = "decode-yaml")]
         "yaml" => codec_yaml::YamlCodec::from_str(input, options)?,
 
-        _ => {
-            let format_type = format_type(format);
-            match format_type {
-                FormatType::AudioObject | FormatType::ImageObject | FormatType::VideoObject => {
-                    media::decode(input, format_type)?
-                }
-                FormatType::SoftwareSourceCode => code::decode(input, format)?,
-                _ => {
-                    #[cfg(feature = "request")]
-                    return crate::plugins::delegate(
-                        super::Method::Decode,
-                        maplit::hashmap! {
-                            "innput".to_string() => serde_json::to_value(input)?,
-                            "format".to_string() => serde_json::to_value(format)?
-                        },
-                    )
-                    .await;
-
-                    #[cfg(not(feature = "request"))]
-                    eyre::bail!("Unable to decode format \"{}\"", format)
-                }
-            }
-        }
+        _ => codec_format::FormatCodec::from_str(input, options)?,
     })
 }

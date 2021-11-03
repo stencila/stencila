@@ -1,9 +1,6 @@
-use crate::{
-    formats::{Format, FORMATS},
-    pubsub::publish,
-    utils::schemas,
-};
+use crate::{pubsub::publish, utils::schemas};
 use defaults::Defaults;
+use formats::{Format, FORMATS};
 use schemars::{schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
