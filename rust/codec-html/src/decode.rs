@@ -2,9 +2,9 @@ use codec::{eyre::Result, CodecTrait};
 use codec_txt::TxtCodec;
 use kuchiki::{traits::*, ElementData, NodeRef};
 use markup5ever::{local_name, LocalName};
+use node_transform::Transform;
 use std::cmp::max;
 use stencila_schema::*;
-use node_transform::Transform;
 
 /// Decode a HTML document to a `Node`
 ///

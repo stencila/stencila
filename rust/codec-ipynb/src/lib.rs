@@ -11,7 +11,7 @@ mod encode;
 
 #[cfg(feature = "translate")]
 mod translate;
-use codec_md::MarkdownCodec;
+use codec_md::MdCodec;
 pub use translate::*;
 
 // A codec for Jupyter Notebook (.ipynb) files
@@ -20,7 +20,7 @@ pub struct IpynbCodec {}
 #[cfg(any(feature = "decode", feature = "encode"))]
 impl CodecTrait for IpynbCodec {
     fn spec() -> Codec {
-        let md_codec = MarkdownCodec::spec();
+        let md_codec = MdCodec::spec();
         Codec {
             status: "alpha".to_string(),
             formats: vec_string!["ipynb"],
@@ -30,7 +30,7 @@ impl CodecTrait for IpynbCodec {
             to_string: cfg!(feature = "encode"),
             to_path: cfg!(feature = "encode"),
             unsupported_types: md_codec.unsupported_types,
-            unsupported_properties: md_codec.unsupported_properties
+            unsupported_properties: md_codec.unsupported_properties,
         }
     }
 

@@ -1,5 +1,5 @@
 use codec::{eyre::Result, stencila_schema::*, CodecTrait, EncodeOptions};
-use codec_md::MarkdownCodec;
+use codec_md::MdCodec;
 
 /// Encode a `Node` to R Markdown
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
@@ -9,7 +9,7 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
             transform_blocks(content)
         }
     }
-    MarkdownCodec::to_string(&node, options)
+    MdCodec::to_string(&node, options)
 }
 
 fn transform_blocks(blocks: &mut Vec<BlockContent>) {

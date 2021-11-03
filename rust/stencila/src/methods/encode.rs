@@ -46,7 +46,7 @@ pub async fn encode(
         "latex" => codec_latex::LatexCodec::to_string_async(node, options).await?,
 
         #[cfg(feature = "encode-md")]
-        "md" => codec_md::MarkdownCodec::to_string(node, options)?,
+        "md" => codec_md::MdCodec::to_string(node, options)?,
 
         #[cfg(feature = "encode-pandoc")]
         "pandoc" => codec_pandoc::PandocCodec::to_string_async(node, options).await?,

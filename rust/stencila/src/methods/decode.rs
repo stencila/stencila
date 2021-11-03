@@ -50,7 +50,7 @@ pub async fn decode(input: &str, format: &str) -> Result<Node> {
         "person" => codec_person::PersonCodec::from_str(input, options)?,
 
         #[cfg(feature = "decode-md")]
-        "md" => codec_md::MarkdownCodec::from_str(input, options)?,
+        "md" => codec_md::MdCodec::from_str(input, options)?,
 
         #[cfg(feature = "decode-rmd")]
         "rmd" => codec_rmd::RmdCodec::from_str(input, options)?,

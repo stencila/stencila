@@ -1,5 +1,5 @@
 use codec::CodecTrait;
-use codec_md::MarkdownCodec;
+use codec_md::MdCodec;
 use test_props::{article, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
 
@@ -9,11 +9,11 @@ proptest! {
     #[test]
     fn test(input in article(
         Freedom::Min,
-        MarkdownCodec::spec().unsupported_types,
-        MarkdownCodec::spec().unsupported_properties,
+        MdCodec::spec().unsupported_types,
+        MdCodec::spec().unsupported_properties,
     )) {
-        let string = MarkdownCodec::to_string(&input, None).unwrap();
-        let output = MarkdownCodec::from_str(&string, None).unwrap();
+        let string = MdCodec::to_string(&input, None).unwrap();
+        let output = MdCodec::from_str(&string, None).unwrap();
         assert_json_eq!(input, output)
     }
 }

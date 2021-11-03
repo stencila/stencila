@@ -16,9 +16,9 @@ mod encode;
 pub use encode::ToMd;
 
 /// A codec for Markdown
-pub struct MarkdownCodec {}
+pub struct MdCodec {}
 
-impl CodecTrait for MarkdownCodec {
+impl CodecTrait for MdCodec {
     fn spec() -> Codec {
         Codec {
             formats: vec_string!["md"],
