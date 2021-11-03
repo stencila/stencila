@@ -3,6 +3,7 @@ use codec_trait::{
     stencila_schema::*,
 };
 use codec_txt::ToTxt;
+use formats::{FormatNodeType, FORMATS};
 use node_coerce::coerce;
 use node_transform::Transform;
 use nom::{
@@ -351,33 +352,23 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         }
                     };
 
-                    let media_object = InlineContent::ImageObject(ImageObjectSimple {
-                        caption,
-                        content_url: url.to_string(),
-                        title,
-                        ..Default::default()
-                    });
-
-                    /*
-                    TODO: Reinstate "smart" media types (not just images) if/when there is a formats
-                    crate.
-                    let _extension = PathBuf::from(&url.to_string()).extension().map_or_else(
-                        || "".to_string(),
-                        |ext| ext.to_string_lossy().to_string().to_ascii_lowercase(),
-                    );
-                    match format_type(extension.as_str()) {
-                        FormatType::AudioObject => InlineContent::AudioObject(AudioObjectSimple {
-                            caption,
-                            content_url: url.to_string(),
-                            title,
-                            ..Default::default()
-                        }),
-                        FormatType::VideoObject => InlineContent::VideoObject(VideoObjectSimple {
-                            caption,
-                            content_url: url.to_string(),
-                            title,
-                            ..Default::default()
-                        }),
+                    let media_object = match FORMATS.match_path(&url.to_string()).node_type {
+                        FormatNodeType::AudioObject => {
+                            InlineContent::AudioObject(AudioObjectSimple {
+                                caption,
+                                content_url: url.to_string(),
+                                title,
+                                ..Default::default()
+                            })
+                        }
+                        FormatNodeType::VideoObject => {
+                            InlineContent::VideoObject(VideoObjectSimple {
+                                caption,
+                                content_url: url.to_string(),
+                                title,
+                                ..Default::default()
+                            })
+                        }
                         _ => InlineContent::ImageObject(ImageObjectSimple {
                             caption,
                             content_url: url.to_string(),
@@ -385,7 +376,6 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                             ..Default::default()
                         }),
                     };
-                    */
 
                     inlines.push_node(media_object)
                 }

@@ -291,7 +291,7 @@ pub fn inline_content(
         ("Emphasis", emphasis(freedom).boxed()),
         ("Link", link(freedom).boxed()),
         (
-            "NontexualAnnotation",
+            "NontextualAnnotation",
             nontextual_annotation(freedom).boxed(),
         ),
         ("Quote", quote(freedom).boxed()),

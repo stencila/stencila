@@ -7,6 +7,7 @@ use codec_trait::{
     Codec,
 };
 use codec_txt::ToTxt;
+use formats::{FormatNodeType, FORMATS};
 use node_coerce::coerce;
 use pandoc_types::definition as pandoc;
 use std::{collections::HashMap, path::PathBuf};
@@ -452,29 +453,23 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
                 false => Some(Box::new(CreativeWorkTitle::String(title.to_string()))),
             };
 
-            vec![InlineContent::ImageObject(ImageObjectSimple {
-                content_url,
-                title,
-                caption,
-                id,
-                ..Default::default()
-            })]
-
-            /*
-            TODO: Reinstate "smart" media types (not just images) when there is a formats crate
-            match format_type(&content_url) {
-                FormatType::AudioObject => vec![InlineContent::AudioObject(AudioObjectSimple {
-                    content_url,
-                    title,
-                    id,
-                    ..Default::default()
-                })],
-                FormatType::VideoObject => vec![InlineContent::VideoObject(VideoObjectSimple {
-                    content_url,
-                    title,
-                    id,
-                    ..Default::default()
-                })],
+            match FORMATS.match_path(&content_url).node_type {
+                FormatNodeType::AudioObject => {
+                    vec![InlineContent::AudioObject(AudioObjectSimple {
+                        content_url,
+                        title,
+                        id,
+                        ..Default::default()
+                    })]
+                }
+                FormatNodeType::VideoObject => {
+                    vec![InlineContent::VideoObject(VideoObjectSimple {
+                        content_url,
+                        title,
+                        id,
+                        ..Default::default()
+                    })]
+                }
                 _ => vec![InlineContent::ImageObject(ImageObjectSimple {
                     content_url,
                     title,
@@ -483,7 +478,6 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
                     ..Default::default()
                 })],
             }
-            */
         }
 
         pandoc::Inline::Cite(citations, _inlines) => {

@@ -21,6 +21,7 @@ encode = ["itertools"]
 codec-html = { path = "../codec-html", version = "0.0.0" }
 codec-trait = { path = "../codec-trait", version = "0.0.0" }
 codec-txt = { path = "../codec-txt", version = "0.0.0" }
+formats = { path = "../formats", version = "0.0.0" }
 itertools = { version = "0.10.1", optional = true }
 node-coerce = { path = "../node-coerce", version = "0.0.0" }
 node-transform = { path = "../node-transform", version = "0.0.0" }
