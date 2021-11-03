@@ -36,27 +36,27 @@ impl Codec for DateCodec {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_utils::assert_debug_eq;
+    use test_utils::assert_json_eq;
 
     #[test]
     fn from_str() -> Result<()> {
         // Adding timezone avoids failures due to different local time on
         // test host machines.
-        assert_debug_eq!(
+        assert_json_eq!(
             DateCodec::from_str("11 Jul 2021; 12 am +00:00", None)?,
             Node::Date(Date {
                 value: "2021-07-11T00:00:00+00:00".to_string(),
                 ..Default::default()
             })
         );
-        assert_debug_eq!(
+        assert_json_eq!(
             DateCodec::from_str("July 11 2021; 6 am +06:00", None)?,
             Node::Date(Date {
                 value: "2021-07-11T00:00:00+00:00".to_string(),
                 ..Default::default()
             })
         );
-        assert_debug_eq!(
+        assert_json_eq!(
             DateCodec::from_str("2021-07-11; 13:00 +13:00", None)?,
             Node::Date(Date {
                 value: "2021-07-11T00:00:00+00:00".to_string(),

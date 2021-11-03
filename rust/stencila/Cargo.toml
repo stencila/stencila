@@ -47,12 +47,12 @@ import-elife = ["minidom"]
 import-github = []
 
 decode-date = ["codec-date"]
-decode-docx = ["decode-pandoc"]
+decode-docx = ["codec-docx"]
 decode-html = ["codec-html"]
 decode-ipynb = ["codec-ipynb"]
 decode-json = ["codec-json"]
 decode-json5 = ["codec-json5"]
-decode-latex = ["decode-pandoc"]
+decode-latex = ["codec-latex"]
 decode-md = ["codec-md"]
 decode-pandoc = ["codec-pandoc"]
 decode-person = ["codec-person"]
@@ -62,11 +62,11 @@ decode-toml = ["codec-toml"]
 decode-txt = ["codec-txt"]
 decode-yaml = ["codec-yaml"]
 
-encode-docx = ["encode-pandoc"]
+encode-docx = ["codec-docx"]
 encode-ipynb = ["codec-ipynb"]
 encode-json = ["codec-json"]
 encode-json5 = ["codec-json5"]
-encode-latex = ["encode-pandoc"]
+encode-latex = ["codec-latex"]
 encode-md = ["codec-md"]
 encode-pandoc = ["codec-pandoc"]
 encode-pdf = ["codec-pdf"]
@@ -250,10 +250,12 @@ zmq = { version = "=0.9.2", optional = true, default-features = false }
 binaries = { path = "../binaries", version = "0.0.0", optional = true }
 cli = { path = "../cli", version = "0.0.0", optional = true }
 codec-date = { path = "../codec-date", version = "0.0.0", optional = true }
+codec-docx = { path = "../codec-docx", version = "0.0.0", optional = true }
 codec-html = { path = "../codec-html", version = "0.0.0", optional = true }
 codec-ipynb = { path = "../codec-ipynb", version = "0.0.0", optional = true }
 codec-json = { path = "../codec-json", version = "0.0.0", optional = true }
 codec-json5 = { path = "../codec-json5", version = "0.0.0", optional = true }
+codec-latex = { path = "../codec-latex", version = "0.0.0", optional = true }
 codec-md = { path = "../codec-md", version = "0.0.0", optional = true }
 codec-pandoc = { path = "../codec-pandoc", version = "0.0.0", optional = true }
 codec-pdf = { path = "../codec-pdf", version = "0.0.0", optional = true }

@@ -26,7 +26,7 @@ impl Codec for Json5Codec {
 mod tests {
     use super::*;
     use codec_trait::stencila_schema::{Entity, Paragraph};
-    use test_utils::assert_debug_eq;
+    use test_utils::assert_json_eq;
 
     #[test]
     fn from_str() {
@@ -35,7 +35,7 @@ mod tests {
             Node::Entity(..)
         ));
 
-        assert_debug_eq!(
+        assert_json_eq!(
             Json5Codec::from_str("{type: 'Paragraph'}", None).unwrap(),
             Node::Paragraph(Paragraph {
                 content: vec![],

@@ -129,6 +129,7 @@ impl Binary {
             installable: versions
                 .iter()
                 .map(|s| String::from_str(s).unwrap())
+                .rev()
                 .collect(),
             ..Default::default()
         }
@@ -935,7 +936,7 @@ mod tests {
         use super::commands::{Install, List, Show};
         use cli::Run;
         use eyre::bail;
-        use test_utils::assert_debug_eq;
+        use test_utils::assert_json_eq;
 
         List {}.run().await?;
 
@@ -964,7 +965,7 @@ mod tests {
             } else {
                 bail!("Expected value")
             };
-            assert_debug_eq!(value.get("name"), Some(name.clone()));
+            assert_json_eq!(value.get("name"), Some(name.clone()));
             assert!(!value
                 .get("installs")
                 .expect("To have installs")

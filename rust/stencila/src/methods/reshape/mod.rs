@@ -221,7 +221,8 @@ fn detect_authors(
             let authors_ = SPLIT_REGEX
                 .split(&captures[1])
                 .map(|str| {
-                    let person = if let Ok(Node::Person(person)) = PersonCodec::from_str(str) {
+                    let person = if let Ok(Node::Person(person)) = PersonCodec::from_str(str, None)
+                    {
                         person
                     } else {
                         Person {
@@ -280,7 +281,7 @@ fn detect_date(date: &mut Option<Box<Date>>, blocks: &mut Vec<BlockContent>, ind
     if let BlockContent::Paragraph(paragraph) = &blocks[index] {
         let txt = paragraph.to_txt();
         if let Some(captures) = BEGINS_REGEX.captures(&txt) {
-            if let Ok(Node::Date(date_)) = DateCodec::from_str(&captures[1]) {
+            if let Ok(Node::Date(date_)) = DateCodec::from_str(&captures[1], None) {
                 *date = Some(Box::new(date_));
                 blocks.remove(index);
                 return -1;
@@ -295,7 +296,7 @@ fn detect_date(date: &mut Option<Box<Date>>, blocks: &mut Vec<BlockContent>, ind
 fn infer_date(date: &mut Option<Box<Date>>, blocks: &mut Vec<BlockContent>, index: usize) -> i32 {
     if let BlockContent::Paragraph(paragraph) = &blocks[index] {
         let txt = paragraph.to_txt();
-        if let Ok(Node::Date(date_)) = DateCodec::from_str(&txt) {
+        if let Ok(Node::Date(date_)) = DateCodec::from_str(&txt, None) {
             *date = Some(Box::new(date_));
             blocks.remove(index);
             return -1;
@@ -387,7 +388,7 @@ mod tests {
     #[test]
     fn reshape_yaml_articles() {
         snapshot_fixtures("articles/reshape-*.yaml", |_path, content| {
-            let mut article = YamlCodec::from_str(content).expect("Unable to decode YAML");
+            let mut article = YamlCodec::from_str(content, None).expect("Unable to decode YAML");
             reshape(&mut article, Options::default()).expect("Unable to reshape");
             assert_json_snapshot!(article);
         });

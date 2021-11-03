@@ -3,11 +3,7 @@ use crate::{
     formats::{Format, FORMATS},
     graphs::{Relation, Resource},
     kernels::KernelSpace,
-    methods::{
-        compile::compile,
-        decode::decode,
-        encode::{self, encode},
-    },
+    methods::{compile::compile, decode::decode, encode::encode},
     patches::{diff, merge, resolve, Address, Patch, Pointer},
     pubsub::publish,
     utils::{
@@ -16,6 +12,7 @@ use crate::{
         uuids::{self},
     },
 };
+use codec_trait::EncodeOptions;
 use defaults::Defaults;
 use eyre::{bail, Result};
 use itertools::Itertools;
@@ -505,7 +502,7 @@ impl Document {
         let output = ["file://", &path.display().to_string()].concat();
 
         let content = if let Some(root) = &self.root {
-            let mut options = encode::Options {
+            let mut options = EncodeOptions {
                 standalone: true,
                 ..Default::default()
             };

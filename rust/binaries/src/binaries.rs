@@ -10,9 +10,6 @@ pub(crate) fn all() -> Vec<Binary> {
     ]
 }
 
-// Note: versions should be valid semver triples and listed in descending order!
-// The first version meeting semver requirements will be installed is necessary
-
 /// Binary definition for Chrome / Chromium
 ///
 /// Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history

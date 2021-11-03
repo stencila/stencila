@@ -25,7 +25,7 @@ mod tests {
     use super::*;
     use codec_trait::stencila_schema::{Paragraph, Primitive};
     use std::collections::BTreeMap;
-    use test_utils::assert_debug_eq;
+    use test_utils::assert_json_eq;
 
     #[test]
     fn from_str() {
@@ -59,7 +59,7 @@ mod tests {
             Node::Entity(..)
         ));
 
-        assert_debug_eq!(
+        assert_json_eq!(
             JsonCodec::from_str("{\"type\": \"Paragraph\"}", None).unwrap(),
             Node::Paragraph(Paragraph {
                 content: vec![],

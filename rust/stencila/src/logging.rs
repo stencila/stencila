@@ -294,11 +294,14 @@ pub fn init(
         min_level = file_level
     }
 
-    // Only show log entries for this crate to avoid excessive noise.
+    // Filter out debug log entries from some crates to avoid excessive noise.
     // We may want to show entries from other crates during development
     // so we may add another flag for this in the future.
-    // e.g. `--log-scope=stencila` vs `--log-scope==all`.
-    let directives = format!("stencila={}", min_level.to_string());
+    // e.g. `--log-scope=stencila` vs `--log-scope=all`.
+    let directives = format!(
+        "{},reqwest=info,hyper=info,warp=info",
+        min_level.to_string()
+    );
 
     let registry = tracing_subscriber::registry()
         .with(EnvFilter::new(directives))

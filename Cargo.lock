@@ -714,6 +714,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-docx"
+version = "0.0.0"
+dependencies = [
+ "codec-pandoc",
+ "codec-trait",
+ "once_cell",
+ "tempfile",
+ "test-props",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "codec-html"
 version = "0.0.0"
 dependencies = [
@@ -782,6 +795,18 @@ dependencies = [
  "serde_json",
  "test-props",
  "test-utils",
+]
+
+[[package]]
+name = "codec-latex"
+version = "0.0.0"
+dependencies = [
+ "codec-pandoc",
+ "codec-trait",
+ "once_cell",
+ "test-props",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]
@@ -4475,10 +4500,12 @@ dependencies = [
  "chrono",
  "cli",
  "codec-date",
+ "codec-docx",
  "codec-html",
  "codec-ipynb",
  "codec-json",
  "codec-json5",
+ "codec-latex",
  "codec-md",
  "codec-pandoc",
  "codec-pdf",
@@ -4882,6 +4909,7 @@ name = "test-utils"
 version = "0.0.0"
 dependencies = [
  "pretty_assertions",
+ "serde_json",
 ]
 
 [[package]]
