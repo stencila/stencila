@@ -16,8 +16,8 @@ pub mod interact;
 
 // Export structopt and async_trait given that usage of this crate requires them...
 // and others because they are useful :)
-// Note: this structopt can not actually be used for macros yet. 
+// Note: this structopt can not actually be used for macros yet.
 // See https://github.com/TeXitoi/structopt/issues/339
-pub use structopt;
 pub use async_trait;
 pub use color_eyre;
+pub use structopt;

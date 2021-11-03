@@ -35,7 +35,7 @@ pub fn skip_slow_tests() -> bool {
 }
 
 /// Assert that two nodes are equal based on their JSON representation
-/// 
+///
 /// This has the advantage over `pretty_assertions::assert_eq` of not requiring the
 /// `==` operator to be defined for the types and hiding less usually irrelevant
 /// details such as `Box` wrappers.

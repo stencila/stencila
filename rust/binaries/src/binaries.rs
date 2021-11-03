@@ -2,12 +2,7 @@ use super::Binary;
 
 /// A list of all managed binaries
 pub(crate) fn all() -> Vec<Binary> {
-    vec![
-        chrome(),
-        node(),
-        pandoc(),
-        python(),
-    ]
+    vec![chrome(), node(), pandoc(), python()]
 }
 
 /// Binary definition for Chrome / Chromium

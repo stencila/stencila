@@ -1,9 +1,9 @@
 //! Functions for an interactive mode command line (REPL)
 
-use std::path::Path;
 use crate::command::Run;
 use eyre::{bail, eyre, Result};
 use rustyline::error::ReadlineError;
+use std::path::Path;
 use structopt::StructOpt;
 
 fn help() -> String {
