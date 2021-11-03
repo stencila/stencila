@@ -4,7 +4,7 @@ use codec_trait::{
     Codec,
 };
 use test_props::{code_chunk, proptest::prelude::*, Freedom};
-use test_utils::assert_debug_eq;
+use test_utils::assert_json_eq;
 
 proptest! {
     // RPNGs can be used for all node types but these tests
@@ -25,6 +25,6 @@ proptest! {
         });
 
         let output = RpngCodec::from_str(&content, None).unwrap();
-        assert_debug_eq!(input, output)
+        assert_json_eq!(input, output)
     }
 }

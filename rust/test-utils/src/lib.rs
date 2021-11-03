@@ -2,8 +2,9 @@
 
 use std::path::PathBuf;
 
-// Expose `pretty_assertions` for use by other internal crates
+// Expose dependency for use by other internal crates (e.g. so macros work)
 pub use pretty_assertions;
+pub use serde_json;
 
 /// Get the path of the home directory of this repository
 pub fn home() -> PathBuf {
@@ -33,24 +34,17 @@ pub fn skip_slow_tests() -> bool {
     }
 }
 
-/// Assert that two nodes are equal based on their `Debug` display
-///
-/// Indented debug display is used as it more easily allows differences to be
-/// seen. It has the advantage over `assert_json_eq` of not requiring another dependency
-#[macro_export]
-macro_rules! assert_debug_eq {
-    ($a:expr, $b:expr) => {
-        test_utils::pretty_assertions::assert_eq!(format!("{:#?}", $a), format!("{:#?}", $b));
-    };
-}
-
 /// Assert that two nodes are equal based on their JSON representation
+/// 
+/// This has the advantage over `pretty_assertions::assert_eq` of not requiring the
+/// `==` operator to be defined for the types and hiding less usually irrelevant
+/// details such as `Box` wrappers.
 #[macro_export]
 macro_rules! assert_json_eq {
     ($a:expr, $b:expr) => {
         test_utils::pretty_assertions::assert_eq!(
-            serde_json::to_value(&$a).unwrap(),
-            serde_json::to_value(&$b).unwrap()
+            test_utils::serde_json::to_value(&$a).unwrap(),
+            test_utils::serde_json::to_value(&$b).unwrap()
         );
     };
 }

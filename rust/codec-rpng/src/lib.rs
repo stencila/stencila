@@ -164,7 +164,7 @@ pub async fn nodes_to_bytes(
 mod tests {
     use super::*;
     use codec_trait::stencila_schema::CodeChunk;
-    use test_utils::assert_debug_eq;
+    use test_utils::assert_json_eq;
 
     /// End-to-end test of encoding a node to a PNG and then decoding
     /// it from the PNG. See `../tests/prop.rs` for more intensive end-to-end testing.
@@ -181,14 +181,14 @@ mod tests {
         let data_uri = RpngCodec::to_string_async(&input, None).await?;
         assert!(data_uri.starts_with("data:image/png;base64,"));
         let output = RpngCodec::from_str(&data_uri, None)?;
-        assert_debug_eq!(input, output);
+        assert_json_eq!(input, output);
 
         let dir = tempfile::tempdir()?;
         let path = dir.path().join("temp.png");
         RpngCodec::to_path(&input, &path, None).await?;
         assert!(path.exists());
         let output = RpngCodec::from_path(&path, None).await?;
-        assert_debug_eq!(input, output);
+        assert_json_eq!(input, output);
 
         Ok(())
     }

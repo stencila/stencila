@@ -23,7 +23,7 @@ impl Codec for TomlCodec {
 mod tests {
     use super::*;
     use codec_trait::stencila_schema::Person;
-    use test_utils::{assert_debug_eq, pretty_assertions::assert_eq};
+    use test_utils::{assert_json_eq, pretty_assertions::assert_eq};
 
     #[test]
     fn to_from() {
@@ -34,7 +34,7 @@ mod tests {
 
         let toml = "type = \"Person\"\ngivenNames = [\"Sarah\"]\n".to_string();
 
-        assert_debug_eq!(TomlCodec::from_str(&toml, None).unwrap(), sarah);
+        assert_json_eq!(TomlCodec::from_str(&toml, None).unwrap(), sarah);
         assert_eq!(TomlCodec::to_string(&sarah, None).unwrap(), toml);
     }
 }

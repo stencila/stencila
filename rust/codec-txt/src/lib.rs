@@ -60,7 +60,7 @@ mod tests {
 
     use super::*;
     use codec_trait::{eyre::bail, stencila_schema::Primitive};
-    use test_utils::assert_debug_eq;
+    use test_utils::assert_json_eq;
 
     #[test]
     fn booleans() -> Result<()> {
@@ -111,11 +111,11 @@ mod tests {
     fn objects_arrays() -> Result<()> {
         let mut map = BTreeMap::new();
         map.insert("a".to_string(), Primitive::Integer(1));
-        assert_debug_eq!(
+        assert_json_eq!(
             TxtCodec::from_str(r#"{"a": 1}"#, None)?,
             Primitive::Object(map)
         );
-        assert_debug_eq!(
+        assert_json_eq!(
             TxtCodec::from_str(r#"[1]"#, None)?,
             Node::Array(vec![Primitive::Integer(1)])
         );
