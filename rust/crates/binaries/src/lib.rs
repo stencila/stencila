@@ -20,6 +20,8 @@ use std::{
 };
 use tokio::sync::Mutex;
 
+mod binaries;
+
 ///! A module for locating, running and installing third party binaries.
 ///!
 ///! Binaries may be used as runtimes for plugins (e.g. Node.js, Python) or
@@ -401,6 +403,8 @@ impl Binary {
         // See https://github.com/jgm/pandoc/releases
         let version = match version {
             "2.14.0" => "2.14.0.3",
+            "2.15.0" => "2.15",
+            "2.16.0" => "2.16",
             _ => version,
         };
 
@@ -608,30 +612,12 @@ impl Binary {
 }
 
 static BINARIES: Lazy<Mutex<HashMap<String, Binary>>> = Lazy::new(|| {
-    // Note: versions should be valid semver triples and listed in descending order!
-    // The first version meeting semver requirements will be installed is necessary
-    let binaries = vec![
-        // Chrome / Chromium
-        // Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history
-        // but only use triples ending in `.0` here and make sure there is a mapping in the
-        // `install_chromium` function.
-        Binary::new("chrome", &["chromium"], &["91.0.0"]),
-        // Node.js
-        // Release list at https://nodejs.org/en/download/releases/
-        Binary::new("node", &[], &["16.4.1"]),
-        // Pandoc
-        // Release list at https://github.com/jgm/pandoc/releases
-        // To avoid version parsing issues we map standard semver triples
-        // to Pandoc's quads in the `install_pandoc` function and use only triples here.
-        Binary::new("pandoc", &[], &["2.14.0"]),
-        // Python
-        Binary::new("python", &["python3"], &["3.9.6"]),
-    ]
-    .into_iter()
-    .map(|binary| (binary.name.clone(), binary))
-    .collect();
+    let map = binaries::all()
+        .into_iter()
+        .map(|binary| (binary.name.clone(), binary))
+        .collect();
 
-    Mutex::new(binaries)
+    Mutex::new(map)
 });
 
 /// A cache used to memoize calls to require
