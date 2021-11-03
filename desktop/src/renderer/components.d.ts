@@ -31,6 +31,9 @@ export namespace Components {
         "paneId": EntityId;
     }
     interface AppDocumentPreview {
+        /**
+          * ID of the document to be previewed
+         */
         "documentId": EntityId;
     }
     interface AppLauncher {
@@ -323,6 +326,9 @@ declare namespace LocalJSX {
         "paneId"?: EntityId;
     }
     interface AppDocumentPreview {
+        /**
+          * ID of the document to be previewed
+         */
         "documentId"?: EntityId;
     }
     interface AppLauncher {

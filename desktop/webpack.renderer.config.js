@@ -41,6 +41,7 @@ module.exports = {
       {
         'base-uri': "'self' stencila://rse",
         'default-src': 'stencila://rse',
+        'frame-src': 'http://127.0.0.1:9000',
         'script-src': ["'self'"],
         'img-src': ["'self'", 'data:', 'local:'],
         'style-src': [

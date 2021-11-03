@@ -2,3 +2,7 @@
   @apply overflow-y-auto h-full w-full block px-4;
   border-color: var(--color-neutral-300);
 }
+
+iframe {
+  @apply h-full w-full border-0;
+}

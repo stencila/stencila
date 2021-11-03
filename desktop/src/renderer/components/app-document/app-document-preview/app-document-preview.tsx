@@ -1,10 +1,8 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { Component, h, Host, Prop, State, Watch } from '@stencil/core'
-import { DocumentEvent } from 'stencila'
-import { CHANNEL } from '../../../../preload/channels'
+import { File } from 'stencila'
 import { state } from '../../../../renderer/store'
-import { getProjectTheme } from '../../../../renderer/store/project/projectSelectors'
-import { client } from '../../../client'
+import { selectDoc } from '../../../store/documentPane/documentPaneSelectors'
 
 @Component({
   tag: 'app-document-preview',
@@ -12,65 +10,39 @@ import { client } from '../../../client'
   shadow: true,
 })
 export class AppDocumentPreview {
+  /**
+   * ID of the document to be previewed
+   */
   @Prop() documentId: EntityId
+
+  private updateDoc = (id: EntityId) => {
+    const doc = selectDoc(state)(id)
+    if (doc) {
+      this.doc = doc
+    }
+  }
 
   @Watch('documentId')
   documentIdWatchHandler(newValue: string, prevValue: string) {
     if (newValue !== prevValue) {
-      this.unsubscribeFromDocument(prevValue).then(() => {
-        this.subscribeToDocument(newValue)
-      })
+      this.updateDoc(newValue)
     }
   }
 
-  @State() previewContents: string
-
-  private subscribeToDocument = (documentId = this.documentId) => {
-    client.documents.preview(documentId).then(({ value: contents }) => {
-      this.previewContents = contents
-    })
-
-    window.api.receive(CHANNEL.DOCUMENTS_PREVIEW, (event) => {
-      const e = event as DocumentEvent
-      if (
-        e.document.id === documentId &&
-        e.type === 'encoded' &&
-        e.format?.name == 'html' &&
-        e.content !== undefined
-      ) {
-        this.previewContents = e.content
-      }
-    })
-  }
-
-  private unsubscribeFromDocument = (documentId = this.documentId) => {
-    window.api.removeAll(CHANNEL.DOCUMENTS_PREVIEW)
-    return client.documents.unsubscribe({
-      documentId,
-      topics: ['encoded:html'],
-    })
-  }
+  @State() doc: File
 
   componentWillLoad() {
-    this.subscribeToDocument()
-  }
-
-  disconnectedCallback() {
-    this.unsubscribeFromDocument()
+    this.updateDoc(this.documentId)
   }
 
   render() {
     return (
       <Host>
-        <style>
-          @import url('https://unpkg.com/@stencila/thema@latest/dist/themes/
-          {getProjectTheme(state)}/styles.css');
-        </style>
-
-        <div
-          class="app-document-preview"
-          innerHTML={this.previewContents}
-        ></div>
+        <iframe
+          title="document-preview"
+          src={`http://127.0.0.1:9000/${this.doc.path}`}
+          sandbox="allow-scripts"
+        />
       </Host>
     )
   }
