@@ -77,10 +77,10 @@
         "automerge": false
       },
       {
+        "groupName": "ProseMirror dependencies",
         "matchPackagePatterns": [
           "prosemirror"
-        ],
-        "groupName": "ProseMirror dependencies"
+        ]
       },
       {
         "groupName": "PostCSS",
@@ -90,6 +90,12 @@
           "postcss",
           "autoprefixer",
           "cssnano"
+        ]
+      },
+      {
+        "groupName": "Tree-sitter dependencies",
+        "matchPackagePatterns": [
+          "tree-sitter"
         ]
       },
       {
