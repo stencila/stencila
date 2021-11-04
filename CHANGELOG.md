@@ -1,3 +1,30 @@
+# [0.125.0](https://github.com/stencila/stencila/compare/v0.124.0...v0.125.0) (2021-11-04)
+
+
+### Bug Fixes
+
+* **CLI:** Improve error reporting in interactive mode ([c237ee3](https://github.com/stencila/stencila/commit/c237ee339039bb5d377474ad6d5e919dee930881))
+* **CLI:** Reduce verbosity of backtrace output ([49da3a0](https://github.com/stencila/stencila/commit/49da3a06903057396911ae3422cb5d2887421d41))
+* **dependencies:** update dependency rpc-websockets to ^7.4.16 ([a252ce4](https://github.com/stencila/stencila/commit/a252ce4f08e8c4f31c8895f61978875e3cc3c016))
+* **dependencies:** update rust crate jsonschema to v0.13.2 ([d60f4ad](https://github.com/stencila/stencila/commit/d60f4ad175252f91be9a1a97b6fddb905dc09ca7))
+* **dependencies:** update rust crate termimad to v0.17.0 ([832e749](https://github.com/stencila/stencila/commit/832e749ec3601eccb3b64df15288070c99fb7284))
+* **dependencies:** update rust crate tokio to v1.13.0 ([6edc95a](https://github.com/stencila/stencila/commit/6edc95a27f88c097551648bbca1f8184314d76b2))
+* **dependencies:** update rust crate tokio-stream to v0.1.8 ([5a1b0a0](https://github.com/stencila/stencila/commit/5a1b0a0cacb6461bd61ff6116fab5db62a5d07d7))
+* **Jupyter:** Improve startup; waiting for kernel to be ready ([d79c9ad](https://github.com/stencila/stencila/commit/d79c9ad9887a8a8dedf1edf6590e4e4c54d01f70))
+* **Jupyter kernels:** Collect outputs and errors for each exec request ([5c7be71](https://github.com/stencila/stencila/commit/5c7be7124f74a7f0d74ab403d433c783848010d1))
+* **Jupyter kernels:** Handle outputs and errors ([24c53e0](https://github.com/stencila/stencila/commit/24c53e050b7062fec54e2d54889e4111b443f67b))
+* **Jupyter kernels:** Set correct permissions on files ([eb7c4e1](https://github.com/stencila/stencila/commit/eb7c4e1e7c5326ba08f784a00ee140ed39319025))
+
+
+### Features
+
+* **Calc kernel:** Improve error messages ([140523e](https://github.com/stencila/stencila/commit/140523eeb247c442c83fb0585ee9d575c943e96b))
+* **Jupyter kernels:** Add error handling and message content types ([3d1092d](https://github.com/stencila/stencila/commit/3d1092d288a25f5100c27ed5538d5b8fb6d11249))
+* **Jupyter kernels:** Allow connection to already running kernels ([3e4e744](https://github.com/stencila/stencila/commit/3e4e744e91e0f08a1847378aa713bb0c1f47cc6d))
+* **Jupyter kernels:** Create connection file and start process ([0a5d707](https://github.com/stencila/stencila/commit/0a5d70705b0f44437fa3d6195473b86cc42831a6))
+* **Kernels:** Add `start`, `stop`, `status` and `show` CLI commands ([5a5d30b](https://github.com/stencila/stencila/commit/5a5d30b3b05a39064af95309a4392da242e9cf4f))
+* **Kernels:** Add ability to get a list of available language kernels ([5abd846](https://github.com/stencila/stencila/commit/5abd84605255c4d7c2cbd810e9b0965261c71d39))
+
 # [0.123.0](https://github.com/stencila/stencila/compare/v0.122.0...v0.123.0) (2021-10-27)
 
 
