@@ -79,6 +79,8 @@
       {
         "groupName": "ProseMirror dependencies",
         "groupSlug": "prosemirror",
+        "semanticCommitType": "fix",
+        "semanticCommitScope": "ProseMirror",
         "matchFiles": [
           "web/package.json"
         ],
@@ -90,6 +92,8 @@
       {
         "groupName": "PostCSS",
         "groupSlug": "postcss",
+        "semanticCommitType": "chore",
+        "semanticCommitScope": "PostCSS",
         "rangeStrategy": "bump",
         "packagePatterns": [
           "postcss",
@@ -100,6 +104,7 @@
       {
         "groupName": "Tree-sitter dependencies",
         "groupSlug": "tree-sitter",
+        "semanticCommitScope": "Tree-sitter",
         "matchPackagePatterns": [
           "^tree-sitter"
         ]
@@ -107,6 +112,7 @@
       {
         "groupName": "Tracing dependencies",
         "groupSlug": "tracing",
+        "semanticCommitScope": "Tracing",
         "matchPackagePatterns": [
           "^tracing"
         ]
@@ -121,7 +127,7 @@
           "^@types/prosemirror"
         ],
         "semanticCommitType": "chore",
-        "semanticCommitScope": "Development dependencies",
+        "semanticCommitScope": "Dependencies",
         "updateTypes": [
           "minor",
           "patch",
