@@ -10,6 +10,7 @@ use codec_txt::ToTxt;
 use formats::{FormatNodeType, FORMATS};
 use node_coerce::coerce;
 use pandoc_types::definition as pandoc;
+use slug::slugify;
 use std::{collections::HashMap, path::PathBuf};
 
 /// Decode a document to a `Node`
@@ -126,10 +127,26 @@ fn translate_blocks(elements: &[pandoc::Block], context: &DecodeContext) -> Vec<
 fn translate_block(element: &pandoc::Block, context: &DecodeContext) -> Vec<BlockContent> {
     match element {
         pandoc::Block::Header(depth, attrs, inlines) => {
+            let content = translate_inlines(inlines, context);
+
+            // For some formats e.g. DOCX, LaTeX. Pandoc automatically adds an `id` to headings based
+            // on its content. That is useful, but redundant when it is decoded back. So, if the id
+            // is a slug of the content then ignore it.
+            let id = if let Some(id) = get_id(attrs) {
+                let slug = slugify(content.to_txt());
+                if *id == slug {
+                    None
+                } else {
+                    Some(id)
+                }
+            } else {
+                None
+            };
+
             vec![BlockContent::Heading(Heading {
-                id: get_id(attrs),
+                id,
                 depth: Some(*depth as u8),
-                content: translate_inlines(inlines, context),
+                content,
                 ..Default::default()
             })]
         }

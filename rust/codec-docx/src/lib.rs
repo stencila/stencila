@@ -2,7 +2,7 @@ use codec::{
     async_trait::async_trait, eyre::Result, stencila_schema::Node, utils::vec_string, Codec,
     CodecTrait, DecodeOptions, EncodeOptions,
 };
-use codec_pandoc::{decode, encode};
+use codec_pandoc::{decode, encode, PandocCodec};
 use std::path::{Path, PathBuf};
 
 /// A codec for Microsoft Word (.docx) files
@@ -11,21 +11,21 @@ pub struct DocxCodec {}
 #[async_trait]
 impl CodecTrait for DocxCodec {
     fn spec() -> Codec {
+        let pandoc_codec = PandocCodec::spec();
         Codec {
             status: "alpha".to_string(),
             formats: vec_string!["docx"],
             root_types: vec_string!["Article"],
             from_path: true,
             to_path: true,
-            unsupported_types: vec_string![
-                // TODO: Fix these
-                "Heading",
-                "Table",
-                "AudioObject",
-                "ImageObject",
-                "VideoObject",
-                "Quote"
-            ],
+            unsupported_types: [
+                pandoc_codec.unsupported_types,
+                vec_string![
+                    // TODO: Fix decoding of quotes from DOCX
+                    "Quote"
+                ],
+            ]
+            .concat(),
             ..Default::default()
         }
     }

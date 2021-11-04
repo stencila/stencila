@@ -868,6 +868,7 @@ dependencies = [
  "pandoc_types",
  "path-slash",
  "serde_json",
+ "slug",
  "tempfile",
  "test-props",
  "test-snaps",
