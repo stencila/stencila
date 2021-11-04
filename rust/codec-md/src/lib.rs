@@ -27,10 +27,6 @@ impl CodecTrait for MdCodec {
             from_path: cfg!(feature = "decode"),
             to_string: cfg!(feature = "encode"),
             to_path: cfg!(feature = "encode"),
-            unsupported_types: vec_string![
-                // TODO: Fix handling of table headers
-                "Table"
-            ],
             ..Default::default()
         }
     }
