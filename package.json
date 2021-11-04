@@ -80,7 +80,8 @@
         "groupName": "ProseMirror dependencies",
         "groupSlug": "prosemirror",
         "matchPackagePatterns": [
-          "prosemirror"
+          "prosemirror",
+          "@types/prosemirror"
         ]
       },
       {
@@ -97,14 +98,14 @@
         "groupName": "Tree-sitter dependencies",
         "groupSlug": "tree-sitter",
         "matchPackagePatterns": [
-          "tree-sitter"
+          "^tree-sitter"
         ]
       },
       {
         "groupName": "Tracing dependencies",
         "groupSlug": "tracing",
         "matchPackagePatterns": [
-          "tracing"
+          "^tracing"
         ]
       },
       {
