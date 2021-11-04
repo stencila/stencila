@@ -77,6 +77,12 @@
         "automerge": false
       },
       {
+        "matchPackagePatterns": [
+          "^prosemirror"
+        ],
+        "groupName": "ProseMirror dependencies"
+      },
+      {
         "groupName": "Dev deps",
         "groupSlug": "dev",
         "matchDepTypes": [
