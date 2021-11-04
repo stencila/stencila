@@ -41,6 +41,7 @@ checksum = "fcb51a0695d8f838b1ee009b3fbf66bda078cd64590202a864a8f3e8c4315c47"
 dependencies = [
  "getrandom 0.2.3",
  "once_cell",
+ "serde",
  "version_check",
 ]
 
@@ -458,6 +459,12 @@ name = "byte-tools"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3b5ca7a04898ad4bcd41c90c5285445ff5b791899bb1b0abdd2a2aa791211d7"
+
+[[package]]
+name = "bytecount"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72feb31ffc86498dacdbd0fcebb56138e7177a8cc5cea4516031d15ae85a742e"
 
 [[package]]
 name = "byteorder"
@@ -1382,9 +1389,9 @@ dependencies = [
 
 [[package]]
 name = "fraction"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78d24d088325f939faaf806483fbfac0548e43018606bfe7a44abc83f6dc75ea"
+checksum = "aba3510011eee8825018be07f08d9643421de007eaf62a3bde58d89b058abfa7"
 dependencies = [
  "lazy_static",
  "num",
@@ -2075,6 +2082,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68f2d64f2edebec4ce84ad108148e67e1064789bee435edc5b60ad398714a3a9"
 
 [[package]]
+name = "iso8601"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cee08a007a59a8adfc96f69738ddf59e374888dfd84b49c4b916543067644d58"
+dependencies = [
+ "nom 5.1.2",
+]
+
+[[package]]
 name = "itertools"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2123,14 +2139,16 @@ dependencies = [
 
 [[package]]
 name = "jsonschema"
-version = "0.12.2"
+version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f866fd6aaffb6be509b844f988b8c8cef3194418a08f9223294c4c676f2b497f"
+checksum = "6144050d3d8d90794363fa80eb36c04fd7b566edbc54fd690272d27300246a28"
 dependencies = [
  "ahash",
  "base64 0.13.0",
+ "bytecount",
  "fancy-regex",
  "fraction",
+ "iso8601",
  "itoa",
  "lazy_static",
  "num-cmp",
@@ -2138,10 +2156,12 @@ dependencies = [
  "percent-encoding",
  "regex",
  "reqwest",
+ "serde",
  "serde_json",
  "structopt",
  "time 0.3.4",
  "url",
+ "uuid",
 ]
 
 [[package]]
@@ -2601,6 +2621,16 @@ name = "nodrop"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72ef4a56884ca558e5ddb05a1d1e7e1bfd9a68d9ed024c21704cc98872dae1bb"
+
+[[package]]
+name = "nom"
+version = "5.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffb4262d26ed83a1c0a33a38fe2bb15797329c85770da05e6b828ddb782627af"
+dependencies = [
+ "memchr",
+ "version_check",
+]
 
 [[package]]
 name = "nom"
@@ -4171,7 +4201,7 @@ dependencies = [
  "mime_guess",
  "minidom",
  "nanoid",
- "nom",
+ "nom 7.0.0",
  "notify",
  "once_cell",
  "pandoc_types",
