@@ -79,9 +79,12 @@
       {
         "groupName": "ProseMirror dependencies",
         "groupSlug": "prosemirror",
+        "matchFiles": [
+          "web/package.json"
+        ],
         "matchPackagePatterns": [
-          "prosemirror",
-          "@types/prosemirror"
+          "^prosemirror",
+          "^@types/prosemirror"
         ]
       },
       {
@@ -113,6 +116,9 @@
         "groupSlug": "dev",
         "matchDepTypes": [
           "devDependencies"
+        ],
+        "excludePackagePatterns": [
+          "^@types/prosemirror"
         ],
         "semanticCommitType": "chore",
         "semanticCommitScope": "Development dependencies",
