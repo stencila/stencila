@@ -51,6 +51,7 @@ jobs:
         contains(variables.changed, 'cli'),
         contains(variables.changed, 'node'),
         contains(variables.changed, 'desktop'),
+        contains(variables.changed, 'web'),
         startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       )
     steps:
