@@ -78,7 +78,7 @@
       },
       {
         "matchPackagePatterns": [
-          "^prosemirror"
+          "prosemirror"
         ],
         "groupName": "ProseMirror dependencies"
       },
