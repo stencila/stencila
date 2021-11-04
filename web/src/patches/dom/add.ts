@@ -18,8 +18,6 @@ export function applyAdd(op: OperationAdd, target?: ElementId): void {
   const { address, html } = op
   assertString(html)
 
-  // if (resolveReceiver(address, op)) return
-
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {

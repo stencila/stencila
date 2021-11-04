@@ -20,8 +20,6 @@ export function applyReplace(op: OperationReplace, target?: ElementId): void {
   const { address, items, html } = op
   assertString(html)
 
-  // if (resolveReceiver(address, op)) return
-
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {
