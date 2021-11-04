@@ -10,7 +10,10 @@ const iconNameMap: Record<string, IconNames> = {
 }
 
 // Helper function to create menu icons
-export const menuButton = (text: string, name: string) => {
+export const menuButton = (
+  text: string,
+  name: string
+): HTMLStencilaButtonElement => {
   const iconEl = document.createElement('stencila-button')
   iconEl.icon = iconNameMap[name]
 

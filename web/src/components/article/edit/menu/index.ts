@@ -35,12 +35,13 @@ class MenuView {
       editorView.focus()
       items.forEach(({ command, dom }) => {
         if (dom.contains(e.target as HTMLElement))
+          /* eslint-disable-next-line @typescript-eslint/unbound-method */
           command(editorView.state, editorView.dispatch, editorView)
       })
     })
   }
 
-  update() {
+  update(): void {
     this.items.forEach(({ command, dom }) => {
       const active = command(this.editorView.state, undefined, this.editorView)
       if (active) {
@@ -53,7 +54,7 @@ class MenuView {
     })
   }
 
-  destroy() {
+  destroy(): void {
     this.dom.remove()
   }
 }
