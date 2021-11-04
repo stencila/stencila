@@ -1,5 +1,4 @@
-import { Address, Operation, Slot } from '@stencila/stencila'
-import { StencilaElement } from '../../components/base'
+import { Address, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
 import { assertElement, isElement, isName, isText, panic } from '../checks'
 
