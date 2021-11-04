@@ -83,6 +83,16 @@
         "groupName": "ProseMirror dependencies"
       },
       {
+        "groupName": "PostCSS",
+        "groupSlug": "postcss",
+        "rangeStrategy": "bump",
+        "packagePatterns": [
+          "postcss",
+          "autoprefixer",
+          "cssnano"
+        ]
+      },
+      {
         "groupName": "Dev deps",
         "groupSlug": "dev",
         "matchDepTypes": [
