@@ -4,7 +4,7 @@ import {
   isObject,
   JsonObject,
   JsonValue,
-} from '../../../patches/checks'
+} from '../../patches/checks'
 import { articleMarks } from './schema'
 
 /**

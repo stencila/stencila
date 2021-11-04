@@ -5,7 +5,7 @@
  */
 
 import { main } from './index'
-export { Article } from './components/article/edit'
+export { ArticleEditor } from './editors/article'
 
 window.stencilaWebClient = {
   main,
