@@ -7,60 +7,69 @@ use eyre::Result;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use stencila_schema::*;
+use utils::vec_string;
+
+/// Reshaping aggressiveness level
+///
+/// Controls the degree of inference applied to various properties
+/// and content types.
+#[derive(PartialEq, PartialOrd)]
+enum ReshapeLevel {
+    /// If a property is missing, attempt to detect it from explicit labels.
+    /// e.g. detect a figure caption when a paragraph after an image begins with the word "Figure".
+    Detect,
+    /// If a property is missing, and detection failed, infer it from the content if possible.
+    /// e.g. infer a figure caption when a paragraph after an image is emphasized.
+    Infer,
+    /// If a property is missing, and detection or inference failed, always make a guess.
+    /// e.g. guess an article title from the first sentence of the first paragraph.
+    #[allow(dead_code)]
+    Guess,
+}
 
 /// Reshaping options
 #[derive(Defaults)]
-pub struct Options {
-    /// Reshape articles
-    #[def = "true"]
-    article: bool,
+pub struct ReshapeOptions {
+    /// Node types to reshape
+    #[def = r#"vec_string!["Article"]"#]
+    types: Vec<String>,
 
-    /// Detect the title of a `CreativeWork`
-    #[def = "true"]
-    detect_title: bool,
+    /// Reshaping level for the title of a `CreativeWork`
+    #[def = "ReshapeLevel::Infer"]
+    title: ReshapeLevel,
 
-    /// Infer the title of a `CreativeWork`
-    #[def = "true"]
-    infer_title: bool,
+    /// Reshaping level for the authors of a `CreativeWork`
+    #[def = "ReshapeLevel::Infer"]
+    authors: ReshapeLevel,
 
-    /// Detect the authors of a `CreativeWork`
-    #[def = "true"]
-    detect_authors: bool,
+    /// Reshaping level for the date modified of a `CreativeWork`
+    #[def = "ReshapeLevel::Infer"]
+    date: ReshapeLevel,
 
-    /// Infer the authors of a `CreativeWork`
-    #[def = "true"]
-    infer_authors: bool,
+    /// Reshaping level for the keywords of a `CreativeWork`
+    #[def = "ReshapeLevel::Infer"]
+    keywords: ReshapeLevel,
 
-    /// Detect the date modified of a `CreativeWork`
-    #[def = "true"]
-    detect_date: bool,
-
-    /// Infer the date modified of a `CreativeWork`
-    #[def = "true"]
-    infer_date: bool,
-
-    /// Detect the keywords of a `CreativeWork`
-    #[def = "true"]
-    detect_keywords: bool,
-
-    /// Detect the abstract of a `CreativeWork`
-    #[def = "true"]
-    detect_abstract: bool,
+    /// Reshaping level for the abstract of a `CreativeWork`
+    #[def = "ReshapeLevel::Infer"]
+    abstract_: ReshapeLevel,
 }
 
 /// Reshape a node by inferring its semantic structure
 ///
 /// Most often used on a `CreativeWork` to do things like infer
 /// `title`, `authors`, `references` etc from its `content`.
-pub fn reshape(node: &mut Node, options: Options) -> Result<()> {
-    if let (Node::Article(article), true) = (node, &options.article) {
+pub fn reshape(node: &mut Node, options: Option<ReshapeOptions>) -> Result<()> {
+    let options = options.unwrap_or_default();
+
+    if let (Node::Article(article), true) = (node, options.types.contains(&"Article".to_string())) {
         reshape_article(article, &options)
     }
     Ok(())
 }
 
 /// Reshape an `Article`
-pub fn reshape_article(article: &mut Article, options: &Options) {
+pub fn reshape_article(article: &mut Article, options: &ReshapeOptions) {
     if let Some(blocks) = &mut article.content {
         let mut index = 0;
         while index < blocks.len() {
@@ -73,32 +82,53 @@ pub fn reshape_article(article: &mut Article, options: &Options) {
                 // and they can be in any order (although the code is optimized for the following
                 // order).
 
-                if article.title.is_none() && options.detect_title {
+                if article.title.is_none() && options.title >= ReshapeLevel::Detect {
                     delta += detect_title(&mut article.title, blocks, index)
                 }
-                if !blocks.is_empty() && article.title.is_none() && options.infer_title {
+                if !blocks.is_empty()
+                    && article.title.is_none()
+                    && options.title >= ReshapeLevel::Infer
+                {
                     delta += infer_title(&mut article.title, blocks, index)
                 }
 
-                if !blocks.is_empty() && article.authors.is_none() && options.detect_authors {
+                if !blocks.is_empty()
+                    && article.authors.is_none()
+                    && options.authors >= ReshapeLevel::Detect
+                {
                     delta += detect_authors(&mut article.authors, blocks, index)
                 }
-                if !blocks.is_empty() && article.authors.is_none() && options.infer_authors {
+                if !blocks.is_empty()
+                    && article.authors.is_none()
+                    && options.authors >= ReshapeLevel::Infer
+                {
                     delta += infer_authors(&mut article.authors, blocks, index)
                 }
 
-                if !blocks.is_empty() && article.date_modified.is_none() && options.detect_date {
+                if !blocks.is_empty()
+                    && article.date_modified.is_none()
+                    && options.date >= ReshapeLevel::Detect
+                {
                     delta += detect_date(&mut article.date_modified, blocks, index)
                 }
-                if !blocks.is_empty() && article.date_modified.is_none() && options.infer_date {
+                if !blocks.is_empty()
+                    && article.date_modified.is_none()
+                    && options.date >= ReshapeLevel::Infer
+                {
                     delta += infer_date(&mut article.date_modified, blocks, index)
                 }
 
-                if !blocks.is_empty() && article.keywords.is_none() && options.detect_keywords {
+                if !blocks.is_empty()
+                    && article.keywords.is_none()
+                    && options.keywords >= ReshapeLevel::Detect
+                {
                     delta += detect_keywords(&mut article.keywords, blocks, index)
                 }
 
-                if !blocks.is_empty() && article.description.is_none() && options.detect_abstract {
+                if !blocks.is_empty()
+                    && article.description.is_none()
+                    && options.abstract_ >= ReshapeLevel::Detect
+                {
                     delta += detect_abstract(&mut article.description, blocks, index)
                 }
             }
@@ -384,7 +414,7 @@ mod tests {
     fn reshape_yaml_articles() {
         snapshot_fixtures_content("articles/reshape-*.yaml", |content| {
             let mut article = serde_yaml::from_str(content).expect("Unable to decode YAML");
-            reshape(&mut article, Options::default()).expect("Unable to reshape");
+            reshape(&mut article, None).expect("Unable to reshape");
             assert_json_snapshot!(article);
         });
     }
