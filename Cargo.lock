@@ -2046,6 +2046,39 @@ dependencies = [
 ]
 
 [[package]]
+name = "graph"
+version = "0.0.0"
+dependencies = [
+ "derivative",
+ "eyre",
+ "graph-triples",
+ "path-slash",
+ "petgraph",
+ "schemars",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "strum 0.22.0",
+ "utils",
+]
+
+[[package]]
+name = "graph-triples"
+version = "0.0.0"
+dependencies = [
+ "derivative",
+ "eyre",
+ "path-slash",
+ "petgraph",
+ "schemars",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "strum 0.22.0",
+ "utils",
+]
+
+[[package]]
 name = "h2"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3021,6 +3054,7 @@ dependencies = [
  "stencila-schema",
  "test-snaps",
  "test-utils",
+ "utils",
 ]
 
 [[package]]
@@ -3325,6 +3359,36 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c705f256449c60da65e11ff6626e0c16a0a0b96aaa348de61376b249bc340f41"
 dependencies = [
  "regex",
+]
+
+[[package]]
+name = "parser"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "eyre",
+ "serde",
+ "stencila-schema",
+ "utils",
+]
+
+[[package]]
+name = "parser-calc"
+version = "0.0.0"
+dependencies = [
+ "graph-triples",
+ "parser",
+]
+
+[[package]]
+name = "parsers"
+version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "formats",
+ "once_cell",
+ "parser",
+ "structopt",
 ]
 
 [[package]]
@@ -4592,6 +4656,7 @@ dependencies = [
  "futures",
  "gitignore",
  "glob",
+ "graph",
  "handlebars",
  "hex",
  "hmac",
@@ -4608,13 +4673,10 @@ dependencies = [
  "mime_guess",
  "minidom",
  "nanoid",
- "node-coerce",
- "node-transform",
  "notify",
  "once_cell",
  "path-slash",
  "pathdiff",
- "petgraph",
  "portpicker",
  "pretty_assertions",
  "proptest",

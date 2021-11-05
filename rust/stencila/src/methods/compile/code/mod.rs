@@ -1,5 +1,5 @@
 ///! Functions etc for compiling programming language source code in `CodeChunk` and `CodeExpression` nodes.
-use graphs::{Relation, Resource};
+use graph::{Relation, Resource};
 use std::path::Path;
 
 #[allow(dead_code)]
@@ -7,9 +7,6 @@ mod utils;
 
 #[cfg(feature = "tree-sitter")]
 mod helpers;
-
-#[cfg(feature = "compile-calc")]
-pub mod calc;
 
 #[cfg(feature = "compile-js")]
 pub mod js;

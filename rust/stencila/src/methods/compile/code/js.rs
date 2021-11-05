@@ -3,7 +3,7 @@ use super::{
     utils::remove_quotes,
 };
 use crate::utils::path::merge;
-use graphs::{relations, resources, Relation, Resource};
+use graph::{relations, resources, Relation, Resource};
 use once_cell::sync::Lazy;
 use std::path::Path;
 

@@ -6,7 +6,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use eyre::Result;
-use graphs::{relations, resources, Relation, Resource, NULL_RANGE};
+use graph::{relations, resources, Relation, Resource, NULL_RANGE};
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
