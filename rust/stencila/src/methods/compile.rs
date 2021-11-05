@@ -2,18 +2,17 @@ use crate::{
     dispatch_block, dispatch_inline, dispatch_node, dispatch_work,
     kernels::KernelSpace,
     patches::{Address, Slot},
-    utils::{hash::str_sha256_hex, path::merge, uuids},
+    utils::{hash::str_sha256_hex, uuids},
 };
 use async_trait::async_trait;
 use eyre::Result;
 use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Resource};
+use path_utils::merge;
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
 };
 use stencila_schema::*;
-
-pub mod code;
 
 type Addresses = HashMap<String, Address>;
 type Relations = HashMap<Resource, Vec<(Relation, Resource)>>;
@@ -261,7 +260,7 @@ impl Compile for CodeChunk {
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
         if Some(digest.clone()) != self.compile_digest {
             let subject = resources::node(&context.path, &id, "CodeChunk");
-            let relations = code::compile(&context.path, &self.text, &self.programming_language);
+            let relations = parsers::parse(&context.path, &self.text, &self.programming_language)?;
             context.relations.push((subject, relations));
             self.compile_digest = Some(digest)
         }
@@ -273,7 +272,7 @@ impl Compile for CodeChunk {
         tracing::debug!("Executing `CodeChunk`");
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
-        let relations = code::compile("", &self.text, &self.programming_language);
+        let relations = parsers::parse("", &self.text, &self.programming_language)?;
         let (outputs, errors) = kernels
             .exec(&self.text, &self.programming_language, Some(relations))
             .await?;
@@ -307,7 +306,7 @@ impl Compile for CodeExpression {
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
         if Some(digest.clone()) != self.compile_digest {
             let subject = resources::node(&context.path, &id, "CodeExpression");
-            let relations = code::compile(&context.path, &self.text, &self.programming_language);
+            let relations = parsers::parse(&context.path, &self.text, &self.programming_language)?;
             context.relations.push((subject, relations));
             self.compile_digest = Some(digest);
         }
@@ -319,7 +318,7 @@ impl Compile for CodeExpression {
         tracing::debug!("Executing `CodeExpression`");
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
-        let relations = code::compile("", &self.text, &self.programming_language);
+        let relations = parsers::parse("", &self.text, &self.programming_language)?;
         let (outputs, errors) = kernels
             .exec(&self.text, &self.programming_language, Some(relations))
             .await?;
@@ -348,7 +347,7 @@ impl Compile for SoftwareSourceCode {
             (self.text.as_deref(), self.programming_language.as_deref())
         {
             let subject = resources::file(&context.path);
-            let relations = code::compile(&context.path, text, programming_language);
+            let relations = parsers::parse(&context.path, text, programming_language)?;
             context.relations.push((subject, relations));
         }
 

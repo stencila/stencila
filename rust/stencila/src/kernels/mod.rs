@@ -1,4 +1,4 @@
-use crate::{methods::compile, utils::uuids};
+use crate::utils::uuids;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
@@ -433,9 +433,9 @@ impl KernelSpace {
                 let kernels = self.kernels().await;
                 result::value(kernels)
             } else {
-                // Compile the code so that we can use the relations to determine variables that
+                // Parse the code so that we can use the relations to determine variables that
                 // are assigned or used (needed for variable mirroring).
-                let relations = compile::code::compile("<cli>", &code, language);
+                let relations = parsers::parse("<cli>", &code, language)?;
                 let (nodes, errors) = self.exec(&code, language, Some(relations)).await?;
                 if !errors.is_empty() {
                     for error in errors {

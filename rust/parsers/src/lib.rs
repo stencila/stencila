@@ -2,8 +2,10 @@ use formats::FORMATS;
 use once_cell::sync::Lazy;
 use parser::{
     eyre::{bail, Result},
+    graph_triples::{Pairs, Relation},
     Parser, ParserTrait,
 };
+use std::path::Path;
 use std::sync::Arc;
 
 // Re-exports for convenience elsewhere
@@ -12,6 +14,10 @@ pub use parser::ParseOptions;
 // The following high level functions hide the implementation
 // detail of having a static list of parsers. They are intended as the
 // only public interface for this crate.
+
+pub fn parse<P: AsRef<Path>>(path: P, code: &str, language: &str) -> Result<Pairs> {
+    PARSERS.parse(path, code, language)
+}
 
 /// The set of registered parsers in the current process
 static PARSERS: Lazy<Arc<Parsers>> = Lazy::new(|| Arc::new(Parsers::new()));
@@ -43,6 +49,7 @@ macro_rules! dispatch_builtins {
 }
 
 impl Parsers {
+    /// Create a set of parsers
     pub fn new() -> Self {
         let inner = vec![
             #[cfg(feature = "calc")]
@@ -60,6 +67,7 @@ impl Parsers {
         Self { inner }
     }
 
+    /// List the available parsers
     fn list(&self) -> Vec<String> {
         self.inner
             .iter()
@@ -67,12 +75,48 @@ impl Parsers {
             .collect()
     }
 
+    /// Get a parser by label
     fn get(&self, label: &str) -> Result<Parser> {
         let index = label.parse::<usize>()?;
         match self.inner.get(index) {
             Some(parser) => Ok(parser.clone()),
             None => bail!("No parser with label `{}`", label),
         }
+    }
+
+    /// Parse code in a particular language
+    fn parse<P: AsRef<Path>>(&self, path: P, code: &str, language: &str) -> Result<Pairs> {
+        let path = path.as_ref();
+        let format = FORMATS.match_name(language);
+
+        let pairs = if let Some(result) = dispatch_builtins!(format.name, parse, path, code) {
+            result?
+        } else {
+            bail!(
+                "Unable to parse code in language `{}`: no matching parser found",
+                format.name
+            )
+        };
+
+        // Normalize pairs by removing any `Uses` of locally assigned variables
+        let mut normalized: Pairs = Vec::with_capacity(pairs.len());
+        for (relation, object) in pairs {
+            let mut include = true;
+            if matches!(relation, Relation::Use(..)) {
+                for (other_relation, other_object) in &normalized {
+                    if matches!(other_relation, Relation::Assign(..)) && *other_object == object {
+                        include = false;
+                        break;
+                    }
+                }
+            }
+            if !include {
+                continue;
+            }
+
+            normalized.push((relation, object))
+        }
+        Ok(normalized)
     }
 }
 
@@ -153,5 +197,33 @@ pub mod commands {
             let parser = PARSERS.get(&self.label)?;
             result::value(parser)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use parser::graph_triples::{relations, resources};
+    use std::path::PathBuf;
+    use test_utils::assert_json_eq;
+
+    #[test]
+    fn test_parse() -> Result<()> {
+        let path = PathBuf::from("<test>");
+        let pairs = parse(&path, "a = 1\nb = a * a", "calc")?;
+        assert_json_eq!(
+            pairs,
+            vec![
+                (
+                    relations::assigns((0, 0, 0, 1)),
+                    resources::symbol(&path, "a", "Number")
+                ),
+                (
+                    relations::assigns((1, 0, 1, 1)),
+                    resources::symbol(&path, "b", "Number")
+                )
+            ]
+        );
+        Ok(())
     }
 }

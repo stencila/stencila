@@ -311,7 +311,8 @@ impl Document {
                 let path = env::temp_dir().join(
                     [
                         uuids::generate(uuids::Family::File),
-                        format.extensions.first().cloned().unwrap_or_default(),
+                        ".".to_string(),
+                        format.name.clone(),
                     ]
                     .concat(),
                 );

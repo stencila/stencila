@@ -20,12 +20,12 @@ pub static FORMATS: Lazy<Formats> = Lazy::new(|| {
 
         // Code formats
         Format::new("dockerfile", false, false, FormatNodeType::SoftwareSourceCode, &[]),
-        Format::new("js", false, false, FormatNodeType::SoftwareSourceCode, &[]),
+        Format::new("js", false, false, FormatNodeType::SoftwareSourceCode, &["javascript"]),
         Format::new("makefile", false, false, FormatNodeType::SoftwareSourceCode, &[]),
-        Format::new("py", false, false, FormatNodeType::SoftwareSourceCode, &[]),
+        Format::new("py", false, false, FormatNodeType::SoftwareSourceCode, &["python"]),
         Format::new("r", false, false, FormatNodeType::SoftwareSourceCode, &[]),
-        Format::new("sh", false, false, FormatNodeType::SoftwareSourceCode, &[]),
-        Format::new("ts", false, false, FormatNodeType::SoftwareSourceCode, &[]),
+        Format::new("sh", false, false, FormatNodeType::SoftwareSourceCode, &["shell"]),
+        Format::new("ts", false, false, FormatNodeType::SoftwareSourceCode, &["typescript"]),
 
         // Article formats
         Format::new("docx", true, true, FormatNodeType::Article, &[]),
@@ -104,7 +104,7 @@ pub struct Format {
 
     /// Any additional extensions (other than it's name) that this format
     /// should match against.
-    pub extensions: Vec<String>,
+    pub aliases: Vec<String>,
 
     /// Whether or not this is a known format (ie.e. not automatically created)
     pub known: bool,
@@ -125,7 +125,7 @@ impl Format {
             binary,
             preview,
             node_type: kind,
-            extensions: extensions.iter().map(|s| s.to_string()).collect(),
+            aliases: extensions.iter().map(|s| s.to_string()).collect(),
         }
     }
 
@@ -138,7 +138,7 @@ impl Format {
             binary: true,
             preview: false,
             node_type: FormatNodeType::Unknown,
-            extensions: Vec::new(),
+            aliases: Vec::new(),
         }
     }
 
@@ -154,7 +154,7 @@ impl Format {
             // ..but not have a preview
             preview: false,
             node_type: FormatNodeType::Unknown,
-            extensions: Vec::new(),
+            aliases: Vec::new(),
         }
     }
 }
@@ -172,7 +172,15 @@ impl Formats {
     pub fn match_name(&self, name: &str) -> Format {
         match self.formats.get(&name.to_lowercase()) {
             Some(format) => format.clone(),
-            None => Format::unknown(name),
+            None => {
+                for format in self.formats.values() {
+                    let name = name.to_string();
+                    if format.aliases.contains(&name) {
+                        return format.clone();
+                    }
+                }
+                Format::unknown(name)
+            }
         }
     }
 
@@ -189,22 +197,9 @@ impl Formats {
                 None => path.as_os_str(),
             },
         };
-        let name = name.to_string_lossy().to_string();
-        if let Some(format) = self.formats.get(&name.to_lowercase()) {
-            return format.clone();
-        }
 
-        // Try matching against "extra" extensions
-        if let Some(ext) = path.extension() {
-            let ext = ext.to_string_lossy().to_string();
-            for format in self.formats.values() {
-                if format.extensions.contains(&ext) {
-                    return format.clone();
-                }
-            }
-        }
-
-        Format::unknown(&name)
+        // Match that name
+        self.match_name(&name.to_string_lossy().to_string())
     }
 }
 
