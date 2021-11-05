@@ -72,7 +72,7 @@ pub struct PyParser {}
 impl ParserTrait for PyParser {
     fn spec() -> Parser {
         Parser {
-            language: "calc".to_string(),
+            language: "py".to_string(),
         }
     }
 
@@ -223,7 +223,7 @@ impl ParserTrait for PyParser {
             })
             .collect();
 
-        let pairs = apply_tags(path, "python", matches, 0, relations);
+        let pairs = apply_tags(path, &Self::spec().language, matches, 0, relations);
         Ok(pairs)
     }
 }

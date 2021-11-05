@@ -83,7 +83,7 @@ pub struct RParser {}
 impl ParserTrait for RParser {
     fn spec() -> Parser {
         Parser {
-            language: "calc".to_string(),
+            language: "r".to_string(),
         }
     }
 
@@ -236,7 +236,7 @@ impl ParserTrait for RParser {
             })
             .collect();
 
-        let pairs = apply_tags(path, "r", matches, 0, relations);
+        let pairs = apply_tags(path, &Self::spec().language, matches, 0, relations);
         Ok(pairs)
     }
 }
