@@ -314,7 +314,7 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 name = "binaries"
 version = "0.0.0"
 dependencies = [
- "cli",
+ "cli-utils",
  "defaults",
  "dirs",
  "eyre",
@@ -659,7 +659,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "cli"
+name = "cli-utils"
 version = "0.0.0"
 dependencies = [
  "ansi_term 0.12.1",
@@ -970,6 +970,35 @@ dependencies = [
  "serde_yaml",
  "test-props",
  "test-utils",
+]
+
+[[package]]
+name = "codecs"
+version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "codec",
+ "codec-date",
+ "codec-docx",
+ "codec-format",
+ "codec-html",
+ "codec-ipynb",
+ "codec-json",
+ "codec-json5",
+ "codec-latex",
+ "codec-md",
+ "codec-pandoc",
+ "codec-pdf",
+ "codec-person",
+ "codec-png",
+ "codec-rmd",
+ "codec-rpng",
+ "codec-toml",
+ "codec-txt",
+ "codec-yaml",
+ "formats",
+ "once_cell",
+ "structopt",
 ]
 
 [[package]]
@@ -4524,26 +4553,15 @@ dependencies = [
  "binaries",
  "bollard",
  "chrono",
- "cli",
+ "cli-utils",
  "codec",
  "codec-date",
- "codec-docx",
- "codec-format",
  "codec-html",
  "codec-ipynb",
- "codec-json",
- "codec-json5",
- "codec-latex",
- "codec-md",
- "codec-pandoc",
- "codec-pdf",
  "codec-person",
- "codec-png",
- "codec-rmd",
- "codec-rpng",
- "codec-toml",
  "codec-txt",
  "codec-yaml",
+ "codecs",
  "color-eyre",
  "criterion",
  "crossbeam-channel",

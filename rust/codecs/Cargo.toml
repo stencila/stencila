@@ -1,0 +1,57 @@
+[package]
+name = "codecs"
+description = "The set of registered codecs, either built-in, or provided by plugins"
+version = "0.0.0"
+edition = "2021"
+
+[features]
+
+default = ["cli", "json"]
+
+cli = ["cli-utils", "structopt"]
+
+date = ["codec-date"]
+docx = ["codec-docx"]
+html = ["codec-html"]
+ipynb = ["codec-ipynb"]
+json = ["codec-json"]
+json5 = ["codec-json5"]
+latex = ["codec-latex"]
+md = ["codec-md"]
+pandoc = ["codec-pandoc"]
+pdf = ["codec-pdf"]
+person = ["codec-person"]
+png = ["codec-png"]
+rmd = ["codec-rmd"]
+rpng = ["codec-rpng"]
+toml = ["codec-toml"]
+txt = ["codec-txt"]
+yaml = ["codec-yaml"]
+
+[dependencies]
+
+codec = { path = "../codec", version = "0.0.0" }
+codec-format = { path = "../codec-format", version = "0.0.0" }
+formats = { path = "../formats", version = "0.0.0" }
+once_cell = "1.8.0"
+
+cli-utils = { path = "../cli-utils", version = "0.0.0" , optional = true}
+structopt = { version = "0.3.25" , optional = true}
+
+codec-date = { path = "../codec-date", version = "0.0.0", optional = true }
+codec-docx = { path = "../codec-docx", version = "0.0.0", optional = true }
+codec-html = { path = "../codec-html", version = "0.0.0", optional = true }
+codec-ipynb = { path = "../codec-ipynb", version = "0.0.0", optional = true }
+codec-json = { path = "../codec-json", version = "0.0.0", optional = true }
+codec-json5 = { path = "../codec-json5", version = "0.0.0", optional = true }
+codec-latex = { path = "../codec-latex", version = "0.0.0", optional = true }
+codec-md = { path = "../codec-md", version = "0.0.0", optional = true }
+codec-pandoc = { path = "../codec-pandoc", version = "0.0.0", optional = true }
+codec-pdf = { path = "../codec-pdf", version = "0.0.0", optional = true }
+codec-person = { path = "../codec-person", version = "0.0.0", optional = true }
+codec-png = { path = "../codec-png", version = "0.0.0", optional = true }
+codec-rmd = { path = "../codec-rmd", version = "0.0.0", optional = true }
+codec-rpng = { path = "../codec-rpng", version = "0.0.0", optional = true }
+codec-toml = { path = "../codec-toml", version = "0.0.0", optional = true }
+codec-txt = { path = "../codec-txt", version = "0.0.0", optional = true }
+codec-yaml = { path = "../codec-yaml", version = "0.0.0", optional = true }

@@ -37,6 +37,7 @@
   "workbench.editor.highlightModifiedTabs": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "cSpell.words": [
+    "builtins",
     "canonicalize",
     "concat",
     "CRAN",

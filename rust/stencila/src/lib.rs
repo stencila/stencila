@@ -26,9 +26,6 @@ pub mod methods {
 
     pub mod import;
 
-    pub mod decode;
-    pub mod encode;
-
     #[cfg(feature = "reshape")]
     pub mod reshape;
 

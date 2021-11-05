@@ -2,7 +2,7 @@ use crate::{
     errors::attempt,
     graphs::{Relation, Resource},
     kernels::KernelSpace,
-    methods::{compile::compile, decode::decode, encode::encode},
+    methods::compile::compile,
     patches::{diff, merge, resolve, Address, Patch, Pointer},
     pubsub::publish,
     utils::{
@@ -11,7 +11,6 @@ use crate::{
         uuids::{self},
     },
 };
-use codec::EncodeOptions;
 use defaults::Defaults;
 use eyre::{bail, Result};
 use formats::{Format, FORMATS};
@@ -499,24 +498,18 @@ impl Document {
                 |ext| ext.to_string_lossy().to_string(),
             )
         });
-        let output = ["file://", &path.display().to_string()].concat();
 
-        let content = if let Some(root) = &self.root {
-            let mut options = EncodeOptions {
+        if let Some(root) = &self.root {
+            let mut options = codecs::EncodeOptions {
                 standalone: true,
                 ..Default::default()
             };
             if let Some(theme) = theme {
                 options.theme = theme
             }
-            encode(root, &output, &format, Some(options)).await?
+            codecs::to_path(root, &path, &format, Some(options)).await?;
         } else {
             tracing::debug!("Document has no root node");
-            "".to_string()
-        };
-
-        if !content.starts_with("file://") {
-            fs::write(path, content)?;
         }
 
         Ok(())
@@ -536,7 +529,7 @@ impl Document {
         };
 
         if let Some(root) = &self.root {
-            encode(root, "string://", &format, None).await
+            codecs::to_string(root, &format, None).await
         } else {
             tracing::debug!("Document has no root node");
             Ok(String::new())
@@ -558,9 +551,9 @@ impl Document {
         if let Some(format) = format {
             let other_format = FORMATS.match_path(&format);
             if other_format.name != self.format.name {
-                let node = decode(&content, &other_format.name).await?;
+                let node = codecs::from_str(&content, &other_format.name, None).await?;
                 if !self.format.binary {
-                    self.content = encode(&node, "string://", &self.format.name, None).await?;
+                    self.content = codecs::to_string(&node, &self.format.name, None).await?;
                 }
                 self.root = Some(node);
                 decode_content = false;
@@ -610,13 +603,8 @@ impl Document {
 
         // TODO updating of *content from root* and publishing of events etc needs to be sorted out
         if !self.format.binary {
-            self.content = encode(
-                self.root.as_ref().unwrap(),
-                "string://",
-                &self.format.name,
-                None,
-            )
-            .await?;
+            self.content =
+                codecs::to_string(self.root.as_ref().unwrap(), &self.format.name, None).await?;
         }
         self.update(false).await?;
 
@@ -746,9 +734,7 @@ impl Document {
         let format = &self.format.name;
         let mut root = if self.format.binary {
             if self.path.exists() {
-                let path = self.path.display().to_string();
-                let input = ["file://", &path].concat();
-                decode(&input, format).await?
+                codecs::from_path(&self.path, format, None).await?
             } else {
                 match self.root.as_ref() {
                     Some(root) => root.clone(),
@@ -757,7 +743,7 @@ impl Document {
             }
         } else if !self.content.is_empty() {
             if decode_content {
-                decode(&self.content, format).await?
+                codecs::from_str(&self.content, format, None).await?
             } else {
                 match self.root.as_ref() {
                     Some(root) => root.clone(),
@@ -805,7 +791,7 @@ impl Document {
             // Encode the `root` into each of the formats for which there are subscriptions
             else if let Some(format) = subscription.strip_prefix("encoded:") {
                 tracing::debug!("Encoding document '{}' to '{}'", self.id, format);
-                match encode(&root, "string://", format, None).await {
+                match codecs::to_string(&root, format, None).await {
                     Ok(content) => {
                         self.publish(
                             DocumentEventType::Encoded,
@@ -1350,7 +1336,7 @@ pub mod commands {
     use super::*;
     use crate::{patches::diff_display, utils::json};
     use async_trait::async_trait;
-    use cli::{result, Result, Run};
+    use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]

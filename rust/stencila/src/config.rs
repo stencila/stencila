@@ -275,7 +275,7 @@ pub fn schemas() -> Result<serde_json::Value> {
 pub mod commands {
     use super::*;
     use async_trait::async_trait;
-    use cli::{result, Result, Run};
+    use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -473,7 +473,7 @@ mod tests {
     #[tokio::test]
     async fn test_cli() -> Result<()> {
         use super::commands::*;
-        use cli::Run;
+        use cli_utils::Run;
 
         Command {
             action: Action::Get(Get { pointer: None }),

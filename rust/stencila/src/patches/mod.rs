@@ -1,7 +1,7 @@
 use crate::{
     errors::{invalid_patch_operation, invalid_patch_value},
     kernels::KernelSpace,
-    methods::{compile::execute, encode::encode},
+    methods::compile::execute,
     utils::schemas,
 };
 use defaults::Defaults;
@@ -66,8 +66,8 @@ pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<St
     let patch = diff(node1, node2);
     let patched = apply_new(node1, &patch)?;
 
-    let old = encode(node1, "string://", format, None).await?;
-    let new = encode(&patched, "string://", format, None).await?;
+    let old = codecs::to_string(node1, format, None).await?;
+    let new = codecs::to_string(&patched, format, None).await?;
 
     let mut bytes = Vec::new();
     TextDiff::from_lines(&old, &new)

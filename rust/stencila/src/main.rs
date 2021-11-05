@@ -7,7 +7,7 @@
 #![recursion_limit = "256"]
 
 use async_trait::async_trait;
-use cli::{result, Result, Run};
+use cli_utils::{result, Result, Run};
 use std::{collections::HashMap, path::PathBuf};
 use stencila::{
     config::{self, CONFIG},
@@ -103,22 +103,32 @@ pub enum Command {
     // Module-specific commands defined in the `stencila` library
     #[structopt(aliases = &["project"])]
     Projects(projects::commands::Command),
+
     #[structopt(aliases = &["document", "docs", "doc"])]
     Documents(documents::commands::Command),
+
     #[structopt(aliases = &["source"])]
     Sources(sources::commands::Command),
+
     #[structopt(aliases = &["kernel"])]
     Kernels(kernels::commands::Command),
+
+    #[structopt(aliases = &["codec"])]
+    Codecs(codecs::commands::Command),
+
     Config(config::commands::Command),
 
     #[cfg(feature = "binaries")]
     #[structopt(aliases = &["binary"])]
     Binaries(binaries::commands::Command),
+
     #[cfg(feature = "plugins")]
     #[structopt(aliases = &["plugin"])]
     Plugins(stencila::plugins::commands::Command),
+
     #[cfg(feature = "upgrade")]
     Upgrade(stencila::upgrade::commands::Command),
+
     #[cfg(feature = "serve")]
     Serve(stencila::serve::commands::Command),
 }
@@ -139,6 +149,7 @@ impl Run for Command {
             Command::Projects(command) => command.run().await,
             Command::Sources(command) => command.run().await,
             Command::Kernels(command) => command.run().await,
+            Command::Codecs(command) => command.run().await,
             Command::Config(command) => command.run().await,
 
             #[cfg(feature = "binaries")]
@@ -475,13 +486,16 @@ pub async fn main() -> eyre::Result<()> {
         if std::env::var("RUST_BACKTRACE").is_err() {
             std::env::set_var("RUST_BACKTRACE", if debug { "1" } else { "0" });
         }
-        cli::color_eyre::config::HookBuilder::default()
+        cli_utils::color_eyre::config::HookBuilder::default()
             .display_env_section(false)
             .install()?;
 
         // Subscribe to progress events and display them on console
         use stencila::pubsub::{subscribe, Subscriber};
-        subscribe("progress", Subscriber::Function(cli::progress::subscriber))?;
+        subscribe(
+            "progress",
+            Subscriber::Function(cli_utils::progress::subscriber),
+        )?;
     }
 
     // If not explicitly upgrading then run an upgrade check in the background
@@ -536,7 +550,7 @@ pub async fn main() -> eyre::Result<()> {
 
             let history = config::dir(true)?.join("history.txt");
             std::env::set_var("STENCILA_INTERACT_MODE", "1");
-            cli::interact::run::<Line>(prefix, &formats, &history).await?;
+            cli_utils::interact::run::<Line>(prefix, &formats, &history).await?;
         }
         #[cfg(not(feature = "clis-interact"))]
         {

@@ -24,7 +24,7 @@ pub use utils;
 /// `spec` function of `CodecTrait`. Plugins provide a JSON or YAML serialization
 /// as part of their manifest.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(default)]
+#[serde(default, rename_all = "camelCase")]
 pub struct Codec {
     /// A list of format names (or aliases) that the codec can handle
     pub formats: Vec<String>,

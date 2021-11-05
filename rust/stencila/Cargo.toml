@@ -14,10 +14,10 @@ edition = "2018"
 
 [features]
 
-clis = ["cli", "structopt", "binaries/cli", "binaries/structopt"]
-clis-pretty = ["cli/pretty"]
-clis-progress = ["cli/progress"]
-clis-interact = ["cli/interact"]
+cli = ["cli-utils", "structopt", "binaries/cli", "codecs/cli"]
+cli-pretty = ["cli-utils/pretty"]
+cli-progress = ["cli-utils/progress"]
+cli-interact = ["cli-utils/interact"]
 
 serve = []
 serve-stdio = ["serve"]
@@ -46,39 +46,7 @@ upgrade = ["self_update"]
 import-elife = ["minidom"]
 import-github = []
 
-decode-date = ["codec-date"]
-decode-docx = ["codec-docx"]
-decode-html = ["codec-html"]
-decode-ipynb = ["codec-ipynb"]
-decode-json = ["codec-json"]
-decode-json5 = ["codec-json5"]
-decode-latex = ["codec-latex"]
-decode-md = ["codec-md"]
-decode-pandoc = ["codec-pandoc"]
-decode-person = ["codec-person"]
-decode-rmd = ["codec-rmd"]
-decode-rpng = ["codec-rpng"]
-decode-toml = ["codec-toml"]
-decode-txt = ["codec-txt"]
-decode-yaml = ["codec-yaml"]
-
-encode-docx = ["codec-docx"]
-encode-ipynb = ["codec-ipynb"]
-encode-json = ["codec-json"]
-encode-json5 = ["codec-json5"]
-encode-latex = ["codec-latex"]
-encode-md = ["codec-md"]
-encode-pandoc = ["codec-pandoc"]
-encode-pdf = ["codec-pdf"]
-encode-png = ["codec-png"]
-encode-rmd = ["codec-rmd"]
-encode-rpng = ["codec-rpng"]
-encode-toml = ["codec-toml"]
-encode-yaml = ["codec-yaml"]
-
-coerce = ["node-coerce"]
-
-reshape = ["decode-date", "decode-person"]
+reshape = ["codec-date", "codec-person"]
 
 compile-calc = []
 compile-js = ["tree-sitter", "tree-sitter-javascript"]
@@ -90,10 +58,21 @@ query-jmespath = ["jmespatch"]
 query-jsonptr = []
 
 default = [
-  "clis",
-  "clis-progress",
-  "clis-pretty",
-  "clis-interact",
+  "cli",
+  "cli-progress",
+  "cli-pretty",
+  "cli-interact",
+
+  # Codecs enabled
+  "codecs/html",
+  "codecs/ipynb",
+  "codecs/json",
+  "codecs/json5",
+  "codecs/md",
+  "codecs/toml",
+  "codecs/txt",
+  "codecs/yaml",
+
   "serve",
   "serve-stdio",
   "serve-http",
@@ -116,35 +95,6 @@ default = [
   "upgrade",
   "import-elife",
   "import-github",
-  "decode-date",
-  "decode-docx",
-  "decode-html",
-  "decode-ipynb",
-  "decode-json",
-  "decode-json5",
-  "decode-latex",
-  "decode-md",
-  "decode-pandoc",
-  "decode-person",
-  "decode-rmd",
-  "decode-rpng",
-  "decode-toml",
-  "decode-txt",
-  "decode-yaml",
-  "encode-docx",
-  "encode-ipynb",
-  "encode-json",
-  "encode-json5",
-  "encode-latex",
-  "encode-md",
-  "encode-pandoc",
-  "encode-pdf",
-  "encode-png",
-  "encode-rmd",
-  "encode-rpng",
-  "encode-toml",
-  "encode-yaml",
-  "coerce",
   "reshape",
   "compile-calc",
   "compile-js",
@@ -248,26 +198,15 @@ webbrowser = { version = "=0.5.5", optional = true }
 zmq = { version = "=0.9.2", optional = true, default-features = false }
 
 binaries = { path = "../binaries", version = "0.0.0", optional = true }
-cli = { path = "../cli", version = "0.0.0", optional = true }
-codec-date = { path = "../codec-date", version = "0.0.0", optional = true }
-codec-docx = { path = "../codec-docx", version = "0.0.0", optional = true }
-codec-format = { path = "../codec-format", version = "0.0.0" }
-codec-html = { path = "../codec-html", version = "0.0.0", optional = true }
-codec-ipynb = { path = "../codec-ipynb", version = "0.0.0", optional = true }
-codec-json = { path = "../codec-json", version = "0.0.0", optional = true }
-codec-json5 = { path = "../codec-json5", version = "0.0.0", optional = true }
-codec-latex = { path = "../codec-latex", version = "0.0.0", optional = true }
-codec-md = { path = "../codec-md", version = "0.0.0", optional = true }
-codec-pandoc = { path = "../codec-pandoc", version = "0.0.0", optional = true }
-codec-pdf = { path = "../codec-pdf", version = "0.0.0", optional = true }
-codec-person = { path = "../codec-person", version = "0.0.0", optional = true }
-codec-png = { path = "../codec-png", version = "0.0.0", optional = true }
-codec-rmd = { path = "../codec-rmd", version = "0.0.0", optional = true }
-codec-rpng = { path = "../codec-rpng", version = "0.0.0", optional = true }
-codec-toml = { path = "../codec-toml", version = "0.0.0", optional = true }
+cli-utils = { path = "../cli-utils", version = "0.0.0", optional = true }
 codec = { path = "../codec", version = "0.0.0" }
-codec-txt = { path = "../codec-txt", version = "0.0.0", optional = true }
-codec-yaml = { path = "../codec-yaml", version = "0.0.0", optional = true }
+codec-date = { path = "../codec-date", version = "0.0.0", optional = true }
+codec-html = { path = "../codec-html", version = "0.0.0" }
+codec-ipynb = { path = "../codec-ipynb", version = "0.0.0" }
+codec-person = { path = "../codec-person", version = "0.0.0", optional = true }
+codec-txt = { path = "../codec-txt", version = "0.0.0" }
+codec-yaml = { path = "../codec-yaml", version = "0.0.0" }
+codecs = { path = "../codecs", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }
 node-coerce = { path = "../node-coerce", version = "0.0.0", optional = true }
 node-transform = { path = "../node-transform", version = "0.0.0", optional = true }
