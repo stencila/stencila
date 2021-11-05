@@ -1,5 +1,3 @@
-//! Defines the codec trait for decoding/encoding nodes
-
 use async_trait::async_trait;
 use eyre::{bail, Result};
 use serde::{Deserialize, Serialize};
