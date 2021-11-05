@@ -3365,19 +3365,22 @@ dependencies = [
 name = "parser"
 version = "0.0.0"
 dependencies = [
- "async-trait",
  "eyre",
+ "graph-triples",
+ "once_cell",
+ "regex",
  "serde",
- "stencila-schema",
- "utils",
 ]
 
 [[package]]
 name = "parser-calc"
 version = "0.0.0"
 dependencies = [
- "graph-triples",
+ "once_cell",
  "parser",
+ "regex",
+ "test-snaps",
+ "test-utils",
 ]
 
 [[package]]

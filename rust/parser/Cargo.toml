@@ -1,0 +1,12 @@
+[package]
+name = "parser"
+description = "Defines a specification and trait for parsers for semantically analyzing code"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+eyre = "0.6.5"
+graph-triples = { path = "../graph-triples", version = "0.0.0" }
+once_cell = "1.8.0"
+regex = "1.5.4"
+serde = { version = "1.0.130", features = ["derive"] }
