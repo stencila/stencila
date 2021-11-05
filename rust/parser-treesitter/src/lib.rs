@@ -2,13 +2,12 @@
 //! the resulting parse trees into Stencila graph `Relation`s and `Resource`s.
 
 use graph_triples::{relations::Range, Relation, Resource};
+use parser::utils::parse_tags;
 use std::{collections::HashMap, path::Path, sync::Mutex};
 use tree_sitter::{Language, Parser, Query, QueryCursor};
 
-use super::utils::parse_tags;
-
 /// A capture resulting from a `tree-sitter` query
-pub(crate) struct Capture<'tree> {
+pub struct Capture<'tree> {
     #[allow(dead_code)]
     /// The index of the capture in the pattern
     index: u32,
@@ -88,26 +87,26 @@ pub(crate) fn child_text<'tree>(
         .unwrap_or("")
 }
 
-/// A compiler for a particular language
+/// A parser based on `tree-sitter`
 ///
 /// This simply encapsulates a `tree-sitter` usage pattern to
 /// avoid repetitive boiler plate code in the language-specific sub-modules.
-pub(crate) struct Compiler {
+pub struct TreesitterParser {
     /// The `tree-sitter` parser
-    parser: Mutex<Parser>,
+    inner: Mutex<Parser>,
 
     /// The `tree-sitter` query
     query: Query,
 }
 
-impl Compiler {
+impl TreesitterParser {
     /// Create a new compiler for a language with a pre-defined query
     ///
     /// # Arguments
     ///
     /// - `language`: The `tree-sitter` language definition
     /// - `query`: The `tree-sitter` query definition
-    pub fn new(language: Language, query: &str) -> Compiler {
+    pub fn new(language: Language, query: &str) -> TreesitterParser {
         let mut parser = Parser::new();
         parser
             .set_language(language)
@@ -116,7 +115,10 @@ impl Compiler {
 
         let query = Query::new(language, query).expect("Query should compile");
 
-        Compiler { parser, query }
+        TreesitterParser {
+            inner: parser,
+            query,
+        }
     }
 
     /// Parse some code and return a tree
@@ -129,7 +131,7 @@ impl Compiler {
     ///
     /// The parsed syntax tree.
     pub fn parse(&self, code: &[u8]) -> tree_sitter::Tree {
-        self.parser
+        self.inner
             .lock()
             .expect("Unable to lock parser")
             .parse(code, None)
