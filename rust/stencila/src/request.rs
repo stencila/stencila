@@ -327,7 +327,7 @@ impl ClientTrait for ClientWs {
 pub mod commands {
     use super::*;
     use async_trait::async_trait;
-    use cli::{result, Result, Run};
+    use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -355,7 +355,7 @@ pub mod commands {
     impl Run for Command {
         async fn run(&self) -> Result {
             let mut client = Client::new(&self.url, self.key.clone())?;
-            let params = cli::args::params(&self.params);
+            let params = cli_utils::args::params(&self.params);
             let result = client.call(self.method, params).await?;
             result::value(result)
         }

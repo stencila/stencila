@@ -424,8 +424,8 @@ impl KernelSpace {
     /// Primarily intended for use in interactive mode as an execution REPL.
     /// Adds execution related shortcuts e.g. `%symbols` for changing the language.
     #[cfg(feature = "cli")]
-    pub async fn repl(&mut self, code: &str, language: &str) -> cli::Result {
-        use cli::result;
+    pub async fn repl(&mut self, code: &str, language: &str) -> cli_utils::Result {
+        use cli_utils::result;
 
         if !code.is_empty() {
             let code = code.replace("\\n", "\n");
@@ -464,7 +464,7 @@ impl KernelSpace {
 #[cfg(feature = "cli")]
 pub mod commands {
     use super::*;
-    use cli::{result, Result, Run};
+    use cli_utils::{result, Result, Run};
     use once_cell::sync::Lazy;
     use structopt::StructOpt;
     use tokio::sync::Mutex;

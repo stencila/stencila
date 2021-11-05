@@ -241,7 +241,7 @@ pub mod commands {
     use super::*;
     use crate::projects::PROJECTS;
     use async_trait::async_trait;
-    use cli::{result, Result, Run};
+    use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]

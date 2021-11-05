@@ -1,5 +1,5 @@
 [package]
-name = "cli"
+name = "cli-utils"
 description = "Utilities for command line interfaces"
 version = "0.0.0"
 edition = "2021"

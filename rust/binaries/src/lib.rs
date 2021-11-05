@@ -681,8 +681,8 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
 #[cfg(feature = "cli")]
 pub mod commands {
     use super::*;
-    use cli::structopt::StructOpt;
-    use cli::{async_trait::async_trait, result, Result, Run};
+    use cli_utils::structopt::StructOpt;
+    use cli_utils::{async_trait::async_trait, result, Result, Run};
 
     #[derive(Debug, StructOpt)]
     #[structopt(
@@ -934,7 +934,7 @@ mod tests {
     #[ignore]
     async fn install() -> Result<()> {
         use super::commands::{Install, List, Show};
-        use cli::Run;
+        use cli_utils::Run;
         use eyre::bail;
         use test_utils::assert_json_eq;
 
@@ -984,7 +984,7 @@ mod tests {
     #[ignore]
     async fn uninstall() -> Result<()> {
         use super::commands::Uninstall;
-        use cli::Run;
+        use cli_utils::Run;
 
         let binaries = (*super::BINARIES.lock().await).clone();
         for name in binaries.keys() {

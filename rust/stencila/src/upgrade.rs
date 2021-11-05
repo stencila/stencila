@@ -176,7 +176,7 @@ pub mod config {
 pub mod commands {
     use super::*;
     use async_trait::async_trait;
-    use cli::{result, Result, Run};
+    use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -252,7 +252,7 @@ mod tests {
     #[tokio::test]
     async fn test_cli() -> Result<()> {
         use super::commands::Command;
-        use cli::Run;
+        use cli_utils::Run;
 
         Command {
             to: None,

@@ -997,7 +997,7 @@ pub mod config {
 pub mod commands {
     use super::*;
     use async_trait::async_trait;
-    use cli::{result, Result, Run};
+    use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
 
     /// Serve over HTTP and WebSockets

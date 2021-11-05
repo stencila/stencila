@@ -4,8 +4,14 @@ description = "Utilities for managing and calling external binaries"
 version = "0.0.0"
 edition = "2021"
 
+[features]
+
+# The CLI is not enabled by default to avoid extra dependencies for crates
+# that only want to use `require()`.
+cli = ["cli-utils", "structopt"]
+
 [dependencies]
-cli = { path = "../cli", version = "0.0.0", optional = true }
+cli-utils = { path = "../cli-utils", version = "0.0.0", optional = true }
 defaults = "0.2.0"
 dirs = "4.0.0"
 eyre = "0.6.5"

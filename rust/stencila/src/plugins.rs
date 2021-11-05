@@ -1891,7 +1891,7 @@ pub mod commands {
     use super::*;
     use crate::config::CONFIG;
     use async_trait::async_trait;
-    use cli::{result, Result, Run};
+    use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -2100,7 +2100,7 @@ pub mod commands {
     impl Delegate {
         async fn run_with(&self, plugins: &mut Plugins) -> Result {
             let method = self.method;
-            let params = cli::args::params(&self.params);
+            let params = cli_utils::args::params(&self.params);
             let result = match &self.plugin {
                 Some(plugin) => plugins.delegate_to_plugin(plugin, method, params).await?,
                 None => plugins.delegate(method, params).await?,
@@ -2210,7 +2210,7 @@ mod tests {
         // actions run with expected `Ok` or `Err`.
 
         use super::commands::*;
-        use cli::Run;
+        use cli_utils::Run;
 
         Command {
             action: Action::List,
@@ -2245,7 +2245,7 @@ mod tests {
         // Slow tests that are usually not run
 
         use super::commands::*;
-        use cli::Run;
+        use cli_utils::Run;
 
         Command {
             action: Action::Install(Install {
