@@ -1,6 +1,5 @@
 use crate::{
     errors::attempt,
-    graphs::{Relation, Resource},
     kernels::KernelSpace,
     methods::compile::compile,
     patches::{diff, merge, resolve, Address, Patch, Pointer},
@@ -14,6 +13,7 @@ use crate::{
 use defaults::Defaults;
 use eyre::{bail, Result};
 use formats::{Format, FORMATS};
+use graphs::{Relation, Resource};
 use itertools::Itertools;
 use maplit::hashset;
 use notify::DebouncedEvent;

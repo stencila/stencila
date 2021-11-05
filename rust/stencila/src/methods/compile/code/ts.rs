@@ -2,7 +2,7 @@ use super::{
     helpers::{apply_tags, Compiler},
     js::{self, handle_patterns},
 };
-use crate::graphs::{relations, resources, Relation, Resource};
+use graphs::{relations, resources, Relation, Resource};
 use once_cell::sync::Lazy;
 use std::path::Path;
 

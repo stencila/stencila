@@ -1,11 +1,9 @@
-use crate::{
-    graphs::{relations, resources, Triple},
-    utils::schemas,
-};
+use crate::utils::schemas;
 use async_trait::async_trait;
 use defaults::Defaults;
 use enum_dispatch::enum_dispatch;
 use eyre::{bail, Result};
+use graphs::{relations, resources, Triple};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use schemars::JsonSchema;

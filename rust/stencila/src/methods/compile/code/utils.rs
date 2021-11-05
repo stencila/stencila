@@ -1,6 +1,6 @@
 //! Utility functions associated with compiling code
 
-use crate::graphs::{relations, resources, Relation, Resource};
+use graphs::{relations, resources, Relation, Resource};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::{Path, PathBuf};

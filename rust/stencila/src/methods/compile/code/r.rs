@@ -2,10 +2,8 @@ use super::{
     helpers::{apply_tags, captures_as_args_map, child_text, Compiler},
     utils::{is_quoted, remove_quotes},
 };
-use crate::{
-    graphs::{relations, resources, Relation, Resource},
-    utils::path::merge,
-};
+use crate::utils::path::merge;
+use graphs::{relations, resources, Relation, Resource};
 use once_cell::sync::Lazy;
 use std::path::Path;
 

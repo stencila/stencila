@@ -1,4 +1,3 @@
-use crate::{pubsub::publish, utils::schemas};
 use derivative::Derivative;
 use eyre::Result;
 use path_slash::PathExt;
@@ -7,7 +6,11 @@ use petgraph::{
     stable_graph::StableGraph,
     visit::{EdgeRef, IntoEdgeReferences, IntoNodeReferences},
 };
-use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use schemars::{
+    gen::SchemaGenerator,
+    schema::{Schema, SchemaObject},
+    schema_for, JsonSchema,
+};
 use serde::{ser::SerializeMap, Serialize};
 use serde_json::json;
 use serde_with::skip_serializing_none;
@@ -16,6 +19,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use strum::Display;
+use utils::some_string;
 
 /// A resource in a dependency graph (the nodes of the graph)
 #[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
@@ -617,14 +621,17 @@ pub struct GraphEvent {
     type_: GraphEventType,
 
     /// The graph at the time of the event
-    #[schemars(schema_with = "GraphEvent::schema_graph")]
+    #[schemars(schema_with = "GraphEvent::graph_schema")]
     graph: Graph,
 }
 
 impl GraphEvent {
-    /// Generate the JSON Schema for the `graph` property to avoid nesting
-    fn schema_graph(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("Graph", true)
+    /// Generate the JSON Schema for the `graph` property
+    fn graph_schema(_generator: &mut SchemaGenerator) -> Schema {
+        Schema::Object(SchemaObject {
+            reference: some_string!("Graph"),
+            ..Default::default()
+        })
     }
 
     /// Publish a `GraphEvent`.
@@ -637,15 +644,17 @@ impl GraphEvent {
             type_,
             graph: graph.clone(),
         };
-        publish(topic, &event)
+        // TODO Reinstate
+        //publish(topic, &event)
     }
 }
 
-/// Get JSON Schemas for this modules
+/// Get JSON Schemas for this crate
 pub fn schemas() -> Result<serde_json::Value> {
-    let schemas = serde_json::Value::Array(vec![
-        schemas::generate::<Resource>()?,
-        schemas::generate::<Relation>()?,
+    Ok(json!([
+        schema_for!(Resource),
+        schema_for!(Relation),
+        schema_for!(GraphEvent),
         serde_json::json!({
             "$id": "Triple",
             "title": "Triple",
@@ -700,7 +709,5 @@ pub fn schemas() -> Result<serde_json::Value> {
             },
             "additionalProperties": false
         }),
-        schemas::generate::<GraphEvent>()?,
-    ]);
-    Ok(schemas)
+    ]))
 }

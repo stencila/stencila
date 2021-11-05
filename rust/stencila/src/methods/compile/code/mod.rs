@@ -1,5 +1,5 @@
 ///! Functions etc for compiling programming language source code in `CodeChunk` and `CodeExpression` nodes.
-use crate::graphs::{Relation, Resource};
+use graphs::{Relation, Resource};
 use std::path::Path;
 
 #[allow(dead_code)]

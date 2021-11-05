@@ -1,13 +1,10 @@
-use crate::{
-    graphs::{Relation, Resource},
-    methods::compile,
-    utils::uuids,
-};
+use crate::{methods::compile, utils::uuids};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
 use enum_dispatch::enum_dispatch;
 use eyre::{eyre, Result};
+use graphs::{Relation, Resource};
 use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::{hash_map::Entry, BTreeMap, HashMap};

@@ -1,5 +1,5 @@
-use crate::graphs::{relations, resources, Triple};
 use defaults::Defaults;
+use graphs::{relations, resources, Triple};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;

@@ -1,12 +1,12 @@
 use crate::{
     dispatch_block, dispatch_inline, dispatch_node, dispatch_work,
-    graphs::{relations, resources, Relation, Resource, NULL_RANGE},
     kernels::KernelSpace,
     patches::{Address, Slot},
     utils::{hash::str_sha256_hex, path::merge, uuids},
 };
 use async_trait::async_trait;
 use eyre::Result;
+use graphs::{relations, resources, Relation, Resource, NULL_RANGE};
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
