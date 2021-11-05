@@ -26,9 +26,6 @@ pub mod methods {
 
     pub mod import;
 
-    #[cfg(feature = "reshape")]
-    pub mod reshape;
-
     pub mod compile;
 }
 

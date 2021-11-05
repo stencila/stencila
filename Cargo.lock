@@ -3006,6 +3006,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-reshape"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-date",
+ "codec-person",
+ "codec-txt",
+ "defaults",
+ "eyre",
+ "once_cell",
+ "regex",
+ "serde_yaml",
+ "stencila-schema",
+ "test-snaps",
+ "test-utils",
+]
+
+[[package]]
 name = "node-transform"
 version = "0.0.0"
 dependencies = [
@@ -4555,12 +4573,9 @@ dependencies = [
  "chrono",
  "cli-utils",
  "codec",
- "codec-date",
  "codec-html",
  "codec-ipynb",
- "codec-person",
  "codec-txt",
- "codec-yaml",
  "codecs",
  "color-eyre",
  "criterion",

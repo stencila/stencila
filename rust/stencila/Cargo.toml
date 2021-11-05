@@ -46,8 +46,6 @@ upgrade = ["self_update"]
 import-elife = ["minidom"]
 import-github = []
 
-reshape = ["codec-date", "codec-person"]
-
 compile-calc = []
 compile-js = ["tree-sitter", "tree-sitter-javascript"]
 compile-py = ["tree-sitter", "tree-sitter-python"]
@@ -95,7 +93,6 @@ default = [
   "upgrade",
   "import-elife",
   "import-github",
-  "reshape",
   "compile-calc",
   "compile-js",
   "compile-py",
@@ -200,12 +197,9 @@ zmq = { version = "=0.9.2", optional = true, default-features = false }
 binaries = { path = "../binaries", version = "0.0.0", optional = true }
 cli-utils = { path = "../cli-utils", version = "0.0.0", optional = true }
 codec = { path = "../codec", version = "0.0.0" }
-codec-date = { path = "../codec-date", version = "0.0.0", optional = true }
 codec-html = { path = "../codec-html", version = "0.0.0" }
 codec-ipynb = { path = "../codec-ipynb", version = "0.0.0" }
-codec-person = { path = "../codec-person", version = "0.0.0", optional = true }
 codec-txt = { path = "../codec-txt", version = "0.0.0" }
-codec-yaml = { path = "../codec-yaml", version = "0.0.0" }
 codecs = { path = "../codecs", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }
 node-coerce = { path = "../node-coerce", version = "0.0.0", optional = true }
