@@ -13,7 +13,7 @@ use crate::{
 use defaults::Defaults;
 use eyre::{bail, Result};
 use formats::{Format, FORMATS};
-use graph::{Relation, Resource};
+use graph_triples::{Relation, Resource};
 use itertools::Itertools;
 use maplit::hashset;
 use notify::DebouncedEvent;

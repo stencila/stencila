@@ -110,11 +110,14 @@ pub enum Command {
     #[structopt(aliases = &["source"])]
     Sources(sources::commands::Command),
 
-    #[structopt(aliases = &["kernel"])]
-    Kernels(kernels::commands::Command),
-
     #[structopt(aliases = &["codec"])]
     Codecs(codecs::commands::Command),
+
+    #[structopt(aliases = &["parser"])]
+    Parsers(parsers::commands::Command),
+
+    #[structopt(aliases = &["kernel"])]
+    Kernels(kernels::commands::Command),
 
     Config(config::commands::Command),
 
@@ -148,8 +151,9 @@ impl Run for Command {
             Command::Documents(command) => command.run().await,
             Command::Projects(command) => command.run().await,
             Command::Sources(command) => command.run().await,
-            Command::Kernels(command) => command.run().await,
             Command::Codecs(command) => command.run().await,
+            Command::Parsers(command) => command.run().await,
+            Command::Kernels(command) => command.run().await,
             Command::Config(command) => command.run().await,
 
             #[cfg(feature = "binaries")]

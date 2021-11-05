@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
 use enum_dispatch::enum_dispatch;
 use eyre::{eyre, Result};
-use graph::{Relation, Resource};
+use graph_triples::{Relation, Resource};
 use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::{hash_map::Entry, BTreeMap, HashMap};

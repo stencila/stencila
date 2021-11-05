@@ -3391,6 +3391,7 @@ dependencies = [
  "formats",
  "once_cell",
  "parser",
+ "parser-calc",
  "structopt",
 ]
 
@@ -4660,6 +4661,7 @@ dependencies = [
  "gitignore",
  "glob",
  "graph",
+ "graph-triples",
  "handlebars",
  "hex",
  "hmac",
@@ -4678,6 +4680,7 @@ dependencies = [
  "nanoid",
  "notify",
  "once_cell",
+ "parsers",
  "path-slash",
  "pathdiff",
  "portpicker",

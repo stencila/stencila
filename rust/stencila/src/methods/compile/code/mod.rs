@@ -1,5 +1,5 @@
 ///! Functions etc for compiling programming language source code in `CodeChunk` and `CodeExpression` nodes.
-use graph::{Relation, Resource};
+use graph_triples::{Relation, Resource};
 use std::path::Path;
 
 #[allow(dead_code)]
@@ -25,9 +25,6 @@ pub mod ts;
 pub fn compile<P: AsRef<Path>>(path: P, code: &str, language: &str) -> Vec<(Relation, Resource)> {
     let path = path.as_ref();
     let pairs = match language {
-        #[cfg(feature = "compile-calc")]
-        "calc" => calc::compile(path, code),
-
         #[cfg(feature = "compile-js")]
         "js" | "javascript" => js::compile(path, code),
 

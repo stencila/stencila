@@ -9,7 +9,7 @@ use regex::Regex;
 use std::path::Path;
 
 /// A parser for the "Calc" language
-struct CalcParser {}
+pub struct CalcParser {}
 
 impl ParserTrait for CalcParser {
     fn spec() -> Parser {

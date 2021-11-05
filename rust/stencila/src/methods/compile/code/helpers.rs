@@ -1,7 +1,7 @@
 //! Helper functions for compiling code using `tree-sitter` and converting
 //! the resulting parse trees into Stencila graph `Relation`s and `Resource`s.
 
-use graph::{Range, Relation, Resource};
+use graph_triples::{relations::Range, Relation, Resource};
 use std::{collections::HashMap, path::Path, sync::Mutex};
 use tree_sitter::{Language, Parser, Query, QueryCursor};
 
