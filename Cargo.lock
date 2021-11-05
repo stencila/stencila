@@ -3384,6 +3384,63 @@ dependencies = [
 ]
 
 [[package]]
+name = "parser-js"
+version = "0.0.0"
+dependencies = [
+ "once_cell",
+ "parser-treesitter",
+ "test-snaps",
+ "test-utils",
+ "tree-sitter-javascript",
+]
+
+[[package]]
+name = "parser-py"
+version = "0.0.0"
+dependencies = [
+ "maplit",
+ "once_cell",
+ "parser-treesitter",
+ "test-snaps",
+ "test-utils",
+ "tree-sitter-python",
+]
+
+[[package]]
+name = "parser-r"
+version = "0.0.0"
+dependencies = [
+ "maplit",
+ "once_cell",
+ "parser-treesitter",
+ "test-snaps",
+ "test-utils",
+ "tree-sitter-r",
+]
+
+[[package]]
+name = "parser-treesitter"
+version = "0.0.0"
+dependencies = [
+ "graph-triples",
+ "parser",
+ "path-utils",
+ "tree-sitter",
+]
+
+[[package]]
+name = "parser-ts"
+version = "0.0.0"
+dependencies = [
+ "once_cell",
+ "parser-js",
+ "parser-treesitter",
+ "test-snaps",
+ "test-utils",
+ "tree-sitter-typescript",
+]
+
+[[package]]
 name = "parsers"
 version = "0.0.0"
 dependencies = [
@@ -3400,6 +3457,14 @@ name = "path-slash"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3cacbb3c4ff353b534a67fb8d7524d00229da4cb1dc8c79f4db96e375ab5b619"
+
+[[package]]
+name = "path-utils"
+version = "0.0.0"
+dependencies = [
+ "lexiclean",
+ "path-slash",
+]
 
 [[package]]
 name = "pathdiff"
@@ -4680,6 +4745,8 @@ dependencies = [
  "nanoid",
  "notify",
  "once_cell",
+ "parser",
+ "parser-treesitter",
  "parsers",
  "path-slash",
  "pathdiff",
@@ -4718,9 +4785,6 @@ dependencies = [
  "tracing-serde",
  "tracing-subscriber",
  "tree-sitter",
- "tree-sitter-javascript",
- "tree-sitter-python",
- "tree-sitter-r",
  "tree-sitter-typescript",
  "unicode-segmentation",
  "url",

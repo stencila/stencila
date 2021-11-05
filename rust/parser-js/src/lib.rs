@@ -16,7 +16,7 @@ static PARSER: Lazy<TreesitterParser> =
 /// Tree-sitter AST query for JavaScript
 ///
 /// Made public for use by `parser-ts`.
-const QUERY: &str = r#"
+pub const QUERY: &str = r#"
 (program (comment) @comment)
 
 (import_statement

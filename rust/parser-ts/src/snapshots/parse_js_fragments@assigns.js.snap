@@ -1,6 +1,6 @@
 ---
-source: rust/src/methods/compile/code/ts.rs
-expression: "compile(&PathBuf::from(path), code)"
+source: rust/parser-ts/src/lib.rs
+expression: pairs
 input_file: fixtures/fragments/js/assigns.js
 
 ---
