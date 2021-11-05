@@ -1,10 +1,113 @@
-//! Helper functions for compiling code using `tree-sitter` and converting
-//! the resulting parse trees into Stencila graph `Relation`s and `Resource`s.
-
 use graph_triples::{relations::Range, Relation, Resource};
 use parser::utils::parse_tags;
 use std::{collections::HashMap, path::Path, sync::Mutex};
-use tree_sitter::{Language, Parser, Query, QueryCursor};
+
+// Re-exports for the convenience of crates implementing a Tree-sitter
+// based parser
+pub use graph_triples;
+pub use parser::*;
+pub use path_utils;
+
+/// A parser based on `tree-sitter`
+///
+/// This simply encapsulates a `tree-sitter` usage pattern to
+/// avoid repetitive boiler plate code in the language-specific sub-modules.
+pub struct TreesitterParser {
+    /// The `tree-sitter` parser
+    inner: Mutex<tree_sitter::Parser>,
+
+    /// The `tree-sitter` query
+    query: tree_sitter::Query,
+}
+
+impl TreesitterParser {
+    /// Create a new compiler for a language with a pre-defined query
+    ///
+    /// # Arguments
+    ///
+    /// - `language`: The `tree-sitter` language definition
+    /// - `query`: The `tree-sitter` query definition
+    pub fn new(language: tree_sitter::Language, query: &str) -> TreesitterParser {
+        let mut parser = tree_sitter::Parser::new();
+        parser
+            .set_language(language)
+            .expect("Should be able to set language");
+        let parser = Mutex::new(parser);
+
+        let query = tree_sitter::Query::new(language, query).expect("Query should compile");
+
+        TreesitterParser {
+            inner: parser,
+            query,
+        }
+    }
+
+    /// Parse some code and return a tree
+    ///
+    /// # Arguments
+    ///
+    /// - `code`: The code to parse
+    ///
+    /// # Returns
+    ///
+    /// The parsed syntax tree.
+    pub fn parse(&self, code: &[u8]) -> tree_sitter::Tree {
+        self.inner
+            .lock()
+            .expect("Unable to lock parser")
+            .parse(code, None)
+            .expect("Should be a tree result")
+    }
+
+    /// Query a parse tree
+    ///
+    /// # Arguments
+    ///
+    /// - `code`: The code to parse
+    /// - `tree`: The `tree-sitter` parse tree
+    ///
+    /// # Returns
+    ///
+    /// A vector of `(pattern, captures)` enumerating the matches for
+    /// patterns in the query.
+    pub fn query<'tree>(
+        &self,
+        code: &[u8],
+        tree: &'tree tree_sitter::Tree,
+    ) -> Vec<(usize, Vec<Capture<'tree>>)> {
+        let mut cursor = tree_sitter::QueryCursor::new();
+        let matches = cursor.matches(&self.query, tree.root_node(), |node| {
+            node.utf8_text(code).unwrap_or_default()
+        });
+
+        let capture_names = self.query.capture_names();
+        matches
+            .map(|query_match| {
+                let pattern = query_match.pattern_index;
+                let captures = query_match
+                    .captures
+                    .iter()
+                    .map(|capture| {
+                        let start = capture.node.start_position();
+                        let end = capture.node.end_position();
+                        Capture::new(
+                            capture.index,
+                            capture_names[capture.index as usize].clone(),
+                            capture.node,
+                            (start.row, start.column, end.row, end.column),
+                            capture
+                                .node
+                                .utf8_text(code)
+                                .expect("Should be able to get text")
+                                .to_string(),
+                        )
+                    })
+                    .collect();
+                (pattern, captures)
+            })
+            .collect()
+    }
+}
 
 /// A capture resulting from a `tree-sitter` query
 pub struct Capture<'tree> {
@@ -47,7 +150,7 @@ impl<'tree> Capture<'tree> {
 ///
 /// This relies on captures using the names `@arg` (for non-keyword args)
 /// and `@arg_name` and `@arg_value` pairs (for keyword args).
-pub(crate) fn captures_as_args_map<'tree>(
+pub fn captures_as_args_map<'tree>(
     captures: &'tree [Capture],
 ) -> HashMap<String, &'tree Capture<'tree>> {
     let mut map = HashMap::new();
@@ -77,7 +180,7 @@ pub(crate) fn captures_as_args_map<'tree>(
 ///
 /// Returns an empty string if the child does not exists, or the text could
 /// not be obtained
-pub(crate) fn child_text<'tree>(
+pub fn child_text<'tree>(
     node: tree_sitter::Node<'tree>,
     name: &str,
     code: &'tree [u8],
@@ -85,107 +188,6 @@ pub(crate) fn child_text<'tree>(
     node.child_by_field_name(name)
         .and_then(|child| child.utf8_text(code).ok())
         .unwrap_or("")
-}
-
-/// A parser based on `tree-sitter`
-///
-/// This simply encapsulates a `tree-sitter` usage pattern to
-/// avoid repetitive boiler plate code in the language-specific sub-modules.
-pub struct TreesitterParser {
-    /// The `tree-sitter` parser
-    inner: Mutex<Parser>,
-
-    /// The `tree-sitter` query
-    query: Query,
-}
-
-impl TreesitterParser {
-    /// Create a new compiler for a language with a pre-defined query
-    ///
-    /// # Arguments
-    ///
-    /// - `language`: The `tree-sitter` language definition
-    /// - `query`: The `tree-sitter` query definition
-    pub fn new(language: Language, query: &str) -> TreesitterParser {
-        let mut parser = Parser::new();
-        parser
-            .set_language(language)
-            .expect("Should be able to set language");
-        let parser = Mutex::new(parser);
-
-        let query = Query::new(language, query).expect("Query should compile");
-
-        TreesitterParser {
-            inner: parser,
-            query,
-        }
-    }
-
-    /// Parse some code and return a tree
-    ///
-    /// # Arguments
-    ///
-    /// - `code`: The code to parse
-    ///
-    /// # Returns
-    ///
-    /// The parsed syntax tree.
-    pub fn parse(&self, code: &[u8]) -> tree_sitter::Tree {
-        self.inner
-            .lock()
-            .expect("Unable to lock parser")
-            .parse(code, None)
-            .expect("Should be a tree result")
-    }
-
-    /// Query a parse tree
-    ///
-    /// # Arguments
-    ///
-    /// - `code`: The code to parse
-    /// - `tree`: The `tree-sitter` parse tree
-    ///
-    /// # Returns
-    ///
-    /// A vector of `(pattern, captures)` enumerating the matches for
-    /// patterns in the query.
-    pub fn query<'tree>(
-        &self,
-        code: &[u8],
-        tree: &'tree tree_sitter::Tree,
-    ) -> Vec<(usize, Vec<Capture<'tree>>)> {
-        let mut cursor = QueryCursor::new();
-        let matches = cursor.matches(&self.query, tree.root_node(), |node| {
-            node.utf8_text(code).unwrap_or_default()
-        });
-
-        let capture_names = self.query.capture_names();
-        matches
-            .map(|query_match| {
-                let pattern = query_match.pattern_index;
-                let captures = query_match
-                    .captures
-                    .iter()
-                    .map(|capture| {
-                        let start = capture.node.start_position();
-                        let end = capture.node.end_position();
-                        Capture::new(
-                            capture.index,
-                            capture_names[capture.index as usize].clone(),
-                            capture.node,
-                            (start.row, start.column, end.row, end.column),
-                            capture
-                                .node
-                                .utf8_text(code)
-                                .expect("Should be able to get text")
-                                .to_string(),
-                        )
-                    })
-                    .collect();
-                (pattern, captures)
-            })
-            .collect()
-    }
 }
 
 /// Apply manual tags (e.g. `@uses` in a comment) to the relations
@@ -202,7 +204,7 @@ impl TreesitterParser {
 /// of the comment.
 /// If the tag ends in `only` then all existing relations of that type
 /// will be removed from `relations`.
-pub(crate) fn apply_tags(
+pub fn apply_tags(
     path: &Path,
     lang: &str,
     matches: Vec<(usize, Vec<Capture>)>,
