@@ -1,7 +1,7 @@
 ---
-source: rust/src/methods/compile/code/js.rs
-expression: "compile(&PathBuf::from(path), code)"
-input_file: fixtures/fragments/js/writes.js
+source: rust/parser-js/src/lib.rs
+expression: pairs
+input_file: fixtures/fragments/js/reads.js
 
 ---
 [
@@ -26,9 +26,9 @@ input_file: fixtures/fragments/js/writes.js
       "type": "Use",
       "range": [
         1,
-        28,
+        27,
         1,
-        32
+        31
       ]
     },
     {
@@ -49,7 +49,7 @@ input_file: fixtures/fragments/js/writes.js
     },
     {
       "type": "Symbol",
-      "path": "fragments/js/writes.js",
+      "path": "fragments/js/reads.js",
       "name": "data",
       "kind": ""
     }
@@ -66,19 +66,19 @@ input_file: fixtures/fragments/js/writes.js
     },
     {
       "type": "Symbol",
-      "path": "fragments/js/writes.js",
+      "path": "fragments/js/reads.js",
       "name": "fs",
       "kind": ""
     }
   ],
   [
     {
-      "type": "Write",
+      "type": "Read",
       "range": [
         3,
-        24,
+        23,
         3,
-        31
+        30
       ]
     },
     {
@@ -90,44 +90,27 @@ input_file: fixtures/fragments/js/writes.js
     {
       "type": "Use",
       "range": [
-        3,
-        33,
-        3,
-        37
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/writes.js",
-      "name": "data",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
         4,
         0,
         4,
-        13
+        12
       ]
     },
     {
       "type": "Symbol",
-      "path": "fragments/js/writes.js",
-      "name": "writeFileSync",
+      "path": "fragments/js/reads.js",
+      "name": "readFileSync",
       "kind": ""
     }
   ],
   [
     {
-      "type": "Write",
+      "type": "Read",
       "range": [
         4,
-        14,
+        13,
         4,
-        21
+        20
       ]
     },
     {
@@ -137,51 +120,49 @@ input_file: fixtures/fragments/js/writes.js
   ],
   [
     {
-      "type": "Use",
-      "range": [
-        4,
-        23,
-        4,
-        27
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/writes.js",
-      "name": "data",
-      "kind": ""
-    }
-  ],
-  [
-    {
       "type": "Assign",
       "range": [
         6,
         9,
         6,
-        18
+        17
       ]
     },
     {
       "type": "Symbol",
-      "path": "fragments/js/writes.js",
-      "name": "writeData",
+      "path": "fragments/js/reads.js",
+      "name": "readData",
       "kind": "Function"
     }
   ],
   [
     {
-      "type": "Write",
+      "type": "Read",
       "range": [
         7,
-        15,
+        14,
         7,
-        22
+        21
       ]
     },
     {
       "type": "File",
       "path": "fragments/js/path3"
+    }
+  ],
+  [
+    {
+      "type": "Read",
+      "range": [
+        8,
+        17,
+        8,
+        24
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/js/path4"
     }
   ]
 ]

@@ -1,14 +1,22 @@
-use super::{
-    helpers::{apply_tags, Capture, Compiler},
-    utils::remove_quotes,
-};
-use crate::utils::path::merge;
-use graph_triples::{relations, resources, Relation, Resource};
 use once_cell::sync::Lazy;
+use parser_treesitter::{
+    apply_tags,
+    eyre::Result,
+    graph_triples::{relations, resources, Pair, Pairs},
+    path_utils,
+    utils::remove_quotes,
+    Capture, Parser, ParserTrait, TreesitterParser,
+};
 use std::path::Path;
 
-/// Query patterns for JavaScript (and reused for TypeScript)
-pub const PATTERNS: &str = r#"
+/// Tree-sitter based parser for JavaScript
+static PARSER: Lazy<TreesitterParser> =
+    Lazy::new(|| TreesitterParser::new(tree_sitter_javascript::language(), QUERY));
+
+/// Tree-sitter AST query for JavaScript
+///
+/// Made public for use by `parser-ts`.
+const QUERY: &str = r#"
 (program (comment) @comment)
 
 (import_statement
@@ -96,13 +104,15 @@ pub const PATTERNS: &str = r#"
 ((identifier) @identifer)
 "#;
 
-// Handle a pattern match
-pub(crate) fn handle_patterns(
+/// Handle a pattern match
+///
+/// Made public for use by `parser-ts`.
+pub fn handle_patterns(
     path: &Path,
     code: &[u8],
     pattern: &usize,
     captures: &[Capture],
-) -> Option<(Relation, Resource)> {
+) -> Option<Pair> {
     match pattern {
         1 | 2 => {
             // Imports a module using `import` or `require`
@@ -114,7 +124,7 @@ pub(crate) fn handle_patterns(
             let range = capture.range;
             let module = remove_quotes(&capture.text.clone());
             let object = if module.starts_with("./") {
-                resources::file(&merge(path, &[&module, ".js"].concat()))
+                resources::file(&path_utils::merge(path, &[&module, ".js"].concat()))
             } else {
                 resources::module("javascript", &module)
             };
@@ -124,14 +134,14 @@ pub(crate) fn handle_patterns(
             // Reads a file
             Some((
                 relations::reads(captures[1].range),
-                resources::file(&merge(path, remove_quotes(&captures[1].text))),
+                resources::file(&path_utils::merge(path, remove_quotes(&captures[1].text))),
             ))
         }
         4 => {
             // Writes a file
             Some((
                 relations::writes(captures[1].range),
-                resources::file(&merge(path, remove_quotes(&captures[1].text))),
+                resources::file(&path_utils::merge(path, remove_quotes(&captures[1].text))),
             ))
         }
         5 | 6 => {
@@ -220,35 +230,44 @@ pub(crate) fn handle_patterns(
     }
 }
 
-/// Compiler for JavaScript
-static COMPILER: Lazy<Compiler> =
-    Lazy::new(|| Compiler::new(tree_sitter_javascript::language(), PATTERNS));
+/// A parser for JavaScript
+pub struct JsParser {}
 
-/// Compile some JavaScript code
-pub fn compile(path: &Path, code: &str) -> Vec<(Relation, Resource)> {
-    let code = code.as_bytes();
-    let tree = COMPILER.parse(code);
-    let matches = COMPILER.query(code, &tree);
+impl ParserTrait for JsParser {
+    fn spec() -> Parser {
+        Parser {
+            language: "js".to_string(),
+        }
+    }
 
-    let relations = matches
-        .iter()
-        .filter_map(|(pattern, capture)| handle_patterns(path, code, pattern, capture))
-        .collect();
+    fn parse(path: &Path, code: &str) -> Result<Pairs> {
+        let code = code.as_bytes();
+        let tree = PARSER.parse(code);
+        let matches = PARSER.query(code, &tree);
 
-    apply_tags(path, "javascript", matches, 0, relations)
+        let relations = matches
+            .iter()
+            .filter_map(|(pattern, capture)| handle_patterns(path, code, pattern, capture))
+            .collect();
+
+        let pairs = apply_tags(path, &Self::spec().language, matches, 0, relations);
+        Ok(pairs)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::snapshot_fixtures;
-    use insta::assert_json_snapshot;
-    use std::path::PathBuf;
+    use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures};
+    use test_utils::fixtures;
 
     #[test]
-    fn js_fragments() {
-        snapshot_fixtures("fragments/js/*.js", |path, code| {
-            assert_json_snapshot!(compile(&PathBuf::from(path), code));
-        });
+    fn parse_js_fragments() {
+        snapshot_fixtures("fragments/js/*.js", |path| {
+            let code = std::fs::read_to_string(path).expect("Unable to read");
+            let path = path.strip_prefix(fixtures()).expect("Unable to strip");
+            let pairs = JsParser::parse(path, &code).expect("Unable to parse");
+            assert_json_snapshot!(pairs);
+        })
     }
 }

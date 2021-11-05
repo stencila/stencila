@@ -1,6 +1,6 @@
 ---
-source: rust/src/methods/compile/code/js.rs
-expression: "compile(&PathBuf::from(path), code)"
+source: rust/parser-js/src/lib.rs
+expression: pairs
 input_file: fixtures/fragments/js/tags.js
 
 ---
@@ -17,7 +17,7 @@ input_file: fixtures/fragments/js/tags.js
     },
     {
       "type": "Module",
-      "language": "javascript",
+      "language": "js",
       "name": "mod1"
     }
   ],
@@ -33,7 +33,7 @@ input_file: fixtures/fragments/js/tags.js
     },
     {
       "type": "Module",
-      "language": "javascript",
+      "language": "js",
       "name": "mod2"
     }
   ],
@@ -49,7 +49,7 @@ input_file: fixtures/fragments/js/tags.js
     },
     {
       "type": "Module",
-      "language": "javascript",
+      "language": "js",
       "name": "mod3"
     }
   ],
