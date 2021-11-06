@@ -1,19 +1,20 @@
-use super::{
+use crate::{
     dirs::{data_dir, runtime_dir},
     messages::HmacSha256,
 };
-use crate::utils::keys;
 use defaults::Defaults;
-use eyre::{eyre, Result};
 use hmac::NewMac;
-use serde::{Deserialize, Serialize};
+use kernel::{
+    eyre::{eyre, Result},
+    serde::{Deserialize, Serialize},
+};
 use std::{fs, io::Write, path::PathBuf};
 
 /// A Jupyter kernel connection
 ///
 /// See https://jupyter-client.readthedocs.io/en/stable/kernels.html#connection-files
-#[derive(Debug, Clone, Defaults, JsonSchema, Deserialize, Serialize)]
-#[serde(default)]
+#[derive(Debug, Clone, Defaults, Deserialize, Serialize)]
+#[serde(default, crate = "kernel::serde")]
 pub struct JupyterConnection {
     /// The path to the connection file
     #[serde(skip_deserializing)]
@@ -64,7 +65,7 @@ impl JupyterConnection {
     pub fn new(id: &str) -> Self {
         let name = format!("stencila-{}.json", id);
         let path = runtime_dir().join(name);
-        let key = keys::generate();
+        let key = key_utils::generate();
 
         JupyterConnection {
             path,

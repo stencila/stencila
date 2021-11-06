@@ -1,9 +1,9 @@
-use super::dirs::data_dir;
+use crate::dirs::data_dir;
 use defaults::Defaults;
-use eyre::Result;
-use path_slash::PathBufExt;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use kernel::{
+    eyre::Result,
+    serde::{Deserialize, Serialize},
+};
 use serde_with::skip_serializing_none;
 use std::{collections::HashMap, fs, path::PathBuf};
 
@@ -12,9 +12,8 @@ use std::{collections::HashMap, fs, path::PathBuf};
 /// Used to access information about currently running kernels so that they
 /// can be associated with notebook files and connected to if necessary.
 #[skip_serializing_none]
-#[derive(Debug, Defaults, JsonSchema, Deserialize, Serialize)]
-#[serde(default)]
-#[schemars(deny_unknown_fields)]
+#[derive(Debug, Defaults, Deserialize, Serialize)]
+#[serde(default, crate = "kernel::serde")]
 pub struct JupyterServer {
     pub(crate) base_url: String,
     pub(crate) hostname: String,
@@ -38,7 +37,8 @@ impl JupyterServer {
         let pattern = data_dir()
             .join("runtime")
             .join("nbserver-*.json")
-            .to_slash_lossy();
+            .to_string_lossy()
+            .to_string();
 
         let files = glob::glob(&pattern)?.flatten();
 

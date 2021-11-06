@@ -48,7 +48,7 @@ pub enum KernelStatus {
 #[async_trait]
 pub trait KernelTrait {
     /// Get the [`Kernel`] specification for this implementation
-    fn spec() -> Kernel;
+    fn spec(&self) -> Kernel;
 
     /// Start the kernel
     async fn start(&mut self) -> Result<()> {

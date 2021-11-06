@@ -2607,11 +2607,28 @@ dependencies = [
 name = "kernel-jupyter"
 version = "0.0.0"
 dependencies = [
+ "chrono",
+ "codec-ipynb",
+ "defaults",
  "dirs",
+ "glob",
+ "hex",
+ "hmac",
  "kernel",
+ "key-utils",
  "once_cell",
+ "path-slash",
+ "portpicker",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "sha2",
  "test-utils",
  "tokio",
+ "tracing",
+ "uuid-utils",
+ "zmq",
 ]
 
 [[package]]
@@ -2635,6 +2652,13 @@ dependencies = [
 [[package]]
 name = "kernels"
 version = "0.0.0"
+
+[[package]]
+name = "key-utils"
+version = "0.0.0"
+dependencies = [
+ "rand 0.8.4",
+]
 
 [[package]]
 name = "kuchiki"
@@ -4723,6 +4747,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ecab6c735a6bb4139c0caafd0cc3635748bbb3acf4550e8138122099251f309"
 
 [[package]]
+name = "smartstring"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "31aa6a31c0c2b21327ce875f7e8952322acfcfd0c27569a6e18a647281352c9b"
+dependencies = [
+ "serde",
+ "static_assertions",
+]
+
+[[package]]
 name = "socket2"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4743,6 +4777,12 @@ name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
+
+[[package]]
+name = "static_assertions"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
@@ -4779,7 +4819,6 @@ dependencies = [
  "graph-triples",
  "handlebars",
  "hex",
- "hmac",
  "humantime 2.1.0",
  "ignore",
  "insta",
@@ -4791,7 +4830,6 @@ dependencies = [
  "maplit",
  "mime_guess",
  "minidom",
- "nanoid",
  "notify",
  "once_cell",
  "parsers",
@@ -4838,7 +4876,6 @@ dependencies = [
  "validator",
  "warp",
  "webbrowser",
- "zmq",
 ]
 
 [[package]]
@@ -5698,6 +5735,17 @@ name = "uuid"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
+
+[[package]]
+name = "uuid-utils"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "nanoid",
+ "regex",
+ "serde",
+ "smartstring",
+]
 
 [[package]]
 name = "validator"

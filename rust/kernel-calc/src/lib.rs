@@ -28,7 +28,7 @@ impl CalcKernel {
 
 #[async_trait]
 impl KernelTrait for CalcKernel {
-    fn spec() -> Kernel {
+    fn spec(&self) -> Kernel {
         Kernel {
             language: "calc".to_string(),
         }
