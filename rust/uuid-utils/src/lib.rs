@@ -59,11 +59,18 @@ const CHARACTERS: [char; 62] = [
 #[macro_export]
 macro_rules! uuid_family {
     ($name:ident, $family:literal) => {
+        #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
         struct $name(uuid_utils::Uuid);
 
         impl $name {
             pub fn new() -> Self {
                 Self(uuid_utils::generate($family))
+            }
+        }
+
+        impl Default for $name {
+            fn default() -> Self {
+                Self::new()
             }
         }
 
