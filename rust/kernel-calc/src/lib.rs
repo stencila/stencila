@@ -1,40 +1,44 @@
-use super::{Kernel, KernelTrait};
-use crate::errors::incompatible_language;
-use async_trait::async_trait;
-use eyre::{bail, Result};
 use fasteval::{ez_eval, Error};
+use kernel::{
+    async_trait::async_trait,
+    eyre::{bail, Result},
+    serde::Serialize,
+    stencila_schema::{CodeError, Node},
+    Kernel, KernelStatus, KernelTrait,
+};
 use once_cell::sync::Lazy;
 use regex::Regex;
-use schemars::JsonSchema;
-use serde::Serialize;
 use std::collections::BTreeMap;
-use stencila_schema::{CodeError, Node};
 
-#[derive(Debug, Clone, Default, JsonSchema, Serialize)]
-#[schemars(deny_unknown_fields)]
+/// A kernel that evaluates simple calculator like numerical expressions
+///
+/// Based on [`fasteval`](https://github.com/likebike/fasteval). See the
+/// `fasteval` docs for more on the syntax and functions supported.
+#[derive(Debug, Clone, Default, Serialize)]
+#[serde(crate = "kernel::serde")]
 pub struct CalcKernel {
-    #[serde(skip)]
     symbols: BTreeMap<String, f64>,
 }
 
 impl CalcKernel {
-    pub fn create() -> Kernel {
-        Kernel::Calc(CalcKernel::default())
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
 #[async_trait]
 impl KernelTrait for CalcKernel {
-    fn language(&self, language: Option<String>) -> Result<String> {
-        let canonical = Ok("calc".to_string());
-        match language.as_deref() {
-            Some("calc") => canonical,
-            Some(language) => bail!(incompatible_language::<Self>(language)),
-            None => canonical,
+    fn spec() -> Kernel {
+        Kernel {
+            language: "calc".to_string(),
         }
     }
 
-    async fn get(&mut self, name: &str) -> Result<Node> {
+    async fn status(&self) -> Result<KernelStatus> {
+        Ok(KernelStatus::Idle)
+    }
+
+    async fn get(&self, name: &str) -> Result<Node> {
         match self.symbols.get(name) {
             Some(number) => Ok(Node::Number(*number)),
             None => bail!("Symbol `{}` does not exist in this kernel", name),
@@ -112,5 +116,57 @@ impl KernelTrait for CalcKernel {
             }
         }
         Ok((outputs, errors))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use kernel::{KernelStatus, KernelTrait};
+    use test_utils::{assert_json_eq, serde_json::json};
+
+    #[tokio::test]
+    async fn status() -> Result<()> {
+        let kernel = CalcKernel::new();
+
+        assert_eq!(kernel.status().await?, KernelStatus::Idle);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn get_set_exec() -> Result<()> {
+        let mut kernel = CalcKernel::new();
+
+        match kernel.get("a").await {
+            Ok(..) => bail!("Expected an error"),
+            Err(error) => assert!(error.to_string().contains("does not exist")),
+        };
+
+        match kernel.set("a", Node::String("A".to_string())).await {
+            Ok(..) => bail!("Expected an error"),
+            Err(error) => assert!(error
+                .to_string()
+                .contains("Unable to convert node to a number")),
+        };
+
+        kernel.set("a", Node::Number(1.23)).await?;
+
+        let a = kernel.get("a").await?;
+        assert!(matches!(a, Node::Number(..)));
+        assert_json_eq!(a, json!(1.23));
+
+        let (outputs, errors) = kernel.exec("a * 2").await?;
+        assert_json_eq!(outputs, json!([2.46]));
+        assert_eq!(errors.len(), 0);
+
+        let (outputs, errors) = kernel.exec("x * 2").await?;
+        assert_eq!(outputs.len(), 0);
+        assert_json_eq!(
+            errors,
+            json!([{"type": "CodeError", "errorMessage": "Undefined variable or function: x"}])
+        );
+
+        Ok(())
     }
 }
