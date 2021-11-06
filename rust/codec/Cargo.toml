@@ -1,6 +1,6 @@
 [package]
 name = "codec"
-description = "Defines a specification and trait for codecs for decoding/encoding nodes"
+description = "Defines a specification and trait for codecs"
 version = "0.0.0"
 edition = "2021"
 

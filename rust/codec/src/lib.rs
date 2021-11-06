@@ -8,7 +8,7 @@ use std::{
 };
 use stencila_schema::Node;
 
-// Export for the convenience of crates that implement `CodecTrait`
+// Re-export for the convenience of crates that implement `CodecTrait`
 pub use ::async_trait;
 pub use eyre;
 pub use serde;
@@ -74,7 +74,7 @@ pub struct Codec {
 /// converting nodes to/from strings, files, readers etc.
 #[async_trait]
 pub trait CodecTrait {
-    /// Get the [`Codec`] specification
+    /// Get the [`Codec`] specification for this implementation
     fn spec() -> Codec;
 
     /// Decode a document node from a string
