@@ -13,10 +13,6 @@ use validator::Contains;
 
 type KernelId = String;
 
-
-#[cfg(feature = "kernels-calc")]
-mod calc;
-
 #[cfg(feature = "kernels-jupyter")]
 mod jupyter;
 
@@ -25,9 +21,6 @@ mod jupyter;
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(tag = "type")]
 pub enum Kernel {
-
-    #[cfg(feature = "kernels-calc")]
-    Calc(calc::CalcKernel),
 
     #[cfg(feature = "kernels-jupyter")]
     Jupyter(jupyter::JupyterKernel),
@@ -39,9 +32,6 @@ impl Kernel {
     pub async fn available() -> Result<Vec<String>> {
         #[allow(unused_mut)]
         let mut list: Vec<String> = Vec::new();
-
-        #[cfg(feature = "kernels-calc")]
-        list.push("calc".to_string());
 
         #[cfg(feature = "kernels-jupyter")]
         list.append(&mut jupyter::JupyterKernel::available().await?);

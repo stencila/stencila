@@ -6,7 +6,7 @@ use std::{env, path::PathBuf};
 pub fn data_dir() -> PathBuf {
     if let Ok(path) = env::var("JUPYTER_DATA_DIR") {
         PathBuf::from(path)
-    } else if let Some(data_dir) = dirs_next::data_dir() {
+    } else if let Some(data_dir) = dirs::data_dir() {
         #[cfg(target_os = "macos")]
         return data_dir
             .parent()
@@ -51,7 +51,7 @@ pub fn runtime_dir() -> PathBuf {
         PathBuf::from(path)
     } else {
         #[cfg(target_os = "linux")]
-        return match dirs_next::runtime_dir() {
+        return match dirs::runtime_dir() {
             Some(runtime_dir) => runtime_dir.join("jupyter"),
             None => data_dir().join("runtime"),
         };

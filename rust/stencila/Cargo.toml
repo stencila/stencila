@@ -38,7 +38,6 @@ plugins-link = ["plugins"]
 plugins-python = ["plugins"]
 plugins-r = ["plugins"]
 
-kernels-calc = ["fasteval"]
 kernels-jupyter = ["zmq/vendored"]
 
 upgrade = ["self_update"]
@@ -87,7 +86,6 @@ default = [
   "plugins-javascript",
   "plugins-python",
   "plugins-r",
-  "kernels-calc",
   "kernels-jupyter",
   "upgrade",
   "import-elife",
@@ -113,7 +111,6 @@ dirs-next = "=2.0.0"
 enum_dispatch = "=0.3.7"
 exitcode = "=1.1.2"
 eyre = "=0.6.5"
-fasteval = { version = "=0.2.4", optional = true }
 futures = "=0.3.17"
 gitignore = "=1.0.7"
 glob = "=0.3.0"

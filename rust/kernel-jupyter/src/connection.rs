@@ -6,7 +6,6 @@ use crate::utils::keys;
 use defaults::Defaults;
 use eyre::{eyre, Result};
 use hmac::NewMac;
-use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::{fs, io::Write, path::PathBuf};
 
@@ -14,7 +13,6 @@ use std::{fs, io::Write, path::PathBuf};
 ///
 /// See https://jupyter-client.readthedocs.io/en/stable/kernels.html#connection-files
 #[derive(Debug, Clone, Defaults, JsonSchema, Deserialize, Serialize)]
-#[schemars(deny_unknown_fields)]
 #[serde(default)]
 pub struct JupyterConnection {
     /// The path to the connection file

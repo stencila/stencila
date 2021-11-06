@@ -2581,6 +2581,48 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "eyre",
+ "serde",
+ "stencila-schema",
+ "strum 0.22.0",
+]
+
+[[package]]
+name = "kernel-calc"
+version = "0.0.0"
+dependencies = [
+ "fasteval",
+ "kernel",
+ "once_cell",
+ "regex",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
+name = "kernel-jupyter"
+version = "0.0.0"
+dependencies = [
+ "dirs",
+ "kernel",
+ "once_cell",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
+name = "kernel-store"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "tokio",
+]
+
+[[package]]
 name = "kernel32-sys"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2589,6 +2631,10 @@ dependencies = [
  "winapi 0.2.8",
  "winapi-build",
 ]
+
+[[package]]
+name = "kernels"
+version = "0.0.0"
 
 [[package]]
 name = "kuchiki"
@@ -4725,7 +4771,6 @@ dependencies = [
  "enum_dispatch",
  "exitcode",
  "eyre",
- "fasteval",
  "formats",
  "futures",
  "gitignore",
