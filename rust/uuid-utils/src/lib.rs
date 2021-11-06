@@ -30,38 +30,9 @@
 use eyre::{bail, Result};
 use nanoid::nanoid;
 use regex::Regex;
-use strum::Display;
+use smartstring::{Compact, SmartString};
 
-/// The available families of identifiers
-#[derive(Debug, Clone, Display)]
-pub enum Family {
-    #[strum(serialize = "no")]
-    Node,
-
-    #[strum(serialize = "do")]
-    Document,
-
-    #[strum(serialize = "fi")]
-    File,
-
-    #[strum(serialize = "sn")]
-    Snapshot,
-
-    #[strum(serialize = "pr")]
-    Project,
-
-    #[strum(serialize = "se")]
-    Session,
-
-    #[strum(serialize = "ke")]
-    Kernel,
-
-    #[strum(serialize = "cl")]
-    Client,
-
-    #[strum(serialize = "id")]
-    Generic,
-}
+pub type Uuid = SmartString<Compact>;
 
 /// The separator between the family and random parts of the identifier
 ///
@@ -77,34 +48,64 @@ const CHARACTERS: [char; 62] = [
     'V', 'W', 'X', 'Y', 'Z',
 ];
 
-// Generate a universally unique identifier
-pub fn generate(family: Family) -> String {
-    let chars = match family {
-        Family::Project => nanoid!(20, &CHARACTERS[..36]),
-        _ => nanoid!(20, &CHARACTERS),
+/// Create a family of UUIDs
+///
+/// ```
+/// use uuid_utils::uuid_family;
+///
+/// uuid_family!(MyId, "my");
+/// let id = MyId::new();
+/// ```
+#[macro_export]
+macro_rules! uuid_family {
+    ($name:ident, $family:literal) => {
+        struct $name(uuid_utils::Uuid);
+
+        impl $name {
+            pub fn new() -> Self {
+                Self(uuid_utils::generate($family))
+            }
+        }
+
+        use std::ops::Deref;
+        impl Deref for $name {
+            type Target = uuid_utils::Uuid;
+
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
     };
-    [&family.to_string(), SEPARATOR, &chars].concat()
+}
+
+// Generate a universally unique identifier
+pub fn generate(family: &str) -> Uuid {
+    let chars = nanoid!(20, &CHARACTERS);
+    [family, SEPARATOR, &chars].concat().into()
+}
+
+// Generate a universally unique identifier with only lowercase letters and digits
+pub fn generate_lower(family: &str) -> Uuid {
+    let chars = nanoid!(20, &CHARACTERS[..36]);
+    [family, SEPARATOR, &chars].concat().into()
 }
 
 // Test whether a string is an identifer for a particular family
-pub fn matches(family: Family, id: &str) -> bool {
-    let pattern = match family {
-        Family::Project => "[0-9a-z]{20}",
-        _ => "[0-9a-zA-Z]{20}",
-    };
-    let re = [&family.to_string(), SEPARATOR, pattern].concat();
+pub fn matches(family: &str, id: &str) -> bool {
+    let re = [family, SEPARATOR, "[0-9a-zA-Z]{20}"].concat();
     let re = Regex::new(&re).expect("Should be a valid regex");
     re.is_match(id)
 }
 
-// Assert that a string is an identifer for a particular family
-pub fn assert(family: Family, id: &str) -> Result<String> {
-    match matches(family.clone(), id) {
-        true => Ok(id.to_string()),
-        false => bail!(Error::InvalidUUID {
-            family: family.to_string(),
-            id: id.to_string()
-        }),
+// Assert that a `Uuid` is an identifer for a particular family
+pub fn assert(family: &str, id: Uuid) -> Result<Uuid> {
+    match matches(family, &id) {
+        true => Ok(id),
+        false => bail!(
+            "Invalid UUID `{}`, family does not match `{}`",
+            family.to_string(),
+            id
+        ),
     }
 }
 
@@ -113,18 +114,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_node_id() {
-        let id = generate(Family::Node);
+    fn normal() {
+        let id = generate("no");
         assert_eq!(id.len(), 23);
-        assert!(matches(Family::Node, &id));
-        assert(Family::Node, &id).unwrap();
+        assert!(matches("no", &id));
+        assert("no", id).unwrap();
     }
 
     #[test]
-    fn test_project_id() {
-        let id = generate(Family::Project);
+    fn lower() {
+        let id = generate_lower("pr");
         assert_eq!(id.len(), 23);
-        assert!(matches(Family::Project, &id));
-        assert(Family::Project, &id).unwrap();
+        assert!(matches("pr", &id));
+        assert("pr", id).unwrap();
     }
 }
