@@ -9,64 +9,10 @@ use schemars::JsonSchema;
 use serde::Serialize;
 use std::collections::{hash_map::Entry, BTreeMap, HashMap};
 use stencila_schema::{CodeError, Node};
-use strum::Display;
 use validator::Contains;
 
 type KernelId = String;
 
-/// The status of a kernel
-#[derive(Debug, Clone, JsonSchema, Serialize, Display)]
-#[allow(dead_code)]
-pub enum KernelStatus {
-    Pending,
-    Starting,
-    Idle,
-    Busy,
-    Unresponsive,
-    Stopping,
-    Finished,
-    Failed,
-}
-
-#[async_trait]
-#[enum_dispatch]
-pub trait KernelTrait {
-    /// Get the name of the kernel's programming language, and/or
-    /// check that it is able to execute a given language.
-    ///
-    /// If a `language` identifier is supplied, e.g. `Some("py")`, and the kernel
-    /// can execute that language, should return the kernel's canonical name of the language
-    /// e.g. `Ok("python3")`. If the language can not execute the language should
-    /// return a `IncompatibleLanguage` error.
-    fn language(&self, language: Option<String>) -> Result<String>;
-
-    /// Start the kernel
-    async fn start(&mut self) -> Result<()> {
-        Ok(())
-    }
-
-    /// Stop the kernel
-    async fn stop(&mut self) -> Result<()> {
-        Ok(())
-    }
-
-    /// Get the status of the kernel
-    async fn status(&self) -> KernelStatus {
-        KernelStatus::Idle
-    }
-
-    /// Get a symbol from the kernel
-    async fn get(&mut self, name: &str) -> Result<Node>;
-
-    /// Set a symbol in the kernel
-    async fn set(&mut self, name: &str, value: Node) -> Result<()>;
-
-    /// Execute some code in the kernel
-    async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)>;
-}
-
-mod default;
-use default::*;
 
 #[cfg(feature = "kernels-calc")]
 mod calc;
@@ -79,7 +25,6 @@ mod jupyter;
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[serde(tag = "type")]
 pub enum Kernel {
-    Default(DefaultKernel),
 
     #[cfg(feature = "kernels-calc")]
     Calc(calc::CalcKernel),
