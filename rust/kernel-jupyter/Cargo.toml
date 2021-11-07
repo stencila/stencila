@@ -11,6 +11,7 @@ default = ["zmq/vendored"]
 chrono = {version = "0.4.19", features = ["serde"]}
 codec-ipynb = {path = "../codec-ipynb", version = "0.0.0"}
 defaults = "0.2.0"
+derivative = "2.2.0"
 dirs = "4.0.0"
 glob = "0.3.0"
 hex = "0.4.3"

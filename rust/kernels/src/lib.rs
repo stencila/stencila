@@ -3,7 +3,7 @@ use derive_more::{Deref, DerefMut};
 use graph_triples::{Relation, Resource};
 use kernel::{
     async_trait::async_trait,
-    eyre::{bail, eyre, Result},
+    eyre::{eyre, Result},
     stencila_schema::{CodeError, Node},
     Kernel, KernelStatus, KernelTrait,
 };
@@ -75,7 +75,7 @@ impl SymbolInfo {
 /// In the future this maybe changed to, or augmented with a `Box<dyn KernelTrait>`,
 /// to allow dispathcing to plugins that are dynamically added at runtime.
 #[allow(clippy::large_enum_variant)]
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 enum MetaKernel {
     #[cfg(feature = "store")]
     Store(kernel_store::StoreKernel),
@@ -127,7 +127,7 @@ impl KernelTrait for MetaKernel {
 ///
 /// A `newtype` that exists solely to provide a `Result` (rather than `<Option>`)
 /// when getting a kernel by id.
-#[derive(Default, Deref, DerefMut)]
+#[derive(Debug, Default, Deref, DerefMut, Serialize)]
 struct KernelMap(BTreeMap<KernelId, MetaKernel>);
 
 impl KernelMap {
@@ -146,7 +146,7 @@ impl KernelMap {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default, Serialize)]
 pub struct KernelSpace {
     /// The kernels in the document kernel space
     kernels: KernelMap,
@@ -356,7 +356,7 @@ impl KernelSpace {
             _ => MetaKernel::Jupyter(kernel_jupyter::JupyterKernel::new(language).await?),
 
             #[cfg(not(feature = "jupyter"))]
-            _ => bail!(
+            _ => kernel::eyre::bail!(
                 "Unable to create an execution kernel for language `{}` because support for Jupyter kernels is not enabled",
                 language
             ),
@@ -380,7 +380,7 @@ impl KernelSpace {
         }
 
         #[cfg(not(feature = "jupyter"))]
-        bail!(
+        kernel::eyre::bail!(
             "Unable to connect to running kernel because support for Jupyter kernels is not enabled",
         )
     }
@@ -434,12 +434,41 @@ impl KernelSpace {
     }
 }
 
+#[allow(clippy::vec_init_then_push)]
+pub async fn available() -> Result<Vec<String>> {
+    let mut list: Vec<String> = Vec::new();
+
+    #[cfg(feature = "calc")]
+    list.push("calc".to_string());
+
+    #[cfg(feature = "jupyter")]
+    list.append(&mut kernel_jupyter::JupyterKernel::available().await?);
+
+    Ok(list)
+}
+
+/// List the kernels (and servers) that are currently running on this machine
+pub async fn running() -> Result<serde_json::Value> {
+    #[cfg(feature = "jupyter")]
+    {
+        let kernels = kernel_jupyter::JupyterKernel::running().await?;
+        let servers = kernel_jupyter::JupyterServer::running().await?;
+        Ok(serde_json::json!({
+            "kernels": kernels,
+            "servers": servers
+        }))
+    }
+    #[cfg(not(feature = "jupyter"))]
+    {
+        bail!("Jupyter kernels are not enabled")
+    }
+}
+
 #[cfg(feature = "cli")]
 pub mod commands {
     use super::*;
     use cli_utils::{result, Result, Run};
     use once_cell::sync::Lazy;
-    use serde_json::json;
     use structopt::StructOpt;
     use tokio::sync::Mutex;
 
@@ -498,17 +527,8 @@ pub mod commands {
     pub struct Available {}
     #[async_trait]
     impl Run for Available {
-        #[allow(clippy::vec_init_then_push)]
         async fn run(&self) -> Result {
-            let mut list: Vec<String> = Vec::new();
-
-            #[cfg(feature = "calc")]
-            list.push("calc".to_string());
-
-            #[cfg(feature = "jupyter")]
-            list.append(&mut kernel_jupyter::JupyterKernel::available().await?);
-
-            result::value(list)
+            result::value(available().await?)
         }
     }
 
@@ -525,19 +545,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Running {
         async fn run(&self) -> Result {
-            #[cfg(feature = "jupyter")]
-            {
-                let kernels = kernel_jupyter::JupyterKernel::running().await?;
-                let servers = kernel_jupyter::JupyterServer::running().await?;
-                result::value(json!({
-                    "kernels": kernels,
-                    "servers": servers
-                }))
-            }
-            #[cfg(not(feature = "jupyter"))]
-            {
-                eyre::bail!("Jupyter kernels are not enabled")
-            }
+            result::value(running().await?)
         }
     }
 

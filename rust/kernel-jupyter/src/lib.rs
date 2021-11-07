@@ -1,5 +1,6 @@
 use codec_ipynb::{translate_error, translate_mime_bundle, translate_stderr};
 use defaults::Defaults;
+use derivative::Derivative;
 use kernel::{
     async_trait::async_trait,
     eyre::{bail, eyre, Result},
@@ -55,7 +56,7 @@ uuid_utils::uuid_family!(JupyterSessionId, "se");
 /// See https://jupyter-client.readthedocs.io/en/stable/kernels.html#kernel-specs.
 /// Comments below are copied from there.
 #[skip_serializing_none]
-#[derive(Defaults, Deserialize, Serialize)]
+#[derive(Debug, Defaults, Deserialize, Serialize)]
 #[serde(default)]
 pub struct JupyterKernel {
     /// The id of the kernel instance
@@ -129,6 +130,8 @@ pub struct JupyterKernel {
 ///
 /// Used to group most of the details that do not / can not be serialized
 /// and which are only available once the kernel has been started
+#[derive(Derivative)]
+#[derivative(Debug)]
 struct JupyterDetails {
     /// The system id of the kernel process
     ///
@@ -142,6 +145,7 @@ struct JupyterDetails {
     hmac: HmacSha256,
 
     /// The socket to send Jupyter "shell" commands to
+    #[derivative(Debug = "ignore")]
     shell_socket: Arc<Mutex<Socket>>,
 
     /// The sender for IOPub messages
@@ -919,7 +923,7 @@ mod tests {
 
     #[tokio::test]
     async fn status() -> Result<()> {
-        let kernel = JupyterKernel::new("python");
+        let kernel = JupyterKernel::new("python").await?;
 
         assert_eq!(kernel.status().await?, KernelStatus::Pending);
 

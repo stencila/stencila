@@ -8,7 +8,7 @@ use kernel::{
 use std::collections::HashMap;
 
 /// A kernel that simply stores nodes
-/// 
+///
 /// This kernel is used as the default place to store the value of document
 /// parameters. The value of those parameters can then be mirrored to other
 /// kernels.
