@@ -2652,6 +2652,24 @@ dependencies = [
 [[package]]
 name = "kernels"
 version = "0.0.0"
+dependencies = [
+ "chrono",
+ "cli-utils",
+ "derive_more",
+ "graph-triples",
+ "kernel",
+ "kernel-calc",
+ "kernel-jupyter",
+ "kernel-store",
+ "once_cell",
+ "parsers",
+ "serde",
+ "serde_json",
+ "structopt",
+ "tokio",
+ "tracing",
+ "validator",
+]
 
 [[package]]
 name = "key-utils"

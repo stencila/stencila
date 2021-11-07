@@ -39,6 +39,7 @@ pub enum KernelStatus {
     Stopping,
     Finished,
     Failed,
+    Unknown
 }
 
 /// A trait for kernels

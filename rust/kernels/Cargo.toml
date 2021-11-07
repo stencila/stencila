@@ -1,6 +1,33 @@
 [package]
+edition = "2021"
 name = "kernels"
 version = "0.0.0"
-edition = "2021"
+
+[features]
+default = ["store"]
+
+cli = ["cli-utils", "parsers", "once_cell", "serde_json", "structopt", "tokio"]
+
+calc = ["kernel-calc"]
+jupyter = ["kernel-jupyter"]
+store = ["kernel-store"]
 
 [dependencies]
+chrono = "0.4.19"
+derive_more = "0.99.16"
+graph-triples = {path = "../graph-triples", version = "0.0.0"}
+kernel = {path = "../kernel", version = "0.0.0"}
+serde = "1.0.130"
+tracing = "0.1.29"
+validator = "0.14.0"
+
+cli-utils = {path = "../cli-utils", version = "0.0.0", optional = true}
+once_cell = {version = "1.8.0", optional = true}
+parsers = {path = "../parsers", version = "0.0.0", optional = true}
+serde_json = { version = "1.0.68", optional = true }
+structopt = {version = "0.3.25", optional = true}
+tokio = {version = "1.13.0", optional = true}
+
+kernel-calc = {path = "../kernel-calc", version = "0.0.0", optional = true}
+kernel-jupyter = {path = "../kernel-jupyter", version = "0.0.0", optional = true}
+kernel-store = {path = "../kernel-store", version = "0.0.0", optional = true}

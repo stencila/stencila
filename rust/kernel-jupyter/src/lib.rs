@@ -43,6 +43,9 @@ use crate::{
 
 pub use server::JupyterServer;
 
+// A UUID for kernels
+uuid_utils::uuid_family!(JupyterKernelId, "ke");
+
 // A UUID for sessions
 uuid_utils::uuid_family!(JupyterSessionId, "se");
 
@@ -56,7 +59,7 @@ uuid_utils::uuid_family!(JupyterSessionId, "se");
 #[serde(default)]
 pub struct JupyterKernel {
     /// The id of the kernel instance
-    id: String,
+    id: JupyterKernelId,
 
     /// The name of the kernel e.g. `python3`, `ir`
     name: String,
@@ -183,13 +186,17 @@ impl Clone for JupyterKernel {
 }
 
 impl JupyterKernel {
-    pub fn new() -> Self {
-        Self::default()
+    /// Create a new `JupyterKernel`.
+    pub async fn new(language: &str) -> Result<JupyterKernel> {
+        let mut kernel = JupyterKernel::find(language).await?;
+        kernel.id = JupyterKernelId::new();
+
+        Ok(kernel)
     }
 
     /// Does the kernel support execution of a specific language?
     pub fn supports(&self, language: &str) -> bool {
-        return self.language == language;
+        self.language == language
     }
 
     /// Get a list of Jupyter kernels available in the current environment
@@ -268,14 +275,6 @@ impl JupyterKernel {
         }
 
         Ok(map)
-    }
-
-    /// Create a `JupyterKernel`.
-    pub async fn create(id: &str, language: &str) -> Result<JupyterKernel> {
-        let mut kernel = JupyterKernel::find(language).await?;
-        kernel.id = id.to_string();
-
-        Ok(kernel)
     }
 
     /// Connect to a running kernel
@@ -920,7 +919,7 @@ mod tests {
 
     #[tokio::test]
     async fn status() -> Result<()> {
-        let kernel = JupyterKernel::new();
+        let kernel = JupyterKernel::new("python");
 
         assert_eq!(kernel.status().await?, KernelStatus::Pending);
 
