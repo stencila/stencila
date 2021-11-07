@@ -2069,13 +2069,10 @@ dependencies = [
  "derivative",
  "eyre",
  "path-slash",
- "petgraph",
  "schemars",
  "serde",
  "serde_json",
- "serde_with",
  "strum 0.22.0",
- "utils",
 ]
 
 [[package]]
