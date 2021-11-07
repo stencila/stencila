@@ -74,8 +74,19 @@ macro_rules! uuid_family {
             }
         }
 
-        use std::ops::Deref;
-        impl Deref for $name {
+        impl std::fmt::Display for $name {
+            fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(formatter, "{}", self.0.to_string())
+            }
+        }
+
+        impl std::cmp::PartialEq for $name {
+            fn eq(&self, other: &$name) -> bool {
+                self.0 == other.0
+            }
+        }
+
+        impl std::ops::Deref for $name {
             type Target = uuid_utils::Uuid;
 
             fn deref(&self) -> &Self::Target {
