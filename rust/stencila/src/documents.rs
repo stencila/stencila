@@ -1,13 +1,11 @@
 use crate::{
     errors::attempt,
-    kernels::KernelSpace,
     methods::compile::compile,
     patches::{diff, merge, resolve, Address, Patch, Pointer},
     pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
         schemas,
-        uuids::{self},
     },
 };
 use defaults::Defaults;
@@ -15,6 +13,7 @@ use eyre::{bail, Result};
 use formats::{Format, FORMATS};
 use graph_triples::{Relation, Resource};
 use itertools::Itertools;
+use kernels::KernelSpace;
 use maplit::hashset;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
@@ -109,7 +108,7 @@ enum DocumentStatus {
 }
 
 /// An in-memory representation of a document
-#[derive(Debug, Clone, Defaults, JsonSchema, Serialize)]
+#[derive(Debug, Defaults, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Document {
     /// The document identifier
@@ -214,7 +213,7 @@ pub struct Document {
     ///
     /// This is where document variables are stored and executable nodes such as
     /// `CodeChunk`s and `Parameters`s are executed.
-    #[serde(flatten)]
+    #[serde(skip)]
     kernels: KernelSpace,
 
     /// The clients that are subscribed to each topic for this document
@@ -286,7 +285,7 @@ impl Document {
     /// a new document. If the `path` is not specified, the created document
     /// will be `temporary: true` and have a temporary file path.
     fn new(path: Option<PathBuf>, format: Option<String>) -> Document {
-        let id = uuids::generate(uuids::Family::Document);
+        let id = uuid_utils::generate("do").to_string();
 
         let format = if let Some(format) = format {
             FORMATS.match_path(&format)
@@ -310,7 +309,7 @@ impl Document {
             None => {
                 let path = env::temp_dir().join(
                     [
-                        uuids::generate(uuids::Family::File),
+                        uuid_utils::generate("fi").to_string(),
                         ".".to_string(),
                         format.name.clone(),
                     ]
@@ -345,6 +344,28 @@ impl Document {
         }
     }
 
+    /// Create a representation of the document
+    ///
+    /// Used to represent the document in events and as the return value of functions without
+    /// to provide properties such as `path` and `status` without cloning things such as
+    /// its `kernels`.
+    pub fn repr(&self) -> Self {
+        Self {
+            id: self.id.clone(),
+            path: self.path.clone(),
+            project: self.project.clone(),
+            temporary: self.temporary,
+            status: self.status.clone(),
+            name: self.name.clone(),
+            format: self.format.clone(),
+            previewable: self.previewable,
+            addresses: self.addresses.clone(),
+            relations: self.relations.clone(),
+            subscriptions: self.subscriptions.clone(),
+            ..Default::default()
+        }
+    }
+
     /// Open a document from an existing file.
     ///
     /// # Arguments
@@ -359,7 +380,7 @@ impl Document {
 
         // Create a new document with unique id
         let mut document = Document {
-            id: uuids::generate(uuids::Family::Document),
+            id: uuid_utils::generate("do").to_string(),
             ..Default::default()
         };
 
@@ -661,7 +682,7 @@ impl Document {
             &["documents:", &self.id, ":patched"].concat(),
             &DocumentEvent {
                 type_: DocumentEventType::Patched,
-                document: self.clone(),
+                document: self.repr(),
                 content: None,
                 format: None,
                 patch: Some(patch),
@@ -691,7 +712,7 @@ impl Document {
             &["documents:", &self.id, ":patched"].concat(),
             &DocumentEvent {
                 type_: DocumentEventType::Patched,
-                document: self.clone(),
+                document: self.repr(),
                 content: None,
                 format: None,
                 patch: Some(patch),
@@ -781,7 +802,7 @@ impl Document {
                         &["documents:", &self.id, ":patched"].concat(),
                         &DocumentEvent {
                             type_: DocumentEventType::Patched,
-                            document: self.clone(),
+                            document: self.repr(),
                             content: None,
                             format: None,
                             patch: Some(patch),
@@ -906,7 +927,7 @@ impl Document {
             &self.topic(&subtopic),
             &DocumentEvent {
                 type_,
-                document: self.clone(),
+                document: self.repr(),
                 content,
                 format,
                 patch: None,
@@ -1188,7 +1209,7 @@ impl Documents {
         let path = path.map(PathBuf::from);
 
         let document = Document::new(path, format);
-        let handler = DocumentHandler::new(document.clone(), false);
+        let handler = DocumentHandler::new(document.repr(), false);
 
         self.registry
             .lock()
@@ -1212,12 +1233,12 @@ impl Documents {
         for handler in self.registry.lock().await.values() {
             let document = handler.document.lock().await;
             if document.path == path {
-                return Ok(document.clone());
+                return Ok(document.repr());
             }
         }
 
         let document = Document::open(path, format).await?;
-        let handler = DocumentHandler::new(document.clone(), true);
+        let handler = DocumentHandler::new(document.repr(), true);
         self.registry
             .lock()
             .await
@@ -1267,7 +1288,7 @@ impl Documents {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
         let topic = document_guard.subscribe(topic, client);
-        Ok((document_guard.clone(), topic))
+        Ok((document_guard.repr(), topic))
     }
 
     /// Unsubscribe a client from a topic for a document
@@ -1280,7 +1301,7 @@ impl Documents {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
         let topic = document_guard.unsubscribe(topic, client);
-        Ok((document_guard.clone(), topic))
+        Ok((document_guard.repr(), topic))
     }
 
     /// Patch a document

@@ -4,10 +4,7 @@ use crate::{
     jwt,
     pubsub::{self, subscribe, Subscriber},
     rpc::{self, Error, Protocol, Request, Response},
-    utils::{
-        keys, urls,
-        uuids::{self, Family},
-    },
+    utils::urls,
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
@@ -774,7 +771,7 @@ pub fn rewrite_html(body: &str, mode: &str, theme: &str, cwd: &Path, document: &
         mode = mode,
         // TODO: pass url from outside this function?
         url = "ws://127.0.0.1:9000/~ws",
-        client = uuids::generate(Family::Client),
+        client = uuid_utils::generate("cl"),
         project = "current",
         snapshot = "current",
         document = document.as_display().to_string(),
@@ -1084,7 +1081,7 @@ pub mod commands {
             let key = if key.is_none() {
                 match insecure {
                     true => None,
-                    false => Some(keys::generate()),
+                    false => Some(key_utils::generate()),
                 }
             } else {
                 key

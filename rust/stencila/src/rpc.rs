@@ -1,4 +1,4 @@
-use crate::{documents::DOCUMENTS, kernels::Kernel, patches::Patch, sessions::SESSIONS};
+use crate::{documents::DOCUMENTS, patches::Patch, sessions::SESSIONS};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use serde::{Deserialize, Serialize};
@@ -283,7 +283,7 @@ async fn kernels_available(params: &Params) -> Result<(serde_json::Value, Subscr
     // TODO The kernel list will be dependant upon the session
     let _id = required_string(params, "sessionId")?;
 
-    let kernels = Kernel::available().await?;
+    let kernels = kernels::available().await?;
     Ok((json!(kernels), Subscription::None))
 }
 

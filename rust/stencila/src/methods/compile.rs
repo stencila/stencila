@@ -1,12 +1,12 @@
 use crate::{
     dispatch_block, dispatch_inline, dispatch_node, dispatch_work,
-    kernels::KernelSpace,
     patches::{Address, Slot},
-    utils::{hash::str_sha256_hex, uuids},
+    utils::hash::str_sha256_hex,
 };
 use async_trait::async_trait;
 use eyre::Result;
 use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Resource};
+use kernels::KernelSpace;
 use path_utils::merge;
 use std::{
     collections::HashMap,
@@ -97,7 +97,7 @@ macro_rules! identify {
         if let Some(id) = $node.id.as_deref() {
             id.clone()
         } else {
-            let id = uuids::generate(uuids::Family::Node);
+            let id = uuid_utils::generate("no").to_string();
             $node.id = Some(Box::new(id.clone()));
             id
         }

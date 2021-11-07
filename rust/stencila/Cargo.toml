@@ -47,7 +47,7 @@ query-jmespath = ["jmespatch"]
 query-jsonptr = []
 
 default = [
-  # CLI and CLI options
+  # CLI
   "cli",
   "cli-progress",
   "cli-pretty",
@@ -64,8 +64,13 @@ default = [
   "codecs/yaml",
 
   # Parsers
-  "parsers/calc", 
-  "parsers/py", 
+  "parsers/calc",
+  "parsers/py",
+
+  # Kernels
+  "kernels/cli",
+  "kernels/calc",
+  "kernels/jupyter",
 
   "serve",
   "serve-stdio",
@@ -182,8 +187,11 @@ codecs = { path = "../codecs", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }
 graph = { path = "../graph", version = "0.0.0" }
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
+kernels = { path = "../kernels", version = "0.0.0" }
+key-utils = { path = "../key-utils", version = "0.0.0" }
 parsers = { path = "../parsers", version = "0.0.0" }
-path-utils = { path = "../path-utils", version = "0.0.0"}
+path-utils = { path = "../path-utils", version = "0.0.0" }
+uuid-utils = { path = "../uuid-utils", version = "0.0.0" }
 
 [dev-dependencies]
 criterion = "0.3.5"

@@ -13,7 +13,6 @@ use stencila::{
     config::{self, CONFIG},
     documents::{self, DOCUMENTS},
     eyre::bail,
-    kernels,
     logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
@@ -301,7 +300,7 @@ impl Run for OpenCommand {
         // Generate a key and a corresponding login URL and open browser at the login page (will
         // redirect to document page).
         let port = 9000u16;
-        let key = Some(stencila::utils::keys::generate());
+        let key = Some(key_utils::generate());
         let login_url = serve::login_url(port, key.clone(), Some(60), Some(path))?;
         #[cfg(feature = "webbrowser")]
         webbrowser::open(login_url.as_str())?;

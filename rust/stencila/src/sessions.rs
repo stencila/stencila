@@ -1,10 +1,4 @@
-use crate::{
-    pubsub::publish,
-    utils::{
-        schemas,
-        uuids::{self, Family},
-    },
-};
+use crate::{pubsub::publish, utils::schemas};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use maplit::hashset;
@@ -79,7 +73,7 @@ impl Session {
     // Create a new session for a project and snapshot
     pub fn new(project: &str, snapshot: &str) -> Session {
         Session {
-            id: uuids::generate(uuids::Family::Session),
+            id: uuid_utils::generate("se").to_string(),
             project: project.to_string(),
             snapshot: snapshot.to_string(),
             ..Default::default()
@@ -212,7 +206,7 @@ impl Sessions {
 
     /// Stop a session
     pub async fn stop(&self, id: &str) -> Result<Session> {
-        let id = uuids::assert(Family::Session, id)?;
+        let id = uuid_utils::assert("se", id.into())?.to_string();
         let mut sessions = self.sessions.write().await;
         match sessions.entry(id.clone()) {
             Entry::Occupied(entry) => {
@@ -234,7 +228,7 @@ impl Sessions {
         topic: &str,
         client: &str,
     ) -> Result<(Session, String)> {
-        let id = uuids::assert(Family::Session, id)?;
+        let id = uuid_utils::assert("se", id.into())?.to_string();
         let sessions = self.sessions.read().await;
         if let Some(session_lock) = sessions.get(&id) {
             let mut session_guard = session_lock.write().await;
@@ -255,7 +249,7 @@ impl Sessions {
         topic: &str,
         client: &str,
     ) -> Result<(Session, String)> {
-        let id = uuids::assert(Family::Session, id)?;
+        let id = uuid_utils::assert("se", id.into())?.to_string();
         let sessions = self.sessions.read().await;
         if let Some(session_lock) = sessions.get(&id) {
             let mut session_guard = session_lock.write().await;

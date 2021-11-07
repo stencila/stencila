@@ -1,6 +1,5 @@
 use crate::{
     errors::{invalid_patch_operation, invalid_patch_value},
-    kernels::KernelSpace,
     methods::compile::execute,
     utils::schemas,
 };
@@ -9,6 +8,7 @@ use derive_more::{Constructor, Deref, DerefMut};
 use eyre::{bail, Result};
 use inflector::cases::{camelcase::to_camel_case, snakecase::to_snake_case};
 use itertools::Itertools;
+use kernels::KernelSpace;
 use prelude::{invalid_address, unpointable_type};
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::de::DeserializeOwned;

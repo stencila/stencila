@@ -8,7 +8,6 @@
 pub mod conversions;
 pub mod documents;
 pub mod files;
-pub mod kernels;
 pub mod patches;
 pub mod projects;
 pub mod sessions;
