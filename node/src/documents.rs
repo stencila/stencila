@@ -40,7 +40,7 @@ pub fn get(mut cx: FunctionContext) -> JsResult<JsString> {
         match DOCUMENTS.get(id).await {
             Ok(document) => {
                 let document = &mut *document.lock().await;
-                Ok(document.clone())
+                Ok(document.repr())
             }
             Err(error) => Err(error),
         }
@@ -59,7 +59,7 @@ pub fn alter(mut cx: FunctionContext) -> JsResult<JsString> {
             Ok(document) => {
                 let document = &mut *document.lock().await;
                 document.alter(path, format).await?;
-                Ok(document.clone())
+                Ok(document.repr())
             }
             Err(error) => Err(error),
         }

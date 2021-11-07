@@ -4904,6 +4904,8 @@ dependencies = [
 name = "stencila-node"
 version = "0.123.0"
 dependencies = [
+ "formats",
+ "graph",
  "neon",
  "stencila",
 ]

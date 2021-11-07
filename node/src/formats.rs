@@ -1,6 +1,5 @@
 use crate::prelude::*;
 use neon::prelude::*;
-use stencila::formats;
 
 /// Get the module's schemas
 pub fn schemas(cx: FunctionContext) -> JsResult<JsString> {
