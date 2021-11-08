@@ -1,3 +1,14 @@
+## [0.126.1](https://github.com/stencila/stencila/compare/v0.126.0...v0.126.1) (2021-11-08)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate nom to 7.1.0 ([c064600](https://github.com/stencila/stencila/commit/c0646007c7f52be379f2fea07d3b3c63810b7297))
+* **dependencies:** update rust crate pyo3 to v0.15.0 ([c4cfa17](https://github.com/stencila/stencila/commit/c4cfa1716f8a3b1e13b16226f8c1a17674a40f23))
+* **Rust:** Turn on used features ([f81da7e](https://github.com/stencila/stencila/commit/f81da7e63ad58f9c7e8da720aa96ce2c3518dd76))
+* **tracing:** update tracing dependencies ([dcd4ce9](https://github.com/stencila/stencila/commit/dcd4ce95df3002251796dd2bf3bbf29d2707ee47))
+* **Tree-sitter:** Pin to 0.19.x ([c153852](https://github.com/stencila/stencila/commit/c1538526959b548c7f822b95117bcc9b83398dd6))
+
 # [0.126.0](https://github.com/stencila/stencila/compare/v0.125.0...v0.126.0) (2021-11-08)
 
 
