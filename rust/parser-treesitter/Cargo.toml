@@ -7,4 +7,4 @@ edition = "2021"
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
 parser = { path = "../parser", version = "0.0.0" }
 path-utils = { path = "../path-utils", version = "0.0.0" }
-tree-sitter = "0.19.5"
+tree-sitter = "=0.19.5"

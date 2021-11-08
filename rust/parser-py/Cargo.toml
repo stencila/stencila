@@ -7,7 +7,7 @@ edition = "2021"
 maplit = "1.0.2"
 once_cell = "1.8.0"
 parser-treesitter = { path = "../parser-treesitter", version = "0.0.0" }
-tree-sitter-python = { version = "0.19.0" }
+tree-sitter-python = { version = "=0.19.0" }
 
 [dev-dependencies]
 test-snaps = { path = "../test-snaps", version = "0.0.0" }
