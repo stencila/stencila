@@ -172,7 +172,6 @@
             "CHANGELOG.md",
             "package.json",
             "Cargo.lock",
-            "cli/Cargo.toml",
             "desktop/package.json",
             "desktop/package-lock.json",
             "node/package.json",
@@ -181,7 +180,9 @@
             "node/src/types.ts",
             "python/Cargo.toml",
             "r/Cargo.toml",
-            "rust/Cargo.toml"
+            "rust/Cargo.toml",
+            "web/package.json",
+            "web/package-lock.json"
           ]
         }
       ],
