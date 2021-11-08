@@ -19,20 +19,13 @@ pub mod sources;
 // may be delegated to plugins
 
 pub mod methods {
-    pub mod prelude;
-    pub use prelude::*;
-
-    pub mod import;
-
     pub mod compile;
+    pub mod import;
 }
 
 // Features
 //
 // Features that can be turned off
-
-#[cfg(feature = "plugins")]
-pub mod plugins;
 
 #[cfg(feature = "upgrade")]
 pub mod upgrade;

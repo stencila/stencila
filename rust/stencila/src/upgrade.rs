@@ -1,7 +1,4 @@
-use crate::{
-    config::CONFIG,
-    plugins::{Plugin, PLUGINS},
-};
+use crate::config::CONFIG;
 use chrono::{DateTime, Duration, Utc};
 use eyre::{bail, eyre, Result};
 use std::{fs, thread};
@@ -24,7 +21,7 @@ use std::{fs, thread};
 pub async fn upgrade(
     current_version: Option<String>,
     wanted_version: Option<String>,
-    include_plugins: bool,
+    _include_plugins: bool,
     confirm: bool,
     verbose: bool,
 ) -> Result<()> {
@@ -65,6 +62,7 @@ pub async fn upgrade(
     .join()
     .map_err(|_| eyre!("Error joining thread"))??;
 
+    #[cfg(feature = "plugins")]
     if include_plugins {
         Plugin::upgrade_all(&mut *PLUGINS.lock().await).await?;
     }

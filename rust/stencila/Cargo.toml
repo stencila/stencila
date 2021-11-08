@@ -30,13 +30,6 @@ request-http = ["reqwest", "jsonwebtoken"]
 request-stdio = []
 request-ws = ["tokio-tungstenite", "jsonwebtoken"]
 
-plugins = ["jsonschema", "semver"]
-plugins-binary = ["plugins", "self_update"]
-plugins-docker = ["plugins", "bollard"]
-plugins-javascript = ["plugins"]
-plugins-link = ["plugins"]
-plugins-python = ["plugins"]
-plugins-r = ["plugins"]
 
 upgrade = ["self_update"]
 
@@ -82,13 +75,6 @@ default = [
   "request-stdio",
   "request-ws",
   "binaries",
-  "plugins",
-  "plugins-binary",
-  "plugins-docker",
-  "plugins-link",
-  "plugins-javascript",
-  "plugins-python",
-  "plugins-r",
   "upgrade",
   "import-elife",
   "import-github",

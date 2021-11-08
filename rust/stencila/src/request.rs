@@ -1,5 +1,4 @@
 use crate::jwt;
-use crate::methods::prelude::Method;
 use crate::rpc::{Error, Response};
 use async_trait::async_trait;
 use enum_dispatch::enum_dispatch;
@@ -7,7 +6,6 @@ use eyre::{bail, eyre, Context, Result};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::env;
-use strum::VariantNames;
 use tokio::io::AsyncWriteExt;
 
 /// Trait for request clients. This allows us to use `enum_dispatch` to
@@ -67,7 +65,7 @@ impl Client {
     /// Make a JSON-RPC method call to a plugin or peer.
     pub async fn call(
         &mut self,
-        method: Method,
+        method: &str,
         params: HashMap<String, serde_json::Value>,
     ) -> Result<serde_json::Value> {
         // Construct a JSON-RPC request
@@ -340,8 +338,7 @@ pub mod commands {
         url: String,
 
         /// Method name (e.g. `convert`)
-        #[structopt(possible_values = Method::VARIANTS, case_insensitive = true)]
-        method: Method,
+        method: String,
 
         /// Method parameters (after `--`) as strings (e.g. `format=json`) or JSON (e.g. `node:='{"type":...}'`)
         #[structopt(raw(true))]
@@ -356,7 +353,7 @@ pub mod commands {
         async fn run(&self) -> Result {
             let mut client = Client::new(&self.url, self.key.clone())?;
             let params = cli_utils::args::params(&self.params);
-            let result = client.call(self.method, params).await?;
+            let result = client.call(&self.method, params).await?;
             result::value(result)
         }
     }

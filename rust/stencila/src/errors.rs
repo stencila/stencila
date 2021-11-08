@@ -1,5 +1,4 @@
 use crate::{
-    methods::Method,
     patches::{Address, Slot},
     utils::schemas,
 };
@@ -97,7 +96,7 @@ pub enum Error {
     /// `stencila plugins refresh` to fetch the manifests for the plugins.
     /// Or it may be that the method name is just plain wrong.
     #[error("None of the registered plugins implement method `{method}`")]
-    UndelegatableMethod { method: Method },
+    UndelegatableMethod { method: String },
 
     /// The user attempted to call a method that is not implemented internally
     /// and so must be delegated to a plugin. At least one of the plugins implements
@@ -105,7 +104,7 @@ pub enum Error {
     /// `decode(content, format)` which `format = 'some-unknown-format'`.
     #[error("None of the registered plugins implement method `{method}` with given parameters")]
     UndelegatableCall {
-        method: Method,
+        method: String,
         params: HashMap<String, serde_json::Value>,
     },
 
