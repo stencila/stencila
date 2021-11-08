@@ -48,7 +48,6 @@ jobs:
     condition: |
       or(
         contains(variables.changed, 'rust'),
-        contains(variables.changed, 'cli'),
         contains(variables.changed, 'node'),
         contains(variables.changed, 'desktop'),
         contains(variables.changed, 'web'),
@@ -102,7 +101,7 @@ jobs:
 
       # Rust crate is audited if there are changes in the `rust` folder and on `master`.
       # However, given that this is run at the top level is will audit all dependencies
-      # including those used by `cli`, `node` etc
+      # including those used by `node` etc
       #
       # Note: The has been disabled until the CVEs on time and chrono (which are depended upon by
       # several of our dependencies and by us directly) are sorted out.
@@ -112,21 +111,6 @@ jobs:
           cargo audit
         condition: and(false, contains(variables.changed, 'rust'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
         displayName: 'Rust: Audit'
-
-      # CLI is linted if there are changes in the `cli` folder.
-      - script: make -C cli lint
-        condition: contains(variables.changed, 'cli')
-        displayName: 'CLI: Lint'
-
-      # CLI is tested if there are changes in the `rust` or `cli` folders.
-      - script: |
-          set -e
-          cd cli
-          cargo list | grep --quiet tarpaulin || cargo install cargo-tarpaulin
-          make cover
-          bash <(curl -s https://codecov.io/bash) -F cli
-        condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'cli'))
-        displayName: 'CLI: Test'
 
       # Node.js package is tested if there are changes in the `rust` or `node` folders.
       - script: |
@@ -155,7 +139,7 @@ jobs:
           )
         displayName: 'Desktop: Test'
 
-      # Web client is tested if there are changes in the `web`, `rust` or `cli` folders
+      # Web client is tested if there are changes in the `web`, or `rust` folders
       # because it includes end-to-end tests of integrations with the Rust server.
       # Use the `--prefix` option rather than `cd web` so that the server runs from the
       # top level directory and thus allows HTTP access to fixtures.
@@ -163,8 +147,7 @@ jobs:
           set -e
           npm install --prefix web
           npm run lint --prefix web
-          cargo build --manifest-path cli/Cargo.toml
-          cargo run --manifest-path cli/Cargo.toml -- serve --insecure &
+          cargo run --manifest-path rust/stencila/Cargo.toml -- serve --insecure &
           SERVER_URL="ws://127.0.0.1:9000/~ws" npm test --prefix web
           kill %1
         condition: |
@@ -178,7 +161,7 @@ jobs:
       - script: |
           set -e
           cargo list | grep --quiet strip || cargo install cargo-strip
-          make -C cli build
+          make -C rust build
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
@@ -261,7 +244,7 @@ jobs:
       - script: |
           set -e
           cargo list | grep --quiet strip || cargo install cargo-strip
-          make -C cli build
+          make -C rust build
           codesign -s "Stencila Ltd." target/release/stencila
           codesign --display --verbose=4 target/release/stencila
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
@@ -344,7 +327,7 @@ jobs:
 
       - script: |
           cargo list | grep --quiet strip || cargo install cargo-strip
-          make -C cli build
+          make -C clrusti build
           curl -sL --output signtool.exe https://raw.githubusercontent.com/StefanKert/azuredevops-codesigning-task/efbb9cca6911aa4542e13dd876d8c913df6ff25b/task/signtool.exe
           signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f $(certificate.secureFilePath) /p $(WINDOWS_CODESIGN_PASSWORD) target/release/stencila.exe
           bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip

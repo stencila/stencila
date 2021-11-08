@@ -30,7 +30,6 @@ request-http = ["reqwest", "jsonwebtoken"]
 request-stdio = []
 request-ws = ["tokio-tungstenite", "jsonwebtoken"]
 
-
 upgrade = ["self_update"]
 
 import-elife = ["minidom"]

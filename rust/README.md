@@ -38,7 +38,7 @@ use stencila::{config, serve, tracing};
 
 ### Getting started
 
-Get started by cloning this repository and installing Cargo plugins (for linting, code coverage etc):
+Get started by cloning this repository and [installing Rust](https://rustup.rs) and necessaryCargo plugins (for linting, code coverage etc):
 
 ```sh
 git clone git@github.com:stencila/stencila
@@ -49,7 +49,7 @@ make setup
 If you are contributing code please run formatting, linting and tests before submitting PRs:
 
 ```sh
-make format lint test
+make fix test
 ```
 
 To reduce compile times, we recommend using [`sccache`](https://github.com/mozilla/sccache), e.g
@@ -58,8 +58,6 @@ To reduce compile times, we recommend using [`sccache`](https://github.com/mozil
 cargo install sccache
 export RUSTC_WRAPPER=sccache
 ```
-
-> 📢 It is likely that we will split off some of the modules (e.g. `methods/encode`) into their own sub-crate to improve compile times further.
 
 ### Testing
 

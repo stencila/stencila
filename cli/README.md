@@ -42,7 +42,7 @@ mv -f stencila ~/.local/bin/ # or wherever you prefer
 
 ## 🚀 Use
 
-Get started by consulting the built in help:
+Get started by consulting the built-in help:
 
 ```sh
 stencila help
@@ -50,19 +50,5 @@ stencila help
 
 ## 🛠️ Develop
 
-The CLI is based on the [Rust library](../rust) so you'll need to have [Rust installed](https://rustup.rs) first. Then, get started by cloning this repository and building the CLI binary:
-
-```sh
-git clone git@github.com:stencila/stencila
-cd stencila/cli
-make build
-```
-
-If you are contributing code please run formatting and linting checks before submitting PRs:
-
-```sh
-make format lint
-```
-
-See the `Makefile` in the [`../rust`](../rust) directory for tips on install necessary Cargo plugins etc.
+The CLI is developed in the [../rust](../rust) folder. See there for more details.
  
