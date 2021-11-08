@@ -1777,7 +1777,7 @@ mod tests {
     use maplit::hashmap;
 
     #[test]
-    fn document_new() {
+    fn new() {
         let doc = Document::new(None, None);
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
@@ -1798,9 +1798,9 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn document_open() -> Result<()> {
-        for file in &["articles/elife-small.json", "articles/era-plotly.json"] {
-            let doc = Document::open(fixtures().join(file), None).await?;
+    async fn open() -> Result<()> {
+        for file in &["elife-small.json", "era-plotly.json"] {
+            let doc = Document::open(fixtures().join("articles").join(file), None).await?;
             assert!(!doc.temporary);
             assert!(matches!(doc.status, DocumentStatus::Synced));
             assert_eq!(doc.format.name, "json");

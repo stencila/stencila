@@ -3,8 +3,9 @@ use std::{fs::read_to_string, path::PathBuf};
 
 /// Get the path of the home directory of this repository
 pub fn home() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../..")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")) // the crate
+        .parent().expect("Should have parent") // the `rust` dir
+        .parent().expect("Should have parent") // the `stencila` dir
         .canonicalize()
         .expect("Unable to get repository home directory")
 }
