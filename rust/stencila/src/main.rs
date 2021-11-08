@@ -536,7 +536,7 @@ pub async fn main() -> eyre::Result<()> {
     if let (false, Some(command)) = (interact, command) {
         command.print(&formats).await;
     } else {
-        #[cfg(feature = "clis-interact")]
+        #[cfg(feature = "cli-interact")]
         {
             let mut prefix: Vec<String> = args
                 .into_iter()
@@ -555,7 +555,7 @@ pub async fn main() -> eyre::Result<()> {
             std::env::set_var("STENCILA_INTERACT_MODE", "1");
             cli_utils::interact::run::<Line>(prefix, &formats, &history).await?;
         }
-        #[cfg(not(feature = "clis-interact"))]
+        #[cfg(not(feature = "cli-interact"))]
         {
             eprintln!("Compiled with `interact` feature disabled.");
             std::process::exit(exitcode::USAGE);
