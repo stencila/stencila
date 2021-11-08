@@ -3,6 +3,7 @@ use codec::{
     stencila_schema::Node,
     Codec, CodecTrait,
 };
+use codec_format::FormatCodec;
 use formats::FORMATS;
 use once_cell::sync::Lazy;
 use std::{path::Path, sync::Arc};
@@ -166,8 +167,14 @@ impl Codecs {
             ..options.unwrap_or_default()
         });
 
-        if let Some(future) = dispatch_builtins!(format.name, from_str_async, content, options) {
+        if let Some(future) =
+            dispatch_builtins!(format.name, from_str_async, content, options.clone())
+        {
             return future.await;
+        }
+
+        if let Ok(node) = FormatCodec::from_str_async(content, options).await {
+            return Ok(node);
         }
 
         bail!(
