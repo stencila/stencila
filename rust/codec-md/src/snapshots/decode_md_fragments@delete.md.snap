@@ -1,0 +1,34 @@
+---
+source: rust/codec-md/src/decode.rs
+expression: "decode_fragment(content, None)"
+input_file: fixtures/fragments/md/delete.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "Some ",
+      {
+        "type": "Delete",
+        "content": [
+          "deleted"
+        ]
+      },
+      " text."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
+      "Or ",
+      {
+        "type": "Delete",
+        "content": [
+          "like this"
+        ]
+      },
+      "."
+    ]
+  }
+]

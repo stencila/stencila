@@ -1,0 +1,9 @@
+[package]
+name = "node-transform"
+description = "Transform a Stencila document node to another node type"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec-txt = { path = "../codec-txt", version = "0.0.0" }
+stencila-schema = "1.12.0"

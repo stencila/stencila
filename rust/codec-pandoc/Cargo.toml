@@ -1,0 +1,31 @@
+[package]
+name = "codec-pandoc"
+description = "A codec for Pandoc JSON"
+version = "0.0.0"
+edition = "2021"
+
+[features]
+default = ["decode", "encode"]
+decode = ["codec-txt", "node-coerce"]
+encode = ["node-transform"]
+
+[dependencies]
+binaries = { path = "../binaries", version = "0.0.0" }
+codec = { path = "../codec", version = "0.0.0" }
+codec-json = { path = "../codec-json", version = "0.0.0" }
+codec-rpng = { path = "../codec-rpng", version = "0.0.0" }
+codec-txt = { path = "../codec-txt", version = "0.0.0", optional = true }
+formats = { path = "../formats", version = "0.0.0" }
+node-coerce = { path = "../node-coerce", version = "0.0.0", optional = true }
+node-transform = { path = "../node-transform", version = "0.0.0", optional = true }
+pandoc_types = "0.4.0"
+path-slash = "0.1.4"
+serde_json = "1.0.68"
+slug = "0.1.4"
+tempfile = "3.2.0"
+
+[dev-dependencies]
+test-props = { path = "../test-props", version = "0.0.0" }
+test-snaps = { path = "../test-snaps", version = "0.0.0" }
+test-utils = { path = "../test-utils", version = "0.0.0" }
+tokio = { version = "1.12.0", features = ["macros"] }

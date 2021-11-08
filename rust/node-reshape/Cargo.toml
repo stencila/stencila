@@ -1,0 +1,22 @@
+[package]
+name = "node-reshape"
+description = "Reshape a document by detecting, inferring, or guessing properties and content"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec", version = "0.0.0" }
+codec-date = { path = "../codec-date", version = "0.0.0" }
+codec-person = { path = "../codec-person", version = "0.0.0" }
+codec-txt = { path = "../codec-txt", version = "0.0.0" }
+defaults = "0.2.0"
+eyre = "0.6.5"
+once_cell = "1.8.0"
+regex = "1.5.4"
+stencila-schema = "1.12.0"
+utils = { path = "../utils", version = "0.0.0" }
+
+[dev-dependencies]
+serde_yaml = "0.8.21"
+test-snaps = { path = "../test-snaps", version = "0.0.0" }
+test-utils = { path = "../test-utils", version = "0.0.0" }

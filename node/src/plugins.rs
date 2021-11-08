@@ -6,9 +6,9 @@ use neon::{prelude::*, result::Throw};
 use std::str::FromStr;
 use stencila::{
     config::Config,
-    plugins::{self, Plugin, PluginInstallation, Plugins, PLUGINS},
     tokio::sync::MutexGuard,
 };
+use plugins::{self, Plugin, PluginInstallation, Plugins, PLUGINS};
 
 /// Lock the global plugins store
 pub fn lock(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Plugins>> {

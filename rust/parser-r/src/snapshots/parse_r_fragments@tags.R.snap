@@ -1,0 +1,151 @@
+---
+source: rust/parser-r/src/lib.rs
+expression: pairs
+input_file: fixtures/fragments/r/tags.R
+
+---
+[
+  [
+    {
+      "type": "Use",
+      "range": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg1"
+    }
+  ],
+  [
+    {
+      "type": "Use",
+      "range": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg2"
+    }
+  ],
+  [
+    {
+      "type": "Use",
+      "range": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pk3"
+    }
+  ],
+  [
+    {
+      "type": "Use",
+      "range": [
+        0,
+        0,
+        0,
+        29
+      ]
+    },
+    {
+      "type": "Module",
+      "language": "r",
+      "name": "pkg4"
+    }
+  ],
+  [
+    {
+      "type": "Assign",
+      "range": [
+        1,
+        0,
+        1,
+        19
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/tags.R",
+      "name": "var1",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "type": "Use",
+      "range": [
+        2,
+        0,
+        2,
+        12
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/r/tags.R",
+      "name": "var1",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "type": "Read",
+      "range": [
+        3,
+        0,
+        3,
+        21
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file1"
+    }
+  ],
+  [
+    {
+      "type": "Read",
+      "range": [
+        3,
+        0,
+        3,
+        21
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file2"
+    }
+  ],
+  [
+    {
+      "type": "Write",
+      "range": [
+        4,
+        0,
+        4,
+        20
+      ]
+    },
+    {
+      "type": "File",
+      "path": "file3"
+    }
+  ]
+]

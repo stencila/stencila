@@ -1,0 +1,42 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: encoded
+input_file: fixtures/fragments/html/table.html
+
+---
+<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <div data-itemprop="content">
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Example based on how a Pandas dat a frame is encoded to HTML in a Jupyter notebook:</p>
+    <table itemtype="http://schema.stenci.la/TableSimple" itemscope>
+      <caption>
+      </caption>
+      <tbody data-itemprop="rows">
+        <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
+          <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+          </th>
+          <th itemtype="http://schema.stenci.la/TableCell" itemscope>a</th>
+          <th itemtype="http://schema.stenci.la/TableCell" itemscope>b</th>
+          <th itemtype="http://schema.stenci.la/TableCell" itemscope>c</th>
+        </tr>
+        <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
+          <th itemtype="http://schema.stenci.la/TableCell" itemscope>0</th>
+          <td itemtype="http://schema.stenci.la/TableCell" itemscope>1</td>
+          <td itemtype="http://schema.stenci.la/TableCell" itemscope>2</td>
+          <td itemtype="http://schema.stenci.la/TableCell" itemscope>3</td>
+        </tr>
+        <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
+          <th itemtype="http://schema.stenci.la/TableCell" itemscope>1</th>
+          <td itemtype="http://schema.stenci.la/TableCell" itemscope>4</td>
+          <td itemtype="http://schema.stenci.la/TableCell" itemscope>5</td>
+          <td itemtype="http://schema.stenci.la/TableCell" itemscope>6</td>
+        </tr>
+        <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
+          <th itemtype="http://schema.stenci.la/TableCell" itemscope>2</th>
+          <td itemtype="http://schema.stenci.la/TableCell" itemscope>7</td>
+          <td itemtype="http://schema.stenci.la/TableCell" itemscope>8</td>
+          <td itemtype="http://schema.stenci.la/TableCell" itemscope>9</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</article>

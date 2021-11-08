@@ -1,0 +1,230 @@
+---
+source: rust/parser-py/src/lib.rs
+expression: pairs
+input_file: fixtures/fragments/py/writes.py
+
+---
+[
+  [
+    {
+      "type": "Assign",
+      "range": [
+        0,
+        0,
+        0,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/writes.py",
+      "name": "var1",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "type": "Write",
+      "range": [
+        0,
+        12,
+        0,
+        19
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path1"
+    }
+  ],
+  [
+    {
+      "type": "Assign",
+      "range": [
+        2,
+        0,
+        2,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/writes.py",
+      "name": "var2",
+      "kind": "Array"
+    }
+  ],
+  [
+    {
+      "type": "Write",
+      "range": [
+        3,
+        10,
+        3,
+        17
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path2"
+    }
+  ],
+  [
+    {
+      "type": "Use",
+      "range": [
+        4,
+        12,
+        4,
+        16
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/writes.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "type": "Write",
+      "range": [
+        6,
+        5,
+        6,
+        12
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path3"
+    }
+  ],
+  [
+    {
+      "type": "Write",
+      "range": [
+        8,
+        10,
+        8,
+        17
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path4"
+    }
+  ],
+  [
+    {
+      "type": "Assign",
+      "range": [
+        10,
+        4,
+        10,
+        13
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/writes.py",
+      "name": "open_func",
+      "kind": "Function"
+    }
+  ],
+  [
+    {
+      "type": "Write",
+      "range": [
+        11,
+        9,
+        11,
+        16
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/path5"
+    }
+  ],
+  [
+    {
+      "type": "Read",
+      "range": [
+        16,
+        5,
+        16,
+        11
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/read"
+    }
+  ],
+  [
+    {
+      "type": "Read",
+      "range": [
+        17,
+        5,
+        17,
+        11
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/read"
+    }
+  ],
+  [
+    {
+      "type": "Read",
+      "range": [
+        18,
+        10,
+        18,
+        16
+      ]
+    },
+    {
+      "type": "File",
+      "path": "fragments/py/read"
+    }
+  ],
+  [
+    {
+      "type": "Assign",
+      "range": [
+        22,
+        0,
+        22,
+        4
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/writes.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ],
+  [
+    {
+      "type": "Use",
+      "range": [
+        23,
+        5,
+        23,
+        9
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/py/writes.py",
+      "name": "var2",
+      "kind": ""
+    }
+  ]
+]

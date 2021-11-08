@@ -1,0 +1,12 @@
+[package]
+name = "uuid-utils"
+description = "Utility function for generating universally unique identifiers"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+eyre = "0.6.5"
+nanoid = "0.4.0"
+regex = "1.5.4"
+serde = { version = "1.0.130", features = ["derive"] }
+smartstring = { version = "0.2.9", features = ["serde"] }

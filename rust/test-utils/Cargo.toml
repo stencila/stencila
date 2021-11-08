@@ -1,0 +1,9 @@
+[package]
+name = "test-utils"
+description = "Utility functions for testing"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+pretty_assertions = "1.0.0"
+serde_json = "1.0.68"

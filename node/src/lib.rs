@@ -10,7 +10,7 @@ mod formats;
 mod graphs;
 mod logging;
 mod patches;
-mod plugins;
+// mod plugins;
 mod prelude;
 mod projects;
 mod pubsub;
@@ -55,12 +55,14 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
 
     cx.export_function("sessionsSchemas", sessions::schemas)?;
 
+    /*
     cx.export_function("pluginsSchema", plugins::schema)?;
     cx.export_function("pluginsList", plugins::list)?;
     cx.export_function("pluginsInstall", plugins::install)?;
     cx.export_function("pluginsUninstall", plugins::uninstall)?;
     cx.export_function("pluginsUpgrade", plugins::upgrade)?;
     cx.export_function("pluginsRefresh", plugins::refresh)?;
+    */
 
     cx.export_function("configSchemas", config::schema)?;
     cx.export_function("configGet", config::get)?;

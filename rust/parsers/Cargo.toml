@@ -1,0 +1,35 @@
+[package]
+name = "parsers"
+description = "The set of registered parsers, either built-in, or provided by plugins"
+version = "0.0.0"
+edition = "2021"
+
+[features]
+
+default = ["cli", "calc"]
+
+cli = ["cli-utils", "structopt"]
+
+calc = ["parser-calc"]
+js = ["parser-js"]
+py = ["parser-py"]
+r = ["parser-r"]
+ts = ["parser-ts"]
+
+[dependencies]
+
+parser = { path = "../parser", version = "0.0.0" }
+formats = { path = "../formats", version = "0.0.0" }
+once_cell = "1.8.0"
+
+cli-utils = { path = "../cli-utils", version = "0.0.0" , optional = true}
+structopt = { version = "0.3.25" , optional = true}
+
+parser-calc = { path = "../parser-calc", version = "0.0.0" , optional = true}
+parser-js = { path = "../parser-js", version = "0.0.0" , optional = true}
+parser-py = { path = "../parser-py", version = "0.0.0" , optional = true}
+parser-r = { path = "../parser-r", version = "0.0.0" , optional = true}
+parser-ts = { path = "../parser-ts", version = "0.0.0" , optional = true}
+
+[dev-dependencies]
+test-utils = { path = "../test-utils", version = "0.0.0" }

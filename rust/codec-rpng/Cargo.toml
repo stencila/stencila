@@ -1,0 +1,18 @@
+[package]
+name = "codec-rpng"
+description = "A codec for reproducible PNG images"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+base64 = "0.13.0"
+codec-json = { path = "../codec-json", version = "0.0.0" }
+codec-png = { path = "../codec-png", version = "0.0.0" }
+codec = { path = "../codec", version = "0.0.0" }
+png = "0.17.2"
+
+[dev-dependencies]
+tempfile = "3.2.0"
+test-props = { path = "../test-props", version = "0.0.0" }
+test-utils = { path = "../test-utils", version = "0.0.0" }
+tokio = { version = "1.12.0", features = ["macros"] }

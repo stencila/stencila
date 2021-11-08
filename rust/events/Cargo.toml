@@ -1,0 +1,12 @@
+[package]
+name = "events"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+eyre = "0.6.5"
+once_cell = "1.8.0"
+serde = { version = "1.0.130", features = ["derive"] }
+serde_json = "1.0.68"
+tokio = { version = "1.13.0", features = ["sync"] }
+tracing = "0.1.29"

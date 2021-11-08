@@ -1,0 +1,14 @@
+[package]
+name = "codec-yaml"
+description = "A codec for YAML"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec", version = "0.0.0" }
+node-coerce = { path = "../node-coerce", version = "0.0.0" }
+serde_yaml = "0.8.21"
+
+[dev-dependencies]
+test-props = { path = "../test-props", version = "0.0.0" }
+test-utils = { path = "../test-utils", version = "0.0.0" }

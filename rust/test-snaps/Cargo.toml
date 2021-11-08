@@ -1,0 +1,9 @@
+[package]
+name = "test-snaps"
+description = "Utility functions for snapshot testing"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+insta = { version = "1.8.0", features = ["glob"] }
+test-utils = { path = "../test-utils", version = "0.0.0" }

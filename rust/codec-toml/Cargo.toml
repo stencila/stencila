@@ -1,0 +1,14 @@
+[package]
+name = "codec-toml"
+description = "A codec for TOML"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec = { path = "../codec", version = "0.0.0" }
+node-coerce = { path = "../node-coerce", version = "0.0.0" }
+toml = "0.5.8"
+
+[dev-dependencies]
+test-props = { path = "../test-props", version = "0.0.0" }
+test-utils = { path = "../test-utils", version = "0.0.0" }

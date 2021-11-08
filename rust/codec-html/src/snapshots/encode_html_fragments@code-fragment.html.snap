@@ -1,0 +1,13 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: encoded
+input_file: fixtures/fragments/html/code-fragment.html
+
+---
+<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <div data-itemprop="content">
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Some<code itemtype="http://schema.stenci.la/CodeFragment" itemscope>code</code>in a paragraph.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>With a language<code itemtype="http://schema.stenci.la/CodeFragment" itemscope  class="language-python">
+        <meta itemprop="programmingLanguage" content="python"/>1 + 1</code>specified.</p>
+  </div>
+</article>
