@@ -4385,6 +4385,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "provider"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "serde",
+]
+
+[[package]]
+name = "provider-elife"
+version = "0.0.0"
+dependencies = [
+ "provider",
+]
+
+[[package]]
+name = "provider-github"
+version = "0.0.0"
+dependencies = [
+ "provider",
+]
+
+[[package]]
+name = "providers"
+version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "once_cell",
+ "provider",
+ "provider-elife",
+ "provider-github",
+ "structopt",
+ "test-utils",
+]
+
+[[package]]
 name = "pulldown-cmark"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
