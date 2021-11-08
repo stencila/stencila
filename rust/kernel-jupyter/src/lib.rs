@@ -218,7 +218,7 @@ impl JupyterKernel {
                 if path.exists() {
                     let name = dir.file_name().to_string_lossy().to_string();
                     let kernel = JupyterKernel::read(&name, &path).await?;
-                    list.push(kernel.language)
+                    list.push(kernel.language.to_lowercase())
                 }
             }
         }
@@ -826,7 +826,7 @@ impl KernelTrait for JupyterKernel {
             shell_socket,
             iopub_sender,
             ..
-        } = self.details.as_mut().expect("Should be started");
+        } = self.details.as_mut().expect("Should be started already");
 
         let socket = shell_socket.lock().await;
 
