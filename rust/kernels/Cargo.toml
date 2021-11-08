@@ -18,7 +18,7 @@ derive_more = "0.99.16"
 graph-triples = {path = "../graph-triples", version = "0.0.0"}
 kernel = {path = "../kernel", version = "0.0.0"}
 serde = "1.0.130"
-serde_json = "1.0.68"
+serde_json = "1.0.69"
 tracing = "0.1.29"
 validator = "0.14.0"
 

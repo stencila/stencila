@@ -12,7 +12,7 @@ path-slash = "0.1.4"
 petgraph = { version = "0.6.0", features = ["serde-1"] }
 schemars = { version = "0.8.6", features = ["preserve_order"] }
 serde = "1.0.130"
-serde_json = { version = "1.0.68", features = ["preserve_order"] }
+serde_json = { version = "1.0.69", features = ["preserve_order"] }
 serde_with = "1.11.0"
 strum = { version = "0.22.0", features = ["derive"] }
 utils = { path = "../utils", version = "0.0.0" }

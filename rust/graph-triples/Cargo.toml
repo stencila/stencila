@@ -9,5 +9,5 @@ eyre = "0.6.5"
 path-slash = "0.1.4"
 schemars = { version = "0.8.6", features = ["preserve_order"] }
 serde = "1.0.130"
-serde_json = { version = "1.0.68", features = ["preserve_order"] }
+serde_json = { version = "1.0.69", features = ["preserve_order"] }
 strum = { version = "0.22.0", features = ["derive"] }
