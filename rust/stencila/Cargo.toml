@@ -15,7 +15,7 @@ edition = "2018"
 [features]
 
 cli = ["cli-utils", "structopt", "binaries/cli", "codecs/cli"]
-cli-pretty = ["cli-utils/pretty"]
+cli-pretty = ["cli-utils/pretty", "ansi_term"]
 cli-progress = ["cli-utils/progress"]
 cli-interact = ["cli-utils/interact"]
 
