@@ -195,11 +195,6 @@ path-utils = { path = "../path-utils", version = "0.0.0" }
 uuid-utils = { path = "../uuid-utils", version = "0.0.0" }
 
 [dev-dependencies]
-criterion = "0.3.5"
 insta = { version = "1.8.0", features = ["glob"] }
 pretty_assertions = "1.0.0"
 proptest = "1.0.0"
-
-[[bench]]
-harness = false
-name = "compile_code"
