@@ -148,14 +148,17 @@ jobs:
 
       # Web client is tested if there are changes in the `web`, or `rust` folders
       # because it includes end-to-end tests of integrations with the Rust server.
+      # Starts the build / running of the server in the background while it does install
+      # linting etc. Then waits for the port to open before running tests.
       # Use the `--prefix` option rather than `cd web` so that the server runs from the
       # top level directory and thus allows HTTP access to fixtures.
       - script: |
           set -e
+          cargo run --manifest-path rust/stencila/Cargo.toml -- serve :9000 --insecure &
           make -C node build-ts
           npm install --prefix web
           npm run lint --prefix web
-          cargo run --manifest-path rust/stencila/Cargo.toml -- serve --insecure &
+          while ! echo exit | nc 127.0.0.1 9000; do sleep 5; done
           SERVER_URL="ws://127.0.0.1:9000/~ws" npm test --prefix web
           kill %1
         condition: |
