@@ -1,4 +1,4 @@
-all: format lint cover audit build docs
+all: fix lint cover audit build docs
 
 setup:
 	# Install cargo plugins
@@ -14,19 +14,19 @@ setup:
 	rustup toolchain install nightly
 
 fix:
-	cargo fmt
-	cargo clippy --tests --fix --allow-dirty
+	cargo fmt --all
+	cargo clippy --tests --fix --allow-dirty --all --exclude stencila-node
 
 lint:
-	cargo clippy --tests
+	cargo clippy --tests --all --exclude stencila-node
 
 test:
-	cargo test
+	cargo test --all --exclude stencila-node
 
 cover:
 	cargo tarpaulin --ignore-tests --exclude-files tests/* \
 	  --out Xml --out Html --output-dir coverage \
-	  --timeout 600
+	  --timeout 600 --all --exclude stencila-node
 
 audit:
 	cargo +nightly udeps

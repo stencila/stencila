@@ -95,12 +95,7 @@ jobs:
         displayName: 'Rust: Lint'
 
       # Rust crate is tested if there are changes in the `rust` folder.
-      - script: |
-          set -e
-          cd rust
-          cargo list | grep --quiet tarpaulin || cargo install cargo-tarpaulin
-          make cover
-          bash <(curl -s https://codecov.io/bash) -F rust
+      - script: make -C rust test
         condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
