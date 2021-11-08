@@ -1,5 +1,6 @@
-use crate::{pubsub::publish, utils::schemas};
+use crate::utils::schemas;
 use defaults::Defaults;
+use events::publish;
 use eyre::{bail, Result};
 use maplit::hashset;
 use once_cell::sync::Lazy;

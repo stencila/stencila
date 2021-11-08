@@ -2,13 +2,13 @@ use crate::{
     errors::attempt,
     methods::compile::compile,
     patches::{diff, merge, resolve, Address, Patch, Pointer},
-    pubsub::publish,
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
         schemas,
     },
 };
 use defaults::Defaults;
+use events::publish;
 use eyre::{bail, Result};
 use formats::{Format, FORMATS};
 use graph_triples::{Relation, Resource};

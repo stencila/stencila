@@ -366,8 +366,7 @@ impl GraphEvent {
             type_,
             graph: graph.clone(),
         };
-        // TODO Reinstate
-        //publish(topic, &event)
+        events::publish(topic, &event)
     }
 }
 

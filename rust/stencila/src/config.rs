@@ -1,10 +1,9 @@
 use crate::{
-    logging, projects,
-    pubsub::publish,
-    telemetry,
+    logging, projects, telemetry,
     utils::{json, schemas},
 };
 use defaults::Defaults;
+use events::publish;
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};

@@ -1635,7 +1635,12 @@ checksum = "f7531096570974c3a9dcf9e4b8e1cede1ec26cf5046219fb3b9d897503b9be59"
 name = "events"
 version = "0.0.0"
 dependencies = [
+ "eyre",
+ "once_cell",
  "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -2050,6 +2055,7 @@ name = "graph"
 version = "0.0.0"
 dependencies = [
  "derivative",
+ "events",
  "eyre",
  "graph-triples",
  "path-slash",
@@ -4825,6 +4831,7 @@ dependencies = [
  "derive_more",
  "dirs-next",
  "enum_dispatch",
+ "events",
  "exitcode",
  "eyre",
  "formats",

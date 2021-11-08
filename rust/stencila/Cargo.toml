@@ -184,6 +184,7 @@ codec-html = { path = "../codec-html", version = "0.0.0" }
 codec-ipynb = { path = "../codec-ipynb", version = "0.0.0" }
 codec-txt = { path = "../codec-txt", version = "0.0.0" }
 codecs = { path = "../codecs", version = "0.0.0" }
+events = { path = "../events", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }
 graph = { path = "../graph", version = "0.0.0" }
 graph-triples = { path = "../graph-triples", version = "0.0.0" }

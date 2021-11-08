@@ -3,7 +3,7 @@ use neon::prelude::*;
 use std::sync::{Mutex, MutexGuard};
 use stencila::{
     once_cell::sync::{Lazy, OnceCell},
-    pubsub, serde_json,
+    serde_json,
 };
 
 /// The Neon event queue to which published events will be sent
@@ -104,7 +104,7 @@ pub fn bridging_subscriber(topic: String, data: serde_json::Value) {
 /// Initialize the pubsub module by registering the `bridging_subscriber`
 /// as a subscriber to all topics.
 pub fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    if let Err(error) = pubsub::subscribe("*", pubsub::Subscriber::Function(bridging_subscriber)) {
+    if let Err(error) = events::subscribe("*", events::Subscriber::Function(bridging_subscriber)) {
         return cx.throw_error(format!(
             "While attempting to initialize pubsub: {}",
             error.to_string()

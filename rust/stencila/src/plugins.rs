@@ -1,12 +1,12 @@
 use crate::{
     errors::Error,
     methods::Method,
-    pubsub::{publish_progress, ProgressEvent},
     request::{Client, ClientStdio},
     utils::{self, schemas},
 };
 use bollard::{container::RemoveContainerOptions, models::CreateImageInfo};
 use chrono::{DateTime, Duration, TimeZone, Utc};
+use events::ProgressEvent;
 use eyre::{bail, eyre, Result};
 use futures::StreamExt;
 use humantime::format_duration;
@@ -875,11 +875,14 @@ impl Plugin {
             image,
             chrono::Utc::now().timestamp()
         ));
-        publish_progress(ProgressEvent {
-            id: parent.clone(),
-            message: Some(format!("Downloading Docker image {}", image)),
-            ..Default::default()
-        });
+        events::publish(
+            "progress",
+            ProgressEvent {
+                id: parent.clone(),
+                message: Some(format!("Downloading Docker image {}", image)),
+                ..Default::default()
+            },
+        );
         while let Some(item) = stream.next().await {
             match item {
                 Ok(info) => {
@@ -927,14 +930,17 @@ impl Plugin {
                             };
 
                         if id.is_some() || message.is_some() {
-                            publish_progress(ProgressEvent {
-                                parent: parent.clone(),
-                                id,
-                                message,
-                                current,
-                                expected,
-                                ..Default::default()
-                            })
+                            events::publish(
+                                "progress",
+                                ProgressEvent {
+                                    parent: parent.clone(),
+                                    id,
+                                    message,
+                                    current,
+                                    expected,
+                                    ..Default::default()
+                                },
+                            )
                         }
                     }
                 }

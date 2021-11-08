@@ -54,7 +54,6 @@ pub mod rpc;
 pub mod config;
 pub mod errors;
 pub mod logging;
-pub mod pubsub;
 pub mod telemetry;
 
 // Utilities

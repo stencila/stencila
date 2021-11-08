@@ -2,11 +2,11 @@ use crate::{
     config::CONFIG,
     documents::DOCUMENTS,
     jwt,
-    pubsub::{self, subscribe, Subscriber},
     rpc::{self, Error, Protocol, Request, Response},
     utils::urls,
 };
 use defaults::Defaults;
+use events::{subscribe, Subscriber};
 use eyre::{bail, Result};
 use futures::{SinkExt, StreamExt};
 use itertools::Itertools;
@@ -181,7 +181,7 @@ impl Clients {
     pub fn new() -> Self {
         let clients = Clients::default();
 
-        let (sender, receiver) = mpsc::unbounded_channel::<pubsub::Message>();
+        let (sender, receiver) = mpsc::unbounded_channel::<events::Message>();
         subscribe("*", Subscriber::Sender(sender)).unwrap();
         tokio::spawn(Clients::publish(clients.clients.clone(), receiver));
 
@@ -252,7 +252,7 @@ impl Clients {
     /// clients based in their subscriptions.
     async fn publish(
         clients: Arc<RwLock<HashMap<String, Client>>>,
-        receiver: mpsc::UnboundedReceiver<pubsub::Message>,
+        receiver: mpsc::UnboundedReceiver<events::Message>,
     ) {
         let mut receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(receiver);
         while let Some((topic, event)) = receiver.next().await {

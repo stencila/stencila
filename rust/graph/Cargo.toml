@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 derivative = "2.2.0"
 eyre = "0.6.5"
+events = { path = "../events", version = "0.0.0" }
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
 path-slash = "0.1.4"
 petgraph = { version = "0.6.0", features = ["serde-1"] }

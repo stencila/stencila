@@ -1,4 +1,4 @@
-use crate::pubsub::publish;
+use events::publish;
 use eyre::Result;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
