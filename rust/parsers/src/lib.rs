@@ -5,8 +5,8 @@ use parser::{
     graph_triples::{Pairs, Relation},
     Parser, ParserTrait,
 };
-use std::path::Path;
 use std::sync::Arc;
+use std::{collections::BTreeMap, path::Path};
 
 // Re-exports for convenience elsewhere
 pub use parser::ParseOptions;
@@ -24,7 +24,7 @@ static PARSERS: Lazy<Arc<Parsers>> = Lazy::new(|| Arc::new(Parsers::new()));
 
 /// A set of registered parsers, either built-in, or provided by plugins
 struct Parsers {
-    inner: Vec<Parser>,
+    inner: BTreeMap<String, Parser>,
 }
 
 /// A macro to dispatch methods to builtin parsers
@@ -53,16 +53,19 @@ impl Parsers {
     pub fn new() -> Self {
         let inner = vec![
             #[cfg(feature = "calc")]
-            parser_calc::CalcParser::spec(),
+            ("calc", parser_calc::CalcParser::spec()),
             #[cfg(feature = "js")]
-            parser_js::JsParser::spec(),
+            ("js", parser_js::JsParser::spec()),
             #[cfg(feature = "py")]
-            parser_py::PyParser::spec(),
+            ("py", parser_py::PyParser::spec()),
             #[cfg(feature = "r")]
-            parser_r::RParser::spec(),
+            ("r", parser_r::RParser::spec()),
             #[cfg(feature = "ts")]
-            parser_ts::TsParser::spec(),
-        ];
+            ("ts", parser_ts::TsParser::spec()),
+        ]
+        .into_iter()
+        .map(|(label, parser)| (label.to_string(), parser))
+        .collect();
 
         Self { inner }
     }
@@ -70,15 +73,15 @@ impl Parsers {
     /// List the available parsers
     fn list(&self) -> Vec<String> {
         self.inner
-            .iter()
-            .map(|spec| spec.language.clone())
-            .collect()
+            .keys()
+            .into_iter()
+            .cloned()
+            .collect::<Vec<String>>()
     }
 
     /// Get a parser by label
     fn get(&self, label: &str) -> Result<Parser> {
-        let index = label.parse::<usize>()?;
-        match self.inner.get(index) {
+        match self.inner.get(label) {
             Some(parser) => Ok(parser.clone()),
             None => bail!("No parser with label `{}`", label),
         }
