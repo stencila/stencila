@@ -58,6 +58,8 @@ test('basic', async () => {
   )
 
   // The above subscription should fire an `updated` event
+  // Sleep for a little to allow it to be propagated.
+  await new Promise<void>((resolve) => setTimeout(resolve, 100))
   expect(updates).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
