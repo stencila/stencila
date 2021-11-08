@@ -87,6 +87,28 @@ enum MetaKernel {
     Jupyter(kernel_jupyter::JupyterKernel),
 }
 
+impl MetaKernel {
+    async fn new(language: &str) -> Result<Self> {
+        let kernel = match language {
+            #[cfg(feature = "store")]
+            "none" | "" => MetaKernel::Store(kernel_store::StoreKernel::new()),
+
+            #[cfg(feature = "calc")]
+            "calc" => MetaKernel::Calc(kernel_calc::CalcKernel::new()),
+
+            #[cfg(feature = "jupyter")]
+            _ => MetaKernel::Jupyter(kernel_jupyter::JupyterKernel::new(language).await?),
+
+            #[cfg(not(feature = "jupyter"))]
+            _ => kernel::eyre::bail!(
+                "Unable to create an execution kernel for language `{}` because support for Jupyter kernels is not enabled",
+                language
+            ),
+        };
+        Ok(kernel)
+    }
+}
+
 macro_rules! dispatch_builtins {
     ($var:expr, $method:ident $(,$arg:expr)*) => {
         match $var {
@@ -104,6 +126,14 @@ macro_rules! dispatch_builtins {
 impl KernelTrait for MetaKernel {
     fn spec(&self) -> Kernel {
         dispatch_builtins!(self, spec)
+    }
+
+    async fn start(&mut self) -> Result<()> {
+        dispatch_builtins!(self, start).await
+    }
+
+    async fn stop(&mut self) -> Result<()> {
+        dispatch_builtins!(self, stop).await
     }
 
     async fn status(&self) -> Result<KernelStatus> {
@@ -156,6 +186,7 @@ pub struct KernelSpace {
 }
 
 impl KernelSpace {
+    /// Create a new kernel space
     pub fn new() -> Self {
         Self::default()
     }
@@ -344,24 +375,22 @@ impl KernelSpace {
 
     /// Start a kernel for a language
     async fn start(&mut self, language: &str) -> Result<KernelId> {
-        let kernel_id = KernelId::new();
-        let mut kernel = match language {
-            #[cfg(feature = "store")]
-            "none" | "" => MetaKernel::Store(kernel_store::StoreKernel::new()),
-
-            #[cfg(feature = "calc")]
-            "calc" => MetaKernel::Calc(kernel_calc::CalcKernel::new()),
-
-            #[cfg(feature = "jupyter")]
-            _ => MetaKernel::Jupyter(kernel_jupyter::JupyterKernel::new(language).await?),
-
-            #[cfg(not(feature = "jupyter"))]
-            _ => kernel::eyre::bail!(
-                "Unable to create an execution kernel for language `{}` because support for Jupyter kernels is not enabled",
-                language
-            ),
-        };
+        let mut kernel = MetaKernel::new(language).await?;
         kernel.start().await?;
+
+        // Generate the kernel id from the kernel's language, adding a numeric suffix if necessary
+        let language = kernel.spec().language;
+        let count = self
+            .kernels
+            .keys()
+            .filter(|key| key.starts_with(&language))
+            .count();
+        let kernel_id = if count == 0 {
+            language
+        } else {
+            [language, count.to_string()].concat()
+        };
+
         self.kernels.insert(kernel_id.clone(), kernel);
 
         Ok(kernel_id)
