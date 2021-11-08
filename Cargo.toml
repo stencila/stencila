@@ -1,9 +1,18 @@
 [workspace]
 
-# Python and R binding are not added as members here yet until more developed
+# DO not include Python and R binding until more developed
 members = ["rust/*", "node"]
-# Rust crates needing work before they will compile
-exclude = ["rust/plugins"]
+
+# Exlcude rust crates in alpha status needing work before they will compile and/or pass tests
+exclude = [
+    "rust/codec-docx",
+    "rust/codec-latex",
+    "rust/codec-pandoc",
+    "rust/codec-pdf",
+    "rust/codec-png",
+    "rust/codec-rpng",
+    "rust/plugins",
+]
 
 [profile.release]
 # Settings that help reduce the binary size based on https://github.com/johnthagen/min-sized-rust
