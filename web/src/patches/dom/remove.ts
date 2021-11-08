@@ -18,8 +18,6 @@ import { resolveParent, resolveSlot } from './resolve'
 export function applyRemove(op: OperationRemove, target?: ElementId): void {
   const { address, items } = op
 
-  // if (resolveReceiver(address, op)) return
-
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {

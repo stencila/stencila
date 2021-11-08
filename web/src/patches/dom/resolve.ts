@@ -1,5 +1,4 @@
-import { Address, Operation, Slot } from '@stencila/stencila'
-import { StencilaElement } from '../../components/base'
+import { Address, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
 import { assertElement, isElement, isName, isText, panic } from '../checks'
 
@@ -170,41 +169,6 @@ export function resolveNode(
   }
 
   return node
-}
-
-/**
- * Resolve the DOM Element that should receive an operation.
- *
- * Searches along the address for a `<stencila-*>` element
- * that will receive the operation. If such an element is
- * found returns `true` (in which case any further handling of the
- * operation should probably be avoided).
- */
-export function resolveReceiver(
-  address: Address,
-  op: Operation,
-  target?: ElementId
-): boolean {
-  let node: Element | Attr | Text = resolveTarget(target)
-
-  let index = 0
-  while (isElement(node)) {
-    const parent = node.parentElement
-    if (parent?.tagName.toLowerCase().startsWith('stencila-')) {
-      const elem = parent as StencilaElement
-      if (elem.receiveOperation(op)) return true
-    }
-
-    const slot = address[index]
-    if (slot === undefined) {
-      break
-    }
-    node = resolveSlot(node, slot)
-
-    index++
-  }
-
-  return false
 }
 
 /**

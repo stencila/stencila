@@ -1,10 +1,5 @@
 import { Node } from 'prosemirror-model'
-import {
-  isArray,
-  isObject,
-  JsonObject,
-  JsonValue,
-} from '../../../patches/checks'
+import { isArray, isObject, JsonObject, JsonValue } from '../../patches/checks'
 import { articleMarks } from './schema'
 
 /**

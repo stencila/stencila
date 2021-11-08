@@ -9,9 +9,8 @@ import { DOMParser, Mark, Node, ResolvedPos, Slice } from 'prosemirror-model'
 import { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, Step } from 'prosemirror-transform'
 import { EditorView } from 'prosemirror-view'
-import { isNumber, JsonValue } from '../../../patches/checks'
-import { applyPatch, diff } from '../../../patches/json'
-import { stencilaElement, StencilaElement } from '../../base'
+import { isNumber, JsonValue } from '../../patches/checks'
+import { applyPatch, diff } from '../../patches/json'
 import { prosemirrorToStencila } from './convert'
 import { articleInputRules } from './inputRules'
 import { articleKeymap } from './keymap'
@@ -68,9 +67,7 @@ interface _RemoveMarkStepInterface extends Step {
   mark: Mark
 }
 
-export class Article extends StencilaElement {
-  initialized = false
-
+export class ArticleEditor {
   version = 0
 
   doc?: Node
@@ -79,22 +76,15 @@ export class Article extends StencilaElement {
 
   view?: EditorView
 
-  static hydrate(): void {
-    StencilaElement.hydrate(this, 'http://schema.org/Article')
-  }
-
-  /**
-   * Initialize the custom element by parsing the `<article>` in the `<slot>`,
-   * rendering the editor as a child of this element, and hiding (or removing)
-   * the original `<article>` element.
-   */
-  initialize(): void {
-    // Avoid recursion triggered by slotchange event
-    if (this.initialized) return
-    this.initialized = true
-
+  constructor() {
     // Get the source <article> element and hide it
-    const sourceElem = this.getSlot(0)
+    const sourceElem = document.querySelector<HTMLElement>(
+      '[itemtype="http://schema.org/Article"]'
+    )
+    if (sourceElem === null) {
+      console.warn('Did not find an article on the page')
+      return
+    }
     sourceElem.style.display = 'none'
 
     // Parse the source into a document and hold onto it
@@ -133,7 +123,7 @@ export class Article extends StencilaElement {
     editorElem.setAttribute('data-itemscope', 'root')
     editorElem.setAttribute('itemtype', 'http://schema.org/Article')
     editorElem.setAttribute('itemscope', '')
-    this.appendChild(editorElem)
+    sourceElem.parentElement?.appendChild(editorElem)
 
     // Render the editor view
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -217,7 +207,7 @@ export class Article extends StencilaElement {
       }
     }
 
-    this.sendPatch({ ops })
+    window.dispatchEvent(new CustomEvent('patched', { detail: { ops } }))
 
     this.version = this.version + steps.length
 
@@ -423,4 +413,4 @@ export class Article extends StencilaElement {
   }
 }
 
-stencilaElement('stencila-article')(Article)
+window.addEventListener('load', () => new ArticleEditor())
