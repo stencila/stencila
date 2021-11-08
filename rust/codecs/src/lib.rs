@@ -6,7 +6,7 @@ use codec::{
 use codec_format::FormatCodec;
 use formats::FORMATS;
 use once_cell::sync::Lazy;
-use std::{path::Path, sync::Arc};
+use std::{collections::BTreeMap, path::Path, sync::Arc};
 
 // Re-exports for convenience elsewhere
 pub use codec::{DecodeOptions, EncodeOptions};
@@ -55,7 +55,7 @@ static CODECS: Lazy<Arc<Codecs>> = Lazy::new(|| Arc::new(Codecs::new()));
 
 /// A set of registered codecs, either built-in, or provided by plugins
 struct Codecs {
-    inner: Vec<Codec>,
+    inner: BTreeMap<String, Codec>,
 }
 
 /// A macro to dispatch methods to builtin codecs
@@ -102,53 +102,59 @@ macro_rules! dispatch_builtins {
 }
 
 impl Codecs {
+    /// Create a new codec registry
     pub fn new() -> Self {
         let inner = vec![
             #[cfg(feature = "date")]
-            codec_date::DateCodec::spec(),
+            ("date", codec_date::DateCodec::spec()),
             #[cfg(feature = "docx")]
-            codec_docx::DocxCodec::spec(),
+            ("docx", codec_docx::DocxCodec::spec()),
             #[cfg(feature = "html")]
-            codec_html::HtmlCodec::spec(),
+            ("html", codec_html::HtmlCodec::spec()),
             #[cfg(feature = "ipynb")]
-            codec_ipynb::IpynbCodec::spec(),
+            ("ipynb", codec_ipynb::IpynbCodec::spec()),
             #[cfg(feature = "json")]
-            codec_json::JsonCodec::spec(),
+            ("json", codec_json::JsonCodec::spec()),
             #[cfg(feature = "json5")]
-            codec_json5::Json5Codec::spec(),
+            ("json5", codec_json5::Json5Codec::spec()),
             #[cfg(feature = "latex")]
-            codec_latex::LatexCodec::spec(),
+            ("latex", codec_latex::LatexCodec::spec()),
             #[cfg(feature = "pandoc")]
-            codec_pandoc::PandocCodec::spec(),
+            ("pandoc", codec_pandoc::PandocCodec::spec()),
             #[cfg(feature = "person")]
-            codec_person::PersonCodec::spec(),
+            ("person", codec_person::PersonCodec::spec()),
             #[cfg(feature = "md")]
-            codec_md::MdCodec::spec(),
+            ("md", codec_md::MdCodec::spec()),
             #[cfg(feature = "rmd")]
-            codec_rmd::RmdCodec::spec(),
+            ("rmd", codec_rmd::RmdCodec::spec()),
             #[cfg(feature = "rpng")]
-            codec_rpng::RpngCodec::spec(),
+            ("rpng", codec_rpng::RpngCodec::spec()),
             #[cfg(feature = "toml")]
-            codec_toml::TomlCodec::spec(),
+            ("toml", codec_toml::TomlCodec::spec()),
             #[cfg(feature = "txt")]
-            codec_txt::TxtCodec::spec(),
+            ("txt", codec_txt::TxtCodec::spec()),
             #[cfg(feature = "yaml")]
-            codec_yaml::YamlCodec::spec(),
-        ];
+            ("yaml", codec_yaml::YamlCodec::spec()),
+        ]
+        .into_iter()
+        .map(|(label, codec)| (label.to_string(), codec))
+        .collect();
 
         Self { inner }
     }
 
+    /// List all the codecs
     fn list(&self) -> Vec<String> {
         self.inner
-            .iter()
-            .map(|spec| spec.formats.first().unwrap().clone())
-            .collect()
+            .keys()
+            .into_iter()
+            .cloned()
+            .collect::<Vec<String>>()
     }
 
+    /// Get the codec with the given id
     fn get(&self, label: &str) -> Result<Codec> {
-        let index = label.parse::<usize>()?;
-        match self.inner.get(index) {
+        match self.inner.get(label) {
             Some(codec) => Ok(codec.clone()),
             None => bail!("No codec with label `{}`", label),
         }
