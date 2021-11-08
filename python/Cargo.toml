@@ -1,6 +1,6 @@
 [package]
 name = "stencila-python"
-version = "0.125.0"
+version = "0.126.0"
 edition = "2018"
 
 [lib]
