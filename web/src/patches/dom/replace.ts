@@ -12,6 +12,7 @@ import {
 } from '../checks'
 import { createFragment, resolveParent, resolveSlot } from './resolve'
 import { applyReplace as applyReplaceString } from '../string'
+import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
 
 /**
  * Apply a replace operation
@@ -25,7 +26,10 @@ export function applyReplace(op: OperationReplace, target?: ElementId): void {
   if (isElement(parent)) {
     if (isName(slot)) applyReplaceOption(parent, slot, items, html)
     else applyReplaceVec(parent, slot, items, html)
-  } else applyReplaceText(parent, slot, items, html)
+  } else {
+    assertString(op.value)
+    applyReplaceText(parent, slot, items, op.value)
+  }
 }
 
 /**
@@ -90,12 +94,12 @@ export function applyReplaceText(
   node: Attr | Text,
   slot: Slot,
   items: number,
-  html: string
+  value: string
 ): void {
-  node.textContent = applyReplaceString(
-    node.textContent ?? '',
-    slot,
-    items,
-    html
-  )
+  const current = node.textContent ?? ''
+  const unescaped = isAttr(node) ? unescapeAttr(current) : unescapeHtml(current)
+  const updated = applyReplaceString(unescaped, slot, items, value)
+  // It seems that, because setting textContent (?), it is not necessary to escape innerHTML
+  const escaped = isAttr(node) ? escapeAttr(updated) : updated
+  node.textContent = escaped
 }

@@ -4,11 +4,13 @@ import {
   assertIndex,
   assertName,
   assertString,
+  isAttr,
   isElement,
   isName,
   panic,
 } from '../checks'
 import { applyAdd as applyAddString } from '../string'
+import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
 import { createFragment, resolveParent } from './resolve'
 
 /**
@@ -24,7 +26,8 @@ export function applyAdd(op: OperationAdd, target?: ElementId): void {
     if (isName(slot)) applyAddOption(parent, slot, html)
     else applyAddVec(parent, slot, html)
   } else {
-    applyAddText(parent, slot, html)
+    assertString(op.value)
+    applyAddText(parent, slot, op.value)
   }
 }
 
@@ -84,7 +87,12 @@ export function applyAddVec(node: Element, slot: Slot, html: string): void {
 export function applyAddText(
   node: Text | Attr,
   slot: Slot,
-  html: string
+  value: string
 ): void {
-  node.textContent = applyAddString(node.textContent ?? '', slot, html)
+  const current = node.textContent ?? ''
+  const unescaped = isAttr(node) ? unescapeAttr(current) : unescapeHtml(current)
+  const updated = applyAddString(unescaped, slot, value)
+  // It seems that, because setting textContent (?), it is not necessary to escape innerHTML
+  const escaped = isAttr(node) ? escapeAttr(updated) : updated
+  node.textContent = escaped
 }

@@ -10,6 +10,7 @@ import {
   panic,
 } from '../checks'
 import { applyRemove as applyRemoveString } from '../string'
+import { unescapeAttr, unescapeHtml } from './escape'
 import { resolveParent, resolveSlot } from './resolve'
 
 /**
@@ -77,5 +78,8 @@ export function applyRemoveText(
   slot: Slot,
   items: number
 ): void {
-  node.textContent = applyRemoveString(node.textContent ?? '', slot, items)
+  const current = node.textContent ?? ''
+  const unescaped = isAttr(node) ? unescapeAttr(current) : unescapeHtml(current)
+  const updated = applyRemoveString(unescaped, slot, items)
+  node.textContent = updated
 }
