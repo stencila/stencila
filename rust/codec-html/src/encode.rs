@@ -149,6 +149,14 @@ pub trait ToHtml {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String;
 }
 
+/// Create an empty string
+///
+/// Just used to make it clear that not encoding anything to HTML (usually
+/// because a property is missing).
+fn nothing() -> String {
+    String::new()
+}
+
 /// Encode a HTML element
 ///
 /// Use this function for creating HTML strings for elements.
@@ -184,6 +192,14 @@ fn elem_empty(name: &str, attrs: &[String]) -> String {
     .concat()
 }
 
+/// Encode a `<meta>` attribute
+///
+/// This is used to encode simple, usually string, properties of nodes as HTML Microdata
+/// when the property should not be visible, or is represented some other way.
+fn elem_meta(name: &str, content: &str) -> String {
+    elem_empty("meta", &[attr_itemprop(name), attr("content", content)])
+}
+
 /// Encode a HTML element attribute, ensuring that the value is escaped correctly
 fn attr(name: &str, value: &str) -> String {
     [
@@ -217,7 +233,7 @@ fn attr_prop(name: &str) -> String {
 fn attr_itemtype_str(name: &str) -> String {
     let itemtype = match name {
         // TODO: complete list of schema.org types
-        "Article" | "AudioObject" | "ImageObject" | "VideoObject" => {
+        "Article" | "AudioObject" | "ImageObject" | "VideoObject" | "Text" => {
             ["http://schema.org/", name].concat()
         }
         _ => ["http://schema.stenci.la/", name].concat(),
@@ -256,6 +272,15 @@ fn attr_id(id: &Option<Box<String>>) -> String {
     }
 }
 
+/// Encode the "slot" attribute of an HTML
+///
+/// Used for nodes that are represented in HTML using a custom Web Component.
+/// Not to be confused with the Stencila `Address` slot which will often have the
+/// same value but which will be encoded as a "data-prop" if the element is not a Web Component.
+fn attr_slot(name: &str) -> String {
+    attr("slot", name)
+}
+
 /// Encode a node as JSON
 ///
 /// Several of the below implementations use this, mainly as a placeholder,
@@ -289,10 +314,28 @@ mod tests {
     use crate::decode::decode;
     use codec::eyre::bail;
     use serde_json::json;
-    use test_snaps::{insta::assert_display_snapshot, snapshot_fixtures_content};
+    use test_snaps::{
+        insta::assert_display_snapshot, snapshot_fixtures_content, snapshot_fixtures_nodes,
+    };
     use test_utils::{assert_json_eq, home, skip_slow_tests};
 
-    /// Encode the HTML fragment fixtures
+    /// Encode the node fixtures
+    #[test]
+    fn encode_nodes() {
+        snapshot_fixtures_nodes("nodes/*.json", |node| {
+            let html = encode(
+                &node,
+                Some(EncodeOptions {
+                    compact: false,
+                    ..Default::default()
+                }),
+            )
+            .unwrap();
+            assert_display_snapshot!(html);
+        });
+    }
+
+    /// Encode the HTML fragment fixtures (involves decoding them first)
     #[test]
     fn encode_html_fragments() {
         snapshot_fixtures_content("fragments/html/*.html", |content| {
