@@ -1220,7 +1220,7 @@ mod tests {
                 "items": 3,
                 "value": "oo",
                 "length": 2,
-                "html": "oo",
+                "html": "<span data-itemprop=\"1\" itemtype=\"http://schema.org/Text\" itemscope>oo</span>",
             }])
         );
 
