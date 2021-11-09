@@ -621,7 +621,7 @@ async fn get_local(
 
 #[derive(Debug, Deserialize)]
 struct GetParams {
-    /// The mode, "view", "exec", or "edit"
+    /// The mode, "read", "view", "exec", or "edit"
     mode: Option<String>,
 
     /// The format to view or edit
@@ -629,6 +629,9 @@ struct GetParams {
 
     /// The theme (when format is `html`)
     theme: Option<String>,
+
+    /// Should web components be loaded
+    components: Option<String>,
 }
 
 /// Handle a HTTP `GET` request for a document
@@ -666,6 +669,7 @@ async fn get_handler(
     let mode = params.mode.unwrap_or_else(|| "view".into());
     let format = params.format.unwrap_or_else(|| "html".into());
     let theme = params.theme.unwrap_or_else(|| "wilmore".into());
+    let components = params.components.unwrap_or_else(|| "true".into());
 
     match DOCUMENTS.open(&path, None).await {
         Ok(document) => {
@@ -682,7 +686,7 @@ async fn get_handler(
             };
 
             let content = match format.as_str() {
-                "html" => rewrite_html(&content, &mode, &theme, &cwd, &path),
+                "html" => rewrite_html(&content, &mode, &theme, &components, &cwd, &path),
                 _ => content,
             };
 
@@ -719,7 +723,14 @@ async fn get_handler(
 ///
 /// Only local files somewhere withing the current working directory are
 /// served.
-pub fn rewrite_html(body: &str, mode: &str, theme: &str, cwd: &Path, document: &Path) -> String {
+pub fn rewrite_html(
+    body: &str,
+    mode: &str,
+    theme: &str,
+    components: &str,
+    cwd: &Path,
+    document: &Path,
+) -> String {
     static REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r#""file://(.*?)""#).expect("Unable to create regex"));
 
@@ -740,6 +751,19 @@ pub fn rewrite_html(body: &str, mode: &str, theme: &str, cwd: &Path, document: &
         }
     });
 
+    let components = if components == "true" {
+        r#"<script
+    src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.esm.js"
+    type="module">
+</script>
+<script
+    src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.js"
+    type="text/javascript" nomodule="">
+</script>"#
+    } else {
+        ""
+    };
+
     format!(
         r#"<!DOCTYPE html>
 <html lang="en">
@@ -757,14 +781,7 @@ pub fn rewrite_html(body: &str, mode: &str, theme: &str, cwd: &Path, document: &
         <link
             href="https://unpkg.com/@stencila/thema/dist/themes/{theme}/styles.css"
             rel="stylesheet">
-        <script
-            src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.esm.js"
-            type="module">
-        </script>
-        <script
-            src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.js"
-            type="text/javascript" nomodule="">
-        </script>
+        {components}
     </head>
     <body>
         {body}
@@ -778,6 +795,7 @@ pub fn rewrite_html(body: &str, mode: &str, theme: &str, cwd: &Path, document: &
         snapshot = "current",
         document = document.as_display().to_string(),
         theme = theme,
+        components = components,
         body = body
     )
 }
