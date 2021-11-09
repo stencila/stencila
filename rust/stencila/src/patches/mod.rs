@@ -23,7 +23,8 @@ use std::{
     iter::FromIterator,
 };
 use stencila_schema::{
-    Array, BlockContent, Boolean, InlineContent, Integer, ListItem, Node, Null, Number, Object,
+    Array, BlockContent, Boolean, CodeError, InlineContent, Integer, ListItem, Node, Null, Number,
+    Object, TableCell, TableRow,
 };
 use strum::{AsRefStr, Display};
 
@@ -522,6 +523,12 @@ impl Operation {
             BlockContent
             Node
 
+            // Child types of the above
+            CodeError
+            ListItem
+            TableRow
+            TableCell
+
             String
             Number
             Integer
@@ -583,6 +590,13 @@ impl Operation {
             BlockContent
             Node
 
+            // Child types of the above
+            CodeError
+            ListItem
+            TableRow
+            // TODO: Implement `ToHtml` for `TableCell`
+            // TableCell
+
             String
             Number
             Integer
@@ -611,14 +625,12 @@ impl Operation {
             } else if let Ok(nodes) = serde_json::from_value::<Vec<ListItem>>(value.clone()) {
                 return nodes.to_html("", &context);
             } else {
-                tracing::error!(
-                    "Unhandled JSON value type when generating HTML for `DomOperation`"
-                );
+                tracing::error!("Unhandled JSON value type when generating HTML for `Operation`");
                 return ["<span class=\"todo\">", &value.to_string(), "</span>"].concat();
             }
         }
 
-        tracing::error!("Unhandled value type when generating HTML for `DomOperation`");
+        tracing::error!("Unhandled value type when generating HTML for `Operation`");
         "<span class=\"todo\">TODO</span>".to_string()
     }
 
