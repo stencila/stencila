@@ -48,15 +48,24 @@ export function resolveSlot(
   slot: Slot
 ): Element | Attr | Text {
   if (isName(slot)) {
-    // Select the first descendant element matching the slot name.
-    // It is proposed that `data-prop` replace `data-itemprop`.
-    // This currently allows for all options.
+    // Is the slot represented as a standard attribute e.g. `id`, `value`?
+    const attr = parent.attributes.getNamedItem(slot)
+    if (attr !== null) return attr
+
+    // Is the slot represented as a `data-` attribute` e.g. `data-programminglanguage`?
+    const dataAttr = parent.attributes.getNamedItem(
+      `data-${slot.toLowerCase()}`
+    )
+    if (dataAttr !== null) return dataAttr
+
+    // Is there a descendant element matching the slot name?
+    // It is proposed that `data-prop` replace `data-itemprop`. This currently allows for all options.
     assertElement(parent)
     const child: Element | null = parent.querySelector(
       `[data-prop="${slot}"], [data-itemprop="${slot}"], [itemprop="${slot}"]`
     )
 
-    // The `text` slot is always represented by the text content of the selected element
+    // The `text` slot should always represented by the text content of the selected element
     // and is usually "implicit" (so, if there is no explicitly marked text slot, use the parent)
     if (slot === 'text') {
       const elem = child !== null ? child : parent
@@ -67,6 +76,12 @@ export function resolveSlot(
           `Expected the 'text' slot to resolve to a single text node child`
         )
       }
+    }
+
+    // If the element only has one text node child then return it as the slot
+    // TODO: Consider amalgamating this with above.
+    if (child?.childNodes.length === 1 && isText(child?.childNodes[0])) {
+      return child.childNodes[0]
     }
 
     // `<meta>` elements are used to represent properties that should not be visible
@@ -86,6 +101,7 @@ export function resolveSlot(
     // The `content`, `items`, `rows` and `cell` slots are usually "implicit"
     // (i.e. not represented by an element) but instead represented by the child nodes of
     // the parent element. So, if there is no explicitly marked content slot, return the parent
+    // (which will probably then be indexed by a number slot to get the child)
     if (
       slot === 'content' ||
       (slot === 'items' &&
@@ -95,10 +111,6 @@ export function resolveSlot(
     )
       return parent
 
-    // See if the slot is represented as a standard HTML attribute e.g. `id`, `value`
-    const attr = parent.attributes.getNamedItem(slot)
-    if (attr !== null) return attr
-
     throw panic(`Unable to resolve slot '${slot}'`)
   } else {
     // Select the child at the slot index.
@@ -107,7 +119,14 @@ export function resolveSlot(
       throw panic(
         `Unable to get slot '${slot}' from element with ${parent.childNodes.length} children`
       )
-    } else if (isElement(child) || isText(child)) {
+    } else if (isElement(child)) {
+      // If the element only has one text node child then return it as the slot
+      if (child?.childNodes.length === 1 && isText(child?.childNodes[0])) {
+        return child.childNodes[0]
+      } else {
+        return child
+      }
+    } else if (isText(child)) {
       return child
     } else {
       throw panic('Unexpected node type')
