@@ -47,7 +47,7 @@ macro_rules! patchable_node {
     };
 }
 
-// TODO: Commented out node types need methods implemented to be 
+// TODO: Commented out node types need methods implemented to be
 // able to be included as variants here
 patchable_node!(
     //Node::Array
