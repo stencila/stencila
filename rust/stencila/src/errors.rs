@@ -195,12 +195,14 @@ pub static ERRORS: Lazy<Mutex<Vec<Error>>> = Lazy::new(|| Mutex::new(Vec::new())
 static COLLECT: AtomicBool = AtomicBool::new(false);
 
 /// Start collecting errors
+#[deprecated]
 pub fn start() {
     ERRORS.lock().expect("To be able to get lock").clear();
     COLLECT.swap(true, std::sync::atomic::Ordering::Relaxed);
 }
 
 /// Report an error
+#[deprecated = "Use tracing::error/warn instead"]
 pub fn report(error: Error) {
     #[cfg(test)]
     eprintln!("Reported ERROR: {}", error);
@@ -211,6 +213,7 @@ pub fn report(error: Error) {
 }
 
 /// Record an error result if any
+#[deprecated = "Use tracing::error/warn instead"]
 pub fn attempt<T>(result: Result<T>) {
     if let Err(error) = result {
         let message = error.to_string();
@@ -222,6 +225,7 @@ pub fn attempt<T>(result: Result<T>) {
 }
 
 /// Stop collecting errors and return those collected
+#[deprecated]
 pub fn stop() -> Vec<Error> {
     COLLECT.swap(false, std::sync::atomic::Ordering::Relaxed);
     ERRORS.lock().expect("To be able to get lock").split_off(0)
