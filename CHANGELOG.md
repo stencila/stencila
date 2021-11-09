@@ -1,3 +1,12 @@
+## [0.126.2](https://github.com/stencila/stencila/compare/v0.126.1...v0.126.2) (2021-11-09)
+
+
+### Bug Fixes
+
+* **Documents:** Warn on errors rather than halting load; get the document before dumping it ([1a4e641](https://github.com/stencila/stencila/commit/1a4e641a859504b52859b53d5aa7aa85ca5d8aea))
+* **Downloads:** Add user agent header to avoid 403s ([e41a666](https://github.com/stencila/stencila/commit/e41a666708fc40010de026909d78ac9c95779648))
+* **Serving:** Fix symlink path ([349ade1](https://github.com/stencila/stencila/commit/349ade188441506597622ec9cc425314ed7bc180))
+
 ## [0.126.1](https://github.com/stencila/stencila/compare/v0.126.0...v0.126.1) (2021-11-08)
 
 
