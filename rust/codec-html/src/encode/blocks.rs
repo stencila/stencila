@@ -1,8 +1,8 @@
 //! Encode a `BlockContent` nodes to HTML
 
 use super::{
-    attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, concat, elem, elem_empty, json,
-    EncodeContext, ToHtml,
+    attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, attr_slot, concat, elem, elem_empty,
+    elem_meta, json, nothing, EncodeContext, ToHtml,
 };
 use html_escape::encode_safe;
 use stencila_schema::*;
@@ -50,30 +50,24 @@ impl ToHtml for CodeBlock {
     /// The `class` follows the recommendation of [HTML5 spec](https://html.spec.whatwg.org/#the-code-element)
     /// to "use the class attribute, e.g. by adding a class prefixed with "language-" to the element."
     fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
-        let (class, meta) = match &self.programming_language {
+        let (lang_class, lang_meta) = match &self.programming_language {
             Some(programming_language) => (
                 attr("class", &["language-", programming_language].concat()),
-                elem_empty(
-                    "meta",
-                    &[
-                        attr_itemprop("programming_language"),
-                        attr("content", programming_language),
-                    ],
-                ),
+                elem_meta("programmingLanguage", programming_language),
             ),
-            None => ("".to_string(), "".to_string()),
+            None => (nothing(), nothing()),
         };
 
         let text = elem(
             "code",
-            &[attr_itemprop("text"), class],
+            &[attr_itemprop("text"), lang_class],
             &encode_safe(&self.text),
         );
 
         elem(
             "pre",
             &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[meta, text].concat(),
+            &[lang_meta, text].concat(),
         )
     }
 }
@@ -81,47 +75,83 @@ impl ToHtml for CodeBlock {
 impl ToHtml for CodeChunk {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let label = match &self.label {
-            None => String::new(),
-            Some(label) => elem("label", &[attr_prop("label")], label),
+            Some(label) => elem("label", &[attr_prop("label"), attr_slot("label")], label),
+            None => nothing(),
+        };
+
+        let text = elem(
+            "pre",
+            &[attr_prop("text"), attr_slot("text")],
+            &encode_safe(&self.text),
+        );
+
+        let lang_attr = attr("data-programminglanguage", &self.programming_language);
+        let lang_meta = elem_meta("programmingLanguage", &self.programming_language);
+
+        let outputs = match &self.outputs {
+            Some(outputs) => elem(
+                "div",
+                &[attr_prop("outputs"), attr_slot("outputs")],
+                &outputs.to_html("", context),
+            ),
+            None => nothing(),
+        };
+
+        let errors = match &self.errors {
+            Some(errors) => elem(
+                "div",
+                &[attr_prop("errors"), attr_slot("errors")],
+                &errors.to_html("", context),
+            ),
+            None => nothing(),
         };
 
         let caption = match &self.caption {
-            None => String::new(),
-            Some(boxed) => match &**boxed {
-                CodeChunkCaption::String(string) => string.clone(),
-                CodeChunkCaption::VecBlockContent(content) => content.to_html("", context),
-            },
-        };
-
-        let text = elem("pre", &[attr("slot", "text")], &encode_safe(&self.text));
-
-        let outputs = match &self.outputs {
-            None => String::new(),
-            Some(outputs) => elem(
-                "pre",
-                &[attr("slot", "outputs")],
-                &outputs.to_html("", context),
-            ),
+            Some(boxed) => {
+                let content = match &**boxed {
+                    CodeChunkCaption::String(caption) => caption.clone(),
+                    CodeChunkCaption::VecBlockContent(caption) => caption.to_html("", context),
+                };
+                elem(
+                    "figcaption",
+                    &[attr_prop("caption"), attr_slot("caption")],
+                    &content,
+                )
+            }
+            None => nothing(),
         };
 
         elem(
-            "figure",
-            &[attr_itemtype::<Self>()],
+            "stencila-code-chunk",
             &[
-                label,
-                elem(
-                    "stencila-code-chunk",
-                    &[
-                        attr_prop(slot),
-                        attr_itemtype::<Self>(),
-                        attr_id(&self.id),
-                        attr("programming-language", &self.programming_language),
-                    ],
-                    &[text, outputs].concat(),
-                ),
-                caption,
-            ]
-            .concat(),
+                attr_prop(slot),
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                lang_attr,
+            ],
+            &[label, lang_meta, text, outputs, errors, caption].concat(),
+        )
+    }
+}
+
+impl ToHtml for CodeError {
+    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
+        let error_message = elem("span", &[attr_prop("errorMessage")], &self.error_message);
+
+        let error_type = match &self.error_type {
+            None => nothing(),
+            Some(error_type) => elem("span", &[attr_prop("errorType")], error_type),
+        };
+
+        let stack_trace = match &self.stack_trace {
+            None => nothing(),
+            Some(stack_trace) => elem("pre", &[attr_prop("stackTrace")], stack_trace),
+        };
+
+        elem(
+            "div",
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[error_message, error_type, stack_trace].concat(),
         )
     }
 }
@@ -141,17 +171,17 @@ impl ToHtml for CollectionSimple {
 impl ToHtml for FigureSimple {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let label = match &self.label {
-            None => String::new(),
+            None => nothing(),
             Some(label) => elem("label", &[attr_prop("label")], label),
         };
 
         let content = match &self.content {
-            None => String::new(),
+            None => nothing(),
             Some(nodes) => nodes.to_html("", context),
         };
 
         let caption = match self.caption.as_deref() {
-            None => String::new(),
+            None => nothing(),
             Some(caption) => elem(
                 "figcaption",
                 &[attr_prop("caption")],
@@ -319,12 +349,12 @@ impl ToHtml for QuoteBlock {
 impl ToHtml for TableSimple {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let label = match &self.label {
-            None => String::new(),
+            None => nothing(),
             Some(label) => elem("label", &[attr_prop("label")], label),
         };
 
         let caption = match self.caption.as_deref() {
-            None => String::new(),
+            None => nothing(),
             Some(caption) => elem(
                 "div",
                 &[attr_prop("caption")],
@@ -367,7 +397,7 @@ impl ToHtml for TableRow {
             };
 
             let content = match &cell.content {
-                None => String::new(),
+                None => nothing(),
                 Some(content) => match content {
                     TableCellContent::VecInlineContent(nodes) => nodes.to_html("", context),
                     TableCellContent::VecBlockContent(nodes) => nodes.to_html("", context),
