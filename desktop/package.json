@@ -86,7 +86,7 @@
     "electron-log": "4.4.1",
     "electron-squirrel-startup": "1.0.0",
     "fp-ts": "2.11.5",
-    "i18next": "21.3.3",
+    "i18next": "21.4.2",
     "normalizr": "3.6.1",
     "redux-thunk": "2.3.0",
     "split-me": "1.3.0",
