@@ -30,7 +30,9 @@ impl ToHtml for InlineContent {
             InlineContent::Number(node) => node.to_html(slot, context),
             InlineContent::Parameter(node) => node.to_html(slot, context),
             InlineContent::Quote(node) => node.to_html(slot, context),
-            InlineContent::String(node) => node.to_html(slot, context),
+            // Note: to reduce extraneous elements, when a part of inline content, strings
+            // are encoded without a wrapping <span>.
+            InlineContent::String(node) => encode_safe(node).to_string(),
             InlineContent::Strong(node) => node.to_html(slot, context),
             InlineContent::Subscript(node) => node.to_html(slot, context),
             InlineContent::Superscript(node) => node.to_html(slot, context),
