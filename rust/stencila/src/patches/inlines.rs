@@ -250,7 +250,7 @@ fn apply_transform(from: &InlineContent, to: &str) -> InlineContent {
 patchable_struct!(AudioObjectSimple, content_url);
 patchable_struct!(Cite);
 patchable_struct!(CiteGroup, items);
-patchable_struct!(CodeExpression, programming_language, text, output);
+patchable_struct!(CodeExpression, programming_language, text, output, errors);
 patchable_struct!(CodeFragment, programming_language, text);
 patchable_struct!(Delete, content);
 patchable_struct!(Emphasis, content);

@@ -1,12 +1,7 @@
 use super::prelude::*;
 use crate::dispatch_block;
 use std::hash::Hasher;
-use stencila_schema::{
-    BlockContent, ClaimClaimType, ClaimSimple, CodeBlock, CodeChunk, CollectionSimple,
-    FigureSimple, Heading, Include, List, ListItem, ListItemContent, ListOrder, MathBlock,
-    Paragraph, QuoteBlock, TableCell, TableCellCellType, TableCellContent, TableRow,
-    TableRowRowType, TableSimple, ThematicBreak,
-};
+use stencila_schema::*;
 
 /// Implements patching for `BlockContent`
 ///
@@ -137,7 +132,8 @@ fn apply_transform(_from: &BlockContent, _to: &str) -> BlockContent {
 
 patchable_struct!(ClaimSimple, content, claim_type);
 patchable_struct!(CodeBlock, programming_language, text);
-patchable_struct!(CodeChunk, programming_language, text, outputs);
+patchable_struct!(CodeChunk, programming_language, text, outputs, errors);
+patchable_struct!(CodeError, error_message, error_type, stack_trace);
 patchable_struct!(CollectionSimple);
 patchable_struct!(FigureSimple);
 patchable_struct!(Heading, content, depth);
