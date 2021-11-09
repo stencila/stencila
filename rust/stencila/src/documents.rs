@@ -1,5 +1,4 @@
 use crate::{
-    errors::attempt,
     methods::compile::compile,
     patches::{diff, merge, resolve, Address, Patch, Pointer},
     utils::{
@@ -376,7 +375,7 @@ impl Document {
     ///             the path's file extension.
     /// TODO: add project: Option<PathBuf> so that project can be explictly set
     pub async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
-        let path = path.as_ref().canonicalize()?;
+        let path = path.as_ref();
 
         // Create a new document with unique id
         let mut document = Document {
@@ -388,7 +387,10 @@ impl Document {
         document.alter(Some(path), format).await?;
 
         // Attempt to read the document from the file
-        attempt(document.read().await);
+        match document.read().await {
+            Ok(..) => (),
+            Err(error) => tracing::warn!("While reading document `{}`: {}", path.display(), error),
+        };
 
         Ok(document)
     }
@@ -407,7 +409,7 @@ impl Document {
         format: Option<String>,
     ) -> Result<()> {
         if let Some(path) = &path {
-            let path = path.as_ref();
+            let path = path.as_ref().canonicalize()?;
 
             if path.is_dir() {
                 bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
@@ -424,7 +426,7 @@ impl Document {
                 .unwrap_or_else(|| "Untitled".into())
                 .into();
 
-            self.path = path.to_path_buf();
+            self.path = path;
             self.temporary = false;
             self.status = DocumentStatus::Unwritten;
         }
@@ -784,10 +786,18 @@ impl Document {
             reshape(&mut root, reshape::Options::default())?;
         }
 
-        // Compile the `root` and update document intra- and inter- dependencies
-        let (addresses, relations) = compile(&mut root, &self.path, &self.project)?;
-        self.addresses = addresses;
-        self.relations = relations;
+        // Attempt to compile the `root` and update document intra- and inter- dependencies
+        match compile(&mut root, &self.path, &self.project) {
+            Ok((addresses, relations)) => {
+                self.addresses = addresses;
+                self.relations = relations;
+            }
+            Err(error) => tracing::warn!(
+                "While compiling document `{}`: {}",
+                self.path.display(),
+                error
+            ),
+        }
 
         // Publish any events for which there are subscriptions
         for subscription in self.subscriptions.keys() {
@@ -1209,13 +1219,12 @@ impl Documents {
         let path = path.map(PathBuf::from);
 
         let document = Document::new(path, format);
-        let handler = DocumentHandler::new(document.repr(), false);
+        let document_id = document.id.clone();
+        let document_repr = document.repr();
+        let handler = DocumentHandler::new(document, false);
+        self.registry.lock().await.insert(document_id, handler);
 
-        self.registry
-            .lock()
-            .await
-            .insert(document.id.clone(), handler);
-        Ok(document)
+        Ok(document_repr)
     }
 
     /// Open a document
@@ -1238,13 +1247,12 @@ impl Documents {
         }
 
         let document = Document::open(path, format).await?;
-        let handler = DocumentHandler::new(document.repr(), true);
-        self.registry
-            .lock()
-            .await
-            .insert(document.id.clone(), handler);
+        let document_id = document.id.clone();
+        let document_repr = document.repr();
+        let handler = DocumentHandler::new(document, true);
+        self.registry.lock().await.insert(document_id, handler);
 
-        Ok(document)
+        Ok(document_repr)
     }
 
     /// Close a document

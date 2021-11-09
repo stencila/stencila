@@ -259,10 +259,14 @@ impl Compile for CodeChunk {
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
         if Some(digest.clone()) != self.compile_digest {
-            let subject = resources::node(&context.path, &id, "CodeChunk");
-            let relations = parsers::parse(&context.path, &self.text, &self.programming_language)?;
-            context.relations.push((subject, relations));
-            self.compile_digest = Some(digest)
+            match parsers::parse(&context.path, &self.text, &self.programming_language) {
+                Ok(relations) => {
+                    let subject = resources::node(&context.path, &id, "CodeChunk");
+                    context.relations.push((subject, relations));
+                    self.compile_digest = Some(digest);
+                }
+                Err(error) => tracing::warn!("While parsing code chunk `{}`: {}", id, error),
+            };
         }
 
         Ok(())
@@ -305,10 +309,14 @@ impl Compile for CodeExpression {
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
         if Some(digest.clone()) != self.compile_digest {
-            let subject = resources::node(&context.path, &id, "CodeExpression");
-            let relations = parsers::parse(&context.path, &self.text, &self.programming_language)?;
-            context.relations.push((subject, relations));
-            self.compile_digest = Some(digest);
+            match parsers::parse(&context.path, &self.text, &self.programming_language) {
+                Ok(relations) => {
+                    let subject = resources::node(&context.path, &id, "CodeExpression");
+                    context.relations.push((subject, relations));
+                    self.compile_digest = Some(digest);
+                }
+                Err(error) => tracing::warn!("While parsing code expression `{}`: {}", id, error),
+            };
         }
 
         Ok(())

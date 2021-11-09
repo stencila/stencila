@@ -669,6 +669,8 @@ async fn get_handler(
 
     match DOCUMENTS.open(&path, None).await {
         Ok(document) => {
+            let document = DOCUMENTS.get(&document.id).await.unwrap();
+            let document = document.lock().await;
             let content = match document.dump(Some(format.clone())).await {
                 Ok(content) => content,
                 Err(error) => {

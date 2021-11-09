@@ -5034,6 +5034,8 @@ name = "test-snaps"
 version = "0.0.0"
 dependencies = [
  "insta",
+ "serde_json",
+ "stencila-schema",
  "test-utils",
 ]
 

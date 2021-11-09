@@ -1,7 +1,6 @@
 use crate::config::CONFIG;
 use crate::conversions::Conversion;
 use crate::documents::DOCUMENTS;
-use crate::errors::attempt;
 use crate::files::{File, FileEvent, Files};
 use crate::methods::import::import;
 use crate::sources::{self, Source, SourceDestination, SourceTrait};
@@ -226,6 +225,8 @@ impl Project {
     /// Reads the `project.json` file (if any) and walks the project folder
     /// to build a filesystem tree.
     pub async fn open<P: AsRef<Path>>(path: P) -> Result<Project> {
+        let path = path.as_ref();
+
         // Load the project manifest (if any).
         let mut project = Project::load(&path)?;
 
@@ -237,7 +238,10 @@ impl Project {
         project.update(None).await;
 
         // Attempt to compile the project's graph
-        attempt(project.compile().await);
+        match project.compile().await {
+            Ok(..) => (),
+            Err(error) => tracing::warn!("While compiling project `{}`: {}", path.display(), error),
+        };
 
         Ok(project)
     }
