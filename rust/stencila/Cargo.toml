@@ -4,7 +4,7 @@
 name = "stencila"
 version = "0.123.0"
 authors = ["Stencila <hello@stenci.la>"]
-edition = "2018"
+edition = "2021"
 
 # Compile time feature flags. See https://www.worthe-it.co.za/blog/2018-11-18-compile-time-feature-flags-in-rust.html
 # All features are on by default, use `--no-default-features --features="json http ..."` to

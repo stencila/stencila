@@ -74,6 +74,7 @@ jobs:
       # release builds (otherwise they can take longer than the maximum of one hour).
       - script: |
           set -e
+          
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-unknown-linux-musl.tar.gz | tar xz
           mv -f sccache*/sccache $(CARGO_HOME)/bin/sccache
           chmod +x $(CARGO_HOME)/bin/sccache
@@ -81,6 +82,9 @@ jobs:
           echo "##vso[task.setvariable variable=RUSTC_WRAPPER]sccache"
           cargo list | grep --quiet cache || cargo install cargo-cache
           echo "##vso[task.setvariable variable=RUST_CACHING]true"
+
+          rustc --version
+          cargo --version
         displayName: 'Install: Rust build tools'
 
       # Specify Node.js version to use for `node`, `desktop`, and `web` tests and builds

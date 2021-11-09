@@ -36,7 +36,7 @@ audit:
 build:
 	make -C ../web build
 	cargo build --bin stencila --release
-	cargo strip --target stencila
+	cargo strip
 
 install:
 	cargo install --path stencila
