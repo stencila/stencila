@@ -1,0 +1,49 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "Why? Because to test incremental  patches it is currently necessary to have nodes nested within another node (patches at the top level are just `Replace` operations)."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# Some code",
+      "outputs": [
+        "a string",
+        true,
+        42,
+        1.23,
+        [1, 2, 3],
+        {
+          "type": "Table",
+          "rows": [
+            {
+              "type": "TableRow",
+              "cells": [
+                { "type": "TableCell", "content": [1] },
+                { "type": "TableCell", "content": [2] },
+                { "type": "TableCell", "content": [3] }
+              ]
+            }
+          ]
+        }
+      ],
+      "errors": [
+        {
+          "type": "CodeError",
+          "errorMessage": "Some error message",
+          "errorType": "SomeErrorType",
+          "stackTrace": "Several lines\nwhose exact format\nwill depend upon the language"
+        },
+        {
+          "type": "CodeError",
+          "errorMessage": "Another error message",
+          "errorType": "AnotherErrorType"
+        }
+      ]
+    }
+  ]
+}

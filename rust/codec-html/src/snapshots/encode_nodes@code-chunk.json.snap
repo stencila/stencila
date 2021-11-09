@@ -1,0 +1,13 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: html
+input_file: fixtures/nodes/code-chunk.json
+
+---
+<stencila-code-chunk data-itemscope="root" itemtype="http://schema.stenci.la/CodeChunk" itemscope  data-programminglanguage="python">
+  <meta itemprop="programmingLanguage" content="python"/>
+  <pre data-itemprop="text" slot="text">print(&#x27;Hello world!&#x27;)</pre>
+  <div data-itemprop="outputs" slot="outputs">
+    <span itemtype="http://schema.org/Text" itemscope>Hello world!</span>
+  </div>
+</stencila-code-chunk>
