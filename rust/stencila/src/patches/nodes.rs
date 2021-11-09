@@ -47,14 +47,43 @@ macro_rules! patchable_node {
     };
 }
 
+// TODO: Commented out node types need methods implemented to be 
+// able to be included as variants here
 patchable_node!(
+    //Node::Array
     Node::Article
-
-    Node::Null
+    //Node::AudioObject
     Node::Boolean
-    Node::Integer
-    Node::Number
-    Node::String
-
+    Node::Cite
+    Node::CiteGroup
+    //Node::Claim
     Node::CodeBlock
+    Node::CodeChunk
+    Node::CodeExpression
+    Node::CodeFragment
+    Node::Delete
+    Node::Emphasis
+    //Node::Figure
+    Node::Heading
+    //Node::ImageObject
+    Node::Integer
+    Node::Link
+    Node::List
+    Node::MathBlock
+    Node::MathFragment
+    Node::NontextualAnnotation
+    Node::Note
+    Node::Null
+    Node::Number
+    //Node::Object
+    Node::Paragraph
+    Node::Quote
+    Node::QuoteBlock
+    Node::String
+    Node::Strong
+    Node::Subscript
+    Node::Superscript
+    //Node::Table
+    Node::ThematicBreak
+    //Node::VideoObject
 );
