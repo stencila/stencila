@@ -115,12 +115,12 @@ test('applyAdd', () => {
 </body>
 `)
 
-  // Insert some characters ito the `String` node
+  // Insert some characters into the `String` node
   applyAdd({
     type: 'Add',
     address: ['content', 0, 'content', 0, 5],
     html: 'more ',
-    value: {},
+    value: 'more ',
     length: 1,
   })
   expect(document.body).toMatchInlineSnapshot(`
@@ -144,7 +144,7 @@ test('applyAdd', () => {
     type: 'Add',
     address: ['content', 0, 'content', 0],
     html: 'Some <strong>strong</strong> text. ',
-    value: {},
+    value: ['Some ', { type: 'Strong', content: ['strong'] }, ' text.'],
     length: 1,
   })
   expect(document.body).toMatchInlineSnapshot(`

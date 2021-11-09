@@ -102,7 +102,7 @@ test('applyReplace', () => {
     address: ['content', 0, 'content', 1, 'content', 0, 1],
     items: 1,
     html: '-',
-    value: {},
+    value: '-',
     length: 1,
   })
   expect(document.body).toMatchInlineSnapshot(`

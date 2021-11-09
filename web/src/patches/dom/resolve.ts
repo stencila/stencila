@@ -80,7 +80,7 @@ export function resolveSlot(
 
     // If the element only has one text node child then return it as the slot
     // TODO: Consider amalgamating this with above.
-    if (child?.childNodes.length === 1 && isText(child?.childNodes[0])) {
+    if (child?.tagName === 'SPAN' && child?.childNodes.length === 1 && isText(child?.childNodes[0])) {
       return child.childNodes[0]
     }
 
@@ -120,8 +120,8 @@ export function resolveSlot(
         `Unable to get slot '${slot}' from element with ${parent.childNodes.length} children`
       )
     } else if (isElement(child)) {
-      // If the element only has one text node child then return it as the slot
-      if (child?.childNodes.length === 1 && isText(child?.childNodes[0])) {
+      // If the element is a `<span>` and only has one text node child then return it as the slot
+      if (child.tagName === 'SPAN' && child.childNodes.length === 1 && isText(child.childNodes[0])) {
         return child.childNodes[0]
       } else {
         return child
