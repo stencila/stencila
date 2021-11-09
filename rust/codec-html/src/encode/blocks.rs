@@ -85,7 +85,7 @@ impl ToHtml for CodeChunk {
             &encode_safe(&self.text),
         );
 
-        let lang_attr = attr("data-programminglanguage", &self.programming_language);
+        let lang_attr = attr("programming-language", &self.programming_language);
         let lang_meta = elem_meta("programmingLanguage", &self.programming_language);
 
         let outputs = match &self.outputs {

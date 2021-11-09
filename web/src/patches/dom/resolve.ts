@@ -52,9 +52,9 @@ export function resolveSlot(
     const attr = parent.attributes.getNamedItem(slot)
     if (attr !== null) return attr
 
-    // Is the slot represented as a `data-` attribute` e.g. `data-programminglanguage`?
+    // Is the slot represented as a custom attribute on a WebComponent? e.g. `programming-language`
     const dataAttr = parent.attributes.getNamedItem(
-      `data-${slot.toLowerCase()}`
+      slot.replace(/[A-Z]/g, '-$&').toLowerCase()
     )
     if (dataAttr !== null) return dataAttr
 
@@ -80,7 +80,11 @@ export function resolveSlot(
 
     // If the element only has one text node child then return it as the slot
     // TODO: Consider amalgamating this with above.
-    if (child?.tagName === 'SPAN' && child?.childNodes.length === 1 && isText(child?.childNodes[0])) {
+    if (
+      (child?.tagName === 'SPAN' || child?.tagName === 'PRE') &&
+      child?.childNodes.length === 1 &&
+      isText(child?.childNodes[0])
+    ) {
       return child.childNodes[0]
     }
 
@@ -121,7 +125,11 @@ export function resolveSlot(
       )
     } else if (isElement(child)) {
       // If the element is a `<span>` and only has one text node child then return it as the slot
-      if (child.tagName === 'SPAN' && child.childNodes.length === 1 && isText(child.childNodes[0])) {
+      if (
+        (child.tagName === 'SPAN' || child.tagName === 'PRE') &&
+        child.childNodes.length === 1 &&
+        isText(child.childNodes[0])
+      ) {
         return child.childNodes[0]
       } else {
         return child
