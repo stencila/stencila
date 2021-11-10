@@ -1,6 +1,7 @@
 import { Address, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
 import { assertElement, isElement, isName, isText, panic } from '../checks'
+import HtmlFragment from 'html-fragment'
 
 /**
  * Resolve the target of a patch.
@@ -200,7 +201,10 @@ export function resolveNode(
 
 /**
  * Create a DOM fragment from a HTML string
+ * 
+ * Uses the `html-fragment` package because `document.createRange().createContextualFragment`
+ * does not handle elements that must be wrapped e.g. `td`.
  */
 export function createFragment(html: string): DocumentFragment {
-  return document.createRange().createContextualFragment(html)
+  return HtmlFragment(html)
 }
