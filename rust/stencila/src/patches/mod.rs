@@ -525,6 +525,7 @@ impl Operation {
             TableCaption
             TableRow
             TableCell
+            TableCellCellType
             FigureCaption
             CodeChunkCaption
             Node
@@ -600,6 +601,7 @@ impl Operation {
             TableCaption
             TableRow
             TableCell
+            TableCellCellType
             FigureCaption
             Node
             CodeError

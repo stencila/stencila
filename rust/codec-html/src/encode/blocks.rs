@@ -462,6 +462,15 @@ impl ToHtml for TableCell {
     }
 }
 
+impl ToHtml for TableCellCellType {
+    fn to_html(&self, _slot: &str, _context: &EncodeContext) -> String {
+        match self {
+            TableCellCellType::Header => "Header".to_string(),
+            TableCellCellType::Data => "Data".to_string(),
+        }
+    }
+}
+
 impl ToHtml for TableCellContent {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         match self {
