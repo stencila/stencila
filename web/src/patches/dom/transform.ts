@@ -26,62 +26,6 @@ export function applyTransform(
 }
 
 /**
- * Apply a transform operation to a `String` slot
- */
-export function applyTransformString(
-  text: Text,
-  from: string,
-  to: string
-): void {
-  assert(from === 'String', `Expected transform from type String, got ${from}`)
-
-  const tag = TYPE_TAGS[to]
-  if (tag === undefined) {
-    throw panic(`Unexpected transform to type ${to}`)
-  }
-
-  const elem = document.createElement(tag)
-  elem.textContent = text.textContent
-  text.replaceWith(elem)
-}
-
-/**
- * Apply a transform operation a `Node` slot
- */
-export function applyTransformElem(
-  elem: Element,
-  from: string,
-  to: string
-): void {
-  const tag = elem.tagName.toLowerCase()
-  const expectedFrom = TAGS_TYPE[tag]
-  if (expectedFrom === undefined) throw panic(`Unhandled from tag ${tag}`)
-  if (expectedFrom !== from)
-    throw panic(
-      `Expected transform from type ${expectedFrom} for tag ${tag}, got ${from}`
-    )
-
-  if (to === 'String') {
-    const text = document.createTextNode(elem.textContent ?? '')
-    elem.replaceWith(text)
-  } else {
-    const tag = TYPE_TAGS[to]
-    if (tag === undefined) throw panic(`Unhandled to type ${to}`)
-    const transformed = document.createElement(tag)
-    transformed.innerHTML = elem.innerHTML
-    for (let index = 0; index < elem.attributes.length; index++) {
-      const attr = elem.attributes[index] as Attr
-      if (attr.name === 'itemtype') {
-        transformed.setAttribute(attr.name, `https://stenci.la/${to}`)
-      } else {
-        transformed.setAttribute(attr.name, attr.value)
-      }
-    }
-    elem.replaceWith(transformed)
-  }
-}
-
-/**
  * Tags used for various node types
  */
 const TYPE_TAGS: Record<string, string> = {
@@ -101,4 +45,73 @@ const TAGS_TYPE: Record<string, string> = {
   strong: 'Strong',
   sub: 'Subscript',
   sup: 'Superscript',
+}
+
+/**
+ * Apply a transform operation to a string
+ */
+export function applyTransformString(
+  text: Text,
+  from: string,
+  to: string
+): void {
+  assert(from === 'String', `Expected transform from type String, got ${from}`)
+
+  const tag = TYPE_TAGS[to]
+  if (tag === undefined) {
+    throw panic(`Unexpected transform to type ${to}`)
+  }
+
+  const elem = document.createElement(tag)
+  elem.textContent = text.textContent
+  text.replaceWith(elem)
+}
+
+/**
+ * Apply a transform operation to an element
+ */
+export function applyTransformElem(
+  elem: Element,
+  from: string,
+  to: string
+): void {
+  if (from !== '') {
+    const tag = elem.tagName.toLowerCase()
+    const expectedFrom = TAGS_TYPE[tag]
+    if (expectedFrom === undefined) throw panic(`Unhandled from tag ${tag}`)
+    if (expectedFrom !== from)
+      throw panic(
+        `Expected transform from type ${expectedFrom} for tag ${tag}, got ${from}`
+      )
+  }
+
+  if (to === 'String') {
+    const text = document.createTextNode(elem.textContent ?? '')
+    elem.replaceWith(text)
+  } else {
+    if (/^A-Z/.test(to)) {
+      const tag = TYPE_TAGS[to]
+      if (tag === undefined) throw panic(`Unhandled to type ${to}`)
+      changeTagName(elem, tag, to)
+    } else {
+      changeTagName(elem, to)
+    }
+  }
+}
+
+/**
+ * Change the tag name of an element
+ */
+export function changeTagName(elem: Element, tag: string, type?: string): void {
+  const changed = document.createElement(tag)
+  changed.innerHTML = elem.innerHTML
+  for (let index = 0; index < elem.attributes.length; index++) {
+    const attr = elem.attributes[index] as Attr
+    if (attr.name === 'itemtype' && type !== undefined) {
+      changed.setAttribute(attr.name, `http://schema.stenci.la/${type}`)
+    } else {
+      changed.setAttribute(attr.name, attr.value)
+    }
+  }
+  elem.replaceWith(changed)
 }
