@@ -12,9 +12,7 @@ input_file: fixtures/nodes/code-chunk.json
     <span itemtype="http://schema.stenci.la/Boolean" itemscope>true</span>
     <span itemtype="http://schema.stenci.la/Integer" itemscope>42</span>
     <span itemtype="http://schema.stenci.la/Number" itemscope>1.23</span>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
-      <img itemtype="http://schema.org/ImageObject" itemscope  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYvhfz0AEYBxVSF+FAA/eDwup9bzCAAAAAElFTkSuQmCC"/>
-    </p>
+    <img itemtype="http://schema.org/ImageObject" itemscope  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYvhfz0AEYBxVSF+FAA/eDwup9bzCAAAAAElFTkSuQmCC"/>
   </div>
   <div data-itemprop="errors" slot="errors">
     <div itemtype="http://schema.stenci.la/CodeError" itemscope>

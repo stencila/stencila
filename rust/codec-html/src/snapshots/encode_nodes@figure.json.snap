@@ -6,10 +6,11 @@ input_file: fixtures/nodes/figure.json
 ---
 <figure data-itemscope="root" itemtype="http://schema.stenci.la/Figure" itemscope>
   <div data-itemprop="content">
+    <img itemtype="http://schema.org/ImageObject" itemscope  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYvhfz0AEYBxVSF+FAA/eDwup9bzCAAAAAElFTkw"/>
   </div>
   <span data-itemprop="label" itemtype="http://schema.org/Text" itemscope>Figure 1</span>
   <figcaption data-itemprop="caption">
-    <h3 itemtype="http://schema.stenci.la/Heading" itemscope>The title of the figure</h3>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>The caption details</p>
+    <h3 itemtype="http://schema.stenci.la/Heading" itemscope>The caption title</h3>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>The caption paragraph</p>
   </figcaption>
 </figure>

@@ -5,13 +5,17 @@
     {
       "type": "Heading",
       "depth": 2,
-      "content": ["The title of the figure"]
+      "content": ["The caption title"]
     },
     {
       "type": "Paragraph",
-      "content": ["The caption details"]
+      "content": ["The caption paragraph"]
     }
   ],
   "content": [
+    {
+      "type": "ImageObject",
+      "contentUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYvhfz0AEYBxVSF+FAA/eDwup9bzCAAAAAElFTkw"
+    }
   ]
 }

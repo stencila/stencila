@@ -1,0 +1,11 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: html
+input_file: fixtures/nodes/heading.json
+
+---
+<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <div data-itemprop="content">
+    <h6 itemtype="http://schema.stenci.la/Heading" itemscope>The heading content</h6>
+  </div>
+</article>

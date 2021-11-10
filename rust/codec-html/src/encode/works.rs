@@ -278,22 +278,24 @@ fn affiliation_org_to_html(org: &Organization) -> String {
     ["<li>", &name, "</li>"].concat()
 }
 
-/// A macro to generate HTML from the `BlockContent` analogue (e.g. `TableSimple`) of
-/// a creative work type. This is convenience and could be overridden as needed for each type.
-macro_rules! to_block_html {
-    ($type: ty, $variant: path) => {
+/// Generate HTML from the `BlockContent` analogue (e.g. `TableSimple`) or `InlineContent`
+/// analogue (e.g. `ImageObjectSimple`) of a creative work type.
+/// This is convenience and could be overridden as needed for each type.
+macro_rules! to_content_html {
+    ($type: ty, $variant: path, $transform:ident) => {
         impl ToHtml for $type {
             fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-                $variant(self.clone()).to_block().to_html(slot, context)
+                $variant(self.clone()).$transform().to_html(slot, context)
             }
         }
     };
 }
 
-to_block_html!(AudioObject, Node::AudioObject);
-to_block_html!(Claim, Node::Claim);
-to_block_html!(Collection, Node::Collection);
-to_block_html!(Figure, Node::Figure);
-to_block_html!(ImageObject, Node::ImageObject);
-to_block_html!(Table, Node::Table);
-to_block_html!(VideoObject, Node::VideoObject);
+to_content_html!(Claim, Node::Claim, to_block);
+to_content_html!(Collection, Node::Collection, to_block);
+to_content_html!(Figure, Node::Figure, to_block);
+to_content_html!(Table, Node::Table, to_block);
+
+to_content_html!(AudioObject, Node::AudioObject, to_inline);
+to_content_html!(ImageObject, Node::ImageObject, to_inline);
+to_content_html!(VideoObject, Node::VideoObject, to_inline);
