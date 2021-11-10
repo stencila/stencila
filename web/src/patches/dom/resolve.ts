@@ -201,7 +201,7 @@ export function resolveNode(
 
 /**
  * Create a DOM fragment from a HTML string
- * 
+ *
  * Uses the `html-fragment` package because `document.createRange().createContextualFragment`
  * does not handle elements that must be wrapped e.g. `td`.
  */

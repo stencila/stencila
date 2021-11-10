@@ -7,11 +7,10 @@ import {
   assertName,
   isAttr,
   isElement,
-  panic,
 } from '../checks'
 import { applyRemove as applyRemoveString } from '../string'
 import { unescapeAttr, unescapeHtml } from './escape'
-import { resolveParent, resolveSlot } from './resolve'
+import { resolveParent } from './resolve'
 
 /**
  * Apply a `Remove` operation
@@ -28,10 +27,10 @@ export function applyRemove(op: OperationRemove, target?: ElementId): void {
 }
 
 /**
- * Apply a `Remove` operation to an `Option` slot
+ * Apply a `Remove` operation to an optional property of a struct
  */
 export function applyRemoveOption(
-  node: Element,
+  elem: Element,
   slot: Slot,
   items: number
 ): void {
@@ -41,10 +40,25 @@ export function applyRemoveOption(
     `Unexpected remove items ${items} for option slot '${slot}'`
   )
 
-  const child = resolveSlot(node, slot)
-  if (isElement(child)) child.remove()
-  else if (isAttr(child)) node.removeAttribute(child.name)
-  else throw panic(`Unexpected remove child DOM node`)
+  // If represented as an attribute then remove it
+  if (elem.hasAttribute(slot)) {
+    elem.removeAttribute(slot)
+    return
+  }
+
+  // If represented as a child element then clear it's content
+  // and its attributes (other than `data-itemprop`) so that it remains
+  // a placeholder if the property is added again later.
+  const child = elem.querySelector(`[data-itemprop="${slot}"]`)
+  if (child) {
+    child.innerHTML = ''
+    for (const attr of child.getAttributeNames()) {
+      if (attr !== 'data-itemprop') child.removeAttribute(attr)
+    }
+    return
+  }
+
+  console.warn(`Unable to find existing property "${slot}" to remove"`)
 }
 
 /**

@@ -40,25 +40,38 @@ export function applyAdd(op: OperationAdd, target?: ElementId): void {
 const ADD_ATTRIBUTES = ['id', 'value', 'rowspan', 'colspan']
 
 /**
- * Apply an `Add` operation to an element representing an `Option`.
- *
- * If the provided HTML does not start with an opening angle bracket `<` then the value
- * being added must be a string (the only value type that does not get wrapped in an element)
- * so wrap it.
+ * Apply an `Add` operation to an element representing an optional property of a `struct`.
  */
-export function applyAddOption(node: Element, slot: Slot, html: string): void {
+export function applyAddOption(elem: Element, slot: Slot, html: string): void {
   assertName(slot)
 
+  // If the provided HTML does not start with an opening angle bracket `<` then the value
+  // being added must be a string (the only value type that does not get wrapped in an element)
+  // so wrap it.
   if (!html.startsWith('<')) {
     html = `<span slot="${slot}">${html}</span>`
   }
-
   const fragment = createFragment(html)
+
+  // Is the property designated to be added as an element attribute?
   if (ADD_ATTRIBUTES.includes(slot)) {
-    node.setAttribute(slot, fragment.textContent ?? '')
-  } else {
-    node.appendChild(fragment)
+    elem.setAttribute(slot, fragment.textContent ?? '')
+    return
   }
+
+  // Is there a placeholder element? If so replace it
+  const placeholder = elem.querySelector(`[data-itemprop="${slot}"]`)
+  if (placeholder) {
+    placeholder.parentElement?.insertBefore(fragment, placeholder)
+    placeholder.remove()
+    return
+  }
+
+  // Otherwise add the element and warn
+  elem.appendChild(fragment)
+  console.warn(
+    `Unable to find attribute or placeholder element for property "${slot}"; was appended`
+  )
 }
 
 /**
