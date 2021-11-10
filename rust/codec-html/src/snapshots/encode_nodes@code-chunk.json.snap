@@ -10,4 +10,11 @@ input_file: fixtures/nodes/code-chunk.json
   <div data-itemprop="outputs" slot="outputs">
     <span itemtype="http://schema.org/Text" itemscope>Hello world!</span>
   </div>
+  <div data-itemprop="errors" slot="errors">
+  </div>
+  <span data-itemprop="label" itemtype="http://schema.org/Text" itemscope>A label</span>
+  <figcaption data-itemprop="caption">
+    <h3 itemtype="http://schema.stenci.la/Heading" itemscope>The title of the chunk</h3>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>The caption details</p>
+  </figcaption>
 </stencila-code-chunk>

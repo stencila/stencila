@@ -1,0 +1,15 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: html
+input_file: fixtures/nodes/figure.json
+
+---
+<figure data-itemscope="root" itemtype="http://schema.stenci.la/Figure" itemscope>
+  <div data-itemprop="content">
+  </div>
+  <span data-itemprop="label" itemtype="http://schema.org/Text" itemscope>Figure 1</span>
+  <figcaption data-itemprop="caption">
+    <h3 itemtype="http://schema.stenci.la/Heading" itemscope>The title of the figure</h3>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>The caption details</p>
+  </figcaption>
+</figure>

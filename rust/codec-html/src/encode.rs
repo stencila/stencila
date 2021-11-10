@@ -201,7 +201,7 @@ fn elem_meta(name: &str, content: &str) -> String {
 }
 
 /// Encode an empty element to act as a placeholder for optional properties
-/// 
+///
 /// By having placeholders the order of optional properties in the HTML tree
 /// can be consistent when they are added and removed.
 fn elem_placeholder(tag: &str, prop: &str) -> String {

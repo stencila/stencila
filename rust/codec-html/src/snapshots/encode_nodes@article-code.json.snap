@@ -24,8 +24,8 @@ input_file: fixtures/nodes/article-code.json
           <caption>
             <span data-itemprop="label">
             </span>
-            <span data-itemprop="caption">
-            </span>
+            <div data-itemprop="caption">
+            </div>
           </caption>
           <tbody data-itemprop="rows">
             <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
@@ -55,6 +55,10 @@ will depend upon the language</pre>
           <span data-itemprop="errorType">AnotherErrorType</span>
         </div>
       </div>
+      <span data-itemprop="label">
+      </span>
+      <figcaption data-itemprop="caption">
+      </figcaption>
     </stencila-code-chunk>
   </div>
 </article>

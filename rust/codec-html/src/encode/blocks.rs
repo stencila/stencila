@@ -74,11 +74,6 @@ impl ToHtml for CodeBlock {
 
 impl ToHtml for CodeChunk {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let label = match &self.label {
-            Some(label) => elem("label", &[attr_prop("label"), attr_slot("label")], label),
-            None => nothing(),
-        };
-
         let text = elem(
             "pre",
             &[attr_prop("text"), attr_slot("text")],
@@ -88,37 +83,32 @@ impl ToHtml for CodeChunk {
         let lang_attr = attr("programming-language", &self.programming_language);
         let lang_meta = elem_meta("programmingLanguage", &self.programming_language);
 
-        let outputs = match &self.outputs {
-            Some(outputs) => elem(
-                "div",
-                &[attr_prop("outputs"), attr_slot("outputs")],
-                &outputs.to_html("", context),
-            ),
-            None => nothing(),
-        };
+        let outputs = elem(
+            "div",
+            &[attr_prop("outputs"), attr_slot("outputs")],
+            &match &self.outputs {
+                Some(outputs) => outputs.to_html("", context),
+                None => nothing(),
+            },
+        );
 
-        let errors = match &self.errors {
-            Some(errors) => elem(
-                "div",
-                &[attr_prop("errors"), attr_slot("errors")],
-                &errors.to_html("", context),
-            ),
-            None => nothing(),
+        let errors = elem(
+            "div",
+            &[attr_prop("errors"), attr_slot("errors")],
+            &match &self.errors {
+                Some(errors) => errors.to_html("", context),
+                None => nothing(),
+            },
+        );
+
+        let label = match &self.label {
+            Some(label) => label.to_html("label", context),
+            None => elem_placeholder("span", "label"),
         };
 
         let caption = match &self.caption {
-            Some(boxed) => {
-                let content = match &**boxed {
-                    CodeChunkCaption::String(caption) => caption.clone(),
-                    CodeChunkCaption::VecBlockContent(caption) => caption.to_html("", context),
-                };
-                elem(
-                    "figcaption",
-                    &[attr_prop("caption"), attr_slot("caption")],
-                    &content,
-                )
-            }
-            None => nothing(),
+            Some(caption) => caption.to_html("caption", context),
+            None => elem_placeholder("figcaption", "caption"),
         };
 
         elem(
@@ -129,8 +119,23 @@ impl ToHtml for CodeChunk {
                 attr_id(&self.id),
                 lang_attr,
             ],
-            &[label, lang_meta, text, outputs, errors, caption].concat(),
+            &[lang_meta, text, outputs, errors, label, caption].concat(),
         )
+    }
+}
+
+impl ToHtml for CodeChunkCaption {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+        match self {
+            CodeChunkCaption::String(string) => {
+                elem("figcaption", &[], &string.to_html(slot, context))
+            }
+            CodeChunkCaption::VecBlockContent(content) => elem(
+                "figcaption",
+                &[attr_prop(slot)],
+                &content.to_html("", context),
+            ),
+        }
     }
 }
 
@@ -168,35 +173,56 @@ impl ToHtml for CollectionSimple {
     }
 }
 
+/// Encode a figure as HTML
+///
+/// Similar to as for tables, except that the label and caption are at the bottom
+/// (although themes should be able to move them) and are not grouped together in a `<caption>`
+/// element as they are in a table.
 impl ToHtml for FigureSimple {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let label = match &self.label {
-            None => nothing(),
-            Some(label) => elem("label", &[attr_prop("label")], label),
-        };
-
         let content = match &self.content {
-            None => nothing(),
-            Some(nodes) => nodes.to_html("", context),
+            Some(content) => elem(
+                "div",
+                &[attr_prop("content")],
+                &content.to_html("", context),
+            ),
+            None => elem_placeholder("div", "content"),
         };
 
-        let caption = match self.caption.as_deref() {
-            None => nothing(),
-            Some(caption) => elem(
-                "figcaption",
-                &[attr_prop("caption")],
-                &match caption {
-                    FigureCaption::String(string) => encode_safe(&string.clone()).to_string(),
-                    FigureCaption::VecBlockContent(content) => content.to_html("", context),
-                },
-            ),
+        let label = match &self.label {
+            Some(label) => label.to_html("label", context),
+            None => elem_placeholder("span", "label"),
+        };
+
+        let caption = match &self.caption {
+            Some(caption) => caption.to_html("caption", context),
+            None => elem_placeholder("figcaption", "caption"),
         };
 
         elem(
             "figure",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[label, content, caption].concat(),
+            &[
+                attr_prop(slot),
+                attr_itemtype::<Figure>(),
+                attr_id(&self.id),
+            ],
+            &[content, label, caption].concat(),
         )
+    }
+}
+
+impl ToHtml for FigureCaption {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+        match self {
+            FigureCaption::String(string) => {
+                elem("figcaption", &[], &string.to_html(slot, context))
+            }
+            FigureCaption::VecBlockContent(content) => elem(
+                "figcaption",
+                &[attr_prop(slot)],
+                &content.to_html("", context),
+            ),
+        }
     }
 }
 
@@ -357,7 +383,7 @@ impl ToHtml for TableSimple {
 
         let caption = match &self.caption {
             Some(caption) => caption.to_html("caption", context),
-            None => elem_placeholder("span", "caption"),
+            None => elem_placeholder("div", "caption"),
         };
 
         let body = elem(

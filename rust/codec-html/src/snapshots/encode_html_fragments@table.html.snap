@@ -11,8 +11,8 @@ input_file: fixtures/fragments/html/table.html
       <caption>
         <span data-itemprop="label">
         </span>
-        <span data-itemprop="caption">
-        </span>
+        <div data-itemprop="caption">
+        </div>
       </caption>
       <tbody data-itemprop="rows">
         <tr itemtype="http://schema.stenci.la/TableRow" itemscope>

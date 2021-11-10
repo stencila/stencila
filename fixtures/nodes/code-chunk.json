@@ -1,8 +1,18 @@
 {
-    "type": "CodeChunk",
-    "programmingLanguage": "python",
-    "text": "print('Hello world!')",
-    "outputs": [
-        "Hello world!"
-    ]
+  "type": "CodeChunk",
+  "programmingLanguage": "python",
+  "text": "print('Hello world!')",
+  "outputs": ["Hello world!"],
+  "label": "A label",
+  "caption": [
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["The title of the chunk"]
+    },
+    {
+      "type": "Paragraph",
+      "content": ["The caption details"]
+    }
+  ]
 }

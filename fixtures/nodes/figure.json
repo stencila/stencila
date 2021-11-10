@@ -1,0 +1,17 @@
+{
+  "type": "Figure",
+  "label": "Figure 1",
+  "caption": [
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["The title of the figure"]
+    },
+    {
+      "type": "Paragraph",
+      "content": ["The caption details"]
+    }
+  ],
+  "content": [
+  ]
+}
