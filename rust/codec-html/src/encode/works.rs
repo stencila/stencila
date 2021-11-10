@@ -7,6 +7,7 @@ use super::{
 use codec_txt::ToTxt;
 use html_escape::encode_safe;
 use itertools::Itertools;
+use node_transform::Transform;
 use std::collections::BTreeMap;
 use stencila_schema::*;
 
@@ -277,81 +278,22 @@ fn affiliation_org_to_html(org: &Organization) -> String {
     ["<li>", &name, "</li>"].concat()
 }
 
-impl ToHtml for AudioObject {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        AudioObjectSimple {
-            content_url: self.content_url.clone(),
-            ..Default::default()
+/// A macro to generate HTML from the `BlockContent` analogue (e.g. `TableSimple`) of
+/// a creative work type. This is convenience and could be overridden as needed for each type.
+macro_rules! to_block_html {
+    ($type: ty, $variant: path) => {
+        impl ToHtml for $type {
+            fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+                $variant(self.clone()).to_block().to_html(slot, context)
+            }
         }
-        .to_html(slot, context)
-    }
+    };
 }
 
-impl ToHtml for ImageObject {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        ImageObjectSimple {
-            content_url: self.content_url.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
-
-impl ToHtml for VideoObject {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        VideoObjectSimple {
-            media_type: self.media_type.clone(),
-            content_url: self.content_url.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
-
-impl ToHtml for Collection {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let Collection { parts, .. } = self;
-        CollectionSimple {
-            parts: parts.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
-
-impl ToHtml for Claim {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let Claim { content, .. } = self;
-        ClaimSimple {
-            content: content.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
-
-impl ToHtml for Figure {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let Figure {
-            caption, content, ..
-        } = self;
-        FigureSimple {
-            caption: caption.clone(),
-            content: content.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
-
-impl ToHtml for Table {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let Table { caption, rows, .. } = self;
-        TableSimple {
-            caption: caption.clone(),
-            rows: rows.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
+to_block_html!(AudioObject, Node::AudioObject);
+to_block_html!(Claim, Node::Claim);
+to_block_html!(Collection, Node::Collection);
+to_block_html!(Figure, Node::Figure);
+to_block_html!(ImageObject, Node::ImageObject);
+to_block_html!(Table, Node::Table);
+to_block_html!(VideoObject, Node::VideoObject);
