@@ -139,7 +139,20 @@ patchable_struct!(MathBlock, math_language, text);
 patchable_struct!(QuoteBlock, content);
 
 patchable_struct!(CodeBlock, programming_language, text);
-patchable_struct!(CodeChunk, programming_language, text, outputs, errors);
+patchable_struct!(
+    CodeChunk,
+    programming_language,
+    text,
+    outputs,
+    errors,
+    label,
+    caption
+);
+patchable_variants!(
+    CodeChunkCaption,
+    CodeChunkCaption::VecBlockContent,
+    CodeChunkCaption::String
+);
 patchable_struct!(CodeError, error_message, error_type, stack_trace);
 
 patchable_struct!(List, items, order);
