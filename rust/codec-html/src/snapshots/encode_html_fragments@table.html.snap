@@ -7,8 +7,12 @@ input_file: fixtures/fragments/html/table.html
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <div data-itemprop="content">
     <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Example based on how a Pandas dat a frame is encoded to HTML in a Jupyter notebook:</p>
-    <table itemtype="http://schema.stenci.la/TableSimple" itemscope>
+    <table itemtype="http://schema.stenci.la/Table" itemscope>
       <caption>
+        <span data-itemprop="label">
+        </span>
+        <span data-itemprop="caption">
+        </span>
       </caption>
       <tbody data-itemprop="rows">
         <tr itemtype="http://schema.stenci.la/TableRow" itemscope>

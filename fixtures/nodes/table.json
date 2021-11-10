@@ -1,0 +1,31 @@
+{
+  "type": "Table",
+  "label": "Table 1",
+  "caption": "A table caption",
+  "rows": [
+    {
+      "type": "TableRow",
+      "cells": [
+        { "type": "TableCell", "content": ["A"], "cellType": "Header" },
+        { "type": "TableCell", "content": ["B"], "cellType": "Header" },
+        { "type": "TableCell", "content": ["C"], "cellType": "Header" }
+      ]
+    },
+    {
+      "type": "TableRow",
+      "cells": [
+        { "type": "TableCell", "content": [1] },
+        { "type": "TableCell", "content": [2] },
+        { "type": "TableCell", "content": [3] }
+      ]
+    },
+    {
+      "type": "TableRow",
+      "cells": [
+        { "type": "TableCell", "content": [4] },
+        { "type": "TableCell", "content": [5] },
+        { "type": "TableCell", "content": [6] }
+      ]
+    }
+  ]
+}

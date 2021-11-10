@@ -20,8 +20,12 @@ input_file: fixtures/nodes/article-code.json
   2,
   3
 ]</code>
-        <table itemtype="http://schema.stenci.la/TableSimple" itemscope>
+        <table itemtype="http://schema.stenci.la/Table" itemscope>
           <caption>
+            <span data-itemprop="label">
+            </span>
+            <span data-itemprop="caption">
+            </span>
           </caption>
           <tbody data-itemprop="rows">
             <tr itemtype="http://schema.stenci.la/TableRow" itemscope>

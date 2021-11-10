@@ -2,7 +2,7 @@
 
 use super::{
     attr, attr_id, attr_itemprop, attr_itemtype, attr_prop, attr_slot, concat, elem, elem_empty,
-    elem_meta, json, nothing, EncodeContext, ToHtml,
+    elem_meta, elem_placeholder, json, nothing, EncodeContext, ToHtml,
 };
 use html_escape::encode_safe;
 use stencila_schema::*;
@@ -346,26 +346,19 @@ impl ToHtml for QuoteBlock {
 /// Previously this function split the table cell's into `thead`, `tbody` and `tfoot` sections.
 /// However, that interferes with resolving cell addresses in the DOM, so we reverted to a
 /// simpler approach of placing all cell into `tbody`
+///
+/// Note that both the `label` and `caption` properties are nested within a `<caption>` element.
 impl ToHtml for TableSimple {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         let label = match &self.label {
-            None => nothing(),
-            Some(label) => elem("label", &[attr_prop("label")], label),
+            Some(label) => label.to_html("label", context),
+            None => elem_placeholder("span", "label"),
         };
 
-        let caption = match self.caption.as_deref() {
-            None => nothing(),
-            Some(caption) => elem(
-                "div",
-                &[attr_prop("caption")],
-                &match caption {
-                    TableCaption::String(string) => encode_safe(&string.clone()).to_string(),
-                    TableCaption::VecBlockContent(content) => content.to_html("", context),
-                },
-            ),
+        let caption = match &self.caption {
+            Some(caption) => caption.to_html("caption", context),
+            None => elem_placeholder("span", "caption"),
         };
-
-        let caption = elem("caption", &[], &[label, caption].concat());
 
         let body = elem(
             "tbody",
@@ -375,47 +368,57 @@ impl ToHtml for TableSimple {
 
         elem(
             "table",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[caption, body].concat(),
+            &[attr_prop(slot), attr_itemtype::<Table>(), attr_id(&self.id)],
+            &[elem("caption", &[], &[label, caption].concat()), body].concat(),
         )
+    }
+}
+
+impl ToHtml for TableCaption {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+        match self {
+            TableCaption::String(string) => string.to_html(slot, context),
+            TableCaption::VecBlockContent(content) => {
+                elem("div", &[attr_prop(slot)], &content.to_html("", context))
+            }
+        }
     }
 }
 
 impl ToHtml for TableRow {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let cells = concat(&self.cells, |cell| {
-            let tag = match &cell.cell_type {
-                Some(cell_type) => match cell_type {
-                    TableCellCellType::Header => "th",
-                    TableCellCellType::Data => "td",
-                },
-
-                None => match &self.row_type {
-                    Some(TableRowRowType::Header) | Some(TableRowRowType::Footer) => "th",
-                    _ => "td",
-                },
-            };
-
-            let content = match &cell.content {
-                None => nothing(),
-                Some(content) => match content {
-                    TableCellContent::VecInlineContent(nodes) => nodes.to_html("", context),
-                    TableCellContent::VecBlockContent(nodes) => nodes.to_html("", context),
-                },
-            };
-
-            elem(tag, &[attr_itemtype::<TableCell>()], &content)
-        });
-
         elem(
             "tr",
-            &[
-                attr_prop(slot),
-                attr_itemtype::<TableRow>(),
-                attr_id(&self.id),
-            ],
-            &cells,
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &self.cells.to_html("", context),
         )
+    }
+}
+
+impl ToHtml for TableCell {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+        let tag = match &self.cell_type {
+            Some(cell_type) => match cell_type {
+                TableCellCellType::Header => "th",
+                TableCellCellType::Data => "td",
+            },
+            None => "td",
+        };
+
+        elem(
+            tag,
+            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &self.content.to_html("", context),
+        )
+    }
+}
+
+impl ToHtml for TableCellContent {
+    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+        match self {
+            TableCellContent::VecInlineContent(nodes) => nodes.to_html(slot, context),
+            TableCellContent::VecBlockContent(nodes) => nodes.to_html(slot, context),
+        }
     }
 }
 
