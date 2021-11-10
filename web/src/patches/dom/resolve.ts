@@ -38,6 +38,11 @@ export function resolveTarget(target?: ElementId): Element {
   }
 }
 
+// Aliased attribute names for properties
+const ATTRIBUTE_ALIASES: Record<string, string> = {
+  contentUrl: 'src',
+}
+
 /**
  * Resolve a slot in a parent DOM node.
  *
@@ -49,6 +54,10 @@ export function resolveSlot(
   slot: Slot
 ): Element | Attr | Text {
   if (isName(slot)) {
+    // Is the slot represented by an attribute with a different name? If so translate it.
+    const alias = ATTRIBUTE_ALIASES[slot]
+    if (alias !== undefined) slot = alias
+
     // Is the slot represented as a standard attribute e.g. `id`, `value`?
     const attr = parent.attributes.getNamedItem(slot)
     if (attr !== null) return attr
