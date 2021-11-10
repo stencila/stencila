@@ -6,8 +6,8 @@ input_file: fixtures/fragments/html/link.html
 ---
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>A<a itemtype="http://schema.stenci.la/Link" itemscope  href="https://stenci.la">link</a>.</p>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>A<a itemtype="http://schema.stenci.la/Link" itemscope  href="">link</a>with no target or title.</p>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>A<a itemtype="http://schema.stenci.la/Link" itemscope  href="https://stenci.la">link</a>with no title.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>A<a itemtype="http://schema.stenci.la/Link" itemscope href="https://stenci.la">link</a>.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>A<a itemtype="http://schema.stenci.la/Link" itemscope href="">link</a>with no target or title.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>A<a itemtype="http://schema.stenci.la/Link" itemscope href="https://stenci.la">link</a>with no title.</p>
   </div>
 </article>

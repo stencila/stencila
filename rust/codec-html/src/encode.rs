@@ -163,11 +163,20 @@ fn nothing() -> String {
 /// This, and other functions below, us slice `concat`, rather than `format!`
 /// for performance (given that HTML generation may be done on every, or nearly every, keystroke).
 fn elem(name: &str, attrs: &[String], content: &str) -> String {
+    let attrs = attrs.iter().fold(String::new(), |mut attrs, attr| {
+        if !attr.is_empty() {
+            if !attrs.is_empty() {
+                attrs.push(' ');
+            }
+            attrs.push_str(attr);
+        }
+        attrs
+    });
     [
         "<",
         name,
         if attrs.is_empty() { "" } else { " " },
-        attrs.join(" ").trim(),
+        &attrs,
         ">",
         content,
         "</",
