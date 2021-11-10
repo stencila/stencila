@@ -521,28 +521,32 @@ impl Operation {
             BlockContent
 
             // Child types of the above
-            CodeError
             ListItem
             TableCaption
             TableRow
             TableCell
             FigureCaption
-
-            // Primitive and generics `Node` enum
+            CodeChunkCaption
             Node
+            CodeError
+
+            // Primitives
             String
             Number
             Integer
-            u8
-            i32
-            f32
             Boolean
             Array
             Object
             Null
+
+            // Types used on some properties e.g. `Heading.depth`, `TableCell.rowspan`
+            u8
+            u32
+            i32
+            f32
         );
 
-        tracing::error!("Unhandled `value` type when serializing an `Operation`");
+        tracing::error!("Unhandled `value` type when serializing patch `Operation`");
         "<unserialized type>".serialize(serializer)
     }
 
@@ -555,34 +559,34 @@ impl Operation {
 
         // Convert a node, boxed node, or vector of nodes to HTML
         macro_rules! to_html {
-        ($type:ty) => {
-            if let Some(node) = value.downcast_ref::<$type>() {
-                return node.to_html(
-                    &slot.map(|slot| slot.to_string()).unwrap_or_default(),
-                    &context
-                )
+            ($type:ty) => {
+                if let Some(node) = value.downcast_ref::<$type>() {
+                    return node.to_html(
+                        &slot.map(|slot| slot.to_string()).unwrap_or_default(),
+                        &context
+                    )
+                }
+                if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
+                    return boxed.to_html(
+                        &slot.map(|slot| slot.to_string()).unwrap_or_default(),
+                        &context
+                    )
+                }
+                if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
+                    return match slot {
+                        // If the slot is a name then we're adding or replacing a property so we
+                        // want the `Vec` to have a wrapper element with the name as the slot attribute
+                        Some(Slot::Name(name)) => nodes.to_html(name, &context),
+                        // If the slot is an index then we're adding or replacing items in a
+                        // vector so we don't want a wrapper element
+                        Some(Slot::Index(..)) | None => nodes.to_html("", &context),
+                    };
+                }
+            };
+            ($($type:ty)*) => {
+                $(to_html!($type);)*
             }
-            if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
-                return boxed.to_html(
-                    &slot.map(|slot| slot.to_string()).unwrap_or_default(),
-                    &context
-                )
-            }
-            if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
-                return match slot {
-                    // If the slot is a name then we're adding or replacing a property so we
-                    // want the `Vec` to have a wrapper element with the name as the slot attribute
-                    Some(Slot::Name(name)) => nodes.to_html(name, &context),
-                    // If the slot is an index then we're adding or replacing items in a
-                    // vector so we don't want a wrapper element
-                    Some(Slot::Index(..)) | None => nodes.to_html("", &context),
-                };
-            }
-        };
-        ($($type:ty)*) => {
-            $(to_html!($type);)*
         }
-    }
 
         // For performance, types roughly ordered by expected incidence (more commonly used
         // types in patches first).
@@ -592,15 +596,15 @@ impl Operation {
             BlockContent
 
             // Child types of the above
-            CodeError
             ListItem
             TableCaption
             TableRow
             TableCell
             FigureCaption
-
-            // Primitive and generics `Node` enum
             Node
+            CodeError
+
+            // Primitives
             String
             Number
             Integer
@@ -608,6 +612,26 @@ impl Operation {
             Array
             Object
             Null
+        );
+
+        // Convert an atomic (used in some struct properties e.g. `Heading.depth`). These
+        // don't usually need to be a HTML (they are handled differently) but for consistency
+        // we generate it anyway
+        macro_rules! to_html_atomic {
+            ($type:ty) => {
+                if let Some(node) = value.downcast_ref::<$type>() {
+                    return node.to_string()
+                }
+            };
+            ($($type:ty)*) => {
+                $(to_html_atomic!($type);)*
+            }
+        }
+        to_html_atomic!(
+            u8
+            u32
+            i32
+            f32
         );
 
         // The value may be a JSON value (if this patch was sent from a client)
@@ -629,13 +653,18 @@ impl Operation {
             } else if let Ok(nodes) = serde_json::from_value::<Vec<ListItem>>(value.clone()) {
                 return nodes.to_html("", &context);
             } else {
-                tracing::error!("Unhandled JSON value type when generating HTML for `Operation`");
-                return ["<span class=\"todo\">", &value.to_string(), "</span>"].concat();
+                tracing::error!(
+                    "Unhandled JSON value type when generating HTML for patch `Operation`: {}",
+                    value.to_string()
+                );
             }
+        } else {
+            tracing::error!("Unhandled `value` type when generating HTML for patch `Operation`");
         }
 
-        tracing::error!("Unhandled value type when generating HTML for `Operation`");
-        "<span class=\"todo\">TODO</span>".to_string()
+        // Send HTML that indicates error to developers (in addition to above tracing error)
+        // but is invisible to users.
+        "<meta name=\"error\" content=\"Unhandled patch value type\">".to_string()
     }
 
     /// Set the `html` field from the `value` field
