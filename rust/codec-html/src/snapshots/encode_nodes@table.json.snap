@@ -16,7 +16,7 @@ input_file: fixtures/nodes/table.json
       <th itemtype="http://schema.stenci.la/TableCell" itemscope>C</th>
     </tr>
     <tr data-itemscope="root" itemtype="http://schema.stenci.la/TableRow" itemscope>
-      <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+      <td itemtype="http://schema.stenci.la/TableCell" itemscope rowspan="2">
         <span itemtype="http://schema.stenci.la/Integer" itemscope>1</span>
       </td>
       <td itemtype="http://schema.stenci.la/TableCell" itemscope>
@@ -27,14 +27,8 @@ input_file: fixtures/nodes/table.json
       </td>
     </tr>
     <tr data-itemscope="root" itemtype="http://schema.stenci.la/TableRow" itemscope>
-      <td itemtype="http://schema.stenci.la/TableCell" itemscope>
-        <span itemtype="http://schema.stenci.la/Integer" itemscope>4</span>
-      </td>
-      <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+      <td itemtype="http://schema.stenci.la/TableCell" itemscope colspan="2">
         <span itemtype="http://schema.stenci.la/Integer" itemscope>5</span>
-      </td>
-      <td itemtype="http://schema.stenci.la/TableCell" itemscope>
-        <span itemtype="http://schema.stenci.la/Integer" itemscope>6</span>
       </td>
     </tr>
   </tbody>

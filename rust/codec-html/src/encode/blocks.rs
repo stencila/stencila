@@ -438,9 +438,25 @@ impl ToHtml for TableCell {
             None => "td",
         };
 
+        let colspan = match self.colspan {
+            Some(colspan) => attr("colspan", &colspan.to_string()),
+            None => nothing(),
+        };
+
+        let rowspan = match self.rowspan {
+            Some(rowspan) => attr("rowspan", &rowspan.to_string()),
+            None => nothing(),
+        };
+
         elem(
             tag,
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[
+                attr_prop(slot),
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                colspan,
+                rowspan,
+            ],
             &self.content.to_html("", context),
         )
     }
