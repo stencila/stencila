@@ -137,7 +137,10 @@ impl Compile for Link {
 /// or explicitly) then resolves the file path, records it as
 /// a file dependency, and returns an absolute `file://` URL.
 fn compile_content_url(content_url: &str, context: &mut Context) -> String {
-    if content_url.starts_with("http://") || content_url.starts_with("https://") {
+    if content_url.starts_with("http://")
+        || content_url.starts_with("https://")
+        || content_url.starts_with("data:")
+    {
         return content_url.into();
     }
 
@@ -183,7 +186,7 @@ macro_rules! compile_media_object {
 
                     let subject = resources::node(&context.path, &id, stringify!($type));
                     let url = compile_content_url(&self.content_url, context);
-                    let object = if url.starts_with("http") {
+                    let object = if url.starts_with("http") || url.starts_with("data:") {
                         resources::url(&url)
                     } else {
                         let url = url.strip_prefix("file://").unwrap_or(&url);
