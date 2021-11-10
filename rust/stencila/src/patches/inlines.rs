@@ -2,11 +2,7 @@ use super::prelude::*;
 use crate::dispatch_inline;
 use codec_txt::ToTxt;
 use std::hash::Hasher;
-use stencila_schema::{
-    AudioObjectSimple, Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis,
-    ImageObjectSimple, InlineContent, Link, MathFragment, NontextualAnnotation, Note, Parameter,
-    Quote, Strong, Subscript, Superscript, VideoObjectSimple,
-};
+use stencila_schema::*;
 
 /// Implements patching for `InlineContent`
 ///
@@ -244,17 +240,15 @@ fn apply_transform(from: &InlineContent, to: &str) -> InlineContent {
     }
 }
 
-// Implementations for `InlineContent` structs
-// TODO: add all relevant fields to each struct
+// Implementations for `InlineContent` structs, including related "full" structs
+// (e.g. `ImageObject` vs `ImageObjectSimple`) which are actually "works".
 
-patchable_struct!(AudioObjectSimple, content_url);
 patchable_struct!(Cite);
 patchable_struct!(CiteGroup, items);
 patchable_struct!(CodeExpression, programming_language, text, output, errors);
 patchable_struct!(CodeFragment, programming_language, text);
 patchable_struct!(Delete, content);
 patchable_struct!(Emphasis, content);
-patchable_struct!(ImageObjectSimple, content_url);
 patchable_struct!(Link, content, target);
 patchable_struct!(MathFragment, math_language, text);
 patchable_struct!(NontextualAnnotation, content);
@@ -264,6 +258,12 @@ patchable_struct!(Quote, content);
 patchable_struct!(Strong, content);
 patchable_struct!(Subscript, content);
 patchable_struct!(Superscript, content);
+
+patchable_struct!(AudioObject, content_url);
+patchable_struct!(AudioObjectSimple, content_url);
+patchable_struct!(ImageObject, content_url);
+patchable_struct!(ImageObjectSimple, content_url);
+patchable_struct!(VideoObject, content_url);
 patchable_struct!(VideoObjectSimple, content_url);
 
 #[cfg(test)]

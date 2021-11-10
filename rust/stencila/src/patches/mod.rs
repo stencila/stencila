@@ -22,10 +22,7 @@ use std::{
     hash::Hasher,
     iter::FromIterator,
 };
-use stencila_schema::{
-    Array, BlockContent, Boolean, CodeError, InlineContent, Integer, ListItem, Node, Null, Number,
-    Object, TableCell, TableRow,
-};
+use stencila_schema::*;
 use strum::{AsRefStr, Display};
 
 /// Are two nodes are the same type and value?
@@ -519,16 +516,20 @@ impl Operation {
         // For performance, types roughly ordered by expected incidence (more commonly used
         // types in patches first).
         serialize!(
+            // Main content types
             InlineContent
             BlockContent
-            Node
 
             // Child types of the above
             CodeError
             ListItem
+            TableCaption
             TableRow
             TableCell
+            FigureCaption
 
+            // Primitive and generics `Node` enum
+            Node
             String
             Number
             Integer
@@ -586,17 +587,20 @@ impl Operation {
         // For performance, types roughly ordered by expected incidence (more commonly used
         // types in patches first).
         to_html!(
+            // Main content types
             InlineContent
             BlockContent
-            Node
 
             // Child types of the above
             CodeError
             ListItem
+            TableCaption
             TableRow
-            // TODO: Implement `ToHtml` for `TableCell`
-            // TableCell
+            TableCell
+            FigureCaption
 
+            // Primitive and generics `Node` enum
+            Node
             String
             Number
             Integer

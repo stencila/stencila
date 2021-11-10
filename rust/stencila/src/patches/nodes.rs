@@ -52,20 +52,20 @@ macro_rules! patchable_node {
 patchable_node!(
     //Node::Array
     Node::Article
-    //Node::AudioObject
+    Node::AudioObject
     Node::Boolean
     Node::Cite
     Node::CiteGroup
-    //Node::Claim
+    Node::Claim
     Node::CodeBlock
     Node::CodeChunk
     Node::CodeExpression
     Node::CodeFragment
     Node::Delete
     Node::Emphasis
-    //Node::Figure
+    Node::Figure
     Node::Heading
-    //Node::ImageObject
+    Node::ImageObject
     Node::Integer
     Node::Link
     Node::List
@@ -83,7 +83,7 @@ patchable_node!(
     Node::Strong
     Node::Subscript
     Node::Superscript
-    //Node::Table
+    Node::Table
     Node::ThematicBreak
-    //Node::VideoObject
+    Node::VideoObject
 );
