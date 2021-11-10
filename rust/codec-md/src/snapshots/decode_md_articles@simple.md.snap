@@ -1,6 +1,6 @@
 ---
-source: rust/src/methods/decode/md.rs
-expression: "decode(&content).expect(\"Unable to decode Markdown\")"
+source: rust/codec-md/src/decode.rs
+expression: "decode(content).expect(\"Unable to decode Markdown\")"
 input_file: fixtures/articles/simple.md
 
 ---
@@ -54,12 +54,14 @@ input_file: fixtures/articles/simple.md
           "cells": [
             {
               "type": "TableCell",
+              "cellType": "Header",
               "content": [
                 "Group"
               ]
             },
             {
               "type": "TableCell",
+              "cellType": "Header",
               "content": [
                 "Value"
               ]
