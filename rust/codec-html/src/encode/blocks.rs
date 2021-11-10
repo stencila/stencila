@@ -411,6 +411,13 @@ impl ToHtml for TableCaption {
     }
 }
 
+/// Encode a table row to HTML
+///
+/// Previously we passed the row type down to the cells so that they could use `<th>`
+/// or `<td>` if a cell type was not specified. However, that does not allow adding
+/// a `th` cell using a patch (because when it is part of the patch, the new cell does
+/// not know it's row context). Therefore we deprecate the use of row type alone, and
+/// encourage use of both for header rows.
 impl ToHtml for TableRow {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         elem(

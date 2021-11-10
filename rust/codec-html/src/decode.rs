@@ -508,8 +508,8 @@ fn decode_table_rows(
 
 /// Decode a table row from a `<tr>` element.
 ///
-/// If all the cells in the row are of type `<th>` then set the tow type
-/// to `Header` and remove that `cell_type` from the cells.
+/// If all the cells in the row are of type `<th>` then set the row type
+/// to `Header`.
 fn decode_table_row(
     node: &NodeRef,
     row_type: &Option<TableRowRowType>,
@@ -517,25 +517,21 @@ fn decode_table_row(
 ) -> TableRow {
     let cells = decode_table_cells(node, context);
 
-    let (row_type, cells) = if row_type.is_some() {
-        (row_type.clone(), cells)
+    let row_type = if row_type.is_some() {
+        row_type.clone()
     } else {
-        let mut cells_without_header: Vec<TableCell> = Vec::with_capacity(cells.len());
-        for cell in cells.iter() {
-            if matches!(cell.cell_type, Some(TableCellCellType::Header)) {
-                cells_without_header.push(TableCell {
-                    cell_type: None,
-                    ..(cell.clone())
-                })
-            } else {
+        let mut cells_all_header: bool = true;
+        for cell in &cells {
+            if !matches!(cell.cell_type, Some(TableCellCellType::Header)) {
+                cells_all_header = false;
                 break;
             }
         }
 
-        if cells_without_header.len() == cells.len() {
-            (Some(TableRowRowType::Header), cells_without_header)
+        if cells_all_header {
+            Some(TableRowRowType::Header)
         } else {
-            (None, cells)
+            None
         }
     };
 
