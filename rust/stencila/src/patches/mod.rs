@@ -593,6 +593,7 @@ impl Operation {
             TableCell
             TableCellCellType
             FigureCaption
+            CodeChunkCaption
             Node
             CodeError
 
