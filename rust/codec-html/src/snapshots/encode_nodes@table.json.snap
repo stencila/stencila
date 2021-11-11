@@ -6,8 +6,8 @@ input_file: fixtures/nodes/table.json
 ---
 <table data-itemscope="root" itemtype="http://schema.stenci.la/Table" itemscope>
   <caption>
-    <span data-itemprop="label" itemtype="http://schema.org/Text" itemscope>Table 1</span>
-    <span data-itemprop="caption" itemtype="http://schema.org/Text" itemscope>A table caption</span>
+    <span data-itemprop="label">Table 1</span>
+    <div data-itemprop="caption">A table caption</div>
   </caption>
   <tbody data-itemprop="rows">
     <tr data-itemscope="root" itemtype="http://schema.stenci.la/TableRow" itemscope>

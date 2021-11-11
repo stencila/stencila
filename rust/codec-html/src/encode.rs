@@ -209,12 +209,26 @@ fn elem_meta(name: &str, content: &str) -> String {
     elem_empty("meta", &[attr_itemprop(name), attr("content", content)])
 }
 
-/// Encode an empty element to act as a placeholder for optional properties
+/// Encode an optional property as an element
 ///
+/// If the property is `None` then the element will be empty but will act
+/// as a placeholder for if/when the property is set.
 /// By having placeholders the order of optional properties in the HTML tree
 /// can be consistent when they are added and removed.
-fn elem_placeholder(tag: &str, prop: &str) -> String {
-    elem(tag, &[attr_prop(prop)], &nothing())
+fn elem_placeholder<T: ToHtml>(
+    name: &str,
+    attrs: &[String],
+    content: &Option<T>,
+    context: &EncodeContext,
+) -> String {
+    elem(
+        name,
+        attrs,
+        &match content {
+            Some(content) => content.to_html("", context),
+            None => nothing(),
+        },
+    )
 }
 
 /// Encode a HTML element attribute, ensuring that the value is escaped correctly
@@ -317,6 +331,7 @@ where
 }
 
 mod blocks;
+mod boxes;
 mod inlines;
 mod nodes;
 mod options;

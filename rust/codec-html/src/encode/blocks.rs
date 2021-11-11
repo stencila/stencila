@@ -77,43 +77,39 @@ impl ToHtml for CodeChunk {
         let text = elem(
             "pre",
             &[attr_prop("text"), attr_slot("text")],
-            &encode_safe(&self.text),
+            &self.text.to_html("", context),
         );
 
         let lang_attr = attr("programming-language", &self.programming_language);
         let lang_meta = elem_meta("programmingLanguage", &self.programming_language);
 
-        let outputs = elem(
+        let outputs = elem_placeholder(
             "div",
             &[attr_prop("outputs"), attr_slot("outputs")],
-            &match &self.outputs {
-                Some(outputs) => outputs.to_html("", context),
-                None => nothing(),
-            },
+            &self.outputs,
+            context,
         );
 
-        let errors = elem(
+        let errors = elem_placeholder(
             "div",
             &[attr_prop("errors"), attr_slot("errors")],
-            &match &self.errors {
-                Some(errors) => errors.to_html("", context),
-                None => nothing(),
-            },
+            &self.errors,
+            context,
         );
 
-        let label = match &self.label {
-            Some(label) => elem(
-                "span",
-                &[attr_prop("label"), attr_slot("label")],
-                &encode_safe(label.as_ref()).to_string(),
-            ),
-            None => elem_placeholder("span", "label"),
-        };
+        let label = elem_placeholder(
+            "span",
+            &[attr_prop("label"), attr_slot("label")],
+            &self.label,
+            context,
+        );
 
-        let caption = match &self.caption {
-            Some(caption) => caption.to_html("caption", context),
-            None => elem_placeholder("figcaption", "caption"),
-        };
+        let caption = elem_placeholder(
+            "figcaption",
+            &[attr_prop("caption"), attr_slot("caption")],
+            &self.caption,
+            context,
+        );
 
         elem(
             "stencila-code-chunk",
@@ -128,22 +124,11 @@ impl ToHtml for CodeChunk {
     }
 }
 
-/// Encode a code chunk's caption to HTML
-///
-/// The alternative handling of string and blocks seems convoluted by is necessary to
-/// maintain compatibility with both patches and `<stencila-code_chunk>` custom element
 impl ToHtml for CodeChunkCaption {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let attrs = [attr_prop(slot), attr_slot(slot)];
         match self {
-            CodeChunkCaption::String(string) => elem(
-                "figcaption",
-                &[],
-                &elem("span", &attrs, &encode_safe(string).to_string()),
-            ),
-            CodeChunkCaption::VecBlockContent(blocks) => {
-                elem("figcaption", &attrs, &blocks.to_html("", context))
-            }
+            CodeChunkCaption::String(string) => string.to_html(slot, context),
+            CodeChunkCaption::VecBlockContent(blocks) => blocks.to_html(slot, context),
         }
     }
 }
@@ -201,24 +186,16 @@ impl ToHtml for CollectionSimple {
 /// element as they are in a table.
 impl ToHtml for FigureSimple {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let content = match &self.content {
-            Some(content) => elem(
-                "div",
-                &[attr_prop("content")],
-                &content.to_html("", context),
-            ),
-            None => elem_placeholder("div", "content"),
-        };
+        let content = elem_placeholder("div", &[attr_prop("content")], &self.content, context);
 
-        let label = match &self.label {
-            Some(label) => label.to_html("label", context),
-            None => elem_placeholder("span", "label"),
-        };
+        let label = elem_placeholder("span", &[attr_prop("label")], &self.label, context);
 
-        let caption = match &self.caption {
-            Some(caption) => caption.to_html("caption", context),
-            None => elem_placeholder("figcaption", "caption"),
-        };
+        let caption = elem_placeholder(
+            "figcaption",
+            &[attr_prop("caption")],
+            &self.caption,
+            context,
+        );
 
         elem(
             "figure",
@@ -235,14 +212,8 @@ impl ToHtml for FigureSimple {
 impl ToHtml for FigureCaption {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         match self {
-            FigureCaption::String(string) => {
-                elem("figcaption", &[], &string.to_html(slot, context))
-            }
-            FigureCaption::VecBlockContent(content) => elem(
-                "figcaption",
-                &[attr_prop(slot)],
-                &content.to_html("", context),
-            ),
+            FigureCaption::String(string) => string.to_html(slot, context),
+            FigureCaption::VecBlockContent(blocks) => blocks.to_html(slot, context),
         }
     }
 }
@@ -397,15 +368,9 @@ impl ToHtml for QuoteBlock {
 /// Note that both the `label` and `caption` properties are nested within a `<caption>` element.
 impl ToHtml for TableSimple {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let label = match &self.label {
-            Some(label) => label.to_html("label", context),
-            None => elem_placeholder("span", "label"),
-        };
+        let label = elem_placeholder("span", &[attr_prop("label")], &self.label, context);
 
-        let caption = match &self.caption {
-            Some(caption) => caption.to_html("caption", context),
-            None => elem_placeholder("div", "caption"),
-        };
+        let caption = elem_placeholder("div", &[attr_prop("caption")], &self.caption, context);
 
         let body = elem(
             "tbody",
@@ -425,9 +390,7 @@ impl ToHtml for TableCaption {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
         match self {
             TableCaption::String(string) => string.to_html(slot, context),
-            TableCaption::VecBlockContent(content) => {
-                elem("div", &[attr_prop(slot)], &content.to_html("", context))
-            }
+            TableCaption::VecBlockContent(blocks) => blocks.to_html(slot, context),
         }
     }
 }
