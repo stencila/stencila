@@ -8,31 +8,30 @@ use html_escape::encode_safe;
 use stencila_schema::*;
 
 impl ToHtml for BlockContent {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         match self {
-            BlockContent::Claim(node) => node.to_html(slot, context),
-            BlockContent::CodeBlock(node) => node.to_html(slot, context),
-            BlockContent::CodeChunk(node) => node.to_html(slot, context),
-            BlockContent::Collection(node) => node.to_html(slot, context),
-            BlockContent::Figure(node) => node.to_html(slot, context),
-            BlockContent::Heading(node) => node.to_html(slot, context),
-            BlockContent::Include(node) => node.to_html(slot, context),
-            BlockContent::List(node) => node.to_html(slot, context),
-            BlockContent::MathBlock(node) => node.to_html(slot, context),
-            BlockContent::Paragraph(node) => node.to_html(slot, context),
-            BlockContent::QuoteBlock(node) => node.to_html(slot, context),
-            BlockContent::Table(node) => node.to_html(slot, context),
-            BlockContent::ThematicBreak(node) => node.to_html(slot, context),
+            BlockContent::Claim(node) => node.to_html(context),
+            BlockContent::CodeBlock(node) => node.to_html(context),
+            BlockContent::CodeChunk(node) => node.to_html(context),
+            BlockContent::Collection(node) => node.to_html(context),
+            BlockContent::Figure(node) => node.to_html(context),
+            BlockContent::Heading(node) => node.to_html(context),
+            BlockContent::Include(node) => node.to_html(context),
+            BlockContent::List(node) => node.to_html(context),
+            BlockContent::MathBlock(node) => node.to_html(context),
+            BlockContent::Paragraph(node) => node.to_html(context),
+            BlockContent::QuoteBlock(node) => node.to_html(context),
+            BlockContent::Table(node) => node.to_html(context),
+            BlockContent::ThematicBreak(node) => node.to_html(context),
         }
     }
 }
 
 impl ToHtml for ClaimSimple {
-    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &EncodeContext) -> String {
         elem(
             "pre",
             &[
-                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("class", "todo"),
@@ -49,7 +48,7 @@ impl ToHtml for CodeBlock {
     /// The `<meta>` element is for Microdata and Stencila WebComponent compatibility.
     /// The `class` follows the recommendation of [HTML5 spec](https://html.spec.whatwg.org/#the-code-element)
     /// to "use the class attribute, e.g. by adding a class prefixed with "language-" to the element."
-    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &EncodeContext) -> String {
         let (lang_class, lang_meta) = match &self.programming_language {
             Some(programming_language) => (
                 attr("class", &["language-", programming_language].concat()),
@@ -66,18 +65,18 @@ impl ToHtml for CodeBlock {
 
         elem(
             "pre",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &[lang_meta, text].concat(),
         )
     }
 }
 
 impl ToHtml for CodeChunk {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let text = elem(
             "pre",
             &[attr_prop("text"), attr_slot("text")],
-            &self.text.to_html("", context),
+            &self.text.to_html(context),
         );
 
         let lang_attr = attr("programming-language", &self.programming_language);
@@ -113,28 +112,23 @@ impl ToHtml for CodeChunk {
 
         elem(
             "stencila-code-chunk",
-            &[
-                attr_prop(slot),
-                attr_itemtype::<Self>(),
-                attr_id(&self.id),
-                lang_attr,
-            ],
+            &[attr_itemtype::<Self>(), attr_id(&self.id), lang_attr],
             &[lang_meta, text, outputs, errors, label, caption].concat(),
         )
     }
 }
 
 impl ToHtml for CodeChunkCaption {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         match self {
-            CodeChunkCaption::String(string) => string.to_html(slot, context),
-            CodeChunkCaption::VecBlockContent(blocks) => blocks.to_html(slot, context),
+            CodeChunkCaption::String(string) => string.to_html(context),
+            CodeChunkCaption::VecBlockContent(blocks) => blocks.to_html(context),
         }
     }
 }
 
 impl ToHtml for CodeError {
-    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &EncodeContext) -> String {
         let error_message = elem(
             "span",
             &[attr_prop("errorMessage")],
@@ -161,20 +155,18 @@ impl ToHtml for CodeError {
 
         elem(
             "div",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &[error_message, error_type, stack_trace].concat(),
         )
     }
 }
 
 impl ToHtml for CollectionSimple {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         elem(
             "ol",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &concat(&self.parts, |part| {
-                elem("li", &[], &part.to_html("", context))
-            }),
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &concat(&self.parts, |part| elem("li", &[], &part.to_html(context))),
         )
     }
 }
@@ -185,7 +177,7 @@ impl ToHtml for CollectionSimple {
 /// (although themes should be able to move them) and are not grouped together in a `<caption>`
 /// element as they are in a table.
 impl ToHtml for FigureSimple {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let content = elem_placeholder("div", &[attr_prop("content")], &self.content, context);
 
         let label = elem_placeholder("span", &[attr_prop("label")], &self.label, context);
@@ -199,21 +191,17 @@ impl ToHtml for FigureSimple {
 
         elem(
             "figure",
-            &[
-                attr_prop(slot),
-                attr_itemtype::<Figure>(),
-                attr_id(&self.id),
-            ],
+            &[attr_itemtype::<Figure>(), attr_id(&self.id)],
             &[content, label, caption].concat(),
         )
     }
 }
 
 impl ToHtml for FigureCaption {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         match self {
-            FigureCaption::String(string) => string.to_html(slot, context),
-            FigureCaption::VecBlockContent(blocks) => blocks.to_html(slot, context),
+            FigureCaption::String(string) => string.to_html(context),
+            FigureCaption::VecBlockContent(blocks) => blocks.to_html(context),
         }
     }
 }
@@ -231,7 +219,7 @@ impl ToHtml for Heading {
     ///
     /// In rare cases that there is no content in the heading, return an empty
     /// text node to avoid the 'Heading tag found with no content' accessibility error.
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let depth = match &self.depth {
             Some(depth) => std::cmp::min(*depth + 1, 6),
             None => 2,
@@ -239,29 +227,29 @@ impl ToHtml for Heading {
 
         elem(
             &["h", &depth.to_string()].concat(),
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &self.content.to_html("", context),
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &self.content.to_html(context),
         )
     }
 }
 
 impl ToHtml for Include {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let content = self
             .content
             .as_ref()
-            .map_or_else(|| "".to_string(), |content| content.to_html("", context));
+            .map_or_else(|| "".to_string(), |content| content.to_html(context));
 
         elem(
             "div",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &content,
         )
     }
 }
 
 impl ToHtml for List {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let tag = match &self.order {
             Some(ListOrder::Ascending) => "ol",
             _ => "ul",
@@ -269,11 +257,11 @@ impl ToHtml for List {
 
         elem(
             tag,
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &self
                 .items
                 .iter()
-                .map(|item| item.to_html("", context))
+                .map(|item| item.to_html(context))
                 .collect::<Vec<String>>()
                 .concat(),
         )
@@ -281,7 +269,7 @@ impl ToHtml for List {
 }
 
 impl ToHtml for ListItem {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let checkbox = self.is_checked.map(|is_checked| match is_checked {
             true => InlineContent::String("☑ ".to_string()),
             false => InlineContent::String("☐ ".to_string()),
@@ -290,10 +278,8 @@ impl ToHtml for ListItem {
         let content = match &self.content {
             Some(content) => match content {
                 ListItemContent::VecInlineContent(inlines) => match checkbox {
-                    Some(checkbox) => [vec![checkbox], inlines.clone()]
-                        .concat()
-                        .to_html("", context),
-                    None => inlines.to_html("", context),
+                    Some(checkbox) => [vec![checkbox], inlines.clone()].concat().to_html(context),
+                    None => inlines.to_html(context),
                 },
                 ListItemContent::VecBlockContent(blocks) => match checkbox {
                     Some(checkbox) => {
@@ -302,15 +288,15 @@ impl ToHtml for ListItem {
                             let mut paragraph = paragraph.clone();
                             paragraph.content.insert(0, checkbox);
                             [
-                                paragraph.to_html("", context),
-                                concat(&blocks[1..], |block| block.to_html("", context)),
+                                paragraph.to_html(context),
+                                concat(&blocks[1..], |block| block.to_html(context)),
                             ]
                             .concat()
                         } else {
-                            blocks.to_html("", context)
+                            blocks.to_html(context)
                         }
                     }
-                    None => blocks.to_html("", context),
+                    None => blocks.to_html(context),
                 },
             },
             None => "".to_string(),
@@ -318,18 +304,17 @@ impl ToHtml for ListItem {
 
         elem(
             "li",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &content,
         )
     }
 }
 
 impl ToHtml for MathBlock {
-    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &EncodeContext) -> String {
         elem(
             "pre",
             &[
-                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("class", "todo"),
@@ -340,21 +325,21 @@ impl ToHtml for MathBlock {
 }
 
 impl ToHtml for Paragraph {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         elem(
             "p",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &self.content.to_html("", context),
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &self.content.to_html(context),
         )
     }
 }
 
 impl ToHtml for QuoteBlock {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         elem(
             "blockquote",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &self.content.to_html("", context),
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &self.content.to_html(context),
         )
     }
 }
@@ -367,7 +352,7 @@ impl ToHtml for QuoteBlock {
 ///
 /// Note that both the `label` and `caption` properties are nested within a `<caption>` element.
 impl ToHtml for TableSimple {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let label = elem_placeholder("span", &[attr_prop("label")], &self.label, context);
 
         let caption = elem_placeholder("div", &[attr_prop("caption")], &self.caption, context);
@@ -375,22 +360,22 @@ impl ToHtml for TableSimple {
         let body = elem(
             "tbody",
             &[attr_prop("rows")],
-            &concat(&self.rows, |row| row.to_html(slot, context)),
+            &concat(&self.rows, |row| row.to_html(context)),
         );
 
         elem(
             "table",
-            &[attr_prop(slot), attr_itemtype::<Table>(), attr_id(&self.id)],
+            &[attr_itemtype::<Table>(), attr_id(&self.id)],
             &[elem("caption", &[], &[label, caption].concat()), body].concat(),
         )
     }
 }
 
 impl ToHtml for TableCaption {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         match self {
-            TableCaption::String(string) => string.to_html(slot, context),
-            TableCaption::VecBlockContent(blocks) => blocks.to_html(slot, context),
+            TableCaption::String(string) => string.to_html(context),
+            TableCaption::VecBlockContent(blocks) => blocks.to_html(context),
         }
     }
 }
@@ -403,17 +388,17 @@ impl ToHtml for TableCaption {
 /// not know it's row context). Therefore we deprecate the use of row type alone, and
 /// encourage use of both for header rows.
 impl ToHtml for TableRow {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         elem(
             "tr",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &self.cells.to_html("", context),
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &self.cells.to_html(context),
         )
     }
 }
 
 impl ToHtml for TableCell {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let tag = match &self.cell_type {
             Some(cell_type) => match cell_type {
                 TableCellCellType::Header => "th",
@@ -434,20 +419,14 @@ impl ToHtml for TableCell {
 
         elem(
             tag,
-            &[
-                attr_prop(slot),
-                attr_itemtype::<Self>(),
-                attr_id(&self.id),
-                colspan,
-                rowspan,
-            ],
-            &self.content.to_html("", context),
+            &[attr_itemtype::<Self>(), attr_id(&self.id), colspan, rowspan],
+            &self.content.to_html(context),
         )
     }
 }
 
 impl ToHtml for TableCellCellType {
-    fn to_html(&self, _slot: &str, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &EncodeContext) -> String {
         match self {
             TableCellCellType::Header => "Header".to_string(),
             TableCellCellType::Data => "Data".to_string(),
@@ -456,19 +435,16 @@ impl ToHtml for TableCellCellType {
 }
 
 impl ToHtml for TableCellContent {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         match self {
-            TableCellContent::VecInlineContent(nodes) => nodes.to_html(slot, context),
-            TableCellContent::VecBlockContent(nodes) => nodes.to_html(slot, context),
+            TableCellContent::VecInlineContent(nodes) => nodes.to_html(context),
+            TableCellContent::VecBlockContent(nodes) => nodes.to_html(context),
         }
     }
 }
 
 impl ToHtml for ThematicBreak {
-    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
-        elem_empty(
-            "hr",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-        )
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        elem_empty("hr", &[attr_itemtype::<Self>(), attr_id(&self.id)])
     }
 }

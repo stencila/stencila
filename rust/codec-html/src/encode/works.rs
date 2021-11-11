@@ -12,39 +12,39 @@ use std::collections::BTreeMap;
 use stencila_schema::*;
 
 impl ToHtml for CreativeWorkTypes {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         match self {
-            CreativeWorkTypes::Article(node) => node.to_html(slot, context),
-            CreativeWorkTypes::AudioObject(node) => node.to_html(slot, context),
-            CreativeWorkTypes::Claim(node) => node.to_html(slot, context),
-            CreativeWorkTypes::Collection(node) => node.to_html(slot, context),
-            CreativeWorkTypes::Figure(node) => node.to_html(slot, context),
-            CreativeWorkTypes::ImageObject(node) => node.to_html(slot, context),
-            CreativeWorkTypes::Table(node) => node.to_html(slot, context),
-            CreativeWorkTypes::VideoObject(node) => node.to_html(slot, context),
+            CreativeWorkTypes::Article(node) => node.to_html(context),
+            CreativeWorkTypes::AudioObject(node) => node.to_html(context),
+            CreativeWorkTypes::Claim(node) => node.to_html(context),
+            CreativeWorkTypes::Collection(node) => node.to_html(context),
+            CreativeWorkTypes::Figure(node) => node.to_html(context),
+            CreativeWorkTypes::ImageObject(node) => node.to_html(context),
+            CreativeWorkTypes::Table(node) => node.to_html(context),
+            CreativeWorkTypes::VideoObject(node) => node.to_html(context),
             _ => elem("div", &[attr("class", "unsupported")], &json(self)),
         }
     }
 }
 
 impl ToHtml for CreativeWorkContent {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         match self {
-            CreativeWorkContent::String(node) => node.to_html(slot, context),
-            CreativeWorkContent::VecNode(nodes) => nodes.to_html(slot, context),
+            CreativeWorkContent::String(node) => node.to_html(context),
+            CreativeWorkContent::VecNode(nodes) => nodes.to_html(context),
         }
     }
 }
 
 impl ToHtml for Article {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let title = match &self.title {
             Some(title) => {
                 let title = match &**title {
-                    CreativeWorkTitle::String(title) => title.to_html("", context),
-                    CreativeWorkTitle::VecInlineContent(title) => title.to_html("", context),
+                    CreativeWorkTitle::String(title) => title.to_html(context),
+                    CreativeWorkTitle::VecInlineContent(title) => title.to_html(context),
                 };
-                elem("h1", &[attr_prop(slot), attr_itemprop("headline")], &title)
+                elem("h1", &[attr_itemprop("headline")], &title)
             }
             None => "".to_string(),
         };
@@ -101,13 +101,13 @@ impl ToHtml for Article {
                         content: vec![InlineContent::String(string.clone())],
                         ..Default::default()
                     }
-                    .to_html("", context),
+                    .to_html(context),
                     ThingDescription::VecInlineContent(inlines) => Paragraph {
                         content: inlines.clone(),
                         ..Default::default()
                     }
-                    .to_html("", context),
-                    ThingDescription::VecBlockContent(blocks) => blocks.to_html("", context),
+                    .to_html(context),
+                    ThingDescription::VecBlockContent(blocks) => blocks.to_html(context),
                 };
                 elem(
                     "section",
@@ -128,12 +128,12 @@ impl ToHtml for Article {
         let content = elem(
             "div",
             &[attr_prop("content")],
-            &self.content.to_html("", context),
+            &self.content.to_html(context),
         );
 
         elem(
             "article",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &[title, authors, affiliations, abstract_, content].concat(),
         )
     }
@@ -284,8 +284,8 @@ fn affiliation_org_to_html(org: &Organization) -> String {
 macro_rules! to_content_html {
     ($type: ty, $variant: path, $transform:ident) => {
         impl ToHtml for $type {
-            fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-                $variant(self.clone()).$transform().to_html(slot, context)
+            fn to_html(&self, context: &EncodeContext) -> String {
+                $variant(self.clone()).$transform().to_html(context)
             }
         }
     };

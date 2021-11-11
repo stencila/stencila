@@ -10,12 +10,12 @@ input_file: fixtures/nodes/table.json
     <div data-itemprop="caption">A table caption</div>
   </caption>
   <tbody data-itemprop="rows">
-    <tr data-itemscope="root" itemtype="http://schema.stenci.la/TableRow" itemscope>
+    <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
       <th itemtype="http://schema.stenci.la/TableCell" itemscope>A</th>
       <th itemtype="http://schema.stenci.la/TableCell" itemscope>B</th>
       <th itemtype="http://schema.stenci.la/TableCell" itemscope>C</th>
     </tr>
-    <tr data-itemscope="root" itemtype="http://schema.stenci.la/TableRow" itemscope>
+    <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
       <td itemtype="http://schema.stenci.la/TableCell" itemscope rowspan="2">
         <span itemtype="http://schema.stenci.la/Integer" itemscope>1</span>
       </td>
@@ -26,7 +26,7 @@ input_file: fixtures/nodes/table.json
         <span itemtype="http://schema.stenci.la/Integer" itemscope>3</span>
       </td>
     </tr>
-    <tr data-itemscope="root" itemtype="http://schema.stenci.la/TableRow" itemscope>
+    <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
       <td itemtype="http://schema.stenci.la/TableCell" itemscope colspan="2">
         <span itemtype="http://schema.stenci.la/Integer" itemscope>5</span>
       </td>

@@ -1,6 +1,6 @@
 //! Encode `Primitive` nodes to HTML
 
-use super::{attr_itemtype_str, attr_prop, elem, json, EncodeContext, ToHtml};
+use super::{attr_itemtype_str, elem, json, EncodeContext, ToHtml};
 use html_escape::encode_safe;
 use stencila_schema::{Array, Boolean, Integer, Null, Number, Object};
 
@@ -8,10 +8,10 @@ use stencila_schema::{Array, Boolean, Integer, Null, Number, Object};
 macro_rules! atomic_to_html {
     ($type:ty) => {
         impl ToHtml for $type {
-            fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
+            fn to_html(&self, _context: &EncodeContext) -> String {
                 elem(
                     "span",
-                    &[attr_prop(slot), attr_itemtype_str(stringify!($type))],
+                    &[attr_itemtype_str(stringify!($type))],
                     &self.to_string(),
                 )
             }
@@ -33,35 +33,21 @@ atomic_to_html!(Number);
 ///
 /// The string is escaped so that the generated HTML can be safely interpolated within HTML.
 impl ToHtml for String {
-    fn to_html(&self, _slot: &str, _context: &EncodeContext) -> String {
-        #[cfg(debug_assertions)]
-        {
-            if !_slot.is_empty() {
-                tracing::warn!("Slots passed to `String.to_html` are ignored")
-            }
-        }
+    fn to_html(&self, _context: &EncodeContext) -> String {
         encode_safe(self).to_string()
     }
 }
 
 /// Encode an `Array` to HTML
 impl ToHtml for Array {
-    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
-        elem(
-            "code",
-            &[attr_prop(slot), attr_itemtype_str("Array")],
-            &json(self),
-        )
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        elem("code", &[attr_itemtype_str("Array")], &json(self))
     }
 }
 
 /// Encode an `Object` to HTML
 impl ToHtml for Object {
-    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
-        elem(
-            "code",
-            &[attr_prop(slot), attr_itemtype_str("Object")],
-            &json(self),
-        )
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        elem("code", &[attr_itemtype_str("Object")], &json(self))
     }
 }

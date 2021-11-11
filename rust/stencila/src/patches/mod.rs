@@ -542,36 +542,22 @@ impl Operation {
     }
 
     /// Generate HTML for the `value` field of an operation
-    fn value_html(value: &Value, address: &Address) -> String {
+    fn value_html(value: &Value) -> String {
         use codec_html::{EncodeContext, ToHtml};
 
-        let slot = address.back();
         let context = EncodeContext::new();
 
         // Convert a node, boxed node, or vector of nodes to HTML
         macro_rules! to_html {
             ($type:ty) => {
                 if let Some(node) = value.downcast_ref::<$type>() {
-                    return node.to_html(
-                        &slot.map(|slot| slot.to_string()).unwrap_or_default(),
-                        &context
-                    )
+                    return node.to_html(&context);
                 }
                 if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
-                    return boxed.to_html(
-                        &slot.map(|slot| slot.to_string()).unwrap_or_default(),
-                        &context
-                    )
+                    return boxed.to_html(&context);
                 }
                 if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
-                    return match slot {
-                        // If the slot is a name then we're adding or replacing a property so we
-                        // want the `Vec` to have a wrapper element with the name as the slot attribute
-                        Some(Slot::Name(name)) => nodes.to_html(name, &context),
-                        // If the slot is an index then we're adding or replacing items in a
-                        // vector so we don't want a wrapper element
-                        Some(Slot::Index(..)) | None => nodes.to_html("", &context),
-                    };
+                    return nodes.to_html(&context);
                 }
             };
             ($($type:ty)*) => {
@@ -634,17 +620,17 @@ impl Operation {
             if let Some(str) = value.as_str() {
                 return str.to_string();
             } else if let Ok(nodes) = serde_json::from_value::<InlineContent>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else if let Ok(nodes) = serde_json::from_value::<Vec<InlineContent>>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else if let Ok(nodes) = serde_json::from_value::<BlockContent>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else if let Ok(nodes) = serde_json::from_value::<Vec<BlockContent>>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else if let Ok(nodes) = serde_json::from_value::<ListItem>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else if let Ok(nodes) = serde_json::from_value::<Vec<ListItem>>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else {
                 tracing::error!(
                     "Unhandled JSON value type when generating HTML for patch `Operation`: {}",
@@ -665,17 +651,15 @@ impl Operation {
         match self {
             Operation::Add {
                 value,
-                address,
                 html,
                 ..
             }
             | Operation::Replace {
                 value,
-                address,
                 html,
                 ..
             } => {
-                *html = Some(Operation::value_html(value, address));
+                *html = Some(Operation::value_html(value));
             }
             _ => {}
         }

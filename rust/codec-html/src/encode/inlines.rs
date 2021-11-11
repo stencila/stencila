@@ -1,8 +1,8 @@
 //! Encode `InlineContent` nodes to HTML
 
 use super::{
-    attr, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_prop, concat, elem,
-    elem_empty, json, EncodeContext, ToHtml,
+    attr, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, concat, elem, elem_empty, json,
+    EncodeContext, ToHtml,
 };
 use codec_txt::ToTxt;
 use html_escape::encode_safe;
@@ -10,31 +10,31 @@ use std::{fs, path::PathBuf};
 use stencila_schema::*;
 
 impl ToHtml for InlineContent {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         match self {
-            InlineContent::AudioObject(node) => node.to_html(slot, context),
-            InlineContent::Boolean(node) => node.to_html(slot, context),
-            InlineContent::Cite(node) => node.to_html(slot, context),
-            InlineContent::CiteGroup(node) => node.to_html(slot, context),
-            InlineContent::CodeExpression(node) => node.to_html(slot, context),
-            InlineContent::CodeFragment(node) => node.to_html(slot, context),
-            InlineContent::Delete(node) => node.to_html(slot, context),
-            InlineContent::Emphasis(node) => node.to_html(slot, context),
-            InlineContent::ImageObject(node) => node.to_html(slot, context),
-            InlineContent::Integer(node) => node.to_html(slot, context),
-            InlineContent::Link(node) => node.to_html(slot, context),
-            InlineContent::MathFragment(node) => node.to_html(slot, context),
-            InlineContent::NontextualAnnotation(node) => node.to_html(slot, context),
-            InlineContent::Note(node) => node.to_html(slot, context),
-            InlineContent::Null(node) => node.to_html(slot, context),
-            InlineContent::Number(node) => node.to_html(slot, context),
-            InlineContent::Parameter(node) => node.to_html(slot, context),
-            InlineContent::Quote(node) => node.to_html(slot, context),
-            InlineContent::String(node) => node.to_html(slot, context),
-            InlineContent::Strong(node) => node.to_html(slot, context),
-            InlineContent::Subscript(node) => node.to_html(slot, context),
-            InlineContent::Superscript(node) => node.to_html(slot, context),
-            InlineContent::VideoObject(node) => node.to_html(slot, context),
+            InlineContent::AudioObject(node) => node.to_html(context),
+            InlineContent::Boolean(node) => node.to_html(context),
+            InlineContent::Cite(node) => node.to_html(context),
+            InlineContent::CiteGroup(node) => node.to_html(context),
+            InlineContent::CodeExpression(node) => node.to_html(context),
+            InlineContent::CodeFragment(node) => node.to_html(context),
+            InlineContent::Delete(node) => node.to_html(context),
+            InlineContent::Emphasis(node) => node.to_html(context),
+            InlineContent::ImageObject(node) => node.to_html(context),
+            InlineContent::Integer(node) => node.to_html(context),
+            InlineContent::Link(node) => node.to_html(context),
+            InlineContent::MathFragment(node) => node.to_html(context),
+            InlineContent::NontextualAnnotation(node) => node.to_html(context),
+            InlineContent::Note(node) => node.to_html(context),
+            InlineContent::Null(node) => node.to_html(context),
+            InlineContent::Number(node) => node.to_html(context),
+            InlineContent::Parameter(node) => node.to_html(context),
+            InlineContent::Quote(node) => node.to_html(context),
+            InlineContent::String(node) => node.to_html(context),
+            InlineContent::Strong(node) => node.to_html(context),
+            InlineContent::Subscript(node) => node.to_html(context),
+            InlineContent::Superscript(node) => node.to_html(context),
+            InlineContent::VideoObject(node) => node.to_html(context),
         }
     }
 }
@@ -42,11 +42,11 @@ impl ToHtml for InlineContent {
 macro_rules! mark_to_html {
     ($type:ident, $tag:literal) => {
         impl ToHtml for $type {
-            fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+            fn to_html(&self, context: &EncodeContext) -> String {
                 elem(
                     $tag,
-                    &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-                    &self.content.to_html("", context),
+                    &[attr_itemtype::<Self>(), attr_id(&self.id)],
+                    &self.content.to_html(context),
                 )
             }
         }
@@ -98,11 +98,10 @@ fn content_url_to_src_attr(content_url: &str, context: &EncodeContext) -> String
 }
 
 impl ToHtml for AudioObjectSimple {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         elem(
             "audio",
             &[
-                attr_prop(slot),
                 attr_itemtype_str("AudioObject"),
                 attr_id(&self.id),
                 "controls".to_string(),
@@ -114,11 +113,10 @@ impl ToHtml for AudioObjectSimple {
 }
 
 impl ToHtml for ImageObjectSimple {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         elem_empty(
             "img",
             &[
-                attr_prop(slot),
                 attr_itemtype_str("ImageObject"),
                 attr_id(&self.id),
                 content_url_to_src_attr(&self.content_url, context),
@@ -128,7 +126,7 @@ impl ToHtml for ImageObjectSimple {
 }
 
 impl ToHtml for VideoObjectSimple {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let src_attr = content_url_to_src_attr(&self.content_url, context);
         let type_attr = match &self.media_type {
             Some(media_type) => attr("type", media_type),
@@ -137,7 +135,6 @@ impl ToHtml for VideoObjectSimple {
         elem(
             "video",
             &[
-                attr_prop(slot),
                 attr_itemtype_str("VideoObject"),
                 attr_id(&self.id),
                 "controls".to_string(),
@@ -148,9 +145,9 @@ impl ToHtml for VideoObjectSimple {
 }
 
 impl ToHtml for Cite {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let content = match &self.content {
-            Some(nodes) => nodes.to_html("", context),
+            Some(nodes) => nodes.to_html(context),
             None => {
                 // Get the list of references from the root nodes
                 let references = match context.root {
@@ -261,32 +258,31 @@ impl ToHtml for Cite {
         };
         elem(
             "cite",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &elem("a", &[attr("href", &self.target)], &content),
         )
     }
 }
 
 impl ToHtml for CiteGroup {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         elem(
             "span",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &concat(&self.items, |cite| cite.to_html("", context)),
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &concat(&self.items, |cite| cite.to_html(context)),
         )
     }
 }
 
 impl ToHtml for CodeExpression {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let output = match &self.output {
-            Some(output) => output.to_html("", context),
+            Some(output) => output.to_html(context),
             None => "".to_string(),
         };
         elem(
             "stencila-code-expression",
             &[
-                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("programming-language", &self.programming_language),
@@ -305,7 +301,7 @@ impl ToHtml for CodeFragment {
     ///
     /// See `CodeBlock::to_html` for why `programming_language` is encoded
     /// as both a `class` attribute and a `<meta>` element.
-    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &EncodeContext) -> String {
         let (class, meta) = match &self.programming_language {
             Some(programming_language) => (
                 attr("class", &["language-", programming_language].concat()),
@@ -324,48 +320,41 @@ impl ToHtml for CodeFragment {
 
         elem(
             "code",
-            &[
-                attr_prop(slot),
-                attr_itemtype::<Self>(),
-                attr_id(&self.id),
-                class,
-            ],
+            &[attr_itemtype::<Self>(), attr_id(&self.id), class],
             &[meta, text.to_string()].concat(),
         )
     }
 }
 
 impl ToHtml for Link {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         elem(
             "a",
             &[
-                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("href", &self.target),
             ],
-            &self.content.to_html("", context),
+            &self.content.to_html(context),
         )
     }
 }
 
 impl ToHtml for MathFragment {
-    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &EncodeContext) -> String {
         elem(
             "code",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &encode_safe(&self.text),
         )
     }
 }
 
 impl ToHtml for Note {
-    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &EncodeContext) -> String {
         elem(
             "code",
             &[
-                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("class", "todo"),
@@ -376,7 +365,7 @@ impl ToHtml for Note {
 }
 
 impl ToHtml for Parameter {
-    fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
+    fn to_html(&self, _context: &EncodeContext) -> String {
         let input_type = match self.validator.as_deref() {
             Some(ValidatorTypes::NumberValidator(..)) => "number",
             _ => "text",
@@ -388,7 +377,6 @@ impl ToHtml for Parameter {
         elem_empty(
             "input",
             &[
-                attr_prop(slot),
                 attr_itemtype::<Self>(),
                 attr_id(&self.id),
                 attr("type", input_type),
@@ -400,11 +388,11 @@ impl ToHtml for Parameter {
 }
 
 impl ToHtml for Quote {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         elem(
             "q",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
-            &self.content.to_html("", context),
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            &self.content.to_html(context),
         )
     }
 }
