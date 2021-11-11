@@ -311,8 +311,9 @@ function resolveEventNode(event: Event): [string, string] {
   while (elem) {
     const id = elem.getAttribute('id')
     if (id !== null) {
-      const itemtype = elem.getAttribute('itemtype')
-      const type = itemtype?.match(/\/(\w+)$/)?.groups?.[1] ?? ''
+      const itemtype = elem.getAttribute('itemtype') ?? ''
+      const parts = itemtype.split('/')
+      const type = parts[parts.length - 1] ?? ''
       return [type, id]
     }
     elem = elem.parentElement
