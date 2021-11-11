@@ -669,7 +669,7 @@ async fn get_handler(
     let mode = params.mode.unwrap_or_else(|| "view".into());
     let format = params.format.unwrap_or_else(|| "html".into());
     let theme = params.theme.unwrap_or_else(|| "wilmore".into());
-    let components = params.components.unwrap_or_else(|| "true".into());
+    let components = params.components.unwrap_or_else(|| "static".into());
 
     match DOCUMENTS.open(&path, None).await {
         Ok(document) => {
@@ -751,17 +751,21 @@ pub fn rewrite_html(
         }
     });
 
-    let components = if components == "true" {
-        r#"<script
-    src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.esm.js"
-    type="module">
-</script>
-<script
-    src="https://unpkg.com/@stencila/components/dist/stencila-components/stencila-components.js"
-    type="text/javascript" nomodule="">
-</script>"#
-    } else {
-        ""
+    let components = match components {
+        "none" => "".to_string(),
+        _ => {
+            let base = match components {
+                "remote" => "https://unpkg.com/@stencila/components/dist/stencila-components",
+                _ => "/~static/components",
+            };
+            format!(
+                r#"
+                <script src="{}/stencila-components.esm.js" type="module"> </script>
+                <script src="{}/stencila-components.js" type="text/javascript" nomodule=""> </script>
+                "#,
+                base, base
+            )
+        }
     };
 
     format!(
