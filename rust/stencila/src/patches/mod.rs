@@ -649,16 +649,20 @@ impl Operation {
     /// Set the `html` field from the `value` field
     fn html_set(&mut self) -> &mut Self {
         match self {
-            Operation::Add {
-                value,
-                html,
-                ..
-            }
-            | Operation::Replace {
-                value,
-                html,
-                ..
-            } => {
+            Operation::Add { value, html, .. } | Operation::Replace { value, html, .. } => {
+                // As an optimization, if the value is a `String` or `serde_json::Value::String`
+                // (but not if it is a `InlineContent::String` or `Node::String`), then there
+                // is no need to generate HTML since it is the same as the value and the `web`
+                // module will fallback to `value` if necessary.
+                if value.is::<String>() {
+                    return self;
+                }
+                if let Some(value) = value.downcast_mut::<serde_json::Value>() {
+                    if value.is_string() {
+                        return self;
+                    }
+                }
+
                 *html = Some(Operation::value_html(value));
             }
             _ => {}
@@ -1215,7 +1219,7 @@ mod tests {
                 "address": ["content", 0, "content", 0],
                 "value": ["first", " second"],
                 "length": 2,
-                "html": "first second",
+                "html": "<span>first</span><span> second</span>",
             }])
         );
 
@@ -1229,8 +1233,8 @@ mod tests {
                 "address": ["content", 0, "content", 0, 1],
                 "items": 3,
                 "value": "oo",
-                "length": 2,
-                "html": "<span data-itemprop=\"1\" itemtype=\"http://schema.org/Text\" itemscope>oo</span>",
+                "length": 2
+                // No `html` because same as `value`
             }])
         );
 
