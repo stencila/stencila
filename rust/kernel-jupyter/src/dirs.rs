@@ -20,7 +20,7 @@ pub fn data_dir() -> PathBuf {
     }
 }
 
-/// Get all the directories where Jupyter stores data files such as kernel specs.
+/// Get all the directories where Jupyter stores data files.
 ///
 /// See https://jupyter.readthedocs.io/en/latest/use/jupyter-directories.html
 /// and `jupyter --paths`.
@@ -42,21 +42,30 @@ pub fn data_dirs() -> Vec<PathBuf> {
     dirs
 }
 
-/// Get the directory where Jupyter stores runtime files e.g. connection files.
+/// Get the directories where Jupyter may store kernel specs.
+pub fn kernel_dirs() -> Vec<PathBuf> {
+    data_dirs()
+        .into_iter()
+        .map(|path| path.join("kernels"))
+        .collect()
+}
+
+/// Get the directories where Jupyter may store runtime files e.g. connection files.
 ///
 /// See https://jupyter.readthedocs.io/en/latest/use/jupyter-directories.html
-/// and `jupyter -runtime-dir`.
-pub fn runtime_dir() -> PathBuf {
-    if let Ok(path) = env::var("JUPYTER_RUNTIME_DIR") {
-        PathBuf::from(path)
-    } else {
-        #[cfg(target_os = "linux")]
-        return match ::dirs::runtime_dir() {
-            Some(runtime_dir) => runtime_dir.join("jupyter"),
-            None => data_dir().join("runtime"),
-        };
+/// and `jupyter --runtime-dir`. To avoid brittleness this returns multiple options.
+pub fn runtime_dirs() -> Vec<PathBuf> {
+    let mut dirs = Vec::new();
 
-        #[cfg(not(target_os = "linux"))]
-        return data_dir().join("runtime");
+    if let Ok(path) = env::var("JUPYTER_RUNTIME_DIR") {
+        dirs.push(PathBuf::from(path))
     }
+
+    dirs.push(data_dir().join("runtime"));
+
+    if let Some(runtime_dir) = ::dirs::runtime_dir() {
+        dirs.push(runtime_dir.join("jupyter"));
+    }
+
+    dirs
 }

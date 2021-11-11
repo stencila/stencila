@@ -29,13 +29,13 @@ use tokio::{
 use zmq::Socket;
 
 mod connection;
-mod dirs;
+pub mod dirs;
 mod messages;
 mod server;
 
 use crate::{
     connection::JupyterConnection,
-    dirs::data_dirs,
+    dirs::kernel_dirs,
     messages::{
         HmacSha256, JupyterDisplayData, JupyterExecuteResult, JupyterKernelInfoReply,
         JupyterMessage, JupyterMessageType, JupyterStatus, JupyterStream,
@@ -207,8 +207,7 @@ impl JupyterKernel {
     pub async fn available() -> Result<Vec<String>> {
         let mut list = Vec::new();
 
-        for dir in data_dirs() {
-            let kernels = dir.join("kernels");
+        for kernels in kernel_dirs() {
             if !kernels.exists() {
                 continue;
             }
@@ -349,14 +348,13 @@ impl JupyterKernel {
         drop(specs);
 
         // For each Jupyter data directory..
-        for dir in data_dirs() {
-            let kernels = dir.join("kernels");
-            if !kernels.exists() {
+        for kernel in kernel_dirs() {
+            if !kernel.exists() {
                 continue;
             }
 
             // Is there is a kernelspec with the same name?
-            let path = kernels.join(language).join("kernel.json");
+            let path = kernel.join(language).join("kernel.json");
             if path.exists() {
                 let kernel = JupyterKernel::read(language, &path).await?;
                 if kernel.supports(language) {
@@ -365,7 +363,7 @@ impl JupyterKernel {
             }
 
             // Is there is a kernelspec that supports the language?
-            for dir in kernels.read_dir()?.flatten() {
+            for dir in kernel.read_dir()?.flatten() {
                 let path = dir.path().join("kernel.json");
                 if path.exists() {
                     let name = dir.file_name().to_string_lossy().to_string();

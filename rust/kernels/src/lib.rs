@@ -493,6 +493,21 @@ pub async fn running() -> Result<serde_json::Value> {
     }
 }
 
+/// List the directories that are searched for Jupyter kernel spaces
+pub async fn directories() -> Result<serde_json::Value> {
+    #[cfg(feature = "jupyter")]
+    {
+        Ok(serde_json::json!({
+            "kernels": kernel_jupyter::dirs::kernel_dirs(),
+            "runtime": kernel_jupyter::dirs::runtime_dirs(),
+        }))
+    }
+    #[cfg(not(feature = "jupyter"))]
+    {
+        bail!("Jupyter kernels are not enabled")
+    }
+}
+
 #[cfg(feature = "cli")]
 pub mod commands {
     use super::*;
@@ -519,6 +534,7 @@ pub mod commands {
     pub enum Action {
         Available(Available),
         Running(Running),
+        Directories(Directories),
         Execute(Execute),
         Start(Start),
         Connect(Connect),
@@ -534,6 +550,7 @@ pub mod commands {
             match action {
                 Action::Available(action) => action.run().await,
                 Action::Running(action) => action.run().await,
+                Action::Directories(action) => action.run().await,
                 Action::Execute(action) => action.run().await,
                 Action::Start(action) => action.run().await,
                 Action::Connect(action) => action.run().await,
@@ -575,6 +592,21 @@ pub mod commands {
     impl Run for Running {
         async fn run(&self) -> Result {
             result::value(running().await?)
+        }
+    }
+
+    /// List the directories on this machine that will be searched for Jupyter kernel specs
+    /// and running kernels
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        alias = "dirs",
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Directories {}
+    #[async_trait]
+    impl Run for Directories {
+        async fn run(&self) -> Result {
+            result::value(directories().await?)
         }
     }
 
