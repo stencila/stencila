@@ -207,7 +207,9 @@ export class ArticleEditor {
       }
     }
 
-    window.dispatchEvent(new CustomEvent('patched', { detail: { ops } }))
+    window.dispatchEvent(
+      new CustomEvent('stencila-document-patch', { detail: { ops } })
+    )
 
     this.version = this.version + steps.length
 

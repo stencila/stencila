@@ -6,17 +6,9 @@
 // - How do we migrate old published documents
 // - Attach Node IDs for required elements in published article HTML
 
-import {
-  Document,
-  DocumentEvent,
-  Operation,
-  Patch,
-  Session,
-} from '@stencila/stencila'
+import { Document, Operation, Session } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
-import { JsonValue } from './patches/checks'
-import { applyPatch } from './patches/dom'
 import * as sessions from './sessions'
 import { ProjectId, SnapshotId } from './types'
 
@@ -55,11 +47,15 @@ export const main = (
     if (document === undefined) {
       document = await documents.open(client, documentPath)
       documents
-        .subscribe(client, document.id, 'patched', receivePatch)
+        .subscribe(client, document.id, 'patched', (event) =>
+          documents.receivePatch(clientId, event)
+        )
         .catch((err) => {
           console.warn(`Couldn't subscribe to document 'patched'`, err)
         })
     }
+
+    documents.listen(client, clientId, document.id)
 
     return [client, document, session]
   }
@@ -91,10 +87,6 @@ export const main = (
   }
 
   window.onload = () => {
-    window.addEventListener('patched', (event) =>
-      sendPatch(event as CustomEvent)
-    )
-
     // `onChange` for `Parameter` nodes
     window.document.querySelectorAll('input').forEach((input) => {
       input.addEventListener('change', () => {
@@ -133,89 +125,6 @@ export const main = (
         }
         /* eslint-enable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return */
       })
-  }
-
-  // Send a patch event
-  //
-  // Handles a 'patched' event by sending it on to the server.
-  async function sendPatch(event: CustomEvent): Promise<void> {
-    const patch = event.detail as Patch
-    patch.actor = clientId
-
-    // During development it's very useful to see the patch operations being sent
-    if (process.env.NODE_ENV !== 'production') {
-      const { actor, target, ops } = patch
-      console.log('📢 Sending patch:', JSON.stringify({ actor, target }))
-      for (const op of ops) console.log('  ', JSON.stringify(op))
-    }
-
-    const [client, document] = await startup()
-    return documents.patch(client, document.id, undefined, patch)
-  }
-
-  // Receive a patch event
-  //
-  // Handles a 'patched' event by either sending it to the relevant WebComponent
-  // so that it can make the necessary changes to the DOM, or by calling `applyPatch` which
-  // makes changes to the DOM directly.
-  function receivePatch(event: DocumentEvent): void {
-    let patch
-    if (event.type === 'patched') {
-      patch = event.patch as Patch
-    } else {
-      console.error(
-        `Expected document event to be of type 'patched', got type '${event.type}'`
-      )
-      return
-    }
-
-    const { actor, target, ops } = patch
-
-    // Ignore any patches where this client was the actor
-    if (actor === clientId) return
-
-    // During development it's useful to see which patches are being received
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('📩 Received DOM patch:', JSON.stringify({ actor, target }))
-      for (const op of ops) console.log('  ', JSON.stringify(op))
-    }
-
-    // Patches for node types with WebComponents are handled differently
-    // from patches to other DOM elements.
-    if (target !== undefined && ops[0]?.type === 'Replace') {
-      const value = ops[0]?.value as JsonValue
-      // @ts-expect-error TODO this is temporary
-      const type = value?.type as string
-      if (type === 'Parameter') {
-        // Nothing to do (?)
-        return
-      } else if (type === 'CodeChunk') {
-        window.dispatchEvent(
-          new CustomEvent('document:patched', {
-            detail: {
-              nodeId: target,
-              value,
-            },
-          })
-        )
-        return
-      } else if (type === 'CodeExpression') {
-        window.dispatchEvent(
-          new CustomEvent('document:node:changed', {
-            detail: {
-              nodeId: target,
-              value,
-            },
-          })
-        )
-        return
-      } else {
-        console.error(`Unexpected patch JSON value type '${type}'`)
-        return
-      }
-    }
-
-    applyPatch(patch)
   }
 
   // Shutdown and disconnect on page unload
