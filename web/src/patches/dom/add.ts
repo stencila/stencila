@@ -59,11 +59,11 @@ export function applyAddOption(elem: Element, slot: Slot, html: string): void {
     return
   }
 
-  // Is there a placeholder element? If so replace it
+  // Is there a placeholder element? If so insert into it
   const placeholder = elem.querySelector(`[data-itemprop="${slot}"]`)
   if (placeholder) {
-    placeholder.parentElement?.insertBefore(fragment, placeholder)
-    placeholder.remove()
+    placeholder.innerHTML = ''
+    placeholder.appendChild(fragment)
     return
   }
 
