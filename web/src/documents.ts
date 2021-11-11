@@ -301,22 +301,37 @@ async function onContentChange(
 }
 
 /**
+ * Extract the given Element's Schema Node type
+ * If the node does not have an `itemtype` attribute, this function returns an empty string.
+ */
+const getElType = (targetEl: Element): string => {
+  const itemtype = targetEl?.getAttribute('itemtype') ?? ''
+  const parts = itemtype.split('/')
+  return parts[parts.length - 1] ?? ''
+}
+
+/**
  * Get the type and id of the Stencila document node that the event
  * was emitted from.
  *
- * This is necessary to be able to determine the shape and targe of the generated patch.
+ * This is necessary to be able to determine the shape and target of the generated patch.
  */
 function resolveEventNode(event: Event): [string, string] {
-  let elem: HTMLElement | null = event.target as HTMLElement
-  while (elem) {
-    const id = elem.getAttribute('id')
-    if (id !== null) {
-      const itemtype = elem.getAttribute('itemtype') ?? ''
-      const parts = itemtype.split('/')
-      const type = parts[parts.length - 1] ?? ''
-      return [type, id]
+  const elem: HTMLElement | null = event.target as HTMLElement
+  let id = elem.getAttribute('id')
+  let elType = getElType(elem)
+
+  if (id === null || id === '') {
+    const nodeEl = elem.closest('[itemtype]')
+    if (nodeEl) {
+      id = nodeEl.getAttribute('id')
+      elType = getElType(nodeEl)
     }
-    elem = elem.parentElement
   }
+
+  if (elType && id) {
+    return [elType, id]
+  }
+
   throw new Error('Unable to resolve the node which emitted the event')
 }
