@@ -102,7 +102,11 @@ impl ToHtml for CodeChunk {
         );
 
         let label = match &self.label {
-            Some(label) => label.to_html("label", context),
+            Some(label) => elem(
+                "span",
+                &[attr_prop("label"), attr_slot("label")],
+                &encode_safe(label.as_ref()).to_string(),
+            ),
             None => elem_placeholder("span", "label"),
         };
 
@@ -124,33 +128,50 @@ impl ToHtml for CodeChunk {
     }
 }
 
+/// Encode a code chunk's caption to HTML
+///
+/// The alternative handling of string and blocks seems convoluted by is necessary to
+/// maintain compatibility with both patches and `<stencila-code_chunk>` custom element
 impl ToHtml for CodeChunkCaption {
     fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+        let attrs = [attr_prop(slot), attr_slot(slot)];
         match self {
-            CodeChunkCaption::String(string) => {
-                elem("figcaption", &[], &string.to_html(slot, context))
-            }
-            CodeChunkCaption::VecBlockContent(content) => elem(
+            CodeChunkCaption::String(string) => elem(
                 "figcaption",
-                &[attr_prop(slot)],
-                &content.to_html("", context),
+                &[],
+                &elem("span", &attrs, &encode_safe(string).to_string()),
             ),
+            CodeChunkCaption::VecBlockContent(blocks) => {
+                elem("figcaption", &attrs, &blocks.to_html("", context))
+            }
         }
     }
 }
 
 impl ToHtml for CodeError {
     fn to_html(&self, slot: &str, _context: &EncodeContext) -> String {
-        let error_message = elem("span", &[attr_prop("errorMessage")], &self.error_message);
+        let error_message = elem(
+            "span",
+            &[attr_prop("errorMessage")],
+            &encode_safe(&self.error_message).to_string(),
+        );
 
         let error_type = match &self.error_type {
             None => nothing(),
-            Some(error_type) => elem("span", &[attr_prop("errorType")], error_type),
+            Some(error_type) => elem(
+                "span",
+                &[attr_prop("errorType")],
+                &encode_safe(error_type.as_ref()).to_string(),
+            ),
         };
 
         let stack_trace = match &self.stack_trace {
             None => nothing(),
-            Some(stack_trace) => elem("pre", &[attr_prop("stackTrace")], stack_trace),
+            Some(stack_trace) => elem(
+                "pre",
+                &[attr_prop("stackTrace")],
+                &encode_safe(stack_trace.as_ref()).to_string(),
+            ),
         };
 
         elem(
