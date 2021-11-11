@@ -325,11 +325,10 @@ async fn documents_unsubscribe(
 
 async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
-    let node_id = optional_string(params, "nodeId")?;
     let patch = required_value(params, "patch")?;
     let patch: Patch = serde_json::from_value(patch)?;
 
-    let document = DOCUMENTS.patch(&id, node_id, patch).await?;
+    let document = DOCUMENTS.patch(&id, patch).await?;
     Ok((json!(document), Subscription::None))
 }
 

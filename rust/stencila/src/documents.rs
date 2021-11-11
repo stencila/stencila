@@ -656,6 +656,9 @@ impl Document {
         };
 
         let address = if let Some(address) = addresses.get(&node_id) {
+            if address.is_empty() {
+                return Ok(Pointer::Node(root));
+            }
             Some(address.clone())
         } else {
             tracing::warn!(
@@ -674,8 +677,11 @@ impl Document {
     ///
     /// - `node_id`:  the id of the node at the origin of the patch; defaults to `root`
     /// - `patch`: the patch to apply
-    pub fn patch(&mut self, node_id: Option<String>, mut patch: Patch) -> Result<()> {
-        let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id)?;
+    #[tracing::instrument(skip(self, patch))]
+    pub fn patch(&mut self, mut patch: Patch) -> Result<()> {
+        tracing::debug!("Patching document `{}`", self.id);
+
+        let mut pointer = Self::resolve(&mut self.root, &self.addresses, patch.target.clone())?;
         pointer.patch(&patch)?;
 
         // TODO: Only publish the patch if there are subscribers
@@ -694,7 +700,7 @@ impl Document {
         Ok(())
     }
 
-    /// Execute the document, optionally providing a [`Patch`] to apply before execution, and
+    /// Execute the document, or a node within it, optionally providing a [`Patch`] to apply before execution, and
     /// publishing a patch if there are any subscribers.
     #[tracing::instrument(skip(self, patch))]
     pub async fn execute(&mut self, node_id: Option<String>, patch: Option<Patch>) -> Result<()> {
@@ -1317,10 +1323,10 @@ impl Documents {
     /// Given that this function is likely to be called often, to avoid a `clone()` and
     /// to reduce WebSocket message sizes, unlike other functions it does not return the object.
     #[tracing::instrument(skip(self))]
-    pub async fn patch(&self, id: &str, node_id: Option<String>, patch: Patch) -> Result<()> {
+    pub async fn patch(&self, id: &str, patch: Patch) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        document_guard.patch(node_id, patch)
+        document_guard.patch(patch)
     }
 
     /// Execute a node within a document
