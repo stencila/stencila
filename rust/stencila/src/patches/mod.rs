@@ -313,34 +313,18 @@ impl<'lt> Pointer<'lt> {
     /// Execute the node that is pointed to
     ///
     /// Returns a patch representing the change in the node resulting from
-    /// the execution (usually to it's outputs)
+    /// the execution (usually to its outputs, but potentially to its errors also)
     pub async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<Patch> {
         let patch = match self {
             Pointer::Inline(node) => {
-                // TODO: Reinstate real diffing, rather than wholesale replacement
-                //let pre = node.clone();
+                let pre = node.clone();
                 execute(*node, kernels).await?;
-                //diff(&pre, node)
-                Patch::new(vec![Operation::Replace {
-                    address: Address::empty(),
-                    items: 1,
-                    value: Box::new(node.clone()),
-                    length: 1,
-                    html: None,
-                }])
+                diff(&pre, node)
             }
             Pointer::Block(node) => {
-                // TODO: Reinstate real diffing, rather than wholesale replacement
-                //let pre = node.clone();
+                let pre = node.clone();
                 execute(*node, kernels).await?;
-                //diff(&pre, node)
-                Patch::new(vec![Operation::Replace {
-                    address: Address::empty(),
-                    items: 1,
-                    value: Box::new(node.clone()),
-                    length: 1,
-                    html: None,
-                }])
+                diff(&pre, node)
             }
             Pointer::Node(node) => {
                 let pre = node.clone();
@@ -546,6 +530,12 @@ impl Operation {
             i32
             f32
         );
+
+        // The value may be a JSON value (if this patch was sent from a client).
+        // In that case we can just serialize it.
+        if let Some(value) = value.downcast_ref::<serde_json::Value>() {
+            return value.serialize(serializer);
+        }
 
         tracing::error!("Unhandled `value` type when serializing patch `Operation`");
         "<unserialized type>".serialize(serializer)
@@ -862,7 +852,7 @@ pub trait Patchable {
     fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
         match address.is_empty() {
             true => bail!(unpointable_type::<Self>(address)),
-            false => bail!(invalid_address::<Self>("resolve() needs to be overriden?")),
+            false => bail!(invalid_address::<Self>("resolve() needs to be overridden?")),
         }
     }
 
