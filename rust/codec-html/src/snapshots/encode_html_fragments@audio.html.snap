@@ -7,6 +7,8 @@ input_file: fixtures/fragments/html/audio.html
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <div data-itemprop="content">
     <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>
+      </span>
       <audio itemtype="http://schema.org/AudioObject" itemscope controls src="audio.mp3">
       </audio>
     </p>

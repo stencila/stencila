@@ -10,7 +10,11 @@ input_file: fixtures/nodes/figure.json
   </div>
   <span data-itemprop="label">Figure 1</span>
   <figcaption data-itemprop="caption">
-    <h3 itemtype="http://schema.stenci.la/Heading" itemscope>The caption title</h3>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>The caption paragraph</p>
+    <h3 itemtype="http://schema.stenci.la/Heading" itemscope>
+      <span>The caption title</span>
+    </h3>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>The caption paragraph</span>
+    </p>
   </figcaption>
 </figure>

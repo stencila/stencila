@@ -30,7 +30,14 @@ impl ToHtml for InlineContent {
             InlineContent::Number(node) => node.to_html(context),
             InlineContent::Parameter(node) => node.to_html(context),
             InlineContent::Quote(node) => node.to_html(context),
-            InlineContent::String(node) => node.to_html(context),
+            // Unlike everything else, `String` instances are not wrapped in an element.
+            // However, `InlineContent::String` (and `Node::String` instances) should be
+            // because they are usually part of a vector (e.g. `Paragraph.content`).
+            // Wrapping them indicates to the DOM patching algorithm that the container element
+            // represents a vector and not a placeholder for an optional string property.
+            // To reduce the size of the generated HTML a little, unlike for `Node::String`,
+            // the `itemtype` attribute is not used.
+            InlineContent::String(node) => elem("span", &[], &node.to_html(context)),
             InlineContent::Strong(node) => node.to_html(context),
             InlineContent::Subscript(node) => node.to_html(context),
             InlineContent::Superscript(node) => node.to_html(context),

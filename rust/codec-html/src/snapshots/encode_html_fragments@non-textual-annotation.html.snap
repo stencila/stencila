@@ -6,7 +6,11 @@ input_file: fixtures/fragments/html/non-textual-annotation.html
 ---
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Nontextual annotations like<u itemtype="http://schema.stenci.la/NontextualAnnotation" itemscope>this</u>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>Nontextual annotations like</span>
+      <u itemtype="http://schema.stenci.la/NontextualAnnotation" itemscope>
+        <span>this</span>
+      </u>
     </p>
   </div>
 </article>

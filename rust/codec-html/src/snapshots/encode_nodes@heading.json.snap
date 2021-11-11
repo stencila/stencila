@@ -7,7 +7,11 @@ input_file: fixtures/nodes/heading.json
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <h1 itemprop="headline">Some headings</h1>
   <div data-itemprop="content">
-    <h2 itemtype="http://schema.stenci.la/Heading" itemscope>The heading one content</h2>
-    <h3 itemtype="http://schema.stenci.la/Heading" itemscope>The heading two content</h3>
+    <h2 itemtype="http://schema.stenci.la/Heading" itemscope>
+      <span>The heading one content</span>
+    </h2>
+    <h3 itemtype="http://schema.stenci.la/Heading" itemscope>
+      <span>The heading two content</span>
+    </h3>
   </div>
 </article>

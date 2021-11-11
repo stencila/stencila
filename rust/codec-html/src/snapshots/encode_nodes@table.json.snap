@@ -11,9 +11,15 @@ input_file: fixtures/nodes/table.json
   </caption>
   <tbody data-itemprop="rows">
     <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
-      <th itemtype="http://schema.stenci.la/TableCell" itemscope>A</th>
-      <th itemtype="http://schema.stenci.la/TableCell" itemscope>B</th>
-      <th itemtype="http://schema.stenci.la/TableCell" itemscope>C</th>
+      <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+        <span>A</span>
+      </th>
+      <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+        <span>B</span>
+      </th>
+      <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+        <span>C</span>
+      </th>
     </tr>
     <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
       <td itemtype="http://schema.stenci.la/TableCell" itemscope rowspan="2">

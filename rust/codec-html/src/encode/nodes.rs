@@ -1,6 +1,6 @@
 //! Encode `Node` nodes to HTML
 
-use super::{attr, elem, json, EncodeContext, ToHtml};
+use super::{attr, attr_itemtype_str, elem, json, EncodeContext, ToHtml};
 use stencila_schema::Node;
 
 /// Encode a `Node` to HTML
@@ -39,7 +39,11 @@ impl ToHtml for Node {
             Node::Paragraph(node) => node.to_html(context),
             Node::Quote(node) => node.to_html(context),
             Node::QuoteBlock(node) => node.to_html(context),
-            Node::String(node) => node.to_html(context),
+            // Wrap strings with the `itemtype` attribute (see note under `ToHtml` for `InlineContent`)
+            // This encoding will be used in places such as `CodeChunk.outputs`, `CodeExpression.output` etc
+            Node::String(node) => {
+                elem("span", &[attr_itemtype_str("Text")], &node.to_html(context))
+            }
             Node::Strong(node) => node.to_html(context),
             Node::Subscript(node) => node.to_html(context),
             Node::Superscript(node) => node.to_html(context),

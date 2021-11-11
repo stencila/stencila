@@ -6,6 +6,12 @@ input_file: fixtures/fragments/html/strong.html
 ---
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>A<strong itemtype="http://schema.stenci.la/Strong" itemscope>strongly</strong>emphasized word.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>A</span>
+      <strong itemtype="http://schema.stenci.la/Strong" itemscope>
+        <span>strongly</span>
+      </strong>
+      <span>emphasized word.</span>
+    </p>
   </div>
 </article>

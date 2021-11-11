@@ -6,6 +6,12 @@ input_file: fixtures/fragments/html/superscript.html
 ---
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Superscripts like CO<sup itemtype="http://schema.stenci.la/Superscript" itemscope>2</sup>.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>Superscripts like CO</span>
+      <sup itemtype="http://schema.stenci.la/Superscript" itemscope>
+        <span>2</span>
+      </sup>
+      <span>.</span>
+    </p>
   </div>
 </article>
