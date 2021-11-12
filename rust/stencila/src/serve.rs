@@ -358,9 +358,8 @@ pub async fn serve_on(
     };
 
     tracing::info!(
-        "Serving {} on {}://{}:{}",
+        "Serving {} at http://{}:{}",
         home.display(),
-        protocol,
         address,
         port
     );
