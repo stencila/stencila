@@ -127,36 +127,48 @@ impl ToHtml for CodeChunkCaption {
     }
 }
 
+/// Encode a code error to HTML
+///
+/// In the future the current `CodeError` is likely to be replaced by a `CodeMessage`
+/// (and `messages` added as a property of code elements).
 impl ToHtml for CodeError {
-    fn to_html(&self, _context: &EncodeContext) -> String {
-        let error_message = elem(
+    fn to_html(&self, context: &EncodeContext) -> String {
+        let kind = if self.error_message.to_lowercase().contains("warning")
+            && self.stack_trace.is_none()
+        {
+            "warning"
+        } else {
+            "error"
+        };
+
+        let error_type = elem_placeholder(
             "span",
-            &[attr_prop("errorMessage")],
-            &encode_safe(&self.error_message).to_string(),
+            &[attr_prop("errorType"), attr_slot("errortype")],
+            &self.error_type,
+            context,
         );
 
-        let error_type = match &self.error_type {
-            None => nothing(),
-            Some(error_type) => elem(
-                "span",
-                &[attr_prop("errorType")],
-                &encode_safe(error_type.as_ref()).to_string(),
-            ),
-        };
+        let error_message = elem(
+            "span",
+            &[attr_prop("errorMessage"), attr_slot("errormessage")],
+            &self.error_message.to_html(context),
+        );
 
-        let stack_trace = match &self.stack_trace {
-            None => nothing(),
-            Some(stack_trace) => elem(
-                "pre",
-                &[attr_prop("stackTrace")],
-                &encode_safe(stack_trace.as_ref()).to_string(),
-            ),
-        };
+        let stack_trace = elem_placeholder(
+            "pre",
+            &[attr_prop("stackTrace"), attr_slot("stacktrace")],
+            &self.stack_trace,
+            context,
+        );
 
         elem(
-            "div",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[error_message, error_type, stack_trace].concat(),
+            "stencila-code-error",
+            &[
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                attr("kind", kind),
+            ],
+            &[error_type, error_message, stack_trace].concat(),
         )
     }
 }

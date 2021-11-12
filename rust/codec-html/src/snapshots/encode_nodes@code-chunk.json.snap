@@ -15,17 +15,19 @@ input_file: fixtures/nodes/code-chunk.json
     <img itemtype="http://schema.org/ImageObject" itemscope  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNkYvhfz0AEYBxVSF+FAA/eDwup9bzCAAAAAElFTkSuQmCC"/>
   </div>
   <div data-itemprop="errors" slot="errors">
-    <div itemtype="http://schema.stenci.la/CodeError" itemscope>
-      <span data-itemprop="errorMessage">Some error message</span>
-      <span data-itemprop="errorType">SomeErrorType</span>
-      <pre data-itemprop="stackTrace">Several lines
+    <stencila-code-error itemtype="http://schema.stenci.la/CodeError" itemscope kind="error">
+      <span data-itemprop="errorType" slot="errortype">SomeErrorType</span>
+      <span data-itemprop="errorMessage" slot="errormessage">Some error message</span>
+      <pre data-itemprop="stackTrace" slot="stacktrace">Several lines
 whose exact format
 will depend upon the language</pre>
-    </div>
-    <div itemtype="http://schema.stenci.la/CodeError" itemscope>
-      <span data-itemprop="errorMessage">Another error message</span>
-      <span data-itemprop="errorType">AnotherErrorType</span>
-    </div>
+    </stencila-code-error>
+    <stencila-code-error itemtype="http://schema.stenci.la/CodeError" itemscope kind="error">
+      <span data-itemprop="errorType" slot="errortype">AnotherErrorType</span>
+      <span data-itemprop="errorMessage" slot="errormessage">Another error message</span>
+      <pre data-itemprop="stackTrace" slot="stacktrace">
+      </pre>
+    </stencila-code-error>
   </div>
   <span data-itemprop="label" slot="label">A label</span>
   <figcaption data-itemprop="caption" slot="caption">
