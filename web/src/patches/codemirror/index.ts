@@ -55,7 +55,7 @@ export function changesToOps(
   changes: ChangeSet,
   address: Address
 ): Operation[] {
-  let ops: Operation[] = []
+  const ops: Operation[] = []
   changes.iterChanges((fromA, toA, fromB, toB, inserted) => {
     const lines = inserted.toJSON()
     const value = lines.join('\n')
@@ -74,7 +74,7 @@ export function changeToOp(
   value: string,
   address: Address
 ): Operation {
-  if (value == '') {
+  if (value === '') {
     return {
       type: 'Remove',
       address: [...address, from],
@@ -82,7 +82,7 @@ export function changeToOp(
     }
   }
 
-  if (from == to) {
+  if (from === to) {
     return {
       type: 'Add',
       address: [...address, from],
@@ -128,7 +128,7 @@ function opToChange(op: Operation): ChangeSpec {
         case 'Add':
           return {
             from,
-            insert: op.value,
+            insert: op.value as string,
           }
         case 'Remove':
           return {
@@ -139,9 +139,10 @@ function opToChange(op: Operation): ChangeSpec {
           return {
             from,
             to: from + op.items,
-            insert: op.value,
+            insert: op.value as string,
           }
       }
+      break
     }
     default:
       throw new Error(`Unhandled operation type '${op.type}'`)

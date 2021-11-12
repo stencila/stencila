@@ -275,7 +275,7 @@ async function onContentChange(
     const patch = {
       actor: clientId,
       target: nodeId,
-      ops
+      ops,
     }
     return sendPatch(client, documentId, patch)
   }
