@@ -1,6 +1,7 @@
 import { ViewUpdate } from '@codemirror/view'
 import { Document, DocumentEvent, Patch } from '@stencila/stencila'
 import { Client, ClientId } from './client'
+import { changesToOps } from './patches/codemirror'
 import { applyPatch } from './patches/dom'
 
 /**
@@ -257,19 +258,6 @@ async function onLanguageChange(
  *
  * These events, created by text editors for individual nodes, need to be
  * transformed into a `Patch` targeting that node.
- *
- * There are three strategies that this function could use to create a patch from
- * the CodeMirror `ViewUpdate`:
- *
- * 1. Send a `Replace` operation for the whole content (debounced)
- * 2. Keep a track of the content for each node and calculate a patch using the `diff`
- *    function in the `patches/string` module (debounced)
- * 3. Convert the single character `update.changes` into `Operations` (this
- *    would be very noisy as there would be one operation for every keystroke)
- *
- * Currently, it just implements (1) without debouncing. (3) seems tricky to implement.
- * (2) probably has the best cost-benefit ratio (not creating a large even on each keystroke
- * but simple to implement).
  */
 async function onContentChange(
   client: Client,
@@ -282,21 +270,13 @@ async function onContentChange(
 
   const update = event.detail
   if (update.docChanged) {
-    const lines = update.state.doc.toJSON()
-    const value = lines.join('\n')
-    return sendPatch(client, documentId, {
+    const ops = changesToOps(update.changes, [slot])
+    const patch = {
       actor: clientId,
       target: nodeId,
-      ops: [
-        {
-          type: 'Replace',
-          address: [slot],
-          value,
-          items: 1,
-          length: value.length,
-        },
-      ],
-    })
+      ops
+    }
+    return sendPatch(client, documentId, patch)
   }
 }
 
