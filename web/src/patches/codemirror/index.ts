@@ -5,13 +5,14 @@
 import { ChangeSet, ChangeSpec, EditorState } from '@codemirror/state'
 import { Address, Operation } from '@stencila/stencila'
 import { assertNumber } from '../checks'
+import { diff } from '../string'
 
 /**
- * Translate a CodeMirror `EditorState` into a set op operations
+ * Translate a CodeMirror `EditorState` into a set of Stencila `Operation`s
  *
  * A brute force approach that produces a single replace operation.
- * Prefer `changesToOps` although this could be used as a fallback to ensure the
- * content is synchronized.
+ * Prefer `diffToOps` or `changesToOps` (although this could be useful as a
+ * fallback to ensure the content is synchronized).
  */
 export function stateToOps(state: EditorState, address: Address): Operation[] {
   const lines = state.doc.toJSON()
@@ -29,7 +30,26 @@ export function stateToOps(state: EditorState, address: Address): Operation[] {
 }
 
 /**
- * Translate a set of CodeMirror `ChangeSet`s to a set of Stencila `Operation`s
+ * Translate pre- and post- CodeMirror `EditorState`s into a set of Stencila `Operation`s
+ */
+export function diffToOps(
+  pre: EditorState,
+  post: EditorState,
+  address: Address
+): Operation[] {
+  return diff(
+    pre.doc.toJSON().join('\n'),
+    post.doc.toJSON().join('\n'),
+    address
+  ).ops
+}
+
+/**
+ * Translate a CodeMirror `ChangeSet`s to a set of Stencila `Operation`s
+ *
+ * This will generate invalid `address`, `items` and `length` fields in operations
+ * if there are Unicode graphemes in the content. That is because CodeMirror uses
+ * character indices whereas Stencila uses grapheme indices.
  */
 export function changesToOps(
   changes: ChangeSet,
