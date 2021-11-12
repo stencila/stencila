@@ -16,15 +16,15 @@ input_file: fixtures/nodes/code-chunk.json
   </div>
   <div data-itemprop="errors" slot="errors">
     <stencila-code-error itemtype="http://schema.stenci.la/CodeError" itemscope kind="error">
-      <span data-itemprop="errorType" slot="errortype">SomeErrorType</span>
-      <span data-itemprop="errorMessage" slot="errormessage">Some error message</span>
+      <span data-itemprop="errorType">SomeErrorType</span>
+      <span data-itemprop="errorMessage">Some error message</span>
       <pre data-itemprop="stackTrace" slot="stacktrace">Several lines
 whose exact format
 will depend upon the language</pre>
     </stencila-code-error>
     <stencila-code-error itemtype="http://schema.stenci.la/CodeError" itemscope kind="error">
-      <span data-itemprop="errorType" slot="errortype">AnotherErrorType</span>
-      <span data-itemprop="errorMessage" slot="errormessage">Another error message</span>
+      <span data-itemprop="errorType">AnotherErrorType</span>
+      <span data-itemprop="errorMessage">Another error message</span>
       <pre data-itemprop="stackTrace" slot="stacktrace">
       </pre>
     </stencila-code-error>
