@@ -75,7 +75,12 @@ export function resolveSlot(
     // and is usually "implicit" (so, if there is no explicitly marked text slot, use the parent)
     if (slot === 'text') {
       const elem = child !== null ? child : parent
-      if (elem.childNodes.length === 1 && isText(elem.childNodes[0])) {
+      if (elem.childNodes.length === 0) {
+        // If there is no text node (e.g. the text started off empty) then add one
+        const text = document.createTextNode('')
+        elem.appendChild(text)
+        return text
+      } else if (elem.childNodes.length === 1 && isText(elem.childNodes[0])) {
         return elem.childNodes[0]
       } else {
         throw panic(
