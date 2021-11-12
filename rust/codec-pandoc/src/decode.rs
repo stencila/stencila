@@ -319,10 +319,15 @@ fn translate_row(
     context: &DecodeContext,
     row_type: Option<TableRowRowType>,
 ) -> TableRow {
+    let cell_type = match row_type {
+        Some(TableRowRowType::Header) => Some(TableCellCellType::Header),
+        Some(TableRowRowType::Footer) => Some(TableCellCellType::Header),
+        None => None,
+    };
     let cells = row
         .1
         .iter()
-        .map(|cell| translate_cell(cell, context))
+        .map(|cell| translate_cell(cell, context, cell_type.clone()))
         .collect();
     TableRow {
         cells,
@@ -337,7 +342,11 @@ fn translate_row(
 /// a single number it returns a paragraph. This is somewhat heavy weight,
 /// and inconsistent with other decoders in this repo, so here we unwrap
 /// a single paragraph to inlines.
-fn translate_cell(cell: &pandoc::Cell, context: &DecodeContext) -> TableCell {
+fn translate_cell(
+    cell: &pandoc::Cell,
+    context: &DecodeContext,
+    cell_type: Option<TableCellCellType>,
+) -> TableCell {
     let pandoc::Cell(_attrs, _alignment, row_span, col_span, blocks) = cell;
     let blocks = translate_blocks(blocks, context);
     let content = match blocks.len() {
@@ -361,6 +370,7 @@ fn translate_cell(cell: &pandoc::Cell, context: &DecodeContext) -> TableCell {
     TableCell {
         colspan,
         content,
+        cell_type,
         rowspan,
         ..Default::default()
     }

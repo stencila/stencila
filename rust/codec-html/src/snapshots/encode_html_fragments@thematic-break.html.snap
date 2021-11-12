@@ -6,10 +6,16 @@ input_file: fixtures/fragments/html/thematic-break.html
 ---
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>First theme.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>First theme.</span>
+    </p>
     <hr itemtype="http://schema.stenci.la/ThematicBreak" itemscope/>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Second theme.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>Second theme.</span>
+    </p>
     <hr itemtype="http://schema.stenci.la/ThematicBreak" itemscope/>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Third theme.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>Third theme.</span>
+    </p>
   </div>
 </article>

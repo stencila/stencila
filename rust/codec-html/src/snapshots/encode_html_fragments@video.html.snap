@@ -6,15 +6,23 @@ input_file: fixtures/fragments/html/video.html
 ---
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Prefers to use `source` element:<video itemtype="http://schema.org/VideoObject" itemscope  controls>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>Prefers to use `source` element:</span>
+      <video itemtype="http://schema.org/VideoObject" itemscope controls>
         <source src="video.mp4" type="video/mp4">
         </source>
       </video>
+      <span>
+      </span>
     </p>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Falls back to using `src` on `video` element:<video itemtype="http://schema.org/VideoObject" itemscope  controls>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>Falls back to using `src` on `video` element:</span>
+      <video itemtype="http://schema.org/VideoObject" itemscope controls>
         <source src="video.mp4">
         </source>
       </video>
+      <span>
+      </span>
     </p>
   </div>
 </article>

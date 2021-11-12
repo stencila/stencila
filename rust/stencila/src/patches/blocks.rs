@@ -1,12 +1,7 @@
 use super::prelude::*;
 use crate::dispatch_block;
 use std::hash::Hasher;
-use stencila_schema::{
-    BlockContent, ClaimClaimType, ClaimSimple, CodeBlock, CodeChunk, CollectionSimple,
-    FigureSimple, Heading, Include, List, ListItem, ListItemContent, ListOrder, MathBlock,
-    Paragraph, QuoteBlock, TableCell, TableCellCellType, TableCellContent, TableRow,
-    TableRowRowType, TableSimple, ThematicBreak,
-};
+use stencila_schema::*;
 
 /// Implements patching for `BlockContent`
 ///
@@ -132,41 +127,77 @@ fn apply_transform(_from: &BlockContent, _to: &str) -> BlockContent {
     todo!()
 }
 
-// Implementations for `BlockContent` structs
-// TODO: add all relevant fields to each struct
+// Implementations for `BlockContent` structs, including related structs
+// (e.g. `Figure` vs `FigureSimple`, which are actually "works").
 
-patchable_struct!(ClaimSimple, content, claim_type);
-patchable_struct!(CodeBlock, programming_language, text);
-patchable_struct!(CodeChunk, programming_language, text, outputs);
-patchable_struct!(CollectionSimple);
-patchable_struct!(FigureSimple);
 patchable_struct!(Heading, content, depth);
-patchable_struct!(Include, source);
-patchable_struct!(List, items, order);
-patchable_struct!(ListItem, content);
-patchable_struct!(MathBlock, math_language, text);
+
 patchable_struct!(Paragraph, content);
+
+patchable_struct!(MathBlock, math_language, text);
+
 patchable_struct!(QuoteBlock, content);
-patchable_struct!(TableSimple, rows);
-patchable_struct!(TableRow, cells, row_type);
-patchable_struct!(TableCell, content, cell_type, colspan, rowspan);
-patchable_struct!(ThematicBreak);
 
-// Implementations for enum fields of `BlockContent` structs
+patchable_struct!(CodeBlock, programming_language, text);
+patchable_struct!(
+    CodeChunk,
+    programming_language,
+    text,
+    outputs,
+    errors,
+    label,
+    caption
+);
+patchable_variants!(
+    CodeChunkCaption,
+    CodeChunkCaption::VecBlockContent,
+    CodeChunkCaption::String
+);
+patchable_struct!(CodeError, error_message, error_type, stack_trace);
 
-patchable_enum!(ClaimClaimType);
-
+patchable_struct!(List, items, order);
 patchable_enum!(ListOrder);
+
+patchable_struct!(ListItem, content);
 patchable_variants!(
     ListItemContent,
     ListItemContent::VecBlockContent,
     ListItemContent::VecInlineContent
 );
 
+patchable_struct!(Table, label, caption, rows);
+patchable_struct!(TableSimple, label, caption, rows);
+patchable_variants!(
+    TableCaption,
+    TableCaption::VecBlockContent,
+    TableCaption::String
+);
+
+patchable_struct!(TableRow, cells, row_type);
 patchable_enum!(TableRowRowType);
+
+patchable_struct!(TableCell, content, cell_type, colspan, rowspan);
 patchable_enum!(TableCellCellType);
 patchable_variants!(
     TableCellContent,
     TableCellContent::VecBlockContent,
     TableCellContent::VecInlineContent
 );
+
+patchable_struct!(Figure, label, caption, content);
+patchable_struct!(FigureSimple, label, caption, content);
+patchable_variants!(
+    FigureCaption,
+    FigureCaption::VecBlockContent,
+    FigureCaption::String
+);
+
+patchable_struct!(Include, source);
+
+patchable_struct!(ThematicBreak);
+
+patchable_struct!(Claim, content, claim_type);
+patchable_struct!(ClaimSimple, content, claim_type);
+patchable_enum!(ClaimClaimType);
+
+patchable_struct!(CollectionSimple);

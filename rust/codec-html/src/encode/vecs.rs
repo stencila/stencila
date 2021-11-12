@@ -6,9 +6,9 @@ impl<Type> ToHtml for Vec<Type>
 where
     Type: ToHtml,
 {
-    fn to_html(&self, _slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         self.iter()
-            .map(|item| item.to_html("", context))
+            .map(|item| item.to_html(context))
             .collect::<Vec<String>>()
             .concat()
     }

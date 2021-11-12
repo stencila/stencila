@@ -7,43 +7,44 @@ use super::{
 use codec_txt::ToTxt;
 use html_escape::encode_safe;
 use itertools::Itertools;
+use node_transform::Transform;
 use std::collections::BTreeMap;
 use stencila_schema::*;
 
 impl ToHtml for CreativeWorkTypes {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         match self {
-            CreativeWorkTypes::Article(node) => node.to_html(slot, context),
-            CreativeWorkTypes::AudioObject(node) => node.to_html(slot, context),
-            CreativeWorkTypes::Claim(node) => node.to_html(slot, context),
-            CreativeWorkTypes::Collection(node) => node.to_html(slot, context),
-            CreativeWorkTypes::Figure(node) => node.to_html(slot, context),
-            CreativeWorkTypes::ImageObject(node) => node.to_html(slot, context),
-            CreativeWorkTypes::Table(node) => node.to_html(slot, context),
-            CreativeWorkTypes::VideoObject(node) => node.to_html(slot, context),
+            CreativeWorkTypes::Article(node) => node.to_html(context),
+            CreativeWorkTypes::AudioObject(node) => node.to_html(context),
+            CreativeWorkTypes::Claim(node) => node.to_html(context),
+            CreativeWorkTypes::Collection(node) => node.to_html(context),
+            CreativeWorkTypes::Figure(node) => node.to_html(context),
+            CreativeWorkTypes::ImageObject(node) => node.to_html(context),
+            CreativeWorkTypes::Table(node) => node.to_html(context),
+            CreativeWorkTypes::VideoObject(node) => node.to_html(context),
             _ => elem("div", &[attr("class", "unsupported")], &json(self)),
         }
     }
 }
 
 impl ToHtml for CreativeWorkContent {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         match self {
-            CreativeWorkContent::String(node) => node.to_html(slot, context),
-            CreativeWorkContent::VecNode(nodes) => nodes.to_html(slot, context),
+            CreativeWorkContent::String(node) => node.to_html(context),
+            CreativeWorkContent::VecNode(nodes) => nodes.to_html(context),
         }
     }
 }
 
 impl ToHtml for Article {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
+    fn to_html(&self, context: &EncodeContext) -> String {
         let title = match &self.title {
             Some(title) => {
                 let title = match &**title {
-                    CreativeWorkTitle::String(title) => title.to_html("", context),
-                    CreativeWorkTitle::VecInlineContent(title) => title.to_html("", context),
+                    CreativeWorkTitle::String(title) => title.to_html(context),
+                    CreativeWorkTitle::VecInlineContent(title) => title.to_html(context),
                 };
-                elem("h1", &[attr_prop(slot), attr_itemprop("headline")], &title)
+                elem("h1", &[attr_itemprop("headline")], &title)
             }
             None => "".to_string(),
         };
@@ -100,13 +101,13 @@ impl ToHtml for Article {
                         content: vec![InlineContent::String(string.clone())],
                         ..Default::default()
                     }
-                    .to_html("", context),
+                    .to_html(context),
                     ThingDescription::VecInlineContent(inlines) => Paragraph {
                         content: inlines.clone(),
                         ..Default::default()
                     }
-                    .to_html("", context),
-                    ThingDescription::VecBlockContent(blocks) => blocks.to_html("", context),
+                    .to_html(context),
+                    ThingDescription::VecBlockContent(blocks) => blocks.to_html(context),
                 };
                 elem(
                     "section",
@@ -127,12 +128,12 @@ impl ToHtml for Article {
         let content = elem(
             "div",
             &[attr_prop("content")],
-            &self.content.to_html("", context),
+            &self.content.to_html(context),
         );
 
         elem(
             "article",
-            &[attr_prop(slot), attr_itemtype::<Self>(), attr_id(&self.id)],
+            &[attr_itemtype::<Self>(), attr_id(&self.id)],
             &[title, authors, affiliations, abstract_, content].concat(),
         )
     }
@@ -277,81 +278,24 @@ fn affiliation_org_to_html(org: &Organization) -> String {
     ["<li>", &name, "</li>"].concat()
 }
 
-impl ToHtml for AudioObject {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        AudioObjectSimple {
-            content_url: self.content_url.clone(),
-            ..Default::default()
+/// Generate HTML from the `BlockContent` analogue (e.g. `TableSimple`) or `InlineContent`
+/// analogue (e.g. `ImageObjectSimple`) of a creative work type.
+/// This is convenience and could be overridden as needed for each type.
+macro_rules! to_content_html {
+    ($type: ty, $variant: path, $transform:ident) => {
+        impl ToHtml for $type {
+            fn to_html(&self, context: &EncodeContext) -> String {
+                $variant(self.clone()).$transform().to_html(context)
+            }
         }
-        .to_html(slot, context)
-    }
+    };
 }
 
-impl ToHtml for ImageObject {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        ImageObjectSimple {
-            content_url: self.content_url.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
+to_content_html!(Claim, Node::Claim, to_block);
+to_content_html!(Collection, Node::Collection, to_block);
+to_content_html!(Figure, Node::Figure, to_block);
+to_content_html!(Table, Node::Table, to_block);
 
-impl ToHtml for VideoObject {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        VideoObjectSimple {
-            media_type: self.media_type.clone(),
-            content_url: self.content_url.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
-
-impl ToHtml for Collection {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let Collection { parts, .. } = self;
-        CollectionSimple {
-            parts: parts.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
-
-impl ToHtml for Claim {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let Claim { content, .. } = self;
-        ClaimSimple {
-            content: content.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
-
-impl ToHtml for Figure {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let Figure {
-            caption, content, ..
-        } = self;
-        FigureSimple {
-            caption: caption.clone(),
-            content: content.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
-
-impl ToHtml for Table {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String {
-        let Table { caption, rows, .. } = self;
-        TableSimple {
-            caption: caption.clone(),
-            rows: rows.clone(),
-            ..Default::default()
-        }
-        .to_html(slot, context)
-    }
-}
+to_content_html!(AudioObject, Node::AudioObject, to_inline);
+to_content_html!(ImageObject, Node::ImageObject, to_inline);
+to_content_html!(VideoObject, Node::VideoObject, to_inline);

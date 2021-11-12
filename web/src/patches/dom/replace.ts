@@ -8,94 +8,100 @@ import {
   isAttr,
   isElement,
   isName,
+  JsonValue,
   panic,
 } from '../checks'
-import { createFragment, resolveParent, resolveSlot } from './resolve'
 import { applyReplace as applyReplaceString } from '../string'
+import { applyAddStruct } from './add'
+import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
+import { createFragment, resolveParent } from './resolve'
 
 /**
  * Apply a replace operation
  */
 export function applyReplace(op: OperationReplace, target?: ElementId): void {
-  const { address, items, html } = op
-  assertString(html)
+  const { address, items } = op
+  const value = op.value as JsonValue
+  const html = op.html ?? value
 
   const [parent, slot] = resolveParent(address, target)
 
   if (isElement(parent)) {
-    if (isName(slot)) applyReplaceOption(parent, slot, items, html)
+    assertString(html)
+    if (isName(slot)) applyReplaceStruct(parent, slot, items, html)
     else applyReplaceVec(parent, slot, items, html)
-  } else applyReplaceText(parent, slot, items, html)
+  } else {
+    assertString(value)
+    applyReplaceText(parent, slot, items, value)
+  }
 }
 
 /**
- * Apply a replace operation to an `Option` slot
+ * Apply a `Replace` operation to an element representing a `struct`
  */
-export function applyReplaceOption(
-  node: Element,
-  slot: Slot,
+export function applyReplaceStruct(
+  struct: Element,
+  name: Slot,
   items: number,
   html: string
 ): void {
-  assertName(slot)
+  assertName(name)
   assert(
     items === 1,
-    `Unexpected replace items ${items} for option slot '${slot}'`
+    `Unexpected replace items ${items} for option slot '${name}'`
   )
 
-  const child = resolveSlot(node, slot)
-  if (isElement(child)) child.outerHTML = html
-  else if (isAttr(child)) {
-    const fragment = createFragment(html)
-    node.setAttribute(child.name, fragment.textContent ?? '')
-  } else child.textContent = html
+  // Simply delegate to `applyAddStruct` which has the same logic as needed here
+  applyAddStruct(struct, name, html)
 }
 
 /**
- * Apply a replace operation to a `Vec` slot
+ * Apply a `Replace` operation to an element representing a `Vec`
  */
 export function applyReplaceVec(
-  node: Element,
-  slot: Slot,
+  vec: Element,
+  index: Slot,
   items: number,
   html: string
 ): void {
-  assertIndex(slot)
+  assertIndex(index)
 
   const fragment = createFragment(html)
-  const children = node.childNodes
+  const children = vec.childNodes
   if (children.length === 0) {
-    node.appendChild(fragment)
+    vec.appendChild(fragment)
   } else {
-    const child = children[slot]
+    const child = children[index]
     if (child === undefined) {
       throw panic(
-        `Unexpected replace slot '${slot}' for element with ${children.length} children`
+        `Unexpected replace slot '${index}' for element with ${children.length} children`
       )
     }
-    node.insertBefore(fragment, child)
+    vec.insertBefore(fragment, child)
 
     let removed = 0
     while (removed < items) {
-      children[slot + 1]?.remove()
+      children[index + 1]?.remove()
       removed += 1
     }
   }
 }
 
 /**
- * Apply a `Replace` operation to a `Text` or `Attr` DOM node
+ * Apply a `Replace` operation to a `Text` or `Attr` DOM node representing a `String`
  */
 export function applyReplaceText(
-  node: Attr | Text,
-  slot: Slot,
+  text: Attr | Text,
+  index: Slot,
   items: number,
-  html: string
+  value: string
 ): void {
-  node.textContent = applyReplaceString(
-    node.textContent ?? '',
-    slot,
-    items,
-    html
-  )
+  assertIndex(index)
+
+  const current = text.textContent ?? ''
+  const unescaped = isAttr(text) ? unescapeAttr(current) : unescapeHtml(current)
+  const updated = applyReplaceString(unescaped, index, items, value)
+  // It seems that, because setting textContent (?), it is not necessary to escape innerHTML
+  const escaped = isAttr(text) ? escapeAttr(updated) : updated
+  text.textContent = escaped
 }

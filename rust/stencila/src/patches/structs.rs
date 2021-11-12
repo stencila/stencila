@@ -152,7 +152,7 @@ macro_rules! patchable_struct {
                         _ => bail!(invalid_slot_name::<Self>(&name)),
                     },
                     Some(slot) => bail!(invalid_slot_variant::<Self>(slot)),
-                    None => bail!(unpointable_type::<Self>(address)),
+                    None => bail!(invalid_address::<Self>("address is empty")),
                 }
             }
 

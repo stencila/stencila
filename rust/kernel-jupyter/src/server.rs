@@ -1,4 +1,4 @@
-use crate::dirs::data_dir;
+use crate::dirs::runtime_dirs;
 use defaults::Defaults;
 use kernel::{
     eyre::Result,
@@ -34,8 +34,9 @@ impl JupyterServer {
     /// checks that they are running by requesting from the URL with the token.
     /// This avoids issues with "zombie" `nbserver-*.json` files.
     pub async fn running() -> Result<HashMap<String, JupyterServer>> {
-        let pattern = data_dir()
-            .join("runtime")
+        let pattern = runtime_dirs()
+            .first()
+            .expect("Should always be at least one runtime directory")
             .join("nbserver-*.json")
             .to_string_lossy()
             .to_string();

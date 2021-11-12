@@ -523,7 +523,10 @@ impl Tables {
 
     /// Pop cells into a pushed header row
     fn push_header(&mut self) {
-        let cells = self.cells.split_off(0);
+        let mut cells = self.cells.split_off(0);
+        cells
+            .iter_mut()
+            .for_each(|cell| cell.cell_type = Some(TableCellCellType::Header));
         self.rows.push(TableRow {
             cells,
             row_type: Some(TableRowRowType::Header),

@@ -1,13 +1,16 @@
-import { applyAdd, applyAddOption, applyAddText, applyAddVec } from './add'
+import { applyAdd, applyAddStruct, applyAddText, applyAddVec } from './add'
 
-test('applyAddOption', () => {
+test('applyAddStruct', () => {
   const elem = document.createElement('div')
-  const html = '<p slot="property">A fragment</p>'
+  elem.innerHTML = '<div data-itemprop="property"></div>'
+  const html = '<p>A fragment</p>'
 
-  applyAddOption(elem, 'property', html)
-  expect(elem.querySelector('[slot="property"]')?.outerHTML).toEqual(html)
+  applyAddStruct(elem, 'property', html)
+  expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
+    html
+  )
 
-  expect(() => applyAddOption(elem, 1, '')).toThrow(/Expected string slot/)
+  expect(() => applyAddStruct(elem, 1, '')).toThrow(/Expected string slot/)
 })
 
 test('applyAddVec', () => {
@@ -60,12 +63,17 @@ test('applyAddText', () => {
 
 test('applyAdd', () => {
   // Start with an empty `Article`
-  document.body.innerHTML = '<article data-itemscope="root"></article>'
+  document.body.innerHTML =
+    '<article data-itemscope="root"><div data-itemprop="content"></div></article>'
   expect(document.body).toMatchInlineSnapshot(`
     <body>
       <article
         data-itemscope="root"
-      />
+      >
+        <div
+          data-itemprop="content"
+        />
+      </article>
     </body>
   `)
 
@@ -73,7 +81,7 @@ test('applyAdd', () => {
   applyAdd({
     type: 'Add',
     address: ['content'],
-    html: `<div data-itemprop="content"><p></p></div>`,
+    html: `<p></p>`,
     value: {},
     length: 1,
   })
@@ -115,12 +123,12 @@ test('applyAdd', () => {
 </body>
 `)
 
-  // Insert some characters ito the `String` node
+  // Insert some characters into the `String` node
   applyAdd({
     type: 'Add',
     address: ['content', 0, 'content', 0, 5],
     html: 'more ',
-    value: {},
+    value: 'more ',
     length: 1,
   })
   expect(document.body).toMatchInlineSnapshot(`
@@ -144,7 +152,7 @@ test('applyAdd', () => {
     type: 'Add',
     address: ['content', 0, 'content', 0],
     html: 'Some <strong>strong</strong> text. ',
-    value: {},
+    value: ['Some ', { type: 'Strong', content: ['strong'] }, ' text.'],
     length: 1,
   })
   expect(document.body).toMatchInlineSnapshot(`

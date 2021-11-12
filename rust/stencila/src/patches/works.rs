@@ -1,7 +1,13 @@
 use super::prelude::*;
-use stencila_schema::Article;
+use stencila_schema::{Article, CreativeWorkContent};
 
 patchable_struct!(Article, content);
+
+patchable_variants!(
+    CreativeWorkContent,
+    CreativeWorkContent::VecNode,
+    CreativeWorkContent::String
+);
 
 #[cfg(test)]
 mod tests {

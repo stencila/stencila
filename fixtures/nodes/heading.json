@@ -1,0 +1,16 @@
+{
+  "type": "Article",
+  "title": "Some headings",
+  "content": [
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": ["The heading one content"]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["The heading two content"]
+    }
+  ]
+}

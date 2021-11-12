@@ -26,10 +26,10 @@ export function applyMove(op: OperationMove, target?: ElementId): void {
 }
 
 /**
- * Apply a move operation to a `Vec` slot
+ * Apply a `Move` operation to an element representing a `Vec`
  */
 export function applyMoveVec(
-  elem: Element,
+  vec: Element,
   from: Slot,
   to: Slot,
   items: number
@@ -37,7 +37,7 @@ export function applyMoveVec(
   assertIndex(from)
   assertIndex(to)
 
-  const children = elem.childNodes
+  const children = vec.childNodes
   assert(
     items > 0 && from + items <= children.length,
     `Unexpected move items ${items} for element with ${children.length} children`
@@ -60,7 +60,7 @@ export function applyMoveVec(
     if (child === undefined) {
       throw panic(`Unexpected move from slot ${from}`)
     }
-    elem.insertBefore(child, toChild)
+    vec.insertBefore(child, toChild)
     moved += 1
   }
 }

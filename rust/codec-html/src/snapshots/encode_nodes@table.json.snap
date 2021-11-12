@@ -1,0 +1,41 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: html
+input_file: fixtures/nodes/table.json
+
+---
+<table data-itemscope="root" itemtype="http://schema.stenci.la/Table" itemscope>
+  <caption>
+    <span data-itemprop="label">Table 1</span>
+    <div data-itemprop="caption">A table caption</div>
+  </caption>
+  <tbody data-itemprop="rows">
+    <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
+      <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+        <span>A</span>
+      </th>
+      <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+        <span>B</span>
+      </th>
+      <th itemtype="http://schema.stenci.la/TableCell" itemscope>
+        <span>C</span>
+      </th>
+    </tr>
+    <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
+      <td itemtype="http://schema.stenci.la/TableCell" itemscope rowspan="2">
+        <span itemtype="http://schema.stenci.la/Integer" itemscope>1</span>
+      </td>
+      <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+        <span itemtype="http://schema.stenci.la/Integer" itemscope>2</span>
+      </td>
+      <td itemtype="http://schema.stenci.la/TableCell" itemscope>
+        <span itemtype="http://schema.stenci.la/Integer" itemscope>3</span>
+      </td>
+    </tr>
+    <tr itemtype="http://schema.stenci.la/TableRow" itemscope>
+      <td itemtype="http://schema.stenci.la/TableCell" itemscope colspan="2">
+        <span itemtype="http://schema.stenci.la/Integer" itemscope>5</span>
+      </td>
+    </tr>
+  </tbody>
+</table>

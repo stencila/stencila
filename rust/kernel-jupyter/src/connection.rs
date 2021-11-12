@@ -1,5 +1,5 @@
 use crate::{
-    dirs::{data_dir, runtime_dir},
+    dirs::{data_dir, runtime_dirs},
     messages::HmacSha256,
 };
 use defaults::Defaults;
@@ -64,7 +64,10 @@ impl JupyterConnection {
     /// `id`: The id of the kernel
     pub fn new(id: &str) -> Self {
         let name = format!("stencila-{}.json", id);
-        let path = runtime_dir().join(name);
+        let path = runtime_dirs()
+            .first()
+            .expect("Should always be at least one runtime directory")
+            .join(name);
         let key = key_utils::generate();
 
         JupyterConnection {

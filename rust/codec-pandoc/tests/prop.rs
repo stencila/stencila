@@ -4,8 +4,6 @@ use test_props::{article, proptest::prelude::*, Freedom};
 use test_utils::assert_json_eq;
 
 proptest! {
-    #![proptest_config(ProptestConfig::with_cases(100))]
-
     #[test]
     fn test(input in article(
         Freedom::Min,

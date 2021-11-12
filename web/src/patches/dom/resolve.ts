@@ -1,6 +1,8 @@
 import { Address, Slot } from '@stencila/stencila'
+import HtmlFragment from 'html-fragment'
 import { ElementId } from '../../types'
 import { assertElement, isElement, isName, isText, panic } from '../checks'
+import { STRUCT_ATTRIBUTE_ALIASES } from './consts'
 
 /**
  * Resolve the target of a patch.
@@ -48,25 +50,50 @@ export function resolveSlot(
   slot: Slot
 ): Element | Attr | Text {
   if (isName(slot)) {
-    // Select the first descendant element matching the slot name.
-    // It is proposed that `data-prop` replace `data-itemprop`.
-    // This currently allows for all options.
+    // Is the slot represented by an attribute with a different name? If so translate it.
+    const alias = STRUCT_ATTRIBUTE_ALIASES[slot]
+    if (alias !== undefined) slot = alias
+
+    // Is the slot represented as a standard attribute e.g. `id`, `value`?
+    const attr = parent.attributes.getNamedItem(slot)
+    if (attr !== null) return attr
+
+    // Is the slot represented as a custom attribute on a WebComponent? e.g. `programming-language`
+    const dataAttr = parent.attributes.getNamedItem(
+      slot.replace(/[A-Z]/g, '-$&').toLowerCase()
+    )
+    if (dataAttr !== null) return dataAttr
+
+    // Is there a descendant element matching the slot name?
+    // It is proposed that `data-prop` replace `data-itemprop`. This currently allows for all options.
     assertElement(parent)
     const child: Element | null = parent.querySelector(
       `[data-prop="${slot}"], [data-itemprop="${slot}"], [itemprop="${slot}"]`
     )
 
-    // The `text` slot is always represented by the text content of the selected element
+    // The `text` slot (e.g. on `CodeFragment`) should always represented by the text content of the selected element
     // and is usually "implicit" (so, if there is no explicitly marked text slot, use the parent)
     if (slot === 'text') {
       const elem = child !== null ? child : parent
-      if (elem.childNodes.length === 1 && isText(elem.childNodes[0])) {
+      if (elem.childNodes.length === 0) {
+        // If there is no text node (e.g. the text started off empty) then add one
+        const text = document.createTextNode('')
+        elem.appendChild(text)
+        return text
+      } else if (elem.childNodes.length === 1 && isText(elem.childNodes[0])) {
         return elem.childNodes[0]
       } else {
         throw panic(
           `Expected the 'text' slot to resolve to a single text node child`
         )
       }
+    }
+
+    // If the child element only has one text node child (e.g. the `label` property of a `Figure`,
+    // a `String` represented as `<span>some</span>` in inline content), then return the text DOM node
+    // for the operation to be applied to
+    if (child?.childNodes.length === 1 && isText(child?.childNodes[0])) {
+      return child.childNodes[0]
     }
 
     // `<meta>` elements are used to represent properties that should not be visible
@@ -86,6 +113,7 @@ export function resolveSlot(
     // The `content`, `items`, `rows` and `cell` slots are usually "implicit"
     // (i.e. not represented by an element) but instead represented by the child nodes of
     // the parent element. So, if there is no explicitly marked content slot, return the parent
+    // (which will probably then be indexed by a number slot to get the child)
     if (
       slot === 'content' ||
       (slot === 'items' &&
@@ -95,10 +123,6 @@ export function resolveSlot(
     )
       return parent
 
-    // See if the slot is represented as a standard HTML attribute e.g. `id`, `value`
-    const attr = parent.attributes.getNamedItem(slot)
-    if (attr !== null) return attr
-
     throw panic(`Unable to resolve slot '${slot}'`)
   } else {
     // Select the child at the slot index.
@@ -107,7 +131,18 @@ export function resolveSlot(
       throw panic(
         `Unable to get slot '${slot}' from element with ${parent.childNodes.length} children`
       )
-    } else if (isElement(child) || isText(child)) {
+    } else if (isElement(child)) {
+      // If the element is a `<span>` and only has one text node child then return it as the slot
+      if (
+        (child.tagName === 'SPAN' || child.tagName === 'PRE') &&
+        child.childNodes.length === 1 &&
+        isText(child.childNodes[0])
+      ) {
+        return child.childNodes[0]
+      } else {
+        return child
+      }
+    } else if (isText(child)) {
       return child
     } else {
       throw panic('Unexpected node type')
@@ -173,7 +208,10 @@ export function resolveNode(
 
 /**
  * Create a DOM fragment from a HTML string
+ *
+ * Uses the `html-fragment` package because `document.createRange().createContextualFragment`
+ * does not handle elements that must be wrapped e.g. `td`.
  */
 export function createFragment(html: string): DocumentFragment {
-  return document.createRange().createContextualFragment(html)
+  return HtmlFragment(html)
 }

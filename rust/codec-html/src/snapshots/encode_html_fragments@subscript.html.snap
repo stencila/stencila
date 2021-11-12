@@ -6,6 +6,12 @@ input_file: fixtures/fragments/html/subscript.html
 ---
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Subscripts like H<sub itemtype="http://schema.stenci.la/Subscript" itemscope>2</sub>0.</p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>Subscripts like H</span>
+      <sub itemtype="http://schema.stenci.la/Subscript" itemscope>
+        <span>2</span>
+      </sub>
+      <span>0.</span>
+    </p>
   </div>
 </article>

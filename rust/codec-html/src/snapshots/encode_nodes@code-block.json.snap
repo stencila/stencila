@@ -1,0 +1,11 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: html
+input_file: fixtures/nodes/code-block.json
+
+---
+<pre data-itemscope="root" itemtype="http://schema.stenci.la/CodeBlock" itemscope>
+  <meta itemprop="programmingLanguage" content="python"/>
+  <code itemprop="text" class="language-python"># Some Python code
+1 + 1</code>
+</pre>

@@ -6,7 +6,7 @@ use stencila_schema::*;
 
 /// Encode a `Node` to a HTML document
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
-    let html = encode_address(node, options.clone());
+    let html = encode_root(node, options.clone());
 
     let EncodeOptions {
         theme, standalone, ..
@@ -21,18 +21,24 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<String> {
     Ok(html)
 }
 
-/// Generate the HTML fragment for an address within a node
+/// Generate the HTML fragment for a root node
 ///
 /// This function is used when translating a `Operation` (where any value of
 /// the operation is a `Node` and the operation is applied to a `Node`) to a `DomOperation`
 /// (where any value is either a HTML or JSON string and the operation is applied to a browser DOM).
-pub fn encode_address(node: &Node, options: Option<EncodeOptions>) -> String {
+pub fn encode_root(node: &Node, options: Option<EncodeOptions>) -> String {
     let EncodeOptions {
         bundle, compact, ..
     } = options.unwrap_or_default();
 
     let context = EncodeContext { root: node, bundle };
-    let html = node.to_html("root", &context);
+    let html = node.to_html(&context);
+
+    // Add the `data-itemscope="root"` attribute.
+    // This is currently used in `themes` (for CSS scope) and in `web` (for address resolution).
+    // This is a bit hacky and there may be a better approach. Or we may find
+    // a way of avoid this entirely.
+    let html = html.replacen(" ", " data-itemscope=\"root\" ", 1);
 
     if compact {
         html
@@ -146,7 +152,15 @@ impl<'a> EncodeContext<'a> {
 
 /// Trait for encoding a node as HTML
 pub trait ToHtml {
-    fn to_html(&self, slot: &str, context: &EncodeContext) -> String;
+    fn to_html(&self, context: &EncodeContext) -> String;
+}
+
+/// Create an empty string
+///
+/// Just used to make it clear that not encoding anything to HTML (usually
+/// because a property is missing).
+fn nothing() -> String {
+    String::new()
 }
 
 /// Encode a HTML element
@@ -155,11 +169,20 @@ pub trait ToHtml {
 /// This, and other functions below, us slice `concat`, rather than `format!`
 /// for performance (given that HTML generation may be done on every, or nearly every, keystroke).
 fn elem(name: &str, attrs: &[String], content: &str) -> String {
+    let attrs = attrs.iter().fold(String::new(), |mut attrs, attr| {
+        if !attr.is_empty() {
+            if !attrs.is_empty() {
+                attrs.push(' ');
+            }
+            attrs.push_str(attr);
+        }
+        attrs
+    });
     [
         "<",
         name,
         if attrs.is_empty() { "" } else { " " },
-        attrs.join(" ").trim(),
+        &attrs,
         ">",
         content,
         "</",
@@ -184,6 +207,36 @@ fn elem_empty(name: &str, attrs: &[String]) -> String {
     .concat()
 }
 
+/// Encode a `<meta>` attribute
+///
+/// This is used to encode simple, usually string, properties of nodes as HTML Microdata
+/// when the property should not be visible, or is represented some other way.
+fn elem_meta(name: &str, content: &str) -> String {
+    elem_empty("meta", &[attr_itemprop(name), attr("content", content)])
+}
+
+/// Encode an optional property as an element
+///
+/// If the property is `None` then the element will be empty but will act
+/// as a placeholder for if/when the property is set.
+/// By having placeholders the order of optional properties in the HTML tree
+/// can be consistent when they are added and removed.
+fn elem_placeholder<T: ToHtml>(
+    name: &str,
+    attrs: &[String],
+    content: &Option<T>,
+    context: &EncodeContext,
+) -> String {
+    elem(
+        name,
+        attrs,
+        &match content {
+            Some(content) => content.to_html(context),
+            None => nothing(),
+        },
+    )
+}
+
 /// Encode a HTML element attribute, ensuring that the value is escaped correctly
 fn attr(name: &str, value: &str) -> String {
     [
@@ -201,8 +254,6 @@ fn attr(name: &str, value: &str) -> String {
 fn attr_prop(name: &str) -> String {
     if name.is_empty() {
         "".to_string()
-    } else if name == "root" {
-        attr("data-itemscope", "root")
     } else {
         attr("data-itemprop", &to_camel_case(name))
     }
@@ -217,7 +268,7 @@ fn attr_prop(name: &str) -> String {
 fn attr_itemtype_str(name: &str) -> String {
     let itemtype = match name {
         // TODO: complete list of schema.org types
-        "Article" | "AudioObject" | "ImageObject" | "VideoObject" => {
+        "Article" | "AudioObject" | "ImageObject" | "VideoObject" | "Text" => {
             ["http://schema.org/", name].concat()
         }
         _ => ["http://schema.stenci.la/", name].concat(),
@@ -256,6 +307,15 @@ fn attr_id(id: &Option<Box<String>>) -> String {
     }
 }
 
+/// Encode the "slot" attribute of an HTML
+///
+/// Used for nodes that are represented in HTML using a custom Web Component.
+/// Not to be confused with the Stencila `Address` slot which will often have the
+/// same value but which will be encoded as a "data-prop" if the element is not a Web Component.
+fn attr_slot(name: &str) -> String {
+    attr("slot", name)
+}
+
 /// Encode a node as JSON
 ///
 /// Several of the below implementations use this, mainly as a placeholder,
@@ -275,6 +335,7 @@ where
 }
 
 mod blocks;
+mod boxes;
 mod inlines;
 mod nodes;
 mod options;
@@ -289,10 +350,28 @@ mod tests {
     use crate::decode::decode;
     use codec::eyre::bail;
     use serde_json::json;
-    use test_snaps::{insta::assert_display_snapshot, snapshot_fixtures_content};
+    use test_snaps::{
+        insta::assert_display_snapshot, snapshot_fixtures_content, snapshot_fixtures_nodes,
+    };
     use test_utils::{assert_json_eq, home, skip_slow_tests};
 
-    /// Encode the HTML fragment fixtures
+    /// Encode the node fixtures
+    #[test]
+    fn encode_nodes() {
+        snapshot_fixtures_nodes("nodes/*.json", |node| {
+            let html = encode(
+                &node,
+                Some(EncodeOptions {
+                    compact: false,
+                    ..Default::default()
+                }),
+            )
+            .unwrap();
+            assert_display_snapshot!(html);
+        });
+    }
+
+    /// Encode the HTML fragment fixtures (involves decoding them first)
     #[test]
     fn encode_html_fragments() {
         snapshot_fixtures_content("fragments/html/*.html", |content| {

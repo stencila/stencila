@@ -6,10 +6,16 @@ input_file: fixtures/fragments/html/paragraph.html
 ---
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>First paragraph.</p>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Second paragraph.</p>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>Third paragraph,
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>First paragraph.</span>
+    </p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>Second paragraph.</span>
+    </p>
+    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+      <span>Third paragraph,
 split over multiple
-lines.</p>
+lines.</span>
+    </p>
   </div>
 </article>

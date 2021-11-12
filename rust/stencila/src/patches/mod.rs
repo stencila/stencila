@@ -22,9 +22,7 @@ use std::{
     hash::Hasher,
     iter::FromIterator,
 };
-use stencila_schema::{
-    Array, BlockContent, Boolean, InlineContent, Integer, ListItem, Node, Null, Number, Object,
-};
+use stencila_schema::*;
 use strum::{AsRefStr, Display};
 
 /// Are two nodes are the same type and value?
@@ -315,34 +313,18 @@ impl<'lt> Pointer<'lt> {
     /// Execute the node that is pointed to
     ///
     /// Returns a patch representing the change in the node resulting from
-    /// the execution (usually to it's outputs)
+    /// the execution (usually to its outputs, but potentially to its errors also)
     pub async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<Patch> {
         let patch = match self {
             Pointer::Inline(node) => {
-                // TODO: Reinstate real diffing, rather than wholesale replacement
-                //let pre = node.clone();
+                let pre = node.clone();
                 execute(*node, kernels).await?;
-                //diff(&pre, node)
-                Patch::new(vec![Operation::Replace {
-                    address: Address::empty(),
-                    items: 1,
-                    value: Box::new(node.clone()),
-                    length: 1,
-                    html: None,
-                }])
+                diff(&pre, node)
             }
             Pointer::Block(node) => {
-                // TODO: Reinstate real diffing, rather than wholesale replacement
-                //let pre = node.clone();
+                let pre = node.clone();
                 execute(*node, kernels).await?;
-                //diff(&pre, node)
-                Patch::new(vec![Operation::Replace {
-                    address: Address::empty(),
-                    items: 1,
-                    value: Box::new(node.clone()),
-                    length: 1,
-                    html: None,
-                }])
+                diff(&pre, node)
             }
             Pointer::Node(node) => {
                 let pre = node.clone();
@@ -518,78 +500,117 @@ impl Operation {
         // For performance, types roughly ordered by expected incidence (more commonly used
         // types in patches first).
         serialize!(
+            // Main content types
             InlineContent
             BlockContent
-            Node
 
+            // Child types of the above
+            ListItem
+            TableCaption
+            TableRow
+            TableCell
+            TableCellCellType
+            FigureCaption
+            CodeChunkCaption
+            Node
+            CodeError
+
+            // Primitives
             String
             Number
             Integer
+            Boolean
+            Array
+            Object
+            Null
+
+            // Types used on some properties e.g. `Heading.depth`, `TableCell.rowspan`
             u8
+            u32
             i32
             f32
+        );
+
+        // The value may be a JSON value (if this patch was sent from a client).
+        // In that case we can just serialize it.
+        if let Some(value) = value.downcast_ref::<serde_json::Value>() {
+            return value.serialize(serializer);
+        }
+
+        tracing::error!("Unhandled `value` type when serializing patch `Operation`");
+        "<unserialized type>".serialize(serializer)
+    }
+
+    /// Generate HTML for the `value` field of an operation
+    fn value_html(value: &Value) -> String {
+        use codec_html::{EncodeContext, ToHtml};
+
+        let context = EncodeContext::new();
+
+        // Convert a node, boxed node, or vector of nodes to HTML
+        macro_rules! to_html {
+            ($type:ty) => {
+                if let Some(node) = value.downcast_ref::<$type>() {
+                    return node.to_html(&context);
+                }
+                if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
+                    return boxed.to_html(&context);
+                }
+                if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
+                    return nodes.to_html(&context);
+                }
+            };
+            ($($type:ty)*) => {
+                $(to_html!($type);)*
+            }
+        }
+
+        // For performance, types roughly ordered by expected incidence (more commonly used
+        // types in patches first).
+        to_html!(
+            // Main content types
+            InlineContent
+            BlockContent
+
+            // Child types of the above
+            ListItem
+            TableCaption
+            TableRow
+            TableCell
+            TableCellCellType
+            FigureCaption
+            CodeChunkCaption
+            Node
+            CodeError
+
+            // Primitives
+            String
+            Number
+            Integer
             Boolean
             Array
             Object
             Null
         );
 
-        tracing::error!("Unhandled `value` type when serializing an `Operation`");
-        "<unserialized type>".serialize(serializer)
-    }
-
-    /// Generate HTML for the `value` field of an operation
-    fn value_html(value: &Value, address: &Address) -> String {
-        use codec_html::{EncodeContext, ToHtml};
-
-        let slot = address.back();
-        let context = EncodeContext::new();
-
-        // Convert a node, boxed node, or vector of nodes to HTML
-        macro_rules! to_html {
-        ($type:ty) => {
-            if let Some(node) = value.downcast_ref::<$type>() {
-                return node.to_html(
-                    &slot.map(|slot| slot.to_string()).unwrap_or_default(),
-                    &context
-                )
+        // Convert an atomic (used in some struct properties e.g. `Heading.depth`). These
+        // don't usually need to be a HTML (they are handled differently) but for consistency
+        // we generate it anyway
+        macro_rules! to_html_atomic {
+            ($type:ty) => {
+                if let Some(node) = value.downcast_ref::<$type>() {
+                    return node.to_string()
+                }
+            };
+            ($($type:ty)*) => {
+                $(to_html_atomic!($type);)*
             }
-            if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
-                return boxed.to_html(
-                    &slot.map(|slot| slot.to_string()).unwrap_or_default(),
-                    &context
-                )
-            }
-            if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
-                return match slot {
-                    // If the slot is a name then we're adding or replacing a property so we
-                    // want the `Vec` to have a wrapper element with the name as the slot attribute
-                    Some(Slot::Name(name)) => nodes.to_html(name, &context),
-                    // If the slot is an index then we're adding or replacing items in a
-                    // vector so we don't want a wrapper element
-                    Some(Slot::Index(..)) | None => nodes.to_html("", &context),
-                };
-            }
-        };
-        ($($type:ty)*) => {
-            $(to_html!($type);)*
         }
-    }
-
-        // For performance, types roughly ordered by expected incidence (more commonly used
-        // types in patches first).
-        to_html!(
-            InlineContent
-            BlockContent
-            Node
-
-            String
-            Number
-            Integer
-            Boolean
-            Array
-            Object
-            Null
+        to_html_atomic!(
+            u8
+            u32
+            i32
+            f32
         );
 
         // The value may be a JSON value (if this patch was sent from a client)
@@ -599,45 +620,50 @@ impl Operation {
             if let Some(str) = value.as_str() {
                 return str.to_string();
             } else if let Ok(nodes) = serde_json::from_value::<InlineContent>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else if let Ok(nodes) = serde_json::from_value::<Vec<InlineContent>>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else if let Ok(nodes) = serde_json::from_value::<BlockContent>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else if let Ok(nodes) = serde_json::from_value::<Vec<BlockContent>>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else if let Ok(nodes) = serde_json::from_value::<ListItem>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else if let Ok(nodes) = serde_json::from_value::<Vec<ListItem>>(value.clone()) {
-                return nodes.to_html("", &context);
+                return nodes.to_html(&context);
             } else {
                 tracing::error!(
-                    "Unhandled JSON value type when generating HTML for `DomOperation`"
+                    "Unhandled JSON value type when generating HTML for patch `Operation`: {}",
+                    value.to_string()
                 );
-                return ["<span class=\"todo\">", &value.to_string(), "</span>"].concat();
             }
+        } else {
+            tracing::error!("Unhandled `value` type when generating HTML for patch `Operation`");
         }
 
-        tracing::error!("Unhandled value type when generating HTML for `DomOperation`");
-        "<span class=\"todo\">TODO</span>".to_string()
+        // Send HTML that indicates error to developers (in addition to above tracing error)
+        // but is invisible to users.
+        "<meta name=\"error\" content=\"Unhandled patch value type\">".to_string()
     }
 
     /// Set the `html` field from the `value` field
     fn html_set(&mut self) -> &mut Self {
         match self {
-            Operation::Add {
-                value,
-                address,
-                html,
-                ..
-            }
-            | Operation::Replace {
-                value,
-                address,
-                html,
-                ..
-            } => {
-                *html = Some(Operation::value_html(value, address));
+            Operation::Add { value, html, .. } | Operation::Replace { value, html, .. } => {
+                // As an optimization, if the value is a `String` or `serde_json::Value::String`
+                // (but not if it is a `InlineContent::String` or `Node::String`), then there
+                // is no need to generate HTML since it is the same as the value and the `web`
+                // module will fallback to `value` if necessary.
+                if value.is::<String>() {
+                    return self;
+                }
+                if let Some(value) = value.downcast_mut::<serde_json::Value>() {
+                    if value.is_string() {
+                        return self;
+                    }
+                }
+
+                *html = Some(Operation::value_html(value));
             }
             _ => {}
         }
@@ -815,7 +841,7 @@ pub trait Patchable {
     fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
         match address.is_empty() {
             true => bail!(unpointable_type::<Self>(address)),
-            false => bail!(invalid_address::<Self>("resolve() needs to be overriden?")),
+            false => bail!(invalid_address::<Self>("resolve() needs to be overridden?")),
         }
     }
 
@@ -1193,7 +1219,7 @@ mod tests {
                 "address": ["content", 0, "content", 0],
                 "value": ["first", " second"],
                 "length": 2,
-                "html": "first second",
+                "html": "<span>first</span><span> second</span>",
             }])
         );
 
@@ -1207,8 +1233,8 @@ mod tests {
                 "address": ["content", 0, "content", 0, 1],
                 "items": 3,
                 "value": "oo",
-                "length": 2,
-                "html": "oo",
+                "length": 2
+                // No `html` because same as `value`
             }])
         );
 

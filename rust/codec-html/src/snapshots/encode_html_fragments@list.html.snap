@@ -8,49 +8,75 @@ input_file: fixtures/fragments/html/list.html
   <div data-itemprop="content">
     <ul itemtype="http://schema.stenci.la/List" itemscope>
       <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>apple</p>
+        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+          <span>apple</span>
+        </p>
       </li>
       <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>pear</p>
+        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+          <span>pear</span>
+        </p>
       </li>
       <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>orange</p>
+        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+          <span>orange</span>
+        </p>
       </li>
     </ul>
     <ol itemtype="http://schema.stenci.la/List" itemscope>
       <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>first</p>
+        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+          <span>first</span>
+        </p>
       </li>
       <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>second</p>
+        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+          <span>second</span>
+        </p>
       </li>
       <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>third</p>
+        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+          <span>third</span>
+        </p>
       </li>
     </ol>
     <ul itemtype="http://schema.stenci.la/List" itemscope>
       <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>nested</p>
+        <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+          <span>nested</span>
+        </p>
         <ul itemtype="http://schema.stenci.la/List" itemscope>
           <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-            <p itemtype="http://schema.stenci.la/Paragraph" itemscope>2a</p>
+            <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+              <span>2a</span>
+            </p>
             <ul itemtype="http://schema.stenci.la/List" itemscope>
               <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-                <p itemtype="http://schema.stenci.la/Paragraph" itemscope>3a</p>
+                <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+                  <span>3a</span>
+                </p>
               </li>
             </ul>
           </li>
           <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-            <p itemtype="http://schema.stenci.la/Paragraph" itemscope>2b</p>
+            <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+              <span>2b</span>
+            </p>
           </li>
           <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-            <p itemtype="http://schema.stenci.la/Paragraph" itemscope>2c</p>
+            <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+              <span>2c</span>
+            </p>
             <ul itemtype="http://schema.stenci.la/List" itemscope>
               <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-                <p itemtype="http://schema.stenci.la/Paragraph" itemscope>3b</p>
+                <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+                  <span>3b</span>
+                </p>
                 <ul itemtype="http://schema.stenci.la/List" itemscope>
                   <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-                    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>4a</p>
+                    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+                      <span>4a</span>
+                    </p>
                   </li>
                 </ul>
               </li>
@@ -61,7 +87,9 @@ input_file: fixtures/fragments/html/list.html
     </ul>
     <ol itemtype="http://schema.stenci.la/List" itemscope>
       <li itemtype="http://schema.stenci.la/ListItem" itemscope>
-        <em itemtype="http://schema.stenci.la/Emphasis" itemscope>solo inline</em>
+        <em itemtype="http://schema.stenci.la/Emphasis" itemscope>
+          <span>solo inline</span>
+        </em>
       </li>
     </ol>
   </div>
