@@ -357,12 +357,7 @@ pub async fn serve_on(
         None => Projects::current_path()?,
     };
 
-    tracing::info!(
-        "Serving {} at http://{}:{}",
-        home.display(),
-        address,
-        port
-    );
+    tracing::info!("Serving {} at http://{}:{}", home.display(), address, port);
 
     match protocol {
         Protocol::Http | Protocol::Ws => {
@@ -384,10 +379,12 @@ pub async fn serve_on(
 
             // The following HTTP and WS endpoints all require authorization (done by `jwt_filter`)
 
-            fn with_arg<T: Clone + Send>(
-                arg: T,
-            ) -> impl Filter<Extract = (T,), Error = std::convert::Infallible> + Clone {
-                warp::any().map(move || arg.clone())
+            fn with_home(
+                home: PathBuf,
+                traversal: bool,
+            ) -> impl Filter<Extract = ((PathBuf, bool),), Error = std::convert::Infallible> + Clone
+            {
+                warp::any().map(move || (home.clone(), traversal))
             }
 
             let authorize = || jwt_filter(key.clone());
@@ -395,7 +392,7 @@ pub async fn serve_on(
             let local = warp::get()
                 .and(warp::path("~local"))
                 .and(warp::path::tail())
-                .and(with_arg(home.clone()))
+                .and(with_home(home.clone(), traversal))
                 .and(authorize())
                 .and_then(get_local);
 
@@ -408,7 +405,7 @@ pub async fn serve_on(
             let get = warp::get()
                 .and(warp::path::full())
                 .and(warp::query::<GetParams>())
-                .and(with_arg(home))
+                .and(with_home(home, traversal))
                 .and(authorize())
                 .and_then(get_handler);
 
@@ -658,7 +655,7 @@ fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Respo
 #[tracing::instrument]
 async fn get_local(
     path: warp::path::Tail,
-    home: PathBuf,
+    (home, traversal): (PathBuf, bool),
     _claims: jwt::Claims,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
@@ -669,7 +666,7 @@ async fn get_local(
         Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
     };
 
-    if path.strip_prefix(&home).is_err() {
+    if !traversal && path.strip_prefix(&home).is_err() {
         return error_response(
             StatusCode::FORBIDDEN,
             "Requested path is outside of current working directory",
@@ -722,7 +719,7 @@ struct GetParams {
 async fn get_handler(
     path: warp::path::FullPath,
     params: GetParams,
-    home: PathBuf,
+    (home, traversal): (PathBuf, bool),
     _claims: jwt::Claims,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
@@ -734,7 +731,7 @@ async fn get_handler(
         Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
     };
 
-    if path.strip_prefix(&home).is_err() {
+    if !traversal && path.strip_prefix(&home).is_err() {
         return error_response(
             StatusCode::FORBIDDEN,
             "Requested path is outside of current working directory",
