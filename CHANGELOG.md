@@ -1,3 +1,12 @@
+## [0.126.3](https://github.com/stencila/stencila/compare/v0.126.2...v0.126.3) (2021-11-12)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/brand to v0.7.14 ([c3db756](https://github.com/stencila/stencila/commit/c3db7569ca90f8e4a68329a3f9c0565b06732334))
+* **dependencies:** update dependency i18next to v21.4.2 ([af20c28](https://github.com/stencila/stencila/commit/af20c282f2f9b8fa1567f2c556341528c27719d7))
+* **prosemirror:** pin dependencies ([3f36053](https://github.com/stencila/stencila/commit/3f360530aba15635c4cdb2750f5184def521f6b0))
+
 ## [0.126.2](https://github.com/stencila/stencila/compare/v0.126.1...v0.126.2) (2021-11-09)
 
 
