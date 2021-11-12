@@ -329,7 +329,7 @@ function resolveEventNode(event: Event): [string, string] {
     }
   }
 
-  if (elType && id) {
+  if (id !== null) {
     return [elType, id]
   }
 
