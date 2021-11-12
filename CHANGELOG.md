@@ -1,3 +1,55 @@
+# [0.127.0](https://github.com/stencila/stencila/compare/v0.126.3...v0.127.0) (2021-11-12)
+
+
+### Bug Fixes
+
+* **HTML:** Do not strip cell type from cells in header rows ([c96c2e2](https://github.com/stencila/stencila/commit/c96c2e2b3cc9ddd07217576c6ba08b44978edc02))
+* **HTML encoding:** Do not add non-existent slot names to error parts ([8d3cd0a](https://github.com/stencila/stencila/commit/8d3cd0a07da07fcd52d6e78723d331f64a7ed1a9))
+* **HTML encoding:** Do not force media objects to blocks ([5476a45](https://github.com/stencila/stencila/commit/5476a450e2fc41eff1869b5dd50ee156685e2bec))
+* **HTML encoding:** Encode `CodeError`s as custom `<stencila-code-error>` component ([890fbfc](https://github.com/stencila/stencila/commit/890fbfc33a850853668c893325d97f2c6c6e2ebd))
+* **HTML encoding:** Encode `colspan` and `rowspan` properties of `TableCell` ([fadbd8c](https://github.com/stencila/stencila/commit/fadbd8cb4a5f4c6b30e0a13817a7ef30026ea8c0))
+* **HTML encoding:** Implement `to_html` for `Table` components and create placeholder elements for optional properties ([92b1305](https://github.com/stencila/stencila/commit/92b1305a14789b1c06e788831fdc1471f6d7f92a))
+* **HTML encoding:** Remove extraneous spaces between attributes ([213a348](https://github.com/stencila/stencila/commit/213a348f670303e7764987a558317e1087d6ee6c))
+* **HTML encoding:** Translate `CreativeWork` nodes to blocks before encoding ([2ed5374](https://github.com/stencila/stencila/commit/2ed53746b9ce6283f84c7cd8c0dc4f42fea902d1))
+* **HTML encoding:** Use placeholder elements for `Figure` and `CodeChunk` ([6a3465c](https://github.com/stencila/stencila/commit/6a3465c0d4802fa2e5f28d731a8011c0adffd792))
+* **HTML encoding:** Various fixes to encoding of code chunks ([c2b0203](https://github.com/stencila/stencila/commit/c2b020323166372f5de020bea65bd1bd70e0a7ba))
+* **HTML encoding:** Wrap strings in spans for consistency when applying patches ([b446d26](https://github.com/stencila/stencila/commit/b446d26aae80924fdc28b7cd0a69d4ee7605c929))
+* **HTML Encoding & Patches:** Use lower kebab case for attributes; resolve `pre` text ([393bc1f](https://github.com/stencila/stencila/commit/393bc1feb2e620437d9ce904d677f84bb63ee407))
+* **Jupyter kernels:** Get paths from `jupyter --paths` if possible ([ce8b13a](https://github.com/stencila/stencila/commit/ce8b13aacefd1dd00d0a65c384cd4b5bfce01fb4))
+* **Markdown decoding:** Pass down header row type to cells ([e2be079](https://github.com/stencila/stencila/commit/e2be079b5aa9dd45581d4f40cc568d1842b11a1e))
+* **Node compilation:** Handle data URIs ([fce92c6](https://github.com/stencila/stencila/commit/fce92c62033f42c641e13d199ad8d1bcc39887ed))
+* **Pandoc decoding:** Pass down header row type to cells ([db1ed60](https://github.com/stencila/stencila/commit/db1ed60f123b39d1c0c04ea77aa948fa91626aec))
+* **Patches:** Add `CodeChunkCaption` ([c364373](https://github.com/stencila/stencila/commit/c3643737ac2fbacc86ef27b85dd4783c2cc07674))
+* **Patches:** Detect text DOM nodes during adddress resolution ([772a364](https://github.com/stencila/stencila/commit/772a364144807e19937cb3af6b563dcb751dfb71))
+* **Patches:** Handle `label` and `caption` properties of `CodeChunk` nodes ([fe34b7c](https://github.com/stencila/stencila/commit/fe34b7c055ab304ed5d8f8dc26dc3b40b6f88ecb))
+* **Patches:** Handle more types when serializing patches ([0745925](https://github.com/stencila/stencila/commit/074592530135e8445ca78810a95cf12348e8f207))
+* **Patches:** Implement `Patchable` for more types and variants ([4d386e1](https://github.com/stencila/stencila/commit/4d386e17cda626e01d16fe4bf2489ab67dfea373))
+* **Patches:** Reinstate diffing after execution; serialize JSON values ([4f672bc](https://github.com/stencila/stencila/commit/4f672bcba9b7bcf4b47ab9285efbda0ea39ff04f))
+* **Web:** Allow for attribute aliases for properties ([2965924](https://github.com/stencila/stencila/commit/2965924574725f23c116d8c6810edfc47c75ba6f))
+* **Web:** Convert operations where tag name needs to be changed ([6eab7db](https://github.com/stencila/stencila/commit/6eab7dbecbce288f922189a9635a7b9faf829ccb))
+* **Web:** Use patch `value` and escape / unescape as needed for text DOM nodes ([c385be6](https://github.com/stencila/stencila/commit/c385be6a803520528e1aa04d008c27b60e2590ae))
+* **Web client:** Add into placeholder elements for options ([772f5f4](https://github.com/stencila/stencila/commit/772f5f42c41ad9fdb8c412a5ae7a008553d51b10))
+* **Web client:** Fix resolving of node type ([1d1a5f1](https://github.com/stencila/stencila/commit/1d1a5f18b730b35c34461d598459b9da7b3f1673))
+* **Web client:** Handle editor events and consoldate in `documents` module ([44336bc](https://github.com/stencila/stencila/commit/44336bc2cb649fed4f4fb27585899441ca81973a))
+* **Web patches:** Handle placeholder elements when patching optional properties ([251664e](https://github.com/stencila/stencila/commit/251664e9ac8c0a25c99b8f875714da0f7a835c74))
+* **Web patches:** Improve `createFragment` ([9d54be5](https://github.com/stencila/stencila/commit/9d54be51e0d7b6680026ac0a7cd4b0b9ac81961b))
+* **Web patches:** Insert a text node if one does not exist ([d50c073](https://github.com/stencila/stencila/commit/d50c073210a92fee8429fb031ac437f82253cb64))
+* **Web patches:** Limit resolving single text node to spans ([49860a0](https://github.com/stencila/stencila/commit/49860a02c25de3803b4dcf62ff1817bd2739ca8c))
+* **Web patches:** Use correct regex and document ([4827e54](https://github.com/stencila/stencila/commit/4827e54f5c91caede189bf186ec28f7ad7e08074))
+
+
+### Features
+
+* **Jupyter kernels:** List searched directories ([6d5a37a](https://github.com/stencila/stencila/commit/6d5a37acf12807b3c427c8493f8bb35aeb75300b))
+* **Server:** Add option to not load WebComponents ([6a61f61](https://github.com/stencila/stencila/commit/6a61f61e9cd114020608f5223ed7776308da56aa))
+* **Server:** Optionally serve components from local `static` folder ([a5148bb](https://github.com/stencila/stencila/commit/a5148bbef375dd6cbb944754e2308c928e914f89))
+
+
+### Performance Improvements
+
+* **Patches:** Do not set `html` when it is the same as `value` ([893e9e6](https://github.com/stencila/stencila/commit/893e9e6cac07f283dce0e985dd668a818a8e7e12))
+* **Web patches:** Transform CodeMirror changes into `Operation`s ([81f140b](https://github.com/stencila/stencila/commit/81f140b0687f843307c5b70f8c4c646d0ada5314))
+
 ## [0.126.3](https://github.com/stencila/stencila/compare/v0.126.2...v0.126.3) (2021-11-12)
 
 
