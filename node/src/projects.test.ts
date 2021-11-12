@@ -162,11 +162,11 @@ test('workflow: open and modify', async () => {
 /**
  * Test of a workflow involving adding and removing sources
  *
- * Skipped on CI because getting a 403 there when attempting to
+ * Skipped because getting a 403 when attempting to
  * import source.
  */
 if (!process.env.CI) {
-  test('workflow: sources', async () => {
+  test.skip('workflow: sources', async () => {
     const folder = tmp.dirSync().name
     open(folder)
 
