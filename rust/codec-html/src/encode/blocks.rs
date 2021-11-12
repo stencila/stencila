@@ -141,12 +141,8 @@ impl ToHtml for CodeError {
             "error"
         };
 
-        let error_type = elem_placeholder(
-            "span",
-            &[attr_prop("errorType")],
-            &self.error_type,
-            context,
-        );
+        let error_type =
+            elem_placeholder("span", &[attr_prop("errorType")], &self.error_type, context);
 
         let error_message = elem(
             "span",
