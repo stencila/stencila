@@ -75,6 +75,9 @@ export function applyTransformElem(
   from: string,
   to: string
 ): void {
+  // For syntheticaly created transform operations e.g. those for
+  // dealing with a change in heading depth, the from field is empty.
+  // For others, check that the current tag of the element is as expected.
   if (from !== '') {
     const tag = elem.tagName.toLowerCase()
     const expectedFrom = TAGS_TYPE[tag]
@@ -89,7 +92,9 @@ export function applyTransformElem(
     const text = document.createTextNode(elem.textContent ?? '')
     elem.replaceWith(text)
   } else {
-    if (/^A-Z/.test(to)) {
+    // For normal transform operation the `to` field is the name of the
+    // type (starting with a capital letter). For others, it is the new tag name.
+    if (/^[A-Z]/.test(to)) {
       const tag = TYPE_TAGS[to]
       if (tag === undefined) throw panic(`Unhandled to type ${to}`)
       changeTagName(elem, tag, to)
