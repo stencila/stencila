@@ -1,40 +1,32 @@
 import {
   applyReplace,
-  applyReplaceOption,
+  applyReplaceStruct,
   applyReplaceText,
   applyReplaceVec,
 } from './replace'
 
-test('applyReplaceOption', () => {
+test('applyReplaceStruct', () => {
   const elem = document.createElement('div')
   elem.innerHTML = '<p data-itemprop="property">One</p>'
   expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
     'One'
   )
 
-  applyReplaceOption(elem, 'property', 1, '<p data-itemprop="property">Two</p>')
+  applyReplaceStruct(elem, 'property', 1, 'Two')
   expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
     'Two'
   )
 
-  applyReplaceOption(
-    elem,
-    'property',
-    1,
-    '<p data-itemprop="property">Three</p>'
-  )
+  applyReplaceStruct(elem, 'property', 1, 'Three')
   expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
     'Three'
   )
 
-  expect(() => applyReplaceOption(elem, 1, 1, '')).toThrow(
+  expect(() => applyReplaceStruct(elem, 1, 1, '')).toThrow(
     /Expected string slot/
   )
-  expect(() => applyReplaceOption(elem, '', 100, '')).toThrow(
+  expect(() => applyReplaceStruct(elem, '', 100, '')).toThrow(
     /Unexpected replace items 100/
-  )
-  expect(() => applyReplaceOption(elem, 'foo', 1, '')).toThrow(
-    /Unable to resolve slot 'foo'/
   )
 })
 
@@ -156,7 +148,7 @@ test('applyReplace', () => {
     type: 'Replace',
     address: ['content'],
     items: 1,
-    html: '<div data-itemprop="content"><p>Hello</p></div>',
+    html: '<p>Hello</p>',
     value: {},
     length: 1,
   })

@@ -1,7 +1,8 @@
 import { Address, Slot } from '@stencila/stencila'
+import HtmlFragment from 'html-fragment'
 import { ElementId } from '../../types'
 import { assertElement, isElement, isName, isText, panic } from '../checks'
-import HtmlFragment from 'html-fragment'
+import { STRUCT_ATTRIBUTE_ALIASES } from './consts'
 
 /**
  * Resolve the target of a patch.
@@ -38,11 +39,6 @@ export function resolveTarget(target?: ElementId): Element {
   }
 }
 
-// Aliased attribute names for properties
-const ATTRIBUTE_ALIASES: Record<string, string> = {
-  contentUrl: 'src',
-}
-
 /**
  * Resolve a slot in a parent DOM node.
  *
@@ -55,7 +51,7 @@ export function resolveSlot(
 ): Element | Attr | Text {
   if (isName(slot)) {
     // Is the slot represented by an attribute with a different name? If so translate it.
-    const alias = ATTRIBUTE_ALIASES[slot]
+    const alias = STRUCT_ATTRIBUTE_ALIASES[slot]
     if (alias !== undefined) slot = alias
 
     // Is the slot represented as a standard attribute e.g. `id`, `value`?
@@ -75,7 +71,7 @@ export function resolveSlot(
       `[data-prop="${slot}"], [data-itemprop="${slot}"], [itemprop="${slot}"]`
     )
 
-    // The `text` slot should always represented by the text content of the selected element
+    // The `text` slot (e.g. on `CodeFragment`) should always represented by the text content of the selected element
     // and is usually "implicit" (so, if there is no explicitly marked text slot, use the parent)
     if (slot === 'text') {
       const elem = child !== null ? child : parent
@@ -88,13 +84,10 @@ export function resolveSlot(
       }
     }
 
-    // If the element only has one text node child then return it as the slot
-    // TODO: Consider amalgamating this with above.
-    if (
-      (child?.tagName === 'SPAN' || child?.tagName === 'PRE') &&
-      child?.childNodes.length === 1 &&
-      isText(child?.childNodes[0])
-    ) {
+    // If the child element only has one text node child (e.g. the `label` property of a `Figure`,
+    // a `String` represented as `<span>some</span>` in inline content), then return the text DOM node
+    // for the operation to be applied to
+    if (child?.childNodes.length === 1 && isText(child?.childNodes[0])) {
       return child.childNodes[0]
     }
 

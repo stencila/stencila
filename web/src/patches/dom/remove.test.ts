@@ -1,19 +1,19 @@
 import {
   applyRemove,
-  applyRemoveOption,
+  applyRemoveStruct,
   applyRemoveText,
   applyRemoveVec,
 } from './remove'
 
-test('applyRemoveOption', () => {
+test('applyRemoveStruct', () => {
   const elem = document.createElement('div')
   elem.innerHTML = '<p data-itemprop="property" data-some-attr="">some text</p>'
 
-  applyRemoveOption(elem, 'property', 1)
+  applyRemoveStruct(elem, 'property', 1)
   expect(elem.innerHTML).toEqual('<p data-itemprop="property"></p>')
 
-  expect(() => applyRemoveOption(elem, 42, 1)).toThrow(/Expected string slot/)
-  expect(() => applyRemoveOption(elem, 'property', 42)).toThrow(
+  expect(() => applyRemoveStruct(elem, 42, 1)).toThrow(/Expected string slot/)
+  expect(() => applyRemoveStruct(elem, 'property', 42)).toThrow(
     /Unexpected remove items/
   )
 })
