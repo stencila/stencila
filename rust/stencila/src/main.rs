@@ -310,9 +310,9 @@ impl Run for OpenCommand {
         let url = format!(":{}", port);
         if let Err(error) =
             if std::env::var("STENCILA_INTERACT_MODE").unwrap_or_else(|_| "0".to_string()) == "1" {
-                serve::serve_background(&url, key)
+                serve::serve_background(&url, key, None, false)
             } else {
-                serve::serve(&url, key).await
+                serve::serve(&url, key, None, false).await
             }
         {
             // Ignore the error if a server is already started on that address

@@ -2,6 +2,7 @@ use crate::{
     config::CONFIG,
     documents::DOCUMENTS,
     jwt,
+    projects::Projects,
     rpc::{self, Error, Protocol, Request, Response},
     utils::urls,
 };
@@ -19,7 +20,7 @@ use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
     env,
     fmt::Debug,
-    path::Path,
+    path::{Path, PathBuf},
     str::FromStr,
     sync::Arc,
 };
@@ -71,6 +72,8 @@ pub fn login_url(
 ///
 /// - `url`: The URL to listen on
 /// - `key`: A secret key for signing and verifying JSON Web Tokens (defaults to random)
+/// - `home`: The root directory for files that are served (defaults to current working directory)
+/// - `traversal`: Whether traversal out of the root directory is allowed
 ///
 /// # Examples
 ///
@@ -82,19 +85,26 @@ pub fn login_url(
 ///
 /// serve("ws://0.0.0.0:1234", None);
 /// ```
-pub async fn serve(url: &str, key: Option<String>) -> Result<()> {
+pub async fn serve(
+    url: &str,
+    key: Option<String>,
+    home: Option<PathBuf>,
+    traversal: bool,
+) -> Result<()> {
     let (protocol, address, port) = parse_url(url)?;
-    serve_on(protocol, address, port, key).await
+    serve_on(protocol, address, port, key, home, traversal).await
 }
 
 /// Run a server on another thread
 ///
-/// # Arguments
-///
-/// - `url`: The URL to listen on
-/// - `key`: A secret key for signing and verifying JSON Web Tokens (defaults to random)
+/// Arguments as for [`serve`]
 #[tracing::instrument]
-pub fn serve_background(url: &str, key: Option<String>) -> Result<()> {
+pub fn serve_background(
+    url: &str,
+    key: Option<String>,
+    home: Option<PathBuf>,
+    traversal: bool,
+) -> Result<()> {
     // Spawn a thread, start a runtime in it, and serve using that runtime.
     // Any errors within the thread are logged because we can't return a
     // `Result` from the thread to the caller of this function.
@@ -109,7 +119,7 @@ pub fn serve_background(url: &str, key: Option<String>) -> Result<()> {
                 return;
             }
         };
-        match runtime.block_on(async { serve(&url, key).await }) {
+        match runtime.block_on(async { serve(&url, key, home, traversal).await }) {
             Ok(_) => {}
             Err(error) => tracing::error!("{}", error.to_string()),
         };
@@ -325,7 +335,7 @@ static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
 /// use stencila::rpc::Protocol;
 /// use stencila::serve::serve_on;
 ///
-/// serve_on(Protocol::Ws, "127.0.0.1".to_string(), 9000, None);
+/// serve_on(Protocol::Ws, "127.0.0.1".to_string(), 9000, None, None, false);
 /// ```
 #[tracing::instrument]
 pub async fn serve_on(
@@ -333,6 +343,8 @@ pub async fn serve_on(
     address: String,
     port: u16,
     key: Option<String>,
+    home: Option<PathBuf>,
+    traversal: bool,
 ) -> Result<()> {
     if let Some(key) = key.as_ref() {
         if key.len() > 64 {
@@ -340,7 +352,18 @@ pub async fn serve_on(
         }
     }
 
-    tracing::info!("Serving on {}://{}:{}", protocol, address, port);
+    let home = match home {
+        Some(home) => home.canonicalize()?,
+        None => Projects::current_path()?,
+    };
+
+    tracing::info!(
+        "Serving {} on {}://{}:{}",
+        home.display(),
+        protocol,
+        address,
+        port
+    );
 
     match protocol {
         Protocol::Http | Protocol::Ws => {
@@ -362,11 +385,18 @@ pub async fn serve_on(
 
             // The following HTTP and WS endpoints all require authorization (done by `jwt_filter`)
 
+            fn with_arg<T: Clone + Send>(
+                arg: T,
+            ) -> impl Filter<Extract = (T,), Error = std::convert::Infallible> + Clone {
+                warp::any().map(move || arg.clone())
+            }
+
             let authorize = || jwt_filter(key.clone());
 
             let local = warp::get()
                 .and(warp::path("~local"))
                 .and(warp::path::tail())
+                .and(with_arg(home.clone()))
                 .and(authorize())
                 .and_then(get_local);
 
@@ -379,6 +409,7 @@ pub async fn serve_on(
             let get = warp::get()
                 .and(warp::path::full())
                 .and(warp::query::<GetParams>())
+                .and(with_arg(home))
                 .and(authorize())
                 .and_then(get_handler);
 
@@ -628,19 +659,18 @@ fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Respo
 #[tracing::instrument]
 async fn get_local(
     path: warp::path::Tail,
+    home: PathBuf,
     _claims: jwt::Claims,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
     tracing::debug!("GET ~local /{}", path);
 
-    let cwd = std::env::current_dir().expect("Unable to get current working directory");
-
-    let path = match cwd.join(path).canonicalize() {
+    let path = match home.join(path).canonicalize() {
         Ok(path) => path,
         Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
     };
 
-    if path.strip_prefix(&cwd).is_err() {
+    if path.strip_prefix(&home).is_err() {
         return error_response(
             StatusCode::FORBIDDEN,
             "Requested path is outside of current working directory",
@@ -693,20 +723,19 @@ struct GetParams {
 async fn get_handler(
     path: warp::path::FullPath,
     params: GetParams,
+    home: PathBuf,
     _claims: jwt::Claims,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
     tracing::debug!("GET {}", path);
 
-    let cwd = std::env::current_dir().expect("Unable to get current working directory");
-
     let path = Path::new(path.strip_prefix('/').unwrap_or(path));
-    let path = match cwd.join(path).canonicalize() {
+    let path = match home.join(path).canonicalize() {
         Ok(path) => path,
         Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
     };
 
-    if path.strip_prefix(&cwd).is_err() {
+    if path.strip_prefix(&home).is_err() {
         return error_response(
             StatusCode::FORBIDDEN,
             "Requested path is outside of current working directory",
@@ -733,7 +762,7 @@ async fn get_handler(
             };
 
             let content = match format.as_str() {
-                "html" => rewrite_html(&content, &mode, &theme, &components, &cwd, &path),
+                "html" => rewrite_html(&content, &mode, &theme, &components, &home, &path),
                 _ => content,
             };
 
@@ -775,7 +804,7 @@ pub fn rewrite_html(
     mode: &str,
     theme: &str,
     components: &str,
-    cwd: &Path,
+    home: &Path,
     document: &Path,
 ) -> String {
     let static_root = ["/~static/", STATIC_VERSION].concat();
@@ -840,7 +869,7 @@ pub fn rewrite_html(
             // Redact the path if it can not be canonicalized
             Err(_) => return r#""""#.to_string(),
         };
-        match path.strip_prefix(cwd) {
+        match path.strip_prefix(home) {
             Ok(path) => ["\"/~local/", &path.display().to_string(), "\""].concat(),
             // Redact the path if it is outside of the current directory
             Err(_) => "\"\"".to_string(),
@@ -1080,6 +1109,8 @@ pub mod config {
 
 #[cfg(feature = "cli")]
 pub mod commands {
+    use std::path::PathBuf;
+
     use super::*;
     use async_trait::async_trait;
     use cli_utils::{result, Result, Run};
@@ -1122,6 +1153,12 @@ pub mod commands {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Command {
+        /// The home directory for the server to serve from
+        ///
+        /// Defaults to the current directory or an ancestor project directory (if the current directory
+        /// is within a project).
+        home: Option<PathBuf>,
+
         /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
         #[structopt(env = "STENCILA_URL")]
         url: Option<String>,
@@ -1135,10 +1172,20 @@ pub mod commands {
         background: bool,
 
         /// Do not require a JSON Web Token to access the server
+        ///
+        /// For security reasons (any client can access files and execute code) this should be avoided.
         #[structopt(long)]
         insecure: bool,
 
+        /// Allow traversal out of the server's home directory
+        ///
+        /// For security reasons (clients can access any file on the filesystem) this should be avoided.
+        #[structopt(long)]
+        traversal: bool,
+
         /// Allow root (Linux/Mac OS/Unix) or administrator (Windows) user to serve
+        ///
+        /// For security reasons (clients may be able to execute code as root) this should be avoided.
         #[structopt(long)]
         root: bool,
     }
@@ -1175,11 +1222,10 @@ pub mod commands {
                 key
             };
 
-            // If stdout is not a TTY then print the login URL to stdout so that it can be used
-            // by, for example, the parent process.
-            // TODO: Consider re-enabling this when/id `cli` modules are moved to the `cli` crate
-            // where the `atty` crate is available. Until then skip to avoid noise on stdout.
-            // println!("{}", login_url(port, key.clone(), Some(300), None)?);
+            // Warn about use of traversal option
+            if self.traversal {
+                tracing::warn!("Allowing traversal out of server home directory.")
+            }
 
             // Check for root usage
             #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -1191,10 +1237,18 @@ pub mod commands {
                 }
             }
 
+            // If stdout is not a TTY then print the login URL to stdout so that it can be used
+            // by, for example, the parent process.
+            // TODO: Consider re-enabling this when/id `cli` modules are moved to the `cli` crate
+            // where the `atty` crate is available. Until then skip to avoid noise on stdout.
+            // println!("{}", login_url(port, key.clone(), Some(300), None)?);
+
+            let url = &format!("{}://{}:{}", protocol, address, port);
+            let home = self.home.clone();
             if self.background {
-                super::serve_background(&format!("{}://{}:{}", protocol, address, port), key)?;
+                super::serve_background(url, key, home, self.traversal)?;
             } else {
-                super::serve_on(protocol, address, port, key).await?;
+                super::serve(url, key, home, self.traversal).await?;
             }
 
             result::nothing()
