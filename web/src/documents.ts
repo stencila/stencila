@@ -1,7 +1,7 @@
 import { ViewUpdate } from '@codemirror/view'
 import { Document, DocumentEvent, Patch } from '@stencila/stencila'
 import { Client, ClientId } from './client'
-import { changesToOps } from './patches/codemirror'
+import * as codemirror from './patches/codemirror'
 import { applyPatch } from './patches/dom'
 
 /**
@@ -270,7 +270,8 @@ async function onContentChange(
 
   const update = event.detail
   if (update.docChanged) {
-    const ops = changesToOps(update.changes, [slot])
+    const ops = codemirror.stateToOps(update.state, [slot])
+    // const ops = codemirror.diffToOps(update.startState, update.state, [slot])
     const patch = {
       actor: clientId,
       target: nodeId,
