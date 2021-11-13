@@ -83,7 +83,7 @@ pub fn login_url(
 /// # #![recursion_limit = "256"]
 /// use stencila::serve::serve;
 ///
-/// serve("ws://0.0.0.0:1234", None);
+/// serve("ws://0.0.0.0:1234", None, None, false);
 /// ```
 pub async fn serve(
     url: &str,
@@ -389,13 +389,6 @@ pub async fn serve_on(
 
             let authorize = || jwt_filter(key.clone());
 
-            let local = warp::get()
-                .and(warp::path("~local"))
-                .and(warp::path::tail())
-                .and(with_home(home.clone(), traversal))
-                .and(authorize())
-                .and_then(get_local);
-
             let ws = warp::path("~ws")
                 .and(warp::ws())
                 .and(warp::query::<WsParams>())
@@ -445,7 +438,6 @@ pub async fn serve_on(
 
             let routes = login
                 .or(statics)
-                .or(local)
                 .or(ws)
                 .or(get)
                 .or(post)
@@ -651,50 +643,9 @@ fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Respo
     }
 }
 
-/// Handle a HTTP `GET` request to a `/~local/` path
-#[tracing::instrument]
-async fn get_local(
-    path: warp::path::Tail,
-    (home, traversal): (PathBuf, bool),
-    _claims: jwt::Claims,
-) -> Result<warp::reply::Response, std::convert::Infallible> {
-    let path = path.as_str();
-    tracing::debug!("GET ~local /{}", path);
-
-    let path = match home.join(path).canonicalize() {
-        Ok(path) => path,
-        Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
-    };
-
-    if !traversal && path.strip_prefix(&home).is_err() {
-        return error_response(
-            StatusCode::FORBIDDEN,
-            "Requested path is outside of current working directory",
-        );
-    }
-
-    let content = match std::fs::read(&path) {
-        Ok(content) => content,
-        Err(error) => {
-            return error_response(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                &format!("When reading file `{}`", error),
-            )
-        }
-    };
-    let mime = mime_guess::from_path(path).first_or_octet_stream();
-
-    let mut response = warp::reply::Response::new(content.into());
-    response.headers_mut().insert(
-        "content-type",
-        warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
-    );
-    Ok(response)
-}
-
 #[derive(Debug, Deserialize)]
 struct GetParams {
-    /// The mode, "read", "view", "exec", or "edit"
+    /// The mode "read", "view", "exec", or "edit"
     mode: Option<String>,
 
     /// The format to view or edit
@@ -738,8 +689,29 @@ async fn get_handler(
         );
     }
 
-    let mode = params.mode.unwrap_or_else(|| "view".into());
     let format = params.format.unwrap_or_else(|| "html".into());
+
+    if format == "raw" {
+        let content = match std::fs::read(&path) {
+            Ok(content) => content,
+            Err(error) => {
+                return error_response(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    &format!("When reading file `{}`", error),
+                )
+            }
+        };
+        let mime = mime_guess::from_path(path).first_or_octet_stream();
+
+        let mut response = warp::reply::Response::new(content.into());
+        response.headers_mut().insert(
+            "content-type",
+            warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
+        );
+        return Ok(response);
+    }
+
+    let mode = params.mode.unwrap_or_else(|| "view".into());
     let theme = params.theme.unwrap_or_else(|| "wilmore".into());
     let components = params.components.unwrap_or_else(|| "static".into());
 
@@ -858,15 +830,15 @@ pub fn rewrite_html(
     let body = REGEX.replace_all(body, |captures: &Captures| {
         let path = captures
             .get(1)
-            .expect("To always have first capture")
+            .expect("Should always have first capture")
             .as_str();
         let path = match Path::new(path).canonicalize() {
             Ok(path) => path,
             // Redact the path if it can not be canonicalized
-            Err(_) => return r#""""#.to_string(),
+            Err(_) => return "\"\"".to_string(),
         };
         match path.strip_prefix(home) {
-            Ok(path) => ["\"/~local/", &path.display().to_string(), "\""].concat(),
+            Ok(path) => ["\"/", &path.display().to_string(), "?format=raw\""].concat(),
             // Redact the path if it is outside of the current directory
             Err(_) => "\"\"".to_string(),
         }
