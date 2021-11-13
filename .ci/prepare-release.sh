@@ -22,10 +22,7 @@ sed -i -e "s!^version = .*!version = \"$VERSION\"!" python/Cargo.toml
 sed -i -e "s!^version = .*!version = \"$VERSION\"!" r/Cargo.toml
 
 # Update the version in the Rust crate
-sed -i -e "s!^version = .*!version = \"$VERSION\"!" rust/Cargo.toml
-
-# Update the version in the CLI app
-sed -i -e "s!^version = .*!version = \"$VERSION\"!" cli/Cargo.toml
+sed -i -e "s!^version = .*!version = \"$VERSION\"!" rust/stencila/Cargo.toml
 
 # Update the version in the Desktop app and do npm install
 # to propagate change to package-lock.json
