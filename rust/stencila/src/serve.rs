@@ -20,6 +20,7 @@ use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
     env,
     fmt::Debug,
+    fs,
     path::{Path, PathBuf},
     sync::Arc,
 };
@@ -645,23 +646,24 @@ async fn get_handler(
         // A token is in the URL. For address bar aesthetics, and to avoid confusion (the token may
         // not be suitable for reuse), redirect to a token-less URL. Note that we set a token cookie
         // below to replace the URL-based token.
-        let html = format!(
-            r#"<!DOCTYPE HTML>
-<html lang="en-US">
-    <head>
-        <title>Redirecting</title>
-        <meta charset="UTF-8">
-        <meta http-equiv="refresh" content="0; url={}">
-        <script type="text/javascript">window.location.href = "{}"</script>
-    </head>
-    <body>If you are not redirected automatically, please follow this <a href="{}">link</a>.</body>
-</html>"#,
-            path, path, path
-        );
-
-        (html.as_bytes().to_vec(), "text/html".to_string(), true)
+        (
+            html_page_redirect(path).as_bytes().to_vec(),
+            "text/html".to_string(),
+            true,
+        )
+    } else if filesystem_path.is_dir() {
+        // Request for a path that is a folder. Return a listing
+        (
+            html_directory_listing(&home, &filesystem_path)
+                .as_bytes()
+                .to_vec(),
+            "text/html".to_string(),
+            false,
+        )
     } else if format == "raw" {
-        let content = match std::fs::read(&filesystem_path) {
+        // Request for raw content of the file (e.g. an image within the HTML encoding of a
+        // Markdown document)
+        let content = match fs::read(&filesystem_path) {
             Ok(content) => content,
             Err(error) => {
                 return error_response(
@@ -671,11 +673,12 @@ async fn get_handler(
             }
         };
 
-        let mime = mime_guess::from_path(path).first_or_octet_stream();
+        let mime = mime_guess::from_path(filesystem_path).first_or_octet_stream();
 
         (content, mime.to_string(), false)
     } else {
-        match DOCUMENTS.open(&path, None).await {
+        // Request for a document in some format (usually HTML)
+        match DOCUMENTS.open(&filesystem_path, None).await {
             Ok(document) => {
                 let document = DOCUMENTS.get(&document.id).await.unwrap();
                 let document = document.lock().await;
@@ -690,7 +693,7 @@ async fn get_handler(
                 };
 
                 let content = match format.as_str() {
-                    "html" => rewrite_html(
+                    "html" => html_rewrite(
                         &content,
                         &mode,
                         &theme,
@@ -738,11 +741,69 @@ async fn get_handler(
     Ok(response)
 }
 
+/// Generate HTML for a page redirect
+///
+/// Although the MOVED_PERMANENTLY status code should trigger the redirect, this
+/// provides HTML / JavaScript fallbacks.
+fn html_page_redirect(path: &str) -> String {
+    format!(
+        r#"<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <title>Redirecting</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0; url={}">
+    <script type="text/javascript">window.location.href = "{}"</script>
+</head>
+<body>If you are not redirected automatically, please follow this <a href="{}">link</a>.</body>
+</html>"#,
+        path, path, path
+    )
+}
+
+/// Generate HTML for a directory listing
+///
+/// Note: If the `dir` is outside of `home` (i.e. traversal was allowed) then
+/// no entries will be shown.
+fn html_directory_listing(home: &Path, dir: &Path) -> String {
+    let entries = match dir.read_dir() {
+        Ok(entries) => entries,
+        Err(error) => {
+            // This should be an uncommon error but to avoid an unwrap...
+            tracing::error!("{}", error);
+            return "<p>Something went wrong</p>".to_string();
+        }
+    };
+    entries
+        .flatten()
+        .filter_map(|entry| {
+            let path = entry.path();
+
+            let href = match path.strip_prefix(home) {
+                Ok(href) => href,
+                Err(..) => return None,
+            };
+
+            let name = match path.strip_prefix(dir) {
+                Ok(name) => name,
+                Err(..) => return None,
+            };
+
+            Some(format!(
+                "<p><a href=\"/{}\">{}</a></p>",
+                href.display(),
+                name.display()
+            ))
+        })
+        .collect::<Vec<String>>()
+        .concat()
+}
+
 /// Rewrite HTML to serve local files and wrap with desired theme etc.
 ///
 /// Only local files somewhere withing the current working directory are
 /// served.
-pub fn rewrite_html(
+pub fn html_rewrite(
     body: &str,
     mode: &str,
     theme: &str,
