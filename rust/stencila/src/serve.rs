@@ -21,7 +21,6 @@ use std::{
     env,
     fmt::Debug,
     path::{Path, PathBuf},
-    str::FromStr,
     sync::Arc,
 };
 use thiserror::private::PathAsDisplay;
@@ -474,7 +473,7 @@ async fn get_static(
 
     let mime = mime_guess::from_path(path).first_or_octet_stream();
     response.headers_mut().insert(
-        "content-type",
+        header::CONTENT_TYPE,
         HeaderValue::from_str(mime.as_ref()).unwrap(),
     );
 
@@ -588,7 +587,13 @@ struct GetParams {
     theme: Option<String>,
 
     /// Should web components be loaded
-    components: Option<String>
+    components: Option<String>,
+
+    /// An authentication token
+    ///
+    /// Only used here to determine whether to redirect but used in `authentication_filter`
+    /// for actual authentication.
+    token: Option<String>,
 }
 
 /// Handle a HTTP `GET` request for a document
@@ -609,13 +614,13 @@ async fn get_handler(
     let path = path.as_str();
     tracing::debug!("GET {}", path);
 
-    let path = Path::new(path.strip_prefix('/').unwrap_or(path));
-    let path = match home.join(path).canonicalize() {
-        Ok(path) => path,
+    let filesystem_path = Path::new(path.strip_prefix('/').unwrap_or(path));
+    let filesystem_path = match home.join(filesystem_path).canonicalize() {
+        Ok(filesystem_path) => filesystem_path,
         Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
     };
 
-    if !traversal && path.strip_prefix(&home).is_err() {
+    if !traversal && filesystem_path.strip_prefix(&home).is_err() {
         return error_response(
             StatusCode::FORBIDDEN,
             "Traversal outside of server's home directory is not permitted",
@@ -623,7 +628,7 @@ async fn get_handler(
     }
 
     if let Some(scope) = claims.scope {
-        if path.strip_prefix(&scope).is_err() {
+        if filesystem_path.strip_prefix(&scope).is_err() {
             return error_response(
                 StatusCode::FORBIDDEN,
                 "Insufficient permissions to access this directory or file",
@@ -636,8 +641,27 @@ async fn get_handler(
     let theme = params.theme.unwrap_or_else(|| "wilmore".into());
     let components = params.components.unwrap_or_else(|| "static".into());
 
-    let (content, mime) = if format == "raw" {
-        let content = match std::fs::read(&path) {
+    let (content, mime, redirect) = if params.token.is_some() {
+        // A token is in the URL. For address bar aesthetics, and to avoid confusion (the token may
+        // not be suitable for reuse), redirect to a token-less URL. Note that we set a token cookie
+        // below to replace the URL-based token.
+        let html = format!(
+            r#"<!DOCTYPE HTML>
+<html lang="en-US">
+    <head>
+        <title>Redirecting</title>
+        <meta charset="UTF-8">
+        <meta http-equiv="refresh" content="0; url={}">
+        <script type="text/javascript">window.location.href = "{}"</script>
+    </head>
+    <body>If you are not redirected automatically, please follow this <a href="{}">link</a>.</body>
+</html>"#,
+            path, path, path
+        );
+
+        (html.as_bytes().to_vec(), "text/html".to_string(), true)
+    } else if format == "raw" {
+        let content = match std::fs::read(&filesystem_path) {
             Ok(content) => content,
             Err(error) => {
                 return error_response(
@@ -649,7 +673,7 @@ async fn get_handler(
 
         let mime = mime_guess::from_path(path).first_or_octet_stream();
 
-        (content, mime)
+        (content, mime.to_string(), false)
     } else {
         match DOCUMENTS.open(&path, None).await {
             Ok(document) => {
@@ -666,7 +690,14 @@ async fn get_handler(
                 };
 
                 let content = match format.as_str() {
-                    "html" => rewrite_html(&content, &mode, &theme, &components, &home, &path),
+                    "html" => rewrite_html(
+                        &content,
+                        &mode,
+                        &theme,
+                        &components,
+                        &home,
+                        &filesystem_path,
+                    ),
                     _ => content,
                 }
                 .as_bytes()
@@ -674,7 +705,7 @@ async fn get_handler(
 
                 let mime = mime_guess::from_ext(&format).first_or_octet_stream();
 
-                (content, mime)
+                (content, mime.to_string(), false)
             }
             Err(error) => {
                 return error_response(
@@ -686,16 +717,24 @@ async fn get_handler(
     };
 
     let mut response = warp::reply::Response::new(content.into());
-    response.headers_mut().insert(
-        "content-type",
-        warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
-    );
-    if let Some(cookie) = cookie {
-        response.headers_mut().insert(
-            "set-cookie",
-            warp::http::header::HeaderValue::from_str(&cookie).unwrap(),
-        );
+
+    response
+        .headers_mut()
+        .insert(header::CONTENT_TYPE, HeaderValue::from_str(&mime).unwrap());
+
+    if redirect {
+        *response.status_mut() = StatusCode::MOVED_PERMANENTLY;
+        response
+            .headers_mut()
+            .insert(header::LOCATION, HeaderValue::from_str(path).unwrap());
     }
+
+    if let Some(cookie) = cookie {
+        response
+            .headers_mut()
+            .insert(header::SET_COOKIE, HeaderValue::from_str(&cookie).unwrap());
+    }
+
     Ok(response)
 }
 
