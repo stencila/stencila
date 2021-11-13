@@ -266,7 +266,7 @@ impl ClientTrait for ClientHttp {
             .json(request);
         let request = match self.key.clone() {
             Some(key) => {
-                let jwt = jwt::encode(key, Some(60))?;
+                let jwt = jwt::encode(&key, None, None)?;
                 request.header("authorization", jwt::to_auth_header(jwt))
             }
             None => request,

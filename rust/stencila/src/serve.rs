@@ -45,27 +45,6 @@ pub fn parse_url(url: &str) -> Result<(Protocol, String, u16)> {
     Ok((protocol, address, port))
 }
 
-/// Generate the login URL given a key, and optionally, the path to redirect to
-/// on successful login.
-pub fn login_url(
-    port: u16,
-    key: Option<String>,
-    expiry_seconds: Option<i64>,
-    next: Option<String>,
-) -> Result<String> {
-    let next = next.unwrap_or_else(|| "/".to_string());
-    let url = if let Some(key) = key {
-        let token = jwt::encode(key, expiry_seconds)?;
-        format!(
-            "http://127.0.0.1:{}/~login?token={}&next={}",
-            port, token, next
-        )
-    } else {
-        format!("http://127.0.0.1:{}{}", port, next)
-    };
-    Ok(url)
-}
-
 /// Run a server on this thread
 ///
 /// # Arguments
@@ -357,7 +336,14 @@ pub async fn serve_on(
         None => Projects::current_path()?,
     };
 
-    tracing::info!("Serving {} at http://{}:{}", home.display(), address, port);
+    let mut url = format!("http://{}:{}", address, port);
+    if let Some(key) = &key {
+        // Provide the user with a long expiring token so they can access the server.
+        let token = jwt::encode(key, Some(home.display().to_string()), Some(3600))?;
+        url.push_str("?token=");
+        url.push_str(&token);
+    }
+    tracing::info!("Serving {} at {}", home.display(), url);
 
     match protocol {
         Protocol::Http | Protocol::Ws => {
@@ -368,26 +354,9 @@ pub async fn serve_on(
                 .and(warp::path::tail())
                 .and_then(get_static);
 
-            // Login endpoint (sets authorization cookie)
-
-            let key_clone = key.clone();
-            let login = warp::get()
-                .and(warp::path("~login"))
-                .map(move || key_clone.clone())
-                .and(warp::query::<LoginParams>())
-                .map(login_handler);
-
             // The following HTTP and WS endpoints all require authorization (done by `jwt_filter`)
 
-            fn with_home(
-                home: PathBuf,
-                traversal: bool,
-            ) -> impl Filter<Extract = ((PathBuf, bool),), Error = std::convert::Infallible> + Clone
-            {
-                warp::any().map(move || (home.clone(), traversal))
-            }
-
-            let authorize = || jwt_filter(key.clone());
+            let authorize = || auth_filter(key.clone());
 
             let ws = warp::path("~ws")
                 .and(warp::ws())
@@ -398,7 +367,7 @@ pub async fn serve_on(
             let get = warp::get()
                 .and(warp::path::full())
                 .and(warp::query::<GetParams>())
-                .and(with_home(home, traversal))
+                .and(warp::any().map(move || (home.clone(), traversal)))
                 .and(authorize())
                 .and_then(get_handler);
 
@@ -436,8 +405,7 @@ pub async fn serve_on(
                 .allow_methods(&[warp::http::Method::GET, warp::http::Method::POST])
                 .max_age(24 * 60 * 60);
 
-            let routes = login
-                .or(statics)
+            let routes = statics
                 .or(ws)
                 .or(get)
                 .or(post)
@@ -554,95 +522,91 @@ async fn get_static(
     Ok(response)
 }
 
-/// A Warp filter that extracts any JSON Web Token from either the `Authorization` header
-/// or the `token` cookie.
-fn jwt_filter(
+/// Query parameters for `auth_filter`
+#[derive(Deserialize)]
+struct AuthParams {
+    pub token: Option<String>,
+}
+
+/// A Warp filter that extracts any JSON Web Token from a `token` query parameter, `Authorization` header
+/// or `token` cookie.
+fn auth_filter(
     key: Option<String>,
-) -> impl Filter<Extract = (jwt::Claims,), Error = warp::Rejection> + Clone {
-    warp::header::optional::<String>("authorization")
+) -> impl Filter<Extract = ((jwt::Claims, Option<String>),), Error = warp::Rejection> + Clone {
+    warp::query::<AuthParams>()
+        .and(warp::header::optional::<String>("authorization"))
         .and(warp::cookie::optional("token"))
-        .map(move |header: Option<String>, cookie: Option<String>| (key.clone(), header, cookie))
+        .map(
+            move |query: AuthParams, header: Option<String>, cookie: Option<String>| {
+                (key.clone(), query.token, header, cookie)
+            },
+        )
         .and_then(
-            |args: (Option<String>, Option<String>, Option<String>)| async move {
-                if let Some(key) = args.0 {
-                    let jwt = if let Some(header) = args.1 {
-                        match jwt::from_auth_header(header) {
-                            Ok(jwt) => jwt,
-                            Err(error) => return Err(warp::reject::custom(error)),
-                        }
-                    } else if let Some(cookie) = args.2 {
-                        cookie
+            |(key, param, header, cookie): (
+                Option<String>,
+                Option<String>,
+                Option<String>,
+                Option<String>,
+            )| async move {
+                if let Some(key) = key {
+                    // Key present, so check for valid token as a query parameter, authorization header,
+                    // or cookie (in that order of precedence).
+
+                    let claims = if let Some(param) = param {
+                        jwt::decode(&param, &key)
                     } else {
-                        return Err(warp::reject::custom(JwtError::NoTokenSupplied));
+                        Err(JwtError::NoTokenSupplied)
                     };
-                    match jwt::decode(jwt, key) {
-                        Ok(claims) => Ok(claims),
-                        Err(error) => Err(warp::reject::custom(error)),
-                    }
+
+                    let claims = if let (Err(..), Some(header)) = (&claims, header) {
+                        jwt::from_auth_header(header).and_then(|token| jwt::decode(&token, &key))
+                    } else {
+                        claims
+                    };
+
+                    let (claims, from_cookie) = if let (Err(..), Some(cookie)) = (&claims, cookie) {
+                        let claims = jwt::decode(&cookie, &key);
+                        let ok = claims.is_ok();
+                        (claims, ok)
+                    } else {
+                        (claims, false)
+                    };
+
+                    let claims = match claims {
+                        Ok(claims) => claims,
+                        Err(error) => return Err(warp::reject::custom(error)),
+                    };
+
+                    // Set a `token` cookie if the claims did not come from a cookie
+                    let cookie = if !from_cookie {
+                        const EXPIRY_SECONDS: i64 = 30 * 24 * 60 * 60;
+                        let token =
+                            jwt::encode(&key, claims.scope.clone(), Some(EXPIRY_SECONDS)).unwrap();
+                        Some(format!(
+                            "token={}; Max-Age={}; SameSite; HttpOnly",
+                            token, EXPIRY_SECONDS
+                        ))
+                    } else {
+                        None
+                    };
+
+                    Ok((claims, cookie))
                 } else {
-                    // No key, so just return an empty claim
-                    Ok(jwt::Claims { exp: 0 })
+                    // No key, so in insecure mode. Return a permissive set of claims and
+                    // no cookie.
+                    Ok((
+                        jwt::Claims {
+                            exp: 0,
+                            scope: None,
+                        },
+                        None,
+                    ))
                 }
             },
         )
 }
 
-#[derive(Debug, Deserialize, Clone)]
-struct LoginParams {
-    pub token: Option<String>,
-    pub next: Option<String>,
-}
-
-/// Handle a HTTP `GET /~login` request
-///
-/// This view is intended for humans so it returns HTML responses telling the
-/// human if something failed with the login and what to do about it. Otherwise,
-/// it just sets a cookie and redirects them to the next page.
-#[allow(clippy::unnecessary_unwrap)]
-#[tracing::instrument]
-fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Response {
-    tracing::debug!("GET ~login");
-
-    let token = params.token;
-    let next = params.next.unwrap_or_else(|| "/".to_string());
-
-    fn redirect(next: String) -> warp::reply::Response {
-        warp::reply::with_header(
-            StatusCode::MOVED_PERMANENTLY,
-            warp::http::header::LOCATION,
-            next.as_str(),
-        )
-        .into_response()
-    }
-
-    if key.is_none() {
-        // There is no key so nothing further to do other than redirect to `next`
-        redirect(next)
-    } else if token.is_none() {
-        // There is no `?token=` query parameter
-        warp::reply::with_status(warp::reply::html("No token"), StatusCode::UNAUTHORIZED)
-            .into_response()
-    } else {
-        let key = key.unwrap();
-        let token = token.unwrap();
-        if jwt::decode(token, key.clone()).is_ok() {
-            // Valid token, so set a new, long-expiry token cookie and
-            // redirect to `next`.
-            let mut response = redirect(next);
-            const DAY: i64 = 24 * 60 * 60;
-            let cookie_token = jwt::encode(key, Some(30 * DAY)).unwrap();
-            let cookie = HeaderValue::from_str(format!("token={}", cookie_token).as_str()).unwrap();
-            let headers = response.headers_mut();
-            headers.insert("set-cookie", cookie);
-            response
-        } else {
-            // Invalid token
-            warp::reply::with_status(warp::reply::html("Invalid token"), StatusCode::UNAUTHORIZED)
-                .into_response()
-        }
-    }
-}
-
+/// Query parameters for `get_handler`
 #[derive(Debug, Deserialize)]
 struct GetParams {
     /// The mode "read", "view", "exec", or "edit"
@@ -671,7 +635,7 @@ async fn get_handler(
     path: warp::path::FullPath,
     params: GetParams,
     (home, traversal): (PathBuf, bool),
-    _claims: jwt::Claims,
+    (claims, cookie): (jwt::Claims, Option<String>),
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
     tracing::debug!("GET {}", path);
@@ -685,13 +649,25 @@ async fn get_handler(
     if !traversal && path.strip_prefix(&home).is_err() {
         return error_response(
             StatusCode::FORBIDDEN,
-            "Requested path is outside of current working directory",
+            "Traversal outside of server's home directory is not permitted",
         );
     }
 
-    let format = params.format.unwrap_or_else(|| "html".into());
+    if let Some(scope) = claims.scope {
+        if path.strip_prefix(&scope).is_err() {
+            return error_response(
+                StatusCode::FORBIDDEN,
+                "Insufficient permissions to access this directory or file",
+            );
+        }
+    }
 
-    if format == "raw" {
+    let format = params.format.unwrap_or_else(|| "html".into());
+    let mode = params.mode.unwrap_or_else(|| "view".into());
+    let theme = params.theme.unwrap_or_else(|| "wilmore".into());
+    let components = params.components.unwrap_or_else(|| "static".into());
+
+    let (content, mime) = if format == "raw" {
         let content = match std::fs::read(&path) {
             Ok(content) => content,
             Err(error) => {
@@ -701,66 +677,57 @@ async fn get_handler(
                 )
             }
         };
+
         let mime = mime_guess::from_path(path).first_or_octet_stream();
 
-        let mut response = warp::reply::Response::new(content.into());
-        response.headers_mut().insert(
-            "content-type",
-            warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
-        );
-        return Ok(response);
-    }
+        (content, mime)
+    } else {
+        match DOCUMENTS.open(&path, None).await {
+            Ok(document) => {
+                let document = DOCUMENTS.get(&document.id).await.unwrap();
+                let document = document.lock().await;
+                let content = match document.dump(Some(format.clone())).await {
+                    Ok(content) => content,
+                    Err(error) => {
+                        return error_response(
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            &format!("While converting document to {} `{}`", format, error),
+                        )
+                    }
+                };
 
-    let mode = params.mode.unwrap_or_else(|| "view".into());
-    let theme = params.theme.unwrap_or_else(|| "wilmore".into());
-    let components = params.components.unwrap_or_else(|| "static".into());
-
-    match DOCUMENTS.open(&path, None).await {
-        Ok(document) => {
-            let document = DOCUMENTS.get(&document.id).await.unwrap();
-            let document = document.lock().await;
-            let content = match document.dump(Some(format.clone())).await {
-                Ok(content) => content,
-                Err(error) => {
-                    return error_response(
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        &format!("While converting document to {} `{}`", format, error),
-                    )
+                let content = match format.as_str() {
+                    "html" => rewrite_html(&content, &mode, &theme, &components, &home, &path),
+                    _ => content,
                 }
-            };
+                .as_bytes()
+                .to_vec();
 
-            let content = match format.as_str() {
-                "html" => rewrite_html(&content, &mode, &theme, &components, &home, &path),
-                _ => content,
-            };
+                let mime = mime_guess::from_ext(&format).first_or_octet_stream();
 
-            let mime = mime_guess::from_ext(&format).first_or_octet_stream();
-
-            let mut response = warp::reply::Response::new(content.into());
-            match format.as_str() {
-                "html" | "json" => {
-                    response.headers_mut().insert(
-                        "content-type",
-                        warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
-                    );
-                }
-                _ => {
-                    // Temporary serve other content as plain text to avoid browser download
-                    // In the future, this will be replace with a code editing view.
-                    response.headers_mut().insert(
-                        "content-type",
-                        warp::http::header::HeaderValue::from_str("text/plain; charset=utf-8")
-                            .unwrap(),
-                    );
-                }
+                (content, mime)
             }
-            Ok(response)
+            Err(error) => {
+                return error_response(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    &format!("While opening document `{}`", error),
+                )
+            }
         }
-        Err(error) => error_response(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            &format!("While opening document `{}`", error),
-        ),
+    };
+
+    let mut response = warp::reply::Response::new(content.into());
+    response.headers_mut().insert(
+        "content-type",
+        warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
+    );
+    if let Some(cookie) = cookie {
+        response.headers_mut().insert(
+            "set-cookie",
+            warp::http::header::HeaderValue::from_str(&cookie).unwrap(),
+        );
     }
+    Ok(response)
 }
 
 /// Rewrite HTML to serve local files and wrap with desired theme etc.
@@ -868,7 +835,7 @@ pub fn rewrite_html(
 /// Handle a HTTP `POST /` request
 async fn post_handler(
     request: Request,
-    _claims: jwt::Claims,
+    (_claims, _cookie): (jwt::Claims, Option<String>),
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
     let (response, ..) = request.dispatch("http").await;
     Ok(warp::reply::json(&response))
@@ -878,7 +845,7 @@ async fn post_handler(
 async fn post_wrap_handler(
     method: String,
     params: serde_json::Value,
-    _claims: jwt::Claims,
+    (_claims, _cookie): (jwt::Claims, Option<String>),
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
     use warp::reply;
 
@@ -926,7 +893,11 @@ struct WsParams {
 ///
 /// This function is called at the start of a WebSocket connection.
 #[tracing::instrument]
-fn ws_handshake(ws: warp::ws::Ws, params: WsParams, _claims: jwt::Claims) -> impl warp::Reply {
+fn ws_handshake(
+    ws: warp::ws::Ws,
+    params: WsParams,
+    (_claims, _cookie): (jwt::Claims, Option<String>),
+) -> impl warp::Reply {
     tracing::debug!("WebSocket handshake");
     ws.on_upgrade(|socket| ws_connected(socket, params.client))
 }

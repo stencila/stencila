@@ -258,7 +258,7 @@ pub struct OpenCommand {
 impl Run for OpenCommand {
     #[cfg(feature = "serve")]
     async fn run(&self /*, context: &mut Context*/) -> Result {
-        use stencila::serve;
+        use stencila::{jwt, serve};
 
         let (is_project, path) = match &self.path {
             Some(path) => (path.is_dir(), path.clone()),
@@ -286,33 +286,31 @@ impl Run for OpenCommand {
             Err(_) => bail!("For security reasons it is only possible to open documents that are nested within the current working directory.")
         };
 
-        // Append the theme query parameter if set
-        let path = if let Some(theme) = &self.theme {
-            format!(
-                "{path}?theme={theme}",
-                path = path,
-                theme = theme.to_ascii_lowercase()
-            )
-        } else {
-            path
-        };
+        let host = format!("http://127.0.0.1:{}", 9000u16);
 
-        // Generate a key and a corresponding login URL and open browser at the login page (will
-        // redirect to document page).
-        let port = 9000u16;
-        let key = Some(key_utils::generate());
-        let login_url = serve::login_url(port, key.clone(), Some(60), Some(path))?;
+        // Generate a key and token to login to the server
+        let key = key_utils::generate();
+
         #[cfg(feature = "webbrowser")]
-        webbrowser::open(login_url.as_str())?;
+        {
+            // TODO restrict path to the current project
+            let token = jwt::encode(&key, None, Some(60))?;
+
+            let mut url = format!("{}/{}?token={}", host, path, token.as_str());
+            if let Some(theme) = &self.theme {
+                url += &["& theme=", theme].concat();
+            };
+
+            webbrowser::open(&url)?;
+        }
 
         // If not yet serving, serve in the background, or in the current thread,
         // depending upon mode.
-        let url = format!(":{}", port);
         if let Err(error) =
             if std::env::var("STENCILA_INTERACT_MODE").unwrap_or_else(|_| "0".to_string()) == "1" {
-                serve::serve_background(&url, key, None, false)
+                serve::serve_background(&host, Some(key), None, false)
             } else {
-                serve::serve(&url, key, None, false).await
+                serve::serve(&host, Some(key), None, false).await
             }
         {
             // Ignore the error if a server is already started on that address

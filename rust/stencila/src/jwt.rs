@@ -3,7 +3,11 @@ use thiserror::Error;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
+    /// The expiry time of the permissions
     pub exp: i64,
+
+    /// The scope of the permissions. A filesystem path.
+    pub scope: Option<String>,
 }
 
 /// Custom server errors
@@ -45,12 +49,19 @@ pub fn to_auth_header(jwt: String) -> String {
     format!("Bearer {}", jwt)
 }
 
-pub fn encode(key: String, expiry_seconds: Option<i64>) -> Result<String, JwtError> {
+/// Encode a JSON Web Token
+pub fn encode(
+    key: &str,
+    scope: Option<String>,
+    expiry_seconds: Option<i64>,
+) -> Result<String, JwtError> {
     let exp = chrono::Utc::now()
         .checked_add_signed(chrono::Duration::seconds(expiry_seconds.unwrap_or(60)))
         .expect("valid timestamp")
         .timestamp();
-    let claims = Claims { exp };
+
+    let claims = Claims { exp, scope };
+
     match jsonwebtoken::encode(
         &jsonwebtoken::Header::new(jsonwebtoken::Algorithm::HS512),
         &claims,
@@ -62,9 +73,9 @@ pub fn encode(key: String, expiry_seconds: Option<i64>) -> Result<String, JwtErr
 }
 
 /// Decode a JSON Web Token
-pub fn decode(jwt: String, key: String) -> Result<Claims, JwtError> {
+pub fn decode(jwt: &str, key: &str) -> Result<Claims, JwtError> {
     match jsonwebtoken::decode::<Claims>(
-        &jwt,
+        jwt,
         &jsonwebtoken::DecodingKey::from_secret(key.as_bytes()),
         &jsonwebtoken::Validation::new(jsonwebtoken::Algorithm::HS512),
     ) {
