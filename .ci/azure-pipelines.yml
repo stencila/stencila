@@ -444,18 +444,6 @@ jobs:
             $(GitVersion.SemVer)
             latest
 
-      - task: Docker@2
-        displayName: Build and push stencila/node
-        inputs:
-          command: buildAndPush
-          dockerfile: docker/node/Dockerfile
-          containerRegistry: DockerHub
-          repository: stencila/node
-          tags: |
-            $(Build.BuildNumber)
-            $(GitVersion.SemVer)
-            latest
-
   # Themes are only built if there are changes in the `themes` folder
   # then only published once changes land on the `master` branch
   - job: Themes
