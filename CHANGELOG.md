@@ -1,3 +1,11 @@
+## [0.127.1](https://github.com/stencila/stencila/compare/v0.127.0...v0.127.1) (2021-11-13)
+
+
+### Bug Fixes
+
+* **CLI:** Update the version number of release ([4aa143f](https://github.com/stencila/stencila/commit/4aa143fdd08ce787e0d16a0f92cb72daa2fd80a6))
+* **Logging:** Filter out `rustyline` debug log entries ([0e5a4c0](https://github.com/stencila/stencila/commit/0e5a4c09d57757f7c3e71d78a9c67fb183d399e2))
+
 # [0.127.0](https://github.com/stencila/stencila/compare/v0.126.3...v0.127.0) (2021-11-12)
 
 
