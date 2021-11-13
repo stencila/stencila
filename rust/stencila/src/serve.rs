@@ -3,7 +3,7 @@ use crate::{
     documents::DOCUMENTS,
     jwt,
     projects::Projects,
-    rpc::{self, Error, Protocol, Request, Response},
+    rpc::{self, Error, Request, Response},
     utils::urls,
 };
 use defaults::Defaults;
@@ -35,14 +35,13 @@ use warp::{
 };
 
 /// Parse a URL into protocol, address and port components
-pub fn parse_url(url: &str) -> Result<(Protocol, String, u16)> {
+pub fn parse_url(url: &str) -> Result<(String, u16)> {
     let url = urls::parse(url)?;
-    let protocol = Protocol::from_str(url.scheme())?;
     let address = url.host().unwrap().to_string();
     let port = url
         .port_or_known_default()
         .expect("Should be a default port for the protocol");
-    Ok((protocol, address, port))
+    Ok((address, port))
 }
 
 /// Run a server on this thread
@@ -56,13 +55,13 @@ pub fn parse_url(url: &str) -> Result<(Protocol, String, u16)> {
 ///
 /// # Examples
 ///
-/// Listen on ws://0.0.0.0:1234,
+/// Listen on http://0.0.0.0:1234,
 ///
 /// ```no_run
 /// # #![recursion_limit = "256"]
 /// use stencila::serve::serve;
 ///
-/// serve("ws://0.0.0.0:1234", None, None, false);
+/// serve("http://0.0.0.0:1234", None, None, false);
 /// ```
 pub async fn serve(
     url: &str,
@@ -70,8 +69,8 @@ pub async fn serve(
     home: Option<PathBuf>,
     traversal: bool,
 ) -> Result<()> {
-    let (protocol, address, port) = parse_url(url)?;
-    serve_on(protocol, address, port, key, home, traversal).await
+    let (address, port) = parse_url(url)?;
+    serve_on(address, port, key, home, traversal).await
 }
 
 /// Run a server on another thread
@@ -311,14 +310,12 @@ static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
 ///
 /// ```no_run
 /// # #![recursion_limit = "256"]
-/// use stencila::rpc::Protocol;
 /// use stencila::serve::serve_on;
 ///
-/// serve_on(Protocol::Ws, "127.0.0.1".to_string(), 9000, None, None, false);
+/// serve_on("127.0.0.1".to_string(), 9000, None, None, false);
 /// ```
 #[tracing::instrument]
 pub async fn serve_on(
-    protocol: Protocol,
     address: String,
     port: u16,
     key: Option<String>,
@@ -345,105 +342,77 @@ pub async fn serve_on(
     }
     tracing::info!("Serving {} at {}", home.display(), url);
 
-    match protocol {
-        Protocol::Http | Protocol::Ws => {
-            // Static files (assets embedded in binary for which authorization is not required)
+    // Static files (assets embedded in binary for which authentication is not required)
 
-            let statics = warp::get()
-                .and(warp::path("~static"))
-                .and(warp::path::tail())
-                .and_then(get_static);
+    let statics = warp::get()
+        .and(warp::path("~static"))
+        .and(warp::path::tail())
+        .and_then(get_static);
 
-            // The following HTTP and WS endpoints all require authorization (done by `jwt_filter`)
+    // The following HTTP and WS endpoints all require authentication
 
-            let authorize = || auth_filter(key.clone());
+    let authenticate = || authentication_filter(key.clone());
 
-            let ws = warp::path("~ws")
-                .and(warp::ws())
-                .and(warp::query::<WsParams>())
-                .and(authorize())
-                .map(ws_handshake);
+    let ws = warp::path("~ws")
+        .and(warp::ws())
+        .and(warp::query::<WsParams>())
+        .and(authenticate())
+        .map(ws_handshake);
 
-            let get = warp::get()
-                .and(warp::path::full())
-                .and(warp::query::<GetParams>())
-                .and(warp::any().map(move || (home.clone(), traversal)))
-                .and(authorize())
-                .and_then(get_handler);
+    let get = warp::get()
+        .and(warp::path::full())
+        .and(warp::query::<GetParams>())
+        .and(warp::any().map(move || (home.clone(), traversal)))
+        .and(authenticate())
+        .and_then(get_handler);
 
-            let post = warp::post()
-                .and(warp::path::end())
-                .and(warp::body::json::<Request>())
-                .and(authorize())
-                .and_then(post_handler);
+    let post = warp::post()
+        .and(warp::path::end())
+        .and(warp::body::json::<Request>())
+        .and(authenticate())
+        .and_then(post_handler);
 
-            let post_wrap = warp::post()
-                .and(warp::path::param())
-                .and(warp::body::json::<serde_json::Value>())
-                .and(authorize())
-                .and_then(post_wrap_handler);
+    let post_wrap = warp::post()
+        .and(warp::path::param())
+        .and(warp::body::json::<serde_json::Value>())
+        .and(authenticate())
+        .and_then(post_wrap_handler);
 
-            // Custom `server` header
-            let server = warp::reply::with::default_header(
-                "server",
-                format!(
-                    "Stencila/{} ({})",
-                    env!("CARGO_PKG_VERSION"),
-                    env::consts::OS
-                ),
-            );
+    // Custom `server` header
+    let server = warp::reply::with::default_header(
+        "server",
+        format!(
+            "Stencila/{} ({})",
+            env!("CARGO_PKG_VERSION"),
+            env::consts::OS
+        ),
+    );
 
-            // CORS headers to allow from any origin
-            let cors = warp::cors()
-                .allow_any_origin()
-                .allow_headers(vec![
-                    "Content-Type",
-                    "Referer", // Note that this is an intentional misspelling!
-                    "Origin",
-                    "Access-Control-Allow-Origin",
-                ])
-                .allow_methods(&[warp::http::Method::GET, warp::http::Method::POST])
-                .max_age(24 * 60 * 60);
+    // CORS headers to allow from any origin
+    let cors = warp::cors()
+        .allow_any_origin()
+        .allow_headers(vec![
+            "Content-Type",
+            "Referer", // Note that this is an intentional misspelling!
+            "Origin",
+            "Access-Control-Allow-Origin",
+        ])
+        .allow_methods(&[warp::http::Method::GET, warp::http::Method::POST])
+        .max_age(24 * 60 * 60);
 
-            let routes = statics
-                .or(ws)
-                .or(get)
-                .or(post)
-                .or(post_wrap)
-                .with(server)
-                .with(cors)
-                .recover(rejection_handler);
+    let routes = statics
+        .or(ws)
+        .or(get)
+        .or(post)
+        .or(post_wrap)
+        .with(server)
+        .with(cors)
+        .recover(rejection_handler);
 
-            // Use `try_bind_ephemeral` here to avoid potential panic when using `run`
-            let address: std::net::IpAddr = address.parse()?;
-            let (_address, future) = warp::serve(routes).try_bind_ephemeral((address, port))?;
-            future.await
-        }
-        #[cfg(feature = "serve-stdio")]
-        Protocol::Stdio => {
-            use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
-
-            let stdin = tokio::io::stdin();
-            let mut stdout = tokio::io::stdout();
-
-            let buffer = tokio::io::BufReader::new(stdin);
-            let mut lines = buffer.lines();
-            // TODO capture next_line errors and log them
-            while let Some(line) = lines.next_line().await? {
-                // TODO capture any json errors and send
-                let request = serde_json::from_str::<Request>(&line)?;
-                let (response, ..) = request.dispatch("stdio").await;
-                let json = serde_json::to_string(&response)? + "\n";
-                // TODO: unwrap any of these errors and log them
-                stdout.write_all(json.as_bytes()).await?;
-                stdout.flush().await?
-            }
-        }
-        #[allow(unreachable_patterns)]
-        _ => {
-            bail!("Serving over protocol `{:?}` is not enabled", protocol)
-        }
-    };
+    // Use `try_bind_ephemeral` here to avoid potential panic when using `run`
+    let address: std::net::IpAddr = address.parse()?;
+    let (_address, future) = warp::serve(routes).try_bind_ephemeral((address, port))?;
+    future.await;
 
     Ok(())
 }
@@ -530,7 +499,7 @@ struct AuthParams {
 
 /// A Warp filter that extracts any JSON Web Token from a `token` query parameter, `Authorization` header
 /// or `token` cookie.
-fn auth_filter(
+fn authentication_filter(
     key: Option<String>,
 ) -> impl Filter<Extract = ((jwt::Claims, Option<String>),), Error = warp::Rejection> + Clone {
     warp::query::<AuthParams>()
@@ -619,7 +588,7 @@ struct GetParams {
     theme: Option<String>,
 
     /// Should web components be loaded
-    components: Option<String>,
+    components: Option<String>
 }
 
 /// Handle a HTTP `GET` request for a document
@@ -1057,9 +1026,9 @@ pub mod commands {
 
     /// Serve over HTTP and WebSockets
     ///
-    /// ## Ports, protocols, and addresses
+    /// ## Ports and addresses
     ///
-    /// Use the <url> argument to change the port, address, and/or protocol that the server
+    /// Use the <url> argument to change the port and/or address that the server
     /// listens on. This argument can be a partial, or complete, URL.
     ///
     /// For example, to serve on port 8000 instead of the default port,
@@ -1070,16 +1039,15 @@ pub mod commands {
     ///
     ///    stencila serve 0.0.0.0
     ///
-    /// To only serve HTTP, and not both HTTP and WebSockets (the default), also specify
-    /// the scheme e.g.
+    /// Or if you prefer, use a complete URL including the scheme e.g.
     ///
     ///   stencila serve http://127.0.0.1:9000
     ///
     /// ## Security
     ///
-    /// By default, the server requires an initial login via a JSON Web Token. A login URL is
-    /// printed in the console's standard output at startup. To turn authorization off, for example
-    /// if you are using some other security layer in front of the server, use the `--insecure`
+    /// By default, the server requires authentication using JSON Web Token. A token is
+    /// printed as part of the server's URL at startup. To turn authorization off, for example
+    /// if you are using some other authentication layer in front of the server, use the `--insecure`
     /// flag.
     ///
     /// By default, this command will NOT run as a root (Linux/Mac OS/Unix) or administrator (Windows) user.
@@ -1098,7 +1066,7 @@ pub mod commands {
         /// is within a project).
         home: Option<PathBuf>,
 
-        /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
+        /// The URL to serve on (defaults to `http://127.0.0.1:9000`)
         #[structopt(env = "STENCILA_URL")]
         url: Option<String>,
 
@@ -1134,7 +1102,7 @@ pub mod commands {
             let config = &CONFIG.lock().await.serve;
 
             let url = self.url.clone().unwrap_or_else(|| config.url.clone());
-            let (protocol, address, port) = parse_url(&url)?;
+            let (address, port) = parse_url(&url)?;
 
             // Get key configured on command line or config file
             let key = match &self.key {
@@ -1182,7 +1150,7 @@ pub mod commands {
             // where the `atty` crate is available. Until then skip to avoid noise on stdout.
             // println!("{}", login_url(port, key.clone(), Some(300), None)?);
 
-            let url = &format!("{}://{}:{}", protocol, address, port);
+            let url = &format!("{}:{}", address, port);
             let home = self.home.clone();
             if self.background {
                 super::serve_background(url, key, home, self.traversal)?;
