@@ -28,4 +28,4 @@ tempfile = "3.2.0"
 test-props = { path = "../test-props", version = "0.0.0" }
 test-snaps = { path = "../test-snaps", version = "0.0.0" }
 test-utils = { path = "../test-utils", version = "0.0.0" }
-tokio = { version = "1.12.0", features = ["macros"] }
+tokio = { version = "1.13.0", features = ["macros"] }
