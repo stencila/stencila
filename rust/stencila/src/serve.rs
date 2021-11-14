@@ -26,7 +26,10 @@ use std::{
 use thiserror::private::PathAsDisplay;
 use tokio::sync::{mpsc, RwLock};
 use warp::{
-    http::{header::HeaderValue, StatusCode},
+    http::{
+        header::{self, HeaderValue},
+        StatusCode,
+    },
     ws, Filter, Reply,
 };
 
@@ -126,6 +129,14 @@ pub fn serve_background(url: &str, key: Option<String>) -> Result<()> {
 #[folder = "static"]
 #[exclude = "web/*.map"]
 struct Static;
+
+/// The version used in URL paths for static assets
+/// Allows for caching control (see [`get_static`]).
+const STATIC_VERSION: &str = if cfg!(debug_assertions) {
+    "dev"
+} else {
+    env!("CARGO_PKG_VERSION")
+};
 
 struct Client {
     /// A list of subscription topics for this client
@@ -467,25 +478,61 @@ fn error_response(
 }
 
 /// Handle a HTTP `GET` request to the `/~static/` path
+///
+/// This path includes the current version number e.g. `/~static/0.127.0`. This
+/// allows a `Cache-Control` header with long `max-age` and `immutable` (so that browsers do not
+/// fetch / parse assets on each request) while also causing the browser cache to be busted for
+/// each new version of Stencila. During development, the version is set to "dev" and the cache control
+/// header is not set (for automatic reloading of re-built assets etc).
 #[tracing::instrument]
 async fn get_static(
     path: warp::path::Tail,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
-    let path = path.as_str();
+    let path = path.as_str().to_string();
     tracing::debug!("GET ~static /{}", path);
 
-    let asset = match Static::get(path) {
+    // Remove the version number with warnings if it is not present
+    // or different to current version
+    let parts = path.split('/').collect_vec();
+    let path = if parts.len() < 2 {
+        tracing::warn!("Expected path to have at least two parts");
+        path
+    } else {
+        let version = parts[0];
+        if version != STATIC_VERSION {
+            tracing::warn!(
+                "Requested static assets for a version `{}` not equal to current `{}`",
+                version,
+                STATIC_VERSION
+            );
+        }
+        parts[1..].join("/")
+    };
+
+    let asset = match Static::get(&path) {
         Some(asset) => asset,
         None => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
     };
-    let mime = mime_guess::from_path(path).first_or_octet_stream();
 
-    let mut res = warp::reply::Response::new(asset.data.into());
-    res.headers_mut().insert(
+    let mut response = warp::reply::Response::new(asset.data.into());
+
+    let mime = mime_guess::from_path(path).first_or_octet_stream();
+    response.headers_mut().insert(
         "content-type",
         HeaderValue::from_str(mime.as_ref()).unwrap(),
     );
-    Ok(res)
+
+    let cache_control = if STATIC_VERSION == "dev" {
+        "no-cache"
+    } else {
+        "max-age=31536000, immutable"
+    };
+    response.headers_mut().insert(
+        header::CACHE_CONTROL,
+        HeaderValue::from_str(cache_control).unwrap(),
+    );
+
+    Ok(response)
 }
 
 /// A Warp filter that extracts any JSON Web Token from either the `Authorization` header
@@ -731,21 +778,25 @@ pub fn rewrite_html(
     cwd: &Path,
     document: &Path,
 ) -> String {
+    let static_root = ["/~static/", STATIC_VERSION].concat();
+
     // Head element for theme
     let themes = format!(
-        r#"<link href="/~static/themes/themes/{theme}/styles.css" rel="stylesheet">"#,
+        r#"<link href="{static_root}/themes/themes/{theme}/styles.css" rel="stylesheet">"#,
+        static_root = static_root,
         theme = theme
     );
 
     // Head elements for web client
     let web = format!(
         r#"
-    <link href="/~static/web/{mode}.css" rel="stylesheet">
-    <script src="/~static/web/{mode}.js"></script>
+    <link href="{static_root}/web/{mode}.css" rel="stylesheet">
+    <script src="{static_root}/web/{mode}.js"></script>
     <script>
         const startup = stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}");
         startup().catch((err) => console.error('Error during startup', err))
     </script>"#,
+        static_root = static_root,
         mode = mode,
         // TODO: pass url from outside this function?
         url = "ws://127.0.0.1:9000/~ws",
@@ -760,8 +811,10 @@ pub fn rewrite_html(
         "none" => "".to_string(),
         _ => {
             let base = match components {
-                "remote" => "https://unpkg.com/@stencila/components/dist/stencila-components",
-                _ => "/~static/components",
+                "remote" => {
+                    "https://unpkg.com/@stencila/components/dist/stencila-components".to_string()
+                }
+                _ => [&static_root, "/components"].concat(),
             };
             format!(
                 r#"
