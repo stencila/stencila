@@ -54,6 +54,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ansi_colours"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60e2fb6138a49ad9f1cb3c6d8f8ccbdd5e62b4dab317c1b435a47ecd7da1d28f"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "ansi_term"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1041,6 +1050,16 @@ name = "convert_case"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
+
+[[package]]
+name = "coolor"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "abae1f425167dae5fdb4c953e6205565a9a1cc252c33b7414cedd02e424243f4"
+dependencies = [
+ "ansi_colours",
+ "crossterm",
+]
 
 [[package]]
 name = "core-foundation"
@@ -4999,10 +5018,11 @@ dependencies = [
 
 [[package]]
 name = "termimad"
-version = "0.17.1"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef7c6e48a7c803bbddd2669a81cbbc59ba1582d5adf5ef62ac4a28b6d70e00df"
+checksum = "c8aab914b7c9790b797d24d7ae6401b06366839bbf053f7954f40482334465fa"
 dependencies = [
+ "coolor",
  "crossbeam",
  "crossterm",
  "minimad",
