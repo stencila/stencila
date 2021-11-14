@@ -180,7 +180,7 @@
             "node/src/types.ts",
             "python/Cargo.toml",
             "r/Cargo.toml",
-            "rust/Cargo.toml",
+            "rust/stencila/Cargo.toml",
             "web/package.json",
             "web/package-lock.json"
           ]
