@@ -731,6 +731,49 @@ pub fn rewrite_html(
     cwd: &Path,
     document: &Path,
 ) -> String {
+    // Head element for theme
+    let themes = format!(
+        r#"<link href="/~static/themes/themes/{theme}/styles.css" rel="stylesheet">"#,
+        theme = theme
+    );
+
+    // Head elements for web client
+    let web = format!(
+        r#"
+    <link href="/~static/web/{mode}.css" rel="stylesheet">
+    <script src="/~static/web/{mode}.js"></script>
+    <script>
+        const startup = stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}");
+        startup().catch((err) => console.error('Error during startup', err))
+    </script>"#,
+        mode = mode,
+        // TODO: pass url from outside this function?
+        url = "ws://127.0.0.1:9000/~ws",
+        client = uuid_utils::generate("cl"),
+        project = "current",
+        snapshot = "current",
+        document = document.as_display().to_string()
+    );
+
+    // Head elements for web components
+    let components = match components {
+        "none" => "".to_string(),
+        _ => {
+            let base = match components {
+                "remote" => "https://unpkg.com/@stencila/components/dist/stencila-components",
+                _ => "/~static/components",
+            };
+            format!(
+                r#"
+                <script src="{}/stencila-components.esm.js" type="module"> </script>
+                <script src="{}/stencila-components.js" type="text/javascript" nomodule=""> </script>
+                "#,
+                base, base
+            )
+        }
+    };
+
+    // Rewrite body content so that links to files work
     static REGEX: Lazy<Regex> =
         Lazy::new(|| Regex::new(r#""file://(.*?)""#).expect("Unable to create regex"));
 
@@ -751,54 +794,22 @@ pub fn rewrite_html(
         }
     });
 
-    let components = match components {
-        "none" => "".to_string(),
-        _ => {
-            let base = match components {
-                "remote" => "https://unpkg.com/@stencila/components/dist/stencila-components",
-                _ => "/~static/components",
-            };
-            format!(
-                r#"
-                <script src="{}/stencila-components.esm.js" type="module"> </script>
-                <script src="{}/stencila-components.js" type="text/javascript" nomodule=""> </script>
-                "#,
-                base, base
-            )
-        }
-    };
-
     format!(
         r#"<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-        <link href="/~static/web/{mode}.css" rel="stylesheet">
-        <script src="/~static/web/{mode}.js"></script>
-        <script>
-            const startup = stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}");
-            startup().catch((err) => console.error('Error during startup', err))
-        </script>
-
-        <link
-            href="https://unpkg.com/@stencila/thema/dist/themes/{theme}/styles.css"
-            rel="stylesheet">
+        {themes}
+        {web}
         {components}
     </head>
     <body>
         {body}
     </body>
 </html>"#,
-        mode = mode,
-        // TODO: pass url from outside this function?
-        url = "ws://127.0.0.1:9000/~ws",
-        client = uuid_utils::generate("cl"),
-        project = "current",
-        snapshot = "current",
-        document = document.as_display().to_string(),
-        theme = theme,
+        themes = themes,
+        web = web,
         components = components,
         body = body
     )
