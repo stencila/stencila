@@ -1,0 +1,8 @@
+{
+  "description": "JavaScript, CSS and other static assets embedded into binaries",
+  "dependencies": {
+    "@stencila/components": "^0.42.2",
+    "themes": "file:../../themes",
+    "web": "file:../../web"
+  }
+}

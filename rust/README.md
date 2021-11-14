@@ -107,6 +107,17 @@ Run benchmarks using,
 cargo bench
 ```
 
+### Browser assets
+
+In addition to serving documents, WebSocket and REST endpoints, the server also serves static JavaScript, CSS and other browser assets.
+
+The [`stencila/static`](stencila/static) folder contains the symlinks `themes`, `web` and `components`. These symlinks point to folders within `stencila/node_modules` which contain the built assets.
+
+For `components`, the version number is defined in `stencila/package.json`. For `themes` and `web` we currently use `file:` links to sibling folders in this repo. This is useful during development because it allows for on-the-fly rebuilds and hot module reloading.
+
+For the binary builds we embed *everything* that is in `stencila/static` into the binary.
+
+
 ### Language queries
 
 When developing `tree-sitter` language queries for the `methods::compile::code` module, the `tree-sitter` CLI is very useful.

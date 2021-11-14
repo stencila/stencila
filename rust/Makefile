@@ -31,10 +31,12 @@ cover:
 audit:
 	cargo +nightly udeps
 
-# Build requires the `web` module's JavaScript to be built
-# so that it can be embedded in the binary.
 build:
-	make -C ../web build
+	# Build / install embedded static assets
+	cd ../web && npm install && npm run build
+	cd ../themes && npm install && npm run build
+	cd stencila && npm install
+	# Build and strip binary
 	cargo build --bin stencila --release
 	cd .. && cargo strip
 
