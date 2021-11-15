@@ -1183,7 +1183,7 @@ pub mod commands {
         ///
         /// Defaults to the `STENCILA_URL` environment variable, the value set in config
         /// or otherwise `http://127.0.0.1:9000`.
-        #[structopt(env = "STENCILA_URL")]
+        #[structopt(short, long, env = "STENCILA_URL")]
         url: Option<String>,
 
         /// Secret key to use for signing and verifying JSON Web Tokens
