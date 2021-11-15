@@ -308,9 +308,9 @@ impl Run for OpenCommand {
         // depending upon mode.
         if let Err(error) =
             if std::env::var("STENCILA_INTERACT_MODE").unwrap_or_else(|_| "0".to_string()) == "1" {
-                serve::serve_background(&host, Some(key), None, false)
+                serve::serve_background(Some(host), Some(key), None, false)
             } else {
-                serve::serve(&host, Some(key), None, false).await
+                serve::serve(Some(host), Some(key), None, false).await
             }
         {
             // Ignore the error if a server is already started on that address

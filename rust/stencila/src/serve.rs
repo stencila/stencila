@@ -8,7 +8,7 @@ use crate::{
 };
 use defaults::Defaults;
 use events::{subscribe, Subscriber};
-use eyre::{bail, Result};
+use eyre::{bail, eyre, Result};
 use futures::{SinkExt, StreamExt};
 use itertools::Itertools;
 use jwt::JwtError;
@@ -34,16 +34,6 @@ use warp::{
     ws, Filter, Reply,
 };
 
-/// Parse a URL into protocol, address and port components
-pub fn parse_url(url: &str) -> Result<(String, u16)> {
-    let url = urls::parse(url)?;
-    let address = url.host().unwrap().to_string();
-    let port = url
-        .port_or_known_default()
-        .expect("Should be a default port for the protocol");
-    Ok((address, port))
-}
-
 /// Run a server on this thread
 ///
 /// # Arguments
@@ -61,15 +51,19 @@ pub fn parse_url(url: &str) -> Result<(String, u16)> {
 /// # #![recursion_limit = "256"]
 /// use stencila::serve::serve;
 ///
-/// serve("http://0.0.0.0:1234", None, None, false);
+/// serve(Some("http://0.0.0.0:1234".to_string()), None, None, false);
 /// ```
+#[tracing::instrument]
 pub async fn serve(
-    url: &str,
+    url: Option<String>,
     key: Option<String>,
     home: Option<PathBuf>,
     traversal: bool,
 ) -> Result<()> {
-    let (address, port) = parse_url(url)?;
+    let (address, port) = match url {
+        Some(url) => parse_url(&url)?,
+        None => ("127.0.0.1".to_string(), pick_port(9000, 9011)?),
+    };
     serve_on(address, port, key, home, traversal).await
 }
 
@@ -78,7 +72,7 @@ pub async fn serve(
 /// Arguments as for [`serve`]
 #[tracing::instrument]
 pub fn serve_background(
-    url: &str,
+    url: Option<String>,
     key: Option<String>,
     home: Option<PathBuf>,
     traversal: bool,
@@ -86,7 +80,6 @@ pub fn serve_background(
     // Spawn a thread, start a runtime in it, and serve using that runtime.
     // Any errors within the thread are logged because we can't return a
     // `Result` from the thread to the caller of this function.
-    let url = url.to_string();
     std::thread::spawn(move || {
         let _span = tracing::trace_span!("serve_in_background");
 
@@ -97,13 +90,34 @@ pub fn serve_background(
                 return;
             }
         };
-        match runtime.block_on(async { serve(&url, key, home, traversal).await }) {
+        match runtime.block_on(async { serve(url, key, home, traversal).await }) {
             Ok(_) => {}
             Err(error) => tracing::error!("{}", error.to_string()),
         };
     });
 
     Ok(())
+}
+
+/// Parse a URL into address and port components
+pub fn parse_url(url: &str) -> Result<(String, u16)> {
+    let url = urls::parse(url)?;
+    let address = url.host().unwrap().to_string();
+    let port = url
+        .port_or_known_default()
+        .expect("Should be a default port for the protocol");
+    Ok((address, port))
+}
+
+/// Pick the first available port from a range, falling back to a random port
+/// if none of the ports in the range are available
+pub fn pick_port(min: u16, max: u16) -> Result<u16> {
+    for port in min..max {
+        if portpicker::is_free(port) {
+            return Ok(port);
+        }
+    }
+    portpicker::pick_unused_port().ok_or_else(|| eyre!("There are no free ports"))
 }
 
 /// Static assets
@@ -1090,23 +1104,22 @@ pub mod config {
     use defaults::Defaults;
     use schemars::JsonSchema;
     use serde::{Deserialize, Serialize};
+    use serde_with::skip_serializing_none;
     use validator::Validate;
 
     /// Server
     ///
     /// Configuration settings for running as a server
+    #[skip_serializing_none]
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
     #[schemars(deny_unknown_fields)]
     pub struct ServeConfig {
-        /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
-        #[def = "\"ws://127.0.0.1:9000\".to_string()"]
+        /// The URL to serve on
         #[validate(url(message = "Not a valid URL"))]
-        pub url: String,
+        pub url: Option<String>,
 
         /// Secret key to use for signing and verifying JSON Web Tokens
-        #[def = "None"]
-        #[serde(skip_serializing_if = "Option::is_none")]
         pub key: Option<String>,
 
         /// Do not require a JSON Web Token to access the server
@@ -1166,11 +1179,17 @@ pub mod commands {
         /// is within a project).
         home: Option<PathBuf>,
 
-        /// The URL to serve on (defaults to `http://127.0.0.1:9000`)
+        /// The URL to serve on
+        ///
+        /// Defaults to the `STENCILA_URL` environment variable, the value set in config
+        /// or otherwise `http://127.0.0.1:9000`.
         #[structopt(env = "STENCILA_URL")]
         url: Option<String>,
 
         /// Secret key to use for signing and verifying JSON Web Tokens
+        ///
+        /// Defaults to the `STENCILA_KEY` environment variable, the value set in config
+        /// or otherwise a randomly generated value.
         #[structopt(short, long, env = "STENCILA_KEY")]
         key: Option<String>,
 
@@ -1201,8 +1220,10 @@ pub mod commands {
         async fn run(&self) -> Result {
             let config = &CONFIG.lock().await.serve;
 
-            let url = self.url.clone().unwrap_or_else(|| config.url.clone());
-            let (address, port) = parse_url(&url)?;
+            let url = match &self.url {
+                Some(url) => Some(url.clone()),
+                None => config.url.clone(),
+            };
 
             // Get key configured on command line or config file
             let key = match &self.key {
@@ -1250,7 +1271,6 @@ pub mod commands {
             // where the `atty` crate is available. Until then skip to avoid noise on stdout.
             // println!("{}", login_url(port, key.clone(), Some(300), None)?);
 
-            let url = &format!("{}:{}", address, port);
             let home = self.home.clone();
             if self.background {
                 super::serve_background(url, key, home, self.traversal)?;
