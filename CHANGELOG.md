@@ -1,3 +1,23 @@
+# [0.128.0](https://github.com/stencila/stencila/compare/v0.127.1...v0.128.0) (2021-11-15)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate serde_json to v1.0.70 ([145ba1b](https://github.com/stencila/stencila/commit/145ba1b6e46ab06fa65440489f72f6ec2f1b673e))
+* **dependencies:** update rust crate termimad to 0.18.0 ([e95f380](https://github.com/stencila/stencila/commit/e95f380e14258d0e9c5587b16b29b77337a69cfa))
+* **dependencies:** update rust crate tokio to 1.13.0 ([6526155](https://github.com/stencila/stencila/commit/65261553a5fab3207b87a65c15ca7f169b04bf52))
+* **dependencies:** update rust crate warp to v0.3.2 ([490cbbf](https://github.com/stencila/stencila/commit/490cbbf9ee5101031fd7256f95d45d27bb537dc4))
+
+
+### Features
+
+* **Server:** Embed and serve themes locally ([1c26cd1](https://github.com/stencila/stencila/commit/1c26cd1094d73e3dda61b86fe04ba1b42d14ff30))
+
+
+### Performance Improvements
+
+* **Server:** Use `Cache-Control` header for static assets ([03210e0](https://github.com/stencila/stencila/commit/03210e0faa82a13080ac00999d4d85453543e28f))
+
 ## [0.127.1](https://github.com/stencila/stencila/compare/v0.127.0...v0.127.1) (2021-11-13)
 
 

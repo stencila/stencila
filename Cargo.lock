@@ -3655,15 +3655,15 @@ checksum = "12295df4f294471248581bc09bef3c38a5e46f1e36d6a37353621a0c6c357e1f"
 
 [[package]]
 name = "plist"
-version = "1.2.1"
+version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a38d026d73eeaf2ade76309d0c65db5a35ecf649e3cec428db316243ea9d6711"
+checksum = "2e716f3f31ef88987709c29214bbf1bc3b7c524c78e33b112c528669d5f53e62"
 dependencies = [
  "base64 0.13.0",
- "chrono",
  "indexmap",
  "line-wrap",
  "serde",
+ "time 0.3.5",
  "xml-rs",
 ]
 
@@ -4656,7 +4656,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
-version = "0.123.0"
+version = "0.128.0"
 dependencies = [
  "Inflector",
  "ansi_term 0.12.1",
@@ -4753,7 +4753,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.127.1"
+version = "0.128.0"
 dependencies = [
  "events",
  "formats",
