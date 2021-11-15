@@ -12,7 +12,7 @@ use eyre::{bail, eyre, Result};
 use futures::{SinkExt, StreamExt};
 use itertools::Itertools;
 use jwt::JwtError;
-use once_cell::sync::Lazy;
+use once_cell::sync::{Lazy, OnceCell};
 use regex::{Captures, Regex};
 use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize};
@@ -34,111 +34,175 @@ use warp::{
     ws, Filter, Reply,
 };
 
-/// Run a server on this thread
-///
-/// # Arguments
-///
-/// - `url`: The URL to listen on
-/// - `key`: A secret key for signing and verifying JSON Web Tokens (defaults to random)
-/// - `home`: The root directory for files that are served (defaults to current working directory)
-/// - `traversal`: Whether traversal out of the root directory is allowed
-///
-/// # Examples
-///
-/// Listen on http://0.0.0.0:1234,
-///
-/// ```no_run
-/// # #![recursion_limit = "256"]
-/// use stencila::serve::serve;
-///
-/// serve(Some("http://0.0.0.0:1234".to_string()), None, None, false);
-/// ```
-#[tracing::instrument]
-pub async fn serve(
-    url: Option<String>,
+/// The global, singleton, server instance
+static SERVER: OnceCell<Server> = OnceCell::new();
+
+#[derive(Debug, Clone)]
+pub struct Server {
+    address: String,
+
+    port: u16,
+
     key: Option<String>,
+
     home: Option<PathBuf>,
+
     traversal: bool,
-) -> Result<()> {
-    let (address, port) = match url {
-        Some(url) => parse_url(&url)?,
-        None => ("127.0.0.1".to_string(), pick_port(9000, 9011)?),
-    };
-    serve_on(address, port, key, home, traversal).await
 }
 
-/// Run a server on another thread
-///
-/// Arguments as for [`serve`]
-#[tracing::instrument]
-pub fn serve_background(
-    url: Option<String>,
-    key: Option<String>,
-    home: Option<PathBuf>,
-    traversal: bool,
-) -> Result<()> {
-    // Spawn a thread, start a runtime in it, and serve using that runtime.
-    // Any errors within the thread are logged because we can't return a
-    // `Result` from the thread to the caller of this function.
-    std::thread::spawn(move || {
-        let _span = tracing::trace_span!("serve_in_background");
-
-        let runtime = match tokio::runtime::Runtime::new() {
-            Ok(runtime) => runtime,
-            Err(error) => {
-                tracing::error!("{}", error.to_string());
-                return;
-            }
-        };
-        match runtime.block_on(async { serve(url, key, home, traversal).await }) {
-            Ok(_) => {}
-            Err(error) => tracing::error!("{}", error.to_string()),
-        };
-    });
-
-    Ok(())
-}
-
-/// Parse a URL into address and port components
-pub fn parse_url(url: &str) -> Result<(String, u16)> {
-    let url = urls::parse(url)?;
-    let address = url.host().unwrap().to_string();
-    let port = url
-        .port_or_known_default()
-        .expect("Should be a default port for the protocol");
-    Ok((address, port))
-}
-
-/// Pick the first available port from a range, falling back to a random port
-/// if none of the ports in the range are available
-pub fn pick_port(min: u16, max: u16) -> Result<u16> {
-    for port in min..max {
-        if portpicker::is_free(port) {
-            return Ok(port);
+impl Server {
+    /// Start the server
+    #[tracing::instrument]
+    pub async fn start(
+        home: Option<PathBuf>,
+        url: Option<String>,
+        key: Option<String>,
+        insecure: bool,
+        traversal: bool,
+        root: bool,
+    ) -> Result<&'static Self> {
+        if let Some(..) = SERVER.get() {
+            bail!("Server has already been started; stop it to restart it with different settings")
         }
+
+        let server = Server::new(home, url, key, insecure, traversal, root).await?;
+
+        let Self {
+            address,
+            port,
+            key,
+            home,
+            traversal,
+        } = server.clone();
+        tokio::spawn(async move {
+            serve(address, port, key, home, traversal).await;
+        });
+
+        Ok(SERVER.get_or_init(|| server))
     }
-    portpicker::pick_unused_port().ok_or_else(|| eyre!("There are no free ports"))
+
+    /// Stop the server
+    #[tracing::instrument]
+    pub async fn stop() -> Result<()> {
+        if let Some(server) = SERVER.get() {
+            // TODO Stop the server thread
+        }
+        Ok(())
+    }
+
+    /// Serve a project or document
+    ///
+    /// The server will be started (if it has not already been) and URL containing the server's port and a
+    /// token providing access to the project return (if the server has a `key`).
+    pub async fn serve(path: &Path) -> Result<String> {
+        let server = match SERVER.get() {
+            Some(server) => server,
+            None => Self::start(None, None, None, false, false, false).await?,
+        };
+
+        let path = path.display().to_string();
+
+        let mut url = format!("http://{}:{}/{}", server.address, server.port, path);
+
+        if let Some(key) = &server.key {
+            let token = jwt::encode(key, Some(path), Some(60))?;
+            url += &format!("&token={}", token);
+        }
+
+        Ok(url)
+    }
+
+    /// Create a new server
+    ///
+    /// # Arguments
+    ///
+    /// - `url`: The URL to listen on
+    /// - `key`: A secret key for signing and verifying JSON Web Tokens (defaults to random)
+    /// - `home`: The root directory for files that are served (defaults to current working directory)
+    /// - `traversal`: Whether traversal out of the root directory is allowed
+    /// ```
+    pub async fn new(
+        home: Option<PathBuf>,
+        url: Option<String>,
+        key: Option<String>,
+        insecure: bool,
+        traversal: bool,
+        root: bool,
+    ) -> Result<Self> {
+        let config = &CONFIG.lock().await.serve;
+
+        let url = match url {
+            Some(url) => Some(url),
+            None => config.url.clone(),
+        };
+
+        let key = match key {
+            Some(key) => Some(key),
+            None => config.key.clone(),
+        };
+
+        let insecure = insecure || config.insecure;
+        if insecure {
+            tracing::warn!("Serving in insecure mode is dangerous and discouraged.")
+        }
+
+        let key = if key.is_none() {
+            match insecure {
+                true => None,
+                false => Some(key_utils::generate()),
+            }
+        } else {
+            key
+        };
+
+        if traversal {
+            tracing::warn!("Allowing traversal out of server home directory.")
+        }
+
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        if let sudo::RunningAs::Root = sudo::check() {
+            if root {
+                tracing::warn!("Serving as root/administrator is dangerous and discouraged.")
+            } else {
+                bail!("Serving as root/administrator is not permitted by default, use the `--root` option to bypass this safety measure.")
+            }
+        }
+
+        let (address, port) = match url {
+            Some(url) => Self::parse_url(&url)?,
+            None => ("127.0.0.1".to_string(), Self::pick_port(9000, 9011)?),
+        };
+
+        Ok(Self {
+            address,
+            port,
+            key,
+            home,
+            traversal,
+        })
+    }
+
+    /// Parse a URL into address and port components
+    pub fn parse_url(url: &str) -> Result<(String, u16)> {
+        let url = urls::parse(url)?;
+        let address = url.host().unwrap().to_string();
+        let port = url
+            .port_or_known_default()
+            .expect("Should be a default port for the protocol");
+        Ok((address, port))
+    }
+
+    /// Pick the first available port from a range, falling back to a random port
+    /// if none of the ports in the range are available
+    pub fn pick_port(min: u16, max: u16) -> Result<u16> {
+        for port in min..max {
+            if portpicker::is_free(port) {
+                return Ok(port);
+            }
+        }
+        portpicker::pick_unused_port().ok_or_else(|| eyre!("There are no free ports"))
+    }
 }
-
-/// Static assets
-///
-/// During development, these are served from the `static` folder (which
-/// has a symlink to `web/dist/browser` (and maybe in the future other folders).
-/// At build time these are embedded in the binary. Use `include` and `exclude`
-/// glob patterns to only include the assets that are required.
-#[cfg(feature = "serve-http")]
-#[derive(RustEmbed)]
-#[folder = "static"]
-#[exclude = "web/*.map"]
-struct Static;
-
-/// The version used in URL paths for static assets
-/// Allows for caching control (see [`get_static`]).
-const STATIC_VERSION: &str = if cfg!(debug_assertions) {
-    "dev"
-} else {
-    env!("CARGO_PKG_VERSION")
-};
 
 struct Client {
     /// A list of subscription topics for this client
@@ -147,7 +211,7 @@ struct Client {
     /// The current sender for this client
     ///
     /// This is set / reset each time that the client opens
-    /// a websocket connection
+    /// a WebSocket connection
     sender: mpsc::UnboundedSender<ws::Message>,
 }
 
@@ -329,7 +393,7 @@ static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
 /// serve_on("127.0.0.1".to_string(), 9000, None, None, false);
 /// ```
 #[tracing::instrument]
-pub async fn serve_on(
+pub async fn serve(
     address: String,
     port: u16,
     key: Option<String>,
@@ -446,6 +510,26 @@ fn error_response(
     )
     .into_response())
 }
+
+/// Static assets
+///
+/// During development, these are served from the `static` folder (which
+/// has a symlink to `web/dist/browser` (and maybe in the future other folders).
+/// At build time these are embedded in the binary. Use `include` and `exclude`
+/// glob patterns to only include the assets that are required.
+#[cfg(feature = "serve-http")]
+#[derive(RustEmbed)]
+#[folder = "static"]
+#[exclude = "web/*.map"]
+struct Static;
+
+/// The version used in URL paths for static assets
+/// Allows for caching control (see [`get_static`]).
+const STATIC_VERSION: &str = if cfg!(debug_assertions) {
+    "dev"
+} else {
+    env!("CARGO_PKG_VERSION")
+};
 
 /// Handle a HTTP `GET` request to the `/~static/` path
 ///
@@ -1193,10 +1277,6 @@ pub mod commands {
         #[structopt(short, long, env = "STENCILA_KEY")]
         key: Option<String>,
 
-        /// Serve in a background thread (when in interactive mode)
-        #[structopt(short, long)]
-        background: bool,
-
         /// Do not require a JSON Web Token to access the server
         ///
         /// For security reasons (any client can access files and execute code) this should be avoided.
@@ -1218,65 +1298,19 @@ pub mod commands {
     #[async_trait]
     impl Run for Command {
         async fn run(&self) -> Result {
-            let config = &CONFIG.lock().await.serve;
-
-            let url = match &self.url {
-                Some(url) => Some(url.clone()),
-                None => config.url.clone(),
+            if self.key.is_some() {
+                tracing::warn!("Server key set on command line could be sniffed by malicious processes; prefer to set it in config file.");
             };
 
-            // Get key configured on command line or config file
-            let key = match &self.key {
-                Some(key) => {
-                    tracing::warn!("Server key set on command line can be sniffed by malicious processes; prefer to set it in config file.");
-                    Some(key.clone())
-                }
-                None => config.key.clone(),
-            };
-
-            // Check that user is explicitly allowing no key to be used
-            let insecure = self.insecure || config.insecure;
-            if insecure {
-                tracing::warn!("Serving in insecure mode is dangerous and discouraged.")
-            }
-
-            // Generate key if necessary
-            let key = if key.is_none() {
-                match insecure {
-                    true => None,
-                    false => Some(key_utils::generate()),
-                }
-            } else {
-                key
-            };
-
-            // Warn about use of traversal option
-            if self.traversal {
-                tracing::warn!("Allowing traversal out of server home directory.")
-            }
-
-            // Check for root usage
-            #[cfg(any(target_os = "linux", target_os = "macos"))]
-            if let sudo::RunningAs::Root = sudo::check() {
-                if self.root {
-                    tracing::warn!("Serving as root/administrator is dangerous and discouraged.")
-                } else {
-                    bail!("Serving as root/administrator is not permitted by default, use the `--root` option to bypass this safety measure.")
-                }
-            }
-
-            // If stdout is not a TTY then print the login URL to stdout so that it can be used
-            // by, for example, the parent process.
-            // TODO: Consider re-enabling this when/id `cli` modules are moved to the `cli` crate
-            // where the `atty` crate is available. Until then skip to avoid noise on stdout.
-            // println!("{}", login_url(port, key.clone(), Some(300), None)?);
-
-            let home = self.home.clone();
-            if self.background {
-                super::serve_background(url, key, home, self.traversal)?;
-            } else {
-                super::serve(url, key, home, self.traversal).await?;
-            }
+            Server::start(
+                self.home.clone(),
+                self.url.clone(),
+                self.key.clone(),
+                self.insecure,
+                self.traversal,
+                self.root,
+            )
+            .await?;
 
             result::nothing()
         }

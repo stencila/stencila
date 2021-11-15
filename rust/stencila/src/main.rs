@@ -12,7 +12,6 @@ use std::{collections::HashMap, path::PathBuf};
 use stencila::{
     config::{self, CONFIG},
     documents::{self, DOCUMENTS},
-    eyre::bail,
     logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
@@ -257,9 +256,7 @@ pub struct OpenCommand {
 #[async_trait]
 impl Run for OpenCommand {
     #[cfg(feature = "serve")]
-    async fn run(&self /*, context: &mut Context*/) -> Result {
-        use stencila::{jwt, serve};
-
+    async fn run(&self) -> Result {
         let (is_project, path) = match &self.path {
             Some(path) => (path.is_dir(), path.clone()),
             None => (true, std::env::current_dir()?),
@@ -279,44 +276,11 @@ impl Run for OpenCommand {
             document.path
         };
 
-        // Assert that the path is inside the current working directory and
-        // strip that prefix (the `cwd` is prefixed when serving and path traversal checked for again)
-        let path = match path.strip_prefix(std::env::current_dir()?) {
-            Ok(path) => path.display().to_string(),
-            Err(_) => bail!("For security reasons it is only possible to open documents that are nested within the current working directory.")
-        };
-
-        let host = format!("http://127.0.0.1:{}", 9000u16);
-
-        // Generate a key and token to login to the server
-        let key = key_utils::generate();
-
-        #[cfg(feature = "webbrowser")]
-        {
-            // TODO restrict path to the current project
-            let token = jwt::encode(&key, None, Some(60))?;
-
-            let mut url = format!("{}/{}?token={}", host, path, token.as_str());
-            if let Some(theme) = &self.theme {
-                url += &["& theme=", theme].concat();
-            };
-
+        let url = stencila::serve::Server::serve(&path).await?;
+        if cfg!(feature = "webbrowser") {
             webbrowser::open(&url)?;
-        }
-
-        // If not yet serving, serve in the background, or in the current thread,
-        // depending upon mode.
-        if let Err(error) =
-            if std::env::var("STENCILA_INTERACT_MODE").unwrap_or_else(|_| "0".to_string()) == "1" {
-                serve::serve_background(Some(host), Some(key), None, false)
-            } else {
-                serve::serve(Some(host), Some(key), None, false).await
-            }
-        {
-            // Ignore the error if a server is already started on that address
-            if !error.to_string().contains("Address already in use") {
-                bail!(error)
-            }
+        } else {
+            tracing::info!("Available at {}", url)
         }
 
         result::nothing()
