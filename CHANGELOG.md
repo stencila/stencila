@@ -1,3 +1,10 @@
+## [0.129.1](https://github.com/stencila/stencila/compare/v0.129.0...v0.129.1) (2021-11-17)
+
+
+### Bug Fixes
+
+* **Dependencies:** Update `termimad` ([592141d](https://github.com/stencila/stencila/commit/592141df2d4b088209bb8d2a0bae0363ef11231e))
+
 # [0.128.0](https://github.com/stencila/stencila/compare/v0.127.1...v0.128.0) (2021-11-15)
 
 
