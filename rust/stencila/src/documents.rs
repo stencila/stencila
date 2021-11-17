@@ -14,6 +14,7 @@ use graph_triples::{Relation, Resource};
 use itertools::Itertools;
 use kernels::KernelSpace;
 use maplit::hashset;
+use node_reshape::reshape;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
@@ -449,14 +450,14 @@ impl Document {
     /// Read the document from the file system, update it and return its content.
     ///
     /// # Arguments
-    /// 
+    ///
     /// - `force_load`: if `false` then if the file is empty, or is the same as the existing
     ///                 content then do not load the content into the document
-    /// 
-    /// Using `force_load: false` is recommended when calling this function in response to 
+    ///
+    /// Using `force_load: false` is recommended when calling this function in response to
     /// file modification events as writes in quick succession can cause the file to be momentarily
     /// empty when read.
-    /// 
+    ///
     /// Sets `status` to `Synced`. For binary files, does not actually read the content
     /// but will update the document nonetheless (possibly delegating the actual read
     /// to a binary or plugin)
@@ -809,12 +810,9 @@ impl Document {
             return Ok(());
         };
 
-        #[cfg(feature = "reshape")]
-        {
-            // Reshape the `root` according to preferences
-            use crate::methods::reshape::{self, reshape};
-            reshape(&mut root, reshape::Options::default())?;
-        }
+        // Reshape the `root`
+        // TODO: Pass user options for reshaping through
+        reshape(&mut root, None)?;
 
         // Attempt to compile the `root` and update document intra- and inter- dependencies
         match compile(&mut root, &self.path, &self.project) {
