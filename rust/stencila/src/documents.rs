@@ -387,7 +387,7 @@ impl Document {
         document.alter(Some(path), format).await?;
 
         // Attempt to read the document from the file
-        match document.read().await {
+        match document.read(true).await {
             Ok(..) => (),
             Err(error) => tracing::warn!("While reading document `{}`: {}", path.display(), error),
         };
@@ -448,13 +448,24 @@ impl Document {
 
     /// Read the document from the file system, update it and return its content.
     ///
+    /// # Arguments
+    /// 
+    /// - `force_load`: if `false` then if the file is empty, or is the same as the existing
+    ///                 content then do not load the content into the document
+    /// 
+    /// Using `force_load: false` is recommended when calling this function in response to 
+    /// file modification events as writes in quick succession can cause the file to be momentarily
+    /// empty when read.
+    /// 
     /// Sets `status` to `Synced`. For binary files, does not actually read the content
     /// but will update the document nonetheless (possibly delegating the actual read
     /// to a binary or plugin)
-    pub async fn read(&mut self) -> Result<String> {
+    pub async fn read(&mut self, force_load: bool) -> Result<String> {
         let content = if !self.format.binary {
             let content = fs::read_to_string(&self.path)?;
-            self.load(content.clone(), None).await?;
+            if force_load || (!content.is_empty() && content != self.content) {
+                self.load(content.clone(), None).await?;
+            }
             content
         } else {
             self.update(true).await?;
@@ -1032,7 +1043,7 @@ impl Document {
 
         self.status = DocumentStatus::Unread;
 
-        match self.read().await {
+        match self.read(false).await {
             Ok(content) => self.publish(
                 DocumentEventType::Modified,
                 Some(content),
