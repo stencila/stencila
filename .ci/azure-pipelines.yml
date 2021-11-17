@@ -74,7 +74,7 @@ jobs:
       # release builds (otherwise they can take longer than the maximum of one hour).
       - script: |
           set -e
-          
+
           curl -sL https://github.com/mozilla/sccache/releases/download/v0.2.15/sccache-v0.2.15-x86_64-unknown-linux-musl.tar.gz | tar xz
           mv -f sccache*/sccache $(CARGO_HOME)/bin/sccache
           chmod +x $(CARGO_HOME)/bin/sccache
@@ -518,20 +518,6 @@ jobs:
         condition: succeeded()
         workingDirectory: themes
         displayName: 'Build package'
-
-      # - script: ASSET_PATH=/themes/ npm run docs
-      #   condition: succeeded()
-      #   displayName: 'Build documentation site'
-      #   workingDirectory: themes
-
-      - script: npx semantic-release
-        condition: and(succeeded(), eq(variables.isMain, true))
-        displayName: Release package & Publish documentation site
-        workingDirectory: themes
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-          NPM_TOKEN: $(NPM_TOKEN)
-
 
   # Help site is only built if there are changes in the `help` folder
   # and only published on `master` branch
