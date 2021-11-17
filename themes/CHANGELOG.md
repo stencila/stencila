@@ -1,3 +1,19 @@
+# [0.129.0](https://github.com/stencila/stencila/compare/v0.128.0...v0.129.0) (2021-11-17)
+
+
+### Bug Fixes
+
+* **Documents:** Add `force_load` option to `Document::read` ([7bf4142](https://github.com/stencila/stencila/commit/7bf41424059383f3fa4d7d0937ba2b1fccd087e2)), closes [#1286](https://github.com/stencila/stencila/issues/1286)
+* **Documents:** Pass root when creating HTML for patches ([ba67992](https://github.com/stencila/stencila/commit/ba67992b3066b219605094257e853885fd866be6))
+* **HTML encoding:** Allow construction of encoding context ([bfaf2a6](https://github.com/stencila/stencila/commit/bfaf2a6933e8196dbff95a90d8e39fc7b1d23db1))
+* **HTML encoding:** Encode Plotly and Vega images as custom components ([c34d0ac](https://github.com/stencila/stencila/commit/c34d0ac4665ba1ce28fc6bdf3135ac6521f50acd))
+* **Patches:** Enable patches for `Cite` nodes ([cae4fec](https://github.com/stencila/stencila/commit/cae4fec01be04417859775b8ba799995573b2261))
+
+
+### Features
+
+* **Documents:** Enable reshaping of documents ([fd38199](https://github.com/stencila/stencila/commit/fd3819987c613c0138af669afe20cbb21f5c6bad))
+
 ## [2.24.4](https://github.com/stencila/thema/compare/v2.24.3...v2.24.4) (2021-10-26)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@stencila/thema",
-  "version": "2.24.4",
+  "version": "0.129.0",
   "description": "Themes for executable documents",
   "files": [
     "/dist"
