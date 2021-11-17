@@ -11,7 +11,7 @@
   "scripts": {
     "bootstrap": "npm run build && npm run docs:gallery",
     "prepare": "npm run update",
-    "update": "npm run update:selectors && npm run update:examples && npm run update:themes && npm run update:extensions",
+    "update": "npm run update:selectors && npm run update:themes && npm run update:extensions",
     "update:selectors": "ts-node --files src/scripts/selectors.ts",
     "update:examples": "ts-node --files src/scripts/examples.ts",
     "update:extensions": "ts-node --files src/scripts/extensions.ts update",
