@@ -1,7 +1,7 @@
 {
   "name": "@stencila/thema",
   "version": "2.24.4",
-  "description": "Semantic themes for use with encoda (https://github.com/stencila/encoda)",
+  "description": "Themes for executable documents",
   "files": [
     "/dist"
   ],
@@ -40,7 +40,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stencila/thema.git"
+    "url": "git+https://github.com/stencila/stencila.git"
   },
   "keywords": [
     "Stencila",
@@ -51,9 +51,9 @@
   "author": "Stencila",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/stencila/thema/issues"
+    "url": "https://github.com/stencila/stencila/issues"
   },
-  "homepage": "https://github.com/stencila/thema#readme",
+  "homepage": "https://github.com/stencila/stencila#readme",
   "dependencies": {
     "@elifesciences/pattern-library": "0.0.6",
     "@simonwep/pickr": "^1.8.2",
