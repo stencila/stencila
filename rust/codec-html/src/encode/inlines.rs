@@ -121,14 +121,66 @@ impl ToHtml for AudioObjectSimple {
 
 impl ToHtml for ImageObjectSimple {
     fn to_html(&self, context: &EncodeContext) -> String {
-        elem_empty(
-            "img",
-            &[
-                attr_itemtype_str("ImageObject"),
-                attr_id(&self.id),
-                content_url_to_src_attr(&self.content_url, context),
-            ],
-        )
+        fn decode_base64(data: &str) -> String {
+            match base64::decode(data) {
+                Ok(data) => String::from_utf8_lossy(&data).to_string(),
+                Err(error) => {
+                    tracing::error!("While decoding base64 image data: {}", error);
+                    format!("\"{}\"", error)
+                }
+            }
+        }
+
+        if let Some(data) = self
+            .content_url
+            .strip_prefix("data:application/vnd.plotly.")
+        {
+            let mut parts = data.split(";base64,");
+
+            let version = parts.next().unwrap_or("1");
+            let media_type = match &self.media_type {
+                Some(value) => *value.clone(),
+                None => ["application/vnd.plotly.", version].concat(),
+            };
+
+            let data = decode_base64(parts.next().unwrap_or_default());
+
+            elem(
+                "stencila-image-plotly",
+                &[],
+                &elem(
+                    "picture",
+                    &[],
+                    &elem("script", &[attr("type", &media_type)], &data),
+                ),
+            )
+        } else if let Some(data) = self.content_url.strip_prefix("data:application/vnd.vega") {
+            let mut parts = data.split(";base64,");
+            let data = decode_base64(parts.nth(1).unwrap_or_default());
+
+            elem(
+                "stencila-image-vega",
+                &[],
+                &elem(
+                    "picture",
+                    &[],
+                    &elem(
+                        "script",
+                        &[attr("type", "application/vnd.vega+json")],
+                        &data,
+                    ),
+                ),
+            )
+        } else {
+            elem_empty(
+                "img",
+                &[
+                    attr_itemtype_str("ImageObject"),
+                    attr_id(&self.id),
+                    content_url_to_src_attr(&self.content_url, context),
+                ],
+            )
+        }
     }
 }
 

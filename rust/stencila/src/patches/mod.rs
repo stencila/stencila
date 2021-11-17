@@ -542,10 +542,13 @@ impl Operation {
     }
 
     /// Generate HTML for the `value` field of an operation
-    fn value_html(value: &Value) -> String {
+    fn value_html(value: &Value, root: &Node) -> String {
         use codec_html::{EncodeContext, ToHtml};
 
-        let context = EncodeContext::new();
+        let context = EncodeContext {
+            root,
+            ..Default::default()
+        };
 
         // Convert a node, boxed node, or vector of nodes to HTML
         macro_rules! to_html {
@@ -647,7 +650,7 @@ impl Operation {
     }
 
     /// Set the `html` field from the `value` field
-    fn html_set(&mut self) -> &mut Self {
+    fn html_set(&mut self, root: &Node) -> &mut Self {
         match self {
             Operation::Add { value, html, .. } | Operation::Replace { value, html, .. } => {
                 // As an optimization, if the value is a `String` or `serde_json::Value::String`
@@ -663,7 +666,7 @@ impl Operation {
                     }
                 }
 
-                *html = Some(Operation::value_html(value));
+                *html = Some(Operation::value_html(value, root));
             }
             _ => {}
         }
@@ -701,9 +704,9 @@ impl Patch {
     ///
     /// The main purpose of this function is to generate HTML for each `Add` and `Replace`
     /// operation in the patch before it is sent to clients.
-    pub fn prepublish(&mut self) -> &mut Self {
+    pub fn prepublish(&mut self, root: &Node) -> &mut Self {
         for op in self.ops.iter_mut() {
-            op.html_set();
+            op.html_set(root);
         }
         self
     }
@@ -1144,19 +1147,19 @@ mod tests {
     #[test]
     fn test_serialization() {
         // Empty article
-        let one = Article {
+        let one = Node::Article(Article {
             content: Some(vec![]),
             ..Default::default()
-        };
+        });
 
         // Add an empty paragraph
-        let two = Article {
+        let two = Node::Article(Article {
             content: Some(vec![BlockContent::Paragraph(Paragraph::default())]),
             ..Default::default()
-        };
+        });
 
         // Add words to the paragraph
-        let three = Article {
+        let three = Node::Article(Article {
             content: Some(vec![BlockContent::Paragraph(Paragraph {
                 content: vec![
                     InlineContent::String("first".to_string()),
@@ -1165,10 +1168,10 @@ mod tests {
                 ..Default::default()
             })]),
             ..Default::default()
-        };
+        });
 
         // Modify a word
-        let four = Article {
+        let four = Node::Article(Article {
             content: Some(vec![BlockContent::Paragraph(Paragraph {
                 content: vec![
                     InlineContent::String("foot".to_string()),
@@ -1177,10 +1180,10 @@ mod tests {
                 ..Default::default()
             })]),
             ..Default::default()
-        };
+        });
 
         // Move words
-        let five = Article {
+        let five = Node::Article(Article {
             content: Some(vec![BlockContent::Paragraph(Paragraph {
                 content: vec![
                     InlineContent::String(" second".to_string()),
@@ -1189,7 +1192,7 @@ mod tests {
                 ..Default::default()
             })]),
             ..Default::default()
-        };
+        });
 
         // one to one -> empty patch
         let patch = diff(&one, &one);
@@ -1197,7 +1200,7 @@ mod tests {
 
         // one to two -> `Add` operation on the article's content
         let mut patch = diff(&one, &two);
-        patch.prepublish();
+        patch.prepublish(&two);
         assert_json_eq!(
             patch.ops,
             json!([{
@@ -1211,7 +1214,7 @@ mod tests {
 
         // two to three -> `Add` operation on the paragraph's content
         let mut patch = diff(&two, &three);
-        patch.prepublish();
+        patch.prepublish(&three);
         assert_json_eq!(
             patch.ops,
             json!([{
@@ -1225,7 +1228,7 @@ mod tests {
 
         // three to four -> `Replace` operation on a word
         let mut patch = diff(&three, &four);
-        patch.prepublish();
+        patch.prepublish(&four);
         assert_json_eq!(
             patch.ops,
             json!([{
@@ -1240,7 +1243,7 @@ mod tests {
 
         // four to five -> `Move` operation on the word
         let mut patch = diff(&four, &five);
-        patch.prepublish();
+        patch.prepublish(&five);
         assert_json_eq!(
             patch.ops,
             json!([{

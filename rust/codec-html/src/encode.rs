@@ -134,15 +134,14 @@ pub fn wrap_standalone(title: &str, theme: &str, html: &str) -> String {
 /// parent nodes when rendering themselves.
 pub struct EncodeContext<'a> {
     /// The root node being encoded
-    root: &'a Node,
+    pub root: &'a Node,
 
     /// Whether <img>, <audio> and <video> elements should use dataURIs
-    bundle: bool,
+    pub bundle: bool,
 }
 
-impl<'a> EncodeContext<'a> {
-    #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
+impl<'a> Default for EncodeContext<'a> {
+    fn default() -> Self {
         EncodeContext {
             root: &Node::Null(Null {}),
             bundle: false,

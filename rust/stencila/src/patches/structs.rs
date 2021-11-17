@@ -1,3 +1,51 @@
+/// Generate the `resolve` method for a `struct`
+macro_rules! patchable_struct_resolve {
+    ($( $field:ident )*) => {
+        /// Resolve an [`Address`] into a node [`Pointer`].
+        ///
+        /// Delegate to child fields, erroring if address is invalid.
+        fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+            match address.pop_front() {
+                Some(Slot::Name(name)) => match name.as_str() {
+                    $(
+                        stringify!($field) => self.$field.resolve(address),
+                    )*
+                    _ => bail!(invalid_slot_name::<Self>(&name)),
+                },
+                Some(slot) => bail!(invalid_slot_variant::<Self>(slot)),
+                None => bail!(invalid_address::<Self>("address is empty")),
+            }
+        }
+    };
+}
+
+/// Generate the `find` method for a `struct`
+macro_rules! patchable_struct_find {
+    ($( $field:ident )*) => {
+        /// Find a node based on its `id` and return a [`Pointer`] to it.
+        ///
+        /// If the `id` matches `self.id` then return `Pointer::Some`. Otherwise, delegate to
+        /// child fields, returning `Pointer::None` if not found there.
+        fn find(&mut self, id: &str) -> Pointer {
+            if let Some(my_id) = self.id.as_ref() {
+                if id == **my_id {
+                    return Pointer::Some
+                }
+            }
+
+            $(
+                let pointer = self.$field.find(id);
+                match pointer {
+                    Pointer::None => (),
+                    _ => return pointer
+                }
+            )*
+
+            Pointer::None
+        }
+    };
+}
+
 /// Generate the `is_equal` method for a `struct`
 macro_rules! patchable_struct_is_equal {
     ($( $field:ident )*) => {
@@ -140,43 +188,8 @@ macro_rules! patchable_struct_apply_transform {
 macro_rules! patchable_struct {
     ($type:ty $(, $field:ident )*) => {
         impl Patchable for $type {
-            /// Resolve an [`Address`] into a node [`Pointer`].
-            ///
-            /// Delegate to child fields, erroring if address is invalid.
-            fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-                match address.pop_front() {
-                    Some(Slot::Name(name)) => match name.as_str() {
-                        $(
-                            stringify!($field) => self.$field.resolve(address),
-                        )*
-                        _ => bail!(invalid_slot_name::<Self>(&name)),
-                    },
-                    Some(slot) => bail!(invalid_slot_variant::<Self>(slot)),
-                    None => bail!(invalid_address::<Self>("address is empty")),
-                }
-            }
-
-            /// Find a node based on its `id` and return a [`Pointer`] to it.
-            ///
-            /// If the `id` matches `self.id` then return `Pointer::Some`. Otherwise, delegate to
-            /// child fields, returning `Pointer::None` if not found there.
-            fn find(&mut self, id: &str) -> Pointer {
-                if let Some(my_id) = self.id.as_ref() {
-                    if id == **my_id {
-                        return Pointer::Some
-                    }
-                }
-
-                $(
-                    let pointer = self.$field.find(id);
-                    match pointer {
-                        Pointer::None => (),
-                        _ => return pointer
-                    }
-                )*
-
-                Pointer::None
-            }
+            patchable_struct_resolve!($( $field )*);
+            patchable_struct_find!($( $field )*);
 
             patchable_is_same!();
             patchable_struct_is_equal!($( $field )*);
@@ -190,6 +203,35 @@ macro_rules! patchable_struct {
             patchable_struct_apply_replace!($( $field )*);
             patchable_struct_apply_move!($( $field )*);
             patchable_struct_apply_transform!($( $field )*);
+        }
+    };
+}
+
+/// Generate a `impl Patchable` for a `struct` that should
+/// be replaced as a whole, rather than patching its fields separately.
+///
+/// Use this, for example, for `struct`s whose HTML encoding is more complicated
+/// than a set of elements for each field.
+///
+/// The `diff_same` method returns a `Replace` operation and it only implements
+/// `apply_replace`.
+macro_rules! replaceable_struct {
+    ($type:ty $(, $field:ident )*) => {
+        impl Patchable for $type {
+            patchable_struct_resolve!($( $field )*);
+            patchable_struct_find!($( $field )*);
+
+            patchable_is_same!();
+            patchable_struct_is_equal!($( $field )*);
+            patchable_struct_hash!($( $field )*);
+
+            patchable_diff!();
+
+            fn diff_same(&self, differ: &mut Differ, other: &Self) {
+                differ.replace(other);
+            }
+
+            patchable_struct_apply_replace!($( $field )*);
         }
     };
 }

@@ -243,8 +243,24 @@ fn apply_transform(from: &InlineContent, to: &str) -> InlineContent {
 // Implementations for `InlineContent` structs, including related "full" structs
 // (e.g. `ImageObject` vs `ImageObjectSimple`) which are actually "works".
 
-patchable_struct!(Cite);
+replaceable_struct!(
+    Cite,
+    target,
+    citation_intent,
+    citation_mode,
+    citation_prefix,
+    citation_suffix,
+    content,
+    page_end,
+    page_start,
+    pagination
+);
+patchable_enum!(CitationIntentEnumeration);
+patchable_enum!(CiteCitationMode);
+patchable_enum!(CitePageEnd);
+patchable_enum!(CitePageStart);
 patchable_struct!(CiteGroup, items);
+
 patchable_struct!(CodeExpression, programming_language, text, output, errors);
 patchable_struct!(CodeFragment, programming_language, text);
 patchable_struct!(Delete, content);

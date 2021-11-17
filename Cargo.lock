@@ -4702,6 +4702,7 @@ dependencies = [
  "maplit",
  "mime_guess",
  "minidom",
+ "node-reshape",
  "notify",
  "once_cell",
  "parsers",

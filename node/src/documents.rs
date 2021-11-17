@@ -73,7 +73,7 @@ pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {
 
     let result = RUNTIME.block_on(async {
         match DOCUMENTS.get(id).await {
-            Ok(document) => document.lock().await.read().await,
+            Ok(document) => document.lock().await.read(true).await,
             Err(error) => Err(error),
         }
     });
