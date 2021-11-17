@@ -685,7 +685,11 @@ impl Document {
         pointer.patch(&patch)?;
 
         // TODO: Only publish the patch if there are subscribers
-        patch.prepublish();
+        let root = match &self.root {
+            Some(root) => root,
+            None => bail!("Attempting to patch a document that has no root node"),
+        };
+        patch.prepublish(root);
         publish(
             &["documents:", &self.id, ":patched"].concat(),
             &DocumentEvent {
@@ -711,11 +715,17 @@ impl Document {
             pointer.patch(&patch)?;
         }
 
-        let mut patch = pointer.execute(&mut self.kernels).await?;
-
         // TODO: Only publish the patch if there are subscribers
+        let mut patch = pointer.execute(&mut self.kernels).await?;
         patch.target = node_id;
-        patch.prepublish();
+        let root = match &self.root {
+            Some(root) => root,
+            None => {
+                tracing::warn!("Executing document with no root node is a no-op");
+                return Ok(());
+            }
+        };
+        patch.prepublish(root);
         publish(
             &["documents:", &self.id, ":patched"].concat(),
             &DocumentEvent {
@@ -754,7 +764,7 @@ impl Document {
     ///                     just been decoded from the current `content`.
     async fn update(&mut self, decode_content: bool) -> Result<()> {
         tracing::debug!(
-            "Updating document '{}' at '{}'",
+            "Updating document `{}` at `{}`",
             self.id,
             self.path.display()
         );
@@ -764,6 +774,7 @@ impl Document {
         let format = &self.format.name;
         let mut root = if self.format.binary {
             if self.path.exists() {
+                tracing::debug!("Decoding document root from path");
                 codecs::from_path(&self.path, format, None).await?
             } else {
                 match self.root.as_ref() {
@@ -773,6 +784,7 @@ impl Document {
             }
         } else if !self.content.is_empty() {
             if decode_content {
+                tracing::debug!("Decoding document root from content");
                 codecs::from_str(&self.content, format, None).await?
             } else {
                 match self.root.as_ref() {
@@ -781,6 +793,7 @@ impl Document {
                 }
             }
         } else {
+            tracing::debug!("Setting document root to `None`");
             self.root = None;
             return Ok(());
         };
@@ -810,10 +823,10 @@ impl Document {
             // Generate a diff if there are any `patched` subscriptions
             if subscription == "patched" {
                 if let Some(current_root) = &self.root {
-                    tracing::debug!("Generating patch for document '{}'", self.id);
+                    tracing::debug!("Generating patch for document `{}`", self.id);
 
                     let mut patch = diff(current_root, &root);
-                    patch.prepublish();
+                    patch.prepublish(&root);
                     publish(
                         &["documents:", &self.id, ":patched"].concat(),
                         &DocumentEvent {
@@ -828,7 +841,7 @@ impl Document {
             }
             // Encode the `root` into each of the formats for which there are subscriptions
             else if let Some(format) = subscription.strip_prefix("encoded:") {
-                tracing::debug!("Encoding document '{}' to '{}'", self.id, format);
+                tracing::debug!("Encoding document `{}` to format `{}`", self.id, format);
                 match codecs::to_string(&root, format, None).await {
                     Ok(content) => {
                         self.publish(
@@ -838,7 +851,7 @@ impl Document {
                         );
                     }
                     Err(error) => {
-                        tracing::warn!("Unable to encode to format \"{}\": {}", format, error)
+                        tracing::warn!("Unable to encode to format `{}`: {}", format, error)
                     }
                 }
             }
@@ -956,7 +969,11 @@ impl Document {
     /// Sets `status` to `Deleted` and publishes a `Deleted` event so that,
     /// for example, a document's tab can be updated to indicate it is deleted.
     fn deleted(&mut self, path: PathBuf) {
-        tracing::debug!("Document removed: {}", path.display());
+        tracing::debug!(
+            "Deleted event for document `{}` at `{}`",
+            self.id,
+            path.display()
+        );
 
         self.status = DocumentStatus::Deleted;
 
@@ -969,7 +986,12 @@ impl Document {
     /// a document's tab can be updated with the new file name.
     #[allow(dead_code)]
     fn renamed(&mut self, from: PathBuf, to: PathBuf) {
-        tracing::debug!("Document renamed: {} to {}", from.display(), to.display());
+        tracing::debug!(
+            "Renamed event for document `{}`: `{}` to `{}`",
+            self.id,
+            from.display(),
+            to.display()
+        );
 
         // If the document has been moved out of its project then we need to reassign `project`
         // (to ensure that files in the old project can not be linked to).
@@ -993,7 +1015,8 @@ impl Document {
     /// can be asked if they want to load the new content into editor, or overwrite with
     /// existing editor content.
     ///
-    /// Will ignore any events within a small duration of `write()` being called.
+    /// Will ignore any events within a small duration of `write()` being called to avoid
+    /// reacting to file modifications initiated by this process
     async fn modified(&mut self, path: PathBuf) {
         if let Some(last_write) = self.last_write {
             if last_write.elapsed() < Duration::from_millis(Document::LAST_WRITE_MUTE_MILLIS) {
@@ -1001,7 +1024,11 @@ impl Document {
             }
         }
 
-        tracing::debug!("Document modified: {}", path.display());
+        tracing::debug!(
+            "Modified event for document `{}` at `{}`",
+            self.id,
+            path.display()
+        );
 
         self.status = DocumentStatus::Unread;
 
@@ -1130,12 +1157,6 @@ impl DocumentHandler {
                 // get stuck here and will do following check that ends this
                 // thread if the owning `DocumentHandler` is dropped
                 if let Ok(event) = watcher_receiver.recv_timeout(timeout) {
-                    tracing::debug!(
-                        "Event for document '{}' at '{}': {:?}",
-                        id,
-                        path_string,
-                        event
-                    );
                     if async_sender.blocking_send(event).is_err() {
                         break;
                     }
