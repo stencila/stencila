@@ -20,7 +20,14 @@ export function applyTransform(
   const { address, from, to } = op
 
   const node = resolveNode(address, target)
-  if (isText(node)) applyTransformString(node, from, to)
+
+  if (parent === undefined) {
+    console.warn(
+      `Unable to resolve address '${address.join(
+        ','
+      )}'; 'Transform' operation will be ignored'`
+    )
+  } else if (isText(node)) applyTransformString(node, from, to)
   else if (isElement(node)) applyTransformElem(node, from, to)
   else throw panic(`Unexpected transform node`)
 }

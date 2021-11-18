@@ -74,7 +74,7 @@ export function isElement(node: Node | undefined): node is Element {
 /**
  * Assert that a DOM node is an element
  */
-export function assertElement(node: Node): asserts node is Element {
+export function assertElement(node: Node | undefined): asserts node is Element {
   assert(isElement(node), 'Expected element node')
 }
 

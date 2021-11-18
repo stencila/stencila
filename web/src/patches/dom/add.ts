@@ -25,7 +25,13 @@ export function applyAdd(op: OperationAdd, target?: ElementId): void {
 
   const [parent, slot] = resolveParent(address, target)
 
-  if (isElement(parent)) {
+  if (parent === undefined) {
+    console.warn(
+      `Unable to resolve address '${address.join(
+        ','
+      )}'; 'Add' operation will be ignored'`
+    )
+  } else if (isElement(parent)) {
     assertString(html)
     if (isName(slot)) applyAddStruct(parent, slot, html)
     else applyAddVec(parent, slot, html)
@@ -58,15 +64,22 @@ export function applyAddStruct(
     return
   }
 
-  // Otherwise, emit a warning but still append as a child.
+  // Nowhere found on the element to add the property.
+  //
+  // This may occur for a property that is added to the node but which is not (yet)
+  // represented in the HTML (e.g.). For completeness (all patch operations should
+  // either successfully apply, or panic) we apply it but invisibly.
+  //
   // If the provided HTML does not start with an opening angle bracket `<` then the value
   // being added must be a string (the only value type that does not get wrapped in an element)
-  // so wrap it.
+  // so add it as a <meta> tag, otherwise wrap it in an invisible <div>.
   console.warn(
-    `Unable to find attribute or placeholder element for property "${name}"; will be appended`
+    `Unable to find attribute or placeholder element for property "${name}"; will be appended as an invisible element`
   )
   if (!html.startsWith('<')) {
-    html = `<span data-itemprop="${name}">${html}</span>`
+    html = `<meta data-itemprop="${name}" content="${escapeAttr(html)}}">`
+  } else {
+    html = `<div data-itemprop="${name}" style="display:none">${html}</div>`
   }
   const fragment = createFragment(html)
   struct.appendChild(fragment)
