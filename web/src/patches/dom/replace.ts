@@ -26,7 +26,13 @@ export function applyReplace(op: OperationReplace, target?: ElementId): void {
 
   const [parent, slot] = resolveParent(address, target)
 
-  if (isElement(parent)) {
+  if (parent === undefined) {
+    console.warn(
+      `Unable to resolve address '${address.join(
+        ','
+      )}'; 'Replace' operation will be ignored'`
+    )
+  } else if (isElement(parent)) {
     assertString(html)
     if (isName(slot)) applyReplaceStruct(parent, slot, items, html)
     else applyReplaceVec(parent, slot, items, html)

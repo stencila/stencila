@@ -43,12 +43,13 @@ export function resolveTarget(target?: ElementId): Element {
  * Resolve a slot in a parent DOM node.
  *
  * Note that the `parent` must be an `Element` but that the returned
- * node may be an `Element`, `Attr`, or `Text` DOM node.
+ * node may be an `Element`, `Attr`, or `Text` DOM node or `null` if
+ * the slot could not be resolved.
  */
 export function resolveSlot(
   parent: Element,
   slot: Slot
-): Element | Attr | Text {
+): Element | Attr | Text | undefined {
   if (isName(slot)) {
     // Is the slot represented by an attribute with a different name? If so translate it.
     const alias = STRUCT_ATTRIBUTE_ALIASES[slot]
@@ -123,7 +124,7 @@ export function resolveSlot(
     )
       return parent
 
-    throw panic(`Unable to resolve slot '${slot}'`)
+    return undefined
   } else {
     // Select the child at the slot index.
     const child: ChildNode | undefined = parent.childNodes[slot]
@@ -165,7 +166,7 @@ export function resolveSlot(
 export function resolveParent(
   address: Address,
   target?: ElementId
-): [Element | Attr | Text, Slot] {
+): [Element | Attr | Text | undefined, Slot] {
   const targetElement = resolveTarget(target)
 
   if (address.length === 0) {
@@ -177,10 +178,11 @@ export function resolveParent(
     return [parentElement, slot]
   }
 
-  let parentNode: Element | Attr | Text = targetElement
+  let parentNode: Element | Attr | Text | undefined = targetElement
   for (const slot of address.slice(0, -1)) {
     assertElement(parentNode)
     parentNode = resolveSlot(parentNode, slot)
+    if (parentNode === undefined) break
   }
 
   const slot = address[address.length - 1]
@@ -195,12 +197,13 @@ export function resolveParent(
 export function resolveNode(
   address: Address,
   target?: ElementId
-): Element | Attr | Text {
-  let node: Element | Attr | Text = resolveTarget(target)
+): Element | Attr | Text | undefined {
+  let node: Element | Attr | Text | undefined = resolveTarget(target)
 
   for (const slot of address) {
     assertElement(node)
     node = resolveSlot(node, slot)
+    if (node === undefined) break
   }
 
   return node

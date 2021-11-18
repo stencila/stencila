@@ -20,7 +20,13 @@ export function applyRemove(op: OperationRemove, target?: ElementId): void {
 
   const [parent, slot] = resolveParent(address, target)
 
-  if (isElement(parent)) {
+  if (parent === undefined) {
+    console.warn(
+      `Unable to resolve address '${address.join(
+        ','
+      )}'; 'Remove' operation will be ignored'`
+    )
+  } else if (isElement(parent)) {
     if (isName(slot)) applyRemoveStruct(parent, slot, items)
     else applyRemoveVec(parent, slot, items)
   } else applyRemoveText(parent, slot, items)

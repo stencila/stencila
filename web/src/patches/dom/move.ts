@@ -16,6 +16,21 @@ export function applyMove(op: OperationMove, target?: ElementId): void {
   const [fromParent, fromSlot] = resolveParent(from, target)
   const [toParent, toSlot] = resolveParent(to, target)
 
+  if (fromParent === undefined) {
+    return console.warn(
+      `Unable to resolve address '${from.join(
+        ','
+      )}'; 'Move' operation will be ignored'`
+    )
+  }
+  if (toParent === undefined) {
+    return console.warn(
+      `Unable to resolve address '${to.join(
+        ','
+      )}'; 'Move' operation will be ignored'`
+    )
+  }
+
   assert(
     toParent.isSameNode(fromParent),
     'Expected the from and to addresses to have the same parent'
