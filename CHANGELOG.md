@@ -1,3 +1,16 @@
+# [0.130.0](https://github.com/stencila/stencila/compare/v0.129.1...v0.130.0) (2021-11-18)
+
+
+### Bug Fixes
+
+* **Patches:** Enabling patching of additional creative work types and properties ([ff88a8c](https://github.com/stencila/stencila/commit/ff88a8c8525c039f7000372774b85a9a213c23ed))
+* **Web patches:** Warn, don't panic, when unable to resolve addresses ([e94c814](https://github.com/stencila/stencila/commit/e94c814f4e9fa67350d19dd4dc7dd53ad21304b5))
+
+
+### Features
+
+* **HTML encoding:** Encode `Date` nodes ([0ee3037](https://github.com/stencila/stencila/commit/0ee30371d180376ce7c69bcd317186dae6c28332))
+
 ## [0.129.1](https://github.com/stencila/stencila/compare/v0.129.0...v0.129.1) (2021-11-17)
 
 

@@ -2165,9 +2165,9 @@ checksum = "acd94fdbe1d4ff688b67b04eee2e17bd50995534a61539e45adfefb45e5e5503"
 
 [[package]]
 name = "httpdate"
-version = "1.0.1"
+version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6456b8a6c8f33fee7d958fcd1b60d55b11940a79e63ae87013e6d22e26034440"
+checksum = "c4a1e36c821dbe04574f602848a19f742f4fb3c98d40449f11bcad18d6b17421"
 
 [[package]]
 name = "human_name"
@@ -3656,9 +3656,9 @@ checksum = "12295df4f294471248581bc09bef3c38a5e46f1e36d6a37353621a0c6c357e1f"
 
 [[package]]
 name = "plist"
-version = "1.3.0"
+version = "1.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e716f3f31ef88987709c29214bbf1bc3b7c524c78e33b112c528669d5f53e62"
+checksum = "bd39bc6cdc9355ad1dc5eeedefee696bb35c34caf21768741e81826c0bbd7225"
 dependencies = [
  "base64 0.13.0",
  "indexmap",
@@ -4657,7 +4657,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
-version = "0.129.1"
+version = "0.130.0"
 dependencies = [
  "Inflector",
  "ansi_term 0.12.1",
@@ -4755,7 +4755,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.129.1"
+version = "0.130.0"
 dependencies = [
  "events",
  "formats",
