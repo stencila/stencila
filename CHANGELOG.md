@@ -1,3 +1,10 @@
+## [0.130.1](https://github.com/stencila/stencila/compare/v0.130.0...v0.130.1) (2021-11-18)
+
+
+### Bug Fixes
+
+* **dependencies:** update docusaurus monorepo to v2.0.0-beta.9 ([a53b674](https://github.com/stencila/stencila/commit/a53b6740cd0afd0964a7fe004ee9d49cff83dea1))
+
 # [0.130.0](https://github.com/stencila/stencila/compare/v0.129.1...v0.130.0) (2021-11-18)
 
 
