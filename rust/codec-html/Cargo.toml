@@ -10,6 +10,7 @@ decode = ["kuchiki", "markup5ever"]
 encode = [
     "Inflector",
     "base64",
+    "chrono",
     "html-escape",
     "itertools",
     "mime_guess",
@@ -22,6 +23,7 @@ encode = [
 [dependencies]
 Inflector = { version = "0.11.4", optional = true }
 base64 = { version = "0.13.0", optional = true }
+chrono = {version = "0.4.19", optional = true }
 codec = { path = "../codec", version = "0.0.0" }
 codec-txt = { path = "../codec-txt", version = "0.0.0" }
 html-escape = { version = "0.2.9", optional = true }
