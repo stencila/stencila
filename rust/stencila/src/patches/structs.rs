@@ -228,7 +228,9 @@ macro_rules! replaceable_struct {
             patchable_diff!();
 
             fn diff_same(&self, differ: &mut Differ, other: &Self) {
-                differ.replace(other);
+                if !self.is_equal(other).is_ok() {
+                    differ.replace(other)
+                }
             }
 
             patchable_struct_apply_replace!($( $field )*);

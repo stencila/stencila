@@ -515,6 +515,11 @@ impl Operation {
             Node
             CodeError
 
+            // Properties of creative works
+            Date
+            Person
+            Organization
+
             // Primitives
             String
             Number
@@ -537,7 +542,7 @@ impl Operation {
             return value.serialize(serializer);
         }
 
-        tracing::error!("Unhandled `value` type when serializing patch `Operation`");
+        tracing::error!("Unhandled value type when serializing patch operation");
         "<unserialized type>".serialize(serializer)
     }
 
@@ -585,6 +590,9 @@ impl Operation {
             CodeChunkCaption
             Node
             CodeError
+
+            // Properties of creative works
+            Date
 
             // Primitives
             String
@@ -1022,6 +1030,7 @@ mod vecs;
 mod blocks;
 mod inlines;
 mod nodes;
+mod others;
 mod works;
 
 #[allow(dead_code)]
