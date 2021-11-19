@@ -16,6 +16,7 @@ mod projects;
 mod pubsub;
 mod sessions;
 mod sources;
+mod server;
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
@@ -63,6 +64,8 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("pluginsUpgrade", plugins::upgrade)?;
     cx.export_function("pluginsRefresh", plugins::refresh)?;
     */
+
+    cx.export_function("serverServe", server::serve)?;
 
     cx.export_function("configSchemas", config::schema)?;
     cx.export_function("configGet", config::get)?;
