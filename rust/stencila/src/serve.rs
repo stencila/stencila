@@ -87,8 +87,9 @@ pub async fn stop() -> Result<()> {
 ///
 /// The server will be started (if it has not already been) and URL containing the server's port and a
 /// token providing access to the project return (if the server has a `key`).
-#[tracing::instrument]
-pub async fn serve(path: &Path) -> Result<String> {
+pub async fn serve<P: AsRef<Path>>(path: &P) -> Result<String> {
+    let path = path.as_ref();
+
     let server = match SERVER.get() {
         Some(server) => server,
         None => {
@@ -105,7 +106,7 @@ pub async fn serve(path: &Path) -> Result<String> {
 
     if let Some(key) = &server.key {
         let token = jwt::encode(key, Some(path), Some(60))?;
-        url += &format!("&token={}", token);
+        url += &format!("?token={}", token);
     }
 
     Ok(url)
