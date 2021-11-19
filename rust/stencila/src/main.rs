@@ -131,7 +131,8 @@ pub enum Command {
     Upgrade(stencila::upgrade::commands::Command),
 
     #[cfg(feature = "serve")]
-    Serve(stencila::serve::commands::Command),
+    #[structopt(aliases = &["serve"])]
+    Server(stencila::serve::commands::Command),
 }
 
 #[async_trait]
@@ -161,7 +162,7 @@ impl Run for Command {
             #[cfg(feature = "upgrade")]
             Command::Upgrade(command) => command.run().await,
             #[cfg(feature = "serve")]
-            Command::Serve(command) => command.run().await,
+            Command::Server(command) => command.run().await,
         }
     }
 }
@@ -276,7 +277,7 @@ impl Run for OpenCommand {
             document.path
         };
 
-        let url = stencila::serve::Server::serve(&path).await?;
+        let url = stencila::serve::serve(&path).await?;
         if cfg!(feature = "webbrowser") {
             webbrowser::open(&url)?;
         } else {

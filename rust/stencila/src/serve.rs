@@ -25,7 +25,7 @@ use std::{
     sync::Arc,
 };
 use thiserror::private::PathAsDisplay;
-use tokio::sync::{mpsc, RwLock};
+use tokio::sync::{mpsc, oneshot, Mutex, RwLock};
 use warp::{
     http::{
         header::{self, HeaderValue},
@@ -35,9 +35,83 @@ use warp::{
 };
 
 /// The global, singleton, server instance
-static SERVER: OnceCell<Server> = OnceCell::new();
+static SERVER: OnceCell<Mutex<Server>> = OnceCell::new();
 
-#[derive(Debug, Clone)]
+/// Start the server
+#[tracing::instrument]
+pub async fn start(
+    home: Option<PathBuf>,
+    url: Option<String>,
+    key: Option<String>,
+    insecure: bool,
+    traversal: bool,
+    root: bool,
+) -> Result<()> {
+    if let Some(server) = SERVER.get() {
+        let mut server = server.lock().await;
+        if server.running() {
+            tracing::info!("Server has already been started; will be stopped and restarted with supplied settings");
+            server.stop().await?
+        }
+    }
+
+    let mut server = Server::new(home, url, key, insecure, traversal, root).await?;
+    server.start().await?;
+
+    match SERVER.get() {
+        Some(mutex) => {
+            *(mutex.lock().await) = server;
+        }
+        None => {
+            if SERVER.set(Mutex::new(server)).is_err() {
+                tracing::error!("Unable to set server instance")
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// Stop the server
+#[tracing::instrument]
+pub async fn stop() -> Result<()> {
+    if let Some(server) = SERVER.get() {
+        server.lock().await.stop().await?;
+    } else {
+        tracing::warn!("Server has not yet been started");
+    }
+    Ok(())
+}
+
+/// Serve a project or document
+///
+/// The server will be started (if it has not already been) and URL containing the server's port and a
+/// token providing access to the project return (if the server has a `key`).
+#[tracing::instrument]
+pub async fn serve(path: &Path) -> Result<String> {
+    let server = match SERVER.get() {
+        Some(server) => server,
+        None => {
+            let mut server = Server::new(None, None, None, false, false, false).await?;
+            server.start().await?;
+            SERVER.get_or_init(|| Mutex::new(server))
+        }
+    };
+    let server = server.lock().await;
+
+    let path = path.display().to_string();
+
+    let mut url = format!("http://{}:{}/{}", server.address, server.port, path);
+
+    if let Some(key) = &server.key {
+        let token = jwt::encode(key, Some(path), Some(60))?;
+        url += &format!("&token={}", token);
+    }
+
+    Ok(url)
+}
+
+#[derive(Debug)]
 pub struct Server {
     address: String,
 
@@ -48,79 +122,21 @@ pub struct Server {
     home: Option<PathBuf>,
 
     traversal: bool,
+
+    shutdown_sender: Option<oneshot::Sender<()>>,
 }
 
 impl Server {
-    /// Start the server
-    #[tracing::instrument]
-    pub async fn start(
-        home: Option<PathBuf>,
-        url: Option<String>,
-        key: Option<String>,
-        insecure: bool,
-        traversal: bool,
-        root: bool,
-    ) -> Result<&'static Self> {
-        if let Some(..) = SERVER.get() {
-            bail!("Server has already been started; stop it to restart it with different settings")
-        }
-
-        let server = Server::new(home, url, key, insecure, traversal, root).await?;
-
-        let Self {
-            address,
-            port,
-            key,
-            home,
-            traversal,
-        } = server.clone();
-        tokio::spawn(async move {
-            serve(address, port, key, home, traversal).await;
-        });
-
-        Ok(SERVER.get_or_init(|| server))
-    }
-
-    /// Stop the server
-    #[tracing::instrument]
-    pub async fn stop() -> Result<()> {
-        if let Some(server) = SERVER.get() {
-            // TODO Stop the server thread
-        }
-        Ok(())
-    }
-
-    /// Serve a project or document
-    ///
-    /// The server will be started (if it has not already been) and URL containing the server's port and a
-    /// token providing access to the project return (if the server has a `key`).
-    pub async fn serve(path: &Path) -> Result<String> {
-        let server = match SERVER.get() {
-            Some(server) => server,
-            None => Self::start(None, None, None, false, false, false).await?,
-        };
-
-        let path = path.display().to_string();
-
-        let mut url = format!("http://{}:{}/{}", server.address, server.port, path);
-
-        if let Some(key) = &server.key {
-            let token = jwt::encode(key, Some(path), Some(60))?;
-            url += &format!("&token={}", token);
-        }
-
-        Ok(url)
-    }
-
     /// Create a new server
     ///
     /// # Arguments
     ///
+    /// - `home`: The root directory for files that are served (defaults to current working directory)
     /// - `url`: The URL to listen on
     /// - `key`: A secret key for signing and verifying JSON Web Tokens (defaults to random)
-    /// - `home`: The root directory for files that are served (defaults to current working directory)
-    /// - `traversal`: Whether traversal out of the root directory is allowed
-    /// ```
+    /// - `insecure`: Allow unauthenticated access (i.e. no JSON Web Token)
+    /// - `traversal`: Allow traversal out of the root directory is allowed
+    /// - `root`: Allow serving as root user
     pub async fn new(
         home: Option<PathBuf>,
         url: Option<String>,
@@ -179,7 +195,130 @@ impl Server {
             key,
             home,
             traversal,
+            shutdown_sender: None,
         })
+    }
+
+    /// Start the server
+    pub async fn start(&mut self) -> Result<()> {
+        let home = match self.home.clone() {
+            Some(home) => home.canonicalize()?,
+            None => Projects::current_path()?,
+        };
+        let traversal = self.traversal;
+
+        let mut url = format!("http://{}:{}", self.address, self.port);
+        if let Some(key) = &self.key {
+            // Check the key is not too long
+            if key.len() > 64 {
+                bail!("Server key should be 64 bytes or less")
+            }
+
+            // Provide the user with a long expiring token so they can access the server.
+            let token = jwt::encode(key, Some(home.display().to_string()), Some(3600))?;
+            url.push_str("?token=");
+            url.push_str(&token);
+        }
+        tracing::info!("Serving {} at {}", home.display(), url);
+
+        // Static files (assets embedded in binary for which authentication is not required)
+
+        let statics = warp::get()
+            .and(warp::path("~static"))
+            .and(warp::path::tail())
+            .and_then(get_static);
+
+        // The following HTTP and WS endpoints all require authentication
+
+        let authenticate = || authentication_filter(self.key.clone());
+
+        let ws = warp::path("~ws")
+            .and(warp::ws())
+            .and(warp::query::<WsParams>())
+            .and(authenticate())
+            .map(ws_handshake);
+
+        let get = warp::get()
+            .and(warp::path::full())
+            .and(warp::query::<GetParams>())
+            .and(warp::any().map(move || (home.clone(), traversal)))
+            .and(authenticate())
+            .and_then(get_handler);
+
+        let post = warp::post()
+            .and(warp::path::end())
+            .and(warp::body::json::<Request>())
+            .and(authenticate())
+            .and_then(post_handler);
+
+        let post_wrap = warp::post()
+            .and(warp::path::param())
+            .and(warp::body::json::<serde_json::Value>())
+            .and(authenticate())
+            .and_then(post_wrap_handler);
+
+        // Custom `server` header
+        let server_header = warp::reply::with::default_header(
+            "server",
+            format!(
+                "Stencila/{} ({})",
+                env!("CARGO_PKG_VERSION"),
+                env::consts::OS
+            ),
+        );
+
+        // CORS headers to allow from any origin
+        let cors_headers = warp::cors()
+            .allow_any_origin()
+            .allow_headers(vec![
+                "Content-Type",
+                "Referer", // Note that this is an intentional misspelling!
+                "Origin",
+                "Access-Control-Allow-Origin",
+            ])
+            .allow_methods(&[warp::http::Method::GET, warp::http::Method::POST])
+            .max_age(24 * 60 * 60);
+
+        let routes = statics
+            .or(ws)
+            .or(get)
+            .or(post)
+            .or(post_wrap)
+            .with(server_header)
+            .with(cors_headers)
+            .recover(rejection_handler);
+
+        let (shutdown_sender, shutdown_receiver) = oneshot::channel::<()>();
+        let address: std::net::IpAddr = self.address.parse()?;
+        let (_, future) =
+            warp::serve(routes).bind_with_graceful_shutdown((address, self.port), async {
+                shutdown_receiver.await.ok();
+            });
+        tokio::task::spawn(future);
+
+        self.shutdown_sender = Some(shutdown_sender);
+
+        Ok(())
+    }
+
+    /// Stop the server
+    pub async fn stop(&mut self) -> Result<()> {
+        tracing::debug!("Stopping server");
+
+        if self.shutdown_sender.is_some() {
+            // It appears to be sufficient to just set the sender to None to shutdown the server
+            self.shutdown_sender = None;
+            tracing::info!("Server stopped successfully");
+        } else {
+            tracing::info!("Server was already stopped");
+        }
+
+        Ok(())
+    }
+
+    /// Is the server running?
+    pub fn running(&self) -> bool {
+        self.shutdown_sender.is_some()
     }
 
     /// Parse a URL into address and port components
@@ -373,127 +512,6 @@ impl Clients {
 
 /// The global clients store
 static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
-
-/// Run a server
-///
-/// # Arguments
-///
-/// - `protocol`: The `Protocol` to serve on (defaults to Websocket)
-/// - `address`: The address to listen to (defaults to `127.0.0.1`; only for HTTP and Websocket protocols)
-/// - `port`: The port to listen on (defaults to `9000`, only for HTTP and Websocket protocols)
-///
-/// # Examples
-///
-/// Listen on both http://127.0.0.1:9000 and ws://127.0.0.1:9000,
-///
-/// ```no_run
-/// # #![recursion_limit = "256"]
-/// use stencila::serve::serve_on;
-///
-/// serve_on("127.0.0.1".to_string(), 9000, None, None, false);
-/// ```
-#[tracing::instrument]
-pub async fn serve(
-    address: String,
-    port: u16,
-    key: Option<String>,
-    home: Option<PathBuf>,
-    traversal: bool,
-) -> Result<()> {
-    if let Some(key) = key.as_ref() {
-        if key.len() > 64 {
-            bail!("Server key should be 64 bytes or less")
-        }
-    }
-
-    let home = match home {
-        Some(home) => home.canonicalize()?,
-        None => Projects::current_path()?,
-    };
-
-    let mut url = format!("http://{}:{}", address, port);
-    if let Some(key) = &key {
-        // Provide the user with a long expiring token so they can access the server.
-        let token = jwt::encode(key, Some(home.display().to_string()), Some(3600))?;
-        url.push_str("?token=");
-        url.push_str(&token);
-    }
-    tracing::info!("Serving {} at {}", home.display(), url);
-
-    // Static files (assets embedded in binary for which authentication is not required)
-
-    let statics = warp::get()
-        .and(warp::path("~static"))
-        .and(warp::path::tail())
-        .and_then(get_static);
-
-    // The following HTTP and WS endpoints all require authentication
-
-    let authenticate = || authentication_filter(key.clone());
-
-    let ws = warp::path("~ws")
-        .and(warp::ws())
-        .and(warp::query::<WsParams>())
-        .and(authenticate())
-        .map(ws_handshake);
-
-    let get = warp::get()
-        .and(warp::path::full())
-        .and(warp::query::<GetParams>())
-        .and(warp::any().map(move || (home.clone(), traversal)))
-        .and(authenticate())
-        .and_then(get_handler);
-
-    let post = warp::post()
-        .and(warp::path::end())
-        .and(warp::body::json::<Request>())
-        .and(authenticate())
-        .and_then(post_handler);
-
-    let post_wrap = warp::post()
-        .and(warp::path::param())
-        .and(warp::body::json::<serde_json::Value>())
-        .and(authenticate())
-        .and_then(post_wrap_handler);
-
-    // Custom `server` header
-    let server = warp::reply::with::default_header(
-        "server",
-        format!(
-            "Stencila/{} ({})",
-            env!("CARGO_PKG_VERSION"),
-            env::consts::OS
-        ),
-    );
-
-    // CORS headers to allow from any origin
-    let cors = warp::cors()
-        .allow_any_origin()
-        .allow_headers(vec![
-            "Content-Type",
-            "Referer", // Note that this is an intentional misspelling!
-            "Origin",
-            "Access-Control-Allow-Origin",
-        ])
-        .allow_methods(&[warp::http::Method::GET, warp::http::Method::POST])
-        .max_age(24 * 60 * 60);
-
-    let routes = statics
-        .or(ws)
-        .or(get)
-        .or(post)
-        .or(post_wrap)
-        .with(server)
-        .with(cors)
-        .recover(rejection_handler);
-
-    // Use `try_bind_ephemeral` here to avoid potential panic when using `run`
-    let address: std::net::IpAddr = address.parse()?;
-    let (_address, future) = warp::serve(routes).try_bind_ephemeral((address, port))?;
-    future.await;
-
-    Ok(())
-}
 
 /// Return an error response
 ///
@@ -1221,7 +1239,38 @@ pub mod commands {
     use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
 
-    /// Serve over HTTP and WebSockets
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        about = "Manage the HTTP/WebSocket server",
+        setting = structopt::clap::AppSettings::ColoredHelp,
+        setting = structopt::clap::AppSettings::VersionlessSubcommands
+    )]
+    pub struct Command {
+        #[structopt(subcommand)]
+        pub action: Action,
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder
+    )]
+    pub enum Action {
+        Start(Start),
+        Stop(Stop),
+    }
+
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
+            let Self { action } = self;
+            match action {
+                Action::Start(action) => action.run().await,
+                Action::Stop(action) => action.run().await,
+            }
+        }
+    }
+
+    /// Start the server
     ///
     /// ## Ports and addresses
     ///
@@ -1230,15 +1279,15 @@ pub mod commands {
     ///
     /// For example, to serve on port 8000 instead of the default port,
     ///
-    ///    stencila serve :8000
+    ///    stencila server start :8000
     ///
     /// To serve on all IPv4 addresses on the machine, instead of only `127.0.0.1`,
     ///
-    ///    stencila serve 0.0.0.0
+    ///    stencila server start 0.0.0.0
     ///
     /// Or if you prefer, use a complete URL including the scheme e.g.
     ///
-    ///   stencila serve http://127.0.0.1:9000
+    ///   stencila server start http://127.0.0.1:9000
     ///
     /// ## Security
     ///
@@ -1256,7 +1305,7 @@ pub mod commands {
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Command {
+    pub struct Start {
         /// The home directory for the server to serve from
         ///
         /// Defaults to the current directory or an ancestor project directory (if the current directory
@@ -1296,13 +1345,13 @@ pub mod commands {
         root: bool,
     }
     #[async_trait]
-    impl Run for Command {
+    impl Run for Start {
         async fn run(&self) -> Result {
             if self.key.is_some() {
                 tracing::warn!("Server key set on command line could be sniffed by malicious processes; prefer to set it in config file.");
             };
 
-            Server::start(
+            start(
                 self.home.clone(),
                 self.url.clone(),
                 self.key.clone(),
@@ -1311,6 +1360,28 @@ pub mod commands {
                 self.root,
             )
             .await?;
+
+            // If not in interactive mode then just sleep here forever to avoid finishing
+            if std::env::var("STENCILA_INTERACT_MODE").is_err() {
+                use tokio::time::{sleep, Duration};
+                sleep(Duration::MAX).await;
+            }
+
+            result::nothing()
+        }
+    }
+
+    /// Stop the server
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Stop {}
+    #[async_trait]
+    impl Run for Stop {
+        async fn run(&self) -> Result {
+            stop().await?;
 
             result::nothing()
         }
