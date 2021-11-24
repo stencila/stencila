@@ -79,8 +79,8 @@
     "@stencila/schema": "^1.11.1"
   },
   "dependencies": {
-    "@codemirror/state": "^0.19.5",
-    "@codemirror/view": "^0.19.15",
+    "@codemirror/state": "^0.19.6",
+    "@codemirror/view": "^0.19.20",
     "@stencila/components": "^0.41.6",
     "@stencila/stencila": "file:../node",
     "fast-array-diff": "^1.0.1",
