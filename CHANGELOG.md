@@ -1,3 +1,10 @@
+## [0.130.2](https://github.com/stencila/stencila/compare/v0.130.1...v0.130.2) (2021-11-24)
+
+
+### Bug Fixes
+
+* **dependencies:** update codemirror ([449ff4f](https://github.com/stencila/stencila/commit/449ff4f0c1b9e2d899a2512685dd49aefade8e95))
+
 ## [0.130.1](https://github.com/stencila/stencila/compare/v0.130.0...v0.130.1) (2021-11-18)
 
 
