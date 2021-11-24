@@ -17,9 +17,9 @@ const movePeriodical = (references: Element[]): Element[] => {
   references.forEach((reference: Element): void => {
     const volume = first(reference, ':--Periodical:--isPartOf')
     if (volume !== null) {
-      const movePeriodical = first(volume, ':--isPartOf')
-      if (movePeriodical !== null) {
-        prepend(volume, movePeriodical)
+      const periodicalToMove = first(volume, ':--isPartOf')
+      if (periodicalToMove !== null) {
+        prepend(volume, periodicalToMove)
       }
     }
   })

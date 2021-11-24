@@ -12,6 +12,10 @@ const showValue = (value: unknown): string =>
  * Inspiration also taken from https://plainjs.com/javascript.
  */
 
+let readyList: (() => unknown)[] = []
+let readyListening = false
+let readyFired = false
+
 /**
  * Register a function to be executed when the DOM is fully loaded.
  *
@@ -48,11 +52,6 @@ export function ready(func: () => unknown): void {
     readyListening = true
   }
 }
-
-// Module global variables used in the `ready` function
-let readyList: (() => unknown)[] = []
-let readyListening = false
-let readyFired = false
 
 /**
  * When the DOM is ready, call all of the functions registered
@@ -310,8 +309,8 @@ export function attrs(
 ): Record<string, string> | undefined {
   if (attributes === undefined) {
     return Array.from(target.attributes).reduce(
-      (attrs: Record<string, string>, attr) => ({
-        ...attrs,
+      (targetAttrs: Record<string, string>, attr) => ({
+        ...targetAttrs,
         [attr.name]: attr.value,
       }),
       {}

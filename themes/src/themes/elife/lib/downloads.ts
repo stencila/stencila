@@ -107,8 +107,9 @@ const buildLinkToMenu = (contentHeader: Element, menuId: string): void => {
   )
 }
 
-const createSimpleLink = (href: string, text: string): Element =>
-  create('a', { href, target: '_parent' }, text)
+function createSimpleLink(href: string, text: string): Element {
+  return create('a', { href, target: '_parent' }, text)
+}
 
 export const build = (
   contentHeader: Element,

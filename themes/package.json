@@ -66,8 +66,9 @@
   },
   "devDependencies": {
     "@percy/cli": "1.0.0-beta.70",
-    "@stencila/dev-config": "2.0.22",
+    "@stencila/dev-config": "3.0.2",
     "@stencila/encoda": "0.119.0",
+    "@stencila/eslint-config": "3.0.0",
     "@stencila/schema": "1.12.0",
     "@types/chromedriver": "81.0.0",
     "@types/jest": "26.0.24",
@@ -146,23 +147,6 @@
   "browserslist": [
     "defaults"
   ],
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ],
-    "rules": {
-      "scope-case": [
-        2,
-        "always",
-        "sentence-case"
-      ],
-      "subject-case": [
-        2,
-        "always",
-        "sentence-case"
-      ]
-    }
-  },
   "eslintConfig": {
     "root": true,
     "extends": [
@@ -203,12 +187,6 @@
     "suiteNameTemplate": "{filepath}",
     "outputDirectory": ".",
     "outputName": "junit.xml"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run update:selectors && npm run docs:readme && npm run lint:scripts && pretty-quick --staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
   },
   "percy": {
     "discovery": {
