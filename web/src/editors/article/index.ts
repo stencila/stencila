@@ -1,4 +1,4 @@
-import { Address, Operation } from '@stencila/stencila'
+import { Address, Operation, Slot } from '@stencila/stencila'
 import { collab, receiveTransaction, sendableSteps } from 'prosemirror-collab'
 import { baseKeymap } from 'prosemirror-commands'
 import { dropCursor } from 'prosemirror-dropcursor'
@@ -387,7 +387,7 @@ export class ArticleEditor {
       } else {
         // At other depths, the ancestor will have a `contentProp` (defaulting to 'content')
         // that the index points to
-        address.push(ancestor.type.spec.contentProp ?? 'content')
+        address.push((ancestor.type.spec.contentProp as Slot) ?? 'content')
         address.push(index)
       }
     }

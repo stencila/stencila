@@ -105,64 +105,56 @@ export type JsonObject = { [key: string]: JsonValue }
 /**
  * Assert that a JSON value is defined.
  */
-export function assertDefined(
-  value: JsonValue | undefined
-): asserts value is JsonValue {
+export function assertDefined(value: unknown): asserts value is JsonValue {
   assert(value !== undefined, 'Expected value to be defined')
 }
 
 /**
  * Is a JSON value a number?
  */
-export function isNumber(value: JsonValue | undefined): value is number {
+export function isNumber(value: unknown): value is number {
   return typeof value === 'number'
 }
 
 /**
  * Assert that a JSON value is a number
  */
-export function assertNumber(
-  value: JsonValue | undefined
-): asserts value is number {
+export function assertNumber(value: unknown): asserts value is number {
   assert(isNumber(value), `Expected a number, got a ${typeof value}`)
 }
 
 /**
  * Is a JSON value a string?
  */
-export function isString(value: JsonValue | undefined): value is string {
+export function isString(value: unknown): value is string {
   return typeof value === 'string'
 }
 
 /**
  * Assert that a JSON value is a string
  */
-export function assertString(
-  value: JsonValue | undefined
-): asserts value is string {
+export function assertString(value: unknown): asserts value is string {
   assert(isString(value), `Expected a string, got a ${typeof value}`)
 }
 
 /**
  * Is a JSON value an array?
  */
-export function isArray(value: JsonValue | undefined): value is JsonArray {
+export function isArray(value: unknown): value is JsonArray {
   return Array.isArray(value)
 }
 
 /**
  * Is a JSON value an object?
  */
-export function isObject(value: JsonValue | undefined): value is JsonObject {
+export function isObject(value: unknown): value is JsonObject {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 /**
  * Assert that a JSON value is an array
  */
-export function assertArray(
-  value: JsonValue | undefined
-): asserts value is JsonArray {
+export function assertArray(value: unknown): asserts value is JsonArray {
   assert(isArray(value), `Expected an array, got a ${typeof value}`)
 }
 

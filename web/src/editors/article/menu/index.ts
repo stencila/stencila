@@ -12,9 +12,9 @@ type MItem = {
 class MenuView {
   items: MItem[]
   dom: HTMLElement
-  editorView: EditorView
+  editorView: EditorView<typeof articleSchema>
 
-  constructor(items: MItem[], editorView: EditorView) {
+  constructor(items: MItem[], editorView: EditorView<typeof articleSchema>) {
     this.items = items
     this.editorView = editorView
 
@@ -61,7 +61,7 @@ class MenuView {
 
 const menuPlugin = (items: MItem[]): Plugin => {
   return new Plugin({
-    view(editorView) {
+    view(editorView: EditorView<typeof articleSchema>) {
       const menuView = new MenuView(items, editorView)
       editorView.dom.parentNode?.insertBefore(menuView.dom, editorView.dom)
       return menuView

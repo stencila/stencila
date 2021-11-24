@@ -54,7 +54,8 @@
     "url": "https://github.com/stencila/stencila"
   },
   "devDependencies": {
-    "@stencila/dev-config": "2.0.19",
+    "@stencila/dev-config": "3.0.2",
+    "@stencila/eslint-config": "3.0.0",
     "@stencila/schema": "1.11.1",
     "@types/jest": "27.0.1",
     "@types/prosemirror-collab": "1.1.2",
