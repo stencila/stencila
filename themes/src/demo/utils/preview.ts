@@ -26,6 +26,9 @@ export const getExample = (): string => {
   )
 }
 
+export const getPreview = (): HTMLIFrameElement | null =>
+  document.getElementsByTagName('iframe')[0] ?? null
+
 export const setExample = (example: string): void => {
   const url = new URL(window.location.href)
   sessionStorage.setItem(keys.EXAMPLE, example)
@@ -54,9 +57,6 @@ export const forceReady = (doc?: Document | null): void => {
     })
   )
 }
-
-export const getPreview = (): HTMLIFrameElement | null =>
-  document.getElementsByTagName('iframe')[0] ?? null
 
 export const getPreviewDoc = (): Document | null => {
   const preview: HTMLIFrameElement | null =

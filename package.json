@@ -2,7 +2,9 @@
   "name": "stencila",
   "version": "0.130.2",
   "description": "Living documents for reproducible research.",
-  "scripts": {},
+  "scripts": {
+    "prepare": "husky install"
+  },
   "keywords": [
     "reproducibility",
     "data",
@@ -21,15 +23,10 @@
   },
   "devDependencies": {
     "@semantic-release/exec": "6.0.1",
-    "@stencila/dev-config": "2.0.18"
+    "@stencila/dev-config": "3.0.2",
+    "husky": "7.0.0"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
-  },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,css,md}": [
       "prettier --write",
