@@ -76,9 +76,7 @@ impl TreesitterParser {
         tree: &'tree tree_sitter::Tree,
     ) -> Vec<(usize, Vec<Capture<'tree>>)> {
         let mut cursor = tree_sitter::QueryCursor::new();
-        let matches = cursor.matches(&self.query, tree.root_node(), |node| {
-            node.utf8_text(code).unwrap_or_default()
-        });
+        let matches = cursor.matches(&self.query, tree.root_node(), code);
 
         let capture_names = self.query.capture_names();
         matches
