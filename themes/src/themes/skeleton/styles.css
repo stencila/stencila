@@ -257,6 +257,10 @@
   }
 }
 
+:--label:empty {
+  display: none !important;
+}
+
 :--Figure figcaption,
 :--caption {
   font-size: var(--font-size-90);
