@@ -22,9 +22,13 @@
     "url": "https://github.com/stencila/stencila/issues"
   },
   "devDependencies": {
+    "@commitlint/config-conventional": "15.0.0",
     "@semantic-release/exec": "6.0.1",
     "@stencila/dev-config": "3.0.2",
-    "husky": "7.0.0"
+    "@stencila/semantic-release-config": "2.0.2",
+    "commitlint": "15.0.0",
+    "husky": "7.0.0",
+    "pretty-quick": "3.1.2"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "lint-staged": {
