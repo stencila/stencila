@@ -1,8 +1,7 @@
 import { EntityId } from '@reduxjs/toolkit'
 import type { Result, ResultFailure, ResultSuccess } from 'stencila'
 import { CHANNEL } from '../preload/channels'
-import { UnprotectedStoreKeys } from '../preload/stores'
-import { AppConfigStore } from '../preload/types'
+import { AppConfigStore, ConfigPaths } from '../preload/types'
 
 /**
  * Custom Error instance thrown by `unwrapOrThrow`.
@@ -76,35 +75,24 @@ export const client = {
       open: () =>
         window.api.invoke(CHANNEL.CONFIG_WINDOW_OPEN).then(unwrapOrThrow),
     },
-    global: {
-      getAll: () => window.api.invoke(CHANNEL.CONFIG_READ).then(unwrapOrThrow),
-    },
-    ui: {
-      getAll: () =>
-        window.api.invoke(CHANNEL.CONFIG_APP_READ).then(unwrapOrThrow),
-      get: <K extends UnprotectedStoreKeys>(key: K) =>
-        window.api
-          .invoke(CHANNEL.CONFIG_APP_GET, key)
-          .then(
-            (res) =>
-              unwrapOrThrow(res as any) as unknown as ResultSuccess<
-                AppConfigStore[K]
-              >
-          ),
-      set: <K extends UnprotectedStoreKeys>({
-        key,
-        value,
-      }: {
-        key: K
-        value: AppConfigStore[K]
-      }) =>
-        window.api
-          .invoke(CHANNEL.CONFIG_APP_SET, {
-            key,
-            value,
-          })
-          .then(unwrapOrThrow),
-    },
+    getAll: () => window.api.invoke(CHANNEL.CONFIG_GET_ALL).then(unwrapOrThrow),
+    set: <K extends ConfigPaths | keyof AppConfigStore>({
+      key,
+      value,
+    }: {
+      key: K
+      value: K extends ConfigPaths
+        ? string
+        : K extends keyof AppConfigStore
+        ? AppConfigStore[K]
+        : never
+    }) =>
+      window.api
+        .invoke(CHANNEL.CONFIG_SET, {
+          key,
+          value,
+        })
+        .then(unwrapOrThrow),
   },
   onboarding: {
     open: () =>

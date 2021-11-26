@@ -1,14 +1,14 @@
 import { UnprotectedStoreKeys } from '../../preload/stores'
-import { getAppConfig, setAppConfig } from '../store/handlers'
+import { getConfig, setConfig } from '../config/handlers'
 
 /**
  * Checks whether the app is being launched for the first time
  */
 export const isFirstLaunch = (): boolean => {
-  const config = getAppConfig(UnprotectedStoreKeys.FIRST_LAUNCH)
+  const config = getConfig().app[UnprotectedStoreKeys.FIRST_LAUNCH]
   return typeof config === 'boolean' ? config : true
 }
 
 export const setFirstLaunchState = (value: boolean) => {
-  setAppConfig(UnprotectedStoreKeys.FIRST_LAUNCH)(value)
+  setConfig(UnprotectedStoreKeys.FIRST_LAUNCH, value)
 }

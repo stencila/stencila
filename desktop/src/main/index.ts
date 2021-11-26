@@ -1,10 +1,10 @@
-import { enableLogging } from '../preload/logging'
 import { enableCrashReports } from '../preload/errors'
+import { enableLogging } from '../preload/logging'
+import { configHandlers } from './config/'
+import { isReportErrorsEnabled } from './config/handlers'
 import { globalHandlers } from './global'
 import { launcherHandlers } from './launcher'
 import { registerBaseMenu } from './menu'
-import { appStoreHandlers } from './store'
-import { isReportErrorsEnabled } from './store/handlers'
 import { setErrorReportingId } from './utils/errors'
 import { checkForUpdates } from './utils/update'
 
@@ -24,7 +24,7 @@ export const prepare = () => {
  */
 export const main = () => {
   checkForUpdates()
-  appStoreHandlers.register(null)
+  configHandlers.register(null)
   globalHandlers.register(null)
   launcherHandlers.register(null)
   registerBaseMenu()

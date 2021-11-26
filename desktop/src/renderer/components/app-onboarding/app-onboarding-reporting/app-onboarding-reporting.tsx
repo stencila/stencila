@@ -2,7 +2,7 @@ import { Component, h } from '@stencil/core'
 import { href } from '@stencil/router'
 import { client } from '../../../client'
 import { i18n } from '../../../../i18n'
-import { UnprotectedStoreKeys } from '../../../../preload/stores'
+import { GlobalConfigKeys } from '../../../../preload/stores'
 import { OnboardingRouter } from '../onboardingRouter'
 
 @Component({
@@ -13,10 +13,10 @@ import { OnboardingRouter } from '../onboardingRouter'
 export class AppOnboardingReoporting {
   private enableReporting = (e: MouseEvent) => {
     e.preventDefault()
-    client.config.ui
+    client.config
       .set({
-        key: UnprotectedStoreKeys.REPORT_ERRORS,
-        value: true,
+        key: GlobalConfigKeys.REPORT_ERRORS,
+        value: 'true',
       })
       .then(() => {
         OnboardingRouter.push('/onboarding/end')

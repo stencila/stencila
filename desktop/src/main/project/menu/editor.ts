@@ -4,7 +4,7 @@ import {
   isLineWrappingEnabled,
   toggleLineNumbers,
   toggleLineWrapping,
-} from '../../store/handlers'
+} from '../../config/handlers'
 
 export const projectEditorMenu: MenuItemConstructorOptions = {
   label: 'Editor',

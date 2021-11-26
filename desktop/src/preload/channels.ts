@@ -5,11 +5,9 @@ import { LAUNCHER_CHANNEL } from '../main/launcher/channels'
 import { LOG_CHANNEL } from '../main/logging/channels'
 import { ONBOARDING_CHANNEL } from '../main/onboarding/channels'
 import { PROJECT_CHANNEL } from '../main/project/channels'
-import { UNPROTECTED_STORE_CHANNEL } from '../main/store/channels'
 
 export const CHANNEL = {
   ...GLOBAL_CHANNEL,
-  ...UNPROTECTED_STORE_CHANNEL,
   ...LAUNCHER_CHANNEL,
   ...CONFIG_CHANNEL,
   ...LOG_CHANNEL,

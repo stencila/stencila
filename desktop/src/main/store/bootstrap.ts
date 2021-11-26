@@ -2,19 +2,14 @@ import { createStore, ObservableMap } from '@stencil/store'
 import { app } from 'electron'
 import fs from 'fs'
 import path from 'path'
-import { UnprotectedStoreKeys } from '../../preload/stores'
-import { AppConfigStore } from '../../preload/types'
+import { config } from 'stencila'
+import { AppConfigStore, CombinedConfig } from '../../preload/types'
 
 const storeName = 'storeUnprotected.json'
 const userDataPath = app.getPath('userData')
 export const unprotectedStorePath = path.join(userDataPath, storeName)
 
-export const defaultConfigStore: AppConfigStore = {
-  REPORT_ERRORS: false,
-  EDITOR_LINE_NUMBERS: true,
-  EDITOR_LINE_WRAPPING: true,
-  EDITOR_NEW_FILE_SYNTAX: 'md',
-}
+export const defaultConfigStore: AppConfigStore = {}
 
 export const readUnprotectedStore = (): AppConfigStore => {
   try {
@@ -42,8 +37,8 @@ export const resetUnprotectedStore = (): void => {
 const setMissingConfigValues = (currentConfig: AppConfigStore) => {
   const defaultStoreKeys = Object.keys(
     defaultConfigStore
-  ) as UnprotectedStoreKeys[]
-  const currentStoreKeys = Object.keys(currentConfig) as UnprotectedStoreKeys[]
+  ) as (keyof AppConfigStore)[]
+  const currentStoreKeys = Object.keys(currentConfig)
 
   const missingConfig = defaultStoreKeys.reduce(
     (config: Partial<AppConfigStore>, key) =>
@@ -62,21 +57,25 @@ const setMissingConfigValues = (currentConfig: AppConfigStore) => {
 }
 
 const initAppConfigStore = () => {
-  let config = defaultConfigStore
-  if (fs.existsSync(unprotectedStorePath)) {
-    config = readUnprotectedStore()
+  const combinedConfig: CombinedConfig = {
+    app: defaultConfigStore,
+    global: config.get(),
   }
 
-  const store = createStore<AppConfigStore>(config)
+  if (fs.existsSync(unprotectedStorePath)) {
+    combinedConfig.app = readUnprotectedStore()
+  }
+
+  const store = createStore<CombinedConfig>(combinedConfig)
 
   store.on('set', () => {
-    writeUnprotectedStore(store.state)
+    writeUnprotectedStore(store.state.app)
   })
 
-  setMissingConfigValues(config)
+  setMissingConfigValues(combinedConfig.app)
 
   return store
 }
 
-export let unprotectedStore: ObservableMap<AppConfigStore> =
+export let unprotectedStore: ObservableMap<CombinedConfig> =
   initAppConfigStore()

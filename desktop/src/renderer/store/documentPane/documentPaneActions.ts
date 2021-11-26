@@ -2,7 +2,6 @@ import { EntityId } from '@reduxjs/toolkit'
 import { option as O, taskEither as TE } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { Document } from 'stencila'
-import { UnprotectedStoreKeys } from '../../../preload/stores'
 import { client, isRPCError } from '../../client'
 import { clearEditorState } from '../editorState/editorStateActions'
 import { state, store } from '../index'
@@ -25,9 +24,11 @@ export const initPane = (paneId: EntityId) => {
 }
 
 export const createNewDocument = async (path?: string, format?: string) => {
-  const { value: defaultFormat } = await client.config.ui.get(
-    UnprotectedStoreKeys.EDITOR_NEW_FILE_SYNTAX
-  )
+  const {
+    value: { global },
+  } = await client.config.getAll()
+
+  const defaultFormat = global.editors?.defaultFormat
 
   createDocument(path, format ?? defaultFormat).then(({ value: doc }) => {
     addDocumentToActivePane(doc)()
@@ -146,11 +147,11 @@ export const cycleTabs = (direction: 'next' | 'previous') => {
   pipe(
     state,
     selectPaneId,
-    O.map(id => {
+    O.map((id) => {
       store.dispatch(
         documentPaneActions.nextDocInPane({
           paneId: id,
-          direction
+          direction,
         })
       )
     })

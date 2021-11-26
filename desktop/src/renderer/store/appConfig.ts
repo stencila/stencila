@@ -1,29 +1,30 @@
 import { createStore } from '@stencil/store'
+import { Config } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
-import { UnprotectedStoreKeys } from '../../preload/stores'
-import { AppConfigStore } from '../../preload/types'
+import { CombinedConfig } from '../../preload/types'
 import { client } from '../client'
 
 export const isErrorReportingEnabled = () =>
-  client.config.ui
-    .get(UnprotectedStoreKeys.REPORT_ERRORS)
-    .then(({ value: isEnabled }) => isEnabled ?? false)
+  client.config
+    .getAll()
+    .then(
+      ({ value: config }) =>
+        config.global.telemetry?.desktop?.error_reports ?? false
+    )
 
-export let configState: AppConfigStore
+export let configState: CombinedConfig
 
 export const initConfigStore = async () =>
-  await client.config.ui.getAll().then(({ value: config }) => {
-    configState = createStore<AppConfigStore>(config).state
+  await client.config.getAll().then(({ value: config }) => {
+    configState = createStore<CombinedConfig>(config).state
   })
 
 export const configEventListener = () => {
   window.api.receive(
-    CHANNEL.CONFIG_APP_SET,
+    CHANNEL.CONFIG_SET,
+    // TODO: Fix type signature
     // @ts-ignore
-    <K extends UnprotectedStoreKeys>(event: {
-      key: K
-      value: AppConfigStore[K]
-    }) => {
+    <K extends keyof CombinedConfig>(event: { key: K; value: Config[K] }) => {
       configState[event.key] = event.value
     }
   )

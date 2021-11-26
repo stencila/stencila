@@ -1,8 +1,9 @@
 import { Component, h, State } from '@stencil/core'
 import { FileFormatUtils } from '@stencila/components'
+import { Config } from 'stencila'
 import { i18n } from '../../../../i18n'
-import { UnprotectedStoreKeys } from '../../../../preload/stores'
-import { AppConfigStore } from '../../../../preload/types'
+import { GlobalConfigKeys } from '../../../../preload/stores'
+import { AppConfigStore, ConfigPaths } from '../../../../preload/types'
 import { client } from '../../../client'
 
 @Component({
@@ -11,18 +12,21 @@ import { client } from '../../../client'
   scoped: true,
 })
 export class AppSettingsEditor {
-  @State() config: AppConfigStore
+  @State() config: {
+    app: AppConfigStore
+    global: Config
+  }
 
-  private updateSetting = (key: UnprotectedStoreKeys) => (e: Event) => {
+  private updateSetting = (key: ConfigPaths) => (e: Event) => {
     e.preventDefault()
     const target = e.target as HTMLInputElement
     const value = target.checked ?? target.value
 
-    client.config.ui.set({ key, value })
+    client.config.set({ key, value: value.toString() })
   }
 
   async componentWillLoad() {
-    return client.config.ui.getAll().then(({ value: config }) => {
+    return client.config.getAll().then(({ value: config }) => {
       this.config = config
     })
   }
@@ -43,15 +47,15 @@ export class AppSettingsEditor {
             <select
               id="newFileDefault"
               onChange={this.updateSetting(
-                UnprotectedStoreKeys.EDITOR_NEW_FILE_SYNTAX
+                GlobalConfigKeys.EDITOR_NEW_FILE_SYNTAX
               )}
             >
               {Object.values(FileFormatUtils.fileFormatMap).map((format) => (
                 <option
                   value={format.ext ?? format.name}
                   selected={
-                    this.config.EDITOR_NEW_FILE_SYNTAX === format.ext ||
-                    this.config.EDITOR_NEW_FILE_SYNTAX === format.name
+                    this.config.global.editors?.defaultFormat === format.ext ||
+                    this.config.global.editors?.defaultFormat === format.name
                   }
                   key={format.name}
                 >
@@ -69,9 +73,9 @@ export class AppSettingsEditor {
             <input
               id="lineWrap"
               type="checkbox"
-              defaultChecked={this.config.EDITOR_LINE_WRAPPING ?? false}
+              defaultChecked={this.config.global.editors?.lineWrapping ?? false}
               onChange={this.updateSetting(
-                UnprotectedStoreKeys.EDITOR_LINE_WRAPPING
+                GlobalConfigKeys.EDITOR_LINE_WRAPPING
               )}
             />
 
@@ -84,9 +88,9 @@ export class AppSettingsEditor {
             <input
               id="lineNumbers"
               type="checkbox"
-              defaultChecked={this.config.EDITOR_LINE_NUMBERS ?? false}
+              defaultChecked={this.config.global.editors?.lineNumbers ?? false}
               onChange={this.updateSetting(
-                UnprotectedStoreKeys.EDITOR_LINE_NUMBERS
+                GlobalConfigKeys.EDITOR_LINE_NUMBERS
               )}
             />
 
