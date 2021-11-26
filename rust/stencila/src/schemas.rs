@@ -1,4 +1,12 @@
-use crate::documents::Document;
+use crate::{
+    config::{Config, ConfigEvent},
+    documents::{Document, DocumentEvent},
+    errors::Error,
+    files::{File, FileEvent},
+    patches::Patch,
+    projects::{Project, ProjectEvent},
+    sessions::{Session, SessionEvent},
+};
 use eyre::{bail, Result};
 use formats::Format;
 use schemars::schema_for;
@@ -6,7 +14,21 @@ use serde_json::json;
 
 /// Get all the JSON Schema definitions for types in this crate (including those defined in sub-crates)
 pub fn all() -> Vec<serde_json::Value> {
-    let mut schemas = vec![json!(schema_for!(Format)), json!(schema_for!(Document))];
+    let mut schemas = vec![
+        json!(schema_for!(Config)),
+        json!(schema_for!(ConfigEvent)),
+        json!(schema_for!(Document)),
+        json!(schema_for!(DocumentEvent)),
+        json!(schema_for!(Error)),
+        json!(schema_for!(File)),
+        json!(schema_for!(FileEvent)),
+        json!(schema_for!(Format)),
+        json!(schema_for!(Patch)),
+        json!(schema_for!(Project)),
+        json!(schema_for!(ProjectEvent)),
+        json!(schema_for!(Session)),
+        json!(schema_for!(SessionEvent)),
+    ];
     schemas.append(&mut graph_triples::schemas());
     schemas.append(&mut graph::schemas());
     schemas

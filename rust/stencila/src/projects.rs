@@ -32,14 +32,14 @@ use utils::some_string;
 #[derive(Debug, Display, JsonSchema, Serialize)]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
-enum ProjectEventType {
+pub enum ProjectEventType {
     Updated,
 }
 
 #[skip_serializing_none]
 #[derive(Debug, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
-struct ProjectEvent {
+pub struct ProjectEvent {
     /// The project associated with the event
     project: Project,
 

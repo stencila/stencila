@@ -8,7 +8,7 @@ pub fn schemas() -> Vec<serde_json::Value> {
         json!(schema_for!(Resource)),
         json!(schema_for!(Relation)),
         json!({
-            "$id": "Triple",
+            "$schema": "http://json-schema.org/draft-07/schema#",
             "title": "Triple",
             "description": "A subject-relation-object triple",
             "type" : "array",

@@ -377,7 +377,7 @@ impl GraphEvent {
 pub fn schemas() -> Vec<serde_json::Value> {
     vec![
         json!({
-            "$id": "Graph",
+            "$schema": "http://json-schema.org/draft-07/schema#",
             "title": "Graph",
             "description": "A project dependency graph",
             "type" : "object",

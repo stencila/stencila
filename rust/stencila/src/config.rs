@@ -26,7 +26,7 @@ pub fn dir(ensure: bool) -> Result<PathBuf> {
 
 #[derive(Debug, JsonSchema, Serialize)]
 #[serde(rename_all = "lowercase")]
-enum ConfigEventType {
+pub enum ConfigEventType {
     Set,
     Reset,
 }
@@ -34,7 +34,7 @@ enum ConfigEventType {
 /// An event associated with changes to the configuration
 #[derive(Debug, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
-struct ConfigEvent {
+pub struct ConfigEvent {
     /// The type of event
     #[serde(rename = "type")]
     type_: ConfigEventType,

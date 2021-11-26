@@ -45,7 +45,7 @@ enum DocumentEventType {
 #[skip_serializing_none]
 #[derive(Debug, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
-struct DocumentEvent {
+pub struct DocumentEvent {
     /// The type of event
     #[serde(rename = "type")]
     type_: DocumentEventType,
