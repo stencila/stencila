@@ -1,4 +1,3 @@
-use crate::utils::schemas;
 use async_trait::async_trait;
 use defaults::Defaults;
 use enum_dispatch::enum_dispatch;
@@ -228,15 +227,8 @@ impl SourceTrait for GitHub {
     }
 }
 
-/// Get JSON Schemas for this modules
-pub fn schemas() -> Result<serde_json::Value> {
-    let schemas = serde_json::Value::Array(vec![schemas::generate::<SourceDestination>()?]);
-    Ok(schemas)
-}
-
 #[cfg(feature = "cli")]
 pub mod commands {
-    use super::*;
     use crate::projects::PROJECTS;
     use async_trait::async_trait;
     use cli_utils::{result, Result, Run};
@@ -262,7 +254,6 @@ pub mod commands {
         Add(Add),
         Remove(Remove),
         Import(Import),
-        Schemas(Schemas),
     }
     #[async_trait]
     impl Run for Command {
@@ -273,7 +264,6 @@ pub mod commands {
                 Action::Add(action) => action.run().await,
                 Action::Remove(action) => action.run().await,
                 Action::Import(action) => action.run().await,
-                Action::Schemas(action) => action.run(),
             }
         }
     }
@@ -364,20 +354,6 @@ pub mod commands {
                 .import_source(&self.source, self.destination.clone())
                 .await?;
             result::value(files)
-        }
-    }
-
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Get JSON Schemas for sources",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Schemas {}
-
-    impl Schemas {
-        pub fn run(&self) -> Result {
-            let schema = schemas()?;
-            result::value(schema)
         }
     }
 }

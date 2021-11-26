@@ -1,10 +1,9 @@
 use crate::config::CONFIG;
 use crate::conversions::Conversion;
 use crate::documents::DOCUMENTS;
-use crate::files::{File, FileEvent, Files};
+use crate::files::{File, Files};
 use crate::methods::import::import;
 use crate::sources::{self, Source, SourceDestination, SourceTrait};
-use crate::utils::schemas;
 use events::publish;
 use eyre::{bail, Result};
 use graph::{Graph, GraphEvent, GraphEventType};
@@ -12,7 +11,9 @@ use graph_triples::{resources, Resource};
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use schemars::gen::SchemaGenerator;
+use schemars::schema::{Schema, SchemaObject};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use slug::slugify;
@@ -26,6 +27,7 @@ use std::{
 use strum::Display;
 use tokio::sync::Mutex;
 use tokio::task::JoinHandle;
+use utils::some_string;
 
 #[derive(Debug, Display, JsonSchema, Serialize)]
 #[serde(rename_all = "lowercase")]
@@ -39,7 +41,6 @@ enum ProjectEventType {
 #[schemars(deny_unknown_fields)]
 struct ProjectEvent {
     /// The project associated with the event
-    #[schemars(schema_with = "ProjectEvent::schema_project")]
     project: Project,
 
     /// The type of event
@@ -48,11 +49,6 @@ struct ProjectEvent {
 }
 
 impl ProjectEvent {
-    /// Generate the JSON Schema for the `project` property to avoid nesting
-    fn schema_project(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("Project", true)
-    }
-
     /// Publish a `ProjectEvent`.
     ///
     /// Will publish the event under the `projects:<project>:props` topic
@@ -103,7 +99,6 @@ pub struct Project {
     theme: Option<String>,
 
     /// A list of project sources and their destination within the project
-    #[schemars(schema_with = "Project::schema_sources")]
     pub sources: Option<HashMap<String, SourceDestination>>,
 
     /// A list of file conversions
@@ -122,7 +117,6 @@ pub struct Project {
     // The `write` method excludes them writing.
     /// The filesystem path of the project folder
     #[serde(skip_deserializing)]
-    #[schemars(schema_with = "Project::schema_path")]
     path: PathBuf,
 
     /// The resolved path of the project's image file
@@ -135,41 +129,28 @@ pub struct Project {
 
     /// The files in the project folder
     #[serde(skip_deserializing)]
-    #[schemars(schema_with = "Project::schema_files")]
     files: Files,
 
     /// The project's dependency graph
     #[serde(skip_deserializing)]
-    #[schemars(schema_with = "Project::schema_graph")]
+    #[schemars(schema_with = "Project::graph_schema")]
     graph: Graph,
 }
 
 impl Project {
-    /// Generate the JSON Schema for the `path` property to avoid optionality
-    /// due to `skip_deserializing`
-    fn schema_path(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("string", true)
-    }
-
-    /// Generate the JSON Schema for the `source` property to avoid duplicated types
-    fn schema_sources(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("SourceDestination[]", false)
-    }
-
-    /// Generate the JSON Schema for the `file` property to avoid duplicated
-    /// inline type and optionality due to `skip_deserializing`
-    fn schema_files(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("Record<string, File>", true)
-    }
-
-    /// Generate the JSON Schema for the `graph` property to point to
-    /// our custom `Graph` schema
-    fn schema_graph(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("Graph", true)
-    }
-
     /// The name of a project's manifest file, within the project directory
     const FILE_NAME: &'static str = "project.json";
+
+    /// Generate the JSON Schema for the `graph` property
+    ///
+    /// This is necessary because the JSON Schema for the `Graph` type is handwritten
+    /// rather than auo-generated using `schemars` in the `graph` crate.
+    fn graph_schema(_generator: &mut SchemaGenerator) -> Schema {
+        Schema::Object(SchemaObject {
+            reference: some_string!("Graph"),
+            ..Default::default()
+        })
+    }
 
     /// Get the path to a project's manifest file
     fn file<P: AsRef<Path>>(path: P) -> PathBuf {
@@ -958,17 +939,6 @@ impl Projects {
 /// The global projects store
 pub static PROJECTS: Lazy<Projects> = Lazy::new(Projects::new);
 
-/// Get JSON Schemas for this modules
-pub fn schemas() -> Result<serde_json::Value> {
-    let schemas = serde_json::Value::Array(vec![
-        schemas::generate::<Project>()?,
-        schemas::generate::<ProjectEvent>()?,
-        schemas::generate::<File>()?,
-        schemas::generate::<FileEvent>()?,
-    ]);
-    Ok(schemas)
-}
-
 pub mod config {
     use super::*;
     use defaults::Defaults;
@@ -1036,7 +1006,6 @@ pub mod commands {
         Close(Close),
         Show(Show),
         Graph(Graph),
-        Schemas(Schemas),
     }
     #[async_trait]
     impl Run for Command {
@@ -1049,7 +1018,6 @@ pub mod commands {
                 Action::Close(action) => action.run().await,
                 Action::Show(action) => action.run().await,
                 Action::Graph(action) => action.run().await,
-                Action::Schemas(action) => action.run(),
             }
         }
     }
@@ -1178,20 +1146,6 @@ pub mod commands {
             let project = &mut PROJECTS.open(self.folder.clone(), false).await?;
             let content = project.graph(&self.format)?;
             result::content(&self.format, &content)
-        }
-    }
-
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Get JSON schemas for projects and associated types",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Schemas {}
-
-    impl Schemas {
-        pub fn run(&self) -> Result {
-            let schema = schemas()?;
-            result::value(schema)
         }
     }
 }

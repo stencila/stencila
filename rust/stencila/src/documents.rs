@@ -1,10 +1,7 @@
 use crate::{
     methods::compile::compile,
     patches::{diff, merge, resolve, Address, Patch, Pointer},
-    utils::{
-        hash::{file_sha256_hex, str_sha256_hex},
-        schemas,
-    },
+    utils::hash::{file_sha256_hex, str_sha256_hex},
 };
 use defaults::Defaults;
 use events::publish;
@@ -17,7 +14,7 @@ use maplit::hashset;
 use node_reshape::reshape;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
-use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use schemars::JsonSchema;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
@@ -54,7 +51,6 @@ struct DocumentEvent {
     type_: DocumentEventType,
 
     /// The document associated with the event
-    #[schemars(schema_with = "DocumentEvent::schema_document")]
     document: Document,
 
     /// The content associated with the event, only provided for, `modified`
@@ -63,29 +59,10 @@ struct DocumentEvent {
 
     /// The format of the document, only provided for `modified` (the format
     /// of the document) and `encoded` events (the format of the encoding).
-    #[schemars(schema_with = "DocumentEvent::schema_format")]
     format: Option<Format>,
 
     /// The `Patch` associated with a `Patched` event
-    #[schemars(schema_with = "DocumentEvent::schema_patch")]
     patch: Option<Patch>,
-}
-
-impl DocumentEvent {
-    /// Generate the JSON Schema for the `document` property to avoid nesting
-    fn schema_document(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("Document", true)
-    }
-
-    /// Generate the JSON Schema for the `format` property to avoid nesting
-    fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Format", false)
-    }
-
-    /// Generate the JSON Schema for the `patch` property to avoid nesting
-    fn schema_patch(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Patch", false)
-    }
 }
 
 /// The status of a document with respect to on-disk synchronization
@@ -155,7 +132,6 @@ pub struct Document {
     /// of the document's `path`. However, it may change whilst the document is
     /// open in memory (e.g. if the `load` function sets a different format).
     #[def = "Format::unknown(\"unknown\")"]
-    #[schemars(schema_with = "Document::schema_format")]
     format: Format,
 
     /// Whether a HTML preview of the document is supported
@@ -196,7 +172,6 @@ pub struct Document {
     /// It is necessary to use [`Address`] here (rather than say raw pointers) because
     /// pointers or references will change as the document is patched.
     /// These addresses are shifted when the document is patched to account for this.
-    #[schemars(schema_with = "Document::schema_addresses")]
     addresses: HashMap<String, Address>,
 
     /// The set of relations between this document, or nodes in this document, and other
@@ -205,7 +180,6 @@ pub struct Document {
     /// Relations may be external (e.g. this document links to
     /// another file) or internal (e.g. the second code chunk uses a variable
     /// defined in the first code chunk).
-    #[schemars(schema_with = "Document::schema_relations")]
     #[serde(skip_deserializing, serialize_with = "Document::serialize_relations")]
     pub relations: HashMap<Resource, Vec<(Relation, Resource)>>,
 
@@ -235,23 +209,6 @@ pub struct Document {
 
 #[allow(unused)]
 impl Document {
-    /// Generate the JSON Schema for the `format` property to avoid duplicated
-    /// inline type.
-    fn schema_format(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Format", true)
-    }
-
-    /// Generate the JSON Schema for the `addresses` property to avoid duplicated types.
-    fn schema_addresses(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Record<string, Address>", true)
-    }
-
-    /// Generate the JSON Schema for the `relations` property to avoid duplicated
-    /// inline types and allow for custom serialization.
-    fn schema_relations(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Record<string, [Relation, Resource]>", false)
-    }
-
     /// Serialize the `relations` property.
     ///
     /// This custom serialization is necessary because a JSON object must have a `String` key (not
@@ -1387,16 +1344,6 @@ impl Documents {
 
 /// The global documents store
 pub static DOCUMENTS: Lazy<Documents> = Lazy::new(Documents::new);
-
-/// Get JSON Schemas for this modules
-pub fn schemas() -> Result<serde_json::Value> {
-    let schemas = serde_json::Value::Array(vec![
-        schemas::generate::<Document>()?,
-        schemas::generate::<DocumentEvent>()?,
-    ]);
-    Ok(schemas)
-}
-
 #[cfg(feature = "cli")]
 pub mod commands {
     use super::*;
@@ -1431,7 +1378,6 @@ pub mod commands {
         Convert(Convert),
         Diff(Diff),
         Merge(Merge),
-        Schemas(Schemas),
     }
 
     #[async_trait]
@@ -1448,7 +1394,6 @@ pub mod commands {
                 Action::Convert(action) => action.run().await,
                 Action::Diff(action) => action.run().await,
                 Action::Merge(action) => action.run().await,
-                Action::Schemas(action) => action.run(),
             }
         }
     }
@@ -1796,20 +1741,6 @@ pub mod commands {
             }
 
             result::nothing()
-        }
-    }
-
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Get JSON Schemas for documents and associated types",
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Schemas {}
-
-    impl Schemas {
-        pub fn run(&self) -> Result {
-            let schema = schemas()?;
-            result::value(schema)
         }
     }
 }

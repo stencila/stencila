@@ -1,7 +1,6 @@
 use crate::{
     errors::{invalid_patch_operation, invalid_patch_value},
     methods::compile::execute,
-    utils::schemas,
 };
 use defaults::Defaults;
 use derive_more::{Constructor, Deref, DerefMut};
@@ -10,9 +9,14 @@ use inflector::cases::{camelcase::to_camel_case, snakecase::to_snake_case};
 use itertools::Itertools;
 use kernels::KernelSpace;
 use prelude::{invalid_address, unpointable_type};
-use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use schemars::{
+    gen::SchemaGenerator,
+    schema::{Schema, SchemaObject},
+    JsonSchema, Map,
+};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde_json::json;
 use serde_with::skip_serializing_none;
 use similar::TextDiff;
 use std::{
@@ -450,7 +454,13 @@ pub enum Operation {
 impl Operation {
     /// Generate the JSON Schema for the `value` property
     fn value_schema(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("any", true)
+        let mut extensions = Map::new();
+        extensions.insert("tsType".to_string(), json!("any"));
+        extensions.insert("isRequired".to_string(), json!(true));
+        Schema::Object(SchemaObject {
+            extensions,
+            ..Default::default()
+        })
     }
 
     /// Deserialize the `value` field of an operation
@@ -1040,11 +1050,6 @@ enum PatchesSchema {
     Address(Address),
     Patch(Patch),
     Operation(Operation),
-}
-
-/// Get JSON Schemas for this module
-pub fn schemas() -> Result<serde_json::Value> {
-    schemas::generate::<PatchesSchema>()
 }
 
 #[cfg(test)]

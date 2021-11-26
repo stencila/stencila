@@ -1,10 +1,9 @@
-use crate::utils::schemas;
 use defaults::Defaults;
 use events::publish;
 use eyre::{bail, Result};
 use maplit::hashset;
 use once_cell::sync::Lazy;
-use schemars::{schema::Schema, JsonSchema};
+use schemars::JsonSchema;
 use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
@@ -18,22 +17,10 @@ use tokio::{sync::RwLock, task::JoinHandle};
 #[schemars(deny_unknown_fields)]
 pub enum SessionEvent {
     /// One or more of the session's properties was updated
-    Updated {
-        #[schemars(schema_with = "SessionEvent::session_schema")]
-        session: Session,
-    },
+    Updated { session: Session },
 
     /// A heartbeat event
-    Heartbeat {
-        #[schemars(schema_with = "SessionEvent::session_schema")]
-        session: Session,
-    },
-}
-
-impl SessionEvent {
-    fn session_schema<Generator>(_: Generator) -> Schema {
-        schemas::typescript("Session", true)
-    }
+    Heartbeat { session: Session },
 }
 
 /// The status of a session
@@ -298,12 +285,3 @@ impl Sessions {
 
 /// The global session store
 pub static SESSIONS: Lazy<Sessions> = Lazy::new(Sessions::new);
-
-/// Get JSON Schemas for this modules
-pub fn schemas() -> Result<serde_json::Value> {
-    let schemas = serde_json::Value::Array(vec![
-        schemas::generate::<Session>()?,
-        schemas::generate::<SessionEvent>()?,
-    ]);
-    Ok(schemas)
-}

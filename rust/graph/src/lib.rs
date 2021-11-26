@@ -335,12 +335,12 @@ pub enum GraphEventType {
 #[derive(Debug, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct GraphEvent {
-    /// The path of the project (absolute)
-    project: PathBuf,
-
     /// The type of event
     #[serde(rename = "type")]
     type_: GraphEventType,
+
+    /// The path of the project (absolute)
+    project: PathBuf,
 
     /// The graph at the time of the event
     #[schemars(schema_with = "GraphEvent::graph_schema")]
@@ -349,6 +349,9 @@ pub struct GraphEvent {
 
 impl GraphEvent {
     /// Generate the JSON Schema for the `graph` property
+    ///
+    /// This is necessary because the JSON Schema for the `Graph` type is handwritten
+    /// rather than auo-generated using `schemars`.
     fn graph_schema(_generator: &mut SchemaGenerator) -> Schema {
         Schema::Object(SchemaObject {
             reference: some_string!("Graph"),
@@ -370,32 +373,10 @@ impl GraphEvent {
     }
 }
 
-/// Get JSON Schemas for this crate
-pub fn schemas() -> Result<serde_json::Value> {
-    Ok(json!([
-        schema_for!(Resource),
-        schema_for!(Relation),
-        schema_for!(GraphEvent),
-        serde_json::json!({
-            "$id": "Triple",
-            "title": "Triple",
-            "description": "A subject-relation-object triple",
-            "type" : "array",
-            "items": [
-                {
-                    "tsType": "Resource"
-                },
-                {
-                    "tsType": "Relation"
-                },
-                {
-                    "tsType": "Resource"
-                }
-            ],
-            "minItems": 3,
-            "maxItems": 3
-        }),
-        serde_json::json!({
+/// Get JSON Schema definitions for types in this crate
+pub fn schemas() -> serde_json::Value {
+    json!([
+        json!({
             "$id": "Graph",
             "title": "Graph",
             "description": "A project dependency graph",
@@ -406,8 +387,8 @@ pub fn schemas() -> Result<serde_json::Value> {
                     "description": "The resources in the graph",
                     "type": "array",
                     "items": {
-                        "tsType": "Resource"
-                    },
+                    "tsType": "Resource"
+                },
                     "isRequired": true
                 },
                 "edges": {
@@ -420,8 +401,8 @@ pub fn schemas() -> Result<serde_json::Value> {
                             "from": "integer",
                             "to": "integer",
                             "relation" : {
-                                "tsType": "Resource"
-                            }
+                    "tsType": "Resource"
+                }
                         },
                         "additionalProperties": false
                     },
@@ -430,5 +411,6 @@ pub fn schemas() -> Result<serde_json::Value> {
             },
             "additionalProperties": false
         }),
-    ]))
+        schema_for!(GraphEvent),
+    ])
 }

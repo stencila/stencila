@@ -114,7 +114,6 @@ pub struct Plugin {
     /// the plugin then this property should be set at the
     /// time of refresh.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(schema_with = "Plugin::schema_next")]
     next: Option<Box<Plugin>>,
 
     /// The current alias for this plugin, if any
@@ -129,15 +128,6 @@ impl Plugin {
     /// Get the JSON Schema for a plugin
     pub fn schema() -> Result<serde_json::Value> {
         schemas::generate::<Plugin>()
-    }
-
-    /// Generate the JSON Schema for the `next` property
-    ///
-    /// This is necessary because `schemars` does not seem to handle the
-    /// self-referencing / recursive type. So here, we specify the
-    /// TypeScript type to use.
-    fn schema_next(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Plugin", false)
     }
 
     /// Create a Markdown document describing a plugin

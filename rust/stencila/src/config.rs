@@ -1,12 +1,9 @@
-use crate::{
-    logging, projects, telemetry,
-    utils::{json, schemas},
-};
+use crate::{logging, projects, telemetry, utils::json};
 use defaults::Defaults;
 use events::publish;
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
-use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::{env, fs, io::Write, path::PathBuf};
@@ -43,16 +40,10 @@ struct ConfigEvent {
     type_: ConfigEventType,
 
     /// The configuration at the time of the event
-    #[schemars(schema_with = "ConfigEvent::schema_config")]
     config: Config,
 }
 
 impl ConfigEvent {
-    /// Generate the JSON Schema for the `config` property to avoid nesting
-    fn schema_config(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("Config", true)
-    }
-
     /// Publish an event.
     pub fn publish(type_: ConfigEventType, config: &Config) {
         let event = ConfigEvent {
@@ -260,15 +251,6 @@ impl Config {
 pub static CONFIG: Lazy<Mutex<Config>> =
     Lazy::new(|| Mutex::new(Config::load().expect("Unable to read config")));
 
-/// Get the JSON Schema for the configuration
-pub fn schemas() -> Result<serde_json::Value> {
-    let schemas = serde_json::Value::Array(vec![
-        schemas::generate::<Config>()?,
-        schemas::generate::<ConfigEvent>()?,
-    ]);
-    Ok(schemas)
-}
-
 /// CLI options for the `config` command
 #[cfg(feature = "cli")]
 pub mod commands {
@@ -302,12 +284,6 @@ pub mod commands {
             setting = structopt::clap::AppSettings::ColoredHelp
         )]
         Dirs,
-
-        #[structopt(
-            about = "Get JSON Schemas for configuration and associated types",
-            setting = structopt::clap::AppSettings::ColoredHelp
-        )]
-        Schemas,
     }
 
     #[derive(Debug, StructOpt)]
@@ -376,10 +352,6 @@ pub mod commands {
                             json!(crate::plugins::plugins_dir(false)?.display().to_string());
                     }
 
-                    result::value(value)
-                }
-                Action::Schemas => {
-                    let value = schemas()?;
                     result::value(value)
                 }
             }

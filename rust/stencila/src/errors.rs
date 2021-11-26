@@ -1,10 +1,7 @@
-use crate::{
-    patches::{Address, Slot},
-    utils::schemas,
-};
+use crate::patches::{Address, Slot};
 use eyre::Result;
 use once_cell::sync::Lazy;
-use schemars::{gen::SchemaSettings, JsonSchema};
+use schemars::JsonSchema;
 use serde::Serialize;
 use std::{
     any::type_name,
@@ -40,11 +37,7 @@ pub enum Error {
     /// An address resolved to a type that is not able to be pointed to
     /// (does not have a [`Pointer`] variant)
     #[error("Address `{address}` resolved to a type that can not be pointed to `{type_name}`")]
-    UnpointableType {
-        #[schemars(schema_with = "address_schema")]
-        address: Address,
-        type_name: String,
-    },
+    UnpointableType { address: Address, type_name: String },
 
     /// The user attempted to use an an address (e.g. in a patch operation) that
     /// is invalid address for the type.
@@ -117,11 +110,6 @@ pub enum Error {
     /// An error of unspecified type
     #[error("{message}")]
     Unspecified { message: String },
-}
-
-/// Generate the JSON Schema for the `addresses` property to avoid duplicated types.
-fn address_schema(_generator: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
-    schemas::typescript("Address", true)
 }
 
 /// Create an `UnpointableType` error
@@ -229,18 +217,4 @@ pub fn attempt<T>(result: Result<T>) {
 pub fn stop() -> Vec<Error> {
     COLLECT.swap(false, std::sync::atomic::Ordering::Relaxed);
     ERRORS.lock().expect("To be able to get lock").split_off(0)
-}
-
-/// Get JSON Schema for the `Error` enum.
-///
-/// This needs to be generated slightly differently to the other schemas
-/// in this library because of the way `thiserror` wants enums to be layed out.
-pub fn schema() -> Result<serde_json::Value> {
-    let settings = SchemaSettings::draft2019_09().with(|settings| {
-        settings.option_add_null_type = false;
-        settings.inline_subschemas = false;
-    });
-    let schema = settings.into_generator().into_root_schema_for::<Error>();
-    let schema = serde_json::to_value(schema)?;
-    Ok(schema)
 }
