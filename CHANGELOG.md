@@ -1,3 +1,16 @@
+## [0.130.3](https://github.com/stencila/stencila/compare/v0.130.2...v0.130.3) (2021-11-26)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate handlebars to v4.1.5 ([b3cc04c](https://github.com/stencila/stencila/commit/b3cc04ce42f9f8388673612cb5704fd9b3e287e0))
+* **dependencies:** update rust crate pyo3 to v0.15.1 ([5c4721f](https://github.com/stencila/stencila/commit/5c4721f5844780996f3af2d30232a7f1dd8f53ed))
+* **dependencies:** update rust crate schemars to v0.8.7 ([3b70677](https://github.com/stencila/stencila/commit/3b7067713bbfddb5425202e5f636b6cd47293cd1))
+* **dependencies:** update rust crate serde_json to v1.0.72 ([30fa335](https://github.com/stencila/stencila/commit/30fa3351137822a043fda1562722046578f63928))
+* **Parsers:** Update to `tree-sitter` 0.20.1 ([8eb86aa](https://github.com/stencila/stencila/commit/8eb86aa71a120a4edb964a4263dff13f65bfdb48))
+* **tracing:** update rust crate tracing-subscriber to v0.3.2 ([c2c7a24](https://github.com/stencila/stencila/commit/c2c7a24f4f924c9af61382badc633b05a589b73b))
+* **tree-sitter:** update tree-sitter dependencies ([45700e2](https://github.com/stencila/stencila/commit/45700e2ad6d120e63672cb46753f5ed12bcae820))
+
 ## [0.130.2](https://github.com/stencila/stencila/compare/v0.130.1...v0.130.2) (2021-11-24)
 
 
