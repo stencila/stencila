@@ -12,6 +12,19 @@ import {
   selectPaneId,
 } from '../../../store/documentPane/documentPaneSelectors'
 import { projectActions } from '../../../store/project/projectStore'
+import { SessionsStoreKeys, sessionStore } from '../../../store/sessionStore'
+
+// TODO: Define ServerStartEvent
+type ServerEvent = {
+  value: string
+}
+
+export const listenForProjectServerEvents = () => {
+  window.api.receive(CHANNEL.PROJECTS_SERVER_START, (event) => {
+    const { value: serverUrl } = event as ServerEvent
+    sessionStore.set(SessionsStoreKeys.SERVER_URL)(serverUrl)
+  })
+}
 
 export const listenForFileEvents = (_projectId: string) => {
   window.api.receive(CHANNEL.PROJECTS_OPEN, (event) => {
@@ -36,4 +49,5 @@ export const listenForFileEvents = (_projectId: string) => {
 export const removeFileEventListener = () => {
   window.api.removeAll(CHANNEL.PROJECTS_OPEN)
   window.api.removeAll(CHANNEL.DOCUMENTS_CLOSE_ACTIVE)
+  window.api.removeAll(CHANNEL.PROJECTS_SERVER_START)
 }

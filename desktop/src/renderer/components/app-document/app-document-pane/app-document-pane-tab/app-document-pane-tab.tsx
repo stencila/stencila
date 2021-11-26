@@ -3,7 +3,7 @@ import { Component, h, Host, Prop } from '@stencil/core'
 import { state } from '../../../../store'
 import {
   closeDocument,
-  setActiveDocument
+  setActiveDocument,
 } from '../../../../store/documentPane/documentPaneActions'
 import { selectDoc } from '../../../../store/documentPane/documentPaneSelectors'
 import { userOS } from '../../../../utils/env'

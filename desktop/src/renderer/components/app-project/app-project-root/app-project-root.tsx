@@ -11,7 +11,11 @@ import { fetchProject } from '../../../store/project/projectActions'
 import { getProjectMainFilePath } from '../../../store/project/projectSelectors'
 import { SessionsStoreKeys, sessionStore } from '../../../store/sessionStore'
 import { ProjectRouter } from '../projectRouter'
-import { listenForFileEvents, removeFileEventListener } from './projectEvents'
+import {
+  listenForFileEvents,
+  listenForProjectServerEvents,
+  removeFileEventListener,
+} from './projectEvents'
 
 const rootPaneId = 1
 
@@ -41,6 +45,7 @@ export class AppProjectRoot {
     initPane(rootPaneId)
     await store.dispatch(fetchProject(this.projectPath))
     listenForFileEvents(this.projectPath)
+    listenForProjectServerEvents()
 
     const mainFile = getProjectMainFilePath(state)
     if (mainFile) {

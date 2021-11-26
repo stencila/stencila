@@ -3,6 +3,7 @@ import { pipe } from 'fp-ts/function'
 
 export const SessionsStoreKeys = {
   PROJECT_PATH: 'PROJECT_PATH',
+  SERVER_URL: 'SERVER_URL',
 } as const
 
 export const sessionStore = {

@@ -1,8 +1,38 @@
-:host {
-  @apply overflow-y-auto h-full w-full block px-4;
-  border-color: var(--color-neutral-300);
-}
+.app-document-preview {
+  /* Height of the editor action bar (layout toggle button, etc.) */
+  --ui-chrome-height: 1.75rem;
 
-iframe {
-  @apply h-full w-full border-0;
+  @apply max-h-full w-full flex flex-col;
+  height: calc(100% - var(--ui-chrome-height));
+
+  iframe {
+    @apply w-full border-0 block flex-grow;
+  }
+
+  menu {
+    @apply flex justify-end p-0 py-px m-0 border-t-2;
+    border-top-style: solid;
+    border-color: var(--color-neutral-100);
+
+    stencila-icon {
+      --height: 1em;
+      --width: 1em;
+      @apply mr-1;
+    }
+
+    select {
+      @apply mr-2 text-xs text-left bg-transparent border-none appearance-none;
+      color: var(--color-neutral-700);
+
+      option {
+        @apply text-right;
+      }
+
+      &:active,
+      &:focus,
+      &:hover {
+        color: var(--color-neutral-900);
+      }
+    }
+  }
 }
