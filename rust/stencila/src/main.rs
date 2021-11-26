@@ -19,7 +19,7 @@ use stencila::{
         LoggingFormat, LoggingLevel,
     },
     projects::{self, PROJECTS},
-    sources,
+    schemas, sources,
 };
 use structopt::StructOpt;
 use strum::VariantNames;
@@ -120,6 +120,8 @@ pub enum Command {
 
     Config(config::commands::Command),
 
+    Schemas(schemas::commands::Command),
+
     #[cfg(feature = "binaries")]
     #[structopt(aliases = &["binary"])]
     Binaries(binaries::commands::Command),
@@ -154,6 +156,7 @@ impl Run for Command {
             Command::Parsers(command) => command.run().await,
             Command::Kernels(command) => command.run().await,
             Command::Config(command) => command.run().await,
+            Command::Schemas(command) => command.run().await,
 
             #[cfg(feature = "binaries")]
             Command::Binaries(command) => command.run().await,

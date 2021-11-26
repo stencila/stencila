@@ -374,8 +374,8 @@ impl GraphEvent {
 }
 
 /// Get JSON Schema definitions for types in this crate
-pub fn schemas() -> serde_json::Value {
-    json!([
+pub fn schemas() -> Vec<serde_json::Value> {
+    vec![
         json!({
             "$id": "Graph",
             "title": "Graph",
@@ -411,6 +411,6 @@ pub fn schemas() -> serde_json::Value {
             },
             "additionalProperties": false
         }),
-        schema_for!(GraphEvent),
-    ])
+        json!(schema_for!(GraphEvent)),
+    ]
 }
