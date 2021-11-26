@@ -396,6 +396,8 @@ jobs:
       )
     pool:
       vmImage: ubuntu-latest
+    variables:
+      HUSKY: 0
     steps:
       - script: |
           npm ci
