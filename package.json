@@ -28,6 +28,7 @@
     "@stencila/semantic-release-config": "2.0.2",
     "commitlint": "15.0.0",
     "husky": "7.0.0",
+    "prettier": "2.5.0",
     "pretty-quick": "3.1.2"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
