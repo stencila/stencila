@@ -1,5 +1,5 @@
 import { EntityId } from '@reduxjs/toolkit'
-import { Component, h, Host, Prop, State, Watch } from '@stencil/core'
+import { Component, Fragment, h, Host, Prop, State, Watch } from '@stencil/core'
 import { option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { File } from 'stencila'
@@ -46,7 +46,7 @@ export class AppDocumentPreview {
 
   @State() doc: File
 
-  @State() serverUrl: URL
+  @State() serverUrl: URL | undefined
 
   @State() theme = 'stencila'
 
@@ -54,39 +54,57 @@ export class AppDocumentPreview {
     this.theme = (e.target as HTMLSelectElement).value
   }
 
-  componentWillLoad() {
-    this.updateDoc(this.documentId)
-
+  private getServerUrl = (): URL | undefined =>
     pipe(
       sessionStore.get(SessionsStoreKeys.SERVER_URL),
       O.map((serverUrl) => {
+        window.clearInterval(this.serverUrlPollRef)
         this.serverUrl = new window.URL(serverUrl)
-      })
+        return this.serverUrl
+      }),
+      O.getOrElseW(() => undefined)
     )
+
+  private serverUrlPollRef: number
+  private pollForServerUrl = () => {
+    this.serverUrlPollRef = window.setInterval(() => this.getServerUrl(), 200)
+  }
+
+  componentWillLoad() {
+    this.updateDoc(this.documentId)
+    this.getServerUrl()
+    if (this.serverUrl === undefined) {
+      this.pollForServerUrl()
+    }
   }
 
   render() {
     return (
       <Host>
         <div class="app-document-preview">
-          <iframe
-            title="document-preview"
-            src={`${this.serverUrl.origin}/${this.doc.path}${this.serverUrl.search}&theme=${this.theme}`}
-            sandbox="allow-scripts"
-          />
+          {this.serverUrl === undefined ? (
+            'Loading'
+          ) : (
+            <Fragment>
+              <iframe
+                title="document-preview"
+                src={`${this.serverUrl.origin}/${this.doc.path}${this.serverUrl.search}&theme=${this.theme}`}
+              />
 
-          <menu>
-            <label aria-label="Project Theme">
-              <stencila-icon icon="palette"></stencila-icon>
-              <select onChange={this.onThemeChange}>
-                {Object.entries(themes).map(([value, name]) => (
-                  <option value={value} selected={value === this.theme}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </menu>
+              <menu>
+                <label aria-label="Project Theme">
+                  <stencila-icon icon="palette"></stencila-icon>
+                  <select onChange={this.onThemeChange}>
+                    {Object.entries(themes).map(([value, name]) => (
+                      <option value={value} selected={value === this.theme}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </menu>
+            </Fragment>
+          )}
         </div>
       </Host>
     )
