@@ -1,7 +1,7 @@
 import { Component, h, State } from '@stencil/core'
 import { i18n } from '../../../../i18n'
-import { UnprotectedStoreKeys } from '../../../../preload/stores'
-import { AppConfigStore } from '../../../../preload/types'
+import { GlobalConfigKeys } from '../../../../preload/stores'
+import { CombinedConfig, ConfigPaths } from '../../../../preload/types'
 import { client } from '../../../client'
 
 @Component({
@@ -10,18 +10,18 @@ import { client } from '../../../client'
   scoped: true,
 })
 export class AppSettingsGeneral {
-  @State() config: AppConfigStore
+  @State() config: CombinedConfig
 
-  private updateSetting = (key: UnprotectedStoreKeys) => (e: Event) => {
+  private updateSetting = (key: ConfigPaths) => (e: Event) => {
     e.preventDefault()
     const target = e.target as HTMLInputElement
     const value = target.checked ?? target.value
 
-    client.config.ui.set({ key, value })
+    client.config.set({ key, value: value.toString() })
   }
 
   async componentWillLoad() {
-    return client.config.ui.getAll().then(({ value: config }) => {
+    return client.config.getAll().then(({ value: config }) => {
       this.config = config
     })
   }
@@ -38,8 +38,10 @@ export class AppSettingsGeneral {
             <input
               id="errorReporting"
               type="checkbox"
-              defaultChecked={this.config.REPORT_ERRORS ?? false}
-              onChange={this.updateSetting(UnprotectedStoreKeys.REPORT_ERRORS)}
+              defaultChecked={
+                this.config.global.telemetry?.desktop?.error_reports ?? false
+              }
+              onChange={this.updateSetting(GlobalConfigKeys.REPORT_ERRORS)}
             />
 
             <label htmlFor="errorReporting">

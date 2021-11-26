@@ -1,6 +1,8 @@
-import { config, dispatch, plugins, Result } from 'stencila'
+import { dispatch, plugins, Result } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import {
+  ConfigGetAll,
+  ConfigSet,
   ConfigWindowOpen,
   NormalizedPlugins,
   PluginsInstall,
@@ -8,19 +10,12 @@ import {
   PluginsRefresh,
   PluginsUninstall,
   PluginsUpgrade,
-  ReadConfig,
 } from '../../preload/types'
+import { getConfig, setConfig } from './handlers'
 import { makeHandlers, removeChannelHandlers } from '../utils/handler'
 import { handle, valueToSuccessResult } from '../utils/ipc'
 import { CONFIG_CHANNEL } from './channels'
 import { showSettings } from './window'
-
-const getConfig = async () => {
-  return valueToSuccessResult({
-    config: config.get(),
-    schemas: config.schemas(),
-  })
-}
 
 const getPlugins = (): Result<NormalizedPlugins> => {
   return valueToSuccessResult(
@@ -42,7 +37,14 @@ const registerConfigHandlers = () => {
     return valueToSuccessResult()
   })
 
-  handle<ReadConfig>(CHANNEL.CONFIG_READ, async () => getConfig())
+  handle<ConfigGetAll>(CHANNEL.CONFIG_GET_ALL, async () => {
+    return valueToSuccessResult(getConfig())
+  })
+
+  handle<ConfigSet>(CHANNEL.CONFIG_SET, async (_event, { key, value }) => {
+    setConfig(key, value)
+    return valueToSuccessResult()
+  })
 
   handle<PluginsList>(CHANNEL.PLUGINS_LIST, async () => {
     plugins.refresh([])

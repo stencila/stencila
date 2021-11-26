@@ -1,9 +1,7 @@
 import { IpcMainInvokeEvent } from 'electron'
 import log, { LogMessage } from 'electron-log'
-import { JSONSchema7 } from 'json-schema'
 import { Config, dispatch, Plugin, Result } from 'stencila'
 import { Channel, CHANNEL, Handler } from './channels'
-import { UnprotectedStoreKeys } from './stores'
 
 type EntityId = number | string
 
@@ -17,11 +15,35 @@ export type JSONValue =
 
 export interface AppConfigStore {
   USER_ID?: string
-  REPORT_ERRORS: boolean
   FIRST_LAUNCH?: boolean | undefined
-  EDITOR_LINE_WRAPPING: boolean
-  EDITOR_LINE_NUMBERS: boolean
-  EDITOR_NEW_FILE_SYNTAX: string
+}
+
+// Build up a path string accessor
+// Based on https://stackoverflow.com/a/67609485/5686014
+// Used to generate the types needed for setting configuration parameters via the CLI interface
+type JoinPaths<K, P> = K extends string | number
+  ? P extends string | number
+    ? `${K}${'' extends P ? '' : '.'}${P}`
+    : never
+  : never
+
+type PrevPath = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ...0[]]
+
+type ObjectPaths<T, D extends number = 10> = [D] extends [never]
+  ? never
+  : T extends object
+  ? {
+      [K in keyof T]-?: K extends string | number
+        ? `${K}` | JoinPaths<K, ObjectPaths<T[K], PrevPath[D]>>
+        : never
+    }[keyof T]
+  : ''
+
+export type ConfigPaths = ObjectPaths<Config>
+
+export interface CombinedConfig {
+  app: AppConfigStore
+  global: Config
 }
 
 export interface NormalizedPlugins {
@@ -71,29 +93,20 @@ export type ConfigWindowOpen = InvokeType<
   () => void
 >
 
-export type ReadConfig = InvokeType<
-  typeof CHANNEL.CONFIG_READ,
-  () => {
-    config: Config
-    schemas: JSONSchema7[]
-  }
+export type ConfigGetAll = InvokeType<
+  typeof CHANNEL.CONFIG_GET_ALL,
+  () => CombinedConfig
 >
 
-export type ReadAppConfig = InvokeType<
-  typeof CHANNEL.CONFIG_APP_READ,
-  () => AppConfigStore
->
-
-export type GetAppConfig = InvokeType<
-  typeof CHANNEL.CONFIG_APP_GET,
-  <K extends UnprotectedStoreKeys>(key: K) => AppConfigStore[K]
->
-
-export type SetAppConfig = InvokeType<
-  typeof CHANNEL.CONFIG_APP_SET,
-  <K extends UnprotectedStoreKeys>(payload: {
+export type ConfigSet = InvokeType<
+  typeof CHANNEL.CONFIG_SET,
+  <K extends ConfigPaths | keyof AppConfigStore>(payload: {
     key: K
-    value: AppConfigStore[K]
+    value: K extends ConfigPaths
+      ? string
+      : K extends keyof AppConfigStore
+      ? AppConfigStore[K]
+      : never
   }) => void
 >
 
@@ -256,10 +269,8 @@ type InvokeTypes =
   | LogsWindowOpen
   | LogsGet
   | ConfigWindowOpen
-  | ReadConfig
-  | ReadAppConfig
-  | GetAppConfig
-  | SetAppConfig
+  | ConfigGetAll
+  | ConfigSet
   | PluginsList
   | PluginsInstall
   | PluginsUninstall
@@ -334,24 +345,14 @@ interface Invoke {
   ): ConfigWindowOpen['result']
 
   invoke(
-    channel: ReadConfig['channel'],
-    ...args: ReadConfig['args']
-  ): ReadConfig['result']
+    channel: ConfigGetAll['channel'],
+    ...args: ConfigGetAll['args']
+  ): ConfigGetAll['result']
 
   invoke(
-    channel: ReadAppConfig['channel'],
-    ...args: ReadAppConfig['args']
-  ): ReadAppConfig['result']
-
-  invoke(
-    channel: GetAppConfig['channel'],
-    ...args: GetAppConfig['args']
-  ): GetAppConfig['result']
-
-  invoke(
-    channel: SetAppConfig['channel'],
-    ...args: SetAppConfig['args']
-  ): SetAppConfig['result']
+    channel: ConfigSet['channel'],
+    ...args: ConfigSet['args']
+  ): ConfigSet['result']
 
   // Plugins
   invoke(

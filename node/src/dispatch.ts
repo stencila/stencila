@@ -1,3 +1,4 @@
+import * as config from './config'
 import * as documents from './documents'
 import * as plugins from './plugins'
 import * as projects from './projects'
@@ -85,6 +86,7 @@ type DispatchModule<P extends { [key: string]: AnyFunction }> = {
 }
 
 type Dispatch = {
+  config: DispatchModule<typeof config>
   documents: DispatchModule<typeof documents>
   plugins: DispatchModule<typeof plugins>
   projects: DispatchModule<typeof projects>
@@ -98,6 +100,14 @@ type Dispatch = {
  * TODO: See if type safety can be maintained while iterating over the imported objects.
  */
 export const dispatch: Dispatch = {
+  config: {
+    schemas: wrap(config.schemas),
+    get: wrap(config.get),
+    set: wrap(config.set),
+    validate: wrap(config.validate),
+    setProperty: wrap(config.setProperty),
+    resetProperty: wrap(config.resetProperty),
+  },
   documents: {
     schemas: wrap(documents.schemas),
     list: wrap(documents.list),

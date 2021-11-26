@@ -16,7 +16,7 @@ import { client } from '../../../client'
 import { configState } from '../../../store/appConfig'
 import {
   openDocumentInActivePane,
-  patchDocument
+  patchDocument,
 } from '../../../store/documentPane/documentPaneActions'
 import { errorToast } from '../../../utils/errors'
 
@@ -211,8 +211,8 @@ export class AppDocumentEditor {
           <stencila-editor
             ref={(el) => (this.editorRef = el)}
             activeLanguage={this.fileFormatToLanguage()}
-            lineNumbers={configState.EDITOR_LINE_NUMBERS}
-            lineWrapping={configState.EDITOR_LINE_WRAPPING}
+            lineNumbers={configState.global.editors?.lineNumbers}
+            lineWrapping={configState.global.editors?.lineWrapping}
             contentChangeHandler={this.onDocChange}
             onSetLanguage={this.onSetLanguage}
           ></stencila-editor>
