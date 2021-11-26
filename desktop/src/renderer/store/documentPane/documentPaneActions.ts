@@ -14,7 +14,8 @@ export const isPreviewable = (doc: Document) => doc.previewable
 export const isPreviewPaneOpen = (layout: PaneLayout) =>
   layout.modules.includes('preview')
 
-export const isEditable = (doc: Document) => doc.format.binary === false
+export const isEditable = ({ format }: Document) =>
+  format.name === 'ipynb' ? false : format.binary === false
 
 export const isEditPaneOpen = (layout: PaneLayout) =>
   layout.modules.includes('editor')
