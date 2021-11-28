@@ -1055,6 +1055,7 @@ fn html_directory_listing(home: &Path, dir: &Path) -> String {
 ///
 /// Only local files somewhere withing the current working directory are
 /// served.
+#[allow(clippy::too_many_arguments)]
 pub fn html_rewrite(
     body: &str,
     mode: &str,
@@ -1224,9 +1225,22 @@ fn ws_handshake(
     path: warp::path::FullPath,
     params: WsParams,
     (token, claims, _cookie): (String, jwt::Claims, Option<String>),
-) -> impl warp::Reply {
+) -> Box<dyn warp::Reply> {
+    use warp::reply;
+
     tracing::debug!("WebSocket handshake");
-    ws.on_upgrade(|socket| ws_connected(socket, params.client))
+
+    // Check that client is authorized to access the path
+    // On MacOS and Linux the leading slash is removed from the URL path so it
+    // is necessary to check against both the path, and the path less any leading slash.
+    let project = claims.project.display().to_string();
+    let path_with_slash = path.as_str();
+    let path_without_slash = path_with_slash.strip_prefix('/').unwrap_or(path_with_slash);
+    if project == path_with_slash || project == path_without_slash {
+        Box::new(ws.on_upgrade(|socket| ws_connected(socket, params.client)))
+    } else {
+        Box::new(reply::with_status(reply(), StatusCode::UNAUTHORIZED))
+    }
 }
 
 /// Handle a WebSocket connection
