@@ -49,10 +49,9 @@ pub async fn start(
     root: bool,
 ) -> Result<()> {
     if let Some(server) = SERVER.get() {
-        let mut server = server.write().await;
+        let server = server.read().await;
         if server.running() {
-            tracing::info!("Server has already been started; will be stopped and restarted with supplied settings");
-            server.stop().await?
+            bail!("Server has already been started; perhaps use `stop` first");
         }
     }
 
@@ -65,7 +64,7 @@ pub async fn start(
         }
         None => {
             if SERVER.set(RwLock::new(server)).is_err() {
-                tracing::error!("Unable to set server instance")
+                bail!("Unable to set server instance")
             }
         }
     }
