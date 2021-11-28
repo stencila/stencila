@@ -4709,7 +4709,7 @@ dependencies = [
  "stencila-schema",
  "structopt",
  "strum 0.22.0",
- "strum_macros 0.22.0",
+ "strum_macros 0.23.1",
  "sudo",
  "tar",
  "tempfile",
@@ -4873,6 +4873,19 @@ dependencies = [
  "heck",
  "proc-macro2",
  "quote",
+ "syn",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.23.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5bb0dc7ee9c15cea6199cde9a127fa16a4c5819af85395457ad72d68edc85a38"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "rustversion",
  "syn",
 ]
 
