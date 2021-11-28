@@ -1992,7 +1992,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
- "strum 0.22.0",
+ "strum 0.23.0",
  "utils",
 ]
 
@@ -2006,7 +2006,7 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
- "strum 0.22.0",
+ "strum 0.23.0",
 ]
 
 [[package]]
@@ -2513,7 +2513,7 @@ dependencies = [
  "eyre",
  "serde",
  "stencila-schema",
- "strum 0.22.0",
+ "strum 0.23.0",
 ]
 
 [[package]]
@@ -4708,7 +4708,7 @@ dependencies = [
  "slug",
  "stencila-schema",
  "structopt",
- "strum 0.22.0",
+ "strum 0.23.0",
  "strum_macros 0.22.0",
  "sudo",
  "tar",
@@ -4845,11 +4845,11 @@ dependencies = [
 
 [[package]]
 name = "strum"
-version = "0.22.0"
+version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7ac893c7d471c8a21f31cfe213ec4f6d9afeed25537c772e08ef3f005f8729e"
+checksum = "cae14b91c7d11c9a851d3fbc80a963198998c2a64eec840477fa92d8ce9b70bb"
 dependencies = [
- "strum_macros 0.22.0",
+ "strum_macros 0.23.1",
 ]
 
 [[package]]
@@ -4873,6 +4873,19 @@ dependencies = [
  "heck",
  "proc-macro2",
  "quote",
+ "syn",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.23.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5bb0dc7ee9c15cea6199cde9a127fa16a4c5819af85395457ad72d68edc85a38"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "rustversion",
  "syn",
 ]
 
