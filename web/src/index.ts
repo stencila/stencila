@@ -13,11 +13,12 @@ import * as sessions from './sessions'
 import { ProjectId, SnapshotId } from './types'
 
 export const main = (
-  url: string,
   clientId: ClientId,
   projectId: ProjectId,
   snapshotId: SnapshotId,
-  documentPath: documents.DocumentPath
+  documentPath: documents.DocumentPath,
+  origin?: string | null,
+  token?: string | null
 ): (() => Promise<[Client, Document, Session]>) => {
   let client: Client | undefined
   let session: Session | undefined
@@ -26,7 +27,7 @@ export const main = (
   // Start the client and session, if necessary
   const startup = async (): Promise<[Client, Document, Session]> => {
     if (!client) {
-      client = await connect(url, clientId)
+      client = await connect(projectId, clientId, origin, token)
     }
 
     if (!session) {
