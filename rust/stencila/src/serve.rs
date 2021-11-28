@@ -35,9 +35,6 @@ use warp::{
     ws, Filter, Reply,
 };
 
-/// The global, singleton, server instance
-static SERVER: OnceCell<RwLock<Server>> = OnceCell::new();
-
 /// Start the server
 #[tracing::instrument]
 pub async fn start(
@@ -141,6 +138,10 @@ pub async fn serve<P: AsRef<Path>>(
     Ok(url)
 }
 
+/// The global, singleton, HTTP/WebSocket server instance
+static SERVER: OnceCell<RwLock<Server>> = OnceCell::new();
+
+/// A HTTP/WebSocket server
 #[derive(Debug)]
 pub struct Server {
     /// The IP address that the server is listening on
@@ -342,6 +343,7 @@ impl Server {
             .with(cors_headers)
             .recover(rejection_handler);
 
+        // Spawn the serving task
         let (shutdown_sender, shutdown_receiver) = oneshot::channel::<()>();
         let address: std::net::IpAddr = self.address.parse()?;
         let (_, future) =
@@ -358,6 +360,8 @@ impl Server {
     /// Stop the server
     pub async fn stop(&mut self) -> Result<()> {
         tracing::debug!("Stopping server");
+
+        CLIENTS.clear().await;
 
         if self.shutdown_sender.is_some() {
             // It appears to be sufficient to just set the sender to None to shutdown the server
@@ -409,15 +413,17 @@ struct Client {
 }
 
 impl Client {
+    /// Subscribe the client to an event topic
     pub fn subscribe(&mut self, topic: &str) -> bool {
         self.subscriptions.insert(topic.to_string())
     }
 
+    /// Unsubscribe the client from an event topic
     pub fn unsubscribe(&mut self, topic: &str) -> bool {
         self.subscriptions.remove(topic)
     }
 
-    // Is a client subscribed to a particular topic, or set of topics?
+    /// Is a client subscribed to a particular topic, or set of topics?
     pub fn subscribed(&self, topic: &str) -> bool {
         for subscription in &self.subscriptions {
             if subscription == "*" || topic.starts_with(subscription) {
@@ -427,6 +433,7 @@ impl Client {
         false
     }
 
+    /// Send a serializable message to the client
     pub fn send(&self, message: impl Serialize) {
         match serde_json::to_string(&message) {
             Ok(json) => self.send_text(&json),
@@ -434,6 +441,7 @@ impl Client {
         }
     }
 
+    /// Send a text message to the client
     pub fn send_text(&self, text: &str) {
         if let Err(error) = self.sender.send(warp::ws::Message::text(text)) {
             tracing::error!("Client send error `{}`", error)
@@ -441,33 +449,49 @@ impl Client {
     }
 }
 
+/// The global store of clients
+static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
+
 /// A store of clients
+///
+/// Used to manage
 #[derive(Defaults)]
 struct Clients {
-    clients: Arc<RwLock<HashMap<String, Client>>>,
+    inner: Arc<RwLock<HashMap<String, Client>>>,
 }
 
 impl Clients {
+    /// Create a new client store and begin task for publishing events to them
     pub fn new() -> Self {
         let clients = Clients::default();
 
         let (sender, receiver) = mpsc::unbounded_channel::<events::Message>();
         subscribe("*", Subscriber::Sender(sender)).unwrap();
-        tokio::spawn(Clients::publish(clients.clients.clone(), receiver));
+        tokio::spawn(Clients::publish(clients.inner.clone(), receiver));
 
         clients
     }
 
-    pub async fn connected(&self, id: &str, sender: mpsc::UnboundedSender<ws::Message>) {
-        let mut clients = self.clients.write().await;
-        match clients.entry(id.to_string()) {
+    /// Clear the client store
+    ///
+    /// This should be done when the server is stopped to avoid keeping a record
+    /// of clients that have been disconnected.
+    pub async fn clear(&self) {
+        let mut clients = self.inner.write().await;
+        clients.clear();
+    }
+
+    /// A client connected
+    pub async fn connected(&self, client_id: &str, sender: mpsc::UnboundedSender<ws::Message>) {
+        let mut clients = self.inner.write().await;
+        match clients.entry(client_id.to_string()) {
             Entry::Occupied(mut occupied) => {
-                tracing::debug!("Re-connection for client `{}`", id);
+                tracing::debug!("Re-connection for client `{}`", client_id);
                 let client = occupied.get_mut();
                 client.sender = sender;
             }
             Entry::Vacant(vacant) => {
-                tracing::debug!("New connection for client `{}`", id);
+                tracing::debug!("New connection for client `{}`", client_id);
                 vacant.insert(Client {
                     subscriptions: HashSet::new(),
                     sender,
@@ -476,43 +500,51 @@ impl Clients {
         };
     }
 
-    pub async fn disconnected(&self, id: &str, gracefully: bool) {
-        let mut clients = self.clients.write().await;
-        clients.remove(id);
+    /// A client disconnected
+    pub async fn disconnected(&self, client_id: &str, gracefully: bool) {
+        let mut clients = self.inner.write().await;
+        clients.remove(client_id);
 
         if gracefully {
-            tracing::debug!("Graceful disconnection by client `{}`", id)
+            tracing::debug!("Graceful disconnection by client `{}`", client_id)
         } else {
-            tracing::warn!("Ungraceful disconnection by client `{}`", id)
+            tracing::warn!("Ungraceful disconnection by client `{}`", client_id)
         }
     }
 
-    pub async fn send(&self, id: &str, message: impl Serialize) {
-        let clients = self.clients.read().await;
-        if let Some(client) = clients.get(id) {
-            client.send(message);
-        } else {
-            tracing::error!("No such client `{}`", id);
-        }
-    }
-
-    pub async fn subscribe(&self, id: &str, topic: &str) {
-        let mut clients = self.clients.write().await;
-        if let Some(client) = clients.get_mut(id) {
-            tracing::debug!("Subscribing client `{}` to topic `{}`", id, topic);
+    /// Subscribe a client to an event topic
+    pub async fn subscribe(&self, client_id: &str, topic: &str) {
+        let mut clients = self.inner.write().await;
+        if let Some(client) = clients.get_mut(client_id) {
+            tracing::debug!("Subscribing client `{}` to topic `{}`", client_id, topic);
             client.subscribe(topic);
         } else {
-            tracing::error!("No such client `{}`", id);
+            tracing::error!("No such client `{}`", client_id);
         }
     }
 
-    pub async fn unsubscribe(&self, id: &str, topic: &str) {
-        let mut clients = self.clients.write().await;
-        if let Some(client) = clients.get_mut(id) {
-            tracing::debug!("Unsubscribing client `{}` from topic `{}`", id, topic);
+    /// Unsubscribe a client from an event topic
+    pub async fn unsubscribe(&self, client_id: &str, topic: &str) {
+        let mut clients = self.inner.write().await;
+        if let Some(client) = clients.get_mut(client_id) {
+            tracing::debug!(
+                "Unsubscribing client `{}` from topic `{}`",
+                client_id,
+                topic
+            );
             client.unsubscribe(topic);
         } else {
-            tracing::error!("No such client `{}`", id);
+            tracing::error!("No such client `{}`", client_id);
+        }
+    }
+
+    /// Send a message to a client
+    pub async fn send(&self, client_id: &str, message: impl Serialize) {
+        let clients = self.inner.read().await;
+        if let Some(client) = clients.get(client_id) {
+            client.send(message);
+        } else {
+            tracing::error!("No such client `{}`", client_id);
         }
     }
 
@@ -563,9 +595,6 @@ impl Clients {
         }
     }
 }
-
-/// The global clients store
-static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
 
 /// Return an error response
 ///
@@ -1247,7 +1276,7 @@ fn ws_handshake(
 /// This function is called after the handshake, when a WebSocket client
 /// has successfully connected.
 #[tracing::instrument(skip(socket))]
-async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
+async fn ws_connected(socket: warp::ws::WebSocket, client_id: String) {
     tracing::debug!("WebSocket connected");
 
     let (mut ws_sender, mut ws_receiver) = socket.split();
@@ -1257,7 +1286,7 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
     let (client_sender, client_receiver) = mpsc::unbounded_channel();
     let mut client_receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(client_receiver);
 
-    let client_clone = client.clone();
+    let client_clone = client_id.clone();
     tokio::task::spawn(async move {
         while let Some(message) = client_receiver.next().await {
             if let Err(error) = ws_sender.send(message).await {
@@ -1272,7 +1301,7 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
     });
 
     // Save / update the client
-    CLIENTS.connected(&client, client_sender).await;
+    CLIENTS.connected(&client_id, client_sender).await;
 
     while let Some(result) = ws_receiver.next().await {
         // Get the message
@@ -1282,7 +1311,7 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
                 let message = error.to_string();
                 if message == "WebSocket protocol error: Connection reset without closing handshake"
                 {
-                    CLIENTS.disconnected(&client, false).await
+                    CLIENTS.disconnected(&client_id, false).await
                 } else {
                     tracing::error!("Websocket receive error `{}`", error);
                 }
@@ -1303,27 +1332,27 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
             Err(error) => {
                 let error = rpc::Error::parse_error(&error.to_string());
                 let response = rpc::Response::new(None, None, Some(error));
-                CLIENTS.send(&client, response).await;
+                CLIENTS.send(&client_id, response).await;
                 continue;
             }
         };
 
         // Dispatch the request and send back the response and update subscriptions
-        let (response, subscription) = request.dispatch(&client).await;
-        CLIENTS.send(&client, response).await;
+        let (response, subscription) = request.dispatch(&client_id).await;
+        CLIENTS.send(&client_id, response).await;
         match subscription {
             rpc::Subscription::Subscribe(topic) => {
-                CLIENTS.subscribe(&client, &topic).await;
+                CLIENTS.subscribe(&client_id, &topic).await;
             }
             rpc::Subscription::Unsubscribe(topic) => {
-                CLIENTS.unsubscribe(&client, &topic).await;
+                CLIENTS.unsubscribe(&client_id, &topic).await;
             }
             rpc::Subscription::None => (),
         }
     }
 
-    // Record that the client has diconnected gracefully
-    CLIENTS.disconnected(&client, true).await
+    // Record that the client has disconnected gracefully
+    CLIENTS.disconnected(&client_id, true).await
 }
 
 /// Handle a rejection by converting into a JSON-RPC response
