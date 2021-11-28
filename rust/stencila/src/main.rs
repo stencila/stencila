@@ -277,11 +277,22 @@ impl Run for OpenCommand {
             document.path
         };
 
-        let url = stencila::serve::serve(&path).await?;
         if cfg!(feature = "webbrowser") {
+            // Given that the URL (and thus token) may be visible by other processes from the arguments passed
+            // to the "open the browser command" use a short-expiry, single-use token.
+            let url = stencila::serve::serve(&path, Some(15), true).await?;
+            tracing::info!("Opening in browser {}", url);
             webbrowser::open(&url)?;
         } else {
+            // Provide the user with a URL containing a longer-expiry, single-use token.
+            let url = stencila::serve::serve(&path, Some(3600), true).await?;
             tracing::info!("Available at {}", url)
+        }
+
+        // If not in interactive mode then just sleep here forever to avoid finishing
+        if std::env::var("STENCILA_INTERACT_MODE").is_err() {
+            use tokio::time::{sleep, Duration};
+            sleep(Duration::MAX).await;
         }
 
         result::nothing()

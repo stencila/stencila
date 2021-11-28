@@ -1,13 +1,31 @@
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use thiserror::Error;
 
-#[derive(Debug, Serialize, Deserialize)]
+pub const YEAR_SECONDS: i64 = 31556952;
+
+/// JSON Web Token claims
+///
+/// Where appropriate we used existing, registered claim names from
+/// https://www.iana.org/assignments/jwt/jwt.xhtml#claims
+#[skip_serializing_none]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Claims {
     /// The expiry time of the permissions
+    ///
+    /// The `verify` function requires that this be present. Defaults
+    /// to one year in future.
     pub exp: i64,
 
-    /// The scope of the permissions. A filesystem path.
-    pub scope: Option<String>,
+    /// JSON Web Token identifier
+    ///
+    /// Used to prevent replay attacks (using single-use tokens more than once).
+    pub jti: Option<String>,
+
+    /// The project to which authorization is being granted.
+    pub project: PathBuf,
 }
 
 /// Custom server errors
@@ -21,6 +39,9 @@ pub enum JwtError {
 
     #[error("authorization scheme is not 'Bearer'")]
     IncorrectAuthorizationScheme,
+
+    #[error("attempted to reuse a single-use token")]
+    Reuse,
 
     #[error("JSON Web Token error {message}")]
     TokenError { message: String },
@@ -52,15 +73,24 @@ pub fn to_auth_header(jwt: String) -> String {
 /// Encode a JSON Web Token
 pub fn encode(
     key: &str,
-    scope: Option<String>,
+    project: PathBuf,
     expiry_seconds: Option<i64>,
+    single_use: bool,
 ) -> Result<String, JwtError> {
     let exp = chrono::Utc::now()
-        .checked_add_signed(chrono::Duration::seconds(expiry_seconds.unwrap_or(60)))
+        .checked_add_signed(chrono::Duration::seconds(
+            expiry_seconds.unwrap_or(YEAR_SECONDS),
+        ))
         .expect("valid timestamp")
         .timestamp();
 
-    let claims = Claims { exp, scope };
+    let jti = if single_use {
+        Some(uuid_utils::generate("to").to_string())
+    } else {
+        None
+    };
+
+    let claims = Claims { exp, jti, project };
 
     match jsonwebtoken::encode(
         &jsonwebtoken::Header::new(jsonwebtoken::Algorithm::HS512),

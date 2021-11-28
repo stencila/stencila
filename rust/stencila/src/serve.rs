@@ -1,11 +1,12 @@
 use crate::{
     config::CONFIG,
     documents::DOCUMENTS,
-    jwt,
+    jwt::{self, YEAR_SECONDS},
     projects::Projects,
     rpc::{self, Error, Request, Response},
     utils::urls,
 };
+use chrono::{Duration, TimeZone, Utc};
 use defaults::Defaults;
 use events::{subscribe, Subscriber};
 use eyre::{bail, eyre, Result};
@@ -25,7 +26,7 @@ use std::{
     sync::Arc,
 };
 use thiserror::private::PathAsDisplay;
-use tokio::sync::{mpsc, oneshot, Mutex, RwLock};
+use tokio::sync::{mpsc, oneshot, RwLock};
 use warp::{
     http::{
         header::{self, HeaderValue},
@@ -35,7 +36,7 @@ use warp::{
 };
 
 /// The global, singleton, server instance
-static SERVER: OnceCell<Mutex<Server>> = OnceCell::new();
+static SERVER: OnceCell<RwLock<Server>> = OnceCell::new();
 
 /// Start the server
 #[tracing::instrument]
@@ -48,7 +49,7 @@ pub async fn start(
     root: bool,
 ) -> Result<()> {
     if let Some(server) = SERVER.get() {
-        let mut server = server.lock().await;
+        let mut server = server.write().await;
         if server.running() {
             tracing::info!("Server has already been started; will be stopped and restarted with supplied settings");
             server.stop().await?
@@ -60,10 +61,10 @@ pub async fn start(
 
     match SERVER.get() {
         Some(mutex) => {
-            *(mutex.lock().await) = server;
+            *(mutex.write().await) = server;
         }
         None => {
-            if SERVER.set(Mutex::new(server)).is_err() {
+            if SERVER.set(RwLock::new(server)).is_err() {
                 tracing::error!("Unable to set server instance")
             }
         }
@@ -76,7 +77,7 @@ pub async fn start(
 #[tracing::instrument]
 pub async fn stop() -> Result<()> {
     if let Some(server) = SERVER.get() {
-        server.lock().await.stop().await?;
+        server.write().await.stop().await?;
     } else {
         tracing::warn!("Server has not yet been started");
     }
@@ -85,27 +86,56 @@ pub async fn stop() -> Result<()> {
 
 /// Serve a project or document
 ///
-/// The server will be started (if it has not already been) and URL containing the server's port and a
-/// token providing access to the project return (if the server has a `key`).
-pub async fn serve<P: AsRef<Path>>(path: &P) -> Result<String> {
+/// The server will be started (if it has not already been) and a URL is returned
+/// containing the server's port, the path, and a token providing access to the
+/// path (unless the server has no `key`). The path will be added to the server's
+/// list of served paths (only paths withing these paths can be accessed).
+///
+/// # Arguments
+///
+/// - `path`: The path to be served
+/// - `expiry_seconds`: The number of seconds before the token expires
+/// - `single_use`: Whether the token should be single use
+pub async fn serve<P: AsRef<Path>>(
+    path: &P,
+    expiry_seconds: Option<i64>,
+    single_use: bool,
+) -> Result<String> {
     let path = path.as_ref();
 
+    // Get, or start, the server
     let server = match SERVER.get() {
         Some(server) => server,
         None => {
             let mut server = Server::new(None, None, None, false, false, false).await?;
             server.start().await?;
-            SERVER.get_or_init(|| Mutex::new(server))
+            SERVER.get_or_init(|| RwLock::new(server))
         }
     };
-    let server = server.lock().await;
+    let mut server = server.write().await;
 
-    let path = path.display().to_string();
+    // Insert the path into the server's paths to allow access
+    let project = Projects::project_of_path(path)?;
+    server.projects.insert(project.clone());
 
-    let mut url = format!("http://{}:{}/{}", server.address, server.port, path);
+    // If the path is in the server `home` directory, use a relative path in the URL.
+    // Strip forward slashes from paths: URL paths beginning with a forward slash cause issues with 301 redirects
+    // (they are confused with protocol relative URLs by the browser) and percent encoding them causes other issues
+    // with cookie `Path` matching.
+    let url_path = if let Ok(path) = path.strip_prefix(&server.home) {
+        path
+    } else if let Ok(path) = path.strip_prefix("/") {
+        path
+    } else {
+        path
+    }
+    .display()
+    .to_string();
 
+    // Create a URL to path, with a path scoped token (if necessary).
+    let mut url = format!("http://{}:{}/{}", server.address, server.port, url_path);
     if let Some(key) = &server.key {
-        let token = jwt::encode(key, Some(path), Some(60))?;
+        let token = jwt::encode(key, project, expiry_seconds, single_use)?;
         url += &format!("?token={}", token);
     }
 
@@ -114,16 +144,33 @@ pub async fn serve<P: AsRef<Path>>(path: &P) -> Result<String> {
 
 #[derive(Debug)]
 pub struct Server {
+    /// The IP address that the server is listening on
     address: String,
 
+    /// The port that the server is listening on
     port: u16,
 
+    /// The secret key used to sign and verify JSON Web Tokens issued by the server
     key: Option<String>,
 
-    home: Option<PathBuf>,
+    /// The home project of the server
+    ///
+    /// This defaults to the directory that the server is started in, or if that directory
+    /// is nested within a project (i.e. has a `project.json` file), the root directory of the project.
+    /// Any relative paths that are requested from the server will be resolved to this
+    /// directory.
+    home: PathBuf,
 
+    /// The projects that the server will allow access to
+    projects: HashSet<PathBuf>,
+
+    /// Whether traversal out of `paths` is permitted
     traversal: bool,
 
+    /// The set of already used, single-use tokens
+    used_tokens: HashSet<String>,
+
+    /// The `oneshot` channel sender used internally to gracefully shutdown the server
     shutdown_sender: Option<oneshot::Sender<()>>,
 }
 
@@ -147,6 +194,14 @@ impl Server {
         root: bool,
     ) -> Result<Self> {
         let config = &CONFIG.lock().await.serve;
+
+        let home = match &home {
+            Some(home) => home.canonicalize()?,
+            None => Projects::project_of_cwd()?,
+        };
+
+        let mut projects = HashSet::new();
+        projects.insert(home.clone());
 
         let url = match url {
             Some(url) => Some(url),
@@ -195,17 +250,16 @@ impl Server {
             port,
             key,
             home,
+            projects,
             traversal,
+            used_tokens: HashSet::new(),
             shutdown_sender: None,
         })
     }
 
     /// Start the server
     pub async fn start(&mut self) -> Result<()> {
-        let home = match self.home.clone() {
-            Some(home) => home.canonicalize()?,
-            None => Projects::current_path()?,
-        };
+        let home = self.home.clone();
         let traversal = self.traversal;
 
         let mut url = format!("http://{}:{}", self.address, self.port);
@@ -215,8 +269,8 @@ impl Server {
                 bail!("Server key should be 64 bytes or less")
             }
 
-            // Provide the user with a long expiring token so they can access the server.
-            let token = jwt::encode(key, Some(home.display().to_string()), Some(3600))?;
+            // Provide the user with a long-expiring, multiple-use token, scoped to the home project.
+            let token = jwt::encode(key, home.clone(), None, false)?;
             url.push_str("?token=");
             url.push_str(&token);
         }
@@ -231,10 +285,10 @@ impl Server {
 
         // The following HTTP and WS endpoints all require authentication
 
-        let authenticate = || authentication_filter(self.key.clone());
+        let authenticate = || authentication_filter(self.key.clone(), self.home.clone());
 
-        let ws = warp::path("~ws")
-            .and(warp::ws())
+        let ws = warp::ws()
+            .and(warp::path::full())
             .and(warp::query::<WsParams>())
             .and(authenticate())
             .map(ws_handshake);
@@ -242,8 +296,8 @@ impl Server {
         let get = warp::get()
             .and(warp::path::full())
             .and(warp::query::<GetParams>())
-            .and(warp::any().map(move || (home.clone(), traversal)))
             .and(authenticate())
+            .and(warp::any().map(move || (home.clone(), traversal)))
             .and_then(get_handler);
 
         let post = warp::post()
@@ -616,20 +670,26 @@ struct AuthParams {
 
 /// A Warp filter that extracts any JSON Web Token from a `token` query parameter, `Authorization` header
 /// or `token` cookie.
+///
+/// Returns the extracted (or refreshed) token, the claims extracted from the token and a cookie (if
+/// the token did not come from a cookie originally).
 fn authentication_filter(
     key: Option<String>,
-) -> impl Filter<Extract = ((jwt::Claims, Option<String>),), Error = warp::Rejection> + Clone {
+    home: PathBuf,
+) -> impl Filter<Extract = ((String, jwt::Claims, Option<String>),), Error = warp::Rejection> + Clone
+{
     warp::query::<AuthParams>()
         .and(warp::header::optional::<String>("authorization"))
         .and(warp::cookie::optional("token"))
         .map(
             move |query: AuthParams, header: Option<String>, cookie: Option<String>| {
-                (key.clone(), query.token, header, cookie)
+                (key.clone(), home.clone(), query.token, header, cookie)
             },
         )
         .and_then(
-            |(key, param, header, cookie): (
+            |(key, home, param, header, cookie): (
                 Option<String>,
+                PathBuf,
                 Option<String>,
                 Option<String>,
                 Option<String>,
@@ -638,55 +698,95 @@ fn authentication_filter(
                     // Key present, so check for valid token as a query parameter, authorization header,
                     // or cookie (in that order of precedence).
 
-                    let claims = if let Some(param) = param {
-                        jwt::decode(&param, &key)
+                    // Attempt to get from query parameter
+                    let (token, claims) = if let Some(param) = param {
+                        tracing::debug!("Authentication claims from param");
+                        (Some(param.clone()), jwt::decode(&param, &key))
                     } else {
-                        Err(JwtError::NoTokenSupplied)
+                        (None, Err(JwtError::NoTokenSupplied))
                     };
 
-                    let claims = if let (Err(..), Some(header)) = (&claims, header) {
-                        jwt::from_auth_header(header).and_then(|token| jwt::decode(&token, &key))
+                    // Attempt to get from authorization header
+                    let (token, claims) = if let (Err(..), Some(header)) = (&claims, header) {
+                        tracing::debug!("Authentication claims from header");
+                        match jwt::from_auth_header(header) {
+                            Ok(token) => (Some(token.clone()), jwt::decode(&token, &key)),
+                            Err(error) => {
+                                tracing::warn!("Error extracting token from header: {}", error);
+                                (None, claims)
+                            }
+                        }
                     } else {
-                        claims
+                        (token, claims)
                     };
 
-                    let (claims, from_cookie) = if let (Err(..), Some(cookie)) = (&claims, cookie) {
-                        let claims = jwt::decode(&cookie, &key);
-                        let ok = claims.is_ok();
-                        (claims, ok)
-                    } else {
-                        (claims, false)
-                    };
+                    // Attempt to get from cookie
+                    let (token, claims, from_cookie) =
+                        if let (Err(..), Some(cookie)) = (&claims, cookie) {
+                            tracing::debug!("Authentication claims from cookie");
+                            let claims = jwt::decode(&cookie, &key);
+                            let ok = claims.is_ok();
+                            (Some(cookie), claims, ok)
+                        } else {
+                            (token, claims, false)
+                        };
 
+                    // Did we get any claims from the above?
                     let claims = match claims {
                         Ok(claims) => claims,
                         Err(error) => return Err(warp::reject::custom(error)),
                     };
 
-                    // Set a `token` cookie if the claims did not come from a cookie
-                    let cookie = if !from_cookie {
-                        const EXPIRY_SECONDS: i64 = 30 * 24 * 60 * 60;
-                        let token =
-                            jwt::encode(&key, claims.scope.clone(), Some(EXPIRY_SECONDS)).unwrap();
+                    // Check for attempt to reuse a single-use token
+                    if let Some(jti) = &claims.jti {
+                        let server = SERVER.get().expect("Server should be instantiated");
+                        if server.read().await.used_tokens.contains(jti) {
+                            return Err(warp::reject::custom(JwtError::Reuse));
+                        } else {
+                            server.write().await.used_tokens.insert(jti.clone());
+                        }
+                    }
+
+                    let project = claims.project.clone();
+
+                    // Generate a new token if necessary (single-use or soon to expire) for use in WebSocket URLs
+                    // and/or cookies.
+                    let updated_token = if claims.jti.is_some()
+                        || Utc.timestamp(claims.exp, 0) < Utc::now() + Duration::seconds(60)
+                    {
+                        jwt::encode(&key, project.clone(), Some(YEAR_SECONDS), false)
+                            .expect("Should encode")
+                    } else {
+                        token.clone().unwrap_or_default()
+                    };
+
+                    // Provide a token cookie if the claims did not come from a cookie or if it
+                    // has been refreshed
+                    // Token expires at the end of the browser session and should only be sent to
+                    // URL paths that are within the project.
+                    let cookie = if !from_cookie || updated_token != token.unwrap_or_default() {
+                        // If the project is within the home project (ie. a subfolder) then need to strip the prefix
+                        let path = if project == home {
+                            PathBuf::from("/".to_string())
+                        } else if let Ok(rest) = project.strip_prefix(home) {
+                            rest.to_path_buf()
+                        } else {
+                            project
+                        }
+                        .display()
+                        .to_string();
                         Some(format!(
-                            "token={}; Max-Age={}; SameSite; HttpOnly",
-                            token, EXPIRY_SECONDS
+                            "token={}; Path={}; SameSite; HttpOnly",
+                            updated_token, path
                         ))
                     } else {
                         None
                     };
 
-                    Ok((claims, cookie))
+                    Ok((updated_token, claims, cookie))
                 } else {
-                    // No key, so in insecure mode. Return a permissive set of claims and
-                    // no cookie.
-                    Ok((
-                        jwt::Claims {
-                            exp: 0,
-                            scope: None,
-                        },
-                        None,
-                    ))
+                    // No key, so in insecure mode. Return empty token and default claims (they won't be used anyway) and no cookie.
+                    Ok(("".to_string(), jwt::Claims::default(), None))
                 }
             },
         )
@@ -709,49 +809,70 @@ struct GetParams {
 
     /// An authentication token
     ///
-    /// Only used here to determine whether to redirect but used in `authentication_filter`
-    /// for actual authentication.
+    /// Only used here only to determine whether to redirect (but used in `authentication_filter`
+    /// for actual authentication).
     token: Option<String>,
 }
 
-/// Handle a HTTP `GET` request for a document
-///
-/// If the requested path starts with `/static` or is not one of the registered file types,
-/// then returns the static asset with the `Content-Type` header set.
-/// Otherwise, if the requested `Accept` header includes "text/html", viewer's index.html is
-/// returned (which, in the background will request the document as JSON). Otherwise,
-/// will attempt to determine the desired format from the `Accept` header and convert the
-/// document to that.
-#[tracing::instrument]
+/// Handle a HTTP `GET` request for a file or directory
+#[tracing::instrument(skip(cookie))]
 async fn get_handler(
     path: warp::path::FullPath,
     params: GetParams,
+    (token, claims, cookie): (String, jwt::Claims, Option<String>),
     (home, traversal): (PathBuf, bool),
-    (claims, cookie): (jwt::Claims, Option<String>),
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
     tracing::debug!("GET {}", path);
 
+    // Determine if the requested path is relative to the server `home` directory;
+    // otherwise construct an absolute path accordingly
     let filesystem_path = Path::new(path.strip_prefix('/').unwrap_or(path));
-    let filesystem_path = match home.join(filesystem_path).canonicalize() {
-        Ok(filesystem_path) => filesystem_path,
-        Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
-    };
-
-    if !traversal && filesystem_path.strip_prefix(&home).is_err() {
-        return error_response(
-            StatusCode::FORBIDDEN,
-            "Traversal outside of server's home directory is not permitted",
-        );
+    let filesystem_path = if let Ok(path) = home.join(filesystem_path).canonicalize() {
+        // Path found in home directory
+        path
+    } else if let Ok(path) = filesystem_path.canonicalize() {
+        // Path found elsewhere on the filesystem
+        path
+    } else if let Ok(path) = PathBuf::from("/").join(filesystem_path).canonicalize() {
+        // Path found elsewhere on the filesystem (when stripped leading slash is added back; see `serve()`)
+        path
+    } else {
+        return error_response(StatusCode::NOT_FOUND, "Requested path does not exist");
     }
+    .to_path_buf();
 
-    if let Some(scope) = claims.scope {
-        if filesystem_path.strip_prefix(&scope).is_err() {
+    // Check the path is within one of the server's `projects`
+    // Because `projects` may be appended to at runtime, it is necessary to get these
+    // from the server instance.
+    if !traversal {
+        let server = SERVER
+            .get()
+            .expect("Server should be instantiated")
+            .read()
+            .await;
+
+        let mut ok = false;
+        for project in &server.projects {
+            if filesystem_path.strip_prefix(&project).is_ok() {
+                ok = true;
+                break;
+            }
+        }
+        if !ok {
             return error_response(
                 StatusCode::FORBIDDEN,
-                "Insufficient permissions to access this directory or file",
+                "Traversal outside of server's home, or registered, projects is not permitted",
             );
         }
+    }
+
+    // Check the path is within the project for which authorization is given
+    if filesystem_path.strip_prefix(&claims.project).is_err() {
+        return error_response(
+            StatusCode::FORBIDDEN,
+            "Insufficient permissions to access this directory or file",
+        );
     }
 
     let format = params.format.unwrap_or_else(|| "html".into());
@@ -759,9 +880,9 @@ async fn get_handler(
     let theme = params.theme.unwrap_or_else(|| "wilmore".into());
     let components = params.components.unwrap_or_else(|| "static".into());
 
-    let (content, mime, redirect) = if params.token.is_some() {
-        // A token is in the URL. For address bar aesthetics, and to avoid confusion (the token may
-        // not be suitable for reuse), redirect to a token-less URL. Note that we set a token cookie
+    let (content, mime, redirect) = if params.token.is_some() && claims.jti.is_some() {
+        // A token is in the URL. For address bar aesthetics, and to avoid re-use on page refresh, if the token is
+        // single-use (has a `jti` claim), redirect to a token-less URL. Note that we set a token cookie
         // below to replace the URL-based token.
         (
             html_page_redirect(path).as_bytes().to_vec(),
@@ -810,14 +931,28 @@ async fn get_handler(
                 };
 
                 let content = match format.as_str() {
-                    "html" => html_rewrite(
-                        &content,
-                        &mode,
-                        &theme,
-                        &components,
-                        &home,
-                        &filesystem_path,
-                    ),
+                    "html" => {
+                        let project = Projects::project_of_path(&filesystem_path)
+                            .unwrap_or_else(|_| filesystem_path.clone());
+
+                        let project = if let Ok(project) = project.strip_prefix("/") {
+                            project.display()
+                        } else {
+                            project.display()
+                        }
+                        .to_string();
+
+                        html_rewrite(
+                            &content,
+                            &mode,
+                            &theme,
+                            &components,
+                            &token,
+                            &project,
+                            &home,
+                            &filesystem_path,
+                        )
+                    }
                     _ => content,
                 }
                 .as_bytes()
@@ -925,6 +1060,8 @@ pub fn html_rewrite(
     mode: &str,
     theme: &str,
     components: &str,
+    token: &str,
+    project: &str,
     home: &Path,
     document: &Path,
 ) -> String {
@@ -943,15 +1080,14 @@ pub fn html_rewrite(
     <link href="{static_root}/web/{mode}.css" rel="stylesheet">
     <script src="{static_root}/web/{mode}.js"></script>
     <script>
-        const startup = stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}");
+        const startup = stencilaWebClient.main("{client}", "{project}", "{snapshot}", "{document}", null, "{token}");
         startup().catch((err) => console.error('Error during startup', err))
     </script>"#,
         static_root = static_root,
         mode = mode,
-        // TODO: pass url from outside this function?
-        url = "ws://127.0.0.1:9000/~ws",
         client = uuid_utils::generate("cl"),
-        project = "current",
+        token = token,
+        project = project,
         snapshot = "current",
         document = document.as_display().to_string()
     );
@@ -1021,7 +1157,7 @@ pub fn html_rewrite(
 /// Handle a HTTP `POST /` request
 async fn post_handler(
     request: Request,
-    (_claims, _cookie): (jwt::Claims, Option<String>),
+    (_token, _claims, _cookie): (String, jwt::Claims, Option<String>),
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
     let (response, ..) = request.dispatch("http").await;
     Ok(warp::reply::json(&response))
@@ -1031,7 +1167,7 @@ async fn post_handler(
 async fn post_wrap_handler(
     method: String,
     params: serde_json::Value,
-    (_claims, _cookie): (jwt::Claims, Option<String>),
+    (_token, _claims, _cookie): (String, jwt::Claims, Option<String>),
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
     use warp::reply;
 
@@ -1072,17 +1208,22 @@ async fn post_wrap_handler(
 /// Parameters for the WebSocket handshake
 #[derive(Debug, Deserialize)]
 struct WsParams {
+    /// The id of the client
     client: String,
 }
 
 /// Perform a WebSocket handshake / upgrade
 ///
 /// This function is called at the start of a WebSocket connection.
-#[tracing::instrument]
+/// Each WebSocket connection is authorized to access a single project.
+/// Authorization is done by checking the `project` in the JWT claims
+/// against the requested path.
+#[tracing::instrument(skip(_cookie))]
 fn ws_handshake(
     ws: warp::ws::Ws,
+    path: warp::path::FullPath,
     params: WsParams,
-    (_claims, _cookie): (jwt::Claims, Option<String>),
+    (token, claims, _cookie): (String, jwt::Claims, Option<String>),
 ) -> impl warp::Reply {
     tracing::debug!("WebSocket handshake");
     ws.on_upgrade(|socket| ws_connected(socket, params.client))
@@ -1192,7 +1333,7 @@ async fn rejection_handler(
         Error::server_error("Unknown error")
     };
 
-    tracing::error!("{:?}", error);
+    tracing::error!("{}", error);
 
     Ok(warp::reply::with_status(
         warp::reply::json(&Response {
