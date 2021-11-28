@@ -88,7 +88,7 @@ export class AppDocumentPreview {
             <Fragment>
               <iframe
                 title="document-preview"
-                src={`${this.serverUrl.origin}/${this.doc.path}${this.serverUrl.search}&theme=${this.theme}`}
+                src={`${this.serverUrl.origin}${this.doc.path}${this.serverUrl.search}&theme=${this.theme}`}
               />
 
               <menu>

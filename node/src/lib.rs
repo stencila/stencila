@@ -14,9 +14,9 @@ mod patches;
 mod prelude;
 mod projects;
 mod pubsub;
+mod server;
 mod sessions;
 mod sources;
-mod server;
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
