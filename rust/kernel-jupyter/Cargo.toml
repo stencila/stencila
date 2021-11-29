@@ -28,7 +28,7 @@ serde_with = "1.11.0"
 sha2 = "0.9.8"
 tokio = {version = "1.13.0", features = ["full"]}
 tracing = "0.1.29"
-uuid-utils = {path = "../uuid-utils", version = "0.0.0"}
+uuids = {path = "../uuids", version = "0.0.0"}
 zmq = {version = "0.9.2", default-features = false}
 
 [dev-dependencies]

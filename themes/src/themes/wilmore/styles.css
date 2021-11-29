@@ -45,14 +45,15 @@
   --color-primary-900: #171921;
 
   /* Neutral: For backgrounds and borders */
-  --color-neutral-100: #fffbf5;
-  --color-neutral-200: #f7f3ef;
-  --color-neutral-300: #f1eae1;
-  --color-neutral-400: #e4d8c8;
-  --color-neutral-500: #d4c4b2;
-  --color-neutral-600: #998b7a;
-  --color-neutral-700: #897e72;
-  --color-neutral-800: #6b635b;
+  --color-neutral-50: #fffbf5;
+  --color-neutral-100: #f7f3ef;
+  --color-neutral-200: #f1eae1;
+  --color-neutral-300: #e4d8c8;
+  --color-neutral-400: #d4c4b2;
+  --color-neutral-500: #998b7a;
+  --color-neutral-600: #897e72;
+  --color-neutral-700: #6b635b;
+  --color-neutral-800: #44403c;
   --color-neutral-900: #44403c;
 
   align-content: center;
@@ -201,7 +202,7 @@ h6:--Heading {
 
 :--Paragraph {
   & + h1:--Heading,
-  & + h2:--Heading {
+  a & + h2:--Heading {
     margin-top: 2.25rem;
   }
 
@@ -227,6 +228,10 @@ h6:--Heading {
 
   & + :--List {
     margin-top: 0;
+  }
+
+  & > * {
+    max-width: 100%;
   }
 }
 

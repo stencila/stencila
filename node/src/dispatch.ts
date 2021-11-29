@@ -2,6 +2,7 @@ import * as config from './config'
 import * as documents from './documents'
 import * as plugins from './plugins'
 import * as projects from './projects'
+import * as server from './server'
 import { Error } from './types'
 const addon = require('../index.node')
 
@@ -90,6 +91,7 @@ type Dispatch = {
   documents: DispatchModule<typeof documents>
   plugins: DispatchModule<typeof plugins>
   projects: DispatchModule<typeof projects>
+  server: DispatchModule<typeof server>
 }
 
 /**
@@ -144,5 +146,8 @@ export const dispatch: Dispatch = {
     graph: wrap(projects.graph),
     subscribe: wrap(projects.subscribe),
     unsubscribe: wrap(projects.unsubscribe),
+  },
+  server: {
+    serve: wrap(server.serve),
   },
 }

@@ -47,6 +47,6 @@
   /* Stencila WebComponent overrides */
   --font-family-display: 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
   --font-family-body: 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
-  --color-neutral-200: #f7f7f7;
-  --color-netural-300: #e0e0e0;
+  --color-neutral-100: #f7f7f7;
+  --color-netural-200: #e0e0e0;
 }

@@ -74,7 +74,7 @@ impl Session {
     // Create a new session for a project and snapshot
     pub fn new(project: &str, snapshot: &str) -> Session {
         Session {
-            id: uuid_utils::generate("se").to_string(),
+            id: uuids::generate("se").to_string(),
             project: project.to_string(),
             snapshot: snapshot.to_string(),
             ..Default::default()
@@ -207,7 +207,7 @@ impl Sessions {
 
     /// Stop a session
     pub async fn stop(&self, id: &str) -> Result<Session> {
-        let id = uuid_utils::assert("se", id.into())?.to_string();
+        let id = uuids::assert("se", id.into())?.to_string();
         let mut sessions = self.sessions.write().await;
         match sessions.entry(id.clone()) {
             Entry::Occupied(entry) => {
@@ -229,7 +229,7 @@ impl Sessions {
         topic: &str,
         client: &str,
     ) -> Result<(Session, String)> {
-        let id = uuid_utils::assert("se", id.into())?.to_string();
+        let id = uuids::assert("se", id.into())?.to_string();
         let sessions = self.sessions.read().await;
         if let Some(session_lock) = sessions.get(&id) {
             let mut session_guard = session_lock.write().await;
@@ -250,7 +250,7 @@ impl Sessions {
         topic: &str,
         client: &str,
     ) -> Result<(Session, String)> {
-        let id = uuid_utils::assert("se", id.into())?.to_string();
+        let id = uuids::assert("se", id.into())?.to_string();
         let sessions = self.sessions.read().await;
         if let Some(session_lock) = sessions.get(&id) {
             let mut session_guard = session_lock.write().await;

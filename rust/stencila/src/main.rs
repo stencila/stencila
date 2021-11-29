@@ -12,7 +12,6 @@ use std::{collections::HashMap, path::PathBuf};
 use stencila::{
     config::{self, CONFIG},
     documents::{self, DOCUMENTS},
-    eyre::bail,
     logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
@@ -132,7 +131,8 @@ pub enum Command {
     Upgrade(stencila::upgrade::commands::Command),
 
     #[cfg(feature = "serve")]
-    Serve(stencila::serve::commands::Command),
+    #[structopt(aliases = &["serve"])]
+    Server(stencila::serve::commands::Command),
 }
 
 #[async_trait]
@@ -162,7 +162,7 @@ impl Run for Command {
             #[cfg(feature = "upgrade")]
             Command::Upgrade(command) => command.run().await,
             #[cfg(feature = "serve")]
-            Command::Serve(command) => command.run().await,
+            Command::Server(command) => command.run().await,
         }
     }
 }
@@ -257,9 +257,7 @@ pub struct OpenCommand {
 #[async_trait]
 impl Run for OpenCommand {
     #[cfg(feature = "serve")]
-    async fn run(&self /*, context: &mut Context*/) -> Result {
-        use stencila::serve;
-
+    async fn run(&self) -> Result {
         let (is_project, path) = match &self.path {
             Some(path) => (path.is_dir(), path.clone()),
             None => (true, std::env::current_dir()?),
@@ -279,46 +277,22 @@ impl Run for OpenCommand {
             document.path
         };
 
-        // Assert that the path is inside the current working directory and
-        // strip that prefix (the `cwd` is prefixed when serving and path traversal checked for again)
-        let path = match path.strip_prefix(std::env::current_dir()?) {
-            Ok(path) => path.display().to_string(),
-            Err(_) => bail!("For security reasons it is only possible to open documents that are nested within the current working directory.")
-        };
-
-        // Append the theme query parameter if set
-        let path = if let Some(theme) = &self.theme {
-            format!(
-                "{path}?theme={theme}",
-                path = path,
-                theme = theme.to_ascii_lowercase()
-            )
+        if cfg!(feature = "webbrowser") {
+            // Given that the URL (and thus token) may be visible by other processes from the arguments passed
+            // to the "open the browser command" use a short-expiry, single-use token.
+            let url = stencila::serve::serve(&path, Some(15), true).await?;
+            tracing::info!("Opening in browser {}", url);
+            webbrowser::open(&url)?;
         } else {
-            path
-        };
+            // Provide the user with a URL containing a longer-expiry, single-use token.
+            let url = stencila::serve::serve(&path, Some(3600), true).await?;
+            tracing::info!("Available at {}", url)
+        }
 
-        // Generate a key and a corresponding login URL and open browser at the login page (will
-        // redirect to document page).
-        let port = 9000u16;
-        let key = Some(key_utils::generate());
-        let login_url = serve::login_url(port, key.clone(), Some(60), Some(path))?;
-        #[cfg(feature = "webbrowser")]
-        webbrowser::open(login_url.as_str())?;
-
-        // If not yet serving, serve in the background, or in the current thread,
-        // depending upon mode.
-        let url = format!(":{}", port);
-        if let Err(error) =
-            if std::env::var("STENCILA_INTERACT_MODE").unwrap_or_else(|_| "0".to_string()) == "1" {
-                serve::serve_background(&url, key)
-            } else {
-                serve::serve(&url, key).await
-            }
-        {
-            // Ignore the error if a server is already started on that address
-            if !error.to_string().contains("Address already in use") {
-                bail!(error)
-            }
+        // If not in interactive mode then just sleep here forever to avoid finishing
+        if std::env::var("STENCILA_INTERACT_MODE").is_err() {
+            use tokio::time::{sleep, Duration};
+            sleep(Duration::MAX).await;
         }
 
         result::nothing()

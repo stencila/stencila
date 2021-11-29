@@ -2,6 +2,7 @@ import { createSlice, EntityId, PayloadAction } from '@reduxjs/toolkit'
 import { array as A, option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { Document } from 'stencila'
+import { isEditable, isPreviewable } from './documentPaneActions'
 import {
   DocumentPane,
   NormalizedDocumentPaneStore,
@@ -91,11 +92,11 @@ export const documentPaneSlice = createSlice({
 
           const modules: PaneModule[] = []
 
-          if (!payload.doc.format.binary) {
+          if (isEditable(payload.doc)) {
             modules.push('editor')
           }
 
-          if (payload.doc.previewable) {
+          if (isPreviewable(payload.doc)) {
             modules.push('preview')
           }
 

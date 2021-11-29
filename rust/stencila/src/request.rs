@@ -6,6 +6,7 @@ use eyre::{bail, eyre, Context, Result};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::env;
+use std::path::PathBuf;
 use tokio::io::AsyncWriteExt;
 
 /// Trait for request clients. This allows us to use `enum_dispatch` to
@@ -266,7 +267,7 @@ impl ClientTrait for ClientHttp {
             .json(request);
         let request = match self.key.clone() {
             Some(key) => {
-                let jwt = jwt::encode(key, Some(60))?;
+                let jwt = jwt::encode(&key, PathBuf::from("/"), None, false)?;
                 request.header("authorization", jwt::to_auth_header(jwt))
             }
             None => request,

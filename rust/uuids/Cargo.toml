@@ -1,6 +1,6 @@
 [package]
-name = "uuid-utils"
-description = "Utility function for generating universally unique identifiers"
+name = "uuids"
+description = "Utility types and functions for universally unique identifiers"
 version = "0.0.0"
 edition = "2021"
 

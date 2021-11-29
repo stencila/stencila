@@ -1,10 +1,23 @@
 import { EntityId } from '@reduxjs/toolkit'
-import { Component, h, Host, Prop, State, Watch } from '@stencil/core'
-import { DocumentEvent } from 'stencila'
-import { CHANNEL } from '../../../../preload/channels'
-import { state } from '../../../../renderer/store'
-import { getProjectTheme } from '../../../../renderer/store/project/projectSelectors'
-import { client } from '../../../client'
+import { Component, Fragment, h, Host, Prop, State, Watch } from '@stencil/core'
+import { option as O } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
+import { File } from 'stencila'
+import { state } from '../../../store'
+import { selectDoc } from '../../../store/documentPane/documentPaneSelectors'
+import { SessionsStoreKeys, sessionStore } from '../../../store/sessionStore'
+
+const themes = {
+  elife: 'eLife',
+  f1000: 'f1000',
+  giga: 'GigaScience',
+  latex: 'latex',
+  nature: 'nature',
+  plos: 'PLoS',
+  stencila: 'Stencila',
+  tufte: 'tufte',
+  wilmore: 'Wilmore',
+}
 
 @Component({
   tag: 'app-document-preview',
@@ -12,65 +25,87 @@ import { client } from '../../../client'
   shadow: true,
 })
 export class AppDocumentPreview {
+  /**
+   * ID of the document to be previewed
+   */
   @Prop() documentId: EntityId
+
+  private updateDoc = (id: EntityId) => {
+    const doc = selectDoc(state)(id)
+    if (doc) {
+      this.doc = doc
+    }
+  }
 
   @Watch('documentId')
   documentIdWatchHandler(newValue: string, prevValue: string) {
     if (newValue !== prevValue) {
-      this.unsubscribeFromDocument(prevValue).then(() => {
-        this.subscribeToDocument(newValue)
-      })
+      this.updateDoc(newValue)
     }
   }
 
-  @State() previewContents: string
+  @State() doc: File
 
-  private subscribeToDocument = (documentId = this.documentId) => {
-    client.documents.preview(documentId).then(({ value: contents }) => {
-      this.previewContents = contents
-    })
+  @State() serverUrl: URL | undefined
 
-    window.api.receive(CHANNEL.DOCUMENTS_PREVIEW, (event) => {
-      const e = event as DocumentEvent
-      if (
-        e.document.id === documentId &&
-        e.type === 'encoded' &&
-        e.format?.name == 'html' &&
-        e.content !== undefined
-      ) {
-        this.previewContents = e.content
-      }
-    })
+  @State() theme = 'stencila'
+
+  private onThemeChange = (e: Event) => {
+    this.theme = (e.target as HTMLSelectElement).value
   }
 
-  private unsubscribeFromDocument = (documentId = this.documentId) => {
-    window.api.removeAll(CHANNEL.DOCUMENTS_PREVIEW)
-    return client.documents.unsubscribe({
-      documentId,
-      topics: ['encoded:html'],
-    })
+  private getServerUrl = (): URL | undefined =>
+    pipe(
+      sessionStore.get(SessionsStoreKeys.SERVER_URL),
+      O.map((serverUrl) => {
+        window.clearInterval(this.serverUrlPollRef)
+        this.serverUrl = new window.URL(serverUrl)
+        return this.serverUrl
+      }),
+      O.getOrElseW(() => undefined)
+    )
+
+  private serverUrlPollRef: number
+  private pollForServerUrl = () => {
+    this.serverUrlPollRef = window.setInterval(() => this.getServerUrl(), 200)
   }
 
   componentWillLoad() {
-    this.subscribeToDocument()
-  }
-
-  disconnectedCallback() {
-    this.unsubscribeFromDocument()
+    this.updateDoc(this.documentId)
+    this.getServerUrl()
+    if (this.serverUrl === undefined) {
+      this.pollForServerUrl()
+    }
   }
 
   render() {
     return (
       <Host>
-        <style>
-          @import url('https://unpkg.com/@stencila/thema@latest/dist/themes/
-          {getProjectTheme(state)}/styles.css');
-        </style>
+        <div class="app-document-preview">
+          {this.serverUrl === undefined ? (
+            'Loading'
+          ) : (
+            <Fragment>
+              <iframe
+                title="document-preview"
+                src={`${this.serverUrl.origin}${this.doc.path}${this.serverUrl.search}&theme=${this.theme}`}
+              />
 
-        <div
-          class="app-document-preview"
-          innerHTML={this.previewContents}
-        ></div>
+              <menu>
+                <label aria-label="Project Theme">
+                  <stencila-icon icon="palette"></stencila-icon>
+                  <select onChange={this.onThemeChange}>
+                    {Object.entries(themes).map(([value, name]) => (
+                      <option value={value} selected={value === this.theme}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </menu>
+            </Fragment>
+          )}
+        </div>
       </Host>
     )
   }

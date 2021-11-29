@@ -878,12 +878,19 @@ impl Projects {
         Self::default()
     }
 
-    /// Get the path of the current project, falling back to the current working directory
+    /// Get the path of closest project to a path
     ///
-    /// Searches up the directory tree for a `project.json`, returning the parent of the
-    /// first one found. If none is found returns the current working directory.
-    pub fn current_path() -> Result<PathBuf> {
-        let current = std::env::current_dir()?;
+    /// Searches up the directory tree for a `project.json` file, returning the parent directory
+    /// of the first of those files found. If none is found returns the path (or it's parent directory if
+    /// the path is a file).
+    pub fn project_of_path<P: AsRef<Path>>(path: P) -> Result<PathBuf> {
+        let path = path.as_ref();
+        let current = if path.is_file() {
+            path.parent().unwrap_or(path)
+        } else {
+            path
+        }
+        .to_path_buf();
         let mut dir = current.clone();
         loop {
             if dir.join(Project::FILE_NAME).exists() {
@@ -894,6 +901,11 @@ impl Projects {
                 None => return Ok(current),
             }
         }
+    }
+
+    /// Get the path of closest project to the current working directory
+    pub fn project_of_cwd() -> Result<PathBuf> {
+        Projects::project_of_path(std::env::current_dir()?)
     }
 
     /// List documents that are currently open
@@ -918,7 +930,7 @@ impl Projects {
     pub async fn open<P: AsRef<Path>>(&self, path: Option<P>, watch: bool) -> Result<Project> {
         let path = match path {
             Some(path) => path.as_ref().canonicalize()?,
-            None => Projects::current_path()?,
+            None => Projects::project_of_cwd()?,
         };
 
         if let Some(handler) = self.registry.lock().await.get(&path) {

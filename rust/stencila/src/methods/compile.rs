@@ -97,7 +97,7 @@ macro_rules! identify {
         if let Some(id) = $node.id.as_deref() {
             id.clone()
         } else {
-            let id = uuid_utils::generate("no").to_string();
+            let id = uuids::generate("no").to_string();
             $node.id = Some(Box::new(id.clone()));
             id
         }

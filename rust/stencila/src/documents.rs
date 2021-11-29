@@ -285,7 +285,7 @@ impl Document {
     /// a new document. If the `path` is not specified, the created document
     /// will be `temporary: true` and have a temporary file path.
     fn new(path: Option<PathBuf>, format: Option<String>) -> Document {
-        let id = uuid_utils::generate("do").to_string();
+        let id = uuids::generate("do").to_string();
 
         let format = if let Some(format) = format {
             FORMATS.match_path(&format)
@@ -309,7 +309,7 @@ impl Document {
             None => {
                 let path = env::temp_dir().join(
                     [
-                        uuid_utils::generate("fi").to_string(),
+                        uuids::generate("fi").to_string(),
                         ".".to_string(),
                         format.name.clone(),
                     ]
@@ -380,7 +380,7 @@ impl Document {
 
         // Create a new document with unique id
         let mut document = Document {
-            id: uuid_utils::generate("do").to_string(),
+            id: uuids::generate("do").to_string(),
             ..Default::default()
         };
 

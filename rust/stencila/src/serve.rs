@@ -1,17 +1,18 @@
 use crate::{
     config::CONFIG,
     documents::DOCUMENTS,
-    jwt,
-    rpc::{self, Error, Protocol, Request, Response},
+    jwt::{self, YEAR_SECONDS},
+    projects::Projects,
+    rpc::{self, Error, Request, Response},
     utils::urls,
 };
-use defaults::Defaults;
-use events::{subscribe, Subscriber};
-use eyre::{bail, Result};
+use chrono::{Duration, TimeZone, Utc};
+use events::{subscribe, unsubscribe, Subscriber, SubscriptionId};
+use eyre::{bail, eyre, Result};
 use futures::{SinkExt, StreamExt};
 use itertools::Itertools;
 use jwt::JwtError;
-use once_cell::sync::Lazy;
+use once_cell::sync::{Lazy, OnceCell};
 use regex::{Captures, Regex};
 use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize};
@@ -19,12 +20,12 @@ use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
     env,
     fmt::Debug,
-    path::Path,
-    str::FromStr,
+    fs,
+    path::{Path, PathBuf},
     sync::Arc,
 };
 use thiserror::private::PathAsDisplay;
-use tokio::sync::{mpsc, RwLock};
+use tokio::sync::{mpsc, oneshot, RwLock};
 use warp::{
     http::{
         header::{self, HeaderValue},
@@ -33,134 +34,404 @@ use warp::{
     ws, Filter, Reply,
 };
 
-/// Parse a URL into protocol, address and port components
-pub fn parse_url(url: &str) -> Result<(Protocol, String, u16)> {
-    let url = urls::parse(url)?;
-    let protocol = Protocol::from_str(url.scheme())?;
-    let address = url.host().unwrap().to_string();
-    let port = url
-        .port_or_known_default()
-        .expect("Should be a default port for the protocol");
-    Ok((protocol, address, port))
-}
-
-/// Generate the login URL given a key, and optionally, the path to redirect to
-/// on successful login.
-pub fn login_url(
-    port: u16,
-    key: Option<String>,
-    expiry_seconds: Option<i64>,
-    next: Option<String>,
-) -> Result<String> {
-    let next = next.unwrap_or_else(|| "/".to_string());
-    let url = if let Some(key) = key {
-        let token = jwt::encode(key, expiry_seconds)?;
-        format!(
-            "http://127.0.0.1:{}/~login?token={}&next={}",
-            port, token, next
-        )
-    } else {
-        format!("http://127.0.0.1:{}{}", port, next)
-    };
-    Ok(url)
-}
-
-/// Run a server on this thread
-///
-/// # Arguments
-///
-/// - `url`: The URL to listen on
-/// - `key`: A secret key for signing and verifying JSON Web Tokens (defaults to random)
-///
-/// # Examples
-///
-/// Listen on ws://0.0.0.0:1234,
-///
-/// ```no_run
-/// # #![recursion_limit = "256"]
-/// use stencila::serve::serve;
-///
-/// serve("ws://0.0.0.0:1234", None);
-/// ```
-pub async fn serve(url: &str, key: Option<String>) -> Result<()> {
-    let (protocol, address, port) = parse_url(url)?;
-    serve_on(protocol, address, port, key).await
-}
-
-/// Run a server on another thread
-///
-/// # Arguments
-///
-/// - `url`: The URL to listen on
-/// - `key`: A secret key for signing and verifying JSON Web Tokens (defaults to random)
+/// Start the server
 #[tracing::instrument]
-pub fn serve_background(url: &str, key: Option<String>) -> Result<()> {
-    // Spawn a thread, start a runtime in it, and serve using that runtime.
-    // Any errors within the thread are logged because we can't return a
-    // `Result` from the thread to the caller of this function.
-    let url = url.to_string();
-    std::thread::spawn(move || {
-        let _span = tracing::trace_span!("serve_in_background");
+pub async fn start(
+    home: Option<PathBuf>,
+    url: Option<String>,
+    key: Option<String>,
+    insecure: bool,
+    traversal: bool,
+    root: bool,
+) -> Result<()> {
+    if let Some(server) = SERVER.get() {
+        let server = server.read().await;
+        if server.running() {
+            bail!("Server has already been started; perhaps use `stop` first");
+        }
+    }
 
-        let runtime = match tokio::runtime::Runtime::new() {
-            Ok(runtime) => runtime,
-            Err(error) => {
-                tracing::error!("{}", error.to_string());
-                return;
+    let mut server = Server::new(home, url, key, insecure, traversal, root).await?;
+    server.start().await?;
+
+    match SERVER.get() {
+        Some(mutex) => {
+            *(mutex.write().await) = server;
+        }
+        None => {
+            if SERVER.set(RwLock::new(server)).is_err() {
+                bail!("Unable to set server instance")
             }
-        };
-        match runtime.block_on(async { serve(&url, key).await }) {
-            Ok(_) => {}
-            Err(error) => tracing::error!("{}", error.to_string()),
-        };
-    });
+        }
+    }
 
     Ok(())
 }
 
-/// Static assets
+/// Stop the server
+#[tracing::instrument]
+pub async fn stop() -> Result<()> {
+    if let Some(server) = SERVER.get() {
+        server.write().await.stop().await?;
+    } else {
+        tracing::warn!("Server has not yet been started");
+    }
+    Ok(())
+}
+
+/// Serve a project or document
 ///
-/// During development, these are served from the `static` folder (which
-/// has a symlink to `web/dist/browser` (and maybe in the future other folders).
-/// At build time these are embedded in the binary. Use `include` and `exclude`
-/// glob patterns to only include the assets that are required.
-#[cfg(feature = "serve-http")]
-#[derive(RustEmbed)]
-#[folder = "static"]
-#[exclude = "web/*.map"]
-struct Static;
+/// The server will be started (if it has not already been) and a URL is returned
+/// containing the server's port, the path, and a token providing access to the
+/// path (unless the server has no `key`). The path will be added to the server's
+/// list of served paths (only paths withing these paths can be accessed).
+///
+/// # Arguments
+///
+/// - `path`: The path to be served
+/// - `expiry_seconds`: The number of seconds before the token expires
+/// - `single_use`: Whether the token should be single use
+pub async fn serve<P: AsRef<Path>>(
+    path: &P,
+    expiry_seconds: Option<i64>,
+    single_use: bool,
+) -> Result<String> {
+    let path = path.as_ref();
 
-/// The version used in URL paths for static assets
-/// Allows for caching control (see [`get_static`]).
-const STATIC_VERSION: &str = if cfg!(debug_assertions) {
-    "dev"
-} else {
-    env!("CARGO_PKG_VERSION")
-};
+    // Get, or start, the server
+    let server = match SERVER.get() {
+        Some(server) => server,
+        None => {
+            let mut server = Server::new(None, None, None, false, false, false).await?;
+            server.start().await?;
+            SERVER.get_or_init(|| RwLock::new(server))
+        }
+    };
+    let mut server = server.write().await;
 
+    // Insert the path into the server's paths to allow access
+    let project = Projects::project_of_path(path)?;
+    server.projects.insert(project.clone());
+
+    // If the path is in the server `home` directory, use a relative path in the URL.
+    // Strip forward slashes from paths: URL paths beginning with a forward slash cause issues with 301 redirects
+    // (they are confused with protocol relative URLs by the browser) and percent encoding them causes other issues
+    // with cookie `Path` matching.
+    let url_path = if let Ok(path) = path.strip_prefix(&server.home) {
+        path
+    } else if let Ok(path) = path.strip_prefix("/") {
+        path
+    } else {
+        path
+    }
+    .display()
+    .to_string();
+
+    // Create a URL to path, with a path scoped token (if necessary).
+    let mut url = format!("http://{}:{}/{}", server.address, server.port, url_path);
+    if let Some(key) = &server.key {
+        let token = jwt::encode(key, project, expiry_seconds, single_use)?;
+        url += &format!("?token={}", token);
+    }
+
+    Ok(url)
+}
+
+/// The global, singleton, HTTP/WebSocket server instance
+static SERVER: OnceCell<RwLock<Server>> = OnceCell::new();
+
+/// A HTTP/WebSocket server
+#[derive(Debug, Serialize)]
+pub struct Server {
+    /// The IP address that the server is listening on
+    address: String,
+
+    /// The port that the server is listening on
+    port: u16,
+
+    /// The secret key used to sign and verify JSON Web Tokens issued by the server
+    key: Option<String>,
+
+    /// The home project of the server
+    ///
+    /// This defaults to the directory that the server is started in, or if that directory
+    /// is nested within a project (i.e. has a `project.json` file), the root directory of the project.
+    /// Any relative paths that are requested from the server will be resolved to this
+    /// directory.
+    home: PathBuf,
+
+    /// The projects that the server will allow access to
+    projects: HashSet<PathBuf>,
+
+    /// Whether traversal out of `paths` is permitted
+    traversal: bool,
+
+    /// The set of already used, single-use tokens
+    used_tokens: HashSet<String>,
+
+    /// The `oneshot` channel sender used internally to gracefully shutdown the server
+    #[serde(skip)]
+    shutdown_sender: Option<oneshot::Sender<()>>,
+}
+
+impl Server {
+    /// Create a new server
+    ///
+    /// # Arguments
+    ///
+    /// - `home`: The root directory for files that are served (defaults to current working directory)
+    /// - `url`: The URL to listen on
+    /// - `key`: A secret key for signing and verifying JSON Web Tokens (defaults to random)
+    /// - `insecure`: Allow unauthenticated access (i.e. no JSON Web Token)
+    /// - `traversal`: Allow traversal out of the root directory is allowed
+    /// - `root`: Allow serving as root user
+    pub async fn new(
+        home: Option<PathBuf>,
+        url: Option<String>,
+        key: Option<String>,
+        insecure: bool,
+        traversal: bool,
+        root: bool,
+    ) -> Result<Self> {
+        let config = &CONFIG.lock().await.serve;
+
+        let home = match &home {
+            Some(home) => home.canonicalize()?,
+            None => Projects::project_of_cwd()?,
+        };
+
+        let mut projects = HashSet::new();
+        projects.insert(home.clone());
+
+        let url = match url {
+            Some(url) => Some(url),
+            None => config.url.clone(),
+        };
+
+        let key = match key {
+            Some(key) => Some(key),
+            None => config.key.clone(),
+        };
+
+        let insecure = insecure || config.insecure;
+        if insecure {
+            tracing::warn!("Serving in insecure mode is dangerous and discouraged.")
+        }
+
+        let key = if key.is_none() {
+            match insecure {
+                true => None,
+                false => Some(key_utils::generate()),
+            }
+        } else {
+            key
+        };
+
+        if traversal {
+            tracing::warn!("Allowing traversal out of server home directory.")
+        }
+
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        if let sudo::RunningAs::Root = sudo::check() {
+            if root {
+                tracing::warn!("Serving as root/administrator is dangerous and discouraged.")
+            } else {
+                bail!("Serving as root/administrator is not permitted by default, use the `--root` option to bypass this safety measure.")
+            }
+        }
+
+        let (address, port) = match url {
+            Some(url) => Self::parse_url(&url)?,
+            None => ("127.0.0.1".to_string(), Self::pick_port(9000, 9011)?),
+        };
+
+        Ok(Self {
+            address,
+            port,
+            key,
+            home,
+            projects,
+            traversal,
+            used_tokens: HashSet::new(),
+            shutdown_sender: None,
+        })
+    }
+
+    /// Start the server
+    pub async fn start(&mut self) -> Result<()> {
+        let home = self.home.clone();
+        let traversal = self.traversal;
+
+        let mut url = format!("http://{}:{}", self.address, self.port);
+        if let Some(key) = &self.key {
+            // Check the key is not too long
+            if key.len() > 64 {
+                bail!("Server key should be 64 bytes or less")
+            }
+
+            // Provide the user with a long-expiring, multiple-use token, scoped to the home project.
+            let token = jwt::encode(key, home.clone(), None, false)?;
+            url.push_str("?token=");
+            url.push_str(&token);
+        }
+        tracing::info!("Serving {} at {}", home.display(), url);
+
+        // Static files (assets embedded in binary for which authentication is not required)
+
+        let statics = warp::get()
+            .and(warp::path("~static"))
+            .and(warp::path::tail())
+            .and_then(get_static);
+
+        // The following HTTP and WS endpoints all require authentication
+
+        let authenticate = || authentication_filter(self.key.clone(), self.home.clone());
+
+        let ws = warp::ws()
+            .and(warp::path::full())
+            .and(warp::query::<WsParams>())
+            .and(authenticate())
+            .map(ws_handshake);
+
+        let get = warp::get()
+            .and(warp::path::full())
+            .and(warp::query::<GetParams>())
+            .and(authenticate())
+            .and(warp::any().map(move || (home.clone(), traversal)))
+            .and_then(get_handler);
+
+        let post = warp::post()
+            .and(warp::path::end())
+            .and(warp::body::json::<Request>())
+            .and(authenticate())
+            .and_then(post_handler);
+
+        let post_wrap = warp::post()
+            .and(warp::path::param())
+            .and(warp::body::json::<serde_json::Value>())
+            .and(authenticate())
+            .and_then(post_wrap_handler);
+
+        // Custom `server` header
+        let server_header = warp::reply::with::default_header(
+            "server",
+            format!(
+                "Stencila/{} ({})",
+                env!("CARGO_PKG_VERSION"),
+                env::consts::OS
+            ),
+        );
+
+        // CORS headers to allow from any origin
+        let cors_headers = warp::cors()
+            .allow_any_origin()
+            .allow_headers(vec![
+                "Content-Type",
+                "Referer", // Note that this is an intentional misspelling!
+                "Origin",
+                "Access-Control-Allow-Origin",
+            ])
+            .allow_methods(&[warp::http::Method::GET, warp::http::Method::POST])
+            .max_age(24 * 60 * 60);
+
+        let routes = statics
+            .or(ws)
+            .or(get)
+            .or(post)
+            .or(post_wrap)
+            .with(server_header)
+            .with(cors_headers)
+            .recover(rejection_handler);
+
+        // Spawn the serving task
+        let (shutdown_sender, shutdown_receiver) = oneshot::channel::<()>();
+        let address: std::net::IpAddr = self.address.parse()?;
+        let (_, future) =
+            warp::serve(routes).bind_with_graceful_shutdown((address, self.port), async {
+                shutdown_receiver.await.ok();
+            });
+        tokio::task::spawn(future);
+
+        self.shutdown_sender = Some(shutdown_sender);
+
+        Ok(())
+    }
+
+    /// Stop the server
+    pub async fn stop(&mut self) -> Result<()> {
+        tracing::debug!("Stopping server");
+
+        CLIENTS.clear().await;
+
+        if self.shutdown_sender.is_some() {
+            // It appears to be sufficient to just set the sender to None to shutdown the server
+            self.shutdown_sender = None;
+            tracing::info!("Server stopped successfully");
+        } else {
+            tracing::info!("Server was already stopped");
+        }
+
+        Ok(())
+    }
+
+    /// Is the server running?
+    pub fn running(&self) -> bool {
+        self.shutdown_sender.is_some()
+    }
+
+    /// Parse a URL into address and port components
+    pub fn parse_url(url: &str) -> Result<(String, u16)> {
+        let url = urls::parse(url)?;
+        let address = url.host().unwrap().to_string();
+        let port = url
+            .port_or_known_default()
+            .expect("Should be a default port for the protocol");
+        Ok((address, port))
+    }
+
+    /// Pick the first available port from a range, falling back to a random port
+    /// if none of the ports in the range are available
+    pub fn pick_port(min: u16, max: u16) -> Result<u16> {
+        for port in min..max {
+            if portpicker::is_free(port) {
+                return Ok(port);
+            }
+        }
+        portpicker::pick_unused_port().ok_or_else(|| eyre!("There are no free ports"))
+    }
+}
+
+#[derive(Debug, Serialize)]
 struct Client {
-    /// A list of subscription topics for this client
-    subscriptions: HashSet<String>,
+    /// The client id
+    id: String,
+
+    /// A mapping of subscription topics to subscript ids for this client
+    subscriptions: HashMap<String, SubscriptionId>,
 
     /// The current sender for this client
     ///
     /// This is set / reset each time that the client opens
-    /// a websocket connection
+    /// a WebSocket connection
+    #[serde(skip)]
     sender: mpsc::UnboundedSender<ws::Message>,
 }
 
 impl Client {
-    pub fn subscribe(&mut self, topic: &str) -> bool {
-        self.subscriptions.insert(topic.to_string())
+    /// Subscribe the client to an event topic
+    pub fn subscribe(&mut self, topic: &str, subscription_id: SubscriptionId) {
+        self.subscriptions
+            .insert(topic.to_string(), subscription_id);
     }
 
-    pub fn unsubscribe(&mut self, topic: &str) -> bool {
+    /// Unsubscribe the client from an event topic
+    pub fn unsubscribe(&mut self, topic: &str) -> Option<SubscriptionId> {
         self.subscriptions.remove(topic)
     }
 
-    // Is a client subscribed to a particular topic, or set of topics?
+    /// Is a client subscribed to a particular topic, or set of topics?
     pub fn subscribed(&self, topic: &str) -> bool {
-        for subscription in &self.subscriptions {
+        for subscription in self.subscriptions.keys() {
             if subscription == "*" || topic.starts_with(subscription) {
                 return true;
             }
@@ -168,6 +439,7 @@ impl Client {
         false
     }
 
+    /// Send a serializable message to the client
     pub fn send(&self, message: impl Serialize) {
         match serde_json::to_string(&message) {
             Ok(json) => self.send_text(&json),
@@ -175,6 +447,7 @@ impl Client {
         }
     }
 
+    /// Send a text message to the client
     pub fn send_text(&self, text: &str) {
         if let Err(error) = self.sender.send(warp::ws::Message::text(text)) {
             tracing::error!("Client send error `{}`", error)
@@ -182,91 +455,155 @@ impl Client {
     }
 }
 
+/// The global store of clients
+static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
+
 /// A store of clients
-#[derive(Defaults)]
+///
+/// Used to manage relaying events to clients.
+#[derive(Debug)]
 struct Clients {
-    clients: Arc<RwLock<HashMap<String, Client>>>,
+    /// The clients
+    inner: Arc<RwLock<HashMap<String, Client>>>,
+
+    /// The sender used to subscribe to events on behalf of clients
+    sender: mpsc::UnboundedSender<events::Message>,
 }
 
 impl Clients {
+    /// Create a new client store and begin task for publishing events to them
     pub fn new() -> Self {
-        let clients = Clients::default();
+        let inner = Arc::new(RwLock::new(HashMap::new()));
 
         let (sender, receiver) = mpsc::unbounded_channel::<events::Message>();
-        subscribe("*", Subscriber::Sender(sender)).unwrap();
-        tokio::spawn(Clients::publish(clients.clients.clone(), receiver));
+        tokio::spawn(Clients::relay(inner.clone(), receiver));
 
-        clients
+        Self { inner, sender }
     }
 
-    pub async fn connected(&self, id: &str, sender: mpsc::UnboundedSender<ws::Message>) {
-        let mut clients = self.clients.write().await;
-        match clients.entry(id.to_string()) {
+    /// A client connected
+    pub async fn connected(&self, client_id: &str, sender: mpsc::UnboundedSender<ws::Message>) {
+        let mut clients = self.inner.write().await;
+        match clients.entry(client_id.to_string()) {
             Entry::Occupied(mut occupied) => {
-                tracing::debug!("Re-connection for client `{}`", id);
+                tracing::debug!("Re-connection for client `{}`", client_id);
                 let client = occupied.get_mut();
                 client.sender = sender;
             }
             Entry::Vacant(vacant) => {
-                tracing::debug!("New connection for client `{}`", id);
+                tracing::debug!("New connection for client `{}`", client_id);
                 vacant.insert(Client {
-                    subscriptions: HashSet::new(),
+                    id: client_id.to_string(),
+                    subscriptions: HashMap::new(),
                     sender,
                 });
             }
         };
     }
 
-    pub async fn disconnected(&self, id: &str, gracefully: bool) {
-        let mut clients = self.clients.write().await;
-        clients.remove(id);
+    /// A client disconnected
+    pub async fn disconnected(&self, client_id: &str, gracefully: bool) {
+        self.remove(client_id).await;
 
         if gracefully {
-            tracing::debug!("Graceful disconnection by client `{}`", id)
+            tracing::debug!("Graceful disconnection by client `{}`", client_id)
         } else {
-            tracing::warn!("Ungraceful disconnection by client `{}`", id)
+            tracing::warn!("Ungraceful disconnection by client `{}`", client_id)
         }
     }
 
-    pub async fn send(&self, id: &str, message: impl Serialize) {
-        let clients = self.clients.read().await;
-        if let Some(client) = clients.get(id) {
+    /// Subscribe a client to an event topic
+    pub async fn subscribe(&self, client_id: &str, topic: &str) {
+        let mut clients = self.inner.write().await;
+        if let Some(client) = clients.get_mut(client_id) {
+            tracing::debug!("Subscribing client `{}` to topic `{}`", client_id, topic);
+            match subscribe(topic, Subscriber::Sender(self.sender.clone())) {
+                Ok(subscription_id) => {
+                    client.subscribe(topic, subscription_id);
+                }
+                Err(error) => {
+                    tracing::error!("{}", error);
+                }
+            }
+        } else {
+            tracing::error!("No such client `{}`", client_id);
+        }
+    }
+
+    /// Unsubscribe a client from an event topic
+    pub async fn unsubscribe(&self, client_id: &str, topic: &str) {
+        let mut clients = self.inner.write().await;
+        if let Some(client) = clients.get_mut(client_id) {
+            tracing::debug!(
+                "Unsubscribing client `{}` from topic `{}`",
+                client_id,
+                topic
+            );
+            if let Some(subscription_id) = client.unsubscribe(topic) {
+                if let Err(error) = unsubscribe(&subscription_id) {
+                    tracing::error!("{}", error);
+                }
+            }
+        } else {
+            tracing::error!("No such client `{}`", client_id);
+        }
+    }
+
+    /// Remove a client from the store
+    ///
+    /// Removes all the client event subscriptions in addition to removing the client
+    /// from the list of clients.
+    pub async fn remove(&self, client_id: &str) {
+        let mut clients = self.inner.write().await;
+        if let Some(client) = clients.get(client_id) {
+            for subscription_id in client.subscriptions.values() {
+                if let Err(error) = unsubscribe(subscription_id) {
+                    tracing::error!("{}", error);
+                }
+            }
+        }
+        clients.remove(client_id);
+    }
+
+    /// Remove all clients from the store
+    ///
+    /// Removes all clients and all their event subscriptions.
+    /// This should be done when the server is stopped to avoid keeping a record
+    /// of clients that have been disconnected.
+    pub async fn clear(&self) {
+        let mut clients = self.inner.write().await;
+        for client in clients.values() {
+            for subscription_id in client.subscriptions.values() {
+                if let Err(error) = unsubscribe(subscription_id) {
+                    tracing::error!("{}", error);
+                }
+            }
+        }
+        clients.clear();
+    }
+
+    /// Send a message to a client
+    pub async fn send(&self, client_id: &str, message: impl Serialize) {
+        let clients = self.inner.read().await;
+        if let Some(client) = clients.get(client_id) {
             client.send(message);
         } else {
-            tracing::error!("No such client `{}`", id);
+            tracing::error!("No such client `{}`", client_id);
         }
     }
 
-    pub async fn subscribe(&self, id: &str, topic: &str) {
-        let mut clients = self.clients.write().await;
-        if let Some(client) = clients.get_mut(id) {
-            tracing::debug!("Subscribing client `{}` to topic `{}`", id, topic);
-            client.subscribe(topic);
-        } else {
-            tracing::error!("No such client `{}`", id);
-        }
-    }
-
-    pub async fn unsubscribe(&self, id: &str, topic: &str) {
-        let mut clients = self.clients.write().await;
-        if let Some(client) = clients.get_mut(id) {
-            tracing::debug!("Unsubscribing client `{}` from topic `{}`", id, topic);
-            client.unsubscribe(topic);
-        } else {
-            tracing::error!("No such client `{}`", id);
-        }
-    }
-
-    /// Publish events to clients
+    /// Relay events to clients
     ///
     /// The receiver will receive _all_ events that are published and relay them on to
     /// clients based in their subscriptions.
-    async fn publish(
+    async fn relay(
         clients: Arc<RwLock<HashMap<String, Client>>>,
         receiver: mpsc::UnboundedReceiver<events::Message>,
     ) {
         let mut receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(receiver);
         while let Some((topic, event)) = receiver.next().await {
+            tracing::debug!("Received event for topic `{}`", topic);
+
             // Get a list of clients that are subscribed to this topic
             let clients = clients.read().await;
             let clients = clients
@@ -297,168 +634,23 @@ impl Clients {
                 }
             };
 
+            tracing::debug!(
+                "Relaying event to subscribed clients `{}`",
+                clients
+                    .iter()
+                    .map(|client| client.id.clone())
+                    .collect::<Vec<String>>()
+                    .join(",")
+            );
+
             // Send it!
             for client in clients {
                 client.send_text(&json)
             }
         }
+
+        tracing::debug!("Relaying task ended");
     }
-}
-
-/// The global clients store
-static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
-
-/// Run a server
-///
-/// # Arguments
-///
-/// - `protocol`: The `Protocol` to serve on (defaults to Websocket)
-/// - `address`: The address to listen to (defaults to `127.0.0.1`; only for HTTP and Websocket protocols)
-/// - `port`: The port to listen on (defaults to `9000`, only for HTTP and Websocket protocols)
-///
-/// # Examples
-///
-/// Listen on both http://127.0.0.1:9000 and ws://127.0.0.1:9000,
-///
-/// ```no_run
-/// # #![recursion_limit = "256"]
-/// use stencila::rpc::Protocol;
-/// use stencila::serve::serve_on;
-///
-/// serve_on(Protocol::Ws, "127.0.0.1".to_string(), 9000, None);
-/// ```
-#[tracing::instrument]
-pub async fn serve_on(
-    protocol: Protocol,
-    address: String,
-    port: u16,
-    key: Option<String>,
-) -> Result<()> {
-    if let Some(key) = key.as_ref() {
-        if key.len() > 64 {
-            bail!("Server key should be 64 bytes or less")
-        }
-    }
-
-    tracing::info!("Serving on {}://{}:{}", protocol, address, port);
-
-    match protocol {
-        Protocol::Http | Protocol::Ws => {
-            // Static files (assets embedded in binary for which authorization is not required)
-
-            let statics = warp::get()
-                .and(warp::path("~static"))
-                .and(warp::path::tail())
-                .and_then(get_static);
-
-            // Login endpoint (sets authorization cookie)
-
-            let key_clone = key.clone();
-            let login = warp::get()
-                .and(warp::path("~login"))
-                .map(move || key_clone.clone())
-                .and(warp::query::<LoginParams>())
-                .map(login_handler);
-
-            // The following HTTP and WS endpoints all require authorization (done by `jwt_filter`)
-
-            let authorize = || jwt_filter(key.clone());
-
-            let local = warp::get()
-                .and(warp::path("~local"))
-                .and(warp::path::tail())
-                .and(authorize())
-                .and_then(get_local);
-
-            let ws = warp::path("~ws")
-                .and(warp::ws())
-                .and(warp::query::<WsParams>())
-                .and(authorize())
-                .map(ws_handshake);
-
-            let get = warp::get()
-                .and(warp::path::full())
-                .and(warp::query::<GetParams>())
-                .and(authorize())
-                .and_then(get_handler);
-
-            let post = warp::post()
-                .and(warp::path::end())
-                .and(warp::body::json::<Request>())
-                .and(authorize())
-                .and_then(post_handler);
-
-            let post_wrap = warp::post()
-                .and(warp::path::param())
-                .and(warp::body::json::<serde_json::Value>())
-                .and(authorize())
-                .and_then(post_wrap_handler);
-
-            // Custom `server` header
-            let server = warp::reply::with::default_header(
-                "server",
-                format!(
-                    "Stencila/{} ({})",
-                    env!("CARGO_PKG_VERSION"),
-                    env::consts::OS
-                ),
-            );
-
-            // CORS headers to allow from any origin
-            let cors = warp::cors()
-                .allow_any_origin()
-                .allow_headers(vec![
-                    "Content-Type",
-                    "Referer", // Note that this is an intentional misspelling!
-                    "Origin",
-                    "Access-Control-Allow-Origin",
-                ])
-                .allow_methods(&[warp::http::Method::GET, warp::http::Method::POST])
-                .max_age(24 * 60 * 60);
-
-            let routes = login
-                .or(statics)
-                .or(local)
-                .or(ws)
-                .or(get)
-                .or(post)
-                .or(post_wrap)
-                .with(server)
-                .with(cors)
-                .recover(rejection_handler);
-
-            // Use `try_bind_ephemeral` here to avoid potential panic when using `run`
-            let address: std::net::IpAddr = address.parse()?;
-            let (_address, future) = warp::serve(routes).try_bind_ephemeral((address, port))?;
-            future.await
-        }
-        #[cfg(feature = "serve-stdio")]
-        Protocol::Stdio => {
-            use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
-
-            let stdin = tokio::io::stdin();
-            let mut stdout = tokio::io::stdout();
-
-            let buffer = tokio::io::BufReader::new(stdin);
-            let mut lines = buffer.lines();
-            // TODO capture next_line errors and log them
-            while let Some(line) = lines.next_line().await? {
-                // TODO capture any json errors and send
-                let request = serde_json::from_str::<Request>(&line)?;
-                let (response, ..) = request.dispatch("stdio").await;
-                let json = serde_json::to_string(&response)? + "\n";
-                // TODO: unwrap any of these errors and log them
-                stdout.write_all(json.as_bytes()).await?;
-                stdout.flush().await?
-            }
-        }
-        #[allow(unreachable_patterns)]
-        _ => {
-            bail!("Serving over protocol `{:?}` is not enabled", protocol)
-        }
-    };
-
-    Ok(())
 }
 
 /// Return an error response
@@ -476,6 +668,26 @@ fn error_response(
     )
     .into_response())
 }
+
+/// Static assets
+///
+/// During development, these are served from the `static` folder (which
+/// has a symlink to `web/dist/browser` (and maybe in the future other folders).
+/// At build time these are embedded in the binary. Use `include` and `exclude`
+/// glob patterns to only include the assets that are required.
+#[cfg(feature = "serve-http")]
+#[derive(RustEmbed)]
+#[folder = "static"]
+#[exclude = "web/*.map"]
+struct Static;
+
+/// The version used in URL paths for static assets
+/// Allows for caching control (see [`get_static`]).
+const STATIC_VERSION: &str = if cfg!(debug_assertions) {
+    "dev"
+} else {
+    env!("CARGO_PKG_VERSION")
+};
 
 /// Handle a HTTP `GET` request to the `/~static/` path
 ///
@@ -511,14 +723,19 @@ async fn get_static(
 
     let asset = match Static::get(&path) {
         Some(asset) => asset,
-        None => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
+        None => {
+            return error_response(
+                StatusCode::NOT_FOUND,
+                "Requested static asset does not exist",
+            )
+        }
     };
 
     let mut response = warp::reply::Response::new(asset.data.into());
 
     let mime = mime_guess::from_path(path).first_or_octet_stream();
     response.headers_mut().insert(
-        "content-type",
+        header::CONTENT_TYPE,
         HeaderValue::from_str(mime.as_ref()).unwrap(),
     );
 
@@ -535,140 +752,140 @@ async fn get_static(
     Ok(response)
 }
 
-/// A Warp filter that extracts any JSON Web Token from either the `Authorization` header
-/// or the `token` cookie.
-fn jwt_filter(
+/// Query parameters for `auth_filter`
+#[derive(Deserialize)]
+struct AuthParams {
+    pub token: Option<String>,
+}
+
+/// A Warp filter that extracts any JSON Web Token from a `token` query parameter, `Authorization` header
+/// or `token` cookie.
+///
+/// Returns the extracted (or refreshed) token, the claims extracted from the token and a cookie (if
+/// the token did not come from a cookie originally).
+fn authentication_filter(
     key: Option<String>,
-) -> impl Filter<Extract = (jwt::Claims,), Error = warp::Rejection> + Clone {
-    warp::header::optional::<String>("authorization")
+    home: PathBuf,
+) -> impl Filter<Extract = ((String, jwt::Claims, Option<String>),), Error = warp::Rejection> + Clone
+{
+    warp::query::<AuthParams>()
+        .and(warp::header::optional::<String>("authorization"))
         .and(warp::cookie::optional("token"))
-        .map(move |header: Option<String>, cookie: Option<String>| (key.clone(), header, cookie))
+        .map(
+            move |query: AuthParams, header: Option<String>, cookie: Option<String>| {
+                (key.clone(), home.clone(), query.token, header, cookie)
+            },
+        )
         .and_then(
-            |args: (Option<String>, Option<String>, Option<String>)| async move {
-                if let Some(key) = args.0 {
-                    let jwt = if let Some(header) = args.1 {
-                        match jwt::from_auth_header(header) {
-                            Ok(jwt) => jwt,
-                            Err(error) => return Err(warp::reject::custom(error)),
-                        }
-                    } else if let Some(cookie) = args.2 {
-                        cookie
+            |(key, home, param, header, cookie): (
+                Option<String>,
+                PathBuf,
+                Option<String>,
+                Option<String>,
+                Option<String>,
+            )| async move {
+                if let Some(key) = key {
+                    // Key present, so check for valid token as a query parameter, authorization header,
+                    // or cookie (in that order of precedence).
+
+                    // Attempt to get from query parameter
+                    let (token, claims) = if let Some(param) = param {
+                        tracing::debug!("Authentication claims from param");
+                        (Some(param.clone()), jwt::decode(&param, &key))
                     } else {
-                        return Err(warp::reject::custom(JwtError::NoTokenSupplied));
+                        (None, Err(JwtError::NoTokenSupplied))
                     };
-                    match jwt::decode(jwt, key) {
-                        Ok(claims) => Ok(claims),
-                        Err(error) => Err(warp::reject::custom(error)),
+
+                    // Attempt to get from authorization header
+                    let (token, claims) = if let (Err(..), Some(header)) = (&claims, header) {
+                        tracing::debug!("Authentication claims from header");
+                        match jwt::from_auth_header(header) {
+                            Ok(token) => (Some(token.clone()), jwt::decode(&token, &key)),
+                            Err(error) => {
+                                tracing::warn!("Error extracting token from header: {}", error);
+                                (None, claims)
+                            }
+                        }
+                    } else {
+                        (token, claims)
+                    };
+
+                    // Attempt to get from cookie
+                    let (token, claims, from_cookie) =
+                        if let (Err(..), Some(cookie)) = (&claims, cookie) {
+                            tracing::debug!("Authentication claims from cookie");
+                            let claims = jwt::decode(&cookie, &key);
+                            let ok = claims.is_ok();
+                            (Some(cookie), claims, ok)
+                        } else {
+                            (token, claims, false)
+                        };
+
+                    // Did we get any claims from the above?
+                    let claims = match claims {
+                        Ok(claims) => claims,
+                        Err(error) => return Err(warp::reject::custom(error)),
+                    };
+
+                    // Check for attempt to reuse a single-use token
+                    if let Some(jti) = &claims.jti {
+                        let server = SERVER.get().expect("Server should be instantiated");
+                        if server.read().await.used_tokens.contains(jti) {
+                            return Err(warp::reject::custom(JwtError::Reuse));
+                        } else {
+                            server.write().await.used_tokens.insert(jti.clone());
+                        }
                     }
+
+                    let project = claims.project.clone();
+
+                    // Generate a new token if necessary (single-use or soon to expire) for use in WebSocket URLs
+                    // and/or cookies.
+                    let updated_token = if claims.jti.is_some()
+                        || Utc.timestamp(claims.exp, 0) < Utc::now() + Duration::seconds(60)
+                    {
+                        jwt::encode(&key, project.clone(), Some(YEAR_SECONDS), false)
+                            .expect("Should encode")
+                    } else {
+                        token.clone().unwrap_or_default()
+                    };
+
+                    // Provide a token cookie if the claims did not come from a cookie or if it
+                    // has been refreshed
+                    // Token expires at the end of the browser session and should only be sent to
+                    // URL paths that are within the project.
+                    let cookie = if !from_cookie || updated_token != token.unwrap_or_default() {
+                        // If the project is within the home project (ie. a subfolder) then need to strip the prefix
+                        let path = if project == home {
+                            PathBuf::from("/".to_string())
+                        } else if let Ok(rest) = project.strip_prefix(home) {
+                            rest.to_path_buf()
+                        } else {
+                            project
+                        }
+                        .display()
+                        .to_string();
+                        Some(format!(
+                            "token={}; Path={}; SameSite; HttpOnly",
+                            updated_token, path
+                        ))
+                    } else {
+                        None
+                    };
+
+                    Ok((updated_token, claims, cookie))
                 } else {
-                    // No key, so just return an empty claim
-                    Ok(jwt::Claims { exp: 0 })
+                    // No key, so in insecure mode. Return empty token and default claims (they won't be used anyway) and no cookie.
+                    Ok(("".to_string(), jwt::Claims::default(), None))
                 }
             },
         )
 }
 
-#[derive(Debug, Deserialize, Clone)]
-struct LoginParams {
-    pub token: Option<String>,
-    pub next: Option<String>,
-}
-
-/// Handle a HTTP `GET /~login` request
-///
-/// This view is intended for humans so it returns HTML responses telling the
-/// human if something failed with the login and what to do about it. Otherwise,
-/// it just sets a cookie and redirects them to the next page.
-#[allow(clippy::unnecessary_unwrap)]
-#[tracing::instrument]
-fn login_handler(key: Option<String>, params: LoginParams) -> warp::reply::Response {
-    tracing::debug!("GET ~login");
-
-    let token = params.token;
-    let next = params.next.unwrap_or_else(|| "/".to_string());
-
-    fn redirect(next: String) -> warp::reply::Response {
-        warp::reply::with_header(
-            StatusCode::MOVED_PERMANENTLY,
-            warp::http::header::LOCATION,
-            next.as_str(),
-        )
-        .into_response()
-    }
-
-    if key.is_none() {
-        // There is no key so nothing further to do other than redirect to `next`
-        redirect(next)
-    } else if token.is_none() {
-        // There is no `?token=` query parameter
-        warp::reply::with_status(warp::reply::html("No token"), StatusCode::UNAUTHORIZED)
-            .into_response()
-    } else {
-        let key = key.unwrap();
-        let token = token.unwrap();
-        if jwt::decode(token, key.clone()).is_ok() {
-            // Valid token, so set a new, long-expiry token cookie and
-            // redirect to `next`.
-            let mut response = redirect(next);
-            const DAY: i64 = 24 * 60 * 60;
-            let cookie_token = jwt::encode(key, Some(30 * DAY)).unwrap();
-            let cookie = HeaderValue::from_str(format!("token={}", cookie_token).as_str()).unwrap();
-            let headers = response.headers_mut();
-            headers.insert("set-cookie", cookie);
-            response
-        } else {
-            // Invalid token
-            warp::reply::with_status(warp::reply::html("Invalid token"), StatusCode::UNAUTHORIZED)
-                .into_response()
-        }
-    }
-}
-
-/// Handle a HTTP `GET` request to a `/~local/` path
-#[tracing::instrument]
-async fn get_local(
-    path: warp::path::Tail,
-    _claims: jwt::Claims,
-) -> Result<warp::reply::Response, std::convert::Infallible> {
-    let path = path.as_str();
-    tracing::debug!("GET ~local /{}", path);
-
-    let cwd = std::env::current_dir().expect("Unable to get current working directory");
-
-    let path = match cwd.join(path).canonicalize() {
-        Ok(path) => path,
-        Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
-    };
-
-    if path.strip_prefix(&cwd).is_err() {
-        return error_response(
-            StatusCode::FORBIDDEN,
-            "Requested path is outside of current working directory",
-        );
-    }
-
-    let content = match std::fs::read(&path) {
-        Ok(content) => content,
-        Err(error) => {
-            return error_response(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                &format!("When reading file `{}`", error),
-            )
-        }
-    };
-    let mime = mime_guess::from_path(path).first_or_octet_stream();
-
-    let mut response = warp::reply::Response::new(content.into());
-    response.headers_mut().insert(
-        "content-type",
-        warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
-    );
-    Ok(response)
-}
-
+/// Query parameters for `get_handler`
 #[derive(Debug, Deserialize)]
 struct GetParams {
-    /// The mode, "read", "view", "exec", or "edit"
+    /// The mode "read", "view", "exec", or "edit"
     mode: Option<String>,
 
     /// The format to view or edit
@@ -679,103 +896,268 @@ struct GetParams {
 
     /// Should web components be loaded
     components: Option<String>,
+
+    /// An authentication token
+    ///
+    /// Only used here only to determine whether to redirect (but used in `authentication_filter`
+    /// for actual authentication).
+    token: Option<String>,
 }
 
-/// Handle a HTTP `GET` request for a document
-///
-/// If the requested path starts with `/static` or is not one of the registered file types,
-/// then returns the static asset with the `Content-Type` header set.
-/// Otherwise, if the requested `Accept` header includes "text/html", viewer's index.html is
-/// returned (which, in the background will request the document as JSON). Otherwise,
-/// will attempt to determine the desired format from the `Accept` header and convert the
-/// document to that.
-#[tracing::instrument]
+/// Handle a HTTP `GET` request for a file or directory
+#[tracing::instrument(skip(cookie))]
 async fn get_handler(
     path: warp::path::FullPath,
     params: GetParams,
-    _claims: jwt::Claims,
+    (token, claims, cookie): (String, jwt::Claims, Option<String>),
+    (home, traversal): (PathBuf, bool),
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
     tracing::debug!("GET {}", path);
 
-    let cwd = std::env::current_dir().expect("Unable to get current working directory");
+    // Determine if the requested path is relative to the server `home` directory;
+    // otherwise construct an absolute path accordingly
+    let fs_path = path.strip_prefix('/').unwrap_or(path).to_string();
+    let fs_path = urlencoding::decode(&fs_path)
+        .map_or_else(|_| fs_path.clone(), |fs_path| fs_path.to_string());
+    let fs_path = Path::new(&fs_path);
+    let fs_path = if let Ok(path) = home.join(fs_path).canonicalize() {
+        // Path found in home directory
+        path
+    } else if let Ok(path) = fs_path.canonicalize() {
+        // Path found elsewhere on the filesystem
+        path
+    } else if let Ok(path) = PathBuf::from("/").join(fs_path).canonicalize() {
+        // Path found elsewhere on the filesystem (when stripped leading slash is added back; see `serve()`)
+        path
+    } else {
+        return error_response(
+            StatusCode::NOT_FOUND,
+            &format!("Requested path `{}` does not exist", fs_path.display()),
+        );
+    }
+    .to_path_buf();
 
-    let path = Path::new(path.strip_prefix('/').unwrap_or(path));
-    let path = match cwd.join(path).canonicalize() {
-        Ok(path) => path,
-        Err(_) => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
-    };
+    // Check the path is within one of the server's `projects`
+    // Because `projects` may be appended to at runtime, it is necessary to get these
+    // from the server instance.
+    if !traversal {
+        let server = SERVER
+            .get()
+            .expect("Server should be instantiated")
+            .read()
+            .await;
 
-    if path.strip_prefix(&cwd).is_err() {
+        let mut ok = false;
+        for project in &server.projects {
+            if fs_path.strip_prefix(&project).is_ok() {
+                ok = true;
+                break;
+            }
+        }
+        if !ok {
+            return error_response(
+                StatusCode::FORBIDDEN,
+                "Traversal outside of server's home, or registered, projects is not permitted",
+            );
+        }
+    }
+
+    // Check the path is within the project for which authorization is given
+    if fs_path.strip_prefix(&claims.project).is_err() {
         return error_response(
             StatusCode::FORBIDDEN,
-            "Requested path is outside of current working directory",
+            "Insufficient permissions to access this directory or file",
         );
     }
 
-    let mode = params.mode.unwrap_or_else(|| "view".into());
     let format = params.format.unwrap_or_else(|| "html".into());
+    let mode = params.mode.unwrap_or_else(|| "view".into());
     let theme = params.theme.unwrap_or_else(|| "wilmore".into());
     let components = params.components.unwrap_or_else(|| "static".into());
 
-    match DOCUMENTS.open(&path, None).await {
-        Ok(document) => {
-            let document = DOCUMENTS.get(&document.id).await.unwrap();
-            let document = document.lock().await;
-            let content = match document.dump(Some(format.clone())).await {
-                Ok(content) => content,
-                Err(error) => {
-                    return error_response(
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        &format!("While converting document to {} `{}`", format, error),
-                    )
-                }
-            };
-
-            let content = match format.as_str() {
-                "html" => rewrite_html(&content, &mode, &theme, &components, &cwd, &path),
-                _ => content,
-            };
-
-            let mime = mime_guess::from_ext(&format).first_or_octet_stream();
-
-            let mut response = warp::reply::Response::new(content.into());
-            match format.as_str() {
-                "html" | "json" => {
-                    response.headers_mut().insert(
-                        "content-type",
-                        warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
-                    );
-                }
-                _ => {
-                    // Temporary serve other content as plain text to avoid browser download
-                    // In the future, this will be replace with a code editing view.
-                    response.headers_mut().insert(
-                        "content-type",
-                        warp::http::header::HeaderValue::from_str("text/plain; charset=utf-8")
-                            .unwrap(),
-                    );
-                }
+    let (content, mime, redirect) = if params.token.is_some() && claims.jti.is_some() {
+        // A token is in the URL. For address bar aesthetics, and to avoid re-use on page refresh, if the token is
+        // single-use (has a `jti` claim), redirect to a token-less URL. Note that we set a token cookie
+        // below to replace the URL-based token.
+        (
+            html_page_redirect(path).as_bytes().to_vec(),
+            "text/html".to_string(),
+            true,
+        )
+    } else if fs_path.is_dir() {
+        // Request for a path that is a folder. Return a listing
+        (
+            html_directory_listing(&home, &fs_path).as_bytes().to_vec(),
+            "text/html".to_string(),
+            false,
+        )
+    } else if format == "raw" {
+        // Request for raw content of the file (e.g. an image within the HTML encoding of a
+        // Markdown document)
+        let content = match fs::read(&fs_path) {
+            Ok(content) => content,
+            Err(error) => {
+                return error_response(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    &format!("When reading file `{}`", error),
+                )
             }
-            Ok(response)
+        };
+
+        let mime = mime_guess::from_path(fs_path).first_or_octet_stream();
+
+        (content, mime.to_string(), false)
+    } else {
+        // Request for a document in some format (usually HTML)
+        match DOCUMENTS.open(&fs_path, None).await {
+            Ok(document) => {
+                let document = DOCUMENTS.get(&document.id).await.unwrap();
+                let document = document.lock().await;
+                let content = match document.dump(Some(format.clone())).await {
+                    Ok(content) => content,
+                    Err(error) => {
+                        return error_response(
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            &format!("While converting document to {} `{}`", format, error),
+                        )
+                    }
+                };
+
+                let content = match format.as_str() {
+                    "html" => {
+                        let project =
+                            Projects::project_of_path(&fs_path).unwrap_or_else(|_| fs_path.clone());
+
+                        let project = if let Ok(project) = project.strip_prefix("/") {
+                            project.display()
+                        } else {
+                            project.display()
+                        }
+                        .to_string();
+
+                        html_rewrite(
+                            &content,
+                            &mode,
+                            &theme,
+                            &components,
+                            &token,
+                            &project,
+                            &home,
+                            &fs_path,
+                        )
+                    }
+                    _ => content,
+                }
+                .as_bytes()
+                .to_vec();
+
+                let mime = mime_guess::from_ext(&format).first_or_octet_stream();
+
+                (content, mime.to_string(), false)
+            }
+            Err(error) => {
+                return error_response(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    &format!("While opening document `{}`", error),
+                )
+            }
         }
-        Err(error) => error_response(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            &format!("While opening document `{}`", error),
-        ),
+    };
+
+    let mut response = warp::reply::Response::new(content.into());
+
+    response
+        .headers_mut()
+        .insert(header::CONTENT_TYPE, HeaderValue::from_str(&mime).unwrap());
+
+    if redirect {
+        *response.status_mut() = StatusCode::MOVED_PERMANENTLY;
+        response
+            .headers_mut()
+            .insert(header::LOCATION, HeaderValue::from_str(path).unwrap());
     }
+
+    if let Some(cookie) = cookie {
+        response
+            .headers_mut()
+            .insert(header::SET_COOKIE, HeaderValue::from_str(&cookie).unwrap());
+    }
+
+    Ok(response)
+}
+
+/// Generate HTML for a page redirect
+///
+/// Although the MOVED_PERMANENTLY status code should trigger the redirect, this
+/// provides HTML / JavaScript fallbacks.
+fn html_page_redirect(path: &str) -> String {
+    format!(
+        r#"<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <title>Redirecting</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0; url={}">
+    <script type="text/javascript">window.location.href = "{}"</script>
+</head>
+<body>If you are not redirected automatically, please follow this <a href="{}">link</a>.</body>
+</html>"#,
+        path, path, path
+    )
+}
+
+/// Generate HTML for a directory listing
+///
+/// Note: If the `dir` is outside of `home` (i.e. traversal was allowed) then
+/// no entries will be shown.
+fn html_directory_listing(home: &Path, dir: &Path) -> String {
+    let entries = match dir.read_dir() {
+        Ok(entries) => entries,
+        Err(error) => {
+            // This should be an uncommon error but to avoid an unwrap...
+            tracing::error!("{}", error);
+            return "<p>Something went wrong</p>".to_string();
+        }
+    };
+    entries
+        .flatten()
+        .filter_map(|entry| {
+            let path = entry.path();
+
+            let href = match path.strip_prefix(home) {
+                Ok(href) => href,
+                Err(..) => return None,
+            };
+
+            let name = match path.strip_prefix(dir) {
+                Ok(name) => name,
+                Err(..) => return None,
+            };
+
+            Some(format!(
+                "<p><a href=\"/{}\">{}</a></p>",
+                href.display(),
+                name.display()
+            ))
+        })
+        .collect::<Vec<String>>()
+        .concat()
 }
 
 /// Rewrite HTML to serve local files and wrap with desired theme etc.
 ///
 /// Only local files somewhere withing the current working directory are
 /// served.
-pub fn rewrite_html(
+#[allow(clippy::too_many_arguments)]
+pub fn html_rewrite(
     body: &str,
     mode: &str,
     theme: &str,
     components: &str,
-    cwd: &Path,
+    token: &str,
+    project: &str,
+    home: &Path,
     document: &Path,
 ) -> String {
     let static_root = ["/~static/", STATIC_VERSION].concat();
@@ -793,15 +1175,14 @@ pub fn rewrite_html(
     <link href="{static_root}/web/{mode}.css" rel="stylesheet">
     <script src="{static_root}/web/{mode}.js"></script>
     <script>
-        const startup = stencilaWebClient.main("{url}", "{client}", "{project}", "{snapshot}", "{document}");
+        const startup = stencilaWebClient.main("{client}", "{project}", "{snapshot}", "{document}", null, "{token}");
         startup().catch((err) => console.error('Error during startup', err))
     </script>"#,
         static_root = static_root,
         mode = mode,
-        // TODO: pass url from outside this function?
-        url = "ws://127.0.0.1:9000/~ws",
-        client = uuid_utils::generate("cl"),
-        project = "current",
+        client = uuids::generate("cl"),
+        token = token,
+        project = project,
         snapshot = "current",
         document = document.as_display().to_string()
     );
@@ -833,15 +1214,15 @@ pub fn rewrite_html(
     let body = REGEX.replace_all(body, |captures: &Captures| {
         let path = captures
             .get(1)
-            .expect("To always have first capture")
+            .expect("Should always have first capture")
             .as_str();
         let path = match Path::new(path).canonicalize() {
             Ok(path) => path,
             // Redact the path if it can not be canonicalized
-            Err(_) => return r#""""#.to_string(),
+            Err(_) => return "\"\"".to_string(),
         };
-        match path.strip_prefix(cwd) {
-            Ok(path) => ["\"/~local/", &path.display().to_string(), "\""].concat(),
+        match path.strip_prefix(home) {
+            Ok(path) => ["\"/", &path.display().to_string(), "?format=raw\""].concat(),
             // Redact the path if it is outside of the current directory
             Err(_) => "\"\"".to_string(),
         }
@@ -871,7 +1252,7 @@ pub fn rewrite_html(
 /// Handle a HTTP `POST /` request
 async fn post_handler(
     request: Request,
-    _claims: jwt::Claims,
+    (_token, _claims, _cookie): (String, jwt::Claims, Option<String>),
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
     let (response, ..) = request.dispatch("http").await;
     Ok(warp::reply::json(&response))
@@ -881,7 +1262,7 @@ async fn post_handler(
 async fn post_wrap_handler(
     method: String,
     params: serde_json::Value,
-    _claims: jwt::Claims,
+    (_token, _claims, _cookie): (String, jwt::Claims, Option<String>),
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
     use warp::reply;
 
@@ -922,16 +1303,43 @@ async fn post_wrap_handler(
 /// Parameters for the WebSocket handshake
 #[derive(Debug, Deserialize)]
 struct WsParams {
+    /// The id of the client
     client: String,
 }
 
 /// Perform a WebSocket handshake / upgrade
 ///
 /// This function is called at the start of a WebSocket connection.
-#[tracing::instrument]
-fn ws_handshake(ws: warp::ws::Ws, params: WsParams, _claims: jwt::Claims) -> impl warp::Reply {
+/// Each WebSocket connection is authorized to access a single project.
+/// Authorization is done by checking the `project` in the JWT claims
+/// against the requested path.
+#[tracing::instrument(skip(_cookie))]
+fn ws_handshake(
+    ws: warp::ws::Ws,
+    path: warp::path::FullPath,
+    params: WsParams,
+    (token, claims, _cookie): (String, jwt::Claims, Option<String>),
+) -> Box<dyn warp::Reply> {
+    use warp::reply;
+
     tracing::debug!("WebSocket handshake");
-    ws.on_upgrade(|socket| ws_connected(socket, params.client))
+
+    // Check that client is authorized to access the path
+    // On MacOS and Linux the leading slash is removed from the URL path so it
+    // is necessary to check against both the path, and the path less any leading slash.
+
+    let project = claims.project.display().to_string();
+
+    let path = path.as_str();
+    let fs_path = path.strip_prefix('/').unwrap_or(path).to_string();
+    let fs_path = urlencoding::decode(&fs_path)
+        .map_or_else(|_| fs_path.clone(), |fs_path| fs_path.to_string());
+
+    if project == fs_path || project == ["/", &fs_path].concat() {
+        Box::new(ws.on_upgrade(|socket| ws_connected(socket, params.client)))
+    } else {
+        Box::new(reply::with_status(reply(), StatusCode::UNAUTHORIZED))
+    }
 }
 
 /// Handle a WebSocket connection
@@ -939,7 +1347,7 @@ fn ws_handshake(ws: warp::ws::Ws, params: WsParams, _claims: jwt::Claims) -> imp
 /// This function is called after the handshake, when a WebSocket client
 /// has successfully connected.
 #[tracing::instrument(skip(socket))]
-async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
+async fn ws_connected(socket: warp::ws::WebSocket, client_id: String) {
     tracing::debug!("WebSocket connected");
 
     let (mut ws_sender, mut ws_receiver) = socket.split();
@@ -949,7 +1357,7 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
     let (client_sender, client_receiver) = mpsc::unbounded_channel();
     let mut client_receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(client_receiver);
 
-    let client_clone = client.clone();
+    let client_clone = client_id.clone();
     tokio::task::spawn(async move {
         while let Some(message) = client_receiver.next().await {
             if let Err(error) = ws_sender.send(message).await {
@@ -964,7 +1372,7 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
     });
 
     // Save / update the client
-    CLIENTS.connected(&client, client_sender).await;
+    CLIENTS.connected(&client_id, client_sender).await;
 
     while let Some(result) = ws_receiver.next().await {
         // Get the message
@@ -974,7 +1382,7 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
                 let message = error.to_string();
                 if message == "WebSocket protocol error: Connection reset without closing handshake"
                 {
-                    CLIENTS.disconnected(&client, false).await
+                    CLIENTS.disconnected(&client_id, false).await
                 } else {
                     tracing::error!("Websocket receive error `{}`", error);
                 }
@@ -995,27 +1403,27 @@ async fn ws_connected(socket: warp::ws::WebSocket, client: String) {
             Err(error) => {
                 let error = rpc::Error::parse_error(&error.to_string());
                 let response = rpc::Response::new(None, None, Some(error));
-                CLIENTS.send(&client, response).await;
+                CLIENTS.send(&client_id, response).await;
                 continue;
             }
         };
 
         // Dispatch the request and send back the response and update subscriptions
-        let (response, subscription) = request.dispatch(&client).await;
-        CLIENTS.send(&client, response).await;
+        let (response, subscription) = request.dispatch(&client_id).await;
+        CLIENTS.send(&client_id, response).await;
         match subscription {
             rpc::Subscription::Subscribe(topic) => {
-                CLIENTS.subscribe(&client, &topic).await;
+                CLIENTS.subscribe(&client_id, &topic).await;
             }
             rpc::Subscription::Unsubscribe(topic) => {
-                CLIENTS.unsubscribe(&client, &topic).await;
+                CLIENTS.unsubscribe(&client_id, &topic).await;
             }
             rpc::Subscription::None => (),
         }
     }
 
-    // Record that the client has diconnected gracefully
-    CLIENTS.disconnected(&client, true).await
+    // Record that the client has disconnected gracefully
+    CLIENTS.disconnected(&client_id, true).await
 }
 
 /// Handle a rejection by converting into a JSON-RPC response
@@ -1038,7 +1446,7 @@ async fn rejection_handler(
         Error::server_error("Unknown error")
     };
 
-    tracing::error!("{:?}", error);
+    tracing::error!("{}", error);
 
     Ok(warp::reply::with_status(
         warp::reply::json(&Response {
@@ -1053,23 +1461,22 @@ pub mod config {
     use defaults::Defaults;
     use schemars::JsonSchema;
     use serde::{Deserialize, Serialize};
+    use serde_with::skip_serializing_none;
     use validator::Validate;
 
     /// Server
     ///
     /// Configuration settings for running as a server
+    #[skip_serializing_none]
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
     #[schemars(deny_unknown_fields)]
     pub struct ServeConfig {
-        /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
-        #[def = "\"ws://127.0.0.1:9000\".to_string()"]
+        /// The URL to serve on
         #[validate(url(message = "Not a valid URL"))]
-        pub url: String,
+        pub url: Option<String>,
 
         /// Secret key to use for signing and verifying JSON Web Tokens
-        #[def = "None"]
-        #[serde(skip_serializing_if = "Option::is_none")]
         pub key: Option<String>,
 
         /// Do not require a JSON Web Token to access the server
@@ -1080,36 +1487,72 @@ pub mod config {
 
 #[cfg(feature = "cli")]
 pub mod commands {
+    use std::path::PathBuf;
+
     use super::*;
     use async_trait::async_trait;
     use cli_utils::{result, Result, Run};
     use structopt::StructOpt;
 
-    /// Serve over HTTP and WebSockets
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        about = "Manage the HTTP/WebSocket server",
+        setting = structopt::clap::AppSettings::ColoredHelp,
+        setting = structopt::clap::AppSettings::VersionlessSubcommands
+    )]
+    pub struct Command {
+        #[structopt(subcommand)]
+        pub action: Action,
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder
+    )]
+    pub enum Action {
+        Start(Start),
+        Stop(Stop),
+        Show(Show),
+        Clients(Clients),
+    }
+
+    #[async_trait]
+    impl Run for Command {
+        async fn run(&self) -> Result {
+            let Self { action } = self;
+            match action {
+                Action::Start(action) => action.run().await,
+                Action::Stop(action) => action.run().await,
+                Action::Show(action) => action.run().await,
+                Action::Clients(action) => action.run().await,
+            }
+        }
+    }
+
+    /// Start the server
     ///
-    /// ## Ports, protocols, and addresses
+    /// ## Ports and addresses
     ///
-    /// Use the <url> argument to change the port, address, and/or protocol that the server
+    /// Use the <url> argument to change the port and/or address that the server
     /// listens on. This argument can be a partial, or complete, URL.
     ///
     /// For example, to serve on port 8000 instead of the default port,
     ///
-    ///    stencila serve :8000
+    ///    stencila server start :8000
     ///
     /// To serve on all IPv4 addresses on the machine, instead of only `127.0.0.1`,
     ///
-    ///    stencila serve 0.0.0.0
+    ///    stencila server start 0.0.0.0
     ///
-    /// To only serve HTTP, and not both HTTP and WebSockets (the default), also specify
-    /// the scheme e.g.
+    /// Or if you prefer, use a complete URL including the scheme e.g.
     ///
-    ///   stencila serve http://127.0.0.1:9000
+    ///   stencila server start http://127.0.0.1:9000
     ///
     /// ## Security
     ///
-    /// By default, the server requires an initial login via a JSON Web Token. A login URL is
-    /// printed in the console's standard output at startup. To turn authorization off, for example
-    /// if you are using some other security layer in front of the server, use the `--insecure`
+    /// By default, the server requires authentication using JSON Web Token. A token is
+    /// printed as part of the server's URL at startup. To turn authorization off, for example
+    /// if you are using some other authentication layer in front of the server, use the `--insecure`
     /// flag.
     ///
     /// By default, this command will NOT run as a root (Linux/Mac OS/Unix) or administrator (Windows) user.
@@ -1121,83 +1564,123 @@ pub mod commands {
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Command {
-        /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
-        #[structopt(env = "STENCILA_URL")]
+    pub struct Start {
+        /// The home directory for the server to serve from
+        ///
+        /// Defaults to the current directory or an ancestor project directory (if the current directory
+        /// is within a project).
+        home: Option<PathBuf>,
+
+        /// The URL to serve on
+        ///
+        /// Defaults to the `STENCILA_URL` environment variable, the value set in config
+        /// or otherwise `http://127.0.0.1:9000`.
+        #[structopt(short, long, env = "STENCILA_URL")]
         url: Option<String>,
 
         /// Secret key to use for signing and verifying JSON Web Tokens
+        ///
+        /// Defaults to the `STENCILA_KEY` environment variable, the value set in config
+        /// or otherwise a randomly generated value.
         #[structopt(short, long, env = "STENCILA_KEY")]
         key: Option<String>,
 
-        /// Serve in a background thread (when in interactive mode)
-        #[structopt(short, long)]
-        background: bool,
-
         /// Do not require a JSON Web Token to access the server
+        ///
+        /// For security reasons (any client can access files and execute code) this should be avoided.
         #[structopt(long)]
         insecure: bool,
 
+        /// Allow traversal out of the server's home directory
+        ///
+        /// For security reasons (clients can access any file on the filesystem) this should be avoided.
+        #[structopt(long)]
+        traversal: bool,
+
         /// Allow root (Linux/Mac OS/Unix) or administrator (Windows) user to serve
+        ///
+        /// For security reasons (clients may be able to execute code as root) this should be avoided.
         #[structopt(long)]
         root: bool,
     }
     #[async_trait]
-    impl Run for Command {
+    impl Run for Start {
         async fn run(&self) -> Result {
-            let config = &CONFIG.lock().await.serve;
-
-            let url = self.url.clone().unwrap_or_else(|| config.url.clone());
-            let (protocol, address, port) = parse_url(&url)?;
-
-            // Get key configured on command line or config file
-            let key = match &self.key {
-                Some(key) => {
-                    tracing::warn!("Server key set on command line can be sniffed by malicious processes; prefer to set it in config file.");
-                    Some(key.clone())
-                }
-                None => config.key.clone(),
+            if self.key.is_some() {
+                tracing::warn!("Server key set on command line could be sniffed by malicious processes; prefer to set it in config file.");
             };
 
-            // Check that user is explicitly allowing no key to be used
-            let insecure = self.insecure || config.insecure;
-            if insecure {
-                tracing::warn!("Serving in insecure mode is dangerous and discouraged.")
-            }
+            start(
+                self.home.clone(),
+                self.url.clone(),
+                self.key.clone(),
+                self.insecure,
+                self.traversal,
+                self.root,
+            )
+            .await?;
 
-            // Generate key if necessary
-            let key = if key.is_none() {
-                match insecure {
-                    true => None,
-                    false => Some(key_utils::generate()),
-                }
-            } else {
-                key
-            };
-
-            // If stdout is not a TTY then print the login URL to stdout so that it can be used
-            // by, for example, the parent process.
-            // TODO: Consider re-enabling this when/id `cli` modules are moved to the `cli` crate
-            // where the `atty` crate is available. Until then skip to avoid noise on stdout.
-            // println!("{}", login_url(port, key.clone(), Some(300), None)?);
-
-            // Check for root usage
-            #[cfg(any(target_os = "linux", target_os = "macos"))]
-            if let sudo::RunningAs::Root = sudo::check() {
-                if self.root {
-                    tracing::warn!("Serving as root/administrator is dangerous and discouraged.")
-                } else {
-                    bail!("Serving as root/administrator is not permitted by default, use the `--root` option to bypass this safety measure.")
-                }
-            }
-
-            if self.background {
-                super::serve_background(&format!("{}://{}:{}", protocol, address, port), key)?;
-            } else {
-                super::serve_on(protocol, address, port, key).await?;
+            // If not in interactive mode then just sleep here forever to avoid finishing
+            if std::env::var("STENCILA_INTERACT_MODE").is_err() {
+                use tokio::time::{sleep, Duration};
+                sleep(Duration::MAX).await;
             }
 
             result::nothing()
+        }
+    }
+
+    /// Stop the server
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Stop {}
+    #[async_trait]
+    impl Run for Stop {
+        async fn run(&self) -> Result {
+            stop().await?;
+
+            result::nothing()
+        }
+    }
+
+    /// Show details of the server
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Show {}
+    #[async_trait]
+    impl Run for Show {
+        async fn run(&self) -> Result {
+            match SERVER.get() {
+                Some(server) => {
+                    let server = server.read().await;
+                    result::value(&*server)
+                }
+                None => {
+                    tracing::info!("No server currently running");
+                    result::nothing()
+                }
+            }
+        }
+    }
+
+    /// List the clients connected to the server
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Clients {}
+    #[async_trait]
+    impl Run for Clients {
+        async fn run(&self) -> Result {
+            let clients = CLIENTS.inner.read().await;
+            result::value(&*clients)
         }
     }
 }

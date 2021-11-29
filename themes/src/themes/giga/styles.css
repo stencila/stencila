@@ -32,14 +32,15 @@
   --color-secondary-dark: #151b21;
   --color-primary-100: var(--color-brand);
   --color-primary-light: var(--color-brand);
+  --color-neutral-50: #f4f6f7;
   --color-neutral-100: #f4f6f7;
-  --color-neutral-200: #f4f6f7;
-  --color-neutral-300: #e6e6e6;
-  --color-neutral-400: #e4e4e4;
-  --color-neutral-500: #adadad;
-  --color-neutral-600: #a2a2a2;
-  --color-neutral-700: #909090;
-  --color-neutral-800: #888;
+  --color-neutral-200: #e6e6e6;
+  --color-neutral-300: #e4e4e4;
+  --color-neutral-400: #adadad;
+  --color-neutral-500: #a2a2a2;
+  --color-neutral-600: #909090;
+  --color-neutral-700: #888;
+  --color-neutral-800: #666;
   --color-neutral-900: #666;
 
   stencila-executable-document-toolbar {

@@ -1,6 +1,7 @@
 import { parse } from 'path'
-import { projects } from 'stencila'
+import { dispatch, projects } from 'stencila'
 import { projectHandlers } from '.'
+import { CHANNEL } from '../../preload/channels'
 import { documentHandlers } from '../document'
 import { createWindow } from '../window'
 import { onUiLoaded } from '../window/windowUtils'
@@ -36,6 +37,9 @@ export const openProjectWindow = (directoryPath: string) => {
 
   onUiLoaded(projectWindow.webContents)(() => {
     projectWindow.show()
+
+    const serverUrl = dispatch.server.serve(directoryPath)
+    projectWindow.webContents.send(CHANNEL.PROJECTS_SERVER_START, serverUrl)
   })
 
   projectWindow.on('focus', () => {

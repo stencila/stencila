@@ -1574,6 +1574,7 @@ dependencies = [
  "serde_json",
  "tokio",
  "tracing",
+ "uuids",
 ]
 
 [[package]]
@@ -2553,7 +2554,7 @@ dependencies = [
  "test-utils",
  "tokio",
  "tracing",
- "uuid-utils",
+ "uuids",
  "zmq",
 ]
 
@@ -4726,7 +4727,7 @@ dependencies = [
  "unicode-segmentation",
  "url",
  "urlencoding",
- "uuid-utils",
+ "uuids",
  "validator",
  "warp",
  "webbrowser",
@@ -5565,7 +5566,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
 
 [[package]]
-name = "uuid-utils"
+name = "uuids"
 version = "0.0.0"
 dependencies = [
  "eyre",

@@ -14,6 +14,7 @@ mod patches;
 mod prelude;
 mod projects;
 mod pubsub;
+mod server;
 mod sessions;
 mod sources;
 
@@ -63,6 +64,8 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("pluginsUpgrade", plugins::upgrade)?;
     cx.export_function("pluginsRefresh", plugins::refresh)?;
     */
+
+    cx.export_function("serverServe", server::serve)?;
 
     cx.export_function("configSchemas", config::schema)?;
     cx.export_function("configGet", config::get)?;

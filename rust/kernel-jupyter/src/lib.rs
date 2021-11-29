@@ -45,10 +45,10 @@ use crate::{
 pub use server::JupyterServer;
 
 // A UUID for kernels
-uuid_utils::uuid_family!(JupyterKernelId, "ke");
+uuids::uuid_family!(JupyterKernelId, "ke");
 
 // A UUID for sessions
-uuid_utils::uuid_family!(JupyterSessionId, "se");
+uuids::uuid_family!(JupyterSessionId, "se");
 
 /// A kernel that delegates to a Jupyter kernel
 ///
@@ -783,7 +783,10 @@ impl KernelTrait for JupyterKernel {
     }
 
     async fn get(&self, _name: &str) -> Result<Node> {
-        todo!()
+        bail!(
+            "Getting a symbol from a `{}` language kernel is not currently supported",
+            self.language
+        )
         /*
         TODO: Reinstate in an immutable way
         if let Some(code) = get(&self.language, name)? {

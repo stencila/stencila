@@ -63,6 +63,7 @@
 
 :--Article {
   position: relative;
+  padding-top: 2rem;
 
   .content-header__icons {
     left: 0;
@@ -403,6 +404,15 @@
     font-weight: bold;
     line-height: 1.71429;
     padding: 0.75rem 0;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  :--caption {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 }
 

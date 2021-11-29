@@ -1,8 +1,12 @@
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
-use std::sync::{Mutex, MutexGuard};
+use std::{
+    collections::HashMap,
+    sync::{Mutex, MutexGuard},
+};
 use tokio::sync::mpsc;
+use uuids::uuid_family;
 
 /// An event updating progress of some task
 #[derive(Default, Debug, Deserialize, Serialize)]
@@ -28,20 +32,27 @@ pub struct ProgressEvent {
 
 pub type Message = (String, serde_json::Value);
 
+uuid_family!(SubscriptionId, "su");
+
 pub enum Subscriber {
     Function(fn(topic: String, event: serde_json::Value) -> ()),
     Sender(mpsc::UnboundedSender<Message>),
 }
 
 struct Subscription {
+    /// The topic that is subscribed to
     topic: String,
+
+    /// The subscriber that is sent an event
     subscriber: Subscriber,
 }
 
-static SUBSCRIPTIONS: Lazy<Mutex<Vec<Subscription>>> = Lazy::new(|| Mutex::new(Vec::new()));
+/// The glocal subscriptions store
+static SUBSCRIPTIONS: Lazy<Mutex<HashMap<SubscriptionId, Subscription>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
 
 /// Obtain the subscriptions store
-fn obtain() -> Result<MutexGuard<'static, Vec<Subscription>>> {
+fn obtain() -> Result<MutexGuard<'static, HashMap<SubscriptionId, Subscription>>> {
     // Use `lock`, not `try_lock`, which means this thread may block waiting
     // a little for the subscriptions to become available.
     match SUBSCRIPTIONS.lock() {
@@ -51,19 +62,38 @@ fn obtain() -> Result<MutexGuard<'static, Vec<Subscription>>> {
 }
 
 /// Subscribe to a topic
-pub fn subscribe(topic: &str, subscriber: Subscriber) -> Result<()> {
-    tracing::debug!("Subscribing to topic: {}", topic);
+pub fn subscribe(topic: &str, subscriber: Subscriber) -> Result<SubscriptionId> {
+    tracing::debug!("Subscribing to topic `{}`", topic);
 
     match obtain() {
         Ok(mut subscriptions) => {
-            subscriptions.push(Subscription {
-                topic: topic.to_string(),
-                subscriber,
-            });
-            Ok(())
+            let id = SubscriptionId::new();
+            subscriptions.insert(
+                id.clone(),
+                Subscription {
+                    topic: topic.to_string(),
+                    subscriber,
+                },
+            );
+            Ok(id)
         }
         Err(error) => {
             bail!("Unable to subscribe: {}", error.to_string())
+        }
+    }
+}
+
+/// Unsubscribe
+pub fn unsubscribe(subscription_id: &SubscriptionId) -> Result<()> {
+    tracing::debug!("Unsubscribing subscription `{}`", subscription_id);
+
+    match obtain() {
+        Ok(mut subscriptions) => {
+            subscriptions.remove(subscription_id);
+            Ok(())
+        }
+        Err(error) => {
+            bail!("Unable to unsubscribe: {}", error.to_string())
         }
     }
 }
@@ -77,9 +107,13 @@ pub fn publish<Event>(topic: &str, event: Event)
 where
     Event: Serialize,
 {
+    if topic != "logging" {
+        tracing::debug!("Publishing event for topic `{}`", topic);
+    }
+
     match obtain() {
         Ok(subscriptions) => {
-            for subscription in &*subscriptions {
+            for subscription in subscriptions.values() {
                 if subscription.topic == "*"
                     || subscription.topic == topic
                     || topic.starts_with(&subscription.topic)

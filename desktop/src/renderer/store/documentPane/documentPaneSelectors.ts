@@ -35,19 +35,19 @@ export const selectView =
     }
   }
 
-export const selectActiveView = (state: RootState): O.Option<EntityId> => {
-  return pipe(
-    selectPane(state),
-    O.chain((pane) => pane.activeView)
-  )
-}
-
 export const selectPane = (state: RootState) => {
   return pipe(
     state.panes.ids,
     A.head,
     O.chain((id) => O.some(state.panes.entities.panes[id]) ?? O.none),
     O.chain(O.fromNullable)
+  )
+}
+
+export const selectActiveView = (state: RootState): O.Option<EntityId> => {
+  return pipe(
+    selectPane(state),
+    O.chain((pane) => pane.activeView)
   )
 }
 
