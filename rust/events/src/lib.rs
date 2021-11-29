@@ -84,12 +84,12 @@ pub fn subscribe(topic: &str, subscriber: Subscriber) -> Result<SubscriptionId> 
 }
 
 /// Unsubscribe
-pub fn unsubscribe(subscription_id: SubscriptionId) -> Result<()> {
+pub fn unsubscribe(subscription_id: &SubscriptionId) -> Result<()> {
     tracing::debug!("Unsubscribing subscription `{}`", subscription_id);
 
     match obtain() {
         Ok(mut subscriptions) => {
-            subscriptions.remove(&subscription_id);
+            subscriptions.remove(subscription_id);
             Ok(())
         }
         Err(error) => {

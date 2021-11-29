@@ -477,15 +477,6 @@ impl Clients {
         Self { inner, sender }
     }
 
-    /// Clear the client store
-    ///
-    /// This should be done when the server is stopped to avoid keeping a record
-    /// of clients that have been disconnected.
-    pub async fn clear(&self) {
-        let mut clients = self.inner.write().await;
-        clients.clear();
-    }
-
     /// A client connected
     pub async fn connected(&self, client_id: &str, sender: mpsc::UnboundedSender<ws::Message>) {
         let mut clients = self.inner.write().await;
@@ -508,8 +499,7 @@ impl Clients {
 
     /// A client disconnected
     pub async fn disconnected(&self, client_id: &str, gracefully: bool) {
-        let mut clients = self.inner.write().await;
-        clients.remove(client_id);
+        self.remove(client_id).await;
 
         if gracefully {
             tracing::debug!("Graceful disconnection by client `{}`", client_id)
@@ -546,12 +536,40 @@ impl Clients {
                 topic
             );
             if let Some(subscription_id) = client.unsubscribe(topic) {
-                if let Err(error) = unsubscribe(subscription_id) {
+                if let Err(error) = unsubscribe(&subscription_id) {
                     tracing::error!("{}", error);
                 }
             }
         } else {
             tracing::error!("No such client `{}`", client_id);
+        }
+    }
+
+    /// Remove a client from the store
+    ///
+    /// Removes all the client event subscriptions in addition to removing the client
+    /// from the list of clients.
+    pub async fn remove(&self, client_id: &str) {
+        let mut clients = self.inner.write().await;
+        for client in clients.values() {
+            for subscription_id in client.subscriptions.values() {
+                if let Err(error) = unsubscribe(subscription_id) {
+                    tracing::error!("{}", error);
+                }
+            }
+        }
+        clients.remove(client_id);
+    }
+
+    /// Clear the client store
+    ///
+    /// Removes all clients and all their event subscriptions.
+    /// This should be done when the server is stopped to avoid keeping a record
+    /// of clients that have been disconnected.
+    pub async fn clear(&self) {
+        let clients = self.inner.read().await;
+        for client_id in clients.keys() {
+            self.remove(client_id).await;
         }
     }
 
