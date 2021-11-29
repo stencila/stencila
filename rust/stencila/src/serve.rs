@@ -699,7 +699,7 @@ async fn get_static(
         let version = parts[0];
         if version != STATIC_VERSION {
             tracing::warn!(
-                "Requested static assets for a version `{}` not equal to current `{}`",
+                "Requested static assets for a version `{}` not equal to current version `{}`",
                 version,
                 STATIC_VERSION
             );
@@ -707,17 +707,47 @@ async fn get_static(
         parts[1..].join("/")
     };
 
-    let asset = match Static::get(&path) {
-        Some(asset) => asset,
-        None => {
-            return error_response(
-                StatusCode::NOT_FOUND,
-                "Requested static asset does not exist",
-            )
+    // This is not necessary for production (since the filesystem is not touched) only
+    // for development. But to keep dev and prod as consistent as possible it is
+    // applied in both contexts.
+    if path.contains("..") {
+        return error_response(
+            StatusCode::UNAUTHORIZED,
+            "Path traversal not permitted for static assets",
+        );
+    }
+
+    let asset = if cfg!(debug_assertions) {
+        // The `rust-embed` crate will load from the filesystem during development but
+        // does not allow for symlinks (because, since https://github.com/pyros2097/rust-embed/commit/e1720ce38452c7f94d2ff32d2c120d7d427e2ebe,
+        // it checks for path traversal using the canonicalized path). This is problematic for our development workflow which
+        // includes live reloading of assets developed in the `web` and `components` modules. Therefore, this
+        // re-implements loading of assets from the filesystem.
+        let fs_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("static")
+            .join(&path);
+        match fs::read(&fs_path) {
+            Ok(data) => data,
+            Err(error) => {
+                return error_response(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    &format!("Error reading file `{}`: {}", fs_path.display(), error),
+                )
+            }
+        }
+    } else {
+        match Static::get(&path) {
+            Some(asset) => asset.data.into(),
+            None => {
+                return error_response(
+                    StatusCode::NOT_FOUND,
+                    &format!("Requested static asset `{}` does not exist", &path),
+                )
+            }
         }
     };
 
-    let mut response = warp::reply::Response::new(asset.data.into());
+    let mut response = warp::reply::Response::new(asset.into());
 
     let mime = mime_guess::from_path(path).first_or_octet_stream();
     response.headers_mut().insert(
