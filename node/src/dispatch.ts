@@ -35,8 +35,6 @@ export type Result<V = unknown> = ResultSuccess<V> | ResultFailure
 export function dispatchFn<F extends AnyFunction>(
   callback: F
 ): Result<ReturnType<F>> {
-  addon.errorsStart()
-
   let ok = true
   let value
   let errors: Error[] = []
@@ -56,11 +54,6 @@ export function dispatchFn<F extends AnyFunction>(
       ]
     }
   }
-
-  try {
-    const sidebandErrors = JSON.parse(addon.errorsStop())
-    errors = [...sidebandErrors, ...errors]
-  } catch {}
 
   if (ok) {
     return { ok, value, errors }

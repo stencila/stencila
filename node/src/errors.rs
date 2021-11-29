@@ -2,34 +2,19 @@ use neon::{
     context::{Context, FunctionContext},
     handle::Managed,
     result::JsResult,
-    types::{JsString, JsUndefined},
+    types::JsString,
 };
 use stencila::{
     errors::{self, Error},
     eyre, serde_json,
 };
 
-use crate::prelude::{to_json, to_json_or_throw};
+use crate::prelude::to_json_or_throw;
 
 /// Get the module's schemas
 pub fn schema(cx: FunctionContext) -> JsResult<JsString> {
     let schemas = errors::schema();
     to_json_or_throw(cx, schemas)
-}
-
-/// Start collecting errors
-pub fn start(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    errors::start();
-    Ok(cx.undefined())
-}
-
-/// Stop collecting errors and return them as a JSON array
-pub fn stop(cx: FunctionContext) -> JsResult<JsString> {
-    let errors: Vec<serde_json::Value> = errors::stop()
-        .iter()
-        .map(|error| error_to_json(error))
-        .collect();
-    to_json(cx, errors)
 }
 
 /// Throw an error as JSON
