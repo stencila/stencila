@@ -4709,7 +4709,7 @@ dependencies = [
  "stencila-schema",
  "structopt",
  "strum 0.23.0",
- "strum_macros 0.22.0",
+ "strum_macros 0.23.1",
  "sudo",
  "tar",
  "tempfile",
