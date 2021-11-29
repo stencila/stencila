@@ -82,9 +82,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.50"
+version = "1.0.51"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ecc78c299ae753905840c5d3ba036c51f61ce5a98a83f98d9c9d29dffd427f71"
+checksum = "8b26702f315f53b6071259e15dd9d64528213b44d61de1ec926eca7715d62203"
 
 [[package]]
 name = "arrayvec"
@@ -4637,7 +4637,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
-version = "0.131.0"
+version = "0.132.0"
 dependencies = [
  "Inflector",
  "ansi_term 0.12.1",
@@ -4735,7 +4735,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.131.0"
+version = "0.132.0"
 dependencies = [
  "events",
  "formats",

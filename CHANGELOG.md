@@ -1,3 +1,10 @@
+# [0.132.0](https://github.com/stencila/stencila/compare/v0.131.0...v0.132.0) (2021-11-29)
+
+
+### Features
+
+* **Desktop:** Reduce number of themes, save changes to project settings ([39e9fc6](https://github.com/stencila/stencila/commit/39e9fc6db463fde9bbbca7be4577d7c1daa45860))
+
 # [0.131.0](https://github.com/stencila/stencila/compare/v0.130.3...v0.131.0) (2021-11-29)
 
 
