@@ -1,3 +1,46 @@
+# [0.131.0](https://github.com/stencila/stencila/compare/v0.130.3...v0.131.0) (2021-11-29)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate futures to v0.3.18 ([48bd76e](https://github.com/stencila/stencila/commit/48bd76ea7a9bbe538d4889a0ec4f41f5c0ed791b))
+* **dependencies:** update rust crate schemars to v0.8.8 ([4c2e878](https://github.com/stencila/stencila/commit/4c2e87857ba0b6e901173fb77f9ab2ffccc7f552))
+* **dependencies:** update rust crate strum to v0.23.0 ([9b959ac](https://github.com/stencila/stencila/commit/9b959ace2e17ec95364b334d7f9f3e8ac12b0d2b))
+* **dependencies:** update rust crate strum_macros to v0.23.1 ([888aa25](https://github.com/stencila/stencila/commit/888aa25d2773e36e67b63c7d7377a5abe2b35361))
+* **dependencies:** update rust crate termimad to 0.19.2 ([5b4c8e8](https://github.com/stencila/stencila/commit/5b4c8e8916f27a99845f50d55e878c2d3c4f85b2))
+* **Desktop:** Don't show raw IPYNB in text editor ([b657bb6](https://github.com/stencila/stencila/commit/b657bb60016b07e0e2377712520e33b43d2c82f2))
+* **Jupyter kernels:** Do not panic on `get` ([95dce3f](https://github.com/stencila/stencila/commit/95dce3f2fae66e5b949ef388ba1d9b6dfb99247a))
+* **Node.js bindings:** Use new server API ([4acc4b8](https://github.com/stencila/stencila/commit/4acc4b8c3f844c3acd7bc5673fddb20f75ec6de8))
+* **Node:** Expose server methods via dispatch ([a50658b](https://github.com/stencila/stencila/commit/a50658ba5ecab1890d46b12abd156876b0f727c0))
+* **Preview:** Broaden range of document preview server ports ([315ad75](https://github.com/stencila/stencila/commit/315ad755b000a043266b0e36f6cd42b36f979bdc))
+* **Preview:** Fix race condition when opening project ([fa36b51](https://github.com/stencila/stencila/commit/fa36b517f658f5e6b2c53fb24c84960182bca8a4))
+* **R parser:** Use `rev` (not `ref`) to pin version ([e8753fc](https://github.com/stencila/stencila/commit/e8753fc43e3cf19764d521fbf396f77bb9be5ce3))
+* **Server:** Add authorization to WebSocket handshake ([a6a4ba2](https://github.com/stencila/stencila/commit/a6a4ba295d1993cf8fbc5e3e8d1eb8585257e606))
+* **Server:** Construct URL search component properly ([098fbf1](https://github.com/stencila/stencila/commit/098fbf1de78a6d0f35bfd27eb97b5774e762a327))
+* **Server:** Handle path with spaces in them ([1f2a7b3](https://github.com/stencila/stencila/commit/1f2a7b3702bb7817c4b168d1662f92fc4663dd34))
+* **Server:** Per project tokens and other improvements ([913b8a2](https://github.com/stencila/stencila/commit/913b8a2b781b1451d0368326a383c10d676459f9))
+* **Server:** Print http URL that is clickable in console ([4c9cc5f](https://github.com/stencila/stencila/commit/4c9cc5f6be97c675382d3d99df468430fdd5a811))
+* **Server:** Remove insecure endpoints; recognize insecure mode in handlers ([50f4dcc](https://github.com/stencila/stencila/commit/50f4dcc5765cdd2170bc93a00ccd5636dd9b098d))
+* **Server:** Remove login edpoint and use query param instead; add `scope` to claims ([054bd22](https://github.com/stencila/stencila/commit/054bd22ffb78e62ca1261d41a1a7c296c9959537))
+* **Server:** Require explicit stop before restart ([a814b00](https://github.com/stencila/stencila/commit/a814b0057be870a6ab9ff314bf51b6c7e6bf239a))
+* **Server:** Stop server without deadlocking on clients; add `server show` and `server clients` ([d298372](https://github.com/stencila/stencila/commit/d298372b00d091f7a8b4004de92438d1a0df20d6))
+* **Server:** Subscribe and unsubscribe to individual topics on behalf of clients ([3641897](https://github.com/stencila/stencila/commit/364189782a782eee2ca50911fbb4b8aee21e1ed5))
+* **Server:** Unsubscribe when client is removed ([7a4589f](https://github.com/stencila/stencila/commit/7a4589fd9af1f5ccd57d729f0fa85420435c85bb))
+* **Themes:** Fix theme colours and other artifacts ([8f36606](https://github.com/stencila/stencila/commit/8f3660690da55c66e13972cd003cedc593621b00))
+
+
+### Features
+
+* **Events:** Assign subscription ids to allow unsubscribing ([450b3dd](https://github.com/stencila/stencila/commit/450b3dd18921600af8d95d9f9b272bdfedd751a2))
+* **Node.js bindings:** Add bindings for the `server` module ([ea2e512](https://github.com/stencila/stencila/commit/ea2e512d7706806d84d93303cd804648aafaa4b1))
+* **Preview:** Start Web server for previewing documents ([f73ad5f](https://github.com/stencila/stencila/commit/f73ad5f4b27fea96bc5fa191ae8c09bb86b9d17f))
+* **Server:** Allow home directory  and `traversal` option to be supplied ([04b4ac3](https://github.com/stencila/stencila/commit/04b4ac38f2a5edbedfd6bccd5429295fb75e00d7))
+* **Server:** Allow starting and stopping of server ([b3210c8](https://github.com/stencila/stencila/commit/b3210c8c5bb6fcea6f3e180d5d23988bfbc7a0e6))
+* **Server:** Generate directory listings ([98577f7](https://github.com/stencila/stencila/commit/98577f7fa1bada8b7181972538ee7cf507fc15ec))
+* **Server:** Implement `traversal` option ([d7e62c4](https://github.com/stencila/stencila/commit/d7e62c4f4b49b1f39ae8412c1fb8f5cb0ef2e3e9))
+* **Server:** Redirect to token-less URL ([49ba6ec](https://github.com/stencila/stencila/commit/49ba6ecdcabcf313a22172f1002e39ea8f2e5819))
+* **Server:** Use another port if no port specified and default is used already ([68f19b6](https://github.com/stencila/stencila/commit/68f19b622361dd98bc9130ca75aff03de1614ca2))
+
 ## [0.130.3](https://github.com/stencila/stencila/compare/v0.130.2...v0.130.3) (2021-11-26)
 
 
