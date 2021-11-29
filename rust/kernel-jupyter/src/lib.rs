@@ -783,7 +783,10 @@ impl KernelTrait for JupyterKernel {
     }
 
     async fn get(&self, _name: &str) -> Result<Node> {
-        todo!()
+        bail!(
+            "Getting a symbol from a `{}` language kernel is not currently supported",
+            self.language
+        )
         /*
         TODO: Reinstate in an immutable way
         if let Some(code) = get(&self.language, name)? {
