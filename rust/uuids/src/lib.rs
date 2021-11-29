@@ -51,7 +51,7 @@ const CHARACTERS: [char; 62] = [
 /// Create a family of UUIDs
 ///
 /// ```
-/// use uuid_utils::uuid_family;
+/// use uuids::uuid_family;
 ///
 /// uuid_family!(MyId, "my");
 /// let id = MyId::new();
@@ -60,11 +60,11 @@ const CHARACTERS: [char; 62] = [
 macro_rules! uuid_family {
     ($name:ident, $family:literal) => {
         #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
-        pub struct $name(uuid_utils::Uuid);
+        pub struct $name(uuids::Uuid);
 
         impl $name {
             pub fn new() -> Self {
-                Self(uuid_utils::generate($family))
+                Self(uuids::generate($family))
             }
         }
 
@@ -95,7 +95,7 @@ macro_rules! uuid_family {
         }
 
         impl std::ops::Deref for $name {
-            type Target = uuid_utils::Uuid;
+            type Target = uuids::Uuid;
 
             fn deref(&self) -> &Self::Target {
                 &self.0
