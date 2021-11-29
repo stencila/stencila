@@ -158,7 +158,7 @@ jobs:
       # top level directory and thus allows HTTP access to fixtures.
       - script: |
           set -e
-          cargo run --manifest-path rust/stencila/Cargo.toml -- serve :9000 --insecure &
+          cargo run --manifest-path rust/stencila/Cargo.toml -- server start --url :9000 --insecure &
           make -C node build-ts
           npm install --prefix web
           npm run lint --prefix web
