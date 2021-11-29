@@ -3,7 +3,7 @@ use crate::{
     documents::DOCUMENTS,
     jwt::{self, YEAR_SECONDS},
     projects::Projects,
-    rpc::{self, Error, Request, Response},
+    rpc::{self, Error, Response},
     utils::urls,
 };
 use chrono::{Duration, TimeZone, Utc};
@@ -300,18 +300,6 @@ impl Server {
             .and(warp::any().map(move || (home.clone(), traversal)))
             .and_then(get_handler);
 
-        let post = warp::post()
-            .and(warp::path::end())
-            .and(warp::body::json::<Request>())
-            .and(authenticate())
-            .and_then(post_handler);
-
-        let post_wrap = warp::post()
-            .and(warp::path::param())
-            .and(warp::body::json::<serde_json::Value>())
-            .and(authenticate())
-            .and_then(post_wrap_handler);
-
         // Custom `server` header
         let server_header = warp::reply::with::default_header(
             "server",
@@ -337,8 +325,6 @@ impl Server {
         let routes = statics
             .or(ws)
             .or(get)
-            .or(post)
-            .or(post_wrap)
             .with(server_header)
             .with(cors_headers)
             .recover(rejection_handler);
@@ -766,7 +752,7 @@ struct AuthParams {
 fn authentication_filter(
     key: Option<String>,
     home: PathBuf,
-) -> impl Filter<Extract = ((String, jwt::Claims, Option<String>),), Error = warp::Rejection> + Clone
+) -> impl Filter<Extract = ((bool, String, jwt::Claims, Option<String>),), Error = warp::Rejection> + Clone
 {
     warp::query::<AuthParams>()
         .and(warp::header::optional::<String>("authorization"))
@@ -873,10 +859,10 @@ fn authentication_filter(
                         None
                     };
 
-                    Ok((updated_token, claims, cookie))
+                    Ok((true, updated_token, claims, cookie))
                 } else {
                     // No key, so in insecure mode. Return empty token and default claims (they won't be used anyway) and no cookie.
-                    Ok(("".to_string(), jwt::Claims::default(), None))
+                    Ok((false, "".to_string(), jwt::Claims::default(), None))
                 }
             },
         )
@@ -909,7 +895,7 @@ struct GetParams {
 async fn get_handler(
     path: warp::path::FullPath,
     params: GetParams,
-    (token, claims, cookie): (String, jwt::Claims, Option<String>),
+    (secure, token, claims, cookie): (bool, String, jwt::Claims, Option<String>),
     (home, traversal): (PathBuf, bool),
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
@@ -964,7 +950,7 @@ async fn get_handler(
     }
 
     // Check the path is within the project for which authorization is given
-    if fs_path.strip_prefix(&claims.project).is_err() {
+    if secure && fs_path.strip_prefix(&claims.project).is_err() {
         return error_response(
             StatusCode::FORBIDDEN,
             "Insufficient permissions to access this directory or file",
@@ -1249,57 +1235,6 @@ pub fn html_rewrite(
     )
 }
 
-/// Handle a HTTP `POST /` request
-async fn post_handler(
-    request: Request,
-    (_token, _claims, _cookie): (String, jwt::Claims, Option<String>),
-) -> Result<impl warp::Reply, std::convert::Infallible> {
-    let (response, ..) = request.dispatch("http").await;
-    Ok(warp::reply::json(&response))
-}
-
-/// Handle a HTTP `POST /<method>` request
-async fn post_wrap_handler(
-    method: String,
-    params: serde_json::Value,
-    (_token, _claims, _cookie): (String, jwt::Claims, Option<String>),
-) -> Result<impl warp::Reply, std::convert::Infallible> {
-    use warp::reply;
-
-    // Wrap the method and parameters into a request
-    let request = serde_json::from_value::<Request>(serde_json::json!({
-        "method": method,
-        "params": params
-    }));
-    let request = match request {
-        Ok(request) => request,
-        Err(error) => {
-            return Ok(reply::with_status(
-                reply::json(&serde_json::json!({
-                    "message": error.to_string()
-                })),
-                StatusCode::BAD_REQUEST,
-            ))
-        }
-    };
-
-    // Unwrap the response into results or error message
-    let (Response { result, error, .. }, ..) = request.dispatch("http").await;
-    let reply = match result {
-        Some(result) => reply::with_status(reply::json(&result), StatusCode::OK),
-        None => match error {
-            Some(error) => reply::with_status(reply::json(&error), StatusCode::BAD_REQUEST),
-            None => reply::with_status(
-                reply::json(&serde_json::json!({
-                    "message": "Response had neither a result nor an error"
-                })),
-                StatusCode::INTERNAL_SERVER_ERROR,
-            ),
-        },
-    };
-    Ok(reply)
-}
-
 /// Parameters for the WebSocket handshake
 #[derive(Debug, Deserialize)]
 struct WsParams {
@@ -1318,7 +1253,7 @@ fn ws_handshake(
     ws: warp::ws::Ws,
     path: warp::path::FullPath,
     params: WsParams,
-    (token, claims, _cookie): (String, jwt::Claims, Option<String>),
+    (secure, token, claims, _cookie): (bool, String, jwt::Claims, Option<String>),
 ) -> Box<dyn warp::Reply> {
     use warp::reply;
 
@@ -1335,11 +1270,11 @@ fn ws_handshake(
     let fs_path = urlencoding::decode(&fs_path)
         .map_or_else(|_| fs_path.clone(), |fs_path| fs_path.to_string());
 
-    if project == fs_path || project == ["/", &fs_path].concat() {
-        Box::new(ws.on_upgrade(|socket| ws_connected(socket, params.client)))
-    } else {
-        Box::new(reply::with_status(reply(), StatusCode::UNAUTHORIZED))
+    if secure && project != fs_path && project != ["/", &fs_path].concat() {
+        return Box::new(reply::with_status(reply(), StatusCode::UNAUTHORIZED));
     }
+
+    Box::new(ws.on_upgrade(|socket| ws_connected(socket, params.client)))
 }
 
 /// Handle a WebSocket connection
