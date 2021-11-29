@@ -3,14 +3,9 @@ use crate::{
     utils::schemas,
 };
 use eyre::Result;
-use once_cell::sync::Lazy;
 use schemars::{gen::SchemaSettings, JsonSchema};
 use serde::Serialize;
-use std::{
-    any::type_name,
-    collections::HashMap,
-    sync::{atomic::AtomicBool, Mutex},
-};
+use std::{any::type_name, collections::HashMap};
 use thiserror::Error;
 
 /// An enumeration of custom errors returned by this library
@@ -185,50 +180,6 @@ pub fn incompatible_language<Type: ?Sized>(language: &str) -> Error {
         language: language.to_string(),
         kernel_type: type_name::<Type>().into(),
     }
-}
-
-/// A global stack of errors that can be used have "sideband" errors i.e. those that
-/// do not cause a function to return early and are not part of the `Result` of a function.
-pub static ERRORS: Lazy<Mutex<Vec<Error>>> = Lazy::new(|| Mutex::new(Vec::new()));
-
-/// A flag to indicate if errors are being collected
-static COLLECT: AtomicBool = AtomicBool::new(false);
-
-/// Start collecting errors
-#[deprecated]
-pub fn start() {
-    ERRORS.lock().expect("To be able to get lock").clear();
-    COLLECT.swap(true, std::sync::atomic::Ordering::Relaxed);
-}
-
-/// Report an error
-#[deprecated = "Use tracing::error/warn instead"]
-pub fn report(error: Error) {
-    #[cfg(test)]
-    eprintln!("Reported ERROR: {}", error);
-
-    if COLLECT.load(std::sync::atomic::Ordering::Relaxed) {
-        ERRORS.lock().expect("To be able to get lock").push(error);
-    }
-}
-
-/// Record an error result if any
-#[deprecated = "Use tracing::error/warn instead"]
-pub fn attempt<T>(result: Result<T>) {
-    if let Err(error) = result {
-        let message = error.to_string();
-        match error.downcast::<Error>() {
-            Ok(error) => report(error),
-            Err(_) => report(Error::Unspecified { message }),
-        }
-    }
-}
-
-/// Stop collecting errors and return those collected
-#[deprecated]
-pub fn stop() -> Vec<Error> {
-    COLLECT.swap(false, std::sync::atomic::Ordering::Relaxed);
-    ERRORS.lock().expect("To be able to get lock").split_off(0)
 }
 
 /// Get JSON Schema for the `Error` enum.
