@@ -7,8 +7,7 @@ use crate::{
     utils::urls,
 };
 use chrono::{Duration, TimeZone, Utc};
-use defaults::Defaults;
-use events::{subscribe, Subscriber};
+use events::{subscribe, unsubscribe, Subscriber, SubscriptionId};
 use eyre::{bail, eyre, Result};
 use futures::{SinkExt, StreamExt};
 use itertools::Itertools;
@@ -402,8 +401,11 @@ impl Server {
 }
 
 struct Client {
-    /// A list of subscription topics for this client
-    subscriptions: HashSet<String>,
+    /// The client id
+    id: String,
+
+    /// A mapping of subscription topics to subscript ids for this client
+    subscriptions: HashMap<String, SubscriptionId>,
 
     /// The current sender for this client
     ///
@@ -414,18 +416,19 @@ struct Client {
 
 impl Client {
     /// Subscribe the client to an event topic
-    pub fn subscribe(&mut self, topic: &str) -> bool {
-        self.subscriptions.insert(topic.to_string())
+    pub fn subscribe(&mut self, topic: &str, subscription_id: SubscriptionId) {
+        self.subscriptions
+            .insert(topic.to_string(), subscription_id);
     }
 
     /// Unsubscribe the client from an event topic
-    pub fn unsubscribe(&mut self, topic: &str) -> bool {
+    pub fn unsubscribe(&mut self, topic: &str) -> Option<SubscriptionId> {
         self.subscriptions.remove(topic)
     }
 
     /// Is a client subscribed to a particular topic, or set of topics?
     pub fn subscribed(&self, topic: &str) -> bool {
-        for subscription in &self.subscriptions {
+        for subscription in self.subscriptions.keys() {
             if subscription == "*" || topic.starts_with(subscription) {
                 return true;
             }
@@ -454,22 +457,24 @@ static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
 
 /// A store of clients
 ///
-/// Used to manage
-#[derive(Defaults)]
+/// Used to manage relaying events to clients.
 struct Clients {
+    /// The clients
     inner: Arc<RwLock<HashMap<String, Client>>>,
+
+    /// The sender used to subscribe to events on behalf of clients
+    sender: mpsc::UnboundedSender<events::Message>,
 }
 
 impl Clients {
     /// Create a new client store and begin task for publishing events to them
     pub fn new() -> Self {
-        let clients = Clients::default();
+        let inner = Arc::new(RwLock::new(HashMap::new()));
 
         let (sender, receiver) = mpsc::unbounded_channel::<events::Message>();
-        subscribe("*", Subscriber::Sender(sender)).unwrap();
-        tokio::spawn(Clients::publish(clients.inner.clone(), receiver));
+        tokio::spawn(Clients::relay(inner.clone(), receiver));
 
-        clients
+        Self { inner, sender }
     }
 
     /// Clear the client store
@@ -493,7 +498,8 @@ impl Clients {
             Entry::Vacant(vacant) => {
                 tracing::debug!("New connection for client `{}`", client_id);
                 vacant.insert(Client {
-                    subscriptions: HashSet::new(),
+                    id: client_id.to_string(),
+                    subscriptions: HashMap::new(),
                     sender,
                 });
             }
@@ -517,7 +523,14 @@ impl Clients {
         let mut clients = self.inner.write().await;
         if let Some(client) = clients.get_mut(client_id) {
             tracing::debug!("Subscribing client `{}` to topic `{}`", client_id, topic);
-            client.subscribe(topic);
+            match subscribe(topic, Subscriber::Sender(self.sender.clone())) {
+                Ok(subscription_id) => {
+                    client.subscribe(topic, subscription_id);
+                }
+                Err(error) => {
+                    tracing::error!("{}", error);
+                }
+            }
         } else {
             tracing::error!("No such client `{}`", client_id);
         }
@@ -532,7 +545,11 @@ impl Clients {
                 client_id,
                 topic
             );
-            client.unsubscribe(topic);
+            if let Some(subscription_id) = client.unsubscribe(topic) {
+                if let Err(error) = unsubscribe(subscription_id) {
+                    tracing::error!("{}", error);
+                }
+            }
         } else {
             tracing::error!("No such client `{}`", client_id);
         }
@@ -548,16 +565,18 @@ impl Clients {
         }
     }
 
-    /// Publish events to clients
+    /// Relay events to clients
     ///
     /// The receiver will receive _all_ events that are published and relay them on to
     /// clients based in their subscriptions.
-    async fn publish(
+    async fn relay(
         clients: Arc<RwLock<HashMap<String, Client>>>,
         receiver: mpsc::UnboundedReceiver<events::Message>,
     ) {
         let mut receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(receiver);
         while let Some((topic, event)) = receiver.next().await {
+            tracing::debug!("Received event for topic `{}`", topic);
+
             // Get a list of clients that are subscribed to this topic
             let clients = clients.read().await;
             let clients = clients
@@ -588,11 +607,22 @@ impl Clients {
                 }
             };
 
+            tracing::debug!(
+                "Relaying event to subscribed clients `{}`",
+                clients
+                    .iter()
+                    .map(|client| client.id.clone())
+                    .collect::<Vec<String>>()
+                    .join(",")
+            );
+
             // Send it!
             for client in clients {
                 client.send_text(&json)
             }
         }
+
+        tracing::debug!("Relaying task ended");
     }
 }
 
@@ -1114,7 +1144,7 @@ pub fn html_rewrite(
     </script>"#,
         static_root = static_root,
         mode = mode,
-        client = uuid_utils::generate("cl"),
+        client = uuids::generate("cl"),
         token = token,
         project = project,
         snapshot = "current",
