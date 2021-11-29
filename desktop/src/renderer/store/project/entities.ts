@@ -1,4 +1,4 @@
-import { schema } from 'normalizr'
+import { schema, denormalize } from 'normalizr'
 import { Project } from '../../types'
 
 export type NormalizedProject = Omit<Project, 'files'> & {
@@ -22,3 +22,9 @@ export const projectEntity = new schema.Entity(
     idAttribute: 'path',
   }
 )
+
+export const denormalizeProject = (
+  normalizedProject: NormalizedProject
+): Project => {
+  return denormalize(normalizedProject, projectEntity, fileEntity)
+}

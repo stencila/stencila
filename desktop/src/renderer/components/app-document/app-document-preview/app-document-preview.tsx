@@ -5,17 +5,15 @@ import { pipe } from 'fp-ts/function'
 import { File } from 'stencila'
 import { state } from '../../../store'
 import { selectDoc } from '../../../store/documentPane/documentPaneSelectors'
+import { updateProjectSettings } from '../../../store/project/projectSelectors'
 import { SessionsStoreKeys, sessionStore } from '../../../store/sessionStore'
 
 const themes = {
   elife: 'eLife',
-  f1000: 'f1000',
   giga: 'GigaScience',
-  latex: 'latex',
-  nature: 'nature',
-  plos: 'PLoS',
+  latex: 'LaTeX',
   stencila: 'Stencila',
-  tufte: 'tufte',
+  tufte: 'Tufte',
   wilmore: 'Wilmore',
 }
 
@@ -52,6 +50,7 @@ export class AppDocumentPreview {
 
   private onThemeChange = (e: Event) => {
     this.theme = (e.target as HTMLSelectElement).value
+    updateProjectSettings({ theme: this.theme })
   }
 
   private getServerUrl = (): URL | undefined =>
