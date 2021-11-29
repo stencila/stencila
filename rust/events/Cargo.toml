@@ -10,3 +10,4 @@ serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0.72"
 tokio = { version = "1.13.0", features = ["sync"] }
 tracing = "0.1.29"
+uuids = { path = "../uuids", version = "0.0.0" }
