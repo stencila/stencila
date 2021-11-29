@@ -141,7 +141,7 @@ pub async fn serve<P: AsRef<Path>>(
 static SERVER: OnceCell<RwLock<Server>> = OnceCell::new();
 
 /// A HTTP/WebSocket server
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Server {
     /// The IP address that the server is listening on
     address: String,
@@ -170,6 +170,7 @@ pub struct Server {
     used_tokens: HashSet<String>,
 
     /// The `oneshot` channel sender used internally to gracefully shutdown the server
+    #[serde(skip)]
     shutdown_sender: Option<oneshot::Sender<()>>,
 }
 
@@ -400,6 +401,7 @@ impl Server {
     }
 }
 
+#[derive(Debug, Serialize)]
 struct Client {
     /// The client id
     id: String,
@@ -411,6 +413,7 @@ struct Client {
     ///
     /// This is set / reset each time that the client opens
     /// a WebSocket connection
+    #[serde(skip)]
     sender: mpsc::UnboundedSender<ws::Message>,
 }
 
@@ -458,6 +461,7 @@ static CLIENTS: Lazy<Clients> = Lazy::new(Clients::new);
 /// A store of clients
 ///
 /// Used to manage relaying events to clients.
+#[derive(Debug)]
 struct Clients {
     /// The clients
     inner: Arc<RwLock<HashMap<String, Client>>>,
@@ -551,7 +555,7 @@ impl Clients {
     /// from the list of clients.
     pub async fn remove(&self, client_id: &str) {
         let mut clients = self.inner.write().await;
-        for client in clients.values() {
+        if let Some(client) = clients.get(client_id) {
             for subscription_id in client.subscriptions.values() {
                 if let Err(error) = unsubscribe(subscription_id) {
                     tracing::error!("{}", error);
@@ -561,16 +565,21 @@ impl Clients {
         clients.remove(client_id);
     }
 
-    /// Clear the client store
+    /// Remove all clients from the store
     ///
     /// Removes all clients and all their event subscriptions.
     /// This should be done when the server is stopped to avoid keeping a record
     /// of clients that have been disconnected.
     pub async fn clear(&self) {
-        let clients = self.inner.read().await;
-        for client_id in clients.keys() {
-            self.remove(client_id).await;
+        let mut clients = self.inner.write().await;
+        for client in clients.values() {
+            for subscription_id in client.subscriptions.values() {
+                if let Err(error) = unsubscribe(subscription_id) {
+                    tracing::error!("{}", error);
+                }
+            }
         }
+        clients.clear();
     }
 
     /// Send a message to a client
@@ -1489,6 +1498,8 @@ pub mod commands {
     pub enum Action {
         Start(Start),
         Stop(Stop),
+        Show(Show),
+        Clients(Clients),
     }
 
     #[async_trait]
@@ -1498,6 +1509,8 @@ pub mod commands {
             match action {
                 Action::Start(action) => action.run().await,
                 Action::Stop(action) => action.run().await,
+                Action::Show(action) => action.run().await,
+                Action::Clients(action) => action.run().await,
             }
         }
     }
@@ -1616,6 +1629,44 @@ pub mod commands {
             stop().await?;
 
             result::nothing()
+        }
+    }
+
+    /// Show details of the server
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Show {}
+    #[async_trait]
+    impl Run for Show {
+        async fn run(&self) -> Result {
+            match SERVER.get() {
+                Some(server) => {
+                    let server = server.read().await;
+                    result::value(&*server)
+                }
+                None => {
+                    tracing::info!("No server currently running");
+                    result::nothing()
+                }
+            }
+        }
+    }
+
+    /// List the clients connected to the server
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Clients {}
+    #[async_trait]
+    impl Run for Clients {
+        async fn run(&self) -> Result {
+            let clients = CLIENTS.inner.read().await;
+            result::value(&*clients)
         }
     }
 }
