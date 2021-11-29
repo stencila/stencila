@@ -7,6 +7,7 @@ import {
   ProjectsOpenUsingFilePicker,
   ProjectsUnsubscribe,
   ProjectsWindowOpen,
+  ProjectsWrite,
 } from '../../preload/types'
 import { makeHandlers, removeChannelHandlers } from '../utils/handler'
 import { handle, valueToSuccessResult } from '../utils/ipc'
@@ -75,6 +76,13 @@ const registerProjectHandlers = () => {
     CHANNEL.PROJECTS_UNSUBSCRIBE,
     async (_ipcEvent, directoryPath, topics) => {
       return dispatch.projects.unsubscribe(directoryPath, topics)
+    }
+  )
+
+  handle<ProjectsWrite>(
+    CHANNEL.PROJECTS_WRITE,
+    async (_ipcEvent, projectPath, settings) => {
+      return dispatch.projects.write(projectPath, settings)
     }
   )
 }

@@ -1,5 +1,11 @@
 import { EntityId } from '@reduxjs/toolkit'
-import { RootState } from '..'
+import { RootState, state } from '..'
+import { option as O } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
+import { Project } from 'stencila'
+import { client } from '../../client'
+import { SessionsStoreKeys, sessionStore } from '../sessionStore'
+import { denormalizeProject } from './entities'
 
 export const selectProject = (state: RootState) => {
   const id = state.projects.ids[0]
@@ -7,6 +13,9 @@ export const selectProject = (state: RootState) => {
     return state.projects.entities.projects[id]?.path
   }
 }
+
+export const selectProjectByPath = (state: RootState) => (path: string) =>
+  pipe(state.projects.entities.projects[path], O.fromNullable)
 
 export const selectProjectPath = (state: RootState) => {
   const id = state.projects.ids[0]
@@ -50,4 +59,17 @@ export const getProjectMainFilePath = (
 ): string | undefined => {
   const id = state.projects.ids[0] ?? ''
   return state.projects.entities.projects[id]?.mainPath
+}
+
+export const updateProjectSettings = (settings: Partial<Project>) => {
+  pipe(
+    sessionStore.get(SessionsStoreKeys.PROJECT_PATH),
+    O.chain(selectProjectByPath(state)),
+    O.map((project) => {
+      client.projects.write(project.path, {
+        ...denormalizeProject(project),
+        ...settings,
+      })
+    })
+  )
 }

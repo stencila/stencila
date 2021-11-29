@@ -1,5 +1,5 @@
 import { EntityId } from '@reduxjs/toolkit'
-import type { Result, ResultFailure, ResultSuccess } from 'stencila'
+import type { Project, Result, ResultFailure, ResultSuccess } from 'stencila'
 import { CHANNEL } from '../preload/channels'
 import { AppConfigStore, ConfigPaths } from '../preload/types'
 
@@ -204,6 +204,10 @@ export const client = {
         .invoke(CHANNEL.PROJECTS_OPEN_FROM_FILE_PICKER)
         .then(unwrapOrThrow),
     new: () => window.api.invoke(CHANNEL.PROJECTS_NEW).then(unwrapOrThrow),
+    write: (path: string, updates: Project) =>
+      window.api
+        .invoke(CHANNEL.PROJECTS_WRITE, path, updates)
+        .then(unwrapOrThrow),
     unsubscribe: (path: string, topics: string[]) =>
       window.api
         .invoke(CHANNEL.PROJECTS_UNSUBSCRIBE, path, topics)
