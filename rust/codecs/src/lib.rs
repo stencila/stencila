@@ -8,17 +8,19 @@ use formats::FORMATS;
 use once_cell::sync::Lazy;
 use std::{collections::BTreeMap, path::Path, sync::Arc};
 
-// Re-exports for convenience elsewhere
+// Re-exports for use in other crates that call the following functions
 pub use codec::{DecodeOptions, EncodeOptions};
 
 // The following high level functions hide the implementation
 // detail of having a static list of codecs. They are intended as the
 // only public interface for this crate.
 
+/// Decode a document node from a string
 pub async fn from_str(content: &str, format: &str, options: Option<DecodeOptions>) -> Result<Node> {
     CODECS.from_str(content, format, options).await
 }
 
+/// Decode a document node from a file system path
 pub async fn from_path<T: AsRef<Path>>(
     path: &T,
     format: &str,
@@ -30,6 +32,7 @@ where
     CODECS.from_path(path, format, options).await
 }
 
+/// Encode a document node to a string
 pub async fn to_string(
     node: &Node,
     format: &str,
@@ -38,6 +41,7 @@ pub async fn to_string(
     CODECS.to_string(node, format, options).await
 }
 
+/// Encode a document node to a file system path
 pub async fn to_path<T: AsRef<Path>>(
     node: &Node,
     path: &T,
@@ -160,6 +164,7 @@ impl Codecs {
         }
     }
 
+    /// Decode a document node from a string
     #[allow(clippy::needless_update)]
     async fn from_str(
         &self,
@@ -189,6 +194,7 @@ impl Codecs {
         )
     }
 
+    /// Decode a document node from a file system path
     #[allow(clippy::needless_update)]
     async fn from_path<T: AsRef<Path>>(
         &self,
@@ -215,6 +221,7 @@ impl Codecs {
         )
     }
 
+    /// Encode a document node to a string
     #[allow(unused_variables)]
     async fn to_string(
         &self,
@@ -238,6 +245,7 @@ impl Codecs {
         )
     }
 
+    /// Encode a document node to a file system path
     async fn to_path<T: AsRef<Path>>(
         &self,
         node: &Node,
@@ -278,9 +286,14 @@ pub mod commands {
     use codec::async_trait::async_trait;
     use structopt::StructOpt;
 
+    /// Manage codecs
+    ///
+    /// In Stencila, a "codec" is responsible for converting documents
+    /// to ("encoding") and from ("decoding") a format (e.g. Markdown).
+    /// This command alls you to list the available codecs and see their
+    /// specifications (e.g. which formats they support).
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Manage codecs",
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]
@@ -309,7 +322,7 @@ pub mod commands {
         }
     }
 
-    /// List the codecs that are available
+    /// List the codecs available
     ///
     /// The list of available codecs includes those that are built into the Stencila
     /// binary (e.g. `html`) as well as any codecs provided by plugins.
@@ -318,6 +331,7 @@ pub mod commands {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct List {}
+
     #[async_trait]
     impl Run for List {
         async fn run(&self) -> Result {
@@ -337,8 +351,10 @@ pub mod commands {
         /// To get the list of codec labels use `stencila codecs list`.
         label: String,
     }
-    impl Show {
-        pub async fn run(&self) -> Result {
+
+    #[async_trait]
+    impl Run for Show {
+        async fn run(&self) -> Result {
             let codec = CODECS.get(&self.label)?;
             result::value(codec)
         }
