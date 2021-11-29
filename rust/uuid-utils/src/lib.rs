@@ -60,7 +60,7 @@ const CHARACTERS: [char; 62] = [
 macro_rules! uuid_family {
     ($name:ident, $family:literal) => {
         #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
-        struct $name(uuid_utils::Uuid);
+        pub struct $name(uuid_utils::Uuid);
 
         impl $name {
             pub fn new() -> Self {
@@ -83,6 +83,14 @@ macro_rules! uuid_family {
         impl std::cmp::PartialEq for $name {
             fn eq(&self, other: &$name) -> bool {
                 self.0 == other.0
+            }
+        }
+
+        impl std::cmp::Eq for $name {}
+
+        impl std::hash::Hash for $name {
+            fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+                self.0.hash(state);
             }
         }
 
