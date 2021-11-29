@@ -723,7 +723,12 @@ async fn get_static(
 
     let asset = match Static::get(&path) {
         Some(asset) => asset,
-        None => return error_response(StatusCode::NOT_FOUND, "Requested path does not exist"),
+        None => {
+            return error_response(
+                StatusCode::NOT_FOUND,
+                "Requested static asset does not exist",
+            )
+        }
     };
 
     let mut response = warp::reply::Response::new(asset.data.into());
@@ -912,18 +917,24 @@ async fn get_handler(
 
     // Determine if the requested path is relative to the server `home` directory;
     // otherwise construct an absolute path accordingly
-    let filesystem_path = Path::new(path.strip_prefix('/').unwrap_or(path));
-    let filesystem_path = if let Ok(path) = home.join(filesystem_path).canonicalize() {
+    let fs_path = path.strip_prefix('/').unwrap_or(path).to_string();
+    let fs_path = urlencoding::decode(&fs_path)
+        .map_or_else(|_| fs_path.clone(), |fs_path| fs_path.to_string());
+    let fs_path = Path::new(&fs_path);
+    let fs_path = if let Ok(path) = home.join(fs_path).canonicalize() {
         // Path found in home directory
         path
-    } else if let Ok(path) = filesystem_path.canonicalize() {
+    } else if let Ok(path) = fs_path.canonicalize() {
         // Path found elsewhere on the filesystem
         path
-    } else if let Ok(path) = PathBuf::from("/").join(filesystem_path).canonicalize() {
+    } else if let Ok(path) = PathBuf::from("/").join(fs_path).canonicalize() {
         // Path found elsewhere on the filesystem (when stripped leading slash is added back; see `serve()`)
         path
     } else {
-        return error_response(StatusCode::NOT_FOUND, "Requested path does not exist");
+        return error_response(
+            StatusCode::NOT_FOUND,
+            &format!("Requested path `{}` does not exist", fs_path.display()),
+        );
     }
     .to_path_buf();
 
@@ -939,7 +950,7 @@ async fn get_handler(
 
         let mut ok = false;
         for project in &server.projects {
-            if filesystem_path.strip_prefix(&project).is_ok() {
+            if fs_path.strip_prefix(&project).is_ok() {
                 ok = true;
                 break;
             }
@@ -953,7 +964,7 @@ async fn get_handler(
     }
 
     // Check the path is within the project for which authorization is given
-    if filesystem_path.strip_prefix(&claims.project).is_err() {
+    if fs_path.strip_prefix(&claims.project).is_err() {
         return error_response(
             StatusCode::FORBIDDEN,
             "Insufficient permissions to access this directory or file",
@@ -974,19 +985,17 @@ async fn get_handler(
             "text/html".to_string(),
             true,
         )
-    } else if filesystem_path.is_dir() {
+    } else if fs_path.is_dir() {
         // Request for a path that is a folder. Return a listing
         (
-            html_directory_listing(&home, &filesystem_path)
-                .as_bytes()
-                .to_vec(),
+            html_directory_listing(&home, &fs_path).as_bytes().to_vec(),
             "text/html".to_string(),
             false,
         )
     } else if format == "raw" {
         // Request for raw content of the file (e.g. an image within the HTML encoding of a
         // Markdown document)
-        let content = match fs::read(&filesystem_path) {
+        let content = match fs::read(&fs_path) {
             Ok(content) => content,
             Err(error) => {
                 return error_response(
@@ -996,12 +1005,12 @@ async fn get_handler(
             }
         };
 
-        let mime = mime_guess::from_path(filesystem_path).first_or_octet_stream();
+        let mime = mime_guess::from_path(fs_path).first_or_octet_stream();
 
         (content, mime.to_string(), false)
     } else {
         // Request for a document in some format (usually HTML)
-        match DOCUMENTS.open(&filesystem_path, None).await {
+        match DOCUMENTS.open(&fs_path, None).await {
             Ok(document) => {
                 let document = DOCUMENTS.get(&document.id).await.unwrap();
                 let document = document.lock().await;
@@ -1017,8 +1026,8 @@ async fn get_handler(
 
                 let content = match format.as_str() {
                     "html" => {
-                        let project = Projects::project_of_path(&filesystem_path)
-                            .unwrap_or_else(|_| filesystem_path.clone());
+                        let project =
+                            Projects::project_of_path(&fs_path).unwrap_or_else(|_| fs_path.clone());
 
                         let project = if let Ok(project) = project.strip_prefix("/") {
                             project.display()
@@ -1035,7 +1044,7 @@ async fn get_handler(
                             &token,
                             &project,
                             &home,
-                            &filesystem_path,
+                            &fs_path,
                         )
                     }
                     _ => content,
@@ -1318,10 +1327,15 @@ fn ws_handshake(
     // Check that client is authorized to access the path
     // On MacOS and Linux the leading slash is removed from the URL path so it
     // is necessary to check against both the path, and the path less any leading slash.
+
     let project = claims.project.display().to_string();
-    let path_with_slash = path.as_str();
-    let path_without_slash = path_with_slash.strip_prefix('/').unwrap_or(path_with_slash);
-    if project == path_with_slash || project == path_without_slash {
+
+    let path = path.as_str();
+    let fs_path = path.strip_prefix('/').unwrap_or(path).to_string();
+    let fs_path = urlencoding::decode(&fs_path)
+        .map_or_else(|_| fs_path.clone(), |fs_path| fs_path.to_string());
+
+    if project == fs_path || project == ["/", &fs_path].concat() {
         Box::new(ws.on_upgrade(|socket| ws_connected(socket, params.client)))
     } else {
         Box::new(reply::with_status(reply(), StatusCode::UNAUTHORIZED))
