@@ -9,8 +9,9 @@ const clientId = 'cl-session-tests'
 let client: Client
 beforeAll(async () => {
   client = await connect(
-    process.env.SERVER_URL ?? 'ws://127.0.0.1:9000/~ws',
-    clientId
+    'pr-session-tests',
+    clientId,
+    process.env.SERVER_URL ?? 'ws://127.0.0.1:9000'
   )
 })
 afterAll(() => {

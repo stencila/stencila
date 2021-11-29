@@ -17,7 +17,8 @@ export async function connect(
           window.location.host
         }`
   let connectUrl = `${baseUrl}/${projectId}?client=${clientId}`
-  if (typeof token === 'string') connectUrl += `&token=${token}`
+  if (typeof token === 'string' && token.length > 0)
+    connectUrl += `&token=${token}`
 
   const client = new Client(connectUrl)
   return new Promise<Client>((resolve) =>
