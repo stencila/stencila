@@ -5370,8 +5370,8 @@ dependencies = [
 
 [[package]]
 name = "tree-sitter-r"
-version = "0.19.3"
-source = "git+https://github.com/nokome/tree-sitter-r?rev=6997ec8752cf157f74a89a1e727daef8ed79c661#6997ec8752cf157f74a89a1e727daef8ed79c661"
+version = "0.19.4"
+source = "git+https://github.com/r-lib/tree-sitter-r?rev=016051ef9ec6f31a42043767316eaae98f8e8f2c#016051ef9ec6f31a42043767316eaae98f8e8f2c"
 dependencies = [
  "cc",
  "tree-sitter",
