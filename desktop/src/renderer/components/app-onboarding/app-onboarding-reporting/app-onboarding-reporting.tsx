@@ -1,8 +1,9 @@
 import { Component, h } from '@stencil/core'
 import { href } from '@stencil/router'
-import { client } from '../../../client'
 import { i18n } from '../../../../i18n'
 import { GlobalConfigKeys } from '../../../../preload/stores'
+import { client } from '../../../client'
+import { showAndCaptureError } from '../../../utils/errors'
 import { OnboardingRouter } from '../onboardingRouter'
 
 @Component({
@@ -15,12 +16,14 @@ export class AppOnboardingReoporting {
     e.preventDefault()
     client.config
       .set({
+        // @ts-expect-error
         key: GlobalConfigKeys.REPORT_ERRORS,
         value: 'true',
       })
       .then(() => {
-        OnboardingRouter.push('/onboarding/end')
+        return OnboardingRouter.push('/onboarding/end')
       })
+      .catch((err) => showAndCaptureError(err))
   }
 
   render() {

@@ -7,6 +7,7 @@ import {
 } from '../../../../store/documentPane/documentPaneActions'
 import { selectDoc } from '../../../../store/documentPane/documentPaneSelectors'
 import { userOS } from '../../../../utils/env'
+import { showAndCaptureError } from '../../../../utils/errors'
 
 @Component({
   tag: 'app-document-pane-tab',
@@ -14,10 +15,13 @@ import { userOS } from '../../../../utils/env'
   scoped: true,
 })
 export class AppDocumentPaneTab {
+  /** Indicates whether the tab is active, if so it is styled differently */
   @Prop() isActive: boolean
 
+  /** ID of the view/document being represented by this tab */
   @Prop() viewId: EntityId
 
+  /** ID of the editor pane this tab is attached to */
   @Prop() paneId: EntityId
 
   private activateDoc = (e: MouseEvent) => {
@@ -28,7 +32,9 @@ export class AppDocumentPaneTab {
   private closeDoc = (e: MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
-    closeDocument(this.paneId, this.viewId)
+    closeDocument(this.paneId, this.viewId).catch((err) =>
+      showAndCaptureError(err)
+    )
   }
 
   render() {

@@ -28,7 +28,7 @@ export class AppSettingsAdvanced {
   render() {
     return (
       <form class="settingsAdvanced">
-        {this.settings && this.settings.schemas.map((schema) => build(schema))}
+        {this.settings?.schemas.map((schema) => build(schema))}
       </form>
     )
   }

@@ -29,12 +29,16 @@ log.hooks.push((message: LogMessage, transport): LogMessage => {
 /**
  * Subscribe to stdout log messages from Stencila CLI client and log to Electron app console.
  */
-export const enableLogging = () => {
+export const enableLogging = (): void => {
+  // TODO: Refine type signatures for events
   pubsub.subscribe('logging', (_topic: string, event: any) => {
     const {
       message,
       metadata: { level, target },
-    } = event
+    } = event as {
+      message: string
+      metadata: { level: string; target: string }
+    }
 
     const line = [`%c${target} |%c ${message}`, 'color: blue', 'color: unset']
 

@@ -60,7 +60,6 @@ export class AppLogsList {
       <stencila-icon icon="checkbox-blank"></stencila-icon>
     )
 
-
   render() {
     const visibleLogs = this.filteredLogs()
 

@@ -2,6 +2,7 @@ import { Component, h } from '@stencil/core'
 import { Route } from '@stencil/router'
 import { Router } from '../../router'
 import { configEventListener, initConfigStore } from '../../store/appConfig'
+import { showAndCaptureError } from '../../utils/errors'
 
 @Component({
   tag: 'app-root',
@@ -10,7 +11,9 @@ import { configEventListener, initConfigStore } from '../../store/appConfig'
 })
 export class AppRoot {
   componentWillLoad() {
-    initConfigStore()
+    initConfigStore().catch((err) => {
+      showAndCaptureError(err)
+    })
     configEventListener()
   }
 

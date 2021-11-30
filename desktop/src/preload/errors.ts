@@ -5,8 +5,8 @@ import { isProduction } from './utils/env'
 
 export const enableCrashReports = (
   getCrashReportingSetting: () => boolean | Promise<boolean>
-) => {
-  if (process.env.SENTRY_DSN && isProduction) {
+): void => {
+  if (process.env.SENTRY_DSN !== undefined && isProduction) {
     Sentry.init({
       // debug: true,
       dsn: process.env.SENTRY_DSN,
@@ -19,7 +19,7 @@ export const enableCrashReports = (
           return null
         }
 
-        if (event.user?.ip_address) {
+        if (event.user?.ip_address !== undefined) {
           delete event.user.ip_address
         }
 
@@ -29,7 +29,7 @@ export const enableCrashReports = (
   }
 }
 
-export const setUser = (id: string) => {
+export const setUser = (id: string): void => {
   Sentry.setUser({ id })
 }
 
@@ -38,7 +38,7 @@ export interface LogHandler extends LogEvent {
   error?: Error
 }
 
-export const captureError = (error: Error | PromiseRejectionEvent) => {
+export const captureError = (error: Error | PromiseRejectionEvent): void => {
   if (error instanceof PromiseRejectionEvent) {
     Sentry.captureException(error.reason)
   } else {

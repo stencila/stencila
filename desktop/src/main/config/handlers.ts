@@ -12,7 +12,7 @@ import { sendToAllWindows } from '../utils/ipc'
 /**
  * Update the shared (between CLI and Desktop) Stencila configuration
  */
-const setGlobalConfig = (key: ConfigPaths, value: string) => {
+const setGlobalConfig = (key: ConfigPaths, value: string): void => {
   config.setProperty(key, value)
   unprotectedStore.set('global', config.get())
 }
@@ -46,7 +46,7 @@ export const setConfig = <K extends ConfigPaths | keyof AppConfigStore>(
     : never
 ): void => {
   if (isGlobalConfigPath(key)) {
-    if (value) {
+    if (value !== undefined) {
       setGlobalConfig(key, value.toString())
       sendToAllWindows(CHANNEL.CONFIG_SET, {
         key: 'global',
@@ -62,7 +62,7 @@ export const setConfig = <K extends ConfigPaths | keyof AppConfigStore>(
   }
 }
 
-export const updateAppConfig = (newStore: AppConfigStore) => {
+export const updateAppConfig = (newStore: AppConfigStore): void => {
   unprotectedStore.state.app = newStore
 }
 
@@ -75,8 +75,9 @@ export const isLineNumbersEnabled = (): boolean => {
   return getConfig().global.editors?.lineNumbers ?? true
 }
 
-export const toggleLineNumbers = () => {
+export const toggleLineNumbers = (): void => {
   setConfig(
+    // @ts-expect-error
     GlobalConfigKeys.EDITOR_LINE_NUMBERS,
     (!isLineNumbersEnabled()).toString()
   )
@@ -86,8 +87,9 @@ export const isLineWrappingEnabled = (): boolean => {
   return getConfig().global.editors?.lineWrapping ?? true
 }
 
-export const toggleLineWrapping = () => {
+export const toggleLineWrapping = (): void => {
   setConfig(
+    // @ts-expect-error
     GlobalConfigKeys.EDITOR_LINE_WRAPPING,
     (!isLineWrappingEnabled()).toString()
   )

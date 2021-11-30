@@ -13,7 +13,7 @@ export class AppOnboardingWelcome {
   render() {
     return (
       <div class="app-onboarding">
-        <img src={Logo} class="logo" />
+        <img src={Logo} class="logo" alt="Stencila logo" />
 
         <h1>{i18n.t('onboarding.welcome.title')}</h1>
 

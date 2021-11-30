@@ -15,7 +15,7 @@ export const projectFileMenu: MenuItemConstructorOptions = {
     {
       label: 'New File',
       accelerator: 'CommandOrControl+N',
-      click: () => {
+      click: (): void => {
         createNewDocument()
       },
     },
@@ -24,20 +24,22 @@ export const projectFileMenu: MenuItemConstructorOptions = {
       label: 'Open…',
       accelerator: 'CommandOrControl+o',
       click: () => {
-        openProject()
+        openProject().catch((err) => {
+          console.log('Could not open project\n', err)
+        })
       },
     },
     { type: 'separator' },
     {
       label: 'Save',
-      click: () => {
+      click: (): void => {
         saveActiveDoc()
       },
       accelerator: 'CommandOrControl+s',
     },
     {
       label: 'Save as…',
-      click: () => {
+      click: (): void => {
         saveActiveDocAs()
       },
       accelerator: 'CommandOrControl+Shift+s',
@@ -45,8 +47,10 @@ export const projectFileMenu: MenuItemConstructorOptions = {
     { type: 'separator' },
     {
       label: 'Close Tab' as const,
-      click: () => {
-        closeActiveTab()
+      click: (): void => {
+        closeActiveTab().catch((err) => {
+          console.log('Could not close tab\n', err)
+        })
       },
       accelerator: isWindows ? 'Control+Shift+W' : 'CommandOrControl+w',
     },
@@ -58,7 +62,7 @@ export const projectFileMenu: MenuItemConstructorOptions = {
     {
       label: 'Preferences…',
       accelerator: 'CommandOrControl+,',
-      click: () => {
+      click: (): void => {
         showSettings()
       },
     },

@@ -14,7 +14,7 @@ export const defaultConfigStore: AppConfigStore = {}
 export const readUnprotectedStore = (): AppConfigStore => {
   try {
     const contents = fs.readFileSync(unprotectedStorePath)
-    return JSON.parse(contents.toString())
+    return JSON.parse(contents.toString()) as AppConfigStore
   } catch {
     // TODO: Log error re. possibly corrupted config
   }
@@ -34,7 +34,7 @@ export const resetUnprotectedStore = (): void => {
  * If there are any default configuration settings missing from the user settings
  * file on disk, patch the settings file with the default values.
  */
-const setMissingConfigValues = (currentConfig: AppConfigStore) => {
+const setMissingConfigValues = (currentConfig: AppConfigStore): void => {
   const defaultStoreKeys = Object.keys(
     defaultConfigStore
   ) as (keyof AppConfigStore)[]
@@ -56,7 +56,7 @@ const setMissingConfigValues = (currentConfig: AppConfigStore) => {
   }
 }
 
-const initAppConfigStore = () => {
+const initAppConfigStore = (): ObservableMap<CombinedConfig> => {
   const combinedConfig: CombinedConfig = {
     app: defaultConfigStore,
     global: config.get(),
@@ -77,5 +77,5 @@ const initAppConfigStore = () => {
   return store
 }
 
-export let unprotectedStore: ObservableMap<CombinedConfig> =
+export const unprotectedStore: ObservableMap<CombinedConfig> =
   initAppConfigStore()

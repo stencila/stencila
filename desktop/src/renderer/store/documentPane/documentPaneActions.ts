@@ -3,6 +3,7 @@ import { option as O, taskEither as TE } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { Document } from 'stencila'
 import { client, isRPCError } from '../../client'
+import { showAndCaptureError } from '../../utils/errors'
 import { clearEditorState } from '../editorState/editorStateActions'
 import { state, store } from '../index'
 import { selectPaneId } from './documentPaneSelectors'
@@ -22,18 +23,6 @@ export const isEditPaneOpen = (layout: PaneLayout) =>
 
 export const initPane = (paneId: EntityId) => {
   store.dispatch(documentPaneActions.createPane({ paneId }))
-}
-
-export const createNewDocument = async (path?: string, format?: string) => {
-  const {
-    value: { global },
-  } = await client.config.getAll()
-
-  const defaultFormat = global.editors?.defaultFormat
-
-  createDocument(path, format ?? defaultFormat).then(({ value: doc }) => {
-    addDocumentToActivePane(doc)()
-  })
 }
 
 /**
@@ -142,6 +131,20 @@ export const setActiveDocument = (paneId: EntityId, docId: EntityId) => {
       changes: { activeView: O.some(docId) },
     })
   )
+}
+
+export const createNewDocument = async (path?: string, format?: string) => {
+  const {
+    value: { global },
+  } = await client.config.getAll()
+
+  const defaultFormat = global.editors?.defaultFormat
+
+  createDocument(path, format ?? defaultFormat)
+    .then(({ value: doc }) => addDocumentToActivePane(doc)())
+    .catch((err) => {
+      showAndCaptureError(err)
+    })
 }
 
 export const cycleTabs = (direction: 'next' | 'previous') => {

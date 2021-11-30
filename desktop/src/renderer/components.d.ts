@@ -10,6 +10,9 @@ import { O } from "fp-ts";
 import { LogMessage } from "electron-log";
 export namespace Components {
     interface AppDocumentEditor {
+        /**
+          * ID of the document being edited
+         */
         "documentId": EntityId;
     }
     interface AppDocumentPane {
@@ -22,8 +25,17 @@ export namespace Components {
     interface AppDocumentPaneEmpty {
     }
     interface AppDocumentPaneTab {
+        /**
+          * Indicates whether the tab is active, if so it is styled differently
+         */
         "isActive": boolean;
+        /**
+          * ID of the editor pane this tab is attached to
+         */
         "paneId": EntityId;
+        /**
+          * ID of the view/document being represented by this tab
+         */
         "viewId": EntityId;
     }
     interface AppDocumentPaneTabs {
@@ -78,6 +90,9 @@ export namespace Components {
     interface AppSettingsGeneral {
     }
     interface AppSettingsPluginCard {
+        /**
+          * Name of the plugin to render. Used to query to CLI for the plugin details.
+         */
         "pluginName": string;
     }
     interface AppSettingsPlugins {
@@ -305,6 +320,9 @@ declare global {
 }
 declare namespace LocalJSX {
     interface AppDocumentEditor {
+        /**
+          * ID of the document being edited
+         */
         "documentId"?: EntityId;
     }
     interface AppDocumentPane {
@@ -317,8 +335,17 @@ declare namespace LocalJSX {
     interface AppDocumentPaneEmpty {
     }
     interface AppDocumentPaneTab {
+        /**
+          * Indicates whether the tab is active, if so it is styled differently
+         */
         "isActive"?: boolean;
+        /**
+          * ID of the editor pane this tab is attached to
+         */
         "paneId"?: EntityId;
+        /**
+          * ID of the view/document being represented by this tab
+         */
         "viewId"?: EntityId;
     }
     interface AppDocumentPaneTabs {
@@ -373,6 +400,9 @@ declare namespace LocalJSX {
     interface AppSettingsGeneral {
     }
     interface AppSettingsPluginCard {
+        /**
+          * Name of the plugin to render. Used to query to CLI for the plugin details.
+         */
         "pluginName"?: string;
     }
     interface AppSettingsPlugins {

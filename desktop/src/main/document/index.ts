@@ -24,7 +24,9 @@ import { supportedFileFormats } from './utils'
 /**
  * Open system file picker, prompting user to navigate to desired location, and enter a file name.
  */
-const createFilePath = async (event: Electron.IpcMainInvokeEvent) => {
+const createFilePath = async (
+  event: Electron.IpcMainInvokeEvent
+): Promise<Electron.SaveDialogReturnValue> => {
   const win = BrowserWindow.fromWebContents(event.sender) ?? undefined
   let file: SaveDialogReturnValue
 
@@ -46,7 +48,7 @@ const createFilePath = async (event: Electron.IpcMainInvokeEvent) => {
   return file
 }
 
-const registerDocumentHandlers = () => {
+const registerDocumentHandlers = (): void => {
   handle<DocumentsOpen>(CHANNEL.DOCUMENTS_OPEN, async (_event, filePath) =>
     dispatch.documents.open(filePath)
   )
@@ -132,7 +134,7 @@ const registerDocumentHandlers = () => {
     CHANNEL.DOCUMENTS_WRITE_AS,
     async (event, documentId) => {
       return createFilePath(event).then(({ filePath, canceled }) => {
-        if (filePath) {
+        if (filePath !== undefined) {
           return dispatch.documents.writeAs(documentId, filePath)
         } else if (canceled) {
           return { ok: true, value: null, errors: [] }
@@ -143,7 +145,7 @@ const registerDocumentHandlers = () => {
           errors: [
             {
               type: 'Unspecified',
-              message: `Something went wrong while trying to save the file at ${filePath}`,
+              message: `Something went wrong while trying to save the file with ID: '${documentId}'`,
             },
           ],
         }
@@ -162,7 +164,7 @@ const registerDocumentHandlers = () => {
     CHANNEL.DOCUMENTS_CREATE_FILE_PATH,
     async (event) => {
       const { filePath } = await createFilePath(event)
-      if (filePath) {
+      if (filePath !== undefined) {
         return valueToSuccessResult({ filePath, canceled: false })
       } else {
         return {
@@ -177,7 +179,7 @@ const registerDocumentHandlers = () => {
   )
 }
 
-const removeDocoumentHandlers = () => {
+const removeDocoumentHandlers = (): void => {
   removeChannelHandlers(DOCUMENT_CHANNEL)
 }
 

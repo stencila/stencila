@@ -1,8 +1,10 @@
 import { Component, h, State } from '@stencil/core'
 import Logo from '@stencila/brand/dist/logos/stencilaLogo.svg'
+import { captureError } from '../../../preload/errors'
 import { client } from '../../client'
 import { fetchRecentProjects } from '../../store/project/projectActions'
 import { userOSPathSeparator } from '../../utils/env'
+import { showAndCaptureError } from '../../utils/errors'
 
 const projectDirName = (path: string): string | undefined =>
   path.split(userOSPathSeparator).pop()
@@ -19,17 +21,27 @@ export class AppLauncher {
 
   private pickAndOpenProject = async (e: Event) => {
     e.preventDefault()
-    client.projects.openUsingPicker().then(({ value }) => {
-      if (!value.canceled) {
-        client.launcher.close()
-      }
-    })
+    client.projects
+      .openUsingPicker()
+      .then(({ value }) => {
+        if (!value.canceled) {
+          client.launcher.close().catch((err) => captureError(err))
+        }
+      })
+      .catch((err) => showAndCaptureError(err))
   }
 
   private openProject = (path: string) => async (e: Event) => {
     e.preventDefault()
     await client.projects.open(path)
-    client.launcher.close()
+    client.launcher.close().catch((err) => showAndCaptureError(err))
+  }
+
+  private openSettings(): ((event: MouseEvent) => void) | undefined {
+    return (e) => {
+      e.preventDefault()
+      client.config.window.open().catch((err) => showAndCaptureError(err))
+    }
   }
 
   componentWillLoad() {
@@ -46,7 +58,7 @@ export class AppLauncher {
           <div class="launcherActions">
             <div class="primaryActions">
               <div class="logo">
-                <img src={Logo} />
+                <img alt="Stencila logo" src={Logo} />
               </div>
 
               <stencila-button
@@ -78,10 +90,7 @@ export class AppLauncher {
                 size="small"
                 color="neutral"
                 tooltip="Settings"
-                onClick={(e) => {
-                  e.preventDefault()
-                  client.config.window.open()
-                }}
+                onClick={this.openSettings()}
               >
                 Settings
               </stencila-button>
@@ -106,7 +115,9 @@ export class AppLauncher {
                         <h3 class="name" title={projectName ?? projectPath}>
                           {projectName ?? projectPath}
                         </h3>
-                        {projectName && <h4 class="path">{projectPath}</h4>}
+                        {projectName !== undefined && (
+                          <h4 class="path">{projectPath}</h4>
+                        )}
                       </div>
                     </a>
                   </li>

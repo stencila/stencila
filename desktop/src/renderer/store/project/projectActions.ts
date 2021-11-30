@@ -3,7 +3,10 @@ import { FileFormatUtils } from '@stencila/components'
 import { normalize } from 'normalizr'
 import { client } from '../../client'
 import { projectEntity } from './entities'
-import { ProjectStoreEntities } from './ProjectStoreTypes'
+import {
+  NormalizedProjectStore,
+  ProjectStoreEntities,
+} from './ProjectStoreTypes'
 
 const StoreKeys = {
   recentProjects: 'recentProjects',
@@ -12,7 +15,7 @@ const StoreKeys = {
 export const fetchRecentProjects = (): string[] => {
   const paths = window.localStorage.getItem(StoreKeys.recentProjects) ?? '[]'
   try {
-    const parsedPaths = JSON.parse(paths)
+    const parsedPaths = JSON.parse(paths) as unknown
     if (Array.isArray(parsedPaths)) {
       return parsedPaths.slice(0, 6)
     } else {
@@ -39,10 +42,11 @@ export const fetchProject = createAsyncThunk(
 
     const { value: project } = await client.projects.contents(path)
 
-    const normalized = normalize<any, ProjectStoreEntities>(
-      project,
-      projectEntity
-    )
+    const normalized = normalize<
+      NormalizedProjectStore,
+      ProjectStoreEntities,
+      string[]
+    >(project, projectEntity)
 
     return normalized
   }

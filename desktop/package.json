@@ -10,7 +10,8 @@
     "package": "electron-forge package",
     "make": "cross-env NODE_ENV=production electron-forge make",
     "publish": "cross-env NODE_ENV=production electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx .",
+    "lint": "eslint --ext .ts,.tsx ./src",
+    "lint:fix": "npm run lint -- --fix",
     "test": "npm run ui:test",
     "ui:build": "cross-env NODE_ENV=production stencil build",
     "ui:start": "cross-env NODE_ENV=development stencil build --dev --watch --serve",
@@ -43,13 +44,12 @@
     "@rollup/plugin-replace": "3.0.0",
     "@stencil/core": "2.11.0",
     "@stencil/postcss": "2.1.0",
-    "@stencila/dev-config": "2.0.18",
+    "@stencila/eslint-config-stencil": "2.0.4",
     "@types/debounce": "1.2.1",
+    "@types/electron-devtools-installer": "2.2.0",
     "@types/jest": "26.0.24",
     "@types/puppeteer": "5.4.4",
     "@types/uuid": "8.3.1",
-    "@typescript-eslint/eslint-plugin": "4.30.0",
-    "@typescript-eslint/parser": "4.30.0",
     "copy-webpack-plugin": "9.0.1",
     "cross-env": "7.0.3",
     "csp-html-webpack-plugin": "5.1.0",
@@ -57,8 +57,6 @@
     "dotenv-webpack": "7.0.3",
     "electron": "15.1.2",
     "electron-devtools-installer": "github:rwwagner90/electron-devtools-installer",
-    "eslint": "8.1.0",
-    "eslint-plugin-import": "2.24.2",
     "fork-ts-checker-webpack-plugin": "6.3.4",
     "html-insert-tag-webpack-plugin": "0.0.1",
     "jest": "26.6.3",
@@ -72,7 +70,7 @@
     "style-loader": "3.3.0",
     "tailwindcss": "2.2.16",
     "ts-loader": "9.2.6",
-    "typescript": "4.4.2"
+    "typescript": "4.5.2"
   },
   "dependencies": {
     "@reduxjs/toolkit": "1.6.2",
@@ -102,7 +100,11 @@
     "Electron"
   ],
   "eslintConfig": {
-    "extends": "@stencila/eslint-config",
+    "root": true,
+    "extends": "@stencila/eslint-config-stencil",
+    "parserOptions": {
+      "project": "./tsconfig.json"
+    },
     "env": {
       "browser": true,
       "es6": true,

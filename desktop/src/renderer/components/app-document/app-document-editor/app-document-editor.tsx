@@ -6,6 +6,7 @@ import { option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { DocumentEvent } from 'stencila'
 import { CHANNEL } from '../../../../preload/channels'
+import { captureError } from '../../../../preload/errors'
 import { state } from '../../../../renderer/store'
 import { selectDoc } from '../../../../renderer/store/documentPane/documentPaneSelectors'
 import { saveEditorState } from '../../../../renderer/store/editorState/editorStateActions'
@@ -19,7 +20,7 @@ import {
   patchDocument,
 } from '../../../store/documentPane/documentPaneActions'
 import { getExecutableFormats } from '../../../store/project/projectActions'
-import { errorToast } from '../../../utils/errors'
+import { errorToast, showAndCaptureError } from '../../../utils/errors'
 
 @Component({
   tag: 'app-document-editor',
@@ -33,6 +34,7 @@ export class AppDocumentEditor {
 
   private editorRef: HTMLStencilaEditorElement | undefined
 
+  /** ID of the document being edited */
   @Prop() documentId: EntityId
 
   @Watch('documentId')
@@ -74,9 +76,12 @@ export class AppDocumentEditor {
       editorStateById,
       O.map(this.setDocState),
       O.getOrElse(() => {
-        client.documents.contents(documentId).then(({ value: contents }) => {
-          this.editorRef?.setStateFromString(contents)
-        })
+        client.documents
+          .contents(documentId)
+          .then(({ value: contents }) => {
+            this.editorRef?.setStateFromString(contents)
+          })
+          .catch((err) => showAndCaptureError(err))
       })
     )
   }
@@ -101,7 +106,7 @@ export class AppDocumentEditor {
     // Listen to file events and update contents
     window.api.receive(CHANNEL.DOCUMENTS_DUMP, (event) => {
       const { type, content } = event as DocumentEvent
-      if (type === 'modified' && typeof content == 'string') {
+      if (type === 'modified' && typeof content === 'string') {
         // TODO: Ask user if they want to update document contents
         this.setDocContents(content)
       }
@@ -109,7 +114,9 @@ export class AppDocumentEditor {
 
     // Handle global file save events, both keyboard shortcut and File menu items
     window.api.receive(CHANNEL.DOCUMENT_WRITE_ACTIVE, this.saveDoc)
-    window.api.receive(CHANNEL.DOCUMENT_WRITE_ACTIVE_AS, this.saveDocAs)
+    window.api.receive(CHANNEL.DOCUMENT_WRITE_ACTIVE_AS, () => {
+      this.saveDocAs().catch((err) => showAndCaptureError(err))
+    })
 
     this.restoreOrCreateDocState(documentId)
       .then(() => this.editorRef?.getRef())
@@ -117,6 +124,7 @@ export class AppDocumentEditor {
         // Return input focus to editor so that user can type into the editor right away
         editor?.focus()
       })
+      .catch((err) => showAndCaptureError(err))
   }
 
   private unsubscribeFromDocument = (documentId: EntityId) => {
@@ -134,7 +142,7 @@ export class AppDocumentEditor {
    * The number of milliseconds to wait between consecutive calls of the document update handler.
    * Allows us to avoid generating too many previews as the user is typing, and degrading performance.
    */
-  onDocChangeTimeout = 300
+  private onDocChangeTimeout = 300
 
   /**
    * Function to call whenever the contents of the editor change.
@@ -154,8 +162,10 @@ export class AppDocumentEditor {
   }, this.onDocChangeTimeout)
 
   private onSetLanguage = (e: CustomEvent<FileFormatUtils.FileFormat>) => {
-    if (e.detail.ext) {
-      alterDocument(this.documentId, undefined, e.detail.ext)
+    if (e.detail.ext !== null) {
+      alterDocument(this.documentId, undefined, e.detail.ext).catch((err) =>
+        showAndCaptureError(err)
+      )
     }
   }
 
@@ -173,14 +183,14 @@ export class AppDocumentEditor {
     this.editorRef
       ?.getContents()
       .then(({ text }) => {
-        saveDocument(this.documentId, text)
+        return saveDocument(this.documentId, text)
       })
       .catch((err) => {
         errorToast(err)
       })
   }
 
-  private saveDocAs = async () => {
+  private saveDocAs = async (): Promise<void> => {
     const { value: maybeFilePath } = await client.documents.createFilePath()
     const contents = await this.editorRef?.getContents()
 
@@ -189,20 +199,23 @@ export class AppDocumentEditor {
     client.documents
       .create(maybeFilePath.filePath)
       .then(({ value: doc }) => {
-        saveDocument(
+        return saveDocument(
           doc.id,
           contents.text,
           FileFormatUtils.lookupFormat(contents.language).ext ??
             contents.language
         )
       })
-      .then(openDocumentInActivePane(maybeFilePath.filePath))
+      .then(() => openDocumentInActivePane(maybeFilePath.filePath))
+      .catch((err) => showAndCaptureError(err))
   }
 
   componentWillLoad() {
-    getExecutableFormats().then((formats) => {
-      this.executableLanguages = formats
-    })
+    getExecutableFormats()
+      .then((formats) => {
+        this.executableLanguages = formats
+      })
+      .catch(captureError)
   }
 
   componentDidLoad() {

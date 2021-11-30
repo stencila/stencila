@@ -5,6 +5,7 @@ import { i18n } from '../../../../i18n'
 import { GlobalConfigKeys } from '../../../../preload/stores'
 import { AppConfigStore, ConfigPaths } from '../../../../preload/types'
 import { client } from '../../../client'
+import { showAndCaptureError } from '../../../utils/errors'
 
 @Component({
   tag: 'app-settings-editor',
@@ -22,7 +23,9 @@ export class AppSettingsEditor {
     const target = e.target as HTMLInputElement
     const value = target.checked ?? target.value
 
-    client.config.set({ key, value: value.toString() })
+    client.config
+      .set({ key, value: value.toString() })
+      .catch((err) => showAndCaptureError(err))
   }
 
   async componentWillLoad() {
@@ -47,6 +50,7 @@ export class AppSettingsEditor {
             <select
               id="newFileDefault"
               onChange={this.updateSetting(
+                // @ts-expect-error
                 GlobalConfigKeys.EDITOR_NEW_FILE_SYNTAX
               )}
             >
@@ -75,6 +79,7 @@ export class AppSettingsEditor {
               type="checkbox"
               defaultChecked={this.config.global.editors?.lineWrapping ?? false}
               onChange={this.updateSetting(
+                // @ts-expect-error
                 GlobalConfigKeys.EDITOR_LINE_WRAPPING
               )}
             />
@@ -90,6 +95,7 @@ export class AppSettingsEditor {
               type="checkbox"
               defaultChecked={this.config.global.editors?.lineNumbers ?? false}
               onChange={this.updateSetting(
+                // @ts-expect-error
                 GlobalConfigKeys.EDITOR_LINE_NUMBERS
               )}
             />

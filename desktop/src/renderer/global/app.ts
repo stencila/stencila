@@ -24,7 +24,7 @@ export default async () => {
 
   // Due to `nodeIntegration: false` and `contextIsolation: true`, Sentry needs
   // to be instantiated in both the `preload` script AND here, the `web` context.
-  if (process.env.SENTRY_DSN && isProduction) {
+  if (process.env.SENTRY_DSN !== undefined && isProduction) {
     enableCrashReports(isErrorReportingEnabled)
   }
   showUnhandledErrors()

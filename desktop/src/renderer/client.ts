@@ -15,9 +15,7 @@ export class RPCError extends Error {
     super(errors[0]?.message ?? errors[0]?.type ?? 'RPC Error')
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, RPCError)
-    }
+    Error.captureStackTrace(this, RPCError)
 
     this.name = 'RPCError'
     this.errors = errors

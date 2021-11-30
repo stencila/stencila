@@ -7,9 +7,9 @@ import { getConfig, setConfig } from './handlers'
  * This is used to group error reports over time.
  */
 export const getOrAssignUserId = (): string => {
-  const currentId = getConfig().app[UnprotectedStoreKeys.USER_ID]
+  const currentId = getConfig().app.USER_ID
 
-  if (currentId && typeof currentId === 'string' && currentId !== '') {
+  if (currentId !== undefined && currentId !== '') {
     return currentId
   }
 

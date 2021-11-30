@@ -5,6 +5,7 @@ import { Channel, Handler, isChannel } from './channels'
 
 export const apis: IpcRendererAPI = {
   // TODO: Refine type definitions to enable guarding against valid channels
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   invoke: ipcRenderer.invoke,
   send: (channel: Channel, data: unknown) => {
     if (isChannel(channel)) {

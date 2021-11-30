@@ -1,6 +1,8 @@
 import { Component, h } from '@stencil/core'
 import { i18n } from '../../../../i18n'
+import { captureError } from '../../../../preload/errors'
 import { client } from '../../../client'
+import { showAndCaptureError } from '../../../utils/errors'
 
 @Component({
   tag: 'app-onboarding-end',
@@ -10,11 +12,17 @@ import { client } from '../../../client'
 export class AppOnboardingEnd {
   private openLinkInBrowser = (url: string) => (e: MouseEvent) => {
     e.preventDefault()
-    client.app.utils.openLinkInBrowser(url)
+    client.app.utils
+      .openLinkInBrowser(url)
+      .catch((err) => showAndCaptureError(err))
   }
 
   private nextHandler = () => {
-    client.launcher.open().finally(client.onboarding.close)
+    client.launcher.open().finally(() => {
+      client.onboarding.close().catch((err) => {
+        captureError(err)
+      })
+    })
   }
 
   render() {

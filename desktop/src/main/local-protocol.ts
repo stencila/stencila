@@ -14,7 +14,7 @@ const secret = randomBytes(256)
 /**
  * Generate a HMAC for a path
  */
-const generateHmac = (path: string) =>
+const generateHmac = (path: string): string =>
   createHmac('sha256', secret).update(path).digest('hex')
 
 /**
@@ -42,6 +42,8 @@ export const requestHandler: RequestHandler = (request, callback) => {
   const { pathname, search } = new URL(request.url)
   const path = decodeURI(pathname)
   const hmac = generateHmac(path)
-  if (search.slice(1) == hmac) callback({ statusCode: 200, path })
+
+  /* eslint-disable node/no-callback-literal */
+  if (search.slice(1) === hmac) callback({ statusCode: 200, path })
   else callback({ statusCode: 403 })
 }

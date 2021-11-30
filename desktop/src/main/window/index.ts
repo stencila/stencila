@@ -1,5 +1,6 @@
 import { BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
 import { i18n } from '../../i18n'
+import { captureError } from '../../preload/errors'
 import { isDevelopment } from '../../preload/utils/env'
 import { scheme } from '../app-protocol'
 import { hardenWindow } from './security'
@@ -25,9 +26,11 @@ export const createWindow = (
     },
   })
 
-  win.loadURL(
-    isDevelopment ? `http://localhost:3333${url}` : `${scheme}://rse${url}`
-  )
+  win
+    .loadURL(
+      isDevelopment ? `http://localhost:3333${url}` : `${scheme}://rse${url}`
+    )
+    .catch((err) => captureError(err))
 
   if (isDevelopment) {
     // Open the DevTools.

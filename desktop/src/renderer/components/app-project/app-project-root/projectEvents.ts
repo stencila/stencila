@@ -13,6 +13,7 @@ import {
 } from '../../../store/documentPane/documentPaneSelectors'
 import { projectActions } from '../../../store/project/projectStore'
 import { SessionsStoreKeys, sessionStore } from '../../../store/sessionStore'
+import { showAndCaptureError } from '../../../utils/errors'
 
 // TODO: Define ServerStartEvent
 type ServerEvent = {
@@ -33,14 +34,18 @@ export const listenForFileEvents = (_projectId: string) => {
   })
 
   window.api.receive(CHANNEL.DOCUMENTS_CREATE, () => {
-    createNewDocument()
+    createNewDocument().catch((err) => {
+      showAndCaptureError(err)
+    })
   })
 
   window.api.receive(CHANNEL.DOCUMENTS_CLOSE_ACTIVE, () => {
     pipe(
       AP.sequenceT(O.Apply)(selectPaneId(state), selectActiveView(state)),
       O.map(([paneId, viewId]) => {
-        closeDocument(paneId, viewId)
+        closeDocument(paneId, viewId).catch((err) => {
+          showAndCaptureError(err)
+        })
       })
     )
   })
