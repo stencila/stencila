@@ -647,7 +647,16 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
     let binary = if let Some(binary) = binaries.get_mut(name) {
         binary
     } else {
-        bail!("Unregistered binary '{}'. See `stencila binaries list` for registered binaries.")
+        binaries.insert(
+            name.to_string(),
+            Binary {
+                name: name.into(),
+                ..Default::default()
+            },
+        );
+        binaries
+            .get_mut(name)
+            .expect("Should have just been inserted")
     };
 
     binary.resolve();
@@ -700,50 +709,24 @@ pub mod commands {
         setting = structopt::clap::AppSettings::DeriveDisplayOrder
     )]
     pub enum Action {
-        List(List),
         Show(Show),
+        Installable(Installable),
         Install(Install),
         Uninstall(Uninstall),
         Run(Run_),
     }
+
     #[async_trait]
     impl Run for Command {
         async fn run(&self) -> Result {
             let Self { action } = self;
             match action {
-                Action::List(action) => action.run().await,
                 Action::Show(action) => action.run().await,
+                Action::Installable(action) => action.run().await,
                 Action::Install(action) => action.run().await,
                 Action::Uninstall(action) => action.run().await,
                 Action::Run(action) => action.run().await,
             }
-        }
-    }
-
-    /// List registered binaries and their supported versions
-    ///
-    /// The returned list is a list of the binaries/versions
-    /// that Stencila knows how to use and/or install.
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct List {}
-    #[async_trait]
-    impl Run for List {
-        async fn run(&self) -> Result {
-            let binaries = &*BINARIES.lock().await;
-            let list: Vec<serde_json::Value> = binaries
-                .values()
-                .map(|binary| {
-                    serde_json::json!({
-                        "name": binary.name.clone(),
-                        "versions": binary.installable.clone()
-                    })
-                })
-                .collect();
-            result::value(list)
         }
     }
 
@@ -754,8 +737,8 @@ pub mod commands {
     /// if you only want to show the binary if the semantic version
     /// requirement is met.
     ///
-    /// This command will work for binaries that are not registered
-    /// with Stencila (i.e. those not in `stencila binaries list`).
+    /// This command should find any binary that is on your PATH
+    /// (i.e. including those not in the `stencila binaries installable` list).
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
@@ -771,6 +754,7 @@ pub mod commands {
         /// requirement nothing will be shown
         pub semver: Option<String>,
     }
+
     #[async_trait]
     impl Run for Show {
         async fn run(&self) -> Result {
@@ -790,10 +774,37 @@ pub mod commands {
                 result::value(binary)
             } else {
                 tracing::info!(
-                    "No matching binary found. Perhaps try `stencila binaries install`."
+                    "No matching binary found. Perhaps use `stencila binaries install`?"
                 );
                 result::nothing()
             }
+        }
+    }
+
+    /// List binaries (and their versions) that can be installed using Stencila
+    ///
+    /// The returned list is a list of the binaries/versions that Stencila knows how to install.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Installable {}
+
+    #[async_trait]
+    impl Run for Installable {
+        async fn run(&self) -> Result {
+            let binaries = &*BINARIES.lock().await;
+            let list: Vec<serde_json::Value> = binaries
+                .values()
+                .map(|binary| {
+                    serde_json::json!({
+                        "name": binary.name.clone(),
+                        "versions": binary.installable.clone()
+                    })
+                })
+                .collect();
+            result::value(list)
         }
     }
 
@@ -878,8 +889,6 @@ pub mod commands {
     /// Run a command using a binary
     ///
     /// Pass arguments and options to the binary after the `--` flag.
-    ///
-    /// Only works with binaries that are registered with Stencila.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
@@ -896,6 +905,7 @@ pub mod commands {
         #[structopt(raw(true))]
         pub args: Vec<String>,
     }
+
     #[async_trait]
     impl Run for Run_ {
         async fn run(&self) -> Result {
@@ -933,12 +943,12 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn install() -> Result<()> {
-        use super::commands::{Install, List, Show};
+        use super::commands::{Install, Installable, Show};
         use cli_utils::Run;
         use eyre::bail;
         use test_utils::assert_json_eq;
 
-        List {}.run().await?;
+        Installable {}.run().await?;
 
         let binaries = (*super::BINARIES.lock().await).clone();
         for name in binaries.keys() {
