@@ -72,21 +72,20 @@ gallery](https://stencila.github.io/thema/), or learn how to [make one from scra
 <!-- prettier-ignore-start -->
 <!-- THEMES-START -->
 
-| Name                            | Description                                                                                                                                                                                                                                                                                      |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [bootstrap](./themes/bootstrap) | A theme that pulls itself up using Twitter's [Bootstrap](https://getbootstrap.com/) toolkit.                                                                                                                                                                                                     |
-| [elife](./themes/elife)         | A theme for the journal eLife.                                                                                                                                                                                                                                                                   |
-| [f1000](./themes/f1000)         | A theme for the journal [F1000Research](https://f1000research.com/).                                                                                                                                                                                                                             |
-| [galleria](./themes/galleria)   | A theme for galleries of `CreativeWork` nodes.                                                                                                                                                                                                                                                   |
-| [giga](./themes/giga)           | A theme for the "Giga" journals [GigaScience](https://academic.oup.com/gigascience) and [GigaByte](https://gigabytejournal.com/).                                                                                                                                                                |
-| [latex](./themes/latex)         | Inspired by the look of traditional scientific manuscripts witten using [LaTeX](https://www.latex-project.org/). This theme uses [LatexCSS](https://github.com/davidrzs/latexcss/) developed by [David Zollikofer](https://github.com/davidrzs).                                                 |
-| [nature](./themes/nature)       | A theme for the journal Nature.                                                                                                                                                                                                                                                                  |
-| [plos](./themes/plos)           | A theme for the journal PLoS.                                                                                                                                                                                                                                                                    |
-| [rpng](./themes/rpng)           | A theme for reproducible PNGs (rPNGs). This theme is used in Encoda when generating rPNGs.                                                                                                                                                                                                       |
-| [skeleton](./themes/skeleton)   | A theme with lots of bones but no flesh. Designed to be used as a starting point for creating new themes, it tries to be as unopinionated as possible.                                                                                                                                           |
-| [stencila](./themes/stencila)   | A theme reflecting Stencila's brand and [design system](https://github.com/stencila/designa). It is based on the Skeleton theme, and demonstrates how to customize a theme using CSS variables.                                                                                                  |
-| [tufte](./themes/tufte)         | A theme inspired by the books and handouts of [Edward Tufte](https://www.edwardtufte.com/tufte/). It is based on the [Tufte CSS](https://edwardtufte.github.io/tufte-css/) project created by [Dave Liepmann](https://www.daveliepmann.com/).                                                    |
-| [wilmore](./themes/wilmore)     | A theme well suited for consuming long-form manuscripts and prose. Named after Edmond Dantés' alias, [“Lord Wilmore: An Englishman, and the persona in which Dantès performs random acts of generosity.“](https://en.wikipedia.org/wiki/The_Count_of_Monte_Cristo#Edmond_Dantès_and_his_aliases) |
+| Name                          | Description                                                                                                                                                                                                                                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [elife](./themes/elife)       | A theme for the journal eLife.                                                                                                                                                                                                                                                                   |
+| [f1000](./themes/f1000)       | A theme for the journal [F1000Research](https://f1000research.com/).                                                                                                                                                                                                                             |
+| [galleria](./themes/galleria) | A theme for galleries of `CreativeWork` nodes.                                                                                                                                                                                                                                                   |
+| [giga](./themes/giga)         | A theme for the "Giga" journals [GigaScience](https://academic.oup.com/gigascience) and [GigaByte](https://gigabytejournal.com/).                                                                                                                                                                |
+| [latex](./themes/latex)       | Inspired by the look of traditional scientific manuscripts witten using [LaTeX](https://www.latex-project.org/). This theme uses [LatexCSS](https://github.com/davidrzs/latexcss/) developed by [David Zollikofer](https://github.com/davidrzs).                                                 |
+| [nature](./themes/nature)     | A theme for the journal Nature.                                                                                                                                                                                                                                                                  |
+| [plos](./themes/plos)         | A theme for the journal PLoS.                                                                                                                                                                                                                                                                    |
+| [rpng](./themes/rpng)         | A theme for reproducible PNGs (rPNGs). This theme is used in Encoda when generating rPNGs.                                                                                                                                                                                                       |
+| [skeleton](./themes/skeleton) | A theme with lots of bones but no flesh. Designed to be used as a starting point for creating new themes, it tries to be as unopinionated as possible.                                                                                                                                           |
+| [stencila](./themes/stencila) | A theme reflecting Stencila's brand and [design system](https://github.com/stencila/designa). It is based on the Skeleton theme, and demonstrates how to customize a theme using CSS variables.                                                                                                  |
+| [tufte](./themes/tufte)       | A theme inspired by the books and handouts of [Edward Tufte](https://www.edwardtufte.com/tufte/). It is based on the [Tufte CSS](https://edwardtufte.github.io/tufte-css/) project created by [Dave Liepmann](https://www.daveliepmann.com/).                                                    |
+| [wilmore](./themes/wilmore)   | A theme well suited for consuming long-form manuscripts and prose. Named after Edmond Dantés' alias, [“Lord Wilmore: An Englishman, and the persona in which Dantès performs random acts of generosity.“](https://en.wikipedia.org/wiki/The_Count_of_Monte_Cristo#Edmond_Dantès_and_his_aliases) |
 
 <!-- THEMES-END -->
 <!-- prettier-ignore-end -->
@@ -388,6 +387,17 @@ Several utility functions are provided in the [`util`](./src/util) module for tr
 
 <!-- prettier-ignore-start -->
 <!-- API-START -->
+### Members
+
+<dl>
+<dt><a href="#readyList">readyList</a></dt>
+<dd><p>Convenience functions for manipulating the DOM.</p>
+<p>Most of the names of these functions mirror their analogs
+in <a href="https://api.jquery.com">https://api.jquery.com</a>.
+Inspiration also taken from <a href="https://plainjs.com/javascript">https://plainjs.com/javascript</a>.</p>
+</dd>
+</dl>
+
 ### Functions
 
 <dl>
@@ -435,6 +445,16 @@ Several utility functions are provided in the [`util`](./src/util) module for tr
 </dd>
 </dl>
 
+<a name="readyList"></a>
+
+### readyList
+Convenience functions for manipulating the DOM.
+
+Most of the names of these functions mirror their analogs
+in https://api.jquery.com.
+Inspiration also taken from https://plainjs.com/javascript.
+
+**Kind**: global variable  
 <a name="ready"></a>
 
 ### ready(func)
