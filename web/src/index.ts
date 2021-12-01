@@ -6,9 +6,12 @@
 // - How do we migrate old published documents
 // - Attach Node IDs for required elements in published article HTML
 
+import { FileFormatUtils } from '@stencila/components'
+import { CodeChunk, CodeExpression } from '@stencila/schema'
 import { Document, Operation, Session } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
+import { available } from './kernels'
 import * as sessions from './sessions'
 import { ProjectId, SnapshotId } from './types'
 
@@ -23,6 +26,7 @@ export const main = (
   let client: Client | undefined
   let session: Session | undefined
   let document: Document | undefined
+  const availableKernels: FileFormatUtils.FileFormatMap = {}
 
   // Start the client and session, if necessary
   const startup = async (): Promise<[Client, Document, Session]> => {
@@ -34,6 +38,12 @@ export const main = (
       session = await sessions.start(client, projectId, snapshotId)
       sessions.subscribe(client, session.id, 'updated').catch((err) => {
         console.warn(`Couldn't subscribe to session updates`, err)
+      })
+
+      const kernels = await available(client, session.id)
+      kernels.forEach((kernelName) => {
+        const foundFormat = FileFormatUtils.lookupFormat(kernelName)
+        availableKernels[foundFormat.name] = foundFormat
       })
 
       // Don't subscribe to heartbeats during development because it generates
@@ -57,6 +67,8 @@ export const main = (
     }
 
     documents.listen(client, clientId, document.id)
+
+    window.addEventListener('appload', initComponents)
 
     return [client, document, session]
   }
@@ -87,7 +99,9 @@ export const main = (
     return documents.execute(client, document.id, nodeId, { ops })
   }
 
-  window.onload = () => {
+  function initComponents(): void {
+    window.removeEventListener('appload', initComponents)
+
     // `onChange` for `Parameter` nodes
     window.document.querySelectorAll('input').forEach((input) => {
       input.addEventListener('change', () => {
@@ -102,11 +116,13 @@ export const main = (
 
     // `executeHandler` for `CodeChunk` and `CodeExpression` nodes
     window.document
-      .querySelectorAll('stencila-code-chunk,stencila-code-expression')
+      .querySelectorAll<
+        HTMLStencilaCodeChunkElement | HTMLStencilaCodeExpressionElement
+      >('stencila-code-chunk,stencila-code-expression')
       .forEach((elem) => {
-        /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return */
-        // @ts-expect-error because we're not importing component types
-        elem.executeHandler = (node) => {
+        elem.executeHandler = <C extends CodeChunk | CodeExpression>(
+          node: C
+        ): Promise<C> => {
           executeNode(elem.id, {
             text: node.text,
             programming_language:
@@ -122,9 +138,11 @@ export const main = (
           // which is set based on the return value from this function and does not
           // change later when we actually update the output. So, here's a hack to
           // make that always true.
-          return { ...node, output: '' }
+          return Promise.resolve({ ...node, output: '' })
         }
-        /* eslint-enable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return */
+
+        // @ts-expect-error TODO: Remove once CodeExpression components also support `executableLanguages`
+        elem.executableLanguages = availableKernels
       })
   }
 
