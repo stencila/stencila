@@ -15,10 +15,13 @@ use std::{
     },
     fs, io,
     path::{Path, PathBuf},
-    process::{Command, Output},
+    process::{Output, Stdio},
     str::FromStr,
 };
-use tokio::sync::Mutex;
+use tokio::{
+    process::{Child, Command},
+    sync::Mutex,
+};
 
 mod binaries;
 
@@ -72,8 +75,22 @@ impl BinaryInstallation {
     /// Run the binary
     ///
     /// Returns the output of the command
-    pub fn run(&self, args: &[String]) -> Result<Output> {
-        Ok(self.command().args(args).output()?)
+    pub async fn run(&self, args: &[String]) -> Result<Output> {
+        let output = self.command().args(args).output().await?;
+        Ok(output)
+    }
+
+    /// Run the binary and connect to stdin, stdout and stderr streams
+    ///
+    /// Returns a `Child` process whose
+    pub fn interact(&self, args: &[String]) -> Result<Child> {
+        Ok(self
+            .command()
+            .args(args)
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()?)
     }
 }
 
@@ -95,11 +112,13 @@ struct Binary {
     /// requirements.
     installable: Vec<String>,
 
-    /// The arguments used to
+    /// The arguments used to get the version of the binary
     #[serde(skip)]
     #[def = r#"vec!["--version".to_string()]"#]
     version_args: Vec<String>,
 
+    /// The regex used to get the version from the output of
+    /// the binary.
     #[serde(skip)]
     #[def = r#"Regex::new("\\d+.\\d+(.\\d+)?").unwrap()"#]
     version_regex: Regex,
@@ -156,7 +175,9 @@ impl Binary {
     /// Parses the output of the command and adds a `0` patch semver part if
     /// necessary.
     pub fn version(&self, path: &Path) -> Option<String> {
-        let output = Command::new(path).args(&self.version_args).output();
+        let output = std::process::Command::new(path)
+            .args(&self.version_args)
+            .output();
         if let Ok(output) = output {
             let stdout = std::str::from_utf8(&output.stdout).unwrap_or("");
             if let Some(version) = self.version_regex.captures(stdout).map(|captures| {
@@ -212,7 +233,7 @@ impl Binary {
         };
 
         // Search for executables with name or one of aliases
-        tracing::debug!("Searching for executables in {:?}", dirs);
+        // tracing::debug!("Searching for executables in {:?}", dirs);
         let names = [vec![self.name.clone()], self.aliases.clone()].concat();
         let paths = names
             .iter()
@@ -232,7 +253,7 @@ impl Binary {
             .flatten();
 
         // Get version of each executable found
-        tracing::debug!("Getting versions for paths {:?}", paths);
+        // tracing::debug!("Getting versions for paths {:?}", paths);
         let mut installs: Vec<BinaryInstallation> = paths
             .map(|path| {
                 BinaryInstallation::new(self.name.clone(), path.clone(), self.version(&path))
@@ -914,7 +935,7 @@ pub mod commands {
                 &self.semver.clone().unwrap_or_else(|| "*".to_string()),
             )
             .await?;
-            let output = installation.run(&self.args)?;
+            let output = installation.run(&self.args).await?;
 
             use std::io::Write;
             std::io::stdout().write_all(output.stdout.as_ref())?;
