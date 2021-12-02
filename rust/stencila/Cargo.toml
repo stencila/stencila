@@ -57,12 +57,18 @@ default = [
 
   # Parsers
   "parsers/calc",
+  "parsers/js",
   "parsers/py",
+  "parsers/r",
 
   # Kernels
   "kernels/cli",
+  "kernels/bash",
   "kernels/calc",
   "kernels/jupyter",
+  "kernels/node",
+  "kernels/python",
+  "kernels/r",
 
   "serve",
   "serve-stdio",

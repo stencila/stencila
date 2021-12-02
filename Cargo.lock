@@ -2470,6 +2470,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-bash"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-micro",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "kernel-calc"
 version = "0.0.0"
 dependencies = [
@@ -2511,6 +2521,49 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-micro"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "dirs",
+ "kernel",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "kernel-node"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-micro",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
+name = "kernel-python"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-micro",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
+name = "kernel-r"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-micro",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "kernel-store"
 version = "0.0.0"
 dependencies = [
@@ -2537,8 +2590,13 @@ dependencies = [
  "derive_more",
  "graph-triples",
  "kernel",
+ "kernel-bash",
  "kernel-calc",
  "kernel-jupyter",
+ "kernel-micro",
+ "kernel-node",
+ "kernel-python",
+ "kernel-r",
  "kernel-store",
  "once_cell",
  "parsers",
@@ -4964,6 +5022,8 @@ version = "0.0.0"
 dependencies = [
  "pretty_assertions",
  "serde_json",
+ "tracing",
+ "tracing-subscriber 0.3.3",
 ]
 
 [[package]]

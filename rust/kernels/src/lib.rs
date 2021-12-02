@@ -1,9 +1,10 @@
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
 use graph_triples::{Relation, Resource};
+#[allow(unused_imports)]
 use kernel::{
     async_trait::async_trait,
-    eyre::{eyre, Result},
+    eyre::{bail, eyre, Result},
     stencila_schema::{CodeError, Node},
     Kernel, KernelStatus, KernelTrait,
 };
@@ -83,6 +84,9 @@ enum MetaKernel {
     #[cfg(feature = "calc")]
     Calc(kernel_calc::CalcKernel),
 
+    #[cfg(feature = "micro")]
+    Micro(kernel_micro::MicroKernel),
+
     #[cfg(feature = "jupyter")]
     Jupyter(kernel_jupyter::JupyterKernel),
 }
@@ -105,17 +109,34 @@ impl MetaKernel {
             return Ok(MetaKernel::Jupyter(kernel));
         }
 
+        // Attempt to find a matching a Microkernel
         let result = match language {
+            #[cfg(feature = "bash")]
+            "bash" => kernel_bash::new().await,
+
+            #[cfg(feature = "node")]
+            "node" | "javascript" | "js" => kernel_node::new().await,
+
+            #[cfg(feature = "python")]
+            "python" | "py" => kernel_python::new().await,
+
+            #[cfg(feature = "r")]
+            "r" => kernel_r::new().await,
+
             _ => Err(kernel::eyre::eyre!(
                 "Unable to create an execution kernel for language `{}`",
                 language
             )),
         };
 
+        #[cfg(feature = "micro")]
         match result {
             Ok(kernel) => Ok(MetaKernel::Micro(kernel)),
             Err(error) => Err(error),
         }
+
+        #[cfg(not(feature = "micro"))]
+        result
     }
 }
 
@@ -126,6 +147,8 @@ macro_rules! dispatch_builtins {
             MetaKernel::Store(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "calc")]
             MetaKernel::Calc(kernel) => kernel.$method($($arg),*),
+            #[cfg(feature = "micro")]
+            MetaKernel::Micro(kernel) => kernel.$method($($arg),*),
             #[cfg(feature = "jupyter")]
             MetaKernel::Jupyter(kernel) => kernel.$method($($arg),*),
         }
@@ -371,13 +394,36 @@ impl KernelSpace {
     ///
     /// Returns a tuple of the kernel's canonical language name and id.
     async fn ensure(&mut self, language: &str) -> Result<KernelId> {
-        // Is there already a kernel capable of executing the language?
+        // Is there already a running kernel capable of executing the language?
         for (kernel_id, kernel) in self.kernels.iter_mut() {
             let spec = kernel.spec();
-            if spec.language == language {
-                return Ok(kernel_id.clone());
+            if spec.language != language {
+                // Not a match, so keep looking
+                continue
+            }
+    
+            let status = match kernel.status().await {
+                Ok(status) => status,
+                Err(error) => {
+                    tracing::error!("While getting status of kernel `{}`: {}", kernel_id, error);
+                    continue;
+                }
+            };
+            match status {
+                // For these, use the existing kernel
+                KernelStatus::Pending
+                | KernelStatus::Starting
+                | KernelStatus::Idle
+                | KernelStatus::Busy => return Ok(kernel_id.clone()),
+                // For these, keep on looking
+                KernelStatus::Unresponsive
+                | KernelStatus::Stopping
+                | KernelStatus::Finished
+                | KernelStatus::Failed
+                | KernelStatus::Unknown => continue,
             }
         }
+    
         // If unable to set in an existing kernel then start a new kernel
         // for the language.
         self.start(language).await
