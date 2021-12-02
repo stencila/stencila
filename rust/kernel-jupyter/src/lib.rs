@@ -782,7 +782,7 @@ impl KernelTrait for JupyterKernel {
         Ok(status)
     }
 
-    async fn get(&self, _name: &str) -> Result<Node> {
+    async fn get(&mut self, _name: &str) -> Result<Node> {
         bail!(
             "Getting a symbol from a `{}` language kernel is not currently supported",
             self.language

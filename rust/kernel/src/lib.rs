@@ -65,7 +65,7 @@ pub trait KernelTrait {
     async fn status(&self) -> Result<KernelStatus>;
 
     /// Get a symbol from the kernel
-    async fn get(&self, name: &str) -> Result<Node>;
+    async fn get(&mut self, name: &str) -> Result<Node>;
 
     /// Set a symbol in the kernel
     async fn set(&mut self, name: &str, value: Node) -> Result<()>;

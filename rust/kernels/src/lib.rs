@@ -73,7 +73,7 @@ impl SymbolInfo {
 /// A "meta" kernel to dispatch to different types of kernels
 ///
 /// In the future this maybe changed to, or augmented with a `Box<dyn KernelTrait>`,
-/// to allow dispathcing to plugins that are dynamically added at runtime.
+/// to allow dispatching to plugins that are dynamically added at runtime.
 #[allow(clippy::large_enum_variant)]
 #[derive(Debug, Serialize)]
 enum MetaKernel {
@@ -89,23 +89,33 @@ enum MetaKernel {
 
 impl MetaKernel {
     async fn new(language: &str) -> Result<Self> {
-        let kernel = match language {
+        // Attempt to match builtins first
+        match language {
             #[cfg(feature = "store")]
-            "none" | "" => MetaKernel::Store(kernel_store::StoreKernel::new()),
+            "none" | "" => return Ok(MetaKernel::Store(kernel_store::StoreKernel::new())),
 
             #[cfg(feature = "calc")]
-            "calc" => MetaKernel::Calc(kernel_calc::CalcKernel::new()),
-
-            #[cfg(feature = "jupyter")]
-            _ => MetaKernel::Jupyter(kernel_jupyter::JupyterKernel::new(language).await?),
-
-            #[cfg(not(feature = "jupyter"))]
-            _ => kernel::eyre::bail!(
-                "Unable to create an execution kernel for language `{}` because support for Jupyter kernels is not enabled",
-                language
-            ),
+            "calc" => return Ok(MetaKernel::Calc(kernel_calc::CalcKernel::new())),
+            _ => (),
         };
-        Ok(kernel)
+
+        // Attempt to find a matching Jupyter kernel
+        #[cfg(feature = "jupyter")]
+        if let Ok(kernel) = kernel_jupyter::JupyterKernel::new(language).await {
+            return Ok(MetaKernel::Jupyter(kernel));
+        }
+
+        let result = match language {
+            _ => Err(kernel::eyre::eyre!(
+                "Unable to create an execution kernel for language `{}`",
+                language
+            )),
+        };
+
+        match result {
+            Ok(kernel) => Ok(MetaKernel::Micro(kernel)),
+            Err(error) => Err(error),
+        }
     }
 }
 
@@ -140,7 +150,7 @@ impl KernelTrait for MetaKernel {
         dispatch_builtins!(self, status).await
     }
 
-    async fn get(&self, name: &str) -> Result<Node> {
+    async fn get(&mut self, name: &str) -> Result<Node> {
         dispatch_builtins!(self, get, name).await
     }
 
@@ -222,13 +232,13 @@ impl KernelSpace {
     }
 
     /// Get a symbol from the kernel space
-    pub async fn get(&self, name: &str) -> Result<Node> {
+    pub async fn get(&mut self, name: &str) -> Result<Node> {
         let symbol_info = self
             .symbols
             .get(name)
             .ok_or_else(|| eyre!("Unknown symbol `{}`", name))?;
 
-        let kernel = self.kernels.get(&symbol_info.home)?;
+        let kernel = self.kernels.get_mut(&symbol_info.home)?;
         kernel.get(name).await
     }
 
@@ -309,7 +319,7 @@ impl KernelSpace {
                     kernel_id
                 );
 
-                let home_kernel = self.kernels.get(home)?;
+                let home_kernel = self.kernels.get_mut(home)?;
                 let value = home_kernel.get(name).await?;
 
                 let mirror_kernel = self.kernels.get_mut(&kernel_id)?;
@@ -438,9 +448,12 @@ impl KernelSpace {
                 let kernels = self.kernels().await;
                 result::value(kernels)
             } else {
-                // Parse the code so that we can use the relations to determine variables that
+                // If possible, parse the code so that we can use the relations to determine variables that
                 // are assigned or used (needed for variable mirroring).
-                let relations = parsers::parse("<cli>", &code, language)?;
+                let relations = match parsers::parse("<cli>", &code, language) {
+                    Ok(pairs) => pairs,
+                    Err(..) => Vec::new(),
+                };
                 let (nodes, errors) = self.exec(&code, language, Some(relations)).await?;
                 if !errors.is_empty() {
                     for error in errors {
@@ -636,13 +649,11 @@ pub mod commands {
     /// (if installed on the machine).
     #[derive(Debug, StructOpt)]
     #[structopt(
+        alias = "exec",
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Execute {
         /// Code to execute within the document's kernel space
-        ///
-        /// This code will be run after all executable nodes in the document
-        /// have been run.
         // Using a Vec and the `multiple` option allows for spaces in the code
         #[structopt(multiple = true)]
         code: Vec<String>,
