@@ -36,7 +36,7 @@ impl KernelTrait for StoreKernel {
         Ok(KernelStatus::Idle)
     }
 
-    async fn get(&self, name: &str) -> Result<Node> {
+    async fn get(&mut self, name: &str) -> Result<Node> {
         match self.symbols.get(name) {
             Some(node) => Ok(node.clone()),
             None => bail!("Symbol `{}` does not exist in this kernel", name),
