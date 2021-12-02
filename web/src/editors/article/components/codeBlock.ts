@@ -19,6 +19,7 @@ export function codeBlock(): NodeSpec {
     selectable: true,
     group: 'BlockContent',
     attrs: {
+      id: { default: '' },
       programmingLanguage: { default: '' },
     },
     toDOM(node) {
@@ -47,6 +48,7 @@ export function codeBlock(): NodeSpec {
         getAttrs(dom) {
           const elem = dom as HTMLElement
           return {
+            id: elem.getAttribute('id'),
             programmingLanguage:
               elem
                 .querySelector('meta[itemprop="programmingLanguage"][content]')
@@ -65,6 +67,7 @@ export function codeBlock(): NodeSpec {
         getAttrs(dom) {
           const elem = dom as HTMLStencilaEditorElement
           return {
+            id: elem.getAttribute('id'),
             programmingLanguage:
               elem.querySelector<HTMLSelectElement>(
                 '[aria-label="Programming Language"] select'
