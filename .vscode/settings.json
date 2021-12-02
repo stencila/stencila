@@ -64,5 +64,6 @@
     "structopt",
     "Treesitter",
     "undelegatable"
-  ]
+  ],
+  "python.formatting.provider": "black"
 }
