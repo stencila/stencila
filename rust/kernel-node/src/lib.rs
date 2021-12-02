@@ -41,12 +41,14 @@ mod tests {
         let (outputs, messages) = kernel.exec("bad ^ # syntax").await?;
         assert_json_eq!(messages[0].error_type, "SyntaxError");
         assert_json_eq!(messages[0].error_message, "Invalid or unexpected token");
+        assert!(messages[0].stack_trace.is_some());
         assert_json_eq!(outputs, json!([]));
 
         // Runtime error
         let (outputs, messages) = kernel.exec("foo").await?;
         assert_json_eq!(messages[0].error_type, "ReferenceError");
         assert_json_eq!(messages[0].error_message, "foo is not defined");
+        assert!(messages[0].stack_trace.is_some());
         assert_json_eq!(outputs, json!([]));
 
         // Set and get another variable
