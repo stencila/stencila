@@ -48,3 +48,15 @@ macro_rules! assert_json_eq {
         );
     };
 }
+
+/// Print log entries
+///
+/// Many of the sibling crates use `tracing` and seeing log entries can be
+/// useful during testing.
+/// This prints entries to stderr. Use `cargo test -- --nocapture`.
+pub fn print_logs() {
+    tracing_subscriber::fmt()
+        .pretty()
+        .with_max_level(tracing::Level::DEBUG)
+        .init()
+}
