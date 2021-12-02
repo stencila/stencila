@@ -124,6 +124,8 @@ export class ArticleEditor {
     editorElem.setAttribute('itemtype', 'http://schema.org/Article')
     editorElem.setAttribute('itemscope', '')
     sourceElem.parentElement?.appendChild(editorElem)
+    // Remove the original elements to avoid duplicate element IDs on the page
+    sourceElem.remove()
 
     // Render the editor view
     // eslint-disable-next-line @typescript-eslint/no-this-alias
