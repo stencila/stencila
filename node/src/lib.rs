@@ -8,6 +8,7 @@ mod documents;
 mod errors;
 mod formats;
 mod graphs;
+mod kernels;
 mod logging;
 mod patches;
 // mod plugins;
@@ -51,6 +52,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("formatsFormats", formats::formats)?;
 
     cx.export_function("graphsSchemas", graphs::schemas)?;
+    cx.export_function("kernelsAvailable", kernels::available)?;
 
     cx.export_function("sourcesSchemas", sources::schemas)?;
 
