@@ -267,15 +267,31 @@ impl KernelTrait for MicroKernel {
 
         // Send code to the kernel
         tracing::debug!("Sending on stdin");
-        stdin
+        if let Err(error) = stdin
             .write_all([&code.replace("\n", "\\n"), "\n"].concat().as_bytes())
-            .await?;
-        stdin.flush().await?;
+            .await
+        {
+            self.status = KernelStatus::Failed;
+            bail!("When writing code to kernel: {}", error)
+        }
+        if let Err(error) = stdin.flush().await {
+            self.status = KernelStatus::Failed;
+            bail!("When flushing code to kernel: {}", error)
+        }
 
         // Capture outputs separating them as we go
         let mut output = String::new();
         let mut outputs = Vec::new();
-        while let Some(line) = stdout.lines().next_line().await? {
+        loop {
+            let line = match stdout.lines().next_line().await {
+                Ok(Some(line)) => line,
+                Ok(None) => break,
+                Err(error) => {
+                    self.status = KernelStatus::Failed;
+                    bail!("When receiving outputs from kernel: {}", error)
+                }
+            };
+
             tracing::debug!("Received on stdout: {}", line);
             if let Some(line) = line.strip_suffix(RES_SEP) {
                 output.push_str(line);
@@ -306,8 +322,17 @@ impl KernelTrait for MicroKernel {
         // Capture messages separating them as we go
         let mut message = String::new();
         let mut messages = Vec::new();
-        while let Some(line) = stderr.lines().next_line().await? {
-            tracing::debug!("Received on sterr: {}", line);
+        loop {
+            let line = match stderr.lines().next_line().await {
+                Ok(Some(line)) => line,
+                Ok(None) => break,
+                Err(error) => {
+                    self.status = KernelStatus::Failed;
+                    bail!("When receiving messages from kernel: {}", error)
+                }
+            };
+
+            tracing::debug!("Received on stderr: {}", line);
             if let Some(line) = line.strip_suffix(RES_SEP) {
                 message.push_str(line);
                 if !message.is_empty() {
