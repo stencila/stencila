@@ -17,15 +17,13 @@ pub async fn new() -> Result<MicroKernel> {
 mod tests {
     use super::*;
     use kernel::{stencila_schema::Node, KernelTrait};
-    use test_utils::{assert_json_eq, print_logs, serde_json::json};
+    use test_utils::{assert_json_eq, serde_json::json};
 
     /// Tests of basic functionality
     /// This test is replicated in all the microkernels.
     /// Other test should be written for language specific quirks and regressions.
     #[tokio::test]
     async fn basics() -> Result<()> {
-        print_logs();
-
         let mut kernel = new().await?;
         kernel.start().await?;
 
