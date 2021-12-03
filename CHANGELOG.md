@@ -1,3 +1,23 @@
+# [0.133.0](https://github.com/stencila/stencila/compare/v0.132.0...v0.133.0) (2021-12-03)
+
+
+### Bug Fixes
+
+* **Compile:** Assign `id` to node types that  will have custom elements ([eaefd56](https://github.com/stencila/stencila/commit/eaefd56e561a36b84b643e7c31643346be6e9460))
+* **Editor:** Set element IDs for CodeBlocks in edit mode ([166b179](https://github.com/stencila/stencila/commit/166b1795163c6fbe6422024c4c2b0b5a9dfd5194))
+* **HTML encoding:** Wrap `CodeBlock` elements in a `<stencila-code-block>` ([be33e01](https://github.com/stencila/stencila/commit/be33e0145cf112f973a10c5c6605a6fd20b8d2b4))
+* **HTML encoding:** Wrap `CodeFragment` in a `<stencila-code-fragment>` ([ce148ec](https://github.com/stencila/stencila/commit/ce148ec772945cf0b05d03a1526b741fb86021cd)), closes [#1209](https://github.com/stencila/stencila/issues/1209)
+* **Web editor:** Carry over `itemtype` so that the correct propery is changed ([c02824f](https://github.com/stencila/stencila/commit/c02824f61cd0a0fe5f83247f648dfd5e5410ffb4))
+* **Web:** Ensure placeholder custom components render correctly ([c776289](https://github.com/stencila/stencila/commit/c7762892db169dc17221af8c29e8507bbee82d30))
+
+
+### Features
+
+* **Desktop:** Populate list of executable languages from server ([ee2a155](https://github.com/stencila/stencila/commit/ee2a155f76959b2079c2624445569d56a537a970))
+* **Editor:** Remove original HTML after hydrating editor ([55bd1b6](https://github.com/stencila/stencila/commit/55bd1b6d9d4f42a5167e828327889f583bdc9bec))
+* **Node bindings:** Expose `kernels` module in bindings ([44c30c0](https://github.com/stencila/stencila/commit/44c30c0281070fe3d92c6b1eb76916796bd8e156))
+* **Web:** Populate list of executable Editor languages from server ([96f8815](https://github.com/stencila/stencila/commit/96f881511d9dc3348199301beaaa4722884f03d9))
+
 # [0.132.0](https://github.com/stencila/stencila/compare/v0.131.0...v0.132.0) (2021-11-29)
 
 
