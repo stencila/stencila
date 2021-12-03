@@ -6,13 +6,17 @@ input_file: fixtures/fragments/html/code-block.html
 ---
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
   <div data-itemprop="content">
-    <pre itemtype="http://schema.stenci.la/CodeBlock" itemscope>
-      <code itemprop="text">Code with no language</code>
-    </pre>
-    <pre itemtype="http://schema.stenci.la/CodeBlock" itemscope>
+    <stencila-code-block itemtype="http://schema.stenci.la/CodeBlock" itemscope>
+      <pre>
+        <code itemprop="text" slot="text">Code with no language</code>
+      </pre>
+    </stencila-code-block>
+    <stencila-code-block itemtype="http://schema.stenci.la/CodeBlock" itemscope programming-language="python">
       <meta itemprop="programmingLanguage" content="python"/>
-      <code itemprop="text" class="language-python"># Some Python code
+      <pre>
+        <code itemprop="text" slot="text" class="language-python"># Some Python code
 1 + 1</code>
-    </pre>
+      </pre>
+    </stencila-code-block>
   </div>
 </article>

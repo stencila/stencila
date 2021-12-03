@@ -48,24 +48,29 @@ impl ToHtml for CodeBlock {
     /// The `<meta>` element is for Microdata and Stencila WebComponent compatibility.
     /// The `class` follows the recommendation of [HTML5 spec](https://html.spec.whatwg.org/#the-code-element)
     /// to "use the class attribute, e.g. by adding a class prefixed with "language-" to the element."
-    fn to_html(&self, _context: &EncodeContext) -> String {
-        let (lang_class, lang_meta) = match &self.programming_language {
+    fn to_html(&self, context: &EncodeContext) -> String {
+        let (lang_attr, lang_class, lang_meta) = match &self.programming_language {
             Some(programming_language) => (
+                attr("programming-language", programming_language),
                 attr("class", &["language-", programming_language].concat()),
                 elem_meta("programmingLanguage", programming_language),
             ),
-            None => (nothing(), nothing()),
+            None => (nothing(), nothing(), nothing()),
         };
 
         let text = elem(
-            "code",
-            &[attr_itemprop("text"), lang_class],
-            &encode_safe(&self.text),
+            "pre",
+            &[],
+            &elem(
+                "code",
+                &[attr_itemprop("text"), attr_slot("text"), lang_class],
+                &self.text.to_html(context),
+            ),
         );
 
         elem(
-            "pre",
-            &[attr_itemtype::<Self>(), attr_id(&self.id)],
+            "stencila-code-block",
+            &[attr_itemtype::<Self>(), attr_id(&self.id), lang_attr],
             &[lang_meta, text].concat(),
         )
     }
@@ -73,14 +78,14 @@ impl ToHtml for CodeBlock {
 
 impl ToHtml for CodeChunk {
     fn to_html(&self, context: &EncodeContext) -> String {
+        let lang_attr = attr("programming-language", &self.programming_language);
+        let lang_meta = elem_meta("programmingLanguage", &self.programming_language);
+
         let text = elem(
             "pre",
             &[attr_prop("text"), attr_slot("text")],
             &self.text.to_html(context),
         );
-
-        let lang_attr = attr("programming-language", &self.programming_language);
-        let lang_meta = elem_meta("programmingLanguage", &self.programming_language);
 
         let outputs = elem_placeholder(
             "div",
