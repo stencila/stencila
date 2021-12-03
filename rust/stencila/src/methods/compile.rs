@@ -374,16 +374,34 @@ impl Compile for Include {
     }
 }
 
-/// Do nothing for these types
+// Nodes types that simply need an `id` assigned so that custom web component events to have a target
 
-macro_rules! compile_nothing_for {
+macro_rules! compile_identify_only {
+    ( $( $type:ty ),* ) => {
+        $(
+            #[async_trait]
+            impl Compile for $type {
+                fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
+                    identify!(self, address, context);
+                    Ok(())
+                }
+            }
+        )*
+    };
+}
+
+compile_identify_only!(CodeBlock, CodeFragment, MathBlock, MathFragment);
+
+// Node types that do not need anything done
+
+macro_rules! compile_nothing {
     ( $( $type:ty ),* ) => {
         $(
             impl Compile for $type {}
         )*
     };
 }
-compile_nothing_for!(
+compile_nothing!(
     // Primitives
     Null,
     Boolean,
@@ -395,11 +413,7 @@ compile_nothing_for!(
     // Entity types that are unlikely to need anything else done to them
     ThematicBreak,
     // Entity types that may need to be compiled but are here for now
-    CodeBlock,
-    CodeFragment,
     Datatable,
-    MathBlock,
-    MathFragment,
     Periodical,
     PublicationIssue,
     PublicationVolume,
