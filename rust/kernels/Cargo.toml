@@ -4,20 +4,8 @@ name = "kernels"
 version = "0.0.0"
 
 [features]
-default = ["store"]
-
+default = ["kernel-store", "kernel-micro"]
 cli = ["cli-utils", "parsers", "once_cell", "structopt", "tokio"]
-
-calc = ["kernel-calc"]
-store = ["kernel-store"]
-
-micro = ["kernel-micro"]
-bash = ["kernel-bash", "micro"]
-node = ["kernel-node", "micro"]
-python = ["kernel-python", "micro"]
-r = ["kernel-r", "micro"]
-
-jupyter = ["kernel-jupyter"]
 
 [dependencies]
 chrono = { version = "0.4.19", features = ["serde"] }
