@@ -65,4 +65,25 @@ mod tests {
 
         Ok(())
     }
+
+    /// Test that an assignment on the last line does not generate an output
+    #[tokio::test]
+    async fn assignment_no_output() -> Result<()> {
+        let mut kernel = new().await?;
+        kernel.start().await?;
+
+        let (outputs, messages) = kernel.exec("a <- 1").await?;
+        assert!(messages.is_empty());
+        assert!(outputs.is_empty());
+
+        let (outputs, messages) = kernel.exec("b = 2").await?;
+        assert!(messages.is_empty());
+        assert!(outputs.is_empty());
+
+        let (outputs, messages) = kernel.exec("print(a)\nprint(b)\na_b <- a + b").await?;
+        assert!(messages.is_empty());
+        assert_json_eq!(outputs, [[1], [2]]);
+
+        Ok(())
+    }
 }

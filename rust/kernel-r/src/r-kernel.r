@@ -29,7 +29,9 @@ while (TRUE) {
   } else {
     value <- tryCatch(eval(compiled), message=info, warning=warning, error=error)
     if (!is.null(value)) {
-      write(paste0(encode_value(value), res_sep), stdout())
+      last_line <- tail(strsplit(unescaped, "\\n")[[1]], n=1)
+      assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", last_line)
+      if (!assignment) write(paste0(encode_value(value), res_sep), stdout())
     }
   }
 
