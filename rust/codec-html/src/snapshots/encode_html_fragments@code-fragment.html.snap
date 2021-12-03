@@ -8,13 +8,17 @@ input_file: fixtures/fragments/html/code-fragment.html
   <div data-itemprop="content">
     <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
       <span>Some</span>
-      <code itemtype="http://schema.stenci.la/CodeFragment" itemscope>code</code>
+      <stencila-code-fragment itemtype="http://schema.stenci.la/CodeFragment" itemscope>
+        <code itemprop="text" slot="text">code</code>
+      </stencila-code-fragment>
       <span>in a paragraph.</span>
     </p>
     <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
       <span>With a language</span>
-      <code itemtype="http://schema.stenci.la/CodeFragment" itemscope class="language-python">
-        <meta itemprop="programmingLanguage" content="python"/>1 + 1</code>
+      <stencila-code-fragment itemtype="http://schema.stenci.la/CodeFragment" itemscope programming-language="python">
+        <meta itemprop="programmingLanguage" content="python"/>
+        <code itemprop="text" slot="text" class="language-python">1 + 1</code>
+      </stencila-code-fragment>
       <span>specified.</span>
     </p>
   </div>
