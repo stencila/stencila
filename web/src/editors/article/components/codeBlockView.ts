@@ -40,6 +40,9 @@ export class CodeBlockView implements NodeView {
     if (typeof node.attrs.id === 'string' && node.attrs.id !== '') {
       this.dom.setAttribute('id', node.attrs.id)
     }
+    if (typeof node.attrs.itemtype === 'string' && node.attrs.itemtype !== '') {
+      this.dom.setAttribute('itemtype', node.attrs.itemtype)
+    }
 
     this.dom.contents = node.textContent
     this.dom.keymap = this.codeMirrorKeymap()
