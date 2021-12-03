@@ -110,12 +110,17 @@ impl MetaKernel {
         }
 
         // Attempt to find a matching a Microkernel
+        // TODO iterate over microkernels rather than `match` since some may
+        // be able to execute multiple languages e.g deno
         let result = match language {
             #[cfg(feature = "kernel-bash")]
             "bash" => kernel_bash::new().await,
 
             #[cfg(feature = "kernel-node")]
             "node" | "javascript" | "js" => kernel_node::new().await,
+
+            #[cfg(feature = "kernel-deno")]
+            "deno" | "typescript" | "ts" => kernel_deno::new().await,
 
             #[cfg(feature = "kernel-python")]
             "python" | "py" => kernel_python::new().await,
@@ -455,7 +460,7 @@ impl KernelSpace {
     /// Connect to a running kernel
     #[allow(unused_variables)]
     async fn connect(&mut self, id_or_path: &str) -> Result<KernelId> {
-        #[cfg(feature = "jupyter")]
+        #[cfg(feature = "kernel-jupyter")]
         {
             let (kernel_id, kernel) = kernel_jupyter::JupyterKernel::connect(id_or_path).await?;
             self.kernels
@@ -464,7 +469,7 @@ impl KernelSpace {
             Ok(kernel_id)
         }
 
-        #[cfg(not(feature = "jupyter"))]
+        #[cfg(not(feature = "kernel-jupyter"))]
         kernel::eyre::bail!(
             "Unable to connect to running kernel because support for Jupyter kernels is not enabled",
         )
@@ -526,18 +531,20 @@ impl KernelSpace {
 pub async fn available() -> Result<Vec<String>> {
     let mut list: Vec<String> = Vec::new();
 
-    #[cfg(feature = "calc")]
+    #[cfg(feature = "kernel-calc")]
     list.push("calc".to_string());
 
-    #[cfg(feature = "jupyter")]
+    #[cfg(feature = "kernel-jupyter")]
     list.append(&mut kernel_jupyter::JupyterKernel::available().await?);
+
+    // TODO add microkernels available
 
     Ok(list)
 }
 
 /// List the kernels (and servers) that are currently running on this machine
 pub async fn running() -> Result<serde_json::Value> {
-    #[cfg(feature = "jupyter")]
+    #[cfg(feature = "kernel-jupyter")]
     {
         let kernels = kernel_jupyter::JupyterKernel::running().await?;
         let servers = kernel_jupyter::JupyterServer::running().await?;
@@ -546,7 +553,7 @@ pub async fn running() -> Result<serde_json::Value> {
             "servers": servers
         }))
     }
-    #[cfg(not(feature = "jupyter"))]
+    #[cfg(not(feature = "kernel-jupyter"))]
     {
         bail!("Jupyter kernels are not enabled")
     }
@@ -554,14 +561,14 @@ pub async fn running() -> Result<serde_json::Value> {
 
 /// List the directories that are searched for Jupyter kernel spaces
 pub async fn directories() -> Result<serde_json::Value> {
-    #[cfg(feature = "jupyter")]
+    #[cfg(feature = "kernel-jupyter")]
     {
         Ok(serde_json::json!({
             "kernels": kernel_jupyter::dirs::kernel_dirs(),
             "runtime": kernel_jupyter::dirs::runtime_dirs(),
         }))
     }
-    #[cfg(not(feature = "jupyter"))]
+    #[cfg(not(feature = "kernel-jupyter"))]
     {
         bail!("Jupyter kernels are not enabled")
     }

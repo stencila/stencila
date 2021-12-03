@@ -63,11 +63,13 @@ default = [
   "parsers/parser-js",
   "parsers/parser-py",
   "parsers/parser-r",
+  "parsers/parser-ts",
 
   # Kernels
   "kernels/cli",
   "kernels/kernel-bash",
   "kernels/kernel-calc",
+  "kernels/kernel-deno",
   "kernels/kernel-jupyter",
   "kernels/kernel-node",
   "kernels/kernel-python",

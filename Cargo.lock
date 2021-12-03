@@ -2492,6 +2492,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-deno"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-micro",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "kernel-jupyter"
 version = "0.0.0"
 dependencies = [
@@ -2592,6 +2602,7 @@ dependencies = [
  "kernel",
  "kernel-bash",
  "kernel-calc",
+ "kernel-deno",
  "kernel-jupyter",
  "kernel-micro",
  "kernel-node",
