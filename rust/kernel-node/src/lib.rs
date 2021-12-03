@@ -4,7 +4,8 @@ use kernel_micro::{include_file, MicroKernel};
 pub async fn new() -> Result<MicroKernel> {
     MicroKernel::new(
         "javascript",
-        ("node", "*", &["{{script}}"]),
+        ("node", "*"),
+        &["{{script}}"],
         include_file!("node-kernel.js"),
         &[include_file!("node-codec.js")],
         "{{name}} = decodeValue('{{json}}')",
@@ -25,7 +26,11 @@ mod tests {
     #[tokio::test]
     async fn basics() -> Result<()> {
         let mut kernel = new().await?;
-        kernel.start().await?;
+        if !kernel.available().await {
+            return Ok(());
+        } else {
+            kernel.start().await?;
+        }
 
         // Assign a variable and output it
         let (outputs, messages) = kernel.exec("const a = 2\na").await?;
@@ -68,7 +73,11 @@ mod tests {
     #[tokio::test]
     async fn console_log() -> Result<()> {
         let mut kernel = new().await?;
-        kernel.start().await?;
+        if !kernel.available().await {
+            return Ok(());
+        } else {
+            kernel.start().await?;
+        }
 
         let (outputs, messages) = kernel.exec("console.log(1)").await?;
         assert_json_eq!(messages, json!([]));
@@ -89,7 +98,11 @@ mod tests {
     #[tokio::test]
     async fn console_messages() -> Result<()> {
         let mut kernel = new().await?;
-        kernel.start().await?;
+        if !kernel.available().await {
+            return Ok(());
+        } else {
+            kernel.start().await?;
+        }
 
         let (outputs, messages) = kernel
             .exec(

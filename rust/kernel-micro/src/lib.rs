@@ -1,4 +1,3 @@
-use binaries::BinaryInstallation;
 use kernel::{
     async_trait::async_trait,
     eyre::{bail, eyre, Result},
@@ -30,8 +29,8 @@ pub struct MicroKernel {
     /// Used to be able to return a `Kernel` spec.
     language: String,
 
-    /// The resolved binary for the kernel
-    binary: BinaryInstallation,
+    /// A specification of the runtime execuble needed for the kernel
+    runtime: (String, String),
 
     /// Arguments that should be supplied to the runtime binary
     ///
@@ -73,26 +72,18 @@ pub struct MicroKernel {
 
 impl MicroKernel {
     /// Create a new `MicroKernel`
-    ///
-    /// This function will error if no runtime matching the semver requirements
-    /// in `runtime` is found on the `system`.
     pub async fn new(
         language: &str,
-        runtime: (&str, &str, &[&str]),
+        runtime: (&str, &str),
+        args: &[&str],
         script: (&str, &str),
         others: &[(&str, &str)],
         set_template: &str,
         get_template: &str,
     ) -> Result<Self> {
-        let (name, semver, args) = runtime;
-        let binary = match binaries::require(name, semver).await {
-            Ok(binary) => binary,
-            Err(error) => bail!("Unable to find or install runtime for kernel: {}", error),
-        };
-
         let kernel = Self {
             language: language.to_string(),
-            binary,
+            runtime: (runtime.0.into(), runtime.1.into()),
             args: args.iter().map(|arg| arg.to_string()).collect(),
             script: (script.0.to_string(), script.1.to_string()),
             others: others
@@ -109,6 +100,15 @@ impl MicroKernel {
         };
 
         Ok(kernel)
+    }
+
+    /// Is the microkernel available on the current machine?
+    ///
+    /// Returns `true` if a runtime matching the semver requirements
+    /// in `runtime` is found to be installed.
+    pub async fn available(&self) -> bool {
+        let (name, semver) = &self.runtime;
+        binaries::installed(name, semver).await
     }
 }
 
@@ -163,7 +163,9 @@ impl KernelTrait for MicroKernel {
             .collect();
 
         // Start child process
-        let mut child = self.binary.interact(&args)?;
+        let (name, semver) = &self.runtime;
+        let binary = binaries::installation(name, semver).await?;
+        let mut child = binary.interact(&args)?;
 
         let stdin = child
             .stdin
@@ -268,10 +270,7 @@ impl KernelTrait for MicroKernel {
         // Send code to the kernel
         tracing::debug!("Sending on stdin");
         let escaped = code.replace("\n", "\\n");
-        if let Err(error) = stdin
-            .write_all([&escaped, "\n"].concat().as_bytes())
-            .await
-        {
+        if let Err(error) = stdin.write_all([&escaped, "\n"].concat().as_bytes()).await {
             self.status = KernelStatus::Failed;
             bail!("When writing code to kernel: {}", error)
         }

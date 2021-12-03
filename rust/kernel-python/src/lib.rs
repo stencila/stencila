@@ -4,7 +4,8 @@ use kernel_micro::{include_file, MicroKernel};
 pub async fn new() -> Result<MicroKernel> {
     MicroKernel::new(
         "python",
-        ("python3", "*", &["{{script}}"]),
+        ("python3", "*"),
+        &["{{script}}"],
         include_file!("python_kernel.py"),
         &[include_file!("python_codec.py")],
         "{{name}} = decode_value(\"{{json}}\")",
@@ -25,7 +26,11 @@ mod tests {
     #[tokio::test]
     async fn basics() -> Result<()> {
         let mut kernel = new().await?;
-        kernel.start().await?;
+        if !kernel.available().await {
+            return Ok(());
+        } else {
+            kernel.start().await?;
+        }
 
         // Assign a variable and output it
         let (outputs, messages) = kernel.exec("a = 2\na").await?;

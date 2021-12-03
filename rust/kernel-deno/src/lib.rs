@@ -4,11 +4,8 @@ use kernel_micro::{include_file, MicroKernel};
 pub async fn new() -> Result<MicroKernel> {
     MicroKernel::new(
         "typescript",
-        (
-            "deno",
-            ">1.7",
-            &["run", "--quiet", "--unstable", "{{script}}"],
-        ),
+        ("deno", ">1.7"),
+        &["run", "--quiet", "--unstable", "{{script}}"],
         include_file!("deno-kernel.ts"),
         &[include_file!("deno-codec.ts")],
         "{{name}} = JSON.parse('{{json}}')",
@@ -29,7 +26,11 @@ mod tests {
     #[tokio::test]
     async fn basics() -> Result<()> {
         let mut kernel = new().await?;
-        kernel.start().await?;
+        if !kernel.available().await {
+            return Ok(());
+        } else {
+            kernel.start().await?;
+        }
 
         // Assign a variable and output it
         let (outputs, messages) = kernel.exec("const a = 2\na").await?;
@@ -72,7 +73,11 @@ mod tests {
     #[tokio::test]
     async fn console_log() -> Result<()> {
         let mut kernel = new().await?;
-        kernel.start().await?;
+        if !kernel.available().await {
+            return Ok(());
+        } else {
+            kernel.start().await?;
+        }
 
         let (outputs, messages) = kernel.exec("console.log(1)").await?;
         assert_json_eq!(messages, json!([]));

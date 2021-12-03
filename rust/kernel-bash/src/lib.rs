@@ -4,7 +4,8 @@ use kernel_micro::{include_file, MicroKernel};
 pub async fn new() -> Result<MicroKernel> {
     MicroKernel::new(
         "bash",
-        ("bash", "*", &["{{script}}"]),
+        ("bash", "*"),
+        &["{{script}}"],
         include_file!("bash-kernel.sh"),
         &[],
         "{{name}}=\"{{json}}\"",
@@ -25,7 +26,11 @@ mod tests {
     #[tokio::test]
     async fn basics() -> Result<()> {
         let mut kernel = new().await?;
-        kernel.start().await?;
+        if !kernel.available().await {
+            return Ok(());
+        } else {
+            kernel.start().await?;
+        }
 
         // Assign a variable and output it
         let (outputs, messages) = kernel.exec("a=2\necho $a").await?;

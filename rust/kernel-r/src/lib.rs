@@ -4,7 +4,8 @@ use kernel_micro::{include_file, MicroKernel};
 pub async fn new() -> Result<MicroKernel> {
     MicroKernel::new(
         "r",
-        ("Rscript", "*", &["{{script}}"]),
+        ("Rscript", "*"),
+        &["{{script}}"],
         include_file!("r-kernel.r"),
         &[include_file!("r-codec.r")],
         "{{name}} <- decode_value(\"{{json}}\")",
@@ -25,7 +26,11 @@ mod tests {
     #[tokio::test]
     async fn basics() -> Result<()> {
         let mut kernel = new().await?;
-        kernel.start().await?;
+        if !kernel.available().await {
+            return Ok(());
+        } else {
+            kernel.start().await?;
+        }
 
         // Assign a variable and output it
         let (outputs, messages) = kernel.exec("a = 2\na").await?;
@@ -70,7 +75,11 @@ mod tests {
     #[tokio::test]
     async fn assignment_no_output() -> Result<()> {
         let mut kernel = new().await?;
-        kernel.start().await?;
+        if !kernel.available().await {
+            return Ok(());
+        } else {
+            kernel.start().await?;
+        }
 
         let (outputs, messages) = kernel.exec("a <- 1").await?;
         assert!(messages.is_empty());
