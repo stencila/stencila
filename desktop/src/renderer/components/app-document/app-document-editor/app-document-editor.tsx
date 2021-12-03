@@ -214,7 +214,7 @@ export class AppDocumentEditor {
             lineNumbers={configState.global.editors?.lineNumbers}
             lineWrapping={configState.global.editors?.lineWrapping}
             contentChangeHandler={this.onDocChange}
-            onSetLanguage={this.onSetLanguage}
+            onStencila-language-change={this.onSetLanguage}
           ></stencila-editor>
         </div>
       </Host>

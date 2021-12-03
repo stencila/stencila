@@ -8,14 +8,15 @@
   Any global CSS variables should also be applied here.
 */
 
+@import '../../../node_modules/@stencila/style-stencila/dist/variables.css';
 @import '../components/shared/scrollbars.css';
 
 :root {
-  --font-family-display: -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-    'Segoe UI Symbol';
-  --font-family-body: var(--font-family-display);
-  --font-family-mono: 'IBM Plex Mono', 'Fira Code', 'monospace';
+  --font-family-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica,
+    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  --font-family-display: var(--font-family-display);
+  --font-family-mono: 'IBM Plex Mono', 'Fira Code', 'SF Mono', SFMono-Regular,
+    ui-monospace, Menlo, Consolas, monospace;
 }
 
 html,
