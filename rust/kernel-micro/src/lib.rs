@@ -267,8 +267,9 @@ impl KernelTrait for MicroKernel {
 
         // Send code to the kernel
         tracing::debug!("Sending on stdin");
+        let escaped = code.replace("\n", "\\n");
         if let Err(error) = stdin
-            .write_all([&code.replace("\n", "\\n"), "\n"].concat().as_bytes())
+            .write_all([&escaped, "\n"].concat().as_bytes())
             .await
         {
             self.status = KernelStatus::Failed;
