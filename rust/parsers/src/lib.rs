@@ -33,15 +33,17 @@ struct Parsers {
 macro_rules! dispatch_builtins {
     ($var:expr, $method:ident $(,$arg:expr)*) => {
         match $var.as_str() {
-            #[cfg(feature = "calc")]
+            #[cfg(feature = "parser-bash")]
+            "bash" => Some(parser_bash::BashParser::$method($($arg),*)),
+            #[cfg(feature = "parser-calc")]
             "calc" => Some(parser_calc::CalcParser::$method($($arg),*)),
-            #[cfg(feature = "js")]
+            #[cfg(feature = "parser-js")]
             "js" => Some(parser_js::JsParser::$method($($arg),*)),
-            #[cfg(feature = "py")]
+            #[cfg(feature = "parser-py")]
             "py" => Some(parser_py::PyParser::$method($($arg),*)),
-            #[cfg(feature = "r")]
+            #[cfg(feature = "parser-r")]
             "r" => Some(parser_r::RParser::$method($($arg),*)),
-            #[cfg(feature = "ts")]
+            #[cfg(feature = "parser-ts")]
             "ts" => Some(parser_ts::TsParser::$method($($arg),*)),
             _ => None
         }
@@ -52,15 +54,17 @@ impl Parsers {
     /// Create a set of parsers
     pub fn new() -> Self {
         let inner = vec![
-            #[cfg(feature = "calc")]
+            #[cfg(feature = "parser-bash")]
+            ("bash", parser_bash::BashParser::spec()),
+            #[cfg(feature = "parser-calc")]
             ("calc", parser_calc::CalcParser::spec()),
-            #[cfg(feature = "js")]
+            #[cfg(feature = "parser-js")]
             ("js", parser_js::JsParser::spec()),
-            #[cfg(feature = "py")]
+            #[cfg(feature = "parser-py")]
             ("py", parser_py::PyParser::spec()),
-            #[cfg(feature = "r")]
+            #[cfg(feature = "parser-r")]
             ("r", parser_r::RParser::spec()),
-            #[cfg(feature = "ts")]
+            #[cfg(feature = "parser-ts")]
             ("ts", parser_ts::TsParser::spec()),
         ]
         .into_iter()

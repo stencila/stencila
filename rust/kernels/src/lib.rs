@@ -78,16 +78,16 @@ impl SymbolInfo {
 #[allow(clippy::large_enum_variant)]
 #[derive(Debug, Serialize)]
 enum MetaKernel {
-    #[cfg(feature = "store")]
+    #[cfg(feature = "kernel-store")]
     Store(kernel_store::StoreKernel),
 
-    #[cfg(feature = "calc")]
+    #[cfg(feature = "kernel-calc")]
     Calc(kernel_calc::CalcKernel),
 
-    #[cfg(feature = "micro")]
+    #[cfg(feature = "kernel-micro")]
     Micro(kernel_micro::MicroKernel),
 
-    #[cfg(feature = "jupyter")]
+    #[cfg(feature = "kernel-jupyter")]
     Jupyter(kernel_jupyter::JupyterKernel),
 }
 
@@ -95,32 +95,32 @@ impl MetaKernel {
     async fn new(language: &str) -> Result<Self> {
         // Attempt to match builtins first
         match language {
-            #[cfg(feature = "store")]
+            #[cfg(feature = "kernel-store")]
             "none" | "" => return Ok(MetaKernel::Store(kernel_store::StoreKernel::new())),
 
-            #[cfg(feature = "calc")]
+            #[cfg(feature = "kernel-calc")]
             "calc" => return Ok(MetaKernel::Calc(kernel_calc::CalcKernel::new())),
             _ => (),
         };
 
         // Attempt to find a matching Jupyter kernel
-        #[cfg(feature = "jupyter")]
+        #[cfg(feature = "kernel-jupyter")]
         if let Ok(kernel) = kernel_jupyter::JupyterKernel::new(language).await {
             return Ok(MetaKernel::Jupyter(kernel));
         }
 
         // Attempt to find a matching a Microkernel
         let result = match language {
-            #[cfg(feature = "bash")]
+            #[cfg(feature = "kernel-bash")]
             "bash" => kernel_bash::new().await,
 
-            #[cfg(feature = "node")]
+            #[cfg(feature = "kernel-node")]
             "node" | "javascript" | "js" => kernel_node::new().await,
 
-            #[cfg(feature = "python")]
+            #[cfg(feature = "kernel-python")]
             "python" | "py" => kernel_python::new().await,
 
-            #[cfg(feature = "r")]
+            #[cfg(feature = "kernel-r")]
             "r" => kernel_r::new().await,
 
             _ => Err(kernel::eyre::eyre!(
@@ -129,13 +129,13 @@ impl MetaKernel {
             )),
         };
 
-        #[cfg(feature = "micro")]
+        #[cfg(feature = "kernel-micro")]
         match result {
             Ok(kernel) => Ok(MetaKernel::Micro(kernel)),
             Err(error) => Err(error),
         }
 
-        #[cfg(not(feature = "micro"))]
+        #[cfg(not(feature = "kernel-micro"))]
         result
     }
 }
@@ -143,13 +143,13 @@ impl MetaKernel {
 macro_rules! dispatch_builtins {
     ($var:expr, $method:ident $(,$arg:expr)*) => {
         match $var {
-            #[cfg(feature = "store")]
+            #[cfg(feature = "kernel-store")]
             MetaKernel::Store(kernel) => kernel.$method($($arg),*),
-            #[cfg(feature = "calc")]
+            #[cfg(feature = "kernel-calc")]
             MetaKernel::Calc(kernel) => kernel.$method($($arg),*),
-            #[cfg(feature = "micro")]
+            #[cfg(feature = "kernel-micro")]
             MetaKernel::Micro(kernel) => kernel.$method($($arg),*),
-            #[cfg(feature = "jupyter")]
+            #[cfg(feature = "kernel-jupyter")]
             MetaKernel::Jupyter(kernel) => kernel.$method($($arg),*),
         }
     };

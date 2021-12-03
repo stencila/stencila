@@ -5,31 +5,10 @@ version = "0.0.0"
 edition = "2021"
 
 [features]
-
-default = ["cli", "json"]
-
+default = ["codec-json"]
 cli = ["cli-utils", "structopt"]
 
-date = ["codec-date"]
-docx = ["codec-docx"]
-html = ["codec-html"]
-ipynb = ["codec-ipynb"]
-json = ["codec-json"]
-json5 = ["codec-json5"]
-latex = ["codec-latex"]
-md = ["codec-md"]
-pandoc = ["codec-pandoc"]
-pdf = ["codec-pdf"]
-person = ["codec-person"]
-png = ["codec-png"]
-rmd = ["codec-rmd"]
-rpng = ["codec-rpng"]
-toml = ["codec-toml"]
-txt = ["codec-txt"]
-yaml = ["codec-yaml"]
-
 [dependencies]
-
 codec = { path = "../codec", version = "0.0.0" }
 codec-format = { path = "../codec-format", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }
