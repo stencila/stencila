@@ -633,6 +633,7 @@ impl Binary {
     }
 }
 
+/// A global store of binaries
 static BINARIES: Lazy<Mutex<HashMap<String, Binary>>> = Lazy::new(|| {
     let map = binaries::all()
         .into_iter()
@@ -642,31 +643,11 @@ static BINARIES: Lazy<Mutex<HashMap<String, Binary>>> = Lazy::new(|| {
     Mutex::new(map)
 });
 
-/// A cache used to memoize calls to require
-static REQUIRES: Lazy<Mutex<HashMap<String, BinaryInstallation>>> =
-    Lazy::new(|| Mutex::new(HashMap::new()));
-
-/// Get a binary installation meeting semantic versioning requirements.
-///
-/// If the binary is already available, or automatic installs are configured, returns
-/// a `BinaryInstallation` that can be used to run commands. Otherwise, errors
-/// with a message that the required binary is not yet installed, or failed to install.
-///
-/// This is a relatively expensive function, even if the binary is already installed,
-/// because if searches the file system and executes commands to get their version.
-/// Therefore, this function memoizes installations found for each `name` and `semver`.
-/// Each cached result is removed if the binary is installed or uninstalled.
-pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
-    let name_semver = [name, "@", semver].concat();
-
-    let installations = &mut *REQUIRES.lock().await;
-    if let Some(installation) = installations.get(&name_semver) {
-        return Ok(installation.clone());
-    }
-
+/// Get a binary
+async fn binary(name: &str) -> Binary {
     let binaries = &mut *BINARIES.lock().await;
-    let binary = if let Some(binary) = binaries.get_mut(name) {
-        binary
+    if let Some(binary) = binaries.get(name) {
+        binary.clone()
     } else {
         binaries.insert(
             name.to_string(),
@@ -676,10 +657,31 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
             },
         );
         binaries
-            .get_mut(name)
+            .get(name)
             .expect("Should have just been inserted")
-    };
+            .clone()
+    }
+}
 
+/// A cache of installations used to memoize calls to `installation`.
+static INSTALLATIONS: Lazy<Mutex<HashMap<String, BinaryInstallation>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
+
+/// Get an installation
+///
+/// This is a relatively expensive function, even if the binary is already installed,
+/// because it searches the file system and executes commands to get their version.
+/// Therefore, this function memoizes installations in `INSTALLATIONS` for each `name` and `semver`.
+/// Each cached result is removed if the binary is installed or uninstalled.
+pub async fn installation(name: &str, semver: &str) -> Result<BinaryInstallation> {
+    let name_semver = [name, "@", semver].concat();
+
+    let installations = &mut *INSTALLATIONS.lock().await;
+    if let Some(installation) = installations.get(&name_semver) {
+        return Ok(installation.clone());
+    }
+
+    let mut binary = binary(name).await;
     binary.resolve();
 
     let semver = if semver == "*" {
@@ -688,15 +690,43 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
         Some(semver.into())
     };
 
-    if let Some(installation) = binary.installation(semver.clone())? {
+    if let Some(installation) = binary.installation(semver)? {
         installations.insert(name_semver, installation.clone());
+        Ok(installation)
+    } else {
+        bail!("No matching installation found")
+    }
+}
+
+/// Is a binary installation meeting semantic versioning requirements installed?
+pub async fn installed(name: &str, semver: &str) -> bool {
+    installation(name, semver).await.is_ok()
+}
+
+/// Get a binary installation meeting semantic versioning requirements.
+///
+/// If the binary is already available, or automatic installs are configured, returns
+/// a `BinaryInstallation` that can be used to run commands. Otherwise, errors
+/// with a message that the required binary is not yet installed, or failed to install.
+pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
+    if let Ok(installation) = installation(name, semver).await {
         return Ok(installation);
     }
 
-    // TODO: Use an env var to set this
+    // TODO: Use an env var to set this?
     let auto = true;
     if auto {
+        let name_semver = [name, "@", semver].concat();
+        let semver = if semver == "*" {
+            None
+        } else {
+            Some(semver.into())
+        };
+
+        let mut binary = binary(name).await;
         binary.install(semver.clone(), None, None).await?;
+
+        let installations = &mut *INSTALLATIONS.lock().await;
         if let Some(installation) = binary.installation(semver)? {
             installations.insert(name_semver, installation.clone());
             Ok(installation)
