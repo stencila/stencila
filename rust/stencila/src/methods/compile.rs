@@ -93,15 +93,17 @@ pub trait Compile {
 /// This needs to be (?) a macro, rather than a generic function, because
 /// it is not possible to define a bound that the type must have the `id` property.
 macro_rules! identify {
-    ($node:expr) => {
-        if let Some(id) = $node.id.as_deref() {
+    ($node:expr, $address:expr, $context:expr) => {{
+        let id = if let Some(id) = $node.id.as_deref() {
             id.clone()
         } else {
             let id = uuids::generate("no").to_string();
             $node.id = Some(Box::new(id.clone()));
             id
-        }
-    };
+        };
+        $context.addresses.insert(id.clone(), $address.clone());
+        id
+    }};
 }
 
 // This first set of implementations are for node types that need
@@ -112,9 +114,7 @@ macro_rules! identify {
 /// Adds a `Link` relation
 impl Compile for Link {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        let id = identify!(self);
-        context.addresses.insert(id.clone(), address.clone());
-
+        let id = identify!(self, address, context);
         let subject = resources::node(&context.path, &id, "Link");
         let target = &self.target;
         let object = if target.starts_with("http://") || target.starts_with("https://") {
@@ -181,9 +181,7 @@ macro_rules! compile_media_object {
         $(
             impl Compile for $type {
                 fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-                    let id = identify!(self);
-                    context.addresses.insert(id.clone(), address.clone());
-
+                    let id = identify!(self, address, context);
                     let subject = resources::node(&context.path, &id, stringify!($type));
                     let url = compile_content_url(&self.content_url, context);
                     let object = if url.starts_with("http") || url.starts_with("data:") {
@@ -219,9 +217,7 @@ compile_media_object!(
 #[async_trait]
 impl Compile for Parameter {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        let id = identify!(self);
-        context.addresses.insert(id.clone(), address.clone());
-
+        let id = identify!(self, address, context);
         let subject = resources::node(&context.path, &id, "Parameter");
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
@@ -256,9 +252,7 @@ impl Compile for Parameter {
 #[async_trait]
 impl Compile for CodeChunk {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        let id = identify!(self);
-        context.addresses.insert(id.clone(), address.clone());
-
+        let id = identify!(self, address, context);
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
         if Some(digest.clone()) != self.compile_digest {
@@ -306,9 +300,7 @@ impl Compile for CodeChunk {
 #[async_trait]
 impl Compile for CodeExpression {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        let id = identify!(self);
-        context.addresses.insert(id.clone(), address.clone());
-
+        let id = identify!(self, address, context);
         let digest =
             str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
         if Some(digest.clone()) != self.compile_digest {
@@ -351,9 +343,7 @@ impl Compile for CodeExpression {
 /// relations.
 impl Compile for SoftwareSourceCode {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        let id = identify!(self);
-        context.addresses.insert(id, address.clone());
-
+        identify!(self, address, context);
         if let (Some(text), Some(programming_language)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
@@ -371,9 +361,7 @@ impl Compile for SoftwareSourceCode {
 /// Adds an `Include` relation
 impl Compile for Include {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
-        let id = identify!(self);
-        context.addresses.insert(id.clone(), address.clone());
-
+        let id = identify!(self, address, context);
         let subject = resources::node(&context.path, &id, "Include");
         let path = merge(&context.path, &self.source);
         let object = resources::file(&path);
