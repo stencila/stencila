@@ -1,5 +1,6 @@
 import * as config from './config'
 import * as documents from './documents'
+import * as kernels from './kernels'
 import * as plugins from './plugins'
 import * as projects from './projects'
 import * as server from './server'
@@ -82,6 +83,7 @@ type DispatchModule<P extends { [key: string]: AnyFunction }> = {
 type Dispatch = {
   config: DispatchModule<typeof config>
   documents: DispatchModule<typeof documents>
+  kernels: DispatchModule<typeof kernels>
   plugins: DispatchModule<typeof plugins>
   projects: DispatchModule<typeof projects>
   server: DispatchModule<typeof server>
@@ -118,6 +120,9 @@ export const dispatch: Dispatch = {
     subscribe: wrap(documents.subscribe),
     unsubscribe: wrap(documents.unsubscribe),
     close: wrap(documents.close),
+  },
+  kernels: {
+    available: wrap(kernels.available),
   },
   plugins: {
     schema: wrap(plugins.schema),

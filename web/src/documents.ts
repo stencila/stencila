@@ -223,8 +223,8 @@ async function onDocumentPatch(
  * Handle a `LanguageChangeEvent`
  *
  * These events, created by text editors for individual nodes, need to be
- * transformed into a `Patch` targeting that node. The `address` property of the
- * slot is dependent upon the type of node
+ * transformed into a `Patch` targeting that node. The `slot` (the name of the property)
+ * in the address is dependent upon the type of node
  */
 async function onLanguageChange(
   client: Client,

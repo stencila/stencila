@@ -1,4 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
+import { FileFormatUtils } from '@stencila/components'
 import { normalize } from 'normalizr'
 import { client } from '../../client'
 import { projectEntity } from './entities'
@@ -46,3 +47,23 @@ export const fetchProject = createAsyncThunk(
     return normalized
   }
 )
+
+const getAvailableKernels = (): Promise<string[]> =>
+  client.projects.kernels.available().then(({ value: kernels }) => {
+    return kernels
+  })
+
+export const getExecutableFormats =
+  (): Promise<FileFormatUtils.FileFormatMap> =>
+    getAvailableKernels().then((kernels) => {
+      return kernels.reduce(
+        (formats: FileFormatUtils.FileFormatMap, kernel) => {
+          const format = FileFormatUtils.lookupFormat(kernel)
+          return {
+            ...formats,
+            [format.name]: format,
+          }
+        },
+        {}
+      )
+    })

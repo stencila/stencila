@@ -212,6 +212,12 @@ export const client = {
       window.api
         .invoke(CHANNEL.PROJECTS_UNSUBSCRIBE, path, topics)
         .then(unwrapOrThrow),
+    kernels: {
+      available: () =>
+        window.api
+          .invoke(CHANNEL.PROJECTS_KERNELS_AVAILABLE)
+          .then(unwrapOrThrow),
+    },
   },
   plugins: {
     install: (name: string) =>

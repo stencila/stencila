@@ -1,8 +1,8 @@
 //! Encode `InlineContent` nodes to HTML
 
 use super::{
-    attr, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, concat, elem, elem_empty, json,
-    EncodeContext, ToHtml,
+    attr, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_prop, attr_slot, concat,
+    elem, elem_empty, elem_meta, elem_placeholder, json, nothing, EncodeContext, ToHtml,
 };
 use codec_txt::ToTxt;
 use html_escape::encode_safe;
@@ -335,22 +335,33 @@ impl ToHtml for CiteGroup {
 
 impl ToHtml for CodeExpression {
     fn to_html(&self, context: &EncodeContext) -> String {
-        let output = match &self.output {
-            Some(output) => output.to_html(context),
-            None => "".to_string(),
-        };
+        let lang_attr = attr("programming-language", &self.programming_language);
+        let lang_meta = elem_meta("programmingLanguage", &self.programming_language);
+
+        let text = elem(
+            "code",
+            &[attr_prop("text"), attr_slot("text")],
+            &self.text.to_html(context),
+        );
+
+        let output = elem_placeholder(
+            "output",
+            &[attr_prop("output"), attr_slot("output")],
+            &self.output,
+            context,
+        );
+
+        let errors = elem_placeholder(
+            "span",
+            &[attr_prop("errors"), attr_slot("errors")],
+            &self.errors,
+            context,
+        );
+
         elem(
             "stencila-code-expression",
-            &[
-                attr_itemtype::<Self>(),
-                attr_id(&self.id),
-                attr("programming-language", &self.programming_language),
-            ],
-            &[
-                elem("code", &[attr("slot", "text")], &encode_safe(&self.text)),
-                elem("output", &[attr("slot", "output")], &output),
-            ]
-            .concat(),
+            &[attr_itemtype::<Self>(), attr_id(&self.id), lang_attr],
+            &[lang_meta, text, output, errors].concat(),
         )
     }
 }
@@ -360,27 +371,26 @@ impl ToHtml for CodeFragment {
     ///
     /// See `CodeBlock::to_html` for why `programming_language` is encoded
     /// as both a `class` attribute and a `<meta>` element.
-    fn to_html(&self, _context: &EncodeContext) -> String {
-        let (class, meta) = match &self.programming_language {
+    fn to_html(&self, context: &EncodeContext) -> String {
+        let (lang_attr, lang_class, lang_meta) = match &self.programming_language {
             Some(programming_language) => (
+                attr("programming-language", programming_language),
                 attr("class", &["language-", programming_language].concat()),
-                elem_empty(
-                    "meta",
-                    &[
-                        attr_itemprop("programming_language"),
-                        attr("content", programming_language),
-                    ],
-                ),
+                elem_meta("programmingLanguage", programming_language),
             ),
-            None => ("".to_string(), "".to_string()),
+            None => (nothing(), nothing(), nothing()),
         };
 
-        let text = encode_safe(&self.text);
+        let text = elem(
+            "code",
+            &[attr_itemprop("text"), attr_slot("text"), lang_class],
+            &self.text.to_html(context),
+        );
 
         elem(
-            "code",
-            &[attr_itemtype::<Self>(), attr_id(&self.id), class],
-            &[meta, text.to_string()].concat(),
+            "stencila-code-fragment",
+            &[attr_itemtype::<Self>(), attr_id(&self.id), lang_attr],
+            &[lang_meta, text].concat(),
         )
     }
 }

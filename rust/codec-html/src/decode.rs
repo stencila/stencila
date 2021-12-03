@@ -75,20 +75,19 @@ fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
         // Recurse into document
         decode_blocks(node, context)
     } else if let Some(element) = node.as_element() {
+        let tag = element.name.local.clone();
         // Decode a HTML element
         //
         // Custom elements must be dealt with outside of the following match.
         #[allow(clippy::cmp_owned)]
-        if element.name.local == LocalName::from("stencila-code-chunk") {
-            let programming_language = if let Some(lang) = element
+        if tag == LocalName::from("stencila-code-block")
+            || tag == LocalName::from("stencila-code-chunk")
+        {
+            let programming_language = element
                 .attributes
                 .borrow()
                 .get(LocalName::from("programming-language"))
-            {
-                lang.to_string()
-            } else {
-                "".to_string()
-            };
+                .map(|value| value.to_string());
 
             let text = if let Ok(text) = node.select_first("[slot=text]") {
                 collect_text(text.as_node())
@@ -96,15 +95,23 @@ fn decode_block(node: &NodeRef, context: &DecodeContext) -> Vec<BlockContent> {
                 "".to_string()
             };
 
-            return vec![BlockContent::CodeChunk(CodeChunk {
-                programming_language,
-                text,
-                ..Default::default()
-            })];
+            return if tag == LocalName::from("stencila-code-block") {
+                vec![BlockContent::CodeBlock(CodeBlock {
+                    programming_language: programming_language.map(Box::new),
+                    text,
+                    ..Default::default()
+                })]
+            } else {
+                vec![BlockContent::CodeChunk(CodeChunk {
+                    programming_language: programming_language.unwrap_or_default(),
+                    text,
+                    ..Default::default()
+                })]
+            };
         }
         // The following are ordered alphabetically by the output node type
         // with placeholder comments for types not implemented yet.
-        match element.name.local {
+        match tag {
             // TODO: Claim
             local_name!("pre") => {
                 let programming_language = if let Ok(code) = node.select_first("code") {
@@ -260,20 +267,19 @@ fn decode_inlines(node: &NodeRef, context: &DecodeContext) -> Vec<InlineContent>
 /// [elements](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Content_categories#phrasing_content)
 fn decode_inline(node: &NodeRef, context: &DecodeContext) -> Vec<InlineContent> {
     if let Some(element) = node.as_element() {
+        let tag = element.name.local.clone();
         // Decode a HTML element
         //
         // Custom elements must be dealt with outside of the following match.
         #[allow(clippy::cmp_owned)]
-        if element.name.local == LocalName::from("stencila-code-expression") {
-            let programming_language = if let Some(lang) = element
+        if tag == LocalName::from("stencila-code-fragment")
+            || tag == LocalName::from("stencila-code-expression")
+        {
+            let programming_language = element
                 .attributes
                 .borrow()
                 .get(LocalName::from("programming-language"))
-            {
-                lang.to_string()
-            } else {
-                "".to_string()
-            };
+                .map(|value| value.to_string());
 
             let text = if let Ok(text) = node.select_first("[slot=text]") {
                 collect_text(text.as_node())
@@ -281,15 +287,23 @@ fn decode_inline(node: &NodeRef, context: &DecodeContext) -> Vec<InlineContent> 
                 "".to_string()
             };
 
-            return vec![InlineContent::CodeExpression(CodeExpression {
-                programming_language,
-                text,
-                ..Default::default()
-            })];
+            return if tag == LocalName::from("stencila-code-fragment") {
+                vec![InlineContent::CodeFragment(CodeFragment {
+                    programming_language: programming_language.map(Box::new),
+                    text,
+                    ..Default::default()
+                })]
+            } else {
+                vec![InlineContent::CodeExpression(CodeExpression {
+                    programming_language: programming_language.unwrap_or_default(),
+                    text,
+                    ..Default::default()
+                })]
+            };
         }
         // The following are ordered alphabetically by the output node type
         // with placeholder comments for types not implemented yet.
-        match element.name.local {
+        match tag {
             local_name!("audio") => {
                 let attrs = element.attributes.borrow();
                 let content_url = attrs.get(local_name!("src")).unwrap_or("").to_string();

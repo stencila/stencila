@@ -1,5 +1,5 @@
 import { EntityId } from '@reduxjs/toolkit'
-import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
+import { Component, Element, h, Host, Prop, State, Watch } from '@stencil/core'
 import { FileFormatUtils } from '@stencila/components'
 import { debounce } from 'debounce'
 import { option as O } from 'fp-ts'
@@ -18,6 +18,7 @@ import {
   openDocumentInActivePane,
   patchDocument,
 } from '../../../store/documentPane/documentPaneActions'
+import { getExecutableFormats } from '../../../store/project/projectActions'
 import { errorToast } from '../../../utils/errors'
 
 @Component({
@@ -42,6 +43,8 @@ export class AppDocumentEditor {
         .then(() => this.subscribeToDocument(newDocId))
     }
   }
+
+  @State() executableLanguages: FileFormatUtils.FileFormatMap
 
   /**
    * Persist internal editor state into global store.
@@ -196,6 +199,12 @@ export class AppDocumentEditor {
       .then(openDocumentInActivePane(maybeFilePath.filePath))
   }
 
+  componentWillLoad() {
+    getExecutableFormats().then((formats) => {
+      this.executableLanguages = formats
+    })
+  }
+
   componentDidLoad() {
     return this.subscribeToDocument(this.documentId)
   }
@@ -211,10 +220,11 @@ export class AppDocumentEditor {
           <stencila-editor
             ref={(el) => (this.editorRef = el)}
             activeLanguage={this.fileFormatToLanguage()}
+            executableLanguages={this.executableLanguages}
             lineNumbers={configState.global.editors?.lineNumbers}
             lineWrapping={configState.global.editors?.lineWrapping}
             contentChangeHandler={this.onDocChange}
-            onSetLanguage={this.onSetLanguage}
+            onStencila-language-change={this.onSetLanguage}
           ></stencila-editor>
         </div>
       </Host>
