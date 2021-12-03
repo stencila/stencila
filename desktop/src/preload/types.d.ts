@@ -196,6 +196,11 @@ export type ProjectsServerStart = InvokeType<
   typeof dispatch.server.serve
 >
 
+export type ProjectsKernelsAvailable = InvokeType<
+  typeof CHANNEL.PROJECTS_KERNELS_AVAILABLE,
+  typeof dispatch.kernels.available
+>
+
 // Documents
 export type DocumentsOpen = InvokeType<
   typeof CHANNEL.DOCUMENTS_OPEN,
@@ -293,6 +298,7 @@ type InvokeTypes =
   | ProjectsGraph
   | ProjectsServerStart
   | ProjectsUnsubscribe
+  | ProjectsKernelsAvailable
   | DocumentsOpen
   | DocumentsAlter
   | DocumentsCreate
@@ -449,6 +455,11 @@ interface Invoke {
     channel: ProjectsServerStart['channel'],
     ...args: ProjectsServerStart['args']
   ): ProjectsServerStart['result']
+
+  invoke(
+    channel: ProjectsKernelsAvailable['channel'],
+    ...args: ProjectsKernelsAvailable['args']
+  ): ProjectsKernelsAvailable['result']
 
   // Documents
   invoke(

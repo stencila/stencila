@@ -2,6 +2,7 @@ import { dispatch, projects } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import {
   ProjectsGraph,
+  ProjectsKernelsAvailable,
   ProjectsNew,
   ProjectsOpen,
   ProjectsOpenUsingFilePicker,
@@ -83,6 +84,13 @@ const registerProjectHandlers = () => {
     CHANNEL.PROJECTS_WRITE,
     async (_ipcEvent, projectPath, settings) => {
       return dispatch.projects.write(projectPath, settings)
+    }
+  )
+
+  handle<ProjectsKernelsAvailable>(
+    CHANNEL.PROJECTS_KERNELS_AVAILABLE,
+    async () => {
+      return dispatch.kernels.available()
     }
   )
 }
