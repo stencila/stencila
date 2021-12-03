@@ -115,23 +115,4 @@ The [`stencila/static`](stencila/static) folder contains the symlinks `themes`, 
 
 For `components`, the version number is defined in `stencila/package.json`. For `themes` and `web` we currently use `file:` links to sibling folders in this repo. This is useful during development because it allows for on-the-fly rebuilds and hot module reloading.
 
-For the binary builds we embed *everything* that is in `stencila/static` into the binary.
-
-
-### Language queries
-
-When developing `tree-sitter` language queries for the `methods::compile::code` module, the `tree-sitter` CLI is very useful.
-
-1. Install and setup `tree-sitter` (this is a [good guide](https://dcreager.net/tree-sitter/getting-started/) to that.)
-
-2. Parse fixture files to glean the structure of the AST for the language e.g.
-
-   ```sh
-   tree-sitter parse ../fixtures/fragments/r/imports.R
-   ```
-
-3. Create a query (or part of a larger query) and test it against the query files e.g.
-
-   ```sh
-   tree-sitter query query.txt ../fixtures/fragments/r/imports.R
-   ```
+For the binary builds we embed _everything_ that is in `stencila/static` into the binary.
