@@ -308,27 +308,68 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 name = "binaries"
 version = "0.0.0"
 dependencies = [
+ "binary",
+ "binary-chrome",
+ "binary-node",
+ "binary-pandoc",
+ "binary-python",
  "cli-utils",
+ "once_cell",
+ "serde_json",
+ "structopt",
+ "test-utils",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "binary"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
  "defaults",
  "dirs",
  "eyre",
  "flate2",
- "itertools",
- "once_cell",
  "regex",
  "reqwest",
  "semver 1.0.4",
  "serde",
- "serde_json",
- "structopt",
  "tar",
- "test-utils",
  "tokio",
  "tracing",
  "url",
  "which",
  "xz2",
  "zip",
+]
+
+[[package]]
+name = "binary-chrome"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-node"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-pandoc"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-python"
+version = "0.0.0"
+dependencies = [
+ "binary",
 ]
 
 [[package]]

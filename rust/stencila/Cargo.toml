@@ -76,6 +76,13 @@ default = [
   "kernels/kernel-r",
   "kernels/kernel-store",
 
+  # Binaries
+  "binaries/cli",
+  "binaries/binary-chrome",
+  "binaries/binary-node",
+  "binaries/binary-pandoc",
+  "binaries/binary-python",
+
   "serve",
   "serve-stdio",
   "serve-http",
