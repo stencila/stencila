@@ -404,9 +404,9 @@ impl KernelSpace {
             let spec = kernel.spec();
             if spec.language != language {
                 // Not a match, so keep looking
-                continue
+                continue;
             }
-    
+
             let status = match kernel.status().await {
                 Ok(status) => status,
                 Err(error) => {
@@ -428,7 +428,7 @@ impl KernelSpace {
                 | KernelStatus::Unknown => continue,
             }
         }
-    
+
         // If unable to set in an existing kernel then start a new kernel
         // for the language.
         self.start(language).await
