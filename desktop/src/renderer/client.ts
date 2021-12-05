@@ -213,9 +213,9 @@ export const client = {
         .invoke(CHANNEL.PROJECTS_UNSUBSCRIBE, path, topics)
         .then(unwrapOrThrow),
     kernels: {
-      available: () =>
+      languages: () =>
         window.api
-          .invoke(CHANNEL.PROJECTS_KERNELS_AVAILABLE)
+          .invoke(CHANNEL.PROJECTS_KERNELS_LANGUAGES)
           .then(unwrapOrThrow),
     },
   },

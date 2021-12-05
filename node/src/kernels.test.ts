@@ -1,8 +1,8 @@
-import { available } from './kernels'
+import { languages } from './kernels'
 
-describe('available', () => {
+describe('languages', () => {
   test('has at least "calc"', () => {
-    let kernels = available()
+    let kernels = languages()
     expect(kernels).toEqual(expect.arrayContaining(['calc']))
   })
 })

@@ -122,7 +122,7 @@ export const dispatch: Dispatch = {
     close: wrap(documents.close),
   },
   kernels: {
-    available: wrap(kernels.available),
+    languages: wrap(kernels.languages),
   },
   plugins: {
     schema: wrap(plugins.schema),

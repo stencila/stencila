@@ -2,7 +2,7 @@ import { dispatch, projects } from 'stencila'
 import { CHANNEL } from '../../preload/channels'
 import {
   ProjectsGraph,
-  ProjectsKernelsAvailable,
+  ProjectsKernelsLanguages,
   ProjectsNew,
   ProjectsOpen,
   ProjectsOpenUsingFilePicker,
@@ -87,10 +87,10 @@ const registerProjectHandlers = () => {
     }
   )
 
-  handle<ProjectsKernelsAvailable>(
-    CHANNEL.PROJECTS_KERNELS_AVAILABLE,
+  handle<ProjectsKernelsLanguages>(
+    CHANNEL.PROJECTS_KERNELS_LANGUAGES,
     async () => {
-      return dispatch.kernels.available()
+      return dispatch.kernels.languages()
     }
   )
 }
