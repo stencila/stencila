@@ -8,15 +8,23 @@ pub struct NodeBinary {}
 
 #[async_trait]
 impl BinaryTrait for NodeBinary {
+    #[rustfmt::skip]
     fn spec(&self) -> Binary {
         Binary::new(
             "node",
             &[],
             // Release list at https://nodejs.org/en/download/releases/
+            // Current strategy is to support the latest patch version of each minor version.
+            // Support for older minor versions may be progressively  dropped if there are no
+            // plugins relying on them.
             &[
-                "16.4.0", "16.4.1", "16.4.2", "16.5.0", "16.6.0", "16.6.1", "16.6.2", "16.7.0",
-                "16.8.0", "16.9.0", "16.9.1", "16.10.0", "16.11.0", "16.11.1", "16.12.0",
-                "16.13.0", "17.0.0", "17.0.1",
+                "16.10.0",
+                "16.11.1",
+                "16.12.0",
+                "16.13.1",
+                "17.0.1",
+                "17.1.0",
+                "17.2.0"
             ],
         )
     }
