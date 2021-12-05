@@ -277,7 +277,7 @@ pub trait BinaryTrait: Send + Sync {
             self.install_version(version, &os, &arch).await?;
         } else {
             bail!(
-                "No known version of `{}` which meets semantic version requirement `{}`",
+                "Sorry, I don't know how to install `{}` version `{}`. See `stencila binaries installable` or perhaps install it manually?",
                 name,
                 semver
             )
