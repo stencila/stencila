@@ -154,7 +154,7 @@ tracing = "=0.1.29"
 tracing-appender = "=0.2.0"
 tracing-error = "=0.2.0"
 tracing-serde = "=0.1.2"
-tracing-subscriber = { version = "=0.3.2", features = ["env-filter", "json"] }
+tracing-subscriber = { version = "=0.3.3", features = ["env-filter", "json"] }
 unicode-segmentation = "=1.8.0"
 url = "=2.2.2"
 urlencoding = "2.1.0"
