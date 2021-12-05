@@ -379,7 +379,7 @@ mod tests {
     //   cargo test binaries::tests::install -- --ignored --nocapture
     #[cfg(feature = "cli")]
     #[tokio::test]
-    //#[ignore]
+    #[ignore]
     async fn install() -> Result<()> {
         use super::commands::{Install, Installable, Show};
         use cli_utils::Run;
@@ -427,7 +427,7 @@ mod tests {
     //   cargo test binaries::tests::uninstall -- --ignored --nocapture
     #[cfg(feature = "cli")]
     #[tokio::test]
-    //#[ignore]
+    #[ignore]
     async fn uninstall() -> Result<()> {
         use super::commands::Uninstall;
         use cli_utils::Run;
