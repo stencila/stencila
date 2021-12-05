@@ -8,12 +8,18 @@ pub struct PythonBinary {}
 
 #[async_trait]
 impl BinaryTrait for PythonBinary {
+    #[rustfmt::skip]
     fn spec(&self) -> Binary {
         Binary::new(
             "python",
             &["python3"],
-            // Release list at https://www.python.org/downloads/
-            &["3.9.6", "3.9.7", "3.10.0"],
+            // Release list at https://www.python.org/downloads/.
+            // Current strategy is to support the latest patch version of each minor version.
+            &[
+                "3.8.12",
+                "3.9.9",
+                "3.10.0"
+            ],
         )
     }
 
@@ -29,7 +35,7 @@ impl BinaryTrait for PythonBinary {
                 _ => bail!("Unhandled arch '{}", arch),
             },
             _ => bail!(
-                "Stencila is unable to install Python for operating system '{}'.",
+                "Sorry, I'm unable to install Python for operating system `{}`. Perhaps install it manually?",
                 os
             ),
         };
