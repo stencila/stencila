@@ -14,7 +14,7 @@ store = ["kernel-store"]
 
 [dependencies]
 chrono = "0.4.19"
-derive_more = "0.99.16"
+derive_more = "0.99.17"
 graph-triples = {path = "../graph-triples", version = "0.0.0"}
 kernel = {path = "../kernel", version = "0.0.0"}
 serde = "1.0.130"
