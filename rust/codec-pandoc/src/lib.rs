@@ -67,11 +67,15 @@ impl CodecTrait for PandocCodec {
 /// Note that this is a semver *requirement*, so higher versions of Pandoc
 /// that meet this, should still work.
 ///
-/// This is partially based on compatibility with the `pandoc_types` crate.
+/// This is mostly based on compatibility with the `pandoc_types` crate.
 /// Some recent changes to the pandoc-types versions used by Pandoc (from https://pandoc.org/releases.html):
 ///
 ///   pandoc 2.11 (2020-10-11) : pandoc-types 1.22
 ///   pandoc 2.10 (2020-06-29) : pandoc-types 1.21
+/// 
+/// If/when there are future changes the `pandoc-types` version used in Pandoc itself
+/// then this semver requirement will need to be updated (i.e. be given an upper bound
+/// or `pandoc_types` crate updated and the lower bound raised)
 pub const PANDOC_SEMVER: &str = ">=2.11";
 
 /// Call Pandoc binary to convert some input content to Pandoc JSON.
