@@ -17,14 +17,52 @@ pub use stencila_schema;
 /// specification. Rust implementations return a `Kernel` instance from the
 /// `spec` function of `KernelTrait`. Plugins provide a JSON or YAML serialization
 /// as part of their manifest.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Kernel {
-    /// The language of the kernel
+    /// The name of the kernel
     ///
-    /// This should be the `name` of one of the `Format`s defined in
-    /// the `formats` crate.
-    pub language: String,
+    /// This is used for informational purposes and to allow the user to specify
+    /// which kernel they want to use (e.g. in instances that they have more than one kernel that
+    /// is capable of executing a language).
+    pub name: String,
+
+    /// The type of kernel
+    pub r#type: KernelType,
+
+    /// The languages supported by the kernel
+    ///
+    /// These should be the `name` of one of the `Format`s defined in
+    /// the `formats` crate. Many kernels only support one language.
+    pub languages: Vec<String>,
+}
+
+impl Kernel {
+    pub fn new(name: &str, r#type: KernelType, languages: &[&str]) -> Self {
+        let languages = languages
+            .iter()
+            .map(|language| language.to_string())
+            .collect();
+        Self {
+            name: name.to_string(),
+            r#type,
+            languages,
+        }
+    }
+
+    pub fn matches(&self, selector: &str) -> bool {
+        selector == self.name.to_lowercase() || self.languages.contains(&selector.to_string())
+    }
+}
+
+/// The type of kernel
+///
+/// At present this is mainly for informational purposes.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum KernelType {
+    Builtin,
+    Micro,
+    Jupyter,
 }
 
 /// The status of a running kernel

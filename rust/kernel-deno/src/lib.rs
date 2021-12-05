@@ -1,9 +1,9 @@
-use kernel::eyre::Result;
 use kernel_micro::{include_file, MicroKernel};
 
-pub async fn new() -> Result<MicroKernel> {
+pub fn new() -> MicroKernel {
     MicroKernel::new(
-        "typescript",
+        "udeno",
+        &["javascript", "typescript"],
         ("deno", ">1.7"),
         &["run", "--quiet", "--unstable", "{{script}}"],
         include_file!("deno-kernel.ts"),
@@ -11,13 +11,12 @@ pub async fn new() -> Result<MicroKernel> {
         "{{name}} = JSON.parse('{{json}}')",
         "{{name}}",
     )
-    .await
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernel::{stencila_schema::Node, KernelTrait};
+    use kernel::{eyre::Result, stencila_schema::Node, KernelTrait};
     use test_utils::{assert_json_eq, serde_json::json};
 
     /// Tests of basic functionality
@@ -25,7 +24,7 @@ mod tests {
     /// Other test should be written for language specific quirks and regressions.
     #[tokio::test]
     async fn basics() -> Result<()> {
-        let mut kernel = new().await?;
+        let mut kernel = new();
         if !kernel.available().await {
             return Ok(());
         } else {
@@ -72,7 +71,7 @@ mod tests {
     // Test that `console.log` arguments are treated as separate outputs
     #[tokio::test]
     async fn console_log() -> Result<()> {
-        let mut kernel = new().await?;
+        let mut kernel = new();
         if !kernel.available().await {
             return Ok(());
         } else {

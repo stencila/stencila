@@ -2,7 +2,7 @@ use kernel::{
     async_trait::async_trait,
     eyre::{bail, eyre, Result},
     stencila_schema::{CodeError, Node},
-    Kernel, KernelStatus, KernelTrait,
+    Kernel, KernelStatus, KernelTrait, KernelType,
 };
 use serde::Serialize;
 use std::{env, fs};
@@ -24,12 +24,17 @@ const TRANS_SEP: char = '\u{10ACDC}';
 
 #[derive(Debug, Serialize)]
 pub struct MicroKernel {
+    /// The name of the kernel
+    ///
+    /// The convention for Microkernels, is to prefix the name with `u`.
+    name: String,
+
     /// The language of the kernel
     ///
     /// Used to be able to return a `Kernel` spec.
-    language: String,
+    languages: Vec<String>,
 
-    /// A specification of the runtime execuble needed for the kernel
+    /// A specification of the runtime executable needed for the kernel
     runtime: (String, String),
 
     /// Arguments that should be supplied to the runtime binary
@@ -39,15 +44,19 @@ pub struct MicroKernel {
     args: Vec<String>,
 
     /// The script that runs the kernel
+    #[serde(skip)]
     script: (String, String),
 
     /// Other files that the kernel uses (e.g. codec)
+    #[serde(skip)]
     others: Vec<(String, String)>,
 
     /// The code template for setting a variable
+    #[serde(skip)]
     set_template: String,
 
     /// The code template for getting a variable
+    #[serde(skip)]
     get_template: String,
 
     /// The current status of the kernel
@@ -72,17 +81,20 @@ pub struct MicroKernel {
 
 impl MicroKernel {
     /// Create a new `MicroKernel`
-    pub async fn new(
-        language: &str,
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        name: &str,
+        languages: &[&str],
         runtime: (&str, &str),
         args: &[&str],
         script: (&str, &str),
         others: &[(&str, &str)],
         set_template: &str,
         get_template: &str,
-    ) -> Result<Self> {
-        let kernel = Self {
-            language: language.to_string(),
+    ) -> Self {
+        Self {
+            name: name.into(),
+            languages: languages.iter().map(|lang| lang.to_string()).collect(),
             runtime: (runtime.0.into(), runtime.1.into()),
             args: args.iter().map(|arg| arg.to_string()).collect(),
             script: (script.0.to_string(), script.1.to_string()),
@@ -97,9 +109,7 @@ impl MicroKernel {
             stdin: None,
             stdout: None,
             stderr: None,
-        };
-
-        Ok(kernel)
+        }
     }
 
     /// Is the microkernel available on the current machine?
@@ -125,7 +135,9 @@ impl KernelTrait for MicroKernel {
     /// Get the [`Kernel`] specification
     fn spec(&self) -> Kernel {
         Kernel {
-            language: self.language.clone(),
+            name: self.name.clone(),
+            r#type: KernelType::Micro,
+            languages: self.languages.clone(),
         }
     }
 

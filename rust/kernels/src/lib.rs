@@ -9,7 +9,7 @@ use kernel::{
     Kernel, KernelStatus, KernelTrait,
 };
 use serde::Serialize;
-use std::collections::{hash_map::Entry, BTreeMap, HashMap};
+use std::collections::{hash_map::Entry, BTreeMap, HashMap, HashSet};
 use validator::Contains;
 
 /// An identifier for a kernel
@@ -26,7 +26,7 @@ pub struct KernelInfo {
     id: String,
 
     /// The language of the kernel
-    language: String,
+    languages: Vec<String>,
 
     /// The status of the kernel
     status: KernelStatus,
@@ -92,9 +92,13 @@ enum MetaKernel {
 }
 
 impl MetaKernel {
-    async fn new(language: &str) -> Result<Self> {
+    /// Create a new `MetaKernel` instance based on a selector which matches against the
+    /// name or language of the kernel
+    async fn new(selector: &str) -> Result<Self> {
+        let selector = selector.to_lowercase();
+
         // Attempt to match builtins first
-        match language {
+        match selector.as_str() {
             #[cfg(feature = "kernel-store")]
             "none" | "" => return Ok(MetaKernel::Store(kernel_store::StoreKernel::new())),
 
@@ -105,43 +109,29 @@ impl MetaKernel {
 
         // Attempt to find a matching Jupyter kernel
         #[cfg(feature = "kernel-jupyter")]
-        if let Ok(kernel) = kernel_jupyter::JupyterKernel::new(language).await {
+        if let Ok(kernel) = kernel_jupyter::JupyterKernel::new(&selector).await {
             return Ok(MetaKernel::Jupyter(kernel));
         }
 
-        // Attempt to find a matching a Microkernel
-        // TODO iterate over microkernels rather than `match` since some may
-        // be able to execute multiple languages e.g deno
-        let result = match language {
-            #[cfg(feature = "kernel-bash")]
-            "bash" => kernel_bash::new().await,
-
-            #[cfg(feature = "kernel-node")]
-            "node" | "javascript" | "js" => kernel_node::new().await,
-
-            #[cfg(feature = "kernel-deno")]
-            "deno" | "typescript" | "ts" => kernel_deno::new().await,
-
-            #[cfg(feature = "kernel-python")]
-            "python" | "py" => kernel_python::new().await,
-
-            #[cfg(feature = "kernel-r")]
-            "r" => kernel_r::new().await,
-
-            _ => Err(kernel::eyre::eyre!(
-                "Unable to create an execution kernel for language `{}`",
-                language
-            )),
-        };
-
-        #[cfg(feature = "kernel-micro")]
-        match result {
-            Ok(kernel) => Ok(MetaKernel::Micro(kernel)),
-            Err(error) => Err(error),
+        macro_rules! microkernel_new {
+            ($feat:literal, $crat:ident, $select:expr) => {
+                #[cfg(feature = $feat)]
+                let kernel = $crat::new();
+                if kernel.spec().matches($select) && kernel.available().await {
+                    return Ok(MetaKernel::Micro(kernel));
+                }
+            };
         }
+        microkernel_new!("kernel-bash", kernel_bash, &selector);
+        microkernel_new!("kernel-deno", kernel_deno, &selector);
+        microkernel_new!("kernel-node", kernel_node, &selector);
+        microkernel_new!("kernel-python", kernel_python, &selector);
+        microkernel_new!("kernel-r", kernel_r, &selector);
 
-        #[cfg(not(feature = "kernel-micro"))]
-        result
+        bail!(
+            "Unable to create an execution kernel for selector `{}`",
+            selector
+        )
     }
 }
 
@@ -238,13 +228,13 @@ impl KernelSpace {
             let status = match kernel.status().await {
                 Ok(status) => status,
                 Err(error) => {
-                    tracing::warn!("While gettting kernel status: {}", error);
+                    tracing::warn!("While getting kernel status: {}", error);
                     KernelStatus::Unknown
                 }
             };
             info.push(KernelInfo {
                 id,
-                language: spec.language,
+                languages: spec.languages,
                 status,
             })
         }
@@ -395,14 +385,14 @@ impl KernelSpace {
         Ok(nodes)
     }
 
-    /// Ensure that a kernel exists for a language
+    /// Ensure that a kernel exists for a selector (language or name)
     ///
-    /// Returns a tuple of the kernel's canonical language name and id.
-    async fn ensure(&mut self, language: &str) -> Result<KernelId> {
+    /// Returns the kernel's id.
+    async fn ensure(&mut self, selector: &str) -> Result<KernelId> {
         // Is there already a running kernel capable of executing the language?
         for (kernel_id, kernel) in self.kernels.iter_mut() {
             let spec = kernel.spec();
-            if spec.language != language {
+            if !spec.languages.contains(&selector.to_string()) {
                 // Not a match, so keep looking
                 continue;
             }
@@ -430,26 +420,26 @@ impl KernelSpace {
         }
 
         // If unable to set in an existing kernel then start a new kernel
-        // for the language.
-        self.start(language).await
+        // for the selector.
+        self.start(selector).await
     }
 
-    /// Start a kernel for a language
-    async fn start(&mut self, language: &str) -> Result<KernelId> {
-        let mut kernel = MetaKernel::new(language).await?;
+    /// Start a kernel for a selector (language or name)
+    async fn start(&mut self, selector: &str) -> Result<KernelId> {
+        let mut kernel = MetaKernel::new(selector).await?;
         kernel.start().await?;
 
-        // Generate the kernel id from the kernel's language, adding a numeric suffix if necessary
-        let language = kernel.spec().language;
+        // Generate the kernel id from the selector, adding a numeric suffix if necessary
+        let kernel_id = slug::slugify(selector);
         let count = self
             .kernels
             .keys()
-            .filter(|key| key.starts_with(&language))
+            .filter(|key| key.starts_with(&kernel_id))
             .count();
         let kernel_id = if count == 0 {
-            language
+            kernel_id
         } else {
-            [language, count.to_string()].concat()
+            [kernel_id, count.to_string()].concat()
         };
 
         self.kernels.insert(kernel_id.clone(), kernel);
@@ -527,19 +517,50 @@ impl KernelSpace {
     }
 }
 
+/// List the kernels that are available on this machine
 #[allow(clippy::vec_init_then_push)]
-pub async fn available() -> Result<Vec<String>> {
-    let mut list: Vec<String> = Vec::new();
+pub async fn available() -> Result<Vec<Kernel>> {
+    let mut available: Vec<Kernel> = Vec::new();
 
     #[cfg(feature = "kernel-calc")]
-    list.push("calc".to_string());
+    available.push(kernel_calc::CalcKernel::new().spec());
 
     #[cfg(feature = "kernel-jupyter")]
-    list.append(&mut kernel_jupyter::JupyterKernel::available().await?);
+    available.append(&mut kernel_jupyter::JupyterKernel::available().await?);
 
-    // TODO add microkernels available
+    macro_rules! microkernel_available {
+        ($feat:literal, $crat:ident, $list:expr) => {
+            #[cfg(feature = $feat)]
+            let kernel = $crat::new();
+            if kernel.available().await {
+                $list.push(kernel.spec())
+            }
+        };
+    }
+    microkernel_available!("kernel-bash", kernel_bash, available);
+    microkernel_available!("kernel-deno", kernel_deno, available);
+    microkernel_available!("kernel-node", kernel_node, available);
+    microkernel_available!("kernel-python", kernel_python, available);
+    microkernel_available!("kernel-r", kernel_r, available);
 
-    Ok(list)
+    Ok(available)
+}
+
+/// List the languages supported by the kernels available on this machine
+///
+/// Returns a list of unique language names across the available kernels.
+#[allow(clippy::vec_init_then_push)]
+pub async fn languages() -> Result<Vec<String>> {
+    let mut languages: HashSet<String> = HashSet::new();
+    let kernels = available().await?;
+    for kernel in kernels {
+        for lang in kernel.languages {
+            languages.insert(lang);
+        }
+    }
+    let mut languages: Vec<String> = languages.into_iter().collect();
+    languages.sort();
+    Ok(languages)
 }
 
 /// List the kernels (and servers) that are currently running on this machine
@@ -599,6 +620,7 @@ pub mod commands {
     )]
     pub enum Action {
         Available(Available),
+        Languages(Languages),
         Running(Running),
         Directories(Directories),
         Execute(Execute),
@@ -615,6 +637,7 @@ pub mod commands {
             let Self { action } = self;
             match action {
                 Action::Available(action) => action.run().await,
+                Action::Languages(action) => action.run().await,
                 Action::Running(action) => action.run().await,
                 Action::Directories(action) => action.run().await,
                 Action::Execute(action) => action.run().await,
@@ -630,10 +653,11 @@ pub mod commands {
     /// List the kernels that are available on this machine
     ///
     /// The list of available kernels includes those that are built into the Stencila
-    /// binary (e.g. `calc`) as well as any Jupyter kernels installed on the machine
-    /// (e.g. `python`).
+    /// binary (e.g. `calc`), Jupyter kernels installed on the machine, and Microkernels
+    /// for which a supporting runtime (e.g. `python`) is installed.
     #[derive(Debug, StructOpt)]
     #[structopt(
+        alias = "avail",
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Available {}
@@ -644,7 +668,23 @@ pub mod commands {
         }
     }
 
-    /// List the kernels (and servers) that are currently running on this machine
+    /// List the languages supported by the kernels available on this machine
+    ///
+    /// Returns a unique list of languages across all kernels available.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        alias = "langs",
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Languages {}
+    #[async_trait]
+    impl Run for Languages {
+        async fn run(&self) -> Result {
+            result::value(languages().await?)
+        }
+    }
+
+    /// List the Jupyter kernels (and servers) that are currently running
     ///
     /// This command scans the Jupyter `runtime` directory to get a list of running
     /// Jupyter notebook servers. It then gets a list of kernels from the REST API
@@ -686,15 +726,15 @@ pub mod commands {
     /// Mainly intended for testing that Stencila is able to talk
     /// to Jupyter kernels and execute code within them.
     ///
-    /// Use the `--lang` option to specify which language the code should be executed
-    /// in e.g.,
+    /// Use the `--where` option to specify, by name or language, which kernel the code
+    /// should be executed in e.g.,
     ///
-    /// > kernels execute Math.PI --lang=javascript
+    /// > kernels execute Math.PI --where=javascript
     ///
     /// In interactive mode, you can set the command prefix to "stay" in a particular
     /// language and mimic a REPL in that language e.g.,
     ///
-    /// > >> kernels execute --lang=javascript
+    /// > >> kernels execute --where=javascript
     /// > let r = 10
     /// > 2 * Math.PI * r
     ///
@@ -711,9 +751,9 @@ pub mod commands {
         #[structopt(multiple = true)]
         code: Vec<String>,
 
-        /// The programming language of the code
+        /// The name or programming language of the kernel where the code should executed
         #[structopt(short, long, default_value = "calc")]
-        lang: String,
+        r#where: String,
     }
     #[async_trait]
     impl Run for Execute {
@@ -721,31 +761,31 @@ pub mod commands {
             KERNEL_SPACE
                 .lock()
                 .await
-                .repl(&self.code.join(" "), &self.lang)
+                .repl(&self.code.join(" "), &self.r#where)
                 .await
         }
     }
 
-    /// Start a kernel for a particular programming language
+    /// Start a kernel
     ///
-    /// Mainly intended for testing that a Jupyter kernel can be
-    /// started successfully e.g.,
-    ///
-    /// > kernels start python
+    /// Mainly intended for testing that kernels that rely on external files or processes
+    /// (i.e. a Jupyter kernel or a Microkernel) can be started successfully.
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Start {
-        /// The programming language of the kernel
-        lang: String,
+        /// The name or programming language of the kernel
+        selector: String,
     }
     #[async_trait]
     impl Run for Start {
         async fn run(&self) -> Result {
-            KERNEL_SPACE.lock().await.ensure(&self.lang).await?;
-            tracing::info!("Started kernel for language `{}`", self.lang);
-            result::nothing()
+            let mut kernels = KERNEL_SPACE.lock().await;
+            let kernel_id = kernels.start(&self.selector).await?;
+            let kernel = kernels.kernels.get(&kernel_id)?;
+            tracing::info!("Successfully started kernel");
+            result::value(kernel)
         }
     }
 

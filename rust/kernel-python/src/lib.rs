@@ -1,9 +1,9 @@
-use kernel::eyre::Result;
 use kernel_micro::{include_file, MicroKernel};
 
-pub async fn new() -> Result<MicroKernel> {
+pub fn new() -> MicroKernel {
     MicroKernel::new(
-        "python",
+        "upy",
+        &["python"],
         ("python3", "*"),
         &["{{script}}"],
         include_file!("python_kernel.py"),
@@ -11,13 +11,12 @@ pub async fn new() -> Result<MicroKernel> {
         "{{name}} = decode_value(\"{{json}}\")",
         "{{name}}",
     )
-    .await
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernel::{stencila_schema::Node, KernelTrait};
+    use kernel::{eyre::Result, stencila_schema::Node, KernelTrait};
     use test_utils::{assert_json_eq, serde_json::json};
 
     /// Tests of basic functionality
@@ -25,7 +24,7 @@ mod tests {
     /// Other test should be written for language specific quirks and regressions.
     #[tokio::test]
     async fn basics() -> Result<()> {
-        let mut kernel = new().await?;
+        let mut kernel = new();
         if !kernel.available().await {
             return Ok(());
         } else {

@@ -6,7 +6,7 @@ use kernel::{
     eyre::{bail, eyre, Result},
     serde::{Deserialize, Serialize},
     stencila_schema::{CodeError, Node},
-    Kernel, KernelStatus, KernelTrait,
+    Kernel, KernelStatus, KernelTrait, KernelType,
 };
 use once_cell::sync::Lazy;
 use path_slash::PathBufExt;
@@ -191,8 +191,8 @@ impl Clone for JupyterKernel {
 
 impl JupyterKernel {
     /// Create a new `JupyterKernel`.
-    pub async fn new(language: &str) -> Result<JupyterKernel> {
-        let mut kernel = JupyterKernel::find(language).await?;
+    pub async fn new(selector: &str) -> Result<JupyterKernel> {
+        let mut kernel = JupyterKernel::find(selector).await?;
         kernel.id = JupyterKernelId::new();
 
         Ok(kernel)
@@ -204,7 +204,7 @@ impl JupyterKernel {
     }
 
     /// Get a list of Jupyter kernels available in the current environment
-    pub async fn available() -> Result<Vec<String>> {
+    pub async fn available() -> Result<Vec<Kernel>> {
         let mut list = Vec::new();
 
         for kernels in kernel_dirs() {
@@ -217,7 +217,7 @@ impl JupyterKernel {
                 if path.exists() {
                     let name = dir.file_name().to_string_lossy().to_string();
                     let kernel = JupyterKernel::read(&name, &path).await?;
-                    list.push(kernel.language.to_lowercase())
+                    list.push(kernel.spec())
                 }
             }
         }
@@ -326,21 +326,21 @@ impl JupyterKernel {
         Ok((id, kernel))
     }
 
-    /// Find a `JupyterKernel` for the given language.
+    /// Find a `JupyterKernel` for the given selector (name or language).
     ///
-    /// Searches for an installed kernel with support for the language.
+    /// Searches for an installed kernel with a matching name an/or support for the language.
     /// Is optimized to avoid unnecessary disk reads.
-    pub async fn find(language: &str) -> Result<JupyterKernel> {
+    pub async fn find(selector: &str) -> Result<JupyterKernel> {
         let specs = KERNEL_SPECS.read().await;
 
         // Is there is a kernelspec already read with the same name?
-        if let Some(kernel) = specs.get(language) {
+        if let Some(kernel) = specs.get(selector) {
             return Ok(kernel.clone());
         }
 
         // Is there is a kernelspec already read that supports the language?
         for kernel in specs.values() {
-            if kernel.supports(language) {
+            if kernel.supports(selector) {
                 return Ok(kernel.clone());
             }
         }
@@ -353,13 +353,11 @@ impl JupyterKernel {
                 continue;
             }
 
-            // Is there is a kernelspec with the same name?
-            let path = kernel.join(language).join("kernel.json");
+            // Is there is a kernelspec with a matching name?
+            let path = kernel.join(selector).join("kernel.json");
             if path.exists() {
-                let kernel = JupyterKernel::read(language, &path).await?;
-                if kernel.supports(language) {
-                    return Ok(kernel);
-                }
+                let kernel = JupyterKernel::read(selector, &path).await?;
+                return Ok(kernel);
             }
 
             // Is there is a kernelspec that supports the language?
@@ -368,7 +366,7 @@ impl JupyterKernel {
                 if path.exists() {
                     let name = dir.file_name().to_string_lossy().to_string();
                     let kernel = JupyterKernel::read(&name, &path).await?;
-                    if kernel.supports(language) {
+                    if kernel.supports(selector) {
                         return Ok(kernel);
                     }
                 }
@@ -377,7 +375,7 @@ impl JupyterKernel {
 
         bail!(
             "Unable to find a Jupyter kernel for language `{}`; perhaps you need to install one?",
-            language
+            selector
         )
     }
 
@@ -686,9 +684,7 @@ impl JupyterKernel {
 #[async_trait]
 impl KernelTrait for JupyterKernel {
     fn spec(&self) -> Kernel {
-        Kernel {
-            language: self.language.clone(),
-        }
+        Kernel::new(&self.name, KernelType::Jupyter, &[&self.language])
     }
 
     async fn start(&mut self) -> Result<()> {

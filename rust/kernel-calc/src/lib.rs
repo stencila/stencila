@@ -4,7 +4,7 @@ use kernel::{
     eyre::{bail, Result},
     serde::Serialize,
     stencila_schema::{CodeError, Node},
-    Kernel, KernelStatus, KernelTrait,
+    Kernel, KernelStatus, KernelTrait, KernelType,
 };
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -29,9 +29,7 @@ impl CalcKernel {
 #[async_trait]
 impl KernelTrait for CalcKernel {
     fn spec(&self) -> Kernel {
-        Kernel {
-            language: "calc".to_string(),
-        }
+        Kernel::new("calc", KernelType::Builtin, &["calc"])
     }
 
     async fn status(&self) -> Result<KernelStatus> {

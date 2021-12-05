@@ -27,9 +27,7 @@ impl StoreKernel {
 #[async_trait]
 impl KernelTrait for StoreKernel {
     fn spec(&self) -> Kernel {
-        Kernel {
-            language: "".to_string(),
-        }
+        Kernel::new("store", kernel::KernelType::Builtin, &[])
     }
 
     async fn status(&self) -> Result<KernelStatus> {

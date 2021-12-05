@@ -2654,6 +2654,7 @@ dependencies = [
  "parsers",
  "serde",
  "serde_json",
+ "slug",
  "structopt",
  "tokio",
  "tracing",
