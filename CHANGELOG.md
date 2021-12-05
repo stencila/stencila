@@ -1,3 +1,15 @@
+## [0.133.1](https://github.com/stencila/stencila/compare/v0.133.0...v0.133.1) (2021-12-05)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate chromiumoxide to 0.3.2 ([b073064](https://github.com/stencila/stencila/commit/b0730644126fcbc27d3616cb8a435eb3b7673a15))
+* **dependencies:** update rust crate derive_more to 0.99.17 ([7dbc666](https://github.com/stencila/stencila/commit/7dbc666028e3e9d7c77939f6d2d8f449097ca911))
+* **dependencies:** update rust crate handlebars to v4.1.6 ([e210e59](https://github.com/stencila/stencila/commit/e210e59f3e51f623e9988c916d42215a2139b66e))
+* **dependencies:** update rust crate reqwest to v0.11.7 ([c713ada](https://github.com/stencila/stencila/commit/c713ada7d42b0ebcd7221b3a53f6efd02e5da4d1))
+* **dependencies:** update rust crate termimad to 0.19.3 ([28219a1](https://github.com/stencila/stencila/commit/28219a1a79e49c1623b8e880ac5dce1965a460f7))
+* **tracing:** update rust crate tracing-subscriber to v0.3.3 ([3275e2b](https://github.com/stencila/stencila/commit/3275e2b9879e237453a7ad5aa0baba0b7a222043))
+
 # [0.133.0](https://github.com/stencila/stencila/compare/v0.132.0...v0.133.0) (2021-12-03)
 
 
