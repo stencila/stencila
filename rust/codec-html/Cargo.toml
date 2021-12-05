@@ -39,7 +39,7 @@ stencila-schema = "1.12.0"
 tracing = { version = "0.1.29", optional = true }
 
 [dev-dependencies]
-reqwest = "0.11.6"
+reqwest = "0.11.7"
 test-props = { path = "../test-props", version = "0.0.0" }
 test-snaps = { path = "../test-snaps", version = "0.0.0" }
 test-utils = { path = "../test-utils", version = "0.0.0" }
