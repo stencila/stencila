@@ -8,24 +8,32 @@ pub struct PandocBinary {}
 
 #[async_trait]
 impl BinaryTrait for PandocBinary {
+    #[rustfmt::skip]
     fn spec(&self) -> Binary {
         Binary::new(
             "pandoc",
             &[],
-            // Release list at https://github.com/jgm/pandoc/releases
-            // To avoid version parsing issues we map standard semver triples
+            // Release list at https://github.com/jgm/pandoc/releases.
+            // Current strategy is to support the latest patch version of each minor version.
+            //
+            // Note: To avoid version parsing issues we map standard semver triples
             // to Pandoc's quads in the `install_pandoc` function and use only triples here.
-            &["2.14.0", "2.14.1", "2.14.2", "2.15.0", "2.16.0"],
+            //
+            // Note: See the documentation for the `PANDOC_SEMVER` variable in the `codec-pandoc`
+            // sibling crate.
+            &[
+                "2.14.2",
+                "2.15.0",
+                "2.16.2"
+            ],
         )
     }
 
     async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
-        // Map standard semver triples to Pandoc's version numbers
-        // See https://github.com/jgm/pandoc/releases
+        // Map standard semver triples to Pandoc's version numbers (if they differ).
+        // See https://github.com/jgm/pandoc/releases for mappings.
         let version = match version {
-            "2.14.0" => "2.14.0.3",
             "2.15.0" => "2.15",
-            "2.16.0" => "2.16",
             _ => version,
         };
 
