@@ -231,11 +231,12 @@ impl Server {
             tracing::warn!("Allowing traversal out of server home directory.")
         }
 
+        if root {
+            tracing::warn!("Serving as root/administrator is dangerous and discouraged.")
+        }
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         if let sudo::RunningAs::Root = sudo::check() {
-            if root {
-                tracing::warn!("Serving as root/administrator is dangerous and discouraged.")
-            } else {
+            if !root {
                 bail!("Serving as root/administrator is not permitted by default, use the `--root` option to bypass this safety measure.")
             }
         }
