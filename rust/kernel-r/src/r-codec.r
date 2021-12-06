@@ -1,11 +1,11 @@
 for (pkg in c("jsonlite", "base64enc")) {
   if (!suppressPackageStartupMessages(require(pkg, character.only = TRUE, quietly=TRUE))) {
-    install.packages(pkg, quiet = TRUE)
+    install.packages(pkg, quiet = TRUE, repo="http://cran.rstudio.com/")
     suppressPackageStartupMessages(require(pkg, character.only = TRUE, quietly=TRUE))
   }
 }
 
-# Decode JSON to a R value
+# Decode JSON to an R value
 decode_value <- function(json) {
   fromJSON(json)
 }
@@ -38,7 +38,7 @@ convert_value <- function(value, options = list()) {
     is.character(value) ||
     is.matrix(value) ||
     is.array(value) ||
-    is.vector(value) || 
+    is.vector(value) ||
     is.list(value)
   ) {
     # Return value because, for these types, `toJSON()` will convert

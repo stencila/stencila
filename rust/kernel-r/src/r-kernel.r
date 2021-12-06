@@ -4,7 +4,8 @@ args <- commandArgs(trailingOnly = FALSE)
 pattern <- "--file="
 match <- grep(pattern, args)
 file <- sub(pattern, "", args[match])
-dir <- dirname(file)
+# Unescape whitespaces in file paths for macOS
+dir <- gsub("\\~\\+\\~", " ", dirname(file))
 
 source(file.path(dir, "r-codec.r"))
 
@@ -33,7 +34,7 @@ while (TRUE) {
     error(compiled, "SyntaxError")
   } else {
     value <- tryCatch(eval(compiled), message=info, warning=warning, error=error)
-    
+
     if (!withVisible(value)$visible) {
       value <- NULL
     }
@@ -46,7 +47,7 @@ while (TRUE) {
       png(tempfile())
       dev.control("enable")
     }
-    
+
     if (!is.null(value)) {
       last_line <- tail(strsplit(unescaped, "\\n")[[1]], n=1)
       assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", last_line)
