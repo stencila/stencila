@@ -2,7 +2,7 @@ use kernel_micro::{include_file, MicroKernel};
 
 pub fn new() -> MicroKernel {
     MicroKernel::new(
-        "upy",
+        "python-micro",
         &["python"],
         ("python3", "*"),
         &["{{script}}"],

@@ -2,7 +2,7 @@ use kernel_micro::{include_file, MicroKernel};
 
 pub fn new() -> MicroKernel {
     MicroKernel::new(
-        "ur",
+        "r-micro",
         &["r"],
         ("Rscript", "*"),
         &["{{script}}"],

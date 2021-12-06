@@ -2,7 +2,7 @@ use kernel_micro::{include_file, MicroKernel};
 
 pub fn new() -> MicroKernel {
     MicroKernel::new(
-        "udeno",
+        "deno-micro",
         &["javascript", "typescript"],
         ("deno", ">=1.7"),
         &["run", "--quiet", "--unstable", "{{script}}"],
