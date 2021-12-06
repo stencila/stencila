@@ -16,25 +16,34 @@ pub fn new() -> MicroKernel {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernel::{eyre::Result, stencila_schema::Node, KernelTrait};
-    use test_utils::{assert_json_eq, serde_json::json, skip_ci_os};
+    use kernel::{
+        eyre::{bail, Result},
+        stencila_schema::Node,
+        KernelTrait,
+    };
+    use test_utils::{assert_json_eq, serde_json::json};
+
+    async fn skip_or_kernel() -> Result<MicroKernel> {
+        let mut kernel = new();
+        if !kernel.available().await {
+            eprintln!("R not available on this machine");
+            bail!("Skipping")
+        } else {
+            kernel.start().await?;
+        }
+
+        Ok(kernel)
+    }
 
     /// Tests of basic functionality
     /// This test is replicated in all the microkernels.
     /// Other test should be written for language specific quirks and regressions.
     #[tokio::test]
     async fn basics() -> Result<()> {
-        if skip_ci_os("linux", "Failing on Linux CI for unknown reasons")
-        {
-            return Ok(());
-        }
-
-        let mut kernel = new();
-        if !kernel.available().await {
-            return Ok(());
-        } else {
-            kernel.start().await?;
-        }
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => kernel,
+            Err(..) => return Ok(()),
+        };
 
         // Assign a variable and output it
         let (outputs, messages) = kernel.exec("a = 2\na").await?;
@@ -77,18 +86,10 @@ mod tests {
     /// Test that an assignment on the last line does not generate an output
     #[tokio::test]
     async fn assignment_no_output() -> Result<()> {
-        if skip_ci_os("linux", "Failing on Linux CI for unknown reasons")
-            || skip_ci_os("macos", "Hanging on Mac CI")
-        {
-            return Ok(());
-        }
-
-        let mut kernel = new();
-        if !kernel.available().await {
-            return Ok(());
-        } else {
-            kernel.start().await?;
-        }
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => kernel,
+            Err(..) => return Ok(()),
+        };
 
         let (outputs, messages) = kernel.exec("a <- 1").await?;
         assert!(messages.is_empty());
@@ -101,6 +102,146 @@ mod tests {
         let (outputs, messages) = kernel.exec("print(a)\nprint(b)\na_b <- a + b").await?;
         assert!(messages.is_empty());
         assert_json_eq!(outputs, [[1], [2]]);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn encode_general() -> Result<()> {
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => kernel,
+            Err(..) => return Ok(()),
+        };
+
+        // Null, booleans, integers, numbers, strings
+        let (outputs, messages) = kernel
+            .exec("list(NULL, TRUE, FALSE, 1, 1.23456789, 'str')")
+            .await?;
+        assert_json_eq!(messages, json!([]));
+        assert_json_eq!(
+            outputs,
+            json!([[null, [true], [false], [1], [1.23456789], ["str"]]])
+        );
+
+        // Arrays
+        let (outputs, messages) = kernel.exec("1:5").await?;
+        assert_json_eq!(messages, json!([]));
+        assert_json_eq!(outputs, [[1, 2, 3, 4, 5]]);
+
+        // Objects
+        let (outputs, messages) = kernel.exec("list(a=1, b=list(c=2))").await?;
+        assert_json_eq!(messages, json!([]));
+        assert_json_eq!(outputs, json!([{"type": "Entity"}]));
+        // TODO: correct output when deserialization of Node::Object is working
+        //assert_json_eq!(outputs, json!([{"a": [1], "b": {"c": [2]}}]));
+
+        // Matrix
+        let (outputs, messages) = kernel.exec("matrix(c(1:4), 2, 2)").await?;
+        assert_json_eq!(messages, json!([]));
+        assert_json_eq!(outputs, [[[1, 3], [2, 4]]]);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn encode_dataframes() -> Result<()> {
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => kernel,
+            Err(..) => return Ok(()),
+        };
+
+        let (outputs, messages) = kernel
+            .exec(
+                r#"data.frame(
+    a = 1:2,
+    b = c(TRUE, FALSE),
+    c = c("x", "y"),
+    d = factor(c("X", "Y"), levels = c("X", "Y", "Z")),
+    stringsAsFactors = FALSE
+)"#,
+            )
+            .await?;
+        assert_json_eq!(messages, json!([]));
+        let dt = match &outputs[0] {
+            Node::Datatable(dt) => dt.clone(),
+            _ => bail!("unexpected type {:?}", outputs[0]),
+        };
+        assert_eq!(
+            dt.columns
+                .iter()
+                .map(|column| column.name.as_str())
+                .collect::<Vec<&str>>(),
+            vec!["a", "b", "c", "d"]
+        );
+        assert_json_eq!(
+            dt.columns[0].validator.as_ref().unwrap().items_validator,
+            json!({ "type": "NumberValidator"})
+        );
+        assert_json_eq!(
+            dt.columns[1].validator.as_ref().unwrap().items_validator,
+            json!({ "type": "BooleanValidator"})
+        );
+        assert_json_eq!(
+            dt.columns[2].validator.as_ref().unwrap().items_validator,
+            json!({ "type": "StringValidator"})
+        );
+        assert_json_eq!(
+            dt.columns[3].validator.as_ref().unwrap().items_validator,
+            json!({
+                "type": "EnumValidator",
+                "values": ["X", "Y", "Z"]
+            })
+        );
+
+        let (outputs, messages) = kernel.exec("mtcars").await?;
+        assert_json_eq!(messages, json!([]));
+        let dt = match &outputs[0] {
+            Node::Datatable(dt) => dt.clone(),
+            _ => bail!("unexpected type {:?}", outputs[0]),
+        };
+        assert_eq!(
+            dt.columns
+                .iter()
+                .map(|column| column.name.as_str())
+                .collect::<Vec<&str>>(),
+            vec![
+                "name", "mpg", "cyl", "disp", "hp", "drat", "wt", "qsec", "vs", "am", "gear",
+                "carb"
+            ]
+        );
+        assert_json_eq!(
+            dt.columns[0].validator.as_ref().unwrap().items_validator,
+            json!({ "type": "StringValidator"})
+        );
+        assert_json_eq!(
+            dt.columns[1].validator.as_ref().unwrap().items_validator,
+            json!({ "type": "NumberValidator"})
+        );
+
+        let (outputs, messages) = kernel.exec("chickwts").await?;
+        assert_json_eq!(messages, json!([]));
+        let dt = match &outputs[0] {
+            Node::Datatable(dt) => dt.clone(),
+            _ => bail!("unexpected type {:?}", outputs[0]),
+        };
+        assert_eq!(
+            dt.columns
+                .iter()
+                .map(|column| column.name.as_str())
+                .collect::<Vec<&str>>(),
+            vec!["weight", "feed"]
+        );
+        assert_json_eq!(
+            dt.columns[0].validator.as_ref().unwrap().items_validator,
+            json!({ "type": "NumberValidator"})
+        );
+        assert_json_eq!(
+            dt.columns[1].validator.as_ref().unwrap().items_validator,
+            json!({
+                "type": "EnumValidator",
+                "values": ["casein", "horsebean", "linseed", "meatmeal", "soybean", "sunflower"]
+            })
+        );
 
         Ok(())
     }
