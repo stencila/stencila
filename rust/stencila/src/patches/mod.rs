@@ -750,50 +750,55 @@ impl Differ {
         self.address.pop_back();
     }
 
+    /// Push an operations nested within the current address
+    pub fn push(&mut self, op: Operation) {
+        let op = match op {
+            Operation::Add {
+                address,
+                value,
+                length,
+                html,
+            } => Operation::Add {
+                address: self.address.concat(&address),
+                value,
+                length,
+                html,
+            },
+            Operation::Remove { address, items } => Operation::Remove {
+                address: self.address.concat(&address),
+                items,
+            },
+            Operation::Replace {
+                address,
+                items,
+                value,
+                length,
+                html,
+            } => Operation::Replace {
+                address: self.address.concat(&address),
+                items,
+                value,
+                length,
+                html,
+            },
+            Operation::Move { from, items, to } => Operation::Move {
+                from: self.address.concat(&from),
+                items,
+                to: self.address.concat(&to),
+            },
+            Operation::Transform { address, from, to } => Operation::Transform {
+                address: self.address.concat(&address),
+                from,
+                to,
+            },
+        };
+        self.ops.push(op)
+    }
+
     /// Append a list of operations nested within the current address
     pub fn append(&mut self, ops: Vec<Operation>) {
         for op in ops {
-            let op = match op {
-                Operation::Add {
-                    address,
-                    value,
-                    length,
-                    html,
-                } => Operation::Add {
-                    address: self.address.concat(&address),
-                    value,
-                    length,
-                    html,
-                },
-                Operation::Remove { address, items } => Operation::Remove {
-                    address: self.address.concat(&address),
-                    items,
-                },
-                Operation::Replace {
-                    address,
-                    items,
-                    value,
-                    length,
-                    html,
-                } => Operation::Replace {
-                    address: self.address.concat(&address),
-                    items,
-                    value,
-                    length,
-                    html,
-                },
-                Operation::Move { from, items, to } => Operation::Move {
-                    from: self.address.concat(&from),
-                    items,
-                    to: self.address.concat(&to),
-                },
-                Operation::Transform { address, from, to } => Operation::Transform {
-                    address: self.address.concat(&address),
-                    from,
-                    to,
-                },
-            };
-            self.ops.push(op)
+            self.push(op)
         }
     }
 

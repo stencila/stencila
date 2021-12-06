@@ -275,12 +275,57 @@ patchable_struct!(Strong, content);
 patchable_struct!(Subscript, content);
 patchable_struct!(Superscript, content);
 
-patchable_struct!(AudioObject, content_url);
-patchable_struct!(AudioObjectSimple, content_url);
-patchable_struct!(ImageObject, content_url);
-patchable_struct!(ImageObjectSimple, content_url);
-patchable_struct!(VideoObject, content_url);
-patchable_struct!(VideoObjectSimple, content_url);
+/// Generate a `impl Patchable` for a `MediaObject` `struct` which avoids creating
+/// a very large number of operations when diffing a base64 encoded images (which
+/// can swamp client as well as being slow to generate)
+macro_rules! patchable_media_object {
+    ($type:ty $(, $field:ident )*) => {
+        impl Patchable for $type {
+            patchable_struct_resolve!($( $field )*);
+            patchable_struct_find!($( $field )*);
+
+            patchable_is_same!();
+            patchable_struct_is_equal!($( $field )*);
+            patchable_struct_hash!($( $field )*);
+
+            patchable_diff!();
+
+            fn diff_same(&self, differ: &mut Differ, other: &Self) {
+                $(
+                    let field = stringify!($field);
+                    if field == "content_url" &&
+                       (self.content_url.starts_with("data:") || other.content_url.starts_with("data:")) &&
+                       self.content_url != other.content_url {
+                        differ.push(
+                            Operation::Replace {
+                                address: Address::from("content_url"),
+                                items: 1,
+                                value: Box::new(other.content_url.clone()),
+                                length: 1,
+                                html: None,
+                            }
+                        )
+                    } else {
+                        differ.field(field, &self.$field, &other.$field);
+                    }
+                )*
+            }
+
+            patchable_struct_apply_add!($( $field )*);
+            patchable_struct_apply_remove!($( $field )*);
+            patchable_struct_apply_replace!($( $field )*);
+            patchable_struct_apply_move!($( $field )*);
+            patchable_struct_apply_transform!($( $field )*);
+        }
+    };
+}
+
+patchable_media_object!(AudioObject, content_url);
+patchable_media_object!(AudioObjectSimple, content_url);
+patchable_media_object!(ImageObject, content_url);
+patchable_media_object!(ImageObjectSimple, content_url);
+patchable_media_object!(VideoObject, content_url);
+patchable_media_object!(VideoObjectSimple, content_url);
 
 #[cfg(test)]
 mod tests {
