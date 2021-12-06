@@ -21,7 +21,7 @@ mod tests {
         stencila_schema::Node,
         KernelTrait,
     };
-    use test_utils::{assert_json_eq, serde_json::json, skip_ci};
+    use test_utils::{assert_json_eq, print_logs, serde_json::json, skip_ci};
 
     async fn skip_or_kernel() -> Result<MicroKernel> {
         if skip_ci("Failing on Linux and MacOS CIs") {
@@ -246,6 +246,28 @@ mod tests {
                 "values": ["casein", "horsebean", "linseed", "meatmeal", "soybean", "sunflower"]
             })
         );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn encode_plots() -> Result<()> {
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => kernel,
+            Err(..) => return Ok(()),
+        };
+
+        print_logs();
+
+        for code in ["plot(1)", "hist(rnorm(1000), breaks=30)"] {
+            let (outputs, messages) = kernel.exec(code).await?;
+            assert_json_eq!(messages, json!([]));
+            let image = match &outputs[0] {
+                Node::ImageObject(dt) => dt.clone(),
+                _ => bail!("unexpected type {:?}", outputs[0]),
+            };
+            assert!(image.content_url.starts_with("data:image/png;base64,"));
+        }
 
         Ok(())
     }

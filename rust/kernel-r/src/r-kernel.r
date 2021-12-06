@@ -18,6 +18,11 @@ info <- function(msg) message(msg, "CodeInfo")
 warning <- function(msg) message(msg, "CodeWarning")
 error <- function(error, type = "RuntimeError") message(error$message, type)
 
+# Default graphics device to avoid window popping up or `Rplot.pdf` polluting
+# local directory. Recording must be enabled for print devices.
+png(tempfile())
+dev.control("enable")
+
 stdin <- file("stdin", "r")
 while (TRUE) {
   code <- readLines(stdin, n=1)
@@ -28,6 +33,20 @@ while (TRUE) {
     error(compiled, "SyntaxError")
   } else {
     value <- tryCatch(eval(compiled), message=info, warning=warning, error=error)
+    
+    if (!withVisible(value)$visible) {
+      value <- NULL
+    }
+
+    rec_plot <- recordPlot()
+    if (!is.null(rec_plot[[1]])) {
+      value <- rec_plot
+      # Clear the existing device and create a new one
+      dev.off()
+      png(tempfile())
+      dev.control("enable")
+    }
+    
     if (!is.null(value)) {
       last_line <- tail(strsplit(unescaped, "\\n")[[1]], n=1)
       assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", last_line)

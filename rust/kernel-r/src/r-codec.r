@@ -1,5 +1,9 @@
-if (!suppressPackageStartupMessages(require("jsonlite", quietly=TRUE)))
-  install.packages("jsonlite")
+for (pkg in c("jsonlite", "base64enc")) {
+  if (!suppressPackageStartupMessages(require(pkg, character.only = TRUE, quietly=TRUE))) {
+    install.packages(pkg, quiet = TRUE)
+    suppressPackageStartupMessages(require(pkg, character.only = TRUE, quietly=TRUE))
+  }
+}
 
 # Decode JSON to a R value
 decode_value <- function(json) {
@@ -23,7 +27,7 @@ convert_value <- function(value, options = list()) {
   } else if (inherits(value, "table")) {
     # The functions `summary` and `table` return class "table" results
     # Currently, just "print" them. In the future, we may convert these to Datatables.
-    paste(utils::capture.output(print(value)), collapse = "\n")
+    paste(utils::capture.output(base::print(value)), collapse = "\n")
   } else if (is.data.frame(value)) {
     # Decode to a Datatable
     convert_data_frame(value)
@@ -42,7 +46,7 @@ convert_value <- function(value, options = list()) {
     value
   } else {
     warning(paste("Default conversion for R type:", typeof(value), ", class:", class(value)))
-    paste(utils::capture.output(print(value)), collapse = "\n")
+    paste(utils::capture.output(base::print(value)), collapse = "\n")
   }
 }
 
@@ -68,12 +72,12 @@ convert_plot <- function(value, options = list(), format = "png") {
     units = "cm",
     res = 150
   )
-  print(value)
+  base::print(value)
   grDevices::dev.off()
 
   list(
     type = unbox("ImageObject"),
-    contentUrl = unbox(paste0("data:image/", format, ";base64,", base64enc::base64encode(filename)))
+    contentUrl = unbox(paste0("data:image/", format, ";base64,", base64encode(filename)))
   )
 }
 
