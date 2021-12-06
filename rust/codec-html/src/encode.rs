@@ -353,7 +353,7 @@ mod tests {
     use test_snaps::{
         insta::assert_display_snapshot, snapshot_fixtures_content, snapshot_fixtures_nodes,
     };
-    use test_utils::{assert_json_eq, home, skip_slow_tests};
+    use test_utils::{assert_json_eq, home, skip_slow};
 
     /// Encode the node fixtures
     #[test]
@@ -399,7 +399,7 @@ mod tests {
     /// for more on the API.
     #[tokio::test]
     async fn nu_validate() -> Result<()> {
-        if skip_slow_tests() {
+        if skip_slow() {
             return Ok(());
         }
 
