@@ -17,19 +17,13 @@ pub fn new() -> MicroKernel {
 mod tests {
     use super::*;
     use kernel::{eyre::Result, stencila_schema::Node, KernelTrait};
-    use test_utils::{assert_json_eq, serde_json::json, skip_ci_os};
+    use test_utils::{assert_json_eq, serde_json::json};
 
     /// Tests of basic functionality
     /// This test is replicated in all the microkernels.
     /// Other test should be written for language specific quirks and regressions.
     #[tokio::test]
     async fn basics() -> Result<()> {
-        if skip_ci_os("windows", "Failing on Windows CI for unknown reasons")
-            || skip_ci_os("macos", "Hanging on Mac CI?")
-        {
-            return Ok(());
-        }
-
         let mut kernel = new();
         if !kernel.available().await {
             return Ok(());
