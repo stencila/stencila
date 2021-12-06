@@ -11,7 +11,7 @@ import {
   panic,
 } from '../checks'
 import { applyAdd as applyAddString } from '../string'
-import { STRUCT_ATTRIBUTES } from './consts'
+import { STRUCT_ATTRIBUTES, STRUCT_ATTRIBUTE_ALIASES } from './consts'
 import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
 import { createFragment, resolveParent } from './resolve'
 
@@ -54,6 +54,13 @@ export function applyAddStruct(
   // Is the property designated to be represented as an attribute?
   if (STRUCT_ATTRIBUTES.includes(name)) {
     struct.setAttribute(name, escapeAttr(html))
+    return
+  }
+
+  // Is the slot represented by an attribute with a different name?
+  const alias = STRUCT_ATTRIBUTE_ALIASES[name]
+  if (alias !== undefined) {
+    struct.setAttribute(alias, escapeAttr(html))
     return
   }
 
