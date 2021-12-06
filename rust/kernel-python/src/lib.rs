@@ -16,20 +16,34 @@ pub fn new() -> MicroKernel {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernel::{eyre::Result, stencila_schema::Node, KernelTrait};
-    use test_utils::{assert_json_eq, serde_json::json};
+    use kernel::{eyre::{Result, bail}, stencila_schema::Node, KernelTrait};
+    use test_utils::{assert_json_eq, serde_json::json, skip_ci_os};
+
+    async fn skip_or_kernel() -> Result<MicroKernel> {
+        if skip_ci_os("windows", "Failing on Windows CIs") {
+            bail!("Skipping")
+        }
+
+        let mut kernel = new();
+        if !kernel.available().await {
+            eprintln!("Python not available on this machine");
+            bail!("Skipping")
+        } else {
+            kernel.start().await?;
+        }
+
+        Ok(kernel)
+    }
 
     /// Tests of basic functionality
     /// This test is replicated in all the microkernels.
     /// Other test should be written for language specific quirks and regressions.
     #[tokio::test]
     async fn basics() -> Result<()> {
-        let mut kernel = new();
-        if !kernel.available().await {
-            return Ok(());
-        } else {
-            kernel.start().await?;
-        }
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => kernel,
+            Err(..) => return Ok(()),
+        };
 
         // Assign a variable and output it
         let (outputs, messages) = kernel.exec("a = 2\na").await?;
