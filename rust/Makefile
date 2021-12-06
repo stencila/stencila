@@ -21,7 +21,7 @@ lint:
 	cargo clippy --tests --all --exclude stencila-node
 
 test:
-	cargo test --all --exclude stencila-node
+	cargo test --all --exclude stencila-node -- --nocapture
 
 cover:
 	cargo tarpaulin --ignore-tests --exclude-files tests/* \
