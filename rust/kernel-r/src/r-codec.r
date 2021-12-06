@@ -27,7 +27,7 @@ convert_value <- function(value, options = list()) {
   } else if (inherits(value, "table")) {
     # The functions `summary` and `table` return class "table" results
     # Currently, just "print" them. In the future, we may convert these to Datatables.
-    paste(utils::capture.output(base::print(value)), collapse = "\n")
+    unbox(paste(utils::capture.output(base::print(value)), collapse = "\n"))
   } else if (is.data.frame(value)) {
     # Decode to a Datatable
     convert_data_frame(value)
@@ -45,8 +45,7 @@ convert_value <- function(value, options = list()) {
     # to the appropriate JSON type e.g. a matrix to an array of arrays
     value
   } else {
-    warning(paste("Default conversion for R type:", typeof(value), ", class:", class(value)))
-    paste(utils::capture.output(base::print(value)), collapse = "\n")
+    unbox(paste(utils::capture.output(base::print(value)), collapse = "\n"))
   }
 }
 
