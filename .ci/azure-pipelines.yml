@@ -100,7 +100,7 @@ jobs:
       - script: |
           set -e
           mkdir -p rlib
-          echo "##vso[task.setvariable variable=R_LIBS_USER]$(PWD)/rlibs"
+          echo "##vso[task.setvariable variable=R_LIBS_USER]$(pwd)/rlibs"
         displayName: 'Install: User R libs dir'
 
       # Install Jupyter kernels
