@@ -48,7 +48,6 @@ mod tests {
 
         // Syntax error
         let (outputs, messages) = kernel.exec("bad ^ # syntax").await?;
-        println!("{:?}", messages);
         assert_json_eq!(messages[0].error_type, "SyntaxError");
         assert_json_eq!(
             messages[0].error_message,
