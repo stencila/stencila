@@ -18,6 +18,7 @@ use tokio::sync::RwLock;
 /// This is an immutable, lazily initialized list of "registered" binaries
 /// that Stencila knows how to install, get the version for etc. However,
 /// the functions below can be used for any other binary as well.
+#[allow(unused_mut)]
 static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
     let mut map: BTreeMap<String, Box<dyn BinaryTrait>> = BTreeMap::new();
 

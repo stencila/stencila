@@ -3,6 +3,7 @@ use defaults::Defaults;
 use eyre::{bail, Result};
 use regex::Regex;
 use serde::Serialize;
+#[allow(unused_imports)]
 use std::{
     cmp::Ordering,
     env::{
