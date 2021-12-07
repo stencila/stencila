@@ -99,7 +99,7 @@ jobs:
       # Let R know where it can install packages
       - script: |
           set -e
-          mkdir -p rlib
+          mkdir -p rlibs
           echo "##vso[task.setvariable variable=R_LIBS_USER]$(pwd)/rlibs"
         displayName: 'Install: User R libs dir'
 
