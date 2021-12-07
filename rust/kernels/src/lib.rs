@@ -395,7 +395,7 @@ impl KernelSpace {
         // Is there already a running kernel with a nam or language matching the selector?
         for (kernel_id, kernel) in self.kernels.iter_mut() {
             let spec = kernel.spec();
-            if !(spec.name == selector || spec.languages.contains(&selector.to_string())) {
+            if !spec.matches(selector) {
                 // Not a match, so keep looking
                 continue;
             }

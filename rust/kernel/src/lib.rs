@@ -38,6 +38,7 @@ pub struct Kernel {
 }
 
 impl Kernel {
+    // Create a new kernel specification
     pub fn new(name: &str, r#type: KernelType, languages: &[&str]) -> Self {
         let languages = languages
             .iter()
@@ -50,6 +51,7 @@ impl Kernel {
         }
     }
 
+    // Does the kernel specification match against a name/language selector string?
     pub fn matches(&self, selector: &str) -> bool {
         selector == self.name.to_lowercase() || self.languages.contains(&selector.to_string())
     }
