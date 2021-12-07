@@ -17,7 +17,7 @@ pub fn new() -> MicroKernel {
 mod tests {
     use super::*;
     use kernel::{eyre::Result, stencila_schema::Node, KernelTrait};
-    use test_utils::{assert_json_eq, serde_json::json, print_logs};
+    use test_utils::{assert_json_eq, print_logs, serde_json::json};
 
     /// Tests of basic functionality
     /// This test is replicated in all the microkernels.
@@ -37,14 +37,6 @@ mod tests {
         let (outputs, messages) = kernel.exec("a=2\necho $a").await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [2]);
-
-        // Print the variable twice and then output it
-        // For bash, we need to separate outputs manually using the Unicode separator character
-        let (outputs, messages) = kernel
-            .exec("echo $a\u{10ABBA}\necho $a\u{10ABBA}\necho $a")
-            .await?;
-        assert_json_eq!(messages, json!([]));
-        assert_json_eq!(outputs, [2, 2, 2]);
 
         // Syntax error
         let (outputs, messages) = kernel.exec("if").await?;
