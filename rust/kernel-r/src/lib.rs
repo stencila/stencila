@@ -23,6 +23,7 @@ mod tests {
         stencila_schema::Node,
         KernelTrait,
     };
+    use serial_test::serial;
     use test_utils::{assert_json_eq, print_logs, serde_json::json};
 
     async fn skip_or_kernel() -> Result<MicroKernel> {
@@ -37,11 +38,17 @@ mod tests {
         Ok(kernel)
     }
 
+    // Run these tests serially to avoid parallel installation of dependencies
+    // which may interfere with each other.
+
     /// Tests of basic functionality
     /// This test is replicated in all the microkernels.
     /// Other test should be written for language specific quirks and regressions.
     #[tokio::test]
+    #[serial]
     async fn basics() -> Result<()> {
+        print_logs();
+
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
             Err(..) => return Ok(()),
@@ -87,6 +94,7 @@ mod tests {
 
     /// Test that an assignment on the last line does not generate an output
     #[tokio::test]
+    #[serial]
     async fn assignment_no_output() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
@@ -109,6 +117,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial]
     async fn encode_general() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
@@ -146,6 +155,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial]
     async fn encode_dataframes() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
@@ -249,13 +259,12 @@ mod tests {
     }
 
     #[tokio::test]
+    #[serial]
     async fn encode_plots() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
             Err(..) => return Ok(()),
         };
-
-        print_logs();
 
         for code in ["plot(1)", "hist(rnorm(1000), breaks=30)"] {
             let (outputs, messages) = kernel.exec(code).await?;

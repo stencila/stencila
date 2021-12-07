@@ -1,6 +1,6 @@
 # Install necessary packages (if not already)
 for (pkg in c("jsonlite", "base64enc")) {
-  if (!suppressMessages(require(pkg, character.only = TRUE, quietly=TRUE))) {
+  if (!suppressWarnings(require(pkg, character.only = TRUE, quietly=TRUE))) {
     suppressMessages(install.packages(pkg, quiet = TRUE, repo="http://cran.rstudio.com/"))
     suppressMessages(require(pkg, character.only = TRUE, quietly=TRUE))
   }
