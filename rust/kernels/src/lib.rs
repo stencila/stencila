@@ -127,6 +127,7 @@ impl MetaKernel {
         microkernel_new!("kernel-node", kernel_node, &selector);
         microkernel_new!("kernel-python", kernel_python, &selector);
         microkernel_new!("kernel-r", kernel_r, &selector);
+        microkernel_new!("kernel-zsh", kernel_zsh, &selector);
 
         bail!(
             "Unable to create an execution kernel for selector `{}`",
@@ -542,6 +543,7 @@ pub async fn available() -> Result<Vec<Kernel>> {
     microkernel_available!("kernel-node", kernel_node, available);
     microkernel_available!("kernel-python", kernel_python, available);
     microkernel_available!("kernel-r", kernel_r, available);
+    microkernel_available!("kernel-zsh", kernel_zsh, available);
 
     Ok(available)
 }

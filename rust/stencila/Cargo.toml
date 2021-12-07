@@ -75,6 +75,7 @@ default = [
   "kernels/kernel-python",
   "kernels/kernel-r",
   "kernels/kernel-store",
+  "kernels/kernel-zsh",
 
   # Binaries
   "binaries/cli",

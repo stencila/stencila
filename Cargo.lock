@@ -2623,6 +2623,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-zsh"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-micro",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "kernel32-sys"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2650,6 +2660,7 @@ dependencies = [
  "kernel-python",
  "kernel-r",
  "kernel-store",
+ "kernel-zsh",
  "once_cell",
  "parsers",
  "serde",
