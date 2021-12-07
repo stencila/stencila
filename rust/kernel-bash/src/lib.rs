@@ -1,9 +1,14 @@
 use kernel_micro::{include_file, MicroKernel};
 
+/// A microkernel for Bash
+///
+/// The `kernel-bash.sh` script relies on `/dev/stdin`, `/dev/stdout`,
+/// and `/dev/stderr` so this kernel is not available on Windows.
 pub fn new() -> MicroKernel {
     MicroKernel::new(
         "bash-micro",
         &["bash"],
+        &["linux", "macos"],
         ("bash", "*"),
         &["{{script}}"],
         include_file!("bash-kernel.sh"),

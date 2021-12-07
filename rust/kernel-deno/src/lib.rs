@@ -1,9 +1,11 @@
 use kernel_micro::{include_file, MicroKernel};
 
+/// A microkernel for Deno
 pub fn new() -> MicroKernel {
     MicroKernel::new(
         "deno-micro",
         &["javascript", "typescript"],
+        &["linux", "macos", "windows"],
         ("deno", ">=1.7"),
         &["run", "--quiet", "--unstable", "{{script}}"],
         include_file!("deno-kernel.ts"),

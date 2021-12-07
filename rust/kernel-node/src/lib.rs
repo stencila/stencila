@@ -1,9 +1,11 @@
 use kernel_micro::{include_file, MicroKernel};
 
+/// A microkernel for Node
 pub fn new() -> MicroKernel {
     MicroKernel::new(
         "node-micro",
         &["javascript"],
+        &["linux", "macos", "windows"],
         ("node", "*"),
         &["{{script}}"],
         include_file!("node-kernel.js"),

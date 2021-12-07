@@ -34,6 +34,11 @@ pub struct MicroKernel {
     /// Used to be able to return a `Kernel` spec.
     languages: Vec<String>,
 
+    /// Operating systems that the kernel will run on
+    ///
+    /// Possible OS names can be found here https://doc.rust-lang.org/std/env/consts/constant.OS.html
+    oses: Vec<String>,
+
     /// A specification of the runtime executable needed for the kernel
     runtime: (String, String),
 
@@ -85,6 +90,7 @@ impl MicroKernel {
     pub fn new(
         name: &str,
         languages: &[&str],
+        oses: &[&str],
         runtime: (&str, &str),
         args: &[&str],
         script: (&str, &str),
@@ -95,6 +101,7 @@ impl MicroKernel {
         Self {
             name: name.into(),
             languages: languages.iter().map(|lang| lang.to_string()).collect(),
+            oses: oses.iter().map(|os| os.to_string()).collect(),
             runtime: (runtime.0.into(), runtime.1.into()),
             args: args.iter().map(|arg| arg.to_string()).collect(),
             script: (script.0.to_string(), script.1.to_string()),
@@ -114,9 +121,12 @@ impl MicroKernel {
 
     /// Is the microkernel available on the current machine?
     ///
-    /// Returns `true` if a runtime matching the semver requirements
-    /// in `runtime` is found to be installed.
+    /// Returns `true` if the operating system is listed in `oses` and
+    /// a runtime matching the semver requirements in `runtime` is found to be installed.
     pub async fn available(&self) -> bool {
+        if !self.oses.contains(&std::env::consts::OS.to_string()) {
+            return false
+        }
         let (name, semver) = &self.runtime;
         binaries::installed(name, semver).await
     }

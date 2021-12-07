@@ -1,9 +1,11 @@
 use kernel_micro::{include_file, MicroKernel};
 
+/// A microkernel for Python
 pub fn new() -> MicroKernel {
     MicroKernel::new(
         "python-micro",
         &["python"],
+        &["linux", "macos", "windows"],
         ("python3", "*"),
         &["{{script}}"],
         include_file!("python_kernel.py"),

@@ -1,9 +1,11 @@
 use kernel_micro::{include_file, MicroKernel};
 
+/// A microkernel for R
 pub fn new() -> MicroKernel {
     MicroKernel::new(
         "r-micro",
         &["r"],
+        &["linux", "macos", "windows"],
         ("Rscript", "*"),
         &["{{script}}"],
         include_file!("r-kernel.r"),
