@@ -7,14 +7,14 @@ import { redo, undo } from 'prosemirror-history'
 import { Node } from 'prosemirror-model'
 import { Selection, TextSelection } from 'prosemirror-state'
 import { EditorView, NodeView } from 'prosemirror-view'
-import { articleSchema } from '../schema'
+import { articleSchema } from '../../schema'
 
 /**
- * Generate a `NodeView` to represent a Stencila `CodeBlock`
+ * Generate a `NodeView` to represent a Stencila `CodeChunk`
  *
  * Based on https://prosemirror.net/examples/codemirror/ and https://github.com/ProseMirror/prosemirror-schema-basic/blob/b5ae707ab1be98a1d8735dfdc7d1845bcd126f18/src/schema-basic.js#L59
  */
-export class CodeBlockView implements NodeView {
+export class CodeChunkView implements NodeView {
   cm: CMEditorView | null = null
   dom: HTMLStencilaEditorElement
   getPos: () => number
@@ -217,7 +217,7 @@ export class CodeBlockView implements NodeView {
         const changeTransaction = this.view.state.tr.replaceWith(
           start + change.from,
           start + change.to,
-          articleSchema.nodes.CodeBlock.schema.text(change.text)
+          articleSchema.nodes.CodeChunk.schema.text(change.text)
         )
 
         this.view.dispatch(changeTransaction)
