@@ -26,7 +26,7 @@ static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
         ($feat:literal, $bin:expr) => {
             #[cfg(feature = $feat)]
             {
-                map.insert($bin.spec().name, Box::new($bin));
+                map.insert($bin.spec().name.to_lowercase(), Box::new($bin));
             }
         };
     }
@@ -194,7 +194,9 @@ pub mod commands {
             // Try to get registered binary (because has potential aliases and extracting versions) but fall
             // back to unregistered for others
             let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
-            let binary = BINARIES.get(&self.name).unwrap_or(&unregistered);
+            let binary = BINARIES
+                .get(&self.name.to_lowercase())
+                .unwrap_or(&unregistered);
             if self.semver.is_some() {
                 if let Ok(installation) = binary.installed(self.semver.clone()) {
                     result::value(installation)
@@ -270,7 +272,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Install {
         async fn run(&self) -> Result {
-            match BINARIES.get(&self.name) {
+            match BINARIES.get(&self.name.to_lowercase()) {
                 Some(binary) => {
                     binary
                         .install(self.semver.clone(), self.os.clone(), self.arch.clone())
@@ -309,7 +311,9 @@ pub mod commands {
         async fn run(&self) -> Result {
             // Fallback to unregistered since that is sufficient for uninstall
             let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
-            let binary = BINARIES.get(&self.name).unwrap_or(&unregistered);
+            let binary = BINARIES
+                .get(&self.name.to_lowercase())
+                .unwrap_or(&unregistered);
             binary.uninstall(self.version.clone()).await?;
 
             tracing::info!("🗑️ Uninstalled {}", self.name);
@@ -341,7 +345,7 @@ pub mod commands {
     impl Run for Run_ {
         async fn run(&self) -> Result {
             let installation = require(
-                &self.name,
+                &self.name.to_lowercase(),
                 &self.semver.clone().unwrap_or_else(|| "*".to_string()),
             )
             .await?;

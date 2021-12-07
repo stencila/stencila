@@ -10,7 +10,7 @@ impl BinaryTrait for ChromiumBinary {
     fn spec(&self) -> Binary {
         Binary::new(
             "chromium",
-            &["Chromium"],
+            &[],
             &[
                 "/Applications/Chromium.app/Contents/MacOS",
                 "C:/Program Files/Chromium/Application",
