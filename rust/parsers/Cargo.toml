@@ -20,6 +20,7 @@ parser-calc = { path = "../parser-calc", version = "0.0.0" , optional = true}
 parser-js = { path = "../parser-js", version = "0.0.0" , optional = true}
 parser-py = { path = "../parser-py", version = "0.0.0" , optional = true}
 parser-r = { path = "../parser-r", version = "0.0.0" , optional = true}
+parser-rust = { path = "../parser-rust", version = "0.0.0" , optional = true}
 parser-ts = { path = "../parser-ts", version = "0.0.0" , optional = true}
 
 [dev-dependencies]

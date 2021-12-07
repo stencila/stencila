@@ -43,6 +43,8 @@ macro_rules! dispatch_builtins {
             "py" => Some(parser_py::PyParser::$method($($arg),*)),
             #[cfg(feature = "parser-r")]
             "r" => Some(parser_r::RParser::$method($($arg),*)),
+            #[cfg(feature = "parser-rust")]
+            "rust" => Some(parser_rust::RustParser::$method($($arg),*)),
             #[cfg(feature = "parser-ts")]
             "ts" => Some(parser_ts::TsParser::$method($($arg),*)),
             _ => None
@@ -64,6 +66,8 @@ impl Parsers {
             ("py", parser_py::PyParser::spec()),
             #[cfg(feature = "parser-r")]
             ("r", parser_r::RParser::spec()),
+            #[cfg(feature = "parser-rust")]
+            ("rust", parser_rust::RustParser::spec()),
             #[cfg(feature = "parser-ts")]
             ("ts", parser_ts::TsParser::spec()),
         ]

@@ -63,6 +63,7 @@ default = [
   "parsers/parser-js",
   "parsers/parser-py",
   "parsers/parser-r",
+  "parsers/parser-rust",
   "parsers/parser-ts",
 
   # Kernels

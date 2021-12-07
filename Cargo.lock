@@ -3523,6 +3523,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "parser-rust"
+version = "0.0.0"
+dependencies = [
+ "once_cell",
+ "parser-treesitter",
+ "test-snaps",
+ "test-utils",
+ "tree-sitter-rust",
+]
+
+[[package]]
 name = "parser-treesitter"
 version = "0.0.0"
 dependencies = [
@@ -3557,6 +3568,7 @@ dependencies = [
  "parser-js",
  "parser-py",
  "parser-r",
+ "parser-rust",
  "parser-ts",
  "structopt",
  "test-utils",
@@ -5474,6 +5486,16 @@ dependencies = [
 name = "tree-sitter-r"
 version = "0.19.4"
 source = "git+https://github.com/r-lib/tree-sitter-r?rev=016051ef9ec6f31a42043767316eaae98f8e8f2c#016051ef9ec6f31a42043767316eaae98f8e8f2c"
+dependencies = [
+ "cc",
+ "tree-sitter",
+]
+
+[[package]]
+name = "tree-sitter-rust"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3df540a493d754015d22eaf57c38f58804be3713a22f6062db983ec15f85c3c9"
 dependencies = [
  "cc",
  "tree-sitter",
