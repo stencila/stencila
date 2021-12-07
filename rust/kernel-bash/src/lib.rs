@@ -22,15 +22,13 @@ pub fn new() -> MicroKernel {
 mod tests {
     use super::*;
     use kernel::{eyre::Result, stencila_schema::Node, KernelTrait};
-    use test_utils::{assert_json_eq, print_logs, serde_json::json};
+    use test_utils::{assert_json_eq, serde_json::json};
 
     /// Tests of basic functionality
     /// This test is replicated in all the microkernels.
     /// Other test should be written for language specific quirks and regressions.
     #[tokio::test]
     async fn basics() -> Result<()> {
-        print_logs();
-
         let mut kernel = new();
         if !kernel.available().await {
             return Ok(());
@@ -45,17 +43,16 @@ mod tests {
 
         // Syntax error
         let (outputs, messages) = kernel.exec("if").await?;
-        messages[0]
+        assert!(messages[0]
             .error_message
-            .ends_with("syntax error: unexpected end of file\n");
-
+            .ends_with("syntax error: unexpected end of file\n"));
         assert_json_eq!(outputs, json!([]));
 
         // Runtime error
         let (outputs, messages) = kernel.exec("foo").await?;
-        messages[0]
+        assert!(messages[0]
             .error_message
-            .ends_with("foo: command not found\n");
+            .ends_with("foo: command not found\n"));
         assert_json_eq!(outputs, json!([]));
 
         // Set and get another variable
