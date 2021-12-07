@@ -22,29 +22,21 @@ use tokio::sync::RwLock;
 static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
     let mut map: BTreeMap<String, Box<dyn BinaryTrait>> = BTreeMap::new();
 
-    #[cfg(feature = "binary-chrome")]
-    {
-        let bin = binary_chrome::ChromeBinary {};
-        map.insert(bin.spec().name, Box::new(bin));
+    macro_rules! binary_new {
+        ($feat:literal, $bin:expr) => {
+            #[cfg(feature = $feat)]
+            {
+                map.insert($bin.spec().name, Box::new($bin));
+            }
+        };
     }
 
-    #[cfg(feature = "binary-node")]
-    {
-        let bin = binary_node::NodeBinary {};
-        map.insert(bin.spec().name, Box::new(bin));
-    }
-
-    #[cfg(feature = "binary-pandoc")]
-    {
-        let bin = binary_pandoc::PandocBinary {};
-        map.insert(bin.spec().name, Box::new(bin));
-    }
-
-    #[cfg(feature = "binary-python")]
-    {
-        let bin = binary_python::PythonBinary {};
-        map.insert(bin.spec().name, Box::new(bin));
-    }
+    binary_new!("binary-chrome", binary_chrome::ChromeBinary {});
+    binary_new!("binary-chromium", binary_chromium::ChromiumBinary {});
+    binary_new!("binary-node", binary_node::NodeBinary {});
+    binary_new!("binary-pandoc", binary_pandoc::PandocBinary {});
+    binary_new!("binary-python", binary_python::PythonBinary {});
+    binary_new!("binary-r", binary_r::RBinary {});
 
     map
 });
@@ -66,7 +58,7 @@ pub async fn installation(name: &str, semver: &str) -> Result<BinaryInstallation
         return Ok(installation.clone());
     }
 
-    let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::new(name, &[], &[]));
+    let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(name));
     let binary = BINARIES.get(name).unwrap_or(&unregistered);
 
     let semver = if semver == "*" {
@@ -201,7 +193,7 @@ pub mod commands {
         async fn run(&self) -> Result {
             // Try to get registered binary (because has potential aliases and extracting versions) but fall
             // back to unregistered for others
-            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::new(&self.name, &[], &[]));
+            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
             let binary = BINARIES.get(&self.name).unwrap_or(&unregistered);
             if self.semver.is_some() {
                 if let Ok(installation) = binary.installed(self.semver.clone()) {
@@ -316,7 +308,7 @@ pub mod commands {
     impl Run for Uninstall {
         async fn run(&self) -> Result {
             // Fallback to unregistered since that is sufficient for uninstall
-            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::new(&self.name, &[], &[]));
+            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
             let binary = BINARIES.get(&self.name).unwrap_or(&unregistered);
             binary.uninstall(self.version.clone()).await?;
 

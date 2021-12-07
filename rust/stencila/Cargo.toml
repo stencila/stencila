@@ -81,9 +81,11 @@ default = [
   # Binaries
   "binaries/cli",
   "binaries/binary-chrome",
+  "binaries/binary-chromium",
   "binaries/binary-node",
   "binaries/binary-pandoc",
   "binaries/binary-python",
+  "binaries/binary-r",
 
   "serve",
   "serve-stdio",

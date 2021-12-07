@@ -125,7 +125,7 @@ impl MicroKernel {
     /// a runtime matching the semver requirements in `runtime` is found to be installed.
     pub async fn available(&self) -> bool {
         if !self.oses.contains(&std::env::consts::OS.to_string()) {
-            return false
+            return false;
         }
         let (name, semver) = &self.runtime;
         binaries::installed(name, semver).await

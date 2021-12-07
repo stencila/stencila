@@ -18,7 +18,11 @@ pub fn new() -> MicroKernel {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernel::{eyre::{Result, bail}, stencila_schema::Node, KernelTrait};
+    use kernel::{
+        eyre::{bail, Result},
+        stencila_schema::Node,
+        KernelTrait,
+    };
     use test_utils::{assert_json_eq, serde_json::json, skip_ci_os};
 
     async fn skip_or_kernel() -> Result<MicroKernel> {

@@ -310,9 +310,11 @@ version = "0.0.0"
 dependencies = [
  "binary",
  "binary-chrome",
+ "binary-chromium",
  "binary-node",
  "binary-pandoc",
  "binary-python",
+ "binary-r",
  "cli-utils",
  "once_cell",
  "serde_json",
@@ -331,6 +333,7 @@ dependencies = [
  "dirs",
  "eyre",
  "flate2",
+ "glob",
  "regex",
  "reqwest",
  "semver 1.0.4",
@@ -352,6 +355,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "binary-chromium"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
 name = "binary-node"
 version = "0.0.0"
 dependencies = [
@@ -367,6 +377,13 @@ dependencies = [
 
 [[package]]
 name = "binary-python"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-r"
 version = "0.0.0"
 dependencies = [
  "binary",

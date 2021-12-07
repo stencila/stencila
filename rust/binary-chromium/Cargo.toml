@@ -1,6 +1,6 @@
 [package]
-name = "binary-chrome"
-description = "A binary specification for Chrome"
+name = "binary-chromium"
+description = "A binary specification for Chromium"
 version = "0.0.0"
 edition = "2021"
 

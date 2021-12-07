@@ -27,9 +27,11 @@ structopt = { version = "0.3.25", optional = true }
 tracing = { version = "0.1.29", optional = true }
 
 binary-chrome = { path = "../binary-chrome", version = "0.0.0", optional = true }
+binary-chromium = { path = "../binary-chromium", version = "0.0.0", optional = true }
 binary-node = { path = "../binary-node", version = "0.0.0", optional = true }
 binary-pandoc = { path = "../binary-pandoc", version = "0.0.0", optional = true }
 binary-python = { path = "../binary-python", version = "0.0.0", optional = true }
+binary-r = { path = "../binary-r", version = "0.0.0", optional = true }
 
 [dev-dependencies]
 test-utils = { path = "../test-utils", version = "0.0.0" }

@@ -13,6 +13,7 @@ impl BinaryTrait for PythonBinary {
         Binary::new(
             "python",
             &["python3"],
+            &["C:/Python3*"],
             // Release list at https://www.python.org/downloads/.
             // Current strategy is to support the latest patch version of each minor version.
             &[

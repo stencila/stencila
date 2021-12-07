@@ -28,3 +28,4 @@ tar = { version = "0.4.37", optional = true }
 xz2 = { version = "0.1.6", optional = true }
 zip = { version = "0.5.13", optional = true }
 dirs = "4.0.0"
+glob = "0.3.0"

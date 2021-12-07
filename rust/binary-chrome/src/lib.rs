@@ -11,7 +11,11 @@ impl BinaryTrait for ChromeBinary {
     fn spec(&self) -> Binary {
         Binary::new(
             "chrome",
-            &["chromium"],
+            &["Google Chrome"],
+            &[
+                "/Applications/Google Chrome.app/Contents/MacOS",
+                "C:/Program Files/Google/Chrome/Application",
+            ],
             // Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history.
             // Rather than support installing multiple versions, we normally only support the
             // most recent version in the stable channel.

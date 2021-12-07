@@ -44,6 +44,14 @@ pub struct Binary {
     /// Any aliases used to search for the binary
     pub aliases: Vec<String>,
 
+    /// Globs of paths that should be searched for the binary in addition
+    /// to those on `$PATH`.
+    ///
+    /// On Windows (and potentially on other OSes) the installation directory
+    /// may not necessarily be on the `$PATH`. This allows specifying additional
+    /// directories that should be searched.
+    pub globs: Vec<String>,
+
     /// The arguments used to get the version of the binary
     #[serde(skip)]
     #[def = r#"vec!["--version".to_string()]"#]
@@ -64,6 +72,7 @@ impl Clone for Binary {
         Binary {
             name: self.name.clone(),
             aliases: self.aliases.clone(),
+            globs: self.globs.clone(),
             installable: self.installable.clone(),
             ..Default::default()
         }
@@ -72,20 +81,29 @@ impl Clone for Binary {
 
 impl Binary {
     /// Define a binary
-    pub fn new(name: &str, aliases: &[&str], versions: &[&str]) -> Binary {
+    pub fn new(name: &str, aliases: &[&str], globs: &[&str], installable: &[&str]) -> Binary {
         Binary {
             name: name.to_string(),
             aliases: aliases
                 .iter()
                 .map(|s| String::from_str(s).unwrap())
                 .collect(),
-            installable: versions
+            globs: globs.iter().map(|s| String::from_str(s).unwrap()).collect(),
+            installable: installable
                 .iter()
                 .map(|s| String::from_str(s).unwrap())
                 .rev()
                 .collect(),
             ..Default::default()
         }
+    }
+
+    /// Define an "unregistered" binary
+    ///
+    /// Used when we only know the name of the binary that the user is searching for
+    /// and no nothing about aliases, path globs or how to install it.
+    pub fn unregistered(name: &str) -> Binary {
+        Binary::new(name, &[], &[], &[])
     }
 }
 
@@ -129,15 +147,17 @@ pub trait BinaryTrait: Send + Sync {
             .args(&version_args)
             .output();
         if let Ok(output) = output {
-            let stdout = std::str::from_utf8(&output.stdout).unwrap_or("");
-            if let Some(version) = version_regex.captures(stdout).map(|captures| {
-                let mut parts: Vec<&str> = captures[0].split('.').collect();
-                while parts.len() < 3 {
-                    parts.push("0")
+            for stream in [output.stdout, output.stderr] {
+                let test = std::str::from_utf8(&stream).unwrap_or("");
+                if let Some(version) = version_regex.captures(test).map(|captures| {
+                    let mut parts: Vec<&str> = captures[0].split('.').collect();
+                    while parts.len() < 3 {
+                        parts.push("0")
+                    }
+                    parts.join(".")
+                }) {
+                    return Some(version);
                 }
-                parts.join(".")
-            }) {
-                return Some(version);
             }
         }
         None
@@ -145,10 +165,16 @@ pub trait BinaryTrait: Send + Sync {
 
     /// Find installations of this binary
     fn installations(&self) -> Vec<BinaryInstallation> {
-        let Binary { name, aliases, .. } = self.spec();
+        let Binary {
+            name,
+            aliases,
+            globs,
+            ..
+        } = self.spec();
+
+        let mut dirs: Vec<PathBuf> = Vec::new();
 
         // Collect the directories for previously installed versions
-        let mut dirs: Vec<PathBuf> = Vec::new();
         if let Ok(dir) = self.dir(None, false) {
             if let Ok(entries) = fs::read_dir(dir) {
                 for entry in entries.flatten() {
@@ -162,16 +188,30 @@ pub trait BinaryTrait: Send + Sync {
                 }
             }
         }
-        tracing::debug!("Found existing dirs {:?}", dirs);
+        tracing::debug!("Found Stencila install dirs: {:?}", dirs);
+
+        // Collect the directories matching the globs
+        if !globs.is_empty() {
+            let mut globbed: Vec<PathBuf> = Vec::new();
+            for pattern in globs {
+                let mut found = match glob::glob(&pattern) {
+                    Ok(found) => found.flatten().collect::<Vec<PathBuf>>(),
+                    Err(..) => continue,
+                };
+                globbed.append(&mut found)
+            }
+            tracing::debug!("Found globbed dirs: {:?}", globbed);
+            dirs.append(&mut globbed)
+        }
 
         // Add the system PATH env var
         if let Some(path) = env::var_os("PATH") {
-            tracing::debug!("Found PATH {:?}", path);
+            tracing::debug!("Found $PATH: {:?}", path);
             let mut paths = env::split_paths(&path).collect();
             dirs.append(&mut paths);
         }
 
-        // Join together in a PATH style string
+        // Join all the dirs together in a PATH style string to pass to `which_in_all`
         let dirs = if !dirs.is_empty() {
             match env::join_paths(dirs) {
                 Ok(joined) => Some(joined),
@@ -185,8 +225,8 @@ pub trait BinaryTrait: Send + Sync {
         };
 
         // Search for executables with name or one of aliases
-        // tracing::debug!("Searching for executables in {:?}", dirs);
         let names = [vec![name.clone()], aliases].concat();
+        tracing::debug!("Searching for names: {:?}", names);
         let paths = names
             .iter()
             .map(|name| {
@@ -288,7 +328,13 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Install a specific version of the binary
-    async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()>;
+    async fn install_version(&self, _version: &str, _os: &str, _arch: &str) -> Result<()> {
+        let spec = self.spec();
+        bail!(
+            "Installation of binary `{}` has not been implemented",
+            spec.name
+        )
+    }
 
     /// Download a URL (usually an archive) to a temporary, but optionally cached, file
     #[cfg(feature = "reqwest")]
@@ -455,13 +501,6 @@ pub trait BinaryTrait: Send + Sync {
 impl BinaryTrait for Binary {
     fn spec(&self) -> Binary {
         self.clone()
-    }
-
-    async fn install_version(&self, _version: &str, _os: &str, _arch: &str) -> Result<()> {
-        bail!(
-            "Installation of binary `{}` has not been implemented",
-            self.name
-        )
     }
 }
 
