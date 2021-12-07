@@ -116,9 +116,11 @@ impl MetaKernel {
         macro_rules! microkernel_new {
             ($feat:literal, $crat:ident, $select:expr) => {
                 #[cfg(feature = $feat)]
-                let kernel = $crat::new();
-                if kernel.spec().matches($select) && kernel.available().await {
-                    return Ok(MetaKernel::Micro(kernel));
+                {
+                    let kernel = $crat::new();
+                    if kernel.spec().matches($select) && kernel.available().await {
+                        return Ok(MetaKernel::Micro(kernel));
+                    }
                 }
             };
         }
@@ -390,10 +392,10 @@ impl KernelSpace {
     ///
     /// Returns the kernel's id.
     async fn ensure(&mut self, selector: &str) -> Result<KernelId> {
-        // Is there already a running kernel capable of executing the language?
+        // Is there already a running kernel with a nam or language matching the selector?
         for (kernel_id, kernel) in self.kernels.iter_mut() {
             let spec = kernel.spec();
-            if !spec.languages.contains(&selector.to_string()) {
+            if !(spec.name == selector || spec.languages.contains(&selector.to_string())) {
                 // Not a match, so keep looking
                 continue;
             }
@@ -405,6 +407,7 @@ impl KernelSpace {
                     continue;
                 }
             };
+
             match status {
                 // For these, use the existing kernel
                 KernelStatus::Pending
@@ -532,9 +535,11 @@ pub async fn available() -> Result<Vec<Kernel>> {
     macro_rules! microkernel_available {
         ($feat:literal, $crat:ident, $list:expr) => {
             #[cfg(feature = $feat)]
-            let kernel = $crat::new();
-            if kernel.available().await {
-                $list.push(kernel.spec())
+            {
+                let kernel = $crat::new();
+                if kernel.available().await {
+                    $list.push(kernel.spec())
+                }
             }
         };
     }
