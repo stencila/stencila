@@ -1,6 +1,6 @@
 [package]
-name = "binary-r"
-description = "A binary specification for R"
+name = "binary-rscript"
+description = "A binary specification for Rscript"
 version = "0.0.0"
 edition = "2021"
 

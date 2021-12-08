@@ -1,14 +1,14 @@
 use binary::{async_trait::async_trait, Binary, BinaryTrait};
 
-pub struct RBinary {}
+pub struct RscriptBinary {}
 
 #[async_trait]
-impl BinaryTrait for RBinary {
+impl BinaryTrait for RscriptBinary {
     #[rustfmt::skip]
     fn spec(&self) -> Binary {
         Binary::new(
-            "R",
-            &["Rscript"],
+            "rscript",
+            &[],
             &["C:\\Program Files\\R\\R-*\\bin"],
             &[],
         )
