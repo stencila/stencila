@@ -39,7 +39,6 @@ mod tests {
             eprintln!("R not available on this machine");
             bail!("Skipping")
         } else {
-            QUEUE.lock().await;
             kernel.start().await?;
         }
 
@@ -53,7 +52,9 @@ mod tests {
     /// This test is replicated in all the microkernels.
     /// Other test should be written for language specific quirks and regressions.
     #[tokio::test]
-        async fn basics() -> Result<()> {
+    async fn basics() -> Result<()> {
+        let _guard = QUEUE.lock().await;
+
         print_logs();
 
         let mut kernel = match skip_or_kernel().await {
@@ -101,7 +102,9 @@ mod tests {
 
     /// Test that an assignment on the last line does not generate an output
     #[tokio::test]
-        async fn assignment_no_output() -> Result<()> {
+    async fn assignment_no_output() -> Result<()> {
+        let _guard = QUEUE.lock().await;
+
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
             Err(..) => return Ok(()),
@@ -123,7 +126,9 @@ mod tests {
     }
 
     #[tokio::test]
-        async fn encode_general() -> Result<()> {
+    async fn encode_general() -> Result<()> {
+        let _guard = QUEUE.lock().await;
+
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
             Err(..) => return Ok(()),
@@ -160,7 +165,9 @@ mod tests {
     }
 
     #[tokio::test]
-        async fn encode_dataframes() -> Result<()> {
+    async fn encode_dataframes() -> Result<()> {
+        let _guard = QUEUE.lock().await;
+
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
             Err(..) => return Ok(()),
@@ -263,7 +270,9 @@ mod tests {
     }
 
     #[tokio::test]
-        async fn encode_plots() -> Result<()> {
+    async fn encode_plots() -> Result<()> {
+        let _guard = QUEUE.lock().await;
+
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
             Err(..) => return Ok(()),
