@@ -8,16 +8,20 @@ requires <- function (pkgs) {
   }
   if (length(install) > 0) {
     # Ensure that the user has a place that they can install packages
-    # The first of `.libPaths` is expected to be the user's own library
-    libs <- Sys.getenv("R_LIBS_USER", .libPaths()[1])
-    dir.create(libs, recursive = TRUE, showWarnings = FALSE)
+    # Note that `R_LIBS_USER` is set to a default value at R startup (if not already set)
+    lib <- Sys.getenv("R_LIBS_USER")
+    dir.create(lib, recursive = TRUE, showWarnings = FALSE)
+    # Add the lib to lib paths for any other installs in this session
+    .libPaths(lib)
     for (pkg in install) {
       install.packages(pkg, quiet = TRUE, repo = "https://cloud.r-project.org/")
       require(pkg, character.only = TRUE, quietly = TRUE)
     }
   }
 }
-suppressMessages(requires(c("jsonlite", "base64enc")))
+# Both capture.output and suppressMessages are require here to keep this
+# truely quiet on all platforms
+capture.output(suppressMessages(requires(c("jsonlite", "base64enc"))))
 
 # Decode JSON to an R value
 decode_value <- function(json) {

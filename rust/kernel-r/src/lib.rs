@@ -112,11 +112,11 @@ mod tests {
 
         let (outputs, messages) = kernel.exec("a <- 1").await?;
         assert!(messages.is_empty());
-        assert!(outputs.is_empty());
+        assert_json_eq!(outputs, json!([]));
 
         let (outputs, messages) = kernel.exec("b = 2").await?;
         assert!(messages.is_empty());
-        assert!(outputs.is_empty());
+        assert_json_eq!(outputs, json!([]));
 
         let (outputs, messages) = kernel.exec("print(a)\nprint(b)\na_b <- a + b").await?;
         assert!(messages.is_empty());
