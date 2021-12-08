@@ -3,8 +3,12 @@ use binary::{
     eyre::{bail, Result},
     Binary, BinaryTrait,
 };
+use std::{fs::read_dir, path::Path};
 
 pub struct ChromeBinary {}
+
+// The directory where Chrome is usually installed on Windows
+const WINDOWS_INSTALL_DIR: &str = "C:/Program Files/Google/Chrome/Application";
 
 #[async_trait]
 impl BinaryTrait for ChromeBinary {
@@ -14,7 +18,7 @@ impl BinaryTrait for ChromeBinary {
             &["Google Chrome"],
             &[
                 "/Applications/Google Chrome.app/Contents/MacOS",
-                "C:/Program Files/Google/Chrome/Application",
+                WINDOWS_INSTALL_DIR,
             ],
             // Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history.
             // Rather than support installing multiple versions, we normally only support the
@@ -23,6 +27,29 @@ impl BinaryTrait for ChromeBinary {
             // `install_version` method.
             &["96.0.0"],
         )
+    }
+
+    /// Get the version of the Chrome binary
+    ///
+    /// This is necessary because on Windows a bug prevents the use of `--version`.
+    /// Here we search for the empty directory with the version as its name.
+    /// See https://stackoverflow.com/questions/50880917/how-to-get-chrome-version-using-command-prompt-in-windows
+    /// for more details and alternative approaches.
+    fn version(&self, path: &Path) -> Option<String> {
+        let spec = self.spec();
+        if cfg!(target_os = "windows") {
+            if let Ok(entries) = read_dir(WINDOWS_INSTALL_DIR) {
+                for entry in entries.flatten() {
+                    let name = entry.file_name().to_string_lossy().to_string();
+                    let parts: Vec<&str> = name.split('.').take(3).collect();
+                    if parts.len() == 3 {
+                        let version = parts.join(".");
+                        return Some(version);
+                    }
+                }
+            }
+        }
+        spec.version(path)
     }
 
     async fn install_version(&self, version: &str, os: &str, _arch: &str) -> Result<()> {
