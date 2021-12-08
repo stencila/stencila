@@ -41,6 +41,27 @@ static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
     map
 });
 
+/// Get a registered binary by matching by name and or aliases (case insensitively)
+#[allow(clippy::borrowed_box)]
+fn registered(name: &str) -> Option<&Box<dyn BinaryTrait>> {
+    let name = name.to_lowercase();
+
+    let binary = BINARIES.get(&name);
+    if binary.is_some() {
+        return binary;
+    }
+
+    for binary in BINARIES.values() {
+        for alias in binary.spec().aliases {
+            if alias.to_lowercase() == name {
+                return Some(binary);
+            }
+        }
+    }
+
+    None
+}
+
 /// A cache of installations used to memoize calls to `installation`.
 static INSTALLATIONS: Lazy<RwLock<HashMap<String, BinaryInstallation>>> =
     Lazy::new(|| RwLock::new(HashMap::new()));
@@ -59,7 +80,7 @@ pub async fn installation(name: &str, semver: &str) -> Result<BinaryInstallation
     }
 
     let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(name));
-    let binary = BINARIES.get(name).unwrap_or(&unregistered);
+    let binary = registered(name).unwrap_or(&unregistered);
 
     let semver = if semver == "*" {
         None
@@ -103,7 +124,7 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
             Some(semver.into())
         };
 
-        let binary = match BINARIES.get(name) {
+        let binary = match registered(name) {
             Some(binary) => binary,
             None => bail!("Unable to automatically install binary `{}`", name),
         };
@@ -194,9 +215,7 @@ pub mod commands {
             // Try to get registered binary (because has potential aliases and extracting versions) but fall
             // back to unregistered for others
             let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
-            let binary = BINARIES
-                .get(&self.name.to_lowercase())
-                .unwrap_or(&unregistered);
+            let binary = registered(&self.name).unwrap_or(&unregistered);
             if self.semver.is_some() {
                 if let Ok(installation) = binary.installed(self.semver.clone()) {
                     result::value(installation)
@@ -272,7 +291,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Install {
         async fn run(&self) -> Result {
-            match BINARIES.get(&self.name.to_lowercase()) {
+            match registered(&self.name) {
                 Some(binary) => {
                     binary
                         .install(self.semver.clone(), self.os.clone(), self.arch.clone())
@@ -311,9 +330,7 @@ pub mod commands {
         async fn run(&self) -> Result {
             // Fallback to unregistered since that is sufficient for uninstall
             let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
-            let binary = BINARIES
-                .get(&self.name.to_lowercase())
-                .unwrap_or(&unregistered);
+            let binary = registered(&self.name).unwrap_or(&unregistered);
             binary.uninstall(self.version.clone()).await?;
 
             tracing::info!("🗑️ Uninstalled {}", self.name);
@@ -345,7 +362,7 @@ pub mod commands {
     impl Run for Run_ {
         async fn run(&self) -> Result {
             let installation = require(
-                &self.name.to_lowercase(),
+                &self.name,
                 &self.semver.clone().unwrap_or_else(|| "*".to_string()),
             )
             .await?;
