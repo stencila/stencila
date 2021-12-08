@@ -5,6 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+binaries = { path = "../binaries", version = "0.0.0", features = ["binary-rscript"] }
 kernel = { path = "../kernel", version = "0.0.0" }
 kernel-micro = { path = "../kernel-micro", version = "0.0.0" }
 

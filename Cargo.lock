@@ -2605,6 +2605,7 @@ dependencies = [
 name = "kernel-node"
 version = "0.0.0"
 dependencies = [
+ "binaries",
  "kernel",
  "kernel-micro",
  "test-utils",
@@ -2615,6 +2616,7 @@ dependencies = [
 name = "kernel-python"
 version = "0.0.0"
 dependencies = [
+ "binaries",
  "kernel",
  "kernel-micro",
  "test-utils",
@@ -2625,6 +2627,7 @@ dependencies = [
 name = "kernel-r"
 version = "0.0.0"
 dependencies = [
+ "binaries",
  "kernel",
  "kernel-micro",
  "serial_test",
