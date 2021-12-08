@@ -22,6 +22,12 @@ const RES_SEP: char = '\u{10ABBA}';
 /// Microkernel "transactions".
 const TRANS_SEP: char = '\u{10ACDC}';
 
+// On Windows, Rscript (and possibly other binaries) escapes unicode on stdout and stderr
+// to "<U+0010ABBA>" for `RES_SEP`. So these alternative delimiters are provided for these
+// instances (or where it is not possible to output Unicode at all).
+const RES_SEP_ALT: &str = "<U+0010ABBA>";
+const TRANS_SEP_ALT: &str = "<U+0010CDC>";
+
 #[derive(Debug, Serialize)]
 pub struct MicroKernel {
     /// The name of the kernel
@@ -315,21 +321,8 @@ impl KernelTrait for MicroKernel {
             };
 
             tracing::debug!("Received on stdout: {}", line);
-            if let Some(line) = line.strip_suffix(RES_SEP) {
-                output.push_str(line);
-                if !output.is_empty() {
-                    outputs.push(output.clone());
-                    output.clear();
-                }
-            } else if let Some(line) = line.strip_suffix(TRANS_SEP) {
-                output.push_str(line);
-                if !output.is_empty() {
-                    outputs.push(output.clone());
-                }
+            if !push_line(&line, &mut output, &mut outputs) {
                 break;
-            } else {
-                output.push_str(&line);
-                output.push('\n');
             }
         }
 
@@ -355,21 +348,8 @@ impl KernelTrait for MicroKernel {
             };
 
             tracing::debug!("Received on stderr: {}", line);
-            if let Some(line) = line.strip_suffix(RES_SEP) {
-                message.push_str(line);
-                if !message.is_empty() {
-                    messages.push(message.clone());
-                    message.clear();
-                }
-            } else if let Some(line) = line.strip_suffix(TRANS_SEP) {
-                message.push_str(line);
-                if !message.is_empty() {
-                    messages.push(message.clone());
-                }
+            if !push_line(&line, &mut message, &mut messages) {
                 break;
-            } else {
-                message.push_str(&line);
-                message.push('\n');
             }
         }
 
@@ -385,5 +365,36 @@ impl KernelTrait for MicroKernel {
             .collect();
 
         Ok((outputs, messages))
+    }
+}
+
+/// Handle a line of stdout or stderr
+///
+/// How the line is handled depends upon whether it has a result or transaction
+/// separator at the end. Returns false at the end of a transaction.
+fn push_line(line: &str, current: &mut String, vec: &mut Vec<String>) -> bool {
+    if let Some(line) = line
+        .strip_suffix(RES_SEP)
+        .or_else(|| line.strip_suffix(RES_SEP_ALT))
+    {
+        current.push_str(line);
+        if !current.is_empty() {
+            vec.push(current.clone());
+            current.clear();
+        }
+        true
+    } else if let Some(line) = line
+        .strip_suffix(TRANS_SEP)
+        .or_else(|| line.strip_suffix(TRANS_SEP_ALT))
+    {
+        current.push_str(line);
+        if !current.is_empty() {
+            vec.push(current.clone());
+        }
+        false
+    } else {
+        current.push_str(line);
+        current.push('\n');
+        true
     }
 }
