@@ -1,7 +1,4 @@
-use binary::{
-    async_trait::async_trait,
-    Binary, BinaryTrait,
-};
+use binary::{async_trait::async_trait, Binary, BinaryTrait};
 
 pub struct ChromiumBinary {}
 
@@ -13,7 +10,7 @@ impl BinaryTrait for ChromiumBinary {
             &[],
             &[
                 "/Applications/Chromium.app/Contents/MacOS",
-                "C:/Program Files/Chromium/Application",
+                "C:\\Program Files\\Chromium\\Application",
             ],
             &[],
         )

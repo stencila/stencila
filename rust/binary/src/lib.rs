@@ -171,7 +171,7 @@ impl Binary {
         if !self.globs.is_empty() {
             let mut globbed: Vec<PathBuf> = Vec::new();
             for pattern in &self.globs {
-                let mut found = match glob::glob(&pattern) {
+                let mut found = match glob::glob(pattern) {
                     Ok(found) => found.flatten().collect::<Vec<PathBuf>>(),
                     Err(..) => continue,
                 };
@@ -220,7 +220,9 @@ impl Binary {
         // Get version of each executable found
         // tracing::debug!("Getting versions for paths {:?}", paths);
         let mut installs: Vec<BinaryInstallation> = paths
-            .map(|path| BinaryInstallation::new(self.name.clone(), path.clone(), self.version(&path)))
+            .map(|path| {
+                BinaryInstallation::new(self.name.clone(), path.clone(), self.version(&path))
+            })
             .collect();
 
         // Sort the installations by descending order of version so that

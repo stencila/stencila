@@ -13,7 +13,7 @@ impl BinaryTrait for NodeBinary {
         Binary::new(
             "node",
             &[],
-            &["C:/Program Files/nodejs"],
+            &["C:\\Program Files\\nodejs"],
             // Release list at https://nodejs.org/en/download/releases/
             // Current strategy is to support the latest patch version of each minor version.
             // Support for older minor versions may be progressively  dropped if there are no

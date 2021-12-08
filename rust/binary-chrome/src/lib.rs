@@ -8,7 +8,7 @@ use std::{fs::read_dir, path::Path};
 pub struct ChromeBinary {}
 
 // The directory where Chrome is usually installed on Windows
-const WINDOWS_INSTALL_DIR: &str = "C:/Program Files/Google/Chrome/Application";
+const WINDOWS_INSTALL_DIR: &str = "C:\\Program Files\\Google\\Chrome\\Application";
 
 #[async_trait]
 impl BinaryTrait for ChromeBinary {

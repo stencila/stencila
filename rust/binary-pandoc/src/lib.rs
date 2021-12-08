@@ -13,7 +13,7 @@ impl BinaryTrait for PandocBinary {
         Binary::new(
             "pandoc",
             &[],
-            &["C:/Users/*/AppData/Local/Pandoc"],
+            &["C:\\Users\\*\\AppData\\Local\\Pandoc"],
             // Release list at https://github.com/jgm/pandoc/releases.
             // Current strategy is to support the latest patch version of each minor version.
             //

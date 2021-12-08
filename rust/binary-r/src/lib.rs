@@ -9,7 +9,7 @@ impl BinaryTrait for RBinary {
         Binary::new(
             "R",
             &["Rscript"],
-            &["C:/Program Files/R/R-*/bin"],
+            &["C:\\Program Files\\R\\R-*\\bin"],
             &[],
         )
     }
