@@ -23,8 +23,15 @@ mod tests {
         stencila_schema::Node,
         KernelTrait,
     };
-    use serial_test::serial;
+    use once_cell::sync::Lazy;
     use test_utils::{assert_json_eq, print_logs, serde_json::json};
+    use tokio::sync::Mutex;
+
+    // Make sure that only one test runs at any one time
+    // This is to avoid `install.packages` being run in parallel.
+    // Previous the `serial_test` crate was used for this but did not
+    // seem to provide necessary guarantee.
+    static QUEUE: Lazy<Mutex<()>> = Lazy::new(Mutex::default);
 
     async fn skip_or_kernel() -> Result<MicroKernel> {
         let mut kernel = new();
@@ -32,6 +39,7 @@ mod tests {
             eprintln!("R not available on this machine");
             bail!("Skipping")
         } else {
+            QUEUE.lock().await;
             kernel.start().await?;
         }
 
@@ -45,8 +53,7 @@ mod tests {
     /// This test is replicated in all the microkernels.
     /// Other test should be written for language specific quirks and regressions.
     #[tokio::test]
-    #[serial]
-    async fn basics() -> Result<()> {
+        async fn basics() -> Result<()> {
         print_logs();
 
         let mut kernel = match skip_or_kernel().await {
@@ -94,8 +101,7 @@ mod tests {
 
     /// Test that an assignment on the last line does not generate an output
     #[tokio::test]
-    #[serial]
-    async fn assignment_no_output() -> Result<()> {
+        async fn assignment_no_output() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
             Err(..) => return Ok(()),
@@ -117,8 +123,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[serial]
-    async fn encode_general() -> Result<()> {
+        async fn encode_general() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
             Err(..) => return Ok(()),
@@ -155,8 +160,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[serial]
-    async fn encode_dataframes() -> Result<()> {
+        async fn encode_dataframes() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
             Err(..) => return Ok(()),
@@ -259,8 +263,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[serial]
-    async fn encode_plots() -> Result<()> {
+        async fn encode_plots() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
             Err(..) => return Ok(()),

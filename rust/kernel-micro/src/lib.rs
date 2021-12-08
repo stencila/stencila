@@ -26,7 +26,7 @@ const TRANS_SEP: char = '\u{10ACDC}';
 // to "<U+0010ABBA>" for `RES_SEP`. So these alternative delimiters are provided for these
 // instances (or where it is not possible to output Unicode at all).
 const RES_SEP_ALT: &str = "<U+0010ABBA>";
-const TRANS_SEP_ALT: &str = "<U+0010CDC>";
+const TRANS_SEP_ALT: &str = "<U+0010ACDC>";
 
 #[derive(Debug, Serialize)]
 pub struct MicroKernel {
