@@ -7,7 +7,7 @@ impl BinaryTrait for RscriptBinary {
     #[rustfmt::skip]
     fn spec(&self) -> Binary {
         Binary::new(
-            "rscript",
+            "Rscript",
             &[],
             &["C:\\Program Files\\R\\R-*\\bin"],
             &[],
