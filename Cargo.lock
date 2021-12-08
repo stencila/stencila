@@ -314,7 +314,7 @@ dependencies = [
  "binary-node",
  "binary-pandoc",
  "binary-python",
- "binary-r",
+ "binary-rscript",
  "cli-utils",
  "once_cell",
  "serde_json",
@@ -383,7 +383,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "binary-r"
+name = "binary-rscript"
 version = "0.0.0"
 dependencies = [
  "binary",

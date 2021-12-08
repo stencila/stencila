@@ -85,7 +85,7 @@ default = [
   "binaries/binary-node",
   "binaries/binary-pandoc",
   "binaries/binary-python",
-  "binaries/binary-r",
+  "binaries/binary-rscript",
 
   "serve",
   "serve-stdio",
