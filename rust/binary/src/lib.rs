@@ -55,13 +55,13 @@ pub struct Binary {
     /// The arguments used to get the version of the binary
     #[serde(skip)]
     #[def = r#"vec!["--version".to_string()]"#]
-    version_args: Vec<String>,
+    pub version_args: Vec<String>,
 
     /// The regex used to get the version from the output of
     /// the binary.
     #[serde(skip)]
     #[def = r#"Regex::new("\\d+.\\d+(.\\d+)?").unwrap()"#]
-    version_regex: Regex,
+    pub version_regex: Regex,
 
     /// Versions of the binary that can be installed by Stencila
     pub installable: Vec<String>,
@@ -105,21 +105,10 @@ impl Binary {
     pub fn unregistered(name: &str) -> Binary {
         Binary::new(name, &[], &[], &[])
     }
-}
-
-/// A trait for binaries
-///
-/// Allows specific binaries to override search, versioning and installation
-/// methods. Usually only `install_version` should need to be overridden.
-#[async_trait]
-pub trait BinaryTrait: Send + Sync {
-    /// Get the specification of the binary
-    fn spec(&self) -> Binary;
 
     /// Get the directory where versions of a binary are installed
     fn dir(&self, version: Option<String>, ensure: bool) -> Result<PathBuf> {
-        let Binary { name, .. } = self.spec();
-        let dir = binaries_dir().join(&name);
+        let dir = binaries_dir().join(&self.name);
         let dir = if let Some(version) = version {
             dir.join(version)
         } else {
@@ -138,18 +127,13 @@ pub trait BinaryTrait: Send + Sync {
     /// Parses the output of the command and adds a `0` patch semver part if
     /// necessary.
     fn version(&self, path: &Path) -> Option<String> {
-        let Binary {
-            version_args,
-            version_regex,
-            ..
-        } = self.spec();
         let output = std::process::Command::new(path)
-            .args(&version_args)
+            .args(&self.version_args)
             .output();
         if let Ok(output) = output {
             for stream in [output.stdout, output.stderr] {
                 let test = std::str::from_utf8(&stream).unwrap_or("");
-                if let Some(version) = version_regex.captures(test).map(|captures| {
+                if let Some(version) = self.version_regex.captures(test).map(|captures| {
                     let mut parts: Vec<&str> = captures[0].split('.').collect();
                     while parts.len() < 3 {
                         parts.push("0")
@@ -165,13 +149,6 @@ pub trait BinaryTrait: Send + Sync {
 
     /// Find installations of this binary
     fn installations(&self) -> Vec<BinaryInstallation> {
-        let Binary {
-            name,
-            aliases,
-            globs,
-            ..
-        } = self.spec();
-
         let mut dirs: Vec<PathBuf> = Vec::new();
 
         // Collect the directories for previously installed versions
@@ -191,9 +168,9 @@ pub trait BinaryTrait: Send + Sync {
         tracing::debug!("Found Stencila install dirs: {:?}", dirs);
 
         // Collect the directories matching the globs
-        if !globs.is_empty() {
+        if !self.globs.is_empty() {
             let mut globbed: Vec<PathBuf> = Vec::new();
-            for pattern in globs {
+            for pattern in &self.globs {
                 let mut found = match glob::glob(&pattern) {
                     Ok(found) => found.flatten().collect::<Vec<PathBuf>>(),
                     Err(..) => continue,
@@ -225,7 +202,7 @@ pub trait BinaryTrait: Send + Sync {
         };
 
         // Search for executables with name or one of aliases
-        let names = [vec![name.clone()], aliases].concat();
+        let names = [vec![self.name.clone()], self.aliases.clone()].concat();
         tracing::debug!("Searching for names: {:?}", names);
         let paths = names
             .iter()
@@ -243,7 +220,7 @@ pub trait BinaryTrait: Send + Sync {
         // Get version of each executable found
         // tracing::debug!("Getting versions for paths {:?}", paths);
         let mut installs: Vec<BinaryInstallation> = paths
-            .map(|path| BinaryInstallation::new(name.clone(), path.clone(), self.version(&path)))
+            .map(|path| BinaryInstallation::new(self.name.clone(), path.clone(), self.version(&path)))
             .collect();
 
         // Sort the installations by descending order of version so that
@@ -282,6 +259,36 @@ pub trait BinaryTrait: Send + Sync {
         } else {
             Ok(None)
         }
+    }
+}
+
+/// A trait for binaries
+///
+/// Allows specific binaries to override search, versioning and installation
+/// methods. Usually only `install_version` should need to be overridden.
+#[async_trait]
+pub trait BinaryTrait: Send + Sync {
+    /// Get the specification of the binary
+    fn spec(&self) -> Binary;
+
+    /// Get the directory where versions of a binary are installed
+    fn dir(&self, version: Option<String>, ensure: bool) -> Result<PathBuf> {
+        self.spec().dir(version, ensure)
+    }
+
+    /// Get the version of the binary at a path
+    fn version(&self, path: &Path) -> Option<String> {
+        self.spec().version(path)
+    }
+
+    /// Find installations of this binary
+    fn installations(&self) -> Vec<BinaryInstallation> {
+        self.spec().installations()
+    }
+
+    /// Are any versions installed that match the semver requirement (if specified)?
+    fn installed(&self, semver: Option<String>) -> Result<Option<BinaryInstallation>> {
+        self.spec().installed(semver)
     }
 
     /// Install the most recent version of the binary (meeting optional semver, OS, and arch requirements).
