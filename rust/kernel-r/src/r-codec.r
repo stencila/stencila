@@ -1,10 +1,23 @@
-# Install necessary packages (if not already)
-for (pkg in c("jsonlite", "base64enc")) {
-  if (!suppressWarnings(require(pkg, character.only = TRUE, quietly=TRUE))) {
-    suppressMessages(install.packages(pkg, quiet = TRUE, repo="http://cran.rstudio.com/"))
-    suppressMessages(require(pkg, character.only = TRUE, quietly=TRUE))
+# Ensure that required packages are installed
+requires <- function (pkgs) {
+  install <- NULL
+  for (pkg in pkgs) {
+    if (!suppressWarnings(require(pkg, character.only = TRUE, quietly=TRUE))) {
+      install <- c(install, pkg)
+    }
+  }
+  if (length(install) > 0) {
+    # Ensure that the user has a place that they can install packages
+    # The first of `.libPaths` is expected to be the user's own library
+    libs <- Sys.getenv("R_LIBS_USER", .libPaths()[1])
+    dir.create(libs, recursive = TRUE, showWarnings = FALSE)
+    for (pkg in install) {
+      install.packages(pkg, quiet = TRUE, repo = "https://cloud.r-project.org/")
+      require(pkg, character.only = TRUE, quietly = TRUE)
+    }
   }
 }
+suppressMessages(requires(c("jsonlite", "base64enc")))
 
 # Decode JSON to an R value
 decode_value <- function(json) {

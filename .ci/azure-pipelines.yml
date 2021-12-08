@@ -96,13 +96,6 @@ jobs:
           versionSpec: '16.x'
         displayName: 'Install: Node.js version'
 
-      # Let R know where it can install packages
-      - script: |
-          set -e
-          mkdir -p rlibs
-          echo "##vso[task.setvariable variable=R_LIBS_USER]$(pwd)/rlibs"
-        displayName: 'Install: User R libs dir'
-
       # Install Jupyter kernels
       - script: |
           set -e
