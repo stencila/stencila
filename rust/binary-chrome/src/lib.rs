@@ -7,9 +7,6 @@ use std::{fs::read_dir, path::Path};
 
 pub struct ChromeBinary {}
 
-// The directory where Chrome is usually installed on Windows
-const WINDOWS_INSTALL_DIR: &str = "C:\\Program Files\\Google\\Chrome\\Application";
-
 #[async_trait]
 impl BinaryTrait for ChromeBinary {
     fn spec(&self) -> Binary {
@@ -18,7 +15,7 @@ impl BinaryTrait for ChromeBinary {
             &["Google Chrome"],
             &[
                 "/Applications/Google Chrome.app/Contents/MacOS",
-                WINDOWS_INSTALL_DIR,
+                "C:\\Program Files\\Google\\Chrome\\Application",
             ],
             // Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history.
             // Rather than support installing multiple versions, we normally only support the
@@ -38,7 +35,8 @@ impl BinaryTrait for ChromeBinary {
     fn version(&self, path: &Path) -> Option<String> {
         let spec = self.spec();
         if cfg!(target_os = "windows") {
-            if let Ok(entries) = read_dir(WINDOWS_INSTALL_DIR) {
+            let dir = path.parent().unwrap_or(path);
+            if let Ok(entries) = read_dir(dir) {
                 for entry in entries.flatten() {
                     let name = entry.file_name().to_string_lossy().to_string();
                     let parts: Vec<&str> = name.split('.').take(3).collect();
