@@ -386,8 +386,9 @@ impl Run for WithCommand {
 #[tokio::main]
 pub async fn main() -> eyre::Result<()> {
     #[cfg(all(windows, feature = "ansi_term"))]
-    #[allow(unused_must_use)]
-    ansi_term::enable_ansi_support();
+    #[allow(unused_must_use)] {
+        ansi_term::enable_ansi_support();
+    }
 
     let args: Vec<String> = std::env::args().collect();
 
