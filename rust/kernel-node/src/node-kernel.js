@@ -5,35 +5,36 @@ const vm = require('vm')
 
 const { decodeValue, encodeValue, encodeError } = require('./node-codec')
 
-const resSep = '\u{10ABBA}\n'
-const transSep = '\u{10ACDC}\n'
+const READY = '\u{10ACDC}\n'
+const RESULT = '\u{10D00B}\n'
+const TRANS = '\u{10ABBA}\n'
 
 const { stdin, stdout, stderr } = process
 
 console.log = function (...args) {
   for (const arg of args) {
-    stdout.write(encodeValue(arg) + resSep)
+    stdout.write(encodeValue(arg) + RESULT)
   }
 }
 
 console.debug = (message) =>
   stderr.write(
-    `{"type":"CodeError","errorType":"CodeDebug","errorMessage":"${message}"}${resSep}`
+    `{"type":"CodeError","errorType":"CodeDebug","errorMessage":"${message}"}${RESULT}`
   )
 
 console.info = (message) =>
   stderr.write(
-    `{"type":"CodeError","errorType":"CodeInfo","errorMessage":"${message}"}${resSep}`
+    `{"type":"CodeError","errorType":"CodeInfo","errorMessage":"${message}"}${RESULT}`
   )
 
 console.warn = (message) =>
   stderr.write(
-    `{"type":"CodeError","errorType":"CodeWarn","errorMessage":"${message}"}${resSep}`
+    `{"type":"CodeError","errorType":"CodeWarn","errorMessage":"${message}"}${RESULT}`
   )
 
 console.error = (message) =>
   stderr.write(
-    `{"type":"CodeError","errorType":"CodeError","errorMessage":"${message}"}${resSep}`
+    `{"type":"CodeError","errorType":"CodeError","errorMessage":"${message}"}${RESULT}`
   )
 
 const rl = readline.createInterface({
@@ -50,18 +51,21 @@ const context = {
 }
 vm.createContext(context)
 
+stdout.write(READY)
+stderr.write(READY)
+
 rl.on('line', (code) => {
   const unescaped = code.replace(/\\n/g, '\n')
   try {
     const output = vm.runInContext(unescaped, context)
     if (output !== undefined) {
       const json = encodeValue(output)
-      stdout.write(json + resSep)
+      stdout.write(json + RESULT)
     }
   } catch (error) {
     const json = encodeError(error)
-    stderr.write(json + resSep)
+    stderr.write(json + RESULT)
   }
-  stdout.write(transSep)
-  stderr.write(transSep)
+  stdout.write(TRANS)
+  stderr.write(TRANS)
 })

@@ -3,16 +3,21 @@
 import { readLines } from 'https://deno.land/std@0.116.0/io/mod.ts'
 import { encodeValue, encodeError } from './deno-codec.ts'
 
-const resSep = '\u{10ABBA}\n'
-const transSep = '\u{10ACDC}\n'
+const READY = '\u{10ACDC}\n'
+const RESULT = '\u{10D00B}\n'
+const TRANS = '\u{10ABBA}\n'
+
 const textEncoder = new TextEncoder()
 
 console.log = function (...args) {
   for (const arg of args) {
     const json = encodeValue(arg)
-    Deno.stdout.write(textEncoder.encode(json + resSep))
+    Deno.stdout.write(textEncoder.encode(json + RESULT))
   }
 }
+
+Deno.stdout.write(textEncoder.encode(READY))
+Deno.stderr.write(textEncoder.encode(READY))
 
 for await (let code of readLines(Deno.stdin)) {
   const unescaped = code.replace(/\\n/g, '\n')
@@ -32,12 +37,12 @@ for await (let code of readLines(Deno.stdin)) {
   const [value, error] = Deno.core.evalContext(transpiled)
   if (value !== null && value !== undefined) {
     const json = encodeValue(value)
-    Deno.stdout.write(textEncoder.encode(json + resSep))
+    Deno.stdout.write(textEncoder.encode(json + RESULT))
   }
   if (error !== null) {
     const json = encodeError(error.thrown)
-    Deno.stderr.write(textEncoder.encode(json + resSep))
+    Deno.stderr.write(textEncoder.encode(json + RESULT))
   }
-  Deno.stdout.write(textEncoder.encode(transSep))
-  Deno.stderr.write(textEncoder.encode(transSep))
+  Deno.stdout.write(textEncoder.encode(TRANS))
+  Deno.stderr.write(textEncoder.encode(TRANS))
 }

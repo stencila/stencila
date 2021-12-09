@@ -7,26 +7,25 @@ use kernel::{
 use serde::Serialize;
 use std::{env, fs};
 use tokio::{
-    io::{BufReader, BufWriter},
+    io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
     process::{Child, ChildStderr, ChildStdin, ChildStdout},
 };
 
-// Re-exports for the convenience of crates that implement `MicroKernelTrait`
-pub use kernel;
-
-/// The Unicode code point used as the separator between results
-/// (both "outputs" on `stderr` and "messages" on `stderr`)
-const RES_SEP: char = '\u{10ABBA}';
-
-/// The Unicode code point used as the separator between individual
-/// Microkernel "transactions".
-const TRANS_SEP: char = '\u{10ACDC}';
-
+// Line end flags for the Microkernel protocol
 // On Windows, Rscript (and possibly other binaries) escapes unicode on stdout and stderr
-// to "<U+0010ABBA>" for `RES_SEP`. So these alternative delimiters are provided for these
-// instances (or where it is not possible to output Unicode at all).
-const RES_SEP_ALT: &str = "<U+0010ABBA>";
-const TRANS_SEP_ALT: &str = "<U+0010ACDC>";
+// So the _ALT flags are provided for these instances (or where it is not possible to output Unicode at all).
+
+/// The end of a startup and kernel is ready to process transactions.
+const READY: char = '\u{10ACDC}';
+const READY_ALT: &str = "<U+0010ACDC>";
+
+/// The end of a result ("outputs" on `stderr` and "messages" on `stderr`).
+const RESULT: char = '\u{10D00B}';
+const RESULT_ALT: &str = "<U+0010D00B>";
+
+/// The end of a transaction, kernel is ready for next transaction.
+const TRANS: char = '\u{10ABBA}';
+const TRANS_ALT: &str = "<U+0010ABBA>";
 
 #[derive(Debug, Serialize)]
 pub struct MicroKernel {
@@ -199,10 +198,12 @@ impl KernelTrait for MicroKernel {
             .stdin
             .take()
             .ok_or_else(|| eyre!("Child has no stdin handle"))?;
+
         let stdout = child
             .stdout
             .take()
             .ok_or_else(|| eyre!("Child has no stdout handle"))?;
+
         let stderr = child
             .stderr
             .take()
@@ -212,6 +213,52 @@ impl KernelTrait for MicroKernel {
         self.stdin = Some(BufWriter::new(stdin));
         self.stdout = Some(BufReader::new(stdout));
         self.stderr = Some(BufReader::new(stderr));
+        self.status = KernelStatus::Starting;
+
+        // Capture stdout until the READY flag
+        let stdout = self.stdout.as_mut().unwrap();
+        loop {
+            match stdout.lines().next_line().await {
+                Ok(Some(line)) => {
+                    tracing::debug!("Received on stdout: {}", line);
+                    if line.ends_with(READY) || line.ends_with(READY_ALT) {
+                        break;
+                    }
+                }
+                Ok(None) => bail!("Unexpected end of stdout"),
+                Err(error) => bail!("When receiving stdout from kernel: {}", error),
+            };
+        }
+
+        // Capture stderr until the READY flag and warn if any content
+        let stderr = self.stderr.as_mut().unwrap();
+        let mut err = String::new();
+        loop {
+            match stderr.lines().next_line().await {
+                Ok(Some(line)) => {
+                    tracing::debug!("Received on stderr: {}", line);
+                    if let Some(line) = line
+                        .strip_suffix(READY)
+                        .or_else(|| line.strip_suffix(READY_ALT))
+                    {
+                        err.push_str(line);
+                        err.push('\n');
+                        break;
+                    }
+                }
+                Ok(None) => bail!("Unexpected end of stderr"),
+                Err(error) => bail!("When receiving stderr from kernel: {}", error),
+            };
+        }
+        let err = err.trim();
+        if !err.is_empty() {
+            tracing::warn!(
+                "While starting kernel `{}` got output on stderr: {}",
+                self.name,
+                err
+            )
+        }
+
         self.status = KernelStatus::Idle;
 
         Ok(())
@@ -279,9 +326,6 @@ impl KernelTrait for MicroKernel {
 
     /// Execute some code in the kernel
     async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
-        use tokio::io::AsyncBufReadExt;
-        use tokio::io::AsyncWriteExt;
-
         let stdin = self
             .stdin
             .as_mut()
@@ -374,8 +418,8 @@ impl KernelTrait for MicroKernel {
 /// separator at the end. Returns false at the end of a transaction.
 fn push_line(line: &str, current: &mut String, vec: &mut Vec<String>) -> bool {
     if let Some(line) = line
-        .strip_suffix(RES_SEP)
-        .or_else(|| line.strip_suffix(RES_SEP_ALT))
+        .strip_suffix(RESULT)
+        .or_else(|| line.strip_suffix(RESULT_ALT))
     {
         current.push_str(line);
         if !current.is_empty() {
@@ -384,8 +428,8 @@ fn push_line(line: &str, current: &mut String, vec: &mut Vec<String>) -> bool {
         }
         true
     } else if let Some(line) = line
-        .strip_suffix(TRANS_SEP)
-        .or_else(|| line.strip_suffix(TRANS_SEP_ALT))
+        .strip_suffix(TRANS)
+        .or_else(|| line.strip_suffix(TRANS_ALT))
     {
         current.push_str(line);
         if !current.is_empty() {

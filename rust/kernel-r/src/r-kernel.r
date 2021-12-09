@@ -9,12 +9,13 @@ dir <- gsub("\\~\\+\\~", " ", dirname(file))
 
 source(file.path(dir, "r-codec.r"))
 
-res_sep <- "\U0010ABBA"
-trans_sep <- "\U0010ACDC"
+READY <- "\U0010ACDC"
+RESULT <- "\U0010D00B"
+TRANS <- "\U0010ABBA"
 
-print <- function(x, ...) write(paste0(encode_value(x), res_sep), stdout())
+print <- function(x, ...) write(paste0(encode_value(x), RESULT), stdout())
 
-message <- function(msg, type) write(paste0(encode_message(msg, type), res_sep), stderr())
+message <- function(msg, type) write(paste0(encode_message(msg, type), RESULT), stderr())
 info <- function(msg) message(msg, "CodeInfo")
 warning <- function(msg) message(msg, "CodeWarning")
 error <- function(error, type = "RuntimeError") message(error$message, type)
@@ -23,6 +24,9 @@ error <- function(error, type = "RuntimeError") message(error$message, type)
 # local directory. Recording must be enabled for print devices.
 png(tempfile())
 dev.control("enable")
+
+write(READY, stdout())
+write(READY, stderr())
 
 stdin <- file("stdin", "r")
 while (TRUE) {
@@ -51,10 +55,10 @@ while (TRUE) {
     if (!is.null(value)) {
       last_line <- tail(strsplit(unescaped, "\\n")[[1]], n=1)
       assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", last_line)
-      if (!assignment) write(paste0(encode_value(value), res_sep), stdout())
+      if (!assignment) write(paste0(encode_value(value), RESULT), stdout())
     }
   }
 
-  write(trans_sep, stdout())
-  write(trans_sep, stderr())
+  write(TRANS, stdout())
+  write(TRANS, stderr())
 }

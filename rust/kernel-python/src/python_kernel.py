@@ -5,8 +5,9 @@ from sys import stdin, stdout, stderr
 
 from python_codec import decode_value, encode_exception, encode_value
 
-res_sep = u"\U0010ABBA\n"
-trans_sep = u"\U0010ACDC\n"
+READY = u"\U0010ACDC\n"
+RESULT = u"\U0010D00B\n"
+TRANS = u"\U0010ABBA\n"
 
 
 def print(*objects, sep=" ", end="\n", file=stdout, flush=False):
@@ -14,10 +15,15 @@ def print(*objects, sep=" ", end="\n", file=stdout, flush=False):
         return __builtins__.print(*objects, sep, end, file, flush)
     for object in objects:
         json = encode_value(object)
-        stdout.write(json + res_sep)
+        stdout.write(json + RESULT)
 
 
 context = {"print": print, "decode_value": decode_value}
+
+stdout.write(READY)
+stdout.flush()
+stderr.write(READY)
+stderr.flush()
 
 for code in stdin:
     lines = code.split("\\n")
@@ -35,14 +41,14 @@ for code in stdin:
             value = eval(last, globals(), context)
             if value is not None:
                 json = encode_value(value)
-                stdout.write(json + res_sep)
+                stdout.write(json + RESULT)
     except Exception as exc:
         json = encode_exception(exc)
-        stderr.write(json + res_sep)
+        stderr.write(json + RESULT)
 
-    stdout.write(trans_sep)
+    stdout.write(TRANS)
     stdout.flush()
-    stderr.write(trans_sep)
+    stderr.write(TRANS)
     stderr.flush()
 
     code = ""
