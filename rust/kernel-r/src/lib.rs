@@ -24,7 +24,7 @@ mod tests {
         KernelTrait,
     };
     use once_cell::sync::Lazy;
-    use test_utils::{assert_json_eq, print_logs, serde_json::json};
+    use test_utils::{assert_json_eq, serde_json::json};
     use tokio::sync::Mutex;
 
     // Make sure that only one test runs at any one time
@@ -54,8 +54,6 @@ mod tests {
     #[tokio::test]
     async fn basics() -> Result<()> {
         let _guard = QUEUE.lock().await;
-
-        print_logs();
 
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => kernel,
