@@ -10,4 +10,5 @@ import './index.view.css'
 
 window.stencilaWebClient = {
   main,
+  executableLanguages: {},
 }
