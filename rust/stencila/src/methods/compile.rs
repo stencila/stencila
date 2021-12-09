@@ -6,7 +6,7 @@ use crate::{
 use async_trait::async_trait;
 use eyre::Result;
 use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Resource};
-use kernels::KernelSpace;
+use kernels::{KernelSelector, KernelSpace};
 use path_utils::merge;
 use std::{
     collections::HashMap,
@@ -274,9 +274,8 @@ impl Compile for CodeChunk {
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let relations = parsers::parse("", &self.text, &self.programming_language)?;
-        let (outputs, errors) = kernels
-            .exec(&self.text, &self.programming_language, Some(relations))
-            .await?;
+        let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
+        let (outputs, errors) = kernels.exec(&self.text, &selector, Some(relations)).await?;
 
         self.outputs = if outputs.is_empty() {
             None
@@ -322,9 +321,8 @@ impl Compile for CodeExpression {
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let relations = parsers::parse("", &self.text, &self.programming_language)?;
-        let (outputs, errors) = kernels
-            .exec(&self.text, &self.programming_language, Some(relations))
-            .await?;
+        let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
+        let (outputs, errors) = kernels.exec(&self.text, &selector, Some(relations)).await?;
 
         self.output = outputs.get(0).map(|output| Box::new(output.clone()));
         self.errors = if errors.is_empty() {

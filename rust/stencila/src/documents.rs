@@ -1594,7 +1594,7 @@ pub mod commands {
             let document = DOCUMENTS.get(&document.id).await?;
             let mut document = document.lock().await;
 
-            document.kernels.repl(&code.join(" "), lang).await
+            document.kernels.repl(&code.join(" "), lang, None).await
         }
     }
 

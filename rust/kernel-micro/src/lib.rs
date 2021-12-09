@@ -124,18 +124,6 @@ impl MicroKernel {
             stderr: None,
         }
     }
-
-    /// Is the microkernel available on the current machine?
-    ///
-    /// Returns `true` if the operating system is listed in `oses` and
-    /// a runtime matching the semver requirements in `runtime` is found to be installed.
-    pub async fn available(&self) -> bool {
-        if !self.oses.contains(&std::env::consts::OS.to_string()) {
-            return false;
-        }
-        let (name, semver) = &self.runtime;
-        binaries::installed(name, semver).await
-    }
 }
 
 /// Include a file as a (name, content) tuple
@@ -155,6 +143,18 @@ impl KernelTrait for MicroKernel {
             r#type: KernelType::Micro,
             languages: self.languages.clone(),
         }
+    }
+
+    /// Is the kernel available on the current machine?
+    ///
+    /// Returns `true` if the operating system is listed in `oses` and
+    /// a runtime matching the semver requirements in `runtime` is found to be installed.
+    async fn available(&self) -> bool {
+        if !self.oses.contains(&std::env::consts::OS.to_string()) {
+            return false;
+        }
+        let (name, semver) = &self.runtime;
+        binaries::installed(name, semver).await
     }
 
     /// Start the kernel

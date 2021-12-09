@@ -6,7 +6,7 @@ use kernel::{
     eyre::{bail, eyre, Result},
     serde::{Deserialize, Serialize},
     stencila_schema::{CodeError, Node},
-    Kernel, KernelStatus, KernelTrait, KernelType,
+    Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType,
 };
 use once_cell::sync::Lazy;
 use path_slash::PathBufExt;
@@ -191,11 +191,14 @@ impl Clone for JupyterKernel {
 
 impl JupyterKernel {
     /// Create a new `JupyterKernel`.
-    pub async fn new(selector: &str) -> Result<JupyterKernel> {
-        let mut kernel = JupyterKernel::find(selector).await?;
-        kernel.id = JupyterKernelId::new();
-
-        Ok(kernel)
+    pub async fn new(selector: &KernelSelector) -> Self {
+        match JupyterKernel::find(selector).await {
+            Ok(mut kernel) => {
+                kernel.id = JupyterKernelId::new();
+                kernel
+            }
+            Err(..) => Self::unavailable(),
+        }
     }
 
     /// Does the kernel support execution of a specific language?
@@ -204,6 +207,9 @@ impl JupyterKernel {
     }
 
     /// Get a list of Jupyter kernels available in the current environment
+    ///
+    /// Beware confusing this with `KernelTrait::available` which says is a
+    /// particular Jupyter kernel is available on the machine.
     pub async fn available() -> Result<Vec<Kernel>> {
         let mut list = Vec::new();
 
@@ -223,6 +229,17 @@ impl JupyterKernel {
         }
 
         Ok(list)
+    }
+
+    /// Create an "unavailable" Jupyter kernel
+    ///
+    /// This is used when no kernel matching the kernel selector is
+    /// found on the machine. Used in `KernelTrait::available` to return false.
+    pub fn unavailable() -> Self {
+        Self {
+            name: "<unavailable>".to_string(),
+            ..Default::default()
+        }
     }
 
     /// Get a list of Jupyter kernels that are currently running
@@ -328,19 +345,30 @@ impl JupyterKernel {
 
     /// Find a `JupyterKernel` for the given selector (name or language).
     ///
-    /// Searches for an installed kernel with a matching name an/or support for the language.
+    /// Searches for an installed kernel with a matching name and/or support for the language.
     /// Is optimized to avoid unnecessary disk reads.
-    pub async fn find(selector: &str) -> Result<JupyterKernel> {
+    pub async fn find(selector: &KernelSelector) -> Result<JupyterKernel> {
         let specs = KERNEL_SPECS.read().await;
 
+        let name = selector
+            .name
+            .clone()
+            .or_else(|| selector.any.clone())
+            .unwrap_or_default();
+        let lang = selector
+            .lang
+            .clone()
+            .or_else(|| selector.any.clone())
+            .unwrap_or_default();
+
         // Is there is a kernelspec already read with the same name?
-        if let Some(kernel) = specs.get(selector) {
+        if let Some(kernel) = specs.get(&name) {
             return Ok(kernel.clone());
         }
 
         // Is there is a kernelspec already read that supports the language?
         for kernel in specs.values() {
-            if kernel.supports(selector) {
+            if kernel.supports(&lang) {
                 return Ok(kernel.clone());
             }
         }
@@ -354,9 +382,9 @@ impl JupyterKernel {
             }
 
             // Is there is a kernelspec with a matching name?
-            let path = kernel.join(selector).join("kernel.json");
+            let path = kernel.join(&name).join("kernel.json");
             if path.exists() {
-                let kernel = JupyterKernel::read(selector, &path).await?;
+                let kernel = JupyterKernel::read(&name, &path).await?;
                 return Ok(kernel);
             }
 
@@ -366,7 +394,7 @@ impl JupyterKernel {
                 if path.exists() {
                     let name = dir.file_name().to_string_lossy().to_string();
                     let kernel = JupyterKernel::read(&name, &path).await?;
-                    if kernel.supports(selector) {
+                    if kernel.supports(&lang) {
                         return Ok(kernel);
                     }
                 }
@@ -694,6 +722,10 @@ impl KernelTrait for JupyterKernel {
         Kernel::new(&self.name, KernelType::Jupyter, &[&self.language])
     }
 
+    async fn available(&self) -> bool {
+        self.name != "<unavailable>"
+    }
+
     async fn start(&mut self) -> Result<()> {
         let connection = JupyterConnection::new(&self.id);
         connection.write_file()?;
@@ -927,7 +959,7 @@ mod tests {
 
     #[tokio::test]
     async fn status() -> Result<()> {
-        let kernel = JupyterKernel::new("python").await?;
+        let kernel = JupyterKernel::new(&KernelSelector::parse("python")).await;
 
         assert_eq!(kernel.status().await?, KernelStatus::Pending);
 
