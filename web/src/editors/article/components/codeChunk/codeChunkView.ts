@@ -16,7 +16,7 @@ import { articleSchema } from '../../schema'
  */
 export class CodeChunkView implements NodeView {
   cm: CMEditorView | null = null
-  dom: HTMLStencilaEditorElement
+  dom: HTMLStencilaCodeChunkElement
   getPos: () => number
   ignoreMutation?: NodeView['ignoreMutation']
   incomingChanges: boolean
@@ -35,7 +35,8 @@ export class CodeChunkView implements NodeView {
     }
     this.incomingChanges = false
 
-    this.dom = document.createElement('stencila-editor')
+    this.dom = document.createElement('stencila-code-chunk')
+    this.dom.setAttribute('itemtype', 'http://schema.stenci.la/CodeChunk')
 
     if (typeof node.attrs.id === 'string' && node.attrs.id !== '') {
       this.dom.setAttribute('id', node.attrs.id)
@@ -44,12 +45,15 @@ export class CodeChunkView implements NodeView {
       this.dom.setAttribute('itemtype', node.attrs.itemtype)
     }
 
-    this.dom.contents = node.textContent
+    this.dom.text = node.textContent
     this.dom.keymap = this.codeMirrorKeymap()
-    this.dom.activeLanguage =
+    this.dom.programmingLanguage =
       typeof node.attrs.programmingLanguage === 'string'
         ? node.attrs.programmingLanguage
         : ''
+
+    this.dom.executeHandler = (c) => Promise.resolve(c)
+    this.dom.isCodeVisible = true
 
     this.dom.addEventListener('setLanguage', (e) => {
       const evt = e as CustomEvent<{ name: string }>
@@ -68,7 +72,9 @@ export class CodeChunkView implements NodeView {
     this.dom
       .getRef()
       .then((ref) => {
-        this.cm = ref
+        if (ref) {
+          this.cm = ref
+        }
       })
       .catch((err) => {
         console.log(err)
