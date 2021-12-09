@@ -89,6 +89,15 @@ export const articleInputRules = inputRules({
       })
     ),
 
+    // Stencila CodeChunk
+    textblockTypeInputRule(
+      /^```!(\w+)?\s$/,
+      articleSchema.nodes.CodeChunk,
+      (match) => ({
+        programmingLanguage: match?.[1],
+      })
+    ),
+
     // Markdown quote block
     wrappingInputRule(/^\s*>\s$/, articleSchema.nodes.QuoteBlock),
   ],
