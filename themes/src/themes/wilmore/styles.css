@@ -293,8 +293,8 @@ h6:--Heading {
 
 :--Figure,
 :--Table,
-:--Article > :--CodeBlock,
-:--Article > :--CodeChunk,
+:--Article :--CodeBlock,
+:--Article :--CodeChunk,
 :--ImageObject {
   max-width: var(--max-width-media);
   overflow: auto;
