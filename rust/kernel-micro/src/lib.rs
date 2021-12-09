@@ -244,6 +244,9 @@ impl KernelTrait for MicroKernel {
                         err.push_str(line);
                         err.push('\n');
                         break;
+                    } else {
+                        err.push_str(&line);
+                        err.push('\n');
                     }
                 }
                 Ok(None) => bail!("Unexpected end of stderr"),
