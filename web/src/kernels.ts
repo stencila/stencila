@@ -2,7 +2,7 @@ import { Client } from './client'
 import { SessionId } from './sessions'
 
 /**
- * Get a list of language kernels available in the current environment
+ * Get a list of languages supported by the kernels available in the current environment
  */
 export async function languages(
   client: Client,
