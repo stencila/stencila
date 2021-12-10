@@ -6,8 +6,8 @@ input_file: fixtures/nodes/code-block.json
 ---
 <stencila-code-block data-itemscope="root" itemtype="http://schema.stenci.la/CodeBlock" itemscope programming-language="python">
   <meta itemprop="programmingLanguage" content="python"/>
-  <pre>
-    <code itemprop="text" slot="text" class="language-python"># Some Python code
+  <pre slot="text">
+    <code itemprop="text" class="language-python"># Some Python code
 1 + 1</code>
   </pre>
 </stencila-code-block>

@@ -60,10 +60,13 @@ impl ToHtml for CodeBlock {
 
         let text = elem(
             "pre",
-            &[],
+            // The `slot="text"` attribute needs to be on the direct descendant of the
+            // <stencila-code-block> element for WebComponent compatibility.
+            // See https://github.com/stencila/designa/pull/268#discussion_r764363050
+            &[attr_slot("text")],
             &elem(
                 "code",
-                &[attr_itemprop("text"), attr_slot("text"), lang_class],
+                &[attr_itemprop("text"), lang_class],
                 &self.text.to_html(context),
             ),
         );
