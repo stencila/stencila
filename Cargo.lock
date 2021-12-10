@@ -4773,7 +4773,6 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 name = "stencila"
 version = "0.134.0"
 dependencies = [
- "Inflector",
  "ansi_term",
  "async-recursion",
  "async-trait",
@@ -4826,7 +4825,6 @@ dependencies = [
  "pathdiff",
  "portpicker",
  "pretty_assertions",
- "proptest",
  "rand 0.8.4",
  "regex",
  "reqwest",
@@ -4839,7 +4837,6 @@ dependencies = [
  "serde_with",
  "serde_yaml",
  "sha2",
- "similar 2.1.0",
  "slug",
  "stencila-schema",
  "structopt",
