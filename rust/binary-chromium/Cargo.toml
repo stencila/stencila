@@ -1,0 +1,8 @@
+[package]
+name = "binary-chromium"
+description = "A binary specification for Chromium"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binary = { path = "../binary", version = "0.0.0", features = ["download-zip"] }

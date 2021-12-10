@@ -3,8 +3,8 @@ import { fromJSON } from './prelude'
 const addon = require('../index.node')
 
 /**
- * Get the list of available kernels
+ * Get the list of languages supported by kernels available on this machine
  */
-export function available(): string[] {
-  return fromJSON<string[]>(addon.kernelsAvailable())
+export function languages(): string[] {
+  return fromJSON<string[]>(addon.kernelsLanguages())
 }

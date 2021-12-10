@@ -48,17 +48,17 @@ export const fetchProject = createAsyncThunk(
   }
 )
 
-const getAvailableKernels = (): Promise<string[]> =>
-  client.projects.kernels.available().then(({ value: kernels }) => {
-    return kernels
+const getAvailableLanguages = (): Promise<string[]> =>
+  client.projects.kernels.languages().then(({ value: languages }) => {
+    return languages
   })
 
 export const getExecutableFormats =
   (): Promise<FileFormatUtils.FileFormatMap> =>
-    getAvailableKernels().then((kernels) => {
-      return kernels.reduce(
-        (formats: FileFormatUtils.FileFormatMap, kernel) => {
-          const format = FileFormatUtils.lookupFormat(kernel)
+    getAvailableLanguages().then((languages) => {
+      return languages.reduce(
+        (formats: FileFormatUtils.FileFormatMap, language) => {
+          const format = FileFormatUtils.lookupFormat(language)
           return {
             ...formats,
             [format.name]: format,

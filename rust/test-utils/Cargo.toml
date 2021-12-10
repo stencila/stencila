@@ -7,3 +7,5 @@ edition = "2021"
 [dependencies]
 pretty_assertions = "1.0.0"
 serde_json = "1.0.72"
+tracing = "0.1.29"
+tracing-subscriber = "0.3.2"

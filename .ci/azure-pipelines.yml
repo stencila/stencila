@@ -6,6 +6,9 @@ trigger:
       - refs/tags/*
 
 variables:
+  # Set this so that `skip_ci` and other functions work as expected
+  CI: true
+
   # Settings for Rust caching. See also:
   #   https://github.com/johnterickson/cargo2junit/blob/master/azure-pipelines.yml
   #   https://doc.rust-lang.org/cargo/guide/cargo-home.html#caching-the-cargo-home-in-ci

@@ -11,7 +11,7 @@ import { CodeChunk, CodeExpression } from '@stencila/schema'
 import { Document, Operation, Session } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
-import { available } from './kernels'
+import { languages } from './kernels'
 import * as sessions from './sessions'
 import { ProjectId, SnapshotId } from './types'
 
@@ -26,7 +26,7 @@ export const main = (
   let client: Client | undefined
   let session: Session | undefined
   let document: Document | undefined
-  const availableKernels: FileFormatUtils.FileFormatMap = {}
+  const availableLanguages: FileFormatUtils.FileFormatMap = {}
 
   // Start the client and session, if necessary
   const startup = async (): Promise<[Client, Document, Session]> => {
@@ -40,10 +40,10 @@ export const main = (
         console.warn(`Couldn't subscribe to session updates`, err)
       })
 
-      const kernels = await available(client, session.id)
+      const kernels = await languages(client, session.id)
       kernels.forEach((kernelName) => {
         const foundFormat = FileFormatUtils.lookupFormat(kernelName)
-        availableKernels[foundFormat.name] = foundFormat
+        availableLanguages[foundFormat.name] = foundFormat
       })
 
       // Don't subscribe to heartbeats during development because it generates
@@ -142,7 +142,7 @@ export const main = (
         }
 
         // @ts-expect-error TODO: Remove once CodeExpression components also support `executableLanguages`
-        elem.executableLanguages = availableKernels
+        elem.executableLanguages = availableLanguages
       })
   }
 

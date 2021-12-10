@@ -308,27 +308,85 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 name = "binaries"
 version = "0.0.0"
 dependencies = [
+ "binary",
+ "binary-chrome",
+ "binary-chromium",
+ "binary-node",
+ "binary-pandoc",
+ "binary-python",
+ "binary-rscript",
  "cli-utils",
+ "once_cell",
+ "serde_json",
+ "structopt",
+ "test-utils",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "binary"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
  "defaults",
  "dirs",
  "eyre",
  "flate2",
- "itertools",
- "once_cell",
+ "glob",
  "regex",
  "reqwest",
  "semver 1.0.4",
  "serde",
- "serde_json",
- "structopt",
  "tar",
- "test-utils",
  "tokio",
  "tracing",
  "url",
  "which",
  "xz2",
  "zip",
+]
+
+[[package]]
+name = "binary-chrome"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-chromium"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-node"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-pandoc"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-python"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-rscript"
+version = "0.0.0"
+dependencies = [
+ "binary",
 ]
 
 [[package]]
@@ -2464,9 +2522,23 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "eyre",
+ "once_cell",
+ "regex",
  "serde",
  "stencila-schema",
  "strum 0.23.0",
+ "test-utils",
+ "tracing",
+]
+
+[[package]]
+name = "kernel-bash"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-micro",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]
@@ -2477,6 +2549,16 @@ dependencies = [
  "kernel",
  "once_cell",
  "regex",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
+name = "kernel-deno"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-micro",
  "test-utils",
  "tokio",
 ]
@@ -2511,10 +2593,69 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-micro"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "dirs",
+ "kernel",
+ "nix",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "kernel-node"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "kernel",
+ "kernel-micro",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
+name = "kernel-python"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "kernel",
+ "kernel-micro",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
+name = "kernel-r"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "kernel",
+ "kernel-micro",
+ "once_cell",
+ "test-utils",
+ "tokio",
+]
+
+[[package]]
 name = "kernel-store"
 version = "0.0.0"
 dependencies = [
  "kernel",
+ "tokio",
+]
+
+[[package]]
+name = "kernel-zsh"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kernel-micro",
+ "test-utils",
  "tokio",
 ]
 
@@ -2537,13 +2678,22 @@ dependencies = [
  "derive_more",
  "graph-triples",
  "kernel",
+ "kernel-bash",
  "kernel-calc",
+ "kernel-deno",
  "kernel-jupyter",
+ "kernel-micro",
+ "kernel-node",
+ "kernel-python",
+ "kernel-r",
  "kernel-store",
+ "kernel-zsh",
  "once_cell",
  "parsers",
+ "regex",
  "serde",
  "serde_json",
+ "slug",
  "structopt",
  "tokio",
  "tracing",
@@ -3342,6 +3492,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "parser-bash"
+version = "0.0.0"
+dependencies = [
+ "maplit",
+ "once_cell",
+ "parser-treesitter",
+ "test-snaps",
+ "test-utils",
+ "tree-sitter-bash",
+]
+
+[[package]]
 name = "parser-calc"
 version = "0.0.0"
 dependencies = [
@@ -3388,6 +3550,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "parser-rust"
+version = "0.0.0"
+dependencies = [
+ "once_cell",
+ "parser-treesitter",
+ "test-snaps",
+ "test-utils",
+ "tree-sitter-rust",
+]
+
+[[package]]
 name = "parser-treesitter"
 version = "0.0.0"
 dependencies = [
@@ -3417,10 +3590,12 @@ dependencies = [
  "formats",
  "once_cell",
  "parser",
+ "parser-bash",
  "parser-calc",
  "parser-js",
  "parser-py",
  "parser-r",
+ "parser-rust",
  "parser-ts",
  "structopt",
  "test-utils",
@@ -4964,6 +5139,8 @@ version = "0.0.0"
 dependencies = [
  "pretty_assertions",
  "serde_json",
+ "tracing",
+ "tracing-subscriber 0.3.3",
 ]
 
 [[package]]
@@ -5282,6 +5459,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "tree-sitter-bash"
+version = "0.19.0"
+source = "git+https://github.com/nokome/tree-sitter-bash?rev=e31399d15473bd2bbb6007e092fe2309e74c94f9#e31399d15473bd2bbb6007e092fe2309e74c94f9"
+dependencies = [
+ "cc",
+ "tree-sitter",
+]
+
+[[package]]
 name = "tree-sitter-javascript"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5305,6 +5491,16 @@ dependencies = [
 name = "tree-sitter-r"
 version = "0.19.4"
 source = "git+https://github.com/r-lib/tree-sitter-r?rev=016051ef9ec6f31a42043767316eaae98f8e8f2c#016051ef9ec6f31a42043767316eaae98f8e8f2c"
+dependencies = [
+ "cc",
+ "tree-sitter",
+]
+
+[[package]]
+name = "tree-sitter-rust"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3df540a493d754015d22eaf57c38f58804be3713a22f6062db983ec15f85c3c9"
 dependencies = [
  "cc",
  "tree-sitter",

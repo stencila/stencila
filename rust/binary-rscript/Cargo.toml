@@ -1,0 +1,8 @@
+[package]
+name = "binary-rscript"
+description = "A binary specification for Rscript"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binary = { path = "../binary", version = "0.0.0" }

@@ -6,7 +6,7 @@ use kernel::{
     eyre::{bail, eyre, Result},
     serde::{Deserialize, Serialize},
     stencila_schema::{CodeError, Node},
-    Kernel, KernelStatus, KernelTrait,
+    Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType,
 };
 use once_cell::sync::Lazy;
 use path_slash::PathBufExt;
@@ -191,11 +191,14 @@ impl Clone for JupyterKernel {
 
 impl JupyterKernel {
     /// Create a new `JupyterKernel`.
-    pub async fn new(language: &str) -> Result<JupyterKernel> {
-        let mut kernel = JupyterKernel::find(language).await?;
-        kernel.id = JupyterKernelId::new();
-
-        Ok(kernel)
+    pub async fn new(selector: &KernelSelector) -> Self {
+        match JupyterKernel::find(selector).await {
+            Ok(mut kernel) => {
+                kernel.id = JupyterKernelId::new();
+                kernel
+            }
+            Err(..) => Self::unavailable(),
+        }
     }
 
     /// Does the kernel support execution of a specific language?
@@ -204,7 +207,10 @@ impl JupyterKernel {
     }
 
     /// Get a list of Jupyter kernels available in the current environment
-    pub async fn available() -> Result<Vec<String>> {
+    ///
+    /// Beware confusing this with `KernelTrait::available` which says is a
+    /// particular Jupyter kernel is available on the machine.
+    pub async fn available() -> Result<Vec<Kernel>> {
         let mut list = Vec::new();
 
         for kernels in kernel_dirs() {
@@ -217,12 +223,23 @@ impl JupyterKernel {
                 if path.exists() {
                     let name = dir.file_name().to_string_lossy().to_string();
                     let kernel = JupyterKernel::read(&name, &path).await?;
-                    list.push(kernel.language.to_lowercase())
+                    list.push(kernel.spec())
                 }
             }
         }
 
         Ok(list)
+    }
+
+    /// Create an "unavailable" Jupyter kernel
+    ///
+    /// This is used when no kernel matching the kernel selector is
+    /// found on the machine. Used in `KernelTrait::available` to return false.
+    pub fn unavailable() -> Self {
+        Self {
+            name: "<unavailable>".to_string(),
+            ..Default::default()
+        }
     }
 
     /// Get a list of Jupyter kernels that are currently running
@@ -326,21 +343,32 @@ impl JupyterKernel {
         Ok((id, kernel))
     }
 
-    /// Find a `JupyterKernel` for the given language.
+    /// Find a `JupyterKernel` for the given selector (name or language).
     ///
-    /// Searches for an installed kernel with support for the language.
+    /// Searches for an installed kernel with a matching name and/or support for the language.
     /// Is optimized to avoid unnecessary disk reads.
-    pub async fn find(language: &str) -> Result<JupyterKernel> {
+    pub async fn find(selector: &KernelSelector) -> Result<JupyterKernel> {
         let specs = KERNEL_SPECS.read().await;
 
+        let name = selector
+            .name
+            .clone()
+            .or_else(|| selector.any.clone())
+            .unwrap_or_default();
+        let lang = selector
+            .lang
+            .clone()
+            .or_else(|| selector.any.clone())
+            .unwrap_or_default();
+
         // Is there is a kernelspec already read with the same name?
-        if let Some(kernel) = specs.get(language) {
+        if let Some(kernel) = specs.get(&name) {
             return Ok(kernel.clone());
         }
 
         // Is there is a kernelspec already read that supports the language?
         for kernel in specs.values() {
-            if kernel.supports(language) {
+            if kernel.supports(&lang) {
                 return Ok(kernel.clone());
             }
         }
@@ -353,13 +381,11 @@ impl JupyterKernel {
                 continue;
             }
 
-            // Is there is a kernelspec with the same name?
-            let path = kernel.join(language).join("kernel.json");
+            // Is there is a kernelspec with a matching name?
+            let path = kernel.join(&name).join("kernel.json");
             if path.exists() {
-                let kernel = JupyterKernel::read(language, &path).await?;
-                if kernel.supports(language) {
-                    return Ok(kernel);
-                }
+                let kernel = JupyterKernel::read(&name, &path).await?;
+                return Ok(kernel);
             }
 
             // Is there is a kernelspec that supports the language?
@@ -368,7 +394,7 @@ impl JupyterKernel {
                 if path.exists() {
                     let name = dir.file_name().to_string_lossy().to_string();
                     let kernel = JupyterKernel::read(&name, &path).await?;
-                    if kernel.supports(language) {
+                    if kernel.supports(&lang) {
                         return Ok(kernel);
                     }
                 }
@@ -377,7 +403,7 @@ impl JupyterKernel {
 
         bail!(
             "Unable to find a Jupyter kernel for language `{}`; perhaps you need to install one?",
-            language
+            selector
         )
     }
 
@@ -420,7 +446,7 @@ impl JupyterKernel {
                 .and_then(|_| socket.set_subscribe("".as_bytes()));
             if let Err(error) = result {
                 tracing::error!(
-                    "When connecting or subscribing to IOPub socket for kernel `{}`: {}",
+                    "When connecting or subscribing to IOPub socket for Jupyter kernel `{}`: {}",
                     id,
                     error
                 );
@@ -433,12 +459,12 @@ impl JupyterKernel {
                 JupyterMessage::new(JupyterMessageType::stream, json!({"name": "<init>"}));
             if let Err(error) = iopub_sender_clone.send(init_message) {
                 tracing::error!(
-                    "Unable to send IOPub init message for kernel `{}`: {}",
+                    "Unable to send IOPub init message for Jupyter kernel `{}`: {}",
                     id,
                     error
                 )
             } else {
-                tracing::debug!("Sent IOPub init message for kernel `{}`", id);
+                tracing::debug!("Sent IOPub init message for Jupyter kernel `{}`", id);
             }
 
             loop {
@@ -448,27 +474,27 @@ impl JupyterKernel {
                         let msg_type = message.header.msg_type.clone();
                         if matches!(msg_type, JupyterMessageType::error) {
                             tracing::debug!(
-                                "IOPub error message from kernel `{}`: {:?}",
+                                "IOPub error message from Jupyter kernel `{}`: {:?}",
                                 id,
                                 message.content
                             )
                         }
                         if let Err(error) = iopub_sender_clone.send(message) {
                             tracing::error!(
-                                "Unable to broadcast IOPub message for kernel `{}`: {}",
+                                "Unable to broadcast IOPub message for Jupyter kernel `{}`: {}",
                                 id,
                                 error
                             )
                         } else {
                             tracing::debug!(
-                                "Broadcast IOPub message from kernel `{}`: {:?}",
+                                "Broadcast IOPub message from Jupyter kernel `{}`: {:?}",
                                 id,
                                 msg_type
                             )
                         }
                     }
                     Err(error) => tracing::error!(
-                        "When receiving on IOPub socket for kernel `{}`: {}",
+                        "When receiving on IOPub socket for Jupyter kernel `{}`: {}",
                         id,
                         error
                     ),
@@ -504,7 +530,7 @@ impl JupyterKernel {
                     *(status.write().await) = KernelStatus::Unresponsive;
                     return;
                 } else {
-                    tracing::debug!("Got heartbeat reply from kernel `{}`", id)
+                    tracing::debug!("Got heartbeat reply from Jupyter kernel `{}`", id)
                 }
                 sleep(Duration::from_secs(30)).await;
             }
@@ -512,7 +538,10 @@ impl JupyterKernel {
 
         // Wait for IOPub init message from the `subscribe_task`. This needs to be done before any `execute_request`
         // messages are sent to ensure that we are already listening for results.
-        tracing::debug!("Waiting for IOPub init message for kernel `{}`", self.id);
+        tracing::debug!(
+            "Waiting for IOPub init message for Jupyter kernel `{}`",
+            self.id
+        );
         while let Ok(message) = iopub_receiver.recv().await {
             if matches!(message.header.msg_type, JupyterMessageType::stream)
                 && message
@@ -522,7 +551,7 @@ impl JupyterKernel {
                     .unwrap_or_default()
                     == "<init>"
             {
-                tracing::debug!("Got IOPub init message for kernel `{}`", self.id);
+                tracing::debug!("Got IOPub init message for Jupyter kernel `{}`", self.id);
                 break;
             }
         }
@@ -533,7 +562,11 @@ impl JupyterKernel {
         let request = JupyterMessage::kernel_info_request();
         request.send(&self.session, &hmac, &shell_socket)?;
         let reply = JupyterMessage::receive(&hmac, &shell_socket, None)?;
-        tracing::debug!("Got kernel info for kernel `{}`: {:#?}", self.id, reply);
+        tracing::debug!(
+            "Got kernel info for Jupyter kernel `{}`: {:#?}",
+            self.id,
+            reply
+        );
         let kernel_info: JupyterKernelInfoReply = reply.content();
 
         // Set the language if its empty (e.g. connected to an already running kernel)
@@ -592,7 +625,7 @@ impl JupyterKernel {
                 if parent_header.msg_id == request_id {
                     let msg_type = &message.header.msg_type;
                     tracing::debug!(
-                        "Handling IOPub message {:?}: {:#?}",
+                        "Handling Jupyter IOPub message {:?}: {:#?}",
                         msg_type,
                         message.content
                     );
@@ -649,7 +682,7 @@ impl JupyterKernel {
                     }
                 } else {
                     tracing::debug!(
-                        "Ignoring IOPub message because {:?} != {:#?}",
+                        "Ignoring Jupyter IOPub message because {:?} != {:#?}",
                         parent_header.msg_id,
                         request_id
                     );
@@ -686,9 +719,11 @@ impl JupyterKernel {
 #[async_trait]
 impl KernelTrait for JupyterKernel {
     fn spec(&self) -> Kernel {
-        Kernel {
-            language: self.language.clone(),
-        }
+        Kernel::new(&self.name, KernelType::Jupyter, &[&self.language])
+    }
+
+    async fn available(&self) -> bool {
+        self.name != "<unavailable>"
     }
 
     async fn start(&mut self) -> Result<()> {
@@ -722,14 +757,14 @@ impl KernelTrait for JupyterKernel {
             let output = child
                 .wait_with_output()
                 .await
-                .expect("Kernel could not be executed");
+                .expect("Jupyter kernel could not be started");
 
             if output.status.success() {
-                tracing::debug!("Kernel `{}` exited successfully", id);
+                tracing::debug!("Jupyter  kernel `{}` exited successfully", id);
                 *(status.write().await) = KernelStatus::Finished;
             } else {
                 tracing::error!(
-                    "Kernel `{}` had non-zero exit status: {}",
+                    "Jupyter kernel `{}` had non-zero exit status: {}",
                     id,
                     output.status
                 );
@@ -738,7 +773,7 @@ impl KernelTrait for JupyterKernel {
 
             if !output.stderr.is_empty() {
                 tracing::error!(
-                    "Kernel `{}` had error message: {}",
+                    "Jupyter kernel `{}` had error message: {}",
                     id,
                     &String::from_utf8_lossy(&output.stderr)
                 )
@@ -782,9 +817,9 @@ impl KernelTrait for JupyterKernel {
         Ok(status)
     }
 
-    async fn get(&self, _name: &str) -> Result<Node> {
+    async fn get(&mut self, _name: &str) -> Result<Node> {
         bail!(
-            "Getting a symbol from a `{}` language kernel is not currently supported",
+            "Getting a symbol from a `{}` Jupyter kernel is not currently supported",
             self.language
         )
         /*
@@ -815,7 +850,7 @@ impl KernelTrait for JupyterKernel {
             Ok(())
         } else {
             bail!(
-                "Setting a symbol in a `{}` language kernel is not currently supported",
+                "Setting a symbol in a `{}` Jupyter kernel is not currently supported",
                 self.language
             )
         }
@@ -855,7 +890,7 @@ impl KernelTrait for JupyterKernel {
         let (outputs, errors) = match timeout(Duration::from_millis(1000), results_task).await {
             Ok(joined) => joined??,
             Err(_) => {
-                tracing::warn!("Timed-out waiting for results");
+                tracing::warn!("Timed-out waiting for results from Jupyter kernel");
                 (Vec::new(), Vec::new())
             }
         };
@@ -924,7 +959,7 @@ mod tests {
 
     #[tokio::test]
     async fn status() -> Result<()> {
-        let kernel = JupyterKernel::new("python").await?;
+        let kernel = JupyterKernel::new(&KernelSelector::parse("python")).await;
 
         assert_eq!(kernel.status().await?, KernelStatus::Pending);
 

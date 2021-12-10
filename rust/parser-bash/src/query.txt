@@ -1,0 +1,7 @@
+(program 
+    (variable_assignment
+        name: (variable_name) @name
+    )
+)
+
+((variable_name) @name)

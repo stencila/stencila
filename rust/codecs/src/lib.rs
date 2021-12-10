@@ -69,35 +69,35 @@ struct Codecs {
 macro_rules! dispatch_builtins {
     ($var:expr, $method:ident $(,$arg:expr)*) => {
         match $var.as_str() {
-            #[cfg(feature = "date")]
+            #[cfg(feature = "codec-date")]
             "date" => Some(codec_date::DateCodec::$method($($arg),*)),
-            #[cfg(feature = "docx")]
+            #[cfg(feature = "codec-docx")]
             "docx" => Some(codec_docx::DocxCodec::$method($($arg),*)),
-            #[cfg(feature = "html")]
+            #[cfg(feature = "codec-html")]
             "html" => Some(codec_html::HtmlCodec::$method($($arg),*)),
-            #[cfg(feature = "ipynb")]
+            #[cfg(feature = "codec-ipynb")]
             "ipynb" => Some(codec_ipynb::IpynbCodec::$method($($arg),*)),
-            #[cfg(feature = "json")]
+            #[cfg(feature = "codec-json")]
             "json" => Some(codec_json::JsonCodec::$method($($arg),*)),
-            #[cfg(feature = "json5")]
+            #[cfg(feature = "codec-json5")]
             "json5" => Some(codec_json5::Json5Codec::$method($($arg),*)),
-            #[cfg(feature = "latex")]
+            #[cfg(feature = "codec-latex")]
             "latex" => Some(codec_latex::LatexCodec::$method($($arg),*)),
-            #[cfg(feature = "pandoc")]
+            #[cfg(feature = "codec-pandoc")]
             "pandoc" => Some(codec_pandoc::PandocCodec::$method($($arg),*)),
-            #[cfg(feature = "person")]
+            #[cfg(feature = "codec-person")]
             "person" => Some(codec_person::PersonCodec::$method($($arg),*)),
-            #[cfg(feature = "md")]
+            #[cfg(feature = "codec-md")]
             "md" => Some(codec_md::MdCodec::$method($($arg),*)),
-            #[cfg(feature = "rmd")]
+            #[cfg(feature = "codec-rmd")]
             "rmd" => Some(codec_rmd::RmdCodec::$method($($arg),*)),
-            #[cfg(feature = "rpng")]
+            #[cfg(feature = "codec-rpng")]
             "rpng" => Some(codec_rpng::RpngCodec::$method($($arg),*)),
-            #[cfg(feature = "toml")]
+            #[cfg(feature = "codec-toml")]
             "toml" => Some(codec_toml::TomlCodec::$method($($arg),*)),
-            #[cfg(feature = "txt")]
+            #[cfg(feature = "codec-txt")]
             "txt" => Some(codec_txt::TxtCodec::$method($($arg),*)),
-            #[cfg(feature = "yaml")]
+            #[cfg(feature = "codec-yaml")]
             "yaml" => Some(codec_yaml::YamlCodec::$method($($arg),*)),
 
             _ => None
@@ -109,35 +109,35 @@ impl Codecs {
     /// Create a new codec registry
     pub fn new() -> Self {
         let inner = vec![
-            #[cfg(feature = "date")]
+            #[cfg(feature = "codec-date")]
             ("date", codec_date::DateCodec::spec()),
-            #[cfg(feature = "docx")]
+            #[cfg(feature = "codec-docx")]
             ("docx", codec_docx::DocxCodec::spec()),
-            #[cfg(feature = "html")]
+            #[cfg(feature = "codec-html")]
             ("html", codec_html::HtmlCodec::spec()),
-            #[cfg(feature = "ipynb")]
+            #[cfg(feature = "codec-ipynb")]
             ("ipynb", codec_ipynb::IpynbCodec::spec()),
-            #[cfg(feature = "json")]
+            #[cfg(feature = "codec-json")]
             ("json", codec_json::JsonCodec::spec()),
-            #[cfg(feature = "json5")]
+            #[cfg(feature = "codec-json5")]
             ("json5", codec_json5::Json5Codec::spec()),
-            #[cfg(feature = "latex")]
+            #[cfg(feature = "codec-latex")]
             ("latex", codec_latex::LatexCodec::spec()),
-            #[cfg(feature = "pandoc")]
+            #[cfg(feature = "codec-pandoc")]
             ("pandoc", codec_pandoc::PandocCodec::spec()),
-            #[cfg(feature = "person")]
+            #[cfg(feature = "codec-person")]
             ("person", codec_person::PersonCodec::spec()),
-            #[cfg(feature = "md")]
+            #[cfg(feature = "codec-md")]
             ("md", codec_md::MdCodec::spec()),
-            #[cfg(feature = "rmd")]
+            #[cfg(feature = "codec-rmd")]
             ("rmd", codec_rmd::RmdCodec::spec()),
-            #[cfg(feature = "rpng")]
+            #[cfg(feature = "codec-rpng")]
             ("rpng", codec_rpng::RpngCodec::spec()),
-            #[cfg(feature = "toml")]
+            #[cfg(feature = "codec-toml")]
             ("toml", codec_toml::TomlCodec::spec()),
-            #[cfg(feature = "txt")]
+            #[cfg(feature = "codec-txt")]
             ("txt", codec_txt::TxtCodec::spec()),
-            #[cfg(feature = "yaml")]
+            #[cfg(feature = "codec-yaml")]
             ("yaml", codec_yaml::YamlCodec::spec()),
         ]
         .into_iter()

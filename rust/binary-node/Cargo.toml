@@ -1,0 +1,12 @@
+[package]
+name = "binary-node"
+description = "A binary specification for Node.js"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binary = { path = "../binary", version = "0.0.0", features = [
+    "download-zip",
+    "download-tar-gz",
+    "download-tar-xz",
+] }

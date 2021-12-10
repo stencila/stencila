@@ -196,9 +196,9 @@ export type ProjectsServerStart = InvokeType<
   typeof dispatch.server.serve
 >
 
-export type ProjectsKernelsAvailable = InvokeType<
-  typeof CHANNEL.PROJECTS_KERNELS_AVAILABLE,
-  typeof dispatch.kernels.available
+export type ProjectsKernelsLanguages = InvokeType<
+  typeof CHANNEL.PROJECTS_KERNELS_LANGUAGES,
+  typeof dispatch.kernels.languages
 >
 
 // Documents
@@ -298,7 +298,7 @@ type InvokeTypes =
   | ProjectsGraph
   | ProjectsServerStart
   | ProjectsUnsubscribe
-  | ProjectsKernelsAvailable
+  | ProjectsKernelsLanguages
   | DocumentsOpen
   | DocumentsAlter
   | DocumentsCreate
@@ -457,9 +457,9 @@ interface Invoke {
   ): ProjectsServerStart['result']
 
   invoke(
-    channel: ProjectsKernelsAvailable['channel'],
-    ...args: ProjectsKernelsAvailable['args']
-  ): ProjectsKernelsAvailable['result']
+    channel: ProjectsKernelsLanguages['channel'],
+    ...args: ProjectsKernelsLanguages['args']
+  ): ProjectsKernelsLanguages['result']
 
   // Documents
   invoke(

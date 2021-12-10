@@ -1,0 +1,16 @@
+[package]
+name = "kernel-micro"
+description = "A trait for minimal, lightweight, 'microkernels'"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binaries = { path = "../binaries", version = "0.0.0" }
+dirs = "4.0.0"
+kernel = { path = "../kernel", version = "0.0.0" }
+nix = "0.23.0"
+serde = "1.0.130"
+serde_json = "1.0.72"
+tempfile = "3.2.0"
+tokio = { version = "1.13.0", features = ["process", "fs"] }
+tracing = "0.1.29"

@@ -27,16 +27,14 @@ impl StoreKernel {
 #[async_trait]
 impl KernelTrait for StoreKernel {
     fn spec(&self) -> Kernel {
-        Kernel {
-            language: "".to_string(),
-        }
+        Kernel::new("store", kernel::KernelType::Builtin, &[])
     }
 
     async fn status(&self) -> Result<KernelStatus> {
         Ok(KernelStatus::Idle)
     }
 
-    async fn get(&self, name: &str) -> Result<Node> {
+    async fn get(&mut self, name: &str) -> Result<Node> {
         match self.symbols.get(name) {
             Some(node) => Ok(node.clone()),
             None => bail!("Symbol `{}` does not exist in this kernel", name),
