@@ -3164,6 +3164,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-patch"
+version = "0.1.0"
+dependencies = [
+ "Inflector",
+ "defaults",
+ "derive_more",
+ "eyre",
+ "itertools",
+ "schemars",
+ "serde",
+ "serde_with",
+ "similar 2.1.0",
+ "stencila-schema",
+ "strum 0.23.0",
+]
+
+[[package]]
 name = "node-reshape"
 version = "0.0.0"
 dependencies = [
