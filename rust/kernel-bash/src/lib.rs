@@ -8,7 +8,7 @@ pub fn new() -> MicroKernel {
     MicroKernel::new(
         "bash-micro",
         &["bash"],
-        &["linux", "macos"],
+        &["linux", "macos", "windows"],
         &[],
         ("bash", "*"),
         &["{{script}}"],
