@@ -179,7 +179,9 @@ impl KernelTrait for MicroKernel {
     /// and runs it using specified commands, including the kernel script file if specified
     /// in the arguments.
     async fn start(&mut self) -> Result<()> {
-        // Resolve the directory where kernels ar run
+        self.status = KernelStatus::Starting;
+
+        // Resolve the directory where kernels are run
         let user_data_dir = dirs::data_dir().unwrap_or_else(|| env::current_dir().unwrap());
         let dir = match env::consts::OS {
             "macos" | "windows" => user_data_dir.join("Stencila").join("Microkernels"),
@@ -226,11 +228,12 @@ impl KernelTrait for MicroKernel {
             .take()
             .ok_or_else(|| eyre!("Child has no stderr handle"))?;
 
+        // Ownership rules require us to set `stdout` and `stderr` here and
+        // then `as_mut().unwrap()` below for initial reads.
         self.child = Some(child);
         self.stdin = Some(BufWriter::new(stdin));
         self.stdout = Some(BufReader::new(stdout));
         self.stderr = Some(BufReader::new(stderr));
-        self.status = KernelStatus::Starting;
 
         // Capture stdout until the READY flag
         let stdout = self.stdout.as_mut().unwrap();
