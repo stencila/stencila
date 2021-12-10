@@ -1,5 +1,5 @@
 use super::prelude::*;
-use crate::dispatch_block;
+use node_dispatch::dispatch_block;
 use std::hash::Hasher;
 use stencila_schema::*;
 

@@ -82,6 +82,20 @@ macro_rules! assert_json_eq {
     };
 }
 
+/// Assert that two nodes are equal based on their JSON representation
+///
+/// This is a convenience macro to avoid having to import and use `json!`
+/// on the second argument of `assert_json_eq`.
+#[macro_export]
+macro_rules! assert_json_is {
+    ($a:expr, $b:tt) => {
+        test_utils::pretty_assertions::assert_eq!(
+            test_utils::serde_json::json!($a),
+            test_utils::serde_json::json!($b)
+        );
+    };
+}
+
 /// Print log entries
 ///
 /// Many of the sibling crates use `tracing` and seeing log entries can be

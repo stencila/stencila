@@ -1,6 +1,6 @@
 use super::prelude::*;
-use crate::dispatch_inline;
 use codec_txt::ToTxt;
+use node_dispatch::dispatch_inline;
 use std::hash::Hasher;
 use stencila_schema::*;
 
@@ -330,12 +330,10 @@ patchable_media_object!(VideoObjectSimple, content_url);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        assert_json, assert_json_eq,
-        patches::{apply_new, diff, equal},
-    };
+    use crate::{apply_new, diff, equal};
     use serde_json::json;
     use stencila_schema::Node;
+    use test_utils::{assert_json_eq, assert_json_is};
 
     // Test that operations with address are passed through
     #[test]
@@ -349,7 +347,7 @@ mod tests {
         assert!(!equal(&a, &InlineContent::Boolean(true)));
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Add", "address": [0], "value": "e", "length": 1},
             {"type": "Remove", "address": [2], "items": 1},
             {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
@@ -370,7 +368,7 @@ mod tests {
         assert!(!equal(&a, &b));
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Remove", "address": ["content", 0, 2], "items": 2},
         ]);
         assert_json_eq!(apply_new(&a, &patch)?, b);
@@ -392,25 +390,25 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "String", "to": "Emphasis"}
         ]);
         assert_json_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Emphasis", "to": "String"}
         ]);
         assert_json_eq!(apply_new(&b, &patch)?, a);
 
         let patch = diff(&b, &c);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Emphasis", "to": "Strong"}
         ]);
         assert_json_eq!(apply_new(&b, &patch)?, c);
 
         let patch = diff(&c, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Strong", "to": "Emphasis"}
         ]);
         assert_json_eq!(apply_new(&c, &patch)?, b);
@@ -428,7 +426,7 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {
                 "type": "Replace", "address": [], "items": 1,
                 "value": {"type": "Emphasis", "content": ["b"]},
@@ -438,7 +436,7 @@ mod tests {
         assert_json_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {
                 "type": "Replace", "address": [], "items": 1,
                 "value": "a",
@@ -464,7 +462,7 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {
                 "type": "Replace", "address": [], "items": 1,
                 "value": {"type": "ImageObject", "contentUrl": "a"},
@@ -502,7 +500,7 @@ mod tests {
             }),
         ];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {
                 "type": "Replace", "address": [0, "content", 0, 0], "items": 1,
                 "value": "b", "length": 1
@@ -528,7 +526,7 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {
                 "type": "Add",
                 "address": ["value"],

@@ -89,10 +89,8 @@ patchable_atomic!(Number, hash_float);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        assert_json,
-        patches::{apply_new, diff, equal},
-    };
+    use crate::{apply_new, diff, equal};
+    use test_utils::assert_json_is;
 
     #[test]
     fn booleans() -> Result<()> {
@@ -100,12 +98,12 @@ mod tests {
         assert!(equal(&false, &false));
         assert!(!equal(&true, &false));
 
-        assert_json!(diff(&true, &true).ops, []);
-        assert_json!(diff(&false, &false).ops, []);
-        assert_json!(diff(&true, &false).ops, [{"type": "Replace", "address": [], "items": 1, "value": false, "length": 1}]);
+        assert_json_is!(diff(&true, &true).ops, []);
+        assert_json_is!(diff(&false, &false).ops, []);
+        assert_json_is!(diff(&true, &false).ops, [{"type": "Replace", "address": [], "items": 1, "value": false, "length": 1}]);
 
-        assert_json!(apply_new(&true, &diff(&true, &false))?, false);
-        assert_json!(apply_new(&false, &diff(&false, &true))?, true);
+        assert_json_is!(apply_new(&true, &diff(&true, &false))?, false);
+        assert_json_is!(apply_new(&false, &diff(&false, &true))?, true);
 
         Ok(())
     }
@@ -115,10 +113,10 @@ mod tests {
         assert!(equal(&42, &42));
         assert!(!equal(&42, &1));
 
-        assert_json!(diff(&42, &42).ops, []);
-        assert_json!(diff(&42, &1).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1, "length": 1}]);
+        assert_json_is!(diff(&42, &42).ops, []);
+        assert_json_is!(diff(&42, &1).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1, "length": 1}]);
 
-        assert_json!(apply_new(&1, &diff(&1, &42))?, 42);
+        assert_json_is!(apply_new(&1, &diff(&1, &42))?, 42);
 
         Ok(())
     }
@@ -128,10 +126,10 @@ mod tests {
         assert!(equal(&1.23, &1.23));
         assert!(!equal(&1.23, &1e6));
 
-        assert_json!(diff(&1.23, &1.23).ops, []);
-        assert_json!(diff(&1.23, &1e6).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1e6, "length": 1}]);
+        assert_json_is!(diff(&1.23, &1.23).ops, []);
+        assert_json_is!(diff(&1.23, &1e6).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1e6, "length": 1}]);
 
-        assert_json!(apply_new(&1e6, &diff(&1e6, &1.23))?, 1.23);
+        assert_json_is!(apply_new(&1e6, &diff(&1e6, &1.23))?, 1.23);
 
         Ok(())
     }

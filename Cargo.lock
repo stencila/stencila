@@ -3164,20 +3164,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-dispatch"
+version = "0.0.0"
+
+[[package]]
 name = "node-patch"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "Inflector",
+ "codec-html",
+ "codec-txt",
+ "codecs",
  "defaults",
  "derive_more",
  "eyre",
  "itertools",
+ "kernels",
+ "node-dispatch",
  "schemars",
  "serde",
+ "serde_json",
  "serde_with",
  "similar 2.1.0",
  "stencila-schema",
  "strum 0.23.0",
+ "test-props",
+ "test-snaps",
+ "test-utils",
+ "thiserror",
+ "tracing",
+ "unicode-segmentation",
 ]
 
 [[package]]
@@ -4855,7 +4871,6 @@ dependencies = [
  "tracing-error 0.2.0",
  "tracing-serde",
  "tracing-subscriber 0.3.3",
- "unicode-segmentation",
  "url",
  "urlencoding",
  "uuids",

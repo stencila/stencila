@@ -79,11 +79,9 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        assert_json, assert_json_eq,
-        patches::{apply_new, diff, equal},
-    };
+    use crate::{apply_new, diff, equal};
     use stencila_schema::{CodeBlock, Integer};
+    use test_utils::{assert_json_eq, assert_json_is};
 
     #[test]
     fn basic() -> Result<()> {
@@ -93,7 +91,7 @@ mod tests {
         let a = Box::new("abcd".to_string());
         let b = Box::new("eacp".to_string());
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [
                 {"type": "Add", "address": [0], "value": "e", "length": 1},
@@ -101,7 +99,7 @@ mod tests {
                 {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
             ]
         );
-        assert_json!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, &patch)?, b);
 
         Ok(())
     }
@@ -115,7 +113,7 @@ mod tests {
             ..Default::default()
         };
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": ["programmingLanguage"], "value": "a", "length": 1 },
         ]);
         assert_json_eq!(apply_new(&a, &patch)?, b);

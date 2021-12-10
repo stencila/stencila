@@ -1,16 +1,10 @@
-use crate::{
-    errors::{invalid_patch_operation, invalid_patch_value},
-    methods::compile::execute,
-    utils::schemas,
-};
 use defaults::Defaults;
 use derive_more::{Constructor, Deref, DerefMut};
 use eyre::{bail, Result};
 use inflector::cases::{camelcase::to_camel_case, snakecase::to_snake_case};
 use itertools::Itertools;
 use kernels::KernelSpace;
-use prelude::{invalid_address, unpointable_type};
-use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use schemars::JsonSchema;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_with::skip_serializing_none;
@@ -318,17 +312,17 @@ impl<'lt> Pointer<'lt> {
         let patch = match self {
             Pointer::Inline(node) => {
                 let pre = node.clone();
-                execute(*node, kernels).await?;
+                // TODO execute(*node, kernels).await?;
                 diff(&pre, node)
             }
             Pointer::Block(node) => {
                 let pre = node.clone();
-                execute(*node, kernels).await?;
+                // TODO execute(*node, kernels).await?;
                 diff(&pre, node)
             }
             Pointer::Node(node) => {
                 let pre = node.clone();
-                execute(*node, kernels).await?;
+                // TODO execute(*node, kernels).await?;
                 diff(&pre, node)
             }
             _ => bail!("Invalid node pointer: {:?}", self),
@@ -380,7 +374,7 @@ pub enum Operation {
             serialize_with = "Operation::value_serialize",
             deserialize_with = "Operation::value_deserialize"
         )]
-        #[schemars(schema_with = "Operation::value_schema")]
+        #[schemars(skip)]
         value: Value,
 
         /// The number of items added
@@ -412,7 +406,7 @@ pub enum Operation {
             serialize_with = "Operation::value_serialize",
             deserialize_with = "Operation::value_deserialize"
         )]
-        #[schemars(schema_with = "Operation::value_schema")]
+        #[schemars(skip)]
         value: Value,
 
         /// The number of items added
@@ -448,11 +442,6 @@ pub enum Operation {
 }
 
 impl Operation {
-    /// Generate the JSON Schema for the `value` property
-    fn value_schema(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("any", true)
-    }
-
     /// Deserialize the `value` field of an operation
     ///
     /// This is needed so that the server can receive a `Patch` from the client and
@@ -1020,6 +1009,9 @@ macro_rules! patchable_diff {
     };
 }
 
+mod errors;
+use errors::{invalid_address, invalid_patch_operation, invalid_patch_value, unpointable_type};
+
 mod prelude;
 
 mod atomics;
@@ -1047,17 +1039,11 @@ enum PatchesSchema {
     Operation(Operation),
 }
 
-/// Get JSON Schemas for this module
-pub fn schemas() -> Result<serde_json::Value> {
-    schemas::generate::<PatchesSchema>()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{assert_json, assert_json_eq};
-    use serde_json::json;
     use stencila_schema::{Article, Emphasis, InlineContent, Integer, Paragraph};
+    use test_utils::{assert_json_eq, assert_json_is};
 
     #[test]
     fn test_same_equal() {
@@ -1106,7 +1092,7 @@ mod tests {
         // Patching `empty` to `a` should return no difference
 
         let patch = diff(&empty, &empty);
-        assert_json!(patch.ops, []);
+        assert_json_is!(patch.ops, []);
 
         let mut patched = empty.clone();
         apply(&mut patched, &patch)?;
@@ -1116,7 +1102,7 @@ mod tests {
         // - replace all content with the content of `a`
 
         let patch = diff(&empty, &a);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{
                 "type": "Add",
@@ -1135,7 +1121,7 @@ mod tests {
         // - replace part of `content[1]`
 
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{
                 "type": "Transform",
@@ -1215,57 +1201,57 @@ mod tests {
         // one to two -> `Add` operation on the article's content
         let mut patch = diff(&one, &two);
         patch.prepublish(&two);
-        assert_json_eq!(
+        assert_json_is!(
             patch.ops,
-            json!([{
+            [{
                 "type": "Add",
                 "address": ["content", 0],
                 "value": [{"type": "Paragraph", "content": []}],
                 "length": 1,
                 "html": "<p itemtype=\"http://schema.stenci.la/Paragraph\" itemscope></p>",
-            }])
+            }]
         );
 
         // two to three -> `Add` operation on the paragraph's content
         let mut patch = diff(&two, &three);
         patch.prepublish(&three);
-        assert_json_eq!(
+        assert_json_is!(
             patch.ops,
-            json!([{
+            [{
                 "type": "Add",
                 "address": ["content", 0, "content", 0],
                 "value": ["first", " second"],
                 "length": 2,
                 "html": "<span>first</span><span> second</span>",
-            }])
+            }]
         );
 
         // three to four -> `Replace` operation on a word
         let mut patch = diff(&three, &four);
         patch.prepublish(&four);
-        assert_json_eq!(
+        assert_json_is!(
             patch.ops,
-            json!([{
+            [{
                 "type": "Replace",
                 "address": ["content", 0, "content", 0, 1],
                 "items": 3,
                 "value": "oo",
                 "length": 2
                 // No `html` because same as `value`
-            }])
+            }]
         );
 
         // four to five -> `Move` operation on the word
         let mut patch = diff(&four, &five);
         patch.prepublish(&five);
-        assert_json_eq!(
+        assert_json_is!(
             patch.ops,
-            json!([{
+            [{
                 "type": "Move",
                 "from": ["content", 0, "content", 1],
                 "items": 1,
                 "to": ["content", 0, "content", 0],
-            }])
+            }]
         );
     }
 }
