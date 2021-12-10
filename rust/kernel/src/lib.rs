@@ -133,7 +133,8 @@ impl KernelSelector {
     /// Parse a kernel selector string into a `KernelSelector`
     pub fn parse(selector: &str) -> Self {
         static REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"(\b(name|lang|type)\s*:\s*(\w+)\b)|(\w+)").expect("Unable to create regex")
+            Regex::new(r"(\b(name|lang|type)\s*:\s*([\w-]+)\b)|([\w-]+)")
+                .expect("Unable to create regex")
         });
 
         let mut any = None;
@@ -308,9 +309,9 @@ mod test {
         assert_eq!(ks.lang, Some("py".to_string()));
         assert_eq!(ks.r#type, Some("jupyter".to_string()));
 
-        let ks = KernelSelector::parse("name:ir");
+        let ks = KernelSelector::parse("name:node-micro");
         assert_eq!(ks.any, None);
-        assert_eq!(ks.name, Some("ir".to_string()));
+        assert_eq!(ks.name, Some("node-micro".to_string()));
         assert_eq!(ks.lang, None);
         assert_eq!(ks.r#type, None);
 
