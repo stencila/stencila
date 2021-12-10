@@ -1,8 +1,6 @@
-use crate::{
-    patches::{Address, Slot},
-    utils::schemas,
-};
+use crate::utils::schemas;
 use eyre::Result;
+use node_patch::{Address, Slot};
 use schemars::{gen::SchemaSettings, JsonSchema};
 use serde::Serialize;
 use std::{any::type_name, collections::HashMap};

@@ -1,6 +1,7 @@
-use crate::{documents::DOCUMENTS, patches::Patch, sessions::SESSIONS};
+use crate::{documents::DOCUMENTS, sessions::SESSIONS};
 use defaults::Defaults;
 use eyre::{bail, Result};
+use node_patch::Patch;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_with::skip_serializing_none;

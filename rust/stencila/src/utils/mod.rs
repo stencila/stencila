@@ -1,4 +1,3 @@
-pub mod dispatch;
 pub mod fs;
 pub mod hash;
 pub mod http;

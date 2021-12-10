@@ -5,7 +5,7 @@
 ///! trips, both ways, between two instances.
 use node_patch::{apply_new, diff};
 use test_props::{
-    block_content, inline_content, node,
+    block_content, inline_content,
     proptest::{
         collection::{size_range, vec},
         prelude::*,

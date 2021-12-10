@@ -308,7 +308,7 @@ impl<'lt> Pointer<'lt> {
     ///
     /// Returns a patch representing the change in the node resulting from
     /// the execution (usually to its outputs, but potentially to its errors also)
-    pub async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<Patch> {
+    pub async fn execute(&mut self, _kernels: &mut KernelSpace) -> Result<Patch> {
         let patch = match self {
             Pointer::Inline(node) => {
                 let pre = node.clone();

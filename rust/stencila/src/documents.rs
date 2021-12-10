@@ -1,6 +1,5 @@
 use crate::{
     methods::compile::compile,
-    patches::{diff, merge, resolve, Address, Patch, Pointer},
     utils::{
         hash::{file_sha256_hex, str_sha256_hex},
         schemas,
@@ -14,6 +13,7 @@ use graph_triples::{Relation, Resource};
 use itertools::Itertools;
 use kernels::KernelSpace;
 use maplit::hashset;
+use node_patch::{diff, merge, resolve, Address, Patch, Pointer};
 use node_reshape::reshape;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
@@ -1400,9 +1400,10 @@ pub fn schemas() -> Result<serde_json::Value> {
 #[cfg(feature = "cli")]
 pub mod commands {
     use super::*;
-    use crate::{patches::diff_display, utils::json};
+    use crate::utils::json;
     use async_trait::async_trait;
     use cli_utils::{result, Result, Run};
+    use node_patch::diff_display;
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
