@@ -274,6 +274,7 @@ pub trait KernelTrait {
     ///
     /// For more on the "Fork-exec" technique in general see https://en.wikipedia.org/wiki/Fork%E2%80%93exec.
     async fn fork_exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
+        tracing::warn!("Kernel is not forkable; executing in kernel itself");
         self.exec(code).await
     }
 }

@@ -4,7 +4,6 @@ use kernel::{
     stencila_schema::{CodeError, Node},
     Kernel, KernelStatus, KernelTrait, KernelType,
 };
-use nix::{sys::stat, unistd::mkfifo};
 use serde::Serialize;
 use std::{env, fs};
 use tempfile::tempdir;
@@ -372,6 +371,7 @@ impl KernelTrait for MicroKernel {
     }
 
     /// Fork the kernel and execute code in the fork
+    #[cfg(not(target_os = "windows"))]
     async fn fork_exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
         if !self.forkable().await {
             tracing::warn!(
@@ -387,6 +387,7 @@ impl KernelTrait for MicroKernel {
             .expect("Kernel should have started and have stdin");
 
         // Create pipes in a temporary directory (which gets cleaned up when dropped)
+        use nix::{sys::stat, unistd::mkfifo};
         let pipes_dir = tempdir().unwrap();
         let stdout = pipes_dir.path().join("stdout.pipe");
         mkfifo(&stdout, stat::Mode::S_IRWXU)?;
