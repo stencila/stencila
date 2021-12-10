@@ -1,3 +1,10 @@
+## [0.134.1](https://github.com/stencila/stencila/compare/v0.134.0...v0.134.1) (2021-12-10)
+
+
+### Bug Fixes
+
+* **HTML encoding:** Put `text` slot on `<pre>` element for `CodeBlock` ([800073c](https://github.com/stencila/stencila/commit/800073cdce73c4ff19a9bcbd5a3933796ec4ca1c)), closes [/github.com/stencila/designa/pull/268#discussion_r764363050](https://github.com//github.com/stencila/designa/pull/268/issues/discussion_r764363050)
+
 # [0.134.0](https://github.com/stencila/stencila/compare/v0.133.1...v0.134.0) (2021-12-10)
 
 
