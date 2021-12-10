@@ -2690,6 +2690,7 @@ dependencies = [
  "kernel-zsh",
  "once_cell",
  "parsers",
+ "regex",
  "serde",
  "serde_json",
  "slug",

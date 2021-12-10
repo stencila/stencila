@@ -1578,8 +1578,8 @@ pub mod commands {
         format: Option<String>,
 
         /// The programming language of the code
-        #[structopt(short, long, default_value = "calc")]
-        lang: String,
+        #[structopt(short, long)]
+        lang: Option<String>,
     }
     #[async_trait]
     impl Run for Execute {
@@ -1596,7 +1596,7 @@ pub mod commands {
 
             document
                 .kernels
-                .repl(&code.join(" "), lang, None, false)
+                .repl(&code.join(" "), lang.clone(), None, false)
                 .await
         }
     }

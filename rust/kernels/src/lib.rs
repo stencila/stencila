@@ -509,53 +509,67 @@ impl KernelSpace {
     pub async fn repl(
         &mut self,
         code: &str,
-        language: &str,
+        language: Option<String>,
         kernel: Option<String>,
         fork: bool,
     ) -> cli_utils::Result {
         use cli_utils::result;
+        use once_cell::sync::Lazy;
+        use regex::Regex;
 
-        if !code.is_empty() {
-            let code = code.replace("\\n", "\n");
-            if code == "%symbols" {
-                let symbols = self.symbols();
-                result::value(symbols)
-            } else if code == "%kernels" {
-                let kernels = self.kernels().await;
-                result::value(kernels)
-            } else {
-                // If possible, parse the code so that we can use the relations to determine variables that
-                // are assigned or used (needed for variable mirroring).
-                let relations = match parsers::parse("<cli>", &code, language) {
-                    Ok(pairs) => pairs,
-                    Err(..) => Vec::new(),
-                };
-                let selector = match kernel {
-                    Some(kernel) => {
-                        let mut selector = KernelSelector::parse(&kernel);
-                        selector.lang = Some(language.to_string());
-                        selector
-                    }
-                    None => KernelSelector::new(None, Some(language.to_string()), None),
-                };
-                let (nodes, errors) = self.exec(&code, &selector, Some(relations), fork).await?;
-                if !errors.is_empty() {
-                    for error in errors {
-                        let mut err = error.error_message;
-                        if let Some(trace) = error.stack_trace {
-                            err += &format!("\n{}", trace);
-                        }
-                        tracing::error!("{}", err)
-                    }
-                }
-                match nodes.len() {
-                    0 => result::nothing(),
-                    1 => result::value(nodes[0].clone()),
-                    _ => result::value(nodes),
+        static SYMBOL: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r"^\w+$").expect("Unable to create regex"));
+
+        if code.is_empty() {
+            result::nothing()
+        } else if code == "%symbols" {
+            let symbols = self.symbols();
+            result::value(symbols)
+        } else if code == "%kernels" {
+            let kernels = self.kernels().await;
+            result::value(kernels)
+        } else if language.is_none() && kernel.is_none() && !fork && SYMBOL.is_match(code) {
+            match self.get(code).await {
+                Ok(node) => result::value(node),
+                Err(err) => {
+                    tracing::error!("{}", err);
+                    result::nothing()
                 }
             }
         } else {
-            result::nothing()
+            let code = code.replace("\\n", "\n");
+
+            let language = language.unwrap_or_else(|| "calc".to_string());
+
+            // If possible, parse the code so that we can use the relations to determine variables that
+            // are assigned or used (needed for variable mirroring).
+            let relations = match parsers::parse("<cli>", &code, &language) {
+                Ok(pairs) => pairs,
+                Err(..) => Vec::new(),
+            };
+            let selector = match kernel {
+                Some(kernel) => {
+                    let mut selector = KernelSelector::parse(&kernel);
+                    selector.lang = Some(language);
+                    selector
+                }
+                None => KernelSelector::new(None, Some(language), None),
+            };
+            let (nodes, errors) = self.exec(&code, &selector, Some(relations), fork).await?;
+            if !errors.is_empty() {
+                for error in errors {
+                    let mut err = error.error_message;
+                    if let Some(trace) = error.stack_trace {
+                        err += &format!("\n{}", trace);
+                    }
+                    tracing::error!("{}", err)
+                }
+            }
+            match nodes.len() {
+                0 => result::nothing(),
+                1 => result::value(nodes[0].clone()),
+                _ => result::value(nodes),
+            }
         }
     }
 }
@@ -800,8 +814,8 @@ pub mod commands {
         code: Vec<String>,
 
         /// The name of the programming language
-        #[structopt(short, long, default_value = "calc")]
-        lang: String,
+        #[structopt(short, long)]
+        lang: Option<String>,
 
         /// The kernel where the code should executed (a kernel selector string)
         #[structopt(short, long)]
@@ -819,7 +833,7 @@ pub mod commands {
                 .await
                 .repl(
                     &self.code.join(" "),
-                    &self.lang,
+                    self.lang.clone(),
                     self.kernel.clone(),
                     self.fork,
                 )

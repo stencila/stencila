@@ -34,3 +34,4 @@ kernel-r = { path = "../kernel-r", version = "0.0.0", optional = true }
 kernel-store = { path = "../kernel-store", version = "0.0.0", optional = true }
 kernel-zsh = { path = "../kernel-zsh", version = "0.0.0", optional = true }
 slug = "0.1.4"
+regex = "1.5.4"
