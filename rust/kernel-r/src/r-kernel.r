@@ -40,9 +40,9 @@ dir <- gsub("\\~\\+\\~", " ", dirname(file))
 source(file.path(dir, "r-codec.r"))
 
 READY <- "\U0010ACDC"
-RESULT <- "\U0010D00B"
+RESULT <- "\U0010CB40"
 TRANS <- "\U0010ABBA"
-FORK <- "\U0010CB40"
+FORK <- "\U0010DE70"
 
 stdin <- file("stdin", "r")
 stdout <- stdout()

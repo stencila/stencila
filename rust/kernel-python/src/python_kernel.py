@@ -8,9 +8,9 @@ from sys import stdin, stdout, stderr
 from python_codec import decode_value, encode_exception, encode_value
 
 READY = u"\U0010ACDC\n"
-RESULT = u"\U0010D00B\n"
+RESULT = u"\U0010CB40\n"
 TRANS = u"\U0010ABBA\n"
-FORK = u"\U0010CB40\n"
+FORK = u"\U0010DE70\n"
 
 
 # Monkey patch `print` to encode individual objects (if no options used)

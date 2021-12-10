@@ -22,17 +22,17 @@ const READY: char = '\u{10ACDC}';
 const READY_ALT: &str = "<U+0010ACDC>";
 
 /// The end of a result ("outputs" on `stderr` and "messages" on `stderr`).
-const RESULT: char = '\u{10D00B}';
-const RESULT_ALT: &str = "<U+0010D00B>";
+const RESULT: char = '\u{10CB40}';
+const RESULT_ALT: &str = "<U+0010CB40>";
 
 /// The end of a transaction, kernel is ready for next transaction.
 const TRANS: char = '\u{10ABBA}';
 const TRANS_ALT: &str = "<U+0010ABBA>";
 
 /// Fork the kernel
-const FORK: char = '\u{10CB40}';
+const FORK: char = '\u{10DE70}';
 #[allow(dead_code)]
-const FORK_ALT: &str = "<U+0010CB40>";
+const FORK_ALT: &str = "<U+0010DE70>";
 
 #[derive(Debug, Serialize)]
 pub struct MicroKernel {

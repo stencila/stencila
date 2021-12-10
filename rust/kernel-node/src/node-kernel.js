@@ -6,7 +6,7 @@ const vm = require('vm')
 const { decodeValue, encodeValue, encodeError } = require('./node-codec')
 
 const READY = '\u{10ACDC}\n'
-const RESULT = '\u{10D00B}\n'
+const RESULT = '\u{10CB40}\n'
 const TRANS = '\u{10ABBA}\n'
 
 const { stdin, stdout, stderr } = process

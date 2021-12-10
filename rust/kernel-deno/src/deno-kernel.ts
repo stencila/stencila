@@ -4,7 +4,7 @@ import { readLines } from 'https://deno.land/std@0.116.0/io/mod.ts'
 import { encodeValue, encodeError } from './deno-codec.ts'
 
 const READY = '\u{10ACDC}\n'
-const RESULT = '\u{10D00B}\n'
+const RESULT = '\u{10CB40}\n'
 const TRANS = '\u{10ABBA}\n'
 
 const textEncoder = new TextEncoder()
