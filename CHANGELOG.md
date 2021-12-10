@@ -1,3 +1,10 @@
+## [0.134.2](https://github.com/stencila/stencila/compare/v0.134.1...v0.134.2) (2021-12-10)
+
+
+### Bug Fixes
+
+* **CI:** Fix Desktop client builds ([310b1d7](https://github.com/stencila/stencila/commit/310b1d7b78e8a8c1a1b2e67911c7a6ad1092ad62))
+
 ## [0.134.1](https://github.com/stencila/stencila/compare/v0.134.0...v0.134.1) (2021-12-10)
 
 
