@@ -4,10 +4,13 @@ use kernel::{
     stencila_schema::{CodeError, Node},
     Kernel, KernelStatus, KernelTrait, KernelType,
 };
+use nix::{sys::stat, unistd::mkfifo};
 use serde::Serialize;
 use std::{env, fs};
+use tempfile::tempdir;
 use tokio::{
-    io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
+    fs::File,
+    io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
     process::{Child, ChildStderr, ChildStdin, ChildStdout},
 };
 
@@ -15,7 +18,7 @@ use tokio::{
 // On Windows, Rscript (and possibly other binaries) escapes unicode on stdout and stderr
 // So the _ALT flags are provided for these instances (or where it is not possible to output Unicode at all).
 
-/// The end of a startup and kernel is ready to process transactions.
+/// The end of kernel startup, kernel is ready to process transactions.
 const READY: char = '\u{10ACDC}';
 const READY_ALT: &str = "<U+0010ACDC>";
 
@@ -26,6 +29,11 @@ const RESULT_ALT: &str = "<U+0010D00B>";
 /// The end of a transaction, kernel is ready for next transaction.
 const TRANS: char = '\u{10ABBA}';
 const TRANS_ALT: &str = "<U+0010ABBA>";
+
+/// Fork the kernel
+const FORK: char = '\u{10CB40}';
+#[allow(dead_code)]
+const FORK_ALT: &str = "<U+0010CB40>";
 
 #[derive(Debug, Serialize)]
 pub struct MicroKernel {
@@ -43,6 +51,9 @@ pub struct MicroKernel {
     ///
     /// Possible OS names can be found here https://doc.rust-lang.org/std/env/consts/constant.OS.html
     oses: Vec<String>,
+
+    /// The operating systems on which the kernel is forkable
+    forkable: Vec<String>,
 
     /// A specification of the runtime executable needed for the kernel
     runtime: (String, String),
@@ -96,6 +107,7 @@ impl MicroKernel {
         name: &str,
         languages: &[&str],
         oses: &[&str],
+        forkable: &[&str],
         runtime: (&str, &str),
         args: &[&str],
         script: (&str, &str),
@@ -107,6 +119,7 @@ impl MicroKernel {
             name: name.into(),
             languages: languages.iter().map(|lang| lang.to_string()).collect(),
             oses: oses.iter().map(|os| os.to_string()).collect(),
+            forkable: forkable.iter().map(|os| os.to_string()).collect(),
             runtime: (runtime.0.into(), runtime.1.into()),
             args: args.iter().map(|arg| arg.to_string()).collect(),
             script: (script.0.to_string(), script.1.to_string()),
@@ -154,6 +167,11 @@ impl KernelTrait for MicroKernel {
         }
         let (name, semver) = &self.runtime;
         binaries::installed(name, semver).await
+    }
+
+    /// Is the kernel forkable on the current machine?
+    async fn forkable(&self) -> bool {
+        self.forkable.contains(&std::env::consts::OS.to_string())
     }
 
     /// Start the kernel
@@ -342,84 +360,152 @@ impl KernelTrait for MicroKernel {
             .as_mut()
             .expect("Kernel should have started and have stderr");
 
-        // Send code to the kernel
-        tracing::debug!("Sending on stdin");
-        let escaped = code.replace("\n", "\\n");
-        if let Err(error) = stdin.write_all([&escaped, "\n"].concat().as_bytes()).await {
+        // Send the code to the kernel
+        let command = [&code.replace("\n", "\\n"), "\n"].concat();
+        if let Err(error) = send_command(&command, stdin).await {
             self.status = KernelStatus::Failed;
-            bail!("When writing code to kernel: {}", error)
-        }
-        if let Err(error) = stdin.flush().await {
-            self.status = KernelStatus::Failed;
-            bail!("When flushing code to kernel: {}", error)
-        }
+            bail!(error)
+        };
 
-        // Capture outputs separating them as we go
-        let mut output = String::new();
-        let mut outputs = Vec::new();
-        loop {
-            let line = match stdout.lines().next_line().await {
-                Ok(Some(line)) => line,
-                Ok(None) => break,
-                Err(error) => {
-                    self.status = KernelStatus::Failed;
-                    bail!("When receiving outputs from kernel: {}", error)
-                }
-            };
-
-            tracing::debug!("Received on stdout: {}", line);
-            if !push_line(&line, &mut output, &mut outputs) {
-                break;
-            }
-        }
-
-        // Attempt to parse each output as JSON into a `Node`, falling back to a string.
-        let outputs: Vec<Node> = outputs
-            .iter()
-            .map(|output| -> Node {
-                serde_json::from_str(output).unwrap_or_else(|_| Node::String(output.clone()))
-            })
-            .collect();
-
-        // Capture messages separating them as we go
-        let mut message = String::new();
-        let mut messages = Vec::new();
-        loop {
-            let line = match stderr.lines().next_line().await {
-                Ok(Some(line)) => line,
-                Ok(None) => break,
-                Err(error) => {
-                    self.status = KernelStatus::Failed;
-                    bail!("When receiving messages from kernel: {}", error)
-                }
-            };
-
-            tracing::debug!("Received on stderr: {}", line);
-            if !push_line(&line, &mut message, &mut messages) {
-                break;
-            }
-        }
-
-        // Attempt to parse each message as JSON into a `CodeMessage`.
-        let messages: Vec<CodeError> = messages
-            .iter()
-            .map(|message| -> CodeError {
-                serde_json::from_str(message).unwrap_or_else(|_| CodeError {
-                    error_message: message.into(),
-                    ..Default::default()
-                })
-            })
-            .collect();
-
-        Ok((outputs, messages))
+        // Receive outputs and messages
+        receive_results(stdout, stderr).await
     }
+
+    /// Fork the kernel and execute code in the fork
+    async fn fork_exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
+        if !self.forkable().await {
+            tracing::warn!(
+                "Kernel `{}` is not forkable; executing in kernel itself",
+                self.name
+            );
+            return self.exec(code).await;
+        }
+
+        let stdin = self
+            .stdin
+            .as_mut()
+            .expect("Kernel should have started and have stdin");
+
+        // Create pipes in a temporary directory (which gets cleaned up when dropped)
+        let pipes_dir = tempdir().unwrap();
+        let stdout = pipes_dir.path().join("stdout.pipe");
+        mkfifo(&stdout, stat::Mode::S_IRWXU)?;
+        let stderr = pipes_dir.path().join("stderr.pipe");
+        mkfifo(&stderr, stat::Mode::S_IRWXU)?;
+
+        // Send code and pipes to the kernel
+        let command = format!(
+            "{}|{};{}{}\n",
+            code.replace("\n", "\\n"),
+            stdout.display(),
+            stderr.display(),
+            FORK
+        );
+        if let Err(error) = send_command(&command, stdin).await {
+            self.status = KernelStatus::Failed;
+            bail!(error)
+        };
+
+        // Open `stdout` and `stderr`. These calls will block until the child
+        // process has opened the pipes for writing. So perhaps this should have a timeout
+        // in case that fails.
+        tracing::debug!("Waiting to open stdout");
+        let stdout = File::open(stdout).await?;
+        tracing::debug!("Waiting to open stderr");
+        let stderr = File::open(stderr).await?;
+
+        // Receive outputs and messages
+        let mut stdout = BufReader::new(stdout);
+        let mut stderr = BufReader::new(stderr);
+        receive_results(&mut stdout, &mut stderr).await
+    }
+}
+
+/// Send a command to a kernel on stdin
+async fn send_command<W: AsyncWrite + Unpin>(
+    command: &str,
+    stdin: &mut BufWriter<W>,
+) -> Result<()> {
+    tracing::debug!("Sending command on stdin");
+    if let Err(error) = stdin.write_all(command.as_bytes()).await {
+        bail!("When writing code to kernel: {}", error)
+    }
+    if let Err(error) = stdin.flush().await {
+        bail!("When flushing code to kernel: {}", error)
+    }
+    Ok(())
+}
+
+// Receive results (outputs on stdout and messages on stderr) from a kernel
+async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
+    stdout: &mut R1,
+    stderr: &mut R2,
+) -> Result<(Vec<Node>, Vec<CodeError>)> {
+    // Capture outputs separating them as we go
+    let mut output = String::new();
+    let mut outputs = Vec::new();
+    let mut lines = stdout.lines();
+    loop {
+        let line = match lines.next_line().await {
+            Ok(Some(line)) => line.to_string(),
+            Ok(None) => break,
+            Err(error) => {
+                bail!("When receiving outputs from kernel: {}", error)
+            }
+        };
+
+        tracing::debug!("Received on stdout: {}", &line);
+        if !handle_line(&line, &mut output, &mut outputs) {
+            break;
+        }
+    }
+
+    // Attempt to parse each output as JSON into a `Node`, falling back to a string.
+    let outputs: Vec<Node> = outputs
+        .iter()
+        .map(|output| -> Node {
+            serde_json::from_str(output).unwrap_or_else(|_| Node::String(output.clone()))
+        })
+        .collect();
+
+    // Capture messages separating them as we go
+    let mut message = String::new();
+    let mut messages = Vec::new();
+    let mut lines = stderr.lines();
+    loop {
+        let line = match lines.next_line().await {
+            Ok(Some(line)) => line.to_string(),
+            Ok(None) => break,
+            Err(error) => {
+                bail!("When receiving messages from kernel: {}", error)
+            }
+        };
+
+        tracing::debug!("Received on stderr: {}", &line);
+        if !handle_line(&line, &mut message, &mut messages) {
+            break;
+        }
+    }
+
+    // Attempt to parse each message as JSON into a `CodeMessage`.
+    let messages: Vec<CodeError> = messages
+        .iter()
+        .map(|message| -> CodeError {
+            serde_json::from_str(message).unwrap_or_else(|_| CodeError {
+                error_message: message.into(),
+                ..Default::default()
+            })
+        })
+        .collect();
+
+    Ok((outputs, messages))
 }
 
 /// Handle a line of stdout or stderr
 ///
 /// How the line is handled depends upon whether it has a result or transaction
 /// separator at the end. Returns false at the end of a transaction.
-fn push_line(line: &str, current: &mut String, vec: &mut Vec<String>) -> bool {
+fn handle_line(line: &str, current: &mut String, vec: &mut Vec<String>) -> bool {
     if let Some(line) = line
         .strip_suffix(RESULT)
         .or_else(|| line.strip_suffix(RESULT_ALT))

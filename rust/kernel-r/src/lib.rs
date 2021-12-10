@@ -6,6 +6,7 @@ pub fn new() -> MicroKernel {
         "r-micro",
         &["r"],
         &["linux", "macos", "windows"],
+        &["linux", "macos"],
         ("Rscript", "*"),
         &["{{script}}"],
         include_file!("r-kernel.r"),
@@ -285,6 +286,45 @@ mod tests {
             };
             assert!(image.content_url.starts_with("data:image/png;base64,"));
         }
+
+        Ok(())
+    }
+
+    /// Test forking
+    #[tokio::test]
+    async fn fork() -> Result<()> {
+        let _guard = QUEUE.lock().await;
+
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => {
+                if kernel.forkable().await {
+                    kernel
+                } else {
+                    eprintln!("Not forkable on this OS");
+                    return Ok(());
+                }
+            }
+            Err(..) => return Ok(()),
+        };
+
+        // In the kernel import a module and assign a variable
+        let (outputs, messages) = kernel.exec("var = runif(1)\nvar").await?;
+        assert_json_eq!(messages, json!([]));
+        assert_eq!(outputs.len(), 1);
+        let var = outputs[0].clone();
+
+        // Now fork-exec. The fork should be able to use the module and access the
+        // variable but any change to variable should not change its value in the parent kernel
+        let (outputs, messages) = kernel.fork_exec("print(var)\nvar = runif(1)").await?;
+        assert_json_eq!(messages, json!([]));
+        assert_eq!(outputs.len(), 1);
+        assert_json_eq!(outputs[0], var);
+
+        // Back in the parent kernel, var should still have its original value
+        assert_json_eq!(var, kernel.get("var").await?);
+        let (outputs, messages) = kernel.exec("var").await?;
+        assert_json_eq!(messages, json!([]));
+        assert_eq!(outputs.len(), 1);
 
         Ok(())
     }

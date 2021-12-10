@@ -275,7 +275,9 @@ impl Compile for CodeChunk {
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let relations = parsers::parse("", &self.text, &self.programming_language)?;
         let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
-        let (outputs, errors) = kernels.exec(&self.text, &selector, Some(relations)).await?;
+        let (outputs, errors) = kernels
+            .exec(&self.text, &selector, Some(relations), false)
+            .await?;
 
         self.outputs = if outputs.is_empty() {
             None
@@ -322,7 +324,9 @@ impl Compile for CodeExpression {
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let relations = parsers::parse("", &self.text, &self.programming_language)?;
         let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
-        let (outputs, errors) = kernels.exec(&self.text, &selector, Some(relations)).await?;
+        let (outputs, errors) = kernels
+            .exec(&self.text, &selector, Some(relations), false)
+            .await?;
 
         self.output = outputs.get(0).map(|output| Box::new(output.clone()));
         self.errors = if errors.is_empty() {

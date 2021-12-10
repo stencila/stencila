@@ -9,6 +9,7 @@ pub fn new() -> MicroKernel {
         "zsh-micro",
         &["zsh"],
         &["linux", "macos", "windows"],
+        &[],
         ("zsh", "*"),
         &["{{script}}"],
         include_file!("zsh-kernel.sh"),

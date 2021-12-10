@@ -2599,8 +2599,10 @@ dependencies = [
  "binaries",
  "dirs",
  "kernel",
+ "nix",
  "serde",
  "serde_json",
+ "tempfile",
  "tokio",
  "tracing",
 ]

@@ -34,6 +34,9 @@ pub struct KernelInfo {
     /// The kernel spec
     #[serde(flatten)]
     spec: Kernel,
+
+    /// Whether the kernel is forkable on the current machine
+    forkable: bool,
 }
 
 /// Information on a symbol in a kernel space
@@ -141,7 +144,7 @@ impl MetaKernel {
     }
 }
 
-macro_rules! dispatch_builtins {
+macro_rules! dispatch_variants {
     ($var:expr, $method:ident $(,$arg:expr)*) => {
         match $var {
             #[cfg(feature = "kernel-store")]
@@ -159,31 +162,43 @@ macro_rules! dispatch_builtins {
 #[async_trait]
 impl KernelTrait for MetaKernel {
     fn spec(&self) -> Kernel {
-        dispatch_builtins!(self, spec)
+        dispatch_variants!(self, spec)
+    }
+
+    async fn available(&self) -> bool {
+        dispatch_variants!(self, available).await
+    }
+
+    async fn forkable(&self) -> bool {
+        dispatch_variants!(self, forkable).await
     }
 
     async fn start(&mut self) -> Result<()> {
-        dispatch_builtins!(self, start).await
+        dispatch_variants!(self, start).await
     }
 
     async fn stop(&mut self) -> Result<()> {
-        dispatch_builtins!(self, stop).await
+        dispatch_variants!(self, stop).await
     }
 
     async fn status(&self) -> Result<KernelStatus> {
-        dispatch_builtins!(self, status).await
+        dispatch_variants!(self, status).await
     }
 
     async fn get(&mut self, name: &str) -> Result<Node> {
-        dispatch_builtins!(self, get, name).await
+        dispatch_variants!(self, get, name).await
     }
 
     async fn set(&mut self, name: &str, value: Node) -> Result<()> {
-        dispatch_builtins!(self, set, name, value).await
+        dispatch_variants!(self, set, name, value).await
     }
 
     async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
-        dispatch_builtins!(self, exec, code).await
+        dispatch_variants!(self, exec, code).await
+    }
+
+    async fn fork_exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
+        dispatch_variants!(self, fork_exec, code).await
     }
 }
 
@@ -238,7 +253,13 @@ impl KernelSpace {
                     KernelStatus::Unknown
                 }
             };
-            info.push(KernelInfo { id, status, spec })
+            let forkable = kernel.forkable().await;
+            info.push(KernelInfo {
+                id,
+                status,
+                spec,
+                forkable,
+            })
         }
         info
     }
@@ -293,6 +314,7 @@ impl KernelSpace {
         code: &str,
         selector: &KernelSelector,
         relations: Option<Vec<(Relation, Resource)>>,
+        fork: bool,
     ) -> Result<(Vec<Node>, Vec<CodeError>)> {
         // Determine the kernel to execute in
         let kernel_id = self.ensure(selector).await?;
@@ -360,10 +382,14 @@ impl KernelSpace {
 
         // Execute the code
         let kernel = self.kernels.get_mut(&kernel_id)?;
-        let nodes = kernel.exec(code).await?;
+        let results = match fork {
+            true => kernel.fork_exec(code),
+            false => kernel.exec(code),
+        }
+        .await?;
 
-        // Record symbols assigned in kernel
-        if let Some(relations) = relations {
+        // Record symbols assigned in kernel (unless it was a fork)
+        if let (false, Some(relations)) = (fork, relations) {
             for relation in relations {
                 let (name, kind) =
                     if let (Relation::Assign(..), Resource::Symbol(symbol)) = relation {
@@ -385,7 +411,7 @@ impl KernelSpace {
             }
         }
 
-        Ok(nodes)
+        Ok(results)
     }
 
     /// Ensure that a kernel exists for a selector
@@ -485,6 +511,7 @@ impl KernelSpace {
         code: &str,
         language: &str,
         kernel: Option<String>,
+        fork: bool,
     ) -> cli_utils::Result {
         use cli_utils::result;
 
@@ -511,7 +538,7 @@ impl KernelSpace {
                     }
                     None => KernelSelector::new(None, Some(language.to_string()), None),
                 };
-                let (nodes, errors) = self.exec(&code, &selector, Some(relations)).await?;
+                let (nodes, errors) = self.exec(&code, &selector, Some(relations), fork).await?;
                 if !errors.is_empty() {
                     for error in errors {
                         let mut err = error.error_message;
@@ -779,6 +806,10 @@ pub mod commands {
         /// The kernel where the code should executed (a kernel selector string)
         #[structopt(short, long)]
         kernel: Option<String>,
+
+        /// Fork the kernel before executing (mainly for testing)
+        #[structopt(short, long)]
+        fork: bool,
     }
     #[async_trait]
     impl Run for Execute {
@@ -786,7 +817,12 @@ pub mod commands {
             KERNEL_SPACE
                 .lock()
                 .await
-                .repl(&self.code.join(" "), &self.lang, self.kernel.clone())
+                .repl(
+                    &self.code.join(" "),
+                    &self.lang,
+                    self.kernel.clone(),
+                    self.fork,
+                )
                 .await
         }
     }

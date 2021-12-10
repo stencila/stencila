@@ -6,6 +6,7 @@ pub fn new() -> MicroKernel {
         "python-micro",
         &["python"],
         &["linux", "macos", "windows"],
+        &["linux", "macos"],
         ("python3", "*"),
         &["{{script}}"],
         include_file!("python_kernel.py"),
@@ -84,6 +85,45 @@ mod tests {
         let (outputs, messages) = kernel.exec("a*b").await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [6]);
+
+        Ok(())
+    }
+
+    /// Test forking
+    #[tokio::test]
+    async fn fork() -> Result<()> {
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => {
+                if kernel.forkable().await {
+                    kernel
+                } else {
+                    eprintln!("Not forkable on this OS");
+                    return Ok(());
+                }
+            }
+            Err(..) => return Ok(()),
+        };
+
+        // In the kernel import a module and assign a variable
+        let (outputs, messages) = kernel
+            .exec("from random import uniform as runif\nvar = runif(0, 1)\nvar")
+            .await?;
+        assert_json_eq!(messages, json!([]));
+        assert_eq!(outputs.len(), 1);
+        let var = outputs[0].clone();
+
+        // Now fork-exec. The fork should be able to use the module and access the
+        // variable but any change to variable should not change its value in the parent kernel
+        let (outputs, messages) = kernel.fork_exec("print(var)\nvar = runif(0, 1)").await?;
+        assert_json_eq!(messages, json!([]));
+        assert_eq!(outputs.len(), 1);
+        assert_json_eq!(outputs[0], var);
+
+        // Back in the parent kernel, var should still have its original value
+        assert_json_eq!(var, kernel.get("var").await?);
+        let (outputs, messages) = kernel.exec("var").await?;
+        assert_json_eq!(messages, json!([]));
+        assert_eq!(outputs.len(), 1);
 
         Ok(())
     }

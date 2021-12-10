@@ -1,28 +1,3 @@
-# Ensure that required packages are installed
-requires <- function (pkgs) {
-  install <- NULL
-  for (pkg in pkgs) {
-    if (!suppressWarnings(require(pkg, character.only = TRUE, quietly=TRUE))) {
-      install <- c(install, pkg)
-    }
-  }
-  if (length(install) > 0) {
-    # Ensure that the user has a place that they can install packages
-    # Note that `R_LIBS_USER` is set to a default value at R startup (if not already set)
-    lib <- Sys.getenv("R_LIBS_USER")
-    dir.create(lib, recursive = TRUE, showWarnings = FALSE)
-    # Add the lib to lib paths for any other installs in this session
-    .libPaths(lib)
-    for (pkg in install) {
-      install.packages(pkg, quiet = TRUE, repo = "https://cloud.r-project.org/")
-      require(pkg, character.only = TRUE, quietly = TRUE)
-    }
-  }
-}
-# Both capture.output and suppressMessages are require here to keep this
-# truely quiet on all platforms
-capture.output(suppressMessages(requires(c("jsonlite", "base64enc"))))
-
 # Decode JSON to an R value
 decode_value <- function(json) {
   fromJSON(json)
@@ -75,9 +50,9 @@ convert_plot <- function(value, options = list(), format = "png") {
     format <- "png"
   }
 
-  # Create a new graphics device for the format, with
-  # a temporary path
-  filename <- tempfile(fileext = paste0(".", format))
+  # Create a new graphics device for the format, with a temporary path.
+  # The tempdir check is needed when forking.
+  filename <- tempfile(fileext = paste0(".", format), tmpdir = tempdir(check=TRUE))
   width <- try(as.numeric(options$width))
   height <- try(as.numeric(options$height))
 

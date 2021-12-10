@@ -239,6 +239,11 @@ pub trait KernelTrait {
         true
     }
 
+    /// Is the kernel forkable on the current machine?
+    async fn forkable(&self) -> bool {
+        false
+    }
+
     /// Start the kernel
     async fn start(&mut self) -> Result<()> {
         Ok(())
@@ -260,6 +265,16 @@ pub trait KernelTrait {
 
     /// Execute some code in the kernel
     async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)>;
+
+    /// Fork the kernel and execute code in the fork
+    ///
+    /// This default implementation does not fork - it simply executes the code in the
+    /// kernel. If a kernel is `forkable: true` it should override this function.
+    ///
+    /// For more on the "Fork-exec" technique in general see https://en.wikipedia.org/wiki/Fork%E2%80%93exec.
+    async fn fork_exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
+        self.exec(code).await
+    }
 }
 
 #[cfg(test)]

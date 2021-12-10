@@ -9,6 +9,7 @@ pub fn new() -> MicroKernel {
         "bash-micro",
         &["bash"],
         &["linux", "macos"],
+        &[],
         ("bash", "*"),
         &["{{script}}"],
         include_file!("bash-kernel.sh"),
