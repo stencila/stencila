@@ -12,20 +12,6 @@ impl<Type: Patchable> Patchable for Box<Type>
 where
     Type: Clone + DeserializeOwned + Send + 'static,
 {
-    /// Resolve an [`Address`] into a node [`Pointer`].
-    ///
-    /// Delegate to boxed value.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-        self.deref_mut().resolve(address)
-    }
-
-    /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// Delegate to boxed value.
-    fn find(&mut self, id: &str) -> Pointer {
-        self.deref_mut().find(id)
-    }
-
     patchable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {

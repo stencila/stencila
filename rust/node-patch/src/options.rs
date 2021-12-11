@@ -13,26 +13,6 @@ impl<Type: Patchable> Patchable for Option<Type>
 where
     Type: Clone + DeserializeOwned + Send + 'static,
 {
-    /// Resolve an [`Address`] into a node [`Pointer`].
-    ///
-    /// Delegate to value, if any.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-        match self {
-            Some(me) => me.resolve(address),
-            None => Ok(Pointer::None),
-        }
-    }
-
-    /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// Delegate to value, if any.
-    fn find(&mut self, id: &str) -> Pointer {
-        match self {
-            Some(me) => me.find(id),
-            None => Pointer::None,
-        }
-    }
-
     patchable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {

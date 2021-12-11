@@ -5,9 +5,6 @@ use stencila_schema::Node;
 macro_rules! patchable_node {
     ($( $variant:path )*) => {
         impl Patchable for Node {
-            patchable_variants_resolve!($( $variant )*);
-            patchable_variants_find!($( $variant )*);
-
             patchable_is_same!();
             patchable_variants_is_equal!($( $variant )*);
             patchable_variants_hash!($( $variant )*);

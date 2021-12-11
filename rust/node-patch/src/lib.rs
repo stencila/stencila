@@ -1,9 +1,6 @@
 use defaults::Defaults;
-use derive_more::{Constructor, Deref, DerefMut};
 use eyre::{bail, Result};
-use inflector::cases::{camelcase::to_camel_case, snakecase::to_snake_case};
-use itertools::Itertools;
-use kernels::KernelSpace;
+use node_address::{Address, Slot};
 use schemars::JsonSchema;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -11,13 +8,11 @@ use serde_with::skip_serializing_none;
 use similar::TextDiff;
 use std::{
     any::{type_name, Any},
-    collections::VecDeque,
-    fmt::{self, Debug},
+    fmt::Debug,
     hash::Hasher,
-    iter::FromIterator,
 };
 use stencila_schema::*;
-use strum::{AsRefStr, Display};
+use strum::Display;
 
 /// Are two nodes are the same type and value?
 pub fn same<Type1, Type2>(node1: &Type1, node2: &Type2) -> bool
@@ -118,217 +113,6 @@ where
         apply(ancestor, &patch)?;
     }
     Ok(())
-}
-
-/// Resolve a child node from within a node using an address or id.
-///
-/// Intended to be able to fallback to using `id` if address can not be resolved
-/// or resolves to a node with the incorrect `id`. However, borrow checker is not
-/// making that possible yet.
-pub fn resolve<Type>(
-    node: &mut Type,
-    address: Option<Address>,
-    node_id: Option<String>,
-) -> Result<Pointer>
-where
-    Type: Patchable,
-{
-    if let Some(mut address) = address {
-        let pointer = node.resolve(&mut address)?;
-        match pointer {
-            Pointer::None => {
-                bail!("Unable to resolve address `{}`", address.to_string())
-                // TODO Do not bail, just warn and then find
-            }
-            _ => {
-                // TODO check pointer id is consistent with node_id if supplied
-                Ok(pointer)
-            }
-        }
-    } else if let Some(node_id) = node_id {
-        let pointer = node.find(&node_id);
-        match pointer {
-            Pointer::None => {
-                bail!("Unable to find node with id `{}`", node_id)
-            }
-            _ => Ok(pointer),
-        }
-    } else {
-        bail!("One of address or node id must be supplied to resolve a node")
-    }
-}
-
-/// A slot, used as part of an [`Address`], to locate a value within a `Node` tree.
-///
-/// Slots can be used to identify a part of a larger object.
-///
-/// The `Name` variant can be used to identify:
-///
-/// - the property name of a `struct`
-/// - the key of a `HashMap<String, ...>`
-///
-/// The `Integer` variant can be used to identify:
-///
-/// - the index of a `Vec`
-/// - the index of a Unicode character in a `String`
-///
-/// The `None` variant is used in places where a `Slot` is required
-/// but none applies to the particular type or use case.
-///
-/// In contrast to JSON Patch, which uses a [JSON Pointer](http://tools.ietf.org/html/rfc6901)
-/// to describe the location of additions and removals, slots offer improved performance and
-/// type safety.
-#[derive(Debug, Clone, JsonSchema, Serialize, Deserialize, AsRefStr)]
-#[serde(untagged)]
-#[schemars(deny_unknown_fields)]
-pub enum Slot {
-    Index(usize),
-    Name(String),
-}
-
-impl fmt::Display for Slot {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Slot::Name(name) => write!(formatter, "{}", name),
-            Slot::Index(index) => write!(formatter, "{}", index),
-        }
-    }
-}
-
-/// The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
-///
-/// Implemented as a double-ended queue. Given that addresses usually have less than
-/// six slots it may be more performant to use a stack allocated `tinyvec` here instead.
-///
-/// Note: This could instead have be called a "Path", but that name was avoided because
-/// of potential confusion with file system paths.
-#[derive(Debug, Clone, Default, Constructor, Deref, DerefMut, JsonSchema)]
-#[schemars(deny_unknown_fields)]
-pub struct Address(VecDeque<Slot>);
-
-impl fmt::Display for Address {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let me = self
-            .iter()
-            .map(|slot| slot.to_string())
-            .collect_vec()
-            .join(".");
-        write!(formatter, "{}", me)
-    }
-}
-
-impl Serialize for Address {
-    /// Custom serialization to convert `Name` slots to camelCase
-    ///
-    /// This is done here for consistency with how Stencila Schema nodes are
-    /// serialized using the Serde option `#[serde(rename_all = "camelCase")]`.
-    ///
-    /// It avoids incompatability with patches sent to the `web` module and the
-    /// camelCase convention used for both DOM element attributed and JSON/JavaScript
-    /// property names.
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let camel_cased: Vec<Slot> = self
-            .iter()
-            .map(|slot| match slot {
-                Slot::Index(..) => slot.clone(),
-                Slot::Name(name) => Slot::Name(to_camel_case(name)),
-            })
-            .collect();
-        camel_cased.serialize(serializer)
-    }
-}
-
-impl<'de> Deserialize<'de> for Address {
-    /// Custom deserialization to convert `Name` slots to snake_case
-    ///
-    /// See notes for `impl Serialize for Address`.
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let slots: Vec<Slot> = Deserialize::deserialize(deserializer)?;
-        let snake_cased = slots.into_iter().map(|slot| match slot {
-            Slot::Index(..) => slot,
-            Slot::Name(name) => Slot::Name(to_snake_case(&name)),
-        });
-        Ok(Address(VecDeque::from_iter(snake_cased)))
-    }
-}
-
-impl From<usize> for Address {
-    fn from(index: usize) -> Address {
-        Address(VecDeque::from_iter([Slot::Index(index)]))
-    }
-}
-
-impl From<&str> for Address {
-    fn from(name: &str) -> Address {
-        Address(VecDeque::from_iter([Slot::Name(name.to_string())]))
-    }
-}
-
-impl Address {
-    /// Create an empty address
-    pub fn empty() -> Self {
-        Self::default()
-    }
-
-    /// Concatenate an address with another
-    fn concat(&self, other: &Address) -> Self {
-        let mut concat = self.clone();
-        concat.append(&mut other.clone());
-        concat
-    }
-}
-
-#[derive(Debug)]
-pub enum Pointer<'lt> {
-    None,
-    Some,
-    Inline(&'lt mut InlineContent),
-    Block(&'lt mut BlockContent),
-    Node(&'lt mut Node),
-}
-
-impl<'lt> Pointer<'lt> {
-    /// Apply a patch to the node that is pointed to
-    pub fn patch(&mut self, patch: &Patch) -> Result<()> {
-        match self {
-            Pointer::Inline(node) => node.apply_patch(patch),
-            Pointer::Block(node) => node.apply_patch(patch),
-            Pointer::Node(node) => node.apply_patch(patch),
-            _ => bail!("Invalid node pointer: {:?}", self),
-        }
-    }
-
-    /// Execute the node that is pointed to
-    ///
-    /// Returns a patch representing the change in the node resulting from
-    /// the execution (usually to its outputs, but potentially to its errors also)
-    pub async fn execute(&mut self, _kernels: &mut KernelSpace) -> Result<Patch> {
-        let patch = match self {
-            Pointer::Inline(node) => {
-                let pre = node.clone();
-                // TODO execute(*node, kernels).await?;
-                diff(&pre, node)
-            }
-            Pointer::Block(node) => {
-                let pre = node.clone();
-                // TODO execute(*node, kernels).await?;
-                diff(&pre, node)
-            }
-            Pointer::Node(node) => {
-                let pre = node.clone();
-                // TODO execute(*node, kernels).await?;
-                diff(&pre, node)
-            }
-            _ => bail!("Invalid node pointer: {:?}", self),
-        };
-        Ok(patch)
-    }
 }
 
 /// Type for the `value` property of `Add` and `Replace` operations
@@ -831,42 +615,6 @@ impl Differ {
 }
 
 pub trait Patchable {
-    /// Resolve an [`Address`] into a node [`Pointer`].
-    ///
-    /// If the address in empty, and the node is represented in one of the variants of [`Pointer`]
-    /// (at the time of writing `Node`, `BlockContent` and `InlineContent`), then it should return
-    /// a pointer to itself. Otherwise it should return an "unpointable" type error.
-    ///
-    /// If the address is not empty then it should be passed on to any child nodes.
-    ///
-    /// If the address is invalid for the type (e.g. a non-empty address for a leaf node, a name
-    /// slot used for a vector) then implementations should return an error.
-    ///
-    /// The default implementation is only suitable for leaf nodes that are not pointable.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-        match address.is_empty() {
-            true => bail!(unpointable_type::<Self>(address)),
-            false => bail!(invalid_address::<Self>("resolve() needs to be overridden?")),
-        }
-    }
-
-    /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// This is less efficient than `resolve` (given that it must visit all nodes until one is
-    /// found with a matching id). However, it may be necessary to use when an [`Address`] is not available.
-    ///
-    /// If the node has a matching `id` property then it should return `Pointer::Some` which indicates
-    /// that the `id` is matched . This allows the parent type e.g `InlineContent` to populate the
-    /// "useable" pointer variants e.g. `Pointer::InlineContent`.
-    ///
-    /// Otherwise, if the node has children it should call `find` on them and return `Pointer::None` if
-    /// no children have a matching `id`.
-    ///
-    /// The default implementation is only suitable for leaf nodes that do not have an `id` property.
-    fn find(&mut self, _id: &str) -> Pointer {
-        Pointer::None
-    }
-
     /// Test whether a node is the same as (i.e. equal type and equal value)
     /// another node of any type.
     fn is_same<Other: Any + Clone + Send>(&self, other: &Other) -> Result<()>;
@@ -1010,7 +758,7 @@ macro_rules! patchable_diff {
 }
 
 mod errors;
-use errors::{invalid_address, invalid_patch_operation, invalid_patch_value, unpointable_type};
+use errors::{invalid_patch_operation, invalid_patch_value};
 
 mod prelude;
 
@@ -1029,15 +777,6 @@ mod inlines;
 mod nodes;
 mod others;
 mod works;
-
-#[allow(dead_code)]
-#[derive(JsonSchema)]
-enum PatchesSchema {
-    Slot(Slot),
-    Address(Address),
-    Patch(Patch),
-    Operation(Operation),
-}
 
 #[cfg(test)]
 mod tests {

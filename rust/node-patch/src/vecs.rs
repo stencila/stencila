@@ -13,34 +13,6 @@ impl<Type: Patchable> Patchable for Vec<Type>
 where
     Type: Clone + DeserializeOwned + Send + 'static,
 {
-    /// Resolve an [`Address`] into a node [`Pointer`].
-    ///
-    /// Delegate to child items, erroring if address is invalid.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-        match address.pop_front() {
-            Some(Slot::Index(index)) => match self.get_mut(index) {
-                Some(item) => item.resolve(address),
-                None => bail!(invalid_slot_index::<Self>(index)),
-            },
-            Some(slot) => bail!(invalid_slot_variant::<Self>(slot)),
-            None => bail!(unpointable_type::<Self>(address)),
-        }
-    }
-
-    /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// Delegate to child items and return `Pointer::None` if not found.
-    fn find(&mut self, id: &str) -> Pointer {
-        for item in self {
-            let pointer = item.find(id);
-            match pointer {
-                Pointer::None => continue,
-                _ => return pointer,
-            }
-        }
-        Pointer::None
-    }
-
     patchable_is_same!();
 
     fn is_equal(&self, other: &Self) -> Result<()> {

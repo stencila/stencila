@@ -5,7 +5,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-Inflector = "0.11.4"
 codecs = { path = "../codecs", version = "0.0.0" }
 codec-html = { path = "../codec-html", version = "0.0.0" }
 codec-txt = { path = "../codec-txt", version = "0.0.0" }
@@ -13,7 +12,7 @@ defaults = "0.2.0"
 derive_more = "0.99.17"
 eyre = "0.6.5"
 itertools = "0.10.3"
-kernels = { path = "../kernels", version = "0.0.0" }
+node-address = { path = "../node-address", version = "0.0.0" }
 node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
 schemars = { version = "=0.8.8", features = ["preserve_order", "chrono"] }
 serde = "1.0.130"
@@ -21,7 +20,7 @@ serde_json = "1.0.72"
 serde_with = "1.11.0"
 similar = { version = "=2.1.0", features = ["unicode"] }
 stencila-schema = "1.12.0"
-strum = "0.23.0"
+strum = { version = "0.23.0", features = ["derive"] }
 tracing = "0.1.29"
 unicode-segmentation = "=1.8.0"
 thiserror = "1.0.30"

@@ -4,7 +4,7 @@ use eyre::Result;
 use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Resource};
 use kernels::{KernelSelector, KernelSpace};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
-use node_patch::{Address, Slot};
+use node_address::{Address, Slot};
 use path_utils::merge;
 use std::{
     collections::HashMap,

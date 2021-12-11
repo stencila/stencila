@@ -9,28 +9,6 @@ use stencila_schema::*;
 /// Generates and applies `Replace` and `Transform` operations between variants of inline content.
 /// All other operations are passed through to variants.
 impl Patchable for InlineContent {
-    /// Resolve an [`Address`] into a node [`Pointer`].
-    ///
-    /// `InlineContent` is one of the pointer variants so return a `Pointer::Inline` if
-    /// the address is empty. Otherwise dispatch to variant.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-        match address.is_empty() {
-            true => Ok(Pointer::Inline(self)),
-            false => dispatch_inline!(self, resolve, address),
-        }
-    }
-
-    /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Inline`
-    fn find(&mut self, id: &str) -> Pointer {
-        let pointer = dispatch_inline!(self, find, id);
-        match pointer {
-            Pointer::Some => Pointer::Inline(self),
-            _ => Pointer::None,
-        }
-    }
-
     patchable_is_same!();
 
     #[rustfmt::skip]
@@ -281,9 +259,6 @@ patchable_struct!(Superscript, content);
 macro_rules! patchable_media_object {
     ($type:ty $(, $field:ident )*) => {
         impl Patchable for $type {
-            patchable_struct_resolve!($( $field )*);
-            patchable_struct_find!($( $field )*);
-
             patchable_is_same!();
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);

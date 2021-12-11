@@ -3144,6 +3144,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-address"
+version = "0.0.0"
+dependencies = [
+ "Inflector",
+ "derive_more",
+ "eyre",
+ "schemars",
+ "serde",
+ "strum 0.23.0",
+ "thiserror",
+]
+
+[[package]]
 name = "node-coerce"
 version = "0.0.0"
 dependencies = [
@@ -3171,7 +3184,6 @@ version = "0.0.0"
 name = "node-patch"
 version = "0.0.0"
 dependencies = [
- "Inflector",
  "codec-html",
  "codec-txt",
  "codecs",
@@ -3179,7 +3191,7 @@ dependencies = [
  "derive_more",
  "eyre",
  "itertools",
- "kernels",
+ "node-address",
  "node-dispatch",
  "schemars",
  "serde",
@@ -3194,6 +3206,17 @@ dependencies = [
  "thiserror",
  "tracing",
  "unicode-segmentation",
+]
+
+[[package]]
+name = "node-pointer"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "node-address",
+ "node-dispatch",
+ "node-patch",
+ "stencila-schema",
 ]
 
 [[package]]
@@ -4832,8 +4855,10 @@ dependencies = [
  "maplit",
  "mime_guess",
  "minidom",
+ "node-address",
  "node-dispatch",
  "node-patch",
+ "node-pointer",
  "node-reshape",
  "notify",
  "once_cell",
