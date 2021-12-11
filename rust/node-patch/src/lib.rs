@@ -475,6 +475,11 @@ impl Patch {
         }
     }
 
+    /// Does the patch have any operations?
+    pub fn is_empty(&self) -> bool {
+        self.ops.is_empty()
+    }
+
     /// Prepare the patch for publishing
     ///
     /// The main purpose of this function is to generate HTML for each `Add` and `Replace`

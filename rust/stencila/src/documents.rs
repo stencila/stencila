@@ -694,21 +694,23 @@ impl Document {
         pointer.patch(&patch)?;
 
         // TODO: Only publish the patch if there are subscribers
-        let root = match &self.root {
-            Some(root) => root,
-            None => bail!("Attempting to patch a document that has no root node"),
-        };
-        patch.prepublish(root);
-        publish(
-            &["documents:", &self.id, ":patched"].concat(),
-            &DocumentEvent {
-                type_: DocumentEventType::Patched,
-                document: self.repr(),
-                content: None,
-                format: None,
-                patch: Some(patch),
-            },
-        );
+        if !patch.is_empty() {
+            let root = match &self.root {
+                Some(root) => root,
+                None => bail!("Attempting to patch a document that has no root node"),
+            };
+            patch.prepublish(root);
+            publish(
+                &["documents:", &self.id, ":patched"].concat(),
+                &DocumentEvent {
+                    type_: DocumentEventType::Patched,
+                    document: self.repr(),
+                    content: None,
+                    format: None,
+                    patch: Some(patch),
+                },
+            );
+        }
 
         Ok(())
     }
@@ -724,27 +726,30 @@ impl Document {
             pointer.patch(&patch)?;
         }
 
-        // TODO: Only publish the patch if there are subscribers
         let mut patch = pointer.execute(&mut self.kernels).await?;
-        patch.target = node_id;
-        let root = match &self.root {
-            Some(root) => root,
-            None => {
-                tracing::warn!("Executing document with no root node is a no-op");
-                return Ok(());
-            }
-        };
-        patch.prepublish(root);
-        publish(
-            &["documents:", &self.id, ":patched"].concat(),
-            &DocumentEvent {
-                type_: DocumentEventType::Patched,
-                document: self.repr(),
-                content: None,
-                format: None,
-                patch: Some(patch),
-            },
-        );
+
+        // TODO: Only publish the patch if there are subscribers
+        if !patch.is_empty() {
+            patch.target = node_id;
+            let root = match &self.root {
+                Some(root) => root,
+                None => {
+                    tracing::warn!("Executing document with no root node is a no-op");
+                    return Ok(());
+                }
+            };
+            patch.prepublish(root);
+            publish(
+                &["documents:", &self.id, ":patched"].concat(),
+                &DocumentEvent {
+                    type_: DocumentEventType::Patched,
+                    document: self.repr(),
+                    content: None,
+                    format: None,
+                    patch: Some(patch),
+                },
+            );
+        }
 
         Ok(())
     }
