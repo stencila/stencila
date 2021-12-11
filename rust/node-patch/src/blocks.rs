@@ -1,5 +1,5 @@
 use super::prelude::*;
-use crate::dispatch_block;
+use node_dispatch::dispatch_block;
 use std::hash::Hasher;
 use stencila_schema::*;
 
@@ -8,30 +8,6 @@ use stencila_schema::*;
 /// Generates and applies `Replace` and `Transform` operations between variants of block content.
 /// All other operations are passed through to variants.
 impl Patchable for BlockContent {
-    /// Resolve an [`Address`] into a node [`Pointer`].
-    ///
-    /// `BlockContent` is one of the pointer variants so return a `Pointer::Block` if
-    /// the address is empty. Otherwise dispatch to variant.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-        match address.is_empty() {
-            true => Ok(Pointer::Block(self)),
-            false => dispatch_block!(self, resolve, address),
-        }
-    }
-
-    /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Block`
-    fn find(&mut self, id: &str) -> Pointer {
-        let pointer = dispatch_block!(self, find, id);
-        match pointer {
-            Pointer::Some => Pointer::Block(self),
-            _ => Pointer::None,
-        }
-    }
-
-    patchable_is_same!();
-
     #[rustfmt::skip]
     fn is_equal(&self, other: &Self) -> Result<()> {
         match (self, other) {
@@ -59,25 +35,23 @@ impl Patchable for BlockContent {
         dispatch_block!(self, make_hash, state)
     }
 
-    patchable_diff!();
-
     #[rustfmt::skip]
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
+    fn diff(&self, differ: &mut Differ, other: &Self) {
         match (self, other) {
             // Same variant so diff the two values
-            (BlockContent::Claim(me), BlockContent::Claim(other)) => me.diff_same(differ, other),
-            (BlockContent::CodeBlock(me), BlockContent::CodeBlock(other)) => me.diff_same(differ, other),
-            (BlockContent::CodeChunk(me), BlockContent::CodeChunk(other)) => me.diff_same(differ, other),
-            (BlockContent::Collection(me), BlockContent::Collection(other)) => me.diff_same(differ, other),
-            (BlockContent::Figure(me), BlockContent::Figure(other)) => me.diff_same(differ, other),
-            (BlockContent::Heading(me), BlockContent::Heading(other)) => me.diff_same(differ, other),
-            (BlockContent::Include(me), BlockContent::Include(other)) => me.diff_same(differ, other),
-            (BlockContent::List(me), BlockContent::List(other)) => me.diff_same(differ, other),
-            (BlockContent::MathBlock(me), BlockContent::MathBlock(other)) => me.diff_same(differ, other),
-            (BlockContent::Paragraph(me), BlockContent::Paragraph(other)) => me.diff_same(differ, other),
-            (BlockContent::QuoteBlock(me), BlockContent::QuoteBlock(other)) => me.diff_same(differ, other),
-            (BlockContent::Table(me), BlockContent::Table(other)) => me.diff_same(differ, other),
-            (BlockContent::ThematicBreak(me), BlockContent::ThematicBreak(other)) => me.diff_same(differ, other),
+            (BlockContent::Claim(me), BlockContent::Claim(other)) => me.diff(differ, other),
+            (BlockContent::CodeBlock(me), BlockContent::CodeBlock(other)) => me.diff(differ, other),
+            (BlockContent::CodeChunk(me), BlockContent::CodeChunk(other)) => me.diff(differ, other),
+            (BlockContent::Collection(me), BlockContent::Collection(other)) => me.diff(differ, other),
+            (BlockContent::Figure(me), BlockContent::Figure(other)) => me.diff(differ, other),
+            (BlockContent::Heading(me), BlockContent::Heading(other)) => me.diff(differ, other),
+            (BlockContent::Include(me), BlockContent::Include(other)) => me.diff(differ, other),
+            (BlockContent::List(me), BlockContent::List(other)) => me.diff(differ, other),
+            (BlockContent::MathBlock(me), BlockContent::MathBlock(other)) => me.diff(differ, other),
+            (BlockContent::Paragraph(me), BlockContent::Paragraph(other)) => me.diff(differ, other),
+            (BlockContent::QuoteBlock(me), BlockContent::QuoteBlock(other)) => me.diff(differ, other),
+            (BlockContent::Table(me), BlockContent::Table(other)) => me.diff(differ, other),
+            (BlockContent::ThematicBreak(me), BlockContent::ThematicBreak(other)) => me.diff(differ, other),
 
             // Different variants so attempt to transform from one to the other
             _ => diff_transform(differ, self, other)

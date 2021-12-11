@@ -1,6 +1,6 @@
 use super::prelude::*;
-use crate::dispatch_inline;
 use codec_txt::ToTxt;
+use node_dispatch::dispatch_inline;
 use std::hash::Hasher;
 use stencila_schema::*;
 
@@ -9,30 +9,6 @@ use stencila_schema::*;
 /// Generates and applies `Replace` and `Transform` operations between variants of inline content.
 /// All other operations are passed through to variants.
 impl Patchable for InlineContent {
-    /// Resolve an [`Address`] into a node [`Pointer`].
-    ///
-    /// `InlineContent` is one of the pointer variants so return a `Pointer::Inline` if
-    /// the address is empty. Otherwise dispatch to variant.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-        match address.is_empty() {
-            true => Ok(Pointer::Inline(self)),
-            false => dispatch_inline!(self, resolve, address),
-        }
-    }
-
-    /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Inline`
-    fn find(&mut self, id: &str) -> Pointer {
-        let pointer = dispatch_inline!(self, find, id);
-        match pointer {
-            Pointer::Some => Pointer::Inline(self),
-            _ => Pointer::None,
-        }
-    }
-
-    patchable_is_same!();
-
     #[rustfmt::skip]
     fn is_equal(&self, other: &Self) -> Result<()> {
         match (self, other) {
@@ -70,35 +46,33 @@ impl Patchable for InlineContent {
         dispatch_inline!(self, make_hash, state)
     }
 
-    patchable_diff!();
-
     #[rustfmt::skip]
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
+    fn diff(&self, differ: &mut Differ, other: &Self) {
         match (self, other) {
             // Same variant so diff the two values
-            (InlineContent::AudioObject(me), InlineContent::AudioObject(other)) => me.diff_same(differ, other),
-            (InlineContent::Boolean(me), InlineContent::Boolean(other)) => me.diff_same(differ, other),
-            (InlineContent::Cite(me), InlineContent::Cite(other)) => me.diff_same(differ, other),
-            (InlineContent::CiteGroup(me), InlineContent::CiteGroup(other)) => me.diff_same(differ, other),
-            (InlineContent::CodeExpression(me), InlineContent::CodeExpression(other)) => me.diff_same(differ, other),
-            (InlineContent::CodeFragment(me), InlineContent::CodeFragment(other)) => me.diff_same(differ, other),
-            (InlineContent::Delete(me), InlineContent::Delete(other)) => me.diff_same(differ, other),
-            (InlineContent::Emphasis(me), InlineContent::Emphasis(other)) => me.diff_same(differ, other),
-            (InlineContent::ImageObject(me), InlineContent::ImageObject(other)) => me.diff_same(differ, other),
-            (InlineContent::Integer(me), InlineContent::Integer(other)) => me.diff_same(differ, other),
-            (InlineContent::Link(me), InlineContent::Link(other)) => me.diff_same(differ, other),
-            (InlineContent::MathFragment(me), InlineContent::MathFragment(other)) => me.diff_same(differ, other),
-            (InlineContent::NontextualAnnotation(me), InlineContent::NontextualAnnotation(other)) => me.diff_same(differ, other),
-            (InlineContent::Note(me), InlineContent::Note(other)) => me.diff_same(differ, other),
-            (InlineContent::Null(me), InlineContent::Null(other)) => me.diff_same(differ, other),
-            (InlineContent::Number(me), InlineContent::Number(other)) => me.diff_same(differ, other),
-            (InlineContent::Parameter(me), InlineContent::Parameter(other)) => me.diff_same(differ, other),
-            (InlineContent::Quote(me), InlineContent::Quote(other)) => me.diff_same(differ, other),
-            (InlineContent::String(me), InlineContent::String(other)) => me.diff_same(differ, other),
-            (InlineContent::Strong(me), InlineContent::Strong(other)) => me.diff_same(differ, other),
-            (InlineContent::Subscript(me), InlineContent::Subscript(other)) => me.diff_same(differ, other),
-            (InlineContent::Superscript(me), InlineContent::Superscript(other)) => me.diff_same(differ, other),
-            (InlineContent::VideoObject(me), InlineContent::VideoObject(other)) => me.diff_same(differ, other),
+            (InlineContent::AudioObject(me), InlineContent::AudioObject(other)) => me.diff(differ, other),
+            (InlineContent::Boolean(me), InlineContent::Boolean(other)) => me.diff(differ, other),
+            (InlineContent::Cite(me), InlineContent::Cite(other)) => me.diff(differ, other),
+            (InlineContent::CiteGroup(me), InlineContent::CiteGroup(other)) => me.diff(differ, other),
+            (InlineContent::CodeExpression(me), InlineContent::CodeExpression(other)) => me.diff(differ, other),
+            (InlineContent::CodeFragment(me), InlineContent::CodeFragment(other)) => me.diff(differ, other),
+            (InlineContent::Delete(me), InlineContent::Delete(other)) => me.diff(differ, other),
+            (InlineContent::Emphasis(me), InlineContent::Emphasis(other)) => me.diff(differ, other),
+            (InlineContent::ImageObject(me), InlineContent::ImageObject(other)) => me.diff(differ, other),
+            (InlineContent::Integer(me), InlineContent::Integer(other)) => me.diff(differ, other),
+            (InlineContent::Link(me), InlineContent::Link(other)) => me.diff(differ, other),
+            (InlineContent::MathFragment(me), InlineContent::MathFragment(other)) => me.diff(differ, other),
+            (InlineContent::NontextualAnnotation(me), InlineContent::NontextualAnnotation(other)) => me.diff(differ, other),
+            (InlineContent::Note(me), InlineContent::Note(other)) => me.diff(differ, other),
+            (InlineContent::Null(me), InlineContent::Null(other)) => me.diff(differ, other),
+            (InlineContent::Number(me), InlineContent::Number(other)) => me.diff(differ, other),
+            (InlineContent::Parameter(me), InlineContent::Parameter(other)) => me.diff(differ, other),
+            (InlineContent::Quote(me), InlineContent::Quote(other)) => me.diff(differ, other),
+            (InlineContent::String(me), InlineContent::String(other)) => me.diff(differ, other),
+            (InlineContent::Strong(me), InlineContent::Strong(other)) => me.diff(differ, other),
+            (InlineContent::Subscript(me), InlineContent::Subscript(other)) => me.diff(differ, other),
+            (InlineContent::Superscript(me), InlineContent::Superscript(other)) => me.diff(differ, other),
+            (InlineContent::VideoObject(me), InlineContent::VideoObject(other)) => me.diff(differ, other),
 
             // Different variants so attempt to transform from one to the other
             _ => diff_transform(differ, self, other)
@@ -281,16 +255,12 @@ patchable_struct!(Superscript, content);
 macro_rules! patchable_media_object {
     ($type:ty $(, $field:ident )*) => {
         impl Patchable for $type {
-            patchable_struct_resolve!($( $field )*);
-            patchable_struct_find!($( $field )*);
-
-            patchable_is_same!();
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);
 
-            patchable_diff!();
 
-            fn diff_same(&self, differ: &mut Differ, other: &Self) {
+
+            fn diff(&self, differ: &mut Differ, other: &Self) {
                 $(
                     let field = stringify!($field);
                     if field == "content_url" &&
@@ -330,12 +300,10 @@ patchable_media_object!(VideoObjectSimple, content_url);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        assert_json, assert_json_eq,
-        patches::{apply_new, diff, equal},
-    };
+    use crate::{apply_new, diff, equal};
     use serde_json::json;
     use stencila_schema::Node;
+    use test_utils::{assert_json_eq, assert_json_is};
 
     // Test that operations with address are passed through
     #[test]
@@ -349,7 +317,7 @@ mod tests {
         assert!(!equal(&a, &InlineContent::Boolean(true)));
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Add", "address": [0], "value": "e", "length": 1},
             {"type": "Remove", "address": [2], "items": 1},
             {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
@@ -370,7 +338,7 @@ mod tests {
         assert!(!equal(&a, &b));
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Remove", "address": ["content", 0, 2], "items": 2},
         ]);
         assert_json_eq!(apply_new(&a, &patch)?, b);
@@ -392,25 +360,25 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "String", "to": "Emphasis"}
         ]);
         assert_json_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Emphasis", "to": "String"}
         ]);
         assert_json_eq!(apply_new(&b, &patch)?, a);
 
         let patch = diff(&b, &c);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Emphasis", "to": "Strong"}
         ]);
         assert_json_eq!(apply_new(&b, &patch)?, c);
 
         let patch = diff(&c, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {"type": "Transform", "address": [], "from": "Strong", "to": "Emphasis"}
         ]);
         assert_json_eq!(apply_new(&c, &patch)?, b);
@@ -428,7 +396,7 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {
                 "type": "Replace", "address": [], "items": 1,
                 "value": {"type": "Emphasis", "content": ["b"]},
@@ -438,7 +406,7 @@ mod tests {
         assert_json_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {
                 "type": "Replace", "address": [], "items": 1,
                 "value": "a",
@@ -464,7 +432,7 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {
                 "type": "Replace", "address": [], "items": 1,
                 "value": {"type": "ImageObject", "contentUrl": "a"},
@@ -502,7 +470,7 @@ mod tests {
             }),
         ];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {
                 "type": "Replace", "address": [0, "content", 0, 0], "items": 1,
                 "value": "b", "length": 1
@@ -528,7 +496,7 @@ mod tests {
         });
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             {
                 "type": "Add",
                 "address": ["value"],

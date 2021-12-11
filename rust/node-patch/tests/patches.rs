@@ -3,22 +3,16 @@
 ///! These integration tests check that, for various node types,
 ///! the `diff` and `apply` functions are consistent by doing round
 ///! trips, both ways, between two instances.
-use pretty_assertions::assert_eq;
-use proptest::collection::{size_range, vec};
-use proptest::prelude::*;
-use stencila::patches::{apply_new, diff};
-
-mod strategies;
-use strategies::{block_content, inline_content, vec_block_content, vec_inline_content, Freedom};
-
-macro_rules! assert_json_eq {
-    ($expr1:expr, $expr2:expr) => {
-        pretty_assertions::assert_eq!(
-            serde_json::to_value(&$expr1).unwrap(),
-            serde_json::to_value(&$expr2).unwrap()
-        )
-    };
-}
+use node_patch::{apply_new, diff};
+use test_props::{
+    block_content, inline_content,
+    proptest::{
+        collection::{size_range, vec},
+        prelude::*,
+    },
+    vec_block_content, vec_inline_content, Freedom,
+};
+use test_utils::assert_json_eq;
 
 proptest! {
     // Higher number of cases than the default because some patches can fail
@@ -79,8 +73,8 @@ proptest! {
     // Inlines
     #[test]
     fn inlines(
-        a in inline_content(Freedom::Low),
-        b in inline_content(Freedom::Low)
+        a in inline_content(Freedom::Low, vec![]),
+        b in inline_content(Freedom::Low, vec![])
     ) {
         let patch = diff(&a, &b);
         assert_json_eq!(apply_new(&a, &patch).unwrap(), b)
@@ -89,8 +83,8 @@ proptest! {
     // Blocks
     #[test]
     fn blocks(
-        a in block_content(Freedom::Low),
-        b in block_content(Freedom::Low)
+        a in block_content(Freedom::Low, vec![]),
+        b in block_content(Freedom::Low, vec![])
     ) {
         let patch = diff(&a, &b);
         assert_json_eq!(apply_new(&a, &patch).unwrap(), b)
@@ -99,8 +93,8 @@ proptest! {
     // Vectors of inline content
     #[test]
     fn vecs_inlines(
-        a in vec_inline_content(Freedom::Low),
-        b in vec_inline_content(Freedom::Low),
+        a in vec_inline_content(Freedom::Low, vec![]),
+        b in vec_inline_content(Freedom::Low, vec![]),
     ) {
         let patch = diff(&a, &b);
         assert_json_eq!(apply_new(&a, &patch).unwrap(), b)
@@ -109,8 +103,8 @@ proptest! {
     // Vectors of block content
     #[test]
     fn vecs_blocks(
-        a in vec_block_content(Freedom::Low),
-        b in vec_block_content(Freedom::Low),
+        a in vec_block_content(Freedom::Low, vec![]),
+        b in vec_block_content(Freedom::Low, vec![]),
     ) {
         let patch = diff(&a, &b);
         assert_json_eq!(apply_new(&a, &patch).unwrap(), b)

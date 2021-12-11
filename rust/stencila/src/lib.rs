@@ -9,7 +9,6 @@ pub mod conversions;
 pub mod documents;
 pub mod files;
 pub use kernels;
-pub mod patches;
 pub mod projects;
 pub mod sessions;
 pub mod sources;
@@ -20,7 +19,6 @@ pub mod sources;
 // may be delegated to plugins
 
 pub mod methods {
-    pub mod compile;
     pub mod import;
 }
 

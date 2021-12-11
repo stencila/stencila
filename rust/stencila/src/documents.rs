@@ -1,11 +1,4 @@
-use crate::{
-    methods::compile::compile,
-    patches::{diff, merge, resolve, Address, Patch, Pointer},
-    utils::{
-        hash::{file_sha256_hex, str_sha256_hex},
-        schemas,
-    },
-};
+use crate::utils::schemas;
 use defaults::Defaults;
 use events::publish;
 use eyre::{bail, Result};
@@ -14,6 +7,10 @@ use graph_triples::{Relation, Resource};
 use itertools::Itertools;
 use kernels::KernelSpace;
 use maplit::hashset;
+use node_address::Address;
+use node_execute::compile;
+use node_patch::{diff, merge, Patch};
+use node_pointer::{resolve, Pointer};
 use node_reshape::reshape;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
@@ -752,17 +749,6 @@ impl Document {
         Ok(())
     }
 
-    /// Get the SHA-256 of the document
-    ///
-    /// For text-based documents, returns the SHA-256 of the document's `content`.
-    /// For binary documents, returns the SHA-256 of the document's file.
-    pub fn sha256(&self) -> Result<String> {
-        match self.format.binary {
-            true => Ok(str_sha256_hex(&self.content)),
-            false => file_sha256_hex(&self.path),
-        }
-    }
-
     /// Update the `root` (and associated properties) of the document and publish updated encodings
     ///
     /// Publishes `encoded:` events for each of the formats subscribed to.
@@ -1400,9 +1386,10 @@ pub fn schemas() -> Result<serde_json::Value> {
 #[cfg(feature = "cli")]
 pub mod commands {
     use super::*;
-    use crate::{patches::diff_display, utils::json};
+    use crate::utils::json;
     use async_trait::async_trait;
     use cli_utils::{result, Result, Run};
+    use node_patch::diff_display;
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]

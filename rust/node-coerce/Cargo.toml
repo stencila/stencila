@@ -1,6 +1,6 @@
 [package]
 name = "node-coerce"
-description = "Coerce a JSON value to a Stencila document `Node`"
+description = "Coerce a JSON value to a Stencila document node"
 version = "0.0.0"
 edition = "2021"
 

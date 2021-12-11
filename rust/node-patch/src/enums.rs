@@ -1,33 +1,3 @@
-/// Generate the `resolve` method for an `enum` having variants of different types
-macro_rules! patchable_variants_resolve {
-    ($( $variant:path )*) => {
-        fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-            match self {
-                $(
-                    $variant(me) => me.resolve(address),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => bail!("Unhandled variant `{}` of `{}`", self.as_ref(), type_name::<Self>())
-            }
-        }
-    };
-}
-
-/// Generate the `find` method for an `enum` having variants of different types
-macro_rules! patchable_variants_find {
-    ($( $variant:path )*) => {
-        fn find(&mut self, id: &str) -> Pointer {
-            match self {
-                $(
-                    $variant(me) => me.find(id),
-                )*
-                #[allow(unreachable_patterns)]
-                _ => Pointer::None
-            }
-        }
-    };
-}
-
 /// Generate the `is_equal` method for an `enum` having variants of different types
 macro_rules! patchable_variants_is_equal {
     ($( $variant:path )*) => {
@@ -57,13 +27,13 @@ macro_rules! patchable_variants_hash {
     };
 }
 
-/// Generate the `diff_same` method for an `enum` having variants of different types
-macro_rules! patchable_variants_diff_same {
+/// Generate the `diff` method for an `enum` having variants of different types
+macro_rules! patchable_variants_diff {
     ($( $variant:path )*) => {
-        fn diff_same(&self, differ: &mut Differ, other: &Self) {
+        fn diff(&self, differ: &mut Differ, other: &Self) {
             match (self, other) {
                 $(
-                    ($variant(me), $variant(other)) => me.diff_same(differ, other),
+                    ($variant(me), $variant(other)) => me.diff(differ, other),
                 )*
                 #[allow(unreachable_patterns)]
                 _ => differ.replace(other)
@@ -151,8 +121,6 @@ macro_rules! patchable_variants_apply_transform {
 macro_rules! patchable_enum {
     ($type:ty) => {
         impl Patchable for $type {
-            patchable_is_same!();
-
             fn is_equal(&self, other: &Self) -> Result<()> {
                 match std::mem::discriminant(self) == std::mem::discriminant(other) {
                     true => Ok(()),
@@ -165,9 +133,7 @@ macro_rules! patchable_enum {
                 std::mem::discriminant(self).hash(state)
             }
 
-            patchable_diff!();
-
-            fn diff_same(&self, differ: &mut Differ, other: &Self) {
+            fn diff(&self, differ: &mut Differ, other: &Self) {
                 if std::mem::discriminant(self) != std::mem::discriminant(other) {
                     differ.replace(other)
                 }
@@ -190,15 +156,11 @@ macro_rules! patchable_enum {
 macro_rules! patchable_variants {
     ($type:ty $(, $variant:path )*) => {
         impl Patchable for $type {
-            patchable_variants_resolve!($( $variant )*);
-            patchable_variants_find!($( $variant )*);
-
-            patchable_is_same!();
             patchable_variants_is_equal!($( $variant )*);
             patchable_variants_hash!($( $variant )*);
 
-            patchable_diff!();
-            patchable_variants_diff_same!($( $variant )*);
+
+            patchable_variants_diff!($( $variant )*);
 
             patchable_variants_apply_add!($( $variant )*);
             patchable_variants_apply_remove!($( $variant )*);

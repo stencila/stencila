@@ -1,6 +1,6 @@
 [package]
 name = "node-reshape"
-description = "Reshape a document by detecting, inferring, or guessing properties and content"
+description = "Reshape a Stencila document by detecting, inferring, or guessing properties and content"
 version = "0.0.0"
 edition = "2021"
 

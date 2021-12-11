@@ -12,22 +12,6 @@ impl<Type: Patchable> Patchable for Box<Type>
 where
     Type: Clone + DeserializeOwned + Send + 'static,
 {
-    /// Resolve an [`Address`] into a node [`Pointer`].
-    ///
-    /// Delegate to boxed value.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-        self.deref_mut().resolve(address)
-    }
-
-    /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// Delegate to boxed value.
-    fn find(&mut self, id: &str) -> Pointer {
-        self.deref_mut().find(id)
-    }
-
-    patchable_is_same!();
-
     fn is_equal(&self, other: &Self) -> Result<()> {
         self.deref().is_equal(other)
     }
@@ -36,10 +20,8 @@ where
         self.deref().make_hash(state)
     }
 
-    patchable_diff!();
-
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
-        self.deref().diff_same(differ, other)
+    fn diff(&self, differ: &mut Differ, other: &Self) {
+        self.deref().diff(differ, other)
     }
 
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
@@ -79,11 +61,9 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        assert_json, assert_json_eq,
-        patches::{apply_new, diff, equal},
-    };
+    use crate::{apply_new, diff, equal};
     use stencila_schema::{CodeBlock, Integer};
+    use test_utils::{assert_json_eq, assert_json_is};
 
     #[test]
     fn basic() -> Result<()> {
@@ -93,7 +73,7 @@ mod tests {
         let a = Box::new("abcd".to_string());
         let b = Box::new("eacp".to_string());
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [
                 {"type": "Add", "address": [0], "value": "e", "length": 1},
@@ -101,7 +81,7 @@ mod tests {
                 {"type": "Replace", "address": [3], "items": 1, "value": "p", "length": 1}
             ]
         );
-        assert_json!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, &patch)?, b);
 
         Ok(())
     }
@@ -115,7 +95,7 @@ mod tests {
             ..Default::default()
         };
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": ["programmingLanguage"], "value": "a", "length": 1 },
         ]);
         assert_json_eq!(apply_new(&a, &patch)?, b);

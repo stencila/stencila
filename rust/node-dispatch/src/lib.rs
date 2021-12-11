@@ -1,4 +1,4 @@
-///! Macros for dispatching a method call based on `Node` enum
+///! Macros for dispatching method calls to variants of Stencila document node types
 
 #[macro_export]
 macro_rules! dispatch_node {

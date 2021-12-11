@@ -1,8 +1,14 @@
 use super::prelude::*;
 use itertools::Itertools;
 use similar::{ChangeTag, TextDiff};
-use std::hash::{Hash, Hasher};
+use std::{
+    hash::{Hash, Hasher},
+    time::Duration,
+};
 use unicode_segmentation::UnicodeSegmentation;
+
+/// The number of seconds before a diff times out (falls back to a `Replace`)
+const DIFF_TIMEOUT_SECS: u64 = 1;
 
 /// Implements patching for strings
 ///
@@ -17,8 +23,6 @@ use unicode_segmentation::UnicodeSegmentation;
 /// The `Move` operation, whilst possible for strings, adds complexity
 /// and a performance hit to diffing so is not used.
 impl Patchable for String {
-    patchable_is_same!();
-
     fn is_equal(&self, other: &Self) -> Result<()> {
         if self == other {
             Ok(())
@@ -31,14 +35,19 @@ impl Patchable for String {
         self.hash(state)
     }
 
-    patchable_diff!();
-
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
+    fn diff(&self, differ: &mut Differ, other: &Self) {
         if self == other {
             return;
         }
 
-        let diff = TextDiff::from_graphemes(self, other);
+        let mut text_differ = TextDiff::configure();
+
+        // Do not allow diffs to take too long (but not when testing, for determinism)
+        if !cfg!(test) {
+            text_differ.timeout(Duration::from_secs(DIFF_TIMEOUT_SECS));
+        }
+
+        let diff = text_differ.diff_graphemes(self, other);
         let mut ops: Vec<Operation> = Vec::new();
         let mut curr: char = 'e';
         let mut replace = false;
@@ -165,12 +174,10 @@ impl Patchable for String {
 #[cfg(test)]
 #[allow(clippy::many_single_char_names)]
 mod tests {
+    use test_utils::assert_json_is;
+
     use super::*;
-    use crate::{
-        assert_json,
-        patches::{apply_new, diff, equal},
-    };
-    use pretty_assertions::assert_eq;
+    use crate::{apply_new, diff, equal};
 
     #[test]
     fn basic() -> Result<()> {
@@ -189,28 +196,28 @@ mod tests {
 
         // No diff
 
-        assert_json!(diff(&empty, &empty).ops, []);
-        assert_json!(diff(&a, &a).ops, []);
-        assert_json!(diff(&d, &d).ops, []);
+        assert_json_is!(diff(&empty, &empty).ops, []);
+        assert_json_is!(diff(&a, &a).ops, []);
+        assert_json_is!(diff(&d, &d).ops, []);
 
         // Add
 
         let patch = diff(&empty, &a);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Add", "address": [0], "value": "1", "length": 1 }]
         );
         assert_eq!(apply_new(&empty, &patch)?, a);
 
         let patch = diff(&empty, &d);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Add", "address": [0], "value": "abcdef", "length": 6 }]
         );
         assert_eq!(apply_new(&empty, &patch)?, d);
 
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Add", "address": [1], "value": "23", "length": 2 }]
         );
@@ -219,19 +226,19 @@ mod tests {
         // Remove
 
         let patch = diff(&a, &empty);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Remove", "address": [0], "items": 1 }]
         );
 
         let patch = diff(&d, &empty);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Remove", "address": [0], "items": 6 }]
         );
 
         let patch = diff(&b, &a);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Remove", "address": [1], "items": 2 }]
         );
@@ -239,14 +246,14 @@ mod tests {
         // Replace
 
         let patch = diff(&a, &c);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Replace", "address": [0], "items": 1, "value": "a2b3", "length": 4 }]
         );
         assert_eq!(apply_new(&a, &patch)?, c);
 
         let patch = diff(&b, &d);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Replace", "address": [0], "items": 3, "value": "abcdef", "length": 6 }]
         );
@@ -255,7 +262,7 @@ mod tests {
         // Mixed
 
         let patch = diff(&c, &d);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [
                 { "type": "Remove", "address": [1], "items": 1 },
@@ -265,7 +272,7 @@ mod tests {
         assert_eq!(apply_new(&c, &patch)?, d);
 
         let patch = diff(&d, &c);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [
                 { "type": "Add", "address": [1], "value": "2", "length": 1 },
@@ -275,7 +282,7 @@ mod tests {
         assert_eq!(apply_new(&d, &patch)?, c);
 
         let patch = diff(&d, &e);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [
                 { "type": "Add", "address": [1], "value": "d", "length": 1 },
@@ -299,20 +306,20 @@ mod tests {
         let c = "1👍🏿2".to_string();
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": [1], "value": "1👍🏻2", "length": 3 },
         ]);
         assert_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &c);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Remove", "address": [0], "items": 1 },
             { "type": "Replace", "address": [1], "items": 1, "value": "👍🏿", "length": 1 },
         ]);
         assert_eq!(apply_new(&b, &patch)?, c);
 
         let patch = diff(&c, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0], "value": "ä", "length": 1 },
             { "type": "Replace", "address": [2], "items": 1, "value": "👍🏻", "length": 1 },
         ]);
@@ -324,14 +331,14 @@ mod tests {
         let e = "🎁🏳️‍🌈🌷".to_string();
 
         let patch = diff(&d, &e);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0], "value": "🎁🏳️‍🌈", "length": 2 },
             { "type": "Remove", "address": [3], "items": 2 },
         ]);
         assert_eq!(apply_new(&d, &patch)?, e);
 
         let patch = diff(&e, &d);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0], "value": "🌷🏳️‍🌈", "length": 2 },
             { "type": "Remove", "address": [3], "items": 2 },
         ]);
@@ -348,7 +355,7 @@ mod tests {
         let a = "ab".to_string();
         let b = "bc".to_string();
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Remove", "address": [0], "items": 1 },
             { "type": "Add", "address": [1], "value": "c", "length": 1 },
         ]);
@@ -362,7 +369,7 @@ mod tests {
         let a = "ac".to_string();
         let b = "bcd".to_string();
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [
                 { "type": "Replace", "address": [0], "items": 1, "value": "b", "length": 1 },

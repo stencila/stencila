@@ -47,7 +47,7 @@ macro_rules! dispatch_builtins {
             "rust" => Some(parser_rust::RustParser::$method($($arg),*)),
             #[cfg(feature = "parser-ts")]
             "ts" => Some(parser_ts::TsParser::$method($($arg),*)),
-            _ => None
+            _ => Option::<Result<Pairs>>::None
         }
     };
 }
@@ -72,7 +72,7 @@ impl Parsers {
             ("ts", parser_ts::TsParser::spec()),
         ]
         .into_iter()
-        .map(|(label, parser)| (label.to_string(), parser))
+        .map(|(label, parser): (&str, Parser)| (label.to_string(), parser))
         .collect();
 
         Self { inner }
@@ -219,6 +219,7 @@ mod tests {
     use test_utils::assert_json_eq;
 
     #[test]
+    #[cfg(feature = "parser-calc")]
     fn test_parse() -> Result<()> {
         let path = PathBuf::from("<test>");
         let pairs = parse(&path, "a = 1\nb = a * a", "calc")?;

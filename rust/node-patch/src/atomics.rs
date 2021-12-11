@@ -3,8 +3,6 @@ use std::hash::{Hash, Hasher};
 use stencila_schema::{Boolean, Integer, Null, Number};
 
 impl Patchable for Null {
-    patchable_is_same!();
-
     fn is_equal(&self, _other: &Self) -> Result<()> {
         // By definition, equal
         Ok(())
@@ -14,9 +12,7 @@ impl Patchable for Null {
         self.to_string().hash(state);
     }
 
-    patchable_diff!();
-
-    fn diff_same(&self, _differ: &mut Differ, _other: &Self) {
+    fn diff(&self, _differ: &mut Differ, _other: &Self) {
         // By definition, no difference
     }
 }
@@ -25,8 +21,6 @@ impl Patchable for Null {
 macro_rules! patchable_atomic {
     ($type:ty, $hash:ident) => {
         impl Patchable for $type {
-            patchable_is_same!();
-
             fn is_equal(&self, other: &Self) -> Result<()> {
                 #[allow(clippy::float_cmp)]
                 match self == other {
@@ -39,9 +33,7 @@ macro_rules! patchable_atomic {
                 $hash(self, state)
             }
 
-            patchable_diff!();
-
-            fn diff_same(&self, differ: &mut Differ, other: &Self) {
+            fn diff(&self, differ: &mut Differ, other: &Self) {
                 #[allow(clippy::float_cmp)]
                 if self != other {
                     differ.replace(other)
@@ -89,10 +81,8 @@ patchable_atomic!(Number, hash_float);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        assert_json,
-        patches::{apply_new, diff, equal},
-    };
+    use crate::{apply_new, diff, equal};
+    use test_utils::assert_json_is;
 
     #[test]
     fn booleans() -> Result<()> {
@@ -100,12 +90,12 @@ mod tests {
         assert!(equal(&false, &false));
         assert!(!equal(&true, &false));
 
-        assert_json!(diff(&true, &true).ops, []);
-        assert_json!(diff(&false, &false).ops, []);
-        assert_json!(diff(&true, &false).ops, [{"type": "Replace", "address": [], "items": 1, "value": false, "length": 1}]);
+        assert_json_is!(diff(&true, &true).ops, []);
+        assert_json_is!(diff(&false, &false).ops, []);
+        assert_json_is!(diff(&true, &false).ops, [{"type": "Replace", "address": [], "items": 1, "value": false, "length": 1}]);
 
-        assert_json!(apply_new(&true, &diff(&true, &false))?, false);
-        assert_json!(apply_new(&false, &diff(&false, &true))?, true);
+        assert_json_is!(apply_new(&true, &diff(&true, &false))?, false);
+        assert_json_is!(apply_new(&false, &diff(&false, &true))?, true);
 
         Ok(())
     }
@@ -115,10 +105,10 @@ mod tests {
         assert!(equal(&42, &42));
         assert!(!equal(&42, &1));
 
-        assert_json!(diff(&42, &42).ops, []);
-        assert_json!(diff(&42, &1).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1, "length": 1}]);
+        assert_json_is!(diff(&42, &42).ops, []);
+        assert_json_is!(diff(&42, &1).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1, "length": 1}]);
 
-        assert_json!(apply_new(&1, &diff(&1, &42))?, 42);
+        assert_json_is!(apply_new(&1, &diff(&1, &42))?, 42);
 
         Ok(())
     }
@@ -128,10 +118,10 @@ mod tests {
         assert!(equal(&1.23, &1.23));
         assert!(!equal(&1.23, &1e6));
 
-        assert_json!(diff(&1.23, &1.23).ops, []);
-        assert_json!(diff(&1.23, &1e6).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1e6, "length": 1}]);
+        assert_json_is!(diff(&1.23, &1.23).ops, []);
+        assert_json_is!(diff(&1.23, &1e6).ops, [{"type": "Replace", "address": [], "items": 1, "value": 1e6, "length": 1}]);
 
-        assert_json!(apply_new(&1e6, &diff(&1e6, &1.23))?, 1.23);
+        assert_json_is!(apply_new(&1e6, &diff(&1e6, &1.23))?, 1.23);
 
         Ok(())
     }

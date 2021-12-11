@@ -1,38 +1,18 @@
-use crate::{
-    errors::{invalid_patch_operation, invalid_patch_value},
-    methods::compile::execute,
-    utils::schemas,
-};
 use defaults::Defaults;
-use derive_more::{Constructor, Deref, DerefMut};
 use eyre::{bail, Result};
-use inflector::cases::{camelcase::to_camel_case, snakecase::to_snake_case};
-use itertools::Itertools;
-use kernels::KernelSpace;
-use prelude::{invalid_address, unpointable_type};
-use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
+use node_address::{Address, Slot};
+use schemars::JsonSchema;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde_with::skip_serializing_none;
 use similar::TextDiff;
 use std::{
     any::{type_name, Any},
-    collections::VecDeque,
-    fmt::{self, Debug},
+    fmt::Debug,
     hash::Hasher,
-    iter::FromIterator,
 };
 use stencila_schema::*;
-use strum::{AsRefStr, Display};
-
-/// Are two nodes are the same type and value?
-pub fn same<Type1, Type2>(node1: &Type1, node2: &Type2) -> bool
-where
-    Type1: Patchable,
-    Type2: Clone + Send + 'static,
-{
-    node1.is_same(node2).is_ok()
-}
+use strum::Display;
 
 /// Do two nodes of the same type have equal value?
 pub fn equal<Type>(node1: &Type, node2: &Type) -> bool
@@ -43,12 +23,13 @@ where
 }
 
 /// Generate a [`Patch`] describing the difference between two nodes of the same type.
+#[tracing::instrument(skip(node1, node2))]
 pub fn diff<Type>(node1: &Type, node2: &Type) -> Patch
 where
     Type: Patchable,
 {
     let mut differ = Differ::default();
-    node1.diff_same(&mut differ, node2);
+    node1.diff(&mut differ, node2);
     Patch::new(differ.ops)
 }
 
@@ -78,6 +59,7 @@ pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<St
 }
 
 /// Apply a [`Patch`] to a node.
+#[tracing::instrument(skip(node, patch))]
 pub fn apply<Type>(node: &mut Type, patch: &Patch) -> Result<()>
 where
     Type: Patchable,
@@ -111,6 +93,7 @@ where
 /// - `derived`: A list of derived nodes in ascending order of priority
 ///              when resolving merge conflicts i.e. the last in the list
 ///              will win over all other nodes that it conflicts with
+#[tracing::instrument(skip(ancestor, derived))]
 pub fn merge<Type>(ancestor: &mut Type, derived: &[&Type]) -> Result<()>
 where
     Type: Patchable,
@@ -124,217 +107,6 @@ where
         apply(ancestor, &patch)?;
     }
     Ok(())
-}
-
-/// Resolve a child node from within a node using an address or id.
-///
-/// Intended to be able to fallback to using `id` if address can not be resolved
-/// or resolves to a node with the incorrect `id`. However, borrow checker is not
-/// making that possible yet.
-pub fn resolve<Type>(
-    node: &mut Type,
-    address: Option<Address>,
-    node_id: Option<String>,
-) -> Result<Pointer>
-where
-    Type: Patchable,
-{
-    if let Some(mut address) = address {
-        let pointer = node.resolve(&mut address)?;
-        match pointer {
-            Pointer::None => {
-                bail!("Unable to resolve address `{}`", address.to_string())
-                // TODO Do not bail, just warn and then find
-            }
-            _ => {
-                // TODO check pointer id is consistent with node_id if supplied
-                Ok(pointer)
-            }
-        }
-    } else if let Some(node_id) = node_id {
-        let pointer = node.find(&node_id);
-        match pointer {
-            Pointer::None => {
-                bail!("Unable to find node with id `{}`", node_id)
-            }
-            _ => Ok(pointer),
-        }
-    } else {
-        bail!("One of address or node id must be supplied to resolve a node")
-    }
-}
-
-/// A slot, used as part of an [`Address`], to locate a value within a `Node` tree.
-///
-/// Slots can be used to identify a part of a larger object.
-///
-/// The `Name` variant can be used to identify:
-///
-/// - the property name of a `struct`
-/// - the key of a `HashMap<String, ...>`
-///
-/// The `Integer` variant can be used to identify:
-///
-/// - the index of a `Vec`
-/// - the index of a Unicode character in a `String`
-///
-/// The `None` variant is used in places where a `Slot` is required
-/// but none applies to the particular type or use case.
-///
-/// In contrast to JSON Patch, which uses a [JSON Pointer](http://tools.ietf.org/html/rfc6901)
-/// to describe the location of additions and removals, slots offer improved performance and
-/// type safety.
-#[derive(Debug, Clone, JsonSchema, Serialize, Deserialize, AsRefStr)]
-#[serde(untagged)]
-#[schemars(deny_unknown_fields)]
-pub enum Slot {
-    Index(usize),
-    Name(String),
-}
-
-impl fmt::Display for Slot {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Slot::Name(name) => write!(formatter, "{}", name),
-            Slot::Index(index) => write!(formatter, "{}", index),
-        }
-    }
-}
-
-/// The address, defined by a list of [`Slot`]s, of a value within `Node` tree.
-///
-/// Implemented as a double-ended queue. Given that addresses usually have less than
-/// six slots it may be more performant to use a stack allocated `tinyvec` here instead.
-///
-/// Note: This could instead have be called a "Path", but that name was avoided because
-/// of potential confusion with file system paths.
-#[derive(Debug, Clone, Default, Constructor, Deref, DerefMut, JsonSchema)]
-#[schemars(deny_unknown_fields)]
-pub struct Address(VecDeque<Slot>);
-
-impl fmt::Display for Address {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let me = self
-            .iter()
-            .map(|slot| slot.to_string())
-            .collect_vec()
-            .join(".");
-        write!(formatter, "{}", me)
-    }
-}
-
-impl Serialize for Address {
-    /// Custom serialization to convert `Name` slots to camelCase
-    ///
-    /// This is done here for consistency with how Stencila Schema nodes are
-    /// serialized using the Serde option `#[serde(rename_all = "camelCase")]`.
-    ///
-    /// It avoids incompatability with patches sent to the `web` module and the
-    /// camelCase convention used for both DOM element attributed and JSON/JavaScript
-    /// property names.
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let camel_cased: Vec<Slot> = self
-            .iter()
-            .map(|slot| match slot {
-                Slot::Index(..) => slot.clone(),
-                Slot::Name(name) => Slot::Name(to_camel_case(name)),
-            })
-            .collect();
-        camel_cased.serialize(serializer)
-    }
-}
-
-impl<'de> Deserialize<'de> for Address {
-    /// Custom deserialization to convert `Name` slots to snake_case
-    ///
-    /// See notes for `impl Serialize for Address`.
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let slots: Vec<Slot> = Deserialize::deserialize(deserializer)?;
-        let snake_cased = slots.into_iter().map(|slot| match slot {
-            Slot::Index(..) => slot,
-            Slot::Name(name) => Slot::Name(to_snake_case(&name)),
-        });
-        Ok(Address(VecDeque::from_iter(snake_cased)))
-    }
-}
-
-impl From<usize> for Address {
-    fn from(index: usize) -> Address {
-        Address(VecDeque::from_iter([Slot::Index(index)]))
-    }
-}
-
-impl From<&str> for Address {
-    fn from(name: &str) -> Address {
-        Address(VecDeque::from_iter([Slot::Name(name.to_string())]))
-    }
-}
-
-impl Address {
-    /// Create an empty address
-    pub fn empty() -> Self {
-        Self::default()
-    }
-
-    /// Concatenate an address with another
-    fn concat(&self, other: &Address) -> Self {
-        let mut concat = self.clone();
-        concat.append(&mut other.clone());
-        concat
-    }
-}
-
-#[derive(Debug)]
-pub enum Pointer<'lt> {
-    None,
-    Some,
-    Inline(&'lt mut InlineContent),
-    Block(&'lt mut BlockContent),
-    Node(&'lt mut Node),
-}
-
-impl<'lt> Pointer<'lt> {
-    /// Apply a patch to the node that is pointed to
-    pub fn patch(&mut self, patch: &Patch) -> Result<()> {
-        match self {
-            Pointer::Inline(node) => node.apply_patch(patch),
-            Pointer::Block(node) => node.apply_patch(patch),
-            Pointer::Node(node) => node.apply_patch(patch),
-            _ => bail!("Invalid node pointer: {:?}", self),
-        }
-    }
-
-    /// Execute the node that is pointed to
-    ///
-    /// Returns a patch representing the change in the node resulting from
-    /// the execution (usually to its outputs, but potentially to its errors also)
-    pub async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<Patch> {
-        let patch = match self {
-            Pointer::Inline(node) => {
-                let pre = node.clone();
-                execute(*node, kernels).await?;
-                diff(&pre, node)
-            }
-            Pointer::Block(node) => {
-                let pre = node.clone();
-                execute(*node, kernels).await?;
-                diff(&pre, node)
-            }
-            Pointer::Node(node) => {
-                let pre = node.clone();
-                execute(*node, kernels).await?;
-                diff(&pre, node)
-            }
-            _ => bail!("Invalid node pointer: {:?}", self),
-        };
-        Ok(patch)
-    }
 }
 
 /// Type for the `value` property of `Add` and `Replace` operations
@@ -380,7 +152,7 @@ pub enum Operation {
             serialize_with = "Operation::value_serialize",
             deserialize_with = "Operation::value_deserialize"
         )]
-        #[schemars(schema_with = "Operation::value_schema")]
+        #[schemars(skip)]
         value: Value,
 
         /// The number of items added
@@ -412,7 +184,7 @@ pub enum Operation {
             serialize_with = "Operation::value_serialize",
             deserialize_with = "Operation::value_deserialize"
         )]
-        #[schemars(schema_with = "Operation::value_schema")]
+        #[schemars(skip)]
         value: Value,
 
         /// The number of items added
@@ -448,11 +220,6 @@ pub enum Operation {
 }
 
 impl Operation {
-    /// Generate the JSON Schema for the `value` property
-    fn value_schema(_generator: &mut SchemaGenerator) -> Schema {
-        schemas::typescript("any", true)
-    }
-
     /// Deserialize the `value` field of an operation
     ///
     /// This is needed so that the server can receive a `Patch` from the client and
@@ -737,7 +504,7 @@ impl Differ {
     /// Adds a `Name` key to `address` and then differences the two values.
     pub fn field<Type: Patchable>(&mut self, name: &str, value1: &Type, value2: &Type) {
         self.address.push_back(Slot::Name(name.to_string()));
-        value1.diff_same(self, value2);
+        value1.diff(self, value2);
         self.address.pop_back();
     }
 
@@ -746,7 +513,7 @@ impl Differ {
     /// Adds an `Index` key to `address` and then differences the two values.
     pub fn item<Type: Patchable>(&mut self, index: usize, value1: &Type, value2: &Type) {
         self.address.push_back(Slot::Index(index));
-        value1.diff_same(self, value2);
+        value1.diff(self, value2);
         self.address.pop_back();
     }
 
@@ -842,46 +609,6 @@ impl Differ {
 }
 
 pub trait Patchable {
-    /// Resolve an [`Address`] into a node [`Pointer`].
-    ///
-    /// If the address in empty, and the node is represented in one of the variants of [`Pointer`]
-    /// (at the time of writing `Node`, `BlockContent` and `InlineContent`), then it should return
-    /// a pointer to itself. Otherwise it should return an "unpointable" type error.
-    ///
-    /// If the address is not empty then it should be passed on to any child nodes.
-    ///
-    /// If the address is invalid for the type (e.g. a non-empty address for a leaf node, a name
-    /// slot used for a vector) then implementations should return an error.
-    ///
-    /// The default implementation is only suitable for leaf nodes that are not pointable.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-        match address.is_empty() {
-            true => bail!(unpointable_type::<Self>(address)),
-            false => bail!(invalid_address::<Self>("resolve() needs to be overridden?")),
-        }
-    }
-
-    /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// This is less efficient than `resolve` (given that it must visit all nodes until one is
-    /// found with a matching id). However, it may be necessary to use when an [`Address`] is not available.
-    ///
-    /// If the node has a matching `id` property then it should return `Pointer::Some` which indicates
-    /// that the `id` is matched . This allows the parent type e.g `InlineContent` to populate the
-    /// "useable" pointer variants e.g. `Pointer::InlineContent`.
-    ///
-    /// Otherwise, if the node has children it should call `find` on them and return `Pointer::None` if
-    /// no children have a matching `id`.
-    ///
-    /// The default implementation is only suitable for leaf nodes that do not have an `id` property.
-    fn find(&mut self, _id: &str) -> Pointer {
-        Pointer::None
-    }
-
-    /// Test whether a node is the same as (i.e. equal type and equal value)
-    /// another node of any type.
-    fn is_same<Other: Any + Clone + Send>(&self, other: &Other) -> Result<()>;
-
     /// Test whether a node is equal to (i.e. equal value) a node of the same type.
     fn is_equal(&self, other: &Self) -> Result<()>;
 
@@ -890,30 +617,9 @@ pub trait Patchable {
     /// Used for identifying unique values, particularly when diffing sequences.
     fn make_hash<H: Hasher>(&self, state: &mut H);
 
-    /// Generate the operations needed to mutate this node so that is the same as
-    /// a node of any other type.
-    ///
-    /// `Other` needs to be `Clone` so that if necessary, we can keep a copy of it in a
-    /// `Add` or `Replace operation.
-    fn diff<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other);
-
     /// Generate the operations needed to mutate this node so that it is equal
     /// to a node of the same type.
-    fn diff_same(&self, differ: &mut Differ, other: &Self);
-
-    /// Generate the operations needed to mutate this node so that it is the
-    /// same as a node of any other type.
-    ///
-    /// This allows node types to define a `Transform` patch operation, which
-    /// is more semantically explicit, and will usually require less data changes
-    /// than a full `Replace` operation. An example is transforming a `Emphasis`
-    /// node to a `Strong` node.
-    ///
-    /// The default implementation simply replaces the current node. Override as
-    /// suits.
-    fn diff_other<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other) {
-        differ.replace(other)
-    }
+    fn diff(&self, differ: &mut Differ, other: &Self);
 
     /// Apply a patch to this node.
     fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
@@ -994,31 +700,8 @@ pub trait Patchable {
     }
 }
 
-/// Generate the `is_same` method for a type
-macro_rules! patchable_is_same {
-    () => {
-        fn is_same<Other: Any + Clone>(&self, other: &Other) -> Result<()> {
-            if let Some(other) = (other as &dyn Any).downcast_ref::<Self>() {
-                self.is_equal(&other)
-            } else {
-                bail!(Error::NotSame)
-            }
-        }
-    };
-}
-
-/// Generate the `diff` method for a type
-macro_rules! patchable_diff {
-    () => {
-        fn diff<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other) {
-            if let Some(other) = (other as &dyn Any).downcast_ref::<Self>() {
-                self.diff_same(differ, other)
-            } else {
-                self.diff_other(differ, other)
-            }
-        }
-    };
-}
+mod errors;
+use errors::{invalid_patch_operation, invalid_patch_value};
 
 mod prelude;
 
@@ -1038,41 +721,20 @@ mod nodes;
 mod others;
 mod works;
 
-#[allow(dead_code)]
-#[derive(JsonSchema)]
-enum PatchesSchema {
-    Slot(Slot),
-    Address(Address),
-    Patch(Patch),
-    Operation(Operation),
-}
-
-/// Get JSON Schemas for this module
-pub fn schemas() -> Result<serde_json::Value> {
-    schemas::generate::<PatchesSchema>()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{assert_json, assert_json_eq};
-    use serde_json::json;
     use stencila_schema::{Article, Emphasis, InlineContent, Integer, Paragraph};
+    use test_utils::{assert_json_eq, assert_json_is};
 
     #[test]
-    fn test_same_equal() {
+    fn test_equal() {
         let int_a: Integer = 1;
         let int_b: Integer = 2;
         let opt_a: Option<Integer> = None;
         let opt_b: Option<Integer> = Some(1);
         let vec_a: Vec<Integer> = vec![1, 2, 3];
         let vec_b: Vec<Integer> = vec![3, 2, 1];
-
-        assert!(same(&int_a, &int_a));
-        assert!(!same(&int_a, &int_b));
-        assert!(!same(&int_a, &vec_a));
-        assert!(!same(&int_a, &opt_a));
-        assert!(!same(&vec_a, &vec_b));
 
         assert!(equal(&int_a, &int_a));
         assert!(!equal(&int_a, &int_b));
@@ -1106,7 +768,7 @@ mod tests {
         // Patching `empty` to `a` should return no difference
 
         let patch = diff(&empty, &empty);
-        assert_json!(patch.ops, []);
+        assert_json_is!(patch.ops, []);
 
         let mut patched = empty.clone();
         apply(&mut patched, &patch)?;
@@ -1116,7 +778,7 @@ mod tests {
         // - replace all content with the content of `a`
 
         let patch = diff(&empty, &a);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{
                 "type": "Add",
@@ -1135,7 +797,7 @@ mod tests {
         // - replace part of `content[1]`
 
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{
                 "type": "Transform",
@@ -1215,57 +877,57 @@ mod tests {
         // one to two -> `Add` operation on the article's content
         let mut patch = diff(&one, &two);
         patch.prepublish(&two);
-        assert_json_eq!(
+        assert_json_is!(
             patch.ops,
-            json!([{
+            [{
                 "type": "Add",
                 "address": ["content", 0],
                 "value": [{"type": "Paragraph", "content": []}],
                 "length": 1,
                 "html": "<p itemtype=\"http://schema.stenci.la/Paragraph\" itemscope></p>",
-            }])
+            }]
         );
 
         // two to three -> `Add` operation on the paragraph's content
         let mut patch = diff(&two, &three);
         patch.prepublish(&three);
-        assert_json_eq!(
+        assert_json_is!(
             patch.ops,
-            json!([{
+            [{
                 "type": "Add",
                 "address": ["content", 0, "content", 0],
                 "value": ["first", " second"],
                 "length": 2,
                 "html": "<span>first</span><span> second</span>",
-            }])
+            }]
         );
 
         // three to four -> `Replace` operation on a word
         let mut patch = diff(&three, &four);
         patch.prepublish(&four);
-        assert_json_eq!(
+        assert_json_is!(
             patch.ops,
-            json!([{
+            [{
                 "type": "Replace",
                 "address": ["content", 0, "content", 0, 1],
                 "items": 3,
                 "value": "oo",
                 "length": 2
                 // No `html` because same as `value`
-            }])
+            }]
         );
 
         // four to five -> `Move` operation on the word
         let mut patch = diff(&four, &five);
         patch.prepublish(&five);
-        assert_json_eq!(
+        assert_json_is!(
             patch.ops,
-            json!([{
+            [{
                 "type": "Move",
                 "from": ["content", 0, "content", 1],
                 "items": 1,
                 "to": ["content", 0, "content", 0],
-            }])
+            }]
         );
     }
 }

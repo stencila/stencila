@@ -307,7 +307,7 @@ patchable_variants!(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::patches::diff;
+    use crate::diff;
     use stencila_schema::{BlockContent, Paragraph};
 
     #[test]

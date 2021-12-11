@@ -7,42 +7,16 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
+use std::time::{Duration, Instant};
+
+/// The number of seconds before a diff times out (falls back to a `Replace`)
+const DIFF_TIMEOUT_SECS: u64 = 1;
 
 /// Implements patching for vectors
 impl<Type: Patchable> Patchable for Vec<Type>
 where
     Type: Clone + DeserializeOwned + Send + 'static,
 {
-    /// Resolve an [`Address`] into a node [`Pointer`].
-    ///
-    /// Delegate to child items, erroring if address is invalid.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-        match address.pop_front() {
-            Some(Slot::Index(index)) => match self.get_mut(index) {
-                Some(item) => item.resolve(address),
-                None => bail!(invalid_slot_index::<Self>(index)),
-            },
-            Some(slot) => bail!(invalid_slot_variant::<Self>(slot)),
-            None => bail!(unpointable_type::<Self>(address)),
-        }
-    }
-
-    /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// Delegate to child items and return `Pointer::None` if not found.
-    fn find(&mut self, id: &str) -> Pointer {
-        for item in self {
-            let pointer = item.find(id);
-            match pointer {
-                Pointer::None => continue,
-                _ => return pointer,
-            }
-        }
-        Pointer::None
-    }
-
-    patchable_is_same!();
-
     fn is_equal(&self, other: &Self) -> Result<()> {
         if self.len() != other.len() {
             bail!(Error::NotEqual)
@@ -59,15 +33,13 @@ where
         }
     }
 
-    patchable_diff!();
-
     /// Generate the difference between two vectors.
     ///
     /// If both vectors are zero length, will generate no operations.
     /// Otherwise, if either of the vectors are of zero length, will generate
     /// a `Replace` operation. Otherwise, will perform a Patience diff on the
     /// vectors.
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
+    fn diff(&self, differ: &mut Differ, other: &Self) {
         if self.is_empty() && other.is_empty() {
             return;
         }
@@ -89,8 +61,20 @@ where
         }
 
         let (me_ids, other_ids) = unique_items(self, other);
-        let diff_ops =
-            similar::capture_diff_slices(similar::Algorithm::Patience, &me_ids, &other_ids);
+
+        // Do not allow diffs to take too long (but not when testing, for determinism)
+        let deadline = if cfg!(test) {
+            None
+        } else {
+            Some(Instant::now() + Duration::from_secs(DIFF_TIMEOUT_SECS))
+        };
+
+        let diff_ops = similar::capture_diff_slices_deadline(
+            similar::Algorithm::Patience,
+            &me_ids,
+            &other_ids,
+            deadline,
+        );
 
         let mut index = 0;
         let mut ops = Vec::new();
@@ -550,12 +534,9 @@ fn unique_items<Type: Patchable>(a: &[Type], b: &[Type]) -> (Vec<u32>, Vec<u32>)
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        assert_json, assert_json_eq,
-        patches::{apply_new, diff, equal},
-    };
-    use pretty_assertions::assert_eq;
+    use crate::{apply_new, diff, equal};
     use stencila_schema::{Emphasis, InlineContent, Integer, Strong};
+    use test_utils::assert_json_is;
 
     // Test patches that operate on atomic items (integers) with no
     // pass though.
@@ -575,17 +556,17 @@ mod tests {
 
         // Add / replace all
 
-        assert_json!(diff(&empty, &empty).ops, []);
+        assert_json_is!(diff(&empty, &empty).ops, []);
 
         let patch = diff(&empty, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Add", "address": [0], "value": [1, 2], "length": 2 }]
         );
         assert_eq!(apply_new(&empty, &patch)?, b);
 
         let patch = diff(&b, &empty);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Remove", "address": [0], "items": 2 }]
         );
@@ -596,7 +577,7 @@ mod tests {
         let a: Vec<Integer> = vec![1];
         let b: Vec<Integer> = vec![1, 2];
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Add", "address": [1], "value": [2], "length": 1 }]
         );
@@ -607,7 +588,7 @@ mod tests {
         let a: Vec<Integer> = vec![1, 2];
         let b: Vec<Integer> = vec![1];
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Remove", "address": [1], "items": 1 }]
         );
@@ -618,7 +599,7 @@ mod tests {
         let a: Vec<Integer> = vec![1, 2];
         let b: Vec<Integer> = vec![3, 4];
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{ "type": "Replace", "address": [0], "items": 2, "value": [3, 4], "length": 2 }]
         );
@@ -629,7 +610,7 @@ mod tests {
         let a: Vec<Integer> = vec![1, 3];
         let b: Vec<Integer> = vec![3, 1];
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops, [
                 { "type": "Move", "from": [1], "items": 1, "to": [0] }
             ]
@@ -639,7 +620,7 @@ mod tests {
         let a: Vec<Integer> = vec![1, 2, 3, 4];
         let b: Vec<Integer> = vec![2, 3, 1, 4];
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops, [
                 { "type": "Move", "from": [0], "items": 1, "to": [3] }
             ]
@@ -658,7 +639,7 @@ mod tests {
         let a = vec!["a".to_string()];
         let b = vec!["ab".to_string()];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0, 1], "value": "b", "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch)?, b);
@@ -668,7 +649,7 @@ mod tests {
         let a = vec!["ab".to_string()];
         let b = vec!["a".to_string()];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Remove", "address": [0, 1], "items": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch)?, b);
@@ -678,7 +659,7 @@ mod tests {
         let a = vec!["a".to_string()];
         let b = vec!["b".to_string()];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Replace", "address": [0, 0], "items": 1, "value": "b", "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch)?, b);
@@ -694,10 +675,10 @@ mod tests {
             ..Default::default()
         })];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Transform", "address": [0], "from": "Emphasis", "to": "Strong" },
         ]);
-        assert_json_eq!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, &patch)?, b);
 
         Ok(())
     }
@@ -709,14 +690,14 @@ mod tests {
         let b = vec!["ab".to_string(), "c".to_string()];
 
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0, 1], "value": "b", "length": 1 },
             { "type": "Add", "address": [1], "value": ["c"], "length": 1 },
         ]);
         assert_eq!(apply_new(&a, &patch)?, b);
 
         let patch = diff(&b, &a);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Remove", "address": [0, 1], "items": 1 },
             { "type": "Remove", "address": [1], "items": 1 },
         ]);
@@ -733,7 +714,7 @@ mod tests {
         let a = vec![7, 0, 4, 1];
         let b = vec![4, 7, 1, 0, 1];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Move", "from": [2], "items": 1, "to": [0] },
             { "type": "Add", "address": [2], "value": [1], "length": 1 },
         ]);
@@ -747,7 +728,7 @@ mod tests {
         let a = vec![0, 6, 2, 4, 2];
         let b = vec![2, 2, 4];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Remove", "address": [0], "items": 2 },
             { "type": "Move", "from": [2], "items": 1, "to": [1] },
         ]);
@@ -768,7 +749,7 @@ mod tests {
             "a".to_string(),
         ];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0], "value": ["a", "a", "a"], "length": 3 },
             { "type": "Add", "address": [4, 0], "value": "a", "length": 1 },
             { "type": "Add", "address": [5], "value": ["a"], "length": 1 },
@@ -783,7 +764,7 @@ mod tests {
         let a = vec![6, 1, 1, 1];
         let b = vec![2, 2, 0];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Replace", "address": [0], "items": 4, "value": [2, 2, 0], "length": 3 },
         ]);
         assert_eq!(apply_new(&a, &patch)?, b);
@@ -796,7 +777,7 @@ mod tests {
         let a = vec!["c".to_string(), "".to_string(), "d".to_string()];
         let b = vec!["cd".to_string(), "a".to_string(), "".to_string()];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0, 1], "value": "d", "length": 1 },
             { "type": "Add", "address": [1], "value": ["a"], "length": 1 },
             { "type": "Remove", "address": [3], "items": 1 },
@@ -816,7 +797,7 @@ mod tests {
             "b".to_string(),
         ];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0], "value": ["b"], "length": 1 },
             { "type": "Remove", "address": [2], "items": 1 },
             { "type": "Add", "address": [3], "value": ["b"], "length": 1 },
@@ -831,7 +812,7 @@ mod tests {
         let a = vec![1, 7, 3];
         let b = vec![7, 3, 1];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Move", "from": [0], "items": 1, "to": [3] },
         ]);
         assert_eq!(apply_new(&a, &patch)?, b);
@@ -844,7 +825,7 @@ mod tests {
         let a = vec![3, 0, 7];
         let b = vec![0, 1, 7, 3];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Move", "from": [0], "items": 1, "to": [3] },
             { "type": "Add", "address": [1], "value": [1], "length": 1 },
         ]);
@@ -863,7 +844,7 @@ mod tests {
         ];
         let b = vec!["a".to_string(), "d".to_string(), "".to_string()];
         let patch = diff(&a, &b);
-        assert_json!(patch.ops, [
+        assert_json_is!(patch.ops, [
             { "type": "Add", "address": [0, 0], "value": "a", "length": 1 },
             { "type": "Remove", "address": [1], "items": 2 },
             { "type": "Add", "address": [2], "value": [""], "length": 1 },

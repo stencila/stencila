@@ -13,28 +13,6 @@ impl<Type: Patchable> Patchable for Option<Type>
 where
     Type: Clone + DeserializeOwned + Send + 'static,
 {
-    /// Resolve an [`Address`] into a node [`Pointer`].
-    ///
-    /// Delegate to value, if any.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
-        match self {
-            Some(me) => me.resolve(address),
-            None => Ok(Pointer::None),
-        }
-    }
-
-    /// Find a node based on its `id` and return a [`Pointer`] to it.
-    ///
-    /// Delegate to value, if any.
-    fn find(&mut self, id: &str) -> Pointer {
-        match self {
-            Some(me) => me.find(id),
-            None => Pointer::None,
-        }
-    }
-
-    patchable_is_same!();
-
     fn is_equal(&self, other: &Self) -> Result<()> {
         match (self, other) {
             (None, None) => Ok(()),
@@ -49,14 +27,12 @@ where
         }
     }
 
-    patchable_diff!();
-
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
+    fn diff(&self, differ: &mut Differ, other: &Self) {
         match (self, other) {
             (None, None) => (),
             (None, Some(value)) => differ.add(value),
             (Some(_), None) => differ.remove(),
-            (Some(me), Some(other)) => me.diff_same(differ, other),
+            (Some(me), Some(other)) => me.diff(differ, other),
         }
     }
 
@@ -123,11 +99,9 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        assert_json,
-        patches::{apply_new, diff, equal},
-    };
+    use crate::{apply_new, diff, equal};
     use stencila_schema::Integer;
+    use test_utils::assert_json_is;
 
     #[test]
     fn basic() -> Result<()> {
@@ -139,58 +113,58 @@ mod tests {
 
         // No diff
 
-        assert_json!(diff::<Option<Integer>>(&None, &None).ops, []);
-        assert_json!(diff(&Some(1), &Some(1)).ops, []);
+        assert_json_is!(diff::<Option<Integer>>(&None, &None).ops, []);
+        assert_json_is!(diff(&Some(1), &Some(1)).ops, []);
 
         // None to Some: Add with no key
         let a = None;
         let b = Some("abc".to_string());
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{"type": "Add", "address": [], "value": "abc".to_string(), "length": 1}]
         );
-        assert_json!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, &patch)?, b);
 
         // Some to Some: Add with a key
         let a = Some("a".to_string());
         let b = Some("abc".to_string());
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{"type": "Add", "address": [1], "value": "bc".to_string(), "length": 2}]
         );
-        assert_json!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, &patch)?, b);
 
         // Some to None: Remove with no key
         let a = Some("abc".to_string());
         let b = None;
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{"type": "Remove", "address": [], "items": 1}]
         );
-        assert_json!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, &patch)?, b);
 
         // Some to Some: Remove with key
         let a = Some("abc".to_string());
         let b = Some("ac".to_string());
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{"type": "Remove", "address": [1], "items": 1}]
         );
-        assert_json!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, &patch)?, b);
 
         // Replace
         let a = Some("abc".to_string());
         let b = Some("a@c".to_string());
         let patch = diff(&a, &b);
-        assert_json!(
+        assert_json_is!(
             patch.ops,
             [{"type": "Replace", "address": [1], "items": 1, "value": "@", "length": 1}]
         );
-        assert_json!(apply_new(&a, &patch)?, b);
+        assert_json_is!(apply_new(&a, &patch)?, b);
 
         Ok(())
     }
