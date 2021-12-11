@@ -56,6 +56,21 @@ macro_rules! dispatch_node {
 }
 
 #[macro_export]
+macro_rules! dispatch_primitive {
+    ($node:expr, $method:ident $(,$arg:expr)*) => {
+        match $node {
+            Primitive::Null(node) => node.$method($($arg),*),
+            Primitive::Boolean(node) => node.$method($($arg),*),
+            Primitive::Integer(node) => node.$method($($arg),*),
+            Primitive::Number(node) => node.$method($($arg),*),
+            Primitive::String(node) => node.$method($($arg),*),
+            Primitive::Array(node) => node.$method($($arg),*),
+            Primitive::Object(node) => node.$method($($arg),*),
+        }
+    }
+}
+
+#[macro_export]
 macro_rules! dispatch_inline {
     ($node:expr, $method:ident $(,$arg:expr)*) => {
         match $node {
