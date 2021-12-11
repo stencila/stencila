@@ -7,6 +7,10 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::ops::Deref;
+use std::time::{Duration, Instant};
+
+/// The number of seconds before a diff times out (falls back to a `Replace`)
+const DIFF_TIMEOUT_SECS: u64 = 1;
 
 /// Implements patching for vectors
 impl<Type: Patchable> Patchable for Vec<Type>
@@ -57,8 +61,20 @@ where
         }
 
         let (me_ids, other_ids) = unique_items(self, other);
-        let diff_ops =
-            similar::capture_diff_slices(similar::Algorithm::Patience, &me_ids, &other_ids);
+
+        // Do not allow diffs to take too long (but not when testing, for determinism)
+        let deadline = if cfg!(test) {
+            None
+        } else {
+            Some(Instant::now() + Duration::from_secs(DIFF_TIMEOUT_SECS))
+        };
+
+        let diff_ops = similar::capture_diff_slices_deadline(
+            similar::Algorithm::Patience,
+            &me_ids,
+            &other_ids,
+            deadline,
+        );
 
         let mut index = 0;
         let mut ops = Vec::new();

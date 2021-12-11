@@ -1,8 +1,14 @@
 use super::prelude::*;
 use itertools::Itertools;
 use similar::{ChangeTag, TextDiff};
-use std::hash::{Hash, Hasher};
+use std::{
+    hash::{Hash, Hasher},
+    time::Duration,
+};
 use unicode_segmentation::UnicodeSegmentation;
+
+/// The number of seconds before a diff times out (falls back to a `Replace`)
+const DIFF_TIMEOUT_SECS: u64 = 1;
 
 /// Implements patching for strings
 ///
@@ -34,7 +40,14 @@ impl Patchable for String {
             return;
         }
 
-        let diff = TextDiff::from_graphemes(self, other);
+        let mut text_differ = TextDiff::configure();
+
+        // Do not allow diffs to take too long (but not when testing, for determinism)
+        if !cfg!(test) {
+            text_differ.timeout(Duration::from_secs(DIFF_TIMEOUT_SECS));
+        }
+
+        let diff = text_differ.diff_graphemes(self, other);
         let mut ops: Vec<Operation> = Vec::new();
         let mut curr: char = 'e';
         let mut replace = false;
