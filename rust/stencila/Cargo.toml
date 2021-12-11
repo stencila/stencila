@@ -197,6 +197,7 @@ kernels = { path = "../kernels", version = "0.0.0" }
 key-utils = { path = "../key-utils", version = "0.0.0" }
 node-address = { path = "../node-address", version = "0.0.0" }
 node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
+node-execute = { path = "../node-execute", version = "0.0.0" }
 node-patch = { path = "../node-patch", version = "0.0.0" }
 node-pointer = { path = "../node-pointer", version = "0.0.0" }
 node-reshape = { path = "../node-reshape", version = "0.0.0" }

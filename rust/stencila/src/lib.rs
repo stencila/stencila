@@ -19,7 +19,6 @@ pub mod sources;
 // may be delegated to plugins
 
 pub mod methods {
-    pub mod compile;
     pub mod import;
 }
 

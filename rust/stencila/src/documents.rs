@@ -1,4 +1,4 @@
-use crate::{methods::compile::compile, utils::schemas};
+use crate::utils::schemas;
 use defaults::Defaults;
 use events::publish;
 use eyre::{bail, Result};
@@ -8,6 +8,7 @@ use itertools::Itertools;
 use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::Address;
+use node_execute::compile;
 use node_patch::{diff, merge, Patch};
 use node_pointer::{resolve, Pointer};
 use node_reshape::reshape;

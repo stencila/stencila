@@ -3270,6 +3270,7 @@ dependencies = [
  "eyre",
  "node-address",
  "node-dispatch",
+ "node-execute",
  "node-patch",
  "stencila-schema",
 ]
@@ -4923,6 +4924,7 @@ dependencies = [
  "minidom",
  "node-address",
  "node-dispatch",
+ "node-execute",
  "node-patch",
  "node-pointer",
  "node-reshape",

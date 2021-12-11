@@ -1,7 +1,8 @@
 use eyre::{bail, Result};
 use node_address::Address;
-use node_patch::{Patch, Patchable};
-use stencila_schema::{BlockContent, InlineContent, Node, CreativeWorkTypes};
+use node_execute::{execute, KernelSpace};
+use node_patch::{diff, Patch, Patchable};
+use stencila_schema::{BlockContent, CreativeWorkTypes, InlineContent, Node};
 
 /// Resolve a node [`Address`] or id into a node [`Pointer`]
 ///
@@ -51,33 +52,36 @@ impl<'lt> Pointer<'lt> {
         }
     }
 
-    /*
     /// Execute the node that is pointed to
     ///
     /// Returns a patch representing the change in the node resulting from
     /// the execution (usually to its outputs, but potentially to its errors also)
-    pub async fn execute(&mut self, _kernels: &mut KernelSpace) -> Result<Patch> {
+    pub async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<Patch> {
         let patch = match self {
             Pointer::Inline(node) => {
                 let pre = node.clone();
-                // TODO execute(*node, kernels).await?;
+                execute(*node, kernels).await?;
                 diff(&pre, node)
             }
             Pointer::Block(node) => {
                 let pre = node.clone();
-                // TODO execute(*node, kernels).await?;
+                execute(*node, kernels).await?;
+                diff(&pre, node)
+            }
+            Pointer::Work(node) => {
+                let pre = node.clone();
+                execute(*node, kernels).await?;
                 diff(&pre, node)
             }
             Pointer::Node(node) => {
                 let pre = node.clone();
-                // TODO execute(*node, kernels).await?;
+                execute(*node, kernels).await?;
                 diff(&pre, node)
             }
             _ => bail!("Invalid node pointer: {:?}", self),
         };
         Ok(patch)
     }
-    */
 }
 
 /// A trait for document node types that are able to be pointed to

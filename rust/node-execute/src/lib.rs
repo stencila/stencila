@@ -2,7 +2,6 @@ use async_trait::async_trait;
 use eyre::Result;
 use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Resource};
 use hash_utils::str_sha256_hex;
-use kernels::{KernelSelector, KernelSpace};
 use node_address::{Address, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
 use path_utils::merge;
@@ -11,6 +10,9 @@ use std::{
     path::{Path, PathBuf},
 };
 use stencila_schema::*;
+
+// Re-exports
+pub use kernels::{KernelSelector, KernelSpace};
 
 type Addresses = HashMap<String, Address>;
 type Relations = HashMap<Resource, Vec<(Relation, Resource)>>;
@@ -41,7 +43,7 @@ pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresse
 
 pub async fn execute<Type>(node: &mut Type, kernels: &mut KernelSpace) -> Result<()>
 where
-    Type: Compile + Send,
+    Type: Executable + Send,
 {
     node.execute(kernels).await
 }
@@ -66,12 +68,11 @@ pub struct Context {
     pub relations: Vec<(Resource, Vec<(Relation, Resource)>)>,
 }
 
-/// Trait for compiling a node
+/// Trait for executable document nodes
 ///
-/// This trait is implemented below for all (or at least most)
-/// node types.
+/// This trait is implemented below for all (or at least most) node types.
 #[async_trait]
-pub trait Compile {
+pub trait Executable {
     fn compile(&mut self, _address: &mut Address, _context: &mut Context) -> Result<()> {
         Ok(())
     }
@@ -110,7 +111,7 @@ macro_rules! identify {
 /// Compile a `Link` node
 ///
 /// Adds a `Link` relation
-impl Compile for Link {
+impl Executable for Link {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self, address, context);
         let subject = resources::node(&context.path, &id, "Link");
@@ -134,7 +135,7 @@ impl Compile for Link {
 /// If the `content_url` property is  a `file://` URL (implicitly
 /// or explicitly) then resolves the file path, records it as
 /// a file dependency, and returns an absolute `file://` URL.
-fn compile_content_url(content_url: &str, context: &mut Context) -> String {
+fn executable_content_url(content_url: &str, context: &mut Context) -> String {
     if content_url.starts_with("http://")
         || content_url.starts_with("https://")
         || content_url.starts_with("data:")
@@ -174,14 +175,14 @@ fn compile_content_url(content_url: &str, context: &mut Context) -> String {
 }
 
 /// Compile a `MediaObject` node type
-macro_rules! compile_media_object {
+macro_rules! executable_media_object {
     ( $( $type:ty ),* ) => {
         $(
-            impl Compile for $type {
+            impl Executable for $type {
                 fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
                     let id = identify!(self, address, context);
                     let subject = resources::node(&context.path, &id, stringify!($type));
-                    let url = compile_content_url(&self.content_url, context);
+                    let url = executable_content_url(&self.content_url, context);
                     let object = if url.starts_with("http") || url.starts_with("data:") {
                         resources::url(&url)
                     } else {
@@ -199,7 +200,7 @@ macro_rules! compile_media_object {
     };
 }
 
-compile_media_object!(
+executable_media_object!(
     AudioObject,
     AudioObjectSimple,
     ImageObject,
@@ -213,7 +214,7 @@ compile_media_object!(
 ///
 /// Adds an `Assign` relation.
 #[async_trait]
-impl Compile for Parameter {
+impl Executable for Parameter {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self, address, context);
         let subject = resources::node(&context.path, &id, "Parameter");
@@ -248,7 +249,7 @@ impl Compile for Parameter {
 /// Performs semantic analysis of the code (if necessary) and adds the resulting
 /// relations.
 #[async_trait]
-impl Compile for CodeChunk {
+impl Executable for CodeChunk {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self, address, context);
         let digest =
@@ -297,7 +298,7 @@ impl Compile for CodeChunk {
 /// Performs semantic analysis of the code (if necessary) and adds the resulting
 /// relations.
 #[async_trait]
-impl Compile for CodeExpression {
+impl Executable for CodeExpression {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self, address, context);
         let digest =
@@ -341,7 +342,7 @@ impl Compile for CodeExpression {
 ///
 /// Performs semantic analysis of the code (if necessary) and adds the resulting
 /// relations.
-impl Compile for SoftwareSourceCode {
+impl Executable for SoftwareSourceCode {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         identify!(self, address, context);
         if let (Some(text), Some(programming_language)) =
@@ -359,7 +360,7 @@ impl Compile for SoftwareSourceCode {
 /// Compile an `Include` node
 ///
 /// Adds an `Include` relation
-impl Compile for Include {
+impl Executable for Include {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         let id = identify!(self, address, context);
         let subject = resources::node(&context.path, &id, "Include");
@@ -376,11 +377,11 @@ impl Compile for Include {
 
 // Nodes types that simply need an `id` assigned so that custom web component events to have a target
 
-macro_rules! compile_identify_only {
+macro_rules! executable_identify_only {
     ( $( $type:ty ),* ) => {
         $(
             #[async_trait]
-            impl Compile for $type {
+            impl Executable for $type {
                 fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
                     identify!(self, address, context);
                     Ok(())
@@ -390,18 +391,18 @@ macro_rules! compile_identify_only {
     };
 }
 
-compile_identify_only!(CodeBlock, CodeFragment, MathBlock, MathFragment);
+executable_identify_only!(CodeBlock, CodeFragment, MathBlock, MathFragment);
 
 // Node types that do not need anything done
 
-macro_rules! compile_nothing {
+macro_rules! executable_nothing {
     ( $( $type:ty ),* ) => {
         $(
-            impl Compile for $type {}
+            impl Executable for $type {}
         )*
     };
 }
-compile_nothing!(
+executable_nothing!(
     // Primitives
     Null,
     Boolean,
@@ -426,7 +427,7 @@ compile_nothing!(
 // on child nodes and where necessary pushing slots onto the address.
 
 #[async_trait]
-impl Compile for Node {
+impl Executable for Node {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         dispatch_node!(self, Ok(()), compile, address, context)
     }
@@ -437,7 +438,7 @@ impl Compile for Node {
 }
 
 #[async_trait]
-impl Compile for CreativeWorkTypes {
+impl Executable for CreativeWorkTypes {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         dispatch_work!(self, compile, address, context)
     }
@@ -448,7 +449,7 @@ impl Compile for CreativeWorkTypes {
 }
 
 #[async_trait]
-impl Compile for BlockContent {
+impl Executable for BlockContent {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         dispatch_block!(self, compile, address, context)
     }
@@ -459,7 +460,7 @@ impl Compile for BlockContent {
 }
 
 #[async_trait]
-impl Compile for InlineContent {
+impl Executable for InlineContent {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         dispatch_inline!(self, compile, address, context)
     }
@@ -470,9 +471,9 @@ impl Compile for InlineContent {
 }
 
 #[async_trait]
-impl<T> Compile for Option<T>
+impl<T> Executable for Option<T>
 where
-    T: Compile + Send,
+    T: Executable + Send,
 {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         if let Some(value) = self {
@@ -492,9 +493,9 @@ where
 }
 
 #[async_trait]
-impl<T> Compile for Box<T>
+impl<T> Executable for Box<T>
 where
-    T: Compile + Send,
+    T: Executable + Send,
 {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         (**self).compile(address, context)
@@ -506,9 +507,9 @@ where
 }
 
 #[async_trait]
-impl<T> Compile for Vec<T>
+impl<T> Executable for Vec<T>
 where
-    T: Compile + Send,
+    T: Executable + Send,
 {
     fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
         for (index, item) in self.iter_mut().enumerate() {
@@ -528,10 +529,10 @@ where
 }
 
 /// Compile fields of a struct
-macro_rules! compile_fields {
+macro_rules! executable_fields {
     ($type:ty $(, $field:ident)* ) => {
         #[async_trait]
-        impl Compile for $type {
+        impl Executable for $type {
             fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
                 $(
                     address.push_back(Slot::Name(stringify!($field).to_string()));
@@ -551,29 +552,29 @@ macro_rules! compile_fields {
     };
 }
 
-compile_fields!(CiteGroup, items);
-compile_fields!(Collection, parts);
-compile_fields!(CollectionSimple, parts);
-compile_fields!(List, items);
-compile_fields!(ListItem, item, content);
+executable_fields!(CiteGroup, items);
+executable_fields!(Collection, parts);
+executable_fields!(CollectionSimple, parts);
+executable_fields!(List, items);
+executable_fields!(ListItem, item, content);
 
 /// Compile the content field of a struct only
-macro_rules! compile_content {
+macro_rules! executable_content {
     ($type:ty) => {
-        compile_fields!($type, content);
+        executable_fields!($type, content);
     };
 }
 
 /// Compile content for several types
-macro_rules! compile_content_for {
+macro_rules! executable_content_for {
     ( $( $type:ty ),* ) => {
         $(
-            compile_content!($type);
+            executable_content!($type);
         )*
     };
 }
 
-compile_content_for!(
+executable_content_for!(
     Article,
     Cite,
     Claim,
@@ -598,10 +599,10 @@ compile_content_for!(
 );
 
 /// Compile variants of an enum
-macro_rules! compile_variants {
+macro_rules! executable_variants {
     ( $type:ty $(, $variant:path )* ) => {
         #[async_trait]
-        impl Compile for $type {
+        impl Executable for $type {
             fn compile(&mut self, address: &mut Address, context: &mut Context) -> Result<()> {
                 match self {
                     $(
@@ -621,13 +622,13 @@ macro_rules! compile_variants {
     };
 }
 
-compile_variants!(
+executable_variants!(
     CreativeWorkContent,
     CreativeWorkContent::String,
     CreativeWorkContent::VecNode
 );
 
-compile_variants!(
+executable_variants!(
     ListItemContent,
     ListItemContent::VecInlineContent,
     ListItemContent::VecBlockContent
