@@ -334,13 +334,12 @@ where
 }
 
 mod blocks;
-mod boxes;
+mod generics;
 mod inlines;
 mod nodes;
-mod options;
 mod others;
 mod primitives;
-mod vecs;
+
 #[allow(clippy::deprecated_cfg_attr)]
 mod works;
 
