@@ -27,6 +27,7 @@ type Relations = HashMap<Resource, Vec<(Relation, Resource)>>;
 ///   they have an `id` and recording their address
 /// - for executable nodes (e.g. `CodeChunk`) performing semantic analysis of the code
 /// - determining dependencies within and between documents and other resources
+#[tracing::instrument(skip(node))]
 pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresses, Relations)> {
     let mut address = Address::default();
     let mut context = Context {
@@ -41,6 +42,7 @@ pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresse
     Ok((addresses, relations))
 }
 
+#[tracing::instrument(skip(node))]
 pub async fn execute<Type>(node: &mut Type, kernels: &mut KernelSpace) -> Result<()>
 where
     Type: Executable + Send,

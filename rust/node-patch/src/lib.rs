@@ -23,6 +23,7 @@ where
 }
 
 /// Generate a [`Patch`] describing the difference between two nodes of the same type.
+#[tracing::instrument(skip(node1, node2))]
 pub fn diff<Type>(node1: &Type, node2: &Type) -> Patch
 where
     Type: Patchable,
@@ -58,6 +59,7 @@ pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<St
 }
 
 /// Apply a [`Patch`] to a node.
+#[tracing::instrument(skip(node, patch))]
 pub fn apply<Type>(node: &mut Type, patch: &Patch) -> Result<()>
 where
     Type: Patchable,
@@ -91,6 +93,7 @@ where
 /// - `derived`: A list of derived nodes in ascending order of priority
 ///              when resolving merge conflicts i.e. the last in the list
 ///              will win over all other nodes that it conflicts with
+#[tracing::instrument(skip(ancestor, derived))]
 pub fn merge<Type>(ancestor: &mut Type, derived: &[&Type]) -> Result<()>
 where
     Type: Patchable,
