@@ -20,10 +20,8 @@ where
         self.deref().make_hash(state)
     }
 
-    patchable_diff!();
-
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
-        self.deref().diff_same(differ, other)
+    fn diff(&self, differ: &mut Differ, other: &Self) {
+        self.deref().diff(differ, other)
     }
 
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {

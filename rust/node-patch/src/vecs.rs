@@ -29,15 +29,13 @@ where
         }
     }
 
-    patchable_diff!();
-
     /// Generate the difference between two vectors.
     ///
     /// If both vectors are zero length, will generate no operations.
     /// Otherwise, if either of the vectors are of zero length, will generate
     /// a `Replace` operation. Otherwise, will perform a Patience diff on the
     /// vectors.
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
+    fn diff(&self, differ: &mut Differ, other: &Self) {
         if self.is_empty() && other.is_empty() {
             return;
         }

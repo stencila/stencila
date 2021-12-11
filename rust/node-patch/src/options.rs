@@ -27,14 +27,12 @@ where
         }
     }
 
-    patchable_diff!();
-
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
+    fn diff(&self, differ: &mut Differ, other: &Self) {
         match (self, other) {
             (None, None) => (),
             (None, Some(value)) => differ.add(value),
             (Some(_), None) => differ.remove(),
-            (Some(me), Some(other)) => me.diff_same(differ, other),
+            (Some(me), Some(other)) => me.diff(differ, other),
         }
     }
 

@@ -46,35 +46,33 @@ impl Patchable for InlineContent {
         dispatch_inline!(self, make_hash, state)
     }
 
-    patchable_diff!();
-
     #[rustfmt::skip]
-    fn diff_same(&self, differ: &mut Differ, other: &Self) {
+    fn diff(&self, differ: &mut Differ, other: &Self) {
         match (self, other) {
             // Same variant so diff the two values
-            (InlineContent::AudioObject(me), InlineContent::AudioObject(other)) => me.diff_same(differ, other),
-            (InlineContent::Boolean(me), InlineContent::Boolean(other)) => me.diff_same(differ, other),
-            (InlineContent::Cite(me), InlineContent::Cite(other)) => me.diff_same(differ, other),
-            (InlineContent::CiteGroup(me), InlineContent::CiteGroup(other)) => me.diff_same(differ, other),
-            (InlineContent::CodeExpression(me), InlineContent::CodeExpression(other)) => me.diff_same(differ, other),
-            (InlineContent::CodeFragment(me), InlineContent::CodeFragment(other)) => me.diff_same(differ, other),
-            (InlineContent::Delete(me), InlineContent::Delete(other)) => me.diff_same(differ, other),
-            (InlineContent::Emphasis(me), InlineContent::Emphasis(other)) => me.diff_same(differ, other),
-            (InlineContent::ImageObject(me), InlineContent::ImageObject(other)) => me.diff_same(differ, other),
-            (InlineContent::Integer(me), InlineContent::Integer(other)) => me.diff_same(differ, other),
-            (InlineContent::Link(me), InlineContent::Link(other)) => me.diff_same(differ, other),
-            (InlineContent::MathFragment(me), InlineContent::MathFragment(other)) => me.diff_same(differ, other),
-            (InlineContent::NontextualAnnotation(me), InlineContent::NontextualAnnotation(other)) => me.diff_same(differ, other),
-            (InlineContent::Note(me), InlineContent::Note(other)) => me.diff_same(differ, other),
-            (InlineContent::Null(me), InlineContent::Null(other)) => me.diff_same(differ, other),
-            (InlineContent::Number(me), InlineContent::Number(other)) => me.diff_same(differ, other),
-            (InlineContent::Parameter(me), InlineContent::Parameter(other)) => me.diff_same(differ, other),
-            (InlineContent::Quote(me), InlineContent::Quote(other)) => me.diff_same(differ, other),
-            (InlineContent::String(me), InlineContent::String(other)) => me.diff_same(differ, other),
-            (InlineContent::Strong(me), InlineContent::Strong(other)) => me.diff_same(differ, other),
-            (InlineContent::Subscript(me), InlineContent::Subscript(other)) => me.diff_same(differ, other),
-            (InlineContent::Superscript(me), InlineContent::Superscript(other)) => me.diff_same(differ, other),
-            (InlineContent::VideoObject(me), InlineContent::VideoObject(other)) => me.diff_same(differ, other),
+            (InlineContent::AudioObject(me), InlineContent::AudioObject(other)) => me.diff(differ, other),
+            (InlineContent::Boolean(me), InlineContent::Boolean(other)) => me.diff(differ, other),
+            (InlineContent::Cite(me), InlineContent::Cite(other)) => me.diff(differ, other),
+            (InlineContent::CiteGroup(me), InlineContent::CiteGroup(other)) => me.diff(differ, other),
+            (InlineContent::CodeExpression(me), InlineContent::CodeExpression(other)) => me.diff(differ, other),
+            (InlineContent::CodeFragment(me), InlineContent::CodeFragment(other)) => me.diff(differ, other),
+            (InlineContent::Delete(me), InlineContent::Delete(other)) => me.diff(differ, other),
+            (InlineContent::Emphasis(me), InlineContent::Emphasis(other)) => me.diff(differ, other),
+            (InlineContent::ImageObject(me), InlineContent::ImageObject(other)) => me.diff(differ, other),
+            (InlineContent::Integer(me), InlineContent::Integer(other)) => me.diff(differ, other),
+            (InlineContent::Link(me), InlineContent::Link(other)) => me.diff(differ, other),
+            (InlineContent::MathFragment(me), InlineContent::MathFragment(other)) => me.diff(differ, other),
+            (InlineContent::NontextualAnnotation(me), InlineContent::NontextualAnnotation(other)) => me.diff(differ, other),
+            (InlineContent::Note(me), InlineContent::Note(other)) => me.diff(differ, other),
+            (InlineContent::Null(me), InlineContent::Null(other)) => me.diff(differ, other),
+            (InlineContent::Number(me), InlineContent::Number(other)) => me.diff(differ, other),
+            (InlineContent::Parameter(me), InlineContent::Parameter(other)) => me.diff(differ, other),
+            (InlineContent::Quote(me), InlineContent::Quote(other)) => me.diff(differ, other),
+            (InlineContent::String(me), InlineContent::String(other)) => me.diff(differ, other),
+            (InlineContent::Strong(me), InlineContent::Strong(other)) => me.diff(differ, other),
+            (InlineContent::Subscript(me), InlineContent::Subscript(other)) => me.diff(differ, other),
+            (InlineContent::Superscript(me), InlineContent::Superscript(other)) => me.diff(differ, other),
+            (InlineContent::VideoObject(me), InlineContent::VideoObject(other)) => me.diff(differ, other),
 
             // Different variants so attempt to transform from one to the other
             _ => diff_transform(differ, self, other)
@@ -260,9 +258,9 @@ macro_rules! patchable_media_object {
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);
 
-            patchable_diff!();
 
-            fn diff_same(&self, differ: &mut Differ, other: &Self) {
+
+            fn diff(&self, differ: &mut Differ, other: &Self) {
                 $(
                     let field = stringify!($field);
                     if field == "content_url" &&

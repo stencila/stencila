@@ -28,7 +28,7 @@ where
     Type: Patchable,
 {
     let mut differ = Differ::default();
-    node1.diff_same(&mut differ, node2);
+    node1.diff(&mut differ, node2);
     Patch::new(differ.ops)
 }
 
@@ -501,7 +501,7 @@ impl Differ {
     /// Adds a `Name` key to `address` and then differences the two values.
     pub fn field<Type: Patchable>(&mut self, name: &str, value1: &Type, value2: &Type) {
         self.address.push_back(Slot::Name(name.to_string()));
-        value1.diff_same(self, value2);
+        value1.diff(self, value2);
         self.address.pop_back();
     }
 
@@ -510,7 +510,7 @@ impl Differ {
     /// Adds an `Index` key to `address` and then differences the two values.
     pub fn item<Type: Patchable>(&mut self, index: usize, value1: &Type, value2: &Type) {
         self.address.push_back(Slot::Index(index));
-        value1.diff_same(self, value2);
+        value1.diff(self, value2);
         self.address.pop_back();
     }
 
@@ -614,30 +614,9 @@ pub trait Patchable {
     /// Used for identifying unique values, particularly when diffing sequences.
     fn make_hash<H: Hasher>(&self, state: &mut H);
 
-    /// Generate the operations needed to mutate this node so that is the same as
-    /// a node of any other type.
-    ///
-    /// `Other` needs to be `Clone` so that if necessary, we can keep a copy of it in a
-    /// `Add` or `Replace operation.
-    fn diff<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other);
-
     /// Generate the operations needed to mutate this node so that it is equal
     /// to a node of the same type.
-    fn diff_same(&self, differ: &mut Differ, other: &Self);
-
-    /// Generate the operations needed to mutate this node so that it is the
-    /// same as a node of any other type.
-    ///
-    /// This allows node types to define a `Transform` patch operation, which
-    /// is more semantically explicit, and will usually require less data changes
-    /// than a full `Replace` operation. An example is transforming a `Emphasis`
-    /// node to a `Strong` node.
-    ///
-    /// The default implementation simply replaces the current node. Override as
-    /// suits.
-    fn diff_other<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other) {
-        differ.replace(other)
-    }
+    fn diff(&self, differ: &mut Differ, other: &Self);
 
     /// Apply a patch to this node.
     fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
@@ -716,19 +695,6 @@ pub trait Patchable {
         };
         Ok(instance)
     }
-}
-
-/// Generate the `diff` method for a type
-macro_rules! patchable_diff {
-    () => {
-        fn diff<Other: Any + Clone + Send>(&self, differ: &mut Differ, other: &Other) {
-            if let Some(other) = (other as &dyn Any).downcast_ref::<Self>() {
-                self.diff_same(differ, other)
-            } else {
-                self.diff_other(differ, other)
-            }
-        }
-    };
 }
 
 mod errors;

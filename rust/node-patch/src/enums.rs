@@ -27,13 +27,13 @@ macro_rules! patchable_variants_hash {
     };
 }
 
-/// Generate the `diff_same` method for an `enum` having variants of different types
-macro_rules! patchable_variants_diff_same {
+/// Generate the `diff` method for an `enum` having variants of different types
+macro_rules! patchable_variants_diff {
     ($( $variant:path )*) => {
-        fn diff_same(&self, differ: &mut Differ, other: &Self) {
+        fn diff(&self, differ: &mut Differ, other: &Self) {
             match (self, other) {
                 $(
-                    ($variant(me), $variant(other)) => me.diff_same(differ, other),
+                    ($variant(me), $variant(other)) => me.diff(differ, other),
                 )*
                 #[allow(unreachable_patterns)]
                 _ => differ.replace(other)
@@ -133,9 +133,7 @@ macro_rules! patchable_enum {
                 std::mem::discriminant(self).hash(state)
             }
 
-            patchable_diff!();
-
-            fn diff_same(&self, differ: &mut Differ, other: &Self) {
+            fn diff(&self, differ: &mut Differ, other: &Self) {
                 if std::mem::discriminant(self) != std::mem::discriminant(other) {
                     differ.replace(other)
                 }
@@ -161,8 +159,8 @@ macro_rules! patchable_variants {
             patchable_variants_is_equal!($( $variant )*);
             patchable_variants_hash!($( $variant )*);
 
-            patchable_diff!();
-            patchable_variants_diff_same!($( $variant )*);
+
+            patchable_variants_diff!($( $variant )*);
 
             patchable_variants_apply_add!($( $variant )*);
             patchable_variants_apply_remove!($( $variant )*);

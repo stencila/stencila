@@ -28,11 +28,11 @@ macro_rules! patchable_struct_hash {
     };
 }
 
-/// Generate the `diff_same` method for a `struct`
-macro_rules! patchable_struct_diff_same {
+/// Generate the `diff` method for a `struct`
+macro_rules! patchable_struct_diff {
     ($( $field:ident )*) => {
         #[allow(unused_variables)]
-        fn diff_same(&self, differ: &mut Differ, other: &Self) {
+        fn diff(&self, differ: &mut Differ, other: &Self) {
             $(
                 differ.field(stringify!($field), &self.$field, &other.$field);
             )*
@@ -143,8 +143,8 @@ macro_rules! patchable_struct {
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);
 
-            patchable_diff!();
-            patchable_struct_diff_same!($( $field )*);
+
+            patchable_struct_diff!($( $field )*);
 
             patchable_struct_apply_add!($( $field )*);
             patchable_struct_apply_remove!($( $field )*);
@@ -161,7 +161,7 @@ macro_rules! patchable_struct {
 /// Use this, for example, for `struct`s whose HTML encoding is more complicated
 /// than a set of elements for each field.
 ///
-/// The `diff_same` method returns a `Replace` operation and it only implements
+/// The `diff` method returns a `Replace` operation and it only implements
 /// `apply_replace`.
 macro_rules! replaceable_struct {
     ($type:ty $(, $field:ident )*) => {
@@ -169,9 +169,9 @@ macro_rules! replaceable_struct {
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);
 
-            patchable_diff!();
 
-            fn diff_same(&self, differ: &mut Differ, other: &Self) {
+
+            fn diff(&self, differ: &mut Differ, other: &Self) {
                 if !self.is_equal(other).is_ok() {
                     differ.replace(other)
                 }

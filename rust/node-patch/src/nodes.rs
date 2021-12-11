@@ -8,8 +8,8 @@ macro_rules! patchable_node {
             patchable_variants_is_equal!($( $variant )*);
             patchable_variants_hash!($( $variant )*);
 
-            patchable_diff!();
-            patchable_variants_diff_same!($( $variant )*);
+
+            patchable_variants_diff!($( $variant )*);
 
             patchable_variants_apply_add!($( $variant )*);
             patchable_variants_apply_remove!($( $variant )*);

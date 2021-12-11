@@ -12,9 +12,7 @@ impl Patchable for Null {
         self.to_string().hash(state);
     }
 
-    patchable_diff!();
-
-    fn diff_same(&self, _differ: &mut Differ, _other: &Self) {
+    fn diff(&self, _differ: &mut Differ, _other: &Self) {
         // By definition, no difference
     }
 }
@@ -35,9 +33,7 @@ macro_rules! patchable_atomic {
                 $hash(self, state)
             }
 
-            patchable_diff!();
-
-            fn diff_same(&self, differ: &mut Differ, other: &Self) {
+            fn diff(&self, differ: &mut Differ, other: &Self) {
                 #[allow(clippy::float_cmp)]
                 if self != other {
                     differ.replace(other)
