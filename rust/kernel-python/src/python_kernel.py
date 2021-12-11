@@ -22,7 +22,10 @@ def print(*objects, sep=" ", end="\n", file=stdout, flush=False):
         stdout.write(json + RESULT)
 
 
-context = {"print": print, "decode_value": decode_value}
+globals_dict = globals()
+globals_dict.update({"print": print, "decode_value": decode_value})
+
+locals_dict = {}
 
 stdout.write(READY)
 stdout.flush()
@@ -39,9 +42,9 @@ for code in stdin:
         # Child process, so...
 
         # Separate code and paths of FIFO pipes to replace stdout and stderr
-        code = code[:-len(FORK)]
+        code = code[: -len(FORK)]
         pos = code.rfind("|")
-        (code, pipes) = code[:pos], code[(pos + 1):]
+        (code, pipes) = code[:pos], code[(pos + 1) :]
         (new_stdout, new_stderr) = pipes.split(";")
 
         # Close file descriptors so that we're not interfeering with
@@ -64,12 +67,14 @@ for code in stdin:
             last = compile(last, "<code>", "eval")
         except:
             unescaped = code.replace("\\n", "\n")
-            exec(compile(unescaped, "<code>", "exec"))
+            compiled = compile(unescaped, "<code>", "exec")
+            exec(compiled, globals_dict, locals_dict)
         else:
             if rest:
                 joined = "\n".join(rest)
-                exec(compile(joined, "<code>", "exec"))
-            value = eval(last, globals(), context)
+                compiled = compile(joined, "<code>", "exec")
+                exec(compiled, globals_dict, locals_dict)
+            value = eval(last, globals_dict, locals_dict)
             if value is not None:
                 json = encode_value(value)
                 stdout.write(json + RESULT)
