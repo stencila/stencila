@@ -17,8 +17,6 @@ use unicode_segmentation::UnicodeSegmentation;
 /// The `Move` operation, whilst possible for strings, adds complexity
 /// and a performance hit to diffing so is not used.
 impl Patchable for String {
-    patchable_is_same!();
-
     fn is_equal(&self, other: &Self) -> Result<()> {
         if self == other {
             Ok(())

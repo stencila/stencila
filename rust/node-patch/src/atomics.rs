@@ -3,8 +3,6 @@ use std::hash::{Hash, Hasher};
 use stencila_schema::{Boolean, Integer, Null, Number};
 
 impl Patchable for Null {
-    patchable_is_same!();
-
     fn is_equal(&self, _other: &Self) -> Result<()> {
         // By definition, equal
         Ok(())
@@ -25,8 +23,6 @@ impl Patchable for Null {
 macro_rules! patchable_atomic {
     ($type:ty, $hash:ident) => {
         impl Patchable for $type {
-            patchable_is_same!();
-
             fn is_equal(&self, other: &Self) -> Result<()> {
                 #[allow(clippy::float_cmp)]
                 match self == other {

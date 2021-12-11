@@ -13,8 +13,6 @@ impl<Type: Patchable> Patchable for Option<Type>
 where
     Type: Clone + DeserializeOwned + Send + 'static,
 {
-    patchable_is_same!();
-
     fn is_equal(&self, other: &Self) -> Result<()> {
         match (self, other) {
             (None, None) => Ok(()),

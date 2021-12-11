@@ -12,11 +12,6 @@ use thiserror::Error;
 #[serde(tag = "type")]
 #[schemars(deny_unknown_fields)]
 pub enum Error {
-    /// Used to indicate that two values are not the same (rather than
-    /// return `false`, this error allows for convenient early return via `?`).
-    #[error("Values are not the same (type and/or their value differ).")]
-    NotSame,
-
     /// Used to indicate that two values are not equal (rather than
     /// return `false`, this error allows for convenient early return via `?`).
     #[error("Values are not equal (type is equal but their value differs")]

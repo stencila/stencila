@@ -9,8 +9,6 @@ use stencila_schema::*;
 /// Generates and applies `Replace` and `Transform` operations between variants of inline content.
 /// All other operations are passed through to variants.
 impl Patchable for InlineContent {
-    patchable_is_same!();
-
     #[rustfmt::skip]
     fn is_equal(&self, other: &Self) -> Result<()> {
         match (self, other) {
@@ -259,7 +257,6 @@ patchable_struct!(Superscript, content);
 macro_rules! patchable_media_object {
     ($type:ty $(, $field:ident )*) => {
         impl Patchable for $type {
-            patchable_is_same!();
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);
 

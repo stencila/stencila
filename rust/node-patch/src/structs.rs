@@ -140,7 +140,6 @@ macro_rules! patchable_struct_apply_transform {
 macro_rules! patchable_struct {
     ($type:ty $(, $field:ident )*) => {
         impl Patchable for $type {
-            patchable_is_same!();
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);
 
@@ -167,7 +166,6 @@ macro_rules! patchable_struct {
 macro_rules! replaceable_struct {
     ($type:ty $(, $field:ident )*) => {
         impl Patchable for $type {
-            patchable_is_same!();
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);
 

@@ -14,15 +14,6 @@ use std::{
 use stencila_schema::*;
 use strum::Display;
 
-/// Are two nodes are the same type and value?
-pub fn same<Type1, Type2>(node1: &Type1, node2: &Type2) -> bool
-where
-    Type1: Patchable,
-    Type2: Clone + Send + 'static,
-{
-    node1.is_same(node2).is_ok()
-}
-
 /// Do two nodes of the same type have equal value?
 pub fn equal<Type>(node1: &Type, node2: &Type) -> bool
 where
@@ -615,10 +606,6 @@ impl Differ {
 }
 
 pub trait Patchable {
-    /// Test whether a node is the same as (i.e. equal type and equal value)
-    /// another node of any type.
-    fn is_same<Other: Any + Clone + Send>(&self, other: &Other) -> Result<()>;
-
     /// Test whether a node is equal to (i.e. equal value) a node of the same type.
     fn is_equal(&self, other: &Self) -> Result<()>;
 
@@ -731,19 +718,6 @@ pub trait Patchable {
     }
 }
 
-/// Generate the `is_same` method for a type
-macro_rules! patchable_is_same {
-    () => {
-        fn is_same<Other: Any + Clone>(&self, other: &Other) -> Result<()> {
-            if let Some(other) = (other as &dyn Any).downcast_ref::<Self>() {
-                self.is_equal(&other)
-            } else {
-                bail!(Error::NotSame)
-            }
-        }
-    };
-}
-
 /// Generate the `diff` method for a type
 macro_rules! patchable_diff {
     () => {
@@ -785,19 +759,13 @@ mod tests {
     use test_utils::{assert_json_eq, assert_json_is};
 
     #[test]
-    fn test_same_equal() {
+    fn test_equal() {
         let int_a: Integer = 1;
         let int_b: Integer = 2;
         let opt_a: Option<Integer> = None;
         let opt_b: Option<Integer> = Some(1);
         let vec_a: Vec<Integer> = vec![1, 2, 3];
         let vec_b: Vec<Integer> = vec![3, 2, 1];
-
-        assert!(same(&int_a, &int_a));
-        assert!(!same(&int_a, &int_b));
-        assert!(!same(&int_a, &vec_a));
-        assert!(!same(&int_a, &opt_a));
-        assert!(!same(&vec_a, &vec_b));
 
         assert!(equal(&int_a, &int_a));
         assert!(!equal(&int_a, &int_b));

@@ -121,8 +121,6 @@ macro_rules! patchable_variants_apply_transform {
 macro_rules! patchable_enum {
     ($type:ty) => {
         impl Patchable for $type {
-            patchable_is_same!();
-
             fn is_equal(&self, other: &Self) -> Result<()> {
                 match std::mem::discriminant(self) == std::mem::discriminant(other) {
                     true => Ok(()),
@@ -160,7 +158,6 @@ macro_rules! patchable_enum {
 macro_rules! patchable_variants {
     ($type:ty $(, $variant:path )*) => {
         impl Patchable for $type {
-            patchable_is_same!();
             patchable_variants_is_equal!($( $variant )*);
             patchable_variants_hash!($( $variant )*);
 

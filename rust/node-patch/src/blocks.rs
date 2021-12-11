@@ -8,8 +8,6 @@ use stencila_schema::*;
 /// Generates and applies `Replace` and `Transform` operations between variants of block content.
 /// All other operations are passed through to variants.
 impl Patchable for BlockContent {
-    patchable_is_same!();
-
     #[rustfmt::skip]
     fn is_equal(&self, other: &Self) -> Result<()> {
         match (self, other) {
