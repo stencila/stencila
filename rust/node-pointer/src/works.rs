@@ -27,13 +27,13 @@ impl Pointable for CreativeWorkTypes {
     }
 }
 
-// Implementations for `CreativeWork` structs. Presently none of the descendants of these
-// works are made pointable but they may be done in the future.
+// Implementations for `CreativeWork` structs. For descendants of these
+// works to be pointable they must be within one of the listed properties e.g. `Article.content`.
 
-pointable_struct!(Article);
+pointable_struct!(Article, content);
 pointable_struct!(AudioObject);
-pointable_struct!(Claim);
-pointable_struct!(Collection);
+pointable_struct!(Claim, content);
+pointable_struct!(Collection, parts);
 pointable_struct!(Comment);
 pointable_struct!(CreativeWork);
 pointable_struct!(Datatable);
@@ -46,5 +46,5 @@ pointable_struct!(PublicationVolume);
 pointable_struct!(Review);
 pointable_struct!(SoftwareApplication);
 pointable_struct!(SoftwareSourceCode);
-pointable_struct!(Table);
+pointable_struct!(Table, caption, rows);
 pointable_struct!(VideoObject);
