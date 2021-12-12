@@ -288,6 +288,7 @@ impl Operation {
             Organization
 
             // Primitives
+            Primitive
             String
             Number
             Integer
@@ -362,6 +363,7 @@ impl Operation {
             Date
 
             // Primitives
+            Primitive
             String
             Number
             Integer
@@ -657,12 +659,12 @@ pub trait Patchable {
 
     /// Apply an `Add` patch operation
     fn apply_add(&mut self, _address: &mut Address, _value: &Value) -> Result<()> {
-        bail!(invalid_patch_operation::<Self>("add"))
+        bail!(invalid_patch_operation::<Self>("Add"))
     }
 
     /// Apply a `Remove` patch operation
     fn apply_remove(&mut self, _address: &mut Address, _items: usize) -> Result<()> {
-        bail!(invalid_patch_operation::<Self>("remove"))
+        bail!(invalid_patch_operation::<Self>("Remove"))
     }
 
     /// Apply a `Replace` patch operation
@@ -672,17 +674,17 @@ pub trait Patchable {
         _items: usize,
         _value: &Value,
     ) -> Result<()> {
-        bail!(invalid_patch_operation::<Self>("replace"))
+        bail!(invalid_patch_operation::<Self>("Replace"))
     }
 
     /// Apply a `Move` patch operation
     fn apply_move(&mut self, _from: &mut Address, _items: usize, _to: &mut Address) -> Result<()> {
-        bail!(invalid_patch_operation::<Self>("move"))
+        bail!(invalid_patch_operation::<Self>("Move"))
     }
 
     /// Apply a `Transform` patch operation
     fn apply_transform(&mut self, _address: &mut Address, _from: &str, _to: &str) -> Result<()> {
-        bail!(invalid_patch_operation::<Self>("transform"))
+        bail!(invalid_patch_operation::<Self>("Transform"))
     }
 
     /// Cast a [`Value`] to an instance of the type
@@ -696,7 +698,10 @@ pub trait Patchable {
             if let Ok(value) = serde_json::from_value::<Self>(value.clone()) {
                 value
             } else {
-                bail!(invalid_patch_value::<Self>())
+                bail!(
+                    "Invalid JSON patch value for type `{}`",
+                    std::any::type_name::<Self>()
+                )
             }
         } else {
             bail!(invalid_patch_value::<Self>())

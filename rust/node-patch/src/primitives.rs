@@ -1,5 +1,13 @@
+//! Implementations of `Patchable` for `Primitive` node types
+//!
+//! Note that `Patchable` is implemented for some primitives elsewhere:
+//! - `String`: in strings.rs`
+//! - `Array`: is covered by `impl Patchable for Vec<Primitive>` in `vecs.rs`
+//! - `Object`: is covered by `impl Patchable for BTreeMap<String, Primitive>` in `maps.rs`
+
 use super::prelude::*;
 use node_dispatch::{dispatch_primitive, dispatch_primitive_pair};
+use serde::de::DeserializeOwned;
 use std::hash::{Hash, Hasher};
 use stencila_schema::*;
 
@@ -13,7 +21,68 @@ impl Patchable for Primitive {
     }
 
     fn diff(&self, other: &Self, differ: &mut Differ) {
-        dispatch_primitive_pair!(self, other, (), diff, differ)
+        dispatch_primitive_pair!(self, other, differ.replace(other), diff, differ)
+    }
+
+    fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
+        // Only expected for compound primitives ie. `String`, `Array`, `Object`
+        dispatch_primitive!(self, apply_add, address, value)
+    }
+
+    fn apply_remove(&mut self, address: &mut Address, items: usize) -> Result<()> {
+        // Only expected for compound primitives ie. `String`, `Array`, `Object`
+        dispatch_primitive!(self, apply_remove, address, items)
+    }
+
+    fn apply_replace(&mut self, address: &mut Address, items: usize, value: &Value) -> Result<()> {
+        if address.is_empty() {
+            if items != 1 {
+                bail!("When applying `Replace` operation to `Primitive`, `items` should be 1")
+            }
+            *self = Self::from_value(value)?;
+            Ok(())
+        } else {
+            // Only expected for compound primitives ie. `String`, `Array`, `Object`
+            dispatch_primitive!(self, apply_replace, address, items, value)
+        }
+    }
+
+    fn apply_move(&mut self, from: &mut Address, items: usize, to: &mut Address) -> Result<()> {
+        // Only expected for compound primitives ie. `String`, `Array`, `Object`
+        dispatch_primitive!(self, apply_move, from, items, to)
+    }
+
+    fn from_value(value: &Value) -> Result<Self>
+    where
+        Self: Clone + DeserializeOwned + Sized + 'static,
+    {
+        let instance = if let Some(value) = value.downcast_ref::<Self>() {
+            value.clone()
+        } else if value.is::<Null>() {
+            Primitive::Null(Null {})
+        } else if let Some(value) = value.downcast_ref::<Integer>() {
+            Primitive::Integer(*value)
+        } else if let Some(value) = value.downcast_ref::<Number>() {
+            Primitive::Number(*value)
+        } else if let Some(value) = value.downcast_ref::<String>() {
+            Primitive::String(value.clone())
+        } else if let Some(value) = value.downcast_ref::<Object>() {
+            Primitive::Object(value.clone())
+        } else if let Some(value) = value.downcast_ref::<Array>() {
+            Primitive::Array(value.clone())
+        } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
+            if let Ok(value) = serde_json::from_value::<Self>(value.clone()) {
+                value
+            } else {
+                bail!(
+                    "Invalid JSON patch value for type `{}`",
+                    std::any::type_name::<Self>()
+                )
+            }
+        } else {
+            bail!(invalid_patch_value::<Self>())
+        };
+        Ok(instance)
     }
 }
 
@@ -93,14 +162,86 @@ patchable_atomic!(Boolean, hash);
 patchable_atomic!(Integer, hash);
 patchable_atomic!(Number, hash_float);
 
-// Implementation for `Array` is covered by `impl Patchable for Vec<Primitive>`
-// Implementation for `Object` is covered by `impl Patchable for BTreeMap<String, Primitive>`
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{apply_new, diff, equal};
-    use test_utils::assert_json_is;
+    use test_utils::{assert_json_eq, assert_json_is};
+
+    macro_rules! obj {
+        ($json:tt) => {
+            serde_json::from_value::<Object>(serde_json::json!($json)).unwrap()
+        };
+    }
+
+    #[test]
+    fn primitives() -> Result<()> {
+        let null = Primitive::Null(Null {});
+        let bool = Primitive::Boolean(true);
+        let int1 = Primitive::Integer(1);
+        let int2 = Primitive::Integer(2);
+        let str1 = Primitive::String("abcd".to_string());
+        let str2 = Primitive::String("cbd".to_string());
+        let obj1 = Primitive::Object(Object::new());
+        let obj2 = Primitive::Object(obj!({
+            "a": Primitive::String("abc".to_string())
+        }));
+        let obj3 = Primitive::Object(obj!({
+            "a": Primitive::String("a".to_string()),
+            "b": Primitive::Number(1.23)
+        }));
+
+        let patch = diff(&null, &bool);
+        assert_json_is!(patch.ops, [{"type": "Replace", "address": [], "items": 1, "length": 1, "value": true}]);
+        assert_json_eq!(apply_new(&null, &patch)?, &bool);
+
+        let patch = diff(&bool, &int1);
+        assert_json_is!(patch.ops, [{"type": "Replace", "address": [], "items": 1, "length": 1, "value": 1}]);
+        assert_json_eq!(apply_new(&bool, &patch)?, &int1);
+
+        let patch = diff(&int1, &int2);
+        assert_json_is!(patch.ops, [{"type": "Replace", "address": [], "items": 1, "length": 1, "value": 2}]);
+        assert_json_eq!(apply_new(&int1, &patch)?, &int2);
+
+        let patch = diff(&int2, &str1);
+        assert_json_is!(patch.ops, [{"type": "Replace", "address": [], "items": 1, "length": 1, "value": "abcd"}]);
+        assert_json_eq!(apply_new(&int2, &patch)?, &str1);
+
+        let patch = diff(&str1, &str2);
+        assert_json_is!(patch.ops, [
+            {"type": "Remove", "address": [0], "items": 2},
+            {"type": "Add", "address": [1], "length": 1, "value": "b"}
+        ]);
+        assert_json_eq!(apply_new(&str1, &patch)?, &str2);
+
+        let patch = diff(&str2, &obj1);
+        assert_json_is!(patch.ops, [{"type": "Replace", "address": [], "items": 1, "length": 1, "value": {}}]);
+        assert_json_eq!(apply_new(&str2, &patch)?, &obj1);
+
+        let patch = diff(&obj1, &obj2);
+        assert_json_is!(patch.ops, [
+            {"type": "Replace", "address": [], "items": 1, "length": 1, "value": {"a": "abc"}}
+        ]);
+        assert_json_eq!(apply_new(&obj1, &patch)?, &obj2);
+
+        let patch = diff(&obj2, &obj3);
+        assert_json_is!(patch.ops, [
+            {"type": "Remove", "address": ["a", 1], "items": 2},
+            {"type": "Add", "address": ["b"], "length": 1, "value": 1.23}
+        ]);
+        assert_json_eq!(apply_new(&obj2, &patch)?, &obj3);
+
+        Ok(())
+    }
+
+    #[test]
+    fn nulls() -> Result<()> {
+        let null = Null {};
+        assert!(equal(&null, &null));
+        assert_json_is!(diff(&null, &null).ops, []);
+
+        Ok(())
+    }
 
     #[test]
     fn booleans() -> Result<()> {
