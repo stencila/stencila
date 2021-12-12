@@ -1,6 +1,6 @@
 use super::prelude::*;
 use codec_txt::ToTxt;
-use node_dispatch::dispatch_inline;
+use node_dispatch::{dispatch_inline, dispatch_inline_pair};
 use std::hash::Hasher;
 use stencila_schema::*;
 
@@ -9,74 +9,22 @@ use stencila_schema::*;
 /// Generates and applies `Replace` and `Transform` operations between variants of inline content.
 /// All other operations are passed through to variants.
 impl Patchable for InlineContent {
-    #[rustfmt::skip]
     fn is_equal(&self, other: &Self) -> Result<()> {
-        match (self, other) {
-            // Same variant so compare the two values
-            (InlineContent::AudioObject(me), InlineContent::AudioObject(other)) => me.is_equal(other),
-            (InlineContent::Boolean(me), InlineContent::Boolean(other)) => me.is_equal(other),
-            (InlineContent::Cite(me), InlineContent::Cite(other)) => me.is_equal(other),
-            (InlineContent::CiteGroup(me), InlineContent::CiteGroup(other)) => me.is_equal(other),
-            (InlineContent::CodeExpression(me), InlineContent::CodeExpression(other)) => me.is_equal(other),
-            (InlineContent::CodeFragment(me), InlineContent::CodeFragment(other)) => me.is_equal(other),
-            (InlineContent::Delete(me), InlineContent::Delete(other)) => me.is_equal(other),
-            (InlineContent::Emphasis(me), InlineContent::Emphasis(other)) => me.is_equal(other),
-            (InlineContent::ImageObject(me), InlineContent::ImageObject(other)) => me.is_equal(other),
-            (InlineContent::Integer(me), InlineContent::Integer(other)) => me.is_equal(other),
-            (InlineContent::Link(me), InlineContent::Link(other)) => me.is_equal(other),
-            (InlineContent::MathFragment(me), InlineContent::MathFragment(other)) => me.is_equal(other),
-            (InlineContent::NontextualAnnotation(me), InlineContent::NontextualAnnotation(other)) => me.is_equal(other),
-            (InlineContent::Note(me), InlineContent::Note(other)) => me.is_equal(other),
-            (InlineContent::Null(me), InlineContent::Null(other)) => me.is_equal(other),
-            (InlineContent::Number(me), InlineContent::Number(other)) => me.is_equal(other),
-            (InlineContent::Parameter(me), InlineContent::Parameter(other)) => me.is_equal(other),
-            (InlineContent::Quote(me), InlineContent::Quote(other)) => me.is_equal(other),
-            (InlineContent::String(me), InlineContent::String(other)) => me.is_equal(other),
-            (InlineContent::Strong(me), InlineContent::Strong(other)) => me.is_equal(other),
-            (InlineContent::Subscript(me), InlineContent::Subscript(other)) => me.is_equal(other),
-            (InlineContent::Superscript(me), InlineContent::Superscript(other)) => me.is_equal(other),
-            (InlineContent::VideoObject(me), InlineContent::VideoObject(other)) => me.is_equal(other),
-
-            // Different variants so by definition not equal
-            _ => bail!(Error::NotEqual),
-        }
+        dispatch_inline_pair!(self, other, bail!(Error::NotEqual), is_equal)
     }
 
     fn make_hash<H: Hasher>(&self, state: &mut H) {
         dispatch_inline!(self, make_hash, state)
     }
 
-    #[rustfmt::skip]
-    fn diff(&self, differ: &mut Differ, other: &Self) {
-        match (self, other) {
-            // Same variant so diff the two values
-            (InlineContent::AudioObject(me), InlineContent::AudioObject(other)) => me.diff(differ, other),
-            (InlineContent::Boolean(me), InlineContent::Boolean(other)) => me.diff(differ, other),
-            (InlineContent::Cite(me), InlineContent::Cite(other)) => me.diff(differ, other),
-            (InlineContent::CiteGroup(me), InlineContent::CiteGroup(other)) => me.diff(differ, other),
-            (InlineContent::CodeExpression(me), InlineContent::CodeExpression(other)) => me.diff(differ, other),
-            (InlineContent::CodeFragment(me), InlineContent::CodeFragment(other)) => me.diff(differ, other),
-            (InlineContent::Delete(me), InlineContent::Delete(other)) => me.diff(differ, other),
-            (InlineContent::Emphasis(me), InlineContent::Emphasis(other)) => me.diff(differ, other),
-            (InlineContent::ImageObject(me), InlineContent::ImageObject(other)) => me.diff(differ, other),
-            (InlineContent::Integer(me), InlineContent::Integer(other)) => me.diff(differ, other),
-            (InlineContent::Link(me), InlineContent::Link(other)) => me.diff(differ, other),
-            (InlineContent::MathFragment(me), InlineContent::MathFragment(other)) => me.diff(differ, other),
-            (InlineContent::NontextualAnnotation(me), InlineContent::NontextualAnnotation(other)) => me.diff(differ, other),
-            (InlineContent::Note(me), InlineContent::Note(other)) => me.diff(differ, other),
-            (InlineContent::Null(me), InlineContent::Null(other)) => me.diff(differ, other),
-            (InlineContent::Number(me), InlineContent::Number(other)) => me.diff(differ, other),
-            (InlineContent::Parameter(me), InlineContent::Parameter(other)) => me.diff(differ, other),
-            (InlineContent::Quote(me), InlineContent::Quote(other)) => me.diff(differ, other),
-            (InlineContent::String(me), InlineContent::String(other)) => me.diff(differ, other),
-            (InlineContent::Strong(me), InlineContent::Strong(other)) => me.diff(differ, other),
-            (InlineContent::Subscript(me), InlineContent::Subscript(other)) => me.diff(differ, other),
-            (InlineContent::Superscript(me), InlineContent::Superscript(other)) => me.diff(differ, other),
-            (InlineContent::VideoObject(me), InlineContent::VideoObject(other)) => me.diff(differ, other),
-
-            // Different variants so attempt to transform from one to the other
-            _ => diff_transform(differ, self, other)
-        }
+    fn diff(&self, other: &Self, differ: &mut Differ) {
+        dispatch_inline_pair!(
+            self,
+            other,
+            diff_transform(differ, self, other),
+            diff,
+            differ
+        )
     }
 
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {
@@ -258,9 +206,7 @@ macro_rules! patchable_media_object {
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);
 
-
-
-            fn diff(&self, differ: &mut Differ, other: &Self) {
+            fn diff(&self, other: &Self, differ: &mut Differ) {
                 $(
                     let field = stringify!($field);
                     if field == "content_url" &&

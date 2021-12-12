@@ -27,12 +27,12 @@ where
         }
     }
 
-    fn diff(&self, differ: &mut Differ, other: &Self) {
+    fn diff(&self, other: &Self, differ: &mut Differ) {
         match (self, other) {
             (None, None) => (),
             (None, Some(value)) => differ.add(value),
             (Some(_), None) => differ.remove(),
-            (Some(me), Some(other)) => me.diff(differ, other),
+            (Some(me), Some(other)) => me.diff(other, differ),
         }
     }
 

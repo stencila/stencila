@@ -20,8 +20,8 @@ where
         self.deref().make_hash(state)
     }
 
-    fn diff(&self, differ: &mut Differ, other: &Self) {
-        self.deref().diff(differ, other)
+    fn diff(&self, other: &Self, differ: &mut Differ) {
+        self.deref().diff(other, differ)
     }
 
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {

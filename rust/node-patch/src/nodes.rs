@@ -2,15 +2,12 @@ use super::prelude::*;
 use stencila_schema::Node;
 
 /// Override of macro to implement `from_value` for all node types
-macro_rules! patchable_node {
+macro_rules! patchable_node_variants {
     ($( $variant:path )*) => {
         impl Patchable for Node {
             patchable_variants_is_equal!($( $variant )*);
             patchable_variants_hash!($( $variant )*);
-
-
             patchable_variants_diff!($( $variant )*);
-
             patchable_variants_apply_add!($( $variant )*);
             patchable_variants_apply_remove!($( $variant )*);
             patchable_variants_apply_replace!($( $variant )*);
@@ -43,10 +40,8 @@ macro_rules! patchable_node {
     };
 }
 
-// TODO: Commented out node types need methods implemented to be
-// able to be included as variants here
-patchable_node!(
-    //Node::Array
+patchable_node_variants!(
+    Node::Array
     Node::Article
     Node::AudioObject
     Node::Boolean
@@ -71,7 +66,7 @@ patchable_node!(
     Node::Note
     Node::Null
     Node::Number
-    //Node::Object
+    Node::Object
     Node::Paragraph
     Node::Quote
     Node::QuoteBlock

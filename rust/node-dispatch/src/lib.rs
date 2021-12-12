@@ -71,6 +71,22 @@ macro_rules! dispatch_primitive {
 }
 
 #[macro_export]
+macro_rules! dispatch_primitive_pair {
+    ($node:expr, $other:expr, $default:expr, $method:ident $(,$arg:expr)*) => {
+        match ($node, $other) {
+            (Primitive::Null(node), Primitive::Null(other)) => node.$method(other, $($arg),*),
+            (Primitive::Boolean(node), Primitive::Boolean(other)) => node.$method(other, $($arg),*),
+            (Primitive::Integer(node), Primitive::Integer(other)) => node.$method(other, $($arg),*),
+            (Primitive::Number(node), Primitive::Number(other)) => node.$method(other, $($arg),*),
+            (Primitive::String(node), Primitive::String(other)) => node.$method(other, $($arg),*),
+            (Primitive::Array(node), Primitive::Array(other)) => node.$method(other, $($arg),*),
+            (Primitive::Object(node), Primitive::Object(other)) => node.$method(other, $($arg),*),
+            _ => $default
+        }
+    }
+}
+
+#[macro_export]
 macro_rules! dispatch_inline {
     ($node:expr, $method:ident $(,$arg:expr)*) => {
         match $node {
@@ -102,6 +118,38 @@ macro_rules! dispatch_inline {
 }
 
 #[macro_export]
+macro_rules! dispatch_inline_pair {
+    ($node:expr, $other:expr, $default:expr, $method:ident $(,$arg:expr)*) => {
+        match ($node, $other) {
+            (InlineContent::AudioObject(node), InlineContent::AudioObject(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Boolean(node), InlineContent::Boolean(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Cite(node), InlineContent::Cite(other)) => node.$method(other, $($arg),*),
+            (InlineContent::CiteGroup(node), InlineContent::CiteGroup(other)) => node.$method(other, $($arg),*),
+            (InlineContent::CodeExpression(node), InlineContent::CodeExpression(other)) => node.$method(other, $($arg),*),
+            (InlineContent::CodeFragment(node), InlineContent::CodeFragment(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Delete(node), InlineContent::Delete(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Emphasis(node), InlineContent::Emphasis(other)) => node.$method(other, $($arg),*),
+            (InlineContent::ImageObject(node), InlineContent::ImageObject(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Integer(node), InlineContent::Integer(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Link(node), InlineContent::Link(other)) => node.$method(other, $($arg),*),
+            (InlineContent::MathFragment(node), InlineContent::MathFragment(other)) => node.$method(other, $($arg),*),
+            (InlineContent::NontextualAnnotation(node), InlineContent::NontextualAnnotation(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Note(node), InlineContent::Note(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Null(node), InlineContent::Null(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Number(node), InlineContent::Number(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Parameter(node), InlineContent::Parameter(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Quote(node), InlineContent::Quote(other)) => node.$method(other, $($arg),*),
+            (InlineContent::String(node), InlineContent::String(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Strong(node), InlineContent::Strong(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Subscript(node), InlineContent::Subscript(other)) => node.$method(other, $($arg),*),
+            (InlineContent::Superscript(node), InlineContent::Superscript(other)) => node.$method(other, $($arg),*),
+            (InlineContent::VideoObject(node), InlineContent::VideoObject(other)) => node.$method(other, $($arg),*),
+            _ => $default
+        }
+    }
+}
+
+#[macro_export]
 macro_rules! dispatch_block {
     ($node:expr, $method:ident $(,$arg:expr)*) => {
         match $node {
@@ -118,6 +166,28 @@ macro_rules! dispatch_block {
             BlockContent::QuoteBlock(node) => node.$method($($arg),*),
             BlockContent::Table(node) => node.$method($($arg),*),
             BlockContent::ThematicBreak(node) => node.$method($($arg),*),
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! dispatch_block_pair {
+    ($node:expr, $other:expr, $default:expr, $method:ident $(,$arg:expr)*) => {
+        match ($node, $other) {
+            (BlockContent::Claim(node), BlockContent::Claim(other)) => node.$method(other, $($arg),*),
+            (BlockContent::CodeBlock(node), BlockContent::CodeBlock(other)) => node.$method(other, $($arg),*),
+            (BlockContent::CodeChunk(node), BlockContent::CodeChunk(other)) => node.$method(other, $($arg),*),
+            (BlockContent::Collection(node), BlockContent::Collection(other)) => node.$method(other, $($arg),*),
+            (BlockContent::Figure(node), BlockContent::Figure(other)) => node.$method(other, $($arg),*),
+            (BlockContent::Heading(node), BlockContent::Heading(other)) => node.$method(other, $($arg),*),
+            (BlockContent::Include(node), BlockContent::Include(other)) => node.$method(other, $($arg),*),
+            (BlockContent::List(node), BlockContent::List(other)) => node.$method(other, $($arg),*),
+            (BlockContent::MathBlock(node), BlockContent::MathBlock(other)) => node.$method(other, $($arg),*),
+            (BlockContent::Paragraph(node), BlockContent::Paragraph(other)) => node.$method(other, $($arg),*),
+            (BlockContent::QuoteBlock(node), BlockContent::QuoteBlock(other)) => node.$method(other, $($arg),*),
+            (BlockContent::Table(node), BlockContent::Table(other)) => node.$method(other, $($arg),*),
+            (BlockContent::ThematicBreak(node), BlockContent::ThematicBreak(other)) => node.$method(other, $($arg),*),
+            _ => $default
         }
     }
 }

@@ -29,7 +29,7 @@ where
     Type: Patchable,
 {
     let mut differ = Differ::default();
-    node1.diff(&mut differ, node2);
+    node1.diff(node2, &mut differ);
     Patch::new(differ.ops)
 }
 
@@ -509,7 +509,7 @@ impl Differ {
     /// Adds a `Name` key to `address` and then differences the two values.
     pub fn field<Type: Patchable>(&mut self, name: &str, value1: &Type, value2: &Type) {
         self.address.push_back(Slot::Name(name.to_string()));
-        value1.diff(self, value2);
+        value1.diff(value2, self);
         self.address.pop_back();
     }
 
@@ -518,7 +518,7 @@ impl Differ {
     /// Adds an `Index` key to `address` and then differences the two values.
     pub fn item<Type: Patchable>(&mut self, index: usize, value1: &Type, value2: &Type) {
         self.address.push_back(Slot::Index(index));
-        value1.diff(self, value2);
+        value1.diff(value2, self);
         self.address.pop_back();
     }
 
@@ -624,7 +624,7 @@ pub trait Patchable {
 
     /// Generate the operations needed to mutate this node so that it is equal
     /// to a node of the same type.
-    fn diff(&self, differ: &mut Differ, other: &Self);
+    fn diff(&self, other: &Self, differ: &mut Differ);
 
     /// Apply a patch to this node.
     fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
@@ -710,7 +710,6 @@ use errors::{invalid_patch_operation, invalid_patch_value};
 
 mod prelude;
 
-mod atomics;
 #[macro_use]
 mod enums;
 mod boxes;
@@ -718,12 +717,14 @@ mod options;
 mod strings;
 #[macro_use]
 mod structs;
+mod maps;
 mod vecs;
 
 mod blocks;
 mod inlines;
 mod nodes;
 mod others;
+mod primitives;
 mod works;
 
 #[cfg(test)]

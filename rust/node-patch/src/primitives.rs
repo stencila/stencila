@@ -1,6 +1,21 @@
 use super::prelude::*;
+use node_dispatch::{dispatch_primitive, dispatch_primitive_pair};
 use std::hash::{Hash, Hasher};
-use stencila_schema::{Boolean, Integer, Null, Number};
+use stencila_schema::*;
+
+impl Patchable for Primitive {
+    fn is_equal(&self, other: &Self) -> Result<()> {
+        dispatch_primitive_pair!(self, other, bail!(Error::NotEqual), is_equal)
+    }
+
+    fn make_hash<H: Hasher>(&self, state: &mut H) {
+        dispatch_primitive!(self, make_hash, state)
+    }
+
+    fn diff(&self, other: &Self, differ: &mut Differ) {
+        dispatch_primitive_pair!(self, other, (), diff, differ)
+    }
+}
 
 impl Patchable for Null {
     fn is_equal(&self, _other: &Self) -> Result<()> {
@@ -12,7 +27,7 @@ impl Patchable for Null {
         self.to_string().hash(state);
     }
 
-    fn diff(&self, _differ: &mut Differ, _other: &Self) {
+    fn diff(&self, _other: &Self, _differ: &mut Differ) {
         // By definition, no difference
     }
 }
@@ -33,7 +48,7 @@ macro_rules! patchable_atomic {
                 $hash(self, state)
             }
 
-            fn diff(&self, differ: &mut Differ, other: &Self) {
+            fn diff(&self, other: &Self, differ: &mut Differ) {
                 #[allow(clippy::float_cmp)]
                 if self != other {
                     differ.replace(other)
@@ -77,6 +92,9 @@ patchable_atomic!(u32, hash);
 patchable_atomic!(Boolean, hash);
 patchable_atomic!(Integer, hash);
 patchable_atomic!(Number, hash_float);
+
+// Implementation for `Array` is covered by `impl Patchable for Vec<Primitive>`
+// Implementation for `Object` is covered by `impl Patchable for BTreeMap<String, Primitive>`
 
 #[cfg(test)]
 mod tests {

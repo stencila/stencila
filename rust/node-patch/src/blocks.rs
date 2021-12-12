@@ -1,5 +1,5 @@
 use super::prelude::*;
-use node_dispatch::dispatch_block;
+use node_dispatch::{dispatch_block, dispatch_block_pair};
 use std::hash::Hasher;
 use stencila_schema::*;
 
@@ -8,54 +8,22 @@ use stencila_schema::*;
 /// Generates and applies `Replace` and `Transform` operations between variants of block content.
 /// All other operations are passed through to variants.
 impl Patchable for BlockContent {
-    #[rustfmt::skip]
     fn is_equal(&self, other: &Self) -> Result<()> {
-        match (self, other) {
-            // Same variant so compare the two values
-            (BlockContent::Claim(me), BlockContent::Claim(other)) => me.is_equal(other),
-            (BlockContent::CodeBlock(me), BlockContent::CodeBlock(other)) => me.is_equal(other),
-            (BlockContent::CodeChunk(me), BlockContent::CodeChunk(other)) => me.is_equal(other),
-            (BlockContent::Collection(me), BlockContent::Collection(other)) => me.is_equal(other),
-            (BlockContent::Figure(me), BlockContent::Figure(other)) => me.is_equal(other),
-            (BlockContent::Heading(me), BlockContent::Heading(other)) => me.is_equal(other),
-            (BlockContent::Include(me), BlockContent::Include(other)) => me.is_equal(other),
-            (BlockContent::List(me), BlockContent::List(other)) => me.is_equal(other),
-            (BlockContent::MathBlock(me), BlockContent::MathBlock(other)) => me.is_equal(other),
-            (BlockContent::Paragraph(me), BlockContent::Paragraph(other)) => me.is_equal(other),
-            (BlockContent::QuoteBlock(me), BlockContent::QuoteBlock(other)) => me.is_equal(other),
-            (BlockContent::Table(me), BlockContent::Table(other)) => me.is_equal(other),
-            (BlockContent::ThematicBreak(me), BlockContent::ThematicBreak(other)) => me.is_equal(other),
-
-            // Different variants so by definition not equal
-            _ => bail!(Error::NotEqual),
-        }
+        dispatch_block_pair!(self, other, bail!(Error::NotEqual), is_equal)
     }
 
     fn make_hash<H: Hasher>(&self, state: &mut H) {
         dispatch_block!(self, make_hash, state)
     }
 
-    #[rustfmt::skip]
-    fn diff(&self, differ: &mut Differ, other: &Self) {
-        match (self, other) {
-            // Same variant so diff the two values
-            (BlockContent::Claim(me), BlockContent::Claim(other)) => me.diff(differ, other),
-            (BlockContent::CodeBlock(me), BlockContent::CodeBlock(other)) => me.diff(differ, other),
-            (BlockContent::CodeChunk(me), BlockContent::CodeChunk(other)) => me.diff(differ, other),
-            (BlockContent::Collection(me), BlockContent::Collection(other)) => me.diff(differ, other),
-            (BlockContent::Figure(me), BlockContent::Figure(other)) => me.diff(differ, other),
-            (BlockContent::Heading(me), BlockContent::Heading(other)) => me.diff(differ, other),
-            (BlockContent::Include(me), BlockContent::Include(other)) => me.diff(differ, other),
-            (BlockContent::List(me), BlockContent::List(other)) => me.diff(differ, other),
-            (BlockContent::MathBlock(me), BlockContent::MathBlock(other)) => me.diff(differ, other),
-            (BlockContent::Paragraph(me), BlockContent::Paragraph(other)) => me.diff(differ, other),
-            (BlockContent::QuoteBlock(me), BlockContent::QuoteBlock(other)) => me.diff(differ, other),
-            (BlockContent::Table(me), BlockContent::Table(other)) => me.diff(differ, other),
-            (BlockContent::ThematicBreak(me), BlockContent::ThematicBreak(other)) => me.diff(differ, other),
-
-            // Different variants so attempt to transform from one to the other
-            _ => diff_transform(differ, self, other)
-        }
+    fn diff(&self, other: &Self, differ: &mut Differ) {
+        dispatch_block_pair!(
+            self,
+            other,
+            diff_transform(differ, self, other),
+            diff,
+            differ
+        )
     }
 
     fn apply_add(&mut self, address: &mut Address, value: &Value) -> Result<()> {

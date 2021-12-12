@@ -35,7 +35,7 @@ impl Patchable for String {
         self.hash(state)
     }
 
-    fn diff(&self, differ: &mut Differ, other: &Self) {
+    fn diff(&self, other: &Self, differ: &mut Differ) {
         if self == other {
             return;
         }
