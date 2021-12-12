@@ -42,7 +42,7 @@ pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresse
     Ok((addresses, relations))
 }
 
-#[tracing::instrument(skip(node))]
+#[tracing::instrument(skip(node, kernels))]
 pub async fn execute<Type>(node: &mut Type, kernels: &mut KernelSpace) -> Result<()>
 where
     Type: Executable + Send,
