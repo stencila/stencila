@@ -39,10 +39,12 @@ impl ToHtml for Node {
             Node::Paragraph(node) => node.to_html(context),
             Node::Quote(node) => node.to_html(context),
             Node::QuoteBlock(node) => node.to_html(context),
-            // Wrap strings with the `itemtype` attribute (see note under `ToHtml` for `InlineContent`)
+            // Wrap strings in a `<pre>` with the `itemtype` attribute.
             // This encoding will be used in places such as `CodeChunk.outputs`, `CodeExpression.output` etc
+            // where pre-formatting is important and wrapping in an element is needed for patches.
+            // See note under `ToHtml` for `InlineContent` for how strings are handled in that context.
             Node::String(node) => {
-                elem("span", &[attr_itemtype_str("Text")], &node.to_html(context))
+                elem("pre", &[attr_itemtype_str("Text")], &node.to_html(context))
             }
             Node::Strong(node) => node.to_html(context),
             Node::Subscript(node) => node.to_html(context),
