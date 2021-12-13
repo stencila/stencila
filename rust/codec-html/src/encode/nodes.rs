@@ -24,6 +24,8 @@ impl ToHtml for Node {
             Node::CodeChunk(node) => node.to_html(context),
             Node::CodeExpression(node) => node.to_html(context),
             Node::CodeFragment(node) => node.to_html(context),
+            Node::Datatable(node) => node.to_html(context),
+            Node::DatatableColumn(node) => node.to_html(context),
             Node::Delete(node) => node.to_html(context),
             Node::Emphasis(node) => node.to_html(context),
             Node::Figure(node) => node.to_html(context),

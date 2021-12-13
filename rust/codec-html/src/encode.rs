@@ -340,7 +340,6 @@ where
 }
 
 /// Iterate over a slice of nodes, calling `to_html` on each item, and concatenate
-#[allow(dead_code)]
 pub fn concat_html<T: ToHtml>(slice: &[T], context: &EncodeContext) -> String {
     concat(slice, |item| item.to_html(context))
 }
