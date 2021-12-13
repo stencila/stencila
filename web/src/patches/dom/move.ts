@@ -1,7 +1,18 @@
 import { OperationMove, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
-import { assert, assertElement, assertIndex, panic } from '../checks'
-import { resolveParent } from './resolve'
+import {
+  assert,
+  assertElement,
+  assertIndex,
+  assertName,
+  panic,
+} from '../checks'
+import {
+  isArrayElement,
+  isObjectElement,
+  resolveObjectKey,
+  resolveParent,
+} from './resolve'
 
 /**
  * Apply a move operation
@@ -37,7 +48,62 @@ export function applyMove(op: OperationMove, target?: ElementId): void {
   )
   assertElement(fromParent)
 
-  applyMoveVec(fromParent, fromSlot, toSlot, items)
+  if (isObjectElement(fromParent))
+    applyMoveObject(fromParent, fromSlot, toSlot, items)
+  else if (isArrayElement(fromParent))
+    applyMoveArray(fromParent, fromSlot, toSlot, items)
+  else applyMoveVec(fromParent, fromSlot, toSlot, items)
+}
+
+/**
+ * Apply a `Move` operation to an element representing an `Object`
+ */
+export function applyMoveObject(
+  object: Element,
+  from: Slot,
+  to: Slot,
+  items: number
+): void {
+  assertName(from)
+  assertName(to)
+  assert(items === 1, `Expected move items to be 1 for object`)
+
+  const dl = object.querySelector('dl')
+  assertElement(dl)
+
+  const fromKey = resolveObjectKey(dl, from)
+  assert(fromKey !== undefined, 'Unable to find from key for object move')
+  assertElement(fromKey)
+
+  const fromValue = fromKey?.nextElementSibling
+  assertElement(fromValue)
+
+  const toKey = resolveObjectKey(dl, to)
+  if (toKey !== undefined) {
+    // Move to where the to key is
+    toKey.nextElementSibling?.replaceWith(fromValue)
+  } else {
+    // Just relabel the from key
+    fromKey.textContent = to
+  }
+}
+
+/**
+ * Apply a `Move` operation to an element representing an `Array`
+ */
+export function applyMoveArray(
+  array: Element,
+  from: Slot,
+  to: Slot,
+  items: number
+): void {
+  assertIndex(from)
+  assertIndex(to)
+
+  const ol = array.querySelector('ol')
+  assertElement(ol)
+
+  moveChildren(ol, from, to, items)
 }
 
 /**
@@ -52,10 +118,22 @@ export function applyMoveVec(
   assertIndex(from)
   assertIndex(to)
 
-  const children = vec.childNodes
+  moveChildren(vec, from, to, items)
+}
+
+/**
+ * Move children in an element
+ */
+function moveChildren(
+  elem: Element,
+  from: number,
+  to: number,
+  items: number
+): void {
+  const children = elem.childNodes
   assert(
     items > 0 && from + items <= children.length,
-    `Unexpected move items ${items} for element with ${children.length} children`
+    `Unexpected move items ${items} for ${elem.tagName} element with ${children.length} children`
   )
 
   const toChild =
@@ -75,7 +153,7 @@ export function applyMoveVec(
     if (child === undefined) {
       throw panic(`Unexpected move from slot ${from}`)
     }
-    vec.insertBefore(child, toChild)
+    elem.insertBefore(child, toChild)
     moved += 1
   }
 }

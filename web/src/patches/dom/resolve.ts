@@ -1,7 +1,14 @@
 import { Address, Slot } from '@stencila/stencila'
 import HtmlFragment from 'html-fragment'
 import { ElementId } from '../../types'
-import { assertElement, isElement, isName, isText, panic } from '../checks'
+import {
+  assert,
+  assertElement,
+  isElement,
+  isName,
+  isText,
+  panic,
+} from '../checks'
 import { STRUCT_ATTRIBUTE_ALIASES } from './consts'
 
 /**
@@ -111,6 +118,28 @@ export function resolveSlot(
 
     if (child !== null) return child
 
+    // Key-value pairs of a <stencila-object> are within a <dl> that has no `itemprop`
+    // (because an `Object` is a primitive with no properties). We need to search through
+    // these to find a <dt> with content matching the slot name and return the first
+    // (and only) child of the <dd>
+    if (isObjectElement(parent)) {
+      const key = resolveObjectKey(parent, slot)
+      if (key !== undefined) {
+        const child = key.nextElementSibling
+        assertElement(child)
+        assert(
+          child.childNodes.length === 1,
+          'Expected <dd> to have only one child'
+        )
+        const grandchild = child.childNodes[0]
+        assert(
+          isElement(grandchild) || isText(grandchild),
+          'Expected `Object` value to be element or text'
+        )
+        return grandchild as Element | Text
+      }
+    }
+
     // The `content`, `items`, `rows` and `cell` slots are usually "implicit"
     // (i.e. not represented by an element) but instead represented by the child nodes of
     // the parent element. So, if there is no explicitly marked content slot, return the parent
@@ -126,6 +155,14 @@ export function resolveSlot(
 
     return undefined
   } else {
+    // Items of a <stencila-array> are within a <ol> that has no `itemprop`
+    // (because an `Array` is a primitive with no properties)
+    let isArray = false
+    if (isArrayElement(parent)) {
+      isArray = true
+      parent = parent.querySelector('ol') as Element
+    }
+
     // Select the child at the slot index.
     const child: ChildNode | undefined = parent.childNodes[slot]
     if (child === undefined) {
@@ -133,13 +170,19 @@ export function resolveSlot(
         `Unable to get slot '${slot}' from element with ${parent.childNodes.length} children`
       )
     } else if (isElement(child)) {
-      // If the element is a `<span>` and only has one text node child then return it as the slot
-      if (
+      const grandchild = child.childNodes[0]
+      // If the parent is an `Array`, the child should be a <li>, so return grandchild
+      const isArrayItem =
+        isArray &&
+        child.tagName === 'LI' &&
+        (isElement(grandchild) || isText(grandchild))
+      // If the child is a <span> and only has one text node child then return the grandchild text
+      const isSimpleSpan =
         (child.tagName === 'SPAN' || child.tagName === 'PRE') &&
         child.childNodes.length === 1 &&
-        isText(child.childNodes[0])
-      ) {
-        return child.childNodes[0]
+        isText(grandchild)
+      if (isArrayItem || isSimpleSpan) {
+        return grandchild
       } else {
         return child
       }
@@ -210,6 +253,35 @@ export function resolveNode(
 }
 
 /**
+ * Resolve the key (represented as a <dt>) for an `Object` (represented as a <dl>)
+ */
+export function resolveObjectKey(
+  object: Element,
+  term: string
+): Element | undefined {
+  const dts = [...object.querySelectorAll('dt')]
+  for (const dt of dts) {
+    if (dt.textContent === term) {
+      return dt
+    }
+  }
+}
+
+/**
+ * Does an element represent a Stencila `Object`?
+ */
+export function isObjectElement(elem: Element): boolean {
+  return elem.tagName === 'STENCILA-OBJECT'
+}
+
+/**
+ * Does an element represent a Stencila `Array`?
+ */
+export function isArrayElement(elem: Element): boolean {
+  return elem.tagName === 'STENCILA-ARRAY'
+}
+
+/**
  * Create a DOM fragment from a HTML string
  *
  * Uses the `html-fragment` package because `document.createRange().createContextualFragment`
@@ -217,4 +289,20 @@ export function resolveNode(
  */
 export function createFragment(html: string): DocumentFragment {
   return HtmlFragment(html)
+}
+
+/**
+ * Create a DOM fragment from a HTML string where where each child is to be wrapped in an element
+ */
+export function createFragmentWrapEach(
+  html: string,
+  tag: string
+): DocumentFragment {
+  const fragment = document.createDocumentFragment()
+  for (const child of [...createFragment(html).childNodes]) {
+    const wrapper = document.createElement(tag)
+    wrapper.appendChild(child)
+    fragment.appendChild(wrapper)
+  }
+  return fragment
 }

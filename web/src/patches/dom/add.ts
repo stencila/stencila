@@ -1,6 +1,7 @@
 import { OperationAdd, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
 import {
+  assertElement,
   assertIndex,
   assertName,
   assertString,
@@ -13,7 +14,13 @@ import {
 import { applyAdd as applyAddString } from '../string'
 import { STRUCT_ATTRIBUTES, STRUCT_ATTRIBUTE_ALIASES } from './consts'
 import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
-import { createFragment, resolveParent } from './resolve'
+import {
+  createFragment,
+  createFragmentWrapEach,
+  isArrayElement,
+  isObjectElement,
+  resolveParent,
+} from './resolve'
 
 /**
  * Apply an add operation
@@ -33,12 +40,34 @@ export function applyAdd(op: OperationAdd, target?: ElementId): void {
     )
   } else if (isElement(parent)) {
     assertString(html)
-    if (isName(slot)) applyAddStruct(parent, slot, html)
-    else applyAddVec(parent, slot, html)
+    if (isName(slot)) {
+      if (isObjectElement(parent)) applyAddObject(parent, slot, html)
+      else applyAddStruct(parent, slot, html)
+    } else {
+      if (isArrayElement(parent)) applyAddArray(parent, slot, html)
+      else applyAddVec(parent, slot, html)
+    }
   } else {
     assertString(value)
     applyAddText(parent, slot, value)
   }
+}
+
+/**
+ * Apply an `Add` operation to an element representing an `Object` (key-value pairs)
+ */
+export function applyAddObject(
+  object: Element,
+  name: Slot,
+  html: string
+): void {
+  assertName(name)
+
+  const dl = object.querySelector('dl')
+  assertElement(dl)
+
+  const fragment = createFragment(`<dt>${name}</dt><dd>${html}</dd>`)
+  dl.appendChild(fragment)
 }
 
 /**
@@ -93,22 +122,46 @@ export function applyAddStruct(
 }
 
 /**
+ * Apply an `Add` operation to an element representing an `Array`.
+ */
+export function applyAddArray(array: Element, index: Slot, html: string): void {
+  assertIndex(index)
+
+  const ol = array.querySelector('ol')
+  assertElement(ol)
+
+  const fragment = createFragmentWrapEach(html, 'li')
+  addChildren(ol, index, fragment)
+}
+
+/**
  * Apply an `Add` operation to an element representing a `Vec`.
  */
 export function applyAddVec(vec: Element, index: Slot, html: string): void {
   assertIndex(index)
 
   const fragment = createFragment(html)
-  const children = vec.childNodes
+  addChildren(vec, index, fragment)
+}
+
+/**
+ * Add children to an element
+ */
+function addChildren(
+  elem: Element,
+  index: number,
+  fragment: DocumentFragment
+): void {
+  const children = elem.childNodes
   if (index === children.length) {
-    vec.appendChild(fragment)
+    elem.appendChild(fragment)
   } else {
-    const sibling = vec.childNodes[index]
+    const sibling = elem.childNodes[index]
     if (sibling === undefined)
       throw panic(
-        `Unexpected add slot '${index}' for element with ${children.length} children`
+        `Unexpected add slot '${index}' for ${elem.tagName} element with ${children.length} children`
       )
-    vec.insertBefore(fragment, sibling)
+    elem.insertBefore(fragment, sibling)
   }
 }
 

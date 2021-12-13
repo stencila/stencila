@@ -34,26 +34,26 @@ test('applyReplaceVec', () => {
   const elem = document.createElement('ol')
   elem.innerHTML = '<li>1</li><li>2</li><li>3</li><li>4</li><li>5</li>'
 
-  applyReplaceVec(elem, 1, 1, '<li>two</li>')
+  applyReplaceVec(elem, 1, 1, 1, '<li>two</li>')
   expect(elem.innerHTML).toEqual(
     '<li>1</li><li>two</li><li>3</li><li>4</li><li>5</li>'
   )
 
-  applyReplaceVec(elem, 2, 3, '<li>three,four</li>')
+  applyReplaceVec(elem, 2, 3, 1, '<li>three,four</li>')
   expect(elem.innerHTML).toEqual('<li>1</li><li>two</li><li>three,four</li>')
 
-  applyReplaceVec(elem, 0, 1, '<li>first</li>')
+  applyReplaceVec(elem, 0, 1, 1, '<li>first</li>')
   expect(elem.innerHTML).toEqual(
     '<li>first</li><li>two</li><li>three,four</li>'
   )
 
-  expect(() => applyReplaceVec(elem, 'string', 1, '')).toThrow(
+  expect(() => applyReplaceVec(elem, 'string', 1, 1, '')).toThrow(
     /Expected number slot/
   )
-  expect(() => applyReplaceVec(elem, -1, 1, '')).toThrow(
+  expect(() => applyReplaceVec(elem, -1, 1, 1, '')).toThrow(
     /Unexpected replace slot '-1'/
   )
-  expect(() => applyReplaceVec(elem, 42, 1, '')).toThrow(
+  expect(() => applyReplaceVec(elem, 42, 1, 1, '')).toThrow(
     /Unexpected replace slot '42'/
   )
 })

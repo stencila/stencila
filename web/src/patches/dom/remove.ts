@@ -7,10 +7,16 @@ import {
   assertName,
   isAttr,
   isElement,
+  assertElement,
 } from '../checks'
 import { applyRemove as applyRemoveString } from '../string'
 import { unescapeAttr, unescapeHtml } from './escape'
-import { resolveParent } from './resolve'
+import {
+  isArrayElement,
+  isObjectElement,
+  resolveObjectKey,
+  resolveParent,
+} from './resolve'
 
 /**
  * Apply a `Remove` operation
@@ -27,9 +33,35 @@ export function applyRemove(op: OperationRemove, target?: ElementId): void {
       )}'; 'Remove' operation will be ignored'`
     )
   } else if (isElement(parent)) {
-    if (isName(slot)) applyRemoveStruct(parent, slot, items)
-    else applyRemoveVec(parent, slot, items)
+    if (isName(slot)) {
+      if (isObjectElement(parent)) applyRemoveObject(parent, slot, items)
+      else applyRemoveStruct(parent, slot, items)
+    } else {
+      if (isArrayElement(parent)) applyRemoveArray(parent, slot, items)
+      else applyRemoveVec(parent, slot, items)
+    }
   } else applyRemoveText(parent, slot, items)
+}
+
+/**
+ * Apply a `Remove` operation to an element representing a `Object` (key-value pairs).
+ */
+export function applyRemoveObject(
+  struct: Element,
+  name: Slot,
+  items: number
+): void {
+  assertName(name)
+  assert(items === 1, `Unexpected remove items ${items} for object`)
+
+  const key = resolveObjectKey(struct, name)
+  if (key !== undefined) {
+    key.nextElementSibling?.remove()
+    key.remove()
+    return
+  }
+
+  console.warn(`Unable to find existing object key "${name}" to remove"`)
 }
 
 /**
@@ -64,7 +96,23 @@ export function applyRemoveStruct(
     return
   }
 
-  console.warn(`Unable to find existing property "${name}" to remove"`)
+  console.warn(`Unable to find existing struct property "${name}" to remove"`)
+}
+
+/**
+ * Apply a `Remove` operation to an element representing an `Array`.
+ */
+export function applyRemoveArray(
+  array: Element,
+  index: Slot,
+  items: number
+): void {
+  assertIndex(index)
+
+  const ol = array.querySelector('ol')
+  assertElement(ol)
+
+  removeChildren(ol, index, items)
 }
 
 /**
@@ -73,14 +121,21 @@ export function applyRemoveStruct(
 export function applyRemoveVec(vec: Element, index: Slot, items: number): void {
   assertIndex(index)
 
-  const children = vec.childNodes
+  removeChildren(vec, index, items)
+}
+
+/**
+ * Remove children from an element
+ */
+function removeChildren(elem: Element, index: number, items: number): void {
+  const children = elem.childNodes
   assert(
     index >= 0 && index < children.length,
-    `Unexpected remove slot '${index}' for element with ${children.length} children`
+    `Unexpected remove slot '${index}' for ${elem.tagName} element with ${children.length} children`
   )
   assert(
     items > 0 && index + items <= children.length,
-    `Unexpected remove items ${items} for element with ${children.length} children`
+    `Unexpected remove items ${items} for ${elem.tagName} element with ${children.length} children`
   )
 
   let removed = 0

@@ -2,6 +2,7 @@ import { OperationReplace, Slot } from '@stencila/stencila'
 import { ElementId } from '../../types'
 import {
   assert,
+  assertElement,
   assertIndex,
   assertName,
   assertString,
@@ -12,15 +13,22 @@ import {
   panic,
 } from '../checks'
 import { applyReplace as applyReplaceString } from '../string'
-import { applyAddStruct } from './add'
+import { applyAddObject, applyAddStruct } from './add'
 import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
-import { createFragment, resolveParent } from './resolve'
+import {
+  createFragment,
+  createFragmentWrapEach,
+  isArrayElement,
+  isObjectElement,
+  resolveObjectKey,
+  resolveParent,
+} from './resolve'
 
 /**
  * Apply a replace operation
  */
 export function applyReplace(op: OperationReplace, target?: ElementId): void {
-  const { address, items } = op
+  const { address, items, length } = op
   const value = op.value as JsonValue
   const html = op.html ?? value
 
@@ -34,11 +42,39 @@ export function applyReplace(op: OperationReplace, target?: ElementId): void {
     )
   } else if (isElement(parent)) {
     assertString(html)
-    if (isName(slot)) applyReplaceStruct(parent, slot, items, html)
-    else applyReplaceVec(parent, slot, items, html)
+    if (isName(slot)) {
+      if (isObjectElement(parent)) applyReplaceObject(parent, slot, items, html)
+      else applyReplaceStruct(parent, slot, items, html)
+    } else {
+      if (isArrayElement(parent))
+        applyReplaceArray(parent, slot, items, length, html)
+      else applyReplaceVec(parent, slot, items, length, html)
+    }
   } else {
     assertString(value)
     applyReplaceText(parent, slot, items, value)
+  }
+}
+
+/**
+ * Apply a `Replace` operation to an element representing a `Object` (key-value pairs)
+ */
+export function applyReplaceObject(
+  object: Element,
+  name: Slot,
+  items: number,
+  html: string
+): void {
+  assertName(name)
+  assert(items === 1, `Unexpected replace items ${items} for object`)
+
+  const key = resolveObjectKey(object, name)
+  if (key !== undefined) {
+    const fragment = createFragment(`<dd>${html}</dd>`)
+    key.nextElementSibling?.replaceWith(fragment)
+  } else {
+    console.warn('Unable to find existing object key to replace; will add')
+    applyAddObject(object, name, html)
   }
 }
 
@@ -62,32 +98,65 @@ export function applyReplaceStruct(
 }
 
 /**
+ * Apply a `Replace` operation to an element representing an `Array`
+ */
+export function applyReplaceArray(
+  array: Element,
+  index: Slot,
+  items: number,
+  length: number,
+  html: string
+): void {
+  assertIndex(index)
+
+  const ol = array.querySelector('ol')
+  assertElement(ol)
+
+  const fragment = createFragmentWrapEach(html, 'li')
+  replaceChildren(ol, index, items, length, fragment)
+}
+
+/**
  * Apply a `Replace` operation to an element representing a `Vec`
  */
 export function applyReplaceVec(
   vec: Element,
   index: Slot,
   items: number,
+  length: number,
   html: string
 ): void {
   assertIndex(index)
 
   const fragment = createFragment(html)
-  const children = vec.childNodes
+  replaceChildren(vec, index, items, length, fragment)
+}
+
+/**
+ * Replace children in an element
+ */
+function replaceChildren(
+  elem: Element,
+  index: number,
+  items: number,
+  length: number,
+  fragment: DocumentFragment
+): void {
+  const children = elem.childNodes
   if (children.length === 0) {
-    vec.appendChild(fragment)
+    elem.appendChild(fragment)
   } else {
-    const child = children[index]
-    if (child === undefined) {
+    const sibling = children[index]
+    if (sibling === undefined) {
       throw panic(
-        `Unexpected replace slot '${index}' for element with ${children.length} children`
+        `Unexpected replace slot '${index}' for ${elem.tagName} element with ${children.length} children`
       )
     }
-    vec.insertBefore(fragment, child)
+    elem.insertBefore(fragment, sibling)
 
     let removed = 0
     while (removed < items) {
-      children[index + 1]?.remove()
+      children[index + length]?.remove()
       removed += 1
     }
   }
