@@ -1,7 +1,7 @@
 use kernel::{
     async_trait::async_trait,
     eyre::{bail, eyre, Result},
-    stencila_schema::{CodeError, Node},
+    stencila_schema::{CodeError, Node, Object},
     Kernel, KernelStatus, KernelTrait, KernelType,
 };
 use serde::Serialize;
@@ -466,9 +466,19 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
 
     // Attempt to parse each output as JSON into a `Node`, falling back to a string.
     let outputs: Vec<Node> = outputs
-        .iter()
+        .into_iter()
         .map(|output| -> Node {
-            serde_json::from_str(output).unwrap_or_else(|_| Node::String(output.clone()))
+            match serde_json::from_str(&output) {
+                Ok(Node::Entity(..)) => {
+                    // An `Entity` will get matched before an `Object` but is less useful (all
+                    // the properties get dropped) so catch this and parse as an object.
+                    let object =
+                        serde_json::from_str::<Object>(&output).unwrap_or_else(|_| Object::new());
+                    Node::Object(object)
+                }
+                Ok(node) => node,
+                Err(..) => Node::String(output),
+            }
         })
         .collect();
 
