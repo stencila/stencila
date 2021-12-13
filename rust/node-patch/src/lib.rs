@@ -280,6 +280,8 @@ impl Operation {
             FigureCaption
             CodeChunkCaption
             Node
+            Datatable
+            DatatableColumn
             CodeError
 
             // Properties of creative works
@@ -357,6 +359,8 @@ impl Operation {
             FigureCaption
             CodeChunkCaption
             Node
+            Datatable
+            DatatableColumn
             CodeError
 
             // Properties of creative works
@@ -413,12 +417,12 @@ impl Operation {
                 return nodes.to_html(&context);
             } else {
                 tracing::error!(
-                    "Unhandled JSON value type when generating HTML for patch `Operation`: {}",
+                    "Unhandled JSON value type when generating HTML for patch operation: {}",
                     value.to_string()
                 );
             }
         } else {
-            tracing::error!("Unhandled `value` type when generating HTML for patch `Operation`");
+            tracing::error!("Unhandled value type when generating HTML for patch operation");
         }
 
         // Send HTML that indicates error to developers (in addition to above tracing error)
@@ -726,6 +730,7 @@ mod maps;
 mod vecs;
 
 mod blocks;
+mod datatable;
 mod inlines;
 mod nodes;
 mod others;

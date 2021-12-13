@@ -52,6 +52,8 @@ patchable_node_variants!(
     Node::CodeChunk
     Node::CodeExpression
     Node::CodeFragment
+    Node::Datatable
+    Node::DatatableColumn
     Node::Delete
     Node::Emphasis
     Node::Figure

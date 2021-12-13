@@ -109,11 +109,7 @@ export function resolveSlot(
     // Return the `content` attribute, rather than the element itself.
     if (child?.tagName === 'META') {
       const content = child.attributes.getNamedItem('content')
-      if (content === null)
-        throw panic(
-          `Expected <meta> element for slot '${slot}' to have a 'content' attribute`
-        )
-      return content
+      if (content !== null) return content
     }
 
     if (child !== null) return child
@@ -279,6 +275,37 @@ export function isObjectElement(elem: Element): boolean {
  */
 export function isArrayElement(elem: Element): boolean {
   return elem.tagName === 'STENCILA-ARRAY'
+}
+
+/**
+ * Does an element represent the `columns` of a `Datatable`?
+ */
+export function isDatatableColumns(elem: Element): boolean {
+  return (
+    elem.tagName === 'TR' && elem.getAttribute('data-itemprop') === 'columns'
+  )
+}
+
+/**
+ * Does an element represent the `rows` (as a proxy) of a `Datatable`?
+ */
+export function isDatatableRows(elem: Element): boolean {
+  return (
+    elem.tagName === 'META' &&
+    elem.getAttribute('name') === 'rows' &&
+    elem.getAttribute('class') === 'proxy'
+  )
+}
+
+/**
+ * Does an element represent the `values` (as a proxy) of a `Datatable`?
+ */
+export function isDatatableValues(elem: Element): boolean {
+  return (
+    elem.tagName === 'META' &&
+    elem.getAttribute('name') === 'values' &&
+    elem.getAttribute('class') === 'proxy'
+  )
 }
 
 /**
