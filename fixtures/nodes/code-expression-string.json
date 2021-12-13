@@ -1,0 +1,6 @@
+{
+  "type": "CodeExpression",
+  "programmingLanguage": "r",
+  "text": "print('foo')",
+  "output": "foo"
+}

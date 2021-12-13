@@ -1,6 +1,8 @@
 //! Encode `Node` nodes to HTML
 
-use super::{attr, attr_itemtype_str, elem, json, EncodeContext, ToHtml};
+use super::{
+    attr, attr_itemtype_str, elem, json, primitives::array_to_html, EncodeContext, ToHtml,
+};
 use stencila_schema::Node;
 
 /// Encode a `Node` to HTML
@@ -10,7 +12,8 @@ use stencila_schema::Node;
 impl ToHtml for Node {
     fn to_html(&self, context: &EncodeContext) -> String {
         match self {
-            Node::Array(node) => node.to_html(context),
+            // Call `array_to_html` to avoid `Vec<Primitive>.to_html()` for arrays
+            Node::Array(node) => array_to_html(node, context),
             Node::Article(node) => node.to_html(context),
             Node::AudioObject(node) => node.to_html(context),
             Node::Boolean(node) => node.to_html(context),
@@ -41,11 +44,10 @@ impl ToHtml for Node {
             Node::QuoteBlock(node) => node.to_html(context),
             // Wrap strings in a `<pre>` with the `itemtype` attribute.
             // This encoding will be used in places such as `CodeChunk.outputs`, `CodeExpression.output` etc
-            // where pre-formatting is important and wrapping in an element is needed for patches.
+            // where pre-formatting is important and wrapping in an element is needed for patches (whitespace
+            // can be lost if not wrapped in a <pre>).
             // See note under `ToHtml` for `InlineContent` for how strings are handled in that context.
-            Node::String(node) => {
-                elem("pre", &[attr_itemtype_str("Text")], &node.to_html(context))
-            }
+            Node::String(node) => elem("pre", &[attr_itemtype_str("Text")], &node.to_html(context)),
             Node::Strong(node) => node.to_html(context),
             Node::Subscript(node) => node.to_html(context),
             Node::Superscript(node) => node.to_html(context),

@@ -1,0 +1,12 @@
+{
+  "type": "Just to avoid deserialization as an Entity",
+  "a": null,
+  "b": true,
+  "c": "str",
+  "d": [1, 2, 3],
+  "e": {
+    "a": {
+      "a": 1.23
+    }
+  }
+}

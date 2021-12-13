@@ -1,0 +1,56 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: html
+input_file: fixtures/nodes/object.json
+
+---
+<stencila-object data-itemscope="root" itemtype="http://schema.stenci.la/Object" itemscope>
+  <dl slot="pairs">
+    <dt>a</dt>
+    <dd>
+      <span itemtype="http://schema.stenci.la/Null" itemscope>null</span>
+    </dd>
+    <dt>b</dt>
+    <dd>
+      <span itemtype="http://schema.stenci.la/Boolean" itemscope>true</span>
+    </dd>
+    <dt>c</dt>
+    <dd>str</dd>
+    <dt>d</dt>
+    <dd>
+      <stencila-array itemtype="http://schema.stenci.la/Array" itemscope>
+        <ol slot="items">
+          <li>
+            <span itemtype="http://schema.stenci.la/Integer" itemscope>1</span>
+          </li>
+          <li>
+            <span itemtype="http://schema.stenci.la/Integer" itemscope>2</span>
+          </li>
+          <li>
+            <span itemtype="http://schema.stenci.la/Integer" itemscope>3</span>
+          </li>
+        </ol>
+      </stencila-array>
+    </dd>
+    <dt>e</dt>
+    <dd>
+      <stencila-object itemtype="http://schema.stenci.la/Object" itemscope>
+        <dl slot="pairs">
+          <dt>a</dt>
+          <dd>
+            <stencila-object itemtype="http://schema.stenci.la/Object" itemscope>
+              <dl slot="pairs">
+                <dt>a</dt>
+                <dd>
+                  <span itemtype="http://schema.stenci.la/Number" itemscope>1.23</span>
+                </dd>
+              </dl>
+            </stencila-object>
+          </dd>
+        </dl>
+      </stencila-object>
+    </dd>
+    <dt>type</dt>
+    <dd>Just to avoid deserialization as an Entity</dd>
+  </dl>
+</stencila-object>

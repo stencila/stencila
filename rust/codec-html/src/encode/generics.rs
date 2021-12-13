@@ -21,7 +21,6 @@ where
     }
 }
 
-
 impl<Type> ToHtml for Vec<Type>
 where
     Type: ToHtml,
