@@ -161,9 +161,7 @@ mod tests {
         // Objects
         let (outputs, messages) = kernel.exec("list(a=1, b=list(c=2))").await?;
         assert_json_is!(messages, []);
-        assert_json_is!(outputs, [{"type": "Entity"}]);
-        // TODO: correct output when deserialization of Node::Object is working
-        //assert_json_is!(outputs, json!([{"a": [1], "b": {"c": [2]}}]));
+        assert_json_is!(outputs, [{"a": [1], "b": {"c": [2]}}]);
 
         // Matrix
         let (outputs, messages) = kernel.exec("matrix(c(1:4), 2, 2)").await?;
