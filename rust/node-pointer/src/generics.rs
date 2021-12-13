@@ -60,7 +60,7 @@ macro_rules! pointable_variants {
                         $variant(me) => me.resolve(address),
                     )*
                     #[allow(unreachable_patterns)]
-                    _ => bail!("Unhandled variant `{}` of `{}`", self.as_ref(), std::any::type_name::<Self>())
+                    _ => bail!("Unhandled variant `{}` of `{}` in `Pointable::resolve`", self.as_ref(), std::any::type_name::<Self>())
                 }
             }
 
