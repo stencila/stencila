@@ -1,3 +1,12 @@
+## [0.134.3](https://github.com/stencila/stencila/compare/v0.134.2...v0.134.3) (2021-12-13)
+
+
+### Bug Fixes
+
+* **Node bindings:** Remove patches schemas ([0fae139](https://github.com/stencila/stencila/commit/0fae139e9eb6e0133f8b52919c549bf8c26fe0db)), closes [#1302](https://github.com/stencila/stencila/issues/1302)
+* **Node pointers:** Add fields containing nodes that need to be pointed to ([5bb6df7](https://github.com/stencila/stencila/commit/5bb6df70cd47261edf7af3a0fa42c15ccdacb218))
+* **Patches:** Add timeout for string and vector diffing ([58def89](https://github.com/stencila/stencila/commit/58def89b669a4c2fe54a0322f0af3f960607d040))
+
 ## [0.134.2](https://github.com/stencila/stencila/compare/v0.134.1...v0.134.2) (2021-12-10)
 
 
