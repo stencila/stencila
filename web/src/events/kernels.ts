@@ -1,11 +1,10 @@
 import { FileFormatUtils } from '@stencila/components'
 
 type DiscoverExecutableLanguagesEvent = CustomEvent<{
-  kernels: string[]
-  executableLanguages: FileFormatUtils.FileFormatMap
+  languages: FileFormatUtils.FileFormatMap
 }>
 
-const kernelsToFileFormatMap = (
+const languagesToFileFormatMap = (
   kernels: string[]
 ): FileFormatUtils.FileFormatMap =>
   kernels.reduce((formats: FileFormatUtils.FileFormatMap, kernelName) => {
@@ -14,8 +13,8 @@ const kernelsToFileFormatMap = (
   }, {})
 
 /**
- * Emit a CustomEvent with the name of`'stencila-discover-kernels'` detailing
- * available executable kernels. Custom WebComponents listen to this event and
+ * Emit a CustomEvent with the name of `stencila-discover-executable-languages` detailing
+ * available executable languages. Custom WebComponents listen to this event and
  * update the list of executable languages in the language selector fields.
  *
  * We also update the global `window.stencilaWebClient.executableLanguages` field
@@ -23,30 +22,25 @@ const kernelsToFileFormatMap = (
  * an up to date list of languages.
  */
 export const onDiscoverExecutableLanguages = (
-  kernels: string[]
+  languageNames: string[]
 ): {
-  kernels: string[]
-  executableLanguages: FileFormatUtils.FileFormatMap
+  languages: FileFormatUtils.FileFormatMap
 } => {
-  const executableLanguages = kernelsToFileFormatMap(kernels)
+  const executableLanguages = languagesToFileFormatMap(languageNames)
   const event: DiscoverExecutableLanguagesEvent = new CustomEvent(
-    'stencila-discover-kernels',
+    'stencila-discover-executable-languages',
     {
       detail: {
-        kernels,
-        executableLanguages,
+        languages: executableLanguages,
       },
     }
   )
 
-  if (window.stencilaWebClient) {
-    window.stencilaWebClient.executableLanguages = executableLanguages
-  }
+  window.stencilaWebClient.executableLanguages = executableLanguages
 
   window.dispatchEvent(event)
 
   return {
-    kernels,
-    executableLanguages,
+    languages: executableLanguages,
   }
 }
