@@ -6,7 +6,7 @@ input_file: fixtures/nodes/parameter-string.json
 ---
 <stencila-parameter data-itemscope="root" itemtype="http://schema.stenci.la/Parameter" itemscope>
   <label data-itemprop="name" slot="name" for="input-id">par</label>
-  <meta itemprop="validator" content=""/>
-  <meta itemprop="value" content="hello"/>
+  <meta itemprop="validator" itemtype="http://schema.stenci.la/StringValidator" itemscope/>
+  <meta itemprop="value" itemtype="http://schema.stenci.la/String" itemscope content="hello"/>
   <input id="input-id" slot="input" type="text" pattern="[a-z]+" value="hello"/>
 </stencila-parameter>

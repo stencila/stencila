@@ -14,11 +14,13 @@
 //! can be represented as standard HTML form input attributes e.g. `type="number" minimum="0"`
 
 use super::{
-    attr, attr_bool, attr_id, attr_itemtype, attr_prop, attr_slot, concat, concat_html, elem,
-    elem_empty, elem_meta, elem_placeholder, nothing, EncodeContext, ToHtml,
+    attr, attr_bool, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_prop,
+    attr_slot, concat, concat_html, elem, elem_empty, elem_meta, elem_placeholder, nothing,
+    EncodeContext, ToHtml,
 };
 use codec_txt::ToTxt;
 use node_dispatch::dispatch_validator;
+use std::string::ToString;
 use stencila_schema::*;
 
 /// Encode a `Datatable`
@@ -93,15 +95,32 @@ impl ToHtml for Parameter {
         );
 
         // Meta elements for `validator` and `value` that add HTML Microdata and
-        // can be used as "proxies" when patching the DOM
-        let validator = elem_meta("validator", "");
-        let value = elem_meta(
-            "value",
-            &self
-                .value
-                .as_ref()
-                .map(|value| value.to_txt())
-                .unwrap_or_default(),
+        // are used as "proxies" when patching the DOM
+        let validator_itemtype = if let Some(validator) = self.validator.as_deref() {
+            attr_itemtype_str(validator.as_ref())
+        } else {
+            nothing()
+        };
+        let validator = elem_empty("meta", &[attr_itemprop("validator"), validator_itemtype]);
+        let value_itemtype = if let Some(value) = self.value.as_deref() {
+            attr_itemtype_str(value.as_ref())
+        } else {
+            nothing()
+        };
+        let value = elem_empty(
+            "meta",
+            &[
+                attr_itemprop("value"),
+                value_itemtype,
+                attr(
+                    "content",
+                    &self
+                        .value
+                        .as_ref()
+                        .map(|value| value.to_txt())
+                        .unwrap_or_default(),
+                ),
+            ],
         );
 
         // Get the attrs corresponding to the validator so that we

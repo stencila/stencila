@@ -6,7 +6,7 @@ input_file: fixtures/nodes/parameter-integer.json
 ---
 <stencila-parameter data-itemscope="root" itemtype="http://schema.stenci.la/Parameter" itemscope>
   <label data-itemprop="name" slot="name" for="input-id">par</label>
-  <meta itemprop="validator" content=""/>
-  <meta itemprop="value" content="50"/>
+  <meta itemprop="validator" itemtype="http://schema.stenci.la/IntegerValidator" itemscope/>
+  <meta itemprop="value" itemtype="http://schema.stenci.la/Integer" itemscope content="50"/>
   <input id="input-id" slot="input" type="number" value="50"/>
 </stencila-parameter>
