@@ -8,5 +8,5 @@ input_file: fixtures/nodes/parameter-boolean.json
   <label data-itemprop="name" slot="name" for="input-id">par</label>
   <meta itemprop="validator" itemtype="http://schema.stenci.la/BooleanValidator" itemscope/>
   <meta itemprop="value" itemtype="http://schema.stenci.la/Boolean" itemscope content="true"/>
-  <input id="input-id" slot="input" type="checkbox" value="true" checked=""/>
+  <input id="input-id" slot="value" type="checkbox" value="true" checked=""/>
 </stencila-parameter>

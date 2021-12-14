@@ -8,5 +8,5 @@ input_file: fixtures/nodes/parameter-integer.json
   <label data-itemprop="name" slot="name" for="input-id">par</label>
   <meta itemprop="validator" itemtype="http://schema.stenci.la/IntegerValidator" itemscope/>
   <meta itemprop="value" itemtype="http://schema.stenci.la/Integer" itemscope content="50"/>
-  <input id="input-id" slot="input" type="number" value="50"/>
+  <input id="input-id" slot="value" type="number" value="50"/>
 </stencila-parameter>

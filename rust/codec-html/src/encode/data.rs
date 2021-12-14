@@ -149,7 +149,7 @@ impl ToHtml for Parameter {
             "input",
             &[
                 attr("id", &input_id),
-                attr_slot("input"),
+                attr_slot("value"),
                 validator_attrs.join(" "),
                 value_attr,
                 checked_attr,
