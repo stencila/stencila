@@ -1,3 +1,25 @@
+# [0.136.0](https://github.com/stencila/stencila/compare/v0.135.0...v0.136.0) (2021-12-14)
+
+
+### Bug Fixes
+
+* **HTML encoding:** Use `<pre>` for `Node::String` to retain pre-formatting ([c7caf59](https://github.com/stencila/stencila/commit/c7caf59ab65acc25912f28f53ba845719e6d48ee))
+* **Microkernels:** Receive `Object` results from kernel ([7fd9485](https://github.com/stencila/stencila/commit/7fd9485de9c2b9f27a78637d9ef762c58afd58b9))
+* **Node bindings:** Remove patches schemas ([8b2370a](https://github.com/stencila/stencila/commit/8b2370abd7d6c2a6e9a42acc7a10418dbb5ea613)), closes [#1302](https://github.com/stencila/stencila/issues/1302)
+* **Patches:** Implement operations other than replace ([c411910](https://github.com/stencila/stencila/commit/c4119101549fc7108c4f08d8edf42f52fe078872))
+* **Patches:** Only publish non-empty patches ([2ae8248](https://github.com/stencila/stencila/commit/2ae824824772896a20ed50c07e0c7cf36cf68e43))
+* **Python microkernel:** Do not add functions to local context ([6df27ed](https://github.com/stencila/stencila/commit/6df27edd99fac8ba0f387580454d15825a18586a))
+* **R microkernel:** Evaluate code in its own environment ([6d3add1](https://github.com/stencila/stencila/commit/6d3add1f0a52ed42a20249bed04bd4d891bfb3ee))
+
+
+### Features
+
+* **HTML encoding:** Add initial iteration of HTML encoding for `Datatable` ([2d4150e](https://github.com/stencila/stencila/commit/2d4150e059b034e297b4bea57593d752487e57ba))
+* **HTML encoding:** Add support for `Array` and `Object` nodes ([6020aef](https://github.com/stencila/stencila/commit/6020aefe943305d26c7fb101bb588fd37e426ae0))
+* **HTML encoding:** Implement for `Primitive` nodes ([1dedc40](https://github.com/stencila/stencila/commit/1dedc4085fca99b09af838b4d94b92c3679d4b5e))
+* **Patches:** Implement `Patchable` for `Object` node type ([a85b208](https://github.com/stencila/stencila/commit/a85b2087258091b8c1d63f56484b697894b8bbe4))
+* **Web patches:** Add support for patching of `Array` and `Object` nodes ([e57c140](https://github.com/stencila/stencila/commit/e57c14084f394e40861211d31a73da975597ca26))
+
 # [0.135.0](https://github.com/stencila/stencila/compare/v0.134.3...v0.135.0) (2021-12-14)
 
 
