@@ -6,11 +6,11 @@
 // - How do we migrate old published documents
 // - Attach Node IDs for required elements in published article HTML
 
-import { FileFormatUtils } from '@stencila/components'
 import { CodeChunk, CodeExpression } from '@stencila/schema'
 import { Document, Operation, Session } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
+import { onDiscoverExecutableLanguages } from './events/kernels'
 import { languages } from './kernels'
 import * as sessions from './sessions'
 import { ProjectId, SnapshotId } from './types'
@@ -26,7 +26,6 @@ export const main = (
   let client: Client | undefined
   let session: Session | undefined
   let document: Document | undefined
-  const availableLanguages: FileFormatUtils.FileFormatMap = {}
 
   // Start the client and session, if necessary
   const startup = async (): Promise<[Client, Document, Session]> => {
@@ -41,10 +40,9 @@ export const main = (
       })
 
       const kernels = await languages(client, session.id)
-      kernels.forEach((kernelName) => {
-        const foundFormat = FileFormatUtils.lookupFormat(kernelName)
-        availableLanguages[foundFormat.name] = foundFormat
-      })
+      // Inform components of the available kernels in this session
+      // by emitting a custom event
+      onDiscoverExecutableLanguages(kernels)
 
       // Don't subscribe to heartbeats during development because it generates
       // distracting WebSocket messages
@@ -140,9 +138,6 @@ export const main = (
           // make that always true.
           return Promise.resolve({ ...node, output: '' })
         }
-
-        // @ts-expect-error TODO: Remove once CodeExpression components also support `executableLanguages`
-        elem.executableLanguages = availableLanguages
       })
   }
 

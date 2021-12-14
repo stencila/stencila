@@ -9,17 +9,17 @@ import { DOMParser, Mark, Node, ResolvedPos, Slice } from 'prosemirror-model'
 import { EditorState, Transaction } from 'prosemirror-state'
 import { ReplaceStep, Step } from 'prosemirror-transform'
 import { EditorView } from 'prosemirror-view'
+// Import ProseMirror's `EditorView` styles for correct whitespace handling etc
+import 'prosemirror-view/style/prosemirror.css'
 import { isNumber, JsonValue } from '../../patches/checks'
 import { applyPatch, diff } from '../../patches/json'
+import { CodeBlockView } from './components/codeBlock/codeBlockView'
+import { CodeChunkView } from './components/codeChunk/codeChunkView'
 import { prosemirrorToStencila } from './convert'
 import { articleInputRules } from './inputRules'
 import { articleKeymap } from './keymap'
-import { articleSchema } from './schema'
-
-// Import ProseMirror's `EditorView` styles for correct whitespace handling etc
-import 'prosemirror-view/style/prosemirror.css'
-import { CodeBlockView } from './components/codeBlockView'
 import { editorMenuPlugin } from './menu'
+import { articleSchema } from './schema'
 
 // The following interfaces were necessary because the way they are defined
 // in @types/prosemirror-transform (as classes with only constructors) does
@@ -141,6 +141,8 @@ export class ArticleEditor {
       nodeViews: {
         CodeBlock: (node, view, getPos) =>
           new CodeBlockView(node, view, getPos),
+        CodeChunk: (node, view, getPos) =>
+          new CodeChunkView(node, view, getPos),
       },
     })
 

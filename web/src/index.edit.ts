@@ -9,4 +9,5 @@ export { ArticleEditor } from './editors/article'
 
 window.stencilaWebClient = {
   main,
+  executableLanguages: {},
 }

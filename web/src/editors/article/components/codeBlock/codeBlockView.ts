@@ -7,7 +7,7 @@ import { redo, undo } from 'prosemirror-history'
 import { Node } from 'prosemirror-model'
 import { Selection, TextSelection } from 'prosemirror-state'
 import { EditorView, NodeView } from 'prosemirror-view'
-import { articleSchema } from '../schema'
+import { articleSchema } from '../../schema'
 
 /**
  * Generate a `NodeView` to represent a Stencila `CodeBlock`
@@ -16,7 +16,8 @@ import { articleSchema } from '../schema'
  */
 export class CodeBlockView implements NodeView {
   cm: CMEditorView | null = null
-  dom: HTMLStencilaEditorElement
+  editor: HTMLStencilaEditorElement | null = null
+  dom: HTMLStencilaCodeBlockElement
   getPos: () => number
   ignoreMutation?: NodeView['ignoreMutation']
   incomingChanges: boolean
@@ -35,7 +36,8 @@ export class CodeBlockView implements NodeView {
     }
     this.incomingChanges = false
 
-    this.dom = document.createElement('stencila-editor')
+    this.dom = document.createElement('stencila-code-block')
+    this.dom.setAttribute('itemtype', 'http://schema.stenci.la/CodeBlock')
 
     if (typeof node.attrs.id === 'string' && node.attrs.id !== '') {
       this.dom.setAttribute('id', node.attrs.id)
@@ -44,9 +46,9 @@ export class CodeBlockView implements NodeView {
       this.dom.setAttribute('itemtype', node.attrs.itemtype)
     }
 
-    this.dom.contents = node.textContent
+    this.dom.text = node.textContent
     this.dom.keymap = this.codeMirrorKeymap()
-    this.dom.activeLanguage =
+    this.dom.programmingLanguage =
       typeof node.attrs.programmingLanguage === 'string'
         ? node.attrs.programmingLanguage
         : ''
@@ -65,10 +67,14 @@ export class CodeBlockView implements NodeView {
       this.view.dispatch(languageChangeTransaction)
     })
 
+    this.editor = this.dom.querySelector('stencila-editor')
+
     this.dom
       .getRef()
       .then((ref) => {
-        this.cm = ref
+        if (ref) {
+          this.cm = ref
+        }
       })
       .catch((err) => {
         console.log(err)
@@ -247,8 +253,8 @@ export class CodeBlockView implements NodeView {
     if (change && changeRange) {
       this.updating = true
 
-      this.dom
-        .setStateFromString(node.textContent)
+      this.editor
+        ?.setStateFromString(node.textContent)
         .then(() => {
           // Set cursor to changed location within the code editor
           const changeTransaction = this.cm?.state.update({

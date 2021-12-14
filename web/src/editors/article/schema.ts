@@ -6,7 +6,8 @@ import {
   ParseRule,
   Schema,
 } from 'prosemirror-model'
-import { codeBlock } from './components/codeBlock'
+import { codeBlock } from './components/codeBlock/codeBlock'
+import { codeChunk } from './components/codeChunk/codeChunk'
 
 /**
  * ProseMirror schema for a Stencila `Article`.
@@ -53,6 +54,7 @@ export const articleSchema = new Schema({
     List: list(),
     ListItem: listItem(),
     CodeBlock: codeBlock(),
+    CodeChunk: codeChunk(),
     QuoteBlock: block('QuoteBlock', 'blockquote', 'BlockContent+'),
     Table: table(),
     TableRow: tableRow(),

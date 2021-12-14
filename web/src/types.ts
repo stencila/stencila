@@ -1,3 +1,4 @@
+import { FileFormatUtils } from '@stencila/components'
 import { StencilaElementConstructor } from './components/base'
 import { main } from './index'
 
@@ -10,6 +11,7 @@ declare global {
     stencilaElements: Record<string, [StencilaElementConstructor, string]>
     stencilaWebClient: {
       main: typeof main
+      executableLanguages: FileFormatUtils.FileFormatMap
     }
   }
 }
