@@ -36,7 +36,6 @@ pointable_struct!(Claim, content);
 pointable_struct!(Collection, parts);
 pointable_struct!(Comment);
 pointable_struct!(CreativeWork);
-pointable_struct!(Datatable);
 pointable_struct!(Figure);
 pointable_struct!(ImageObject);
 pointable_struct!(MediaObject);

@@ -5,9 +5,11 @@ macro_rules! dispatch_node {
     ($node:expr, $default:expr, $method:ident $(,$arg:expr)*) => {
         match $node {
             Node::Array(node) => node.$method($($arg),*),
+            Node::ArrayValidator(node) => node.$method($($arg),*),
             Node::Article(node) => node.$method($($arg),*),
             Node::AudioObject(node) => node.$method($($arg),*),
             Node::Boolean(node) => node.$method($($arg),*),
+            Node::BooleanValidator(node) => node.$method($($arg),*),
             Node::Cite(node) => node.$method($($arg),*),
             Node::CiteGroup(node) => node.$method($($arg),*),
             Node::Claim(node) => node.$method($($arg),*),
@@ -17,14 +19,18 @@ macro_rules! dispatch_node {
             Node::CodeFragment(node) => node.$method($($arg),*),
             Node::Collection(node) => node.$method($($arg),*),
             Node::Comment(node) => node.$method($($arg),*),
+            Node::ConstantValidator(node) => node.$method($($arg),*),
             Node::CreativeWork(node) => node.$method($($arg),*),
             Node::Datatable(node) => node.$method($($arg),*),
+            Node::DatatableColumn(node) => node.$method($($arg),*),
             Node::Delete(node) => node.$method($($arg),*),
             Node::Emphasis(node) => node.$method($($arg),*),
+            Node::EnumValidator(node) => node.$method($($arg),*),
             Node::Figure(node) => node.$method($($arg),*),
             Node::Heading(node) => node.$method($($arg),*),
             Node::ImageObject(node) => node.$method($($arg),*),
             Node::Integer(node) => node.$method($($arg),*),
+            Node::IntegerValidator(node) => node.$method($($arg),*),
             Node::Link(node) => node.$method($($arg),*),
             Node::List(node) => node.$method($($arg),*),
             Node::MathBlock(node) => node.$method($($arg),*),
@@ -32,9 +38,12 @@ macro_rules! dispatch_node {
             Node::MediaObject(node) => node.$method($($arg),*),
             Node::NontextualAnnotation(node) => node.$method($($arg),*),
             Node::Note(node) => node.$method($($arg),*),
+            Node::Null(node) => node.$method($($arg),*),
             Node::Number(node) => node.$method($($arg),*),
+            Node::NumberValidator(node) => node.$method($($arg),*),
             Node::Object(node) => node.$method($($arg),*),
             Node::Paragraph(node) => node.$method($($arg),*),
+            Node::Parameter(node) => node.$method($($arg),*),
             Node::Periodical(node) => node.$method($($arg),*),
             Node::PublicationIssue(node) => node.$method($($arg),*),
             Node::PublicationVolume(node) => node.$method($($arg),*),
@@ -44,11 +53,14 @@ macro_rules! dispatch_node {
             Node::SoftwareApplication(node) => node.$method($($arg),*),
             Node::SoftwareSourceCode(node) => node.$method($($arg),*),
             Node::String(node) => node.$method($($arg),*),
+            Node::StringValidator(node) => node.$method($($arg),*),
             Node::Strong(node) => node.$method($($arg),*),
             Node::Subscript(node) => node.$method($($arg),*),
             Node::Superscript(node) => node.$method($($arg),*),
             Node::Table(node) => node.$method($($arg),*),
             Node::ThematicBreak(node) => node.$method($($arg),*),
+            Node::TupleValidator(node) => node.$method($($arg),*),
+            Node::Validator(node) => node.$method($($arg),*),
             Node::VideoObject(node) => node.$method($($arg),*),
             _ => $default
         }
@@ -214,6 +226,41 @@ macro_rules! dispatch_work {
             CreativeWorkTypes::SoftwareSourceCode(node) => node.$method($($arg),*),
             CreativeWorkTypes::Table(node) => node.$method($($arg),*),
             CreativeWorkTypes::VideoObject(node) => node.$method($($arg),*),
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! dispatch_validator {
+    ($node:expr, $method:ident $(,$arg:expr)*) => {
+        match $node {
+            ValidatorTypes::Validator(node) => node.$method($($arg),*),
+            ValidatorTypes::ArrayValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::BooleanValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::ConstantValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::EnumValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::IntegerValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::NumberValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::StringValidator(node) => node.$method($($arg),*),
+            ValidatorTypes::TupleValidator(node) => node.$method($($arg),*)
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! dispatch_validator_pair {
+    ($node:expr, $other:expr, $default:expr, $method:ident $(,$arg:expr)*) => {
+        match ($node, $other) {
+            (ValidatorTypes::Validator(node), ValidatorTypes::Validator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::ArrayValidator(node), ValidatorTypes::ArrayValidator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::BooleanValidator(node), ValidatorTypes::BooleanValidator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::ConstantValidator(node), ValidatorTypes::ConstantValidator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::EnumValidator(node), ValidatorTypes::EnumValidator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::IntegerValidator(node), ValidatorTypes::IntegerValidator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::NumberValidator(node), ValidatorTypes::NumberValidator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::StringValidator(node), ValidatorTypes::StringValidator(other)) => node.$method(other, $($arg),*),
+            (ValidatorTypes::TupleValidator(node), ValidatorTypes::TupleValidator(other)) => node.$method(other, $($arg),*),
+            _ => $default
         }
     }
 }
