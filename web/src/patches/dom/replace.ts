@@ -15,6 +15,7 @@ import {
 import { applyReplace as applyReplaceString } from '../string'
 import { applyAddObject, applyAddStruct } from './add'
 import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
+import { hasProxy } from './proxies'
 import {
   createFragment,
   createFragmentWrapEach,
@@ -44,7 +45,7 @@ export function applyReplace(op: OperationReplace, target?: ElementId): void {
     assertString(html)
     if (isName(slot)) {
       if (isObjectElement(parent)) applyReplaceObject(parent, slot, items, html)
-      else applyReplaceStruct(parent, slot, items, html)
+      else applyReplaceStruct(parent, slot, items, value, html)
     } else {
       if (isArrayElement(parent))
         applyReplaceArray(parent, slot, items, length, html)
@@ -85,6 +86,7 @@ export function applyReplaceStruct(
   struct: Element,
   name: Slot,
   items: number,
+  value: JsonValue,
   html: string
 ): void {
   assertName(name)
@@ -93,8 +95,15 @@ export function applyReplaceStruct(
     `Unexpected replace items ${items} for option slot '${name}'`
   )
 
+  // Is there a proxy element for the property? If so, apply the operation to its target.
+  const target = hasProxy(struct, name)
+  if (target) {
+    target.applyReplaceStruct(name, items, value, html)
+    return
+  }
+
   // Simply delegate to `applyAddStruct` which has the same logic as needed here
-  applyAddStruct(struct, name, html)
+  applyAddStruct(struct, name, value, html)
 }
 
 /**

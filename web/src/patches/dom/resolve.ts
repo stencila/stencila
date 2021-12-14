@@ -9,7 +9,8 @@ import {
   isText,
   panic,
 } from '../checks'
-import { STRUCT_ATTRIBUTE_ALIASES } from './consts'
+import { STRUCT_ATTRIBUTES } from './consts'
+import { isProxy } from './proxies'
 
 /**
  * Resolve the target of a patch.
@@ -59,7 +60,7 @@ export function resolveSlot(
 ): Element | Attr | Text | undefined {
   if (isName(slot)) {
     // Is the slot represented by an attribute with a different name? If so translate it.
-    const alias = STRUCT_ATTRIBUTE_ALIASES[slot]
+    const alias = STRUCT_ATTRIBUTES[slot]
     if (alias !== undefined) slot = alias
 
     // Is the slot represented as a standard attribute e.g. `id`, `value`?
@@ -67,10 +68,10 @@ export function resolveSlot(
     if (attr !== null) return attr
 
     // Is the slot represented as a custom attribute on a WebComponent? e.g. `programming-language`
-    const dataAttr = parent.attributes.getNamedItem(
+    const slotAttr = parent.attributes.getNamedItem(
       slot.replace(/[A-Z]/g, '-$&').toLowerCase()
     )
-    if (dataAttr !== null) return dataAttr
+    if (slotAttr !== null) return slotAttr
 
     // Is there a descendant element matching the slot name?
     // It is proposed that `data-prop` replace `data-itemprop`. This currently allows for all options.
@@ -107,7 +108,10 @@ export function resolveSlot(
     // `<meta>` elements are used to represent properties that should not be visible
     // but which are needed, if for nothing other than to provide Microdata for the property.
     // Return the `content` attribute, rather than the element itself.
-    if (child?.tagName === 'META') {
+    if (isElement(child) && child.tagName === 'META') {
+      const target = isProxy(child)
+      if (target) return target.elem
+
       const content = child.attributes.getNamedItem('content')
       if (content !== null) return content
     }
@@ -282,7 +286,8 @@ export function isArrayElement(elem: Element): boolean {
  */
 export function isDatatableColumns(elem: Element): boolean {
   return (
-    elem.tagName === 'TR' && elem.getAttribute('data-itemprop') === 'columns'
+    elem.parentElement?.tagName === 'STENCILA-DATATABLE' &&
+    elem.getAttribute('data-itemprop') === 'columns'
   )
 }
 
@@ -291,9 +296,8 @@ export function isDatatableColumns(elem: Element): boolean {
  */
 export function isDatatableRows(elem: Element): boolean {
   return (
-    elem.tagName === 'META' &&
-    elem.getAttribute('name') === 'rows' &&
-    elem.getAttribute('class') === 'proxy'
+    elem.parentElement?.tagName === 'STENCILA-DATATABLE' &&
+    elem.getAttribute('itemprop') === 'rows'
   )
 }
 
@@ -302,9 +306,8 @@ export function isDatatableRows(elem: Element): boolean {
  */
 export function isDatatableValues(elem: Element): boolean {
   return (
-    elem.tagName === 'META' &&
-    elem.getAttribute('name') === 'values' &&
-    elem.getAttribute('class') === 'proxy'
+    elem.parentElement?.tagName === 'STENCILA-DATATABLE' &&
+    elem.getAttribute('itemprop') === 'values'
   )
 }
 

@@ -12,8 +12,9 @@ import {
   panic,
 } from '../checks'
 import { applyAdd as applyAddString } from '../string'
-import { STRUCT_ATTRIBUTES, STRUCT_ATTRIBUTE_ALIASES } from './consts'
+import { STRUCT_ATTRIBUTES } from './consts'
 import { escapeAttr, unescapeAttr, unescapeHtml } from './escape'
+import { hasProxy } from './proxies'
 import {
   createFragment,
   createFragmentWrapEach,
@@ -42,7 +43,7 @@ export function applyAdd(op: OperationAdd, target?: ElementId): void {
     assertString(html)
     if (isName(slot)) {
       if (isObjectElement(parent)) applyAddObject(parent, slot, html)
-      else applyAddStruct(parent, slot, html)
+      else applyAddStruct(parent, slot, value, html)
     } else {
       if (isArrayElement(parent)) applyAddArray(parent, slot, html)
       else applyAddVec(parent, slot, html)
@@ -76,27 +77,31 @@ export function applyAddObject(
 export function applyAddStruct(
   struct: Element,
   name: Slot,
+  value: JsonValue,
   html: string
 ): void {
   assertName(name)
 
-  // Is the property designated to be represented as an attribute?
-  if (STRUCT_ATTRIBUTES.includes(name)) {
-    struct.setAttribute(name, escapeAttr(html))
+  // Is there a proxy element for the property? If so, apply the operation to its target.
+  const target = hasProxy(struct, name)
+  if (target) {
+    target.applyAddStruct(name, value, html)
     return
   }
 
-  // Is the slot represented by an attribute with a different name?
-  const alias = STRUCT_ATTRIBUTE_ALIASES[name]
-  if (alias !== undefined) {
-    struct.setAttribute(alias, escapeAttr(html))
-    return
-  }
-
-  // Is there a placeholder child element for the property ? If so update it's content.
+  // Is there a placeholder element for the property? If so update it's content.
+  // Takes precedence over adding as an attribute.
   const placeholder = struct.querySelector(`[data-itemprop="${name}"]`)
   if (placeholder) {
     placeholder.innerHTML = html
+    return
+  }
+
+  // Is the slot represented by an attribute?
+  const alias = STRUCT_ATTRIBUTES[name]
+  if (alias !== undefined) {
+    const attr = value == null ? 'null' : value.toString()
+    struct.setAttribute(alias, escapeAttr(attr))
     return
   }
 

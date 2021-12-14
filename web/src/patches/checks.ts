@@ -83,14 +83,14 @@ export function assertElement(
 /**
  * Is a DOM node an attribute?
  */
-export function isAttr(node: Node | undefined): node is Attr {
+export function isAttr(node: Node | null | undefined): node is Attr {
   return node?.nodeType === Node.ATTRIBUTE_NODE
 }
 
 /**
  * Is a DOM node a text node?
  */
-export function isText(node: Node | undefined): node is Text {
+export function isText(node: Node | null | undefined): node is Text {
   return node?.nodeType === Node.TEXT_NODE
 }
 
@@ -147,6 +147,13 @@ export function isArray(value: unknown): value is JsonArray {
 }
 
 /**
+ * Assert that a JSON value is an array
+ */
+export function assertArray(value: unknown): asserts value is JsonArray {
+  assert(isArray(value), `Expected an array, got a ${typeof value}`)
+}
+
+/**
  * Is a JSON value an object?
  */
 export function isObject(value: unknown): value is JsonObject {
@@ -154,10 +161,10 @@ export function isObject(value: unknown): value is JsonObject {
 }
 
 /**
- * Assert that a JSON value is an array
+ * Assert that a JSON value is an object
  */
-export function assertArray(value: unknown): asserts value is JsonArray {
-  assert(isArray(value), `Expected an array, got a ${typeof value}`)
+export function assertObject(value: unknown): asserts value is JsonObject {
+  assert(isObject(value), `Expected an object, got a ${typeof value}`)
 }
 
 /**

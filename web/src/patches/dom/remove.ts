@@ -10,7 +10,9 @@ import {
   assertElement,
 } from '../checks'
 import { applyRemove as applyRemoveString } from '../string'
+import { STRUCT_ATTRIBUTES } from './consts'
 import { unescapeAttr, unescapeHtml } from './escape'
+import { hasProxy } from './proxies'
 import {
   isArrayElement,
   isObjectElement,
@@ -78,14 +80,15 @@ export function applyRemoveStruct(
     `Unexpected remove items ${items} for option slot '${name}'`
   )
 
-  // If the property is represented as an attribute then remove it
-  if (struct.hasAttribute(name)) {
-    struct.removeAttribute(name)
+  // Is there a proxy element for the property? If so, apply the operation to its target.
+  const target = hasProxy(struct, name)
+  if (target) {
+    target.applyRemoveStruct(name, items)
     return
   }
 
   // If the property is represented as a child element then clear it's content
-  // and its attributes, other than `data-itemprop` (so that it remains
+  // and its attributes, other than `data-itemprop` etc (so that it remains
   // a placeholder if the property is added again later).
   const child = struct.querySelector(`[data-itemprop="${name}"]`)
   if (child) {
@@ -93,6 +96,14 @@ export function applyRemoveStruct(
     for (const attr of child.getAttributeNames()) {
       if (attr !== 'data-itemprop') child.removeAttribute(attr)
     }
+    return
+  }
+
+  // If the property is represented as an attribute then remove it.
+  // Note the fallback to `name` here (even if not in `STRUCT_ATTRIBUTES` we'll remove it).
+  const alias = STRUCT_ATTRIBUTES[name] ?? name
+  if (struct.hasAttribute(alias)) {
+    struct.removeAttribute(alias)
     return
   }
 
