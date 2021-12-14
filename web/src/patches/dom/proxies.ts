@@ -1,6 +1,7 @@
 import { Slot } from '@stencila/stencila'
 import { assertObject, isElement, JsonValue } from '../checks'
 import { applyAddStruct } from './add'
+import { STRUCT_ATTRIBUTES } from './consts'
 import { applyRemoveStruct } from './remove'
 import { applyReplaceStruct } from './replace'
 
@@ -16,6 +17,9 @@ export interface Proxy {
 
   // Resolve the target element of this proxy
   resolveTarget: (elem: Element) => Element | null | undefined
+
+  // Is the target of this proxy an attribute on the target element?
+  targetIsAttr?: boolean
 
   // Add a property to the target element
   applyAddStruct?: (
@@ -148,6 +152,7 @@ const parameterValue: Proxy = {
     elem.getAttribute('itemprop') === parameterValue.propertyName,
 
   resolveTarget: (elem: Element) => elem.parentElement?.querySelector('input'),
+  targetIsAttr: true,
 
   applyReplaceStruct: (
     elem: Element,
@@ -173,24 +178,23 @@ const parameterValue: Proxy = {
 export const PROXY_ELEMENTS: Proxy[] = [parameterValidator, parameterValue]
 
 /**
- * Is an element a proxy for a property?
+ * Resolve the target DOM node of a proxy
  */
-export function isProxy(elem: Element, name?: string): Target | undefined {
+export function resolveProxy(
+  elem: Element,
+  name?: string
+): Element | Attr | null | undefined {
   for (const proxy of PROXY_ELEMENTS) {
-    if (
-      (name === undefined || proxy.propertyName === name) &&
-      proxy.isProxy(elem)
-    ) {
+    if (proxy.isProxy(elem)) {
       const target = proxy.resolveTarget(elem)
       if (isElement(target)) {
-        return {
-          elem: target,
-          applyAddStruct: (...args) =>
-            (proxy.applyAddStruct ?? applyAddStruct)(target, ...args),
-          applyRemoveStruct: (...args) =>
-            (proxy.applyRemoveStruct ?? applyRemoveStruct)(target, ...args),
-          applyReplaceStruct: (...args) =>
-            (proxy.applyReplaceStruct ?? applyReplaceStruct)(target, ...args),
+        if (proxy.targetIsAttr) {
+          const alias = STRUCT_ATTRIBUTES[proxy.propertyName]
+          if (alias) {
+            return target.getAttributeNode(alias)
+          }
+        } else {
+          return target
         }
       }
     }
@@ -205,7 +209,21 @@ export function isProxy(elem: Element, name?: string): Target | undefined {
  */
 export function hasProxy(elem: Element, name: string): Target | undefined {
   for (const child of elem.querySelectorAll('meta')) {
-    const target = isProxy(child, name)
-    if (target) return target
+    for (const proxy of PROXY_ELEMENTS) {
+      if (proxy.propertyName === name && proxy.isProxy(child)) {
+        const target = proxy.resolveTarget(child)
+        if (isElement(target)) {
+          return {
+            elem: target,
+            applyAddStruct: (...args) =>
+              (proxy.applyAddStruct ?? applyAddStruct)(target, ...args),
+            applyRemoveStruct: (...args) =>
+              (proxy.applyRemoveStruct ?? applyRemoveStruct)(target, ...args),
+            applyReplaceStruct: (...args) =>
+              (proxy.applyReplaceStruct ?? applyReplaceStruct)(target, ...args),
+          }
+        }
+      }
+    }
   }
 }

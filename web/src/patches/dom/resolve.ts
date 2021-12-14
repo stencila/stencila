@@ -10,7 +10,7 @@ import {
   panic,
 } from '../checks'
 import { STRUCT_ATTRIBUTES } from './consts'
-import { isProxy } from './proxies'
+import { resolveProxy } from './proxies'
 
 /**
  * Resolve the target of a patch.
@@ -109,8 +109,8 @@ export function resolveSlot(
     // but which are needed, if for nothing other than to provide Microdata for the property.
     // Return the `content` attribute, rather than the element itself.
     if (isElement(child) && child.tagName === 'META') {
-      const target = isProxy(child)
-      if (target) return target.elem
+      const target = resolveProxy(child)
+      if (target) return target
 
       const content = child.attributes.getNamedItem('content')
       if (content !== null) return content
