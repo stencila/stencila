@@ -16,6 +16,7 @@ import { articleSchema } from '../../schema'
  */
 export class CodeChunkView implements NodeView {
   cm: CMEditorView | null = null
+  editor: HTMLStencilaEditorElement | null = null
   dom: HTMLStencilaCodeChunkElement
   getPos: () => number
   ignoreMutation?: NodeView['ignoreMutation']
@@ -68,6 +69,8 @@ export class CodeChunkView implements NodeView {
 
       this.view.dispatch(languageChangeTransaction)
     })
+
+    this.editor = this.dom.querySelector('stencila-editor')
 
     this.dom
       .getRef()
@@ -253,8 +256,8 @@ export class CodeChunkView implements NodeView {
     if (change && changeRange) {
       this.updating = true
 
-      this.dom
-        .setStateFromString(node.textContent)
+      this.editor
+        ?.setStateFromString(node.textContent)
         .then(() => {
           // Set cursor to changed location within the code editor
           const changeTransaction = this.cm?.state.update({
