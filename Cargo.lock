@@ -4877,7 +4877,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
-version = "0.134.3"
+version = "0.135.0"
 dependencies = [
  "ansi_term",
  "async-recursion",
@@ -4976,7 +4976,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.134.3"
+version = "0.135.0"
 dependencies = [
  "events",
  "formats",

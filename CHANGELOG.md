@@ -1,3 +1,18 @@
+# [0.135.0](https://github.com/stencila/stencila/compare/v0.134.3...v0.135.0) (2021-12-14)
+
+
+### Bug Fixes
+
+* **Editor:** Fix typings for ProseMirror node views ([a4d9765](https://github.com/stencila/stencila/commit/a4d97650d61a364ddf001e7d4b148671653497cd))
+* **Wilmore:** Fix width of CodeChunk elements ([0a25f61](https://github.com/stencila/stencila/commit/0a25f61c549bee92fd0e408313dd6351b763ff5d))
+
+
+### Features
+
+* **Editor:** Add CodeBlock and CodeChunk editor NodeViews ([664bafa](https://github.com/stencila/stencila/commit/664bafa3a0c9049437959855e8798b0e5711a016))
+* **Editor:** Allow creating CodeChunks with ```! syntax ([7e17400](https://github.com/stencila/stencila/commit/7e1740046c332d120d048bf4799488ca94f26285))
+* **Web:** Use events to inform components of executable languages ([98af473](https://github.com/stencila/stencila/commit/98af4736ea49d3eb2ae1fd4e47905b83e366acfe))
+
 ## [0.134.3](https://github.com/stencila/stencila/compare/v0.134.2...v0.134.3) (2021-12-13)
 
 
