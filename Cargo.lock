@@ -815,6 +815,7 @@ dependencies = [
  "test-utils",
  "tokio",
  "tracing",
+ "uuids",
 ]
 
 [[package]]
