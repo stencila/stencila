@@ -48,13 +48,20 @@ stdin <- file("stdin", "r")
 stdout <- stdout()
 stderr <- stderr()
 
-# Monkey patch `print` to encode individual objects
-print <- function(x, ...) write(paste0(encode_value(x), RESULT), stdout)
-
+# Functions to encode messages as `CodeMessage`
 message <- function(msg, type) write(paste0(encode_message(msg, type), RESULT), stderr)
 info <- function(msg) message(msg, "CodeInfo")
 warning <- function(msg) message(msg, "CodeWarning")
 error <- function(error, type = "RuntimeError") message(error$message, type)
+
+# Environment in which code will be executed
+envir <- new.env()
+
+# Monkey patch `print` to encode individual objects
+print <- function(x, ...) write(paste0(encode_value(x), RESULT), stdout)
+
+# Expose `unbox` so that users can, for example show a single number vector as a number
+unbox <- jsonlite::unbox
 
 write(READY, stdout)
 write(READY, stderr)
@@ -100,7 +107,7 @@ while (!is.null(stdin)) {
     # Recording must be enabled for recordPlot() to work
     dev.control("enable")
 
-    value <- tryCatch(eval(compiled), message=info, warning=warning, error=error)
+    value <- tryCatch(eval(compiled, envir, .GlobalEnv), message=info, warning=warning, error=error)
     
     if (!withVisible(value)$visible) {
       value <- NULL

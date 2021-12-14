@@ -7,7 +7,7 @@ use node_patch::{apply_new, diff};
 use test_props::{
     block_content, inline_content,
     proptest::{
-        collection::{size_range, vec},
+        collection::{btree_map, size_range, vec},
         prelude::*,
     },
     vec_block_content, vec_inline_content, Freedom,
@@ -55,11 +55,33 @@ proptest! {
         assert_eq!(apply_new(&a, &patch).unwrap(), b)
     }
 
-    // Vectors of strings (which may have internal `Add`, `Remove`, `Replace` operations)
+    // Vectors of strings (which are themselves `Patchable` so
+    // may have internal `Add`, `Remove`, `Replace` operations)
     #[test]
     fn vecs_strings(
         a in vec("[a-e]{0,5}", size_range(0..10)),
         b in vec("[a-e]{0,5}", size_range(0..10))
+    ) {
+        let patch = diff(&a, &b);
+        assert_eq!(apply_new(&a, &patch).unwrap(), b)
+    }
+
+    // Map of integers
+    #[test]
+    fn btree_map_integers(
+        a in btree_map("[a-e]{0,2}", 0..10i64, size_range(0..100)),
+        b in btree_map("[a-e]{0,2}", 0..10i64, size_range(0..100))
+    ) {
+        let patch = diff(&a, &b);
+        assert_eq!(apply_new(&a, &patch).unwrap(), b)
+    }
+
+    // Map of strings (which are themselves `Patchable` so
+    // may have internal `Add`, `Remove`, `Replace` operations)
+    #[test]
+    fn btree_map_strings(
+        a in btree_map("[a-e]{0,2}", "[a-e]{0,5}", size_range(0..100)),
+        b in btree_map("[a-e]{0,2}", "[a-e]{0,5}", size_range(0..100))
     ) {
         let patch = diff(&a, &b);
         assert_eq!(apply_new(&a, &patch).unwrap(), b)

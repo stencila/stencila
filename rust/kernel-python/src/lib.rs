@@ -24,7 +24,7 @@ mod tests {
         stencila_schema::Node,
         KernelTrait,
     };
-    use test_utils::{assert_json_eq, serde_json::json, skip_ci_os};
+    use test_utils::{assert_json_eq, assert_json_is, skip_ci_os};
 
     async fn skip_or_kernel() -> Result<MicroKernel> {
         if skip_ci_os("windows", "Failing on Windows CIs") {
@@ -52,39 +52,49 @@ mod tests {
             Err(..) => return Ok(()),
         };
 
+        // The execution context should start off empty
+        let (outputs, messages) = kernel.exec("dir()").await?;
+        assert_json_is!(messages, []);
+        assert_json_is!(outputs, [[]]);
+
         // Assign a variable and output it
         let (outputs, messages) = kernel.exec("a = 2\na").await?;
-        assert_json_eq!(messages, json!([]));
-        assert_json_eq!(outputs, [2]);
+        assert_json_is!(messages, []);
+        assert_json_is!(outputs, [2]);
+
+        // The execution context should now have the var
+        let (outputs, messages) = kernel.exec("dir()").await?;
+        assert_json_is!(messages, []);
+        assert_json_is!(outputs, [["a"]]);
 
         // Print the variable twice and then output it
         let (outputs, messages) = kernel.exec("print(a)\nprint(a)\na").await?;
-        assert_json_eq!(messages, json!([]));
-        assert_json_eq!(outputs, [2, 2, 2]);
+        assert_json_is!(messages, []);
+        assert_json_is!(outputs, [2, 2, 2]);
 
         // Syntax error
         let (outputs, messages) = kernel.exec("bad ^ # syntax").await?;
-        assert_json_eq!(messages[0].error_type, "SyntaxError");
-        assert_json_eq!(messages[0].error_message, "invalid syntax (<code>, line 1)");
+        assert_json_is!(messages[0].error_type, "SyntaxError");
+        assert_json_is!(messages[0].error_message, "invalid syntax (<code>, line 1)");
         assert!(messages[0].stack_trace.is_some());
-        assert_json_eq!(outputs, json!([]));
+        assert_json_is!(outputs, []);
 
         // Runtime error
         let (outputs, messages) = kernel.exec("foo").await?;
-        assert_json_eq!(messages[0].error_type, "NameError");
-        assert_json_eq!(messages[0].error_message, "name 'foo' is not defined");
+        assert_json_is!(messages[0].error_type, "NameError");
+        assert_json_is!(messages[0].error_message, "name 'foo' is not defined");
         assert!(messages[0].stack_trace.is_some());
-        assert_json_eq!(outputs, json!([]));
+        assert_json_is!(outputs, []);
 
         // Set and get another variable
         kernel.set("b", Node::Integer(3)).await?;
         let b = kernel.get("b").await?;
-        assert_json_eq!(b, 3);
+        assert_json_is!(b, 3);
 
         // Use both variables
         let (outputs, messages) = kernel.exec("a*b").await?;
-        assert_json_eq!(messages, json!([]));
-        assert_json_eq!(outputs, [6]);
+        assert_json_is!(messages, []);
+        assert_json_is!(outputs, [6]);
 
         Ok(())
     }
@@ -108,21 +118,21 @@ mod tests {
         let (outputs, messages) = kernel
             .exec("from random import uniform as runif\nvar = runif(0, 1)\nvar")
             .await?;
-        assert_json_eq!(messages, json!([]));
+        assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
         let var = outputs[0].clone();
 
         // Now fork-exec. The fork should be able to use the module and access the
         // variable but any change to variable should not change its value in the parent kernel
         let (outputs, messages) = kernel.fork_exec("print(var)\nvar = runif(0, 1)").await?;
-        assert_json_eq!(messages, json!([]));
+        assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
-        assert_json_eq!(outputs[0], var);
+        assert_json_is!(outputs[0], var);
 
         // Back in the parent kernel, var should still have its original value
         assert_json_eq!(var, kernel.get("var").await?);
         let (outputs, messages) = kernel.exec("var").await?;
-        assert_json_eq!(messages, json!([]));
+        assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
 
         Ok(())

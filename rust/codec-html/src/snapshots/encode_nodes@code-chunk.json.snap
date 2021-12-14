@@ -8,7 +8,7 @@ input_file: fixtures/nodes/code-chunk.json
   <meta itemprop="programmingLanguage" content="python"/>
   <pre data-itemprop="text" slot="text"># Some code</pre>
   <div data-itemprop="outputs" slot="outputs">
-    <span itemtype="http://schema.org/Text" itemscope>a string output</span>
+    <pre itemtype="http://schema.org/Text" itemscope>a string output</pre>
     <span itemtype="http://schema.stenci.la/Boolean" itemscope>true</span>
     <span itemtype="http://schema.stenci.la/Integer" itemscope>42</span>
     <span itemtype="http://schema.stenci.la/Number" itemscope>1.23</span>

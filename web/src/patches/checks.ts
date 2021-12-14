@@ -67,14 +67,16 @@ export function assertIndex(slot: Slot | undefined): asserts slot is number {
 /**
  * Is a DOM node an element?
  */
-export function isElement(node: Node | undefined): node is Element {
+export function isElement(node: Node | null | undefined): node is Element {
   return node?.nodeType === Node.ELEMENT_NODE
 }
 
 /**
  * Assert that a DOM node is an element
  */
-export function assertElement(node: Node | undefined): asserts node is Element {
+export function assertElement(
+  node: Node | null | undefined
+): asserts node is Element {
   assert(isElement(node), 'Expected element node')
 }
 

@@ -157,7 +157,7 @@ export function receivePatch(clientId: ClientId, event: DocumentEvent): void {
 
   // During development it's useful to see which patches are being received
   if (process.env.NODE_ENV !== 'production') {
-    console.log('📩 Received DOM patch:', JSON.stringify({ actor, target }))
+    console.log('📩 Received patch:', JSON.stringify({ actor, target }))
     for (const op of ops) console.log('  ', JSON.stringify(op))
   }
 

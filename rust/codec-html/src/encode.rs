@@ -321,10 +321,16 @@ fn attr_slot(name: &str) -> String {
 /// until a complete implementation is finished. Ensures that the JSON is
 /// properly escaped
 fn json(node: &impl serde::Serialize) -> String {
+    encode_safe(&serde_json::to_string(node).unwrap_or_default()).to_string()
+}
+
+/// Encode a node as indented (pretty) JSON
+#[allow(dead_code)]
+fn json_pretty(node: &impl serde::Serialize) -> String {
     encode_safe(&serde_json::to_string_pretty(node).unwrap_or_default()).to_string()
 }
 
-/// Iterate over a slice of nodes, call a string generating function on each item
+/// Iterate over a slice of nodes, call a string generating function on each item,
 /// and concatenate the strings
 pub fn concat<T, F>(slice: &[T], func: F) -> String
 where
@@ -333,14 +339,34 @@ where
     slice.iter().map(func).collect::<Vec<String>>().concat()
 }
 
+/// Iterate over a slice of nodes, calling `to_html` on each item, and concatenate
+pub fn concat_html<T: ToHtml>(slice: &[T], context: &EncodeContext) -> String {
+    concat(slice, |item| item.to_html(context))
+}
+
+/// Iterate over a slice of nodes, call a string generating function on each item,
+/// and join using a separator
+#[allow(dead_code)]
+pub fn join<T, F>(slice: &[T], func: F, sep: &str) -> String
+where
+    F: FnMut(&T) -> String,
+{
+    slice.iter().map(func).collect::<Vec<String>>().join(sep)
+}
+
+/// Iterate over a slice of nodes, calling `to_html` on each item, and join using a separator
+#[allow(dead_code)]
+pub fn join_html<T: ToHtml>(slice: &[T], context: &EncodeContext, sep: &str) -> String {
+    join(slice, |item| item.to_html(context), sep)
+}
+
 mod blocks;
-mod boxes;
+mod generics;
 mod inlines;
 mod nodes;
-mod options;
 mod others;
 mod primitives;
-mod vecs;
+
 #[allow(clippy::deprecated_cfg_attr)]
 mod works;
 

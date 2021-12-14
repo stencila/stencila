@@ -39,21 +39,18 @@ where
     /// Otherwise, if either of the vectors are of zero length, will generate
     /// a `Replace` operation. Otherwise, will perform a Patience diff on the
     /// vectors.
-    fn diff(&self, differ: &mut Differ, other: &Self) {
+    fn diff(&self, other: &Self, differ: &mut Differ) {
+        // Shortcuts
         if self.is_empty() && other.is_empty() {
             return;
-        }
-
-        if self.is_empty() && !other.is_empty() {
+        } else if self.is_empty() && !other.is_empty() {
             return differ.append(vec![Operation::Add {
                 address: Address::from(0),
                 value: Box::new(other.clone()),
                 length: other.len(),
                 html: None,
             }]);
-        }
-
-        if !self.is_empty() && other.is_empty() {
+        } else if !self.is_empty() && other.is_empty() {
             return differ.append(vec![Operation::Remove {
                 address: Address::from(0),
                 items: self.len(),

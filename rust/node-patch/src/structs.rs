@@ -32,7 +32,7 @@ macro_rules! patchable_struct_hash {
 macro_rules! patchable_struct_diff {
     ($( $field:ident )*) => {
         #[allow(unused_variables)]
-        fn diff(&self, differ: &mut Differ, other: &Self) {
+        fn diff(&self, other: &Self, differ: &mut Differ) {
             $(
                 differ.field(stringify!($field), &self.$field, &other.$field);
             )*
@@ -142,10 +142,7 @@ macro_rules! patchable_struct {
         impl Patchable for $type {
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);
-
-
             patchable_struct_diff!($( $field )*);
-
             patchable_struct_apply_add!($( $field )*);
             patchable_struct_apply_remove!($( $field )*);
             patchable_struct_apply_replace!($( $field )*);
@@ -169,9 +166,7 @@ macro_rules! replaceable_struct {
             patchable_struct_is_equal!($( $field )*);
             patchable_struct_hash!($( $field )*);
 
-
-
-            fn diff(&self, differ: &mut Differ, other: &Self) {
+            fn diff(&self, other: &Self, differ: &mut Differ) {
                 if !self.is_equal(other).is_ok() {
                     differ.replace(other)
                 }

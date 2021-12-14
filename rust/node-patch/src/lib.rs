@@ -29,7 +29,7 @@ where
     Type: Patchable,
 {
     let mut differ = Differ::default();
-    node1.diff(&mut differ, node2);
+    node1.diff(node2, &mut differ);
     Patch::new(differ.ops)
 }
 
@@ -280,6 +280,8 @@ impl Operation {
             FigureCaption
             CodeChunkCaption
             Node
+            Datatable
+            DatatableColumn
             CodeError
 
             // Properties of creative works
@@ -288,6 +290,7 @@ impl Operation {
             Organization
 
             // Primitives
+            Primitive
             String
             Number
             Integer
@@ -356,12 +359,15 @@ impl Operation {
             FigureCaption
             CodeChunkCaption
             Node
+            Datatable
+            DatatableColumn
             CodeError
 
             // Properties of creative works
             Date
 
             // Primitives
+            Primitive
             String
             Number
             Integer
@@ -411,12 +417,12 @@ impl Operation {
                 return nodes.to_html(&context);
             } else {
                 tracing::error!(
-                    "Unhandled JSON value type when generating HTML for patch `Operation`: {}",
+                    "Unhandled JSON value type when generating HTML for patch operation: {}",
                     value.to_string()
                 );
             }
         } else {
-            tracing::error!("Unhandled `value` type when generating HTML for patch `Operation`");
+            tracing::error!("Unhandled value type when generating HTML for patch operation");
         }
 
         // Send HTML that indicates error to developers (in addition to above tracing error)
@@ -475,6 +481,11 @@ impl Patch {
         }
     }
 
+    /// Does the patch have any operations?
+    pub fn is_empty(&self) -> bool {
+        self.ops.is_empty()
+    }
+
     /// Prepare the patch for publishing
     ///
     /// The main purpose of this function is to generate HTML for each `Add` and `Replace`
@@ -504,7 +515,7 @@ impl Differ {
     /// Adds a `Name` key to `address` and then differences the two values.
     pub fn field<Type: Patchable>(&mut self, name: &str, value1: &Type, value2: &Type) {
         self.address.push_back(Slot::Name(name.to_string()));
-        value1.diff(self, value2);
+        value1.diff(value2, self);
         self.address.pop_back();
     }
 
@@ -513,7 +524,7 @@ impl Differ {
     /// Adds an `Index` key to `address` and then differences the two values.
     pub fn item<Type: Patchable>(&mut self, index: usize, value1: &Type, value2: &Type) {
         self.address.push_back(Slot::Index(index));
-        value1.diff(self, value2);
+        value1.diff(value2, self);
         self.address.pop_back();
     }
 
@@ -619,7 +630,7 @@ pub trait Patchable {
 
     /// Generate the operations needed to mutate this node so that it is equal
     /// to a node of the same type.
-    fn diff(&self, differ: &mut Differ, other: &Self);
+    fn diff(&self, other: &Self, differ: &mut Differ);
 
     /// Apply a patch to this node.
     fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
@@ -652,12 +663,12 @@ pub trait Patchable {
 
     /// Apply an `Add` patch operation
     fn apply_add(&mut self, _address: &mut Address, _value: &Value) -> Result<()> {
-        bail!(invalid_patch_operation::<Self>("add"))
+        bail!(invalid_patch_operation::<Self>("Add"))
     }
 
     /// Apply a `Remove` patch operation
     fn apply_remove(&mut self, _address: &mut Address, _items: usize) -> Result<()> {
-        bail!(invalid_patch_operation::<Self>("remove"))
+        bail!(invalid_patch_operation::<Self>("Remove"))
     }
 
     /// Apply a `Replace` patch operation
@@ -667,17 +678,17 @@ pub trait Patchable {
         _items: usize,
         _value: &Value,
     ) -> Result<()> {
-        bail!(invalid_patch_operation::<Self>("replace"))
+        bail!(invalid_patch_operation::<Self>("Replace"))
     }
 
     /// Apply a `Move` patch operation
     fn apply_move(&mut self, _from: &mut Address, _items: usize, _to: &mut Address) -> Result<()> {
-        bail!(invalid_patch_operation::<Self>("move"))
+        bail!(invalid_patch_operation::<Self>("Move"))
     }
 
     /// Apply a `Transform` patch operation
     fn apply_transform(&mut self, _address: &mut Address, _from: &str, _to: &str) -> Result<()> {
-        bail!(invalid_patch_operation::<Self>("transform"))
+        bail!(invalid_patch_operation::<Self>("Transform"))
     }
 
     /// Cast a [`Value`] to an instance of the type
@@ -691,7 +702,10 @@ pub trait Patchable {
             if let Ok(value) = serde_json::from_value::<Self>(value.clone()) {
                 value
             } else {
-                bail!(invalid_patch_value::<Self>())
+                bail!(
+                    "Invalid JSON patch value for type `{}`",
+                    std::any::type_name::<Self>()
+                )
             }
         } else {
             bail!(invalid_patch_value::<Self>())
@@ -705,7 +719,6 @@ use errors::{invalid_patch_operation, invalid_patch_value};
 
 mod prelude;
 
-mod atomics;
 #[macro_use]
 mod enums;
 mod boxes;
@@ -713,12 +726,15 @@ mod options;
 mod strings;
 #[macro_use]
 mod structs;
+mod maps;
 mod vecs;
 
 mod blocks;
+mod datatable;
 mod inlines;
 mod nodes;
 mod others;
+mod primitives;
 mod works;
 
 #[cfg(test)]
