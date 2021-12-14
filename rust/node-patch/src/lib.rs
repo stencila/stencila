@@ -282,6 +282,7 @@ impl Operation {
             Node
             Datatable
             DatatableColumn
+            ValidatorTypes
             CodeError
 
             // Properties of creative works
@@ -361,6 +362,7 @@ impl Operation {
             Node
             Datatable
             DatatableColumn
+            ValidatorTypes
             CodeError
 
             // Properties of creative works
@@ -730,7 +732,7 @@ mod maps;
 mod vecs;
 
 mod blocks;
-mod datatable;
+mod data;
 mod inlines;
 mod nodes;
 mod others;

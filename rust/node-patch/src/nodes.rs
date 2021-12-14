@@ -70,6 +70,7 @@ patchable_node_variants!(
     Node::Number
     Node::Object
     Node::Paragraph
+    Node::Parameter
     Node::Quote
     Node::QuoteBlock
     Node::String
