@@ -1,0 +1,7 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: html
+input_file: fixtures/nodes/integer-validator.json
+
+---
+<stencila-integer-validator data-itemscope="root" itemtype="http://schema.stenci.la/IntegerValidator" itemscope/>

@@ -1,0 +1,7 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: html
+input_file: fixtures/nodes/boolean-validator.json
+
+---
+<stencila-boolean-validator data-itemscope="root" itemtype="http://schema.stenci.la/BooleanValidator" itemscope/>

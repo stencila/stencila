@@ -151,7 +151,13 @@ impl<'a> Default for EncodeContext<'a> {
 
 /// Trait for encoding a node as HTML
 pub trait ToHtml {
-    fn to_html(&self, context: &EncodeContext) -> String;
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        elem("span", &[attr("class", "unsupported")], "<not implemented>")
+    }
+
+    fn to_attrs(&self, _context: &EncodeContext) -> Vec<String> {
+        Vec::new()
+    }
 }
 
 /// Create an empty string
@@ -245,6 +251,13 @@ fn attr(name: &str, value: &str) -> String {
         "\"",
     ]
     .concat()
+}
+
+/// Encode a boolean attribute (a flag; does not have a value)
+///
+/// Will ensure that the name is camelCased.
+fn attr_bool(name: &str) -> String {
+    to_camel_case(name)
 }
 
 /// Encode one of the attributes used to identify a property of a Stencila node
@@ -361,6 +374,7 @@ pub fn join_html<T: ToHtml>(slice: &[T], context: &EncodeContext, sep: &str) -> 
 }
 
 mod blocks;
+mod data;
 mod generics;
 mod inlines;
 mod nodes;

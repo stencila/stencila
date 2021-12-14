@@ -292,10 +292,21 @@ macro_rules! to_content_html {
 }
 
 to_content_html!(Claim, Node::Claim, to_block);
+to_content_html!(Comment, Node::Comment, to_block);
 to_content_html!(Collection, Node::Collection, to_block);
 to_content_html!(Figure, Node::Figure, to_block);
 to_content_html!(Table, Node::Table, to_block);
 
 to_content_html!(AudioObject, Node::AudioObject, to_inline);
 to_content_html!(ImageObject, Node::ImageObject, to_inline);
+to_content_html!(MediaObject, Node::MediaObject, to_inline);
 to_content_html!(VideoObject, Node::VideoObject, to_inline);
+
+// Not yet implemented
+impl ToHtml for CreativeWork {}
+impl ToHtml for Periodical {}
+impl ToHtml for PublicationIssue {}
+impl ToHtml for PublicationVolume {}
+impl ToHtml for Review {}
+impl ToHtml for SoftwareApplication {}
+impl ToHtml for SoftwareSourceCode {}

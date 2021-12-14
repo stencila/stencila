@@ -1,0 +1,11 @@
+{
+  "type": "Parameter",
+  "name": "par",
+  "validator": {
+    "type": "StringValidator",
+    "min_length": 0,
+    "max_length": 20,
+    "pattern": "[a-z]+"
+  },
+  "value": "hello"
+}

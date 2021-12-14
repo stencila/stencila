@@ -1,0 +1,12 @@
+{
+  "type": "Parameter",
+  "name": "pars",
+  "validator": {
+    "type": "NumberValidator",
+    "minimum": 0,
+    "exclusiveMinimum": -1,
+    "maximum": 100,
+    "exclusiveMaximum": 101
+  },
+  "value": 50
+}

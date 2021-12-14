@@ -1,0 +1,12 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: html
+input_file: fixtures/nodes/parameter-boolean.json
+
+---
+<stencila-parameter data-itemscope="root" itemtype="http://schema.stenci.la/Parameter" itemscope>
+  <label data-itemprop="name" slot="name" for="input-id">par</label>
+  <meta itemprop="validator" content=""/>
+  <meta itemprop="value" content="true"/>
+  <input id="input-id" slot="input" type="checkbox" value="true" checked=""/>
+</stencila-parameter>
