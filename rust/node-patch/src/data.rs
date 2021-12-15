@@ -15,7 +15,7 @@ impl Patchable for Datatable {
 
 patchable_struct!(DatatableColumn, name, validator, values);
 
-patchable_struct!(Parameter, name, validator, value);
+patchable_struct!(Parameter, name, validator, default, value);
 
 patchable_variants!(
     ValidatorTypes,

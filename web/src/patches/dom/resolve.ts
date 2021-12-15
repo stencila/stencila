@@ -59,19 +59,15 @@ export function resolveSlot(
   slot: Slot
 ): Element | Attr | Text | undefined {
   if (isName(slot)) {
-    // Is the slot represented by an attribute with a different name? If so translate it.
-    const alias = STRUCT_ATTRIBUTES[slot]
-    if (alias !== undefined) slot = alias
-
     // Is the slot represented as a standard attribute e.g. `id`, `value`?
-    const attr = parent.attributes.getNamedItem(slot)
+    const attr = parent.attributes.getNamedItem(STRUCT_ATTRIBUTES[slot] ?? slot)
     if (attr !== null) return attr
 
     // Is the slot represented as a custom attribute on a WebComponent? e.g. `programming-language`
-    const slotAttr = parent.attributes.getNamedItem(
+    const customAttr = parent.attributes.getNamedItem(
       slot.replace(/[A-Z]/g, '-$&').toLowerCase()
     )
-    if (slotAttr !== null) return slotAttr
+    if (customAttr !== null) return customAttr
 
     // Is there a descendant element matching the slot name?
     // It is proposed that `data-prop` replace `data-itemprop`. This currently allows for all options.

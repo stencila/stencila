@@ -14,6 +14,7 @@ export const STRUCT_ATTRIBUTES: Record<string, string> = {
   // MediaObject
   contentUrl: 'src',
   // Parameter
+  default: 'placeholder',
   value: 'value',
   // NumberValidator
   type: 'type',

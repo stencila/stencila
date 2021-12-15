@@ -16,7 +16,7 @@ export interface Proxy {
   isProxy: (elem: Element) => boolean
 
   // Resolve the target element of this proxy
-  resolveTarget: (elem: Element) => Element | null | undefined
+  targetElem: (elem: Element) => Element | null | undefined
 
   // Is the target of this proxy an attribute on the target element?
   targetIsAttr?: boolean
@@ -66,7 +66,7 @@ const parameterValidator: Proxy = {
     elem.parentElement?.tagName === 'STENCILA-PARAMETER' &&
     elem.getAttribute('itemprop') === parameterValidator.propertyName,
 
-  resolveTarget: (elem: Element) => elem.parentElement?.querySelector('input'),
+  targetElem: (elem: Element) => elem.parentElement?.querySelector('input'),
 
   applyAddStruct: (
     elem: Element,
@@ -142,6 +142,20 @@ const parameterValidator: Proxy = {
   },
 }
 
+// The `default` property of a `Parameter` is represented by the `placeholder` attribute
+// of the sibling <input> element.
+const parameterDefault: Proxy = {
+  propertyName: 'default',
+
+  isProxy: (elem: Element) =>
+    elem.parentElement?.tagName === 'STENCILA-PARAMETER' &&
+    elem.getAttribute('itemprop') === parameterDefault.propertyName,
+
+  targetElem: (elem: Element) => elem.parentElement?.querySelector('input'),
+
+  targetIsAttr: true,
+}
+
 // The `value` property of a `Parameter` is represented by the `value` attribute
 // of the sibling <input> element.
 const parameterValue: Proxy = {
@@ -151,7 +165,8 @@ const parameterValue: Proxy = {
     elem.parentElement?.tagName === 'STENCILA-PARAMETER' &&
     elem.getAttribute('itemprop') === parameterValue.propertyName,
 
-  resolveTarget: (elem: Element) => elem.parentElement?.querySelector('input'),
+  targetElem: (elem: Element) => elem.parentElement?.querySelector('input'),
+
   targetIsAttr: true,
 
   applyReplaceStruct: (
@@ -175,22 +190,23 @@ const parameterValue: Proxy = {
   },
 }
 
-export const PROXY_ELEMENTS: Proxy[] = [parameterValidator, parameterValue]
+export const PROXY_ELEMENTS: Proxy[] = [
+  parameterValidator,
+  parameterDefault,
+  parameterValue,
+]
 
 /**
  * Resolve the target DOM node of a proxy
  */
-export function resolveProxy(
-  elem: Element,
-  name?: string
-): Element | Attr | null | undefined {
+export function resolveProxy(elem: Element): Element | Attr | null | undefined {
   for (const proxy of PROXY_ELEMENTS) {
     if (proxy.isProxy(elem)) {
-      const target = proxy.resolveTarget(elem)
+      const target = proxy.targetElem(elem)
       if (isElement(target)) {
         if (proxy.targetIsAttr) {
           const alias = STRUCT_ATTRIBUTES[proxy.propertyName]
-          if (alias) {
+          if (alias !== undefined) {
             return target.getAttributeNode(alias)
           }
         } else {
@@ -211,7 +227,7 @@ export function hasProxy(elem: Element, name: string): Target | undefined {
   for (const child of elem.querySelectorAll('meta')) {
     for (const proxy of PROXY_ELEMENTS) {
       if (proxy.propertyName === name && proxy.isProxy(child)) {
-        const target = proxy.resolveTarget(child)
+        const target = proxy.targetElem(child)
         if (isElement(target)) {
           return {
             elem: target,
