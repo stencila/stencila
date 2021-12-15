@@ -1,5 +1,6 @@
 import { ViewUpdate } from '@codemirror/view'
-import { Document, DocumentEvent, Patch } from '@stencila/stencila'
+import { ValidatorTypes } from '@stencila/schema'
+import { Document, DocumentEvent, Operation, Patch } from '@stencila/stencila'
 import { Client, ClientId } from './client'
 import * as codemirror from './patches/codemirror'
 import { applyPatch } from './patches/dom'
@@ -200,6 +201,14 @@ export function listen(
   window.addEventListener('stencila-content-change', (event) =>
     onContentChange(client, clientId, documentId, event as ContentChangeEvent)
   )
+
+  window.addEventListener('stencila-validator-change', (event) =>
+    onValidatorChange(client, clientId, documentId, event as ContentChangeEvent)
+  )
+
+  window.addEventListener('stencila-parameter-change', (event) =>
+    onParameterChange(client, clientId, documentId, event as ContentChangeEvent)
+  )
 }
 
 /**
@@ -279,6 +288,103 @@ async function onContentChange(
     }
     return sendPatch(client, documentId, patch)
   }
+}
+
+/**
+ * The browser event emitted when either the type or property of a parameter validator changes.
+ */
+export interface ValidatorChangeEvent extends CustomEvent {
+  detail:
+    | {
+        type: 'property'
+        name: string
+        value: string
+      }
+    | {
+        type: 'validator'
+        value: Exclude<ValidatorTypes['type'], 'Validator'>
+      }
+}
+
+/**
+ * Handle a `ValidatorChangeEvent`
+ *
+ * These events, created by text editors for individual nodes, need to be
+ * transformed into a `Patch` targeting that node.
+ */
+async function onValidatorChange(
+  client: Client,
+  clientId: ClientId,
+  documentId: DocumentId,
+  event: ValidatorChangeEvent
+): Promise<void> {
+  console.log('validator changed:', event)
+  const [_nodeType, nodeId] = resolveEventNode(event)
+
+  const ops: Operation[] = []
+
+  if (event.detail.type === 'property') {
+    ops.push({
+      type: 'Replace',
+      address: ['validator', event.detail.name],
+      value: event.detail.value,
+      items: 1,
+      length: 1,
+    })
+  } else {
+    // TODO: Handle changing of validator type
+  }
+
+  const patch = {
+    actor: clientId,
+    target: nodeId,
+    ops,
+  }
+  return sendPatch(client, documentId, patch)
+}
+
+/**
+ * The browser event emitted when either the name of value of the parameter changes.
+ */
+export interface ParameterChangeEvent extends CustomEvent {
+  detail: {
+    property: 'name' | 'value'
+    value: string
+  }
+}
+
+/**
+ * Handle a `ParameterChangeEvent`
+ *
+ * These events, created by text editors for individual nodes, need to be
+ * transformed into a `Patch` targeting that node.
+ */
+async function onParameterChange(
+  client: Client,
+  clientId: ClientId,
+  documentId: DocumentId,
+  event: ParameterChangeEvent
+): Promise<void> {
+  console.log('parameter changed:', event)
+  // TODO: Handle parameter change event
+  const [_nodeType, nodeId] = resolveEventNode(event)
+
+  const ops: Operation[] = [
+    {
+      type: 'Replace',
+      address: [event.detail.property],
+      value: event.detail.value,
+      items: 1,
+      length: 1,
+    },
+  ]
+
+  const patch = {
+    actor: clientId,
+    target: nodeId,
+    ops,
+  }
+  return sendPatch(client, documentId, patch)
 }
 
 /**
