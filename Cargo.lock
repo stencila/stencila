@@ -876,6 +876,7 @@ dependencies = [
 name = "codec-md"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "codec",
  "codec-html",
  "codec-txt",

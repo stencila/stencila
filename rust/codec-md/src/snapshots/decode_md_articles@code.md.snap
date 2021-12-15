@@ -1,6 +1,6 @@
 ---
-source: rust/src/methods/decode/md.rs
-expression: "decode(&content).expect(\"Unable to decode Markdown\")"
+source: rust/codec-md/src/decode.rs
+expression: "decode(content).expect(\"Unable to decode Markdown\")"
 input_file: fixtures/articles/code.md
 
 ---
@@ -61,7 +61,7 @@ input_file: fixtures/articles/code.md
           "programmingLanguage": "",
           "text": "x"
         },
-        " (in which case it may default to the file’s language e.g. pymd files)."
+        " (in which case it may default to the file's language e.g. pymd files)."
       ]
     },
     {
