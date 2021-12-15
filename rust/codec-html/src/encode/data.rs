@@ -133,45 +133,62 @@ impl ToHtml for Parameter {
             ],
         );
 
-        // Get the attrs corresponding to the validator so that we
-        // can add them to the <input> element
-        let validator_attrs = match &self.validator {
-            Some(validator) => validator.to_attrs(context),
-            None => vec![attr("type", "text")],
-        };
-
-        // If the parameter's `default` property is set then set a `placeholder` attribute
-        let placeholder_attr = match &self.default {
-            Some(node) => attr("placeholder", &node.to_txt()),
-            None => "".to_string(),
-        };
-
-        let value_attr = match &self.value {
-            Some(node) => attr("value", &node.to_txt()),
-            None => "".to_string(),
-        };
-
-        // If a `BooleanValidator` then need to set the `checked` attribute if true
-        let checked_attr =
-            if let (Some(ValidatorTypes::BooleanValidator(..)), Some(Node::Boolean(true))) =
-                (self.validator.as_deref(), self.value.as_deref())
-            {
-                attr("checked", "")
-            } else {
-                nothing()
+        let input = if let Some(ValidatorTypes::EnumValidator(validator)) =
+            self.validator.as_deref()
+        {
+            let options = match validator.values.as_deref() {
+                Some(values) => concat(values, |node| {
+                    let txt = node.to_txt();
+                    elem("option", &[attr("value", &txt)], &txt)
+                }),
+                None => nothing(),
+            };
+            elem(
+                "select",
+                &[attr("id", &input_id), attr_slot("value")],
+                &options,
+            )
+        } else {
+            // Get the attrs corresponding to the validator so that we
+            // can add them to the <input> element
+            let validator_attrs = match &self.validator {
+                Some(validator) => validator.to_attrs(context),
+                None => vec![attr("type", "text")],
             };
 
-        let input = elem_empty(
-            "input",
-            &[
-                attr("id", &input_id),
-                attr_slot("value"),
-                validator_attrs.join(" "),
-                placeholder_attr,
-                value_attr,
-                checked_attr,
-            ],
-        );
+            // If the parameter's `default` property is set then set a `placeholder` attribute
+            let placeholder_attr = match &self.default {
+                Some(node) => attr("placeholder", &node.to_txt()),
+                None => "".to_string(),
+            };
+
+            let value_attr = match &self.value {
+                Some(node) => attr("value", &node.to_txt()),
+                None => "".to_string(),
+            };
+
+            // If a `BooleanValidator` then need to set the `checked` attribute if true
+            let checked_attr =
+                if let (Some(ValidatorTypes::BooleanValidator(..)), Some(Node::Boolean(true))) =
+                    (self.validator.as_deref(), self.value.as_deref())
+                {
+                    attr("checked", "")
+                } else {
+                    nothing()
+                };
+
+            elem_empty(
+                "input",
+                &[
+                    attr("id", &input_id),
+                    attr_slot("value"),
+                    validator_attrs.join(" "),
+                    placeholder_attr,
+                    value_attr,
+                    checked_attr,
+                ],
+            )
+        };
 
         elem(
             "stencila-parameter",
