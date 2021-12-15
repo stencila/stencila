@@ -2,6 +2,7 @@ import { Slot } from '@stencila/stencila'
 import { assertObject, isElement, JsonValue } from '../checks'
 import { applyAddStruct } from './add'
 import { STRUCT_ATTRIBUTES } from './consts'
+import { escapeAttr, escapeHtml } from './escape'
 import { applyRemoveStruct } from './remove'
 import { applyReplaceStruct } from './replace'
 
@@ -66,7 +67,9 @@ const parameterValidator: Proxy = {
     elem.parentElement?.tagName === 'STENCILA-PARAMETER' &&
     elem.getAttribute('itemprop') === parameterValidator.propertyName,
 
-  targetElem: (elem: Element) => elem.parentElement?.querySelector('input'),
+  targetElem: (elem: Element) =>
+    elem.parentElement?.querySelector('input') ??
+    elem.parentElement?.querySelector('select'),
 
   applyAddStruct: (
     elem: Element,
@@ -75,9 +78,22 @@ const parameterValidator: Proxy = {
     html: string
   ) => {
     if (name === 'validator') {
-      // Adding an entire validator so add all its properties to
-      // the target element.
+      // Adding the entire validator...
       assertObject(value)
+
+      // For `EnumValidator` just add `values` to the <select> target element
+      if (value.type === 'EnumValidator') {
+        for (const node of value.values as JsonValue[]) {
+          const option = document.createElement('option')
+          const txt = node == null ? 'null' : node.toString()
+          option.setAttribute('value', escapeAttr(txt))
+          option.textContent = escapeHtml(txt)
+          elem.appendChild(option)
+        }
+        return
+      }
+
+      // For other types add all properties to the <input> target element.
       for (let [name, prop] of Object.entries(value)) {
         switch (name) {
           // Map `type` to <input> type
@@ -97,6 +113,7 @@ const parameterValidator: Proxy = {
         }
         applyAddStruct(elem, name, prop, '')
       }
+      // `BooleanValidator` also needs `checked` to be updated
       if (value.type === 'BooleanValidator' && value.value === true) {
         elem.setAttribute('checked', '')
       }
@@ -109,8 +126,15 @@ const parameterValidator: Proxy = {
 
   applyRemoveStruct: (elem: Element, name: Slot, items: number) => {
     if (name === 'validator') {
-      // Removing the validator itself, so remove all attributes potentially
-      // added by it
+      // Removing the validator itself
+
+      // For `EnumValidator` remove all <option>s from the <select>
+      if (elem.tagName === 'SELECT') {
+        elem.innerHTML = ''
+        return
+      }
+
+      // For other types, remove all attributes potentially on <input>
       for (const attr of [
         'type',
         'checked',
@@ -185,7 +209,7 @@ const parameterValue: Proxy = {
       }
     } else {
       const attr = value == null ? 'null' : value.toString()
-      elem.setAttribute('value', attr)
+      elem.setAttribute('value', escapeAttr(attr))
     }
   },
 }
@@ -238,6 +262,10 @@ export function hasProxy(elem: Element, name: string): Target | undefined {
             applyReplaceStruct: (...args) =>
               (proxy.applyReplaceStruct ?? applyReplaceStruct)(target, ...args),
           }
+        } else {
+          console.warn(
+            `Unable to find the target element for the proxy ${name}`
+          )
         }
       }
     }

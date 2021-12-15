@@ -283,6 +283,7 @@ impl Operation {
             Datatable
             DatatableColumn
             ValidatorTypes
+            EnumValidator // Because "replaceable"
             CodeError
 
             // Properties of creative works
@@ -363,6 +364,7 @@ impl Operation {
             Datatable
             DatatableColumn
             ValidatorTypes
+            EnumValidator // Because "replaceable"
             CodeError
 
             // Properties of creative works

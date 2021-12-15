@@ -11,7 +11,7 @@ input_file: fixtures/nodes/parameter-enum.json
   <meta itemprop="value" itemtype="http://schema.stenci.la/String" itemscope content="B"/>
   <select id="input-id" slot="value">
     <option value="A">A</option>
-    <option value="B">B</option>
+    <option value="B" selected>B</option>
     <option value="C">C</option>
   </select>
 </stencila-parameter>

@@ -136,17 +136,27 @@ impl ToHtml for Parameter {
         let input = if let Some(ValidatorTypes::EnumValidator(validator)) =
             self.validator.as_deref()
         {
+            // Select the `value`, or secondarily, the `default` <option>
+            let value = self
+                .value
+                .as_deref()
+                .or_else(|| self.default.as_deref())
+                .map(|node| node.to_txt())
+                .unwrap_or_default();
+
             let options = match validator.values.as_deref() {
                 Some(values) => concat(values, |node| {
                     let txt = node.to_txt();
-                    elem("option", &[attr("value", &txt)], &txt)
+                    let selected = if txt == value { "selected" } else { "" };
+                    elem("option", &[attr("value", &txt), selected.to_string()], &txt)
                 }),
                 None => nothing(),
             };
+
             elem(
                 "select",
                 &[attr("id", &input_id), attr_slot("value")],
-                &options,
+                &[options].concat(),
             )
         } else {
             // Get the attrs corresponding to the validator so that we

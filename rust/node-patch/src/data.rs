@@ -31,7 +31,6 @@ patchable_variants!(
 patchable_struct!(ArrayValidator);
 patchable_struct!(BooleanValidator);
 patchable_struct!(ConstantValidator, value);
-patchable_struct!(EnumValidator, values);
 patchable_struct!(IntegerValidator);
 patchable_struct!(
     NumberValidator,
@@ -43,3 +42,9 @@ patchable_struct!(
 );
 patchable_struct!(StringValidator, min_length, max_length, pattern);
 patchable_struct!(TupleValidator, items);
+
+// The `EnumValidator` is replaceable because it is to difficult to
+// work with fine grained DOM patches to `values` (because they are in a <select>).
+// Instead the `parameterValidator` proxy knows how to deal with replacement of
+// this type of validator.
+replaceable_struct!(EnumValidator, values);
