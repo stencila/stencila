@@ -69,6 +69,9 @@ write(READY, stderr)
 while (!is.null(stdin)) {
   code <- readLines(stdin, n=1)
 
+  # If there is no code from `readLines` it means `stdin` was closed, so exit gracefully
+  if (length(code) == 0) quit(save = "no")
+
   if (endsWith(code, FORK)) {
     # The `eval_safe` function of https://github.com/jeroen/unix provides an alternative 
     # implementation of fork-exec for R. We might use it in the future.
