@@ -9,7 +9,7 @@ from python_codec import decode_value, encode_exception, encode_value
 
 READY = u"\U0010ACDC\n"
 RESULT = u"\U0010CB40\n"
-TRANS = u"\U0010ABBA\n"
+TASK = u"\U0010ABBA\n"
 FORK = u"\U0010DE70\n"
 
 
@@ -32,8 +32,8 @@ stdout.flush()
 stderr.write(READY)
 stderr.flush()
 
-for code in stdin:
-    if code.endswith(FORK):
+for task in stdin:
+    if task.endswith(FORK):
         pid = os.fork()
         if pid > 0:
             # Parent process so just go to the next line
@@ -42,9 +42,9 @@ for code in stdin:
         # Child process, so...
 
         # Separate code and paths of FIFO pipes to replace stdout and stderr
-        code = code[: -len(FORK)]
-        pos = code.rfind("|")
-        (code, pipes) = code[:pos], code[(pos + 1) :]
+        payload = task[: -len(FORK)]
+        pos = payload.rfind("|")
+        (code, pipes) = payload[:pos], payload[(pos + 1) :]
         (new_stdout, new_stderr) = pipes.split(";")
 
         # Close file descriptors so that we're not interfeering with
@@ -59,6 +59,8 @@ for code in stdin:
         # Replace stdout and stderr with pipes
         os.open(new_stdout, os.O_WRONLY | os.O_TRUNC)  # 1: stdout
         os.open(new_stderr, os.O_WRONLY | os.O_TRUNC)  # 2: stderr
+    else:
+        code = task
 
     lines = code.split("\\n")
     rest, last = lines[:-1], lines[-1]
@@ -82,7 +84,7 @@ for code in stdin:
         json = encode_exception(exc)
         stderr.write(json + RESULT)
 
-    stdout.write(TRANS)
+    stdout.write(TASK)
     stdout.flush()
-    stderr.write(TRANS)
+    stderr.write(TASK)
     stderr.flush()

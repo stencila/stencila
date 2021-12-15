@@ -17,19 +17,19 @@ use tokio::{
 // On Windows, Rscript (and possibly other binaries) escapes unicode on stdout and stderr
 // So the _ALT flags are provided for these instances (or where it is not possible to output Unicode at all).
 
-/// The end of kernel startup, kernel is ready to process transactions.
+/// Indicates the end of kernel startup, kernel is ready to perform tasks.
 const READY: char = '\u{10ACDC}';
 const READY_ALT: &str = "<U+0010ACDC>";
 
-/// The end of a result ("outputs" on `stderr` and "messages" on `stderr`).
+/// Indicates the end of a task result ("outputs" on `stderr` and "messages" on `stderr`).
 const RESULT: char = '\u{10CB40}';
 const RESULT_ALT: &str = "<U+0010CB40>";
 
-/// The end of a transaction, kernel is ready for next transaction.
-const TRANS: char = '\u{10ABBA}';
-const TRANS_ALT: &str = "<U+0010ABBA>";
+/// Indicates the end of a task, kernel is ready for next task.
+const TASK: char = '\u{10ABBA}';
+const TASK_ALT: &str = "<U+0010ABBA>";
 
-/// Fork the kernel
+/// Indicates that the task should be run in a forked process.
 const FORK: char = '\u{10DE70}';
 #[allow(dead_code)]
 const FORK_ALT: &str = "<U+0010DE70>";
@@ -517,8 +517,8 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
 
 /// Handle a line of stdout or stderr
 ///
-/// How the line is handled depends upon whether it has a result or transaction
-/// separator at the end. Returns false at the end of a transaction.
+/// How the line is handled depends upon whether it has a result or task
+/// flag at the end. Returns false at the end of a task.
 fn handle_line(line: &str, current: &mut String, vec: &mut Vec<String>) -> bool {
     if let Some(line) = line
         .strip_suffix(RESULT)
@@ -531,8 +531,8 @@ fn handle_line(line: &str, current: &mut String, vec: &mut Vec<String>) -> bool 
         }
         true
     } else if let Some(line) = line
-        .strip_suffix(TRANS)
-        .or_else(|| line.strip_suffix(TRANS_ALT))
+        .strip_suffix(TASK)
+        .or_else(|| line.strip_suffix(TASK_ALT))
     {
         current.push_str(line);
         if !current.is_empty() {

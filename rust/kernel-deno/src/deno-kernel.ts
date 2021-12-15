@@ -5,7 +5,7 @@ import { encodeValue, encodeError } from './deno-codec.ts'
 
 const READY = '\u{10ACDC}\n'
 const RESULT = '\u{10CB40}\n'
-const TRANS = '\u{10ABBA}\n'
+const TASK = '\u{10ABBA}\n'
 
 const textEncoder = new TextEncoder()
 
@@ -19,8 +19,8 @@ console.log = function (...args) {
 Deno.stdout.write(textEncoder.encode(READY))
 Deno.stderr.write(textEncoder.encode(READY))
 
-for await (let code of readLines(Deno.stdin)) {
-  const unescaped = code.replace(/\\n/g, '\n')
+for await (let task of readLines(Deno.stdin)) {
+  const unescaped = task.replace(/\\n/g, '\n')
 
   const { files } = await Deno.emit('/code.ts', {
     // Do not check the Typescript, just strip it of type annotations etc
@@ -43,6 +43,6 @@ for await (let code of readLines(Deno.stdin)) {
     const json = encodeError(error.thrown)
     Deno.stderr.write(textEncoder.encode(json + RESULT))
   }
-  Deno.stdout.write(textEncoder.encode(TRANS))
-  Deno.stderr.write(textEncoder.encode(TRANS))
+  Deno.stdout.write(textEncoder.encode(TASK))
+  Deno.stderr.write(textEncoder.encode(TASK))
 }

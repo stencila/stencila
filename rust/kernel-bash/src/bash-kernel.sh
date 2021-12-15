@@ -4,9 +4,9 @@
 # the hexadecimal representations of flags
 
 printf "\xf4\x8a\xb3\x9c\n" | tee /dev/stderr
-while read -r code
+while read -r task
 do
-  printf -v unescaped "$code"
+  printf -v unescaped "$task"
   eval "$unescaped"
   printf "\xf4\x8a\xae\xba\n" | tee /dev/stderr
 done < "${1:-/dev/stdin}"

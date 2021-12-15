@@ -7,7 +7,7 @@ const { decodeValue, encodeValue, encodeError } = require('./node-codec')
 
 const READY = '\u{10ACDC}\n'
 const RESULT = '\u{10CB40}\n'
-const TRANS = '\u{10ABBA}\n'
+const TASK = '\u{10ABBA}\n'
 
 const { stdin, stdout, stderr } = process
 
@@ -54,8 +54,8 @@ vm.createContext(context)
 stdout.write(READY)
 stderr.write(READY)
 
-rl.on('line', (code) => {
-  const unescaped = code.replace(/\\n/g, '\n')
+rl.on('line', (task) => {
+  const unescaped = task.replace(/\\n/g, '\n')
   try {
     const output = vm.runInContext(unescaped, context)
     if (output !== undefined) {
@@ -66,6 +66,6 @@ rl.on('line', (code) => {
     const json = encodeError(error)
     stderr.write(json + RESULT)
   }
-  stdout.write(TRANS)
-  stderr.write(TRANS)
+  stdout.write(TASK)
+  stderr.write(TASK)
 })

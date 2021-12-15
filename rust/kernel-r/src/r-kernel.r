@@ -41,7 +41,7 @@ source(file.path(dir, "r-codec.r"))
 
 READY <- "\U0010ACDC"
 RESULT <- "\U0010CB40"
-TRANS <- "\U0010ABBA"
+TASK <- "\U0010ABBA"
 FORK <- "\U0010DE70"
 
 stdin <- file("stdin", "r")
@@ -67,12 +67,12 @@ write(READY, stdout)
 write(READY, stderr)
 
 while (!is.null(stdin)) {
-  code <- readLines(stdin, n=1)
+  task <- readLines(stdin, n=1)
 
-  # If there is no code from `readLines` it means `stdin` was closed, so exit gracefully
-  if (length(code) == 0) quit(save = "no")
+  # If there is no task from `readLines` it means `stdin` was closed, so exit gracefully
+  if (length(task) == 0) quit(save = "no")
 
-  if (endsWith(code, FORK)) {
+  if (endsWith(task, FORK)) {
     # The `eval_safe` function of https://github.com/jeroen/unix provides an alternative 
     # implementation of fork-exec for R. We might use it in the future.
   
@@ -85,8 +85,8 @@ while (!is.null(stdin)) {
     # Child process, so...
 
     # Separate code and paths of FIFO pipes to replace stdout and stderr
-    code <- substr(code, 1, nchar(code) - nchar(FORK))
-    parts <- strsplit(code, "\\|")[[1]]
+    payload <- substr(task, 1, nchar(task) - nchar(FORK))
+    parts <- strsplit(payload, "\\|")[[1]]
     code <- paste0(head(parts, n=length(parts) - 1), collapse = "|")
     pipes <- strsplit(tail(parts, n = 1), ";")[[1]]
 
@@ -96,10 +96,11 @@ while (!is.null(stdin)) {
     # Replace stdout and stderr with pipes
     stdout <- file(pipes[1], open = "w", raw = TRUE)
     stderr <- file(pipes[2], open = "w", raw = TRUE)
+  } else {
+    code <- task
   }
 
   unescaped <- gsub("\\\\n", "\n", code)
-
   compiled <- tryCatch(parse(text=unescaped), error=identity)
   if (inherits(compiled, "simpleError")) {
     error(compiled, "SyntaxError")
@@ -131,6 +132,6 @@ while (!is.null(stdin)) {
     }
   }
 
-  write(TRANS, stdout)
-  write(TRANS, stderr)
+  write(TASK, stdout)
+  write(TASK, stderr)
 }
