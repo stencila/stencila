@@ -31,12 +31,12 @@ input_file: fixtures/articles/kitchen-sink.ipynb
     {
       "type": "Paragraph",
       "content": [
-        "This is a “kitchen sink” test fixture for the Jupyter Notebook (",
+        "This is a \"kitchen sink\" test fixture for the Jupyter Notebook (",
         {
           "type": "CodeFragment",
           "text": "ipynb"
         },
-        ") format. It’s principal use is in testing Stencila’s conversion to / from Jupyter Notebooks but also serves to document that conversion. It contains a variety of document node types and Jupyter cell types."
+        ") format. It's principal use is in testing Stencila's conversion to / from Jupyter Notebooks but also serves to document that conversion. It contains a variety of document node types and Jupyter cell types."
       ]
     },
     {
