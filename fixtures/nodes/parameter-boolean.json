@@ -4,5 +4,6 @@
   "validator": {
     "type": "BooleanValidator"
   },
+  "default": true,
   "value": true
 }

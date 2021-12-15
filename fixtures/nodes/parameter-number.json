@@ -8,5 +8,6 @@
     "maximum": 100,
     "exclusiveMaximum": 101
   },
+  "default": 42,
   "value": 50
 }

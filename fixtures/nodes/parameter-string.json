@@ -7,5 +7,6 @@
     "max_length": 20,
     "pattern": "[a-z]+"
   },
+  "default": "defaultstring",
   "value": "hello"
 }

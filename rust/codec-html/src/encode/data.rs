@@ -94,32 +94,42 @@ impl ToHtml for Parameter {
             &self.name,
         );
 
-        // Meta elements for `validator` and `value` that add HTML Microdata and
-        // are used as "proxies" when patching the DOM
-        let validator_itemtype = if let Some(validator) = self.validator.as_deref() {
-            attr_itemtype_str(validator.as_ref())
-        } else {
-            nothing()
-        };
-        let validator = elem_empty("meta", &[attr_itemprop("validator"), validator_itemtype]);
-        let value_itemtype = if let Some(value) = self.value.as_deref() {
-            attr_itemtype_str(value.as_ref())
-        } else {
-            nothing()
-        };
+        // Meta elements for `validator`, `default`, and `value` that add HTML Microdata and
+        // are used as "proxies" to the attributes added to the <input> element when patching the DOM
+
+        let validator = elem_empty(
+            "meta",
+            &[
+                attr_itemprop("validator"),
+                self.validator
+                    .as_deref()
+                    .map_or_else(nothing, |node| attr_itemtype_str(node.as_ref())),
+            ],
+        );
+
+        let default = elem_empty(
+            "meta",
+            &[
+                attr_itemprop("default"),
+                self.default
+                    .as_deref()
+                    .map_or_else(nothing, |node| attr_itemtype_str(node.as_ref())),
+                self.default
+                    .as_deref()
+                    .map_or_else(nothing, |node| attr("content", &node.to_txt())),
+            ],
+        );
+
         let value = elem_empty(
             "meta",
             &[
                 attr_itemprop("value"),
-                value_itemtype,
-                attr(
-                    "content",
-                    &self
-                        .value
-                        .as_ref()
-                        .map(|value| value.to_txt())
-                        .unwrap_or_default(),
-                ),
+                self.value
+                    .as_deref()
+                    .map_or_else(nothing, |node| attr_itemtype_str(node.as_ref())),
+                self.value
+                    .as_deref()
+                    .map_or_else(nothing, |node| attr("content", &node.to_txt())),
             ],
         );
 
@@ -130,9 +140,15 @@ impl ToHtml for Parameter {
             None => vec![attr("type", "text")],
         };
 
+        // If the parameter's `default` property is set then set a `placeholder` attribute
+        let placeholder_attr = match &self.default {
+            Some(node) => attr("placeholder", &node.to_txt()),
+            None => "".to_string(),
+        };
+
         let value_attr = match &self.value {
             Some(node) => attr("value", &node.to_txt()),
-            _ => "".to_string(),
+            None => "".to_string(),
         };
 
         // If a `BooleanValidator` then need to set the `checked` attribute if true
@@ -151,6 +167,7 @@ impl ToHtml for Parameter {
                 attr("id", &input_id),
                 attr_slot("value"),
                 validator_attrs.join(" "),
+                placeholder_attr,
                 value_attr,
                 checked_attr,
             ],
@@ -159,7 +176,7 @@ impl ToHtml for Parameter {
         elem(
             "stencila-parameter",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[name, validator, value, input].concat(),
+            &[name, validator, default, value, input].concat(),
         )
     }
 }
