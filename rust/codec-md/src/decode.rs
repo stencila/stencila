@@ -12,7 +12,7 @@ use node_transform::Transform;
 use nom::{
     branch::alt,
     bytes::complete::{escaped, tag, take, take_till, take_until, take_while1},
-    character::complete::{char, digit1, multispace0, multispace1, none_of},
+    character::complete::{alphanumeric1, char, digit1, multispace0, multispace1, none_of},
     combinator::{map_res, not, opt, peek},
     multi::{fold_many0, separated_list0, separated_list1},
     sequence::{delimited, pair, preceded, tuple},
@@ -746,7 +746,7 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
 pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
     map_res(
         pair(
-            delimited(tag("/"), take_until("/"), tag("/")),
+            delimited(tag("/"), alphanumeric1, tag("/")),
             opt(curly_attrs),
         ),
         |(name, pairs): (&str, Option<Attrs>)| -> Result<InlineContent> {
@@ -779,20 +779,17 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 let minimum = options
                     .get("minimum")
                     .or_else(|| options.get("min"))
-                    .unwrap_or(&None)
-                    .as_ref()
+                    .and_then(|value| value.as_ref())
                     .and_then(|value| value.parse().ok());
                 let maximum = options
                     .get("maximum")
                     .or_else(|| options.get("max"))
-                    .unwrap_or(&None)
-                    .as_ref()
+                    .and_then(|value| value.as_ref())
                     .and_then(|value| value.parse().ok());
                 let multiple_of = options
                     .get("multiple_of")
                     .or_else(|| options.get("step"))
-                    .unwrap_or(&None)
-                    .as_ref()
+                    .and_then(|value| value.as_ref())
                     .and_then(|value| value.parse().ok());
                 Some(ValidatorTypes::NumberValidator(NumberValidator {
                     minimum,
@@ -808,20 +805,17 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 let min_length = options
                     .get("min_length")
                     .or_else(|| options.get("minlength"))
-                    .unwrap_or(&None)
-                    .as_ref()
+                    .and_then(|value| value.as_ref())
                     .and_then(|value| value.parse().ok());
                 let max_length = options
                     .get("max_length")
                     .or_else(|| options.get("maxlength"))
-                    .unwrap_or(&None)
-                    .as_ref()
+                    .and_then(|value| value.as_ref())
                     .and_then(|value| value.parse().ok());
                 let pattern = options
                     .get("pattern")
                     .or_else(|| options.get("regex"))
-                    .unwrap_or(&None)
-                    .as_ref()
+                    .and_then(|value| value.as_ref())
                     .map(|value| Box::new(value.clone()));
                 Some(ValidatorTypes::StringValidator(StringValidator {
                     min_length,
@@ -830,7 +824,27 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                     ..Default::default()
                 }))
             } else if matches!(typ, Some("enum")) || options.get("enum").is_some() {
-                Some(ValidatorTypes::EnumValidator(EnumValidator::default()))
+                let values = options
+                    .get("values")
+                    .or_else(|| options.get("vals"))
+                    .and_then(|value| value.as_ref())
+                    .map(|string| {
+                        let json = match string.starts_with('[') && string.ends_with('[') {
+                            true => string.clone(),
+                            false => ["[", string, "]"].concat(),
+                        };
+                        match json5::from_str::<Vec<Node>>(&json) {
+                            Ok(array) => array,
+                            Err(..) => string
+                                .split(',')
+                                .map(|item| Node::String(item.trim().to_string()))
+                                .collect(),
+                        }
+                    });
+                Some(ValidatorTypes::EnumValidator(EnumValidator {
+                    values,
+                    ..Default::default()
+                }))
             } else {
                 None
             }
@@ -840,8 +854,7 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 .get("default")
                 .and_then(|value| value.as_ref())
                 .map(|string| {
-                    serde_json::from_str::<Node>(string)
-                        .unwrap_or_else(|_| Node::String(string.clone()))
+                    json5::from_str::<Node>(string).unwrap_or_else(|_| Node::String(string.clone()))
                 })
                 .map(Box::new);
 
@@ -849,8 +862,7 @@ pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
                 .get("value")
                 .and_then(|value| value.as_ref())
                 .map(|string| {
-                    serde_json::from_str::<Node>(string)
-                        .unwrap_or_else(|_| Node::String(string.clone()))
+                    json5::from_str::<Node>(string).unwrap_or_else(|_| Node::String(string.clone()))
                 })
                 .map(Box::new);
 
@@ -1059,6 +1071,7 @@ fn curly_attr(input: &str) -> IResult<&str, (String, Option<String>)> {
                 alt((
                     single_quoted,
                     double_quoted,
+                    square_bracketed,
                     take_till(|c| c == ' ' || c == '}'),
                 )),
             )),
@@ -1081,6 +1094,14 @@ fn double_quoted(input: &str) -> IResult<&str, &str> {
     let escaped = escaped(none_of("\\\""), '\\', tag("\""));
     let empty = tag("");
     delimited(tag("\""), alt((escaped, empty)), tag("\""))(input)
+}
+
+/// Parse a JSON-style square bracketed array (inner closing brackets can be escaped)
+/// Does not return the outer brackets
+fn square_bracketed(input: &str) -> IResult<&str, &str> {
+    let escaped = escaped(none_of("\\]"), '\\', tag("]"));
+    let empty = tag("");
+    delimited(tag("["), alt((escaped, empty)), tag("]"))(input)
 }
 
 /// Accumulate characters into a `String` node
@@ -1222,6 +1243,16 @@ mod tests {
         assert_eq!(res, "  ");
         let (_, res) = single_quoted("''").unwrap();
         assert_eq!(res, "");
+    }
+
+    #[test]
+    fn test_square_bracketed() {
+        let (_, res) = square_bracketed("[1,2,3]").unwrap();
+        assert_eq!(res, "1,2,3");
+        let (_, res) = square_bracketed("['a', 'b', null]").unwrap();
+        assert_eq!(res, "'a', 'b', null");
+        let (_, res) = square_bracketed("[\\]]").unwrap();
+        assert_eq!(res, "\\]");
     }
 
     #[test]

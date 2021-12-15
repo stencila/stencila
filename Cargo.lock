@@ -882,6 +882,7 @@ dependencies = [
  "codec-txt",
  "formats",
  "itertools",
+ "json5",
  "node-coerce",
  "node-transform",
  "nom",

@@ -92,6 +92,56 @@ input_file: fixtures/fragments/md/parameter.md
   {
     "type": "Paragraph",
     "content": [
+      "For enum parameters set the ",
+      {
+        "type": "CodeFragment",
+        "text": "values"
+      },
+      " property using a JSON5 array e.g. ",
+      {
+        "type": "Parameter",
+        "name": "par7",
+        "validator": {
+          "type": "EnumValidator",
+          "values": [
+            "One option",
+            "Another option"
+          ]
+        }
+      },
+      " (allows for spaces in values) or using a comma separated string e.g. ",
+      {
+        "type": "Parameter",
+        "name": "par8",
+        "validator": {
+          "type": "EnumValidator",
+          "values": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ]
+        }
+      },
+      ". Note that when using JSON/5 for values they can be any type, not just strings e.g. ",
+      {
+        "type": "Parameter",
+        "name": "par9",
+        "validator": {
+          "type": "EnumValidator",
+          "values": [
+            1,
+            "two",
+            3.14
+          ]
+        }
+      },
+      "."
+    ]
+  },
+  {
+    "type": "Paragraph",
+    "content": [
       "When there is no ",
       {
         "type": "CodeFragment",
@@ -100,7 +150,7 @@ input_file: fixtures/fragments/md/parameter.md
       " option, parameters will have no validator ",
       {
         "type": "Parameter",
-        "name": "par7"
+        "name": "par10"
       },
       "."
     ]
