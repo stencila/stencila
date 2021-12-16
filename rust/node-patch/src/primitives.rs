@@ -71,14 +71,7 @@ impl Patchable for Primitive {
         } else if let Some(value) = value.downcast_ref::<Array>() {
             Primitive::Array(value.clone())
         } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-            if let Ok(value) = serde_json::from_value::<Self>(value.clone()) {
-                value
-            } else {
-                bail!(
-                    "Invalid JSON patch value for type `{}`",
-                    std::any::type_name::<Self>()
-                )
-            }
+            Self::from_json_value(value)?
         } else {
             bail!(invalid_patch_value::<Self>())
         };

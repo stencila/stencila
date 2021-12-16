@@ -703,18 +703,34 @@ pub trait Patchable {
         let instance = if let Some(value) = value.downcast_ref::<Self>() {
             value.clone()
         } else if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-            if let Ok(value) = serde_json::from_value::<Self>(value.clone()) {
-                value
-            } else {
-                bail!(
-                    "Invalid JSON patch value for type `{}`",
-                    std::any::type_name::<Self>()
-                )
-            }
+            Self::from_json_value(value)?
         } else {
             bail!(invalid_patch_value::<Self>())
         };
         Ok(instance)
+    }
+
+    /// Parse a JSON value to an instance of the type
+    fn from_json_value(value: &serde_json::Value) -> Result<Self>
+    where
+        Self: Clone + DeserializeOwned + Sized + 'static,
+    {
+        if let Ok(value) = serde_json::from_value::<Self>(value.clone()) {
+            // The JSON value was of the correct type e.g. `42` for a number
+            Ok(value)
+        } else if let Some(value) = value
+            .as_str()
+            .and_then(|json| serde_json::from_str::<Self>(json).ok())
+        {
+            // The JSON value was a string that could be parsed into the correct type e.g. `"42"` for a number
+            Ok(value)
+        } else {
+            bail!(
+                "Invalid JSON patch value for type `{}`: {:?}",
+                std::any::type_name::<Self>(),
+                value
+            )
+        }
     }
 }
 
