@@ -13,6 +13,7 @@ derive_more = "0.99.17"
 eyre = "0.6.5"
 itertools = "0.10.3"
 node-address = { path = "../node-address", version = "0.0.0" }
+node-coerce = { path = "../node-coerce", version = "0.0.0" }
 node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
 schemars = { version = "=0.8.8", features = ["preserve_order", "chrono"] }
 serde = "1.0.130"
