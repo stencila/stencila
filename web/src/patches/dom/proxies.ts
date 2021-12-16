@@ -189,7 +189,9 @@ const parameterValue: Proxy = {
     elem.parentElement?.tagName === 'STENCILA-PARAMETER' &&
     elem.getAttribute('itemprop') === parameterValue.propertyName,
 
-  targetElem: (elem: Element) => elem.parentElement?.querySelector('input'),
+  targetElem: (elem: Element) =>
+    elem.parentElement?.querySelector('input') ??
+    elem.parentElement?.querySelector('select'),
 
   targetIsAttr: true,
 
