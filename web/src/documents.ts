@@ -1,7 +1,14 @@
 import { ViewUpdate } from '@codemirror/view'
 import { ValidatorTypes } from '@stencila/schema'
-import { Document, DocumentEvent, Operation, Patch } from '@stencila/stencila'
+import {
+  Address,
+  Document,
+  DocumentEvent,
+  Operation,
+  Patch,
+} from '@stencila/stencila'
 import { Client, ClientId } from './client'
+import { JsonValue } from './patches/checks'
 import * as codemirror from './patches/codemirror'
 import { applyPatch } from './patches/dom'
 
@@ -203,11 +210,21 @@ export function listen(
   )
 
   window.addEventListener('stencila-validator-change', (event) =>
-    onValidatorChange(client, clientId, documentId, event as ContentChangeEvent)
+    onValidatorChange(
+      client,
+      clientId,
+      documentId,
+      event as ValidatorChangeEvent
+    )
   )
 
   window.addEventListener('stencila-parameter-change', (event) =>
-    onParameterChange(client, clientId, documentId, event as ContentChangeEvent)
+    onParameterChange(
+      client,
+      clientId,
+      documentId,
+      event as ParameterChangeEvent
+    )
   )
 }
 
@@ -308,9 +325,6 @@ export interface ValidatorChangeEvent extends CustomEvent {
 
 /**
  * Handle a `ValidatorChangeEvent`
- *
- * These events, created by text editors for individual nodes, need to be
- * transformed into a `Patch` targeting that node.
  */
 async function onValidatorChange(
   client: Client,
@@ -318,28 +332,36 @@ async function onValidatorChange(
   documentId: DocumentId,
   event: ValidatorChangeEvent
 ): Promise<void> {
-  console.log('validator changed:', event)
   const [_nodeType, nodeId] = resolveEventNode(event)
 
-  const ops: Operation[] = []
+  const [address, value]: [Address, JsonValue] =
+    event.detail.type === 'property'
+      ? // The new validator property value
+        [
+          [
+            // ...except for `default` which is actually a property of the parent parameter
+            ...(event.detail.name == 'default' ? [] : ['validator']),
+            event.detail.name,
+          ],
+          event.detail.value,
+        ]
+      : // The new validator as an object with `type`
+        [['validator'], { type: event.detail.value }]
 
-  if (event.detail.type === 'property') {
-    ops.push({
-      type: 'Replace',
-      address: ['validator', event.detail.name],
-      value: event.detail.value,
-      items: 1,
-      length: 1,
-    })
-  } else {
-    // TODO: Handle changing of validator type
+  const op: Operation = {
+    type: 'Replace',
+    address,
+    value,
+    items: 1,
+    length: 1,
   }
 
   const patch = {
     actor: clientId,
     target: nodeId,
-    ops,
+    ops: [op],
   }
+
   return sendPatch(client, documentId, patch)
 }
 
@@ -355,9 +377,6 @@ export interface ParameterChangeEvent extends CustomEvent {
 
 /**
  * Handle a `ParameterChangeEvent`
- *
- * These events, created by text editors for individual nodes, need to be
- * transformed into a `Patch` targeting that node.
  */
 async function onParameterChange(
   client: Client,
@@ -365,25 +384,22 @@ async function onParameterChange(
   documentId: DocumentId,
   event: ParameterChangeEvent
 ): Promise<void> {
-  console.log('parameter changed:', event)
-  // TODO: Handle parameter change event
   const [_nodeType, nodeId] = resolveEventNode(event)
 
-  const ops: Operation[] = [
-    {
-      type: 'Replace',
-      address: [event.detail.property],
-      value: event.detail.value,
-      items: 1,
-      length: 1,
-    },
-  ]
+  const op: Operation = {
+    type: 'Replace',
+    address: [event.detail.property],
+    value: event.detail.value,
+    items: 1,
+    length: 1,
+  }
 
   const patch = {
     actor: clientId,
     target: nodeId,
-    ops,
+    ops: [op],
   }
+
   return sendPatch(client, documentId, patch)
 }
 
