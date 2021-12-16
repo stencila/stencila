@@ -3215,6 +3215,7 @@ dependencies = [
  "test-snaps",
  "test-utils",
  "tracing",
+ "utils",
 ]
 
 [[package]]
@@ -3251,6 +3252,7 @@ dependencies = [
  "eyre",
  "itertools",
  "node-address",
+ "node-coerce",
  "node-dispatch",
  "schemars",
  "serde",
