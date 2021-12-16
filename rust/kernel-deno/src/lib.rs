@@ -5,8 +5,9 @@ pub fn new() -> MicroKernel {
     MicroKernel::new(
         "deno-micro",
         &["javascript", "typescript"],
-        &["linux", "macos", "windows"],
-        &[],
+        true,
+        false,
+        false,
         ("deno", ">=1.7"),
         &["run", "--quiet", "--unstable", "{{script}}"],
         include_file!("deno-kernel.ts"),

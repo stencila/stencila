@@ -6,7 +6,7 @@ use kernel::{
     async_trait::async_trait,
     eyre::{bail, eyre, Result},
     stencila_schema::{CodeError, Node},
-    Kernel, KernelStatus, KernelTrait,
+    Kernel, KernelInfo, KernelStatus, KernelTrait,
 };
 use serde::Serialize;
 use std::collections::{hash_map::Entry, BTreeMap, HashMap, HashSet};
@@ -21,23 +21,6 @@ pub use kernel::KernelSelector;
 /// local kernel space. This allows more useful ids to be assigned
 /// e.g. `python`, `r` etc.
 type KernelId = String;
-
-/// Information on a running kernel
-#[derive(Debug, Clone, Serialize)]
-pub struct KernelInfo {
-    /// The id of the kernel instance
-    id: String,
-
-    /// The status of the kernel
-    status: KernelStatus,
-
-    /// The kernel spec
-    #[serde(flatten)]
-    spec: Kernel,
-
-    /// Whether the kernel is forkable on the current machine
-    forkable: bool,
-}
 
 /// Information on a symbol in a kernel space
 #[derive(Debug, Clone, Serialize)]
@@ -253,11 +236,13 @@ impl KernelSpace {
                     KernelStatus::Unknown
                 }
             };
+            let interruptable = kernel.interruptable().await;
             let forkable = kernel.forkable().await;
             info.push(KernelInfo {
                 id,
                 status,
                 spec,
+                interruptable,
                 forkable,
             })
         }

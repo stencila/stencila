@@ -5,8 +5,9 @@ pub fn new() -> MicroKernel {
     MicroKernel::new(
         "node-micro",
         &["javascript"],
-        &["linux", "macos", "windows"],
-        &[],
+        true,
+        false,
+        false,
         ("node", "*"),
         &["{{script}}"],
         include_file!("node-kernel.js"),

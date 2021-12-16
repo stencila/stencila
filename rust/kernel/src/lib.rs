@@ -85,6 +85,29 @@ pub enum KernelStatus {
     Unknown,
 }
 
+/// Information on a running kernel
+///
+/// Used when displaying information to the user about currently
+/// running kernels.
+#[derive(Debug, Clone, Serialize)]
+pub struct KernelInfo {
+    /// The id of the kernel instance
+    pub id: String,
+
+    /// The status of the kernel
+    pub status: KernelStatus,
+
+    /// The kernel spec
+    #[serde(flatten)]
+    pub spec: Kernel,
+
+    /// Whether the kernel is interruptable on the current machine
+    pub interruptable: bool,
+
+    /// Whether the kernel is forkable on the current machine
+    pub forkable: bool,
+}
+
 /// A selector used to choose amongst alternative kernels
 pub struct KernelSelector {
     /// A string that will match against the kernel `name` or any of its `languages`
@@ -240,7 +263,18 @@ pub trait KernelTrait {
         true
     }
 
-    /// Is the kernel forkable on the current machine?
+    /// Can the kernel interrupt tasks?
+    ///
+    /// Some kernels listen for an interrupt signal (`SINGIT` on POSIX) to
+    /// cancel long running tasks.
+    async fn interruptable(&self) -> bool {
+        false
+    }
+
+    /// Can the kernel be forked?
+    ///
+    /// Some kernels can be "forked" to support parallel execution. On POSIX
+    /// this is generally implemented using the `fork` system call.
     async fn forkable(&self) -> bool {
         false
     }
@@ -274,8 +308,18 @@ pub trait KernelTrait {
     ///
     /// For more on the "Fork-exec" technique in general see https://en.wikipedia.org/wiki/Fork%E2%80%93exec.
     async fn fork_exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
-        tracing::warn!("Kernel is not forkable; executing in kernel itself");
+        // This will not normally get called because, unless it is overridden,
+        // `forkable` should be `false` for the kernel, and so no call will be scheduled.
+        tracing::warn!("Kernel is not forkable; executing in the kernel itself");
         self.exec(code).await
+    }
+
+    /// Interrupt the task currently being run by the kernel
+    async fn interrupt(&mut self) -> Result<()> {
+        // This will not normally get called because, unless it is overridden,
+        // `interruptable` should be `false` for the kernel, and so no call will be scheduled.
+        tracing::warn!("Kernel is not interruptable; task will continue");
+        Ok(())
     }
 }
 

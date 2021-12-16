@@ -46,13 +46,14 @@ pub struct MicroKernel {
     /// Used to be able to return a `Kernel` spec.
     languages: Vec<String>,
 
-    /// Operating systems that the kernel will run on
-    ///
-    /// Possible OS names can be found here https://doc.rust-lang.org/std/env/consts/constant.OS.html
-    oses: Vec<String>,
+    /// Is the kernel available on the current operating system?
+    available: bool,
 
-    /// The operating systems on which the kernel is forkable
-    forkable: Vec<String>,
+    /// Is the kernel interrupt-able on the current operating system?
+    interruptable: bool,
+
+    /// Is the kernel fork-able on the current operating system?
+    forkable: bool,
 
     /// A specification of the runtime executable needed for the kernel
     runtime: (String, String),
@@ -105,8 +106,9 @@ impl MicroKernel {
     pub fn new(
         name: &str,
         languages: &[&str],
-        oses: &[&str],
-        forkable: &[&str],
+        available: bool,
+        interruptable: bool,
+        forkable: bool,
         runtime: (&str, &str),
         args: &[&str],
         script: (&str, &str),
@@ -117,8 +119,9 @@ impl MicroKernel {
         Self {
             name: name.into(),
             languages: languages.iter().map(|lang| lang.to_string()).collect(),
-            oses: oses.iter().map(|os| os.to_string()).collect(),
-            forkable: forkable.iter().map(|os| os.to_string()).collect(),
+            available,
+            interruptable,
+            forkable,
             runtime: (runtime.0.into(), runtime.1.into()),
             args: args.iter().map(|arg| arg.to_string()).collect(),
             script: (script.0.to_string(), script.1.to_string()),
@@ -145,6 +148,34 @@ macro_rules! include_file {
     };
 }
 
+/// An interrupter for a Microkernel
+///
+/// A `MicroKernelInterrupter` can be created once a kernel has started and used to interrupt
+/// it asynchronously while it is executing.
+pub struct MicroKernelInterrupter {
+    // This process id of the microkernel
+    pid: u32,
+}
+
+impl MicroKernelInterrupter {
+    pub fn new(microkernel: &MicroKernel) -> Result<Self> {
+        match microkernel.child.as_ref().and_then(|child| child.id()) {
+            Some(pid) => Ok(Self { pid }),
+            None => bail!("Microkernel has no process id; has it been started?"),
+        }
+    }
+
+    pub fn interrupt(&self) {
+        #[cfg(not(target_os = "windows"))]
+        {
+            use nix::sys::signal::{self, Signal};
+            use nix::unistd::Pid;
+
+            signal::kill(Pid::from_raw(self.pid as i32), Signal::SIGINT).unwrap()
+        }
+    }
+}
+
 #[async_trait]
 impl KernelTrait for MicroKernel {
     /// Get the [`Kernel`] specification
@@ -161,16 +192,24 @@ impl KernelTrait for MicroKernel {
     /// Returns `true` if the operating system is listed in `oses` and
     /// a runtime matching the semver requirements in `runtime` is found to be installed.
     async fn available(&self) -> bool {
-        if !self.oses.contains(&std::env::consts::OS.to_string()) {
+        if !self.available {
             return false;
         }
         let (name, semver) = &self.runtime;
         binaries::installed(name, semver).await
     }
 
+    /// Is the kernel interruptable on the current machine?
+    ///
+    /// Although the microkernel itself may handle interrupts across operating systems,
+    /// here we only support if for *nix. So return false, if on Windows
+    async fn interruptable(&self) -> bool {
+        self.interruptable && cfg!(not(target_os = "windows"))
+    }
+
     /// Is the kernel forkable on the current machine?
     async fn forkable(&self) -> bool {
-        self.forkable.contains(&std::env::consts::OS.to_string())
+        self.forkable
     }
 
     /// Start the kernel
@@ -422,6 +461,16 @@ impl KernelTrait for MicroKernel {
         let mut stdout = BufReader::new(stdout);
         let mut stderr = BufReader::new(stderr);
         receive_results(&mut stdout, &mut stderr).await
+    }
+
+    /// Interrupt the task currently being run by the kernel
+    async fn interrupt(&mut self) -> Result<()> {
+        if !self.interruptable().await {
+            tracing::warn!("Kernel `{}` is not interruptable", self.name);
+        } else {
+            MicroKernelInterrupter::new(self)?.interrupt()
+        }
+        Ok(())
     }
 }
 

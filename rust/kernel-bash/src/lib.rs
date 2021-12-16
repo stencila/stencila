@@ -8,8 +8,9 @@ pub fn new() -> MicroKernel {
     MicroKernel::new(
         "bash-micro",
         &["bash"],
-        &["linux", "macos", "windows"],
-        &[],
+        true,
+        false,
+        false,
         ("bash", "*"),
         &["{{script}}"],
         include_file!("bash-kernel.sh"),

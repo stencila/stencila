@@ -5,8 +5,9 @@ pub fn new() -> MicroKernel {
     MicroKernel::new(
         "python-micro",
         &["python"],
-        &["linux", "macos", "windows"],
-        &["linux", "macos"],
+        true,
+        true,
+        cfg!(any(target_os = "linux", target_os = "macos")),
         ("python3", "*"),
         &["{{script}}"],
         include_file!("python_kernel.py"),
@@ -24,6 +25,7 @@ mod tests {
         stencila_schema::Node,
         KernelTrait,
     };
+    use kernel_micro::MicroKernelInterrupter;
     use test_utils::{assert_json_eq, assert_json_is, skip_ci_os};
 
     async fn skip_or_kernel() -> Result<MicroKernel> {
@@ -95,6 +97,54 @@ mod tests {
         let (outputs, messages) = kernel.exec("a*b").await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [6]);
+
+        Ok(())
+    }
+
+    /// Test interrupting a task
+    #[tokio::test]
+    async fn interrupt() -> Result<()> {
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => {
+                if kernel.interruptable().await {
+                    kernel
+                } else {
+                    eprintln!("Not interruptable on this OS");
+                    return Ok(());
+                }
+            }
+            Err(..) => return Ok(()),
+        };
+
+        // Get an "interrupter" so that we can interrupt without doing a double mutable borrow
+        let interrupter = MicroKernelInterrupter::new(&kernel)?;
+
+        let task = tokio::task::spawn(async move {
+            // Start a long running task in the kernel that should get interrupted in the parent function
+            let (outputs, messages) = kernel
+                .exec("import time\nstarted = True\ntime.sleep(10)\nfinished = True")
+                .await
+                .unwrap();
+            assert_json_is!(messages[0].error_type, "CodeInterrupt");
+            assert_json_is!(outputs, []);
+
+            // Check that was started but not finished
+            let (outputs, messages) = kernel
+                .exec("[started, 'finished' in locals()]")
+                .await
+                .unwrap();
+            assert_json_is!(messages, []);
+            assert_json_is!(outputs, [[true, false]]);
+        });
+
+        // Sleep a little to allow the task to start
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+
+        // Interrupt the task and await the results
+        interrupter.interrupt();
+
+        // Wait for test results
+        task.await?;
 
         Ok(())
     }

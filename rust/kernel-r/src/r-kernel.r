@@ -53,6 +53,7 @@ message <- function(msg, type) write(paste0(encode_message(msg, type), RESULT), 
 info <- function(msg) message(msg, "CodeInfo")
 warning <- function(msg) message(msg, "CodeWarning")
 error <- function(error, type = "RuntimeError") message(error$message, type)
+interrupt <- function(condition, type = "CodeInterrupt") message("Code execution was interrupted", type)
 
 # Environment in which code will be executed
 envir <- new.env()
@@ -111,7 +112,13 @@ while (!is.null(stdin)) {
     # Recording must be enabled for recordPlot() to work
     dev.control("enable")
 
-    value <- tryCatch(eval(compiled, envir, .GlobalEnv), message=info, warning=warning, error=error)
+    value <- tryCatch(
+      eval(compiled, envir, .GlobalEnv),
+      message=info,
+      warning=warning,
+      error=error,
+      interrupt=interrupt
+    )
     
     if (!withVisible(value)$visible) {
       value <- NULL
