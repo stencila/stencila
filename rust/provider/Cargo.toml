@@ -1,5 +1,6 @@
 [package]
 name = "provider"
+description = "A trait and specification for third-party providers of data"
 version = "0.0.0"
 edition = "2021"
 
