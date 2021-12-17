@@ -87,15 +87,11 @@ export class AppProjectRoot {
                 maxSizes={[0.5, 1]}
                 d="horizontal"
               >
-                <div slot="0">
-                  <app-project-sidebar-files></app-project-sidebar-files>
-                </div>
+                <app-project-sidebar-files slot="0"></app-project-sidebar-files>
 
-                <div slot="1">
-                  <main>
-                    <app-document-pane paneId={rootPaneId}></app-document-pane>
-                  </main>
-                </div>
+                <main slot="1">
+                  <app-document-pane paneId={rootPaneId}></app-document-pane>
+                </main>
               </split-me>
             )}
           ></Route>
