@@ -146,6 +146,10 @@ jobs:
           make -C desktop lint
           make -C desktop test
           npm run ui:build --prefix desktop
+        env:
+          # Increase maximum for non-garbage collected memory to 6Gb
+          NODE_OPTIONS: --max_old_space_size=6144
+          TSESTREE_SINGLE_RUN: true
         condition: |
           or(
             contains(variables.changed, 'rust'),

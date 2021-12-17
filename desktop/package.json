@@ -44,6 +44,7 @@
     "@rollup/plugin-replace": "3.0.0",
     "@stencil/core": "2.12.0",
     "@stencil/postcss": "2.1.0",
+    "@stencila/dev-config": "3.0.3",
     "@stencila/eslint-config-stencil": "2.0.4",
     "@types/debounce": "1.2.1",
     "@types/electron-devtools-installer": "2.2.0",
@@ -110,5 +111,6 @@
       "es6": true,
       "node": true
     }
-  }
+  },
+  "prettier": "@stencila/dev-config/prettier-config.json"
 }
