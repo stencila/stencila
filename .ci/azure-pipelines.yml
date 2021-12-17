@@ -143,6 +143,7 @@ jobs:
       - script: |
           set -e
           make -C node build-debug build-ts
+          make -C desktop lint
           make -C desktop test
           npm run ui:build --prefix desktop
         condition: |
