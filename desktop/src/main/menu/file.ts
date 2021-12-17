@@ -10,7 +10,9 @@ export const baseFileMenu: MenuItemConstructorOptions = {
       label: 'Open…',
       accelerator: 'CommandOrControl+o',
       click: () => {
-        openProject()
+        openProject().catch((err) => {
+          console.error('Could not open project\n', err)
+        })
       },
     },
     { type: 'separator' },

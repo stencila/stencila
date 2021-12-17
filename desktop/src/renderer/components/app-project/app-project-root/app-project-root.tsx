@@ -10,6 +10,7 @@ import {
 import { fetchProject } from '../../../store/project/projectActions'
 import { getProjectMainFilePath } from '../../../store/project/projectSelectors'
 import { SessionsStoreKeys, sessionStore } from '../../../store/sessionStore'
+import { showAndCaptureError } from '../../../utils/errors'
 import { ProjectRouter } from '../projectRouter'
 import {
   listenForFileEvents,
@@ -48,8 +49,10 @@ export class AppProjectRoot {
     listenForProjectServerEvents()
 
     const mainFile = getProjectMainFilePath(state)
-    if (mainFile) {
-      openDocumentInActivePane(mainFile)()
+    if (mainFile !== undefined) {
+      openDocumentInActivePane(mainFile)().catch((err) =>
+        showAndCaptureError(err)
+      )
     }
   }
 
@@ -84,15 +87,11 @@ export class AppProjectRoot {
                 maxSizes={[0.5, 1]}
                 d="horizontal"
               >
-                <div slot="0">
-                  <app-project-sidebar-files></app-project-sidebar-files>
-                </div>
+                <app-project-sidebar-files slot="0"></app-project-sidebar-files>
 
-                <div slot="1">
-                  <main>
-                    <app-document-pane paneId={rootPaneId}></app-document-pane>
-                  </main>
-                </div>
+                <main slot="1">
+                  <app-document-pane paneId={rootPaneId}></app-document-pane>
+                </main>
               </split-me>
             )}
           ></Route>

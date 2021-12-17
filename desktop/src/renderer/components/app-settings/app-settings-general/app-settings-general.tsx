@@ -3,6 +3,7 @@ import { i18n } from '../../../../i18n'
 import { GlobalConfigKeys } from '../../../../preload/stores'
 import { CombinedConfig, ConfigPaths } from '../../../../preload/types'
 import { client } from '../../../client'
+import { showAndCaptureError } from '../../../utils/errors'
 
 @Component({
   tag: 'app-settings-general',
@@ -17,7 +18,9 @@ export class AppSettingsGeneral {
     const target = e.target as HTMLInputElement
     const value = target.checked ?? target.value
 
-    client.config.set({ key, value: value.toString() })
+    client.config
+      .set({ key, value: value.toString() })
+      .catch((err) => showAndCaptureError(err))
   }
 
   async componentWillLoad() {
@@ -41,6 +44,7 @@ export class AppSettingsGeneral {
               defaultChecked={
                 this.config.global.telemetry?.desktop?.error_reports ?? false
               }
+              // @ts-expect-error
               onChange={this.updateSetting(GlobalConfigKeys.REPORT_ERRORS)}
             />
 

@@ -1,5 +1,6 @@
 import { dialog, OpenDialogOptions } from 'electron'
 import { CHANNEL } from '../../preload/channels'
+import { captureError } from '../../preload/errors'
 import { onUiLoaded } from '../window/windowUtils'
 import { openProjectWindow } from './window'
 
@@ -7,7 +8,9 @@ import { openProjectWindow } from './window'
  * Open native system file browser from which user can navigate to directory they want
  * to open as a project.
  */
-export const openProject = async (options: Partial<OpenDialogOptions> = {}) => {
+export const openProject = async (
+  options: Partial<OpenDialogOptions> = {}
+): Promise<Electron.CrossProcessExports.BrowserWindow | undefined> => {
   const { filePaths } = await dialog.showOpenDialog({
     properties: ['openDirectory', 'createDirectory'],
     ...options,
@@ -26,13 +29,17 @@ export const openProject = async (options: Partial<OpenDialogOptions> = {}) => {
  * TODO: Have custom dialogue window allowing advanced features such as selecting a project template,
  * bootstrapping a project based on GitHub repo or other file sources.
  */
-export const newProject = async () => {
-  openProject().then((win) => {
-    const createDoc = () => {
-      win?.webContents.send(CHANNEL.DOCUMENTS_CREATE)
-      win?.webContents.removeListener('ipc-message', createDoc)
-    }
+export const newProject = async (): Promise<void> => {
+  openProject()
+    .then((win) => {
+      const createDoc = (): void => {
+        win?.webContents.send(CHANNEL.DOCUMENTS_CREATE)
+        win?.webContents.removeListener('ipc-message', createDoc)
+      }
 
-    onUiLoaded(win?.webContents)(createDoc)
-  })
+      onUiLoaded(win?.webContents)(createDoc)
+    })
+    .catch((err) => {
+      captureError(err)
+    })
 }

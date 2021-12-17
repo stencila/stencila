@@ -1,5 +1,5 @@
 :host {
-  @apply inline-block list-none h-full border border-solid border-t-0 border-l-0 border-b border-r text-xs text-center pl-1 pr-4 py-2 leading-none flex-1 flex-grow-0 border z-10;
+  @apply inline-block list-none h-full border border-solid border-t-0 border-l-0 border-b border-r text-xs text-center leading-none flex-1 flex-grow-0 border z-10;
   background: var(--color-neutral-50);
   color: var(--color-key);
   border-color: var(--color-neutral-200);
@@ -20,21 +20,23 @@
       background: var(--color-neutral-100);
     }
 
-    stencila-icon.closeTabIcon {
+    .closeTabIcon {
       @apply opacity-100;
     }
   }
 
   li {
-    @apply flex list-none align-middle flex-row flex-nowrap items-center;
+    @apply list-none;
+  }
+
+  button {
+    @apply text-current text-xs whitespace-nowrap border-0 bg-transparent flex align-middle flex-row flex-nowrap items-center  pl-1 pr-11 py-2;
   }
 
   &.userOS-Linux,
   &.userOS-Windows_NT {
-    @apply pr-1 pl-4;
-
-    li {
-      @apply flex-row-reverse;
+    button {
+      @apply flex-row-reverse pr-1 pl-11;
     }
   }
 
@@ -45,12 +47,12 @@
 }
 
 stencila-icon.documentStatusIcon {
-  --height: .85em;
-  --width: .85em;
+  --height: 0.85em;
+  --width: 0.85em;
   @apply mr-2 text-sm opacity-0;
 }
 
-stencila-icon.closeTabIcon {
+.closeTabIcon {
   @apply opacity-0 rounded-sm mr-1;
 
   &:hover,

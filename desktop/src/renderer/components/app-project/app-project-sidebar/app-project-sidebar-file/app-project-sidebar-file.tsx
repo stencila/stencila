@@ -5,7 +5,7 @@ import { File } from 'stencila'
 import { state } from '../../../../store'
 import { openDocumentInActivePane } from '../../../../store/documentPane/documentPaneActions'
 import { selectProjectFile } from '../../../../store/project/projectSelectors'
-import { errorToast } from '../../../../utils/errors'
+import { errorToast, showAndCaptureError } from '../../../../utils/errors'
 import { getFileIcon } from './iconMap'
 
 @Component({
@@ -18,7 +18,7 @@ export class AppProjectSidebarFile {
   filePath: string
 
   @Prop()
-  isMain: boolean = false
+  isMain = false
 
   @State()
   isCollapsed = true
@@ -31,7 +31,13 @@ export class AppProjectSidebarFile {
     if (this.file?.children) {
       this.isCollapsed = !this.isCollapsed
     } else {
-      pipe(this.filePath, openDocumentInActivePane, TE.mapLeft(errorToast))()
+      pipe(
+        this.filePath,
+        openDocumentInActivePane,
+        TE.mapLeft(errorToast)
+      )().catch((err) => {
+        showAndCaptureError(err)
+      })
     }
   }
 
@@ -49,8 +55,7 @@ export class AppProjectSidebarFile {
     return (
       <Host>
         <li>
-          <a
-            href="#"
+          <button
             class={{
               isDir,
               isFile: !isDir,
@@ -63,7 +68,7 @@ export class AppProjectSidebarFile {
               iconStyle="fill"
             ></stencila-icon>
             <span>{file?.name}</span>
-          </a>
+          </button>
           {!this.isCollapsed && file?.children && (
             <ul>
               {file.children.map((filePath) => (

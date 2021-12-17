@@ -6,11 +6,13 @@ import { openLauncherWindow } from './main/launcher/window'
 import * as localProtocol from './main/local-protocol'
 import { openOnboardingWindow } from './main/onboarding/window'
 import { isFirstLaunch, setFirstLaunchState } from './main/utils/firstLaunch'
+import { captureError } from './preload/errors'
 import { isDevelopment } from './preload/utils/env'
 
 prepare()
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
+// eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 if (require('electron-squirrel-startup')) {
   app.quit()
 }
@@ -52,16 +54,23 @@ protocol.registerSchemesAsPrivileged([
 ])
 
 if (isDevelopment) {
-  app.whenReady().then(() => {
-    installExtension(REDUX_DEVTOOLS, {
-      loadExtensionOptions: { allowFileAccess: true },
-      forceDownload: false,
+  app
+    .whenReady()
+    .then(() => {
+      // @ts-ignore
+      installExtension(REDUX_DEVTOOLS, {
+        // @ts-ignore
+        loadExtensionOptions: { allowFileAccess: true },
+        forceDownload: false,
+      })
+        .then((name: string) => console.log(`Added Extension: ${name}`))
+        .catch((err: unknown) =>
+          console.log('Failed to install dev tools extension: ', err)
+        )
     })
-      .then((name: string) => console.log(`Added Extension: ${name}`))
-      .catch((err: unknown) =>
-        console.log('Failed to install dev tools extension: ', err)
-      )
-  })
+    .catch((err) => {
+      captureError(err)
+    })
 }
 
 // This method will be called when Electron has finished

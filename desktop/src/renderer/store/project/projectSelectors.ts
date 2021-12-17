@@ -1,15 +1,16 @@
 import { EntityId } from '@reduxjs/toolkit'
-import { RootState, state } from '..'
 import { option as O } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 import { Project } from 'stencila'
+import { RootState, state } from '..'
 import { client } from '../../client'
+import { showAndCaptureError } from '../../utils/errors'
 import { SessionsStoreKeys, sessionStore } from '../sessionStore'
 import { denormalizeProject } from './entities'
 
 export const selectProject = (state: RootState) => {
   const id = state.projects.ids[0]
-  if (id) {
+  if (id !== undefined) {
     return state.projects.entities.projects[id]?.path
   }
 }
@@ -19,14 +20,14 @@ export const selectProjectByPath = (state: RootState) => (path: string) =>
 
 export const selectProjectPath = (state: RootState) => {
   const id = state.projects.ids[0]
-  if (id) {
+  if (id !== undefined) {
     return state.projects.entities.projects[id]?.path
   }
 }
 
 export const selectProjectFiles = (state: RootState) => {
   const rootPath = selectProjectPath(state)
-  if (rootPath) {
+  if (rootPath !== undefined) {
     const project = state.projects.entities.projects[rootPath]
     return project?.files
   }
@@ -34,12 +35,12 @@ export const selectProjectFiles = (state: RootState) => {
 
 export const selectProjectFile = (state: RootState) => (docId: EntityId) => {
   const files = state.projects.entities.files
-  return files ? files[docId] : undefined
+  return files[docId]
 }
 
 export const selectProjectRootFiles = (state: RootState) => {
   const rootPath = selectProjectPath(state)
-  if (rootPath) {
+  if (rootPath !== undefined) {
     const projectFiles = selectProjectFile(state)(rootPath)
 
     if (projectFiles) {
@@ -66,10 +67,14 @@ export const updateProjectSettings = (settings: Partial<Project>) => {
     sessionStore.get(SessionsStoreKeys.PROJECT_PATH),
     O.chain(selectProjectByPath(state)),
     O.map((project) => {
-      client.projects.write(project.path, {
-        ...denormalizeProject(project),
-        ...settings,
-      })
+      client.projects
+        .write(project.path, {
+          ...denormalizeProject(project),
+          ...settings,
+        })
+        .catch((err) => {
+          showAndCaptureError(err)
+        })
     })
   )
 }

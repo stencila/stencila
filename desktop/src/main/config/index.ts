@@ -11,10 +11,10 @@ import {
   PluginsUninstall,
   PluginsUpgrade,
 } from '../../preload/types'
-import { getConfig, setConfig } from './handlers'
 import { makeHandlers, removeChannelHandlers } from '../utils/handler'
 import { handle, valueToSuccessResult } from '../utils/ipc'
 import { CONFIG_CHANNEL } from './channels'
+import { getConfig, setConfig } from './handlers'
 import { showSettings } from './window'
 
 const getPlugins = (): Result<NormalizedPlugins> => {
@@ -31,7 +31,7 @@ const getPlugins = (): Result<NormalizedPlugins> => {
   )
 }
 
-const registerConfigHandlers = () => {
+const registerConfigHandlers = (): void => {
   handle<ConfigWindowOpen>(CHANNEL.CONFIG_WINDOW_OPEN, async () => {
     showSettings()
     return valueToSuccessResult()
@@ -73,7 +73,7 @@ const registerConfigHandlers = () => {
   )
 }
 
-const removeConfigHandlers = () => {
+const removeConfigHandlers = (): void => {
   removeChannelHandlers(CONFIG_CHANNEL)
 }
 

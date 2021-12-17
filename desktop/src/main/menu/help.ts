@@ -8,16 +8,16 @@ export const baseHelpMenu: MenuItemConstructorOptions = {
   submenu: [
     {
       label: isMac ? 'Stencila Help' : 'Help Center',
-      click: async () => {
-        const { shell } = require('electron')
+      click: async (): Promise<void> => {
+        const { shell } = await import('electron')
         await shell.openExternal('http://help.stenci.la')
       },
     },
     { type: 'separator' },
     {
       label: 'Report an Issue…',
-      click: async () => {
-        const { shell } = require('electron')
+      click: async (): Promise<void> => {
+        const { shell } = await import('electron')
         await shell.openExternal(
           'https://github.com/stencila/stencila/issues/new'
         )
@@ -25,8 +25,8 @@ export const baseHelpMenu: MenuItemConstructorOptions = {
     },
     {
       label: 'Request a Feature…',
-      click: async () => {
-        const { shell } = require('electron')
+      click: async (): Promise<void> => {
+        const { shell } = await import('electron')
         await shell.openExternal(
           'https://github.com/stencila/stencila/discussions/new'
         )
@@ -50,15 +50,15 @@ export const baseHelpMenu: MenuItemConstructorOptions = {
     { type: 'separator' },
     {
       label: 'Stencila Hub',
-      click: async () => {
-        const { shell } = require('electron')
+      click: async (): Promise<void> => {
+        const { shell } = await import('electron')
         await shell.openExternal('https://hub.stenci.la')
       },
     },
     {
       label: 'Stencila Homepage',
-      click: async () => {
-        const { shell } = require('electron')
+      click: async (): Promise<void> => {
+        const { shell } = await import('electron')
         await shell.openExternal('https://stenci.la')
       },
     },

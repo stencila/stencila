@@ -57,7 +57,7 @@ const renderer = (schema: ConfigSchema, key?: string, level = 2) => {
   ]
 }
 
-export const build = (schema: ConfigSchema, level = 2): VNode | VNode[] => {
+export function build(schema: ConfigSchema, level = 2): VNode | VNode[] {
   if (typeof schema === 'boolean') return []
 
   if (schema.type === 'object' && !schema.properties) {
@@ -70,7 +70,7 @@ export const build = (schema: ConfigSchema, level = 2): VNode | VNode[] => {
         typeof subSchema !== 'boolean' && subSchema.allOf
           ? [
               subSchema.allOf.map((s) => renderer(s, capitalize(prop), level)),
-              subSchema.description && (
+              subSchema.description !== undefined && (
                 <p class="helpText">{subSchema.description}</p>
               ),
             ]

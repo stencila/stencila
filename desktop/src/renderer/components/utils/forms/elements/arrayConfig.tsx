@@ -15,11 +15,16 @@ export const arrayInput: FormElement<ArrayConfig> = (
 ) => {
   const items = schema.items
 
-  if (!items || typeof items === 'boolean' || Array.isArray(items)) return []
+  if (items === undefined || typeof items === 'boolean' || Array.isArray(items))
+    return []
 
   return [
-    schema.description && <p class="helpText">{schema.description}</p>,
+    schema.description !== undefined && (
+      <p class="helpText">{schema.description}</p>
+    ),
     <textarea onChange={onChangeHandler}>{items.enum?.join('\n')}</textarea>,
-    items.description && <p class="helpText">{items.description}</p>,
+    items.description !== undefined && (
+      <p class="helpText">{items.description}</p>
+    ),
   ]
 }

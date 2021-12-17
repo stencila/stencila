@@ -35,10 +35,14 @@ const mimeTypes = {
   '.map': 'text/plain',
 }
 
-function mime(filename: string): string {
-  // @ts-ignore
-  const type = mimeTypes[path.extname(`${filename || ''}`).toLowerCase()]
-  return type ? type : null
+const mimeTypeGuard = (ext: string): ext is keyof typeof mimeTypes => {
+  return Object.keys(mimeTypes).includes(ext)
+}
+
+const mime = (filename?: string): string | null => {
+  const ext = path.extname(`${filename ?? ''}`).toLowerCase()
+  const isMimeType = mimeTypeGuard(ext)
+  return isMimeType ? mimeTypes[ext] : null
 }
 
 type RequestHandler = Parameters<Protocol['registerBufferProtocol']>['1']

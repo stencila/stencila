@@ -40,7 +40,7 @@ const cycleLayout = (view?: Document, layout?: PaneLayout) => (e: Event) => {
 }
 
 const hasNextLayout = (view: Document): boolean => {
-  return isPreviewable(view) && isEditable(view) ? true : false
+  return !!(isPreviewable(view) && isEditable(view))
 }
 
 interface Props {

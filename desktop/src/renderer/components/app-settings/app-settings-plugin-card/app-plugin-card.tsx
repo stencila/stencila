@@ -2,6 +2,7 @@ import { Component, h, Prop, State } from '@stencil/core'
 import { Plugin } from 'stencila'
 import { i18n } from '../../../../i18n'
 import { client } from '../../../client'
+import { showAndCaptureError } from '../../../utils/errors'
 import { capitalize } from '../../utils/stringUtils'
 import {
   getAvailablePlugins,
@@ -14,6 +15,9 @@ import {
   scoped: true,
 })
 export class AppSettingsPluginCard {
+  /**
+   * Name of the plugin to render. Used to query to CLI for the plugin details.
+   */
   @Prop() pluginName: string
 
   @State() plugin?: Plugin
@@ -21,7 +25,9 @@ export class AppSettingsPluginCard {
   @State() inProgress: boolean
 
   componentWillLoad() {
-    this.refreshPluginState()
+    this.refreshPluginState().catch((err) => {
+      showAndCaptureError(err)
+    })
   }
 
   private refreshPluginState = () =>
@@ -29,22 +35,22 @@ export class AppSettingsPluginCard {
       this.plugin = pluginStore.plugins.entities[this.pluginName]
     })
 
-  private install = (name: string) => {
+  private install = () => {
     this.inProgress = true
 
     client.plugins
-      .install(name)
+      .install(this.pluginName)
       .then(this.refreshPluginState)
       .finally(() => {
         this.inProgress = false
       })
   }
 
-  private uninstall = (name: string) => {
+  private uninstall = () => {
     this.inProgress = true
 
     client.plugins
-      .uninstall(name)
+      .uninstall(this.pluginName)
       .then(this.refreshPluginState)
       .finally(() => {
         this.inProgress = false
@@ -64,13 +70,13 @@ export class AppSettingsPluginCard {
       )
     }
 
-    if (this.plugin?.installation) {
+    if (this.plugin?.installation !== undefined) {
       return (
         <stencila-button
           isLoading={this.inProgress}
           color="neutral"
           icon="delete-bin-2"
-          onClick={() => this.uninstall(this.pluginName)}
+          onClick={this.uninstall}
           size="small"
         >
           {i18n.t('settings.plugins.uninstall')}
@@ -83,7 +89,7 @@ export class AppSettingsPluginCard {
         isLoading={this.inProgress}
         color="primary"
         icon="download"
-        onClick={() => this.install(this.pluginName)}
+        onClick={this.install}
         size="small"
       >
         {i18n.t('settings.plugins.install')}
@@ -97,7 +103,7 @@ export class AppSettingsPluginCard {
         <div class="title">
           <span>
             <h2>{capitalize(this.plugin?.alias ?? this.pluginName)}</h2>
-            {this.plugin?.softwareVersion && (
+            {this.plugin?.softwareVersion !== undefined && (
               <span class="meta">v{this.plugin.softwareVersion}</span>
             )}
           </span>

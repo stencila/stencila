@@ -6,6 +6,7 @@ import {
   updateDocument,
 } from '../store/documentPane/documentPaneActions'
 import { isTemporaryDocument } from '../store/documentPane/documentPaneSelectors'
+import { showAndCaptureError } from '../utils/errors'
 
 export const alterDocument = async (
   docId: EntityId,
@@ -36,6 +37,9 @@ export const saveDocument = async (
         format,
       })
       .then(() => updateDocument({ ...doc, status: 'synced' }))
+      .catch((err) => {
+        showAndCaptureError(err)
+      })
   } else {
     client.documents
       .write({
@@ -44,5 +48,8 @@ export const saveDocument = async (
         format,
       })
       .then(() => patchDocument({ id: docId, status: 'synced' }))
+      .catch((err) => {
+        showAndCaptureError(err)
+      })
   }
 }

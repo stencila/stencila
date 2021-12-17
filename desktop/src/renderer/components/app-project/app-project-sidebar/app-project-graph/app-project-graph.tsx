@@ -1,6 +1,7 @@
 import { Component, h, Host, Prop, State } from '@stencil/core'
 import { Graph, GraphEvent } from 'stencila'
 import { CHANNEL } from '../../../../../preload/channels'
+import { captureError } from '../../../../../preload/errors'
 import { client } from '../../../../client'
 import { errorToast } from '../../../../utils/errors'
 
@@ -26,7 +27,9 @@ export class AppProjectGraph {
 
   private unsubscribeFromUpdates = () => {
     window.api.removeAll(CHANNEL.PROJECTS_GRAPH)
-    client.projects.unsubscribe(this.projectPath, ['graph'])
+    client.projects
+      .unsubscribe(this.projectPath, ['graph'])
+      .catch((err) => captureError(err))
   }
 
   componentWillLoad() {
@@ -34,7 +37,7 @@ export class AppProjectGraph {
       this.subscribeToUpdates()
 
       try {
-        this.graph = JSON.parse(res.value)
+        this.graph = JSON.parse(res.value) as Graph
       } catch (err) {
         errorToast(err)
       }

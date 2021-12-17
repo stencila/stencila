@@ -6,7 +6,7 @@ const isTrustedOrigin = (url: string): boolean =>
 
 // Enable security best practices
 // @see: https://github.com/doyensec/electronegativity/wiki
-export const hardenWindow = (win: BrowserWindow) => {
+export const hardenWindow = (win: BrowserWindow): void => {
   // @see: https://github.com/doyensec/electronegativity/wiki/LIMIT_NAVIGATION_JS_CHECK
   win.webContents.on('new-window', (e, url) => {
     if (!isTrustedOrigin(url)) {
@@ -37,6 +37,7 @@ export const hardenWindow = (win: BrowserWindow) => {
         !isTrustedOrigin(webContents.getURL()) &&
         permission === 'openExternal'
       ) {
+        /* eslint-disable node/no-callback-literal */
         return callback(false)
       } else {
         return callback(true)

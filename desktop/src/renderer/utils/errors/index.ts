@@ -10,7 +10,7 @@ const toastController = Toast.toastController({
 })
 
 export const errorToast = (error: unknown) => {
-  let message: string = 'Something went wrong'
+  let message = 'Something went wrong'
 
   if (isRPCError(error)) {
     message = error.errors[0]?.message ?? error.message
@@ -23,6 +23,15 @@ export const errorToast = (error: unknown) => {
   toastController.present(message, {
     type: Toast.ToastTypes.danger,
   })
+}
+
+export const showAndCaptureError = (error: Error | PromiseRejectionEvent) => {
+  captureError(error)
+  if (error instanceof PromiseRejectionEvent) {
+    errorToast(error.reason)
+  } else {
+    errorToast(error.message)
+  }
 }
 
 export const showUnhandledErrors = () => {

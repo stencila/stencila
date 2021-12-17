@@ -1,5 +1,10 @@
 import { ipcMain } from 'electron'
 
+type HandlerFactory = {
+  register: (windowId: number | null) => void
+  remove: (windowId: number | null) => void
+}
+
 /**
  * A utility function for managing the registration and cleanup of IPC handler.
  * Attempting to register a handler on the same channel multiple times will throw an error.
@@ -9,7 +14,10 @@ import { ipcMain } from 'electron'
  * For global handlers that need to be present regardless of a window (e.g. global
  * keyboard shortcut listeners), you can pass `null` as the window id.
  */
-export const makeHandlers = (registerFn: () => void, removeFn: () => void) => {
+export const makeHandlers = (
+  registerFn: () => void,
+  removeFn: () => void
+): HandlerFactory => {
   const attachedWindows = new Set<number | null>()
 
   return {
@@ -30,8 +38,8 @@ export const makeHandlers = (registerFn: () => void, removeFn: () => void) => {
 
 export const removeChannelHandlers = (
   channelObject: Record<string, string>
-) => {
-  Object.keys(channelObject).map((channel) => {
+): void => {
+  Object.keys(channelObject).forEach((channel) => {
     ipcMain.removeHandler(channel)
   })
 }

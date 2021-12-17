@@ -2,6 +2,7 @@ import { parse } from 'path'
 import { dispatch, projects } from 'stencila'
 import { projectHandlers } from '.'
 import { CHANNEL } from '../../preload/channels'
+import { captureError } from '../../preload/errors'
 import { documentHandlers } from '../document'
 import { createWindow } from '../window'
 import { onUiLoaded } from '../window/windowUtils'
@@ -11,7 +12,9 @@ const getProjectName = (path: string): string => parse(path).base
 
 const projectUrl = '/project'
 
-export const openProjectWindow = (directoryPath: string) => {
+export const openProjectWindow = (
+  directoryPath: string
+): Electron.CrossProcessExports.BrowserWindow => {
   const projectWindow = createWindow(`${projectUrl}${directoryPath}`, {
     width: 800,
     height: 800,
@@ -46,7 +49,9 @@ export const openProjectWindow = (directoryPath: string) => {
     registerProjectMenu()
   })
 
-  projectWindow.loadURL(projectUrl)
+  projectWindow.loadURL(projectUrl).catch((err) => {
+    captureError(err)
+  })
 
   return projectWindow
 }

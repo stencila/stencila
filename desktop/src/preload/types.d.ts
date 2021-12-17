@@ -31,7 +31,7 @@ type PrevPath = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ...0[]]
 
 type ObjectPaths<T, D extends number = 10> = [D] extends [never]
   ? never
-  : T extends object
+  : T extends Record<string, unknown>
   ? {
       [K in keyof T]-?: K extends string | number
         ? `${K}` | JoinPaths<K, ObjectPaths<T[K], PrevPath[D]>>
@@ -51,8 +51,10 @@ export interface NormalizedPlugins {
   ids: string[]
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFunction = (...args: any) => any
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Resultify<F> = F extends Result<any> ? F : Result<F>
 
 /**

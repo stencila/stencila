@@ -7,7 +7,7 @@ import {
 } from '../../../../store/documentPane/documentPaneActions'
 import { sessionStore } from '../../../../store/sessionStore'
 import { userOSPathSeparator } from '../../../../utils/env'
-import { errorToast } from '../../../../utils/errors'
+import { errorToast, showAndCaptureError } from '../../../../utils/errors'
 import { ProjectRouter } from '../../projectRouter'
 
 /**
@@ -21,11 +21,15 @@ const openOrInitProjectSettings = (path: string) => {
     openDocumentInActivePane,
     TE.mapLeft((err) => {
       if (typeof err === 'string' && err.includes('No such file')) {
-        createNewDocument(configPath, 'json')
+        createNewDocument(configPath, 'json').catch((err) =>
+          showAndCaptureError(err)
+        )
       }
     }),
     TE.mapLeft(errorToast)
-  )()
+  )().catch((err) => {
+    showAndCaptureError(err)
+  })
 }
 
 @Component({
@@ -34,6 +38,25 @@ const openOrInitProjectSettings = (path: string) => {
   scoped: true,
 })
 export class AppProjectSidebarNav {
+  private pushToRoute = (route: string) => (e: MouseEvent) => {
+    e.preventDefault()
+    ProjectRouter.push(route).catch((err) => showAndCaptureError(err))
+  }
+
+  private openProjectSettings = (e: MouseEvent): void => {
+    e.preventDefault()
+    ProjectRouter.push('/project/')
+      .then(() => {
+        pipe(
+          sessionStore.get('PROJECT_PATH'),
+          O.map((projectPath) => {
+            openOrInitProjectSettings(projectPath)
+          })
+        )
+      })
+      .catch((err) => showAndCaptureError(err))
+  }
+
   render() {
     return (
       <Host>
@@ -44,10 +67,7 @@ export class AppProjectSidebarNav {
             color="stock"
             iconOnly={true}
             tooltip="Project Files"
-            onClick={(e) => {
-              e.preventDefault()
-              ProjectRouter.push('/project/')
-            }}
+            onClick={this.pushToRoute('/project/')}
           ></stencila-button>
 
           <stencila-button
@@ -56,10 +76,7 @@ export class AppProjectSidebarNav {
             color="stock"
             iconOnly={true}
             tooltip="Project Graph"
-            onClick={(e) => {
-              e.preventDefault()
-              ProjectRouter.push('/project/graph')
-            }}
+            onClick={this.pushToRoute('/project/graph')}
           ></stencila-button>
         </div>
 
@@ -70,17 +87,7 @@ export class AppProjectSidebarNav {
             color="stock"
             iconOnly={true}
             tooltip="Project Settings"
-            onClick={(e) => {
-              e.preventDefault()
-              ProjectRouter.push('/project/').then(() => {
-                pipe(
-                  sessionStore.get('PROJECT_PATH'),
-                  O.map((projectPath) => {
-                    openOrInitProjectSettings(projectPath)
-                  })
-                )
-              })
-            }}
+            onClick={this.openProjectSettings}
           ></stencila-button>
         </div>
       </Host>
