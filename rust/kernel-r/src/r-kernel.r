@@ -77,9 +77,13 @@ while (!is.null(stdin)) {
     # The `eval_safe` function of https://github.com/jeroen/unix provides an alternative 
     # implementation of fork-exec for R. We might use it in the future.
   
-    process <- parallel:::mcfork()
+    # The Rust process will kill the child so use `estranged` to avoid zombie processes
+    # (because this process still has an entry for the child)
+    process <- parallel:::mcfork(estranged = TRUE)
     if (!inherits(process, "masterProcess")) {
-      # Parent process so just go to the next line
+      # Parent process, so return the pid of the fork and then wait for the next task
+      write(paste0(process$pid, TASK), stdout)
+      write(TASK, stderr)
       next
     }
 

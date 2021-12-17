@@ -39,7 +39,13 @@ while True:
         if task.endswith(FORK):
             pid = os.fork()
             if pid > 0:
-                # Parent process so just go to the next line
+                # Parent process, so return the pid of the fork and
+                # then wait for the next task
+                stdout.write(str(pid) + RESULT)
+                stdout.write(TASK)
+                stdout.flush()
+                stderr.write(TASK)
+                stderr.flush()
                 continue
 
             # Child process, so...
