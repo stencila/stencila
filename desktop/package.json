@@ -73,7 +73,7 @@
     "typescript": "4.5.4"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "1.6.2",
+    "@reduxjs/toolkit": "1.7.1",
     "@sentry/electron": "2.5.4",
     "@stencil/router": "2.0.0-2",
     "@stencil/store": "1.5.0",
@@ -87,7 +87,7 @@
     "fp-ts": "2.11.5",
     "i18next": "21.6.2",
     "normalizr": "3.6.1",
-    "redux-thunk": "2.3.0",
+    "redux-thunk": "2.4.1",
     "split-me": "1.3.0",
     "stencila": "file:../node",
     "update-electron-app": "2.0.1",
