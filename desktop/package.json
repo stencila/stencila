@@ -64,7 +64,7 @@
     "node-loader": "2.0.0",
     "postcss": "8.4.5",
     "postcss-nested": "5.0.6",
-    "puppeteer": "11.0.0",
+    "puppeteer": "13.0.0",
     "rollup-plugin-dotenv": "0.3.0",
     "rollup-plugin-node-polyfills": "0.2.1",
     "style-loader": "3.3.1",
