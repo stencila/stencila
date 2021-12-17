@@ -55,8 +55,7 @@ export class AppProjectSidebarFile {
     return (
       <Host>
         <li>
-          <a
-            href="#"
+          <button
             class={{
               isDir,
               isFile: !isDir,
@@ -69,7 +68,7 @@ export class AppProjectSidebarFile {
               iconStyle="fill"
             ></stencila-icon>
             <span>{file?.name}</span>
-          </a>
+          </button>
           {!this.isCollapsed && file?.children && (
             <ul>
               {file.children.map((filePath) => (

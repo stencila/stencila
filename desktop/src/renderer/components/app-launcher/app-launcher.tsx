@@ -106,7 +106,7 @@ export class AppLauncher {
                 const projectName = projectDirName(projectPath)
                 return (
                   <li>
-                    <a
+                    <button
                       onClick={this.openProject(projectPath)}
                       class="recentProjectItem"
                     >
@@ -119,7 +119,7 @@ export class AppLauncher {
                           <h4 class="path">{projectPath}</h4>
                         )}
                       </div>
-                    </a>
+                    </button>
                   </li>
                 )
               })}

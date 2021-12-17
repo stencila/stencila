@@ -50,14 +50,10 @@ main {
 }
 
 .recentProjectItem {
-  &,
-  &:link,
-  &:visited {
-    @apply flex flex-row items-center px-2 text-sm whitespace-nowrap rounded no-underline leading-none max-w-full overflow-hidden overflow-ellipsis cursor-pointer;
-    color: var(--color-key);
-    padding-bottom: 0.375rem;
-    padding-top: 0.375rem;
-  }
+  @apply flex flex-row items-center px-2 text-sm text-left whitespace-nowrap rounded no-underline leading-none w-full max-w-full overflow-hidden overflow-ellipsis cursor-pointer border-0 bg-transparent;
+  color: var(--color-key);
+  padding-bottom: 0.375rem;
+  padding-top: 0.375rem;
 
   &:hover {
     background: var(--color-neutral-50);

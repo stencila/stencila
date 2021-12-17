@@ -46,20 +46,22 @@ export class AppDocumentPaneTab {
           [`userOS-${userOS ?? 'unknown'}`]: true,
           [doc?.status ?? '']: true,
         }}
-        onClick={this.activateDoc}
       >
         <li>
-          <stencila-icon
-            class="closeTabIcon"
-            icon="close"
-            onClick={this.closeDoc}
-          ></stencila-icon>
-          <stencila-icon
-            icon="pencil"
-            iconStyle="fill"
-            class="documentStatusIcon"
-          ></stencila-icon>
-          <a href="#">{doc?.name}</a>
+          <button onClick={this.activateDoc}>
+            <stencila-icon
+              class="closeTabIcon"
+              icon="close"
+              onClick={this.closeDoc}
+            ></stencila-icon>
+
+            <stencila-icon
+              icon="pencil"
+              iconStyle="fill"
+              class="documentStatusIcon"
+            ></stencila-icon>
+            {doc?.name}
+          </button>
         </li>
       </Host>
     )
