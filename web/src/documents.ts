@@ -340,7 +340,7 @@ async function onValidatorChange(
         [
           [
             // ...except for `default` which is actually a property of the parent parameter
-            ...(event.detail.name == 'default' ? [] : ['validator']),
+            ...(event.detail.name === 'default' ? [] : ['validator']),
             event.detail.name,
           ],
           event.detail.value,
