@@ -55,7 +55,7 @@
   },
   "homepage": "https://github.com/stencila/stencila#readme",
   "dependencies": {
-    "@elifesciences/pattern-library": "0.0.6",
+    "@elifesciences/pattern-library": "0.0.7",
     "@simonwep/pickr": "^1.8.2",
     "@stencila/components": "^0.41.7",
     "project-name-generator": "^2.1.9",
