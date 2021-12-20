@@ -6,6 +6,14 @@ macro_rules! some_string {
     };
 }
 
+/// Concisely create a `Some::<Box<String>>`
+#[macro_export]
+macro_rules! some_box_string {
+    ($x:literal) => {
+        Some(Box::new($x.to_string()))
+    };
+}
+
 /// Concisely create a `Vec<String>`
 #[macro_export]
 macro_rules! vec_string {
