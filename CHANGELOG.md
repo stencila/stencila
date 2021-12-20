@@ -1,3 +1,16 @@
+## [0.136.1](https://github.com/stencila/stencila/compare/v0.136.0...v0.136.1) (2021-12-20)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @codemirror/view to ^0.19.35 ([6121550](https://github.com/stencila/stencila/commit/6121550c5ac901e08e99aa5eb7b987a4f5e3dfcc))
+* **dependencies:** update dependency @elifesciences/pattern-library to v0.0.7 ([e7394a0](https://github.com/stencila/stencila/commit/e7394a0ea36d8c8b79da5394a3727cae3b0133d2))
+* **dependencies:** update dependency @stencila/brand to v0.7.20 ([5636191](https://github.com/stencila/stencila/commit/56361916a51977e026c428c4de171e12952c1e9b))
+* **dependencies:** update dependency i18next to v21.6.2 ([7f8a567](https://github.com/stencila/stencila/commit/7f8a567b63e71f630eef645d5d754c43825c1527))
+* **dependencies:** update dependency i18next to v21.6.3 ([e9749b9](https://github.com/stencila/stencila/commit/e9749b94ee3c778920743e060ae2d0b321f0a0b7))
+* **Dependencies:** Upgrade `futures` ([b04eb02](https://github.com/stencila/stencila/commit/b04eb023735458beb8e351d944f0ca5adca11818))
+* **Desktop:** Fix bug preventing scrolling within project file list ([8b0ab01](https://github.com/stencila/stencila/commit/8b0ab01a13e00bbccad83dbcecc6322d0f8a6418))
+
 # [0.136.0](https://github.com/stencila/stencila/compare/v0.135.0...v0.136.0) (2021-12-14)
 
 
