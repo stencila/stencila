@@ -75,7 +75,7 @@ while (!is.null(stdin)) {
 
   lines <- strsplit(task, "\\n", fixed = TRUE)[[1]]
 
-  if (tail(lines, 1) == FORK) {
+  if (lines[1] == FORK) {
     # The `eval_safe` function of https://github.com/jeroen/unix provides an alternative 
     # implementation of fork-exec for R. We might use it in the future.
   
@@ -91,10 +91,10 @@ while (!is.null(stdin)) {
 
     # Child process, so...
 
-    # Pop off flag and paths of FIFO pipes to replace stdout and stderr
-    new_stdout <- lines[length(lines) - 2]
-    new_stderr <- lines[length(lines) - 1]
-    lines <- head(lines, -3)
+    # Remove the FORK flag and the pipe paths from the front of lines
+    new_stdout <- lines[2]
+    new_stderr <- lines[3]
+    lines <- tail(lines, -3)
 
     # Set stdin to /dev/null to end loop
     stdin <- NULL

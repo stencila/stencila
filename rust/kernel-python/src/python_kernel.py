@@ -10,7 +10,7 @@ from python_codec import decode_value, encode_exception, encode_message, encode_
 READY = u"\U0010ACDC\n"
 RESULT = u"\U0010CB40\n"
 TASK = u"\U0010ABBA\n"
-FORK = u"\U0010DE70\n"
+FORK = u"\U0010DE70"
 
 
 # Monkey patch `print` to encode individual objects (if no options used)
@@ -37,7 +37,7 @@ while True:
         task = stdin.readline()
         lines = task.split("\\n")
 
-        if lines[-1] == FORK:
+        if lines[0] == FORK:
             pid = os.fork()
             if pid > 0:
                 # Parent process, so return the pid of the fork and
@@ -51,10 +51,9 @@ while True:
 
             # Child process, so...
 
-            # Pop off flag and paths of FIFO pipes to replace stdout and stderr
-            lines.pop()
-            new_stderr = lines.pop()
-            new_stdout = lines.pop()
+            # Remove the FORK flag and the pipe paths from the front of lines
+            (new_stdout, new_stderr) = lines[1:3]
+            lines = lines[3:]
 
             # Close file descriptors so that we're not interfeering with
             # parent's file descriptors and so stdin, stdout and stderr get replaced below.

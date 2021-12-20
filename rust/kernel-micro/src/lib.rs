@@ -591,10 +591,10 @@ impl MicroKernel {
 
         // Send code and pipes to the kernel
         let task = &[
-            code,
+            FORK,
             &fork_stdout.display().to_string(),
             &fork_stderr.display().to_string(),
-            FORK,
+            code,
         ];
         if let Err(error) = self.send_task(task).await {
             self.status = KernelStatus::Failed;
