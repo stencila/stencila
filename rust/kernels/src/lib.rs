@@ -8,7 +8,7 @@ use kernel::{
     stencila_schema::{CodeError, Node},
     Kernel, KernelId, KernelInfo, KernelStatus, KernelTrait,
 };
-use kernel::{KernelInterrupter, TaskId, TaskMessages, TaskOutputs};
+use kernel::{TaskId, TaskMessages, TaskOutputs};
 use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, BTreeMap, HashMap, HashSet},
@@ -166,10 +166,6 @@ impl KernelTrait for MetaKernel {
         dispatch_variants!(self, stop).await
     }
 
-    async fn interrupter(&mut self) -> Result<KernelInterrupter> {
-        dispatch_variants!(self, interrupter).await
-    }
-
     async fn status(&self) -> Result<KernelStatus> {
         dispatch_variants!(self, status).await
     }
@@ -188,6 +184,10 @@ impl KernelTrait for MetaKernel {
 
     async fn exec_sync(&mut self, code: &str) -> Result<Task> {
         dispatch_variants!(self, exec_sync, code).await
+    }
+
+    async fn exec_async(&mut self, code: &str) -> Result<Task> {
+        dispatch_variants!(self, exec_async, code).await
     }
 
     async fn exec_fork(&mut self, code: &str) -> Result<Task> {
@@ -446,10 +446,10 @@ impl KernelSpace {
 
         // Execute the code
         let kernel = self.kernels.get_mut(&kernel_id)?;
-        let mut task = if fork {
+        let task = if fork {
             kernel.exec_fork(code).await?
         } else {
-            kernel.exec_sync(code).await?
+            kernel.exec_async(code).await?
         };
 
         // Store the task, with metadata
@@ -634,7 +634,7 @@ impl KernelSpace {
                 (false, code)
             };
 
-            let code = code.replace("\\n", "\n");
+            let code = code.trim().replace("\\n", "\n");
 
             let language = language.unwrap_or_else(|| "calc".to_string());
 

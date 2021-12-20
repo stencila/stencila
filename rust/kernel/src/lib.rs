@@ -328,8 +328,14 @@ pub struct Task {
     /// The uuid of the task
     pub id: TaskId,
 
+    /// The time that the task was created by the kernel
+    created: DateTime<Utc>,
+
     /// The time that the task was started by the kernel
-    started: DateTime<Utc>,
+    ///
+    /// If the task was placed on a queue then this is expected to be after `created`.
+    /// In this case, the task may also be cancelled before it is started.
+    started: Option<DateTime<Utc>>,
 
     /// The time that the task ended (if it has)
     finished: Option<DateTime<Utc>>,
@@ -368,6 +374,7 @@ impl Clone for Task {
     fn clone(&self) -> Self {
         Self {
             id: self.id.clone(),
+            created: self.created,
             started: self.started,
             finished: self.finished,
             cancelled: self.cancelled,
@@ -382,11 +389,31 @@ impl Clone for Task {
 }
 
 impl Task {
-    /// Start a task
-    pub fn start(sender: Option<TaskSender>, canceller: Option<TaskCanceller>) -> Self {
+    /// Create a task
+    pub fn create(sender: Option<TaskSender>, canceller: Option<TaskCanceller>) -> Self {
         Self {
             id: TaskId::new(),
-            started: Utc::now(),
+            created: Utc::now(),
+            started: None,
+            finished: None,
+            cancelled: None,
+            result: None,
+            sender,
+            canceller,
+            // Metadata
+            code: None,
+            kernel_id: None,
+            fork: None,
+        }
+    }
+
+    /// Start a task
+    pub fn start(sender: Option<TaskSender>, canceller: Option<TaskCanceller>) -> Self {
+        let now = Utc::now();
+        Self {
+            id: TaskId::new(),
+            created: now,
+            started: Some(now),
             finished: None,
             cancelled: None,
             result: None,
@@ -521,9 +548,6 @@ impl Task {
         self.fork = fork;
     }
 }
-
-pub type KernelInterrupter = mpsc::Sender<()>;
-
 /// A trait for kernels
 ///
 /// This trait can be used by Rust implementations of kernels, allowing them to
@@ -570,10 +594,6 @@ pub trait KernelTrait {
         Ok(())
     }
 
-    async fn interrupter(&mut self) -> Result<KernelInterrupter> {
-        bail!("Kernel is not interruptable")
-    }
-
     /// Get the status of the kernel
     ///
     /// Must be implemented by [`KernelTrait`] implementations.
@@ -611,10 +631,18 @@ pub trait KernelTrait {
     /// Must be implemented by [`KernelTrait`] implementations.
     async fn exec_sync(&mut self, code: &str) -> Result<Task>;
 
+    /// Execute code in the kernel asynchronously
+    ///
+    /// Should be overridden by [`KernelTrait`] implementations that are cancellable.
+    /// The default implementation simply calls `exec_sync`.
+    async fn exec_async(&mut self, code: &str) -> Result<Task> {
+        self.exec_sync(code).await
+    }
+
     /// Fork the kernel and execute code in the fork
     ///
     /// Should be overridden by [`KernelTrait`] implementations that are forkable.
-    /// This default implementation errors because code marked as `@pure` should not
+    /// The default implementation errors because code marked as `@pure` should not
     /// be executed in the main kernel in case it has side-effects (e.g. assigning
     /// temporary variables) which are intended to be ignored.
     async fn exec_fork(&mut self, _code: &str) -> Result<Task> {
