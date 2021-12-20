@@ -145,7 +145,7 @@ def encode_message(type, message, exception=None):
     """
     # For now, until we have a `CodeMessage` type, gets encoded as a `CodeError`
     code_message = {"type": "CodeError", "errorType": type, "errorMessage": message}
-    if exception:
+    if exception and not isinstance(exception, KeyboardInterrupt):
         stack_trace = io.StringIO()
         traceback.print_exc(file=stack_trace)
         stack_trace = stack_trace.getvalue()
