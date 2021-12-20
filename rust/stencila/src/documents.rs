@@ -1588,7 +1588,7 @@ pub mod commands {
 
             document
                 .kernels
-                .repl(&code.join(" "), lang.clone(), None, false)
+                .repl(&code.join(" "), lang.clone(), None)
                 .await
         }
     }
