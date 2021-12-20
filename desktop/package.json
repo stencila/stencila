@@ -13,6 +13,7 @@
     "lint": "eslint --ext .ts,.tsx ./src",
     "lint:fix": "npm run lint -- --fix",
     "test": "npm run ui:test",
+    "test:e2e": "playwright test",
     "ui:build": "cross-env NODE_ENV=production stencil build",
     "ui:start": "cross-env NODE_ENV=development stencil build --dev --watch --serve",
     "ui:test": "stencil test --spec --e2e --passWithNoTests",
@@ -41,6 +42,7 @@
     "@electron-forge/publisher-github": "6.0.0-beta.61",
     "@marshallofsound/webpack-asset-relocator-loader": "0.5.0",
     "@msgpack/msgpack": "2.7.1",
+    "@playwright/test": "^1.17.1",
     "@rollup/plugin-replace": "3.0.0",
     "@stencil/core": "2.12.0",
     "@stencil/postcss": "2.1.0",
@@ -98,7 +100,7 @@
     "forge": "./forge.config.js"
   },
   "browserslist": [
-    "Electron"
+    "last 1 electron version"
   ],
   "eslintConfig": {
     "root": true,

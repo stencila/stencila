@@ -146,6 +146,7 @@ jobs:
           make -C desktop lint
           make -C desktop test
           npm run ui:build --prefix desktop
+          make -C desktop test:e2e
         env:
           # Increase maximum for non-garbage collected memory to 6Gb
           NODE_OPTIONS: --max_old_space_size=6144

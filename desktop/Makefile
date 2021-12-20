@@ -9,6 +9,9 @@ lint: setup
 test: setup
 	npm run test -- --ci
 
+test-e2e:
+	npm run test:e2e
+
 build: setup
 	npm run ui:build
 	npm run make
