@@ -23,9 +23,9 @@ mod tests {
     use kernel::{
         eyre::{bail, Result},
         stencila_schema::Node,
-        KernelTrait,
+        KernelTrait, TaskResult,
     };
-    use kernel_micro::MicroKernelInterrupter;
+    use kernel_micro::MicroKernelSignaller;
     use once_cell::sync::Lazy;
     use test_utils::{assert_json_eq, assert_json_is};
     use tokio::sync::Mutex;
@@ -301,6 +301,9 @@ mod tests {
     }
 
     /// Test interrupting a task
+    ///
+    /// Note: This takes a somewhat manual approach to testing interruption.
+    /// Since this was written, a `kernel::Task::cancel()` method was added.
     #[tokio::test]
     async fn interrupt() -> Result<()> {
         let _guard = QUEUE.lock().await;
@@ -318,7 +321,7 @@ mod tests {
         };
 
         // Get an "interrupter" so that we can interrupt without doing a double mutable borrow
-        let interrupter = MicroKernelInterrupter::new(&kernel)?;
+        let signaller = MicroKernelSignaller::new(&kernel)?;
 
         let task = tokio::task::spawn(async move {
             // Start a long running task in the kernel that should get interrupted in the parent function
@@ -343,7 +346,7 @@ mod tests {
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
         // Interrupt the task and await the results
-        interrupter.interrupt();
+        signaller.interrupt();
 
         // Wait for test results
         task.await?;
@@ -376,7 +379,8 @@ mod tests {
 
         // Now fork-exec. The fork should be able to use the module and access the
         // variable but any change to variable should not change its value in the parent kernel
-        let (outputs, messages) = kernel.fork_exec("print(var)\nvar = runif(1)").await?;
+        let mut task = kernel.exec_fork("print(var)\nvar = runif(1)").await?;
+        let TaskResult { outputs, messages } = task.result().await?;
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
         assert_json_is!(outputs[0], var);

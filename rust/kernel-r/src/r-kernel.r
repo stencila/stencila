@@ -73,7 +73,9 @@ while (!is.null(stdin)) {
   # If there is no task from `readLines` it means `stdin` was closed, so exit gracefully
   if (length(task) == 0) quit(save = "no")
 
-  if (endsWith(task, FORK)) {
+  lines <- strsplit(task, "\\n", fixed = TRUE)[[1]]
+
+  if (tail(lines, 1) == FORK) {
     # The `eval_safe` function of https://github.com/jeroen/unix provides an alternative 
     # implementation of fork-exec for R. We might use it in the future.
   
@@ -89,24 +91,21 @@ while (!is.null(stdin)) {
 
     # Child process, so...
 
-    # Separate code and paths of FIFO pipes to replace stdout and stderr
-    payload <- substr(task, 1, nchar(task) - nchar(FORK))
-    parts <- strsplit(payload, "\\|")[[1]]
-    code <- paste0(head(parts, n=length(parts) - 1), collapse = "|")
-    pipes <- strsplit(tail(parts, n = 1), ";")[[1]]
+    # Pop off flag and paths of FIFO pipes to replace stdout and stderr
+    new_stdout <- lines[length(lines) - 2]
+    new_stderr <- lines[length(lines) - 1]
+    lines <- head(lines, -3)
 
     # Set stdin to /dev/null to end loop
     stdin <- NULL
 
     # Replace stdout and stderr with pipes
-    stdout <- file(pipes[1], open = "w", raw = TRUE)
-    stderr <- file(pipes[2], open = "w", raw = TRUE)
-  } else {
-    code <- task
+    stdout <- file(new_stdout, open = "w", raw = TRUE)
+    stderr <- file(new_stderr, open = "w", raw = TRUE)
   }
 
-  unescaped <- gsub("\\\\n", "\n", code)
-  compiled <- tryCatch(parse(text=unescaped), error=identity)
+  code <- paste0(lines, collapse = "\n")
+  compiled <- tryCatch(parse(text=code), error=identity)
   if (inherits(compiled, "simpleError")) {
     error(compiled, "SyntaxError")
   } else {  
@@ -137,8 +136,7 @@ while (!is.null(stdin)) {
     dev.off()  
 
     if (!is.null(value)) {
-      last_line <- tail(strsplit(unescaped, "\\n")[[1]], n=1)
-      assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", last_line)
+      assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", tail(lines, 1))
       if (!assignment) write(paste0(encode_value(value), RESULT), stdout)
     }
   }

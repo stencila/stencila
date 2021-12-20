@@ -35,8 +35,9 @@ stderr.flush()
 while True:
     try:
         task = stdin.readline()
+        lines = task.split("\\n")
 
-        if task.endswith(FORK):
+        if lines[-1] == FORK:
             pid = os.fork()
             if pid > 0:
                 # Parent process, so return the pid of the fork and
@@ -50,11 +51,10 @@ while True:
 
             # Child process, so...
 
-            # Separate code and paths of FIFO pipes to replace stdout and stderr
-            payload = task[: -len(FORK)]
-            pos = payload.rfind("|")
-            (code, pipes) = payload[:pos], payload[(pos + 1) :]
-            (new_stdout, new_stderr) = pipes.split(";")
+            # Pop off flag and paths of FIFO pipes to replace stdout and stderr
+            lines.pop()
+            new_stderr = lines.pop()
+            new_stdout = lines.pop()
 
             # Close file descriptors so that we're not interfeering with
             # parent's file descriptors and so stdin, stdout and stderr get replaced below.
@@ -68,17 +68,13 @@ while True:
             # Replace stdout and stderr with pipes
             os.open(new_stdout, os.O_WRONLY | os.O_TRUNC)  # 1: stdout
             os.open(new_stderr, os.O_WRONLY | os.O_TRUNC)  # 2: stderr
-        else:
-            code = task
 
-        lines = code.split("\\n")
         rest, last = lines[:-1], lines[-1]
         try:
             try:
                 last = compile(last, "<code>", "eval")
             except:
-                unescaped = code.replace("\\n", "\n")
-                compiled = compile(unescaped, "<code>", "exec")
+                compiled = compile("\n".join(lines), "<code>", "exec")
                 exec(compiled, globals_dict, locals_dict)
             else:
                 if rest:
