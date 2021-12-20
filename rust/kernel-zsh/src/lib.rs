@@ -32,7 +32,7 @@ mod tests {
     #[tokio::test]
     async fn basics() -> Result<()> {
         let mut kernel = new();
-        if !kernel.available().await {
+        if !kernel.is_forkable().await {
             return Ok(());
         } else {
             kernel.start().await?;

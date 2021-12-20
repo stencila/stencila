@@ -2,7 +2,8 @@ use kernel::{
     async_trait::async_trait,
     eyre::{bail, eyre, Result},
     stencila_schema::{CodeError, Node, Object},
-    Kernel, KernelStatus, KernelTrait, KernelType,
+    Kernel, KernelInterrupter, KernelStatus, KernelTrait, KernelType, Task, TaskMessages,
+    TaskOutputs, TaskResult,
 };
 use serde::Serialize;
 use std::{env, fs};
@@ -11,6 +12,7 @@ use tokio::{
     fs::File,
     io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
     process::{Child, ChildStderr, ChildStdin, ChildStdout},
+    sync::{broadcast, mpsc},
 };
 
 // Line end flags for the Microkernel protocol
@@ -18,19 +20,19 @@ use tokio::{
 // So the _ALT flags are provided for these instances (or where it is not possible to output Unicode at all).
 
 /// Indicates the end of kernel startup, kernel is ready to perform tasks.
-const READY: char = '\u{10ACDC}';
+const READY: &str = "\u{10ACDC}";
 const READY_ALT: &str = "<U+0010ACDC>";
 
 /// Indicates the end of a task result ("outputs" on `stderr` and "messages" on `stderr`).
-const RESULT: char = '\u{10CB40}';
+const RESULT: &str = "\u{10CB40}";
 const RESULT_ALT: &str = "<U+0010CB40>";
 
 /// Indicates the end of a task, kernel is ready for next task.
-const TASK: char = '\u{10ABBA}';
+const TASK: &str = "\u{10ABBA}";
 const TASK_ALT: &str = "<U+0010ABBA>";
 
 /// Indicates that the task should be run in a forked process.
-const FORK: char = '\u{10DE70}';
+const FORK: &str = "\u{10DE70}";
 #[allow(dead_code)]
 const FORK_ALT: &str = "<U+0010DE70>";
 
@@ -217,23 +219,25 @@ macro_rules! include_file {
     };
 }
 
-/// An interrupter for a Microkernel
+/// A signaller for a Microkernel
 ///
-/// A `MicroKernelInterrupter` can be created once a kernel has started and used to interrupt
-/// it asynchronously while it is executing.
-pub struct MicroKernelInterrupter {
+/// A `MicroKernelSignaller` can be created once a kernel has started and used to interrupt
+/// or kill it asynchronously while it is executing.
+pub struct MicroKernelSignaller {
     // The process id of the microkernel
     pid: u32,
 }
 
-impl MicroKernelInterrupter {
+impl MicroKernelSignaller {
+    /// Create a new signaller for a [`MicroKernel`]
     pub fn new(microkernel: &MicroKernel) -> Result<Self> {
-        match microkernel.child.as_ref().and_then(|child| child.id()) {
+        match microkernel.pid {
             Some(pid) => Ok(Self { pid }),
             None => bail!("Microkernel has no process id; has it been started?"),
         }
     }
 
+    /// Interrupt the [`MicroKernel`]
     pub fn interrupt(&self) {
         #[cfg(not(target_os = "windows"))]
         {
@@ -241,6 +245,22 @@ impl MicroKernelInterrupter {
             use nix::unistd::Pid;
 
             signal::kill(Pid::from_raw(self.pid as i32), Signal::SIGINT).unwrap()
+        }
+    }
+
+    /// Kill the [`MicroKernel`]
+    pub fn kill(&self) {
+        #[cfg(not(target_os = "windows"))]
+        {
+            use nix::sys::signal::{self, Signal};
+            use nix::unistd::Pid;
+
+            // Note that killing a microkernel this way may cause it to be
+            // a zombie process (<defunct>) if the parent kernel process is still waiting
+            // for its exit signal. This depends on how the parent kernel forks
+            // (in `r-kernel.r` we use the `estranged` flag to avoid this).
+            tracing::debug!("Killing kernel fork with pid `{}`", self.pid);
+            signal::kill(Pid::from_raw(self.pid as i32), Signal::SIGKILL).unwrap()
         }
     }
 }
@@ -260,7 +280,7 @@ impl KernelTrait for MicroKernel {
     ///
     /// Returns `true` if the operating system is listed in `oses` and
     /// a runtime matching the semver requirements in `runtime` is found to be installed.
-    async fn available(&self) -> bool {
+    async fn is_available(&self) -> bool {
         if !self.available {
             return false;
         }
@@ -272,12 +292,12 @@ impl KernelTrait for MicroKernel {
     ///
     /// Although the microkernel itself may handle interrupts across operating systems,
     /// here we only support if for *nix. So return false, if on Windows
-    async fn interruptable(&self) -> bool {
+    async fn is_interruptable(&self) -> bool {
         self.interruptable && cfg!(not(target_os = "windows"))
     }
 
     /// Is the kernel forkable on the current machine?
-    async fn forkable(&self) -> bool {
+    async fn is_forkable(&self) -> bool {
         self.forkable
     }
 
@@ -343,7 +363,7 @@ impl KernelTrait for MicroKernel {
         self.stderr = Some(Stderr::Child(BufReader::new(stderr)));
 
         // Wait for READY flags
-        let (_outputs, messages) = self.receive_results().await?;
+        let (.., messages) = self.receive_results().await?;
         if !messages.is_empty() {
             let messages = messages
                 .into_iter()
@@ -373,25 +393,26 @@ impl KernelTrait for MicroKernel {
             child.kill().await?;
             self.child = None;
             self.status = KernelStatus::Finished;
-        } else if let Some(pid) = self.pid {
+        } else if let Some(..) = self.pid {
             // For forks
             self.status = KernelStatus::Stopping;
-            #[cfg(not(target_os = "windows"))]
-            {
-                use nix::sys::signal::{self, Signal};
-                use nix::unistd::Pid;
-
-                // Note that killing the for from here may cause it to be
-                // a zombie process (<defunct>) if the parent kernel process is still waiting
-                // for its exit signal. This depends on how the parent kernel forks
-                // (in `r-kernel.r` we use the `estranged` flag to avoid this).
-                tracing::debug!("Killing kernel fork with pid `{}`", pid);
-                signal::kill(Pid::from_raw(pid as i32), Signal::SIGKILL).unwrap()
-            }
+            MicroKernelSignaller::new(self)?.kill();
             self.pid = None;
             self.status = KernelStatus::Finished;
         }
         Ok(())
+    }
+
+    async fn interrupter(&mut self) -> Result<KernelInterrupter> {
+        let signaller = MicroKernelSignaller::new(self)?;
+        let (sender, mut receiver) = mpsc::channel(1);
+        tokio::spawn(async move {
+            if let Some(..) = receiver.recv().await {
+                signaller.interrupt();
+            }
+            tracing::debug!("Kernel interrupt task finished")
+        });
+        Ok(sender)
     }
 
     /// Get the status of the kernel
@@ -403,7 +424,7 @@ impl KernelTrait for MicroKernel {
     async fn get(&mut self, name: &str) -> Result<Node> {
         let code = self.get_template.replace("{{name}}", name);
 
-        let (outputs, messages) = self.exec(&code).await?;
+        let (outputs, messages) = self.send_receive(&[&code]).await?;
 
         if let Some(output) = outputs.first() {
             Ok(output.clone())
@@ -426,7 +447,7 @@ impl KernelTrait for MicroKernel {
             .replace("{{name}}", name)
             .replace("{{json}}", &json);
 
-        let (.., messages) = self.exec(&code).await?;
+        let (_outputs, messages) = self.send_receive(&[&code]).await?;
 
         if messages.is_empty() {
             Ok(())
@@ -441,68 +462,125 @@ impl KernelTrait for MicroKernel {
         }
     }
 
-    /// Execute some code in the kernel
-    async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
-        // Send the code to the kernel
-        let task = [&code.replace("\n", "\\n"), "\n"].concat();
-        if let Err(error) = self.send_task(&task).await {
-            self.status = KernelStatus::Failed;
-            bail!(error)
-        };
+    /// Execute code in the kernel synchronously
+    async fn exec_sync(&mut self, code: &str) -> Result<Task> {
+        let mut task = Task::start_sync();
 
-        self.receive_results().await
+        let (outputs, messages) = self.send_receive(&[code]).await.unwrap();
+
+        // If there is an interrupt message then treat the task as cancelled, otherwise finished
+        let interrupted = messages
+            .iter()
+            .filter(|message| match message.error_type.as_ref() {
+                Some(boxed) => boxed.as_str() == "foo",
+                _ => false,
+            })
+            .count()
+            > 0;
+
+        let result = TaskResult::new(outputs, messages);
+        if interrupted {
+            task.cancelled(Some(result));
+        } else {
+            task.finished(result);
+        }
+
+        Ok(task)
     }
 
-    /// Fork the kernel and execute code in the fork
+    /// Execute code in a fork of the kernel
     #[cfg(not(target_os = "windows"))]
-    async fn fork_exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
-        if !self.forkable().await {
+    async fn exec_fork(&mut self, code: &str) -> Result<Task> {
+        if !self.is_forkable().await {
             bail!("Kernel `{}` is not forkable", self.name);
         }
 
-        let mut fork = self.fork(code).await?;
-        let results = fork.receive_results().await;
-        fork.stop().await?;
+        // Setup channels and execution task
+        let (sender, _receiver) = broadcast::channel(1);
+        let (canceller, mut cancellee) = mpsc::channel(1);
 
-        results
-    }
+        let task = Task::start(Some(sender.clone()), Some(canceller));
 
-    /// Interrupt the task currently being run by the kernel
-    async fn interrupt(&mut self) -> Result<()> {
-        if !self.interruptable().await {
-            tracing::warn!("Kernel `{}` is not interruptable", self.name);
-        } else {
-            MicroKernelInterrupter::new(self)?.interrupt()
-        }
-        Ok(())
+        // Start the fork and create signaller for it
+        let mut fork = self.create_fork(code).await?;
+        let signaller = MicroKernelSignaller::new(&fork)?;
+
+        // Start async task to wait for result and send to receivers
+        let name = self.name.clone();
+        let task_id = task.id.clone();
+        tokio::spawn(async move {
+            let result = match fork.receive_results().await {
+                Ok((outputs, messages)) => TaskResult::new(outputs, messages),
+                Err(error) => {
+                    tracing::error!(
+                        "While receiving result from kernel `{}` fork for task `{}`: {}",
+                        name,
+                        task_id,
+                        error
+                    );
+                    TaskResult::internal_error("Error while receiving result from fork")
+                }
+            };
+            fork.stop().await.unwrap();
+
+            if let Err(..) = sender.send(result) {
+                tracing::debug!("The receiver for task `{}` dropped", task_id);
+            }
+        });
+
+        // Start async task to listen for cancellation message
+        // This should finish when the `canceller` is either triggered or dropped
+        let task_id = task.id.clone();
+        tokio::spawn(async move {
+            tracing::debug!("Cancellation thread for task `{}` fork began", task_id);
+            if let Some(..) = cancellee.recv().await {
+                signaller.kill()
+            }
+            tracing::debug!("Cancellation thread for task `{}` fork ended", task_id);
+        });
+
+        Ok(task)
     }
 }
 
 impl MicroKernel {
+    // Send a task to the microkernel and receive results
+    async fn send_receive(&mut self, task: &[&str]) -> Result<(TaskOutputs, TaskMessages)> {
+        if let Err(error) = self.send_task(task).await {
+            self.status = KernelStatus::Failed;
+            bail!(error)
+        };
+        self.receive_results().await
+    }
+
     // Send a task to the microkernel
-    async fn send_task(&mut self, task: &str) -> Result<()> {
+    async fn send_task(&mut self, task: &[&str]) -> Result<()> {
+        let task = task.join("\n");
+        let task = task.replace("\n", "\\n");
+        let task = [&task, "\n"].concat();
         match self.stdin.as_mut() {
-            Some(Stdin::Child(stdin)) => send_task(task, stdin).await,
-            Some(Stdin::File(stdin)) => send_task(task, stdin).await,
+            Some(Stdin::Child(stdin)) => send_task(&task, stdin).await,
+            Some(Stdin::File(stdin)) => send_task(&task, stdin).await,
             None => bail!("Kernel has no stdin"),
         }
     }
 
     /// Receive outputs and messages from the microkernel
-    async fn receive_results(&mut self) -> Result<(Vec<Node>, Vec<CodeError>)> {
-        match (self.stdout.as_mut(), self.stderr.as_mut()) {
+    async fn receive_results(&mut self) -> Result<(TaskOutputs, TaskMessages)> {
+        let (outputs, messages) = match (self.stdout.as_mut(), self.stderr.as_mut()) {
             (Some(Stdout::Child(stdout)), Some(Stderr::Child(stderr))) => {
-                receive_results(stdout, stderr).await
+                receive_results(stdout, stderr).await?
             }
             (Some(Stdout::File(stdout)), Some(Stderr::File(stderr))) => {
-                receive_results(stdout, stderr).await
+                receive_results(stdout, stderr).await?
             }
             _ => bail!("Kernel has no, or unexpected, stdout and/or stderr"),
-        }
+        };
+        Ok((outputs, messages))
     }
 
     #[cfg(not(target_os = "windows"))]
-    async fn fork(&mut self, code: &str) -> Result<MicroKernel> {
+    async fn create_fork(&mut self, code: &str) -> Result<MicroKernel> {
         // Create pipes in a temporary directory (which gets cleaned up when dropped)
         use nix::{sys::stat, unistd::mkfifo};
         let pipes_dir = tempdir().unwrap();
@@ -512,14 +590,13 @@ impl MicroKernel {
         mkfifo(&fork_stderr, stat::Mode::S_IRWXU)?;
 
         // Send code and pipes to the kernel
-        let task = format!(
-            "{}|{};{}{}\n",
-            code.replace("\n", "\\n"),
-            fork_stdout.display(),
-            fork_stderr.display(),
-            FORK
-        );
-        if let Err(error) = self.send_task(&task).await {
+        let task = &[
+            code,
+            &fork_stdout.display().to_string(),
+            &fork_stderr.display().to_string(),
+            FORK,
+        ];
+        if let Err(error) = self.send_task(task).await {
             self.status = KernelStatus::Failed;
             bail!(error)
         };

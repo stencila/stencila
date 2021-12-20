@@ -34,7 +34,7 @@ mod tests {
         }
 
         let mut kernel = new();
-        if !kernel.available().await {
+        if !kernel.is_forkable().await {
             eprintln!("Python not available on this machine");
             bail!("Skipping")
         } else {
@@ -109,7 +109,7 @@ mod tests {
     async fn interrupt() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => {
-                if kernel.interruptable().await {
+                if kernel.is_interruptable().await {
                     kernel
                 } else {
                     eprintln!("Not interruptable on this OS");
@@ -157,7 +157,7 @@ mod tests {
     async fn fork() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => {
-                if kernel.forkable().await {
+                if kernel.is_forkable().await {
                     kernel
                 } else {
                     eprintln!("Not forkable on this OS");

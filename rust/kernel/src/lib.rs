@@ -1,18 +1,23 @@
 // use crate::utils::uuids;
 use async_trait::async_trait;
-use eyre::Result;
+use chrono::{DateTime, Utc};
+use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use stencila_schema::{CodeError, Node};
 use strum::Display;
+use tokio::sync::{broadcast, mpsc};
+use utils::some_box_string;
+use uuids::uuid_family;
 
 // Re-export for the convenience of crates that implement `KernelTrait`
 pub use ::async_trait;
 pub use eyre;
 pub use serde;
 pub use stencila_schema;
+pub use tokio;
 
 /// The type of kernel
 ///
@@ -70,6 +75,13 @@ impl Kernel {
     }
 }
 
+/// An identifier for a kernel
+///
+/// This is *not* a UUID but rather a id that is unique to a
+/// local kernel space. This allows more useful ids to be assigned
+/// e.g. `python`, `r` etc.
+pub type KernelId = String;
+
 /// The status of a running kernel
 #[derive(Debug, PartialEq, Clone, Serialize, Display)]
 #[allow(dead_code)]
@@ -92,7 +104,7 @@ pub enum KernelStatus {
 #[derive(Debug, Clone, Serialize)]
 pub struct KernelInfo {
     /// The id of the kernel instance
-    pub id: String,
+    pub id: KernelId,
 
     /// The status of the kernel
     pub status: KernelStatus,
@@ -249,6 +261,269 @@ impl KernelSelector {
     }
 }
 
+// An id for tasks
+uuid_family!(TaskId, "ta");
+
+/// Output nodes from a task
+pub type TaskOutputs = Vec<Node>;
+
+/// Messages from a task
+///
+/// In the future this will likely be a [`CodeMessage`] vector,
+/// rather than a [`CodeError`] vector.
+pub type TaskMessages = Vec<CodeError>;
+
+/// The result of a [`Task`]
+#[derive(Debug, Clone, Serialize)]
+pub struct TaskResult {
+    /// Outputs from the task
+    pub outputs: Vec<Node>,
+
+    /// Messages from the task
+    pub messages: Vec<CodeError>,
+}
+
+impl TaskResult {
+    /// Create a new task result
+    pub fn new(outputs: Vec<Node>, messages: Vec<CodeError>) -> Self {
+        Self { outputs, messages }
+    }
+
+    /// Used to indicate an internal (to Stencila code) error rather than user error
+    ///
+    /// Usually used in conjunction with a `tracing::error` to expose error details on the
+    /// server side rather than client side.
+    pub fn internal_error(message: &str) -> Self {
+        Self::new(
+            vec![],
+            vec![CodeError {
+                error_type: some_box_string!("InternalError"),
+                error_message: message.to_string(),
+                ..Default::default()
+            }],
+        )
+    }
+}
+
+/// A [`broadcast::channel`] sender of a [`TaskResult`]
+///
+/// Subscribe to this to receive the result of a task. This needs to be a `broadcast`
+/// channel (single-producer-multiple-receiver) so that multiple async
+/// tasks can receive the result of the execution task (e.g. both the
+/// original caller, and the `KernelsTasks` that keeps a track of tasks and
+/// when they are finished).
+pub type TaskSender = broadcast::Sender<TaskResult>;
+
+/// A [`broadcast::channel`] receiver of a [`TaskResult`]
+pub type TaskReceiver = broadcast::Receiver<TaskResult>;
+
+/// A [`mpsc::channel`] sender to cancel the task
+///
+/// Used to send a cancellation request to the the kernel that is running the task.
+pub type TaskCanceller = mpsc::Sender<()>;
+
+/// A task running in a [`Kernel`]
+#[derive(Debug, Serialize)]
+pub struct Task {
+    /// The uuid of the task
+    pub id: TaskId,
+
+    /// The time that the task was started by the kernel
+    started: DateTime<Utc>,
+
+    /// The time that the task ended (if it has)
+    finished: Option<DateTime<Utc>>,
+
+    /// The time that the task was cancelled
+    cancelled: Option<DateTime<Utc>>,
+
+    /// The result of the task (if it was completed immediately)
+    result: Option<TaskResult>,
+
+    /// The result sender for the task (if it was started asynchronously)
+    #[serde(skip)]
+    sender: Option<TaskSender>,
+
+    /// The canceller for the task (may be set after the task is started)
+    #[serde(skip)]
+    pub canceller: Option<TaskCanceller>,
+
+    // The following fields are optional "metadata": they are not required
+    // core to the API (and/or are redundant) but are useful for introspection.
+    /// The code that was executed
+    code: Option<String>,
+
+    /// The id kernel that performed the task
+    kernel_id: Option<String>,
+
+    /// Whether the task was performed in a fork of the kernel
+    fork: Option<bool>,
+}
+
+impl Clone for Task {
+    /// Clone a task
+    ///
+    /// Note: mainly here for convenience during introspection.
+    /// Note that receiver and canceller are NOT cloned.
+    fn clone(&self) -> Self {
+        Self {
+            id: self.id.clone(),
+            started: self.started,
+            finished: self.finished,
+            cancelled: self.cancelled,
+            result: self.result.clone(),
+            sender: self.sender.clone(),
+            canceller: self.canceller.clone(),
+            code: self.code.clone(),
+            kernel_id: self.kernel_id.clone(),
+            fork: self.fork,
+        }
+    }
+}
+
+impl Task {
+    /// Start a task
+    pub fn start(sender: Option<TaskSender>, canceller: Option<TaskCanceller>) -> Self {
+        Self {
+            id: TaskId::new(),
+            started: Utc::now(),
+            finished: None,
+            cancelled: None,
+            result: None,
+            sender,
+            canceller,
+            // Metadata
+            code: None,
+            kernel_id: None,
+            fork: None,
+        }
+    }
+
+    /// Start a synchronous task
+    pub fn start_sync() -> Self {
+        Self::start(None, None)
+    }
+
+    /// Start an asynchronous task
+    pub fn start_async(sender: TaskSender) -> Self {
+        Self::start(Some(sender), None)
+    }
+
+    /// Is the task an async task?
+    pub fn is_async(&self) -> bool {
+        self.sender.is_some()
+    }
+
+    /// Is the task able to be cancelled?
+    pub fn is_cancellable(&self) -> bool {
+        self.canceller.is_some()
+    }
+
+    /// Is the task finished or cancelled?
+    pub fn is_done(&self) -> bool {
+        self.finished.is_some() || self.cancelled.is_some()
+    }
+
+    /// Subscribe to the task
+    pub fn subscribe(&self) -> Result<TaskReceiver> {
+        match self.sender.as_ref() {
+            Some(sender) => Ok(sender.subscribe()),
+            None => bail!("Task is sync, so can not be subscribed to"),
+        }
+    }
+
+    /// The task did finish
+    pub fn finished(&mut self, result: TaskResult) {
+        if self.cancelled.is_some() {
+            // The task can be cancelled but we still get a partial result
+            // (because, for example the stdout and stderr have been captured).
+            // In that case, store the result, but don't update anything else.
+            self.result = Some(result);
+        } else if let Some(finished) = self.finished {
+            // Log an error because this shouldn't really ever happen but
+            // don't returns an error because its not fatal if it does
+            tracing::error!("Task was already finished at `{}`", finished);
+        } else {
+            self.result = Some(result);
+            self.finished = Some(Utc::now());
+            self.canceller = None; // Ensure finish of the async cancellation task
+        }
+    }
+
+    /// The task was cancelled (potentially with partial results)
+    pub fn cancelled(&mut self, result: Option<TaskResult>) {
+        if let Some(cancelled) = self.cancelled {
+            // Log an error because this shouldn't really ever happen but
+            // don't returns an error because its not fatal if it does
+            tracing::error!("Task was already cancelled at `{}`", cancelled);
+        } else {
+            self.result = result;
+            self.cancelled = Some(Utc::now());
+            self.canceller = None; // Ensure finish of the async cancellation task
+        }
+    }
+
+    /// Cancel the task
+    pub async fn cancel(&mut self) -> Result<()> {
+        if let Some(finished) = self.finished {
+            // Warn if the task already finished
+            tracing::warn!("Task was already finished at `{}`", finished);
+            Ok(())
+        } else if let Some(cancelled) = self.cancelled {
+            // Just debug here since this is not really an error or warning
+            // (e.g. another client cancelled)
+            tracing::debug!("Task was already cancelled at `{}`", cancelled);
+            Ok(())
+        } else if let Some(canceller) = &mut self.canceller {
+            if let Err(..) = canceller.send(()).await {
+                tracing::debug!("Cancellation receiver for task `{}` dropped", self.id);
+            };
+            self.cancelled = Some(Utc::now());
+            self.canceller = None; // Ensure finish of the async cancellation task
+            Ok(())
+        } else {
+            bail!("Task `{}` is not cancellable", self.id)
+        }
+    }
+
+    /// Wait for a result from the task
+    ///
+    /// For synchronous tasks, returns the result immediately. Errors if the
+    /// result sender has already dropped, or if for some reason the task has neither
+    /// a `result`, nor a `receiver`.
+    pub async fn result(&mut self) -> Result<TaskResult> {
+        if let Some(result) = &self.result {
+            Ok(result.clone())
+        } else if let Ok(mut receiver) = self.subscribe() {
+            let result = match receiver.recv().await {
+                Ok(result) => result,
+                Err(..) => bail!("Result sender for task `{}` dropped", self.id),
+            };
+            self.finished(result.clone());
+            Ok(result)
+        } else {
+            bail!(
+                "Task `{}` has neither a `result`, nor a `receiver`!",
+                self.id
+            )
+        }
+    }
+
+    /// Add metadata to the task
+    pub fn metadata(
+        &mut self,
+        code: Option<String>,
+        kernel_id: Option<String>,
+        fork: Option<bool>,
+    ) {
+        self.code = code;
+        self.kernel_id = kernel_id;
+        self.fork = fork;
+    }
+}
+
+pub type KernelInterrupter = mpsc::Sender<()>;
+
 /// A trait for kernels
 ///
 /// This trait can be used by Rust implementations of kernels, allowing them to
@@ -256,10 +531,12 @@ impl KernelSelector {
 #[async_trait]
 pub trait KernelTrait {
     /// Get the [`Kernel`] specification for this implementation
+    ///
+    /// Must be implemented by [`KernelTrait`] implementations.
     fn spec(&self) -> Kernel;
 
     /// Is the kernel available on the current machine?
-    async fn available(&self) -> bool {
+    async fn is_available(&self) -> bool {
         true
     }
 
@@ -267,7 +544,7 @@ pub trait KernelTrait {
     ///
     /// Some kernels listen for an interrupt signal (`SINGIT` on POSIX) to
     /// cancel long running tasks.
-    async fn interruptable(&self) -> bool {
+    async fn is_interruptable(&self) -> bool {
         false
     }
 
@@ -275,96 +552,119 @@ pub trait KernelTrait {
     ///
     /// Some kernels can be "forked" to support parallel execution. On POSIX
     /// this is generally implemented using the `fork` system call.
-    async fn forkable(&self) -> bool {
+    async fn is_forkable(&self) -> bool {
         false
     }
 
     /// Start the kernel
+    ///
+    /// Will usually be overridden by [`KernelTrait`] implementations.
     async fn start(&mut self) -> Result<()> {
         Ok(())
     }
 
     /// Stop the kernel
+    ///
+    /// Will usually be overridden by [`KernelTrait`] implementations.
     async fn stop(&mut self) -> Result<()> {
         Ok(())
     }
 
+    async fn interrupter(&mut self) -> Result<KernelInterrupter> {
+        bail!("Kernel is not interruptable")
+    }
+
     /// Get the status of the kernel
+    ///
+    /// Must be implemented by [`KernelTrait`] implementations.
     async fn status(&self) -> Result<KernelStatus>;
 
     /// Get a symbol from the kernel
+    ///
+    /// Must be implemented by [`KernelTrait`] implementations.
     async fn get(&mut self, name: &str) -> Result<Node>;
 
     /// Set a symbol in the kernel
+    ///
+    /// Must be implemented by [`KernelTrait`] implementations.
     async fn set(&mut self, name: &str, value: Node) -> Result<()>;
 
-    /// Execute some code in the kernel
-    async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)>;
+    /// Execute code in the kernel and get outputs and messages
+    ///
+    /// This is a convenience method when all you want to do is get [`Task`]
+    /// outputs and messages (and are not interested in task duration or cancellation).
+    async fn exec(&mut self, code: &str) -> Result<(TaskOutputs, TaskMessages)> {
+        let mut task = self.exec_sync(code).await?;
+        let TaskResult { outputs, messages } = task.result().await?;
+        Ok((outputs, messages))
+    }
+
+    /// Execute code in the kernel synchronously
+    ///
+    /// Use the method instead of `exec` when you want to know details of the execution
+    /// such as its duration.
+    ///
+    /// Note that although this method is called `exec_sync` it is Rust `async`. This
+    /// is necessary because some kernels may need to call other `async` functions as
+    /// part of their implementation.
+    ///
+    /// Must be implemented by [`KernelTrait`] implementations.
+    async fn exec_sync(&mut self, code: &str) -> Result<Task>;
 
     /// Fork the kernel and execute code in the fork
     ///
-    /// This default implementation does not fork - it simply executes the code in the
-    /// kernel. If a kernel is `forkable: true` it should override this function.
-    ///
-    /// For more on the "Fork-exec" technique in general see https://en.wikipedia.org/wiki/Fork%E2%80%93exec.
-    async fn fork_exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
-        // This will not normally get called because, unless it is overridden,
-        // `forkable` should be `false` for the kernel, and so no call will be scheduled.
-        tracing::warn!("Kernel is not forkable; executing in the kernel itself");
-        self.exec(code).await
-    }
-
-    /// Interrupt the task currently being run by the kernel
-    async fn interrupt(&mut self) -> Result<()> {
-        // This will not normally get called because, unless it is overridden,
-        // `interruptable` should be `false` for the kernel, and so no call will be scheduled.
-        tracing::warn!("Kernel is not interruptable; task will continue");
-        Ok(())
+    /// Should be overridden by [`KernelTrait`] implementations that are forkable.
+    /// This default implementation errors because code marked as `@pure` should not
+    /// be executed in the main kernel in case it has side-effects (e.g. assigning
+    /// temporary variables) which are intended to be ignored.
+    async fn exec_fork(&mut self, _code: &str) -> Result<Task> {
+        bail!("Kernel is not forkable")
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+    use utils::some_string;
 
     #[test]
     fn kernel_selector_new() {
         let ks = KernelSelector::parse("name_lang");
-        assert_eq!(ks.any, Some("name_lang".to_string()));
+        assert_eq!(ks.any, some_string!("name_lang"));
         assert_eq!(ks.name, None);
         assert_eq!(ks.lang, None);
         assert_eq!(ks.r#type, None);
         assert_eq!(ks.to_string(), "name_lang");
 
         let ks = KernelSelector::parse("name_lang foo bar");
-        assert_eq!(ks.any, Some("name_lang".to_string()));
+        assert_eq!(ks.any, some_string!("name_lang"));
         assert_eq!(ks.name, None);
         assert_eq!(ks.lang, None);
         assert_eq!(ks.r#type, None);
 
         let ks = KernelSelector::parse("type:micro name_lang");
-        assert_eq!(ks.any, Some("name_lang".to_string()));
+        assert_eq!(ks.any, some_string!("name_lang"));
         assert_eq!(ks.name, None);
         assert_eq!(ks.lang, None);
-        assert_eq!(ks.r#type, Some("micro".to_string()));
+        assert_eq!(ks.r#type, some_string!("micro"));
 
         let ks = KernelSelector::parse("name_lang type:jupyter lang:py");
-        assert_eq!(ks.any, Some("name_lang".to_string()));
+        assert_eq!(ks.any, some_string!("name_lang"));
         assert_eq!(ks.name, None);
-        assert_eq!(ks.lang, Some("py".to_string()));
-        assert_eq!(ks.r#type, Some("jupyter".to_string()));
+        assert_eq!(ks.lang, some_string!("py"));
+        assert_eq!(ks.r#type, some_string!("jupyter"));
 
         let ks = KernelSelector::parse("name:node-micro");
         assert_eq!(ks.any, None);
-        assert_eq!(ks.name, Some("node-micro".to_string()));
+        assert_eq!(ks.name, some_string!("node-micro"));
         assert_eq!(ks.lang, None);
         assert_eq!(ks.r#type, None);
 
         let ks = KernelSelector::parse("type:jupyter lang:r name:ir");
         assert_eq!(ks.any, None);
-        assert_eq!(ks.name, Some("ir".to_string()));
-        assert_eq!(ks.lang, Some("r".to_string()));
-        assert_eq!(ks.r#type, Some("jupyter".to_string()));
+        assert_eq!(ks.name, some_string!("ir"));
+        assert_eq!(ks.lang, some_string!("r"));
+        assert_eq!(ks.r#type, some_string!("jupyter"));
         assert_eq!(ks.to_string(), "name:ir lang:r type:jupyter");
     }
 
