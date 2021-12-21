@@ -253,14 +253,22 @@ struct KernelTasks {
 
 impl KernelTasks {
     /// Store a task
-    async fn store(&mut self, task: &Task, code: &str, kernel_id: &str, fork: bool) {
+    async fn store(
+        &mut self,
+        task: &Task,
+        code: &str,
+        kernel_id: &str,
+        is_async: bool,
+        is_fork: bool,
+    ) {
         let mut task = task.clone();
         let task_id = task.id.clone();
 
         task.metadata(
             Some(code.to_string()),
             Some(kernel_id.to_string()),
-            Some(fork),
+            Some(is_async),
+            Some(is_fork),
         );
 
         // If the task is async, subscribe to it so that it can be updated when it
@@ -378,7 +386,8 @@ impl KernelSpace {
         code: &str,
         selector: &KernelSelector,
         relations: Option<Vec<(Relation, Resource)>>,
-        fork: bool,
+        is_async: bool,
+        is_fork: bool,
     ) -> Result<Task> {
         // Determine the kernel to execute in
         let kernel_id = self.ensure(selector).await?;
@@ -446,17 +455,19 @@ impl KernelSpace {
 
         // Execute the code
         let kernel = self.kernels.get_mut(&kernel_id)?;
-        let task = if fork {
+        let task = if is_fork {
             kernel.exec_fork(code).await?
-        } else {
+        } else if is_async {
             kernel.exec_async(code).await?
+        } else {
+            kernel.exec_sync(code).await?
         };
 
         // Store the task, with metadata
-        self.tasks.store(&task, code, &kernel_id, fork).await;
+        self.tasks.store(&task, code, &kernel_id, is_async, is_fork).await;
 
         // Record symbols assigned in kernel (unless it was a fork)
-        if let (false, Some(relations)) = (fork, relations) {
+        if let (false, Some(relations)) = (is_fork, relations) {
             for relation in relations {
                 let (name, kind) =
                     if let (Relation::Assign(..), Resource::Symbol(symbol)) = relation {
@@ -656,7 +667,9 @@ impl KernelSpace {
             };
 
             // Execute the code
-            let mut task = self.exec(&code, &selector, Some(relations), fork).await?;
+            let mut task = self
+                .exec(&code, &selector, Some(relations), background, fork)
+                .await?;
 
             // If not a background task, or if results are already available, show results.
             if background || fork {

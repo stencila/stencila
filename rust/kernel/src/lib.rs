@@ -362,8 +362,11 @@ pub struct Task {
     /// The id kernel that performed the task
     kernel_id: Option<String>,
 
-    /// Whether the task was performed in a fork of the kernel
-    fork: Option<bool>,
+    /// Whether the task was run using `exec_async`
+    is_async: Option<bool>,
+
+    /// Whether the task was run using `exec_fork`
+    is_fork: Option<bool>,
 }
 
 impl Clone for Task {
@@ -383,7 +386,8 @@ impl Clone for Task {
             canceller: self.canceller.clone(),
             code: self.code.clone(),
             kernel_id: self.kernel_id.clone(),
-            fork: self.fork,
+            is_async: self.is_async,
+            is_fork: self.is_fork,
         }
     }
 }
@@ -403,7 +407,8 @@ impl Task {
             // Metadata
             code: None,
             kernel_id: None,
-            fork: None,
+            is_async: None,
+            is_fork: None,
         }
     }
 
@@ -422,7 +427,8 @@ impl Task {
             // Metadata
             code: None,
             kernel_id: None,
-            fork: None,
+            is_async: None,
+            is_fork: None,
         }
     }
 
@@ -541,11 +547,13 @@ impl Task {
         &mut self,
         code: Option<String>,
         kernel_id: Option<String>,
-        fork: Option<bool>,
+        is_async: Option<bool>,
+        is_fork: Option<bool>,
     ) {
         self.code = code;
         self.kernel_id = kernel_id;
-        self.fork = fork;
+        self.is_async = is_async;
+        self.is_fork = is_fork;
     }
 }
 /// A trait for kernels
