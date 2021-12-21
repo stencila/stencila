@@ -5,13 +5,13 @@ use kernel::{
     Kernel, KernelStatus, KernelTrait, KernelType, Task, TaskMessages, TaskOutputs, TaskResult,
 };
 use serde::Serialize;
-use std::{env, fs};
+use std::{env, fs, sync::Arc};
 use tempfile::tempdir;
 use tokio::{
     fs::File,
     io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter},
     process::{Child, ChildStderr, ChildStdin, ChildStdout},
-    sync::{broadcast, mpsc},
+    sync::{broadcast, mpsc, Mutex},
 };
 
 // Line end flags for the Microkernel protocol
@@ -82,7 +82,10 @@ pub struct MicroKernel {
     get_template: String,
 
     /// The current status of the kernel
-    status: KernelStatus,
+    ///
+    /// This is a mutex because other async tasks may update kernel status
+    #[serde(skip)]
+    status: Arc<Mutex<KernelStatus>>,
 
     /// The process id of the kernel
     pid: Option<u32>,
@@ -166,50 +169,7 @@ impl MicroKernel {
             set_template: set_template.into(),
             get_template: get_template.into(),
 
-            status: KernelStatus::Pending,
-            pid: None,
-            forked_from: None,
-            child: None,
-            stdin: None,
-            stdout: None,
-            stderr: None,
-            task_sender: None,
-            result_sender: None,
-        }
-    }
-}
-
-impl Clone for MicroKernel {
-    fn clone(&self) -> Self {
-        let Self {
-            name,
-            languages,
-            available,
-            interruptable,
-            forkable,
-            runtime,
-            args,
-            set_template,
-            get_template,
-            ..
-        } = self;
-        Self {
-            // Small properties required for fork operation and/or display
-            name: name.clone(),
-            languages: languages.clone(),
-            available: *available,
-            interruptable: *interruptable,
-            forkable: *forkable,
-            runtime: runtime.clone(),
-            args: args.clone(),
-            // Large properties not required for fork operation
-            script: (String::new(), String::new()),
-            others: Vec::new(),
-            // Small properties that may be needed for fork to get symbols
-            set_template: set_template.clone(),
-            get_template: get_template.clone(),
-
-            status: KernelStatus::Pending,
+            status: Arc::new(Mutex::new(KernelStatus::Pending)),
             pid: None,
             forked_from: None,
             child: None,
@@ -329,7 +289,7 @@ impl KernelTrait for MicroKernel {
     /// and runs it using specified commands, including the kernel script file if specified
     /// in the arguments.
     async fn start(&mut self) -> Result<()> {
-        self.status = KernelStatus::Starting;
+        self.update_status(KernelStatus::Starting).await;
 
         // Resolve the directory where kernels are run
         let user_data_dir = dirs::data_dir().unwrap_or_else(|| {
@@ -401,6 +361,7 @@ impl KernelTrait for MicroKernel {
             let (task_sender, mut task_receiver) = mpsc::channel::<Vec<String>>(1);
             let (result_sender, ..) = broadcast::channel(1);
             let result_sender_clone = result_sender.clone();
+            let status = self.status.clone();
 
             tokio::spawn(async move {
                 let mut stdin = BufWriter::new(stdin);
@@ -411,9 +372,12 @@ impl KernelTrait for MicroKernel {
 
                 tracing::debug!("Began send/receive task for kernel `{}`", name);
                 while let Some(task) = task_receiver.recv().await {
+                    *status.lock().await = KernelStatus::Busy;
+
                     if let Err(error) = send_task(&task, &mut stdin).await {
                         tracing::error!("When sending task to kernel `{}`: {}", name, error)
                     }
+
                     let results = match receive_results(&mut stdout, &mut stderr).await {
                         Ok((outputs, messages)) => (outputs, messages),
                         Err(error) => {
@@ -425,9 +389,12 @@ impl KernelTrait for MicroKernel {
                             (Vec::new(), Vec::new())
                         }
                     };
+
                     if let Err(error) = result_sender_clone.send(results) {
                         tracing::error!("When sending result: {}", error)
                     }
+
+                    *status.lock().await = KernelStatus::Idle;
                 }
             });
 
@@ -435,7 +402,7 @@ impl KernelTrait for MicroKernel {
             self.result_sender = Some(result_sender);
         }
 
-        self.status = KernelStatus::Idle;
+        self.update_status(KernelStatus::Idle).await;
 
         Ok(())
     }
@@ -446,24 +413,25 @@ impl KernelTrait for MicroKernel {
     async fn stop(&mut self) -> Result<()> {
         if let Some(child) = self.child.as_mut() {
             // For main kernels
-            self.status = KernelStatus::Stopping;
             tracing::debug!("Killing kernel with pid `{:?}`", self.pid);
             child.kill().await?;
             self.child = None;
-            self.status = KernelStatus::Finished;
+
+            self.update_status(KernelStatus::Finished).await;
         } else if let Some(..) = self.pid {
             // For forks
-            self.status = KernelStatus::Stopping;
             MicroKernelSignaller::new(self)?.kill();
             self.pid = None;
-            self.status = KernelStatus::Finished;
+
+            self.update_status(KernelStatus::Finished).await;
         }
         Ok(())
     }
 
     /// Get the status of the kernel
     async fn status(&self) -> Result<KernelStatus> {
-        Ok(self.status.clone())
+        let status = self.status.lock().await;
+        Ok(status.clone())
     }
 
     /// Get a symbol from the kernel
@@ -529,7 +497,7 @@ impl KernelTrait for MicroKernel {
             let (canceller, mut cancellee) = mpsc::channel(1);
             let task = Task::start(Some(result_forwarder.clone()), Some(canceller));
 
-            // Start async task to wait for result and send on to receivers
+            // Start async task to wait for result and send on to receivers.
             let task_id = task.id.clone();
             let task_sender = task_sender.clone();
             let mut result_receiver = result_sender.subscribe();
@@ -537,13 +505,19 @@ impl KernelTrait for MicroKernel {
             tokio::spawn(async move {
                 tracing::debug!("Began exec_async task `{}`", task_id);
                 if let Err(error) = task_sender.send(vec![code]).await {
-                    tracing::error!("When sending task for async_task `{}`: {}", task_id, error)
+                    tracing::error!(
+                        "When sending task for exec_async task `{}`: {}",
+                        task_id,
+                        error
+                    )
                 };
                 if let Ok((outputs, messages)) = result_receiver.recv().await {
                     let result = TaskResult::new(outputs, messages);
                     if let Err(error) = result_forwarder.send(result) {
+                        // The result receiver at the other end of the channel was dropped
+                        // (e.g. the task was cancelled) so just `debug!`
                         tracing::debug!(
-                            "When sending result for async_task task `{}`: {}",
+                            "When sending result for exec_async task `{}`: {}",
                             task_id,
                             error
                         );
@@ -557,11 +531,12 @@ impl KernelTrait for MicroKernel {
             let task_id = task.id.clone();
             let signaller = MicroKernelSignaller::new(self)?;
             tokio::spawn(async move {
-                tracing::debug!("Began cancel task for exec_async task `{}", task_id);
+                tracing::debug!("Began canceller for exec_async task `{}", task_id);
                 if let Some(..) = cancellee.recv().await {
+                    tracing::debug!("Cancelling exec_async task `{}`", task_id);
                     signaller.interrupt()
                 }
-                tracing::debug!("Ended cancel task for exec_async task `{}`", task_id);
+                tracing::debug!("Ended canceller for exec_async task `{}`", task_id);
             });
 
             Ok(task)
@@ -624,11 +599,12 @@ impl KernelTrait for MicroKernel {
         // This should finish when the `canceller` is either triggered or dropped
         let task_id = task.id.clone();
         tokio::spawn(async move {
-            tracing::debug!("Began cancel task for exec_fork task `{}` began", task_id);
+            tracing::debug!("Began canceller for exec_fork task `{}` began", task_id);
             if let Some(..) = cancellee.recv().await {
+                tracing::debug!("Cancelling exec_fork task `{}`", task_id);
                 signaller.kill()
             }
-            tracing::debug!("Ended cancel task for exec_fork task `{}` ended", task_id);
+            tracing::debug!("Ended canceller for exec_fork task `{}` ended", task_id);
         });
 
         Ok(task)
@@ -636,15 +612,17 @@ impl KernelTrait for MicroKernel {
 }
 
 impl MicroKernel {
+    /// Update the status of the kernel
+    async fn update_status(&self, new_status: KernelStatus) {
+        let mut status = self.status.lock().await;
+        *status = new_status;
+    }
+
     /// Send a task to the microkernel and receive results
     ///
-    /// A convenience method that calls `send_task` and `receive_result` and sets
-    /// `status` on failure.
+    /// A convenience method that calls `send_task` and `receive_result`.
     async fn send_receive(&mut self, task: &[String]) -> Result<(TaskOutputs, TaskMessages)> {
-        if let Err(error) = self.send_task(task).await {
-            self.status = KernelStatus::Failed;
-            bail!(error)
-        };
+        self.send_task(task).await?;
         self.receive_result().await
     }
 
@@ -652,7 +630,7 @@ impl MicroKernel {
     ///
     /// Send a task to the kernel using either `self.task_sender` channel or `self.stdin` stream.
     async fn send_task(&mut self, task: &[String]) -> Result<()> {
-        if let Some(sender) = self.task_sender.as_mut() {
+        let result = if let Some(sender) = self.task_sender.as_mut() {
             if let Err(error) = sender.send(task.into()).await {
                 bail!("When sending task for kernel `{}`: {}", self.name, error)
             } else {
@@ -664,14 +642,20 @@ impl MicroKernel {
             send_task(task, stdin).await
         } else {
             bail!("Kernel `{}` has no way to send tasks", self.name)
+        };
+
+        match result {
+            Ok(..) => self.update_status(KernelStatus::Busy).await,
+            Err(..) => self.update_status(KernelStatus::Failed).await,
         }
+        result
     }
 
     /// Receive outputs and messages from the microkernel
     ///
     /// Receives a task result from either `self.result_receiver` channel or `self.stdout/stderr` streams.
     async fn receive_result(&mut self) -> Result<(TaskOutputs, TaskMessages)> {
-        if let Some(sender) = self.result_sender.as_ref() {
+        let result = if let Some(sender) = self.result_sender.as_ref() {
             let mut receiver = sender.subscribe();
             match receiver.recv().await {
                 Ok(results) => Ok(results),
@@ -691,7 +675,13 @@ impl MicroKernel {
             receive_results(stdout, stderr).await
         } else {
             bail!("Kernel `{}` has no way to receive results", self.name)
+        };
+
+        match result {
+            Ok(..) => self.update_status(KernelStatus::Idle).await,
+            Err(..) => self.update_status(KernelStatus::Failed).await,
         }
+        result
     }
 
     #[cfg(not(target_os = "windows"))]
@@ -704,17 +694,14 @@ impl MicroKernel {
         let fork_stderr = pipes_dir.path().join("stderr.pipe");
         mkfifo(&fork_stderr, stat::Mode::S_IRWXU)?;
 
-        // Send code and pipes to the kernel
+        // Send fork task to the kernel
         let task = vec![
             FORK.to_string(),
             fork_stdout.display().to_string(),
             fork_stderr.display().to_string(),
             code.to_string(),
         ];
-        if let Err(error) = self.send_task(&task).await {
-            self.status = KernelStatus::Failed;
-            bail!(error)
-        };
+        self.send_task(&task).await?;
 
         // Receive the process id of the fork from the kernel
         let (outputs, messages) = self.receive_result().await?;
@@ -736,11 +723,33 @@ impl MicroKernel {
         let fork_stderr = File::open(fork_stderr).await?;
         tracing::debug!("Fork has opened stdout and stderr");
 
-        let mut fork = self.clone();
-        fork.pid = Some(fork_pid);
-        fork.forked_from = self.pid;
-        fork.stdout = Some(Stdout::File(BufReader::new(fork_stdout)));
-        fork.stderr = Some(Stderr::File(BufReader::new(fork_stderr)));
+        let fork = Self {
+            // Small properties required for fork operation and/or display
+            name: self.name.clone(),
+            languages: self.languages.clone(),
+            available: self.available,
+            interruptable: self.interruptable,
+            forkable: self.forkable,
+            runtime: self.runtime.clone(),
+            args: self.args.clone(),
+            // Large properties not required for fork operation
+            script: (String::new(), String::new()),
+            others: Vec::new(),
+            // Small properties that may be needed for fork to get symbols
+            set_template: self.set_template.clone(),
+            get_template: self.get_template.clone(),
+            // Status starts as `Busy` because will be executing code
+            status: Arc::new(Mutex::new(KernelStatus::Busy)),
+            pid: Some(fork_pid),
+            forked_from: self.pid,
+            child: None,
+            // Uses stdout/stderr direct to read results (rather than having an async task)
+            stdin: None,
+            stdout: Some(Stdout::File(BufReader::new(fork_stdout))),
+            stderr: Some(Stderr::File(BufReader::new(fork_stderr))),
+            task_sender: None,
+            result_sender: None,
+        };
         Ok(fork)
     }
 }
