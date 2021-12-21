@@ -323,7 +323,7 @@ pub type TaskReceiver = broadcast::Receiver<TaskResult>;
 pub type TaskCanceller = mpsc::Sender<()>;
 
 /// A task running in a [`Kernel`]
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Task {
     /// The uuid of the task
     pub id: TaskId,
@@ -353,43 +353,6 @@ pub struct Task {
     /// The canceller for the task (may be set after the task is started)
     #[serde(skip)]
     pub canceller: Option<TaskCanceller>,
-
-    // The following fields are optional "metadata": they are not required
-    // core to the API (and/or are redundant) but are useful for introspection.
-    /// The code that was executed
-    code: Option<String>,
-
-    /// The id kernel that performed the task
-    kernel_id: Option<String>,
-
-    /// Whether the task was run using `exec_async`
-    is_async: Option<bool>,
-
-    /// Whether the task was run using `exec_fork`
-    is_fork: Option<bool>,
-}
-
-impl Clone for Task {
-    /// Clone a task
-    ///
-    /// Note: mainly here for convenience during introspection.
-    /// Note that receiver and canceller are NOT cloned.
-    fn clone(&self) -> Self {
-        Self {
-            id: self.id.clone(),
-            created: self.created,
-            started: self.started,
-            finished: self.finished,
-            cancelled: self.cancelled,
-            result: self.result.clone(),
-            sender: self.sender.clone(),
-            canceller: self.canceller.clone(),
-            code: self.code.clone(),
-            kernel_id: self.kernel_id.clone(),
-            is_async: self.is_async,
-            is_fork: self.is_fork,
-        }
-    }
 }
 
 impl Task {
@@ -404,11 +367,6 @@ impl Task {
             result: None,
             sender,
             canceller,
-            // Metadata
-            code: None,
-            kernel_id: None,
-            is_async: None,
-            is_fork: None,
         }
     }
 
@@ -424,11 +382,6 @@ impl Task {
             result: None,
             sender,
             canceller,
-            // Metadata
-            code: None,
-            kernel_id: None,
-            is_async: None,
-            is_fork: None,
         }
     }
 
@@ -475,7 +428,7 @@ impl Task {
         } else if let Some(finished) = self.finished {
             // Log an error because this shouldn't really ever happen but
             // don't returns an error because its not fatal if it does
-            tracing::error!("Task was already finished at `{}`", finished);
+            tracing::error!("Task already finished at `{}`", finished);
         } else {
             self.result = Some(result);
             self.finished = Some(Utc::now());
@@ -500,7 +453,7 @@ impl Task {
     pub async fn cancel(&mut self) -> Result<()> {
         if let Some(finished) = self.finished {
             // Warn if the task already finished
-            tracing::warn!("Task was already finished at `{}`", finished);
+            tracing::warn!("Task already finished at `{}`", finished);
             Ok(())
         } else if let Some(cancelled) = self.cancelled {
             // Just debug here since this is not really an error or warning
@@ -540,20 +493,6 @@ impl Task {
                 self.id
             )
         }
-    }
-
-    /// Add metadata to the task
-    pub fn metadata(
-        &mut self,
-        code: Option<String>,
-        kernel_id: Option<String>,
-        is_async: Option<bool>,
-        is_fork: Option<bool>,
-    ) {
-        self.code = code;
-        self.kernel_id = kernel_id;
-        self.is_async = is_async;
-        self.is_fork = is_fork;
     }
 }
 /// A trait for kernels

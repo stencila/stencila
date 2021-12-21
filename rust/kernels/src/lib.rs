@@ -245,13 +245,68 @@ impl KernelMap {
     }
 }
 
-/// A list of [`Task`]s associated with a kernel space
+#[derive(Debug, Serialize)]
+struct TaskInfo {
+    /// The unique number for the task within the [`KernelSpace`]
+    ///
+    /// An easier way to be able to refer to a task than by its [`TaskId`].
+    num: u64,
+
+    /// The code that was executed
+    code: String,
+
+    /// The id of the kernel that the task was dispatched to
+    kernel_id: Option<String>,
+
+    /// Whether the task was run using `exec_async`
+    is_async: Option<bool>,
+
+    /// Whether the task was run using `exec_fork`
+    is_fork: Option<bool>,
+
+    /// The task that this information is for
+    #[serde(flatten)]
+    task: Task,
+}
+
+/// A list of [`Task`]s associated with a [`KernelSpace`]
 #[derive(Debug, Default)]
 struct KernelTasks {
-    tasks: Arc<Mutex<HashMap<TaskId, Task>>>,
+    /// The list of tasks
+    tasks: Arc<Mutex<Vec<TaskInfo>>>,
+
+    /// A counter to be able to assign unique numbers to tasks
+    counter: u64,
 }
 
 impl KernelTasks {
+    /// Find a task using its `num` or [`TaskId`]
+    fn find_mut<'lt>(tasks: &'lt mut Vec<TaskInfo>, num_or_id: &str) -> Option<&'lt mut TaskInfo> {
+        if let Ok(num) = num_or_id.parse::<u64>() {
+            for task_info in tasks {
+                if task_info.num == num {
+                    return Some(task_info);
+                }
+            }
+            None
+        } else {
+            match TaskId::try_from(num_or_id) {
+                Ok(id) => KernelTasks::get_mut(tasks, &id),
+                Err(..) => None,
+            }
+        }
+    }
+
+    /// Get a task using its [`TaskId`]
+    fn get_mut<'lt>(tasks: &'lt mut Vec<TaskInfo>, task_id: &TaskId) -> Option<&'lt mut TaskInfo> {
+        for task_info in tasks {
+            if task_info.task.id == *task_id {
+                return Some(task_info);
+            }
+        }
+        None
+    }
+
     /// Store a task
     async fn store(
         &mut self,
@@ -261,17 +316,9 @@ impl KernelTasks {
         is_async: bool,
         is_fork: bool,
     ) {
-        let mut task = task.clone();
-        let task_id = task.id.clone();
+        let task = task.clone();
 
-        task.metadata(
-            Some(code.to_string()),
-            Some(kernel_id.to_string()),
-            Some(is_async),
-            Some(is_fork),
-        );
-
-        // If the task is async, subscribe to it so that it can be updated when it
+        // If the task is async, subscribe to it so that it's result can be updated when it
         // is complete.
         if let Ok(mut receiver) = task.subscribe() {
             let tasks = self.tasks.clone();
@@ -280,32 +327,46 @@ impl KernelTasks {
                 match receiver.recv().await {
                     Ok(result) => {
                         let mut tasks = tasks.lock().await;
-                        if let Some(task) = tasks.get_mut(&task_id) {
-                            task.finished(result);
-                        } else {
-                            tracing::debug!("Unable to find task `{}`", task_id)
+                        match KernelTasks::get_mut(&mut tasks, &task_id) {
+                            Some(task_info) => task_info.task.finished(result),
+                            // Since we're cancelling, if not found just debug
+                            None => tracing::debug!("Unable to find task `{}`", task_id),
                         }
                     }
-                    Err(error) => tracing::error!("While receiving async task result: {}", error),
+                    Err(error) => tracing::error!(
+                        "While receiving result for async task `{}`: {}",
+                        task_id,
+                        error
+                    ),
                 }
             });
         }
 
+        // Increment counter and add to list
         let mut tasks = self.tasks.lock().await;
-        tasks.insert(task_id, task);
+        self.counter += 1;
+        tasks.push(TaskInfo {
+            num: self.counter,
+            code: code.to_string(),
+            kernel_id: Some(kernel_id.to_string()),
+            is_async: Some(is_async),
+            is_fork: Some(is_fork),
+            task,
+        });
     }
 
     /// Cancel a task
-    async fn cancel(&mut self, task_id: &TaskId) -> Result<()> {
+    async fn cancel(&mut self, task_num_or_id: &str) -> Result<()> {
+        let task_num_or_id = task_num_or_id.trim();
+
         let mut tasks = self.tasks.lock().await;
-        if let Some(task) = tasks.get_mut(task_id) {
-            task.cancel().await
+        if let Some(task_info) = KernelTasks::find_mut(&mut tasks, task_num_or_id) {
+            task_info.task.cancel().await
         } else {
-            tracing::debug!(
+            tracing::warn!(
                 "Unable to find task `{}`; it may have already been cleaned up",
-                task_id
+                task_num_or_id
             );
-            println!("{:?}", tasks.keys());
             Ok(())
         }
     }
@@ -464,7 +525,9 @@ impl KernelSpace {
         };
 
         // Store the task, with metadata
-        self.tasks.store(&task, code, &kernel_id, is_async, is_fork).await;
+        self.tasks
+            .store(&task, code, &kernel_id, is_async, is_fork)
+            .await;
 
         // Record symbols assigned in kernel (unless it was a fork)
         if let (false, Some(relations)) = (is_fork, relations) {
@@ -617,13 +680,8 @@ impl KernelSpace {
             self.symbols()
         } else if code == "%tasks" {
             self.tasks.display().await
-        } else if let Some(task_id) = code.strip_prefix("%cancel") {
-            let task_id = task_id.trim();
-            let task_id = match TaskId::try_from(task_id) {
-                Ok(task_id) => task_id,
-                Err(..) => bail!("Invalid task id"),
-            };
-            self.tasks.cancel(&task_id).await?;
+        } else if let Some(task_id_or_num) = code.strip_prefix("%cancel") {
+            self.tasks.cancel(task_id_or_num).await?;
             result::nothing()
         } else if language.is_none() && kernel.is_none() && SYMBOL.is_match(code) {
             match self.get(code).await {
