@@ -326,10 +326,6 @@ mod tests {
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
         task.cancel().await?;
 
-        // Sleep to give time for result of previous task to "clear"
-        // TODO: remove when fixed
-        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-
         // Check that was started but not finished
         let (outputs, messages) = kernel.exec("c(started, exists('finished'))").await.unwrap();
         assert_json_is!(messages, []);
