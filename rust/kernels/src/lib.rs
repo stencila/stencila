@@ -245,28 +245,35 @@ impl KernelMap {
     }
 }
 
-#[derive(Debug, Serialize)]
-struct TaskInfo {
+#[derive(Debug, Clone, Serialize)]
+pub struct TaskInfo {
     /// The unique number for the task within the [`KernelSpace`]
     ///
     /// An easier way to be able to refer to a task than by its [`TaskId`].
-    num: u64,
+    pub num: u64,
 
     /// The code that was executed
-    code: String,
+    pub code: String,
 
     /// The id of the kernel that the task was dispatched to
-    kernel_id: Option<String>,
+    pub kernel_id: Option<String>,
 
     /// Whether the task was run using `exec_async`
-    is_async: Option<bool>,
+    pub is_async: Option<bool>,
 
     /// Whether the task was run using `exec_fork`
-    is_fork: Option<bool>,
+    pub is_fork: Option<bool>,
 
     /// The task that this information is for
     #[serde(flatten)]
-    task: Task,
+    pub task: Task,
+}
+
+impl TaskInfo {
+    /// Convenience method to access the task results
+    pub async fn result(&mut self) -> Result<TaskResult> {
+        self.task.result().await
+    }
 }
 
 /// A list of [`Task`]s associated with a [`KernelSpace`]
@@ -315,9 +322,7 @@ impl KernelTasks {
         kernel_id: &str,
         is_async: bool,
         is_fork: bool,
-    ) {
-        let task = task.clone();
-
+    ) -> TaskInfo {
         // If the task is async, subscribe to it so that it's result can be updated when it
         // is complete.
         if let Ok(mut receiver) = task.subscribe() {
@@ -343,22 +348,25 @@ impl KernelTasks {
         }
 
         // Increment counter and add to list
-        let mut tasks = self.tasks.lock().await;
         self.counter += 1;
-        tasks.push(TaskInfo {
+
+        let task_info = TaskInfo {
             num: self.counter,
             code: code.to_string(),
             kernel_id: Some(kernel_id.to_string()),
             is_async: Some(is_async),
             is_fork: Some(is_fork),
-            task,
-        });
+            task: task.clone(),
+        };
+
+        let mut tasks = self.tasks.lock().await;
+        tasks.push(task_info.clone());
+
+        task_info
     }
 
     /// Cancel a task
     async fn cancel(&mut self, task_num_or_id: &str) -> Result<()> {
-        let task_num_or_id = task_num_or_id.trim();
-
         let mut tasks = self.tasks.lock().await;
         if let Some(task_info) = KernelTasks::find_mut(&mut tasks, task_num_or_id) {
             task_info.task.cancel().await
@@ -449,7 +457,7 @@ impl KernelSpace {
         relations: Option<Vec<(Relation, Resource)>>,
         is_async: bool,
         is_fork: bool,
-    ) -> Result<Task> {
+    ) -> Result<TaskInfo> {
         // Determine the kernel to execute in
         let kernel_id = self.ensure(selector).await?;
         tracing::debug!("Executing code in kernel `{}`", kernel_id);
@@ -525,7 +533,8 @@ impl KernelSpace {
         };
 
         // Store the task, with metadata
-        self.tasks
+        let task_info = self
+            .tasks
             .store(&task, code, &kernel_id, is_async, is_fork)
             .await;
 
@@ -552,7 +561,7 @@ impl KernelSpace {
             }
         }
 
-        Ok(task)
+        Ok(task_info)
     }
 
     /// Ensure that a kernel exists for a selector
@@ -680,8 +689,10 @@ impl KernelSpace {
             self.symbols()
         } else if code == "%tasks" {
             self.tasks.display().await
-        } else if let Some(task_id_or_num) = code.strip_prefix("%cancel") {
-            self.tasks.cancel(task_id_or_num).await?;
+        } else if let Some(task_num_or_id) = code.strip_prefix("%cancel") {
+            let task_num_or_id = task_num_or_id.trim();
+            let task_num_or_id = task_num_or_id.strip_prefix('#').unwrap_or(task_num_or_id);
+            self.tasks.cancel(task_num_or_id).await?;
             result::nothing()
         } else if language.is_none() && kernel.is_none() && SYMBOL.is_match(code) {
             match self.get(code).await {
@@ -725,16 +736,16 @@ impl KernelSpace {
             };
 
             // Execute the code
-            let mut task = self
+            let mut task_info = self
                 .exec(&code, &selector, Some(relations), background, fork)
                 .await?;
 
             // If not a background task, or if results are already available, show results.
             if background || fork {
-                tracing::info!("Task `{}` is running in background", task.id);
+                tracing::info!("Task #{} is running in background", task_info.num);
                 result::nothing()
             } else {
-                let TaskResult { outputs, messages } = task.result().await?;
+                let TaskResult { outputs, messages } = task_info.result().await?;
                 if !messages.is_empty() {
                     for error in messages {
                         let mut err = error.error_message;
