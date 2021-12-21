@@ -242,6 +242,7 @@ impl MicroKernelSignaller {
     pub fn kill(&self) {
         #[cfg(not(target_os = "windows"))]
         {
+            use nix::errno::Errno::ESRCH;
             use nix::sys::signal::{self, Signal};
             use nix::unistd::Pid;
 
@@ -250,11 +251,14 @@ impl MicroKernelSignaller {
             // for its exit signal. This depends on how the parent kernel forks
             // (in `r-kernel.r` we use the `estranged` flag to avoid this).
             if let Err(error) = signal::kill(Pid::from_raw(self.pid as i32), Signal::SIGKILL) {
-                tracing::warn!(
-                    "While killing microkernel with pid `{}`: {}",
-                    self.pid,
-                    error
-                )
+                // Only warn if the error is not "No such process" (in case it already ended)
+                if error != ESRCH {
+                    tracing::warn!(
+                        "While killing microkernel with pid `{}`: {}",
+                        self.pid,
+                        error
+                    )
+                }
             }
         }
     }
