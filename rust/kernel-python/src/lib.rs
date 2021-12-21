@@ -25,7 +25,6 @@ mod tests {
         stencila_schema::Node,
         KernelTrait, TaskResult,
     };
-    use kernel_micro::MicroKernelSignaller;
     use test_utils::{assert_json_eq, assert_json_is, skip_ci_os};
 
     async fn skip_or_kernel() -> Result<MicroKernel> {
@@ -101,12 +100,9 @@ mod tests {
         Ok(())
     }
 
-    /// Test interrupting a task
-    ///
-    /// Note: This takes a somewhat manual approach to testing interruption.
-    /// Since this was written, a `kernel::Task::cancel()` method was added.
+    /// Test cancelling a task
     #[tokio::test]
-    async fn interrupt() -> Result<()> {
+    async fn exec_async() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => {
                 if kernel.is_interruptable().await {
@@ -119,42 +115,33 @@ mod tests {
             Err(..) => return Ok(()),
         };
 
-        // Get an "interrupter" so that we can interrupt without doing a double mutable borrow
-        let signaller = MicroKernelSignaller::new(&kernel)?;
+        // Start a long running task in the kernel that should get cancelled
+        let mut task = kernel
+            .exec_async("import time\nstarted = True\ntime.sleep(10)\nfinished = True")
+            .await?;
 
-        let task = tokio::task::spawn(async move {
-            // Start a long running task in the kernel that should get interrupted in the parent function
-            let (outputs, messages) = kernel
-                .exec("import time\nstarted = True\ntime.sleep(10)\nfinished = True")
-                .await
-                .unwrap();
-            assert_json_is!(messages[0].error_type, "CodeInterrupt");
-            assert_json_is!(outputs, []);
+        // Sleep a little to allow the task to start, then cancel it
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+        task.cancel().await?;
 
-            // Check that was started but not finished
-            let (outputs, messages) = kernel
-                .exec("[started, 'finished' in locals()]")
-                .await
-                .unwrap();
-            assert_json_is!(messages, []);
-            assert_json_is!(outputs, [[true, false]]);
-        });
-
-        // Sleep a little to allow the task to start
+        // Sleep to give time for result of previous task to "clear"
+        // TODO: remove when fixed
         tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 
-        // Interrupt the task and await the results
-        signaller.interrupt();
-
-        // Wait for test results
-        task.await?;
+        // Check that was started but not finished
+        let (outputs, messages) = kernel
+            .exec("[started, 'finished' in locals()]")
+            .await
+            .unwrap();
+        assert_json_is!(messages, []);
+        assert_json_is!(outputs, [[true, false]]);
 
         Ok(())
     }
 
     /// Test forking
     #[tokio::test]
-    async fn fork() -> Result<()> {
+    async fn exec_fork() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => {
                 if kernel.is_forkable().await {
