@@ -11,7 +11,7 @@ use kernel::{
 use kernel::{TaskId, TaskMessages, TaskOutputs};
 use serde::Serialize;
 use std::{
-    collections::{hash_map::Entry, BTreeMap, HashMap, HashSet},
+    collections::{hash_map::Entry, BTreeMap, HashMap, HashSet, VecDeque},
     sync::Arc,
 };
 use tokio::sync::{broadcast, mpsc, Mutex};
@@ -441,7 +441,7 @@ impl KernelTasks {
     }
 }
 
-type KernelQueue = Vec<(KernelId, TaskId)>;
+type KernelQueues = HashMap<KernelId, VecDeque<TaskId>>;
 
 #[derive(Debug, Default, Serialize)]
 pub struct KernelSpace {
@@ -458,7 +458,7 @@ pub struct KernelSpace {
 
     /// The queue of deferred tasks
     #[serde(skip)]
-    queue: Arc<Mutex<KernelQueue>>,
+    queues: Arc<Mutex<KernelQueues>>,
 }
 
 impl KernelSpace {
@@ -467,7 +467,7 @@ impl KernelSpace {
         let new = Self::default();
 
         let kernels = new.kernels.clone();
-        let queue = new.queue.clone();
+        let queue = new.queues.clone();
         let tasks = new.tasks.clone();
         tokio::spawn(async move { KernelSpace::monitor(kernels, queue, tasks).await });
 
@@ -479,7 +479,7 @@ impl KernelSpace {
     /// Checks for and dispatches queued tasks and monitors the health of kernels and tasks.
     async fn monitor(
         kernels: Arc<Mutex<KernelMap>>,
-        queue: Arc<Mutex<KernelQueue>>,
+        queue: Arc<Mutex<KernelQueues>>,
         tasks: Arc<Mutex<KernelTasks>>,
     ) {
         use tokio::time::{sleep, Duration};
@@ -637,7 +637,7 @@ impl KernelSpace {
         };
 
         // Store the task, with metadata
-        let task_info = self.store(&task, code, &kernel_id, is_fork).await;
+        let task_info = self.store(&task, code, &kernel_id, is_fork, false).await;
 
         // Record symbols assigned in kernel (unless it was a fork)
         if let (false, Some(relations)) = (is_fork, relations) {
@@ -675,79 +675,79 @@ impl KernelSpace {
         let (canceller, mut cancellee) = mpsc::channel(1);
         let task = Task::create(Some(sender), Some(canceller));
 
-        // Add the task to the queue
-        let mut queue = self.queue.lock().await;
-        queue.push((kernel_id.to_string(), task.id.clone()));
+        // Add the task to the queue for the kernel
+        let mut queues = self.queues.lock().await;
+        let task_id = task.id.clone();
+        queues
+            .entry(kernel_id.to_string())
+            .and_modify(|queue| queue.push_back(task_id.clone()))
+            .or_insert_with(|| VecDeque::from_iter(vec![task_id]));
 
-        // When cancelled, remove the task from the queue
-        let queue = self.queue.clone();
+        // When cancelled, remove the task from the queue for the kernel
+        let queues = self.queues.clone();
+        let kernel_id_clone = kernel_id.to_string();
         let task_id = task.id.clone();
         tokio::spawn(async move {
             if let Some(..) = cancellee.recv().await {
-                let mut queue = queue.lock().await;
-                queue.retain(|(.., task_idd)| *task_idd != task_id);
+                let mut queues = queues.lock().await;
+                queues
+                    .entry(kernel_id_clone)
+                    .and_modify(|queue| queue.retain(|task_idd| *task_idd != task_id));
             }
         });
 
-        let mut tasks = self.tasks.lock().await;
-        tasks.put(&task, code, kernel_id, is_fork, true).await
+        self.store(&task, code, kernel_id, is_fork, true).await
     }
 
-    /// Dispatch tasks of a queue
+    /// Dispatch tasks of a kernel space queues
     async fn dispatch_queue(
-        queue: &mut KernelQueue,
+        queues: &mut KernelQueues,
         tasks: &mut KernelTasks,
         kernels: &mut KernelMap,
     ) {
-        let mut tasks_removed = Vec::new();
-        let mut kernels_dispatched = Vec::new();
-        for (kernel_id, task_id) in queue.iter() {
-            // Do not dispatch to kernels that have already been dispatched to
-            // in this iterations (to give time for async tasks to spawn and
-            // status to update).
-            if kernels_dispatched.contains(kernel_id) {
+        let mut kernels_removed = Vec::new();
+        for (kernel_id, queue) in queues.iter_mut() {
+            if queue.is_empty() {
                 continue;
             }
+            if let Ok(kernel) = kernels.get_mut(kernel_id) {
+                if !kernel.is_busy().await.unwrap_or(false) {
+                    let task_id = queue
+                        .pop_front()
+                        .expect("Should have at least one because we checked above");
 
-            match kernels.get_mut(kernel_id) {
-                Ok(kernel) => {
-                    if !kernel.is_busy().await.unwrap_or(false) {
+                    if let Some(mut task_info) = tasks.get_mut(&task_id) {
                         tracing::debug!("Dispatching task `{}` to kernel `{}`", task_id, kernel_id);
-
-                        if let Some(mut task_info) = tasks.get_mut(task_id) {
-                            if let Err(_error) =
-                                KernelSpace::dispatch_deferred(&mut task_info, kernel).await
-                            {
-                                tracing::error!(
-                                    "While dispatching task `{}` to kernel `{}`",
-                                    task_id,
-                                    kernel_id
-                                );
-                            }
-                            // Record that this task was dispatched to the kernel
-                            kernels_dispatched.push(kernel_id.clone());
-                        } else {
-                            tracing::debug!(
-                                "Unable to find task `{}` will be removed from queue",
-                                task_id
+                        if let Err(error) =
+                            KernelSpace::dispatch_deferred(&mut task_info, kernel).await
+                        {
+                            tracing::error!(
+                                "While dispatching task `{}` to kernel `{}`: {}",
+                                task_id,
+                                kernel_id,
+                                error
                             );
                         }
-                        tasks_removed.push(task_id.clone());
+                    } else {
+                        tracing::debug!(
+                            "Unable to find task `{}`; was removed from queue for kernel `{}`",
+                            task_id,
+                            kernel_id
+                        );
                     }
                 }
-                Err(_error) => {
-                    tracing::debug!(
-                        "Unable to find kernel `{}`, task `{}` will be removed from queue",
-                        kernel_id,
-                        task_id
-                    );
-                    tasks_removed.push(task_id.clone());
-                }
+            } else {
+                tracing::debug!(
+                    "Unable to find kernel `{}`; associated queue will be removed",
+                    kernel_id
+                );
+                kernels_removed.push(kernel_id.clone());
             }
         }
 
-        // Remove the dispatched tasks from the queue
-        queue.retain(|(.., task_id)| !tasks_removed.contains(task_id));
+        for kernel_id in kernels_removed {
+            queues.remove(&kernel_id);
+        }
     }
 
     /// Dispatch a previously deferred task to a kernel
@@ -820,11 +820,18 @@ impl KernelSpace {
         Ok(())
     }
 
-    /// Store a task that has already been dispatched to a kernel
+    /// Store a task (either one that has been dispatched or is deferred)
     ///
     /// If the task is async, subscribe to it so that it's result can be updated when it
     /// is complete.
-    async fn store(&self, task: &Task, code: &str, kernel_id: &str, is_fork: bool) -> TaskInfo {
+    async fn store(
+        &self,
+        task: &Task,
+        code: &str,
+        kernel_id: &str,
+        is_fork: bool,
+        is_deferred: bool,
+    ) -> TaskInfo {
         if let (false, Ok(mut receiver)) = (task.is_done(), task.subscribe()) {
             // When finished, update the tasks info stored in `tasks`
             let tasks = self.tasks.clone();
@@ -850,7 +857,7 @@ impl KernelSpace {
         }
 
         let mut tasks = self.tasks.lock().await;
-        tasks.put(task, code, kernel_id, is_fork, false).await
+        tasks.put(task, code, kernel_id, is_fork, is_deferred).await
     }
 
     /// Cancel a task
@@ -906,8 +913,8 @@ impl KernelSpace {
         } else if code == "%tasks" {
             let tasks = self.tasks.lock().await;
             tasks.display().await
-        } else if code == "%queue" {
-            let queue = self.queue.lock().await;
+        } else if code == "%queues" {
+            let queue = self.queues.lock().await;
             result::value(queue.clone())
         } else if let Some(task_num_or_id) = code.strip_prefix("%cancel") {
             let task_num_or_id = task_num_or_id.trim();
