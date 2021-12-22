@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
-use graph_triples::{Relation, Resource};
+use graph_triples::{resources::Symbol, Relation, Resource};
 #[allow(unused_imports)]
 use kernel::{
     async_trait::async_trait,
@@ -15,49 +15,9 @@ use std::{
     sync::Arc,
 };
 use tokio::sync::{broadcast, mpsc, Mutex};
-use validator::Contains;
 
 // Re-exports
 pub use kernel::{KernelSelector, Task, TaskResult};
-
-/// Information on a symbol in a kernel space
-#[derive(Debug, Clone, Serialize)]
-pub struct SymbolInfo {
-    /// The type of the object that the symbol refers to (e.g `Number`, `Function`)
-    ///
-    /// Should be used as a hint only, to the underlying, native type of the symbol.
-    kind: String,
-
-    /// The home kernel of the symbol
-    ///
-    /// The home kernel of a symbol is the kernel that it was last assigned in.
-    /// As such, a symbol's home kernel can change, although this is discouraged.
-    home: KernelId,
-
-    /// The time that the symbol was last assigned in the home kernel
-    ///
-    /// A symbol is considered assigned when  a `CodeChunk` with an `Assign` relation
-    /// to the symbol is executed or the `kernel.set` method is called.
-    assigned: DateTime<Utc>,
-
-    /// The time that the symbol was last mirrored to other kernels
-    ///
-    /// A timestamp is recorded for each time that a symbol is mirrored to another
-    /// kernel. This allows unnecessary mirroring to be avoided if the symbol has
-    /// not been assigned since it was last mirrored to that kernel.
-    mirrored: HashMap<KernelId, DateTime<Utc>>,
-}
-
-impl SymbolInfo {
-    pub fn new(kind: &str, kernel_id: &str) -> Self {
-        SymbolInfo {
-            kind: kind.into(),
-            home: kernel_id.into(),
-            assigned: Utc::now(),
-            mirrored: HashMap::new(),
-        }
-    }
-}
 
 /// A "meta" kernel to dispatch to different types of kernels
 ///
@@ -327,6 +287,47 @@ impl KernelMap {
     }
 }
 
+/// Information on a symbol in a kernel space
+#[derive(Debug, Clone, Serialize)]
+pub struct SymbolInfo {
+    /// The type of the object that the symbol refers to (e.g `Number`, `Function`)
+    ///
+    /// Should be used as a hint only, to the underlying, native type of the symbol.
+    kind: String,
+
+    /// The home kernel of the symbol
+    ///
+    /// The home kernel of a symbol is the kernel that it was last assigned in.
+    /// As such, a symbol's home kernel can change, although this is discouraged.
+    home: KernelId,
+
+    /// The time that the symbol was last assigned in the home kernel
+    ///
+    /// A symbol is considered assigned when  a `CodeChunk` with an `Assign` relation
+    /// to the symbol is executed or the `kernel.set` method is called.
+    assigned: DateTime<Utc>,
+
+    /// The time that the symbol was last mirrored to other kernels
+    ///
+    /// A timestamp is recorded for each time that a symbol is mirrored to another
+    /// kernel. This allows unnecessary mirroring to be avoided if the symbol has
+    /// not been assigned since it was last mirrored to that kernel.
+    mirrored: HashMap<KernelId, DateTime<Utc>>,
+}
+
+impl SymbolInfo {
+    pub fn new(kind: &str, kernel_id: &str) -> Self {
+        SymbolInfo {
+            kind: kind.into(),
+            home: kernel_id.into(),
+            assigned: Utc::now(),
+            mirrored: HashMap::new(),
+        }
+    }
+}
+
+type KernelSymbols = HashMap<String, SymbolInfo>;
+
 #[derive(Debug, Clone, Serialize)]
 pub struct TaskInfo {
     /// The unique number for the task within the [`KernelSpace`]
@@ -336,6 +337,12 @@ pub struct TaskInfo {
 
     /// The code that was executed
     pub code: String,
+
+    /// The symbols that are used by this code
+    pub symbols_used: Vec<Symbol>,
+
+    /// The symbols that are assigned by this code
+    pub symbols_assigned: Vec<Symbol>,
 
     /// The id of the kernel that the task was dispatched to
     pub kernel_id: Option<String>,
@@ -403,10 +410,13 @@ impl KernelTasks {
     }
 
     /// Put a task onto the list
+    #[allow(clippy::too_many_arguments)]
     async fn put(
         &mut self,
         task: &Task,
         code: &str,
+        symbols_used: &[Symbol],
+        symbols_assigned: &[Symbol],
         kernel_id: &str,
         is_fork: bool,
         is_deferred: bool,
@@ -416,6 +426,8 @@ impl KernelTasks {
         let task_info = TaskInfo {
             num: self.counter,
             code: code.to_string(),
+            symbols_used: symbols_used.into(),
+            symbols_assigned: symbols_assigned.into(),
             kernel_id: Some(kernel_id.to_string()),
             is_deferred,
             is_fork,
@@ -450,7 +462,8 @@ pub struct KernelSpace {
     kernels: Arc<Mutex<KernelMap>>,
 
     /// The symbols in the kernel space
-    symbols: HashMap<String, SymbolInfo>,
+    #[serde(skip)]
+    symbols: Arc<Mutex<KernelSymbols>>,
 
     /// The list of all tasks sent to this kernel space
     #[serde(skip)]
@@ -469,7 +482,8 @@ impl KernelSpace {
         let kernels = new.kernels.clone();
         let queue = new.queues.clone();
         let tasks = new.tasks.clone();
-        tokio::spawn(async move { KernelSpace::monitor(kernels, queue, tasks).await });
+        let symbols = new.symbols.clone();
+        tokio::spawn(async move { KernelSpace::monitor(&kernels, &queue, &tasks, &symbols).await });
 
         new
     }
@@ -478,26 +492,16 @@ impl KernelSpace {
     ///
     /// Checks for and dispatches queued tasks and monitors the health of kernels and tasks.
     async fn monitor(
-        kernels: Arc<Mutex<KernelMap>>,
-        queue: Arc<Mutex<KernelQueues>>,
-        tasks: Arc<Mutex<KernelTasks>>,
+        kernels: &Arc<Mutex<KernelMap>>,
+        queues: &Arc<Mutex<KernelQueues>>,
+        tasks: &Arc<Mutex<KernelTasks>>,
+        symbols: &Arc<Mutex<KernelSymbols>>,
     ) {
         use tokio::time::{sleep, Duration};
 
         tracing::debug!("Began kernel space monitoring");
         loop {
-            let mut kernels = kernels.lock().await;
-            let mut queue = queue.lock().await;
-            let mut tasks = tasks.lock().await;
-
-            if !queue.is_empty() {
-                KernelSpace::dispatch_queue(&mut *queue, &mut *tasks, &mut *kernels).await;
-            }
-
-            // Let go of locks while sleeping
-            drop(kernels);
-            drop(queue);
-            drop(tasks);
+            KernelSpace::dispatch_queue(queues, tasks, kernels, symbols).await;
 
             sleep(Duration::from_millis(300)).await;
         }
@@ -505,8 +509,8 @@ impl KernelSpace {
 
     /// Get a symbol from the kernel space
     pub async fn get(&mut self, name: &str) -> Result<Node> {
-        let symbol_info = self
-            .symbols
+        let symbols = &mut *self.symbols.lock().await;
+        let symbol_info = symbols
             .get(name)
             .ok_or_else(|| eyre!("Unknown symbol `{}`", name))?;
 
@@ -527,7 +531,8 @@ impl KernelSpace {
         let kernel = kernels.get_mut(&kernel_id)?;
         kernel.set(name, value).await?;
 
-        match self.symbols.entry(name.to_string()) {
+        let symbols = &mut *self.symbols.lock().await;
+        match symbols.entry(name.to_string()) {
             Entry::Occupied(mut occupied) => {
                 let info = occupied.get_mut();
                 info.home = kernel_id;
@@ -542,8 +547,6 @@ impl KernelSpace {
     }
 
     /// Execute some code in the kernel space
-    ///
-    /// Symbols that the code uses, but have a different home kernel, are mirrored to the kernel.
     pub async fn exec(
         &mut self,
         code: &str,
@@ -554,80 +557,120 @@ impl KernelSpace {
     ) -> Result<TaskInfo> {
         let kernels = &mut *self.kernels.lock().await;
 
-        // Determine the kernel to execute in
-        let kernel_id = kernels.ensure(selector).await?;
-        tracing::debug!("Executing code in kernel `{}`", kernel_id);
-
-        // If the kernel is busy then defer the task
-        let kernel = kernels.get_mut(&kernel_id)?;
-
-        if kernel.is_busy().await? {
-            let task_info = self.defer(code, &kernel_id, is_fork).await;
-            return Ok(task_info);
-        }
-
-        // Mirror used symbols into the kernel
-        if let Some(relations) = &relations {
-            for relation in relations {
-                let name = if let (Relation::Use(..), Resource::Symbol(symbol)) = relation {
-                    if self.symbols.has_element(&symbol.name) {
-                        &symbol.name
-                    } else {
-                        continue;
+        // Summarize relations into symbols used and assigned
+        let mut symbols_used = Vec::new();
+        let mut symbols_assigned = Vec::new();
+        if let Some(relations) = relations {
+            for pair in relations {
+                match pair {
+                    (Relation::Use(..), Resource::Symbol(symbol)) => symbols_used.push(symbol),
+                    (Relation::Assign(..), Resource::Symbol(symbol)) => {
+                        symbols_assigned.push(symbol)
                     }
-                } else {
-                    continue;
-                };
-
-                let SymbolInfo {
-                    home,
-                    assigned,
-                    mirrored,
-                    ..
-                } = self
-                    .symbols
-                    .get_mut(name)
-                    .ok_or_else(|| eyre!("Unknown symbol `{}`", name))?;
-
-                // Skip if home is the target kernel
-                if *home == kernel_id {
-                    continue;
-                }
-
-                // Skip if already mirrored since last assigned
-                if let Some(mirrored) = mirrored.get(&kernel_id) {
-                    if mirrored >= assigned {
-                        continue;
-                    }
-                }
-
-                tracing::debug!(
-                    "Mirroring symbol `{}` from kernel `{}` to kernel `{}`",
-                    name,
-                    home,
-                    kernel_id
-                );
-
-                let home_kernel = kernels.get_mut(home)?;
-                let value = home_kernel.get(name).await?;
-
-                let mirror_kernel = kernels.get_mut(&kernel_id)?;
-                mirror_kernel.set(name, value).await?;
-
-                match mirrored.entry(kernel_id.clone()) {
-                    Entry::Occupied(mut occupied) => {
-                        let datetime = occupied.get_mut();
-                        *datetime = Utc::now();
-                    }
-                    Entry::Vacant(vacant) => {
-                        vacant.insert(Utc::now());
-                    }
+                    _ => (),
                 }
             }
         }
 
-        // Execute the code
-        let kernel = kernels.get_mut(&kernel_id)?;
+        // Determine the kernel to execute in
+        let kernel_id = kernels.ensure(selector).await?;
+        tracing::debug!("Executing code in kernel `{}`", kernel_id);
+
+        // If the kernel is busy then defer the task, otherwise dispatch to the kernel now
+        let kernel = kernels.get(&kernel_id)?;
+        let (deferred, task) = if kernel.is_busy().await? {
+            let task = self.defer_task(&kernel_id).await;
+            (true, task)
+        } else {
+            let symbols = &mut *self.symbols.lock().await;
+            let task = KernelSpace::dispatch_task(
+                code,
+                &symbols_used,
+                &symbols_assigned,
+                is_async,
+                is_fork,
+                symbols,
+                &kernel_id,
+                kernels,
+            )
+            .await?;
+            (false, task)
+        };
+
+        // Either way, store the task
+        let task_info = self
+            .store(
+                &task,
+                code,
+                &symbols_used,
+                &symbols_assigned,
+                is_fork,
+                &kernel_id,
+                deferred,
+            )
+            .await;
+        Ok(task_info)
+    }
+
+    /// Dispatch a task to a kernel
+    ///
+    /// Symbols that the code uses, but have a different home kernel, are mirrored to the kernel.
+    /// Ensures that the kernel has necessary variables before dispatching and that any
+    /// variables it assigns are recorded.
+    #[allow(clippy::too_many_arguments)]
+    async fn dispatch_task(
+        code: &str,
+        symbols_used: &[Symbol],
+        symbols_assigned: &[Symbol],
+        is_async: bool,
+        is_fork: bool,
+        symbols: &mut KernelSymbols,
+        kernel_id: &KernelId,
+        kernels: &mut KernelMap,
+    ) -> Result<Task> {
+        // Mirror used symbols into the kernel
+        for symbol in symbols_used {
+            let name = &symbol.name;
+            let symbol = match symbols.get_mut(name) {
+                Some(symbol) => symbol,
+                // Skip if unknown symbol (e.g a package, or variable assigned elsewhere)
+                None => continue,
+            };
+
+            // Skip if home is the target kernel
+            if symbol.home == *kernel_id {
+                continue;
+            }
+
+            // Skip if already mirrored since last assigned
+            if let Some(mirrored) = symbol.mirrored.get(kernel_id) {
+                if mirrored >= &symbol.assigned {
+                    continue;
+                }
+            }
+
+            tracing::debug!(
+                "Mirroring symbol `{}` from kernel `{}` to kernel `{}`",
+                name,
+                symbol.home,
+                kernel_id
+            );
+
+            let home_kernel = kernels.get_mut(&symbol.home)?;
+            let value = home_kernel.get(name).await?;
+
+            let mirror_kernel = kernels.get_mut(kernel_id)?;
+            mirror_kernel.set(name, value).await?;
+
+            symbol
+                .mirrored
+                .entry(kernel_id.clone())
+                .and_modify(|datetime| *datetime = Utc::now())
+                .or_insert_with(Utc::now);
+        }
+
+        // Execute the code in the kernel
+        let kernel = kernels.get_mut(kernel_id)?;
         let task = if is_fork {
             kernel.exec_fork(code).await?
         } else if is_async {
@@ -636,33 +679,20 @@ impl KernelSpace {
             kernel.exec_sync(code).await?
         };
 
-        // Store the task, with metadata
-        let task_info = self.store(&task, code, &kernel_id, is_fork, false).await;
-
         // Record symbols assigned in kernel (unless it was a fork)
-        if let (false, Some(relations)) = (is_fork, relations) {
-            for relation in relations {
-                let (name, kind) =
-                    if let (Relation::Assign(..), Resource::Symbol(symbol)) = relation {
-                        (symbol.name, symbol.kind)
-                    } else {
-                        continue;
-                    };
-
-                match self.symbols.entry(name) {
-                    Entry::Occupied(mut occupied) => {
-                        let info = occupied.get_mut();
+        if !is_fork {
+            for symbol in symbols_assigned {
+                symbols
+                    .entry(symbol.name.clone())
+                    .and_modify(|info| {
                         info.home = kernel_id.clone();
                         info.assigned = Utc::now();
-                    }
-                    Entry::Vacant(vacant) => {
-                        vacant.insert(SymbolInfo::new(&kind, &kernel_id));
-                    }
-                }
+                    })
+                    .or_insert_with(|| SymbolInfo::new(&symbol.kind, kernel_id));
             }
         }
 
-        Ok(task_info)
+        Ok(task)
     }
 
     /// Defer a task
@@ -670,7 +700,7 @@ impl KernelSpace {
     /// Used when a kernel is busy. Instead of dispatching the task to the kernel,
     /// add it to the task queue so it can be more easily, and less expensively, cancelled
     /// by simply removing it from the queue rather than interrupting the kernel.
-    async fn defer(&self, code: &str, kernel_id: &str, is_fork: bool) -> TaskInfo {
+    async fn defer_task(&self, kernel_id: &str) -> Task {
         let (sender, ..) = broadcast::channel(1);
         let (canceller, mut cancellee) = mpsc::channel(1);
         let task = Task::create(Some(sender), Some(canceller));
@@ -696,15 +726,26 @@ impl KernelSpace {
             }
         });
 
-        self.store(&task, code, kernel_id, is_fork, true).await
+        task
     }
 
     /// Dispatch tasks of a kernel space queues
     async fn dispatch_queue(
-        queues: &mut KernelQueues,
-        tasks: &mut KernelTasks,
-        kernels: &mut KernelMap,
+        queues: &Arc<Mutex<KernelQueues>>,
+        tasks: &Arc<Mutex<KernelTasks>>,
+        kernels: &Arc<Mutex<KernelMap>>,
+        symbols: &Arc<Mutex<KernelSymbols>>,
     ) {
+        let mut queues = queues.lock().await;
+
+        if queues.is_empty() {
+            return;
+        }
+
+        let mut kernels = kernels.lock().await;
+        let mut tasks = tasks.lock().await;
+        let mut symbols = symbols.lock().await;
+
         let mut kernels_removed = Vec::new();
         for (kernel_id, queue) in queues.iter_mut() {
             if queue.is_empty() {
@@ -718,8 +759,13 @@ impl KernelSpace {
 
                     if let Some(mut task_info) = tasks.get_mut(&task_id) {
                         tracing::debug!("Dispatching task `{}` to kernel `{}`", task_id, kernel_id);
-                        if let Err(error) =
-                            KernelSpace::dispatch_deferred(&mut task_info, kernel).await
+                        if let Err(error) = KernelSpace::dispatch_deferred(
+                            &mut task_info,
+                            kernel_id,
+                            &mut *kernels,
+                            &mut *symbols,
+                        )
+                        .await
                         {
                             tracing::error!(
                                 "While dispatching task `{}` to kernel `{}`: {}",
@@ -751,19 +797,27 @@ impl KernelSpace {
     }
 
     /// Dispatch a previously deferred task to a kernel
-    async fn dispatch_deferred(task_info: &mut TaskInfo, kernel: &mut MetaKernel) -> Result<()> {
+    async fn dispatch_deferred(
+        task_info: &mut TaskInfo,
+        kernel_id: &KernelId,
+        kernels: &mut KernelMap,
+        symbols: &mut KernelSymbols,
+    ) -> Result<()> {
         let deferred_task = &mut task_info.task;
         let task_id = deferred_task.id.clone();
 
         // Dispatch the task
-        let code = task_info.code.as_str();
-        let started_task = if task_info.is_fork {
-            kernel.exec_fork(code).await?
-        } else if task_info.is_async {
-            kernel.exec_async(code).await?
-        } else {
-            kernel.exec_sync(code).await?
-        };
+        let started_task = KernelSpace::dispatch_task(
+            &task_info.code,
+            &task_info.symbols_used,
+            &task_info.symbols_assigned,
+            task_info.is_async,
+            task_info.is_fork,
+            symbols,
+            kernel_id,
+            kernels,
+        )
+        .await?;
 
         // Update the started time
         deferred_task.started = started_task.started;
@@ -824,12 +878,15 @@ impl KernelSpace {
     ///
     /// If the task is async, subscribe to it so that it's result can be updated when it
     /// is complete.
+    #[allow(clippy::too_many_arguments)]
     async fn store(
         &self,
         task: &Task,
         code: &str,
-        kernel_id: &str,
+        symbols_used: &[Symbol],
+        symbols_assigned: &[Symbol],
         is_fork: bool,
+        kernel_id: &str,
         is_deferred: bool,
     ) -> TaskInfo {
         if let (false, Ok(mut receiver)) = (task.is_done(), task.subscribe()) {
@@ -857,7 +914,17 @@ impl KernelSpace {
         }
 
         let mut tasks = self.tasks.lock().await;
-        tasks.put(task, code, kernel_id, is_fork, is_deferred).await
+        tasks
+            .put(
+                task,
+                code,
+                symbols_used,
+                symbols_assigned,
+                kernel_id,
+                is_fork,
+                is_deferred,
+            )
+            .await
     }
 
     /// Cancel a task
@@ -872,17 +939,6 @@ impl KernelSpace {
             );
             Ok(())
         }
-    }
-
-    /// Get a list of symbols in the kernel space
-    ///
-    /// Mainly for inspection, in the future may return a list with
-    /// more information e.g. the type of symbol.
-    #[cfg(feature = "cli")]
-    pub fn symbols(&self) -> cli_utils::Result {
-        use cli_utils::result;
-
-        result::value(self.symbols.clone())
     }
 
     /// A read-evaluate-print function
@@ -906,10 +962,11 @@ impl KernelSpace {
         if code.is_empty() {
             result::nothing()
         } else if code == "%kernels" {
-            let kernels = self.kernels.lock().await.display().await;
-            result::value(kernels)
+            let kernels = self.kernels.lock().await;
+            result::value(kernels.display().await)
         } else if code == "%symbols" {
-            self.symbols()
+            let symbols = self.symbols.lock().await;
+            result::value(symbols.clone())
         } else if code == "%tasks" {
             let tasks = self.tasks.lock().await;
             tasks.display().await
