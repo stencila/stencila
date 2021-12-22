@@ -2559,6 +2559,7 @@ name = "kernel"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "chrono",
  "eyre",
  "once_cell",
  "regex",
@@ -2566,7 +2567,10 @@ dependencies = [
  "stencila-schema",
  "strum 0.23.0",
  "test-utils",
+ "tokio",
  "tracing",
+ "utils",
+ "uuids",
 ]
 
 [[package]]

@@ -8,8 +8,9 @@ pub fn new() -> MicroKernel {
     MicroKernel::new(
         "bash-micro",
         &["bash"],
-        &["linux", "macos", "windows"],
-        &[],
+        true,
+        false,
+        false,
         ("bash", "*"),
         &["{{script}}"],
         include_file!("bash-kernel.sh"),
@@ -35,7 +36,7 @@ mod tests {
         }
 
         let mut kernel = new();
-        if !kernel.available().await {
+        if !kernel.is_forkable().await {
             return Ok(());
         } else {
             kernel.start().await?;

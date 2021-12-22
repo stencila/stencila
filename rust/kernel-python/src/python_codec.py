@@ -135,17 +135,28 @@ def convert_matplotlib():
     return dict(type="ImageObject", contentUrl=src)
 
 
+def encode_message(type, message, exception=None):
+    """
+    Encode a `CodeMessage`
+
+    A stack trace is generated from the exception parameter and is used when capturing
+    Python exceptions (to show where the error occurred) and for interrupts (to
+    show where the code was interrupted).
+    """
+    # For now, until we have a `CodeMessage` type, gets encoded as a `CodeError`
+    code_message = {"type": "CodeError", "errorType": type, "errorMessage": message}
+    if exception and not isinstance(exception, KeyboardInterrupt):
+        stack_trace = io.StringIO()
+        traceback.print_exc(file=stack_trace)
+        stack_trace = stack_trace.getvalue()
+        # Remove the first three lines (the header and where we where in `python_kernel.py`)
+        # and the last line which repeats the message
+        code_message["stackTrace"] = "\n".join(stack_trace.split("\n")[3:-1])
+    return json.dumps(code_message)
+
+
 def encode_exception(exc):
     """Encode an exception to a `CodeMessage`"""
-    code_error = {"type": "CodeError", "errorType": exc.__class__.__name__}
-
-    if hasattr(exc, "message"):
-        code_error["errorMessage"] = exc.message
-    else:
-        code_error["errorMessage"] = str(exc)
-
-    stack_trace = io.StringIO()
-    traceback.print_exc(file=stack_trace)
-    code_error["stackTrace"] = stack_trace.getvalue()
-
-    return json.dumps(code_error)
+    type = exc.__class__.__name__
+    message = exc.message if hasattr(exc, "message") else str(exc)
+    return encode_message(type, message, exc)

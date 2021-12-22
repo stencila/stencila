@@ -12,7 +12,7 @@ use std::{
 use stencila_schema::*;
 
 // Re-exports
-pub use kernels::{KernelSelector, KernelSpace};
+pub use kernels::{KernelSelector, KernelSpace, TaskResult};
 
 type Addresses = HashMap<String, Address>;
 type Relations = HashMap<Resource, Vec<(Relation, Resource)>>;
@@ -276,9 +276,13 @@ impl Executable for CodeChunk {
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let relations = parsers::parse("", &self.text, &self.programming_language)?;
         let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
-        let (outputs, errors) = kernels
-            .exec(&self.text, &selector, Some(relations), false)
+        let mut task = kernels
+            .exec(&self.text, &selector, Some(relations), false, false)
             .await?;
+        let TaskResult {
+            outputs,
+            messages: errors,
+        } = task.result().await?;
 
         self.outputs = if outputs.is_empty() {
             None
@@ -325,9 +329,13 @@ impl Executable for CodeExpression {
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let relations = parsers::parse("", &self.text, &self.programming_language)?;
         let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
-        let (outputs, errors) = kernels
-            .exec(&self.text, &selector, Some(relations), false)
+        let mut task = kernels
+            .exec(&self.text, &selector, Some(relations), false, false)
             .await?;
+        let TaskResult {
+            outputs,
+            messages: errors,
+        } = task.result().await?;
 
         self.output = outputs.get(0).map(|output| Box::new(output.clone()));
         self.errors = if errors.is_empty() {

@@ -5,8 +5,9 @@ pub fn new() -> MicroKernel {
     MicroKernel::new(
         "python-micro",
         &["python"],
-        &["linux", "macos", "windows"],
-        &["linux", "macos"],
+        true,
+        true,
+        cfg!(any(target_os = "linux", target_os = "macos")),
         ("python3", "*"),
         &["{{script}}"],
         include_file!("python_kernel.py"),
@@ -22,7 +23,7 @@ mod tests {
     use kernel::{
         eyre::{bail, Result},
         stencila_schema::Node,
-        KernelTrait,
+        KernelTrait, TaskResult,
     };
     use test_utils::{assert_json_eq, assert_json_is, skip_ci_os};
 
@@ -32,7 +33,7 @@ mod tests {
         }
 
         let mut kernel = new();
-        if !kernel.available().await {
+        if !kernel.is_forkable().await {
             eprintln!("Python not available on this machine");
             bail!("Skipping")
         } else {
@@ -99,12 +100,47 @@ mod tests {
         Ok(())
     }
 
-    /// Test forking
+    /// Test cancelling a task
     #[tokio::test]
-    async fn fork() -> Result<()> {
+    async fn exec_async() -> Result<()> {
         let mut kernel = match skip_or_kernel().await {
             Ok(kernel) => {
-                if kernel.forkable().await {
+                if kernel.is_interruptable().await {
+                    kernel
+                } else {
+                    eprintln!("Not interruptable on this OS");
+                    return Ok(());
+                }
+            }
+            Err(..) => return Ok(()),
+        };
+
+        // Start a long running task in the kernel that should get cancelled
+        let mut task = kernel
+            .exec_async("import time\nstarted = True\ntime.sleep(10)\nfinished = True")
+            .await?;
+
+        // Sleep a little to allow the task to start, then cancel it
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+        task.cancel().await?;
+
+        // Check that was started but not finished
+        let (outputs, messages) = kernel
+            .exec("[started, 'finished' in locals()]")
+            .await
+            .unwrap();
+        assert_json_is!(messages, []);
+        assert_json_is!(outputs, [[true, false]]);
+
+        Ok(())
+    }
+
+    /// Test forking
+    #[tokio::test]
+    async fn exec_fork() -> Result<()> {
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => {
+                if kernel.is_forkable().await {
                     kernel
                 } else {
                     eprintln!("Not forkable on this OS");
@@ -124,7 +160,8 @@ mod tests {
 
         // Now fork-exec. The fork should be able to use the module and access the
         // variable but any change to variable should not change its value in the parent kernel
-        let (outputs, messages) = kernel.fork_exec("print(var)\nvar = runif(0, 1)").await?;
+        let mut task = kernel.exec_fork("print(var)\nvar = runif(0, 1)").await?;
+        let TaskResult { outputs, messages } = task.result().await?;
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
         assert_json_is!(outputs[0], var);

@@ -3,7 +3,7 @@ use kernel::{
     eyre::{bail, Result},
     serde::Serialize,
     stencila_schema::{CodeError, Node},
-    Kernel, KernelStatus, KernelTrait,
+    Kernel, KernelStatus, KernelTrait, Task, TaskResult,
 };
 use std::collections::HashMap;
 
@@ -46,19 +46,21 @@ impl KernelTrait for StoreKernel {
         Ok(())
     }
 
-    async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
+    async fn exec_sync(&mut self, code: &str) -> Result<Task> {
+        let mut task = Task::start_sync();
         let mut outputs = Vec::new();
-        let mut errors = Vec::new();
+        let mut messages = Vec::new();
         for line in code.lines() {
             match self.get(line.trim()).await {
                 Ok(output) => outputs.push(output),
-                Err(error) => errors.push(CodeError {
+                Err(error) => messages.push(CodeError {
                     error_message: error.to_string(),
                     ..Default::default()
                 }),
             }
         }
-        Ok((outputs, errors))
+        task.finished(TaskResult::new(outputs, messages));
+        Ok(task)
     }
 }
 

@@ -4,7 +4,7 @@ use kernel::{
     eyre::{bail, Result},
     serde::Serialize,
     stencila_schema::{CodeError, Node},
-    Kernel, KernelStatus, KernelTrait, KernelType,
+    Kernel, KernelStatus, KernelTrait, KernelType, Task, TaskResult,
 };
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -52,15 +52,16 @@ impl KernelTrait for CalcKernel {
         Ok(())
     }
 
-    async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
+    async fn exec_sync(&mut self, code: &str) -> Result<Task> {
         static STATEMENTS_REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new(r"\r?\n|;").expect("Unable to create regex"));
         static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*=(.*)").expect("Unable to create regex")
         });
 
+        let mut task = Task::start_sync();
         let mut outputs = Vec::new();
-        let mut errors = Vec::new();
+        let mut messages = Vec::new();
         for statement in STATEMENTS_REGEX.split(code) {
             let statement = statement.trim();
 
@@ -106,14 +107,15 @@ impl KernelTrait for CalcKernel {
                         // Use the debug string for others
                         _ => format!("Could not execute Calc expression: {:?}", error),
                     };
-                    errors.push(CodeError {
+                    messages.push(CodeError {
                         error_message,
                         ..Default::default()
                     });
                 }
             }
         }
-        Ok((outputs, errors))
+        task.finished(TaskResult::new(outputs, messages));
+        Ok(task)
     }
 }
 

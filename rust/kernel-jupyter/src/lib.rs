@@ -6,7 +6,7 @@ use kernel::{
     eyre::{bail, eyre, Result},
     serde::{Deserialize, Serialize},
     stencila_schema::{CodeError, Node},
-    Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType,
+    Kernel, KernelSelector, KernelStatus, KernelTrait, KernelType, Task, TaskResult,
 };
 use once_cell::sync::Lazy;
 use path_slash::PathBufExt;
@@ -722,7 +722,7 @@ impl KernelTrait for JupyterKernel {
         Kernel::new(&self.name, KernelType::Jupyter, &[&self.language])
     }
 
-    async fn available(&self) -> bool {
+    async fn is_available(&self) -> bool {
         self.name != "<unavailable>"
     }
 
@@ -856,7 +856,10 @@ impl KernelTrait for JupyterKernel {
         }
     }
 
-    async fn exec(&mut self, code: &str) -> Result<(Vec<Node>, Vec<CodeError>)> {
+    async fn exec_sync(&mut self, code: &str) -> Result<Task> {
+        // TODO: Use cancellable async task
+        let mut task = Task::start_sync();
+
         let JupyterDetails {
             hmac,
             shell_socket,
@@ -887,7 +890,7 @@ impl KernelTrait for JupyterKernel {
         // TODO deal with response.content.status == 'error' and "aborted"
 
         // Wait for the outputs
-        let (outputs, errors) = match timeout(Duration::from_millis(1000), results_task).await {
+        let (outputs, messages) = match timeout(Duration::from_millis(1000), results_task).await {
             Ok(joined) => joined??,
             Err(_) => {
                 tracing::warn!("Timed-out waiting for results from Jupyter kernel");
@@ -895,7 +898,9 @@ impl KernelTrait for JupyterKernel {
             }
         };
 
-        Ok((outputs, errors))
+        task.finished(TaskResult::new(outputs, messages));
+
+        Ok(task)
     }
 }
 

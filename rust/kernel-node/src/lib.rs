@@ -5,8 +5,9 @@ pub fn new() -> MicroKernel {
     MicroKernel::new(
         "node-micro",
         &["javascript"],
-        &["linux", "macos", "windows"],
-        &[],
+        true,
+        false,
+        false,
         ("node", "*"),
         &["{{script}}"],
         include_file!("node-kernel.js"),
@@ -28,7 +29,7 @@ mod tests {
     #[tokio::test]
     async fn basics() -> Result<()> {
         let mut kernel = new();
-        if !kernel.available().await {
+        if !kernel.is_forkable().await {
             return Ok(());
         } else {
             kernel.start().await?;
@@ -75,7 +76,7 @@ mod tests {
     #[tokio::test]
     async fn console_log() -> Result<()> {
         let mut kernel = new();
-        if !kernel.available().await {
+        if !kernel.is_forkable().await {
             return Ok(());
         } else {
             kernel.start().await?;
@@ -100,7 +101,7 @@ mod tests {
     #[tokio::test]
     async fn console_messages() -> Result<()> {
         let mut kernel = new();
-        if !kernel.available().await {
+        if !kernel.is_forkable().await {
             return Ok(());
         } else {
             kernel.start().await?;

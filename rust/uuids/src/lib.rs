@@ -58,13 +58,13 @@ const CHARACTERS: [char; 62] = [
 /// ```
 #[macro_export]
 macro_rules! uuid_family {
-    ($name:ident, $family:literal) => {
+    ($name:ident, $prefix:literal) => {
         #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
         pub struct $name(uuids::Uuid);
 
         impl $name {
             pub fn new() -> Self {
-                Self(uuids::generate($family))
+                Self(uuids::generate($prefix))
             }
         }
 
@@ -101,24 +101,35 @@ macro_rules! uuid_family {
                 &self.0
             }
         }
+
+        impl std::convert::TryFrom<&str> for $name {
+            type Error = uuids::InvalidUuid;
+
+            fn try_from(id: &str) -> std::result::Result<Self, Self::Error> {
+                match uuids::matches($prefix, id) {
+                    true => Ok($name(id.into())),
+                    false => Err(uuids::InvalidUuid {}),
+                }
+            }
+        }
     };
 }
 
 // Generate a universally unique identifier
-pub fn generate(family: &str) -> Uuid {
+pub fn generate(prefix: &str) -> Uuid {
     let chars = nanoid!(20, &CHARACTERS);
-    [family, SEPARATOR, &chars].concat().into()
+    [prefix, SEPARATOR, &chars].concat().into()
 }
 
 // Generate a universally unique identifier with only lowercase letters and digits
-pub fn generate_lower(family: &str) -> Uuid {
+pub fn generate_lower(prefix: &str) -> Uuid {
     let chars = nanoid!(20, &CHARACTERS[..36]);
-    [family, SEPARATOR, &chars].concat().into()
+    [prefix, SEPARATOR, &chars].concat().into()
 }
 
-// Test whether a string is an identifer for a particular family
-pub fn matches(family: &str, id: &str) -> bool {
-    let re = [family, SEPARATOR, "[0-9a-zA-Z]{20}"].concat();
+// Test whether a string is an identifier for a particular prefix
+pub fn matches(prefix: &str, id: &str) -> bool {
+    let re = ["^", prefix, SEPARATOR, "[0-9a-zA-Z]{20}$"].concat();
     let re = Regex::new(&re).expect("Should be a valid regex");
     re.is_match(id)
 }
@@ -134,6 +145,8 @@ pub fn assert(family: &str, id: Uuid) -> Result<Uuid> {
         ),
     }
 }
+
+pub struct InvalidUuid {}
 
 #[cfg(test)]
 mod tests {

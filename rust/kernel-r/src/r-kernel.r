@@ -41,7 +41,7 @@ source(file.path(dir, "r-codec.r"))
 
 READY <- "\U0010ACDC"
 RESULT <- "\U0010CB40"
-TRANS <- "\U0010ABBA"
+TASK <- "\U0010ABBA"
 FORK <- "\U0010DE70"
 
 stdin <- file("stdin", "r")
@@ -53,6 +53,7 @@ message <- function(msg, type) write(paste0(encode_message(msg, type), RESULT), 
 info <- function(msg) message(msg, "CodeInfo")
 warning <- function(msg) message(msg, "CodeWarning")
 error <- function(error, type = "RuntimeError") message(error$message, type)
+interrupt <- function(condition, type = "CodeInterrupt") message("Code execution was interrupted", type)
 
 # Environment in which code will be executed
 envir <- new.env()
@@ -67,37 +68,44 @@ write(READY, stdout)
 write(READY, stderr)
 
 while (!is.null(stdin)) {
-  code <- readLines(stdin, n=1)
+  task <- readLines(stdin, n=1)
 
-  if (endsWith(code, FORK)) {
+  # If there is no task from `readLines` it means `stdin` was closed, so exit gracefully
+  if (length(task) == 0) quit(save = "no")
+
+  lines <- strsplit(task, "\\n", fixed = TRUE)[[1]]
+
+  if (lines[1] == FORK) {
     # The `eval_safe` function of https://github.com/jeroen/unix provides an alternative 
     # implementation of fork-exec for R. We might use it in the future.
   
-    process <- parallel:::mcfork()
+    # The Rust process will kill the child so use `estranged` to avoid zombie processes
+    # (because this process still has an entry for the child)
+    process <- parallel:::mcfork(estranged = TRUE)
     if (!inherits(process, "masterProcess")) {
-      # Parent process so just go to the next line
+      # Parent process, so return the pid of the fork and then wait for the next task
+      write(paste0(process$pid, TASK), stdout)
+      write(TASK, stderr)
       next
     }
 
     # Child process, so...
 
-    # Separate code and paths of FIFO pipes to replace stdout and stderr
-    code <- substr(code, 1, nchar(code) - nchar(FORK))
-    parts <- strsplit(code, "\\|")[[1]]
-    code <- paste0(head(parts, n=length(parts) - 1), collapse = "|")
-    pipes <- strsplit(tail(parts, n = 1), ";")[[1]]
+    # Remove the FORK flag and the pipe paths from the front of lines
+    new_stdout <- lines[2]
+    new_stderr <- lines[3]
+    lines <- tail(lines, -3)
 
     # Set stdin to /dev/null to end loop
     stdin <- NULL
 
     # Replace stdout and stderr with pipes
-    stdout <- file(pipes[1], open = "w", raw = TRUE)
-    stderr <- file(pipes[2], open = "w", raw = TRUE)
+    stdout <- file(new_stdout, open = "w", raw = TRUE)
+    stderr <- file(new_stderr, open = "w", raw = TRUE)
   }
 
-  unescaped <- gsub("\\\\n", "\n", code)
-
-  compiled <- tryCatch(parse(text=unescaped), error=identity)
+  code <- paste0(lines, collapse = "\n")
+  compiled <- tryCatch(parse(text=code), error=identity)
   if (inherits(compiled, "simpleError")) {
     error(compiled, "SyntaxError")
   } else {  
@@ -107,7 +115,13 @@ while (!is.null(stdin)) {
     # Recording must be enabled for recordPlot() to work
     dev.control("enable")
 
-    value <- tryCatch(eval(compiled, envir, .GlobalEnv), message=info, warning=warning, error=error)
+    value <- tryCatch(
+      eval(compiled, envir, .GlobalEnv),
+      message=info,
+      warning=warning,
+      error=error,
+      interrupt=interrupt
+    )
     
     if (!withVisible(value)$visible) {
       value <- NULL
@@ -122,12 +136,11 @@ while (!is.null(stdin)) {
     dev.off()  
 
     if (!is.null(value)) {
-      last_line <- tail(strsplit(unescaped, "\\n")[[1]], n=1)
-      assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", last_line)
+      assignment <- grepl("^\\s*\\w+\\s*(<-|=)\\s*", tail(lines, 1))
       if (!assignment) write(paste0(encode_value(value), RESULT), stdout)
     }
   }
 
-  write(TRANS, stdout)
-  write(TRANS, stderr)
+  write(TASK, stdout)
+  write(TASK, stderr)
 }
