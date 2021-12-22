@@ -45,6 +45,7 @@ jobs:
     timeoutInMinutes: 120
     pool:
       vmImage: ubuntu-latest
+    container: mcr.microsoft.com/playwright:focal
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
