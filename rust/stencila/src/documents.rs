@@ -715,17 +715,12 @@ impl Document {
         Ok(())
     }
 
-    /// Execute the document, or a node within it, optionally providing a [`Patch`] to apply before execution, and
-    /// publishing a patch if there are any subscribers.
-    #[tracing::instrument(skip(self, patch))]
-    pub async fn execute(&mut self, node_id: Option<String>, patch: Option<Patch>) -> Result<()> {
+    /// Execute the document, or a node within it, and publishing a patch of changes if there are any subscribers.
+    #[tracing::instrument(skip(self))]
+    pub async fn execute(&mut self, node_id: Option<String>) -> Result<()> {
         tracing::debug!("Executing document `{}`", self.id);
 
         let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id.clone())?;
-        if let Some(patch) = patch {
-            pointer.patch(&patch)?;
-        }
-
         let mut patch = pointer.execute(&mut self.kernels).await?;
 
         // TODO: Only publish the patch if there are subscribers
@@ -1354,16 +1349,11 @@ impl Documents {
     ///
     /// Like `patch()`, given this function is likely to be called often, do not return
     /// the document.
-    #[tracing::instrument(skip(self, patch))]
-    pub async fn execute(
-        &self,
-        id: &str,
-        node_id: Option<String>,
-        patch: Option<Patch>,
-    ) -> Result<()> {
+    #[tracing::instrument(skip(self))]
+    pub async fn execute(&self, id: &str, node_id: Option<String>) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        document_guard.execute(node_id, patch).await
+        document_guard.execute(node_id).await
     }
 
     /// Get a document that has previously been opened

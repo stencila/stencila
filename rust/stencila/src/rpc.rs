@@ -336,12 +336,8 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
 async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
     let node_id = optional_string(params, "nodeId")?;
-    let patch = match optional_value(params, "patch") {
-        Some(patch) => serde_json::from_value(patch)?,
-        None => None,
-    };
 
-    let document = DOCUMENTS.execute(&id, node_id, patch).await?;
+    let document = DOCUMENTS.execute(&id, node_id).await?;
     Ok((json!(document), Subscription::None))
 }
 
@@ -359,6 +355,7 @@ fn required_value(params: &Params, name: &str) -> Result<serde_json::Value> {
     }
 }
 
+#[allow(dead_code)]
 fn optional_value(params: &Params, name: &str) -> Option<serde_json::Value> {
     params.get(name).cloned()
 }

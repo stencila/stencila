@@ -181,13 +181,11 @@ export function receivePatch(clientId: ClientId, event: DocumentEvent): void {
 export async function execute(
   client: Client,
   documentId: DocumentId,
-  nodeId: NodeId,
-  patch?: Patch
+  nodeId: NodeId
 ): Promise<void> {
   return client.call('documents.execute', {
     documentId,
     nodeId,
-    patch,
   }) as Promise<void>
 }
 

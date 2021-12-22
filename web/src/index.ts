@@ -28,12 +28,21 @@ export const main = (
   let document: Document | undefined
 
   // Start the client and session, if necessary
+  // Returns early if already started up
   const startup = async (): Promise<[Client, Document, Session]> => {
-    if (!client) {
+    if (
+      client !== undefined &&
+      session !== undefined &&
+      document !== undefined
+    ) {
+      return [client, document, session]
+    }
+
+    if (client === undefined) {
       client = await connect(projectId, clientId, origin, token)
     }
 
-    if (!session) {
+    if (session === undefined) {
       session = await sessions.start(client, projectId, snapshotId)
       sessions.subscribe(client, session.id, 'updated').catch((err) => {
         console.warn(`Couldn't subscribe to session updates`, err)
@@ -79,24 +88,6 @@ export const main = (
     }
   }
 
-  // Execute a node, optionally updating properties prior to execution.
-  async function executeNode(
-    nodeId: documents.NodeId,
-    properties: Record<string, unknown>
-  ): Promise<void> {
-    const [client, document] = await startup()
-    const ops = Object.entries(properties).map(
-      ([key, value]): Operation => ({
-        type: 'Replace',
-        address: [key],
-        value,
-        items: 1,
-        length: 1,
-      })
-    )
-    return documents.execute(client, document.id, nodeId, { ops })
-  }
-
   function initComponents(): void {
     window.removeEventListener('appload', initComponents)
 
@@ -106,20 +97,11 @@ export const main = (
         HTMLStencilaCodeChunkElement | HTMLStencilaCodeExpressionElement
       >('stencila-code-chunk,stencila-code-expression')
       .forEach((elem) => {
-        elem.executeHandler = <C extends CodeChunk | CodeExpression>(
+        elem.executeHandler = async <C extends CodeChunk | CodeExpression>(
           node: C
         ): Promise<C> => {
-          executeNode(elem.id, {
-            text: node.text,
-            programming_language:
-              // This is a temporary hack for testing purposes. More work on
-              // normalizing language names needed.
-              node.programmingLanguage === 'plain text'
-                ? 'calc'
-                : node.programmingLanguage,
-          }).catch((err) => {
-            console.warn(`Couldn't execute the node`, err)
-          })
+          const [client, document] = await startup()
+          documents.execute(client, document.id, elem.id)
           // The WebComponent for a `CodeExpression` has a `isOutputEmpty` property
           // which is set based on the return value from this function and does not
           // change later when we actually update the output. So, here's a hack to
