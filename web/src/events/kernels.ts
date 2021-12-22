@@ -1,8 +1,7 @@
-import { FileFormatUtils } from '@stencila/components'
-
-type DiscoverExecutableLanguagesEvent = CustomEvent<{
-  languages: FileFormatUtils.FileFormatMap
-}>
+import {
+  DiscoverExecutableLanguagesEvent,
+  FileFormatUtils,
+} from '@stencila/components'
 
 const languagesToFileFormatMap = (
   kernels: string[]
