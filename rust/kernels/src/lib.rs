@@ -14,7 +14,7 @@ use std::{
     collections::{hash_map::Entry, BTreeMap, HashMap, HashSet},
     sync::Arc,
 };
-use tokio::sync::Mutex;
+use tokio::sync::{broadcast, mpsc, Mutex};
 use validator::Contains;
 
 // Re-exports
@@ -196,9 +196,6 @@ impl KernelTrait for MetaKernel {
 }
 
 /// A map of kernel ids to kernels.
-///
-/// A `newtype` that exists solely to provide a `Result` (rather than `<Option>`)
-/// when getting a kernel by id.
 #[derive(Debug, Default, Deref, DerefMut, Serialize)]
 struct KernelMap(BTreeMap<KernelId, MetaKernel>);
 
@@ -215,6 +212,91 @@ impl KernelMap {
         (**self)
             .get_mut(kernel_id)
             .ok_or_else(|| eyre!("Unknown kernel `{}`", kernel_id))
+    }
+
+    /// Ensure that a kernel exists for a selector
+    ///
+    /// Returns the kernel's id.
+    async fn ensure(&mut self, selector: &KernelSelector) -> Result<KernelId> {
+        // Is there already a running kernel that matches the selector?
+        for (kernel_id, kernel) in self.iter_mut() {
+            if !selector.matches(&kernel.spec()) {
+                // Not a match, so keep looking
+                continue;
+            }
+
+            let status = match kernel.status().await {
+                Ok(status) => status,
+                Err(error) => {
+                    tracing::error!("While getting status of kernel `{}`: {}", kernel_id, error);
+                    continue;
+                }
+            };
+
+            match status {
+                // For these, use the existing kernel
+                KernelStatus::Pending
+                | KernelStatus::Starting
+                | KernelStatus::Idle
+                | KernelStatus::Busy => return Ok(kernel_id.clone()),
+                // For these, keep on looking
+                KernelStatus::Unresponsive
+                | KernelStatus::Stopping
+                | KernelStatus::Finished
+                | KernelStatus::Failed
+                | KernelStatus::Unknown => continue,
+            }
+        }
+
+        // If unable to set in an existing kernel then start a new kernel
+        // for the selector.
+        self.start(selector).await
+    }
+
+    /// Start a kernel for a selector
+    async fn start(&mut self, selector: &KernelSelector) -> Result<KernelId> {
+        let mut kernel = MetaKernel::new(selector).await?;
+        kernel.start().await?;
+
+        // Generate the kernel id from the selector, adding a numeric suffix if necessary
+        let kernel_id = slug::slugify(kernel.spec().name);
+        let count = self
+            .keys()
+            .filter(|key| key.starts_with(&kernel_id))
+            .count();
+        let kernel_id = if count == 0 {
+            kernel_id
+        } else {
+            [kernel_id, count.to_string()].concat()
+        };
+
+        self.insert(kernel_id.clone(), kernel);
+
+        Ok(kernel_id)
+    }
+
+    /// Connect to a running kernel
+    #[allow(unused_variables)]
+    async fn connect(&mut self, id_or_path: &str) -> Result<KernelId> {
+        #[cfg(feature = "kernel-jupyter")]
+        {
+            let (kernel_id, kernel) = kernel_jupyter::JupyterKernel::connect(id_or_path).await?;
+            self.insert(kernel_id.clone(), MetaKernel::Jupyter(kernel));
+
+            Ok(kernel_id)
+        }
+
+        #[cfg(not(feature = "kernel-jupyter"))]
+        kernel::eyre::bail!(
+            "Unable to connect to running kernel because support for Jupyter kernels is not enabled",
+        )
+    }
+
+    /// Stop one of the kernels and remove it from the kernel space
+    async fn stop(&mut self, id: &str) -> Result<()> {
+        self.get_mut(id)?.stop().await?;
+        self.remove(id);
+        Ok(())
     }
 
     /// Get a list of kernels in the kernel space
@@ -258,11 +340,17 @@ pub struct TaskInfo {
     /// The id of the kernel that the task was dispatched to
     pub kernel_id: Option<String>,
 
-    /// Whether the task was run using `exec_async`
-    pub is_async: Option<bool>,
+    /// Whether the task has been scheduled to run in a fork of the kernel
+    pub is_fork: bool,
 
-    /// Whether the task was run using `exec_fork`
-    pub is_fork: Option<bool>,
+    /// Whether the task has been deferred until the kernel is idle
+    pub is_deferred: bool,
+
+    /// Whether the task is asynchronous
+    pub is_async: bool,
+
+    /// Whether the task can be cancelled
+    pub is_cancellable: bool,
 
     /// The task that this information is for
     #[serde(flatten)]
@@ -280,7 +368,7 @@ impl TaskInfo {
 #[derive(Debug, Default)]
 struct KernelTasks {
     /// The list of tasks
-    tasks: Arc<Mutex<Vec<TaskInfo>>>,
+    inner: Vec<TaskInfo>,
 
     /// A counter to be able to assign unique numbers to tasks
     counter: u64,
@@ -288,9 +376,9 @@ struct KernelTasks {
 
 impl KernelTasks {
     /// Find a task using its `num` or [`TaskId`]
-    fn find_mut<'lt>(tasks: &'lt mut Vec<TaskInfo>, num_or_id: &str) -> Option<&'lt mut TaskInfo> {
+    fn find_mut<'lt>(&'lt mut self, num_or_id: &str) -> Option<&'lt mut TaskInfo> {
         if let Ok(num) = num_or_id.parse::<u64>() {
-            for task_info in tasks {
+            for task_info in self.inner.iter_mut() {
                 if task_info.num == num {
                     return Some(task_info);
                 }
@@ -298,15 +386,15 @@ impl KernelTasks {
             None
         } else {
             match TaskId::try_from(num_or_id) {
-                Ok(id) => KernelTasks::get_mut(tasks, &id),
+                Ok(id) => self.get_mut(&id),
                 Err(..) => None,
             }
         }
     }
 
     /// Get a task using its [`TaskId`]
-    fn get_mut<'lt>(tasks: &'lt mut Vec<TaskInfo>, task_id: &TaskId) -> Option<&'lt mut TaskInfo> {
-        for task_info in tasks {
+    fn get_mut<'lt>(&'lt mut self, task_id: &TaskId) -> Option<&'lt mut TaskInfo> {
+        for task_info in self.inner.iter_mut() {
             if task_info.task.id == *task_id {
                 return Some(task_info);
             }
@@ -314,69 +402,31 @@ impl KernelTasks {
         None
     }
 
-    /// Store a task
-    async fn store(
+    /// Put a task onto the list
+    async fn put(
         &mut self,
         task: &Task,
         code: &str,
         kernel_id: &str,
-        is_async: bool,
         is_fork: bool,
+        is_deferred: bool,
     ) -> TaskInfo {
-        // If the task is async, subscribe to it so that it's result can be updated when it
-        // is complete.
-        if let Ok(mut receiver) = task.subscribe() {
-            let tasks = self.tasks.clone();
-            let task_id = task.id.clone();
-            tokio::spawn(async move {
-                match receiver.recv().await {
-                    Ok(result) => {
-                        let mut tasks = tasks.lock().await;
-                        match KernelTasks::get_mut(&mut tasks, &task_id) {
-                            Some(task_info) => task_info.task.finished(result),
-                            // Since we're cancelling, if not found just debug
-                            None => tracing::debug!("Unable to find task `{}`", task_id),
-                        }
-                    }
-                    Err(error) => tracing::error!(
-                        "While receiving result for async task `{}`: {}",
-                        task_id,
-                        error
-                    ),
-                }
-            });
-        }
-
-        // Increment counter and add to list
         self.counter += 1;
 
         let task_info = TaskInfo {
             num: self.counter,
             code: code.to_string(),
             kernel_id: Some(kernel_id.to_string()),
-            is_async: Some(is_async),
-            is_fork: Some(is_fork),
+            is_deferred,
+            is_fork,
+            is_async: task.is_async(),
+            is_cancellable: task.is_cancellable(),
             task: task.clone(),
         };
 
-        let mut tasks = self.tasks.lock().await;
-        tasks.push(task_info.clone());
+        self.inner.push(task_info.clone());
 
         task_info
-    }
-
-    /// Cancel a task
-    async fn cancel(&mut self, task_num_or_id: &str) -> Result<()> {
-        let mut tasks = self.tasks.lock().await;
-        if let Some(task_info) = KernelTasks::find_mut(&mut tasks, task_num_or_id) {
-            task_info.task.cancel().await
-        } else {
-            tracing::warn!(
-                "Unable to find task `{}`; it may have already been cleaned up",
-                task_num_or_id
-            );
-            Ok(())
-        }
     }
 
     /// Display the tasks
@@ -386,31 +436,71 @@ impl KernelTasks {
     #[cfg(feature = "cli")]
     async fn display(&self) -> cli_utils::Result {
         use cli_utils::result;
-        use serde_json::json;
 
-        let tasks = self.tasks.lock().await;
-        let tasks = json!(*tasks);
-        result::value(tasks)
+        result::value(self.inner.clone())
     }
 }
+
+type KernelQueue = Vec<(KernelId, TaskId)>;
 
 #[derive(Debug, Default, Serialize)]
 pub struct KernelSpace {
     /// The kernels in the kernel space
-    kernels: KernelMap,
+    #[serde(skip)]
+    kernels: Arc<Mutex<KernelMap>>,
 
     /// The symbols in the kernel space
     symbols: HashMap<String, SymbolInfo>,
 
-    /// Tasks currently running in the kernel space
+    /// The list of all tasks sent to this kernel space
     #[serde(skip)]
-    tasks: KernelTasks,
+    tasks: Arc<Mutex<KernelTasks>>,
+
+    /// The queue of deferred tasks
+    #[serde(skip)]
+    queue: Arc<Mutex<KernelQueue>>,
 }
 
 impl KernelSpace {
     /// Create a new kernel space
     pub fn new() -> Self {
-        Self::default()
+        let new = Self::default();
+
+        let kernels = new.kernels.clone();
+        let queue = new.queue.clone();
+        let tasks = new.tasks.clone();
+        tokio::spawn(async move { KernelSpace::monitor(kernels, queue, tasks).await });
+
+        new
+    }
+
+    /// Monitor the kernel space
+    ///
+    /// Checks for and dispatches queued tasks and monitors the health of kernels and tasks.
+    async fn monitor(
+        kernels: Arc<Mutex<KernelMap>>,
+        queue: Arc<Mutex<KernelQueue>>,
+        tasks: Arc<Mutex<KernelTasks>>,
+    ) {
+        use tokio::time::{sleep, Duration};
+
+        tracing::debug!("Began kernel space monitoring");
+        loop {
+            let mut kernels = kernels.lock().await;
+            let mut queue = queue.lock().await;
+            let mut tasks = tasks.lock().await;
+
+            if !queue.is_empty() {
+                KernelSpace::dispatch_queue(&mut *queue, &mut *tasks, &mut *kernels).await;
+            }
+
+            // Let go of locks while sleeping
+            drop(kernels);
+            drop(queue);
+            drop(tasks);
+
+            sleep(Duration::from_millis(300)).await;
+        }
     }
 
     /// Get a symbol from the kernel space
@@ -420,17 +510,21 @@ impl KernelSpace {
             .get(name)
             .ok_or_else(|| eyre!("Unknown symbol `{}`", name))?;
 
-        let kernel = self.kernels.get_mut(&symbol_info.home)?;
+        let kernels = &mut *self.kernels.lock().await;
+        let kernel = kernels.get_mut(&symbol_info.home)?;
         kernel.get(name).await
     }
 
     /// Set a symbol in the kernel space
     pub async fn set(&mut self, name: &str, value: Node, language: &str) -> Result<()> {
         let selector = KernelSelector::parse(language);
-        let kernel_id = self.ensure(&selector).await?;
+
+        let kernels = &mut *self.kernels.lock().await;
+
+        let kernel_id = kernels.ensure(&selector).await?;
         tracing::debug!("Setting symbol `{}` in kernel `{}`", name, kernel_id);
 
-        let kernel = self.kernels.get_mut(&kernel_id)?;
+        let kernel = kernels.get_mut(&kernel_id)?;
         kernel.set(name, value).await?;
 
         match self.symbols.entry(name.to_string()) {
@@ -458,9 +552,19 @@ impl KernelSpace {
         is_async: bool,
         is_fork: bool,
     ) -> Result<TaskInfo> {
+        let kernels = &mut *self.kernels.lock().await;
+
         // Determine the kernel to execute in
-        let kernel_id = self.ensure(selector).await?;
+        let kernel_id = kernels.ensure(selector).await?;
         tracing::debug!("Executing code in kernel `{}`", kernel_id);
+
+        // If the kernel is busy then defer the task
+        let kernel = kernels.get_mut(&kernel_id)?;
+
+        if kernel.is_busy().await? {
+            let task_info = self.defer(code, &kernel_id, is_fork).await;
+            return Ok(task_info);
+        }
 
         // Mirror used symbols into the kernel
         if let Some(relations) = &relations {
@@ -504,10 +608,10 @@ impl KernelSpace {
                     kernel_id
                 );
 
-                let home_kernel = self.kernels.get_mut(home)?;
+                let home_kernel = kernels.get_mut(home)?;
                 let value = home_kernel.get(name).await?;
 
-                let mirror_kernel = self.kernels.get_mut(&kernel_id)?;
+                let mirror_kernel = kernels.get_mut(&kernel_id)?;
                 mirror_kernel.set(name, value).await?;
 
                 match mirrored.entry(kernel_id.clone()) {
@@ -523,7 +627,7 @@ impl KernelSpace {
         }
 
         // Execute the code
-        let kernel = self.kernels.get_mut(&kernel_id)?;
+        let kernel = kernels.get_mut(&kernel_id)?;
         let task = if is_fork {
             kernel.exec_fork(code).await?
         } else if is_async {
@@ -533,10 +637,7 @@ impl KernelSpace {
         };
 
         // Store the task, with metadata
-        let task_info = self
-            .tasks
-            .store(&task, code, &kernel_id, is_async, is_fork)
-            .await;
+        let task_info = self.store(&task, code, &kernel_id, is_fork).await;
 
         // Record symbols assigned in kernel (unless it was a fork)
         if let (false, Some(relations)) = (is_fork, relations) {
@@ -564,91 +665,206 @@ impl KernelSpace {
         Ok(task_info)
     }
 
-    /// Ensure that a kernel exists for a selector
+    /// Defer a task
     ///
-    /// Returns the kernel's id.
-    async fn ensure(&mut self, selector: &KernelSelector) -> Result<KernelId> {
-        // Is there already a running kernel that matches the selector?
-        for (kernel_id, kernel) in self.kernels.iter_mut() {
-            if !selector.matches(&kernel.spec()) {
-                // Not a match, so keep looking
+    /// Used when a kernel is busy. Instead of dispatching the task to the kernel,
+    /// add it to the task queue so it can be more easily, and less expensively, cancelled
+    /// by simply removing it from the queue rather than interrupting the kernel.
+    async fn defer(&self, code: &str, kernel_id: &str, is_fork: bool) -> TaskInfo {
+        let (sender, ..) = broadcast::channel(1);
+        let (canceller, mut cancellee) = mpsc::channel(1);
+        let task = Task::create(Some(sender), Some(canceller));
+
+        // Add the task to the queue
+        let mut queue = self.queue.lock().await;
+        queue.push((kernel_id.to_string(), task.id.clone()));
+
+        // When cancelled, remove the task from the queue
+        let queue = self.queue.clone();
+        let task_id = task.id.clone();
+        tokio::spawn(async move {
+            if let Some(..) = cancellee.recv().await {
+                let mut queue = queue.lock().await;
+                queue.retain(|(.., task_idd)| *task_idd != task_id);
+            }
+        });
+
+        let mut tasks = self.tasks.lock().await;
+        tasks.put(&task, code, kernel_id, is_fork, true).await
+    }
+
+    /// Dispatch tasks of a queue
+    async fn dispatch_queue(
+        queue: &mut KernelQueue,
+        tasks: &mut KernelTasks,
+        kernels: &mut KernelMap,
+    ) {
+        let mut tasks_removed = Vec::new();
+        let mut kernels_dispatched = Vec::new();
+        for (kernel_id, task_id) in queue.iter() {
+            // Do not dispatch to kernels that have already been dispatched to
+            // in this iterations (to give time for async tasks to spawn and
+            // status to update).
+            if kernels_dispatched.contains(kernel_id) {
                 continue;
             }
 
-            let status = match kernel.status().await {
-                Ok(status) => status,
-                Err(error) => {
-                    tracing::error!("While getting status of kernel `{}`: {}", kernel_id, error);
-                    continue;
-                }
-            };
+            match kernels.get_mut(kernel_id) {
+                Ok(kernel) => {
+                    if !kernel.is_busy().await.unwrap_or(false) {
+                        tracing::debug!("Dispatching task `{}` to kernel `{}`", task_id, kernel_id);
 
-            match status {
-                // For these, use the existing kernel
-                KernelStatus::Pending
-                | KernelStatus::Starting
-                | KernelStatus::Idle
-                | KernelStatus::Busy => return Ok(kernel_id.clone()),
-                // For these, keep on looking
-                KernelStatus::Unresponsive
-                | KernelStatus::Stopping
-                | KernelStatus::Finished
-                | KernelStatus::Failed
-                | KernelStatus::Unknown => continue,
+                        if let Some(mut task_info) = tasks.get_mut(task_id) {
+                            if let Err(_error) =
+                                KernelSpace::dispatch_deferred(&mut task_info, kernel).await
+                            {
+                                tracing::error!(
+                                    "While dispatching task `{}` to kernel `{}`",
+                                    task_id,
+                                    kernel_id
+                                );
+                            }
+                            // Record that this task was dispatched to the kernel
+                            kernels_dispatched.push(kernel_id.clone());
+                        } else {
+                            tracing::debug!(
+                                "Unable to find task `{}` will be removed from queue",
+                                task_id
+                            );
+                        }
+                        tasks_removed.push(task_id.clone());
+                    }
+                }
+                Err(_error) => {
+                    tracing::debug!(
+                        "Unable to find kernel `{}`, task `{}` will be removed from queue",
+                        kernel_id,
+                        task_id
+                    );
+                    tasks_removed.push(task_id.clone());
+                }
             }
         }
 
-        // If unable to set in an existing kernel then start a new kernel
-        // for the selector.
-        self.start(selector).await
+        // Remove the dispatched tasks from the queue
+        queue.retain(|(.., task_id)| !tasks_removed.contains(task_id));
     }
 
-    /// Start a kernel for a selector
-    async fn start(&mut self, selector: &KernelSelector) -> Result<KernelId> {
-        let mut kernel = MetaKernel::new(selector).await?;
-        kernel.start().await?;
+    /// Dispatch a previously deferred task to a kernel
+    async fn dispatch_deferred(task_info: &mut TaskInfo, kernel: &mut MetaKernel) -> Result<()> {
+        let deferred_task = &mut task_info.task;
+        let task_id = deferred_task.id.clone();
 
-        // Generate the kernel id from the selector, adding a numeric suffix if necessary
-        let kernel_id = slug::slugify(kernel.spec().name);
-        let count = self
-            .kernels
-            .keys()
-            .filter(|key| key.starts_with(&kernel_id))
-            .count();
-        let kernel_id = if count == 0 {
-            kernel_id
+        // Dispatch the task
+        let code = task_info.code.as_str();
+        let started_task = if task_info.is_fork {
+            kernel.exec_fork(code).await?
+        } else if task_info.is_async {
+            kernel.exec_async(code).await?
         } else {
-            [kernel_id, count.to_string()].concat()
+            kernel.exec_sync(code).await?
         };
 
-        self.kernels.insert(kernel_id.clone(), kernel);
+        // Update the started time
+        deferred_task.started = started_task.started;
 
-        Ok(kernel_id)
-    }
+        // Update `is_async` and forward the result of the started task to the deferred task (because
+        // other parts of the code will be waiting on it).
+        if let Some(result_sender) = deferred_task.sender.as_ref() {
+            if let Some(result) = started_task.result {
+                // Result is available already so send now
+                task_info.is_async = false;
 
-    /// Connect to a running kernel
-    #[allow(unused_variables)]
-    async fn connect(&mut self, id_or_path: &str) -> Result<KernelId> {
-        #[cfg(feature = "kernel-jupyter")]
-        {
-            let (kernel_id, kernel) = kernel_jupyter::JupyterKernel::connect(id_or_path).await?;
-            self.kernels
-                .insert(kernel_id.clone(), MetaKernel::Jupyter(kernel));
+                if let Err(error) = result_sender.send(result) {
+                    tracing::debug!(
+                        "While forwarding result for deferred task `{}`: {}",
+                        task_id,
+                        error
+                    )
+                }
+            } else if let Ok(mut result_receiver) = started_task.subscribe() {
+                // Task is async so subscribe to result channel and forward on the deferred task
+                task_info.is_async = true;
 
-            Ok(kernel_id)
+                let result_sender = result_sender.clone();
+                let task_id = task_id.clone();
+                tokio::spawn(async move {
+                    if let Ok(result) = result_receiver.recv().await {
+                        if let Err(error) = result_sender.send(result) {
+                            tracing::debug!(
+                                "While forwarding result for deferred task `{}`: {}",
+                                task_id,
+                                error
+                            )
+                        }
+                    }
+                });
+            } else {
+                bail!("Started task had neither a result nor a sender")
+            }
+        } else {
+            bail!("Deferred task did not have expected result sender")
         }
 
-        #[cfg(not(feature = "kernel-jupyter"))]
-        kernel::eyre::bail!(
-            "Unable to connect to running kernel because support for Jupyter kernels is not enabled",
-        )
+        // Update `is_cancellable` (a deferred task is always cancellable)
+        // This will work if cancellation is done using a `TaskId` but might not
+        // if `.cancel()` is called on the original deferred task.
+        if let Some(canceller) = started_task.canceller.as_ref() {
+            task_info.is_cancellable = true;
+            deferred_task.canceller = Some(canceller.clone());
+        } else {
+            task_info.is_cancellable = false;
+            deferred_task.canceller = None;
+        }
+
+        Ok(())
     }
 
-    /// Stop one of the kernels and remove it from the kernel space
-    async fn stop(&mut self, id: &str) -> Result<()> {
-        self.kernels.get_mut(id)?.stop().await?;
-        self.kernels.remove(id);
-        Ok(())
+    /// Store a task that has already been dispatched to a kernel
+    ///
+    /// If the task is async, subscribe to it so that it's result can be updated when it
+    /// is complete.
+    async fn store(&self, task: &Task, code: &str, kernel_id: &str, is_fork: bool) -> TaskInfo {
+        if let (false, Ok(mut receiver)) = (task.is_done(), task.subscribe()) {
+            // When finished, update the tasks info stored in `tasks`
+            let tasks = self.tasks.clone();
+            let task_id = task.id.clone();
+            tokio::spawn(async move {
+                match receiver.recv().await {
+                    Ok(result) => {
+                        let mut tasks = tasks.lock().await;
+                        match KernelTasks::get_mut(&mut tasks, &task_id) {
+                            // Finish the task with the result
+                            Some(task_info) => task_info.task.finished(result),
+                            // Task may have been removed from list, so just debug here
+                            None => tracing::debug!("Unable to find task `{}`", task_id),
+                        }
+                    }
+                    Err(error) => tracing::error!(
+                        "While receiving result for async task `{}`: {}",
+                        task_id,
+                        error
+                    ),
+                }
+            });
+        }
+
+        let mut tasks = self.tasks.lock().await;
+        tasks.put(task, code, kernel_id, is_fork, false).await
+    }
+
+    /// Cancel a task
+    async fn cancel(&mut self, task_num_or_id: &str) -> Result<()> {
+        let mut tasks = self.tasks.lock().await;
+        if let Some(task_info) = tasks.find_mut(task_num_or_id) {
+            task_info.task.cancel().await
+        } else {
+            tracing::warn!(
+                "Unable to find task `{}`; it may have already been cleaned up",
+                task_num_or_id
+            );
+            Ok(())
+        }
     }
 
     /// Get a list of symbols in the kernel space
@@ -683,16 +899,20 @@ impl KernelSpace {
         if code.is_empty() {
             result::nothing()
         } else if code == "%kernels" {
-            let kernels = self.kernels.display().await;
+            let kernels = self.kernels.lock().await.display().await;
             result::value(kernels)
         } else if code == "%symbols" {
             self.symbols()
         } else if code == "%tasks" {
-            self.tasks.display().await
+            let tasks = self.tasks.lock().await;
+            tasks.display().await
+        } else if code == "%queue" {
+            let queue = self.queue.lock().await;
+            result::value(queue.clone())
         } else if let Some(task_num_or_id) = code.strip_prefix("%cancel") {
             let task_num_or_id = task_num_or_id.trim();
             let task_num_or_id = task_num_or_id.strip_prefix('#').unwrap_or(task_num_or_id);
-            self.tasks.cancel(task_num_or_id).await?;
+            self.cancel(task_num_or_id).await?;
             result::nothing()
         } else if language.is_none() && kernel.is_none() && SYMBOL.is_match(code) {
             match self.get(code).await {
@@ -741,7 +961,7 @@ impl KernelSpace {
                 .await?;
 
             // If not a background task, or if results are already available, show results.
-            if background || fork {
+            if background {
                 tracing::info!("Task #{} is running in background", task_info.num);
                 result::nothing()
             } else {
@@ -1038,10 +1258,11 @@ pub mod commands {
     #[async_trait]
     impl Run for Start {
         async fn run(&self) -> Result {
-            let mut kernels = KERNEL_SPACE.lock().await;
+            let kernel_space = KERNEL_SPACE.lock().await;
+            let mut kernels = kernel_space.kernels.lock().await;
             let selector = KernelSelector::parse(&self.selector);
             let kernel_id = kernels.start(&selector).await?;
-            let kernel = kernels.kernels.get(&kernel_id)?;
+            let kernel = kernels.get(&kernel_id)?;
             tracing::info!("Successfully started kernel");
             result::value(kernel)
         }
@@ -1066,7 +1287,9 @@ pub mod commands {
     #[async_trait]
     impl Run for Stop {
         async fn run(&self) -> Result {
-            KERNEL_SPACE.lock().await.stop(&self.id).await?;
+            let kernel_space = KERNEL_SPACE.lock().await;
+            let mut kernels = kernel_space.kernels.lock().await;
+            kernels.stop(&self.id).await?;
             tracing::info!("Stopped kernel `{}`", self.id);
             result::nothing()
         }
@@ -1100,7 +1323,8 @@ pub mod commands {
     }
     impl Connect {
         pub async fn run(&self) -> Result {
-            let mut kernels = KERNEL_SPACE.lock().await;
+            let kernel_space = KERNEL_SPACE.lock().await;
+            let mut kernels = kernel_space.kernels.lock().await;
             let id = kernels.connect(&self.id_or_path).await?;
             tracing::info!("Connected to kernel `{}`", id);
             result::nothing()
@@ -1128,8 +1352,9 @@ pub mod commands {
     pub struct Status {}
     impl Status {
         pub async fn run(&self) -> Result {
-            let status = KERNEL_SPACE.lock().await.kernels.display().await;
-            result::value(status)
+            let kernel_space = KERNEL_SPACE.lock().await;
+            let kernels = kernel_space.kernels.lock().await;
+            result::value(kernels.display().await)
         }
     }
 
@@ -1146,8 +1371,9 @@ pub mod commands {
     }
     impl Show {
         pub async fn run(&self) -> Result {
-            let kernels = KERNEL_SPACE.lock().await;
-            let kernel = kernels.kernels.get(&self.id)?;
+            let kernel_space = KERNEL_SPACE.lock().await;
+            let kernels = kernel_space.kernels.lock().await;
+            let kernel = kernels.get(&self.id)?;
             result::value(kernel)
         }
     }

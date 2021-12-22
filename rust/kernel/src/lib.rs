@@ -329,26 +329,26 @@ pub struct Task {
     pub id: TaskId,
 
     /// The time that the task was created by the kernel
-    created: DateTime<Utc>,
+    pub created: DateTime<Utc>,
 
     /// The time that the task was started by the kernel
     ///
     /// If the task was placed on a queue then this is expected to be after `created`.
     /// In this case, the task may also be cancelled before it is started.
-    started: Option<DateTime<Utc>>,
+    pub started: Option<DateTime<Utc>>,
 
     /// The time that the task ended (if it has)
-    finished: Option<DateTime<Utc>>,
+    pub finished: Option<DateTime<Utc>>,
 
     /// The time that the task was cancelled
-    cancelled: Option<DateTime<Utc>>,
+    pub cancelled: Option<DateTime<Utc>>,
 
     /// The result of the task (if it was completed immediately)
-    result: Option<TaskResult>,
+    pub result: Option<TaskResult>,
 
     /// The result sender for the task (if it was started asynchronously)
     #[serde(skip)]
-    sender: Option<TaskSender>,
+    pub sender: Option<TaskSender>,
 
     /// The canceller for the task (may be set after the task is started)
     #[serde(skip)]
@@ -545,6 +545,11 @@ pub trait KernelTrait {
     ///
     /// Must be implemented by [`KernelTrait`] implementations.
     async fn status(&self) -> Result<KernelStatus>;
+
+    /// Is the kernel busy?
+    async fn is_busy(&self) -> Result<bool> {
+        Ok(self.status().await? == KernelStatus::Busy)
+    }
 
     /// Get a symbol from the kernel
     ///
