@@ -1,3 +1,44 @@
+# [0.137.0](https://github.com/stencila/stencila/compare/v0.136.1...v0.137.0) (2021-12-22)
+
+
+### Bug Fixes
+
+* **HTML and patching:** Add support for patching `EnumValidator` ([ae202ab](https://github.com/stencila/stencila/commit/ae202abcf90b175cf4cec83c019ddd02378917bc))
+* **HTML encoding:** Add `itemtype` to elements for `Parameter` `validator` and `value` ([38d3d3b](https://github.com/stencila/stencila/commit/38d3d3bc7ef5aad2af418a1fa22dbfb544e6cef6))
+* **HTML encoding:** Improve encoding of `Parameter`and `Validator` nodes ([0cc2cf2](https://github.com/stencila/stencila/commit/0cc2cf28f2f5a492896c93ecf2159ad7c60397e6))
+* **Kernels:** Mirror symbols at time of task dispatch ([1730083](https://github.com/stencila/stencila/commit/173008373fa7ba5613508524c5345582c5126938))
+* **Kernels:** Use one queue per kernel, make sure that all tasks are stored with result subscription ([504d698](https://github.com/stencila/stencila/commit/504d6983c48484dc68c044d5e4e0a7c6435c2bae))
+* **Microkernels:** Implement `exec_async` for async code execution tasks ([bd37356](https://github.com/stencila/stencila/commit/bd37356fa5e616335cd89a2fe9316c31b4bc7f54))
+* **Microkernels:** Store the process id of kernel forks allowing them to be killed ([328a114](https://github.com/stencila/stencila/commit/328a1141d5f64ec48affdaed8e330ba821dd56a1))
+* **Microkernels:** Use line separators when forking ([591b2d8](https://github.com/stencila/stencila/commit/591b2d802c558b475ba3f53bce4fdb32e831d184))
+* **Patches:** Coerce `Parameter` after replacing any parameters ([7aa3a7c](https://github.com/stencila/stencila/commit/7aa3a7ceec7e02973530a200d48ae911db518b29))
+* **Patches:** Fallback to parsing a JSON value as a JSON string ([cde4c11](https://github.com/stencila/stencila/commit/cde4c11a4ed985c566e09426dd40a552d5473062))
+* **Python microkernel:** Don't generate stack trace for interrupts ([e4c1b16](https://github.com/stencila/stencila/commit/e4c1b1620c4404168ac2405cd116857164b21250))
+* **R microkernel:** Exit gracefully when stdin is closed ([ce2e624](https://github.com/stencila/stencila/commit/ce2e62491c939c3f5bf4360541df268e6849ebd0))
+* **UUIDs:** Add `try_from` for `&str` ([3a51f1f](https://github.com/stencila/stencila/commit/3a51f1fb387d54e37516b8bb54d5c09a1b8b6058))
+* **Web patches:** Replace validator type ([5d47346](https://github.com/stencila/stencila/commit/5d47346f166ab765bc3b1e7aa4336740d4a4f9de))
+* **Web patches:** Resolve attributes when they are proxy targets ([bf439ff](https://github.com/stencila/stencila/commit/bf439ff0f3c63d88863ed91ec4aa87ddab584c3c))
+* **Web patches:** Should target select as well as input ([cc51737](https://github.com/stencila/stencila/commit/cc51737c40d0891752622dad8a2237d52a828c48))
+* **Web:** Remove old temporary code for handling parameter change event ([94a3c93](https://github.com/stencila/stencila/commit/94a3c9337027f88cf1d2c794a982b45ab95d4a0c))
+
+
+### Features
+
+* **Client:** Listen for and handle Parameter component events ([6f29b2f](https://github.com/stencila/stencila/commit/6f29b2f2ae9f2760d54821a984df2b3a4361b364))
+* **HTML encoding:** Add support for `Parameter.default` property ([21b80a8](https://github.com/stencila/stencila/commit/21b80a8d82199d0cabf412faf0a65c946eabf8da))
+* **HTML encoding:** Support parameters with an `EnumValidator` ([94d1b36](https://github.com/stencila/stencila/commit/94d1b364d241a31f0ad55475ed8007fcb9a83bcd))
+* **Kernels:** Maintain list of tasks and allow for `[@fork](https://github.com/fork)` and `[@back](https://github.com/back)` tags ([ce0e85e](https://github.com/stencila/stencila/commit/ce0e85e82b2dc8237af560f048b54c052dc3f999))
+* **Kernels:** Queue tasks when kernels are busy ([c98a789](https://github.com/stencila/stencila/commit/c98a789dd730c7403262d4e51296a1ef82d912a2))
+* **Markdown decoding:** Add initial support for representing parameters in Markdown ([6cf2360](https://github.com/stencila/stencila/commit/6cf23606d3d7d14a450bd91587489608f89d5426))
+* **Markdown decoding:** Add support for representing parameters with `EnumValidator` ([caead09](https://github.com/stencila/stencila/commit/caead097f45e639931beb3270bb3ee7a6b1d2e4a))
+* **Microkernels:** Allow tasks to be interrupted ([fc38e75](https://github.com/stencila/stencila/commit/fc38e75d1087e1690202274fca5067fc7fb252e5))
+* **Microkernels:** Update kernel status for async tasks ([7af8c05](https://github.com/stencila/stencila/commit/7af8c0514a47a05f425d53df48b33d51432944b7))
+* **Node coercion:** Add `coerce_to_validator`, implement `pattern` for strings ([23b9010](https://github.com/stencila/stencila/commit/23b9010c45b664ef83f490801c89556c4ef63830))
+* **Patches:** Add patching for `Parameter` validators ([53e4724](https://github.com/stencila/stencila/commit/53e47245449e72fb68753eb0472083fef1fccb34))
+* **Patches:** Add support for `Parameter.default` property ([ee0e5a1](https://github.com/stencila/stencila/commit/ee0e5a1d44fc94fc5e72fb9f8f06ee213ed0aeb2))
+* **Web patches:** Add support for patching `Parameter` nodes ([02ffcdb](https://github.com/stencila/stencila/commit/02ffcdbf41340a38340bae4037ddf0c2cb7ca520))
+* **Web:** Attempt to reconnect to server ([8665dd9](https://github.com/stencila/stencila/commit/8665dd907faac29e70c75145562404b930ec0486)), closes [#1198](https://github.com/stencila/stencila/issues/1198)
+
 ## [0.136.1](https://github.com/stencila/stencila/compare/v0.136.0...v0.136.1) (2021-12-20)
 
 

@@ -1,6 +1,6 @@
 [package]
 name = "stencila-r"
-version = "0.136.1"
+version = "0.137.0"
 edition = "2018"
 
 [lib]
