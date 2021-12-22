@@ -1,0 +1,11 @@
+---
+source: rust/codec-html/src/encode.rs
+expression: html
+input_file: fixtures/nodes/string-validator.json
+
+---
+<stencila-string-validator data-itemscope="root" itemtype="http://schema.stenci.la/StringValidator" itemscope>
+  <span data-itemprop="minLength" slot="min-length">0</span>
+  <span data-itemprop="maxLength" slot="max-length">20</span>
+  <span data-itemprop="pattern" slot="pattern">[a-z]+</span>
+</stencila-string-validator>

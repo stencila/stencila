@@ -1,6 +1,14 @@
 import { ViewUpdate } from '@codemirror/view'
-import { Document, DocumentEvent, Patch } from '@stencila/stencila'
+import { ValidatorTypes } from '@stencila/schema'
+import {
+  Address,
+  Document,
+  DocumentEvent,
+  Operation,
+  Patch,
+} from '@stencila/stencila'
 import { Client, ClientId } from './client'
+import { JsonValue } from './patches/checks'
 import * as codemirror from './patches/codemirror'
 import { applyPatch } from './patches/dom'
 
@@ -200,6 +208,24 @@ export function listen(
   window.addEventListener('stencila-content-change', (event) =>
     onContentChange(client, clientId, documentId, event as ContentChangeEvent)
   )
+
+  window.addEventListener('stencila-validator-change', (event) =>
+    onValidatorChange(
+      client,
+      clientId,
+      documentId,
+      event as ValidatorChangeEvent
+    )
+  )
+
+  window.addEventListener('stencila-parameter-change', (event) =>
+    onParameterChange(
+      client,
+      clientId,
+      documentId,
+      event as ParameterChangeEvent
+    )
+  )
 }
 
 /**
@@ -279,6 +305,102 @@ async function onContentChange(
     }
     return sendPatch(client, documentId, patch)
   }
+}
+
+/**
+ * The browser event emitted when either the type or property of a parameter validator changes.
+ */
+export interface ValidatorChangeEvent extends CustomEvent {
+  detail:
+    | {
+        type: 'property'
+        name: string
+        value: string
+      }
+    | {
+        type: 'validator'
+        value: Exclude<ValidatorTypes['type'], 'Validator'>
+      }
+}
+
+/**
+ * Handle a `ValidatorChangeEvent`
+ */
+async function onValidatorChange(
+  client: Client,
+  clientId: ClientId,
+  documentId: DocumentId,
+  event: ValidatorChangeEvent
+): Promise<void> {
+  const [_nodeType, nodeId] = resolveEventNode(event)
+
+  const [address, value]: [Address, JsonValue] =
+    event.detail.type === 'property'
+      ? // The new validator property value
+        [
+          [
+            // ...except for `default` which is actually a property of the parent parameter
+            ...(event.detail.name === 'default' ? [] : ['validator']),
+            event.detail.name,
+          ],
+          event.detail.value,
+        ]
+      : // The new validator as an object with `type`
+        [['validator'], { type: event.detail.value }]
+
+  const op: Operation = {
+    type: 'Replace',
+    address,
+    value,
+    items: 1,
+    length: 1,
+  }
+
+  const patch = {
+    actor: clientId,
+    target: nodeId,
+    ops: [op],
+  }
+
+  return sendPatch(client, documentId, patch)
+}
+
+/**
+ * The browser event emitted when either the name of value of the parameter changes.
+ */
+export interface ParameterChangeEvent extends CustomEvent {
+  detail: {
+    property: 'name' | 'value'
+    value: string
+  }
+}
+
+/**
+ * Handle a `ParameterChangeEvent`
+ */
+async function onParameterChange(
+  client: Client,
+  clientId: ClientId,
+  documentId: DocumentId,
+  event: ParameterChangeEvent
+): Promise<void> {
+  const [_nodeType, nodeId] = resolveEventNode(event)
+
+  const op: Operation = {
+    type: 'Replace',
+    address: [event.detail.property],
+    value: event.detail.value,
+    items: 1,
+    length: 1,
+  }
+
+  const patch = {
+    actor: clientId,
+    target: nodeId,
+    ops: [op],
+  }
+
+  return sendPatch(client, documentId, patch)
 }
 
 /**

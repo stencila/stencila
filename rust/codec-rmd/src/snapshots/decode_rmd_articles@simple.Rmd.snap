@@ -86,7 +86,7 @@ input_file: fixtures/articles/simple.Rmd
           "type": "CodeFragment",
           "text": "fig.cap"
         },
-        " “text references” are also supported,"
+        " \"text references\" are also supported,"
       ]
     },
     {
@@ -139,7 +139,7 @@ input_file: fixtures/articles/simple.Rmd
             "A"
           ]
         },
-        ") Representative action potential after hyperpolarization waveforms from a SC (left), a pyramidal cell (middle) and an unidentified cell (right). The pyramidal and unidentified cells were…"
+        ") Representative action potential after hyperpolarization waveforms from a SC (left), a pyramidal cell (middle) and an unidentified cell (right). The pyramidal and unidentified cells were..."
       ]
     },
     {

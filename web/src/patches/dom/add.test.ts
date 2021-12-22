@@ -5,12 +5,12 @@ test('applyAddStruct', () => {
   elem.innerHTML = '<div data-itemprop="property"></div>'
   const html = '<p>A fragment</p>'
 
-  applyAddStruct(elem, 'property', html)
+  applyAddStruct(elem, 'property', null, html)
   expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
     html
   )
 
-  expect(() => applyAddStruct(elem, 1, '')).toThrow(/Expected string slot/)
+  expect(() => applyAddStruct(elem, 1, '', '')).toThrow(/Expected string slot/)
 })
 
 test('applyAddVec', () => {

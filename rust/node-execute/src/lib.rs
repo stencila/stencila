@@ -421,15 +421,25 @@ executable_nothing!(
     String,
     Array,
     Object,
-    // Entity types that are unlikely to need anything else done to them
+    // Entity types that are unlikely to ever need to be executable
     ThematicBreak,
-    // Entity types that may need to be compiled but are here for now
+    // Entity types that may need to be executable in the future
     Datatable,
+    DatatableColumn,
     Periodical,
     PublicationIssue,
     PublicationVolume,
     Review,
-    SoftwareApplication
+    SoftwareApplication,
+    Validator,
+    ArrayValidator,
+    BooleanValidator,
+    ConstantValidator,
+    EnumValidator,
+    IntegerValidator,
+    NumberValidator,
+    StringValidator,
+    TupleValidator
 );
 
 // The following are simple "dispatching" implementations of `compile`.

@@ -1,14 +1,28 @@
 /**
  * HTML element attributes that are used to represent properties of `struct`s.
  *
- * These are [HTML attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes)
- * that are also Stencila Schema property names.
+ * These are mappings from Stencila Schema property names to
+ * [HTML attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes)
+ * used to represent them
  */
-export const STRUCT_ATTRIBUTES = ['id', 'value', 'rowspan', 'colspan']
-
-/**
- * HTML element attributes that are aliases for properties of `struct`s.
- */
-export const STRUCT_ATTRIBUTE_ALIASES: Record<string, string> = {
+export const STRUCT_ATTRIBUTES: Record<string, string> = {
+  // Entity
+  id: 'id',
+  // TableCell
+  rowspan: 'rowspan',
+  colspan: 'colspan',
+  // MediaObject
   contentUrl: 'src',
+  // Parameter
+  default: 'placeholder',
+  value: 'value',
+  // NumberValidator
+  type: 'type',
+  minimum: 'min',
+  maximum: 'max',
+  multipleOf: 'step',
+  // StringValidator
+  minLength: 'minlength',
+  maxLength: 'maxlength',
+  pattern: 'pattern',
 }

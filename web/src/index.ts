@@ -100,18 +100,6 @@ export const main = (
   function initComponents(): void {
     window.removeEventListener('appload', initComponents)
 
-    // `onChange` for `Parameter` nodes
-    window.document.querySelectorAll('input').forEach((input) => {
-      input.addEventListener('change', () => {
-        // Using JSON.parse here but in the future we'd have the `Parameter` component
-        // be providing the correct value type, based on it's `validator`..
-        const value = JSON.parse(input.value) as unknown
-        executeNode(input.id, { value }).catch((err) => {
-          console.warn(`Couldn't execute the parameter`, err)
-        })
-      })
-    })
-
     // `executeHandler` for `CodeChunk` and `CodeExpression` nodes
     window.document
       .querySelectorAll<

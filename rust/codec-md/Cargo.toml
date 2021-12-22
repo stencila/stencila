@@ -22,6 +22,7 @@ codec-html = { path = "../codec-html", version = "0.0.0" }
 codec = { path = "../codec", version = "0.0.0" }
 codec-txt = { path = "../codec-txt", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }
+Inflector = "0.11.4"
 itertools = { version = "0.10.1", optional = true }
 node-coerce = { path = "../node-coerce", version = "0.0.0" }
 node-transform = { path = "../node-transform", version = "0.0.0" }
@@ -32,6 +33,7 @@ regex = { version = "1.5.4", optional = true }
 serde_json = { version = "1.0.72", optional = true }
 serde_yaml = { version = "0.8.21", optional = true }
 tracing = { version = "0.1.29", optional = true }
+json5 = "0.4.1"
 
 [dev-dependencies]
 test-props = { path = "../test-props", version = "0.0.0" }

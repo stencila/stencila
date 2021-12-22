@@ -1,17 +1,20 @@
+use std::collections::HashMap;
+
 use codec::{
     eyre::{bail, Result},
     stencila_schema::*,
 };
 use codec_txt::ToTxt;
 use formats::{FormatNodeType, FORMATS};
+use inflector::Inflector;
 use node_coerce::coerce;
 use node_transform::Transform;
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take, take_until, take_while1},
-    character::complete::{char, digit1, multispace0, multispace1},
+    bytes::complete::{escaped, tag, take, take_till, take_until, take_while1},
+    character::complete::{alphanumeric1, char, digit1, multispace0, multispace1, none_of},
     combinator::{map_res, not, opt, peek},
-    multi::{fold_many0, separated_list1},
+    multi::{fold_many0, separated_list0, separated_list1},
     sequence::{delimited, pair, preceded, tuple},
     IResult,
 };
@@ -140,7 +143,16 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
         marks: Vec::new(),
     };
 
-    let parser = Parser::new_ext(md, Options::all());
+    let mut options = Options::empty();
+    options.insert(Options::ENABLE_TABLES);
+    // Not enabled because currently not handled
+    // options.insert(Options::ENABLE_FOOTNOTES);
+    options.insert(Options::ENABLE_STRIKETHROUGH);
+    options.insert(Options::ENABLE_TASKLISTS);
+    // Not enabled as messes with single or double quoting values in `curly_attrs`
+    // options.insert(Options::ENABLE_SMART_PUNCTUATION);
+
+    let parser = Parser::new_ext(md, options);
     for event in parser {
         match event {
             Event::Start(tag) => match tag {
@@ -667,6 +679,7 @@ fn inline_content(input: &str) -> IResult<&str, Vec<InlineContent>> {
             cite_group,
             cite,
             math,
+            parameter,
             subscript,
             superscript,
             string,
@@ -725,6 +738,141 @@ pub fn code_attrs(input: &str) -> IResult<&str, InlineContent> {
                 }),
             };
             Ok(node)
+        },
+    )(input)
+}
+
+/// Parse forward slash pairs into a `Parameter`.
+pub fn parameter(input: &str) -> IResult<&str, InlineContent> {
+    map_res(
+        pair(
+            delimited(tag("/"), alphanumeric1, tag("/")),
+            opt(curly_attrs),
+        ),
+        |(name, pairs): (&str, Option<Attrs>)| -> Result<InlineContent> {
+            let options: HashMap<String, Option<String>> =
+                pairs.unwrap_or_default().into_iter().collect();
+
+            let typ = options
+                .get("type")
+                .and_then(|value| value.as_ref())
+                .map(|value| value.as_str());
+
+            let validator = if matches!(typ, Some("boolean"))
+                || matches!(typ, Some("bool"))
+                || options.get("boolean").is_some()
+                || options.get("bool").is_some()
+            {
+                Some(ValidatorTypes::BooleanValidator(BooleanValidator::default()))
+            } else if matches!(typ, Some("integer"))
+                || matches!(typ, Some("int"))
+                || options.get("integer").is_some()
+                || options.get("int").is_some()
+            {
+                // TODO: Add properties to `IntegerValidator`
+                Some(ValidatorTypes::IntegerValidator(IntegerValidator::default()))
+            } else if matches!(typ, Some("number"))
+                || matches!(typ, Some("num"))
+                || options.get("number").is_some()
+                || options.get("num").is_some()
+            {
+                let minimum = options
+                    .get("minimum")
+                    .or_else(|| options.get("min"))
+                    .and_then(|value| value.as_ref())
+                    .and_then(|value| value.parse().ok());
+                let maximum = options
+                    .get("maximum")
+                    .or_else(|| options.get("max"))
+                    .and_then(|value| value.as_ref())
+                    .and_then(|value| value.parse().ok());
+                let multiple_of = options
+                    .get("multiple_of")
+                    .or_else(|| options.get("step"))
+                    .and_then(|value| value.as_ref())
+                    .and_then(|value| value.parse().ok());
+                Some(ValidatorTypes::NumberValidator(NumberValidator {
+                    minimum,
+                    maximum,
+                    multiple_of,
+                    ..Default::default()
+                }))
+            } else if matches!(typ, Some("string"))
+                || matches!(typ, Some("str"))
+                || options.get("string").is_some()
+                || options.get("str").is_some()
+            {
+                let min_length = options
+                    .get("min_length")
+                    .or_else(|| options.get("minlength"))
+                    .and_then(|value| value.as_ref())
+                    .and_then(|value| value.parse().ok());
+                let max_length = options
+                    .get("max_length")
+                    .or_else(|| options.get("maxlength"))
+                    .and_then(|value| value.as_ref())
+                    .and_then(|value| value.parse().ok());
+                let pattern = options
+                    .get("pattern")
+                    .or_else(|| options.get("regex"))
+                    .and_then(|value| value.as_ref())
+                    .map(|value| Box::new(value.clone()));
+                Some(ValidatorTypes::StringValidator(StringValidator {
+                    min_length,
+                    max_length,
+                    pattern,
+                    ..Default::default()
+                }))
+            } else if matches!(typ, Some("enum")) || options.get("enum").is_some() {
+                let values = options
+                    .get("values")
+                    .or_else(|| options.get("vals"))
+                    .and_then(|value| value.as_ref())
+                    .map(|string| {
+                        let json = match string.starts_with('[') && string.ends_with('[') {
+                            true => string.clone(),
+                            false => ["[", string, "]"].concat(),
+                        };
+                        match json5::from_str::<Vec<Node>>(&json) {
+                            Ok(array) => array,
+                            Err(..) => string
+                                .split(',')
+                                .map(|item| Node::String(item.trim().to_string()))
+                                .collect(),
+                        }
+                    });
+                Some(ValidatorTypes::EnumValidator(EnumValidator {
+                    values,
+                    ..Default::default()
+                }))
+            } else {
+                None
+            }
+            .map(Box::new);
+
+            let default = options
+                .get("default")
+                .and_then(|value| value.as_ref())
+                .map(|string| {
+                    json5::from_str::<Node>(string).unwrap_or_else(|_| Node::String(string.clone()))
+                })
+                .map(Box::new);
+
+            let value = options
+                .get("value")
+                .and_then(|value| value.as_ref())
+                .map(|string| {
+                    json5::from_str::<Node>(string).unwrap_or_else(|_| Node::String(string.clone()))
+                })
+                .map(Box::new);
+
+            Ok(InlineContent::Parameter(Parameter {
+                name: name.into(),
+                validator,
+                default,
+                value,
+                ..Default::default()
+            }))
         },
     )(input)
 }
@@ -892,6 +1040,70 @@ pub fn superscript(input: &str) -> IResult<&str, InlineContent> {
     )(input)
 }
 
+type Attrs = Vec<(String, Option<String>)>;
+
+/// Parse attributes inside curly braces
+///
+/// Curly braced attributes are used to specify options on various inline
+/// attributes.
+///
+/// This is lenient to the form of attributes and consumes everything
+/// until the closing bracket. Attribute names are converted to snake_case
+/// (so that users don't have to remember which case to use).
+fn curly_attrs(input: &str) -> IResult<&str, Attrs> {
+    delimited(
+        char('{'),
+        separated_list0(multispace1, curly_attr),
+        char('}'),
+    )(input)
+}
+
+/// Parse an attribute inside a set of curly braced attributes.
+///
+/// Attributes can be single values (i.e. flags) or key-value pairs (separated
+/// by `=` or `:`).
+fn curly_attr(input: &str) -> IResult<&str, (String, Option<String>)> {
+    map_res(
+        tuple((
+            take_till(|c| c == ' ' || c == '=' || c == ':'),
+            opt(preceded(
+                tuple((multispace0, alt((tag("="), tag(":"))), multispace0)),
+                alt((
+                    single_quoted,
+                    double_quoted,
+                    square_bracketed,
+                    take_till(|c| c == ' ' || c == '}'),
+                )),
+            )),
+        )),
+        |(name, value): (&str, Option<&str>)| -> Result<(String, Option<String>)> {
+            Ok((name.to_snake_case(), value.map(|value| value.to_string())))
+        },
+    )(input)
+}
+
+/// Parse a single quoted string
+fn single_quoted(input: &str) -> IResult<&str, &str> {
+    let escaped = escaped(none_of("\\\'"), '\\', tag("'"));
+    let empty = tag("");
+    delimited(tag("'"), alt((escaped, empty)), tag("'"))(input)
+}
+
+/// Parse a double quoted string
+fn double_quoted(input: &str) -> IResult<&str, &str> {
+    let escaped = escaped(none_of("\\\""), '\\', tag("\""));
+    let empty = tag("");
+    delimited(tag("\""), alt((escaped, empty)), tag("\""))(input)
+}
+
+/// Parse a JSON-style square bracketed array (inner closing brackets can be escaped)
+/// Does not return the outer brackets
+fn square_bracketed(input: &str) -> IResult<&str, &str> {
+    let escaped = escaped(none_of("\\]"), '\\', tag("]"));
+    let empty = tag("");
+    delimited(tag("["), alt((escaped, empty)), tag("]"))(input)
+}
+
 /// Accumulate characters into a `String` node
 ///
 /// Will greedily take as many characters as possible, excluding those that appear at the
@@ -999,6 +1211,7 @@ impl Html {
 mod tests {
     use super::*;
     use test_snaps::{insta::assert_json_snapshot, snapshot_fixtures_content};
+    use test_utils::pretty_assertions::assert_eq;
 
     #[test]
     fn md_frontmatter() -> Result<()> {
@@ -1018,6 +1231,37 @@ mod tests {
         }
 
         Ok(())
+    }
+
+    #[test]
+    fn test_single_quoted() {
+        let (_, res) = single_quoted(r#"' \' 🤖 '"#).unwrap();
+        assert_eq!(res, r#" \' 🤖 "#);
+        let (_, res) = single_quoted("' → x'").unwrap();
+        assert_eq!(res, " → x");
+        let (_, res) = single_quoted("'  '").unwrap();
+        assert_eq!(res, "  ");
+        let (_, res) = single_quoted("''").unwrap();
+        assert_eq!(res, "");
+    }
+
+    #[test]
+    fn test_square_bracketed() {
+        let (_, res) = square_bracketed("[1,2,3]").unwrap();
+        assert_eq!(res, "1,2,3");
+        let (_, res) = square_bracketed("['a', 'b', null]").unwrap();
+        assert_eq!(res, "'a', 'b', null");
+        let (_, res) = square_bracketed("[\\]]").unwrap();
+        assert_eq!(res, "\\]");
+    }
+
+    #[test]
+    fn test_curly_attrs() {
+        let res = curly_attrs(r#"{a=1 b='2' c:3 d = 4}"#).unwrap();
+        assert_eq!(res.1[0], ("a".to_string(), Some("1".to_string())));
+        assert_eq!(res.1[1], ("b".to_string(), Some("2".to_string())));
+        assert_eq!(res.1[2], ("c".to_string(), Some("3".to_string())));
+        assert_eq!(res.1[3], ("d".to_string(), Some("4".to_string())));
     }
 
     #[test]

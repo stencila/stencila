@@ -12,20 +12,20 @@ test('applyReplaceStruct', () => {
     'One'
   )
 
-  applyReplaceStruct(elem, 'property', 1, 'Two')
+  applyReplaceStruct(elem, 'property', 1, 'Two', 'Two')
   expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
     'Two'
   )
 
-  applyReplaceStruct(elem, 'property', 1, 'Three')
+  applyReplaceStruct(elem, 'property', 1, 'Three', 'Three')
   expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
     'Three'
   )
 
-  expect(() => applyReplaceStruct(elem, 1, 1, '')).toThrow(
+  expect(() => applyReplaceStruct(elem, 1, 1, '', '')).toThrow(
     /Expected string slot/
   )
-  expect(() => applyReplaceStruct(elem, '', 100, '')).toThrow(
+  expect(() => applyReplaceStruct(elem, '', 100, '', '')).toThrow(
     /Unexpected replace items 100/
   )
 })

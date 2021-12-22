@@ -10,7 +10,8 @@ use regex::Regex;
 use serde::Deserialize;
 use serde_json::{json, Value as JsonValue};
 use std::{collections::HashMap, sync::Mutex};
-use stencila_schema::{self, Node, Null, Object, Primitive};
+use stencila_schema::{self, Node, Null, Object, Primitive, ValidatorTypes};
+use utils::some_string;
 
 /// Coerce a JSON value to a Stencila document `Node`
 ///
@@ -53,6 +54,68 @@ pub fn coerce(value: JsonValue, type_: Option<String>) -> Result<Node> {
     })
 }
 
+/// Coerce a Stencila `Node` to a Stencila `Validator`
+/// 
+/// This converts the `node` to JSON and and the `validator` to JSON Schema,
+/// and then converts the coerced JSON back to a `Node`. This is somewhat
+/// inefficient but avoid having to re-implement a lot of the logic in this
+/// crate.
+pub fn coerce_to_validator(node: &Node, validator: &ValidatorTypes) -> Result<Node> {
+    let schema = match validator {
+        ValidatorTypes::Validator(..) => JsonSchema::default(),
+        ValidatorTypes::ArrayValidator(validator) => JsonSchema {
+            r#type: some_string!("array"),
+            min_items: validator.min_items.map(|num| num as usize),
+            max_items: validator.max_items.map(|num| num as usize),
+            ..Default::default()
+        },
+        ValidatorTypes::BooleanValidator(..) => JsonSchema {
+            r#type: some_string!("boolean"),
+            ..Default::default()
+        },
+        ValidatorTypes::ConstantValidator(..) => JsonSchema {
+            r#type: some_string!("const"),
+            ..Default::default()
+        },
+        ValidatorTypes::EnumValidator(..) => JsonSchema {
+            r#type: some_string!("enum"),
+            ..Default::default()
+        },
+        ValidatorTypes::IntegerValidator(..) => JsonSchema {
+            r#type: some_string!("integer"),
+            ..Default::default()
+        },
+        ValidatorTypes::NumberValidator(validator) => JsonSchema {
+            r#type: some_string!("number"),
+            minimum: validator.minimum,
+            exclusive_minimum: validator.exclusive_minimum,
+            maximum: validator.maximum,
+            exclusive_maximum: validator.exclusive_maximum,
+            ..Default::default()
+        },
+        ValidatorTypes::StringValidator(validator) => JsonSchema {
+            r#type: some_string!("string"),
+            min_length: validator.min_length.map(|num| num as usize),
+            max_length: validator.max_length.map(|num| num as usize),
+            pattern: validator
+                .pattern
+                .as_ref()
+                .map(|pattern| pattern.to_string()),
+            ..Default::default()
+        },
+        ValidatorTypes::TupleValidator(..) => JsonSchema {
+            r#type: some_string!("tuple"),
+            ..Default::default()
+        },
+    };
+
+    let mut value = serde_json::to_value(node)?;
+    coerce_to_schema(&mut value, &schema);
+
+    let node = serde_json::from_value(value)?;
+    Ok(node)
+}
+
 /// A JSON Schema object
 ///
 /// Only implements properties of JSON Schema used in coercion or
@@ -61,7 +124,7 @@ pub fn coerce(value: JsonValue, type_: Option<String>) -> Result<Node> {
 #[serde(rename_all = "camelCase")]
 struct JsonSchema {
     #[serde(rename = "type")]
-    type_: Option<String>,
+    r#type: Option<String>,
 
     // Parsing to a type
     parser: Option<String>,
@@ -106,7 +169,7 @@ struct JsonSchema {
         default,
         deserialize_with = "JsonSchema::deserialize_ref"
     )]
-    ref_: Option<String>,
+    r#ref: Option<String>,
 }
 
 static SCHEMAS: Lazy<Mutex<HashMap<String, JsonSchema>>> = Lazy::new(|| Mutex::new(HashMap::new()));
@@ -177,11 +240,11 @@ fn coerce_to_schema(value: &mut JsonValue, schema: &JsonSchema) {
     // Usually (always) `$ref` will be on it's own (as part of a
     // large `anyOf` or `allOf`) so for efficiency handle, and
     // return from that, first
-    if let Some(schema) = &schema.ref_ {
+    if let Some(schema) = &schema.r#ref {
         return coerce_to_type(value, schema);
     }
 
-    if let Some(type_) = &schema.type_ {
+    if let Some(type_) = &schema.r#type {
         // For these primitive schema types can just return early
         match type_.as_str() {
             "null" => {
@@ -235,7 +298,7 @@ fn coerce_to_schema(value: &mut JsonValue, schema: &JsonSchema) {
 /// This is optimized for the Stencila Schema in that it only check
 /// against one type of keyword per schema e.g. `properties` or `anyOf`, not both.
 fn valid_for_schema(value: &JsonValue, schema: &JsonSchema) -> bool {
-    let type_ = schema.type_.as_deref().unwrap_or_default();
+    let type_ = schema.r#type.as_deref().unwrap_or_default();
     if type_ == "null" {
         matches!(value, JsonValue::Null)
     } else if type_ == "boolean" {
@@ -250,7 +313,7 @@ fn valid_for_schema(value: &JsonValue, schema: &JsonSchema) -> bool {
         valid_for_object_schema(value, schema)
     } else if schema.items.is_some() {
         valid_for_array_schema(value, schema)
-    } else if let Some(schema) = &schema.ref_ {
+    } else if let Some(schema) = &schema.r#ref {
         valid_for_type(value, schema)
     } else if let Some(any_of) = schema.any_of.as_ref() {
         valid_for_any_of(value, any_of)
@@ -266,7 +329,7 @@ fn default_for_schema(schema: &JsonSchema) -> JsonValue {
     if let Some(default) = &schema.default {
         default.clone()
     } else {
-        if let Some(type_) = &schema.type_ {
+        if let Some(type_) = &schema.r#type {
             return match type_.as_str() {
                 "null" => JsonValue::Null,
                 "boolean" => json!(false),
@@ -376,7 +439,12 @@ fn coerce_to_boolean(value: &mut JsonValue) {
         JsonValue::Null => false,
         JsonValue::Bool(_) => return,
         JsonValue::Number(number) => number.as_f64().expect("Should be a float") > 0f64,
-        JsonValue::String(string) => !(string.to_lowercase() == "false" || string == "0"),
+        JsonValue::String(string) => {
+            !(string.to_lowercase() == "false"
+                || string == "0"
+                || string.to_lowercase() == "no"
+                || string.to_lowercase() == "off")
+        }
         JsonValue::Array(_) => true,
         JsonValue::Object(_) => true,
     };
@@ -505,7 +573,8 @@ fn valid_for_number_schema(value: &JsonValue, schema: &JsonSchema) -> bool {
 /// Coerce a JSON value to a string schema
 ///
 /// Respects `minLength` (via right padding) and `maxLength` keywords
-/// (via truncation) but ignores `format` of `pattern` keywords.
+/// (via truncation) and `pattern` (by setting to empty string if fails)
+/// but ignores `format`.
 fn coerce_to_string_schema(value: &mut JsonValue, schema: &JsonSchema) {
     match value {
         JsonValue::Null => *value = JsonValue::String("".to_string()),
@@ -513,8 +582,8 @@ fn coerce_to_string_schema(value: &mut JsonValue, schema: &JsonSchema) {
         _ => *value = JsonValue::String(value.to_string()),
     }
 
-    // There is some code repetition below but avoid slowing down the
-    // hot path (e.g. cloning string) in which neither these keywords apply
+    // There is some code repetition below but it avoid slowing down the
+    // hot path (e.g. by cloning string) in which none of these keywords apply
 
     if let Some(min_length) = schema.min_length {
         let string = value.as_str().expect("Should be a string");
@@ -529,12 +598,22 @@ fn coerce_to_string_schema(value: &mut JsonValue, schema: &JsonSchema) {
             *value = JsonValue::String(string[..max_length].to_string())
         }
     }
+
+    if let Some(pattern) = &schema.pattern {
+        match Regex::new(pattern) {
+            Ok(regex) => {
+                if !regex.is_match(value.as_str().unwrap()) {
+                    *value = json!("")
+                }
+            }
+            Err(error) => tracing::error!("While compiling regex pattern: {}", error),
+        }
+    }
 }
 
 /// Validate a JSON value to a string schema
 ///
-/// Respects `minLength` (via right padding) and `maxLength` keywords
-/// (via truncation) but ignores `format` of `pattern` keywords.
+/// Currently tests `minLength`, `maxLength` and `pattern` keywords.
 fn valid_for_string_schema(value: &JsonValue, schema: &JsonSchema) -> bool {
     let string = match value {
         JsonValue::String(string) => string,
@@ -550,6 +629,17 @@ fn valid_for_string_schema(value: &JsonValue, schema: &JsonSchema) -> bool {
     if let Some(max_length) = schema.max_length {
         if string.len() > max_length {
             return false;
+        }
+    }
+
+    if let Some(pattern) = &schema.pattern {
+        match Regex::new(pattern) {
+            Ok(regex) => {
+                if !regex.is_match(value.as_str().unwrap()) {
+                    return false;
+                }
+            }
+            Err(error) => tracing::error!("While compiling regex pattern: {}", error),
         }
     }
 
@@ -689,7 +779,7 @@ fn coerce_to_any_of(value: &mut JsonValue, schemas: &[JsonSchema]) {
         if object.contains_key("type") {
             if let JsonValue::String(value_type) = &object["type"].clone() {
                 for schema in schemas {
-                    if let Some(ref_type) = &schema.ref_ {
+                    if let Some(ref_type) = &schema.r#ref {
                         if ref_type == value_type {
                             return coerce_to_type(value, value_type);
                         }
@@ -786,7 +876,7 @@ mod tests {
     #[test]
     fn test_coerce_to_integer_schema() {
         let mut schema = JsonSchema {
-            type_: Some("integer".to_string()),
+            r#type: Some("integer".to_string()),
             ..Default::default()
         };
 
@@ -834,7 +924,7 @@ mod tests {
     #[test]
     fn test_coerce_to_number_schema() {
         let mut schema = JsonSchema {
-            type_: Some("number".to_string()),
+            r#type: Some("number".to_string()),
             ..Default::default()
         };
 
@@ -882,7 +972,7 @@ mod tests {
     #[test]
     fn test_coerce_to_string_schema() {
         let mut schema = JsonSchema {
-            type_: Some("string".to_string()),
+            r#type: Some("string".to_string()),
             ..Default::default()
         };
 

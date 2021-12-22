@@ -1,0 +1,9 @@
+{
+  "type": "Parameter",
+  "name": "par",
+  "validator": {
+    "type": "IntegerValidator"
+  },
+  "default": 42,
+  "value": 50
+}

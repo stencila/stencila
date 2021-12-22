@@ -1,0 +1,10 @@
+{
+  "type": "Parameter",
+  "name": "par",
+  "validator": {
+    "type": "EnumValidator",
+    "values": ["A", "B", "C"]
+  },
+  "default": "A",
+  "value": "B"
+}

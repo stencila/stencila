@@ -815,6 +815,7 @@ dependencies = [
  "test-utils",
  "tokio",
  "tracing",
+ "uuids",
 ]
 
 [[package]]
@@ -875,11 +876,13 @@ dependencies = [
 name = "codec-md"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "codec",
  "codec-html",
  "codec-txt",
  "formats",
  "itertools",
+ "json5",
  "node-coerce",
  "node-transform",
  "nom",
@@ -3216,6 +3219,7 @@ dependencies = [
  "test-snaps",
  "test-utils",
  "tracing",
+ "utils",
 ]
 
 [[package]]
@@ -3252,6 +3256,7 @@ dependencies = [
  "eyre",
  "itertools",
  "node-address",
+ "node-coerce",
  "node-dispatch",
  "schemars",
  "serde",

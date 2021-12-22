@@ -191,7 +191,6 @@ patchable_struct!(Link, content, target);
 patchable_struct!(MathFragment, math_language, text);
 patchable_struct!(NontextualAnnotation, content);
 patchable_struct!(Note, content);
-patchable_struct!(Parameter, name, value);
 patchable_struct!(Quote, content);
 patchable_struct!(Strong, content);
 patchable_struct!(Subscript, content);

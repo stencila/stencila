@@ -11,7 +11,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
       "source": [
         "# Introduction\n",
         "\n",
-        "This is a “kitchen sink” test fixture for the Jupyter Notebook (`ipynb`) format. It’s principal use is in testing Stencila’s conversion to / from Jupyter Notebooks but also serves to document that conversion. It contains a variety of document node types and Jupyter cell types.\n",
+        "This is a \"kitchen sink\" test fixture for the Jupyter Notebook (`ipynb`) format. It's principal use is in testing Stencila's conversion to / from Jupyter Notebooks but also serves to document that conversion. It contains a variety of document node types and Jupyter cell types.\n",
         "\n",
         "# Meta data\n",
         "\n",
