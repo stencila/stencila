@@ -625,7 +625,7 @@ impl KernelSpace {
         is_async: bool,
         is_fork: bool,
         symbols: &mut KernelSymbols,
-        kernel_id: &KernelId,
+        kernel_id: &str,
         kernels: &mut KernelMap,
     ) -> Result<Task> {
         // Mirror used symbols into the kernel
@@ -664,7 +664,7 @@ impl KernelSpace {
 
             symbol
                 .mirrored
-                .entry(kernel_id.clone())
+                .entry(kernel_id.to_string())
                 .and_modify(|datetime| *datetime = Utc::now())
                 .or_insert_with(Utc::now);
         }
@@ -685,7 +685,7 @@ impl KernelSpace {
                 symbols
                     .entry(symbol.name.clone())
                     .and_modify(|info| {
-                        info.home = kernel_id.clone();
+                        info.home = kernel_id.to_string();
                         info.assigned = Utc::now();
                     })
                     .or_insert_with(|| SymbolInfo::new(&symbol.kind, kernel_id));
@@ -799,7 +799,7 @@ impl KernelSpace {
     /// Dispatch a previously deferred task to a kernel
     async fn dispatch_deferred(
         task_info: &mut TaskInfo,
-        kernel_id: &KernelId,
+        kernel_id: &str,
         kernels: &mut KernelMap,
         symbols: &mut KernelSymbols,
     ) -> Result<()> {

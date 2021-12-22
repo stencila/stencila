@@ -55,7 +55,7 @@ pub fn coerce(value: JsonValue, type_: Option<String>) -> Result<Node> {
 }
 
 /// Coerce a Stencila `Node` to a Stencila `Validator`
-/// 
+///
 /// This converts the `node` to JSON and and the `validator` to JSON Schema,
 /// and then converts the coerced JSON back to a `Node`. This is somewhat
 /// inefficient but avoid having to re-implement a lot of the logic in this
