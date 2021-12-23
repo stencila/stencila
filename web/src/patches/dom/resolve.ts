@@ -48,6 +48,18 @@ export function resolveTarget(target?: ElementId): Element {
 }
 
 /**
+ * Generate a DOM `Element` selector for a name slot
+ *
+ * The generated selector matches against several attributes. Note:
+ * - `slot` is used because even though one of the other attributes may be present
+ *   in the original encoding, a Web Component may replace it; using `slot` avoids this
+ * - `data-prop` may replace `data-itemprop` in the future
+ */
+export function slotSelector(name: string): string {
+  return `[data-itemprop="${name}"], [itemprop="${name}"], [slot="${name}"]`
+}
+
+/**
  * Resolve a slot in a parent DOM node.
  *
  * Note that the `parent` must be an `Element` but that the returned
@@ -70,11 +82,8 @@ export function resolveSlot(
     if (customAttr !== null) return customAttr
 
     // Is there a descendant element matching the slot name?
-    // It is proposed that `data-prop` replace `data-itemprop`. This currently allows for all options.
     assertElement(parent)
-    const child: Element | null = parent.querySelector(
-      `[data-prop="${slot}"], [data-itemprop="${slot}"], [itemprop="${slot}"]`
-    )
+    const child: Element | null = parent.querySelector(slotSelector(slot))
 
     // The `text` slot (e.g. on `CodeFragment`) should always represented by the text content of the selected element
     // and is usually "implicit" (so, if there is no explicitly marked text slot, use the parent)
