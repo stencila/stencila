@@ -21,6 +21,7 @@ import {
   isArrayElement,
   isObjectElement,
   resolveParent,
+  slotSelector,
 } from './resolve'
 
 /**
@@ -91,7 +92,7 @@ export function applyAddStruct(
 
   // Is there a placeholder element for the property? If so update it's content.
   // Takes precedence over adding as an attribute.
-  const placeholder = struct.querySelector(`[data-itemprop="${name}"]`)
+  const placeholder = struct.querySelector(slotSelector(name))
   if (placeholder) {
     placeholder.innerHTML = html
     return

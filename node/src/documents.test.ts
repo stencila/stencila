@@ -27,7 +27,7 @@ test('create', async () => {
       temporary: true,
       name: 'Untitled',
       format: expect.objectContaining({
-        name: 'md',
+        extension: 'md',
         binary: false,
       }),
     })
@@ -45,7 +45,7 @@ test('workflow-create-alter', async () => {
       temporary: true,
       name: 'Untitled',
       format: expect.objectContaining({
-        name: 'txt',
+        extension: 'txt',
       }),
       status: 'synced',
     })
@@ -56,7 +56,7 @@ test('workflow-create-alter', async () => {
       temporary: true,
       name: 'Untitled',
       format: expect.objectContaining({
-        name: 'md',
+        extension: 'md',
       }),
       status: 'synced',
     })
@@ -119,7 +119,7 @@ test('workflow-open-modify', async () => {
   expect(doc).toEqual(
     expect.objectContaining({
       format: expect.objectContaining({
-        name: 'json',
+        extension: 'json',
         binary: false,
       }),
       temporary: false,
@@ -163,7 +163,7 @@ test('workflow-open-modify', async () => {
       expect.objectContaining({
         type: 'encoded',
         format: expect.objectContaining({
-          name: 'json',
+          extension: 'json',
           binary: false,
         }),
       }),
@@ -192,7 +192,7 @@ test('workflow-open-modify', async () => {
       expect.objectContaining({
         type: 'encoded',
         format: expect.objectContaining({
-          name: 'json',
+          extension: 'json',
           binary: false,
         }),
       }),
@@ -217,7 +217,7 @@ test('workflow-open-modify', async () => {
       expect.objectContaining({
         type: 'encoded',
         format: expect.objectContaining({
-          name: 'json',
+          extension: 'json',
           binary: false,
         }),
       }),

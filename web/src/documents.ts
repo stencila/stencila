@@ -56,7 +56,7 @@ export interface LanguageChangeEvent extends CustomEvent {
  * is changed
  */
 export interface ContentChangeEvent extends CustomEvent {
-  detail: ViewUpdate
+  detail: ViewUpdate | string
 }
 
 /**
@@ -181,13 +181,11 @@ export function receivePatch(clientId: ClientId, event: DocumentEvent): void {
 export async function execute(
   client: Client,
   documentId: DocumentId,
-  nodeId: NodeId,
-  patch?: Patch
+  nodeId: NodeId
 ): Promise<void> {
   return client.call('documents.execute', {
     documentId,
     nodeId,
-    patch,
   }) as Promise<void>
 }
 
@@ -292,19 +290,37 @@ async function onContentChange(
   event: ContentChangeEvent
 ): Promise<void> {
   const [_nodeType, nodeId] = resolveEventNode(event)
-  const slot = 'text'
+  const address = ['text']
 
-  const update = event.detail
-  if (update.docChanged) {
-    const ops = codemirror.stateToOps(update.state, [slot])
-    // const ops = codemirror.diffToOps(update.startState, update.state, [slot])
-    const patch = {
-      actor: clientId,
-      target: nodeId,
-      ops,
+  let ops: Operation[] = []
+  if (typeof event.detail === 'string') {
+    const value = event.detail
+    ops = [
+      {
+        type: 'Replace',
+        address,
+        items: 1,
+        value,
+        length: value.length,
+        html: undefined,
+      },
+    ]
+  } else {
+    const update = event.detail
+    if (update.docChanged) {
+      ops = codemirror.updateToOps(update, address)
+    } else {
+      // No change, so early return
+      return
     }
-    return sendPatch(client, documentId, patch)
   }
+
+  const patch = {
+    actor: clientId,
+    target: nodeId,
+    ops,
+  }
+  return sendPatch(client, documentId, patch)
 }
 
 /**

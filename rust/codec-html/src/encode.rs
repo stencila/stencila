@@ -323,7 +323,7 @@ fn attr_id(id: &Option<Box<String>>) -> String {
 ///
 /// Used for nodes that are represented in HTML using a custom Web Component.
 /// Not to be confused with the Stencila `Address` slot which will often have the
-/// same value but which will be encoded as a "data-prop" if the element is not a Web Component.
+/// same value but which will be encoded as a "data-itemprop" if the element is not a Web Component.
 fn attr_slot(name: &str) -> String {
     attr("slot", name)
 }

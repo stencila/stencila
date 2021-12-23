@@ -2,7 +2,7 @@ use crate::utils::schemas;
 use defaults::Defaults;
 use events::publish;
 use eyre::{bail, Result};
-use formats::{Format, FORMATS};
+use formats::FormatSpec;
 use graph_triples::{Relation, Resource};
 use itertools::Itertools;
 use kernels::KernelSpace;
@@ -61,7 +61,7 @@ struct DocumentEvent {
     /// The format of the document, only provided for `modified` (the format
     /// of the document) and `encoded` events (the format of the encoding).
     #[schemars(schema_with = "DocumentEvent::schema_format")]
-    format: Option<Format>,
+    format: Option<FormatSpec>,
 
     /// The `Patch` associated with a `Patched` event
     #[schemars(schema_with = "DocumentEvent::schema_patch")]
@@ -151,9 +151,9 @@ pub struct Document {
     /// On initialization, this is inferred, if possible, from the file name extension
     /// of the document's `path`. However, it may change whilst the document is
     /// open in memory (e.g. if the `load` function sets a different format).
-    #[def = "Format::unknown(\"unknown\")"]
+    #[def = "FormatSpec::unknown(\"unknown\")"]
     #[schemars(schema_with = "Document::schema_format")]
-    format: Format,
+    format: FormatSpec,
 
     /// Whether a HTML preview of the document is supported
     ///
@@ -285,12 +285,13 @@ impl Document {
         let id = uuids::generate("do").to_string();
 
         let format = if let Some(format) = format {
-            FORMATS.match_path(&format)
+            formats::match_path(&format)
         } else if let Some(path) = path.as_ref() {
-            FORMATS.match_path(path)
+            formats::match_path(path)
         } else {
-            FORMATS.match_name("txt")
-        };
+            formats::match_name("txt")
+        }
+        .spec();
         let previewable = format.preview;
 
         let (path, name, temporary) = match path {
@@ -308,7 +309,7 @@ impl Document {
                     [
                         uuids::generate("fi").to_string(),
                         ".".to_string(),
-                        format.name.clone(),
+                        format.extension.clone(),
                     ]
                     .concat(),
                 );
@@ -430,9 +431,9 @@ impl Document {
         }
 
         if let Some(format) = format {
-            self.format = FORMATS.match_path(&format);
+            self.format = formats::match_path(&format).spec();
         } else if let Some(path) = path {
-            self.format = FORMATS.match_path(&path);
+            self.format = formats::match_path(&path).spec();
         };
 
         self.previewable = self.format.preview;
@@ -489,8 +490,8 @@ impl Document {
         }
 
         let content_to_write = if let Some(input_format) = format.as_ref() {
-            let input_format = FORMATS.match_path(&input_format);
-            if input_format.name != self.format.name {
+            let input_format = formats::match_path(&input_format).spec();
+            if input_format != self.format {
                 self.dump(None).await?
             } else {
                 self.content.clone()
@@ -527,7 +528,7 @@ impl Document {
         let path = path.as_ref();
         let format = format.unwrap_or_else(|| {
             path.extension().map_or_else(
-                || self.format.name.clone(),
+                || self.format.extension.clone(),
                 |ext| ext.to_string_lossy().to_string(),
             )
         });
@@ -582,11 +583,11 @@ impl Document {
     pub async fn load(&mut self, content: String, format: Option<String>) -> Result<()> {
         let mut decode_content = true;
         if let Some(format) = format {
-            let other_format = FORMATS.match_path(&format);
-            if other_format.name != self.format.name {
-                let node = codecs::from_str(&content, &other_format.name, None).await?;
+            let other_format = formats::match_path(&format).spec();
+            if other_format != self.format {
+                let node = codecs::from_str(&content, &other_format.extension, None).await?;
                 if !self.format.binary {
-                    self.content = codecs::to_string(&node, &self.format.name, None).await?;
+                    self.content = codecs::to_string(&node, &self.format.extension, None).await?;
                 }
                 self.root = Some(node);
                 decode_content = false;
@@ -637,7 +638,8 @@ impl Document {
         // TODO updating of *content from root* and publishing of events etc needs to be sorted out
         if !self.format.binary {
             self.content =
-                codecs::to_string(self.root.as_ref().unwrap(), &self.format.name, None).await?;
+                codecs::to_string(self.root.as_ref().unwrap(), &self.format.extension, None)
+                    .await?;
         }
         self.update(false).await?;
 
@@ -715,17 +717,12 @@ impl Document {
         Ok(())
     }
 
-    /// Execute the document, or a node within it, optionally providing a [`Patch`] to apply before execution, and
-    /// publishing a patch if there are any subscribers.
-    #[tracing::instrument(skip(self, patch))]
-    pub async fn execute(&mut self, node_id: Option<String>, patch: Option<Patch>) -> Result<()> {
+    /// Execute the document, or a node within it, and publishing a patch of changes if there are any subscribers.
+    #[tracing::instrument(skip(self))]
+    pub async fn execute(&mut self, node_id: Option<String>) -> Result<()> {
         tracing::debug!("Executing document `{}`", self.id);
 
         let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id.clone())?;
-        if let Some(patch) = patch {
-            pointer.patch(&patch)?;
-        }
-
         let mut patch = pointer.execute(&mut self.kernels).await?;
 
         // TODO: Only publish the patch if there are subscribers
@@ -774,7 +771,7 @@ impl Document {
 
         // Decode the binary file or, in-memory content into the `root` node
         // of the document
-        let format = &self.format.name;
+        let format = &self.format.extension;
         let mut root = if self.format.binary {
             if self.path.exists() {
                 tracing::debug!("Decoding document root from path");
@@ -940,14 +937,14 @@ impl Document {
 
     /// Publish an event for this document
     fn publish(&self, type_: DocumentEventType, content: Option<String>, format: Option<String>) {
-        let format = format.map(|name| FORMATS.match_name(&name));
+        let format = format.map(|name| formats::match_name(&name).spec());
 
         let subtopic = match type_ {
             DocumentEventType::Encoded => format!(
                 "encoded:{}",
                 format
                     .clone()
-                    .map_or_else(|| "undef".to_string(), |format| format.name)
+                    .map_or_else(|| "undef".to_string(), |format| format.extension)
             ),
             _ => type_.to_string(),
         };
@@ -1036,7 +1033,7 @@ impl Document {
             Ok(content) => self.publish(
                 DocumentEventType::Modified,
                 Some(content),
-                Some(self.format.name.clone()),
+                Some(self.format.extension.clone()),
             ),
             Err(error) => tracing::error!("While attempting to read modified file: {}", error),
         }
@@ -1354,16 +1351,11 @@ impl Documents {
     ///
     /// Like `patch()`, given this function is likely to be called often, do not return
     /// the document.
-    #[tracing::instrument(skip(self, patch))]
-    pub async fn execute(
-        &self,
-        id: &str,
-        node_id: Option<String>,
-        patch: Option<Patch>,
-    ) -> Result<()> {
+    #[tracing::instrument(skip(self))]
+    pub async fn execute(&self, id: &str, node_id: Option<String>) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        document_guard.execute(node_id, patch).await
+        document_guard.execute(node_id).await
     }
 
     /// Get a document that has previously been opened
@@ -1530,7 +1522,7 @@ pub mod commands {
             let document = DOCUMENTS.open(file, format.clone()).await?;
             if let Some(pointer) = pointer {
                 if pointer == "content" {
-                    result::content(&document.format.name, &document.content)
+                    result::content(&document.format.extension, &document.content)
                 } else if pointer == "root" {
                     result::value(&document.root)
                 } else {
@@ -1821,7 +1813,7 @@ mod tests {
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
-        assert_eq!(doc.format.name, "txt");
+        assert_eq!(doc.format.extension, "txt");
         assert_eq!(doc.content, "");
         assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
@@ -1830,7 +1822,7 @@ mod tests {
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
         assert!(matches!(doc.status, DocumentStatus::Synced));
-        assert_eq!(doc.format.name, "md");
+        assert_eq!(doc.format.extension, "md");
         assert_eq!(doc.content, "");
         assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
@@ -1842,7 +1834,7 @@ mod tests {
             let doc = Document::open(fixtures().join("articles").join(file), None).await?;
             assert!(!doc.temporary);
             assert!(matches!(doc.status, DocumentStatus::Synced));
-            assert_eq!(doc.format.name, "json");
+            assert_eq!(doc.format.extension, "json");
             assert!(!doc.content.is_empty());
             assert!(doc.root.is_some());
             assert_eq!(doc.subscriptions, hashmap! {});

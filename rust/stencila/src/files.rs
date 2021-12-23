@@ -1,7 +1,7 @@
 use crate::utils::schemas;
 use defaults::Defaults;
 use events::publish;
-use formats::{Format, FORMATS};
+use formats::FormatSpec;
 use schemars::{schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -35,9 +35,9 @@ pub struct File {
     /// Usually this is the lower cased filename extension (if any)
     /// but may also be normalized. May be more convenient,
     /// and usually more available, than the `media_type` property.
-    #[def = "Format::unknown(\"unknown\")"]
+    #[def = "FormatSpec::unknown(\"unknown\")"]
     #[schemars(schema_with = "File::schema_format")]
-    pub format: Format,
+    pub format: FormatSpec,
 
     /// The parent `File`, if any
     pub parent: Option<PathBuf>,
@@ -98,9 +98,9 @@ impl File {
         };
 
         let (format, children) = if path.is_file() {
-            (FORMATS.match_path(&path), None)
+            (formats::match_path(&path).spec(), None)
         } else {
-            (Format::directory(), Some(BTreeSet::new()))
+            (FormatSpec::directory(), Some(BTreeSet::new()))
         };
 
         File {
@@ -468,7 +468,7 @@ impl Files {
                 file.path = new_path.into();
                 file.name = File::name(new_path);
                 file.parent = File::parent(new_path);
-                file.format = FORMATS.match_path(&new_path);
+                file.format = formats::match_path(&new_path).spec();
                 rename_children(&mut self.files, &mut file, old_path, new_path);
                 self.files.insert(new_path.into(), file.clone());
                 file

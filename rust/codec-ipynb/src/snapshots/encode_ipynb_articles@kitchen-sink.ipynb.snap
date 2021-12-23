@@ -1686,9 +1686,16 @@ input_file: fixtures/articles/kitchen-sink.ipynb
       ],
       "outputs": [
         {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": "   a  b  c\n0  1  2  3\n1  4  5  6\n2  7  8  9\n"
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "   a  b  c\n",
+              "0  1  2  3\n",
+              "1  4  5  6\n",
+              "2  7  8  9\n"
+            ]
+          },
+          "metadata": {}
         }
       ],
       "metadata": {

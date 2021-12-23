@@ -727,10 +727,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
       "programmingLanguage": "python",
       "text": "# Print the data.frame so that is output as `text/plain`\nprint(df)",
       "outputs": [
-        {
-          "type": "CodeBlock",
-          "text": "   a  b  c\n0  1  2  3\n1  4  5  6\n2  7  8  9\n"
-        }
+        "   a  b  c\n0  1  2  3\n1  4  5  6\n2  7  8  9\n"
       ]
     },
     {

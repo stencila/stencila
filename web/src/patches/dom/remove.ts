@@ -18,6 +18,7 @@ import {
   isObjectElement,
   resolveObjectKey,
   resolveParent,
+  slotSelector,
 } from './resolve'
 
 /**
@@ -90,11 +91,12 @@ export function applyRemoveStruct(
   // If the property is represented as a child element then clear it's content
   // and its attributes, other than `data-itemprop` etc (so that it remains
   // a placeholder if the property is added again later).
-  const child = struct.querySelector(`[data-itemprop="${name}"]`)
+  const child = struct.querySelector(slotSelector(name))
   if (child) {
     child.innerHTML = ''
     for (const attr of child.getAttributeNames()) {
-      if (attr !== 'data-itemprop') child.removeAttribute(attr)
+      if (attr !== 'data-itemprop' && attr !== 'itemprop' && attr !== 'slot')
+        child.removeAttribute(attr)
     }
     return
   }

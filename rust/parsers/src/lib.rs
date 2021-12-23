@@ -1,4 +1,4 @@
-use formats::FORMATS;
+use formats::{match_name, Format};
 use once_cell::sync::Lazy;
 use parser::{
     eyre::{bail, Result},
@@ -31,22 +31,23 @@ struct Parsers {
 ///
 /// This avoids having to do a search over the parsers's specs for matching `languages`.
 macro_rules! dispatch_builtins {
-    ($var:expr, $method:ident $(,$arg:expr)*) => {
-        match $var.as_str() {
+    ($format:expr, $method:ident $(,$arg:expr)*) => {
+        match $format {
             #[cfg(feature = "parser-bash")]
-            "bash" => Some(parser_bash::BashParser::$method($($arg),*)),
+            Format::Bash | Format::Shell | Format::Zsh => Some(parser_bash::BashParser::$method($($arg),*)),
             #[cfg(feature = "parser-calc")]
-            "calc" => Some(parser_calc::CalcParser::$method($($arg),*)),
+            Format::Calc => Some(parser_calc::CalcParser::$method($($arg),*)),
             #[cfg(feature = "parser-js")]
-            "js" => Some(parser_js::JsParser::$method($($arg),*)),
+            Format::JavaScript => Some(parser_js::JsParser::$method($($arg),*)),
             #[cfg(feature = "parser-py")]
-            "py" => Some(parser_py::PyParser::$method($($arg),*)),
+            Format::Python => Some(parser_py::PyParser::$method($($arg),*)),
             #[cfg(feature = "parser-r")]
-            "r" => Some(parser_r::RParser::$method($($arg),*)),
+            Format::R => Some(parser_r::RParser::$method($($arg),*)),
             #[cfg(feature = "parser-rust")]
-            "rust" => Some(parser_rust::RustParser::$method($($arg),*)),
+            Format::Rust => Some(parser_rust::RustParser::$method($($arg),*)),
             #[cfg(feature = "parser-ts")]
-            "ts" => Some(parser_ts::TsParser::$method($($arg),*)),
+            Format::TypeScript => Some(parser_ts::TsParser::$method($($arg),*)),
+            // Fallback to empty result
             _ => Option::<Result<Pairs>>::None
         }
     };
@@ -54,6 +55,11 @@ macro_rules! dispatch_builtins {
 
 impl Parsers {
     /// Create a set of parsers
+    ///
+    /// Note that these strings are labels for the parser which
+    /// aim to be consistent with the parser name, are convenient
+    /// to use to `stencila parsers show`, and don't need to be
+    /// consistent with format names or aliases.
     pub fn new() -> Self {
         let inner = vec![
             #[cfg(feature = "parser-bash")]
@@ -98,14 +104,14 @@ impl Parsers {
     /// Parse code in a particular language
     fn parse<P: AsRef<Path>>(&self, path: P, code: &str, language: &str) -> Result<Pairs> {
         let path = path.as_ref();
-        let format = FORMATS.match_name(language);
+        let format = match_name(language);
 
-        let pairs = if let Some(result) = dispatch_builtins!(format.name, parse, path, code) {
+        let pairs = if let Some(result) = dispatch_builtins!(format, parse, path, code) {
             result?
         } else {
             bail!(
                 "Unable to parse code in language `{}`: no matching parser found",
-                format.name
+                language
             )
         };
 
@@ -139,13 +145,15 @@ impl Default for Parsers {
 
 #[cfg(feature = "cli")]
 pub mod commands {
+    use std::{fs, path::PathBuf};
+
     use super::*;
     use cli_utils::{async_trait::async_trait, result, Result, Run};
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Manage parsers",
+        about = "Manage and use parsers",
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]
@@ -161,6 +169,7 @@ pub mod commands {
     pub enum Action {
         List(List),
         Show(Show),
+        Parse(Parse),
     }
 
     #[async_trait]
@@ -170,6 +179,7 @@ pub mod commands {
             match action {
                 Action::List(action) => action.run().await,
                 Action::Show(action) => action.run().await,
+                Action::Parse(action) => action.run().await,
             }
         }
     }
@@ -207,6 +217,38 @@ pub mod commands {
         async fn run(&self) -> Result {
             let parser = PARSERS.get(&self.label)?;
             result::value(parser)
+        }
+    }
+
+    /// Parse some code using a parser
+    ///
+    /// The code is parsed into a set of graph `Relation`/`Resource` pairs using the
+    /// parser that matches the filename extension (or specified using `--lang`).
+    /// Useful for testing Stencila's static code analysis for a particular language.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Parse {
+        /// The file to parse
+        file: PathBuf,
+
+        /// The language of the code
+        #[structopt(short, long)]
+        lang: Option<String>,
+    }
+    #[async_trait]
+    impl Run for Parse {
+        async fn run(&self) -> Result {
+            let code = fs::read_to_string(&self.file)?;
+            let ext = self
+                .file
+                .extension()
+                .map(|ext| ext.to_string_lossy().to_string())
+                .unwrap_or_default();
+            let lang = self.lang.as_ref().unwrap_or(&ext);
+            let pairs = PARSERS.parse(&*self.file.to_string_lossy(), &code, lang)?;
+            result::value(pairs)
         }
     }
 }

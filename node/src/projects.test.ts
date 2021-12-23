@@ -69,11 +69,11 @@ test('open: manifest', () => {
       files: expect.objectContaining({
         [path.join(folder, 'project.json')]: expect.objectContaining({
           name: 'project.json',
-          format: expect.objectContaining({ name: 'json' }),
+          format: expect.objectContaining({ extension: 'json' }),
         }),
         [path.join(folder, 'my-main-file.md')]: expect.objectContaining({
           name: 'my-main-file.md',
-          format: expect.objectContaining({ name: 'md' }),
+          format: expect.objectContaining({ extension: 'md' }),
         }),
       }),
     })
