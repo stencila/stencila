@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.137.0",
+  "version": "0.137.1",
   "description": "Living documents for reproducible research.",
   "scripts": {
     "prepare": "husky install"

@@ -4883,7 +4883,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "stencila"
-version = "0.137.0"
+version = "0.137.1"
 dependencies = [
  "ansi_term",
  "async-recursion",
@@ -4982,7 +4982,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.137.0"
+version = "0.137.1"
 dependencies = [
  "events",
  "formats",
@@ -5143,9 +5143,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.82"
+version = "1.0.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8daf5dd0bb60cbd4137b1b587d2fc0ae729bc07cf01cd70b36a1ed5ade3b9d59"
+checksum = "23a1dfb999630e338648c83e91c59a4e9fb7620f520c3194b6b89e276f2f1959"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5222,9 +5222,9 @@ dependencies = [
 
 [[package]]
 name = "termimad"
-version = "0.19.3"
+version = "0.19.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80eede1afff45a78b38b298e3b315a4e69261ee68162bf79699061ef89f410fb"
+checksum = "d038a6d61e13ee0b7a44e0ef4555817287bb0cfded3b43cc547ad15f854c8ded"
 dependencies = [
  "coolor",
  "crossbeam",

@@ -1,3 +1,18 @@
+## [0.137.1](https://github.com/stencila/stencila/compare/v0.137.0...v0.137.1) (2021-12-23)
+
+
+### Bug Fixes
+
+* **Documents:** Remove option to patch node when executing it ([8b00ced](https://github.com/stencila/stencila/commit/8b00ced68077d1184a1c301e9e91e86d0e600ef4))
+* **IPYNB codec:** Do not decode preformatted text to `CodeBlock` ([cc91aa6](https://github.com/stencila/stencila/commit/cc91aa62cbb7728f889d7b1944fda42d7d945751))
+* **Server:** Disconnect client on broken Websocket ([ae3b624](https://github.com/stencila/stencila/commit/ae3b62489cabfae8bd14d5a26f44cc5ce3724ce0))
+* **Server:** Subscribe to event topics no more than once ([d6737c8](https://github.com/stencila/stencila/commit/d6737c88c48e476a48e2d60c3d64ae23daec76ad))
+* **Web patches:** Fix patching of  `default` property of `Parameter` ([86f437e](https://github.com/stencila/stencila/commit/86f437e98de008ff3fc87f8908755d9703112c55))
+* **Web patches:** Fix setting of parameter values ([f8d8453](https://github.com/stencila/stencila/commit/f8d845373adf423226f2a79498a715d91ca5b884))
+* **Web patches:** Make selectors more specific to change parameter `value` ([33e6445](https://github.com/stencila/stencila/commit/33e6445f50b2c42bab6ca6a7893dc941b899d8ad))
+* **Web patches:** Use `slotSelector` function for consistency ([b4bacd0](https://github.com/stencila/stencila/commit/b4bacd021d1da732098002dac37f8e550e6a7aa9))
+* **Web:** Handle `ContentChangeEvent` where `detail` is a string ([0ee999a](https://github.com/stencila/stencila/commit/0ee999afa7117401e3ba778fc502ef8a54c1932c))
+
 # [0.137.0](https://github.com/stencila/stencila/compare/v0.136.1...v0.137.0) (2021-12-22)
 
 
