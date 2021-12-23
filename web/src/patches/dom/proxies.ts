@@ -202,16 +202,34 @@ const parameterValue: Proxy = {
     value: JsonValue,
     _html: string
   ) => {
-    // Need to set the `checked` attribute for `checkbox` type elements
-    if (elem.getAttribute('type') === 'checkbox') {
+    // In addition to changing / removing attributes this sets `value` (or `checked`).
+    // This is necessary for any input that has been changed by the user.
+    // Without it, those inputs will not show a change.
+    if (elem.tagName === 'SELECT') {
+      // Set the `selected` attribute on the <option> with
+      // matching value
+      const val = value == null ? 'null' : value.toString()
+      const previouslySelected = elem.querySelector('option[selected]')
+      if (previouslySelected !== null) {
+        previouslySelected.removeAttribute('selected')
+      }
+      const newlySelected = elem.querySelector(`option[value="${val}"]`)
+      if (newlySelected !== null) {
+        newlySelected.setAttribute('selected', '')
+      }
+      ;(elem as HTMLInputElement).value = val
+    } else if (elem.getAttribute('type') === 'checkbox') {
+      // Set the `checked` attribute
       if (value === true) {
         elem.setAttribute('checked', '')
       } else {
         elem.removeAttribute('checked')
       }
+      ;(elem as HTMLInputElement).checked = value as boolean
     } else {
       const val = value == null ? 'null' : value.toString()
       elem.setAttribute('value', escapeAttr(val))
+      ;(elem as HTMLInputElement).value = val
     }
   },
 }
