@@ -7,7 +7,7 @@
 // - Attach Node IDs for required elements in published article HTML
 
 import { CodeChunk, CodeExpression } from '@stencila/schema'
-import { Document, Operation, Session } from '@stencila/stencila'
+import { Document, Session } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
 import { onDiscoverExecutableLanguages } from './events/kernels'
@@ -101,7 +101,7 @@ export const main = (
           node: C
         ): Promise<C> => {
           const [client, document] = await startup()
-          documents.execute(client, document.id, elem.id)
+          await documents.execute(client, document.id, elem.id)
           // The WebComponent for a `CodeExpression` has a `isOutputEmpty` property
           // which is set based on the return value from this function and does not
           // change later when we actually update the output. So, here's a hack to
