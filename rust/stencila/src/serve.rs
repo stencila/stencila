@@ -393,8 +393,8 @@ struct Client {
     /// The client id
     id: String,
 
-    /// A mapping of subscription topics to subscript ids for this client
-    subscriptions: HashMap<String, SubscriptionId>,
+    /// The event topics that this client is subscribed to
+    subscriptions: HashSet<String>,
 
     /// The current sender for this client
     ///
@@ -406,19 +406,18 @@ struct Client {
 
 impl Client {
     /// Subscribe the client to an event topic
-    pub fn subscribe(&mut self, topic: &str, subscription_id: SubscriptionId) {
-        self.subscriptions
-            .insert(topic.to_string(), subscription_id);
+    pub fn subscribe(&mut self, topic: &str) {
+        self.subscriptions.insert(topic.to_string());
     }
 
     /// Unsubscribe the client from an event topic
-    pub fn unsubscribe(&mut self, topic: &str) -> Option<SubscriptionId> {
-        self.subscriptions.remove(topic)
+    pub fn unsubscribe(&mut self, topic: &str) {
+        self.subscriptions.remove(topic);
     }
 
     /// Is a client subscribed to a particular topic, or set of topics?
     pub fn subscribed(&self, topic: &str) -> bool {
-        for subscription in self.subscriptions.keys() {
+        for subscription in &self.subscriptions {
             if subscription == "*" || topic.starts_with(subscription) {
                 return true;
             }
@@ -453,6 +452,14 @@ struct Clients {
     /// The clients
     inner: Arc<RwLock<HashMap<String, Client>>>,
 
+    /// The event subscriptions held on behalf of clients
+    ///
+    /// Used to keep track of the number of clients subscribed to each topic.
+    /// This ensures that we don't subscribe to the same event more than once (which results in
+    /// the same event being relayed to each client more than once) and that we can unsubscribe when
+    /// it becomes zero.
+    subscriptions: Arc<RwLock<HashMap<String, (SubscriptionId, usize)>>>,
+
     /// The sender used to subscribe to events on behalf of clients
     sender: mpsc::UnboundedSender<events::Message>,
 }
@@ -462,10 +469,16 @@ impl Clients {
     pub fn new() -> Self {
         let inner = Arc::new(RwLock::new(HashMap::new()));
 
+        let subscriptions = Arc::new(RwLock::new(HashMap::new()));
+
         let (sender, receiver) = mpsc::unbounded_channel::<events::Message>();
         tokio::spawn(Clients::relay(inner.clone(), receiver));
 
-        Self { inner, sender }
+        Self {
+            inner,
+            subscriptions,
+            sender,
+        }
     }
 
     /// A client connected
@@ -481,7 +494,7 @@ impl Clients {
                 tracing::debug!("New connection for client `{}`", client_id);
                 vacant.insert(Client {
                     id: client_id.to_string(),
-                    subscriptions: HashMap::new(),
+                    subscriptions: HashSet::new(),
                     sender,
                 });
             }
@@ -504,16 +517,55 @@ impl Clients {
         let mut clients = self.inner.write().await;
         if let Some(client) = clients.get_mut(client_id) {
             tracing::debug!("Subscribing client `{}` to topic `{}`", client_id, topic);
-            match subscribe(topic, Subscriber::Sender(self.sender.clone())) {
-                Ok(subscription_id) => {
-                    client.subscribe(topic, subscription_id);
+            let mut subscriptions = self.subscriptions.write().await;
+            match subscriptions.entry(topic.to_string()) {
+                Entry::Occupied(mut occupied) => {
+                    occupied.get_mut().1 += 1;
                 }
-                Err(error) => {
-                    tracing::error!("{}", error);
+                Entry::Vacant(vacant) => {
+                    match subscribe(topic, Subscriber::Sender(self.sender.clone())) {
+                        Ok(subscription_id) => {
+                            vacant.insert((subscription_id, 1));
+                        }
+                        Err(error) => {
+                            tracing::error!(
+                                "While attempting to subscribe to event topic `{}`:",
+                                error
+                            );
+                        }
+                    }
                 }
             }
+            client.subscribe(topic);
         } else {
             tracing::error!("No such client `{}`", client_id);
+        }
+    }
+
+    /// Unsubscribe a client from an event topic and unsubscribe self if
+    /// no more clients are subscribed to that topic.
+    fn unsubscribe_topic(
+        &self,
+        client: &mut Client,
+        topic: &str,
+        subscriptions: &mut HashMap<String, (SubscriptionId, usize)>,
+    ) {
+        client.unsubscribe(topic);
+
+        if let Entry::Occupied(mut occupied) = subscriptions.entry(topic.to_string()) {
+            let (subscription_id, clients) = occupied.get_mut();
+            if *clients == 1 {
+                if let Err(err) = unsubscribe(subscription_id) {
+                    tracing::debug!(
+                        "While unsubscribing from subscription `{}`: {}",
+                        subscription_id,
+                        err,
+                    )
+                }
+                occupied.remove();
+            } else {
+                *clients -= 1;
+            }
         }
     }
 
@@ -521,16 +573,13 @@ impl Clients {
     pub async fn unsubscribe(&self, client_id: &str, topic: &str) {
         let mut clients = self.inner.write().await;
         if let Some(client) = clients.get_mut(client_id) {
+            let subscriptions = &mut *self.subscriptions.write().await;
             tracing::debug!(
                 "Unsubscribing client `{}` from topic `{}`",
                 client_id,
                 topic
             );
-            if let Some(subscription_id) = client.unsubscribe(topic) {
-                if let Err(error) = unsubscribe(&subscription_id) {
-                    tracing::error!("{}", error);
-                }
-            }
+            self.unsubscribe_topic(client, topic, subscriptions);
         } else {
             tracing::error!("No such client `{}`", client_id);
         }
@@ -542,30 +591,36 @@ impl Clients {
     /// from the list of clients.
     pub async fn remove(&self, client_id: &str) {
         let mut clients = self.inner.write().await;
-        if let Some(client) = clients.get(client_id) {
-            for subscription_id in client.subscriptions.values() {
-                if let Err(error) = unsubscribe(subscription_id) {
-                    tracing::error!("{}", error);
-                }
+
+        if let Some(client) = clients.get_mut(client_id) {
+            let subscriptions = &mut *self.subscriptions.write().await;
+            for topic in client.subscriptions.clone() {
+                self.unsubscribe_topic(client, &topic, subscriptions);
             }
         }
+
         clients.remove(client_id);
     }
 
     /// Remove all clients from the store
     ///
-    /// Removes all clients and all their event subscriptions.
+    /// Removes all clients and all event subscriptions.
     /// This should be done when the server is stopped to avoid keeping a record
     /// of clients that have been disconnected.
     pub async fn clear(&self) {
-        let mut clients = self.inner.write().await;
-        for client in clients.values() {
-            for subscription_id in client.subscriptions.values() {
-                if let Err(error) = unsubscribe(subscription_id) {
-                    tracing::error!("{}", error);
-                }
+        let mut subscriptions = self.subscriptions.write().await;
+        for (subscription_id, ..) in subscriptions.values() {
+            if let Err(err) = unsubscribe(subscription_id) {
+                tracing::debug!(
+                    "While unsubscribing from subscription `{}`: {}",
+                    subscription_id,
+                    err,
+                )
             }
         }
+        subscriptions.clear();
+
+        let mut clients = self.inner.write().await;
         clients.clear();
     }
 
