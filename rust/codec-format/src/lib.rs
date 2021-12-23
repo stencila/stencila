@@ -4,7 +4,7 @@ use codec::{
     utils::vec_string,
     Codec, CodecTrait, DecodeOptions,
 };
-use formats::{FormatNodeType, FORMATS};
+use formats::{match_name, FormatNodeType};
 
 /// A fallback codec that decodes a node based on the format name provided
 pub struct FormatCodec {}
@@ -32,7 +32,7 @@ impl CodecTrait for FormatCodec {
             None => bail!("Must provide a format to be decoded"),
         };
 
-        let format = FORMATS.match_name(&format_name);
+        let format = match_name(&format_name).spec();
 
         let node = match format.node_type {
             FormatNodeType::Article => Node::Article(Article {

@@ -4,7 +4,7 @@ use codec::{
     Codec, CodecTrait,
 };
 use codec_format::FormatCodec;
-use formats::FORMATS;
+use formats::{match_name, Format};
 use once_cell::sync::Lazy;
 use std::{collections::BTreeMap, path::Path, sync::Arc};
 
@@ -67,38 +67,38 @@ struct Codecs {
 /// This avoids having to do a search over the codecs's specs for matching
 /// `formats`.
 macro_rules! dispatch_builtins {
-    ($var:expr, $method:ident $(,$arg:expr)*) => {
-        match $var.as_str() {
+    ($format:expr, $method:ident $(,$arg:expr)*) => {
+        match $format {
             #[cfg(feature = "codec-date")]
-            "date" => Some(codec_date::DateCodec::$method($($arg),*)),
+            Format::Date => Some(codec_date::DateCodec::$method($($arg),*)),
             #[cfg(feature = "codec-docx")]
-            "docx" => Some(codec_docx::DocxCodec::$method($($arg),*)),
+            Format::Docx => Some(codec_docx::DocxCodec::$method($($arg),*)),
             #[cfg(feature = "codec-html")]
-            "html" => Some(codec_html::HtmlCodec::$method($($arg),*)),
+            Format::Html => Some(codec_html::HtmlCodec::$method($($arg),*)),
             #[cfg(feature = "codec-ipynb")]
-            "ipynb" => Some(codec_ipynb::IpynbCodec::$method($($arg),*)),
+            Format::Ipynb => Some(codec_ipynb::IpynbCodec::$method($($arg),*)),
             #[cfg(feature = "codec-json")]
-            "json" => Some(codec_json::JsonCodec::$method($($arg),*)),
+            Format::Json => Some(codec_json::JsonCodec::$method($($arg),*)),
             #[cfg(feature = "codec-json5")]
-            "json5" => Some(codec_json5::Json5Codec::$method($($arg),*)),
+            Format::Json5 => Some(codec_json5::Json5Codec::$method($($arg),*)),
             #[cfg(feature = "codec-latex")]
-            "latex" => Some(codec_latex::LatexCodec::$method($($arg),*)),
+            Format::LaTeX => Some(codec_latex::LatexCodec::$method($($arg),*)),
             #[cfg(feature = "codec-pandoc")]
-            "pandoc" => Some(codec_pandoc::PandocCodec::$method($($arg),*)),
+            Format::Pandoc => Some(codec_pandoc::PandocCodec::$method($($arg),*)),
             #[cfg(feature = "codec-person")]
-            "person" => Some(codec_person::PersonCodec::$method($($arg),*)),
+            Format::Person => Some(codec_person::PersonCodec::$method($($arg),*)),
             #[cfg(feature = "codec-md")]
-            "md" => Some(codec_md::MdCodec::$method($($arg),*)),
+            Format::Markdown => Some(codec_md::MdCodec::$method($($arg),*)),
             #[cfg(feature = "codec-rmd")]
-            "rmd" => Some(codec_rmd::RmdCodec::$method($($arg),*)),
+            Format::RMarkdown => Some(codec_rmd::RmdCodec::$method($($arg),*)),
             #[cfg(feature = "codec-rpng")]
-            "rpng" => Some(codec_rpng::RpngCodec::$method($($arg),*)),
+            Format::Rpng => Some(codec_rpng::RpngCodec::$method($($arg),*)),
             #[cfg(feature = "codec-toml")]
-            "toml" => Some(codec_toml::TomlCodec::$method($($arg),*)),
+            Format::Toml => Some(codec_toml::TomlCodec::$method($($arg),*)),
             #[cfg(feature = "codec-txt")]
-            "txt" => Some(codec_txt::TxtCodec::$method($($arg),*)),
+            Format::PlainText => Some(codec_txt::TxtCodec::$method($($arg),*)),
             #[cfg(feature = "codec-yaml")]
-            "yaml" => Some(codec_yaml::YamlCodec::$method($($arg),*)),
+            Format::Yaml => Some(codec_yaml::YamlCodec::$method($($arg),*)),
 
             _ => None
         }
@@ -107,6 +107,11 @@ macro_rules! dispatch_builtins {
 
 impl Codecs {
     /// Create a new codec registry
+    ///
+    /// Note that these strings are labels for the codec which
+    /// aim to be consistent with the codec name, are convenient
+    /// to use to `stencila codecs show`, and don't need to be
+    /// consistent with format names or aliases.
     pub fn new() -> Self {
         let inner = vec![
             #[cfg(feature = "codec-date")]
@@ -172,15 +177,15 @@ impl Codecs {
         format: &str,
         options: Option<DecodeOptions>,
     ) -> Result<Node> {
-        let format = FORMATS.match_name(format);
+        let format = match_name(format);
+        let format_spec = format.spec();
+
         let options = Some(DecodeOptions {
-            format: Some(format.name.clone()),
+            format: Some(format_spec.extension.clone()),
             ..options.unwrap_or_default()
         });
 
-        if let Some(future) =
-            dispatch_builtins!(format.name, from_str_async, content, options.clone())
-        {
+        if let Some(future) = dispatch_builtins!(format, from_str_async, content, options.clone()) {
             return future.await;
         }
 
@@ -190,7 +195,7 @@ impl Codecs {
 
         bail!(
             "Unable to decode node from string with format `{}`: no matching codec found",
-            format.name
+            format_spec.title
         )
     }
 
@@ -205,19 +210,21 @@ impl Codecs {
     where
         T: Send + Sync,
     {
-        let format = FORMATS.match_name(format);
+        let format = match_name(format);
+        let format_spec = format.spec();
+
         let options = Some(DecodeOptions {
-            format: Some(format.name.clone()),
+            format: Some(format_spec.extension.clone()),
             ..options.unwrap_or_default()
         });
 
-        if let Some(future) = dispatch_builtins!(format.name, from_path, path, options) {
+        if let Some(future) = dispatch_builtins!(format, from_path, path, options) {
             return future.await;
         }
 
         bail!(
             "Unable to decode node from path with format `{}`: no matching codec found",
-            format.name
+            format_spec.title
         )
     }
 
@@ -229,19 +236,21 @@ impl Codecs {
         format: &str,
         options: Option<EncodeOptions>,
     ) -> Result<String> {
-        let format = FORMATS.match_name(format);
+        let format = match_name(format);
+        let format_spec = format.spec();
+
         let options = Some(EncodeOptions {
-            format: Some(format.name.clone()),
+            format: Some(format_spec.extension.clone()),
             ..options.unwrap_or_default()
         });
 
-        if let Some(future) = dispatch_builtins!(format.name, to_string_async, node, options) {
+        if let Some(future) = dispatch_builtins!(format, to_string_async, node, options) {
             return future.await;
         }
 
         bail!(
             "Unable to encode node to string of format `{}`: no matching codec found",
-            format.name
+            format_spec.title
         )
     }
 
@@ -256,19 +265,21 @@ impl Codecs {
     where
         T: Send + Sync,
     {
-        let format = FORMATS.match_name(format);
+        let format = match_name(format);
+        let format_spec = format.spec();
+
         let options = Some(EncodeOptions {
-            format: Some(format.name.clone()),
+            format: Some(format_spec.extension.clone()),
             ..options.unwrap_or_default()
         });
 
-        if let Some(future) = dispatch_builtins!(format.name, to_path, node, path, options) {
+        if let Some(future) = dispatch_builtins!(format, to_path, node, path, options) {
             return future.await;
         }
 
         bail!(
             "Unable to encode node to path of format `{}`: no matching codec found",
-            format.name
+            format_spec.title
         )
     }
 }

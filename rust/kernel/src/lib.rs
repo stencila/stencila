@@ -2,6 +2,7 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use eyre::{bail, Result};
+use formats::Format;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -236,17 +237,23 @@ impl KernelSelector {
         }
 
         if let (true, Some(lang)) = (matched, &self.lang) {
+            let format = formats::match_name(lang);
             let mut lang_matched = false;
             for kernel_lang in &kernel.languages {
-                if lang.to_lowercase() == kernel_lang.to_lowercase() {
+                if lang.to_lowercase() == kernel_lang.to_lowercase()
+                    || (format != Format::Unknown && format == formats::match_name(kernel_lang))
+                {
                     lang_matched = true;
                     break;
                 }
             }
             matched &= lang_matched;
         } else if let (false, Some(lang)) = (matched, &self.any) {
+            let format = formats::match_name(lang);
             for kernel_lang in &kernel.languages {
-                if lang.to_lowercase() == kernel_lang.to_lowercase() {
+                if lang.to_lowercase() == kernel_lang.to_lowercase()
+                    || (format != Format::Unknown && format == formats::match_name(kernel_lang))
+                {
                     matched = true;
                     break;
                 }

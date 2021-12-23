@@ -1761,12 +1761,9 @@ dependencies = [
 name = "formats"
 version = "0.0.0"
 dependencies = [
- "eyre",
- "once_cell",
  "schemars",
  "serde",
- "serde_json",
- "serde_with",
+ "strum 0.23.0",
 ]
 
 [[package]]
@@ -2564,6 +2561,7 @@ dependencies = [
  "async-trait",
  "chrono",
  "eyre",
+ "formats",
  "once_cell",
  "regex",
  "serde",

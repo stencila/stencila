@@ -5,7 +5,7 @@ use codec::{
     stencila_schema::*,
 };
 use codec_txt::ToTxt;
-use formats::{FormatNodeType, FORMATS};
+use formats::{match_path, FormatNodeType};
 use inflector::Inflector;
 use node_coerce::coerce;
 use node_transform::Transform;
@@ -364,7 +364,7 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                         }
                     };
 
-                    let media_object = match FORMATS.match_path(&url.to_string()).node_type {
+                    let media_object = match match_path(&url.to_string()).spec().node_type {
                         FormatNodeType::AudioObject => {
                             InlineContent::AudioObject(AudioObjectSimple {
                                 caption,
