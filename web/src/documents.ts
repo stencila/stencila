@@ -308,7 +308,7 @@ async function onContentChange(
   } else {
     const update = event.detail
     if (update.docChanged) {
-      ops = codemirror.stateToOps(update.state, address)
+      ops = codemirror.updateToOps(update, address)
     } else {
       // No change, so early return
       return

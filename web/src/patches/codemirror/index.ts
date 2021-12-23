@@ -3,9 +3,25 @@
  */
 
 import { ChangeSet, ChangeSpec, EditorState } from '@codemirror/state'
+import { ViewUpdate } from '@codemirror/view'
 import { Address, Operation } from '@stencila/stencila'
 import { assertNumber } from '../checks'
 import { diff } from '../string'
+
+/**
+ * Translate a CodeMirror `ViewUpdate` into a set of Stencila `Operation`s
+ *
+ * Chooses one of the following functions for translation depending upon their
+ * reliability / content of the document.
+ */
+export function updateToOps(update: ViewUpdate, address: Address): Operation[] {
+  // Currently `diffToOps` is very slow for large changes and `changeToOps`
+  // fails if there is Unicode in the text. Rather than working around these limitations
+  // we simply use the brute force `stateToOps` for now.
+  return stateToOps(update.state, address)
+  // return diffToOps(update.startState, update.state, address)
+  // return changesToOps(update.changes, address)
+}
 
 /**
  * Translate a CodeMirror `EditorState` into a set of Stencila `Operation`s
@@ -31,6 +47,9 @@ export function stateToOps(state: EditorState, address: Address): Operation[] {
 
 /**
  * Translate pre- and post- CodeMirror `EditorState`s into a set of Stencila `Operation`s
+ *
+ * This function performs poorly (is time consuming) when there are large changes e.g. when
+ * new text is pasted into the editor, or a large amount of text is removed.
  */
 export function diffToOps(
   pre: EditorState,
