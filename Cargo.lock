@@ -829,8 +829,6 @@ dependencies = [
  "codec-txt",
  "node-coerce",
  "node-transform",
- "once_cell",
- "regex",
  "serde",
  "serde_json",
  "stencila-schema",

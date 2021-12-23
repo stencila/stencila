@@ -7,9 +7,7 @@
 use codec::CodecTrait;
 use codec_txt::TxtCodec;
 use node_transform::Transform;
-use once_cell::sync::Lazy;
-use regex::Regex;
-use stencila_schema::{CodeBlock, CodeError, ImageObject, Node};
+use stencila_schema::{CodeError, ImageObject, Node};
 
 /// Translate a MIME bundle into a `Node` (if possible).
 ///
@@ -74,22 +72,12 @@ pub fn translate_image_data(data: &serde_json::Value, media_type: &str) -> Optio
 /// Translate text from a cell result or standard output stream into a `Node`.
 ///
 /// Uses `TxtCodec` to attempt to parse the text to something other
-/// than a string. However, if the result is a `String` (i.e. `TxtCodec` could not
-/// parse the text), and it contains pre-formatting (tabs, newlines or more than one consecutive space),
-// then decode as a `CodeBlock` since formatting is often important in text output of cells.
+/// than a string, falling back to `String` if that errors.
 pub fn translate_text(text: &serde_json::Value) -> Option<Node> {
-    let node = TxtCodec::from_str(&translate_multiline_string(text), None).ok();
-    if let Some(Node::String(text)) = &node {
-        static REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new("[ ]{2,}|\t|\n").expect("Unable to create regex"));
-        if REGEX.is_match(text.trim()) {
-            return Some(Node::CodeBlock(CodeBlock {
-                text: text.to_string(),
-                ..Default::default()
-            }));
-        }
-    }
-    node
+    let text = translate_multiline_string(text);
+    TxtCodec::from_str(&text, None)
+        .ok()
+        .or(Some(Node::String(text)))
 }
 
 /// Translate text from a standard error stream into a `CodeError`.

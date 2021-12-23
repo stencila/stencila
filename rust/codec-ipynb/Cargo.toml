@@ -25,8 +25,6 @@ encode = [
 translate = [
     "codec-txt",
     "node-transform",
-    "once_cell",
-    "regex",
     "strip-ansi-escapes",
 ]
 
@@ -38,8 +36,6 @@ codec = { path = "../codec", version = "0.0.0", optional = true }
 codec-txt = { path = "../codec-txt", version = "0.0.0", optional = true }
 node-coerce = { path = "../node-coerce", version = "0.0.0", optional = true }
 node-transform = { path = "../node-transform", version = "0.0.0", optional = true }
-once_cell = { version = "1.8.0", optional = true }
-regex = { version = "1.5.4", optional = true }
 serde = { version = "1.0.130", optional = true }
 serde_json = { version = "1.0.72", features = ["preserve_order"], optional = true }
 stencila-schema = "1.12.0"

@@ -191,7 +191,6 @@ fn encode_outputs(nodes: &[Node]) -> Vec<serde_json::Value> {
     nodes
         .iter()
         .map(|node| match node {
-            Node::CodeBlock(CodeBlock { text, .. }) => encode_stream(text),
             Node::ImageObject(image) => encode_display_data(image),
             _ => encode_execute_result(node),
         })
@@ -199,6 +198,7 @@ fn encode_outputs(nodes: &[Node]) -> Vec<serde_json::Value> {
 }
 
 /// Encode a `String` as a Jupyter `Stream`.
+#[allow(dead_code)]
 fn encode_stream(text: &str) -> serde_json::Value {
     json!({
         "output_type": "stream",
