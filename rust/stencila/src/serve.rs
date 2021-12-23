@@ -1328,11 +1328,13 @@ async fn ws_connected(socket: warp::ws::WebSocket, client_id: String) {
         while let Some(message) = client_receiver.next().await {
             if let Err(error) = ws_sender.send(message).await {
                 let message = error.to_string();
-                if message == "Connection closed normally" {
-                    CLIENTS.disconnected(&client_clone, true).await
+                let graceful = if message == "Connection closed normally" {
+                    true
                 } else {
-                    tracing::error!("Websocket send error `{}`", error);
-                }
+                    tracing::debug!("Websocket send error `{}`", error);
+                    false
+                };
+                CLIENTS.disconnected(&client_clone, graceful).await
             }
         }
     });
