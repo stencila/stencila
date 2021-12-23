@@ -175,9 +175,20 @@ const parameterDefault: Proxy = {
     elem.parentElement?.tagName === 'STENCILA-PARAMETER' &&
     elem.getAttribute('itemprop') === parameterDefault.propertyName,
 
-  targetElem: (elem: Element) => elem.parentElement?.querySelector('input'),
+  targetElem: (elem: Element) =>
+    elem.parentElement?.querySelector('input[name=default]'),
 
   targetIsAttr: true,
+
+  applyReplaceStruct: (
+    elem: Element,
+    _name: Slot,
+    _items: number,
+    value: JsonValue,
+    _html: string
+  ) => {
+    changeValue(elem as HTMLSelectElement | HTMLInputElement, value)
+  },
 }
 
 // The `value` property of a `Parameter` is represented by the `value` attribute
@@ -202,36 +213,46 @@ const parameterValue: Proxy = {
     value: JsonValue,
     _html: string
   ) => {
-    // In addition to changing / removing attributes this sets `value` (or `checked`).
-    // This is necessary for any input that has been changed by the user.
-    // Without it, those inputs will not show a change.
-    if (elem.tagName === 'SELECT') {
-      // Set the `selected` attribute on the <option> with
-      // matching value
-      const val = value == null ? 'null' : value.toString()
-      const previouslySelected = elem.querySelector('option[selected]')
-      if (previouslySelected !== null) {
-        previouslySelected.removeAttribute('selected')
-      }
-      const newlySelected = elem.querySelector(`option[value="${val}"]`)
-      if (newlySelected !== null) {
-        newlySelected.setAttribute('selected', '')
-      }
-      ;(elem as HTMLInputElement).value = val
-    } else if (elem.getAttribute('type') === 'checkbox') {
-      // Set the `checked` attribute
-      if (value === true) {
-        elem.setAttribute('checked', '')
-      } else {
-        elem.removeAttribute('checked')
-      }
-      ;(elem as HTMLInputElement).checked = value as boolean
-    } else {
-      const val = value == null ? 'null' : value.toString()
-      elem.setAttribute('value', escapeAttr(val))
-      ;(elem as HTMLInputElement).value = val
-    }
+    changeValue(elem as HTMLSelectElement | HTMLInputElement, value)
   },
+}
+
+/**
+ * Change the value of a <select> or <input> element.
+ */
+function changeValue(
+  elem: HTMLSelectElement | HTMLInputElement,
+  value: JsonValue
+): void {
+  // In addition to changing / removing attributes this sets `value` (or `checked`).
+  // This is necessary for any input that has been changed by the user.
+  // Without it, those inputs will not show a change.
+  if (elem.tagName === 'SELECT') {
+    // Set the `selected` attribute on the <option> with
+    // matching value
+    const val = value == null ? 'null' : value.toString()
+    const previouslySelected = elem.querySelector('option[selected]')
+    if (previouslySelected !== null) {
+      previouslySelected.removeAttribute('selected')
+    }
+    const newlySelected = elem.querySelector(`option[value="${val}"]`)
+    if (newlySelected !== null) {
+      newlySelected.setAttribute('selected', '')
+    }
+    elem.value = val
+  } else if (elem.getAttribute('type') === 'checkbox') {
+    // Set the `checked` attribute
+    if (value === true) {
+      elem.setAttribute('checked', '')
+    } else {
+      elem.removeAttribute('checked')
+    }
+    ;(elem as HTMLInputElement).checked = value as boolean
+  } else {
+    const val = value == null ? 'null' : value.toString()
+    elem.setAttribute('value', escapeAttr(val))
+    elem.value = val
+  }
 }
 
 export const PROXY_ELEMENTS: Proxy[] = [
