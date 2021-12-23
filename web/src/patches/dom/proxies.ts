@@ -190,8 +190,8 @@ const parameterValue: Proxy = {
     elem.getAttribute('itemprop') === parameterValue.propertyName,
 
   targetElem: (elem: Element) =>
-    elem.parentElement?.querySelector('input') ??
-    elem.parentElement?.querySelector('select'),
+    elem.parentElement?.querySelector('input[slot=value]') ??
+    elem.parentElement?.querySelector('select[slot=value]'),
 
   targetIsAttr: true,
 
@@ -210,8 +210,8 @@ const parameterValue: Proxy = {
         elem.removeAttribute('checked')
       }
     } else {
-      const attr = value == null ? 'null' : value.toString()
-      elem.setAttribute('value', escapeAttr(attr))
+      const val = value == null ? 'null' : value.toString()
+      elem.setAttribute('value', escapeAttr(val))
     }
   },
 }
