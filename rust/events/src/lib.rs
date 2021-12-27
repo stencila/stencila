@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     sync::{Mutex, MutexGuard},
 };
-use tokio::sync::mpsc;
+use tokio::{signal, sync::mpsc};
 use uuids::uuid_family;
 
 /// An event updating progress of some task
@@ -47,7 +47,7 @@ struct Subscription {
     subscriber: Subscriber,
 }
 
-/// The glocal subscriptions store
+/// The global subscriptions store
 static SUBSCRIPTIONS: Lazy<Mutex<HashMap<SubscriptionId, Subscription>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
 
@@ -64,6 +64,19 @@ fn obtain() -> Result<MutexGuard<'static, HashMap<SubscriptionId, Subscription>>
 /// Subscribe to a topic
 pub fn subscribe(topic: &str, subscriber: Subscriber) -> Result<SubscriptionId> {
     tracing::debug!("Subscribing to topic `{}`", topic);
+
+    // If the subscription is for the user "interrupt" topic then lazily start
+    // the Ctrl-C listener.
+    static INTERRUPT_LISTENER: Lazy<()> = Lazy::new(|| {
+        tokio::spawn(async move {
+            if let Ok(..) = signal::ctrl_c().await {
+                publish("interrupt", true)
+            }
+        });
+    });
+    if topic == "interrupt" {
+        let _ = *INTERRUPT_LISTENER;
+    }
 
     match obtain() {
         Ok(mut subscriptions) => {
