@@ -372,6 +372,11 @@ impl TaskInfo {
 }
 
 /// A list of [`Task`]s associated with a [`KernelSpace`]
+///
+/// The main purpose of maintaining this list of tasks is for introspection
+/// and the ability to cancel running or queued tasks. To avoid the list growing
+/// indefinitely, tasks are removed on a periodic basis, if the list is greater
+/// than a certain size.
 #[derive(Debug, Default)]
 struct KernelTasks {
     /// The list of tasks
@@ -499,11 +504,13 @@ impl KernelSpace {
     ) {
         use tokio::time::{sleep, Duration};
 
+        const PERIOD: Duration = Duration::from_millis(100);
+
         tracing::debug!("Began kernel space monitoring");
         loop {
             KernelSpace::dispatch_queue(queues, tasks, kernels, symbols).await;
-
-            sleep(Duration::from_millis(300)).await;
+            KernelSpace::clean_tasks(tasks).await;
+            sleep(PERIOD).await;
         }
     }
 
@@ -729,7 +736,7 @@ impl KernelSpace {
         task
     }
 
-    /// Dispatch tasks of a kernel space queues
+    /// Dispatch tasks from the queue to a kernel
     async fn dispatch_queue(
         queues: &Arc<Mutex<KernelQueues>>,
         tasks: &Arc<Mutex<KernelTasks>>,
@@ -938,6 +945,61 @@ impl KernelSpace {
                 task_num_or_id
             );
             Ok(())
+        }
+    }
+
+    /// Remove old tasks to avoid the `tasks` list growing indefinitely in long running processes.
+    async fn clean_tasks(tasks: &Arc<Mutex<KernelTasks>>) {
+        // Currently a large MAX_SIZE to avoid removing unfinished task and assuming each task
+        // does not take up too much memory.
+        // May need to be made an env var and the default reduced.
+        const MAX_SIZE: usize = 100_000;
+
+        let tasks = &mut *tasks.lock().await;
+        let list = &mut tasks.inner;
+
+        // Work out how many tasks need to be removed
+        let count = list.len().saturating_sub(MAX_SIZE);
+        if count == 0 {
+            return;
+        }
+
+        tracing::debug!("Removing `{}` tasks from task list", count);
+        let mut remove = Vec::with_capacity(count);
+
+        // Try to remove those tasks that are "done" first
+        for (index, task_info) in list.iter().enumerate() {
+            if remove.len() >= count {
+                break;
+            }
+            if task_info.task.is_done() {
+                remove.push(index);
+            }
+        }
+
+        // If not are enough are removed then warn, and remove the oldest
+        if remove.len() < count {
+            tracing::warn!("While cleaning tasks, have to remove `{}` unfinished tasks to respect MAX_SIZE of {}", count - remove.len(), MAX_SIZE);
+            for index in 0..(list.len()) {
+                if remove.len() >= count {
+                    break;
+                }
+                if !remove.contains(&index) {
+                    remove.push(index)
+                }
+            }
+        }
+
+        // Finally, do the actual removal. This involves a call to `cancel` for tasks that are
+        // not finished to make sure they are removed from the queue and any result receivers are stopped.
+        for index in remove {
+            let TaskInfo { task, .. } = &mut list[index];
+            if !task.is_done() {
+                if let Err(error) = task.cancel().await {
+                    tracing::debug!("While cancelling unfinished task `{}`: {}", task.id, error)
+                }
+            }
+            list.remove(index);
         }
     }
 
