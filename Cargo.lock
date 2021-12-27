@@ -2717,6 +2717,7 @@ dependencies = [
  "chrono",
  "cli-utils",
  "derive_more",
+ "events",
  "graph-triples",
  "kernel",
  "kernel-bash",

@@ -953,6 +953,7 @@ impl KernelSpace {
         kernel: Option<String>,
     ) -> cli_utils::Result {
         use cli_utils::result;
+        use events::{subscribe, unsubscribe, Subscriber};
         use once_cell::sync::Lazy;
         use regex::Regex;
 
@@ -1021,15 +1022,45 @@ impl KernelSpace {
 
             // Execute the code
             let mut task_info = self
-                .exec(&code, &selector, Some(relations), background, fork)
+                .exec(&code, &selector, Some(relations), true, fork)
                 .await?;
 
-            // If not a background task, or if results are already available, show results.
             if background {
+                // Indicate task is running in background
                 tracing::info!("Task #{} is running in background", task_info.num);
                 result::nothing()
             } else {
+                // If cancellable, subscribe to user interrupt
+                let subscription_id = if let Some(canceller) = task_info.task.canceller.as_ref() {
+                    let canceller = canceller.clone();
+                    let (sender, mut receiver) = mpsc::unbounded_channel();
+                    tokio::spawn(async move {
+                        // This ends on interrupt or on unsubscribe (when the channel sender is dropped)
+                        if let Some(..) = receiver.recv().await {
+                            if let Err(error) = canceller.send(()).await {
+                                tracing::error!(
+                                    "While cancelling task when interrupted: {}",
+                                    error
+                                );
+                            }
+                        }
+                    });
+
+                    let subscription_id = subscribe("interrupt", Subscriber::Sender(sender))?;
+                    Some(subscription_id)
+                } else {
+                    None
+                };
+
+                // Wait for the result
                 let TaskResult { outputs, messages } = task_info.result().await?;
+
+                // Cancel interrupt subscription
+                if let Some(subscription_id) = subscription_id {
+                    unsubscribe(&subscription_id)?;
+                }
+
+                // Output messages and  outputs
                 if !messages.is_empty() {
                     for error in messages {
                         let mut err = error.error_message;
