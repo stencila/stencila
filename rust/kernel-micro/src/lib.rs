@@ -228,6 +228,7 @@ impl MicroKernelSignaller {
             use nix::sys::signal::{self, Signal};
             use nix::unistd::Pid;
 
+            tracing::debug!("Sending interrupt to microkernel with pid `{}`", self.pid);
             if let Err(error) = signal::kill(Pid::from_raw(self.pid as i32), Signal::SIGINT) {
                 tracing::warn!(
                     "While interrupting microkernel with pid `{}`: {}",
@@ -468,7 +469,17 @@ impl KernelTrait for MicroKernel {
 
                 *status.write().await = KernelStatus::Busy;
 
-                let (outputs, messages) = state.send_receive(&[code]).await.unwrap();
+                let (outputs, messages) = match state.send_receive(&[code]).await {
+                    Ok((ouputs, messages)) => (ouputs, messages),
+                    Err(error) => {
+                        tracing::error!(
+                            "When receiving result for exec_async task `{}`: {}",
+                            task_id,
+                            error
+                        );
+                        return;
+                    }
+                };
                 let result = TaskResult::new(outputs, messages);
                 if let Err(error) = result_forwarder.send(result) {
                     // The result receiver at the other end of the channel was dropped
