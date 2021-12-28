@@ -596,9 +596,9 @@ impl KernelTasks {
             }
         }
 
-        let cols = "|-|-------|-------|--------|---------|------|----|";
-        let head = "|#|Created|Started|Finished|Cancelled|Kernel|Queued|Forked|Cancellable|Code|";
-        let align = "|-|------:|------:|-------:|--------:|:-----|-----:|-----:|----------:|:---|";
+        let cols =  "|-|-------|-------|--------|---------|--------|------|------|------|-----------|----|";
+        let head =  "|#|Created|Started|Finished|Cancelled|Duration|Kernel|Queued|Forked|Cancellable|Code|";
+        let align = "|-|------:|------:|-------:|--------:|-------:|:-----|-----:|-----:|----------:|:---|";
         let body = list
             .iter()
             .map(|task_info| {
@@ -627,12 +627,13 @@ impl KernelTasks {
                 }
 
                 format!(
-                    "|{}|{}|{}|{}|{}|{}|{}|{}|{}|`{}`|",
+                    "|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|`{}`|",
                     task_info.num,
                     format_time(task.created),
-                    format_option_time(task.started),
-                    format_option_time(task.finished),
-                    format_option_time(task.cancelled),
+                    task.started.map(format_time).unwrap_or_default(),
+                    task.finished.map(format_time).unwrap_or_default(),
+                    task.cancelled.map(format_time).unwrap_or_default(),
+                    format_duration(task.started, task.finished),
                     kernel_id,
                     queue_pos,
                     fork,
@@ -1344,18 +1345,23 @@ impl KernelSpace {
                 tracing::info!("Task #{} is running in background", task_info.num);
                 result::nothing()
             } else {
-                // If cancellable, subscribe to user interrupt
-                let subscription_id = if let Some(canceller) = task_info.task.canceller.as_ref() {
-                    let canceller = canceller.clone();
+                // If cancellable, subscribe to user interrupt, cancelling the task on that event
+                let subscription_id = if task_info.task.is_cancellable() {
+                    let tasks = self.tasks.clone();
+                    let task_id = task_info.task.id.clone();
                     let (sender, mut receiver) = mpsc::unbounded_channel();
                     tokio::spawn(async move {
                         // This ends on interrupt or on unsubscribe (when the channel sender is dropped)
                         if let Some(..) = receiver.recv().await {
-                            if let Err(error) = canceller.send(()).await {
-                                tracing::error!(
-                                    "While cancelling task when interrupted: {}",
-                                    error
-                                );
+                            let mut tasks = tasks.lock().await;
+                            if let Some(TaskInfo { task, .. }) = tasks.find_mut(&task_id) {
+                                if let Err(error) = task.cancel().await {
+                                    tracing::error!(
+                                        "While cancelling task `{}`: {}",
+                                        task_id,
+                                        error
+                                    );
+                                }
                             }
                         }
                     });
@@ -1491,11 +1497,15 @@ fn format_time(time: DateTime<Utc>) -> String {
     .concat()
 }
 
-/// Format an optional `DateTime` into a human readable "ago" duration or a dash ("-")
-fn format_option_time(time: Option<DateTime<Utc>>) -> String {
-    match time {
-        Some(time) => format_time(time),
-        None => "".to_string(),
+/// Format begin and end times into a human readable, rounded to milliseconds
+fn format_duration(begin: Option<DateTime<Utc>>, end: Option<DateTime<Utc>>) -> String {
+    match (begin, end) {
+        (Some(begin), Some(end)) => {
+            let duration = (end-begin).to_std().unwrap_or(Duration::ZERO);
+            let rounded = Duration::from_millis(duration.as_millis().try_into().unwrap_or(u64::MAX));
+            humantime::format_duration(rounded).to_string()
+        }
+        _ => "".to_string()
     }
 }
 
