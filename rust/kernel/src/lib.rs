@@ -122,6 +122,7 @@ pub struct KernelInfo {
 }
 
 /// A selector used to choose amongst alternative kernels
+#[derive(Default)]
 pub struct KernelSelector {
     /// A string that will match against the kernel `name` or any of its `languages`
     pub any: Option<String>,
@@ -134,6 +135,9 @@ pub struct KernelSelector {
 
     /// A string that will match against the kernel `type`
     pub r#type: Option<String>,
+
+    /// A string that will match against the kernel `id`
+    pub id: Option<String>,
 }
 
 impl fmt::Display for KernelSelector {
@@ -163,6 +167,7 @@ impl KernelSelector {
             name,
             lang,
             r#type,
+            id: None,
         }
     }
 
@@ -219,6 +224,7 @@ impl KernelSelector {
             name,
             lang,
             r#type,
+            id: None,
         }
     }
 

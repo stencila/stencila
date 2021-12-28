@@ -1580,7 +1580,7 @@ pub mod commands {
 
             document
                 .kernels
-                .repl(&code.join(" "), lang.clone(), None)
+                .repl(&code.join(" "), lang.clone(), None, false, false)
                 .await
         }
     }

@@ -182,7 +182,12 @@ impl KernelMap {
     async fn ensure(&mut self, selector: &KernelSelector) -> Result<KernelId> {
         // Is there already a running kernel that matches the selector?
         for (kernel_id, kernel) in self.iter_mut() {
-            if !selector.matches(&kernel.spec()) {
+            if let Some(id) = &selector.id {
+                if id != kernel_id {
+                    // Not the right id, so keep looking
+                    continue;
+                }
+            } else if !selector.matches(&kernel.spec()) {
                 // Not a match, so keep looking
                 continue;
             }
@@ -1259,14 +1264,16 @@ impl KernelSpace {
 
     /// A read-evaluate-print function
     ///
-    /// Primarily intended for use in interactive mode as an execution REPL.
-    /// Adds execution related shortcuts e.g. `%symbols` for changing the language.
+    /// Primarily intended for use in interactive mode to execute a line of code REPL style
+    /// (see the `Execute` CLI command).
     #[cfg(feature = "cli")]
     pub async fn repl(
         &mut self,
         code: &str,
         language: Option<String>,
         kernel: Option<String>,
+        background: bool,
+        fork: bool,
     ) -> cli_utils::Result {
         use cli_utils::result;
         use events::{subscribe, unsubscribe, Subscriber};
@@ -1287,36 +1294,39 @@ impl KernelSpace {
                 }
             }
         } else {
-            let (background, code) = if code.contains("@back") {
-                (true, code.replace("@back", ""))
-            } else {
-                (false, code.to_string())
-            };
-            let (fork, code) = if code.contains("@fork") {
-                (true, code.replace("@fork", ""))
-            } else {
-                (false, code)
-            };
-
             let code = code.trim().replace("\\n", "\n");
-
-            let language = language.unwrap_or_else(|| "calc".to_string());
 
             // If possible, parse the code so that we can use the relations to determine variables that
             // are assigned or used (needed for variable mirroring).
-            let relations = match parsers::parse("<cli>", &code, &language) {
-                Ok(pairs) => pairs,
-                Err(..) => Vec::new(),
+            let relations = match &language {
+                Some(language) => parsers::parse("<cli>", &code, language).unwrap_or_default(),
+                None => Vec::new(),
             };
 
             // Determine the kernel selector
             let selector = match kernel {
                 Some(kernel) => {
+                    // Combine the kernel language option with the provided selector
                     let mut selector = KernelSelector::parse(&kernel);
-                    selector.lang = Some(language);
+                    selector.lang = language;
                     selector
                 }
-                None => KernelSelector::new(None, Some(language), None),
+                None => match language {
+                    // Selector based on language only
+                    Some(_) => KernelSelector::new(None, language, None),
+                    None => {
+                        let tasks = self.tasks.lock().await;
+                        match tasks.inner.last() {
+                            // Select for kernel used for the last task
+                            Some(task_info) => KernelSelector {
+                                id: task_info.kernel_id.clone(),
+                                ..Default::default()
+                            },
+                            // Select anything (will select the first kernel)
+                            None => KernelSelector::new(None, None, None),
+                        }
+                    }
+                },
             };
 
             // Execute the code
@@ -1541,7 +1551,7 @@ pub mod commands {
                 Action::Stop(action) => action.run().await,
                 Action::Show(action) => action.run().await,
 
-                Action::Execute(action) => action.run().await,
+                Action::Execute(action) => action.run(&mut *KERNEL_SPACE.lock().await).await,
                 Action::Tasks(action) => action.run(&*KERNEL_SPACE.lock().await).await,
                 Action::Queues(action) => action.run(&*KERNEL_SPACE.lock().await).await,
                 Action::Cancel(action) => action.run(&mut *KERNEL_SPACE.lock().await).await,
@@ -1663,14 +1673,25 @@ pub mod commands {
         /// The kernel where the code should executed (a kernel selector string)
         #[structopt(short, long)]
         kernel: Option<String>,
+
+        /// The task should run be in the background
+        #[structopt(short, long, alias = "back")]
+        background: bool,
+
+        /// The task should run be in a kernel fork (if possible)
+        #[structopt(short, long)]
+        fork: bool,
     }
-    #[async_trait]
-    impl Run for Execute {
-        async fn run(&self) -> Result {
-            KERNEL_SPACE
-                .lock()
-                .await
-                .repl(&self.code.join(" "), self.lang.clone(), self.kernel.clone())
+    impl Execute {
+        async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
+            kernel_space
+                .repl(
+                    &self.code.join(" "),
+                    self.lang.clone(),
+                    self.kernel.clone(),
+                    self.background,
+                    self.fork,
+                )
                 .await
         }
     }
