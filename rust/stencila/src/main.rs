@@ -41,11 +41,11 @@ pub struct Args {
     ///
     /// If the command result can be displayed in the specified format
     /// it will be. Display format preferences can be configured.
-    #[structopt(long, global = true)]
+    #[structopt(long, global = true, alias = "as")]
     pub display: Option<String>,
 
     /// Enter interactive mode (with any command and options as the prefix)
-    #[structopt(short, long, global = true, aliases = &["interactive"])]
+    #[structopt(short, long, global = true, alias = "interactive")]
     pub interact: bool,
 
     /// Print debug level log events and additional diagnostics
@@ -181,7 +181,7 @@ pub struct Line {
     /// Display format
     ///
     /// The format used to display results of commands (if possible)
-    #[structopt(long, global = true)]
+    #[structopt(long, global = true, alias = "as")]
     pub display: Option<String>,
 }
 
