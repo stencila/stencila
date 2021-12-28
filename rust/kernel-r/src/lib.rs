@@ -39,7 +39,7 @@ mod tests {
 
     async fn skip_or_kernel() -> Result<MicroKernel> {
         let mut kernel = new();
-        if !kernel.is_forkable().await {
+        if !kernel.is_available().await {
             eprintln!("R not available on this machine");
             bail!("Skipping")
         } else {

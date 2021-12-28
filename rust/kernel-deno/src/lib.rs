@@ -29,7 +29,7 @@ mod tests {
     #[tokio::test]
     async fn basics() -> Result<()> {
         let mut kernel = new();
-        if !kernel.is_forkable().await {
+        if !kernel.is_available().await {
             return Ok(());
         } else {
             kernel.start().await?;
@@ -76,7 +76,7 @@ mod tests {
     #[tokio::test]
     async fn console_log() -> Result<()> {
         let mut kernel = new();
-        if !kernel.is_forkable().await {
+        if !kernel.is_available().await {
             return Ok(());
         } else {
             kernel.start().await?;
