@@ -1203,6 +1203,17 @@ impl KernelSpace {
         }
     }
 
+    /// Cancel all unfinished tasks
+    async fn cancel_all(&mut self) -> Result<()> {
+        let mut tasks = self.tasks.lock().await;
+        for TaskInfo { task, .. } in tasks.inner.iter_mut() {
+            if !task.is_done() {
+                task.cancel().await?;
+            }
+        }
+        Ok(())
+    }
+
     /// Remove old tasks to avoid the `tasks` list growing indefinitely in long running processes.
     async fn clean_tasks(tasks: &Arc<Mutex<KernelTasks>>) {
         // Currently a large MAX_SIZE to avoid removing unfinished task and assuming each task
@@ -1757,17 +1768,24 @@ pub mod commands {
         }
     }
 
-    /// Cancel a task
+    /// Cancel a task or all tasks
+    ///
+    /// Use an integer to cancel a task by it's number.
+    /// Use "all" to cancel all unfinished tasks.
     #[derive(Debug, StructOpt)]
     pub struct Cancel {
-        /// The task number or id
+        /// The task number or id, or "all"
         task: String,
     }
     impl Cancel {
         async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
-            let task_num_or_id = self.task.trim();
-            let task_num_or_id = task_num_or_id.strip_prefix('#').unwrap_or(task_num_or_id);
-            kernel_space.cancel(task_num_or_id).await?;
+            let which = self.task.trim();
+            if which == "all" {
+                kernel_space.cancel_all().await?;
+            } else {
+                let which = which.strip_prefix('#').unwrap_or(which);
+                kernel_space.cancel(which).await?;
+            }
             result::nothing()
         }
     }
