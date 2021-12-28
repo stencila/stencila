@@ -194,19 +194,15 @@ impl Run for Line {
 
     /// Run the command and print it to the console
     ///
-    /// This override allow the user to override the display format on a
-    /// per-line basis.
+    /// This override allow the user to specify preferred display format
+    /// on a per line basis.
     async fn print(&self, formats: &[String]) {
         match self.run().await {
             Ok(value) => {
-                let formats = if let Some(format) = &value.format {
-                    vec![format.clone()]
-                } else if let Some(format) = &self.display {
-                    vec![format.clone()]
-                } else {
-                    formats.into()
-                };
-
+                let mut formats: Vec<String> = formats.into();
+                if let Some(display) = &self.display {
+                    formats.insert(0, display.clone())
+                }
                 if let Err(error) = result::print::value(value, &formats) {
                     result::print::error(error)
                 }
