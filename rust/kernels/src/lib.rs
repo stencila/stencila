@@ -361,6 +361,45 @@ impl SymbolInfo {
 
 type KernelSymbols = HashMap<String, SymbolInfo>;
 
+/// Display kernel symbols
+#[cfg(feature = "cli")]
+fn display_symbols(symbols: &KernelSymbols) -> cli_utils::Result {
+    use cli_utils::result;
+
+    let cols = "|------|----|-----------|-------------|-------------------|";
+    let head = "|Symbol|Type|Home kernel|Last assigned|Mirrored in kernels|";
+    let body = symbols
+        .iter()
+        .map(|(symbol, symbol_info)| {
+            format!(
+                "|{}|{}|{}|{}|{}|",
+                symbol,
+                symbol_info.kind,
+                symbol_info.home,
+                format_time(symbol_info.assigned),
+                symbol_info
+                    .mirrored
+                    .iter()
+                    .map(|(kernel, time)| format!("{} ({})", kernel, format_time(*time)))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )
+        })
+        .collect::<Vec<String>>()
+        .join("\n");
+
+    let md = format!(
+        "{top}\n{head}\n{align}\n{body}\n{bottom}\n",
+        top = cols,
+        head = head,
+        align = cols,
+        body = body,
+        bottom = if !symbols.is_empty() { cols } else { "" }
+    );
+
+    result::new("md", &md, symbols)
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct TaskInfo {
     /// The unique number for the task within the [`KernelSpace`]
@@ -450,6 +489,16 @@ impl KernelTasks {
                 Err(..) => None,
             }
         }
+    }
+
+    /// Get a task using its [`TaskId`]
+    fn get<'lt>(&'lt self, task_id: &TaskId) -> Option<&'lt TaskInfo> {
+        for task_info in self.inner.iter() {
+            if task_info.task.id == *task_id {
+                return Some(task_info);
+            }
+        }
+        None
     }
 
     /// Get a task using its [`TaskId`]
@@ -603,6 +652,69 @@ impl KernelTasks {
 }
 
 type KernelQueues = HashMap<KernelId, VecDeque<TaskId>>;
+
+/// Display task queues
+#[cfg(feature = "cli")]
+fn display_queues(queues: &KernelQueues, tasks: &KernelTasks) -> cli_utils::Result {
+    use cli_utils::result;
+
+    let md = queues
+        .keys()
+        .map(|kernel_id| {
+            let display = display_queue(queues, kernel_id, tasks)
+                .map(|value| value.content.unwrap_or_default())
+                .unwrap_or_else(|err| err.to_string());
+            format!("# {}\n\n{}", kernel_id, display)
+        })
+        .collect::<Vec<String>>()
+        .join("\n\n");
+
+    result::new("md", &md, queues)
+}
+
+/// Display a task queue
+#[cfg(feature = "cli")]
+fn display_queue(queues: &KernelQueues, kernel_id: &str, tasks: &KernelTasks) -> cli_utils::Result {
+    use cli_utils::result;
+
+    let queue = queues
+        .get(kernel_id)
+        .map_or_else(VecDeque::new, |queue| queue.clone());
+
+    let cols = "|--------|-----------|--------|-------|";
+    let head = "|Position|Task number| Task id|Created|";
+    let body = queue
+        .iter()
+        .enumerate()
+        .map(|(index, task_id)| {
+            let task_info = match tasks.get(task_id) {
+                Some(task) => task,
+                None => return "".to_string(),
+            };
+            let task = &task_info.task;
+
+            format!(
+                "|{}|{}|{}|{}|",
+                index + 1,
+                task_info.num,
+                task.id,
+                format_time(task.created)
+            )
+        })
+        .collect::<Vec<String>>()
+        .join("\n");
+
+    let md = format!(
+        "{top}\n{head}\n{align}\n{body}\n{bottom}\n",
+        top = cols,
+        head = head,
+        align = cols,
+        body = body,
+        bottom = if !queue.is_empty() { cols } else { "" }
+    );
+
+    result::new("md", &md, queue)
+}
 
 #[derive(Debug, Default, Serialize)]
 pub struct KernelSpace {
@@ -1162,20 +1274,9 @@ impl KernelSpace {
         use regex::Regex;
 
         static SYMBOL: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"^\w+$").expect("Unable to create regex"));
+            Lazy::new(|| Regex::new(r"^[a-zA-Z]\w*$").expect("Unable to create regex"));
 
         if code.is_empty() {
-            result::nothing()
-        } else if code == "%symbols" {
-            let symbols = self.symbols.lock().await;
-            result::value(symbols.clone())
-        } else if code == "%queues" {
-            let queue = self.queues.lock().await;
-            result::value(queue.clone())
-        } else if let Some(task_num_or_id) = code.strip_prefix("%cancel") {
-            let task_num_or_id = task_num_or_id.trim();
-            let task_num_or_id = task_num_or_id.strip_prefix('#').unwrap_or(task_num_or_id);
-            self.cancel(task_num_or_id).await?;
             result::nothing()
         } else if language.is_none() && kernel.is_none() && SYMBOL.is_match(code) {
             match self.get(code).await {
@@ -1418,6 +1519,9 @@ pub mod commands {
 
         Execute(Execute),
         Tasks(Tasks),
+        Queues(Queues),
+        Cancel(Cancel),
+        Symbols(Symbols),
 
         External(External),
         Directories(Directories),
@@ -1439,6 +1543,9 @@ pub mod commands {
 
                 Action::Execute(action) => action.run().await,
                 Action::Tasks(action) => action.run(&*KERNEL_SPACE.lock().await).await,
+                Action::Queues(action) => action.run(&*KERNEL_SPACE.lock().await).await,
+                Action::Cancel(action) => action.run(&mut *KERNEL_SPACE.lock().await).await,
+                Action::Symbols(action) => action.run(&*KERNEL_SPACE.lock().await).await,
 
                 Action::External(action) => action.run().await,
                 Action::Directories(action) => action.run().await,
@@ -1591,7 +1698,6 @@ pub mod commands {
         #[structopt(short, long)]
         kernel: Option<KernelId>,
     }
-
     impl Tasks {
         async fn run(&self, kernel_space: &KernelSpace) -> Result {
             let tasks = kernel_space.tasks.lock().await;
@@ -1605,6 +1711,49 @@ pub mod commands {
                     &*queues,
                 )
                 .await
+        }
+    }
+
+    /// Show the task queues for kernel/s in a kernel space
+    #[derive(Debug, StructOpt)]
+    pub struct Queues {
+        /// Only show the queue for a specific kernel
+        #[structopt(short, long)]
+        kernel: Option<KernelId>,
+    }
+    impl Queues {
+        async fn run(&self, kernel_space: &KernelSpace) -> Result {
+            let tasks = kernel_space.tasks.lock().await;
+            let queues = kernel_space.queues.lock().await;
+            match &self.kernel {
+                Some(kernel) => display_queue(&*queues, kernel, &*tasks),
+                None => display_queues(&*queues, &*tasks),
+            }
+        }
+    }
+
+    /// Show the symbols in a kernel space
+    #[derive(Debug, StructOpt)]
+    pub struct Symbols {}
+    impl Symbols {
+        async fn run(&self, kernel_space: &KernelSpace) -> Result {
+            let symbols = kernel_space.symbols.lock().await;
+            display_symbols(&*symbols)
+        }
+    }
+
+    /// Cancel a task
+    #[derive(Debug, StructOpt)]
+    pub struct Cancel {
+        /// The task number or id
+        task: String,
+    }
+    impl Cancel {
+        async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
+            let task_num_or_id = self.task.trim();
+            let task_num_or_id = task_num_or_id.strip_prefix('#').unwrap_or(task_num_or_id);
+            kernel_space.cancel(task_num_or_id).await?;
+            result::nothing()
         }
     }
 
