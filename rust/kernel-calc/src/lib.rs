@@ -45,6 +45,7 @@ impl KernelTrait for CalcKernel {
 
     async fn set(&mut self, name: &str, value: Node) -> Result<()> {
         let value = match value {
+            Node::Integer(integer) => integer as f64,
             Node::Number(number) => number,
             _ => bail!("Unable to convert node to a number"),
         };
