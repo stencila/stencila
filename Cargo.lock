@@ -2718,6 +2718,7 @@ dependencies = [
  "cli-utils",
  "derive_more",
  "events",
+ "formats",
  "graph-triples",
  "humantime",
  "kernel",

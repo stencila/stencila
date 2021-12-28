@@ -263,8 +263,10 @@ impl KernelMap {
 
     /// Get a list of kernels in the kernel space
     #[cfg(feature = "cli")]
-    pub async fn display(&self) -> Vec<KernelInfo> {
-        let mut info = Vec::new();
+    pub async fn display(&self) -> cli_utils::Result {
+        use cli_utils::result;
+
+        let mut list = Vec::new();
         for (id, kernel) in self.iter() {
             let id = id.to_string();
             let spec = kernel.spec();
@@ -277,7 +279,7 @@ impl KernelMap {
             };
             let interruptable = kernel.is_interruptable().await;
             let forkable = kernel.is_forkable().await;
-            info.push(KernelInfo {
+            list.push(KernelInfo {
                 id,
                 status,
                 spec,
@@ -285,7 +287,36 @@ impl KernelMap {
                 forkable,
             })
         }
-        info
+
+        let cols = "|--|------|----|----|---------|-------------|--------|";
+        let head = "|Id|Status|Type|Name|Languages|Interruptable|Forkable|";
+        let body = list
+            .iter()
+            .map(|info| {
+                format!(
+                    "|{}|{}|{}|{}|{}|{}|{}|",
+                    info.id,
+                    info.status,
+                    info.spec.r#type,
+                    info.spec.name,
+                    info.spec.languages.join(", "),
+                    info.interruptable,
+                    info.forkable
+                )
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        let md = format!(
+            "{top}\n{head}\n{align}\n{body}\n{bottom}\n",
+            top = cols,
+            head = head,
+            align = cols,
+            body = body,
+            bottom = if !list.is_empty() { cols } else { "" }
+        );
+
+        result::new("md", &md, list)
     }
 }
 
@@ -1135,9 +1166,6 @@ impl KernelSpace {
 
         if code.is_empty() {
             result::nothing()
-        } else if code == "%kernels" {
-            let kernels = self.kernels.lock().await;
-            result::value(kernels.display().await)
         } else if code == "%symbols" {
             let symbols = self.symbols.lock().await;
             result::value(symbols.clone())
@@ -1291,6 +1319,11 @@ pub async fn languages() -> Result<Vec<String>> {
     let kernels = available().await?;
     for kernel in kernels {
         for lang in kernel.languages {
+            let format = formats::match_name(&lang);
+            let lang = match format {
+                formats::Format::Unknown => lang,
+                _ => format.spec().title,
+            };
             languages.insert(lang);
         }
     }
@@ -1299,8 +1332,8 @@ pub async fn languages() -> Result<Vec<String>> {
     Ok(languages)
 }
 
-/// List the kernels (and servers) that are currently running on this machine
-pub async fn running() -> Result<serde_json::Value> {
+/// List the Jupyter kernels and servers that are currently running on this machine
+pub async fn jupyter_running() -> Result<serde_json::Value> {
     #[cfg(feature = "kernel-jupyter")]
     {
         let kernels = kernel_jupyter::JupyterKernel::running().await?;
@@ -1317,7 +1350,7 @@ pub async fn running() -> Result<serde_json::Value> {
 }
 
 /// List the directories that are searched for Jupyter kernel spaces
-pub async fn directories() -> Result<serde_json::Value> {
+pub async fn jupyter_directories() -> Result<serde_json::Value> {
     #[cfg(feature = "kernel-jupyter")]
     {
         Ok(serde_json::json!({
@@ -1376,15 +1409,18 @@ pub mod commands {
     pub enum Action {
         Available(Available),
         Languages(Languages),
+
         Running(Running),
-        Directories(Directories),
-        Execute(Execute),
-        Tasks(Tasks),
         Start(Start),
         Connect(Connect),
         Stop(Stop),
-        Status(Status),
         Show(Show),
+
+        Execute(Execute),
+        Tasks(Tasks),
+
+        External(External),
+        Directories(Directories),
     }
 
     #[async_trait]
@@ -1394,15 +1430,18 @@ pub mod commands {
             match action {
                 Action::Available(action) => action.run().await,
                 Action::Languages(action) => action.run().await,
+
                 Action::Running(action) => action.run().await,
-                Action::Directories(action) => action.run().await,
-                Action::Execute(action) => action.run().await,
-                Action::Tasks(action) => action.run(&*KERNEL_SPACE.lock().await).await,
                 Action::Start(action) => action.run().await,
                 Action::Connect(action) => action.run().await,
                 Action::Stop(action) => action.run().await,
-                Action::Status(action) => action.run().await,
                 Action::Show(action) => action.run().await,
+
+                Action::Execute(action) => action.run().await,
+                Action::Tasks(action) => action.run(&*KERNEL_SPACE.lock().await).await,
+
+                Action::External(action) => action.run().await,
+                Action::Directories(action) => action.run().await,
             }
         }
     }
@@ -1441,7 +1480,7 @@ pub mod commands {
         }
     }
 
-    /// List the Jupyter kernels (and servers) that are currently running
+    /// List the Jupyter kernels and servers that are currently running on this machine
     ///
     /// This command scans the Jupyter `runtime` directory to get a list of running
     /// Jupyter notebook servers. It then gets a list of kernels from the REST API
@@ -1450,11 +1489,11 @@ pub mod commands {
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Running {}
+    pub struct External {}
     #[async_trait]
-    impl Run for Running {
+    impl Run for External {
         async fn run(&self) -> Result {
-            result::value(running().await?)
+            result::value(jupyter_running().await?)
         }
     }
 
@@ -1469,7 +1508,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Directories {
         async fn run(&self) -> Result {
-            result::value(directories().await?)
+            result::value(jupyter_directories().await?)
         }
     }
 
@@ -1478,7 +1517,7 @@ pub mod commands {
     /// interactive mode
     static KERNEL_SPACE: Lazy<Mutex<KernelSpace>> = Lazy::new(|| Mutex::new(KernelSpace::new()));
 
-    /// Execute code within a temporary "kernel space"
+    /// Execute code within a kernel space
     ///
     /// Mainly intended for testing that Stencila is able to talk
     /// to Jupyter kernels and execute code within them.
@@ -1569,6 +1608,34 @@ pub mod commands {
         }
     }
 
+    /// List the kernels in a kernel space
+    ///
+    /// Mainly intended for interactive mode testing / inspection. Note that
+    /// for a kernel to be in this list it must have either been started by Stencila,
+    ///
+    /// > kernels start r
+    ///
+    /// or connected to from Stencila,
+    ///  
+    /// > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
+    ///
+    /// To get a list of externally started Jupyter kernels that can be connected to run,
+    ///
+    /// > kernels external
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Running {}
+    #[async_trait]
+    impl Run for Running {
+        async fn run(&self) -> Result {
+            let kernel_space = KERNEL_SPACE.lock().await;
+            let kernels = kernel_space.kernels.lock().await;
+            kernels.display().await
+        }
+    }
+
     /// Start a kernel
     ///
     /// Mainly intended for testing that kernels that rely on external files or processes
@@ -1621,14 +1688,14 @@ pub mod commands {
         }
     }
 
-    /// Connect to a running kernel
+    /// Connect to a running Jupyter kernel
     ///
     /// Mainly intended for testing that Stencila is able to connect
     /// to an existing kernel (e.g. one that was started from Jupyter notebook).
     ///
     /// To get a list of externally started kernels that can be connected to run,
     ///
-    /// > kernels running
+    /// > kernels external
     ///
     /// and then connect to a kernel using its Jupyter id e.g.,
     ///
@@ -1654,33 +1721,6 @@ pub mod commands {
             let id = kernels.connect(&self.id_or_path).await?;
             tracing::info!("Connected to kernel `{}`", id);
             result::nothing()
-        }
-    }
-
-    /// Get a list of the kernels in the current kernel space
-    ///
-    /// Mainly intended for interactive mode testing / inspection. Note that
-    /// for a kernel to be in this list it must have either been started by Stencila,
-    ///
-    /// > kernels start r
-    ///
-    /// or connected to from Stencila,
-    ///  
-    /// > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
-    ///
-    /// To get a list of externally started kernels that can be connected to run,
-    ///
-    /// > kernels running
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Status {}
-    impl Status {
-        pub async fn run(&self) -> Result {
-            let kernel_space = KERNEL_SPACE.lock().await;
-            let kernels = kernel_space.kernels.lock().await;
-            result::value(kernels.display().await)
         }
     }
 

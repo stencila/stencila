@@ -10,6 +10,7 @@ cli = ["cli-utils", "events", "parsers", "once_cell", "structopt"]
 [dependencies]
 chrono = { version = "0.4.19", features = ["serde"] }
 derive_more = "0.99.17"
+formats = { path = "../formats", version = "0.0.0" }
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
 humantime = { version = "2.1.0" }
 kernel = { path = "../kernel", version = "0.0.0" }
