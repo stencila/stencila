@@ -13,7 +13,9 @@ use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, BTreeMap, HashMap, HashSet, VecDeque},
     sync::Arc,
+    time::Duration,
 };
+use strum::{EnumString, EnumVariantNames, VariantNames};
 use tokio::sync::{broadcast, mpsc, Mutex};
 
 // Re-exports
@@ -386,6 +388,21 @@ struct KernelTasks {
     counter: u64,
 }
 
+#[derive(Debug, EnumVariantNames, EnumString)]
+#[strum(serialize_all = "lowercase")]
+enum KernelTaskSorting {
+    /// Sort by task number (default)
+    Number,
+    /// Sort by time created
+    Created,
+    /// Sort by time started
+    Started,
+    /// Sort by time finished
+    Finished,
+    /// Sort by time cancelled
+    Cancelled,
+}
+
 impl KernelTasks {
     /// Find a task using its `num` or [`TaskId`]
     fn find_mut<'lt>(&'lt mut self, num_or_id: &str) -> Option<&'lt mut TaskInfo> {
@@ -451,10 +468,106 @@ impl KernelTasks {
     /// Mainly for inspection, in the future may return a formatted table
     /// with more information
     #[cfg(feature = "cli")]
-    async fn display(&self) -> cli_utils::Result {
+    async fn display(
+        &self,
+        num: usize,
+        sort: &KernelTaskSorting,
+        desc: bool,
+        kernel: Option<KernelId>,
+        queues: &KernelQueues,
+    ) -> cli_utils::Result {
         use cli_utils::result;
 
-        result::value(self.inner.clone())
+        let mut list = self.inner.clone();
+
+        if kernel.is_some() {
+            list = list
+                .into_iter()
+                .filter(|task_info| task_info.kernel_id == kernel)
+                .collect::<Vec<TaskInfo>>();
+        }
+
+        match sort {
+            KernelTaskSorting::Number => (),
+            &KernelTaskSorting::Created => list.sort_by(|a, b| a.task.created.cmp(&b.task.created)),
+            &KernelTaskSorting::Started => list.sort_by(|a, b| a.task.started.cmp(&b.task.started)),
+            &KernelTaskSorting::Finished => {
+                list.sort_by(|a, b| a.task.finished.cmp(&b.task.finished))
+            }
+            &KernelTaskSorting::Cancelled => {
+                list.sort_by(|a, b| a.task.cancelled.cmp(&b.task.cancelled))
+            }
+        }
+
+        if desc {
+            list.reverse()
+        }
+
+        if list.len() > num {
+            if desc {
+                list.drain(..num);
+            } else {
+                list.drain(..(list.len() - num));
+            }
+        }
+
+        let cols = "|-|-------|-------|--------|---------|------|----|";
+        let head = "|#|Created|Started|Finished|Cancelled|Kernel|Queued|Forked|Cancellable|Code|";
+        let align = "|-|------:|------:|-------:|--------:|:-----|-----:|-----:|----------:|:---|";
+        let body = list
+            .iter()
+            .map(|task_info| {
+                let task = &task_info.task;
+
+                let kernel_id = task_info.kernel_id.clone().unwrap_or_default();
+
+                let queue_pos = queues
+                    .get(&kernel_id)
+                    .and_then(|queue| queue.binary_search(&task.id).ok())
+                    .map(|index| (index + 1).to_string())
+                    .unwrap_or_default();
+
+                let fork = if task_info.is_fork { "yes" } else { "no" };
+
+                let cancellable = if task_info.is_cancellable {
+                    "yes"
+                } else {
+                    "no"
+                };
+
+                let mut code = task_info.code.clone();
+                if code.len() > 20 {
+                    code.truncate(17);
+                    code += "...";
+                }
+
+                format!(
+                    "|{}|{}|{}|{}|{}|{}|{}|{}|{}|`{}`|",
+                    task_info.num,
+                    format_time(task.created),
+                    format_option_time(task.started),
+                    format_option_time(task.finished),
+                    format_option_time(task.cancelled),
+                    kernel_id,
+                    queue_pos,
+                    fork,
+                    cancellable,
+                    code,
+                )
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        let md = format!(
+            "{top}\n{head}\n{align}\n{body}\n{bottom}\n",
+            top = cols,
+            head = head,
+            align = align,
+            body = body,
+            bottom = if !list.is_empty() { cols } else { "" }
+        );
+
+        result::new("md", &md, list)
     }
 }
 
@@ -502,15 +615,13 @@ impl KernelSpace {
         tasks: &Arc<Mutex<KernelTasks>>,
         symbols: &Arc<Mutex<KernelSymbols>>,
     ) {
-        use tokio::time::{sleep, Duration};
-
         const PERIOD: Duration = Duration::from_millis(100);
 
         tracing::debug!("Began kernel space monitoring");
         loop {
             KernelSpace::dispatch_queue(queues, tasks, kernels, symbols).await;
             KernelSpace::clean_tasks(tasks).await;
-            sleep(PERIOD).await;
+            tokio::time::sleep(PERIOD).await;
         }
     }
 
@@ -1030,9 +1141,6 @@ impl KernelSpace {
         } else if code == "%symbols" {
             let symbols = self.symbols.lock().await;
             result::value(symbols.clone())
-        } else if code == "%tasks" {
-            let tasks = self.tasks.lock().await;
-            tasks.display().await
         } else if code == "%queues" {
             let queue = self.queues.lock().await;
             result::value(queue.clone())
@@ -1223,6 +1331,25 @@ pub async fn directories() -> Result<serde_json::Value> {
     }
 }
 
+/// Format an optional `DateTime` into a human readable "ago" duration
+fn format_time(time: DateTime<Utc>) -> String {
+    let duration = (Utc::now() - time).to_std().unwrap_or(Duration::ZERO);
+    let rounded = Duration::from_secs(duration.as_secs());
+    [
+        humantime::format_duration(rounded).to_string(),
+        " ago".to_string(),
+    ]
+    .concat()
+}
+
+/// Format an optional `DateTime` into a human readable "ago" duration or a dash ("-")
+fn format_option_time(time: Option<DateTime<Utc>>) -> String {
+    match time {
+        Some(time) => format_time(time),
+        None => "".to_string(),
+    }
+}
+
 #[cfg(feature = "cli")]
 pub mod commands {
     use super::*;
@@ -1252,6 +1379,7 @@ pub mod commands {
         Running(Running),
         Directories(Directories),
         Execute(Execute),
+        Tasks(Tasks),
         Start(Start),
         Connect(Connect),
         Stop(Stop),
@@ -1269,6 +1397,7 @@ pub mod commands {
                 Action::Running(action) => action.run().await,
                 Action::Directories(action) => action.run().await,
                 Action::Execute(action) => action.run().await,
+                Action::Tasks(action) => action.run(&*KERNEL_SPACE.lock().await).await,
                 Action::Start(action) => action.run().await,
                 Action::Connect(action) => action.run().await,
                 Action::Stop(action) => action.run().await,
@@ -1377,7 +1506,7 @@ pub mod commands {
     )]
     pub struct Execute {
         /// Code to execute within the document's kernel space
-        // Using a Vec and the `multiple` option allows for spaces in the code
+        // Using a `Vec` and the `multiple` option allows for spaces in the code
         #[structopt(multiple = true)]
         code: Vec<String>,
 
@@ -1396,6 +1525,46 @@ pub mod commands {
                 .lock()
                 .await
                 .repl(&self.code.join(" "), self.lang.clone(), self.kernel.clone())
+                .await
+        }
+    }
+
+    /// List the tasks for a kernel space
+    #[derive(Debug, StructOpt)]
+    pub struct Tasks {
+        /// The maximum number of tasks to show
+        #[structopt(short, long, default_value = "100")]
+        num: usize,
+
+        /// The order to sort tasks (defaults to by task number)
+        #[structopt(
+            short, long,
+            possible_values = KernelTaskSorting::VARIANTS,
+            default_value = "number"
+        )]
+        sort: KernelTaskSorting,
+
+        /// Whether to sort in descending order
+        #[structopt(short, long)]
+        desc: bool,
+
+        /// Only show tasks assigned to a specific kernel
+        #[structopt(short, long)]
+        kernel: Option<KernelId>,
+    }
+
+    impl Tasks {
+        async fn run(&self, kernel_space: &KernelSpace) -> Result {
+            let tasks = kernel_space.tasks.lock().await;
+            let queues = kernel_space.queues.lock().await;
+            tasks
+                .display(
+                    self.num,
+                    &self.sort,
+                    self.desc,
+                    self.kernel.clone(),
+                    &*queues,
+                )
                 .await
         }
     }
