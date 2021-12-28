@@ -596,9 +596,12 @@ impl KernelTasks {
             }
         }
 
-        let cols =  "|-|-------|-------|--------|---------|--------|------|------|------|-----------|----|";
-        let head =  "|#|Created|Started|Finished|Cancelled|Duration|Kernel|Queued|Forked|Cancellable|Code|";
-        let align = "|-|------:|------:|-------:|--------:|-------:|:-----|-----:|-----:|----------:|:---|";
+        let cols =
+            "|-|-------|-------|--------|---------|--------|------|------|------|-----------|----|";
+        let head =
+            "|#|Created|Started|Finished|Cancelled|Duration|Kernel|Queued|Forked|Cancellable|Code|";
+        let align =
+            "|-|------:|------:|-------:|--------:|-------:|:-----|-----:|-----:|----------:|:---|";
         let body = list
             .iter()
             .map(|task_info| {
@@ -937,10 +940,8 @@ impl KernelSpace {
         let kernel = kernels.get_mut(kernel_id)?;
         let task = if is_fork {
             kernel.exec_fork(code).await?
-        } else if kernel.is_interruptable().await {
-            kernel.exec_async(code).await?
         } else {
-            kernel.exec_sync(code).await?
+            kernel.exec_async(code).await?
         };
 
         // Record symbols assigned in kernel (unless it was a fork)
@@ -1501,11 +1502,12 @@ fn format_time(time: DateTime<Utc>) -> String {
 fn format_duration(begin: Option<DateTime<Utc>>, end: Option<DateTime<Utc>>) -> String {
     match (begin, end) {
         (Some(begin), Some(end)) => {
-            let duration = (end-begin).to_std().unwrap_or(Duration::ZERO);
-            let rounded = Duration::from_millis(duration.as_millis().try_into().unwrap_or(u64::MAX));
+            let duration = (end - begin).to_std().unwrap_or(Duration::ZERO);
+            let rounded =
+                Duration::from_millis(duration.as_millis().try_into().unwrap_or(u64::MAX));
             humantime::format_duration(rounded).to_string()
         }
-        _ => "".to_string()
+        _ => "".to_string(),
     }
 }
 

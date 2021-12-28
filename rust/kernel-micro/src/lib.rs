@@ -453,47 +453,52 @@ impl KernelTrait for MicroKernel {
 
     /// Execute code in the kernel asynchronously
     async fn exec_async(&mut self, code: &str) -> Result<Task> {
-        if self.interruptable {
-            // Setup channels and execution task
-            let (result_forwarder, ..) = broadcast::channel(1);
-            let (canceller, mut cancellee) = mpsc::channel(1);
-            let task = Task::start(Some(result_forwarder.clone()), Some(canceller));
+        // Setup channels and execution task
+        let (result_forwarder, ..) = broadcast::channel(1);
+        let (canceller, cancellee) = if self.interruptable {
+            let (canceller, cancellee) = mpsc::channel(1);
+            (Some(canceller), Some(cancellee))
+        } else {
+            (None, None)
+        };
+        let task = Task::start(Some(result_forwarder.clone()), canceller);
 
-            // Start async task to wait for result and send on to receivers.
-            let task_id = task.id.clone();
-            let code = code.to_string();
-            let state = self.state.as_ref().unwrap().clone();
-            let status = self.status.clone();
-            tokio::spawn(async move {
-                let mut state = state.lock().await;
+        // Start async task to wait for result and send on to receivers.
+        let task_id = task.id.clone();
+        let code = code.to_string();
+        let state = self.state.as_ref().unwrap().clone();
+        let status = self.status.clone();
+        tokio::spawn(async move {
+            let mut state = state.lock().await;
 
-                *status.write().await = KernelStatus::Busy;
+            *status.write().await = KernelStatus::Busy;
 
-                let (outputs, messages) = match state.send_receive(&[code]).await {
-                    Ok((ouputs, messages)) => (ouputs, messages),
-                    Err(error) => {
-                        tracing::error!(
-                            "When receiving result for exec_async task `{}`: {}",
-                            task_id,
-                            error
-                        );
-                        return;
-                    }
-                };
-                let result = TaskResult::new(outputs, messages);
-                if let Err(error) = result_forwarder.send(result) {
-                    // The result receiver at the other end of the channel was dropped
-                    // (e.g. the task was cancelled) so just `debug!`
-                    tracing::debug!(
-                        "When sending result for exec_async task `{}`: {}",
+            let (outputs, messages) = match state.send_receive(&[code]).await {
+                Ok((ouputs, messages)) => (ouputs, messages),
+                Err(error) => {
+                    tracing::error!(
+                        "When receiving result for exec_async task `{}`: {}",
                         task_id,
                         error
                     );
+                    return;
                 }
+            };
+            let result = TaskResult::new(outputs, messages);
+            if let Err(error) = result_forwarder.send(result) {
+                // The result receiver at the other end of the channel was dropped
+                // (e.g. the task was cancelled) so just `debug!`
+                tracing::debug!(
+                    "When sending result for exec_async task `{}`: {}",
+                    task_id,
+                    error
+                );
+            }
 
-                *status.write().await = KernelStatus::Idle;
-            });
+            *status.write().await = KernelStatus::Idle;
+        });
 
+        if let Some(mut cancellee) = cancellee {
             // Start async task to listen for cancellation message
             // This should finish when the `canceller` is either triggered or dropped
             let task_id = task.id.clone();
@@ -506,16 +511,9 @@ impl KernelTrait for MicroKernel {
                 }
                 tracing::debug!("Ended canceller for exec_async task `{}`", task_id);
             });
-
-            Ok(task)
-        } else {
-            // This should not get called for microkernels that are not interruptable, so warn if it is
-            tracing::warn!(
-                "Kernel `{}` does not support async tasks; using `exec_sync`",
-                self.name
-            );
-            self.exec_sync(code).await
         }
+
+        Ok(task)
     }
 
     /// Execute code in a fork of the kernel
