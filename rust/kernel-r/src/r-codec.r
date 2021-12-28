@@ -4,9 +4,9 @@ decode_value <- function(json) {
 }
 
 # Encode an R value to JSON
-encode_value <- function(value) {
+encode_value <- function(value, unbox = FALSE) {
   converted <- convert_value(value)
-  toJSON(converted, null = "null", digits = NA, force = TRUE)
+  toJSON(converted, null = "null", digits = NA, force = TRUE, auto_unbox = unbox)
 }
 
 # Convert a value prior to encoding
