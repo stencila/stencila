@@ -1,9 +1,13 @@
 #!/usr/bin/env Rscript
 
-# Ensure that required packages are installed
+# Ensure that required packages are attached and installed
 requires <- function () {
+  # On Mac and Linux require `parallel` package for forking
+  # This is a base package (see `rownames(installed.packages(priority="base"))`)
+  # so we don't try to install it as with other packages
+  if (.Platform$OS.type == "unix") library(parallel)
+
   pkgs <- c("jsonlite", "base64enc")
-  if (.Platform$OS.type == "unix") pkgs <- c(pkgs, "parallel")
 
   install <- NULL
   for (pkg in pkgs) {
