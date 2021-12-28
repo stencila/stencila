@@ -277,7 +277,7 @@ impl Executable for CodeChunk {
         let relations = parsers::parse("", &self.text, &self.programming_language)?;
         let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
         let mut task = kernels
-            .exec(&self.text, &selector, Some(relations), false, false)
+            .exec(&self.text, &selector, Some(relations), false)
             .await?;
         let TaskResult {
             outputs,
@@ -330,7 +330,7 @@ impl Executable for CodeExpression {
         let relations = parsers::parse("", &self.text, &self.programming_language)?;
         let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
         let mut task = kernels
-            .exec(&self.text, &selector, Some(relations), false, false)
+            .exec(&self.text, &selector, Some(relations), false)
             .await?;
         let TaskResult {
             outputs,

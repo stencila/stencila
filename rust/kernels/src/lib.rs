@@ -818,7 +818,6 @@ impl KernelSpace {
         code: &str,
         selector: &KernelSelector,
         relations: Option<Vec<(Relation, Resource)>>,
-        is_async: bool,
         is_fork: bool,
     ) -> Result<TaskInfo> {
         let kernels = &mut *self.kernels.lock().await;
@@ -853,7 +852,6 @@ impl KernelSpace {
                 code,
                 &symbols_used,
                 &symbols_assigned,
-                is_async,
                 is_fork,
                 symbols,
                 &kernel_id,
@@ -888,7 +886,6 @@ impl KernelSpace {
         code: &str,
         symbols_used: &[Symbol],
         symbols_assigned: &[Symbol],
-        is_async: bool,
         is_fork: bool,
         symbols: &mut KernelSymbols,
         kernel_id: &str,
@@ -939,7 +936,7 @@ impl KernelSpace {
         let kernel = kernels.get_mut(kernel_id)?;
         let task = if is_fork {
             kernel.exec_fork(code).await?
-        } else if is_async {
+        } else if kernel.is_interruptable().await {
             kernel.exec_async(code).await?
         } else {
             kernel.exec_sync(code).await?
@@ -1077,7 +1074,6 @@ impl KernelSpace {
             &task_info.code,
             &task_info.symbols_used,
             &task_info.symbols_assigned,
-            task_info.is_async,
             task_info.is_fork,
             symbols,
             kernel_id,
@@ -1330,9 +1326,7 @@ impl KernelSpace {
             };
 
             // Execute the code
-            let mut task_info = self
-                .exec(&code, &selector, Some(relations), true, fork)
-                .await?;
+            let mut task_info = self.exec(&code, &selector, Some(relations), fork).await?;
 
             if background {
                 // Indicate task is running in background
