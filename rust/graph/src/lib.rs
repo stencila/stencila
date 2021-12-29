@@ -296,7 +296,7 @@ impl Graph {
                             let label = if *range == relations::NULL_RANGE {
                                 relation.to_string()
                             } else {
-                                format!("{} L{}", relation, range.0 + 1)
+                                format!("{} (L{})", relation, range.0 + 1)
                             };
                             (label, "solid")
                         }
