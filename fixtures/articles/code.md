@@ -1,4 +1,4 @@
-This article fixture is focussed on the Markdown representation of executable code nodes such as `CodeChunk`, `CodeExpression`, and `Parameter` nodes.
+This article fixture is focussed on the Markdown representation of executable code nodes such as `CodeChunk`, `CodeExpression`, and `Parameter` nodes. See also `../fragments/md/code-*.md` fixtures. This fixture intentionally does not have any relations between code nodes (e.g a variable assigned in one, used in another).
 
 ## Inline code
 

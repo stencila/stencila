@@ -14,6 +14,14 @@ node-address = { path = "../node-address", version = "0.0.0" }
 node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
 parsers = { path = "../parsers", version = "0.0.0" }
 path-utils = { path = "../path-utils", version = "0.0.0" }
+serde = { version = "1.0.130", features = ["derive"] }
 stencila-schema = "1.12.0"
 tracing = "0.1.29"
 uuids = { path = "../uuids", version = "0.0.0" }
+
+[dev-dependencies]
+test-snaps = { path = "../test-snaps", version = "0.0.0" }
+codec = { path = "../codec", version = "0.0.0" }
+codec-md = { path = "../codec-md", version = "0.0.0" }
+# Make sure to enable the parser for any languages used in tests here
+parsers = { path = "../parsers", version = "0.0.0", features = ["parser-calc"] }

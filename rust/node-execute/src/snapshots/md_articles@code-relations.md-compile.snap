@@ -1,0 +1,412 @@
+---
+source: rust/node-execute/src/lib.rs
+expression: "(&addresses, &relations)"
+input_file: fixtures/articles/code-relations.md
+
+---
+[
+  {
+    "no-1YiwBCdKy3eJtNJS6zBs": [
+      "content",
+      7
+    ],
+    "no-2EHGxzZSOc2Kdki30JcQ": [
+      "content",
+      1,
+      "content",
+      1
+    ],
+    "no-mqx3eZHQyCDdr09n5LBw": [
+      "content",
+      0,
+      "content",
+      1
+    ],
+    "no-UM9N6LjQrG6XYUiFzxHM": [
+      "content",
+      8,
+      "content",
+      1
+    ],
+    "no-aPYTbXz2J0B0GmAIiJWB": [
+      "content",
+      9,
+      "content",
+      1
+    ],
+    "no-NZ14PPC7oW3eTDJ0RkcC": [
+      "content",
+      6,
+      "content",
+      1
+    ],
+    "no-BRfpRqEzXjGztx2kcaEz": [
+      "content",
+      5,
+      "content",
+      5
+    ],
+    "no-Hi6IzM4Cyvi20XhGYeyw": [
+      "content",
+      0,
+      "content",
+      3
+    ],
+    "no-FUQ5yPfgf69TIKCUUAkZ": [
+      "content",
+      2
+    ],
+    "no-oHuywf04tFYv5h2bQrhD": [
+      "content",
+      0,
+      "content",
+      7
+    ],
+    "no-fkieYjb1W9SAHFIJVJL2": [
+      "content",
+      8,
+      "content",
+      3
+    ],
+    "no-MY5KElackvMLsJUJofgi": [
+      "content",
+      5,
+      "content",
+      3
+    ],
+    "no-9DZ1AzpiAdF6gTHDxxdU": [
+      "content",
+      4
+    ],
+    "no-MWIWvsYTqWUsLkqHEbl1": [
+      "content",
+      11
+    ],
+    "no-pt5yihaLyQ66eth4a9Xm": [
+      "content",
+      0,
+      "content",
+      5
+    ],
+    "no-kSkuzlMdhHWIDPHmxVVk": [
+      "content",
+      1,
+      "content",
+      3
+    ],
+    "no-2h9WzrDWzi7WhMkQ3HfW": [
+      "content",
+      3,
+      "content",
+      1
+    ],
+    "no-HlKobQphmlOIuQKFTfiY": [
+      "content",
+      5,
+      "content",
+      1
+    ],
+    "no-YotPSSLtsbWbYiyLTY1y": [
+      "content",
+      9,
+      "content",
+      3
+    ]
+  },
+  [
+    [
+      {
+        "type": "Node",
+        "path": "articles/code-relations.md",
+        "id": "no-FUQ5yPfgf69TIKCUUAkZ",
+        "kind": "CodeChunk"
+      },
+      [
+        [
+          {
+            "type": "Assign",
+            "range": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "a",
+            "kind": "Number"
+          }
+        ]
+      ]
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code-relations.md",
+        "id": "no-9DZ1AzpiAdF6gTHDxxdU",
+        "kind": "CodeChunk"
+      },
+      [
+        [
+          {
+            "type": "Use",
+            "range": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "a",
+            "kind": "Number"
+          }
+        ]
+      ]
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code-relations.md",
+        "id": "no-MY5KElackvMLsJUJofgi",
+        "kind": "CodeExpression"
+      },
+      [
+        [
+          {
+            "type": "Use",
+            "range": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "a",
+            "kind": "Number"
+          }
+        ]
+      ]
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code-relations.md",
+        "id": "no-BRfpRqEzXjGztx2kcaEz",
+        "kind": "CodeExpression"
+      },
+      [
+        [
+          {
+            "type": "Use",
+            "range": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "a",
+            "kind": "Number"
+          }
+        ]
+      ]
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code-relations.md",
+        "id": "no-1YiwBCdKy3eJtNJS6zBs",
+        "kind": "CodeChunk"
+      },
+      [
+        [
+          {
+            "type": "Assign",
+            "range": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "b",
+            "kind": "Number"
+          }
+        ],
+        [
+          {
+            "type": "Use",
+            "range": [
+              0,
+              4,
+              0,
+              5
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "a",
+            "kind": "Number"
+          }
+        ]
+      ]
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code-relations.md",
+        "id": "no-UM9N6LjQrG6XYUiFzxHM",
+        "kind": "CodeExpression"
+      },
+      [
+        [
+          {
+            "type": "Use",
+            "range": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "b",
+            "kind": "Number"
+          }
+        ]
+      ]
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code-relations.md",
+        "id": "no-fkieYjb1W9SAHFIJVJL2",
+        "kind": "CodeExpression"
+      },
+      [
+        [
+          {
+            "type": "Use",
+            "range": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "b",
+            "kind": "Number"
+          }
+        ]
+      ]
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code-relations.md",
+        "id": "no-YotPSSLtsbWbYiyLTY1y",
+        "kind": "Parameter"
+      },
+      [
+        [
+          {
+            "type": "Assign",
+            "range": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "c",
+            "kind": "Number"
+          }
+        ]
+      ]
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code-relations.md",
+        "id": "no-MWIWvsYTqWUsLkqHEbl1",
+        "kind": "CodeChunk"
+      },
+      [
+        [
+          {
+            "type": "Use",
+            "range": [
+              0,
+              0,
+              0,
+              1
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "a",
+            "kind": "Number"
+          }
+        ],
+        [
+          {
+            "type": "Use",
+            "range": [
+              0,
+              4,
+              0,
+              5
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "b",
+            "kind": "Number"
+          }
+        ],
+        [
+          {
+            "type": "Use",
+            "range": [
+              0,
+              8,
+              0,
+              9
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "c",
+            "kind": "Number"
+          }
+        ]
+      ]
+    ]
+  ]
+]

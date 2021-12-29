@@ -51,3 +51,34 @@ where
 {
     node.execute(kernels).await
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use codec::CodecTrait;
+    use codec_md::MdCodec;
+    use std::path::PathBuf;
+    use test_snaps::{
+        insta::assert_json_snapshot, snapshot_add_suffix, snapshot_fixtures_path_content, fixtures,
+    };
+
+    /// Higher level tests of the top level functions in this crate
+    #[test]
+    fn md_articles() {
+        let fixtures = fixtures();
+        snapshot_fixtures_path_content("articles/code*.md", |path, content| {
+            // Strip the fixtures prefix from the path (so it's the same regardless of machine)
+            let stripped_path = path.strip_prefix(&fixtures).unwrap();
+
+            // Load the article
+            let mut article = MdCodec::from_str(content, None).unwrap();
+
+            // Compile the article and snapshot the result
+            let (addresses, relations) =
+                compile(&mut article, stripped_path, &PathBuf::new()).unwrap();
+            snapshot_add_suffix("-compile", || {
+                assert_json_snapshot!((&addresses, &relations));
+            });
+        })
+    }
+}

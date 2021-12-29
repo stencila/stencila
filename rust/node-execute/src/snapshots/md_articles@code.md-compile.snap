@@ -1,0 +1,158 @@
+---
+source: rust/node-execute/src/lib.rs
+expression: "(&addresses, &relations)"
+input_file: fixtures/articles/code.md
+
+---
+[
+  {
+    "no-Bve9NlrvWfF6vK6Jvp18": [
+      "content",
+      0,
+      "content",
+      5
+    ],
+    "no-a5CEd9TblNbnGqfFnwcM": [
+      "content",
+      0,
+      "content",
+      7
+    ],
+    "no-1ytp8oPjYD0smumN7rkR": [
+      "content",
+      3,
+      "content",
+      1
+    ],
+    "no-3ocyNlf0jqgUJRrc9oWz": [
+      "content",
+      0,
+      "content",
+      3
+    ],
+    "no-ByqSZHYKRjFdQzoEVeq3": [
+      "content",
+      4,
+      "content",
+      3
+    ],
+    "no-WOUlW3kkWKZblVbE7JQY": [
+      "content",
+      9
+    ],
+    "no-ZeBBN0OB9sc0yX6SBAYS": [
+      "content",
+      2,
+      "content",
+      1
+    ],
+    "no-5QtGiLoANJIDpUeywvOl": [
+      "content",
+      4,
+      "content",
+      1
+    ],
+    "no-0HsfZUtL2rkBmj7dttzG": [
+      "content",
+      2,
+      "content",
+      3
+    ],
+    "no-6UwiUIJ1ONvSjiod66Xh": [
+      "content",
+      8,
+      "content",
+      1
+    ],
+    "no-QQdn3ZG7bkGKfRj5IQ7Z": [
+      "content",
+      0,
+      "content",
+      1
+    ],
+    "no-wdBB0hYHElnn2DHaOpiT": [
+      "content",
+      2,
+      "content",
+      5
+    ],
+    "no-vqUn3tIhSSu1gN2czPoB": [
+      "content",
+      7
+    ],
+    "no-26l0mOvhMGn98wbeFP7K": [
+      "content",
+      2,
+      "content",
+      7
+    ],
+    "no-PlE3sWhV7Livb50xEmMT": [
+      "content",
+      3,
+      "content",
+      3
+    ],
+    "no-3iyenIoGSFiCv6g2U10R": [
+      "content",
+      6,
+      "content",
+      1
+    ]
+  },
+  [
+    [
+      {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "no-0HsfZUtL2rkBmj7dttzG",
+        "kind": "CodeExpression"
+      },
+      []
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "no-wdBB0hYHElnn2DHaOpiT",
+        "kind": "CodeExpression"
+      },
+      []
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "no-26l0mOvhMGn98wbeFP7K",
+        "kind": "CodeExpression"
+      },
+      []
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "no-1ytp8oPjYD0smumN7rkR",
+        "kind": "CodeExpression"
+      },
+      []
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "no-PlE3sWhV7Livb50xEmMT",
+        "kind": "CodeExpression"
+      },
+      []
+    ],
+    [
+      {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "no-vqUn3tIhSSu1gN2czPoB",
+        "kind": "CodeChunk"
+      },
+      []
+    ]
+  ]
+]

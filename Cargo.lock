@@ -2049,6 +2049,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+ "serde_yaml",
  "strum 0.23.0",
  "utils",
 ]
@@ -3231,6 +3232,8 @@ name = "node-execute"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "codec",
+ "codec-md",
  "eyre",
  "graph-triples",
  "hash-utils",
@@ -3239,7 +3242,9 @@ dependencies = [
  "node-dispatch",
  "parsers",
  "path-utils",
+ "serde",
  "stencila-schema",
+ "test-snaps",
  "tracing",
  "uuids",
 ]
