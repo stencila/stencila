@@ -1,9 +1,8 @@
-use crate::Addresses;
 use async_trait::async_trait;
 use eyre::Result;
-use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Relations, Resource};
+use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Relations};
 use kernels::{KernelSelector, KernelSpace, TaskResult};
-use node_address::{Address, Slot};
+use node_address::{Address, Addresses, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
 use path_utils::merge;
 use std::{

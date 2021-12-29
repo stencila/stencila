@@ -8,7 +8,7 @@ use graph_triples::Relations;
 use itertools::Itertools;
 use kernels::KernelSpace;
 use maplit::hashset;
-use node_address::Address;
+use node_address::Addresses;
 use node_execute::compile;
 use node_patch::{diff, merge, Patch};
 use node_pointer::{resolve, Pointer};
@@ -19,7 +19,7 @@ use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
-    collections::{hash_map::Entry, HashMap, HashSet, BTreeMap},
+    collections::{hash_map::Entry, HashMap, HashSet},
     env, fs,
     path::{Path, PathBuf},
     sync::Arc,
@@ -192,7 +192,7 @@ pub struct Document {
     /// pointers or references will change as the document is patched.
     /// These addresses are shifted when the document is patched to account for this.
     #[schemars(schema_with = "Document::schema_addresses")]
-    addresses: BTreeMap<String, Address>,
+    addresses: Addresses,
 
     /// The set of dependency relations between this document, or nodes in this document,
     /// and other resources.
@@ -631,7 +631,7 @@ impl Document {
     /// error in other methods where it is used.
     pub fn resolve<'root>(
         root: &'root mut Option<Node>,
-        addresses: &HashMap<String, Address>,
+        addresses: &Addresses,
         node_id: Option<String>,
     ) -> Result<Pointer<'root>> {
         let root = match root {

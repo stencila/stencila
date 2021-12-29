@@ -1,7 +1,7 @@
 use eyre::Result;
 use graph_triples::Relations;
-use node_address::Address;
-use std::{collections::BTreeMap, path::Path};
+use node_address::{Address, Addresses};
+use std::path::Path;
 use stencila_schema::*;
 
 // Re-exports
@@ -10,17 +10,10 @@ pub use kernels::{KernelSelector, KernelSpace, TaskResult};
 mod executable;
 pub use executable::*;
 
-/// A map of node ids to their address
+/// Compile a document
 ///
-/// Used to enable faster access to a node based on it's id.
-/// A `BTreeMap` is used instead of a `HashMap` for determinism in order
-/// of entries.
-type Addresses = BTreeMap<String, Address>;
-
-/// Compile a node
-///
-/// Compiling a document involves walking over the node tree and compiling each
-/// individual node so that it is ready to be built & executed. This includes
+/// Compiling a document involves walking over its node tree and compiling each
+/// individual child node so that it is ready to be built & executed. This includes
 /// (but is not limited to):
 ///
 /// - for those node types needing to be accesses directly (e.g. executable nodes) ensuring
@@ -32,13 +25,10 @@ pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresse
     let mut address = Address::default();
     let mut context = CompileContext::new(path, project);
     node.compile(&mut address, &mut context)?;
-
-    let addresses = context.addresses;
-    let relations = context.relations.into_iter().collect();
-    Ok((addresses, relations))
+    Ok((context.addresses, context.relations))
 }
 
-/// Execute a node
+/// Execute a document
 #[tracing::instrument(skip(node, kernels))]
 pub async fn execute<Type>(node: &mut Type, kernels: &mut KernelSpace) -> Result<()>
 where
