@@ -263,7 +263,7 @@ impl Executable for CodeChunk {
                     context.relations.push((subject, relations));
                     self.compile_digest = Some(digest);
                 }
-                Err(error) => tracing::warn!("While parsing code chunk `{}`: {}", id, error),
+                Err(error) => tracing::debug!("While parsing code chunk `{}`: {}", id, error),
             };
         }
 
@@ -316,7 +316,7 @@ impl Executable for CodeExpression {
                     context.relations.push((subject, relations));
                     self.compile_digest = Some(digest);
                 }
-                Err(error) => tracing::warn!("While parsing code expression `{}`: {}", id, error),
+                Err(error) => tracing::debug!("While parsing code expression `{}`: {}", id, error),
             };
         }
 
