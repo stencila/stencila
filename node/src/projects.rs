@@ -108,7 +108,7 @@ pub fn graph(mut cx: FunctionContext) -> JsResult<JsString> {
 
     let result = RUNTIME.block_on(async {
         match PROJECTS.get(&path).await {
-            Ok(project) => project.lock().await.graph(format),
+            Ok(project) => project.lock().await.graph.to_format(format),
             Err(error) => Err(error),
         }
     });

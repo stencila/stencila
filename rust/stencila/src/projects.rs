@@ -141,7 +141,7 @@ pub struct Project {
     /// The project's dependency graph
     #[serde(skip_deserializing)]
     #[schemars(schema_with = "Project::schema_graph")]
-    graph: Graph,
+    pub graph: Graph,
 }
 
 impl Project {
