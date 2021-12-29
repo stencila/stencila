@@ -6,107 +6,107 @@ input_file: fixtures/articles/code-relations.md
 ---
 [
   {
-    "no-1YiwBCdKy3eJtNJS6zBs": [
+    "cc-1": [
+      "content",
+      2
+    ],
+    "cc-2": [
+      "content",
+      4
+    ],
+    "cc-3": [
       "content",
       7
     ],
-    "no-2EHGxzZSOc2Kdki30JcQ": [
+    "cc-4": [
       "content",
-      1,
-      "content",
-      1
+      11
     ],
-    "no-mqx3eZHQyCDdr09n5LBw": [
+    "ce-1": [
       "content",
-      0,
+      5,
       "content",
-      1
+      3
     ],
-    "no-UM9N6LjQrG6XYUiFzxHM": [
+    "ce-2": [
+      "content",
+      5,
+      "content",
+      5
+    ],
+    "ce-3": [
       "content",
       8,
       "content",
       1
     ],
-    "no-aPYTbXz2J0B0GmAIiJWB": [
+    "ce-4": [
+      "content",
+      8,
+      "content",
+      3
+    ],
+    "cf-1": [
+      "content",
+      0,
+      "content",
+      1
+    ],
+    "cf-10": [
       "content",
       9,
       "content",
       1
     ],
-    "no-NZ14PPC7oW3eTDJ0RkcC": [
-      "content",
-      6,
-      "content",
-      1
-    ],
-    "no-BRfpRqEzXjGztx2kcaEz": [
-      "content",
-      5,
-      "content",
-      5
-    ],
-    "no-Hi6IzM4Cyvi20XhGYeyw": [
+    "cf-2": [
       "content",
       0,
       "content",
       3
     ],
-    "no-FUQ5yPfgf69TIKCUUAkZ": [
+    "cf-3": [
       "content",
-      2
+      0,
+      "content",
+      5
     ],
-    "no-oHuywf04tFYv5h2bQrhD": [
+    "cf-4": [
       "content",
       0,
       "content",
       7
     ],
-    "no-fkieYjb1W9SAHFIJVJL2": [
+    "cf-5": [
       "content",
-      8,
+      1,
       "content",
-      3
+      1
     ],
-    "no-MY5KElackvMLsJUJofgi": [
-      "content",
-      5,
-      "content",
-      3
-    ],
-    "no-9DZ1AzpiAdF6gTHDxxdU": [
-      "content",
-      4
-    ],
-    "no-MWIWvsYTqWUsLkqHEbl1": [
-      "content",
-      11
-    ],
-    "no-pt5yihaLyQ66eth4a9Xm": [
-      "content",
-      0,
-      "content",
-      5
-    ],
-    "no-kSkuzlMdhHWIDPHmxVVk": [
+    "cf-6": [
       "content",
       1,
       "content",
       3
     ],
-    "no-2h9WzrDWzi7WhMkQ3HfW": [
+    "cf-7": [
       "content",
       3,
       "content",
       1
     ],
-    "no-HlKobQphmlOIuQKFTfiY": [
+    "cf-8": [
       "content",
       5,
       "content",
       1
     ],
-    "no-YotPSSLtsbWbYiyLTY1y": [
+    "cf-9": [
+      "content",
+      6,
+      "content",
+      1
+    ],
+    "pa-1": [
       "content",
       9,
       "content",
@@ -118,7 +118,7 @@ input_file: fixtures/articles/code-relations.md
       {
         "type": "Node",
         "path": "articles/code-relations.md",
-        "id": "no-FUQ5yPfgf69TIKCUUAkZ",
+        "id": "cc-1",
         "kind": "CodeChunk"
       },
       [
@@ -145,7 +145,7 @@ input_file: fixtures/articles/code-relations.md
       {
         "type": "Node",
         "path": "articles/code-relations.md",
-        "id": "no-9DZ1AzpiAdF6gTHDxxdU",
+        "id": "cc-2",
         "kind": "CodeChunk"
       },
       [
@@ -172,7 +172,7 @@ input_file: fixtures/articles/code-relations.md
       {
         "type": "Node",
         "path": "articles/code-relations.md",
-        "id": "no-MY5KElackvMLsJUJofgi",
+        "id": "ce-1",
         "kind": "CodeExpression"
       },
       [
@@ -199,7 +199,7 @@ input_file: fixtures/articles/code-relations.md
       {
         "type": "Node",
         "path": "articles/code-relations.md",
-        "id": "no-BRfpRqEzXjGztx2kcaEz",
+        "id": "ce-2",
         "kind": "CodeExpression"
       },
       [
@@ -226,7 +226,7 @@ input_file: fixtures/articles/code-relations.md
       {
         "type": "Node",
         "path": "articles/code-relations.md",
-        "id": "no-1YiwBCdKy3eJtNJS6zBs",
+        "id": "cc-3",
         "kind": "CodeChunk"
       },
       [
@@ -270,7 +270,7 @@ input_file: fixtures/articles/code-relations.md
       {
         "type": "Node",
         "path": "articles/code-relations.md",
-        "id": "no-UM9N6LjQrG6XYUiFzxHM",
+        "id": "ce-3",
         "kind": "CodeExpression"
       },
       [
@@ -297,7 +297,7 @@ input_file: fixtures/articles/code-relations.md
       {
         "type": "Node",
         "path": "articles/code-relations.md",
-        "id": "no-fkieYjb1W9SAHFIJVJL2",
+        "id": "ce-4",
         "kind": "CodeExpression"
       },
       [
@@ -324,7 +324,7 @@ input_file: fixtures/articles/code-relations.md
       {
         "type": "Node",
         "path": "articles/code-relations.md",
-        "id": "no-YotPSSLtsbWbYiyLTY1y",
+        "id": "pa-1",
         "kind": "Parameter"
       },
       [
@@ -351,7 +351,7 @@ input_file: fixtures/articles/code-relations.md
       {
         "type": "Node",
         "path": "articles/code-relations.md",
-        "id": "no-MWIWvsYTqWUsLkqHEbl1",
+        "id": "cc-4",
         "kind": "CodeChunk"
       },
       [

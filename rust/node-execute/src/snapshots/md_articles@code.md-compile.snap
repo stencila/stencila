@@ -6,95 +6,95 @@ input_file: fixtures/articles/code.md
 ---
 [
   {
-    "no-Bve9NlrvWfF6vK6Jvp18": [
-      "content",
-      0,
-      "content",
-      5
-    ],
-    "no-a5CEd9TblNbnGqfFnwcM": [
-      "content",
-      0,
-      "content",
-      7
-    ],
-    "no-1ytp8oPjYD0smumN7rkR": [
-      "content",
-      3,
-      "content",
-      1
-    ],
-    "no-3ocyNlf0jqgUJRrc9oWz": [
-      "content",
-      0,
-      "content",
-      3
-    ],
-    "no-ByqSZHYKRjFdQzoEVeq3": [
-      "content",
-      4,
-      "content",
-      3
-    ],
-    "no-WOUlW3kkWKZblVbE7JQY": [
+    "cb-1": [
       "content",
       9
     ],
-    "no-ZeBBN0OB9sc0yX6SBAYS": [
+    "cc-1": [
       "content",
-      2,
-      "content",
-      1
+      7
     ],
-    "no-5QtGiLoANJIDpUeywvOl": [
-      "content",
-      4,
-      "content",
-      1
-    ],
-    "no-0HsfZUtL2rkBmj7dttzG": [
+    "ce-1": [
       "content",
       2,
       "content",
       3
     ],
-    "no-6UwiUIJ1ONvSjiod66Xh": [
-      "content",
-      8,
-      "content",
-      1
-    ],
-    "no-QQdn3ZG7bkGKfRj5IQ7Z": [
-      "content",
-      0,
-      "content",
-      1
-    ],
-    "no-wdBB0hYHElnn2DHaOpiT": [
+    "ce-2": [
       "content",
       2,
       "content",
       5
     ],
-    "no-vqUn3tIhSSu1gN2czPoB": [
-      "content",
-      7
-    ],
-    "no-26l0mOvhMGn98wbeFP7K": [
+    "ce-3": [
       "content",
       2,
       "content",
       7
     ],
-    "no-PlE3sWhV7Livb50xEmMT": [
+    "ce-4": [
+      "content",
+      3,
+      "content",
+      1
+    ],
+    "ce-5": [
       "content",
       3,
       "content",
       3
     ],
-    "no-3iyenIoGSFiCv6g2U10R": [
+    "cf-1": [
+      "content",
+      0,
+      "content",
+      1
+    ],
+    "cf-2": [
+      "content",
+      0,
+      "content",
+      3
+    ],
+    "cf-3": [
+      "content",
+      0,
+      "content",
+      5
+    ],
+    "cf-4": [
+      "content",
+      0,
+      "content",
+      7
+    ],
+    "cf-5": [
+      "content",
+      2,
+      "content",
+      1
+    ],
+    "cf-6": [
+      "content",
+      4,
+      "content",
+      1
+    ],
+    "cf-7": [
+      "content",
+      4,
+      "content",
+      3
+    ],
+    "cf-8": [
       "content",
       6,
+      "content",
+      1
+    ],
+    "cf-9": [
+      "content",
+      8,
       "content",
       1
     ]
@@ -104,7 +104,7 @@ input_file: fixtures/articles/code.md
       {
         "type": "Node",
         "path": "articles/code.md",
-        "id": "no-0HsfZUtL2rkBmj7dttzG",
+        "id": "ce-1",
         "kind": "CodeExpression"
       },
       []
@@ -113,7 +113,7 @@ input_file: fixtures/articles/code.md
       {
         "type": "Node",
         "path": "articles/code.md",
-        "id": "no-wdBB0hYHElnn2DHaOpiT",
+        "id": "ce-2",
         "kind": "CodeExpression"
       },
       []
@@ -122,7 +122,7 @@ input_file: fixtures/articles/code.md
       {
         "type": "Node",
         "path": "articles/code.md",
-        "id": "no-26l0mOvhMGn98wbeFP7K",
+        "id": "ce-3",
         "kind": "CodeExpression"
       },
       []
@@ -131,7 +131,7 @@ input_file: fixtures/articles/code.md
       {
         "type": "Node",
         "path": "articles/code.md",
-        "id": "no-1ytp8oPjYD0smumN7rkR",
+        "id": "ce-4",
         "kind": "CodeExpression"
       },
       []
@@ -140,7 +140,7 @@ input_file: fixtures/articles/code.md
       {
         "type": "Node",
         "path": "articles/code.md",
-        "id": "no-PlE3sWhV7Livb50xEmMT",
+        "id": "ce-5",
         "kind": "CodeExpression"
       },
       []
@@ -149,7 +149,7 @@ input_file: fixtures/articles/code.md
       {
         "type": "Node",
         "path": "articles/code.md",
-        "id": "no-vqUn3tIhSSu1gN2czPoB",
+        "id": "cc-1",
         "kind": "CodeChunk"
       },
       []

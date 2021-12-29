@@ -19,14 +19,11 @@ use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
-    collections::HashSet,
-    time::{Duration, Instant},
-};
-use std::{
-    collections::{hash_map::Entry, HashMap},
+    collections::{hash_map::Entry, HashMap, HashSet, BTreeMap},
     env, fs,
     path::{Path, PathBuf},
     sync::Arc,
+    time::{Duration, Instant},
 };
 use stencila_schema::{Article, Node};
 use strum::Display;
@@ -195,7 +192,7 @@ pub struct Document {
     /// pointers or references will change as the document is patched.
     /// These addresses are shifted when the document is patched to account for this.
     #[schemars(schema_with = "Document::schema_addresses")]
-    addresses: HashMap<String, Address>,
+    addresses: BTreeMap<String, Address>,
 
     /// The set of dependency relations between this document, or nodes in this document,
     /// and other resources.

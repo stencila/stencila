@@ -1,10 +1,7 @@
 use eyre::Result;
 use graph_triples::Relations;
 use node_address::Address;
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::{collections::BTreeMap, path::Path};
 use stencila_schema::*;
 
 // Re-exports
@@ -16,7 +13,9 @@ pub use executable::*;
 /// A map of node ids to their address
 ///
 /// Used to enable faster access to a node based on it's id.
-type Addresses = HashMap<String, Address>;
+/// A `BTreeMap` is used instead of a `HashMap` for determinism in order
+/// of entries.
+type Addresses = BTreeMap<String, Address>;
 
 /// Compile a node
 ///
@@ -31,11 +30,7 @@ type Addresses = HashMap<String, Address>;
 #[tracing::instrument(skip(node))]
 pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresses, Relations)> {
     let mut address = Address::default();
-    let mut context = CompileContext {
-        path: PathBuf::from(path),
-        project: PathBuf::from(project),
-        ..Default::default()
-    };
+    let mut context = CompileContext::new(path, project);
     node.compile(&mut address, &mut context)?;
 
     let addresses = context.addresses;
@@ -59,7 +54,7 @@ mod tests {
     use codec_md::MdCodec;
     use std::path::PathBuf;
     use test_snaps::{
-        insta::assert_json_snapshot, snapshot_add_suffix, snapshot_fixtures_path_content, fixtures,
+        fixtures, insta::assert_json_snapshot, snapshot_add_suffix, snapshot_fixtures_path_content,
     };
 
     /// Higher level tests of the top level functions in this crate

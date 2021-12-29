@@ -1,6 +1,7 @@
+use crate::Addresses;
 use async_trait::async_trait;
 use eyre::Result;
-use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Resource};
+use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Relations, Resource};
 use kernels::{KernelSelector, KernelSpace, TaskResult};
 use node_address::{Address, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
@@ -17,18 +18,46 @@ use stencila_schema::*;
 pub struct CompileContext {
     /// The path of the document being compiled.
     /// Used to resolve relative paths e.g. in `ImageObject` and `Include` nodes
-    pub(crate) path: PathBuf,
+    path: PathBuf,
 
     /// The project that the document is within.
     /// Used to restrict any file links to be within the project
-    pub(crate) project: PathBuf,
+    project: PathBuf,
+
+    /// Counts of the number of node ids with each prefix assigned
+    ///
+    /// Used to generate unique (to a compilation context, usually a document)
+    /// but short and meaningful (prefix relates to the node type). An additional
+    /// advantage is that the generated ids are deterministic.
+    ids: HashMap<String, usize>,
 
     /// A map of node ids to addresses
-    pub addresses: HashMap<String, Address>,
+    pub(crate) addresses: Addresses,
 
     /// Relations with other resources for each compiled resource
     /// in the document.
-    pub relations: Vec<(Resource, Vec<(Relation, Resource)>)>,
+    pub(crate) relations: Relations,
+}
+
+impl CompileContext {
+    // Create a new compilation context
+    pub fn new(path: &Path, project: &Path) -> Self {
+        Self {
+            path: path.into(),
+            project: project.into(),
+            ..Default::default()
+        }
+    }
+
+    /// Generate an id for a given id "family"
+    fn identify(&mut self, prefix: &str) -> String {
+        let count = self
+            .ids
+            .entry(prefix.to_string())
+            .and_modify(|count| *count += 1)
+            .or_insert(1);
+        [prefix, "-", &count.to_string()].concat()
+    }
 }
 
 /// Trait for executable document nodes
@@ -48,18 +77,18 @@ pub trait Executable {
 /// Identify a node
 ///
 /// If the node does not have an id, generate and assign one.
-/// These generated id belong to the `Node` family (i.e. have a leading "no-")
+/// These generated ids use a prefix reflecting the node type (i.g. "cc-" for `CodeChunk` nodes)
 /// which can be used to determine that it was generated (so, for example
-/// it is not persisted. Return the node's id.
+/// it is not persisted). Returns the node's id.
 ///
 /// This needs to be (?) a macro, rather than a generic function, because
 /// it is not possible to define a bound that the type must have the `id` property.
 macro_rules! identify {
-    ($node:expr, $address:expr, $context:expr) => {{
+    ($prefix:expr, $node:expr, $address:expr, $context:expr) => {{
         let id = if let Some(id) = $node.id.as_deref() {
             id.clone()
         } else {
-            let id = uuids::generate("no").to_string();
+            let id = $context.identify($prefix);
             $node.id = Some(Box::new(id.clone()));
             id
         };
@@ -76,7 +105,7 @@ macro_rules! identify {
 /// Adds a `Link` relation
 impl Executable for Link {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        let id = identify!(self, address, context);
+        let id = identify!("li", self, address, context);
         let subject = resources::node(&context.path, &id, "Link");
         let target = &self.target;
         let object = if target.starts_with("http://") || target.starts_with("https://") {
@@ -139,39 +168,41 @@ fn executable_content_url(content_url: &str, context: &mut CompileContext) -> St
 
 /// Compile a `MediaObject` node type
 macro_rules! executable_media_object {
-    ( $( $type:ty ),* ) => {
-        $(
-            impl Executable for $type {
-                fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-                    let id = identify!(self, address, context);
-                    let subject = resources::node(&context.path, &id, stringify!($type));
-                    let url = executable_content_url(&self.content_url, context);
-                    let object = if url.starts_with("http") || url.starts_with("data:") {
-                        resources::url(&url)
-                    } else {
-                        let url = url.strip_prefix("file://").unwrap_or(&url);
-                        resources::file(&Path::new(&url))
-                    };
-                    context.relations.push((subject, vec![(Relation::Embed, object)]));
+    ($type:ty, $prefix:expr) => {
+        impl Executable for $type {
+            fn compile(
+                &mut self,
+                address: &mut Address,
+                context: &mut CompileContext,
+            ) -> Result<()> {
+                let id = identify!($prefix, self, address, context);
+                let subject = resources::node(&context.path, &id, stringify!($type));
+                let url = executable_content_url(&self.content_url, context);
+                let object = if url.starts_with("http") || url.starts_with("data:") {
+                    resources::url(&url)
+                } else {
+                    let url = url.strip_prefix("file://").unwrap_or(&url);
+                    resources::file(&Path::new(&url))
+                };
+                context
+                    .relations
+                    .push((subject, vec![(Relation::Embed, object)]));
 
-                    self.content_url = url;
+                self.content_url = url;
 
-                    Ok(())
-                }
+                Ok(())
             }
-        )*
+        }
     };
 }
 
-executable_media_object!(
-    AudioObject,
-    AudioObjectSimple,
-    ImageObject,
-    ImageObjectSimple,
-    MediaObject,
-    VideoObject,
-    VideoObjectSimple
-);
+executable_media_object!(AudioObject, "au");
+executable_media_object!(AudioObjectSimple, "au");
+executable_media_object!(ImageObject, "im");
+executable_media_object!(ImageObjectSimple, "im");
+executable_media_object!(MediaObject, "me");
+executable_media_object!(VideoObject, "vi");
+executable_media_object!(VideoObjectSimple, "vi");
 
 /// Compile a `Parameter` node
 ///
@@ -179,7 +210,7 @@ executable_media_object!(
 #[async_trait]
 impl Executable for Parameter {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        let id = identify!(self, address, context);
+        let id = identify!("pa", self, address, context);
         let subject = resources::node(&context.path, &id, "Parameter");
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
@@ -214,7 +245,7 @@ impl Executable for Parameter {
 #[async_trait]
 impl Executable for CodeChunk {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        let id = identify!(self, address, context);
+        let id = identify!("cc", self, address, context);
         let relations = match parsers::parse(&context.path, &self.text, &self.programming_language)
         {
             Ok(relations) => relations,
@@ -265,7 +296,7 @@ impl Executable for CodeChunk {
 #[async_trait]
 impl Executable for CodeExpression {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        let id = identify!(self, address, context);
+        let id = identify!("ce", self, address, context);
         let relations = match parsers::parse(&context.path, &self.text, &self.programming_language)
         {
             Ok(relations) => relations,
@@ -311,7 +342,7 @@ impl Executable for CodeExpression {
 /// relations.
 impl Executable for SoftwareSourceCode {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        identify!(self, address, context);
+        identify!("sc", self, address, context);
         if let (Some(text), Some(programming_language)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
@@ -329,7 +360,7 @@ impl Executable for SoftwareSourceCode {
 /// Adds an `Include` relation
 impl Executable for Include {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        let id = identify!(self, address, context);
+        let id = identify!("in", self, address, context);
         let subject = resources::node(&context.path, &id, "Include");
         let path = merge(&context.path, &self.source);
         let object = resources::file(&path);
@@ -345,20 +376,25 @@ impl Executable for Include {
 // Nodes types that simply need an `id` assigned so that custom web component events to have a target
 
 macro_rules! executable_identify_only {
-    ( $( $type:ty ),* ) => {
-        $(
-            #[async_trait]
-            impl Executable for $type {
-                fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-                    identify!(self, address, context);
-                    Ok(())
-                }
+    ($type:ty, $prefix:expr) => {
+        #[async_trait]
+        impl Executable for $type {
+            fn compile(
+                &mut self,
+                address: &mut Address,
+                context: &mut CompileContext,
+            ) -> Result<()> {
+                identify!($prefix, self, address, context);
+                Ok(())
             }
-        )*
+        }
     };
 }
 
-executable_identify_only!(CodeBlock, CodeFragment, MathBlock, MathFragment);
+executable_identify_only!(CodeBlock, "cb");
+executable_identify_only!(CodeFragment, "cf");
+executable_identify_only!(MathBlock, "mb");
+executable_identify_only!(MathFragment, "mf");
 
 // Node types that do not need anything done
 
