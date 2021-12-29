@@ -3,7 +3,8 @@ use defaults::Defaults;
 use events::publish;
 use eyre::{bail, Result};
 use formats::FormatSpec;
-use graph_triples::{Relation, Resource};
+use graph::Graph;
+use graph_triples::Relations;
 use itertools::Itertools;
 use kernels::KernelSpace;
 use maplit::hashset;
@@ -196,15 +197,24 @@ pub struct Document {
     #[schemars(schema_with = "Document::schema_addresses")]
     addresses: HashMap<String, Address>,
 
-    /// The set of relations between this document, or nodes in this document, and other
-    /// resources.
+    /// The set of dependency relations between this document, or nodes in this document,
+    /// and other resources.
     ///
-    /// Relations may be external (e.g. this document links to
-    /// another file) or internal (e.g. the second code chunk uses a variable
-    /// defined in the first code chunk).
-    #[schemars(schema_with = "Document::schema_relations")]
-    #[serde(skip_deserializing, serialize_with = "Document::serialize_relations")]
-    pub relations: HashMap<Resource, Vec<(Relation, Resource)>>,
+    /// Relations may be external (e.g. the document links to another `Resource::File`),
+    /// or internal (e.g. the second code chunk uses a `Resource::Symbol` defined in the
+    /// first code chunk).
+    ///
+    /// Stored for use in building the project's graph, but that may be removed
+    /// in the future. Not serialized since this information is in `self.graph`.
+    #[serde(skip)]
+    pub relations: Relations,
+
+    /// The document's dependency graph
+    ///
+    /// This is derived from `relations`.
+    #[serde(skip_deserializing)]
+    #[schemars(skip)]
+    pub graph: Graph,
 
     /// The kernel space for this document.
     ///
@@ -241,34 +251,6 @@ impl Document {
     /// Generate the JSON Schema for the `addresses` property to avoid duplicated types.
     fn schema_addresses(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
         schemas::typescript("Record<string, Address>", true)
-    }
-
-    /// Generate the JSON Schema for the `relations` property to avoid duplicated
-    /// inline types and allow for custom serialization.
-    fn schema_relations(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Record<string, [Relation, Resource]>", false)
-    }
-
-    /// Serialize the `relations` property.
-    ///
-    /// This custom serialization is necessary because a JSON object must have a `String` key (not
-    /// a `Resource` key). So we can't just serialize the `HashMap`. This serializes `relations` as an array,
-    /// which causes some repetition, but avoids having to generate a string identifier for each resource,
-    /// whilst trying not to loose information.
-    fn serialize_relations<S>(
-        relations: &HashMap<Resource, Vec<(Relation, Resource)>>,
-        serializer: S,
-    ) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let triples: Vec<(&Resource, &Relation, &Resource)> = relations
-            .iter()
-            .flat_map(|(resource, pairs)| {
-                pairs.iter().map(move |pair| (resource, &pair.0, &pair.1))
-            })
-            .collect();
-        triples.serialize(serializer)
     }
 
     /// Create a new empty document.
@@ -358,7 +340,7 @@ impl Document {
             format: self.format.clone(),
             previewable: self.previewable,
             addresses: self.addresses.clone(),
-            relations: self.relations.clone(),
+            graph: self.graph.clone(),
             subscriptions: self.subscriptions.clone(),
             ..Default::default()
         }
@@ -806,6 +788,7 @@ impl Document {
         match compile(&mut root, &self.path, &self.project) {
             Ok((addresses, relations)) => {
                 self.addresses = addresses;
+                self.graph = Graph::from_relations(&self.path, &relations);
                 self.relations = relations;
             }
             Err(error) => tracing::warn!(
@@ -1416,6 +1399,7 @@ pub mod commands {
         Queues(Queues),
         Cancel(Cancel),
         Symbols(Symbols),
+        Graph(Graph),
 
         Query(Query),
         Convert(Convert),
@@ -1440,6 +1424,7 @@ pub mod commands {
                 Action::Queues(action) => action.run().await,
                 Action::Cancel(action) => action.run().await,
                 Action::Symbols(action) => action.run().await,
+                Action::Graph(action) => action.run().await,
 
                 Action::Query(action) => action.run().await,
                 Action::Convert(action) => action.run().await,
@@ -1687,6 +1672,40 @@ pub mod commands {
             let document = self.file.get().await?;
             let document = document.lock().await;
             self.symbols.run(&document.kernels).await
+        }
+    }
+
+    /// Output the dependency graph for a document
+    ///
+    /// Tip: When using the DOT format (the default), if you have GraphViz and ImageMagick
+    /// installed you can view the graph by piping the output to them. For example, to
+    /// view a graph of the current project:
+    ///
+    /// ```sh
+    /// stencila documents graph | dot -Tpng | display
+    /// ```
+    ///
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Graph {
+        #[structopt(flatten)]
+        file: File,
+
+        /// The format to output the graph as
+        #[structopt(long, short, default_value = "dot", possible_values = &graph::FORMATS)]
+        r#as: String,
+    }
+
+    #[async_trait]
+    impl Run for Graph {
+        async fn run(&self) -> Result {
+            let document = self.file.get().await?;
+            let document = document.lock().await;
+            let content = document.graph.to_format(&self.r#as)?;
+            result::content(&self.r#as, &content)
         }
     }
 

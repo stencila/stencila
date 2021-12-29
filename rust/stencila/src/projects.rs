@@ -595,16 +595,6 @@ impl Project {
 
         Ok(files)
     }
-
-    /// Get the project graph in some format
-    pub fn graph(&self, format: &str) -> Result<String> {
-        Ok(match format {
-            "dot" => self.graph.to_dot(),
-            "json" => serde_json::to_string_pretty(&self.graph)?,
-            "yaml" => serde_yaml::to_string(&self.graph)?,
-            _ => bail!("Unknown graph format '{}'", format),
-        })
-    }
 }
 
 #[derive(Debug)]
@@ -1159,14 +1149,13 @@ pub mod commands {
         }
     }
 
-    /// Output a dependency graph for a project
+    /// Output the dependency graph for a project
     ///
-    /// When using the DOT format, if you have GraphViz and ImageMagick installed
-    /// you can view the graph by piping the output to them. For example, to
-    /// view a graph of the current project:
+    /// Tip: When using the DOT format (the default), if you have GraphViz and ImageMagick
+    /// installed you can view the graph by piping the output to them. e.g.
     ///
     /// ```sh
-    /// stencila projects graph --format dot | dot -Tpng | display
+    /// stencila documents graph mydoc.md | dot -Tpng | display
     /// ```
     ///
     #[derive(Debug, StructOpt)]
@@ -1179,17 +1168,16 @@ pub mod commands {
         folder: Option<PathBuf>,
 
         /// The format to output the graph as
-        #[structopt(long, short, default_value = "dot", possible_values = &GRAPH_FORMATS)]
-        format: String,
+        #[structopt(long, short, default_value = "dot", possible_values = &graph::FORMATS)]
+        r#as: String,
     }
 
-    const GRAPH_FORMATS: [&str; 3] = ["dot", "json", "yaml"];
     #[async_trait]
     impl Run for Graph {
         async fn run(&self) -> Result {
             let project = &mut PROJECTS.open(self.folder.clone(), false).await?;
-            let content = project.graph(&self.format)?;
-            result::content(&self.format, &content)
+            let content = project.graph.to_format(&self.r#as)?;
+            result::content(&self.r#as, &content)
         }
     }
 

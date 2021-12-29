@@ -1,5 +1,5 @@
-use eyre::Result;
-use graph_triples::{direction, relations, Direction, Relation, Resource, Triple};
+use eyre::{bail, Result};
+use graph_triples::{direction, relations, Direction, Pairs, Relation, Resource, Triple};
 use path_slash::PathExt;
 use petgraph::{
     graph::NodeIndex,
@@ -21,10 +21,10 @@ use std::{
 use strum::Display;
 use utils::some_string;
 
-/// A project dependency graph
+/// A dependency graph for a project or document
 #[derive(Debug, Default, Clone)]
 pub struct Graph {
-    /// The path of the project that this graph is for
+    /// The path of the project or document that this graph is for
     ///
     /// Primarily used to make file paths relative in visualizations and
     /// if ever persisting the graph.
@@ -98,14 +98,28 @@ impl Serialize for Graph {
     }
 }
 
+/// The available graph serialization formats
+pub const FORMATS: [&str; 3] = ["dot", "json", "yaml"];
+
 impl Graph {
-    /// Create a new graph
-    pub fn new(path: PathBuf) -> Graph {
+    /// Create a new, empty graph
+    pub fn new<P: AsRef<Path>>(path: P) -> Graph {
         Graph {
-            path,
+            path: PathBuf::from(path.as_ref()),
             indices: HashMap::new(),
             graph: StableGraph::new(),
         }
+    }
+
+    /// Create a graph from set of dependency relations
+    pub fn from_relations<P: AsRef<Path>>(path: P, relations: &[(Resource, Pairs)]) -> Graph {
+        let mut graph = Graph::new(path);
+        for (subject, pairs) in relations {
+            for (relation, object) in pairs {
+                graph.add_triple((subject.clone(), relation.clone(), object.clone()));
+            }
+        }
+        graph
     }
 
     /// Add a resource to the graph
@@ -147,6 +161,16 @@ impl Graph {
         triples
             .into_iter()
             .for_each(|triple| self.add_triple(triple))
+    }
+
+    /// Convert the graph to some format
+    pub fn to_format(&self, format: &str) -> Result<String> {
+        Ok(match format {
+            "dot" => self.to_dot(),
+            "json" => serde_json::to_string_pretty(self)?,
+            "yaml" => serde_yaml::to_string(self)?,
+            _ => bail!("Unknown graph format '{}'", format),
+        })
     }
 
     /// Convert the graph to a visualization nodes and edges
