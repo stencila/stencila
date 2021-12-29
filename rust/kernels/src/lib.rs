@@ -1561,21 +1561,26 @@ pub mod commands {
             match action {
                 Action::Available(action) => action.run().await,
                 Action::Languages(action) => action.run().await,
-
-                Action::Running(action) => action.run().await,
-                Action::Start(action) => action.run().await,
-                Action::Connect(action) => action.run().await,
-                Action::Stop(action) => action.run().await,
-                Action::Show(action) => action.run().await,
-
-                Action::Execute(action) => action.run(&mut *KERNEL_SPACE.lock().await).await,
-                Action::Tasks(action) => action.run(&*KERNEL_SPACE.lock().await).await,
-                Action::Queues(action) => action.run(&*KERNEL_SPACE.lock().await).await,
-                Action::Cancel(action) => action.run(&mut *KERNEL_SPACE.lock().await).await,
-                Action::Symbols(action) => action.run(&*KERNEL_SPACE.lock().await).await,
-
                 Action::External(action) => action.run().await,
                 Action::Directories(action) => action.run().await,
+                _ => {
+                    let kernel_space = &mut *KERNEL_SPACE.lock().await;
+                    match action {
+                        Action::Running(action) => action.run(kernel_space).await,
+                        Action::Start(action) => action.run(kernel_space).await,
+                        Action::Connect(action) => action.run(kernel_space).await,
+                        Action::Stop(action) => action.run(kernel_space).await,
+                        Action::Show(action) => action.run(kernel_space).await,
+
+                        Action::Execute(action) => action.run(kernel_space).await,
+                        Action::Tasks(action) => action.run(kernel_space).await,
+                        Action::Queues(action) => action.run(kernel_space).await,
+                        Action::Cancel(action) => action.run(kernel_space).await,
+                        Action::Symbols(action) => action.run(kernel_space).await,
+
+                        _ => bail!("Unhandled action: {:?}", action),
+                    }
+                }
             }
         }
     }
@@ -1651,7 +1656,7 @@ pub mod commands {
     /// interactive mode
     static KERNEL_SPACE: Lazy<Mutex<KernelSpace>> = Lazy::new(|| Mutex::new(KernelSpace::new()));
 
-    /// Execute code within a kernel space
+    /// Execute code within a document kernel space
     ///
     /// Mainly intended for testing that Stencila is able to talk
     /// to Jupyter kernels and execute code within them.
@@ -1678,12 +1683,12 @@ pub mod commands {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Execute {
-        /// Code to execute within the document's kernel space
+        /// Code to execute within the kernel space
         // Using a `Vec` and the `multiple` option allows for spaces in the code
         #[structopt(multiple = true)]
         code: Vec<String>,
 
-        /// The name of the programming language
+        /// The programming language of the code
         #[structopt(short, long)]
         lang: Option<String>,
 
@@ -1696,11 +1701,11 @@ pub mod commands {
         background: bool,
 
         /// The task should run be in a kernel fork (if possible)
-        #[structopt(short, long)]
+        #[structopt(long)]
         fork: bool,
     }
     impl Execute {
-        async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
             kernel_space
                 .repl(
                     &self.code.join(" "),
@@ -1713,7 +1718,7 @@ pub mod commands {
         }
     }
 
-    /// List the tasks for a kernel space
+    /// List the code execution tasks in a document kernel space
     #[derive(Debug, StructOpt)]
     pub struct Tasks {
         /// The maximum number of tasks to show
@@ -1737,7 +1742,7 @@ pub mod commands {
         kernel: Option<KernelId>,
     }
     impl Tasks {
-        async fn run(&self, kernel_space: &KernelSpace) -> Result {
+        pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
             let tasks = kernel_space.tasks.lock().await;
             let queues = kernel_space.queues.lock().await;
             tasks
@@ -1752,7 +1757,7 @@ pub mod commands {
         }
     }
 
-    /// Show the task queues for kernel/s in a kernel space
+    /// Show the code execution queues in a document kernel space
     #[derive(Debug, StructOpt)]
     pub struct Queues {
         /// Only show the queue for a specific kernel
@@ -1760,7 +1765,7 @@ pub mod commands {
         kernel: Option<KernelId>,
     }
     impl Queues {
-        async fn run(&self, kernel_space: &KernelSpace) -> Result {
+        pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
             let tasks = kernel_space.tasks.lock().await;
             let queues = kernel_space.queues.lock().await;
             match &self.kernel {
@@ -1770,17 +1775,17 @@ pub mod commands {
         }
     }
 
-    /// Show the symbols in a kernel space
+    /// Show the code symbols in a document kernel space
     #[derive(Debug, StructOpt)]
     pub struct Symbols {}
     impl Symbols {
-        async fn run(&self, kernel_space: &KernelSpace) -> Result {
+        pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
             let symbols = kernel_space.symbols.lock().await;
             display_symbols(&*symbols)
         }
     }
 
-    /// Cancel a task or all tasks
+    /// Cancel a code execution task, or all tasks, in a document kernel space
     ///
     /// Use an integer to cancel a task by it's number.
     /// Use "all" to cancel all unfinished tasks.
@@ -1790,7 +1795,7 @@ pub mod commands {
         task: String,
     }
     impl Cancel {
-        async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
             let which = self.task.trim();
             if which == "all" {
                 kernel_space.cancel_all().await?;
@@ -1802,7 +1807,7 @@ pub mod commands {
         }
     }
 
-    /// List the kernels in a kernel space
+    /// List the kernels in a document kernel space
     ///
     /// Mainly intended for interactive mode testing / inspection. Note that
     /// for a kernel to be in this list it must have either been started by Stencila,
@@ -1818,13 +1823,12 @@ pub mod commands {
     /// > kernels external
     #[derive(Debug, StructOpt)]
     #[structopt(
+        alias = "kernels",
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Running {}
-    #[async_trait]
-    impl Run for Running {
-        async fn run(&self) -> Result {
-            let kernel_space = KERNEL_SPACE.lock().await;
+    impl Running {
+        pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
             let kernels = kernel_space.kernels.lock().await;
             kernels.display().await
         }
@@ -1842,10 +1846,8 @@ pub mod commands {
         /// The name or programming language of the kernel
         selector: String,
     }
-    #[async_trait]
-    impl Run for Start {
-        async fn run(&self) -> Result {
-            let kernel_space = KERNEL_SPACE.lock().await;
+    impl Start {
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
             let mut kernels = kernel_space.kernels.lock().await;
             let selector = KernelSelector::parse(&self.selector);
             let kernel_id = kernels.start(&selector).await?;
@@ -1871,10 +1873,8 @@ pub mod commands {
         /// The id of the kernel (see `kernels status`)
         id: String,
     }
-    #[async_trait]
-    impl Run for Stop {
-        async fn run(&self) -> Result {
-            let kernel_space = KERNEL_SPACE.lock().await;
+    impl Stop {
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
             let mut kernels = kernel_space.kernels.lock().await;
             kernels.stop(&self.id).await?;
             tracing::info!("Stopped kernel `{}`", self.id);
@@ -1909,8 +1909,7 @@ pub mod commands {
         id_or_path: String,
     }
     impl Connect {
-        pub async fn run(&self) -> Result {
-            let kernel_space = KERNEL_SPACE.lock().await;
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
             let mut kernels = kernel_space.kernels.lock().await;
             let id = kernels.connect(&self.id_or_path).await?;
             tracing::info!("Connected to kernel `{}`", id);
@@ -1930,8 +1929,7 @@ pub mod commands {
         id: KernelId,
     }
     impl Show {
-        pub async fn run(&self) -> Result {
-            let kernel_space = KERNEL_SPACE.lock().await;
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
             let kernels = kernel_space.kernels.lock().await;
             let kernel = kernels.get(&self.id)?;
             result::value(kernel)

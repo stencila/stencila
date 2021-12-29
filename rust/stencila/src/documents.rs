@@ -1409,8 +1409,14 @@ pub mod commands {
         Open(Open),
         Close(Close),
         Show(Show),
-        #[structopt(aliases = &["exec"])]
+
         Execute(Execute),
+        Kernels(Kernels),
+        Tasks(Tasks),
+        Queues(Queues),
+        Cancel(Cancel),
+        Symbols(Symbols),
+
         Query(Query),
         Convert(Convert),
         Diff(Diff),
@@ -1427,7 +1433,14 @@ pub mod commands {
                 Action::Open(action) => action.run().await,
                 Action::Close(action) => action.run().await,
                 Action::Show(action) => action.run().await,
+
                 Action::Execute(action) => action.run().await,
+                Action::Kernels(action) => action.run().await,
+                Action::Tasks(action) => action.run().await,
+                Action::Queues(action) => action.run().await,
+                Action::Cancel(action) => action.run().await,
+                Action::Symbols(action) => action.run().await,
+
                 Action::Query(action) => action.run().await,
                 Action::Convert(action) => action.run().await,
                 Action::Diff(action) => action.run().await,
@@ -1437,9 +1450,34 @@ pub mod commands {
         }
     }
 
+    // The arguments used to specify the document file path and format
+    // Reused (with flatten) below
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "List open documents",
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    struct File {
+        /// The path of the document file
+        path: String,
+
+        /// The format of the document file
+        #[structopt(short, long)]
+        format: Option<String>,
+    }
+    impl File {
+        async fn open(&self) -> eyre::Result<Document> {
+            DOCUMENTS.open(&self.path, self.format.clone()).await
+        }
+
+        async fn get(&self) -> eyre::Result<Arc<Mutex<Document>>> {
+            let document = self.open().await?;
+            DOCUMENTS.get(&document.id).await
+        }
+    }
+
+    /// List open documents
+    #[derive(Debug, StructOpt)]
+    #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct List {}
@@ -1451,76 +1489,63 @@ pub mod commands {
         }
     }
 
+    /// Open a document
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Open a document",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Open {
-        /// The path of the document file
-        #[structopt(default_value = ".")]
-        pub file: String,
+        #[structopt(flatten)]
+        file: File,
     }
     #[async_trait]
     impl Run for Open {
         async fn run(&self) -> Result {
-            let Self { file } = self;
-            DOCUMENTS.open(file, None).await?;
+            self.file.open().await?;
             result::nothing()
         }
     }
 
+    /// Close a document
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Close a document",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Close {
         /// The path of the document file
-        #[structopt(default_value = ".")]
-        pub file: String,
+        pub path: String,
     }
     #[async_trait]
     impl Run for Close {
         async fn run(&self) -> Result {
-            let Self { file } = self;
-            DOCUMENTS.close(file).await?;
+            DOCUMENTS.close(&self.path).await?;
             result::nothing()
         }
     }
 
+    /// Show a document
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Show a document",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Show {
-        /// The path of the document file
-        pub file: String,
+        #[structopt(flatten)]
+        file: File,
 
         /// A pointer to the part of the document to show e.g. `variables`, `format.name`
         ///
         /// Some, usually large, document properties are only shown when specified with a
         /// pointer (e.g. `content` and `root`).
         pub pointer: Option<String>,
-
-        /// The format of the file
-        #[structopt(short, long)]
-        format: Option<String>,
     }
     #[async_trait]
     impl Run for Show {
         async fn run(&self) -> Result {
-            let Self {
-                file,
-                pointer,
-                format,
-            } = self;
-            let document = DOCUMENTS.open(file, format.clone()).await?;
-            if let Some(pointer) = pointer {
+            let document = self.file.open().await?;
+            if let Some(pointer) = &self.pointer {
                 if pointer == "content" {
                     result::content(&document.format.extension, &document.content)
                 } else if pointer == "root" {
@@ -1539,49 +1564,129 @@ pub mod commands {
         }
     }
 
-    /// Execute a document
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        alias = "exec",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Execute {
+        #[structopt(flatten)]
+        file: File,
+
+        #[structopt(flatten)]
+        execute: kernels::commands::Execute,
+    }
+    #[async_trait]
+    impl Run for Execute {
+        async fn run(&self) -> Result {
+            let document = self.file.get().await?;
+            let mut document = document.lock().await;
+            self.execute.run(&mut document.kernels).await
+        }
+    }
+
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Execute {
-        /// The path of the document file
-        file: String,
+    pub struct Kernels {
+        #[structopt(flatten)]
+        file: File,
 
-        /// Code to execute within the document's kernel space
-        ///
-        /// This code will be run after all executable nodes in the document
-        /// have been run.
-        // Using a Vec and the `multiple` option allows for spaces in the code
-        #[structopt(multiple = true)]
-        code: Vec<String>,
-
-        /// The format of the file
-        #[structopt(short, long)]
-        format: Option<String>,
-
-        /// The programming language of the code
-        #[structopt(short, long)]
-        lang: Option<String>,
+        #[structopt(flatten)]
+        kernels: kernels::commands::Running,
     }
     #[async_trait]
-    impl Run for Execute {
+    impl Run for Kernels {
         async fn run(&self) -> Result {
-            let Self {
-                file,
-                format,
-                code,
-                lang,
-            } = self;
-            let document = DOCUMENTS.open(file, format.clone()).await?;
-            let document = DOCUMENTS.get(&document.id).await?;
-            let mut document = document.lock().await;
+            let document = self.file.get().await?;
+            let document = document.lock().await;
+            self.kernels.run(&document.kernels).await
+        }
+    }
 
-            document
-                .kernels
-                .repl(&code.join(" "), lang.clone(), None, false, false)
-                .await
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Tasks {
+        #[structopt(flatten)]
+        file: File,
+
+        #[structopt(flatten)]
+        tasks: kernels::commands::Tasks,
+    }
+    #[async_trait]
+    impl Run for Tasks {
+        async fn run(&self) -> Result {
+            let document = self.file.get().await?;
+            let document = document.lock().await;
+            self.tasks.run(&document.kernels).await
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Queues {
+        #[structopt(flatten)]
+        file: File,
+
+        #[structopt(flatten)]
+        queues: kernels::commands::Queues,
+    }
+    #[async_trait]
+    impl Run for Queues {
+        async fn run(&self) -> Result {
+            let document = self.file.get().await?;
+            let document = document.lock().await;
+            self.queues.run(&document.kernels).await
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Cancel {
+        #[structopt(flatten)]
+        file: File,
+
+        #[structopt(flatten)]
+        cancel: kernels::commands::Cancel,
+    }
+    #[async_trait]
+    impl Run for Cancel {
+        async fn run(&self) -> Result {
+            let document = self.file.get().await?;
+            let mut document = document.lock().await;
+            self.cancel.run(&mut document.kernels).await
+        }
+    }
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Symbols {
+        #[structopt(flatten)]
+        file: File,
+
+        #[structopt(flatten)]
+        symbols: kernels::commands::Symbols,
+    }
+    #[async_trait]
+    impl Run for Symbols {
+        async fn run(&self) -> Result {
+            let document = self.file.get().await?;
+            let document = document.lock().await;
+            self.symbols.run(&document.kernels).await
         }
     }
 
