@@ -339,11 +339,11 @@ pub struct SymbolInfo {
     /// As such, a symbol's home kernel can change, although this is discouraged.
     home: KernelId,
 
-    /// The time that the symbol was last assigned in the home kernel
+    /// The time that the symbol was last altered in the home kernel
     ///
-    /// A symbol is considered assigned when  a `CodeChunk` with an `Assign` relation
-    /// to the symbol is executed or the `kernel.set` method is called.
-    assigned: DateTime<Utc>,
+    /// A symbol is considered altered when a `CodeChunk` with an `Assign` or `Alter`
+    /// relation to the symbol is executed or the `kernel.set` method is called.
+    altered: DateTime<Utc>,
 
     /// The time that the symbol was last mirrored to other kernels
     ///
@@ -358,7 +358,7 @@ impl SymbolInfo {
         SymbolInfo {
             kind: kind.into(),
             home: kernel_id.into(),
-            assigned: Utc::now(),
+            altered: Utc::now(),
             mirrored: HashMap::new(),
         }
     }
@@ -371,8 +371,8 @@ type KernelSymbols = HashMap<String, SymbolInfo>;
 fn display_symbols(symbols: &KernelSymbols) -> cli_utils::Result {
     use cli_utils::result;
 
-    let cols = "|------|----|-----------|-------------|-------------------|";
-    let head = "|Symbol|Type|Home kernel|Last assigned|Mirrored in kernels|";
+    let cols = "|------|----|-----------|------------|-------------------|";
+    let head = "|Symbol|Type|Home kernel|Last altered|Mirrored in kernels|";
     let body = symbols
         .iter()
         .map(|(symbol, symbol_info)| {
@@ -381,7 +381,7 @@ fn display_symbols(symbols: &KernelSymbols) -> cli_utils::Result {
                 symbol,
                 symbol_info.kind,
                 symbol_info.home,
-                format_time(symbol_info.assigned),
+                format_time(symbol_info.altered),
                 symbol_info
                     .mirrored
                     .iter()
@@ -806,7 +806,7 @@ impl KernelSpace {
             Entry::Occupied(mut occupied) => {
                 let info = occupied.get_mut();
                 info.home = kernel_id;
-                info.assigned = Utc::now();
+                info.altered = Utc::now();
             }
             Entry::Vacant(vacant) => {
                 vacant.insert(SymbolInfo::new("", &kernel_id));
@@ -911,7 +911,7 @@ impl KernelSpace {
 
             // Skip if already mirrored since last assigned
             if let Some(mirrored) = symbol.mirrored.get(kernel_id) {
-                if mirrored >= &symbol.assigned {
+                if mirrored >= &symbol.altered {
                     continue;
                 }
             }
@@ -951,7 +951,7 @@ impl KernelSpace {
                     .entry(symbol.name.clone())
                     .and_modify(|info| {
                         info.home = kernel_id.to_string();
-                        info.assigned = Utc::now();
+                        info.altered = Utc::now();
                     })
                     .or_insert_with(|| SymbolInfo::new(&symbol.kind, kernel_id));
             }
