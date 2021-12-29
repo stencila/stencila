@@ -1,7 +1,6 @@
 use async_trait::async_trait;
 use eyre::Result;
 use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Resource};
-use hash_utils::str_sha256_hex;
 use kernels::{KernelSelector, KernelSpace, TaskResult};
 use node_address::{Address, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
@@ -210,24 +209,22 @@ impl Executable for Parameter {
 
 /// Compile a `CodeChunk` node
 ///
-/// Performs semantic analysis of the code (if necessary) and adds the resulting
-/// relations.
+/// Performs semantic analysis of the code (if language is supported) and adds the resulting
+/// relations to the `CompileContext`
 #[async_trait]
 impl Executable for CodeChunk {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!(self, address, context);
-        let digest =
-            str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
-        if Some(digest.clone()) != self.compile_digest {
-            match parsers::parse(&context.path, &self.text, &self.programming_language) {
-                Ok(relations) => {
-                    let subject = resources::node(&context.path, &id, "CodeChunk");
-                    context.relations.push((subject, relations));
-                    self.compile_digest = Some(digest);
-                }
-                Err(error) => tracing::debug!("While parsing code chunk `{}`: {}", id, error),
-            };
-        }
+        let relations = match parsers::parse(&context.path, &self.text, &self.programming_language)
+        {
+            Ok(relations) => relations,
+            Err(error) => {
+                tracing::debug!("While parsing code chunk `{}`: {}", id, error);
+                Vec::new()
+            }
+        };
+        let subject = resources::node(&context.path, &id, "CodeChunk");
+        context.relations.push((subject, relations));
 
         Ok(())
     }
@@ -269,18 +266,16 @@ impl Executable for CodeChunk {
 impl Executable for CodeExpression {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!(self, address, context);
-        let digest =
-            str_sha256_hex(&[self.text.as_str(), self.programming_language.as_str()].concat());
-        if Some(digest.clone()) != self.compile_digest {
-            match parsers::parse(&context.path, &self.text, &self.programming_language) {
-                Ok(relations) => {
-                    let subject = resources::node(&context.path, &id, "CodeExpression");
-                    context.relations.push((subject, relations));
-                    self.compile_digest = Some(digest);
-                }
-                Err(error) => tracing::debug!("While parsing code expression `{}`: {}", id, error),
-            };
-        }
+        let relations = match parsers::parse(&context.path, &self.text, &self.programming_language)
+        {
+            Ok(relations) => relations,
+            Err(error) => {
+                tracing::debug!("While parsing code expression `{}`: {}", id, error);
+                Vec::new()
+            }
+        };
+        let subject = resources::node(&context.path, &id, "CodeExpression");
+        context.relations.push((subject, relations));
 
         Ok(())
     }
