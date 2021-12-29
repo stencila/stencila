@@ -25,7 +25,12 @@ input_file: fixtures/articles/code.md
           "type": "CodeFragment",
           "text": "Parameter"
         },
-        " nodes."
+        " nodes. See also ",
+        {
+          "type": "CodeFragment",
+          "text": "../fragments/md/code-*.md"
+        },
+        " fixtures. This fixture intentionally does not have any relations between code nodes (e.g a variable assigned in one, used in another)."
       ]
     },
     {

@@ -1,0 +1,162 @@
+---
+source: rust/codec-md/src/decode.rs
+expression: "decode(content).expect(\"Unable to decode Markdown\")"
+input_file: fixtures/articles/code-relations.md
+
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "This fixture is focussed on relations between ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeChunk"
+        },
+        ", ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeExpression"
+        },
+        " and ",
+        {
+          "type": "CodeFragment",
+          "text": "Parameter"
+        },
+        " nodes within a document. Relations are established by assignment and usage of variables. For simplicity, it only uses ",
+        {
+          "type": "CodeFragment",
+          "text": "Calc"
+        },
+        " as a language in code nodes."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeChunk"
+        },
+        " that assigns a variable, ",
+        {
+          "type": "CodeFragment",
+          "text": "a"
+        },
+        ":"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "calc",
+      "text": "a = 1"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Another chunk that uses ",
+        {
+          "type": "CodeFragment",
+          "text": "a"
+        },
+        ":"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "calc",
+      "text": "a * 2"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "and some ",
+        {
+          "type": "CodeFragment",
+          "text": "CodeExpression"
+        },
+        "s that also use it: ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "calc",
+          "text": "a * 3"
+        },
+        " and ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "calc",
+          "text": "a * 4"
+        },
+        "."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A chunk that derives another variable from ",
+        {
+          "type": "CodeFragment",
+          "text": "a"
+        },
+        ":"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "calc",
+      "text": "b = a + 1"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "and some expressions that also use it: ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "calc",
+          "text": "b * 1"
+        },
+        " and ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "calc",
+          "text": "b * 2"
+        },
+        "."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A ",
+        {
+          "type": "CodeFragment",
+          "text": "Parameter"
+        },
+        " that sets a third symbol: ",
+        {
+          "type": "Parameter",
+          "name": "c",
+          "validator": {
+            "type": "NumberValidator",
+            "maximum": 10.0,
+            "minimum": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "And a code chunk that uses all three variables:"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "calc",
+      "text": "a + b + c"
+    }
+  ]
+}
