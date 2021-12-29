@@ -1,6 +1,6 @@
 use eyre::Result;
-use graph_triples::{Relation, Resource};
-use node_address::{Address};
+use graph_triples::Relations;
+use node_address::Address;
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
@@ -13,8 +13,10 @@ pub use kernels::{KernelSelector, KernelSpace, TaskResult};
 mod executable;
 pub use executable::*;
 
+/// A map of node ids to their address
+///
+/// Used to enable faster access to a node based on it's id.
 type Addresses = HashMap<String, Address>;
-type Relations = HashMap<Resource, Vec<(Relation, Resource)>>;
 
 /// Compile a node
 ///
