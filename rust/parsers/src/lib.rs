@@ -230,8 +230,13 @@ pub mod commands {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Parse {
-        /// The file to parse
-        file: PathBuf,
+        /// The file (or code) to parse
+        #[structopt(multiple = true)]
+        code: Vec<String>,
+
+        /// If the argument should be treated as text, rather than a file path
+        #[structopt(short, long)]
+        text: bool,
 
         /// The language of the code
         #[structopt(short, long)]
@@ -240,14 +245,25 @@ pub mod commands {
     #[async_trait]
     impl Run for Parse {
         async fn run(&self) -> Result {
-            let code = fs::read_to_string(&self.file)?;
-            let ext = self
-                .file
-                .extension()
-                .map(|ext| ext.to_string_lossy().to_string())
-                .unwrap_or_default();
-            let lang = self.lang.as_ref().unwrap_or(&ext);
-            let pairs = PARSERS.parse(&*self.file.to_string_lossy(), &code, lang)?;
+            let (file, code, lang) = if self.text || self.code.len() > 1 {
+                let code = self.code.join(" ");
+                (
+                    "<text>".to_string(),
+                    code,
+                    self.lang.clone().unwrap_or_default(),
+                )
+            } else {
+                let file = self.code[0].clone();
+                let code = fs::read_to_string(&file)?;
+                let ext = PathBuf::from(&file)
+                    .extension()
+                    .map(|ext| ext.to_string_lossy().to_string())
+                    .unwrap_or_default();
+                let lang = self.lang.clone().or(Some(ext)).unwrap_or_default();
+                (file, code, lang)
+            };
+
+            let pairs = PARSERS.parse(file, &code, &lang)?;
             result::value(pairs)
         }
     }
