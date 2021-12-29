@@ -15,6 +15,7 @@ use std::{
     sync::Arc,
     time::Duration,
 };
+#[warn(unused_imports)]
 use strum::{EnumString, EnumVariantNames, VariantNames};
 use tokio::sync::{broadcast, mpsc, Mutex};
 
@@ -1402,7 +1403,7 @@ impl KernelSpace {
 }
 
 /// List the kernels that are available on this machine
-#[allow(clippy::vec_init_then_push)]
+#[allow(clippy::vec_init_then_push, unused_mut)]
 pub async fn available() -> Result<Vec<Kernel>> {
     let mut available: Vec<Kernel> = Vec::new();
 
