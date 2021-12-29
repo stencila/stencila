@@ -1,8 +1,8 @@
 import { languages } from './kernels'
 
 describe('languages', () => {
-  test('has at least "calc"', () => {
+  test('has at least "Calc"', () => {
     let kernels = languages()
-    expect(kernels).toEqual(expect.arrayContaining(['calc']))
+    expect(kernels).toEqual(expect.arrayContaining(['Calc']))
   })
 })
