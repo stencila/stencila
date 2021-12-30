@@ -1,0 +1,76 @@
+---
+source: rust/node-execute/src/lib.rs
+expression: "&plan"
+input_file: fixtures/articles/code.md
+
+---
+{
+  "order": [
+    {
+      "id": "node:articles/code.md#ce-1",
+      "resource": {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "ce-1",
+        "kind": "CodeExpression"
+      },
+      "dependencies": [],
+      "depth": 0
+    },
+    {
+      "id": "node:articles/code.md#ce-2",
+      "resource": {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "ce-2",
+        "kind": "CodeExpression"
+      },
+      "dependencies": [],
+      "depth": 0
+    },
+    {
+      "id": "node:articles/code.md#ce-3",
+      "resource": {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "ce-3",
+        "kind": "CodeExpression"
+      },
+      "dependencies": [],
+      "depth": 0
+    },
+    {
+      "id": "node:articles/code.md#ce-4",
+      "resource": {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "ce-4",
+        "kind": "CodeExpression"
+      },
+      "dependencies": [],
+      "depth": 0
+    },
+    {
+      "id": "node:articles/code.md#ce-5",
+      "resource": {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "ce-5",
+        "kind": "CodeExpression"
+      },
+      "dependencies": [],
+      "depth": 0
+    },
+    {
+      "id": "node:articles/code.md#cc-1",
+      "resource": {
+        "type": "Node",
+        "path": "articles/code.md",
+        "id": "cc-1",
+        "kind": "CodeChunk"
+      },
+      "dependencies": [],
+      "depth": 0
+    }
+  ]
+}

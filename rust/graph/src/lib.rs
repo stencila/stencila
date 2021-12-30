@@ -163,9 +163,17 @@ impl Graph {
             .for_each(|triple| self.add_triple(triple))
     }
 
-    /// Add as set of relations to the graph
+    /// Add a set of relations to the graph
+    /// 
+    /// Each subject resource in the set will be added to the graph even if it has
+    /// no relations with other objects.
     pub fn add_relations(&mut self, relations: &[(Resource, Pairs)]) {
         for (subject, pairs) in relations {
+            if pairs.is_empty() {
+                self.add_resource(subject.clone());
+                continue
+            }
+            
             for (relation, object) in pairs {
                 self.add_triple((subject.clone(), relation.clone(), object.clone()));
             }

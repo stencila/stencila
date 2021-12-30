@@ -6,9 +6,19 @@ use serde::Serialize;
 use std::path::Path;
 use stencila_schema::Node;
 
-/// An execution plan for the nodes in a document or project
+/// An execution plan for the nodes in a document (or project)
 #[derive(Debug, Default, Serialize)]
 pub struct Plan {
+    /// The topological order of resources in the document's dependency graph
+    /// 
+    /// Topological order ensures that dependencies of a a node are executed
+    /// before it is. If there are no inter-dependencies between nodes
+    /// in a document then the order will be the order that the nodes
+    /// appear in the document (i.e. top to bottom, left to right).
+    /// 
+    /// Includes resources other than document nodes (e.g. symbols and files)
+    /// so that this order can be used to react to changes in those resources
+    /// as well.
     order: Vec<ResourceEntry>,
 }
 
