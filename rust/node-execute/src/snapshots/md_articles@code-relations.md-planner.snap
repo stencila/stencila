@@ -6,73 +6,81 @@ input_file: fixtures/articles/code-relations.md
 ---
 {
   "resources": {
-    "node:articles/code-relations.md#cc-1": {
-      "type": "Node",
+    "code://articles/code-relations.md#cc-1": {
+      "type": "Code",
       "path": "articles/code-relations.md",
       "id": "cc-1",
-      "kind": "CodeChunk"
+      "kind": "CodeChunk",
+      "language": "Calc"
     },
-    "node:articles/code-relations.md#cc-2": {
-      "type": "Node",
+    "code://articles/code-relations.md#cc-2": {
+      "type": "Code",
       "path": "articles/code-relations.md",
       "id": "cc-2",
-      "kind": "CodeChunk"
+      "kind": "CodeChunk",
+      "language": "Calc"
     },
-    "node:articles/code-relations.md#cc-3": {
-      "type": "Node",
+    "code://articles/code-relations.md#cc-3": {
+      "type": "Code",
       "path": "articles/code-relations.md",
       "id": "cc-3",
-      "kind": "CodeChunk"
+      "kind": "CodeChunk",
+      "language": "Calc"
     },
-    "node:articles/code-relations.md#cc-4": {
-      "type": "Node",
+    "code://articles/code-relations.md#cc-4": {
+      "type": "Code",
       "path": "articles/code-relations.md",
       "id": "cc-4",
-      "kind": "CodeChunk"
+      "kind": "CodeChunk",
+      "language": "Calc"
     },
-    "node:articles/code-relations.md#ce-1": {
-      "type": "Node",
+    "code://articles/code-relations.md#ce-1": {
+      "type": "Code",
       "path": "articles/code-relations.md",
       "id": "ce-1",
-      "kind": "CodeExpression"
+      "kind": "CodeExpression",
+      "language": "Calc"
     },
-    "node:articles/code-relations.md#ce-2": {
-      "type": "Node",
+    "code://articles/code-relations.md#ce-2": {
+      "type": "Code",
       "path": "articles/code-relations.md",
       "id": "ce-2",
-      "kind": "CodeExpression"
+      "kind": "CodeExpression",
+      "language": "Calc"
     },
-    "node:articles/code-relations.md#ce-3": {
-      "type": "Node",
+    "code://articles/code-relations.md#ce-3": {
+      "type": "Code",
       "path": "articles/code-relations.md",
       "id": "ce-3",
-      "kind": "CodeExpression"
+      "kind": "CodeExpression",
+      "language": "Calc"
     },
-    "node:articles/code-relations.md#ce-4": {
-      "type": "Node",
+    "code://articles/code-relations.md#ce-4": {
+      "type": "Code",
       "path": "articles/code-relations.md",
       "id": "ce-4",
-      "kind": "CodeExpression"
+      "kind": "CodeExpression",
+      "language": "Calc"
     },
-    "node:articles/code-relations.md#pa-1": {
-      "type": "Node",
+    "code://articles/code-relations.md#pa-1": {
+      "type": "Code",
       "path": "articles/code-relations.md",
       "id": "pa-1",
       "kind": "Parameter"
     },
-    "symbol:articles/code-relations.md@a": {
+    "symbol://articles/code-relations.md#a": {
       "type": "Symbol",
       "path": "articles/code-relations.md",
       "name": "a",
       "kind": "Number"
     },
-    "symbol:articles/code-relations.md@b": {
+    "symbol://articles/code-relations.md#b": {
       "type": "Symbol",
       "path": "articles/code-relations.md",
       "name": "b",
       "kind": "Number"
     },
-    "symbol:articles/code-relations.md@c": {
+    "symbol://articles/code-relations.md#c": {
       "type": "Symbol",
       "path": "articles/code-relations.md",
       "name": "c",
@@ -80,113 +88,114 @@ input_file: fixtures/articles/code-relations.md
     }
   },
   "appearance_order": [
-    "node:articles/code-relations.md#cc-1",
-    "node:articles/code-relations.md#cc-2",
-    "node:articles/code-relations.md#ce-1",
-    "node:articles/code-relations.md#ce-2",
-    "node:articles/code-relations.md#cc-3",
-    "node:articles/code-relations.md#ce-3",
-    "node:articles/code-relations.md#ce-4",
-    "node:articles/code-relations.md#pa-1",
-    "node:articles/code-relations.md#cc-4"
+    "code://articles/code-relations.md#cc-1",
+    "code://articles/code-relations.md#cc-2",
+    "code://articles/code-relations.md#ce-1",
+    "code://articles/code-relations.md#ce-2",
+    "code://articles/code-relations.md#cc-3",
+    "code://articles/code-relations.md#ce-3",
+    "code://articles/code-relations.md#ce-4",
+    "code://articles/code-relations.md#pa-1",
+    "code://articles/code-relations.md#cc-4"
   ],
   "topological_order": [
     {
-      "id": "node:articles/code-relations.md#cc-1",
+      "id": "code://articles/code-relations.md#cc-1",
       "dependencies": [],
       "depth": 0
     },
     {
-      "id": "node:articles/code-relations.md#pa-1",
+      "id": "code://articles/code-relations.md#pa-1",
       "dependencies": [],
       "depth": 0
     },
     {
-      "id": "symbol:articles/code-relations.md@a",
+      "id": "symbol://articles/code-relations.md#a",
       "dependencies": [
-        "node:articles/code-relations.md#cc-1"
+        "code://articles/code-relations.md#cc-1"
       ],
       "depth": 1
     },
     {
-      "id": "symbol:articles/code-relations.md@c",
+      "id": "symbol://articles/code-relations.md#c",
       "dependencies": [
-        "node:articles/code-relations.md#pa-1"
+        "code://articles/code-relations.md#pa-1"
       ],
       "depth": 1
     },
     {
-      "id": "node:articles/code-relations.md#cc-2",
+      "id": "code://articles/code-relations.md#cc-2",
       "dependencies": [
-        "node:articles/code-relations.md#cc-1",
-        "symbol:articles/code-relations.md@a"
+        "code://articles/code-relations.md#cc-1",
+        "symbol://articles/code-relations.md#a"
       ],
       "depth": 2
     },
     {
-      "id": "node:articles/code-relations.md#ce-1",
+      "id": "code://articles/code-relations.md#ce-1",
       "dependencies": [
-        "node:articles/code-relations.md#cc-1",
-        "symbol:articles/code-relations.md@a"
+        "code://articles/code-relations.md#cc-1",
+        "symbol://articles/code-relations.md#a"
       ],
       "depth": 2
     },
     {
-      "id": "node:articles/code-relations.md#ce-2",
+      "id": "code://articles/code-relations.md#ce-2",
       "dependencies": [
-        "node:articles/code-relations.md#cc-1",
-        "symbol:articles/code-relations.md@a"
+        "code://articles/code-relations.md#cc-1",
+        "symbol://articles/code-relations.md#a"
       ],
       "depth": 2
     },
     {
-      "id": "node:articles/code-relations.md#cc-3",
+      "id": "code://articles/code-relations.md#cc-3",
       "dependencies": [
-        "node:articles/code-relations.md#cc-1",
-        "symbol:articles/code-relations.md@a"
+        "code://articles/code-relations.md#cc-1",
+        "symbol://articles/code-relations.md#a"
       ],
       "depth": 2
     },
     {
-      "id": "symbol:articles/code-relations.md@b",
+      "id": "symbol://articles/code-relations.md#b",
       "dependencies": [
-        "node:articles/code-relations.md#cc-1",
-        "symbol:articles/code-relations.md@a",
-        "node:articles/code-relations.md#cc-3"
+        "code://articles/code-relations.md#cc-1",
+        "symbol://articles/code-relations.md#a",
+        "code://articles/code-relations.md#cc-3"
       ],
       "depth": 3
     },
     {
-      "id": "node:articles/code-relations.md#ce-3",
+      "id": "code://articles/code-relations.md#ce-3",
       "dependencies": [
-        "node:articles/code-relations.md#cc-1",
-        "symbol:articles/code-relations.md@a",
-        "node:articles/code-relations.md#cc-3",
-        "symbol:articles/code-relations.md@b"
+        "code://articles/code-relations.md#cc-1",
+        "symbol://articles/code-relations.md#a",
+        "code://articles/code-relations.md#cc-3",
+        "symbol://articles/code-relations.md#b"
       ],
       "depth": 4
     },
     {
-      "id": "node:articles/code-relations.md#ce-4",
+      "id": "code://articles/code-relations.md#ce-4",
       "dependencies": [
-        "node:articles/code-relations.md#cc-1",
-        "symbol:articles/code-relations.md@a",
-        "node:articles/code-relations.md#cc-3",
-        "symbol:articles/code-relations.md@b"
+        "code://articles/code-relations.md#cc-1",
+        "symbol://articles/code-relations.md#a",
+        "code://articles/code-relations.md#cc-3",
+        "symbol://articles/code-relations.md#b"
       ],
       "depth": 4
     },
     {
-      "id": "node:articles/code-relations.md#cc-4",
+      "id": "code://articles/code-relations.md#cc-4",
       "dependencies": [
-        "node:articles/code-relations.md#pa-1",
-        "symbol:articles/code-relations.md@c",
-        "node:articles/code-relations.md#cc-1",
-        "symbol:articles/code-relations.md@a",
-        "node:articles/code-relations.md#cc-3",
-        "symbol:articles/code-relations.md@b"
+        "code://articles/code-relations.md#pa-1",
+        "symbol://articles/code-relations.md#c",
+        "code://articles/code-relations.md#cc-1",
+        "symbol://articles/code-relations.md#a",
+        "code://articles/code-relations.md#cc-3",
+        "symbol://articles/code-relations.md#b"
       ],
       "depth": 4
     }
-  ]
+  ],
+  "kernels": []
 }

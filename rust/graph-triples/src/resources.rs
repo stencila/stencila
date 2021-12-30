@@ -3,16 +3,20 @@ use eyre::Result;
 use path_slash::PathExt;
 use schemars::JsonSchema;
 use serde::Serialize;
+use serde_with::skip_serializing_none;
 use std::path::{Path, PathBuf};
 
 /// A resource in a dependency graph (the nodes of the graph)
 #[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
 #[serde(tag = "type")]
 pub enum Resource {
-    /// A symbol within code, within a project file
+    /// A symbol within code, within a document
     Symbol(Symbol),
 
-    /// A node within a project file
+    /// A node containing code, or associated with code, within a document
+    Code(Code),
+
+    /// A node within a document
     Node(Node),
 
     /// A file within the project
@@ -36,15 +40,18 @@ impl Resource {
     pub fn id(&self) -> String {
         match self {
             Resource::Symbol(Symbol { path, name, .. }) => {
-                ["symbol:", &path.display().to_string(), "@", name].concat()
+                ["symbol://", &path.display().to_string(), "#", name].concat()
+            }
+            Resource::Code(Code { path, id, .. }) => {
+                ["code://", &path.display().to_string(), "#", id].concat()
             }
             Resource::Node(Node { path, id, .. }) => {
-                ["node:", &path.display().to_string(), "#", id].concat()
+                ["node://", &path.display().to_string(), "#", id].concat()
             }
-            Resource::File(File { path, .. }) => ["file:", &path.display().to_string()].concat(),
-            Resource::Source(Source { name, .. }) => ["source:", name].concat(),
+            Resource::File(File { path, .. }) => ["file://", &path.display().to_string()].concat(),
+            Resource::Source(Source { name, .. }) => ["source://", name].concat(),
             Resource::Module(Module { language, name, .. }) => {
-                ["module:", language, "::", name].concat()
+                ["module://", language, "#", name].concat()
             }
             Resource::Url(Url { url }) => url.clone(),
         }
@@ -108,7 +115,7 @@ pub struct Node {
     /// The id of the node with the document
     pub id: String,
 
-    /// The type of node e.g. `Parameter`, `CodeChunk`
+    /// The type of node e.g. `Link`, `ImageObject`
     pub kind: String,
 }
 
@@ -117,7 +124,37 @@ pub fn node(path: &Path, id: &str, kind: &str) -> Resource {
     Resource::Node(Node {
         path: path.to_path_buf(),
         id: id.into(),
+        kind: kind.into()
+    })
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct Code {
+    /// The path of the file that the node is defined in
+    #[serde(serialize_with = "serialize_path")]
+    pub path: PathBuf,
+
+    /// The id of the node with the document
+    pub id: String,
+
+    /// The type of node e.g. `Parameter`, `CodeChunk`
+    pub kind: String,
+
+    /// The programming language associated with the node (if any)
+    /// 
+    /// Used when planning which kernel to execute the node in
+    pub language: Option<String>
+}
+
+/// Create a new `Code` resource
+pub fn code(path: &Path, id: &str, kind: &str, language: Option<String>) -> Resource {
+    Resource::Code(Code {
+        path: path.to_path_buf(),
+        id: id.into(),
         kind: kind.into(),
+        language
     })
 }
 

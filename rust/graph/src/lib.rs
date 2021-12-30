@@ -292,12 +292,16 @@ impl Graph {
                             symbol.name
                         ),
                     ),
-                    Resource::Node(node) => {
-                        let label = if !node.id.starts_with('_') {
-                            format!("{}\\n{}", node.kind, node.id)
+                    Resource::Code(code) => {
+                        let label = if let Some(lang) = &code.language {
+                            format!("{} {}\\n{}", lang, code.kind, code.id)
                         } else {
-                            node.kind.clone()
+                            format!("{}\\n{}", code.kind, code.id)
                         };
+                        ("box", "#efe0a6", label)
+                    }
+                    Resource::Node(node) => {
+                        let label = format!("{}\\n{}", node.kind, node.id);
                         ("box", "#efe0b8", label)
                     }
                     Resource::File(..) => ("note", "#d1efb8", path.clone()),

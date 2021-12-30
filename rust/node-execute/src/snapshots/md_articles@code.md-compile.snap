@@ -102,55 +102,61 @@ input_file: fixtures/articles/code.md
   [
     [
       {
-        "type": "Node",
+        "type": "Code",
         "path": "articles/code.md",
         "id": "ce-1",
-        "kind": "CodeExpression"
+        "kind": "CodeExpression",
+        "language": "R"
       },
       []
     ],
     [
       {
-        "type": "Node",
+        "type": "Code",
         "path": "articles/code.md",
         "id": "ce-2",
-        "kind": "CodeExpression"
+        "kind": "CodeExpression",
+        "language": "Python"
       },
       []
     ],
     [
       {
-        "type": "Node",
+        "type": "Code",
         "path": "articles/code.md",
         "id": "ce-3",
-        "kind": "CodeExpression"
+        "kind": "CodeExpression",
+        "language": ""
       },
       []
     ],
     [
       {
-        "type": "Node",
+        "type": "Code",
         "path": "articles/code.md",
         "id": "ce-4",
-        "kind": "CodeExpression"
+        "kind": "CodeExpression",
+        "language": "Python"
       },
       []
     ],
     [
       {
-        "type": "Node",
+        "type": "Code",
         "path": "articles/code.md",
         "id": "ce-5",
-        "kind": "CodeExpression"
+        "kind": "CodeExpression",
+        "language": ""
       },
       []
     ],
     [
       {
-        "type": "Node",
+        "type": "Code",
         "path": "articles/code.md",
         "id": "cc-1",
-        "kind": "CodeChunk"
+        "kind": "CodeChunk",
+        "language": "R"
       },
       []
     ]

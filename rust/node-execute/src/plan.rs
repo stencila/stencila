@@ -1,10 +1,9 @@
 use eyre::Result;
 use graph::Graph;
 use graph_triples::{resources, Relations, Resource, ResourceDependencies, ResourceId};
-use node_address::Addresses;
+use kernels::Kernel;
 use serde::Serialize;
 use std::{collections::BTreeMap, path::Path};
-use stencila_schema::Node;
 
 /// A step in an execution plan
 ///
@@ -12,8 +11,8 @@ use stencila_schema::Node;
 /// (but to avoid confusion we use a different name here).
 #[derive(Debug, Serialize)]
 pub struct Step {
-    /// The node to be executed
-    node: resources::Node,
+    /// The code node to be executed
+    node: resources::Code,
 }
 
 /// A stage in an execution plan
@@ -50,12 +49,14 @@ pub struct Planner {
     ///
     /// This mapping is used for access to more information on a resource than
     /// is available in it's id (which is all that is stored in `appearance_order`
-    /// and `topo_order`).
+    /// and `topological_order`).
     resources: BTreeMap<ResourceId, Resource>,
 
     /// The appearance order of [`Resource`]s in the document
     ///
-    /// Usually, only nodes (`Resource::Node`) will be in this list.
+    /// Will include any document node that declares relations (even if there are no relations),
+    /// including for example `Link` nodes (but usually only `Code` resources are
+    /// of interest here).
     appearance_order: Vec<ResourceId>,
 
     /// The topological order of [`Resource`]s in, or connected to, the document
@@ -69,6 +70,9 @@ pub struct Planner {
     /// so that this order can be used to react to changes in those resources
     /// as well.
     topological_order: Vec<ResourceDependencies>,
+
+    /// The kernels that are available to execute nodes
+    kernels: Vec<Kernel>,
 }
 
 impl Planner {
@@ -76,22 +80,12 @@ impl Planner {
     ///
     /// # Arguments
     ///
-    /// - `document`: The root node for which the plan will be generated
-    ///
     /// - `path`: The path of the document (needed to create a dependency graph)
-    ///
-    /// - `addresses`: The addresses of executable nodes in the document (used to
-    ///    collect information on the node e.g. its `programmingLanguage`)
     ///
     /// - `relations`: The dependency relations between nodes (used to create a
     ///    dependency graph)
     #[allow(clippy::ptr_arg)]
-    pub fn new(
-        _document: &Node,
-        path: &Path,
-        _addresses: &Addresses,
-        relations: &Relations,
-    ) -> Result<Planner> {
+    pub fn new(path: &Path, relations: &Relations, kernels: &[Kernel]) -> Result<Planner> {
         // Store the appearance order from `relations`
         let appearance_order = relations.iter().map(|(subject, ..)| subject.id()).collect();
 
@@ -107,6 +101,7 @@ impl Planner {
             resources,
             appearance_order,
             topological_order,
+            kernels: kernels.into(),
         })
     }
 
@@ -118,7 +113,7 @@ impl Planner {
     /// # Arguments
     ///
     /// - `start`: The node at which the plan should start. If `None` then
-    ///            starts at the first node in the document
+    ///            starts at the first node in the document.
     pub fn appearance_order(&self, start: Option<ResourceId>) -> Plan {
         let mut stages = Vec::with_capacity(self.appearance_order.len());
         let mut started = start.is_none();
@@ -131,10 +126,9 @@ impl Planner {
                 continue;
             }
 
-            // Only include resources that are nodes (they should all be nodes
-            // in `appearance_order` but we need to check anyhow)
+            // Only include `Code` resources (i.e. ignore non-executable `Node`s like `Link` etc)
             let step = match self.resources.get(resource_id) {
-                Some(Resource::Node(resource)) => Step {
+                Some(Resource::Code(resource)) => Step {
                     node: resource.clone(),
                 },
                 _ => continue,
@@ -178,9 +172,9 @@ impl Planner {
                 }
             }
 
-            // Only include resources that are nodes (i.e. ignore `Symbol`s etc)
+            // Only include `Code` resources (i.e. ignore `Symbol`s etc)
             let step = match self.resources.get(resource_id) {
-                Some(Resource::Node(resource)) => Step {
+                Some(Resource::Code(resource)) => Step {
                     node: resource.clone(),
                 },
                 _ => continue,

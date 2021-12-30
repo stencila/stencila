@@ -6,9 +6,8 @@ use kernel::{
     async_trait::async_trait,
     eyre::{bail, eyre, Result},
     stencila_schema::{CodeError, Node},
-    Kernel, KernelId, KernelInfo, KernelStatus, KernelTrait,
+    KernelId, KernelInfo, KernelStatus, KernelTrait, TaskId, TaskMessages, TaskOutputs,
 };
-use kernel::{TaskId, TaskMessages, TaskOutputs};
 use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, BTreeMap, HashMap, HashSet, VecDeque},
@@ -20,7 +19,7 @@ use strum::{EnumString, EnumVariantNames, VariantNames};
 use tokio::sync::{broadcast, mpsc, Mutex};
 
 // Re-exports
-pub use kernel::{KernelSelector, Task, TaskResult};
+pub use kernel::{Kernel, KernelSelector, Task, TaskResult};
 
 /// A "meta" kernel to dispatch to different types of kernels
 ///

@@ -10,4 +10,5 @@ path-slash = "0.1.4"
 schemars = { version = "0.8.8", features = ["preserve_order"] }
 serde = "1.0.130"
 serde_json = { version = "1.0.72", features = ["preserve_order"] }
+serde_with = "1.11.0"
 strum = { version = "0.23.0", features = ["derive"] }

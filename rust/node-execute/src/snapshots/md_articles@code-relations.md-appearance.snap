@@ -12,7 +12,8 @@ input_file: fixtures/articles/code-relations.md
           "node": {
             "path": "articles/code-relations.md",
             "id": "cc-1",
-            "kind": "CodeChunk"
+            "kind": "CodeChunk",
+            "language": "Calc"
           }
         }
       ]
@@ -23,7 +24,8 @@ input_file: fixtures/articles/code-relations.md
           "node": {
             "path": "articles/code-relations.md",
             "id": "cc-2",
-            "kind": "CodeChunk"
+            "kind": "CodeChunk",
+            "language": "Calc"
           }
         }
       ]
@@ -34,7 +36,8 @@ input_file: fixtures/articles/code-relations.md
           "node": {
             "path": "articles/code-relations.md",
             "id": "ce-1",
-            "kind": "CodeExpression"
+            "kind": "CodeExpression",
+            "language": "Calc"
           }
         }
       ]
@@ -45,7 +48,8 @@ input_file: fixtures/articles/code-relations.md
           "node": {
             "path": "articles/code-relations.md",
             "id": "ce-2",
-            "kind": "CodeExpression"
+            "kind": "CodeExpression",
+            "language": "Calc"
           }
         }
       ]
@@ -56,7 +60,8 @@ input_file: fixtures/articles/code-relations.md
           "node": {
             "path": "articles/code-relations.md",
             "id": "cc-3",
-            "kind": "CodeChunk"
+            "kind": "CodeChunk",
+            "language": "Calc"
           }
         }
       ]
@@ -67,7 +72,8 @@ input_file: fixtures/articles/code-relations.md
           "node": {
             "path": "articles/code-relations.md",
             "id": "ce-3",
-            "kind": "CodeExpression"
+            "kind": "CodeExpression",
+            "language": "Calc"
           }
         }
       ]
@@ -78,7 +84,8 @@ input_file: fixtures/articles/code-relations.md
           "node": {
             "path": "articles/code-relations.md",
             "id": "ce-4",
-            "kind": "CodeExpression"
+            "kind": "CodeExpression",
+            "language": "Calc"
           }
         }
       ]
@@ -100,7 +107,8 @@ input_file: fixtures/articles/code-relations.md
           "node": {
             "path": "articles/code-relations.md",
             "id": "cc-4",
-            "kind": "CodeChunk"
+            "kind": "CodeChunk",
+            "language": "Calc"
           }
         }
       ]

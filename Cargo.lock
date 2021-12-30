@@ -1759,6 +1759,7 @@ dependencies = [
 name = "formats"
 version = "0.0.0"
 dependencies = [
+ "Inflector",
  "schemars",
  "serde",
  "strum 0.23.0",
@@ -2064,6 +2065,7 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
+ "serde_with",
  "strum 0.23.0",
 ]
 
@@ -3235,6 +3237,7 @@ dependencies = [
  "codec",
  "codec-md",
  "eyre",
+ "formats",
  "graph",
  "graph-triples",
  "hash-utils",
@@ -3246,6 +3249,7 @@ dependencies = [
  "serde",
  "stencila-schema",
  "test-snaps",
+ "tokio",
  "tracing",
  "uuids",
 ]

@@ -7,6 +7,7 @@ edition = "2021"
 [dependencies]
 async-trait = "0.1.51"
 eyre = "0.6.5"
+formats = { path = "../formats", version = "0.0.0" }
 graph = { path = "../graph", version = "0.0.0" }
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
 hash-utils = { path = "../hash-utils", version = "0.0.0" }
@@ -21,8 +22,9 @@ tracing = "0.1.29"
 uuids = { path = "../uuids", version = "0.0.0" }
 
 [dev-dependencies]
-test-snaps = { path = "../test-snaps", version = "0.0.0" }
 codec = { path = "../codec", version = "0.0.0" }
 codec-md = { path = "../codec-md", version = "0.0.0" }
 # Make sure to enable the parser for any languages used in tests here
 parsers = { path = "../parsers", version = "0.0.0", features = ["parser-calc"] }
+tokio = { version = "1.13.0", features = ["macros"] }
+test-snaps = { path = "../test-snaps", version = "0.0.0" }

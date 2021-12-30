@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use eyre::Result;
+use formats::normalize_title;
 use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Relations};
 use kernels::{KernelSelector, KernelSpace, TaskResult};
 use node_address::{Address, Addresses, Slot};
@@ -210,7 +211,7 @@ executable_media_object!(VideoObjectSimple, "vi");
 impl Executable for Parameter {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("pa", self, address, context);
-        let subject = resources::node(&context.path, &id, "Parameter");
+        let subject = resources::code(&context.path, &id, "Parameter", None);
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
             Some(ValidatorTypes::IntegerValidator(..)) => "Integer",
@@ -253,7 +254,12 @@ impl Executable for CodeChunk {
                 Vec::new()
             }
         };
-        let subject = resources::node(&context.path, &id, "CodeChunk");
+        let subject = resources::code(
+            &context.path,
+            &id,
+            "CodeChunk",
+            Some(normalize_title(&self.programming_language)),
+        );
         context.relations.push((subject, relations));
 
         Ok(())
@@ -304,7 +310,12 @@ impl Executable for CodeExpression {
                 Vec::new()
             }
         };
-        let subject = resources::node(&context.path, &id, "CodeExpression");
+        let subject = resources::code(
+            &context.path,
+            &id,
+            "CodeExpression",
+            Some(normalize_title(&self.programming_language)),
+        );
         context.relations.push((subject, relations));
 
         Ok(())

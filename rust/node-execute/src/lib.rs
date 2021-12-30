@@ -1,5 +1,6 @@
 use eyre::Result;
 use graph_triples::Relations;
+use kernels::Kernel;
 use node_address::{Address, Addresses};
 use std::path::Path;
 use stencila_schema::*;
@@ -32,15 +33,10 @@ pub fn compile(document: &mut Node, path: &Path, project: &Path) -> Result<(Addr
 }
 
 /// Create an execution planner for a document
-#[tracing::instrument(skip(document, addresses, relations))]
+#[tracing::instrument(skip(relations))]
 #[allow(clippy::ptr_arg)]
-pub fn planner(
-    document: &Node,
-    path: &Path,
-    addresses: &Addresses,
-    relations: &Relations,
-) -> Result<Planner> {
-    Planner::new(document, path, addresses, relations)
+pub fn planner(path: &Path, relations: &Relations, kernels: &[Kernel]) -> Result<Planner> {
+    Planner::new(path, relations, kernels)
 }
 
 /// Execute a document
@@ -63,8 +59,10 @@ mod tests {
     };
 
     /// Higher level tests of the top level functions in this crate
-    #[test]
-    fn md_articles() {
+    #[tokio::test]
+    async fn md_articles() -> Result<()> {
+        let kernels = kernels::available().await?;
+
         let fixtures = fixtures();
         snapshot_fixtures_path_content("articles/code*.md", |path, content| {
             // Strip the fixtures prefix from the path (so it's the same regardless of machine)
@@ -80,7 +78,7 @@ mod tests {
             });
 
             // Create an execution planner for the article
-            let planner = planner(&article, path, &addresses, &relations).unwrap();
+            let planner = planner(path, &relations, &kernels).unwrap();
             snapshot_add_suffix("-planner", || assert_json_snapshot!(&planner));
 
             // Generate various execution plans for the article and snapshot them
@@ -88,6 +86,8 @@ mod tests {
             snapshot_add_suffix("-appearance", || assert_json_snapshot!(&appearance));
             let topological = planner.topological_order(None);
             snapshot_add_suffix("-topological", || assert_json_snapshot!(&topological));
-        })
+        });
+
+        Ok(())
     }
 }
