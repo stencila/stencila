@@ -1,10 +1,13 @@
 use eyre::{bail, Result};
-use graph_triples::{direction, relations, Direction, Pairs, Relation, Resource, Triple};
+use graph_triples::{
+    direction, relations, resources::ResourceEntry, Direction, Pairs, Relation, Resource, Triple,
+};
 use path_slash::PathExt;
 use petgraph::{
     graph::NodeIndex,
     stable_graph::StableGraph,
-    visit::{EdgeRef, IntoEdgeReferences, IntoNodeReferences},
+    visit::{self, EdgeRef, IntoEdgeReferences, IntoNodeReferences},
+    EdgeDirection::Incoming,
 };
 use schemars::{
     gen::SchemaGenerator,
@@ -15,6 +18,7 @@ use serde::{ser::SerializeMap, Serialize};
 use serde_json::json;
 use serde_with::skip_serializing_none;
 use std::{
+    cmp::Ordering,
     collections::HashMap,
     path::{Path, PathBuf},
 };
@@ -114,11 +118,7 @@ impl Graph {
     /// Create a graph from set of dependency relations
     pub fn from_relations<P: AsRef<Path>>(path: P, relations: &[(Resource, Pairs)]) -> Graph {
         let mut graph = Graph::new(path);
-        for (subject, pairs) in relations {
-            for (relation, object) in pairs {
-                graph.add_triple((subject.clone(), relation.clone(), object.clone()));
-            }
-        }
+        graph.add_relations(relations);
         graph
     }
 
@@ -161,6 +161,77 @@ impl Graph {
         triples
             .into_iter()
             .for_each(|triple| self.add_triple(triple))
+    }
+
+    /// Add as set of relations to the graph
+    pub fn add_relations(&mut self, relations: &[(Resource, Pairs)]) {
+        for (subject, pairs) in relations {
+            for (relation, object) in pairs {
+                self.add_triple((subject.clone(), relation.clone(), object.clone()));
+            }
+        }
+    }
+
+    /// Perform a topological sort of the graph
+    ///
+    /// Returns a vector of [`ResourceEntry`] items in topological order.
+    pub fn toposort(&self) -> Result<Vec<ResourceEntry>> {
+        // Create the entries, with no dependencies or depth
+        let mut entries: Vec<ResourceEntry> = self
+            .graph
+            .node_indices()
+            .map(|index| {
+                let resource = self.graph[index].clone();
+                ResourceEntry {
+                    id: resource.id(),
+                    resource,
+                    dependencies: Vec::new(),
+                    depth: 0,
+                }
+            })
+            .collect();
+
+        // Walk over nodes in topological order, updating dependencies and depth
+        // Using topological order ensures that dependencies of dependencies
+        // have already been updated.
+        let mut topo = visit::Topo::new(&self.graph);
+        while let Some(node_index) = topo.next(&self.graph) {
+            let mut dependencies: Vec<String> = Vec::new();
+            let mut depth = 0;
+
+            let incomings = self.graph.neighbors_directed(node_index, Incoming);
+            for incoming_index in incomings {
+                let dependency = &entries[incoming_index.index()];
+
+                for other in &dependency.dependencies {
+                    if !dependencies.contains(other) {
+                        dependencies.push(other.clone())
+                    }
+                }
+                if !dependencies.contains(&dependency.id) {
+                    dependencies.push(dependency.id.clone());
+                }
+
+                if dependency.depth + 1 > depth {
+                    depth = dependency.depth + 1
+                }
+            }
+
+            let mut node = &mut entries[node_index.index()];
+            node.dependencies = dependencies;
+            node.depth = depth;
+        }
+
+        // Do topological / depth sort
+        entries.sort_by(|a, b| {
+            if b.dependencies.contains(&a.id) {
+                Ordering::Less
+            } else {
+                a.depth.cmp(&b.depth)
+            }
+        });
+
+        Ok(entries)
     }
 
     /// Convert the graph to some format

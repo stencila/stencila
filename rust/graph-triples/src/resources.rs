@@ -28,6 +28,50 @@ pub enum Resource {
     Url(Url),
 }
 
+/// The id of a resource
+pub type ResourceId = String;
+
+impl Resource {
+    /// Get the resource id
+    pub fn id(&self) -> String {
+        match self {
+            Resource::Symbol(Symbol { path, name, .. }) => {
+                ["symbol:", &path.display().to_string(), "@", name].concat()
+            }
+            Resource::Node(Node { path, id, .. }) => {
+                ["node:", &path.display().to_string(), "#", id].concat()
+            }
+            Resource::File(File { path, .. }) => ["file:", &path.display().to_string()].concat(),
+            Resource::Source(Source { name, .. }) => ["source:", name].concat(),
+            Resource::Module(Module { language, name, .. }) => {
+                ["module:", language, "::", name].concat()
+            }
+            Resource::Url(Url { url }) => url.clone(),
+        }
+    }
+}
+
+
+/// An entry for a resource in a topological sort of a dependency graph
+#[derive(Debug, Clone, Serialize)]
+pub struct ResourceEntry {
+    /// The id of the resource
+    pub id: String,
+
+    /// The resource
+    pub resource: Resource,
+
+    /// The ids of any dependencies in the dependency graph
+    pub dependencies: Vec<String>,
+
+    /// The depth of the resource in the dependency graph.
+    /// 
+    /// A resource that has no dependencies has a depth of zero.
+    /// Otherwise the depth is the maximum depth of dependencies plus one.
+    pub depth: usize
+}
+
+
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
 #[derivative(PartialEq, Eq, Hash)]
 #[schemars(deny_unknown_fields)]
