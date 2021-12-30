@@ -176,12 +176,13 @@ impl Graph {
     ///
     /// Returns a vector of [`ResourceEntry`] items in topological order.
     pub fn toposort(&self) -> Result<Vec<ResourceEntry>> {
+        let graph = &self.graph;
+
         // Create the entries, with no dependencies or depth
-        let mut entries: Vec<ResourceEntry> = self
-            .graph
+        let mut entries: Vec<ResourceEntry> = graph
             .node_indices()
             .map(|index| {
-                let resource = self.graph[index].clone();
+                let resource = graph[index].clone();
                 ResourceEntry {
                     id: resource.id(),
                     resource,
@@ -194,12 +195,12 @@ impl Graph {
         // Walk over nodes in topological order, updating dependencies and depth
         // Using topological order ensures that dependencies of dependencies
         // have already been updated.
-        let mut topo = visit::Topo::new(&self.graph);
-        while let Some(node_index) = topo.next(&self.graph) {
+        let mut topo = visit::Topo::new(&graph);
+        while let Some(node_index) = topo.next(&graph) {
             let mut dependencies: Vec<String> = Vec::new();
             let mut depth = 0;
 
-            let incomings = self.graph.neighbors_directed(node_index, Incoming);
+            let incomings = graph.neighbors_directed(node_index, Incoming);
             for incoming_index in incomings {
                 let dependency = &entries[incoming_index.index()];
 
