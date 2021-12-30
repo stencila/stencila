@@ -10,6 +10,9 @@ pub use kernels::{KernelSelector, KernelSpace, TaskResult};
 mod executable;
 pub use executable::*;
 
+mod plan;
+pub use plan::Plan;
+
 /// Compile a document
 ///
 /// Compiling a document involves walking over its node tree and compiling each
@@ -20,21 +23,33 @@ pub use executable::*;
 ///   they have an `id` and recording their address
 /// - for executable nodes (e.g. `CodeChunk`) performing semantic analysis of the code
 /// - determining dependencies within and between documents and other resources
-#[tracing::instrument(skip(node))]
-pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresses, Relations)> {
+#[tracing::instrument(skip(document))]
+pub fn compile(document: &mut Node, path: &Path, project: &Path) -> Result<(Addresses, Relations)> {
     let mut address = Address::default();
     let mut context = CompileContext::new(path, project);
-    node.compile(&mut address, &mut context)?;
+    document.compile(&mut address, &mut context)?;
     Ok((context.addresses, context.relations))
 }
 
+/// Plan the execution of a document
+#[tracing::instrument(skip(document, addresses, relations))]
+#[allow(clippy::ptr_arg)]
+pub fn plan(
+    document: &Node,
+    path: &Path,
+    addresses: &Addresses,
+    relations: &Relations,
+) -> Result<Plan> {
+    Plan::make(document, path, addresses, relations)
+}
+
 /// Execute a document
-#[tracing::instrument(skip(node, kernels))]
-pub async fn execute<Type>(node: &mut Type, kernels: &mut KernelSpace) -> Result<()>
+#[tracing::instrument(skip(document, kernels))]
+pub async fn execute<Type>(document: &mut Type, kernels: &mut KernelSpace) -> Result<()>
 where
     Type: Executable + Send,
 {
-    node.execute(kernels).await
+    document.execute(kernels).await
 }
 
 #[cfg(test)]
@@ -53,16 +68,21 @@ mod tests {
         let fixtures = fixtures();
         snapshot_fixtures_path_content("articles/code*.md", |path, content| {
             // Strip the fixtures prefix from the path (so it's the same regardless of machine)
-            let stripped_path = path.strip_prefix(&fixtures).unwrap();
+            let path = path.strip_prefix(&fixtures).unwrap();
 
             // Load the article
             let mut article = MdCodec::from_str(content, None).unwrap();
 
             // Compile the article and snapshot the result
-            let (addresses, relations) =
-                compile(&mut article, stripped_path, &PathBuf::new()).unwrap();
+            let (addresses, relations) = compile(&mut article, path, &PathBuf::new()).unwrap();
             snapshot_add_suffix("-compile", || {
                 assert_json_snapshot!((&addresses, &relations));
+            });
+
+            // Create an execution plan for the article
+            let plan = plan(&article, path, &addresses, &relations).unwrap();
+            snapshot_add_suffix("-plan", || {
+                assert_json_snapshot!(&plan);
             });
         })
     }

@@ -3235,6 +3235,7 @@ dependencies = [
  "codec",
  "codec-md",
  "eyre",
+ "graph",
  "graph-triples",
  "hash-utils",
  "kernels",
