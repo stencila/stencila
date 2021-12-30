@@ -1,0 +1,109 @@
+---
+source: rust/node-execute/src/lib.rs
+expression: "&topological"
+input_file: fixtures/articles/code-relations.md
+
+---
+{
+  "stages": [
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "cc-1",
+            "kind": "CodeChunk"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "pa-1",
+            "kind": "Parameter"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "cc-2",
+            "kind": "CodeChunk"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "ce-1",
+            "kind": "CodeExpression"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "ce-2",
+            "kind": "CodeExpression"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "cc-3",
+            "kind": "CodeChunk"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "ce-3",
+            "kind": "CodeExpression"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "ce-4",
+            "kind": "CodeExpression"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "cc-4",
+            "kind": "CodeChunk"
+          }
+        }
+      ]
+    }
+  ]
+}

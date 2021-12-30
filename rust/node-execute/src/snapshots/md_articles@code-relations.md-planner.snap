@@ -1,41 +1,108 @@
 ---
 source: rust/node-execute/src/lib.rs
-expression: "&plan"
+expression: "&planner"
 input_file: fixtures/articles/code-relations.md
 
 ---
 {
-  "order": [
+  "resources": {
+    "node:articles/code-relations.md#cc-1": {
+      "type": "Node",
+      "path": "articles/code-relations.md",
+      "id": "cc-1",
+      "kind": "CodeChunk"
+    },
+    "node:articles/code-relations.md#cc-2": {
+      "type": "Node",
+      "path": "articles/code-relations.md",
+      "id": "cc-2",
+      "kind": "CodeChunk"
+    },
+    "node:articles/code-relations.md#cc-3": {
+      "type": "Node",
+      "path": "articles/code-relations.md",
+      "id": "cc-3",
+      "kind": "CodeChunk"
+    },
+    "node:articles/code-relations.md#cc-4": {
+      "type": "Node",
+      "path": "articles/code-relations.md",
+      "id": "cc-4",
+      "kind": "CodeChunk"
+    },
+    "node:articles/code-relations.md#ce-1": {
+      "type": "Node",
+      "path": "articles/code-relations.md",
+      "id": "ce-1",
+      "kind": "CodeExpression"
+    },
+    "node:articles/code-relations.md#ce-2": {
+      "type": "Node",
+      "path": "articles/code-relations.md",
+      "id": "ce-2",
+      "kind": "CodeExpression"
+    },
+    "node:articles/code-relations.md#ce-3": {
+      "type": "Node",
+      "path": "articles/code-relations.md",
+      "id": "ce-3",
+      "kind": "CodeExpression"
+    },
+    "node:articles/code-relations.md#ce-4": {
+      "type": "Node",
+      "path": "articles/code-relations.md",
+      "id": "ce-4",
+      "kind": "CodeExpression"
+    },
+    "node:articles/code-relations.md#pa-1": {
+      "type": "Node",
+      "path": "articles/code-relations.md",
+      "id": "pa-1",
+      "kind": "Parameter"
+    },
+    "symbol:articles/code-relations.md@a": {
+      "type": "Symbol",
+      "path": "articles/code-relations.md",
+      "name": "a",
+      "kind": "Number"
+    },
+    "symbol:articles/code-relations.md@b": {
+      "type": "Symbol",
+      "path": "articles/code-relations.md",
+      "name": "b",
+      "kind": "Number"
+    },
+    "symbol:articles/code-relations.md@c": {
+      "type": "Symbol",
+      "path": "articles/code-relations.md",
+      "name": "c",
+      "kind": "Number"
+    }
+  },
+  "appearance_order": [
+    "node:articles/code-relations.md#cc-1",
+    "node:articles/code-relations.md#cc-2",
+    "node:articles/code-relations.md#ce-1",
+    "node:articles/code-relations.md#ce-2",
+    "node:articles/code-relations.md#cc-3",
+    "node:articles/code-relations.md#ce-3",
+    "node:articles/code-relations.md#ce-4",
+    "node:articles/code-relations.md#pa-1",
+    "node:articles/code-relations.md#cc-4"
+  ],
+  "topological_order": [
     {
       "id": "node:articles/code-relations.md#cc-1",
-      "resource": {
-        "type": "Node",
-        "path": "articles/code-relations.md",
-        "id": "cc-1",
-        "kind": "CodeChunk"
-      },
       "dependencies": [],
       "depth": 0
     },
     {
       "id": "node:articles/code-relations.md#pa-1",
-      "resource": {
-        "type": "Node",
-        "path": "articles/code-relations.md",
-        "id": "pa-1",
-        "kind": "Parameter"
-      },
       "dependencies": [],
       "depth": 0
     },
     {
       "id": "symbol:articles/code-relations.md@a",
-      "resource": {
-        "type": "Symbol",
-        "path": "articles/code-relations.md",
-        "name": "a",
-        "kind": "Number"
-      },
       "dependencies": [
         "node:articles/code-relations.md#cc-1"
       ],
@@ -43,12 +110,6 @@ input_file: fixtures/articles/code-relations.md
     },
     {
       "id": "symbol:articles/code-relations.md@c",
-      "resource": {
-        "type": "Symbol",
-        "path": "articles/code-relations.md",
-        "name": "c",
-        "kind": "Number"
-      },
       "dependencies": [
         "node:articles/code-relations.md#pa-1"
       ],
@@ -56,12 +117,6 @@ input_file: fixtures/articles/code-relations.md
     },
     {
       "id": "node:articles/code-relations.md#cc-2",
-      "resource": {
-        "type": "Node",
-        "path": "articles/code-relations.md",
-        "id": "cc-2",
-        "kind": "CodeChunk"
-      },
       "dependencies": [
         "node:articles/code-relations.md#cc-1",
         "symbol:articles/code-relations.md@a"
@@ -70,12 +125,6 @@ input_file: fixtures/articles/code-relations.md
     },
     {
       "id": "node:articles/code-relations.md#ce-1",
-      "resource": {
-        "type": "Node",
-        "path": "articles/code-relations.md",
-        "id": "ce-1",
-        "kind": "CodeExpression"
-      },
       "dependencies": [
         "node:articles/code-relations.md#cc-1",
         "symbol:articles/code-relations.md@a"
@@ -84,12 +133,6 @@ input_file: fixtures/articles/code-relations.md
     },
     {
       "id": "node:articles/code-relations.md#ce-2",
-      "resource": {
-        "type": "Node",
-        "path": "articles/code-relations.md",
-        "id": "ce-2",
-        "kind": "CodeExpression"
-      },
       "dependencies": [
         "node:articles/code-relations.md#cc-1",
         "symbol:articles/code-relations.md@a"
@@ -98,12 +141,6 @@ input_file: fixtures/articles/code-relations.md
     },
     {
       "id": "node:articles/code-relations.md#cc-3",
-      "resource": {
-        "type": "Node",
-        "path": "articles/code-relations.md",
-        "id": "cc-3",
-        "kind": "CodeChunk"
-      },
       "dependencies": [
         "node:articles/code-relations.md#cc-1",
         "symbol:articles/code-relations.md@a"
@@ -112,12 +149,6 @@ input_file: fixtures/articles/code-relations.md
     },
     {
       "id": "symbol:articles/code-relations.md@b",
-      "resource": {
-        "type": "Symbol",
-        "path": "articles/code-relations.md",
-        "name": "b",
-        "kind": "Number"
-      },
       "dependencies": [
         "node:articles/code-relations.md#cc-1",
         "symbol:articles/code-relations.md@a",
@@ -127,12 +158,6 @@ input_file: fixtures/articles/code-relations.md
     },
     {
       "id": "node:articles/code-relations.md#ce-3",
-      "resource": {
-        "type": "Node",
-        "path": "articles/code-relations.md",
-        "id": "ce-3",
-        "kind": "CodeExpression"
-      },
       "dependencies": [
         "node:articles/code-relations.md#cc-1",
         "symbol:articles/code-relations.md@a",
@@ -143,12 +168,6 @@ input_file: fixtures/articles/code-relations.md
     },
     {
       "id": "node:articles/code-relations.md#ce-4",
-      "resource": {
-        "type": "Node",
-        "path": "articles/code-relations.md",
-        "id": "ce-4",
-        "kind": "CodeExpression"
-      },
       "dependencies": [
         "node:articles/code-relations.md#cc-1",
         "symbol:articles/code-relations.md@a",
@@ -159,12 +178,6 @@ input_file: fixtures/articles/code-relations.md
     },
     {
       "id": "node:articles/code-relations.md#cc-4",
-      "resource": {
-        "type": "Node",
-        "path": "articles/code-relations.md",
-        "id": "cc-4",
-        "kind": "CodeChunk"
-      },
       "dependencies": [
         "node:articles/code-relations.md#pa-1",
         "symbol:articles/code-relations.md@c",

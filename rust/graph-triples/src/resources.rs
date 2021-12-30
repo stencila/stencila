@@ -52,14 +52,11 @@ impl Resource {
 }
 
 
-/// An entry for a resource in a topological sort of a dependency graph
+/// A summary of the dependencies of a resource in a dependency graph
 #[derive(Debug, Clone, Serialize)]
-pub struct ResourceEntry {
+pub struct ResourceDependencies {
     /// The id of the resource
     pub id: String,
-
-    /// The resource
-    pub resource: Resource,
 
     /// The ids of any dependencies in the dependency graph
     pub dependencies: Vec<String>,

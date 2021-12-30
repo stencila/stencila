@@ -11,7 +11,7 @@ mod executable;
 pub use executable::*;
 
 mod plan;
-pub use plan::Plan;
+pub use plan::Planner;
 
 /// Compile a document
 ///
@@ -31,16 +31,16 @@ pub fn compile(document: &mut Node, path: &Path, project: &Path) -> Result<(Addr
     Ok((context.addresses, context.relations))
 }
 
-/// Plan the execution of a document
+/// Create an execution planner for a document
 #[tracing::instrument(skip(document, addresses, relations))]
 #[allow(clippy::ptr_arg)]
-pub fn plan(
+pub fn planner(
     document: &Node,
     path: &Path,
     addresses: &Addresses,
     relations: &Relations,
-) -> Result<Plan> {
-    Plan::make(document, path, addresses, relations)
+) -> Result<Planner> {
+    Planner::new(document, path, addresses, relations)
 }
 
 /// Execute a document
@@ -76,14 +76,18 @@ mod tests {
             // Compile the article and snapshot the result
             let (addresses, relations) = compile(&mut article, path, &PathBuf::new()).unwrap();
             snapshot_add_suffix("-compile", || {
-                assert_json_snapshot!((&addresses, &relations));
+                assert_json_snapshot!((&addresses, &relations))
             });
 
-            // Create an execution plan for the article
-            let plan = plan(&article, path, &addresses, &relations).unwrap();
-            snapshot_add_suffix("-plan", || {
-                assert_json_snapshot!(&plan);
-            });
+            // Create an execution planner for the article
+            let planner = planner(&article, path, &addresses, &relations).unwrap();
+            snapshot_add_suffix("-planner", || assert_json_snapshot!(&planner));
+
+            // Generate various execution plans for the article and snapshot them
+            let appearance = planner.appearance_order(None);
+            snapshot_add_suffix("-appearance", || assert_json_snapshot!(&appearance));
+            let topological = planner.topological_order(None);
+            snapshot_add_suffix("-topological", || assert_json_snapshot!(&topological));
         })
     }
 }

@@ -1,9 +1,0 @@
----
-source: rust/node-execute/src/lib.rs
-expression: "&plan"
-input_file: fixtures/articles/code.md
-
----
-{
-  "order": []
-}

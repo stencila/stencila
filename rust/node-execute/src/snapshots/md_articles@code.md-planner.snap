@@ -1,0 +1,86 @@
+---
+source: rust/node-execute/src/lib.rs
+expression: "&planner"
+input_file: fixtures/articles/code.md
+
+---
+{
+  "resources": {
+    "node:articles/code.md#cc-1": {
+      "type": "Node",
+      "path": "articles/code.md",
+      "id": "cc-1",
+      "kind": "CodeChunk"
+    },
+    "node:articles/code.md#ce-1": {
+      "type": "Node",
+      "path": "articles/code.md",
+      "id": "ce-1",
+      "kind": "CodeExpression"
+    },
+    "node:articles/code.md#ce-2": {
+      "type": "Node",
+      "path": "articles/code.md",
+      "id": "ce-2",
+      "kind": "CodeExpression"
+    },
+    "node:articles/code.md#ce-3": {
+      "type": "Node",
+      "path": "articles/code.md",
+      "id": "ce-3",
+      "kind": "CodeExpression"
+    },
+    "node:articles/code.md#ce-4": {
+      "type": "Node",
+      "path": "articles/code.md",
+      "id": "ce-4",
+      "kind": "CodeExpression"
+    },
+    "node:articles/code.md#ce-5": {
+      "type": "Node",
+      "path": "articles/code.md",
+      "id": "ce-5",
+      "kind": "CodeExpression"
+    }
+  },
+  "appearance_order": [
+    "node:articles/code.md#ce-1",
+    "node:articles/code.md#ce-2",
+    "node:articles/code.md#ce-3",
+    "node:articles/code.md#ce-4",
+    "node:articles/code.md#ce-5",
+    "node:articles/code.md#cc-1"
+  ],
+  "topological_order": [
+    {
+      "id": "node:articles/code.md#ce-1",
+      "dependencies": [],
+      "depth": 0
+    },
+    {
+      "id": "node:articles/code.md#ce-2",
+      "dependencies": [],
+      "depth": 0
+    },
+    {
+      "id": "node:articles/code.md#ce-3",
+      "dependencies": [],
+      "depth": 0
+    },
+    {
+      "id": "node:articles/code.md#ce-4",
+      "dependencies": [],
+      "depth": 0
+    },
+    {
+      "id": "node:articles/code.md#ce-5",
+      "dependencies": [],
+      "depth": 0
+    },
+    {
+      "id": "node:articles/code.md#cc-1",
+      "dependencies": [],
+      "depth": 0
+    }
+  ]
+}

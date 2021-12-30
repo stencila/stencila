@@ -1,0 +1,76 @@
+---
+source: rust/node-execute/src/lib.rs
+expression: "&topological"
+input_file: fixtures/articles/code.md
+
+---
+{
+  "stages": [
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code.md",
+            "id": "ce-1",
+            "kind": "CodeExpression"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code.md",
+            "id": "ce-2",
+            "kind": "CodeExpression"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code.md",
+            "id": "ce-3",
+            "kind": "CodeExpression"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code.md",
+            "id": "ce-4",
+            "kind": "CodeExpression"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code.md",
+            "id": "ce-5",
+            "kind": "CodeExpression"
+          }
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code.md",
+            "id": "cc-1",
+            "kind": "CodeChunk"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 use eyre::{bail, Result};
 use graph_triples::{
-    direction, relations, resources::ResourceEntry, Direction, Pairs, Relation, Resource, Triple,
+    direction, relations,
+    resources::{ResourceDependencies, ResourceId},
+    Direction, Pairs, Relation, Resource, Triple,
 };
 use path_slash::PathExt;
 use petgraph::{
@@ -19,7 +21,7 @@ use serde_json::json;
 use serde_with::skip_serializing_none;
 use std::{
     cmp::Ordering,
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     path::{Path, PathBuf},
 };
 use strum::Display;
@@ -164,39 +166,43 @@ impl Graph {
     }
 
     /// Add a set of relations to the graph
-    /// 
+    ///
     /// Each subject resource in the set will be added to the graph even if it has
     /// no relations with other objects.
     pub fn add_relations(&mut self, relations: &[(Resource, Pairs)]) {
         for (subject, pairs) in relations {
             if pairs.is_empty() {
                 self.add_resource(subject.clone());
-                continue
+                continue;
             }
-            
+
             for (relation, object) in pairs {
                 self.add_triple((subject.clone(), relation.clone(), object.clone()));
             }
         }
     }
 
+    /// Get a mapping of [`ResourceId`]s to [`Resource`]s in the graph
+    pub fn resource_map(&self) -> BTreeMap<ResourceId, Resource> {
+        self.indices
+            .iter()
+            .map(|(resource, ..)| (resource.id(), resource.clone()))
+            .collect()
+    }
+
     /// Perform a topological sort of the graph
     ///
-    /// Returns a vector of [`ResourceEntry`] items in topological order.
-    pub fn toposort(&self) -> Result<Vec<ResourceEntry>> {
+    /// Returns a vector of [`ResourceDependencies`] items in topological order.
+    pub fn toposort(&self) -> Result<Vec<ResourceDependencies>> {
         let graph = &self.graph;
 
         // Create the entries, with no dependencies or depth
-        let mut entries: Vec<ResourceEntry> = graph
+        let mut entries: Vec<ResourceDependencies> = graph
             .node_indices()
-            .map(|index| {
-                let resource = graph[index].clone();
-                ResourceEntry {
-                    id: resource.id(),
-                    resource,
-                    dependencies: Vec::new(),
-                    depth: 0,
-                }
+            .map(|index| ResourceDependencies {
+                id: graph[index].id(),
+                dependencies: Vec::new(),
+                depth: 0,
             })
             .collect();
 
