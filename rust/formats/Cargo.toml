@@ -5,6 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+Inflector = "0.11.4"
 schemars = "0.8.8"
 serde = "1.0.130"
 strum = { version = "0.23.0", features = ["derive"] }
