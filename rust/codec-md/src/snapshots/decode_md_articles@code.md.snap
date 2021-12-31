@@ -64,9 +64,9 @@ input_file: fixtures/articles/code.md
         {
           "type": "CodeExpression",
           "programmingLanguage": "",
-          "text": "x"
+          "text": "3+3"
         },
-        " (in which case it may default to the file's language e.g. pymd files)."
+        " (in which case it will default to the language of the previous code element)."
       ]
     },
     {

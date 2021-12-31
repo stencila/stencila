@@ -2,7 +2,7 @@ This article fixture is focussed on the Markdown representation of executable co
 
 ## Inline code
 
-Code expressions have a language and the `exec` keyword in curly braces, like this `1+1`{r exec} and this `2+2`{python exec}. The language may be omitted e.g. `x`{exec} (in which case it may default to the file's language e.g. pymd files).
+Code expressions have a language and the `exec` keyword in curly braces, like this `1+1`{r exec} and this `2+2`{python exec}. The language may be omitted e.g. `3+3`{exec} (in which case it will default to the language of the previous code element).
 
 Double brace syntax is also supported, but generally not recommended e.g. {{2+3}}{python} an {{4+5}}.
 
