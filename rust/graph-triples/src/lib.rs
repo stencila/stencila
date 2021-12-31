@@ -17,8 +17,8 @@ pub type Relations = Vec<(Resource, Pairs)>;
 
 pub mod resources;
 pub use resources::Resource;
-pub use resources::ResourceId;
 pub use resources::ResourceDependencies;
+pub use resources::ResourceId;
 
 pub mod relations;
 pub use relations::Relation;

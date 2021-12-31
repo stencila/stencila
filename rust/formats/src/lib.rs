@@ -218,7 +218,7 @@ pub fn match_name(name: &str) -> Format {
     // Early return for empty strings to avoid matching `Directory`
     // which has an empty extension.
     if name.is_empty() {
-        return Format::Unknown
+        return Format::Unknown;
     }
 
     let name = name.to_lowercase();
@@ -231,7 +231,7 @@ pub fn match_name(name: &str) -> Format {
             return format;
         }
     }
-    
+
     Format::Unknown
 }
 
@@ -257,7 +257,7 @@ pub fn match_path<P: AsRef<Path>>(path: &P) -> Format {
 }
 
 /// Normalize a format name to its title
-/// 
+///
 /// If the name can be matched against a known format then its
 /// title will be returned. Otherwise, the name converted to title
 /// case will be returned.

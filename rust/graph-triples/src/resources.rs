@@ -58,7 +58,6 @@ impl Resource {
     }
 }
 
-
 /// A summary of the dependencies of a resource in a dependency graph
 #[derive(Debug, Clone, Serialize)]
 pub struct ResourceDependencies {
@@ -69,12 +68,11 @@ pub struct ResourceDependencies {
     pub dependencies: Vec<String>,
 
     /// The depth of the resource in the dependency graph.
-    /// 
+    ///
     /// A resource that has no dependencies has a depth of zero.
     /// Otherwise the depth is the maximum depth of dependencies plus one.
-    pub depth: usize
+    pub depth: usize,
 }
-
 
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
 #[derivative(PartialEq, Eq, Hash)]
@@ -124,7 +122,7 @@ pub fn node(path: &Path, id: &str, kind: &str) -> Resource {
     Resource::Node(Node {
         path: path.to_path_buf(),
         id: id.into(),
-        kind: kind.into()
+        kind: kind.into(),
     })
 }
 
@@ -143,9 +141,9 @@ pub struct Code {
     pub kind: String,
 
     /// The programming language associated with the node (if any)
-    /// 
+    ///
     /// Used when planning which kernel to execute the node in
-    pub language: Option<String>
+    pub language: Option<String>,
 }
 
 /// Create a new `Code` resource
@@ -154,7 +152,7 @@ pub fn code(path: &Path, id: &str, kind: &str, language: Option<String>) -> Reso
         path: path.to_path_buf(),
         id: id.into(),
         kind: kind.into(),
-        language
+        language,
     })
 }
 

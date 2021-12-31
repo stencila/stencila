@@ -15,7 +15,7 @@ pub struct Step {
     node: resources::Code,
 
     /// The name of the kernel that the code will be executed in
-    /// 
+    ///
     /// If this is `None` it indicates that no kernel capable of executing
     /// the node is available on the machine
     kernel: Option<String>,
