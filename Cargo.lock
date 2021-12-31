@@ -3244,6 +3244,7 @@ dependencies = [
  "kernels",
  "node-address",
  "node-dispatch",
+ "num_cpus",
  "parsers",
  "path-utils",
  "serde",

@@ -50,6 +50,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    use crate::plan::PlanOptions;
+
     use super::*;
     use codec::CodecTrait;
     use codec_md::MdCodec;
@@ -89,9 +91,14 @@ mod tests {
             snapshot_add_suffix("-planner", || assert_json_snapshot!(&planner));
 
             // Generate various execution plans for the article and snapshot them
-            let appearance = planner.appearance_order(None);
+            // Specify `max_concurrency` to avoid differences due to machine
+            let options = PlanOptions {
+                max_concurrency: 5,
+                ..Default::default()
+            };
+            let appearance = planner.appearance_order(None, options.clone());
             snapshot_add_suffix("-appearance", || assert_json_snapshot!(&appearance));
-            let topological = planner.topological_order(None);
+            let topological = planner.topological_order(None, options);
             snapshot_add_suffix("-topological", || assert_json_snapshot!(&topological));
         });
 

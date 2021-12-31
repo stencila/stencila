@@ -5,6 +5,10 @@ input_file: fixtures/articles/code-relations.md
 
 ---
 {
+  "options": {
+    "ordering": "Appearance",
+    "max_concurrency": 5
+  },
   "stages": [
     {
       "steps": [
@@ -15,7 +19,8 @@ input_file: fixtures/articles/code-relations.md
             "kind": "CodeChunk",
             "language": "Calc"
           },
-          "kernel": "calc"
+          "kernel": "calc",
+          "forkable": false
         }
       ]
     },
@@ -28,7 +33,8 @@ input_file: fixtures/articles/code-relations.md
             "kind": "CodeChunk",
             "language": "Calc"
           },
-          "kernel": "calc"
+          "kernel": "calc",
+          "forkable": false
         }
       ]
     },
@@ -41,12 +47,9 @@ input_file: fixtures/articles/code-relations.md
             "kind": "CodeExpression",
             "language": "Calc"
           },
-          "kernel": "calc"
-        }
-      ]
-    },
-    {
-      "steps": [
+          "kernel": "calc",
+          "forkable": true
+        },
         {
           "node": {
             "path": "articles/code-relations.md",
@@ -54,12 +57,9 @@ input_file: fixtures/articles/code-relations.md
             "kind": "CodeExpression",
             "language": "Calc"
           },
-          "kernel": "calc"
-        }
-      ]
-    },
-    {
-      "steps": [
+          "kernel": "calc",
+          "forkable": true
+        },
         {
           "node": {
             "path": "articles/code-relations.md",
@@ -67,7 +67,8 @@ input_file: fixtures/articles/code-relations.md
             "kind": "CodeChunk",
             "language": "Calc"
           },
-          "kernel": "calc"
+          "kernel": "calc",
+          "forkable": false
         }
       ]
     },
@@ -80,12 +81,9 @@ input_file: fixtures/articles/code-relations.md
             "kind": "CodeExpression",
             "language": "Calc"
           },
-          "kernel": "calc"
-        }
-      ]
-    },
-    {
-      "steps": [
+          "kernel": "calc",
+          "forkable": true
+        },
         {
           "node": {
             "path": "articles/code-relations.md",
@@ -93,12 +91,9 @@ input_file: fixtures/articles/code-relations.md
             "kind": "CodeExpression",
             "language": "Calc"
           },
-          "kernel": "calc"
-        }
-      ]
-    },
-    {
-      "steps": [
+          "kernel": "calc",
+          "forkable": true
+        },
         {
           "node": {
             "path": "articles/code-relations.md",
@@ -106,7 +101,8 @@ input_file: fixtures/articles/code-relations.md
             "kind": "Parameter",
             "language": "Calc"
           },
-          "kernel": "calc"
+          "kernel": "calc",
+          "forkable": false
         }
       ]
     },
@@ -119,7 +115,8 @@ input_file: fixtures/articles/code-relations.md
             "kind": "CodeChunk",
             "language": "Calc"
           },
-          "kernel": "calc"
+          "kernel": "calc",
+          "forkable": false
         }
       ]
     }

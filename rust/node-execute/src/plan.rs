@@ -19,6 +19,12 @@ pub struct Step {
     /// If this is `None` it indicates that no kernel capable of executing
     /// the node is available on the machine
     kernel: Option<String>,
+
+    /// Can the code be executed in a fork of the kernel
+    /// 
+    /// Code that has no side effects (is "@pure") can be executed in a fork
+    /// of the kernel.
+    forkable: bool
 }
 
 /// A stage in an execution plan
@@ -31,24 +37,51 @@ pub struct Stage {
     steps: Vec<Step>,
 }
 
+/// The ordering of nodes used when generating a plan
+#[derive(Debug, Clone, Serialize)]
+pub enum PlanOrdering {
+    /// Nodes are executed in the order that they appear in the
+    /// document, top to bottom, left to right.
+    Appearance,
+
+    /// Nodes are executed in the order that ensures
+    /// that the dependencies of a node are executed before it is
+    Topological,
+}
+
+/// Options for generating a plan
+#[derive(Debug, Clone, Serialize)]
+pub struct PlanOptions {
+    /// The ordering of nodes used when generating the plan
+    pub ordering: PlanOrdering,
+
+    /// The maximum step concurrency
+    ///
+    /// Limits the number of [`Step`]s that can be grouped together in a [`Stage`].
+    /// Defaults to the number of logical CPU cores on the current machine.
+    pub max_concurrency: usize,
+}
+
+impl Default for PlanOptions {
+    fn default() -> Self {
+        Self {
+            ordering: PlanOrdering::Topological,
+            max_concurrency: num_cpus::get(),
+        }
+    }
+}
+
 /// An execution plan for a document
 #[derive(Debug, Default, Serialize)]
 pub struct Plan {
+    /// The options used to generate the plan
+    options: PlanOptions,
+
     /// The stages to be executed
     stages: Vec<Stage>,
 }
 
 /// An execution planner for a document
-///
-/// Holds the necessary information to execute a document using a number of
-/// strategies, including:
-///
-/// - appearance order: nodes are executed in the order that they appear in the
-///                     document, top to bottom, left to right.
-///
-/// - topological order: nodes are executed in the order that ensures
-///                      that the dependencies of a node are executed before it is
-///
 #[derive(Debug, Default, Serialize)]
 pub struct Planner {
     /// The [`Resource`]s in the document
@@ -120,8 +153,9 @@ impl Planner {
     ///
     /// - `start`: The node at which the plan should start. If `None` then
     ///            starts at the first node in the document.
-    pub fn appearance_order(&self, start: Option<ResourceId>) -> Plan {
-        let mut stages = Vec::with_capacity(self.appearance_order.len());
+    pub fn appearance_order(&self, start: Option<ResourceId>, options: PlanOptions) -> Plan {
+        let mut stages: Vec<Stage> = Vec::with_capacity(self.appearance_order.len());
+        let mut stage: Stage = Stage::default();
         let mut started = start.is_none();
         for resource_id in &self.appearance_order {
             // Should we start collecting steps?
@@ -140,20 +174,43 @@ impl Planner {
 
             // Find a kernel capable of executing code
             let selector = KernelSelector::new(None, code.language.clone(), None);
-            let kernel = selector
-                .select(&self.kernels)
-                .map(|kernel| kernel.name.clone());
-
-            let step = Step {
-                node: code.clone(),
-                kernel,
+            let kernel = selector.select(&self.kernels);
+            let (kernel_name, kernel_forkable) = match kernel {
+                Some(kernel) => (Some(kernel.name.clone()), kernel.forkable),
+                None => (None, false),
             };
 
-            let stage = Stage { steps: vec![step] };
+            // The step is forkable if the kernel is forkable and the node is a `CodeExpression`
+            // (assumed to be pure, ie. have no side effects).
+            let step_forkable = kernel_forkable && code.kind == "CodeExpression";
+
+            // Create the step and add it to the current stage
+            let step = Step {
+                node: code.clone(),
+                kernel: kernel_name,
+                forkable: step_forkable
+            };
+            stage.steps.push(step);
+
+            // Unless the step is forkable and the maximum concurrency
+            // has not been reached, start a new stage.
+            if !(step_forkable && stage.steps.len() < options.max_concurrency) {
+                stages.push(stage);
+                stage = Stage::default();
+            }
+        }
+        // Collect any steps not yet added (e.g. `CodeExpression` at end of document)
+        if !stage.steps.is_empty() {
             stages.push(stage);
         }
 
-        Plan { stages }
+        Plan {
+            options: PlanOptions {
+                ordering: PlanOrdering::Appearance,
+                ..options
+            },
+            stages,
+        }
     }
 
     /// Generate an execution plan based on topological order
@@ -166,7 +223,7 @@ impl Planner {
     /// - `start`: The node at which the plan should start. Only nodes that have `start`
     ///            as a dependency (direct or transitive) will be executed. If `None` then
     ///            the plan applies to all nodes in the document.
-    pub fn topological_order(&self, start: Option<ResourceId>) -> Plan {
+    pub fn topological_order(&self, start: Option<ResourceId>, options: PlanOptions) -> Plan {
         let mut stages = Vec::with_capacity(self.topological_order.len());
         let mut started = start.is_none();
         for resource_dependencies in &self.topological_order {
@@ -202,12 +259,19 @@ impl Planner {
             let step = Step {
                 node: code.clone(),
                 kernel,
+                forkable: false
             };
 
             let stage = Stage { steps: vec![step] };
             stages.push(stage);
         }
 
-        Plan { stages }
+        Plan {
+            options: PlanOptions {
+                ordering: PlanOrdering::Topological,
+                ..options
+            },
+            stages,
+        }
     }
 }
