@@ -19,7 +19,7 @@ use strum::{EnumString, EnumVariantNames, VariantNames};
 use tokio::sync::{broadcast, mpsc, Mutex};
 
 // Re-exports
-pub use kernel::{Kernel, KernelSelector, Task, TaskResult};
+pub use kernel::{Kernel, KernelSelector, KernelType, Task, TaskResult};
 
 /// A "meta" kernel to dispatch to different types of kernels
 ///
@@ -1405,6 +1405,9 @@ impl KernelSpace {
 #[allow(clippy::vec_init_then_push, unused_mut)]
 pub async fn available() -> Result<Vec<Kernel>> {
     let mut available: Vec<Kernel> = Vec::new();
+
+    #[cfg(feature = "kernel-store")]
+    available.push(kernel_store::StoreKernel::new().spec());
 
     #[cfg(feature = "kernel-calc")]
     available.push(kernel_calc::CalcKernel::new().spec());

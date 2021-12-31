@@ -53,6 +53,7 @@ mod tests {
     use super::*;
     use codec::CodecTrait;
     use codec_md::MdCodec;
+    use kernels::KernelType;
     use std::path::PathBuf;
     use test_snaps::{
         fixtures, insta::assert_json_snapshot, snapshot_add_suffix, snapshot_fixtures_path_content,
@@ -61,7 +62,13 @@ mod tests {
     /// Higher level tests of the top level functions in this crate
     #[tokio::test]
     async fn md_articles() -> Result<()> {
-        let kernels = kernels::available().await?;
+        // So that test results are not dependant upon the the machine the test is run on or how
+        // the test is compiled only use built-in kernels
+        let kernels: Vec<Kernel> = kernels::available()
+            .await?
+            .into_iter()
+            .filter(|kernel| matches!(kernel.r#type, KernelType::Builtin))
+            .collect();
 
         let fixtures = fixtures();
         snapshot_fixtures_path_content("articles/code*.md", |path, content| {

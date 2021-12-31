@@ -27,7 +27,7 @@ input_file: fixtures/articles/code-relations.md
             "id": "pa-1",
             "kind": "Parameter"
           },
-          "kernel": "calc"
+          "kernel": "store"
         }
       ]
     },

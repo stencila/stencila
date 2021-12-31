@@ -199,6 +199,12 @@ input_file: fixtures/articles/code-relations.md
   ],
   "kernels": [
     {
+      "name": "store",
+      "type": "Builtin",
+      "languages": [],
+      "forkable": false
+    },
+    {
       "name": "calc",
       "type": "Builtin",
       "languages": [

@@ -28,4 +28,4 @@ tokio = { version = "1.13.0", features = ["macros"] }
 test-snaps = { path = "../test-snaps", version = "0.0.0" }
 # Enable the parser and kernel for any languages used in tests
 parsers = { path = "../parsers", version = "0.0.0", features = ["parser-calc"] }
-kernels = { path = "../kernels", version = "0.0.0", features = ["kernel-calc"] }
+kernels = { path = "../kernels", version = "0.0.0", features = ["kernel-store", "kernel-calc"] }

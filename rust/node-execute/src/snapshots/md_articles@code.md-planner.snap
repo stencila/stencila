@@ -91,6 +91,12 @@ input_file: fixtures/articles/code.md
   ],
   "kernels": [
     {
+      "name": "store",
+      "type": "Builtin",
+      "languages": [],
+      "forkable": false
+    },
+    {
       "name": "calc",
       "type": "Builtin",
       "languages": [
