@@ -89,5 +89,13 @@ input_file: fixtures/articles/code.md
       "depth": 0
     }
   ],
-  "kernels": []
+  "kernels": [
+    {
+      "name": "calc",
+      "type": "Builtin",
+      "languages": [
+        "calc"
+      ]
+    }
+  ]
 }

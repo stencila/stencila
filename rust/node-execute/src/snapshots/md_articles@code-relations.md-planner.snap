@@ -197,5 +197,13 @@ input_file: fixtures/articles/code-relations.md
       "depth": 4
     }
   ],
-  "kernels": []
+  "kernels": [
+    {
+      "name": "calc",
+      "type": "Builtin",
+      "languages": [
+        "calc"
+      ]
+    }
+  ]
 }

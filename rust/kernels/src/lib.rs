@@ -1409,9 +1409,6 @@ pub async fn available() -> Result<Vec<Kernel>> {
     #[cfg(feature = "kernel-calc")]
     available.push(kernel_calc::CalcKernel::new().spec());
 
-    #[cfg(feature = "kernel-jupyter")]
-    available.append(&mut kernel_jupyter::JupyterKernel::available().await?);
-
     macro_rules! microkernel_available {
         ($feat:literal, $crat:ident, $list:expr) => {
             #[cfg(feature = $feat)]
@@ -1429,6 +1426,9 @@ pub async fn available() -> Result<Vec<Kernel>> {
     microkernel_available!("kernel-python", kernel_python, available);
     microkernel_available!("kernel-r", kernel_r, available);
     microkernel_available!("kernel-zsh", kernel_zsh, available);
+
+    #[cfg(feature = "kernel-jupyter")]
+    available.append(&mut kernel_jupyter::JupyterKernel::available().await?);
 
     Ok(available)
 }

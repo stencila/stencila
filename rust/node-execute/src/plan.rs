@@ -1,7 +1,7 @@
 use eyre::Result;
 use graph::Graph;
 use graph_triples::{resources, Relations, Resource, ResourceDependencies, ResourceId};
-use kernels::Kernel;
+use kernels::{Kernel, KernelSelector};
 use serde::Serialize;
 use std::{collections::BTreeMap, path::Path};
 
@@ -13,6 +13,12 @@ use std::{collections::BTreeMap, path::Path};
 pub struct Step {
     /// The code node to be executed
     node: resources::Code,
+
+    /// The name of the kernel that the code will be executed in
+    /// 
+    /// If this is `None` it indicates that no kernel capable of executing
+    /// the node is available on the machine
+    kernel: Option<String>,
 }
 
 /// A stage in an execution plan
@@ -127,11 +133,20 @@ impl Planner {
             }
 
             // Only include `Code` resources (i.e. ignore non-executable `Node`s like `Link` etc)
-            let step = match self.resources.get(resource_id) {
-                Some(Resource::Code(resource)) => Step {
-                    node: resource.clone(),
-                },
+            let code = match self.resources.get(resource_id) {
+                Some(Resource::Code(code)) => code,
                 _ => continue,
+            };
+
+            // Find a kernel capable of executing code
+            let selector = KernelSelector::new(None, code.language.clone(), None);
+            let kernel = selector
+                .select(&self.kernels)
+                .map(|kernel| kernel.name.clone());
+
+            let step = Step {
+                node: code.clone(),
+                kernel,
             };
 
             let stage = Stage { steps: vec![step] };
@@ -172,12 +187,21 @@ impl Planner {
                 }
             }
 
-            // Only include `Code` resources (i.e. ignore `Symbol`s etc)
-            let step = match self.resources.get(resource_id) {
-                Some(Resource::Code(resource)) => Step {
-                    node: resource.clone(),
-                },
+            // Only include `Code` resources (i.e. ignore `Symbol`s etc which will also be in the topo sort)
+            let code = match self.resources.get(resource_id) {
+                Some(Resource::Code(code)) => code,
                 _ => continue,
+            };
+
+            // Find a kernel capable of executing code
+            let selector = KernelSelector::new(None, code.language.clone(), None);
+            let kernel = selector
+                .select(&self.kernels)
+                .map(|kernel| kernel.name.clone());
+
+            let step = Step {
+                node: code.clone(),
+                kernel,
             };
 
             let stage = Stage { steps: vec![step] };

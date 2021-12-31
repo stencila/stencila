@@ -122,7 +122,7 @@ pub struct KernelInfo {
 }
 
 /// A selector used to choose amongst alternative kernels
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct KernelSelector {
     /// A string that will match against the kernel `name` or any of its `languages`
     pub any: Option<String>,
@@ -271,6 +271,11 @@ impl KernelSelector {
         }
 
         matched
+    }
+
+    /// Select the first kernel that matches against this selector
+    pub fn select<'lt>(&self, kernels: &'lt [Kernel]) -> Option<&'lt Kernel> {
+        kernels.iter().find(|kernel| self.matches(kernel))
     }
 }
 
