@@ -31,6 +31,10 @@ pub struct CompileContext {
     /// advantage is that the generated ids are deterministic.
     ids: HashMap<String, usize>,
 
+    /// The programming language of the last code node encountered during
+    /// compilation
+    programming_language: Option<String>,
+
     /// A map of node ids to addresses
     pub(crate) addresses: Addresses,
 
@@ -95,6 +99,23 @@ macro_rules! identify {
         $context.addresses.insert(id.clone(), $address.clone());
         id
     }};
+}
+
+/// Set the programming of a node or of the context
+///
+/// Ok, bad name but it's like `identify!`: if the node does
+/// not have a `programming_language` then we'll use the context's
+/// and if it does than we'll set the context's.
+macro_rules! langify {
+    ($node:expr, $context:expr) => {
+        if $node.programming_language.is_empty() {
+            $context.programming_language.clone().unwrap_or_default()
+        } else {
+            let lang = normalize_title(&$node.programming_language);
+            $context.programming_language = Some(lang.clone());
+            lang
+        }
+    };
 }
 
 // This first set of implementations are for node types that need
@@ -204,14 +225,23 @@ executable_media_object!(MediaObject, "me");
 executable_media_object!(VideoObject, "vi");
 executable_media_object!(VideoObjectSimple, "vi");
 
-/// Compile a `Parameter` node
-///
-/// Adds an `Assign` relation.
 #[async_trait]
 impl Executable for Parameter {
+    /// Compile a `Parameter` node
+    ///
+    /// Adds an `Assign` relation to the compilation context with the name and kind of value.
+    /// If the language of the parameter is not defined (currently schema does not allow for this
+    /// anyway), then use the language of the last code node.
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("pa", self, address, context);
-        let subject = resources::code(&context.path, &id, "Parameter", None);
+
+        let subject = resources::code(
+            &context.path,
+            &id,
+            "Parameter",
+            context.programming_language.clone(),
+        );
+
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
             Some(ValidatorTypes::IntegerValidator(..)) => "Integer",
@@ -221,7 +251,9 @@ impl Executable for Parameter {
             Some(ValidatorTypes::ArrayValidator(..)) => "Array",
             _ => "",
         };
+
         let object = resources::symbol(&context.path, &self.name, kind);
+
         let relations = vec![(relations::assigns(NULL_RANGE), object)];
 
         context.relations.push((subject, relations));
@@ -238,28 +270,27 @@ impl Executable for Parameter {
     }
 }
 
-/// Compile a `CodeChunk` node
-///
-/// Performs semantic analysis of the code (if language is supported) and adds the resulting
-/// relations to the `CompileContext`
 #[async_trait]
 impl Executable for CodeChunk {
+    /// Compile a `CodeChunk` node
+    ///
+    /// Performs semantic analysis of the code (if language is supported) and adds the resulting
+    /// relations to the compilation context. If the `programming_language` is an empty string
+    /// then use the current language of the context.
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("cc", self, address, context);
-        let relations = match parsers::parse(&context.path, &self.text, &self.programming_language)
-        {
+        let lang = langify!(self, context);
+
+        let relations = match parsers::parse(&context.path, &self.text, &lang) {
             Ok(relations) => relations,
             Err(error) => {
                 tracing::debug!("While parsing code chunk `{}`: {}", id, error);
                 Vec::new()
             }
         };
-        let subject = resources::code(
-            &context.path,
-            &id,
-            "CodeChunk",
-            Some(normalize_title(&self.programming_language)),
-        );
+
+        let subject = resources::code(&context.path, &id, "CodeChunk", Some(lang));
+
         context.relations.push((subject, relations));
 
         Ok(())
@@ -294,28 +325,32 @@ impl Executable for CodeChunk {
     }
 }
 
-/// Compile a `CodeExpression` node
-///
-/// Performs semantic analysis of the code (if necessary) and adds the resulting
-/// relations.
 #[async_trait]
 impl Executable for CodeExpression {
+    /// Compile a `CodeExpression` node
+    ///
+    /// Performs semantic analysis of the code (if necessary) and adds the resulting
+    /// relations to the compilation context. If the `programming_language` is an empty string
+    /// then use the current language of the context
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("ce", self, address, context);
-        let relations = match parsers::parse(&context.path, &self.text, &self.programming_language)
-        {
+        let lang = langify!(self, context);
+
+        let relations = match parsers::parse(&context.path, &self.text, &lang) {
             Ok(relations) => relations,
             Err(error) => {
                 tracing::debug!("While parsing code expression `{}`: {}", id, error);
                 Vec::new()
             }
         };
+
         let subject = resources::code(
             &context.path,
             &id,
             "CodeExpression",
-            Some(normalize_title(&self.programming_language)),
+            Some(normalize_title(&lang)),
         );
+
         context.relations.push((subject, relations));
 
         Ok(())

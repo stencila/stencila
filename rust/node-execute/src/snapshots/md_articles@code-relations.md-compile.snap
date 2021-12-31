@@ -332,7 +332,8 @@ input_file: fixtures/articles/code-relations.md
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "pa-1",
-        "kind": "Parameter"
+        "kind": "Parameter",
+        "language": "Calc"
       },
       [
         [

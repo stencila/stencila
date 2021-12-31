@@ -32,7 +32,7 @@ input_file: fixtures/articles/code.md
       "path": "articles/code.md",
       "id": "ce-3",
       "kind": "CodeExpression",
-      "language": ""
+      "language": "Python"
     },
     "code://articles/code.md#ce-4": {
       "type": "Code",
@@ -46,7 +46,7 @@ input_file: fixtures/articles/code.md
       "path": "articles/code.md",
       "id": "ce-5",
       "kind": "CodeExpression",
-      "language": ""
+      "language": "Python"
     }
   },
   "appearance_order": [

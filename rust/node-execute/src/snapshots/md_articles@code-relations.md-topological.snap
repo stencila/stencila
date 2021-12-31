@@ -25,9 +25,10 @@ input_file: fixtures/articles/code-relations.md
           "node": {
             "path": "articles/code-relations.md",
             "id": "pa-1",
-            "kind": "Parameter"
+            "kind": "Parameter",
+            "language": "Calc"
           },
-          "kernel": "store"
+          "kernel": "calc"
         }
       ]
     },
