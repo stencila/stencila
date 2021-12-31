@@ -51,14 +51,20 @@ pub struct Kernel {
 
     /// The languages supported by the kernel
     ///
-    /// These should be the `name` of one of the `Format`s defined in
-    /// the `formats` crate. Many kernels only support one language.
+    /// These should be the `title` of one of the `Format`s defined in
+    /// the `formats` crate (but don't have to be). Many kernels only support one language.
     pub languages: Vec<String>,
+
+    /// Is the kernel fork-able on the current machine?
+    ///
+    /// Used when generating execution plans to determine which execution steps
+    /// can be conducted concurrently
+    pub forkable: bool,
 }
 
 impl Kernel {
     // Create a new kernel specification
-    pub fn new(name: &str, r#type: KernelType, languages: &[&str]) -> Self {
+    pub fn new(name: &str, r#type: KernelType, languages: &[&str], forkable: bool) -> Self {
         let languages = languages
             .iter()
             .map(|language| language.to_string())
@@ -67,6 +73,7 @@ impl Kernel {
             name: name.to_string(),
             r#type,
             languages,
+            forkable,
         }
     }
 
@@ -668,7 +675,7 @@ mod test {
 
     #[test]
     fn kernel_selector_matches() {
-        let k = Kernel::new("foo", KernelType::Builtin, &["bar", "baz"]);
+        let k = Kernel::new("foo", KernelType::Builtin, &["bar", "baz"], false);
 
         assert!(KernelSelector::parse("foo").matches(&k));
         assert!(KernelSelector::parse("bar").matches(&k));

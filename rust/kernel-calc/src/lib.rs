@@ -29,7 +29,7 @@ impl CalcKernel {
 #[async_trait]
 impl KernelTrait for CalcKernel {
     fn spec(&self) -> Kernel {
-        Kernel::new("calc", KernelType::Builtin, &["calc"])
+        Kernel::new("calc", KernelType::Builtin, &["calc"], true)
     }
 
     async fn status(&self) -> Result<KernelStatus> {
@@ -117,6 +117,11 @@ impl KernelTrait for CalcKernel {
         }
         task.finished(TaskResult::new(outputs, messages));
         Ok(task)
+    }
+
+    async fn exec_fork(&mut self, code: &str) -> Result<Task> {
+        let mut fork = self.clone();
+        fork.exec_async(code).await
     }
 }
 

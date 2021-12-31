@@ -273,6 +273,7 @@ impl KernelTrait for MicroKernel {
             name: self.name.clone(),
             r#type: KernelType::Micro,
             languages: self.languages.clone(),
+            forkable: self.forkable,
         }
     }
 

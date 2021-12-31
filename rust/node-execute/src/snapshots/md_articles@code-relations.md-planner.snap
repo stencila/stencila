@@ -203,7 +203,8 @@ input_file: fixtures/articles/code-relations.md
       "type": "Builtin",
       "languages": [
         "calc"
-      ]
+      ],
+      "forkable": true
     }
   ]
 }

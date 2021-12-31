@@ -27,7 +27,7 @@ impl StoreKernel {
 #[async_trait]
 impl KernelTrait for StoreKernel {
     fn spec(&self) -> Kernel {
-        Kernel::new("store", kernel::KernelType::Builtin, &[])
+        Kernel::new("store", kernel::KernelType::Builtin, &[], false)
     }
 
     async fn status(&self) -> Result<KernelStatus> {

@@ -95,7 +95,8 @@ input_file: fixtures/articles/code.md
       "type": "Builtin",
       "languages": [
         "calc"
-      ]
+      ],
+      "forkable": true
     }
   ]
 }
