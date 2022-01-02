@@ -48,7 +48,7 @@ impl Resource {
             Resource::Node(Node { path, id, .. }) => {
                 ["node://", &path.display().to_string(), "#", id].concat()
             }
-            Resource::File(File { path, .. }) => ["file://", &path.display().to_string()].concat(),
+            Resource::File(File { path, .. }) => ["file://", &path.to_slash_lossy()].concat(),
             Resource::Source(Source { name, .. }) => ["source://", name].concat(),
             Resource::Module(Module { language, name, .. }) => {
                 ["module://", language, "#", name].concat()
