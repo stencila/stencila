@@ -231,7 +231,8 @@ impl Executable for Parameter {
     ///
     /// Adds an `Assign` relation to the compilation context with the name and kind of value.
     /// If the language of the parameter is not defined (currently schema does not allow for this
-    /// anyway), then use the language of the last code node.
+    /// anyway), then use the language of the last code node. By definition, a `Parameter` is always
+    /// "impure" (has a side effect).
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("pa", self, address, context);
 
@@ -240,6 +241,7 @@ impl Executable for Parameter {
             &id,
             "Parameter",
             context.programming_language.clone(),
+            false,
         );
 
         let kind = match self.validator.as_deref() {
@@ -289,7 +291,21 @@ impl Executable for CodeChunk {
             }
         };
 
-        let subject = resources::code(&context.path, &id, "CodeChunk", Some(lang));
+        let pure = relations
+            .iter()
+            .filter(|(relation, ..)| {
+                matches!(
+                    relation,
+                    Relation::Assign(..)
+                        | Relation::Alter(..)
+                        | Relation::Import(..)
+                        | Relation::Write(..)
+                )
+            })
+            .count()
+            == 0;
+
+        let subject = resources::code(&context.path, &id, "CodeChunk", Some(lang), pure);
 
         context.relations.push((subject, relations));
 
@@ -331,7 +347,10 @@ impl Executable for CodeExpression {
     ///
     /// Performs semantic analysis of the code (if necessary) and adds the resulting
     /// relations to the compilation context. If the `programming_language` is an empty string
-    /// then use the current language of the context
+    /// then use the current language of the context.
+    ///
+    /// A `CodeExpression` is assumed to be pure (i.e. have no side effects and can be executed
+    /// in a fork).
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("ce", self, address, context);
         let lang = langify!(self, context);
@@ -349,6 +368,7 @@ impl Executable for CodeExpression {
             &id,
             "CodeExpression",
             Some(normalize_title(&lang)),
+            true,
         );
 
         context.relations.push((subject, relations));

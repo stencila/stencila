@@ -20,11 +20,11 @@ pub struct Step {
     /// the node is available on the machine
     kernel: Option<String>,
 
-    /// Can the code be executed in a fork of the kernel
-    /// 
-    /// Code that has no side effects (is "@pure") can be executed in a fork
-    /// of the kernel.
-    forkable: bool
+    /// The code will be executed in a fork of the kernel
+    ///
+    /// Code that has no side effects or who's side effects should be
+    /// ignored (i.e. is "@pure") are executed in a fork of the kernel.
+    fork: bool,
 }
 
 /// A stage in an execution plan
@@ -144,6 +144,21 @@ impl Planner {
         })
     }
 
+    /// Generate an execution plan
+    ///
+    /// # Arguments
+    ///
+    /// - `start`: The node at which the plan should start. If `None` then
+    ///            starts at the first node in the document.
+    ///
+    /// - `options`: Options for the plan
+    pub fn plan(&self, start: Option<ResourceId>, options: PlanOptions) -> Plan {
+        match options.ordering {
+            PlanOrdering::Appearance => self.plan_appearance(start, options),
+            PlanOrdering::Topological => self.plan_topological(start, options),
+        }
+    }
+
     /// Generate an execution plan based on appearance order
     ///
     /// The generated plan ignores the dependencies between resources and
@@ -153,7 +168,9 @@ impl Planner {
     ///
     /// - `start`: The node at which the plan should start. If `None` then
     ///            starts at the first node in the document.
-    pub fn appearance_order(&self, start: Option<ResourceId>, options: PlanOptions) -> Plan {
+    ///
+    /// - `options`: Options for the plan
+    pub fn plan_appearance(&self, start: Option<ResourceId>, options: PlanOptions) -> Plan {
         let mut stages: Vec<Stage> = Vec::with_capacity(self.appearance_order.len());
         let mut stage: Stage = Stage::default();
         let mut started = start.is_none();
@@ -172,34 +189,35 @@ impl Planner {
                 _ => continue,
             };
 
-            // Find a kernel capable of executing code
+            // Only include code for which there is a kernel capable of executing it
             let selector = KernelSelector::new(None, code.language.clone(), None);
             let kernel = selector.select(&self.kernels);
             let (kernel_name, kernel_forkable) = match kernel {
                 Some(kernel) => (Some(kernel.name.clone()), kernel.forkable),
-                None => (None, false),
+                None => continue,
             };
 
-            // The step is forkable if the kernel is forkable and the node is a `CodeExpression`
-            // (assumed to be pure, ie. have no side effects).
-            let step_forkable = kernel_forkable && code.kind == "CodeExpression";
+            // If the kernel is forkable and the code is `@pure` (inferred or declared)
+            // then execute the step in a fork
+            let fork = kernel_forkable && code.pure;
 
             // Create the step and add it to the current stage
             let step = Step {
                 node: code.clone(),
                 kernel: kernel_name,
-                forkable: step_forkable
+                fork,
             };
             stage.steps.push(step);
 
             // Unless the step is forkable and the maximum concurrency
             // has not been reached, start a new stage.
-            if !(step_forkable && stage.steps.len() < options.max_concurrency) {
+            if !(fork && stage.steps.len() < options.max_concurrency) {
                 stages.push(stage);
                 stage = Stage::default();
             }
         }
-        // Collect any steps not yet added (e.g. `CodeExpression` at end of document)
+
+        // Collect any steps not yet added (e.g. a `CodeExpression` at end of document)
         if !stage.steps.is_empty() {
             stages.push(stage);
         }
@@ -223,8 +241,11 @@ impl Planner {
     /// - `start`: The node at which the plan should start. Only nodes that have `start`
     ///            as a dependency (direct or transitive) will be executed. If `None` then
     ///            the plan applies to all nodes in the document.
-    pub fn topological_order(&self, start: Option<ResourceId>, options: PlanOptions) -> Plan {
+    ///
+    /// - `options`: Options for the plan
+    pub fn plan_topological(&self, start: Option<ResourceId>, options: PlanOptions) -> Plan {
         let mut stages = Vec::with_capacity(self.topological_order.len());
+        let mut stage: Stage = Stage::default();
         let mut started = start.is_none();
         for resource_dependencies in &self.topological_order {
             let resource_id = &resource_dependencies.id;
@@ -244,7 +265,8 @@ impl Planner {
                 }
             }
 
-            // Only include `Code` resources (i.e. ignore `Symbol`s etc which will also be in the topo sort)
+            // Only include `Code` resources (i.e. ignore `Symbol`s etc which will also be in the dependency
+            // graph and therefore in `topological_order` as well)
             let code = match self.resources.get(resource_id) {
                 Some(Resource::Code(code)) => code,
                 _ => continue,
@@ -252,17 +274,34 @@ impl Planner {
 
             // Find a kernel capable of executing code
             let selector = KernelSelector::new(None, code.language.clone(), None);
-            let kernel = selector
-                .select(&self.kernels)
-                .map(|kernel| kernel.name.clone());
-
-            let step = Step {
-                node: code.clone(),
-                kernel,
-                forkable: false
+            let kernel = selector.select(&self.kernels);
+            let (kernel_name, kernel_forkable) = match kernel {
+                Some(kernel) => (Some(kernel.name.clone()), kernel.forkable),
+                None => continue,
             };
 
-            let stage = Stage { steps: vec![step] };
+            // If the kernel is forkable and the code is `@pure` (inferred or declared)
+            // then execute the step in a fork
+            let fork = kernel_forkable && code.pure;
+
+            // Create the step and add it to the current stage
+            let step = Step {
+                node: code.clone(),
+                kernel: kernel_name,
+                fork,
+            };
+            stage.steps.push(step);
+
+            // Unless the step is forkable and the maximum concurrency
+            // has not been reached, start a new stage.
+            if !(fork && stage.steps.len() < options.max_concurrency) {
+                stages.push(stage);
+                stage = Stage::default();
+            }
+        }
+
+        // Collect any steps not yet added (e.g. a `CodeExpression` at end of document)
+        if !stage.steps.is_empty() {
             stages.push(stage);
         }
 

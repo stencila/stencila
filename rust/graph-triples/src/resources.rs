@@ -144,15 +144,23 @@ pub struct Code {
     ///
     /// Used when planning which kernel to execute the node in
     pub language: Option<String>,
+
+    /// Whether the code has side effects
+    ///
+    /// Inferred from the relations of the resource (ie. whether it
+    /// has `Assign`, `Alter`, `Import` etc relations) or from an explicit
+    /// `@pure` or `@impure` tag.
+    pub pure: bool,
 }
 
 /// Create a new `Code` resource
-pub fn code(path: &Path, id: &str, kind: &str, language: Option<String>) -> Resource {
+pub fn code(path: &Path, id: &str, kind: &str, language: Option<String>, pure: bool) -> Resource {
     Resource::Code(Code {
         path: path.to_path_buf(),
         id: id.into(),
         kind: kind.into(),
         language,
+        pure,
     })
 }
 

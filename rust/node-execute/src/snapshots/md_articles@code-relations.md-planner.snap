@@ -11,63 +11,72 @@ input_file: fixtures/articles/code-relations.md
       "path": "articles/code-relations.md",
       "id": "cc-1",
       "kind": "CodeChunk",
-      "language": "Calc"
+      "language": "Calc",
+      "pure": false
     },
     "code://articles/code-relations.md#cc-2": {
       "type": "Code",
       "path": "articles/code-relations.md",
       "id": "cc-2",
       "kind": "CodeChunk",
-      "language": "Calc"
+      "language": "Calc",
+      "pure": true
     },
     "code://articles/code-relations.md#cc-3": {
       "type": "Code",
       "path": "articles/code-relations.md",
       "id": "cc-3",
       "kind": "CodeChunk",
-      "language": "Calc"
+      "language": "Calc",
+      "pure": false
     },
     "code://articles/code-relations.md#cc-4": {
       "type": "Code",
       "path": "articles/code-relations.md",
       "id": "cc-4",
       "kind": "CodeChunk",
-      "language": "Calc"
+      "language": "Calc",
+      "pure": true
     },
     "code://articles/code-relations.md#ce-1": {
       "type": "Code",
       "path": "articles/code-relations.md",
       "id": "ce-1",
       "kind": "CodeExpression",
-      "language": "Calc"
+      "language": "Calc",
+      "pure": true
     },
     "code://articles/code-relations.md#ce-2": {
       "type": "Code",
       "path": "articles/code-relations.md",
       "id": "ce-2",
       "kind": "CodeExpression",
-      "language": "Calc"
+      "language": "Calc",
+      "pure": true
     },
     "code://articles/code-relations.md#ce-3": {
       "type": "Code",
       "path": "articles/code-relations.md",
       "id": "ce-3",
       "kind": "CodeExpression",
-      "language": "Calc"
+      "language": "Calc",
+      "pure": true
     },
     "code://articles/code-relations.md#ce-4": {
       "type": "Code",
       "path": "articles/code-relations.md",
       "id": "ce-4",
       "kind": "CodeExpression",
-      "language": "Calc"
+      "language": "Calc",
+      "pure": true
     },
     "code://articles/code-relations.md#pa-1": {
       "type": "Code",
       "path": "articles/code-relations.md",
       "id": "pa-1",
       "kind": "Parameter",
-      "language": "Calc"
+      "language": "Calc",
+      "pure": false
     },
     "symbol://articles/code-relations.md#a": {
       "type": "Symbol",
