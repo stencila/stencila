@@ -40,13 +40,13 @@ impl Resource {
     pub fn id(&self) -> String {
         match self {
             Resource::Symbol(Symbol { path, name, .. }) => {
-                ["symbol://", &path.display().to_string(), "#", name].concat()
+                ["symbol://", &path.to_slash_lossy(), "#", name].concat()
             }
             Resource::Code(Code { path, id, .. }) => {
-                ["code://", &path.display().to_string(), "#", id].concat()
+                ["code://", &path.to_slash_lossy(), "#", id].concat()
             }
             Resource::Node(Node { path, id, .. }) => {
-                ["node://", &path.display().to_string(), "#", id].concat()
+                ["node://", &path.to_slash_lossy(), "#", id].concat()
             }
             Resource::File(File { path, .. }) => ["file://", &path.to_slash_lossy()].concat(),
             Resource::Source(Source { name, .. }) => ["source://", name].concat(),
