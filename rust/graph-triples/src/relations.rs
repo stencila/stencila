@@ -51,7 +51,7 @@ pub struct Alter {
 }
 
 /// Create a new `Alter` relation
-pub fn alter(range: Range) -> Relation {
+pub fn alters(range: Range) -> Relation {
     Relation::Alter(Alter { range })
 }
 

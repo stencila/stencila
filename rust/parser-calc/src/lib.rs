@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use parser::{
     eyre::Result,
     graph_triples::{relations, resources, Pairs},
-    utils::{apply_tags},
+    utils::apply_tags,
     Parser, ParserTrait,
 };
 use regex::Regex;

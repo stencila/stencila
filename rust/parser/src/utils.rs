@@ -26,7 +26,7 @@ pub fn parse_tags(
     kind: Option<String>,
 ) -> (Vec<(Relation, Resource)>, Vec<String>) {
     static REGEX_TAG: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"@(imports|assigns|uses|modifies|reads|writes)\s+(.*?)(\*/)?$")
+        Regex::new(r"@(imports|assigns|alters|uses|modifies|reads|writes)\s+(.*?)(\*/)?$")
             .expect("Unable to create regex")
     });
     static REGEX_ITEMS: Lazy<Regex> =
@@ -43,6 +43,7 @@ pub fn parse_tags(
             let relation = match tag.as_str() {
                 "imports" => relations::uses(range),
                 "assigns" => relations::assigns(range),
+                "alters" => relations::alters(range),
                 "uses" => relations::uses(range),
                 "reads" => relations::reads(range),
                 "writes" => relations::writes(range),
@@ -61,7 +62,7 @@ pub fn parse_tags(
 
                 let resource = match tag.as_str() {
                     "imports" => resources::module(lang, &item),
-                    "assigns" | "uses" => resources::symbol(path, &item, &kind),
+                    "assigns" | "alters" | "uses" => resources::symbol(path, &item, &kind),
                     "reads" | "writes" => resources::file(&PathBuf::from(item)),
                     _ => continue,
                 };
@@ -88,14 +89,13 @@ pub fn apply_tags(
 
     // Remove existing relations for relation types where the `only` keyword is present
     for only in only_relations {
-        pairs.retain(|(relation, resource)| {
-            !(matches!(relation, Relation::Use(..))
-                && matches!(resource, Resource::Module(..))
-                && only == "imports"
+        pairs.retain(|(relation, _resource)| {
+            !(matches!(relation, Relation::Import(..)) && only == "imports"
                 || matches!(relation, Relation::Assign(..)) && only == "assigns"
-                || matches!(relation, Relation::Use(..))
-                    && matches!(resource, Resource::Symbol(..))
-                    && only == "uses")
+                || matches!(relation, Relation::Alter(..)) && only == "alters"
+                || matches!(relation, Relation::Use(..)) && only == "uses"
+                || matches!(relation, Relation::Read(..)) && only == "reads"
+                || matches!(relation, Relation::Write(..)) && only == "writes")
         })
     }
 
