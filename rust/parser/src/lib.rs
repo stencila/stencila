@@ -6,6 +6,7 @@ use std::path::Path;
 // Export and re-export for the convenience of crates that implement a parser
 pub mod utils;
 pub use eyre;
+pub use formats;
 pub use graph_triples;
 
 /// A specification for parsers

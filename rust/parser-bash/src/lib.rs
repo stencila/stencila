@@ -2,6 +2,7 @@ use once_cell::sync::Lazy;
 use parser_treesitter::{
     apply_comment_tags,
     eyre::Result,
+    formats::Format,
     graph_triples::{relations, resources, Pairs},
     Parser, ParserTrait, TreesitterParser,
 };
@@ -20,7 +21,7 @@ pub struct BashParser {}
 impl ParserTrait for BashParser {
     fn spec() -> Parser {
         Parser {
-            language: "bash".to_string(),
+            language: Format::Bash.spec().title,
         }
     }
 

@@ -2,6 +2,7 @@ use once_cell::sync::Lazy;
 use parser_treesitter::{
     apply_comment_tags,
     eyre::Result,
+    formats::Format,
     graph_triples::{relations, resources, Pair, Pairs},
     path_utils,
     utils::remove_quotes,
@@ -236,7 +237,7 @@ pub struct JsParser {}
 impl ParserTrait for JsParser {
     fn spec() -> Parser {
         Parser {
-            language: "js".to_string(),
+            language: Format::JavaScript.spec().title,
         }
     }
 

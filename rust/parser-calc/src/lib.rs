@@ -1,6 +1,7 @@
 use once_cell::sync::Lazy;
 use parser::{
     eyre::Result,
+    formats::Format,
     graph_triples::{relations, resources, Pairs},
     utils::apply_tags,
     Parser, ParserTrait,
@@ -14,7 +15,7 @@ pub struct CalcParser {}
 impl ParserTrait for CalcParser {
     fn spec() -> Parser {
         Parser {
-            language: "calc".to_string(),
+            language: Format::Calc.spec().title,
         }
     }
 

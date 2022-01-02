@@ -3618,6 +3618,7 @@ name = "parser"
 version = "0.0.0"
 dependencies = [
  "eyre",
+ "formats",
  "graph-triples",
  "once_cell",
  "regex",
@@ -3697,7 +3698,6 @@ dependencies = [
 name = "parser-treesitter"
 version = "0.0.0"
 dependencies = [
- "graph-triples",
  "parser",
  "path-utils",
  "tree-sitter",

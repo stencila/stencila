@@ -2,6 +2,7 @@ use once_cell::sync::Lazy;
 use parser_treesitter::{
     apply_comment_tags,
     eyre::Result,
+    formats::Format,
     graph_triples::{relations, resources, Pairs},
     Parser, ParserTrait, TreesitterParser,
 };
@@ -56,7 +57,7 @@ pub struct TsParser {}
 impl ParserTrait for TsParser {
     fn spec() -> Parser {
         Parser {
-            language: "js".to_string(),
+            language: Format::TypeScript.spec().title,
         }
     }
 

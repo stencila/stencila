@@ -2,6 +2,7 @@ use once_cell::sync::Lazy;
 use parser_treesitter::{
     apply_comment_tags, captures_as_args_map,
     eyre::Result,
+    formats::Format,
     graph_triples::{relations, resources, Pairs},
     path_utils,
     utils::{is_quoted, remove_quotes},
@@ -72,7 +73,7 @@ pub struct PyParser {}
 impl ParserTrait for PyParser {
     fn spec() -> Parser {
         Parser {
-            language: "py".to_string(),
+            language: Format::Python.spec().title,
         }
     }
 

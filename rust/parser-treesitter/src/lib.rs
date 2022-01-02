@@ -1,10 +1,11 @@
-use graph_triples::{relations::Range, Relation, Resource};
-use parser::utils::apply_tags;
+use parser::{
+    graph_triples::{relations::Range, Relation, Resource},
+    utils::apply_tags,
+};
 use std::{collections::HashMap, path::Path, sync::Mutex};
 
 // Re-exports for the convenience of crates implementing a Tree-sitter
 // based parser
-pub use graph_triples;
 pub use parser::*;
 pub use path_utils;
 

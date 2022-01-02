@@ -2,6 +2,7 @@ use once_cell::sync::Lazy;
 use parser_treesitter::{
     apply_comment_tags, captures_as_args_map, child_text,
     eyre::Result,
+    formats::Format,
     graph_triples::{relations, resources, Pairs},
     path_utils,
     utils::{is_quoted, remove_quotes},
@@ -83,7 +84,7 @@ pub struct RParser {}
 impl ParserTrait for RParser {
     fn spec() -> Parser {
         Parser {
-            language: "r".to_string(),
+            language: Format::R.spec().title,
         }
     }
 

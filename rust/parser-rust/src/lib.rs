@@ -2,6 +2,7 @@ use once_cell::sync::Lazy;
 use parser_treesitter::{
     apply_comment_tags,
     eyre::Result,
+    formats::Format,
     graph_triples::{relations, resources, Pairs},
     Parser, ParserTrait, TreesitterParser,
 };
@@ -20,7 +21,7 @@ pub struct RustParser {}
 impl ParserTrait for RustParser {
     fn spec() -> Parser {
         Parser {
-            language: "rust".to_string(),
+            language: Format::Rust.spec().title,
         }
     }
 

@@ -17,7 +17,7 @@ input_file: fixtures/fragments/js/tags.js
     },
     {
       "type": "Module",
-      "language": "js",
+      "language": "JavaScript",
       "name": "mod1"
     }
   ],
@@ -33,7 +33,7 @@ input_file: fixtures/fragments/js/tags.js
     },
     {
       "type": "Module",
-      "language": "js",
+      "language": "JavaScript",
       "name": "mod2"
     }
   ],
@@ -49,7 +49,7 @@ input_file: fixtures/fragments/js/tags.js
     },
     {
       "type": "Module",
-      "language": "js",
+      "language": "JavaScript",
       "name": "mod3"
     }
   ],

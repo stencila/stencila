@@ -69,7 +69,7 @@ impl Format {
             Format::R => FormatSpec::new("R", "r", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::Rust => FormatSpec::new("Rust", "rust", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::Shell => FormatSpec::new("Shell", "sh", &[], false, false, FormatNodeType::SoftwareSourceCode),
-            Format::TypeScript => FormatSpec::new("Typescript", "ts", &[], false, false, FormatNodeType::SoftwareSourceCode),
+            Format::TypeScript => FormatSpec::new("TypeScript", "ts", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::Zsh => FormatSpec::new("ZSH", "zsh", &[], false, false, FormatNodeType::SoftwareSourceCode),
 
             // Article formats

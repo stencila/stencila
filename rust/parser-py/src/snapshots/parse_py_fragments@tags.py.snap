@@ -33,7 +33,7 @@ input_file: fixtures/fragments/py/tags.py
     },
     {
       "type": "Module",
-      "language": "py",
+      "language": "Python",
       "name": "mod1"
     }
   ],

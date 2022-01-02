@@ -17,7 +17,7 @@ input_file: fixtures/fragments/r/tags.R
     },
     {
       "type": "Module",
-      "language": "r",
+      "language": "R",
       "name": "pkg1"
     }
   ],
@@ -33,7 +33,7 @@ input_file: fixtures/fragments/r/tags.R
     },
     {
       "type": "Module",
-      "language": "r",
+      "language": "R",
       "name": "pkg2"
     }
   ],
@@ -49,7 +49,7 @@ input_file: fixtures/fragments/r/tags.R
     },
     {
       "type": "Module",
-      "language": "r",
+      "language": "R",
       "name": "pk3"
     }
   ],
@@ -65,7 +65,7 @@ input_file: fixtures/fragments/r/tags.R
     },
     {
       "type": "Module",
-      "language": "r",
+      "language": "R",
       "name": "pkg4"
     }
   ],
