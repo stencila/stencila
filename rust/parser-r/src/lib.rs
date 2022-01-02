@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use parser_treesitter::{
-    apply_tags, captures_as_args_map, child_text,
+    apply_comment_tags, captures_as_args_map, child_text,
     eyre::Result,
     graph_triples::{relations, resources, Pairs},
     path_utils,
@@ -236,7 +236,7 @@ impl ParserTrait for RParser {
             })
             .collect();
 
-        let pairs = apply_tags(path, &Self::spec().language, matches, 0, relations);
+        let pairs = apply_comment_tags(path, &Self::spec().language, matches, 0, relations);
         Ok(pairs)
     }
 }

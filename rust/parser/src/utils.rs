@@ -1,12 +1,23 @@
 //! Utility functions for use by parser implementations
 
-use graph_triples::{relations, resources, Relation, Resource};
+use graph_triples::{relations, resources, Pairs, Relation, Resource};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::{Path, PathBuf};
 
-/// Parse a comment string into a set of `Relation`/`Resource` pairs and the name relation
-/// types for which those specified should be the only relations
+/// Parse tags in a comment into a set of [`Relation`]-[`Resource`] pairs (and the names of relations
+/// for which those declared should be the only relations included).
+///
+/// # Arguments
+///
+/// - `path`: The path of the file.
+///           Used, for example, when constructing `Symbol` resources for `@assigns` etc tags.
+/// - `lang`: The language of code that the comment is part of.
+///           Used, for example, when constructing `Module` resources for `@imports` tags.
+/// - `row`:  The line number of the start of the comment.
+///           Used for constructing a `Range` for resources.
+/// - `comment`: The comment from which to parse tags, usually a comment
+/// - `kind`: The default type for `Symbol` resources.
 pub fn parse_tags(
     path: &Path,
     lang: &str,
@@ -23,7 +34,7 @@ pub fn parse_tags(
 
     let kind = kind.unwrap_or_else(|| "".to_string());
 
-    let mut relations: Vec<(Relation, Resource)> = Vec::new();
+    let mut pairs: Vec<(Relation, Resource)> = Vec::new();
     let mut only: Vec<String> = Vec::new();
     for (index, line) in comment.lines().enumerate() {
         let range = (row + index, 0, row + index, line.len() - 1);
@@ -54,14 +65,45 @@ pub fn parse_tags(
                     "reads" | "writes" => resources::file(&PathBuf::from(item)),
                     _ => continue,
                 };
-                relations.push((relation.clone(), resource))
+                pairs.push((relation.clone(), resource))
             }
         }
     }
-    (relations, only)
+    (pairs, only)
 }
 
-/// Whether or not text is quoted
+/// Apply the [`Relation`]-[`Resource`] pairs declared in a comment to an existing set of pairs.
+///
+/// See [`parse_tags`] for details on arguments.
+pub fn apply_tags(
+    path: &Path,
+    lang: &str,
+    row: usize,
+    comment: &str,
+    kind: Option<String>,
+    pairs: &mut Pairs,
+) {
+    // Parse tags into relations
+    let (mut declared_pairs, only_relations) = parse_tags(path, lang, row, comment, kind);
+
+    // Remove existing relations for relation types where the `only` keyword is present
+    for only in only_relations {
+        pairs.retain(|(relation, resource)| {
+            !(matches!(relation, Relation::Use(..))
+                && matches!(resource, Resource::Module(..))
+                && only == "imports"
+                || matches!(relation, Relation::Assign(..)) && only == "assigns"
+                || matches!(relation, Relation::Use(..))
+                    && matches!(resource, Resource::Symbol(..))
+                    && only == "uses")
+        })
+    }
+
+    // Append declared pairs
+    pairs.append(&mut declared_pairs);
+}
+
+/// Is som text quoted?
 pub fn is_quoted(text: &str) -> bool {
     (text.starts_with('"') && text.ends_with('"'))
         || (text.starts_with('\'') && text.ends_with('\''))

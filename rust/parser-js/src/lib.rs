@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use parser_treesitter::{
-    apply_tags,
+    apply_comment_tags,
     eyre::Result,
     graph_triples::{relations, resources, Pair, Pairs},
     path_utils,
@@ -250,7 +250,7 @@ impl ParserTrait for JsParser {
             .filter_map(|(pattern, capture)| handle_patterns(path, code, pattern, capture))
             .collect();
 
-        let pairs = apply_tags(path, &Self::spec().language, matches, 0, relations);
+        let pairs = apply_comment_tags(path, &Self::spec().language, matches, 0, relations);
         Ok(pairs)
     }
 }

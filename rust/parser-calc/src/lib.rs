@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use parser::{
     eyre::Result,
     graph_triples::{relations, resources, Pairs},
-    utils::parse_tags,
+    utils::{apply_tags},
     Parser, ParserTrait,
 };
 use regex::Regex;
@@ -31,7 +31,8 @@ impl ParserTrait for CalcParser {
             Regex::new(r"(\b[a-zA-Z_][a-zA-Z_0-9]*\b)(\s*\()?").expect("Unable to create regex")
         });
 
-        let pairs = code
+        let mut comments = Vec::new();
+        let mut pairs = code
             .split('\n')
             .enumerate()
             .fold(Vec::new(), |mut pairs, (row, line)| {
@@ -40,15 +41,13 @@ impl ParserTrait for CalcParser {
                     return pairs;
                 }
 
-                // Parse any comment
+                // Parse comment line
                 if line.trim_start().starts_with('#') {
-                    let (mut relations, _only) =
-                        parse_tags(path, "calc", row, line, Some("Number".to_string()));
-                    pairs.append(&mut relations);
+                    comments.push((row, line));
                     return pairs;
                 }
 
-                // Parse for assignments
+                // Parse line for assignments
                 let (start, expr) = if let Some(captures) = ASSIGN_REGEX.captures(line) {
                     let symbol = captures.get(1).expect("Should always have group 1");
                     let expr = captures.get(2).expect("Should always have group 2");
@@ -61,7 +60,7 @@ impl ParserTrait for CalcParser {
                     (0, line)
                 };
 
-                // Parse for uses of variables
+                // Parse line for uses of variables
                 for captures in VAR_REGEX.captures_iter(expr) {
                     if captures.get(2).is_none() {
                         let symbol = captures.get(1).expect("Should always have group 1");
@@ -79,6 +78,18 @@ impl ParserTrait for CalcParser {
 
                 pairs
             });
+
+        // Apply tags from comments (this needs to be done at the end because if may remove pairs if `only` is specified)
+        for (row, line) in comments {
+            apply_tags(
+                path,
+                "Calc",
+                row,
+                line,
+                Some("Number".to_string()),
+                &mut pairs,
+            );
+        }
 
         Ok(pairs)
     }

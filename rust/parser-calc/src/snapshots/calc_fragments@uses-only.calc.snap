@@ -1,0 +1,25 @@
+---
+source: rust/parser-calc/src/lib.rs
+expression: pairs
+input_file: fixtures/fragments/calc/uses-only.calc
+
+---
+[
+  [
+    {
+      "type": "Use",
+      "range": [
+        0,
+        0,
+        0,
+        13
+      ]
+    },
+    {
+      "type": "Symbol",
+      "path": "fragments/calc/uses-only.calc",
+      "name": "a",
+      "kind": "Number"
+    }
+  ]
+]

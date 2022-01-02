@@ -1,5 +1,5 @@
 use graph_triples::{relations::Range, Relation, Resource};
-use parser::utils::parse_tags;
+use parser::utils::apply_tags;
 use std::{collections::HashMap, path::Path, sync::Mutex};
 
 // Re-exports for the convenience of crates implementing a Tree-sitter
@@ -188,7 +188,8 @@ pub fn child_text<'tree>(
         .unwrap_or("")
 }
 
-/// Apply manual tags (e.g. `@uses` in a comment) to the relations
+/// Apply manual tags (e.g. `@uses`) in a comments to the relations derived from
+/// semantic code analysis.
 ///
 /// # Arguments
 ///
@@ -198,11 +199,10 @@ pub fn child_text<'tree>(
 /// - `pattern`: The pattern from which to extract tags
 /// - `relations`: The relations to update based on tags
 ///
-/// Assumes that the first capture has the text content
-/// of the comment.
+/// Assumes that the first capture has the text content of the comment.
 /// If the tag ends in `only` then all existing relations of that type
 /// will be removed from `relations`.
-pub fn apply_tags(
+pub fn apply_comment_tags(
     path: &Path,
     lang: &str,
     matches: Vec<(usize, Vec<Capture>)>,
@@ -213,27 +213,15 @@ pub fn apply_tags(
         if pattern_ != pattern {
             continue;
         }
-
-        // Get the new relations from the comment
         let comment = &captures[0];
-        let (mut specified_relations, only_relations) =
-            parse_tags(path, lang, comment.range.0, &comment.text, None);
-
-        // Remove existing relations if `only` indicators are present
-        for only in only_relations {
-            relations.retain(|(relation, resource)| {
-                !(matches!(relation, Relation::Use(..))
-                    && matches!(resource, Resource::Module(..))
-                    && only == "imports"
-                    || matches!(relation, Relation::Assign(..)) && only == "assigns"
-                    || matches!(relation, Relation::Use(..))
-                        && matches!(resource, Resource::Symbol(..))
-                        && only == "uses")
-            })
-        }
-
-        // Add specified relations
-        relations.append(&mut specified_relations);
+        apply_tags(
+            path,
+            lang,
+            comment.range.0,
+            &comment.text,
+            None,
+            &mut relations,
+        );
     }
     relations
 }
