@@ -6,8 +6,8 @@ input_file: fixtures/articles/code-relations.md
 ---
 {
   "options": {
-    "ordering": "Topological",
-    "max_concurrency": 10
+    "ordering": "Appearance",
+    "max_concurrency": 0
   },
   "stages": [
     {
@@ -19,6 +19,96 @@ input_file: fixtures/articles/code-relations.md
             "kind": "CodeChunk",
             "language": "Calc",
             "pure": false
+          },
+          "kernel": "calc",
+          "fork": false
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "cc-2",
+            "kind": "CodeChunk",
+            "language": "Calc",
+            "pure": true
+          },
+          "kernel": "calc",
+          "fork": false
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "ce-1",
+            "kind": "CodeExpression",
+            "language": "Calc",
+            "pure": true
+          },
+          "kernel": "calc",
+          "fork": false
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "ce-2",
+            "kind": "CodeExpression",
+            "language": "Calc",
+            "pure": true
+          },
+          "kernel": "calc",
+          "fork": false
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "cc-3",
+            "kind": "CodeChunk",
+            "language": "Calc",
+            "pure": false
+          },
+          "kernel": "calc",
+          "fork": false
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "ce-3",
+            "kind": "CodeExpression",
+            "language": "Calc",
+            "pure": true
+          },
+          "kernel": "calc",
+          "fork": false
+        }
+      ]
+    },
+    {
+      "steps": [
+        {
+          "node": {
+            "path": "articles/code-relations.md",
+            "id": "ce-4",
+            "kind": "CodeExpression",
+            "language": "Calc",
+            "pure": true
           },
           "kernel": "calc",
           "fork": false
@@ -45,83 +135,13 @@ input_file: fixtures/articles/code-relations.md
         {
           "node": {
             "path": "articles/code-relations.md",
-            "id": "cc-2",
-            "kind": "CodeChunk",
-            "language": "Calc",
-            "pure": true
-          },
-          "kernel": "calc",
-          "fork": true
-        },
-        {
-          "node": {
-            "path": "articles/code-relations.md",
-            "id": "ce-1",
-            "kind": "CodeExpression",
-            "language": "Calc",
-            "pure": true
-          },
-          "kernel": "calc",
-          "fork": true
-        },
-        {
-          "node": {
-            "path": "articles/code-relations.md",
-            "id": "ce-2",
-            "kind": "CodeExpression",
-            "language": "Calc",
-            "pure": true
-          },
-          "kernel": "calc",
-          "fork": true
-        },
-        {
-          "node": {
-            "path": "articles/code-relations.md",
-            "id": "cc-3",
-            "kind": "CodeChunk",
-            "language": "Calc",
-            "pure": false
-          },
-          "kernel": "calc",
-          "fork": false
-        }
-      ]
-    },
-    {
-      "steps": [
-        {
-          "node": {
-            "path": "articles/code-relations.md",
-            "id": "ce-3",
-            "kind": "CodeExpression",
-            "language": "Calc",
-            "pure": true
-          },
-          "kernel": "calc",
-          "fork": true
-        },
-        {
-          "node": {
-            "path": "articles/code-relations.md",
-            "id": "ce-4",
-            "kind": "CodeExpression",
-            "language": "Calc",
-            "pure": true
-          },
-          "kernel": "calc",
-          "fork": true
-        },
-        {
-          "node": {
-            "path": "articles/code-relations.md",
             "id": "cc-4",
             "kind": "CodeChunk",
             "language": "Calc",
             "pure": true
           },
           "kernel": "calc",
-          "fork": true
+          "fork": false
         }
       ]
     }

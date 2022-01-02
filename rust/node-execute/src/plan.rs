@@ -197,9 +197,9 @@ impl Planner {
                 None => continue,
             };
 
-            // If the kernel is forkable and the code is `@pure` (inferred or declared)
-            // then execute the step in a fork
-            let fork = kernel_forkable && code.pure;
+            // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
+            // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
+            let fork = kernel_forkable && code.pure && stage.steps.len() < options.max_concurrency;
 
             // Create the step and add it to the current stage
             let step = Step {
@@ -209,9 +209,8 @@ impl Planner {
             };
             stage.steps.push(step);
 
-            // Unless the step is forkable and the maximum concurrency
-            // has not been reached, start a new stage.
-            if !(fork && stage.steps.len() < options.max_concurrency) {
+            // If not in a fork, start a new stage.
+            if !fork {
                 stages.push(stage);
                 stage = Stage::default();
             }
@@ -280,9 +279,9 @@ impl Planner {
                 None => continue,
             };
 
-            // If the kernel is forkable and the code is `@pure` (inferred or declared)
-            // then execute the step in a fork
-            let fork = kernel_forkable && code.pure;
+            // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
+            // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
+            let fork = kernel_forkable && code.pure && stage.steps.len() < options.max_concurrency;
 
             // Create the step and add it to the current stage
             let step = Step {
@@ -292,9 +291,8 @@ impl Planner {
             };
             stage.steps.push(step);
 
-            // Unless the step is forkable and the maximum concurrency
-            // has not been reached, start a new stage.
-            if !(fork && stage.steps.len() < options.max_concurrency) {
+            // If not in a fork, start a new stage.
+            if !fork {
                 stages.push(stage);
                 stage = Stage::default();
             }

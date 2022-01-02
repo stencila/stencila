@@ -1,13 +1,13 @@
 ---
 source: rust/node-execute/src/lib.rs
-expression: "&appearance"
+expression: "&plan"
 input_file: fixtures/articles/code.md
 
 ---
 {
   "options": {
     "ordering": "Appearance",
-    "max_concurrency": 5
+    "max_concurrency": 10
   },
   "stages": []
 }

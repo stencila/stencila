@@ -91,29 +91,39 @@ mod tests {
             snapshot_add_suffix("-planner", || assert_json_snapshot!(&planner));
 
             // Generate various execution plans for the article using alternative options
-            // and snapshot them all.
-            // Always specify `max_concurrency` to avoid differences due to machine.
-            let default = PlanOptions {
-                max_concurrency: 5,
-                ..Default::default()
-            };
+            // and snapshot them all. Always specify `max_concurrency` to avoid differences
+            // due to machine (number of CPUs)
             for (suffix, options) in [
                 (
                     "-appearance",
                     PlanOptions {
                         ordering: PlanOrdering::Appearance,
-                        ..default
+                        max_concurrency: 10,
+                    },
+                ),
+                (
+                    "-appearance-concurrency-0",
+                    PlanOptions {
+                        ordering: PlanOrdering::Appearance,
+                        max_concurrency: 0,
                     },
                 ),
                 (
                     "-topological",
                     PlanOptions {
                         ordering: PlanOrdering::Topological,
-                        ..default
+                        max_concurrency: 10,
+                    },
+                ),
+                (
+                    "-topological-concurrency-0",
+                    PlanOptions {
+                        ordering: PlanOrdering::Topological,
+                        max_concurrency: 0,
                     },
                 ),
             ] {
-                let plan = planner.plan(None, options.clone());
+                let plan = planner.plan(None, options);
                 snapshot_add_suffix(suffix, || assert_json_snapshot!(&plan));
             }
         });

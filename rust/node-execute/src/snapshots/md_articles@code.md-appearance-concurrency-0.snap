@@ -6,8 +6,8 @@ input_file: fixtures/articles/code.md
 ---
 {
   "options": {
-    "ordering": "Topological",
-    "max_concurrency": 10
+    "ordering": "Appearance",
+    "max_concurrency": 0
   },
   "stages": []
 }

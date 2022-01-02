@@ -7,7 +7,7 @@ input_file: fixtures/articles/code-relations.md
 {
   "options": {
     "ordering": "Topological",
-    "max_concurrency": 10
+    "max_concurrency": 0
   },
   "stages": [
     {
@@ -51,8 +51,12 @@ input_file: fixtures/articles/code-relations.md
             "pure": true
           },
           "kernel": "calc",
-          "fork": true
-        },
+          "fork": false
+        }
+      ]
+    },
+    {
+      "steps": [
         {
           "node": {
             "path": "articles/code-relations.md",
@@ -62,8 +66,12 @@ input_file: fixtures/articles/code-relations.md
             "pure": true
           },
           "kernel": "calc",
-          "fork": true
-        },
+          "fork": false
+        }
+      ]
+    },
+    {
+      "steps": [
         {
           "node": {
             "path": "articles/code-relations.md",
@@ -73,8 +81,12 @@ input_file: fixtures/articles/code-relations.md
             "pure": true
           },
           "kernel": "calc",
-          "fork": true
-        },
+          "fork": false
+        }
+      ]
+    },
+    {
+      "steps": [
         {
           "node": {
             "path": "articles/code-relations.md",
@@ -99,8 +111,12 @@ input_file: fixtures/articles/code-relations.md
             "pure": true
           },
           "kernel": "calc",
-          "fork": true
-        },
+          "fork": false
+        }
+      ]
+    },
+    {
+      "steps": [
         {
           "node": {
             "path": "articles/code-relations.md",
@@ -110,8 +126,12 @@ input_file: fixtures/articles/code-relations.md
             "pure": true
           },
           "kernel": "calc",
-          "fork": true
-        },
+          "fork": false
+        }
+      ]
+    },
+    {
+      "steps": [
         {
           "node": {
             "path": "articles/code-relations.md",
@@ -121,7 +141,7 @@ input_file: fixtures/articles/code-relations.md
             "pure": true
           },
           "kernel": "calc",
-          "fork": true
+          "fork": false
         }
       ]
     }
