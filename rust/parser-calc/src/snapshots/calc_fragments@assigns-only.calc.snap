@@ -1,25 +1,27 @@
 ---
 source: rust/parser-calc/src/lib.rs
-expression: pairs
+expression: parse_info
 input_file: fixtures/fragments/calc/assigns-only.calc
 
 ---
-[
-  [
-    {
-      "type": "Assign",
-      "range": [
-        0,
-        0,
-        0,
-        16
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/calc/assigns-only.calc",
-      "name": "a",
-      "kind": "Number"
-    }
+{
+  "relations": [
+    [
+      {
+        "type": "Assign",
+        "range": [
+          0,
+          0,
+          0,
+          16
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/assigns-only.calc",
+        "name": "a",
+        "kind": "Number"
+      }
+    ]
   ]
-]
+}

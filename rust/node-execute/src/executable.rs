@@ -5,6 +5,7 @@ use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Relat
 use kernels::{KernelSelector, KernelSpace, TaskResult};
 use node_address::{Address, Addresses, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
+use parsers::ParseInfo;
 use path_utils::merge;
 use std::{
     collections::HashMap,
@@ -283,31 +284,23 @@ impl Executable for CodeChunk {
         let id = identify!("cc", self, address, context);
         let lang = langify!(self, context);
 
-        let relations = match parsers::parse(&context.path, &self.text, &lang) {
-            Ok(relations) => relations,
+        let parse_info = match parsers::parse(&context.path, &self.text, &lang) {
+            Ok(parse_info) => parse_info,
             Err(error) => {
                 tracing::debug!("While parsing code chunk `{}`: {}", id, error);
-                Vec::new()
+                ParseInfo::default()
             }
         };
 
-        let pure = relations
-            .iter()
-            .filter(|(relation, ..)| {
-                matches!(
-                    relation,
-                    Relation::Assign(..)
-                        | Relation::Alter(..)
-                        | Relation::Import(..)
-                        | Relation::Write(..)
-                )
-            })
-            .count()
-            == 0;
+        let subject = resources::code(
+            &context.path,
+            &id,
+            "CodeChunk",
+            Some(lang),
+            parse_info.is_pure(),
+        );
 
-        let subject = resources::code(&context.path, &id, "CodeChunk", Some(lang), pure);
-
-        context.relations.push((subject, relations));
+        context.relations.push((subject, parse_info.relations));
 
         Ok(())
     }
@@ -316,10 +309,10 @@ impl Executable for CodeChunk {
         tracing::debug!("Executing `CodeChunk`");
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
-        let relations = parsers::parse("", &self.text, &self.programming_language)?;
+        let parse_info = parsers::parse("", &self.text, &self.programming_language)?;
         let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
         let mut task = kernels
-            .exec(&self.text, &selector, Some(relations), false)
+            .exec(&self.text, &selector, parse_info, false)
             .await?;
         let TaskResult {
             outputs,
@@ -355,11 +348,11 @@ impl Executable for CodeExpression {
         let id = identify!("ce", self, address, context);
         let lang = langify!(self, context);
 
-        let relations = match parsers::parse(&context.path, &self.text, &lang) {
-            Ok(relations) => relations,
+        let parse_info = match parsers::parse(&context.path, &self.text, &lang) {
+            Ok(parse_info) => parse_info,
             Err(error) => {
                 tracing::debug!("While parsing code expression `{}`: {}", id, error);
-                Vec::new()
+                ParseInfo::default()
             }
         };
 
@@ -371,7 +364,7 @@ impl Executable for CodeExpression {
             true,
         );
 
-        context.relations.push((subject, relations));
+        context.relations.push((subject, parse_info.relations));
 
         Ok(())
     }
@@ -380,10 +373,10 @@ impl Executable for CodeExpression {
         tracing::debug!("Executing `CodeExpression`");
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
-        let relations = parsers::parse("", &self.text, &self.programming_language)?;
+        let parse_info = parsers::parse("", &self.text, &self.programming_language)?;
         let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
         let mut task = kernels
-            .exec(&self.text, &selector, Some(relations), false)
+            .exec(&self.text, &selector, parse_info, false)
             .await?;
         let TaskResult {
             outputs,
@@ -412,8 +405,8 @@ impl Executable for SoftwareSourceCode {
             (self.text.as_deref(), self.programming_language.as_deref())
         {
             let subject = resources::file(&context.path);
-            let relations = parsers::parse(&context.path, text, programming_language)?;
-            context.relations.push((subject, relations));
+            let parse_info = parsers::parse(&context.path, text, programming_language)?;
+            context.relations.push((subject, parse_info.relations));
         }
 
         Ok(())

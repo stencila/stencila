@@ -1,119 +1,121 @@
 ---
 source: rust/parser-py/src/lib.rs
-expression: pairs
+expression: parse_info
 input_file: fixtures/fragments/py/tags.py
 
 ---
-[
-  [
-    {
-      "type": "Use",
-      "range": [
-        8,
-        7,
-        8,
-        11
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "python",
-      "name": "mod2"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        0,
-        1,
-        17
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "Python",
-      "name": "mod1"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        2,
-        0,
-        2,
-        17
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/py/tags.py",
-      "name": "var1",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        4,
-        0,
-        4,
-        11
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/py/tags.py",
-      "name": "var3",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Read",
-      "range": [
-        5,
-        0,
-        5,
-        19
-      ]
-    },
-    {
-      "type": "File",
-      "path": "file1"
-    }
-  ],
-  [
-    {
-      "type": "Read",
-      "range": [
-        5,
-        0,
-        5,
-        19
-      ]
-    },
-    {
-      "type": "File",
-      "path": "file2"
-    }
-  ],
-  [
-    {
-      "type": "Write",
-      "range": [
-        6,
-        0,
-        6,
-        14
-      ]
-    },
-    {
-      "type": "File",
-      "path": "file3"
-    }
+{
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          8,
+          7,
+          8,
+          11
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "python",
+        "name": "mod2"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          0,
+          1,
+          17
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "Python",
+        "name": "mod1"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          2,
+          0,
+          2,
+          17
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/py/tags.py",
+        "name": "var1",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          4,
+          0,
+          4,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/py/tags.py",
+        "name": "var3",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          5,
+          0,
+          5,
+          19
+        ]
+      },
+      {
+        "type": "File",
+        "path": "file1"
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          5,
+          0,
+          5,
+          19
+        ]
+      },
+      {
+        "type": "File",
+        "path": "file2"
+      }
+    ],
+    [
+      {
+        "type": "Write",
+        "range": [
+          6,
+          0,
+          6,
+          14
+        ]
+      },
+      {
+        "type": "File",
+        "path": "file3"
+      }
+    ]
   ]
-]
+}

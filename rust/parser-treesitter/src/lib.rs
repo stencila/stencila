@@ -1,5 +1,5 @@
 use parser::{
-    graph_triples::{relations::Range, Relation, Resource},
+    graph_triples::{relations::Range, Pairs},
     utils::apply_tags,
 };
 use std::{collections::HashMap, path::Path, sync::Mutex};
@@ -197,32 +197,40 @@ pub fn child_text<'tree>(
 /// - `path`: The path of the subject code resource
 /// - `lang`: The language (used for creating `Resource::Module` variants)
 /// - `matches`: The matches from querying the code
-/// - `pattern`: The pattern from which to extract tags
-/// - `relations`: The relations to update based on tags
+/// - `pattern`: The index of the pattern from which to extract tags
+/// - `pairs`: The relation pairs used to create the initial [`ParseInfo`]
 ///
 /// Assumes that the first capture has the text content of the comment.
 /// If the tag ends in `only` then all existing relations of that type
 /// will be removed from `relations`.
-pub fn apply_comment_tags(
+pub fn parse_comments(
     path: &Path,
     lang: &str,
     matches: Vec<(usize, Vec<Capture>)>,
     pattern: usize,
-    mut relations: Vec<(Relation, Resource)>,
-) -> Vec<(Relation, Resource)> {
+    pairs: Pairs,
+) -> ParseInfo {
+    let mut parse_info = ParseInfo {
+        relations: pairs,
+        ..Default::default()
+    };
+
     for (pattern_, captures) in matches {
         if pattern_ != pattern {
             continue;
         }
+
         let comment = &captures[0];
+
         apply_tags(
             path,
             lang,
             comment.range.0,
             &comment.text,
             None,
-            &mut relations,
-        );
+            &mut parse_info,
+        )
     }
-    relations
+
+    parse_info
 }

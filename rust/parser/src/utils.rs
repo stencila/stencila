@@ -1,46 +1,60 @@
 //! Utility functions for use by parser implementations
 
-use graph_triples::{relations, resources, Pairs, Relation, Resource};
+use graph_triples::{relations, resources, Relation, Resource};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::{Path, PathBuf};
 
-/// Parse tags in a comment into a set of [`Relation`]-[`Resource`] pairs (and the names of relations
-/// for which those declared should be the only relations included).
+use crate::ParseInfo;
+
+/// Apply comment tags to a [`ParseInfo`] object.
+///
+/// Parses tags from a comment and updates the supplied [`ParseInfo`]. This pattern is
+/// used because (a) the parse info may already be partially populated based on semantic
+/// analysis of the code (which comments wish to override), and (b) there might be multiple
+/// comments in a code resources each with (potentially overriding) tags
 ///
 /// # Arguments
 ///
-/// - `path`: The path of the file.
-///           Used, for example, when constructing `Symbol` resources for `@assigns` etc tags.
-/// - `lang`: The language of code that the comment is part of.
-///           Used, for example, when constructing `Module` resources for `@imports` tags.
-/// - `row`:  The line number of the start of the comment.
-///           Used for constructing a `Range` for resources.
+/// - `path`:    The path of the file.
+///              Used, for example, when constructing `Symbol` resources for `@assigns` etc tags.
+/// - `lang`:    The language of code that the comment is part of.
+///              Used, for example, when constructing `Module` resources for `@imports` tags.
+/// - `row`:     The line number of the start of the comment.
+///              Used for constructing a `Range` for resources.
 /// - `comment`: The comment from which to parse tags, usually a comment
-/// - `kind`: The default type for `Symbol` resources.
-pub fn parse_tags(
+/// - `kind`:    The default type for `Symbol` resources.
+pub fn apply_tags(
     path: &Path,
     lang: &str,
     row: usize,
     comment: &str,
     kind: Option<String>,
-) -> (Vec<(Relation, Resource)>, Vec<String>) {
-    static REGEX_TAG: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"@(imports|assigns|alters|uses|modifies|reads|writes)\s+(.*?)(\*/)?$")
+    parse_info: &mut ParseInfo,
+) {
+    static REGEX_TAGS: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r"@(imports|assigns|alters|uses|reads|writes|pure|impure)\s+(.*?)(\*/)?$")
             .expect("Unable to create regex")
     });
     static REGEX_ITEMS: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"\s+|(\s*,\s*)").expect("Unable to create regex"));
 
-    let kind = kind.unwrap_or_else(|| "".to_string());
-
     let mut pairs: Vec<(Relation, Resource)> = Vec::new();
-    let mut only: Vec<String> = Vec::new();
+    let mut onlies: Vec<String> = Vec::new();
     for (index, line) in comment.lines().enumerate() {
         let range = (row + index, 0, row + index, line.len() - 1);
-        if let Some(captures) = REGEX_TAG.captures(line) {
+        if let Some(captures) = REGEX_TAGS.captures(line) {
             let tag = captures[1].to_string();
+
             let relation = match tag.as_str() {
+                "pure" => {
+                    parse_info.pure = Some(true);
+                    continue;
+                }
+                "impure" => {
+                    parse_info.pure = Some(false);
+                    continue;
+                }
                 "imports" => relations::uses(range),
                 "assigns" => relations::assigns(range),
                 "alters" => relations::alters(range),
@@ -54,15 +68,18 @@ pub fn parse_tags(
                 .split(captures[2].trim())
                 .map(|item| item.to_string())
                 .collect();
+
             for item in items {
                 if item == "only" {
-                    only.push(tag.clone());
+                    onlies.push(tag.clone());
                     continue;
                 }
 
                 let resource = match tag.as_str() {
                     "imports" => resources::module(lang, &item),
-                    "assigns" | "alters" | "uses" => resources::symbol(path, &item, &kind),
+                    "assigns" | "alters" | "uses" => {
+                        resources::symbol(path, &item, &kind.clone().unwrap_or_default())
+                    }
                     "reads" | "writes" => resources::file(&PathBuf::from(item)),
                     _ => continue,
                 };
@@ -70,26 +87,10 @@ pub fn parse_tags(
             }
         }
     }
-    (pairs, only)
-}
 
-/// Apply the [`Relation`]-[`Resource`] pairs declared in a comment to an existing set of pairs.
-///
-/// See [`parse_tags`] for details on arguments.
-pub fn apply_tags(
-    path: &Path,
-    lang: &str,
-    row: usize,
-    comment: &str,
-    kind: Option<String>,
-    pairs: &mut Pairs,
-) {
-    // Parse tags into relations
-    let (mut declared_pairs, only_relations) = parse_tags(path, lang, row, comment, kind);
-
-    // Remove existing relations for relation types where the `only` keyword is present
-    for only in only_relations {
-        pairs.retain(|(relation, _resource)| {
+    // Remove existing pairs for relation types where the `only` keyword is present in tags
+    for only in onlies {
+        parse_info.relations.retain(|(relation, _resource)| {
             !(matches!(relation, Relation::Import(..)) && only == "imports"
                 || matches!(relation, Relation::Assign(..)) && only == "assigns"
                 || matches!(relation, Relation::Alter(..)) && only == "alters"
@@ -99,11 +100,11 @@ pub fn apply_tags(
         })
     }
 
-    // Append declared pairs
-    pairs.append(&mut declared_pairs);
+    // Append pairs from tags
+    parse_info.relations.append(&mut pairs);
 }
 
-/// Is som text quoted?
+/// Is some text quoted?
 pub fn is_quoted(text: &str) -> bool {
     (text.starts_with('"') && text.ends_with('"'))
         || (text.starts_with('\'') && text.ends_with('\''))

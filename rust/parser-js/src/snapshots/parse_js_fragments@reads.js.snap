@@ -1,168 +1,170 @@
 ---
 source: rust/parser-js/src/lib.rs
-expression: pairs
+expression: parse_info
 input_file: fixtures/fragments/js/reads.js
 
 ---
-[
-  [
-    {
-      "type": "Use",
-      "range": [
-        0,
-        15,
-        0,
-        19
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "fs"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        27,
-        1,
-        31
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "fs"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        3,
-        4,
-        3,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/reads.js",
-      "name": "data",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        3,
-        11,
-        3,
-        13
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/reads.js",
-      "name": "fs",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Read",
-      "range": [
-        3,
-        23,
-        3,
-        30
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/js/path1"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        4,
-        0,
-        4,
-        12
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/reads.js",
-      "name": "readFileSync",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Read",
-      "range": [
-        4,
-        13,
-        4,
-        20
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/js/path2"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        6,
-        9,
-        6,
-        17
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/reads.js",
-      "name": "readData",
-      "kind": "Function"
-    }
-  ],
-  [
-    {
-      "type": "Read",
-      "range": [
-        7,
-        14,
-        7,
-        21
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/js/path3"
-    }
-  ],
-  [
-    {
-      "type": "Read",
-      "range": [
-        8,
-        17,
-        8,
-        24
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/js/path4"
-    }
+{
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          0,
+          15,
+          0,
+          19
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "fs"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          27,
+          1,
+          31
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "fs"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          3,
+          4,
+          3,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/reads.js",
+        "name": "data",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          3,
+          11,
+          3,
+          13
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/reads.js",
+        "name": "fs",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          3,
+          23,
+          3,
+          30
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/js/path1"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          4,
+          0,
+          4,
+          12
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/reads.js",
+        "name": "readFileSync",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          4,
+          13,
+          4,
+          20
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/js/path2"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          6,
+          9,
+          6,
+          17
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/reads.js",
+        "name": "readData",
+        "kind": "Function"
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          7,
+          14,
+          7,
+          21
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/js/path3"
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          8,
+          17,
+          8,
+          24
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/js/path4"
+      }
+    ]
   ]
-]
+}

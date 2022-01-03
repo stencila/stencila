@@ -1,12 +1,12 @@
 use once_cell::sync::Lazy;
 use parser_treesitter::{
-    apply_comment_tags, captures_as_args_map,
+    captures_as_args_map,
     eyre::Result,
     formats::Format,
-    graph_triples::{relations, resources, Pairs},
-    path_utils,
+    graph_triples::{relations, resources},
+    parse_comments, path_utils,
     utils::{is_quoted, remove_quotes},
-    Parser, ParserTrait, TreesitterParser,
+    ParseInfo, Parser, ParserTrait, TreesitterParser,
 };
 use std::path::Path;
 
@@ -77,7 +77,7 @@ impl ParserTrait for PyParser {
         }
     }
 
-    fn parse(path: &Path, code: &str) -> Result<Pairs> {
+    fn parse(path: &Path, code: &str) -> Result<ParseInfo> {
         let code = code.as_bytes();
         let tree = PARSER.parse(code);
         let matches = PARSER.query(code, &tree);
@@ -224,8 +224,8 @@ impl ParserTrait for PyParser {
             })
             .collect();
 
-        let pairs = apply_comment_tags(path, &Self::spec().language, matches, 0, relations);
-        Ok(pairs)
+        let parse_info = parse_comments(path, &Self::spec().language, matches, 0, relations);
+        Ok(parse_info)
     }
 }
 
@@ -240,8 +240,8 @@ mod tests {
         snapshot_fixtures("fragments/py/*.py", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let pairs = PyParser::parse(path, &code).expect("Unable to parse");
-            assert_json_snapshot!(pairs);
+            let parse_info = PyParser::parse(path, &code).expect("Unable to parse");
+            assert_json_snapshot!(parse_info);
         })
     }
 }

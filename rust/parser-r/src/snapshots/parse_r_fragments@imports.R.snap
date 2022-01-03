@@ -1,122 +1,124 @@
 ---
 source: rust/parser-r/src/lib.rs
-expression: pairs
+expression: parse_info
 input_file: fixtures/fragments/r/imports.R
 
 ---
-[
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        8,
-        1,
-        12
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "r",
-      "name": "pkg1"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        2,
-        8,
-        2,
-        12
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "r",
-      "name": "pkg2"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        5,
-        8,
-        5,
-        14
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "r",
-      "name": "pkg3"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        5,
-        8,
-        5,
-        14
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "r",
-      "name": "pkg3"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        8,
-        0,
-        8,
-        3
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/imports.R",
-      "name": "foo",
-      "kind": "Function"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        9,
-        12,
-        9,
-        16
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "r",
-      "name": "pkg4"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        16,
-        0,
-        16,
-        7
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/imports.R",
-      "name": "pkg_var",
-      "kind": "String"
-    }
+{
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          8,
+          1,
+          12
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "r",
+        "name": "pkg1"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          2,
+          8,
+          2,
+          12
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "r",
+        "name": "pkg2"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          5,
+          8,
+          5,
+          14
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "r",
+        "name": "pkg3"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          5,
+          8,
+          5,
+          14
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "r",
+        "name": "pkg3"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          8,
+          0,
+          8,
+          3
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/imports.R",
+        "name": "foo",
+        "kind": "Function"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          9,
+          12,
+          9,
+          16
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "r",
+        "name": "pkg4"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          16,
+          0,
+          16,
+          7
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/imports.R",
+        "name": "pkg_var",
+        "kind": "String"
+      }
+    ]
   ]
-]
+}

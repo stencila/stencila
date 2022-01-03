@@ -1,10 +1,9 @@
 use once_cell::sync::Lazy;
 use parser_treesitter::{
-    apply_comment_tags,
     eyre::Result,
     formats::Format,
-    graph_triples::{relations, resources, Pairs},
-    Parser, ParserTrait, TreesitterParser,
+    graph_triples::{relations, resources},
+    parse_comments, ParseInfo, Parser, ParserTrait, TreesitterParser,
 };
 use std::path::Path;
 
@@ -25,7 +24,7 @@ impl ParserTrait for BashParser {
         }
     }
 
-    fn parse(path: &Path, code: &str) -> Result<Pairs> {
+    fn parse(path: &Path, code: &str) -> Result<ParseInfo> {
         let code = code.as_bytes();
         let tree = PARSER.parse(code);
         let matches = PARSER.query(code, &tree);
@@ -65,8 +64,8 @@ impl ParserTrait for BashParser {
             })
             .collect();
 
-        let pairs = apply_comment_tags(path, &Self::spec().language, matches, 0, relations);
-        Ok(pairs)
+        let parse_info = parse_comments(path, &Self::spec().language, matches, 0, relations);
+        Ok(parse_info)
     }
 }
 
@@ -81,8 +80,8 @@ mod tests {
         snapshot_fixtures("fragments/bash/*.bash", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let pairs = BashParser::parse(path, &code).expect("Unable to parse");
-            assert_json_snapshot!(pairs);
+            let parse_info = BashParser::parse(path, &code).expect("Unable to parse");
+            assert_json_snapshot!(parse_info);
         })
     }
 }

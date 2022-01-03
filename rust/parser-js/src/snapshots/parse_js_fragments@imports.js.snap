@@ -1,370 +1,372 @@
 ---
 source: rust/parser-js/src/lib.rs
-expression: pairs
+expression: parse_info
 input_file: fixtures/fragments/js/imports.js
 
 ---
-[
-  [
-    {
-      "type": "Use",
-      "range": [
-        2,
-        26,
-        2,
-        36
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-1"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        3,
-        22,
-        3,
-        32
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-2"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        4,
-        24,
-        4,
-        34
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-3"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        5,
-        33,
-        5,
-        43
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-4"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        6,
-        34,
-        6,
-        44
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-5"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        7,
-        43,
-        7,
-        53
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-6"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        8,
-        39,
-        8,
-        49
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-7"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        9,
-        37,
-        9,
-        47
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-8"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        10,
-        7,
-        10,
-        17
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-9"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        11,
-        4,
-        11,
-        11
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/imports.js",
-      "name": "promise",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        11,
-        21,
-        11,
-        32
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-10"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        14,
-        4,
-        14,
-        17
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/imports.js",
-      "name": "defaultExport",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        14,
-        20,
-        14,
-        27
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/imports.js",
-      "name": "require",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        14,
-        28,
-        14,
-        39
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-11"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        15,
-        4,
-        15,
-        9
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/imports.js",
-      "name": "alias",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        15,
-        12,
-        15,
-        19
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/imports.js",
-      "name": "require",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        15,
-        20,
-        15,
-        31
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "module-12"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        19,
-        6,
-        19,
-        9
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/imports.js",
-      "name": "foo",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        21,
-        6,
-        21,
-        13
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/imports.js",
-      "name": "pkg_var",
-      "kind": "String"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        22,
-        6,
-        22,
-        9
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/imports.js",
-      "name": "bar",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        22,
-        12,
-        22,
-        19
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/imports.js",
-      "name": "require",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        22,
-        20,
-        22,
-        27
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/imports.js",
-      "name": "pkg_var",
-      "kind": ""
-    }
+{
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          2,
+          26,
+          2,
+          36
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-1"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          3,
+          22,
+          3,
+          32
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-2"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          4,
+          24,
+          4,
+          34
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-3"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          5,
+          33,
+          5,
+          43
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-4"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          6,
+          34,
+          6,
+          44
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-5"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          7,
+          43,
+          7,
+          53
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-6"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          8,
+          39,
+          8,
+          49
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-7"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          9,
+          37,
+          9,
+          47
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-8"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          10,
+          7,
+          10,
+          17
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-9"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          11,
+          4,
+          11,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/imports.js",
+        "name": "promise",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          11,
+          21,
+          11,
+          32
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-10"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          14,
+          4,
+          14,
+          17
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/imports.js",
+        "name": "defaultExport",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          14,
+          20,
+          14,
+          27
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/imports.js",
+        "name": "require",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          14,
+          28,
+          14,
+          39
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-11"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          15,
+          4,
+          15,
+          9
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/imports.js",
+        "name": "alias",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          15,
+          12,
+          15,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/imports.js",
+        "name": "require",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          15,
+          20,
+          15,
+          31
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "module-12"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          19,
+          6,
+          19,
+          9
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/imports.js",
+        "name": "foo",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          21,
+          6,
+          21,
+          13
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/imports.js",
+        "name": "pkg_var",
+        "kind": "String"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          22,
+          6,
+          22,
+          9
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/imports.js",
+        "name": "bar",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          22,
+          12,
+          22,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/imports.js",
+        "name": "require",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          22,
+          20,
+          22,
+          27
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/imports.js",
+        "name": "pkg_var",
+        "kind": ""
+      }
+    ]
   ]
-]
+}

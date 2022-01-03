@@ -1,59 +1,61 @@
 ---
 source: rust/parser-rust/src/lib.rs
-expression: pairs
+expression: parse_info
 input_file: fixtures/fragments/rust/uses.rs
 
 ---
-[
-  [
-    {
-      "type": "Use",
-      "range": [
-        0,
-        0,
-        0,
-        4
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/uses.rs",
-      "name": "var1",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        0,
-        1,
-        4
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/uses.rs",
-      "name": "var2",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        7,
-        1,
-        11
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/uses.rs",
-      "name": "var3",
-      "kind": ""
-    }
+{
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          4
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/uses.rs",
+        "name": "var1",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          0,
+          1,
+          4
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/uses.rs",
+        "name": "var2",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          7,
+          1,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/uses.rs",
+        "name": "var3",
+        "kind": ""
+      }
+    ]
   ]
-]
+}

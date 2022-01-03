@@ -8,6 +8,7 @@ use kernel::{
     stencila_schema::{CodeError, Node},
     KernelId, KernelInfo, KernelStatus, KernelTrait, TaskId, TaskMessages, TaskOutputs,
 };
+use parsers::ParseInfo;
 use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, BTreeMap, HashMap, HashSet, VecDeque},
@@ -821,7 +822,7 @@ impl KernelSpace {
         &mut self,
         code: &str,
         selector: &KernelSelector,
-        relations: Option<Vec<(Relation, Resource)>>,
+        parse_info: ParseInfo,
         is_fork: bool,
     ) -> Result<TaskInfo> {
         let kernels = &mut *self.kernels.lock().await;
@@ -829,15 +830,11 @@ impl KernelSpace {
         // Summarize relations into symbols used and assigned
         let mut symbols_used = Vec::new();
         let mut symbols_assigned = Vec::new();
-        if let Some(relations) = relations {
-            for pair in relations {
-                match pair {
-                    (Relation::Use(..), Resource::Symbol(symbol)) => symbols_used.push(symbol),
-                    (Relation::Assign(..), Resource::Symbol(symbol)) => {
-                        symbols_assigned.push(symbol)
-                    }
-                    _ => (),
-                }
+        for pair in parse_info.relations {
+            match pair {
+                (Relation::Use(..), Resource::Symbol(symbol)) => symbols_used.push(symbol),
+                (Relation::Assign(..), Resource::Symbol(symbol)) => symbols_assigned.push(symbol),
+                _ => (),
             }
         }
 
@@ -1307,9 +1304,9 @@ impl KernelSpace {
 
             // If possible, parse the code so that we can use the relations to determine variables that
             // are assigned or used (needed for variable mirroring).
-            let relations = match &language {
+            let parse_info = match &language {
                 Some(language) => parsers::parse("<cli>", &code, language).unwrap_or_default(),
-                None => Vec::new(),
+                None => ParseInfo::default(),
             };
 
             // Determine the kernel selector
@@ -1339,7 +1336,7 @@ impl KernelSpace {
             };
 
             // Execute the code
-            let mut task_info = self.exec(&code, &selector, Some(relations), fork).await?;
+            let mut task_info = self.exec(&code, &selector, parse_info, fork).await?;
 
             if background {
                 // Indicate task is running in background

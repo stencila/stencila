@@ -1,6 +1,7 @@
 use eyre::Result;
-use graph_triples::Pairs;
+use graph_triples::{Pairs, Relation};
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use std::path::Path;
 
 // Export and re-export for the convenience of crates that implement a parser
@@ -34,18 +35,41 @@ pub trait ParserTrait {
     fn spec() -> Parser;
 
     /// Parse some code and return a set of graph pairs
-    fn parse(path: &Path, code: &str) -> Result<Pairs>;
+    fn parse(path: &Path, code: &str) -> Result<ParseInfo>;
 }
 
-/// Parsing options
-///
-/// Parsing functions (including those in plugins) are encouraged to respect these options
-/// but are not required to.
-#[derive(Clone)]
-pub struct ParseOptions {}
+/// The result of parsing
+#[skip_serializing_none]
+#[derive(Debug, Default, Serialize)]
+pub struct ParseInfo {
+    /// Whether the code had an explicit `@pure` or `@impure` tag
+    pub pure: Option<bool>,
 
-impl Default for ParseOptions {
-    fn default() -> Self {
-        Self {}
+    /// The [`Relation`]-[`Resource`] pairs between the code and other resources
+    /// (e.g. `Symbol`s, `File`s)
+    pub relations: Pairs,
+}
+
+impl ParseInfo {
+    /// Is the parse code pure (i.e. has no side effects)?
+    ///
+    /// If the code has not been explicitly tagged as `@pure` or `@impure` then
+    /// returns `true` if there are any side-effect causing relations.
+    pub fn is_pure(&self) -> bool {
+        self.pure.unwrap_or_else(|| {
+            self.relations
+                .iter()
+                .filter(|(relation, ..)| {
+                    matches!(
+                        relation,
+                        Relation::Assign(..)
+                            | Relation::Alter(..)
+                            | Relation::Import(..)
+                            | Relation::Write(..)
+                    )
+                })
+                .count()
+                == 0
+        })
     }
 }

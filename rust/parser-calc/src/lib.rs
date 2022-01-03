@@ -2,9 +2,9 @@ use once_cell::sync::Lazy;
 use parser::{
     eyre::Result,
     formats::Format,
-    graph_triples::{relations, resources, Pairs},
+    graph_triples::{relations, resources},
     utils::apply_tags,
-    Parser, ParserTrait,
+    ParseInfo, Parser, ParserTrait,
 };
 use regex::Regex;
 use std::path::Path;
@@ -19,7 +19,7 @@ impl ParserTrait for CalcParser {
         }
     }
 
-    fn parse(path: &Path, code: &str) -> Result<Pairs> {
+    fn parse(path: &Path, code: &str) -> Result<ParseInfo> {
         static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*=(.*)").expect("Unable to create regex")
         });
@@ -33,7 +33,7 @@ impl ParserTrait for CalcParser {
         });
 
         let mut comments = Vec::new();
-        let mut pairs = code
+        let pairs = code
             .split('\n')
             .enumerate()
             .fold(Vec::new(), |mut pairs, (row, line)| {
@@ -80,6 +80,11 @@ impl ParserTrait for CalcParser {
                 pairs
             });
 
+        let mut parse_info = ParseInfo {
+            relations: pairs,
+            ..Default::default()
+        };
+
         // Apply tags from comments (this needs to be done at the end because if may remove pairs if `only` is specified)
         for (row, line) in comments {
             apply_tags(
@@ -88,11 +93,11 @@ impl ParserTrait for CalcParser {
                 row,
                 line,
                 Some("Number".to_string()),
-                &mut pairs,
+                &mut parse_info,
             );
         }
 
-        Ok(pairs)
+        Ok(parse_info)
     }
 }
 
@@ -107,8 +112,8 @@ mod tests {
         snapshot_fixtures("fragments/calc/*.calc", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let pairs = CalcParser::parse(path, &code).expect("Unable to parse");
-            assert_json_snapshot!(pairs);
+            let parse_info = CalcParser::parse(path, &code).expect("Unable to parse");
+            assert_json_snapshot!(parse_info);
         })
     }
 }
