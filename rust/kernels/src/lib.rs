@@ -8,7 +8,7 @@ use kernel::{
     stencila_schema::{CodeError, Node},
     KernelId, KernelInfo, KernelStatus, KernelTrait, TaskId, TaskMessages, TaskOutputs,
 };
-use parsers::ParseInfo;
+use parser::ParseInfo;
 use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, BTreeMap, HashMap, HashSet, VecDeque},
@@ -779,7 +779,7 @@ impl KernelSpace {
     }
 
     /// Get a symbol from the kernel space
-    pub async fn get(&mut self, name: &str) -> Result<Node> {
+    pub async fn get(&self, name: &str) -> Result<Node> {
         let symbols = &mut *self.symbols.lock().await;
         let symbol_info = symbols
             .get(name)
@@ -791,12 +791,10 @@ impl KernelSpace {
     }
 
     /// Set a symbol in the kernel space
-    pub async fn set(&mut self, name: &str, value: Node, language: &str) -> Result<()> {
-        let selector = KernelSelector::parse(language);
-
+    pub async fn set(&self, name: &str, value: Node, selector: &KernelSelector) -> Result<()> {
         let kernels = &mut *self.kernels.lock().await;
 
-        let kernel_id = kernels.ensure(&selector).await?;
+        let kernel_id = kernels.ensure(selector).await?;
         tracing::debug!("Setting symbol `{}` in kernel `{}`", name, kernel_id);
 
         let kernel = kernels.get_mut(&kernel_id)?;
@@ -819,11 +817,11 @@ impl KernelSpace {
 
     /// Execute some code in the kernel space
     pub async fn exec(
-        &mut self,
+        &self,
         code: &str,
-        selector: &KernelSelector,
         parse_info: ParseInfo,
         is_fork: bool,
+        selector: &KernelSelector,
     ) -> Result<TaskInfo> {
         let kernels = &mut *self.kernels.lock().await;
 
@@ -1189,7 +1187,7 @@ impl KernelSpace {
     }
 
     /// Cancel a task
-    async fn cancel(&mut self, task_num_or_id: &str) -> Result<()> {
+    async fn cancel(&self, task_num_or_id: &str) -> Result<()> {
         let mut tasks = self.tasks.lock().await;
         if let Some(task_info) = tasks.find_mut(task_num_or_id) {
             task_info.task.cancel().await
@@ -1203,7 +1201,7 @@ impl KernelSpace {
     }
 
     /// Cancel all unfinished tasks
-    async fn cancel_all(&mut self) -> Result<()> {
+    async fn cancel_all(&self) -> Result<()> {
         let mut tasks = self.tasks.lock().await;
         for TaskInfo { task, .. } in tasks.inner.iter_mut() {
             if !task.is_done() {
@@ -1274,7 +1272,7 @@ impl KernelSpace {
     /// (see the `Execute` CLI command).
     #[cfg(feature = "cli")]
     pub async fn repl(
-        &mut self,
+        &self,
         code: &str,
         language: Option<String>,
         kernel: Option<String>,
@@ -1336,7 +1334,7 @@ impl KernelSpace {
             };
 
             // Execute the code
-            let mut task_info = self.exec(&code, &selector, parse_info, fork).await?;
+            let mut task_info = self.exec(&code, parse_info, fork, &selector).await?;
 
             if background {
                 // Indicate task is running in background

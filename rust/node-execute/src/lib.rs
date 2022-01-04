@@ -2,7 +2,7 @@ use eyre::Result;
 use graph_triples::Relations;
 use kernels::Kernel;
 use node_address::{Address, Addresses};
-use std::path::Path;
+use std::{path::Path, sync::Arc};
 use stencila_schema::*;
 
 // Re-exports
@@ -12,40 +12,56 @@ mod executable;
 pub use executable::*;
 
 mod plan;
-pub use plan::Planner;
+pub use plan::{Plan, PlanOptions};
 
-/// Compile a document
+mod planner;
+pub use planner::Planner;
+
+/// Compile a node
 ///
-/// Compiling a document involves walking over its node tree and compiling each
-/// individual child node so that it is ready to be built & executed. This includes
+/// Compiling a node involves walking over its node tree and compiling each
+/// child node so that it is ready to be executed. This includes
 /// (but is not limited to):
 ///
 /// - for those node types needing to be accesses directly (e.g. executable nodes) ensuring
 ///   they have an `id` and recording their address
+///
 /// - for executable nodes (e.g. `CodeChunk`) performing semantic analysis of the code
+///
 /// - determining dependencies within and between documents and other resources
-#[tracing::instrument(skip(document))]
-pub fn compile(document: &mut Node, path: &Path, project: &Path) -> Result<(Addresses, Relations)> {
+///
+#[tracing::instrument(skip(node))]
+pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresses, Relations)> {
     let mut address = Address::default();
     let mut context = CompileContext::new(path, project);
-    document.compile(&mut address, &mut context)?;
+    node.compile(&mut address, &mut context)?;
     Ok((context.addresses, context.relations))
 }
 
-/// Create an execution planner for a document
-#[tracing::instrument(skip(relations))]
-#[allow(clippy::ptr_arg)]
-pub fn planner(path: &Path, relations: &Relations, kernels: &[Kernel]) -> Result<Planner> {
-    Planner::new(path, relations, kernels)
-}
-
-/// Execute a document
-#[tracing::instrument(skip(document, kernels))]
-pub async fn execute<Type>(document: &mut Type, kernels: &mut KernelSpace) -> Result<()>
-where
-    Type: Executable + Send,
-{
-    document.execute(kernels).await
+/// Execute a node
+///
+/// Executing a node involves:
+///
+/// - [`compile`]ing it to get a set of [`Addresses`] and [`Relations`]
+///
+/// - generating an execution plan, based on that set of relations
+///
+/// - executing the plan
+///
+#[tracing::instrument(skip(node, kernel_space))]
+pub async fn execute(
+    node: &mut Node,
+    node_id: &str,
+    path: &Path,
+    project: &Path,
+    kernel_space: Arc<KernelSpace>,
+    plan_options: Option<PlanOptions>,
+) -> Result<()> {
+    let (addresses, relations) = compile(node, path, project)?;
+    let kernels: Vec<Kernel> = kernels::available().await?;
+    let planner = Planner::new(path, &relations, &kernels)?;
+    let plan = planner.plan(None, plan_options);
+    plan.execute(node, node_id, &addresses, kernel_space).await
 }
 
 #[cfg(test)]
@@ -56,14 +72,18 @@ mod tests {
     use codec::CodecTrait;
     use codec_md::MdCodec;
     use kernels::KernelType;
-    use std::path::PathBuf;
+    use node_patch::diff;
     use test_snaps::{
-        fixtures, insta::assert_json_snapshot, snapshot_add_suffix, snapshot_fixtures_path_content,
+        fixtures,
+        insta::{self, assert_json_snapshot},
+        snapshot_set_suffix,
     };
 
     /// Higher level tests of the top level functions in this crate
     #[tokio::test]
     async fn md_articles() -> Result<()> {
+        let fixtures = fixtures();
+
         // So that test results are not dependant upon the the machine the test is run on or how
         // the test is compiled only use built-in kernels
         let kernels: Vec<Kernel> = kernels::available()
@@ -72,61 +92,89 @@ mod tests {
             .filter(|kernel| matches!(kernel.r#type, KernelType::Builtin))
             .collect();
 
-        let fixtures = fixtures();
-        snapshot_fixtures_path_content("articles/code*.md", |path, content| {
-            // Strip the fixtures prefix from the path (so it's the same regardless of machine)
-            let path = path.strip_prefix(&fixtures).unwrap();
+        let mut settings = insta::Settings::clone_current();
+        settings.set_prepend_module_to_snapshot(false);
+        settings.bind_to_thread();
+
+        for name in ["code.md", "code-relations.md"] {
+            let path = fixtures.join("articles").join(name);
 
             // Load the article
-            let mut article = MdCodec::from_str(content, None).unwrap();
+            let mut article = MdCodec::from_path(&path, None).await?;
+
+            // Strip the fixtures path so it does not differ between machines
+            let path = path.strip_prefix(&fixtures)?;
+            let project = path.parent().unwrap();
 
             // Compile the article and snapshot the result
-            let (addresses, relations) = compile(&mut article, path, &PathBuf::new()).unwrap();
-            snapshot_add_suffix("-compile", || {
+            let (addresses, relations) = compile(&mut article, path, project)?;
+            snapshot_set_suffix(&[name, "-compile"].concat(), || {
                 assert_json_snapshot!((&addresses, &relations))
             });
 
             // Create an execution planner for the article
-            let planner = planner(path, &relations, &kernels).unwrap();
-            snapshot_add_suffix("-planner", || assert_json_snapshot!(&planner));
+            let planner = Planner::new(path, &relations, &kernels)?;
+            snapshot_set_suffix(&[name, "-planner"].concat(), || {
+                assert_json_snapshot!(&planner)
+            });
 
             // Generate various execution plans for the article using alternative options
             // and snapshot them all. Always specify `max_concurrency` to avoid differences
             // due to machine (number of CPUs)
             for (suffix, options) in [
                 (
-                    "-appearance",
+                    "appearance",
                     PlanOptions {
                         ordering: PlanOrdering::Appearance,
                         max_concurrency: 10,
                     },
                 ),
                 (
-                    "-appearance-concurrency-0",
+                    "appearance-concurrency-0",
                     PlanOptions {
                         ordering: PlanOrdering::Appearance,
                         max_concurrency: 0,
                     },
                 ),
                 (
-                    "-topological",
+                    "topological",
                     PlanOptions {
                         ordering: PlanOrdering::Topological,
                         max_concurrency: 10,
                     },
                 ),
                 (
-                    "-topological-concurrency-0",
+                    "topological-concurrency-0",
                     PlanOptions {
                         ordering: PlanOrdering::Topological,
                         max_concurrency: 0,
                     },
                 ),
             ] {
-                let plan = planner.plan(None, options);
-                snapshot_add_suffix(suffix, || assert_json_snapshot!(&plan));
+                let plan = planner.plan(None, Some(options));
+                snapshot_set_suffix(&[name, "-", suffix].concat(), || {
+                    assert_json_snapshot!(&plan)
+                });
             }
-        });
+
+            // Execute the article (with default execution plan) and snapshot
+            // changes in it
+            let pre = article.clone();
+            execute(
+                &mut article,
+                "<node-id>",
+                path,
+                project,
+                Arc::new(KernelSpace::new()),
+                None,
+            )
+            .await?;
+
+            let patch = diff(&pre, &article);
+            snapshot_set_suffix(&[name, "-change"].concat(), || {
+                assert_json_snapshot!(&patch)
+            });
+        }
 
         Ok(())
     }

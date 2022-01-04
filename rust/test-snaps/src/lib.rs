@@ -38,7 +38,6 @@ pub fn snapshot_fixtures_content<F: FnMut(&str)>(pattern: &str, mut func: F) {
 }
 
 /// Generate snapshots from the path and contents of fixtures matching a glob pattern.
-///
 pub fn snapshot_fixtures_path_content<F: FnMut(&Path, &str)>(pattern: &str, mut func: F) {
     snapshot_fixtures(pattern, |path| {
         let content = std::fs::read_to_string(path).expect("Unable to read file");
@@ -59,6 +58,14 @@ pub fn snapshot_fixtures_nodes<F: FnMut(stencila_schema::Node)>(pattern: &str, m
         func(node)
     })
 }
+
+/// Set the suffix for snapshots
+pub fn snapshot_set_suffix<F: FnMut()>(suffix: &str, func: F) {
+    let mut settings = insta::Settings::clone_current();
+    settings.set_snapshot_suffix(suffix);
+    settings.bind(func);
+}
+
 
 /// Add a suffix to snapshots
 pub fn snapshot_add_suffix<F: FnMut()>(suffix: &str, func: F) {

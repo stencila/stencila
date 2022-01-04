@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use eyre::Result;
 use formats::normalize_title;
 use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Relations};
-use kernels::{KernelSelector, KernelSpace, TaskResult};
+use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, Addresses, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
 use parsers::ParseInfo;
@@ -74,7 +74,11 @@ pub trait Executable {
         Ok(())
     }
 
-    async fn execute(&mut self, _kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(
+        &mut self,
+        _kernel_space: &KernelSpace,
+        _kernel_selector: &KernelSelector,
+    ) -> Result<()> {
         Ok(())
     }
 }
@@ -264,10 +268,16 @@ impl Executable for Parameter {
         Ok(())
     }
 
-    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(
+        &mut self,
+        kernel_space: &KernelSpace,
+        kernel_selector: &KernelSelector,
+    ) -> Result<()> {
         tracing::debug!("Executing `Parameter`");
-        if let Some(value) = self.value.as_deref() {
-            kernels.set(&self.name, value.clone(), "").await?;
+        if let Some(value) = self.value.as_deref().or_else(|| self.default.as_deref()) {
+            kernel_space
+                .set(&self.name, value.clone(), kernel_selector)
+                .await?;
         }
         Ok(())
     }
@@ -305,14 +315,18 @@ impl Executable for CodeChunk {
         Ok(())
     }
 
-    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(
+        &mut self,
+        kernel_space: &KernelSpace,
+        kernel_selector: &KernelSelector,
+    ) -> Result<()> {
         tracing::debug!("Executing `CodeChunk`");
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let parse_info = parsers::parse("", &self.text, &self.programming_language)?;
-        let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
-        let mut task = kernels
-            .exec(&self.text, &selector, parse_info, false)
+        let _selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
+        let mut task = kernel_space
+            .exec(&self.text, parse_info, false, kernel_selector)
             .await?;
         let TaskResult {
             outputs,
@@ -369,14 +383,18 @@ impl Executable for CodeExpression {
         Ok(())
     }
 
-    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(
+        &mut self,
+        kernel_space: &KernelSpace,
+        kernel_selector: &KernelSelector,
+    ) -> Result<()> {
         tracing::debug!("Executing `CodeExpression`");
 
         // TODO: Pass relations hashmap in context for lookup instead of re-compiling
         let parse_info = parsers::parse("", &self.text, &self.programming_language)?;
-        let selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
-        let mut task = kernels
-            .exec(&self.text, &selector, parse_info, false)
+        let _selector = KernelSelector::new(None, Some(self.programming_language.clone()), None);
+        let mut task = kernel_space
+            .exec(&self.text, parse_info, false, kernel_selector)
             .await?;
         let TaskResult {
             outputs,
@@ -503,8 +521,19 @@ impl Executable for Node {
         dispatch_node!(self, Ok(()), compile, address, context)
     }
 
-    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        dispatch_node!(self, Box::pin(async { Ok(()) }), execute, kernels).await
+    async fn execute(
+        &mut self,
+        kernel_space: &KernelSpace,
+        kernel_selector: &KernelSelector,
+    ) -> Result<()> {
+        dispatch_node!(
+            self,
+            Box::pin(async { Ok(()) }),
+            execute,
+            kernel_space,
+            kernel_selector
+        )
+        .await
     }
 }
 
@@ -514,8 +543,12 @@ impl Executable for CreativeWorkTypes {
         dispatch_work!(self, compile, address, context)
     }
 
-    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        dispatch_work!(self, execute, kernels).await
+    async fn execute(
+        &mut self,
+        kernel_space: &KernelSpace,
+        kernel_selector: &KernelSelector,
+    ) -> Result<()> {
+        dispatch_work!(self, execute, kernel_space, kernel_selector).await
     }
 }
 
@@ -525,8 +558,12 @@ impl Executable for BlockContent {
         dispatch_block!(self, compile, address, context)
     }
 
-    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        dispatch_block!(self, execute, kernels).await
+    async fn execute(
+        &mut self,
+        kernel_space: &KernelSpace,
+        kernel_selector: &KernelSelector,
+    ) -> Result<()> {
+        dispatch_block!(self, execute, kernel_space, kernel_selector).await
     }
 }
 
@@ -536,8 +573,12 @@ impl Executable for InlineContent {
         dispatch_inline!(self, compile, address, context)
     }
 
-    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        dispatch_inline!(self, execute, kernels).await
+    async fn execute(
+        &mut self,
+        kernel_space: &KernelSpace,
+        kernel_selector: &KernelSelector,
+    ) -> Result<()> {
+        dispatch_inline!(self, execute, kernel_space, kernel_selector).await
     }
 }
 
@@ -554,9 +595,13 @@ where
         }
     }
 
-    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(
+        &mut self,
+        kernel_space: &KernelSpace,
+        kernel_selector: &KernelSelector,
+    ) -> Result<()> {
         if let Some(value) = self {
-            value.execute(kernels).await
+            value.execute(kernel_space, kernel_selector).await
         } else {
             Ok(())
         }
@@ -572,8 +617,12 @@ where
         (**self).compile(address, context)
     }
 
-    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
-        (**self).execute(kernels).await
+    async fn execute(
+        &mut self,
+        kernel_space: &KernelSpace,
+        kernel_selector: &KernelSelector,
+    ) -> Result<()> {
+        (**self).execute(kernel_space, kernel_selector).await
     }
 }
 
@@ -591,9 +640,13 @@ where
         Ok(())
     }
 
-    async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+    async fn execute(
+        &mut self,
+        kernel_space: &KernelSpace,
+        kernel_selector: &KernelSelector,
+    ) -> Result<()> {
         for item in self.iter_mut() {
-            item.execute(kernels).await?;
+            item.execute(kernel_space, kernel_selector).await?;
         }
         Ok(())
     }
@@ -613,9 +666,9 @@ macro_rules! executable_fields {
                 Ok(())
             }
 
-            async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+            async fn execute(&mut self, kernel_space: &KernelSpace, kernel_selector: &KernelSelector) -> Result<()> {
                 $(
-                    self.$field.execute(kernels).await?;
+                    self.$field.execute(kernel_space, kernel_selector).await?;
                 )*
                 Ok(())
             }
@@ -682,10 +735,10 @@ macro_rules! executable_variants {
                 }
             }
 
-            async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<()> {
+            async fn execute(&mut self, kernel_space: &KernelSpace, kernel_selector: &KernelSelector) -> Result<()> {
                 match self {
                     $(
-                        $variant(node) => node.execute(kernels).await,
+                        $variant(node) => node.execute(kernel_space, kernel_selector).await,
                     )*
                 }
             }

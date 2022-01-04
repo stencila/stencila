@@ -139,6 +139,7 @@ input_file: fixtures/articles/code-relations.md
         {
           "type": "Parameter",
           "name": "c",
+          "default": 1,
           "validator": {
             "type": "NumberValidator",
             "maximum": 10.0,
