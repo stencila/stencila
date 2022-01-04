@@ -1,6 +1,7 @@
 use defaults::Defaults;
 use eyre::{bail, Result};
 use node_address::{Address, Slot};
+use node_pointer::{resolve, Pointable};
 use schemars::JsonSchema;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -62,9 +63,22 @@ pub async fn diff_display(node1: &Node, node2: &Node, format: &str) -> Result<St
 #[tracing::instrument(skip(node, patch))]
 pub fn apply<Type>(node: &mut Type, patch: &Patch) -> Result<()>
 where
-    Type: Patchable,
+    Type: Patchable + Pointable,
 {
-    node.apply_patch(patch)
+    if patch.address.is_some() || patch.target.is_some() {
+        let mut pointer = resolve(node, patch.address.clone(), patch.target.clone())?;
+        if let Some(inline) = pointer.as_inline_mut() {
+            inline.apply_patch(patch)
+        } else if let Some(block) = pointer.as_block_mut() {
+            block.apply_patch(patch)
+        } else if let Some(node) = pointer.as_node_mut() {
+            node.apply_patch(patch)
+        } else {
+            bail!("Pointer points to unhandled node type")
+        }
+    } else {
+        node.apply_patch(patch)
+    }
 }
 
 /// Apply a [`Patch`] to a clone of a node.
@@ -96,7 +110,7 @@ where
 #[tracing::instrument(skip(ancestor, derived))]
 pub fn merge<Type>(ancestor: &mut Type, derived: &[&Type]) -> Result<()>
 where
-    Type: Patchable,
+    Type: Patchable + Pointable,
 {
     let patches: Vec<Patch> = derived.iter().map(|node| diff(ancestor, *node)).collect();
 
@@ -467,6 +481,9 @@ pub struct Patch {
     /// The [`Operation`]s to apply
     ops: Vec<Operation>,
 
+    /// The address of the node to which apply this patch
+    pub address: Option<Address>,
+
     /// The id of the node to which to apply this patch
     pub target: Option<String>,
 
@@ -480,6 +497,7 @@ impl Patch {
     fn new(ops: Vec<Operation>) -> Self {
         Self {
             ops,
+            address: None,
             target: None,
             actor: None,
         }
