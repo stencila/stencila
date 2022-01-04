@@ -1,6 +1,6 @@
 [package]
 name = "node-pointer"
-description = "Pointers for performing actions on nodes in Stencila document trees"
+description = "Pointers to nodes within Stencila documents"
 version = "0.0.0"
 edition = "2021"
 
@@ -8,6 +8,5 @@ edition = "2021"
 eyre = "0.6.5"
 node-address = { path = "../node-address", version = "0.0.0" }
 node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
-node-execute = { path = "../node-execute", version = "0.0.0" }
-node-patch = { path = "../node-patch", version = "0.0.0" }
+node-transform = { path = "../node-transform", version = "0.0.0" }
 stencila-schema = "1.12.0"
