@@ -30,24 +30,14 @@ impl CodecTrait for DocxCodec {
         }
     }
 
-    async fn from_path<T: AsRef<Path>>(path: &T, _options: Option<DecodeOptions>) -> Result<Node>
-    where
-        T: Send + Sync,
-    {
-        let path = PathBuf::from(path.as_ref());
+    async fn from_path(path: &Path, _options: Option<DecodeOptions>) -> Result<Node> {
+        let path = PathBuf::from(path);
         let media = [&path.to_string_lossy(), ".media"].concat();
         decode("", Some(path), "docx", &["--extract-media", &media]).await
     }
 
-    async fn to_path<T: AsRef<Path>>(
-        node: &Node,
-        path: &T,
-        _options: Option<EncodeOptions>,
-    ) -> Result<()>
-    where
-        T: Send + Sync,
-    {
-        let path = PathBuf::from(path.as_ref());
+    async fn to_path(node: &Node, path: &Path, _options: Option<EncodeOptions>) -> Result<()> {
+        let path = PathBuf::from(path);
         encode(node, Some(path), "docx", &[]).await?;
         Ok(())
     }

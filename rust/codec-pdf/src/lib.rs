@@ -26,14 +26,7 @@ impl CodecTrait for PdfCodec {
     }
 
     /// Encode a document node to a file system path
-    async fn to_path<T: AsRef<Path>>(
-        node: &Node,
-        path: &T,
-        options: Option<EncodeOptions>,
-    ) -> Result<()>
-    where
-        T: Send + Sync,
-    {
+    async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
         let EncodeOptions { theme, .. } = options.unwrap_or_default();
 
         let html = HtmlCodec::to_string(

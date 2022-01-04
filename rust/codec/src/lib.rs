@@ -112,10 +112,7 @@ pub trait CodecTrait {
     }
 
     /// Decode a document node from a file system path
-    async fn from_path<T: AsRef<Path>>(path: &T, options: Option<DecodeOptions>) -> Result<Node>
-    where
-        T: Send + Sync,
-    {
+    async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
         let mut file = File::open(path)?;
         Self::from_file(&mut file, options).await
     }
@@ -152,14 +149,7 @@ pub trait CodecTrait {
     }
 
     /// Encode a document node to a file system path
-    async fn to_path<T: AsRef<Path>>(
-        node: &Node,
-        path: &T,
-        options: Option<EncodeOptions>,
-    ) -> Result<()>
-    where
-        T: Send + Sync,
-    {
+    async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
         let mut file = File::open(path)?;
         Self::to_file(node, &mut file, options).await
     }

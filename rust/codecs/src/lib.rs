@@ -21,14 +21,7 @@ pub async fn from_str(content: &str, format: &str, options: Option<DecodeOptions
 }
 
 /// Decode a document node from a file system path
-pub async fn from_path<T: AsRef<Path>>(
-    path: &T,
-    format: &str,
-    options: Option<DecodeOptions>,
-) -> Result<Node>
-where
-    T: Send + Sync,
-{
+pub async fn from_path(path: &Path, format: &str, options: Option<DecodeOptions>) -> Result<Node> {
     CODECS.from_path(path, format, options).await
 }
 
@@ -42,15 +35,12 @@ pub async fn to_string(
 }
 
 /// Encode a document node to a file system path
-pub async fn to_path<T: AsRef<Path>>(
+pub async fn to_path(
     node: &Node,
-    path: &T,
+    path: &Path,
     format: &str,
     options: Option<EncodeOptions>,
-) -> Result<()>
-where
-    T: Send + Sync,
-{
+) -> Result<()> {
     CODECS.to_path(node, path, format, options).await
 }
 
@@ -201,15 +191,12 @@ impl Codecs {
 
     /// Decode a document node from a file system path
     #[allow(clippy::needless_update)]
-    async fn from_path<T: AsRef<Path>>(
+    async fn from_path(
         &self,
-        path: &T,
+        path: &Path,
         format: &str,
         options: Option<DecodeOptions>,
-    ) -> Result<Node>
-    where
-        T: Send + Sync,
-    {
+    ) -> Result<Node> {
         let format = match_name(format);
         let format_spec = format.spec();
 
@@ -255,16 +242,13 @@ impl Codecs {
     }
 
     /// Encode a document node to a file system path
-    async fn to_path<T: AsRef<Path>>(
+    async fn to_path(
         &self,
         node: &Node,
-        path: &T,
+        path: &Path,
         format: &str,
         options: Option<EncodeOptions>,
-    ) -> Result<()>
-    where
-        T: Send + Sync,
-    {
+    ) -> Result<()> {
         let format = match_name(format);
         let format_spec = format.spec();
 
