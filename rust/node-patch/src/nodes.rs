@@ -19,9 +19,13 @@ macro_rules! patchable_node_variants {
                     // For the atomic primitives, do replacement at this level,
                     // so that the `Replace` operation has a `value` of type
                     // `Node::Number` not a `f64` etc.
-                    (Node::Boolean(..), Node::Boolean(..)) => differ.replace(other),
-                    (Node::Integer(..), Node::Integer(..)) => differ.replace(other),
-                    (Node::Number(..), Node::Number(..)) => differ.replace(other),
+                    (Node::Boolean(..), Node::Boolean(..)) |
+                    (Node::Integer(..), Node::Integer(..)) |
+                    (Node::Number(..), Node::Number(..)) => {
+                        if !self.is_equal(other).is_ok() {
+                            differ.replace(other)
+                        }
+                    },
                     // For other matching pairs of other variants do diffing
                     $(
                         ($variant(me), $variant(other)) => me.diff(other, differ),
