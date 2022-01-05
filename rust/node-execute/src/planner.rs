@@ -6,6 +6,7 @@ use eyre::Result;
 use graph::Graph;
 use graph_triples::{Relations, Resource, ResourceDependencies, ResourceId};
 use kernels::{Kernel, KernelSelector};
+use parsers::ParseInfo;
 use serde::Serialize;
 use std::{collections::BTreeMap, path::Path};
 
@@ -38,6 +39,9 @@ pub struct Planner {
     /// as well.
     topological_order: Vec<ResourceDependencies>,
 
+    /// The parsing results for code resources
+    parse_info: BTreeMap<ResourceId, ParseInfo>,
+
     /// The kernels that are available to execute nodes
     kernels: Vec<Kernel>,
 }
@@ -52,7 +56,12 @@ impl Planner {
     /// - `relations`: The dependency relations between nodes (used to create a
     ///    dependency graph)
     #[allow(clippy::ptr_arg)]
-    pub fn new(path: &Path, relations: &Relations, kernels: &[Kernel]) -> Result<Planner> {
+    pub fn new(
+        path: &Path,
+        relations: &Relations,
+        parse_info: BTreeMap<ResourceId, ParseInfo>,
+        kernels: &[Kernel],
+    ) -> Result<Planner> {
         // Store the appearance order from `relations`
         let appearance_order = relations.iter().map(|(subject, ..)| subject.id()).collect();
 
@@ -68,6 +77,7 @@ impl Planner {
             resources,
             appearance_order,
             topological_order,
+            parse_info,
             kernels: kernels.into(),
         })
     }
@@ -128,18 +138,23 @@ impl Planner {
 
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
-            let fork = kernel_forkable && code.pure && stage.steps.len() < options.max_concurrency;
+            let parse_info = self.parse_info.get(resource_id).cloned();
+            let is_pure = parse_info
+                .as_ref()
+                .map_or(false, |parse_info| parse_info.is_pure());
+            let is_fork = kernel_forkable && is_pure && stage.steps.len() < options.max_concurrency;
 
             // Create the step and add it to the current stage
             let step = Step {
                 node: code.clone(),
-                kernel: kernel_name,
-                fork,
+                kernel_name,
+                parse_info,
+                is_fork,
             };
             stage.steps.push(step);
 
             // If not in a fork, start a new stage.
-            if !fork {
+            if !is_fork {
                 stages.push(stage);
                 stage = Stage::default();
             }
@@ -210,18 +225,23 @@ impl Planner {
 
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
-            let fork = kernel_forkable && code.pure && stage.steps.len() < options.max_concurrency;
+            let parse_info = self.parse_info.get(resource_id).cloned();
+            let is_pure = parse_info
+                .as_ref()
+                .map_or(false, |parse_info| parse_info.is_pure());
+            let is_fork = kernel_forkable && is_pure && stage.steps.len() < options.max_concurrency;
 
             // Create the step and add it to the current stage
             let step = Step {
                 node: code.clone(),
-                kernel: kernel_name,
-                fork,
+                kernel_name,
+                parse_info,
+                is_fork,
             };
             stage.steps.push(step);
 
             // If not in a fork, start a new stage.
-            if !fork {
+            if !is_fork {
                 stages.push(stage);
                 stage = Stage::default();
             }

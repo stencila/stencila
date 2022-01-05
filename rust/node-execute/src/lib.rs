@@ -1,8 +1,9 @@
 use eyre::Result;
-use graph_triples::Relations;
+use graph_triples::{Relations, ResourceId};
 use kernels::Kernel;
 use node_address::{Address, Addresses};
-use std::{path::Path, sync::Arc};
+use parsers::ParseInfo;
+use std::{collections::BTreeMap, path::Path, sync::Arc};
 use stencila_schema::*;
 
 // Re-exports
@@ -31,11 +32,15 @@ pub use planner::Planner;
 /// - determining dependencies within and between documents and other resources
 ///
 #[tracing::instrument(skip(node))]
-pub fn compile(node: &mut Node, path: &Path, project: &Path) -> Result<(Addresses, Relations)> {
+pub fn compile(
+    node: &mut Node,
+    path: &Path,
+    project: &Path,
+) -> Result<(Addresses, Relations, BTreeMap<ResourceId, ParseInfo>)> {
     let mut address = Address::default();
     let mut context = CompileContext::new(path, project);
     node.compile(&mut address, &mut context)?;
-    Ok((context.addresses, context.relations))
+    Ok((context.addresses, context.relations, context.parse_info))
 }
 
 /// Execute a node
@@ -57,9 +62,9 @@ pub async fn execute(
     kernel_space: Arc<KernelSpace>,
     plan_options: Option<PlanOptions>,
 ) -> Result<()> {
-    let (addresses, relations) = compile(node, path, project)?;
+    let (addresses, relations, parse_info) = compile(node, path, project)?;
     let kernels: Vec<Kernel> = kernels::available().await?;
-    let planner = Planner::new(path, &relations, &kernels)?;
+    let planner = Planner::new(path, &relations, parse_info, &kernels)?;
     let plan = planner.plan(None, plan_options);
     plan.execute(node, node_id, &addresses, kernel_space).await
 }
@@ -107,13 +112,13 @@ mod tests {
             let project = path.parent().unwrap();
 
             // Compile the article and snapshot the result
-            let (addresses, relations) = compile(&mut article, path, project)?;
+            let (addresses, relations, parse_info) = compile(&mut article, path, project)?;
             snapshot_set_suffix(&[name, "-compile"].concat(), || {
                 assert_json_snapshot!((&addresses, &relations))
             });
 
             // Create an execution planner for the article
-            let planner = Planner::new(path, &relations, &kernels)?;
+            let planner = Planner::new(path, &relations, parse_info, &kernels)?;
             snapshot_set_suffix(&[name, "-planner"].concat(), || {
                 assert_json_snapshot!(&planner)
             });

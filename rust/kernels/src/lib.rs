@@ -340,11 +340,11 @@ pub struct SymbolInfo {
     /// As such, a symbol's home kernel can change, although this is discouraged.
     home: KernelId,
 
-    /// The time that the symbol was last altered in the home kernel
+    /// The time that the symbol was last modified in the home kernel
     ///
-    /// A symbol is considered altered when a `CodeChunk` with an `Assign` or `Alter`
+    /// A symbol is considered modified when a `CodeChunk` with an `Assign` or `Alter`
     /// relation to the symbol is executed or the `kernel.set` method is called.
-    altered: DateTime<Utc>,
+    modified: DateTime<Utc>,
 
     /// The time that the symbol was last mirrored to other kernels
     ///
@@ -359,7 +359,7 @@ impl SymbolInfo {
         SymbolInfo {
             kind: kind.into(),
             home: kernel_id.into(),
-            altered: Utc::now(),
+            modified: Utc::now(),
             mirrored: HashMap::new(),
         }
     }
@@ -382,7 +382,7 @@ fn display_symbols(symbols: &KernelSymbols) -> cli_utils::Result {
                 symbol,
                 symbol_info.kind,
                 symbol_info.home,
-                format_time(symbol_info.altered),
+                format_time(symbol_info.modified),
                 symbol_info
                     .mirrored
                     .iter()
@@ -416,11 +416,8 @@ pub struct TaskInfo {
     /// The code that was executed
     pub code: String,
 
-    /// The symbols that are used by this code
-    pub symbols_used: Vec<Symbol>,
-
-    /// The symbols that are assigned by this code
-    pub symbols_assigned: Vec<Symbol>,
+    /// The result of parsing the code
+    pub parse_info: ParseInfo,
 
     /// The id of the kernel that the task was dispatched to
     pub kernel_id: Option<String>,
@@ -518,13 +515,11 @@ impl KernelTasks {
     }
 
     /// Put a task onto the list
-    #[allow(clippy::too_many_arguments)]
     async fn put(
         &mut self,
         task: &Task,
         code: &str,
-        symbols_used: &[Symbol],
-        symbols_assigned: &[Symbol],
+        parse_info: &ParseInfo,
         kernel_id: &str,
         is_fork: bool,
         is_deferred: bool,
@@ -534,11 +529,10 @@ impl KernelTasks {
         let task_info = TaskInfo {
             num: self.counter,
             code: code.to_string(),
-            symbols_used: symbols_used.into(),
-            symbols_assigned: symbols_assigned.into(),
+            parse_info: parse_info.clone(),
             kernel_id: Some(kernel_id.to_string()),
-            is_deferred,
             is_fork,
+            is_deferred,
             is_async: task.is_async(),
             is_cancellable: task.is_cancellable(),
             task: task.clone(),
@@ -805,7 +799,7 @@ impl KernelSpace {
             Entry::Occupied(mut occupied) => {
                 let info = occupied.get_mut();
                 info.home = kernel_id;
-                info.altered = Utc::now();
+                info.modified = Utc::now();
             }
             Entry::Vacant(vacant) => {
                 vacant.insert(SymbolInfo::new("", &kernel_id));
@@ -819,22 +813,11 @@ impl KernelSpace {
     pub async fn exec(
         &self,
         code: &str,
-        parse_info: ParseInfo,
+        parse_info: &ParseInfo,
         is_fork: bool,
         selector: &KernelSelector,
     ) -> Result<TaskInfo> {
         let kernels = &mut *self.kernels.lock().await;
-
-        // Summarize relations into symbols used and assigned
-        let mut symbols_used = Vec::new();
-        let mut symbols_assigned = Vec::new();
-        for pair in parse_info.relations {
-            match pair {
-                (Relation::Use(..), Resource::Symbol(symbol)) => symbols_used.push(symbol),
-                (Relation::Assign(..), Resource::Symbol(symbol)) => symbols_assigned.push(symbol),
-                _ => (),
-            }
-        }
 
         // Determine the kernel to execute in
         let kernel_id = kernels.ensure(selector).await?;
@@ -842,35 +825,19 @@ impl KernelSpace {
 
         // If the kernel is busy then defer the task, otherwise dispatch to the kernel now
         let kernel = kernels.get(&kernel_id)?;
-        let (deferred, task) = if kernel.is_busy().await? {
+        let (is_deferred, task) = if kernel.is_busy().await? {
             let task = self.defer_task(&kernel_id).await;
             (true, task)
         } else {
             let symbols = &mut *self.symbols.lock().await;
-            let task = KernelSpace::dispatch_task(
-                code,
-                &symbols_used,
-                &symbols_assigned,
-                is_fork,
-                symbols,
-                &kernel_id,
-                kernels,
-            )
-            .await?;
+            let task =
+                KernelSpace::dispatch_task(code, &parse_info, symbols, &kernel_id, kernels).await?;
             (false, task)
         };
 
         // Either way, store the task
         let task_info = self
-            .store(
-                &task,
-                code,
-                &symbols_used,
-                &symbols_assigned,
-                is_fork,
-                &kernel_id,
-                deferred,
-            )
+            .store(&task, code, parse_info, &kernel_id, is_fork, is_deferred)
             .await;
         Ok(task_info)
     }
@@ -883,15 +850,13 @@ impl KernelSpace {
     #[allow(clippy::too_many_arguments)]
     async fn dispatch_task(
         code: &str,
-        symbols_used: &[Symbol],
-        symbols_assigned: &[Symbol],
-        is_fork: bool,
+        parse_info: &ParseInfo,
         symbols: &mut KernelSymbols,
         kernel_id: &str,
         kernels: &mut KernelMap,
     ) -> Result<Task> {
         // Mirror used symbols into the kernel
-        for symbol in symbols_used {
+        for symbol in parse_info.symbols_used() {
             let name = &symbol.name;
             let symbol = match symbols.get_mut(name) {
                 Some(symbol) => symbol,
@@ -906,7 +871,7 @@ impl KernelSpace {
 
             // Skip if already mirrored since last assigned
             if let Some(mirrored) = symbol.mirrored.get(kernel_id) {
-                if mirrored >= &symbol.altered {
+                if mirrored >= &symbol.modified {
                     continue;
                 }
             }
@@ -932,21 +897,22 @@ impl KernelSpace {
         }
 
         // Execute the code in the kernel
+        let pure = parse_info.is_pure();
         let kernel = kernels.get_mut(kernel_id)?;
-        let task = if is_fork {
+        let task = if pure {
             kernel.exec_fork(code).await?
         } else {
             kernel.exec_async(code).await?
         };
 
         // Record symbols assigned in kernel (unless it was a fork)
-        if !is_fork {
-            for symbol in symbols_assigned {
+        if !pure {
+            for symbol in parse_info.symbols_modified() {
                 symbols
                     .entry(symbol.name.clone())
                     .and_modify(|info| {
                         info.home = kernel_id.to_string();
-                        info.altered = Utc::now();
+                        info.modified = Utc::now();
                     })
                     .or_insert_with(|| SymbolInfo::new(&symbol.kind, kernel_id));
             }
@@ -1069,9 +1035,7 @@ impl KernelSpace {
         // Dispatch the task
         let started_task = KernelSpace::dispatch_task(
             &task_info.code,
-            &task_info.symbols_used,
-            &task_info.symbols_assigned,
-            task_info.is_fork,
+            &task_info.parse_info,
             symbols,
             kernel_id,
             kernels,
@@ -1142,10 +1106,9 @@ impl KernelSpace {
         &self,
         task: &Task,
         code: &str,
-        symbols_used: &[Symbol],
-        symbols_assigned: &[Symbol],
-        is_fork: bool,
+        parse_info: &ParseInfo,
         kernel_id: &str,
+        is_fork: bool,
         is_deferred: bool,
     ) -> TaskInfo {
         if let (false, Ok(mut receiver)) = (task.is_done(), task.subscribe()) {
@@ -1174,15 +1137,7 @@ impl KernelSpace {
 
         let mut tasks = self.tasks.lock().await;
         tasks
-            .put(
-                task,
-                code,
-                symbols_used,
-                symbols_assigned,
-                kernel_id,
-                is_fork,
-                is_deferred,
-            )
+            .put(task, code, parse_info, kernel_id, is_fork, is_deferred)
             .await
     }
 
@@ -1277,7 +1232,7 @@ impl KernelSpace {
         language: Option<String>,
         kernel: Option<String>,
         background: bool,
-        fork: bool,
+        is_fork: bool,
     ) -> cli_utils::Result {
         use cli_utils::result;
         use events::{subscribe, unsubscribe, Subscriber};
@@ -1334,7 +1289,7 @@ impl KernelSpace {
             };
 
             // Execute the code
-            let mut task_info = self.exec(&code, parse_info, fork, &selector).await?;
+            let mut task_info = self.exec(&code, &parse_info, is_fork, &selector).await?;
 
             if background {
                 // Indicate task is running in background

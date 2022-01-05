@@ -1,7 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
 expression: "(&addresses, &relations)"
-input_file: fixtures/articles/code-relations.md
 
 ---
 [
@@ -120,8 +119,7 @@ input_file: fixtures/articles/code-relations.md
         "path": "articles/code-relations.md",
         "id": "cc-1",
         "kind": "CodeChunk",
-        "language": "Calc",
-        "pure": false
+        "language": "Calc"
       },
       [
         [
@@ -149,8 +147,7 @@ input_file: fixtures/articles/code-relations.md
         "path": "articles/code-relations.md",
         "id": "cc-2",
         "kind": "CodeChunk",
-        "language": "Calc",
-        "pure": true
+        "language": "Calc"
       },
       [
         [
@@ -178,8 +175,7 @@ input_file: fixtures/articles/code-relations.md
         "path": "articles/code-relations.md",
         "id": "ce-1",
         "kind": "CodeExpression",
-        "language": "Calc",
-        "pure": true
+        "language": "Calc"
       },
       [
         [
@@ -207,8 +203,7 @@ input_file: fixtures/articles/code-relations.md
         "path": "articles/code-relations.md",
         "id": "ce-2",
         "kind": "CodeExpression",
-        "language": "Calc",
-        "pure": true
+        "language": "Calc"
       },
       [
         [
@@ -236,8 +231,7 @@ input_file: fixtures/articles/code-relations.md
         "path": "articles/code-relations.md",
         "id": "cc-3",
         "kind": "CodeChunk",
-        "language": "Calc",
-        "pure": false
+        "language": "Calc"
       },
       [
         [
@@ -282,8 +276,7 @@ input_file: fixtures/articles/code-relations.md
         "path": "articles/code-relations.md",
         "id": "ce-3",
         "kind": "CodeExpression",
-        "language": "Calc",
-        "pure": true
+        "language": "Calc"
       },
       [
         [
@@ -311,8 +304,7 @@ input_file: fixtures/articles/code-relations.md
         "path": "articles/code-relations.md",
         "id": "ce-4",
         "kind": "CodeExpression",
-        "language": "Calc",
-        "pure": true
+        "language": "Calc"
       },
       [
         [
@@ -340,8 +332,7 @@ input_file: fixtures/articles/code-relations.md
         "path": "articles/code-relations.md",
         "id": "pa-1",
         "kind": "Parameter",
-        "language": "Calc",
-        "pure": false
+        "language": "Calc"
       },
       [
         [
@@ -369,8 +360,7 @@ input_file: fixtures/articles/code-relations.md
         "path": "articles/code-relations.md",
         "id": "cc-4",
         "kind": "CodeChunk",
-        "language": "Calc",
-        "pure": true
+        "language": "Calc"
       },
       [
         [

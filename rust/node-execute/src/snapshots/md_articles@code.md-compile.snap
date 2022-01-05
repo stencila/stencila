@@ -1,7 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
 expression: "(&addresses, &relations)"
-input_file: fixtures/articles/code.md
 
 ---
 [
@@ -106,8 +105,7 @@ input_file: fixtures/articles/code.md
         "path": "articles/code.md",
         "id": "ce-1",
         "kind": "CodeExpression",
-        "language": "R",
-        "pure": true
+        "language": "R"
       },
       []
     ],
@@ -117,8 +115,7 @@ input_file: fixtures/articles/code.md
         "path": "articles/code.md",
         "id": "ce-2",
         "kind": "CodeExpression",
-        "language": "Python",
-        "pure": true
+        "language": "Python"
       },
       []
     ],
@@ -128,8 +125,7 @@ input_file: fixtures/articles/code.md
         "path": "articles/code.md",
         "id": "ce-3",
         "kind": "CodeExpression",
-        "language": "Python",
-        "pure": true
+        "language": "Python"
       },
       []
     ],
@@ -139,8 +135,7 @@ input_file: fixtures/articles/code.md
         "path": "articles/code.md",
         "id": "ce-4",
         "kind": "CodeExpression",
-        "language": "Python",
-        "pure": true
+        "language": "Python"
       },
       []
     ],
@@ -150,8 +145,7 @@ input_file: fixtures/articles/code.md
         "path": "articles/code.md",
         "id": "ce-5",
         "kind": "CodeExpression",
-        "language": "Python",
-        "pure": true
+        "language": "Python"
       },
       []
     ],
@@ -161,8 +155,7 @@ input_file: fixtures/articles/code.md
         "path": "articles/code.md",
         "id": "cc-1",
         "kind": "CodeChunk",
-        "language": "R",
-        "pure": true
+        "language": "R"
       },
       []
     ]

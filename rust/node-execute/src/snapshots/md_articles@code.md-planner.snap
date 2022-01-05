@@ -1,7 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
 expression: "&planner"
-input_file: fixtures/articles/code.md
 
 ---
 {
@@ -11,48 +10,42 @@ input_file: fixtures/articles/code.md
       "path": "articles/code.md",
       "id": "cc-1",
       "kind": "CodeChunk",
-      "language": "R",
-      "pure": true
+      "language": "R"
     },
     "code://articles/code.md#ce-1": {
       "type": "Code",
       "path": "articles/code.md",
       "id": "ce-1",
       "kind": "CodeExpression",
-      "language": "R",
-      "pure": true
+      "language": "R"
     },
     "code://articles/code.md#ce-2": {
       "type": "Code",
       "path": "articles/code.md",
       "id": "ce-2",
       "kind": "CodeExpression",
-      "language": "Python",
-      "pure": true
+      "language": "Python"
     },
     "code://articles/code.md#ce-3": {
       "type": "Code",
       "path": "articles/code.md",
       "id": "ce-3",
       "kind": "CodeExpression",
-      "language": "Python",
-      "pure": true
+      "language": "Python"
     },
     "code://articles/code.md#ce-4": {
       "type": "Code",
       "path": "articles/code.md",
       "id": "ce-4",
       "kind": "CodeExpression",
-      "language": "Python",
-      "pure": true
+      "language": "Python"
     },
     "code://articles/code.md#ce-5": {
       "type": "Code",
       "path": "articles/code.md",
       "id": "ce-5",
       "kind": "CodeExpression",
-      "language": "Python",
-      "pure": true
+      "language": "Python"
     }
   },
   "appearance_order": [
@@ -95,6 +88,26 @@ input_file: fixtures/articles/code.md
       "depth": 0
     }
   ],
+  "parse_info": {
+    "code://articles/code.md#cc-1": {
+      "relations": []
+    },
+    "code://articles/code.md#ce-1": {
+      "relations": []
+    },
+    "code://articles/code.md#ce-2": {
+      "relations": []
+    },
+    "code://articles/code.md#ce-3": {
+      "relations": []
+    },
+    "code://articles/code.md#ce-4": {
+      "relations": []
+    },
+    "code://articles/code.md#ce-5": {
+      "relations": []
+    }
+  },
   "kernels": [
     {
       "name": "store",

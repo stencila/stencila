@@ -1,7 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
 expression: "&plan"
-input_file: fixtures/articles/code-relations.md
 
 ---
 {
@@ -17,11 +16,31 @@ input_file: fixtures/articles/code-relations.md
             "path": "articles/code-relations.md",
             "id": "cc-1",
             "kind": "CodeChunk",
-            "language": "Calc",
-            "pure": false
+            "language": "Calc"
           },
-          "kernel": "calc",
-          "fork": false
+          "kernel_name": "calc",
+          "parse_info": {
+            "relations": [
+              [
+                {
+                  "type": "Assign",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ]
+            ]
+          },
+          "is_fork": false
         }
       ]
     },
@@ -32,11 +51,11 @@ input_file: fixtures/articles/code-relations.md
             "path": "articles/code-relations.md",
             "id": "pa-1",
             "kind": "Parameter",
-            "language": "Calc",
-            "pure": false
+            "language": "Calc"
           },
-          "kernel": "calc",
-          "fork": false
+          "kernel_name": "calc",
+          "parse_info": null,
+          "is_fork": false
         }
       ]
     },
@@ -47,44 +66,141 @@ input_file: fixtures/articles/code-relations.md
             "path": "articles/code-relations.md",
             "id": "cc-2",
             "kind": "CodeChunk",
-            "language": "Calc",
-            "pure": true
+            "language": "Calc"
           },
-          "kernel": "calc",
-          "fork": true
+          "kernel_name": "calc",
+          "parse_info": {
+            "relations": [
+              [
+                {
+                  "type": "Use",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ]
+            ]
+          },
+          "is_fork": true
         },
         {
           "node": {
             "path": "articles/code-relations.md",
             "id": "ce-1",
             "kind": "CodeExpression",
-            "language": "Calc",
-            "pure": true
+            "language": "Calc"
           },
-          "kernel": "calc",
-          "fork": true
+          "kernel_name": "calc",
+          "parse_info": {
+            "relations": [
+              [
+                {
+                  "type": "Use",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ]
+            ]
+          },
+          "is_fork": true
         },
         {
           "node": {
             "path": "articles/code-relations.md",
             "id": "ce-2",
             "kind": "CodeExpression",
-            "language": "Calc",
-            "pure": true
+            "language": "Calc"
           },
-          "kernel": "calc",
-          "fork": true
+          "kernel_name": "calc",
+          "parse_info": {
+            "relations": [
+              [
+                {
+                  "type": "Use",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ]
+            ]
+          },
+          "is_fork": true
         },
         {
           "node": {
             "path": "articles/code-relations.md",
             "id": "cc-3",
             "kind": "CodeChunk",
-            "language": "Calc",
-            "pure": false
+            "language": "Calc"
           },
-          "kernel": "calc",
-          "fork": false
+          "kernel_name": "calc",
+          "parse_info": {
+            "relations": [
+              [
+                {
+                  "type": "Assign",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "b",
+                  "kind": "Number"
+                }
+              ],
+              [
+                {
+                  "type": "Use",
+                  "range": [
+                    0,
+                    4,
+                    0,
+                    5
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ]
+            ]
+          },
+          "is_fork": false
         }
       ]
     },
@@ -95,33 +211,127 @@ input_file: fixtures/articles/code-relations.md
             "path": "articles/code-relations.md",
             "id": "ce-3",
             "kind": "CodeExpression",
-            "language": "Calc",
-            "pure": true
+            "language": "Calc"
           },
-          "kernel": "calc",
-          "fork": true
+          "kernel_name": "calc",
+          "parse_info": {
+            "relations": [
+              [
+                {
+                  "type": "Use",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "b",
+                  "kind": "Number"
+                }
+              ]
+            ]
+          },
+          "is_fork": true
         },
         {
           "node": {
             "path": "articles/code-relations.md",
             "id": "ce-4",
             "kind": "CodeExpression",
-            "language": "Calc",
-            "pure": true
+            "language": "Calc"
           },
-          "kernel": "calc",
-          "fork": true
+          "kernel_name": "calc",
+          "parse_info": {
+            "relations": [
+              [
+                {
+                  "type": "Use",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "b",
+                  "kind": "Number"
+                }
+              ]
+            ]
+          },
+          "is_fork": true
         },
         {
           "node": {
             "path": "articles/code-relations.md",
             "id": "cc-4",
             "kind": "CodeChunk",
-            "language": "Calc",
-            "pure": true
+            "language": "Calc"
           },
-          "kernel": "calc",
-          "fork": true
+          "kernel_name": "calc",
+          "parse_info": {
+            "relations": [
+              [
+                {
+                  "type": "Use",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
+              ],
+              [
+                {
+                  "type": "Use",
+                  "range": [
+                    0,
+                    4,
+                    0,
+                    5
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "b",
+                  "kind": "Number"
+                }
+              ],
+              [
+                {
+                  "type": "Use",
+                  "range": [
+                    0,
+                    8,
+                    0,
+                    9
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "c",
+                  "kind": "Number"
+                }
+              ]
+            ]
+          },
+          "is_fork": true
         }
       ]
     }

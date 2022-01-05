@@ -10,6 +10,7 @@ use node_address::Addresses;
 use node_patch::{apply, diff};
 use node_pointer::resolve;
 
+use parsers::ParseInfo;
 use serde::Serialize;
 use stencila_schema::Node;
 
@@ -26,13 +27,16 @@ pub struct Step {
     ///
     /// If this is `None` it indicates that no kernel capable of executing
     /// the node is available on the machine
-    pub(crate) kernel: Option<String>,
+    pub(crate) kernel_name: Option<String>,
+
+    /// The parse info for the code
+    pub(crate) parse_info: Option<ParseInfo>,
 
     /// The code will be executed in a fork of the kernel
     ///
     /// Code that has no side effects or who's side effects should be
     /// ignored (i.e. is "@pure") are executed in a fork of the kernel.
-    pub(crate) fork: bool,
+    pub(crate) is_fork: bool,
 }
 
 /// A stage in an execution plan
@@ -68,11 +72,21 @@ impl Stage {
 
             let pre = pointer.to_node()?;
             let kernel_space = kernel_space.clone();
-            let kernel_selector = KernelSelector::new(step.kernel.clone(), None, None);
+            let kernel_selector = KernelSelector::new(step.kernel_name.clone(), None, None);
+            let parse_info = step.parse_info.clone();
+            let is_fork = step.is_fork;
 
             let task = async move {
                 let mut post = pre.clone();
-                match post.execute(&kernel_space, &kernel_selector).await {
+                match post
+                    .execute(
+                        &kernel_space,
+                        &kernel_selector,
+                        parse_info.as_ref(),
+                        is_fork,
+                    )
+                    .await
+                {
                     Ok(_) => {
                         let mut patch = diff(&pre, &post);
                         patch.address = node_address;

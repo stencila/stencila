@@ -1,5 +1,5 @@
 use eyre::Result;
-use graph_triples::{Pairs, Relation};
+use graph_triples::{resources::Symbol, Pairs, Relation, Resource};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::path::Path;
@@ -40,7 +40,7 @@ pub trait ParserTrait {
 
 /// The result of parsing
 #[skip_serializing_none]
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct ParseInfo {
     /// Whether the code had an explicit `@pure` or `@impure` tag
     pub pure: Option<bool>,
@@ -51,7 +51,7 @@ pub struct ParseInfo {
 }
 
 impl ParseInfo {
-    /// Is the parse code pure (i.e. has no side effects)?
+    /// Is the parsed code pure (i.e. has no side effects)?
     ///
     /// If the code has not been explicitly tagged as `@pure` or `@impure` then
     /// returns `true` if there are any side-effect causing relations.
@@ -71,5 +71,30 @@ impl ParseInfo {
                 .count()
                 == 0
         })
+    }
+
+    /// Get a list of symbols used by the parsed code
+    pub fn symbols_used(&self) -> Vec<Symbol> {
+        self.relations
+            .iter()
+            .filter_map(|pair| match pair {
+                (Relation::Use(..), Resource::Symbol(symbol)) => Some(symbol),
+                _ => None,
+            })
+            .cloned()
+            .collect()
+    }
+
+    /// Get a list of symbols modified by the code
+    pub fn symbols_modified(&self) -> Vec<Symbol> {
+        self.relations
+            .iter()
+            .filter_map(|pair| match pair {
+                (Relation::Assign(..), Resource::Symbol(symbol))
+                | (Relation::Alter(..), Resource::Symbol(symbol)) => Some(symbol),
+                _ => None,
+            })
+            .cloned()
+            .collect()
     }
 }
