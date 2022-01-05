@@ -7,12 +7,29 @@ macro_rules! patchable_node_variants {
         impl Patchable for Node {
             patchable_variants_is_equal!($( $variant )*);
             patchable_variants_hash!($( $variant )*);
-            patchable_variants_diff!($( $variant )*);
             patchable_variants_apply_add!($( $variant )*);
             patchable_variants_apply_remove!($( $variant )*);
             patchable_variants_apply_replace!($( $variant )*);
             patchable_variants_apply_move!($( $variant )*);
             patchable_variants_apply_transform!($( $variant )*);
+
+            fn diff(&self, other: &Self, differ: &mut Differ) {
+                #[allow(unreachable_patterns)]
+                match (self, other) {
+                    // For the atomic primitives, do replacement at this level,
+                    // so that the `Replace` operation has a `value` of type
+                    // `Node::Number` not a `f64` etc.
+                    (Node::Boolean(..), Node::Boolean(..)) => differ.replace(other),
+                    (Node::Integer(..), Node::Integer(..)) => differ.replace(other),
+                    (Node::Number(..), Node::Number(..)) => differ.replace(other),
+                    // For other matching pairs of other variants do diffing
+                    $(
+                        ($variant(me), $variant(other)) => me.diff(other, differ),
+                    )*
+                    // Usual fallback to replacement for unmatched variants
+                    _ => differ.replace(other)
+                }
+            }
 
             fn from_value(value: &Value) -> Result<Self>
             where
