@@ -144,7 +144,7 @@ impl Address {
 /// Used to enable faster access to a node based on it's id.
 /// A `BTreeMap` is used instead of a `HashMap` for determinism in order
 /// of entries.
-pub type Addresses = BTreeMap<String, Address>;
+pub type AddressMap = BTreeMap<String, Address>;
 
 /// An enumeration of custom errors returned by this library
 ///

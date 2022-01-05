@@ -1,8 +1,8 @@
 use eyre::Result;
-use graph_triples::{resources::Symbol, Pairs, Relation, Resource};
+use graph_triples::{resources::Symbol, Pairs, Relation, Resource, ResourceId};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::path::Path;
+use std::{collections::BTreeMap, path::Path};
 
 // Export and re-export for the convenience of crates that implement a parser
 pub mod utils;
@@ -98,3 +98,9 @@ impl ParseInfo {
             .collect()
     }
 }
+
+/// A map of node ids to their `ParseInfo`
+///
+/// A `BTreeMap` is used instead of a `HashMap` for determinism in order
+/// of entries.
+pub type ParseMap = BTreeMap<ResourceId, ParseInfo>;

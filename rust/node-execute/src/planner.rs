@@ -6,12 +6,12 @@ use eyre::Result;
 use graph::Graph;
 use graph_triples::{Relations, Resource, ResourceDependencies, ResourceId};
 use kernels::{Kernel, KernelSelector};
-use parsers::ParseInfo;
+use parsers::ParseMap;
 use serde::Serialize;
 use std::{collections::BTreeMap, path::Path};
 
 /// An execution planner for a document
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct Planner {
     /// The [`Resource`]s in the document
     ///
@@ -40,7 +40,7 @@ pub struct Planner {
     topological_order: Vec<ResourceDependencies>,
 
     /// The parsing results for code resources
-    parse_info: BTreeMap<ResourceId, ParseInfo>,
+    parse_map: ParseMap,
 
     /// The kernels that are available to execute nodes
     kernels: Vec<Kernel>,
@@ -56,11 +56,11 @@ impl Planner {
     /// - `relations`: The dependency relations between nodes (used to create a
     ///    dependency graph)
     #[allow(clippy::ptr_arg)]
-    pub fn new(
+    pub async fn new(
         path: &Path,
         relations: &Relations,
-        parse_info: BTreeMap<ResourceId, ParseInfo>,
-        kernels: &[Kernel],
+        parse_map: ParseMap,
+        kernels: Option<Vec<Kernel>>,
     ) -> Result<Planner> {
         // Store the appearance order from `relations`
         let appearance_order = relations.iter().map(|(subject, ..)| subject.id()).collect();
@@ -73,12 +73,18 @@ impl Planner {
         // unique resources (including those that are only in relations)
         let resources = graph.resource_map();
 
+        // If no kernel list was supplied, get it
+        let kernels: Vec<Kernel> = match kernels {
+            Some(kernels) => kernels,
+            None => kernels::available().await?,
+        };
+
         Ok(Planner {
             resources,
             appearance_order,
             topological_order,
-            parse_info,
-            kernels: kernels.into(),
+            parse_map,
+            kernels,
         })
     }
 
@@ -138,7 +144,7 @@ impl Planner {
 
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
-            let parse_info = self.parse_info.get(resource_id).cloned();
+            let parse_info = self.parse_map.get(resource_id).cloned();
             let is_pure = parse_info
                 .as_ref()
                 .map_or(false, |parse_info| parse_info.is_pure());
@@ -201,9 +207,9 @@ impl Planner {
                 continue;
             }
 
-            // Only include resources that have `start` in their dependencies
+            // Only include resources that are `start` or have `start` in their dependencies
             if let Some(start) = &start {
-                if !resource_dependencies.dependencies.contains(start) {
+                if !(start == resource_id || resource_dependencies.dependencies.contains(start)) {
                     continue;
                 }
             }
@@ -225,7 +231,7 @@ impl Planner {
 
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
-            let parse_info = self.parse_info.get(resource_id).cloned();
+            let parse_info = self.parse_map.get(resource_id).cloned();
             let is_pure = parse_info
                 .as_ref()
                 .map_or(false, |parse_info| parse_info.is_pure());

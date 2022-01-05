@@ -1,18 +1,18 @@
 use std::sync::Arc;
 
 use crate::Executable;
-use events::publish;
 use eyre::{bail, Result};
 use futures::{stream::FuturesUnordered, StreamExt};
 use graph_triples::resources;
 use kernels::{KernelSelector, KernelSpace};
-use node_address::Addresses;
-use node_patch::{apply, diff};
+use node_address::AddressMap;
+use node_patch::{apply, diff, Patch};
 use node_pointer::resolve;
 
 use parsers::ParseInfo;
 use serde::Serialize;
 use stencila_schema::Node;
+use tokio::sync::mpsc;
 
 /// A step in an execution plan
 ///
@@ -57,14 +57,16 @@ impl Stage {
     /// to the document and published.
     pub async fn execute(
         &self,
+        (stage_index, stage_count): (usize, usize),
         node: &mut Node,
-        node_id: &str,
-        addresses: &Addresses,
+        addresses: &AddressMap,
         kernel_space: Arc<KernelSpace>,
+        sender: Option<mpsc::Sender<Patch>>,
     ) -> Result<()> {
         // Create a task for each step
+        let step_count = self.steps.len();
         let mut tasks = Vec::with_capacity(self.steps.len());
-        for (_step_index, step) in self.steps.iter().enumerate() {
+        for (step_index, step) in self.steps.iter().enumerate() {
             // Get the node from the document
             let node_address = addresses.get(&step.node.id).cloned();
             let node_id = Some(step.node.id.clone());
@@ -77,6 +79,14 @@ impl Stage {
             let is_fork = step.is_fork;
 
             let task = async move {
+                tracing::debug!(
+                    "Starting step {}/{} of stage {}/{}",
+                    step_index + 1,
+                    step_count,
+                    stage_index + 1,
+                    stage_count
+                );
+
                 let mut post = pre.clone();
                 match post
                     .execute(
@@ -91,7 +101,7 @@ impl Stage {
                         let mut patch = diff(&pre, &post);
                         patch.address = node_address;
                         patch.target = node_id;
-                        Ok(patch)
+                        Ok((step_index, patch))
                     }
                     Err(error) => bail!(error),
                 }
@@ -100,12 +110,20 @@ impl Stage {
         }
 
         // Spawn them all and wait for them to finish
-        let mut patches = tasks
+        let mut results = tasks
             .into_iter()
             .map(tokio::spawn)
             .collect::<FuturesUnordered<_>>();
-        while let Some(result) = patches.next().await {
-            let patch = result??;
+        while let Some(result) = results.next().await {
+            let (step_index, patch) = result??;
+
+            tracing::debug!(
+                "Finished step {}/{} of stage {}/{}",
+                step_index + 1,
+                step_count,
+                stage_index + 1,
+                stage_count
+            );
 
             // If the patch is empty there is nothing else to do
             if patch.is_empty() {
@@ -115,8 +133,17 @@ impl Stage {
             // Apply the patch to the node
             apply(node, &patch)?;
 
-            // Publish the patch
-            publish(&["node:", node_id, ":patched"].concat(), patch);
+            // Send the patch if a sender was supplied
+            if let Some(sender) = &sender {
+                if let Err(error) = sender.send(patch).await {
+                    tracing::debug!(
+                        "When sending patch for step {} of stage {}: {}",
+                        step_index + 1,
+                        stage_index + 1,
+                        error
+                    );
+                }
+            }
         }
 
         Ok(())
@@ -172,17 +199,24 @@ impl Plan {
     pub async fn execute(
         &self,
         node: &mut Node,
-        node_id: &str,
-        addresses: &Addresses,
+        addresses: &AddressMap,
         kernel_space: Arc<KernelSpace>,
+        sender: Option<mpsc::Sender<Patch>>,
     ) -> Result<()> {
-        // Stages are executed serially
-        for (_stage_index, stage) in self.stages.iter().enumerate() {
+        let stage_count = self.stages.len();
+        for (stage_index, stage) in self.stages.iter().enumerate() {
+            tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
             stage
-                .execute(node, node_id, addresses, kernel_space.clone())
+                .execute(
+                    (stage_index, stage_count),
+                    node,
+                    addresses,
+                    kernel_space.clone(),
+                    sender.clone(),
+                )
                 .await?;
+            tracing::debug!("Finished stage {}/{}", stage_index + 1, stage_count);
         }
-
         Ok(())
     }
 }

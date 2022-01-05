@@ -7,7 +7,6 @@ edition = "2021"
 [dependencies]
 async-trait = "0.1.51"
 eyre = "0.6.5"
-events = { path = "../events", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }
 futures = "0.3.19"
 graph = { path = "../graph", version = "0.0.0" }

@@ -3237,7 +3237,6 @@ dependencies = [
  "async-trait",
  "codec",
  "codec-md",
- "events",
  "eyre",
  "formats",
  "futures",

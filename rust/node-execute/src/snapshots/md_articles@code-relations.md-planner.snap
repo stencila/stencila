@@ -197,7 +197,7 @@ expression: "&planner"
       "depth": 4
     }
   ],
-  "parse_info": {
+  "parse_map": {
     "code://articles/code-relations.md#cc-1": {
       "relations": [
         [

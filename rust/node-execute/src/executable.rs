@@ -3,9 +3,9 @@ use eyre::{eyre, Result};
 use formats::normalize_title;
 use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Relations, ResourceId};
 use kernels::{KernelSelector, KernelSpace, TaskResult};
-use node_address::{Address, Addresses, Slot};
+use node_address::{Address, AddressMap, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
-use parsers::ParseInfo;
+use parsers::{ParseInfo, ParseMap};
 use path_utils::merge;
 use std::{
     collections::{BTreeMap, HashMap},
@@ -37,14 +37,14 @@ pub struct CompileContext {
     programming_language: Option<String>,
 
     /// A map of node ids to addresses
-    pub(crate) addresses: Addresses,
+    pub(crate) address_map: AddressMap,
 
     /// Relations with other resources for each compiled resource
     /// in the document.
     pub(crate) relations: Relations,
 
     /// Parse results from parsing code during compilation
-    pub(crate) parse_info: BTreeMap<ResourceId, ParseInfo>,
+    pub(crate) parse_map: ParseMap,
 }
 
 impl CompileContext {
@@ -112,7 +112,7 @@ macro_rules! identify {
             $node.id = Some(Box::new(id.clone()));
             id
         };
-        $context.addresses.insert(id.clone(), $address.clone());
+        $context.address_map.insert(id.clone(), $address.clone());
         id
     }};
 }
@@ -317,11 +317,12 @@ impl Executable for CodeChunk {
         };
 
         let subject = resources::code(&context.path, &id, "CodeChunk", Some(lang));
+        let resource_id = subject.id();
 
         context
             .relations
-            .push((subject.clone(), parse_info.relations.clone()));
-        context.parse_info.insert(subject.id(), parse_info);
+            .push((subject, parse_info.relations.clone()));
+        context.parse_map.insert(resource_id, parse_info);
 
         Ok(())
     }
@@ -391,11 +392,12 @@ impl Executable for CodeExpression {
             "CodeExpression",
             Some(normalize_title(&lang)),
         );
+        let resource_id = subject.id();
 
         context
             .relations
-            .push((subject.clone(), parse_info.relations.clone()));
-        context.parse_info.insert(subject.id(), parse_info);
+            .push((subject, parse_info.relations.clone()));
+        context.parse_map.insert(resource_id, parse_info);
 
         Ok(())
     }

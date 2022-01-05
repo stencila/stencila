@@ -9,7 +9,7 @@ use std::sync::Arc;
 use std::{collections::BTreeMap, path::Path};
 
 // Re-exports
-pub use parser::{ParseInfo, Parser};
+pub use parser::{ParseInfo, ParseMap, Parser};
 
 // The following high level functions hide the implementation
 // detail of having a static list of parsers. They are intended as the

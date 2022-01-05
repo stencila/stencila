@@ -1,9 +1,8 @@
 use eyre::Result;
-use graph_triples::{Relations, ResourceId};
-use kernels::Kernel;
-use node_address::{Address, Addresses};
-use parsers::ParseInfo;
-use std::{collections::BTreeMap, path::Path, sync::Arc};
+use graph_triples::Relations;
+use node_address::{Address, AddressMap};
+use parsers::ParseMap;
+use std::{path::Path, sync::Arc};
 use stencila_schema::*;
 
 // Re-exports
@@ -13,7 +12,7 @@ mod executable;
 pub use executable::*;
 
 mod plan;
-pub use plan::{Plan, PlanOptions};
+pub use plan::{Plan, PlanOptions, PlanOrdering};
 
 mod planner;
 pub use planner::Planner;
@@ -36,11 +35,11 @@ pub fn compile(
     node: &mut Node,
     path: &Path,
     project: &Path,
-) -> Result<(Addresses, Relations, BTreeMap<ResourceId, ParseInfo>)> {
+) -> Result<(AddressMap, Relations, ParseMap)> {
     let mut address = Address::default();
     let mut context = CompileContext::new(path, project);
     node.compile(&mut address, &mut context)?;
-    Ok((context.addresses, context.relations, context.parse_info))
+    Ok((context.address_map, context.relations, context.parse_map))
 }
 
 /// Execute a node
@@ -63,20 +62,18 @@ pub async fn execute(
     plan_options: Option<PlanOptions>,
 ) -> Result<()> {
     let (addresses, relations, parse_info) = compile(node, path, project)?;
-    let kernels: Vec<Kernel> = kernels::available().await?;
-    let planner = Planner::new(path, &relations, parse_info, &kernels)?;
+    let planner = Planner::new(path, &relations, parse_info, None).await?;
     let plan = planner.plan(None, plan_options);
-    plan.execute(node, node_id, &addresses, kernel_space).await
+    plan.execute(node, &addresses, kernel_space, None).await
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::plan::{PlanOptions, PlanOrdering};
-
     use super::*;
+    use crate::plan::{PlanOptions, PlanOrdering};
     use codec::CodecTrait;
     use codec_md::MdCodec;
-    use kernels::KernelType;
+    use kernels::{Kernel, KernelType};
     use node_patch::diff;
     use test_snaps::{
         fixtures,
@@ -118,7 +115,7 @@ mod tests {
             });
 
             // Create an execution planner for the article
-            let planner = Planner::new(path, &relations, parse_info, &kernels)?;
+            let planner = Planner::new(path, &relations, parse_info, Some(kernels.clone())).await?;
             snapshot_set_suffix(&[name, "-planner"].concat(), || {
                 assert_json_snapshot!(&planner)
             });
