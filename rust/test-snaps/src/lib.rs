@@ -66,7 +66,6 @@ pub fn snapshot_set_suffix<F: FnMut()>(suffix: &str, func: F) {
     settings.bind(func);
 }
 
-
 /// Add a suffix to snapshots
 pub fn snapshot_add_suffix<F: FnMut()>(suffix: &str, func: F) {
     let mut settings = insta::Settings::clone_current();

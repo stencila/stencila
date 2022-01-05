@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
-use graph_triples::{resources::Symbol, Relation, Resource};
+
 #[allow(unused_imports)]
 use kernel::{
     async_trait::async_trait,
@@ -831,7 +831,7 @@ impl KernelSpace {
         } else {
             let symbols = &mut *self.symbols.lock().await;
             let task =
-                KernelSpace::dispatch_task(code, &parse_info, symbols, &kernel_id, kernels).await?;
+                KernelSpace::dispatch_task(code, parse_info, symbols, &kernel_id, kernels).await?;
             (false, task)
         };
 
