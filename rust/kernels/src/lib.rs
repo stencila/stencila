@@ -623,6 +623,7 @@ impl KernelTasks {
                     code.truncate(17);
                     code += "...";
                 }
+                code = code.replace("\n", "; ");
 
                 format!(
                     "|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|`{}`|",
