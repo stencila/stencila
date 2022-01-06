@@ -6,18 +6,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
-use strum::{Display, EnumString, EnumVariantNames};
-
-#[derive(Debug, Display, EnumString, EnumVariantNames, PartialEq)]
-#[strum(serialize_all = "lowercase")]
-pub enum Protocol {
-    #[cfg(any(feature = "request-stdio", feature = "serve-stdio"))]
-    Stdio,
-    #[cfg(any(feature = "request-http", feature = "serve-http"))]
-    Http,
-    #[cfg(any(feature = "request-ws", feature = "serve-ws"))]
-    Ws,
-}
 
 type Params = HashMap<String, serde_json::Value>;
 

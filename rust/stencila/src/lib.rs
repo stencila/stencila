@@ -29,16 +29,13 @@ pub mod methods {
 #[cfg(feature = "upgrade")]
 pub mod upgrade;
 
-#[cfg(feature = "request")]
-pub mod request;
-
 #[cfg(feature = "serve")]
 pub mod serve;
 
-#[cfg(any(feature = "request", feature = "serve"))]
+#[cfg(any(feature = "serve"))]
 pub mod jwt;
 
-#[cfg(any(feature = "request", feature = "serve"))]
+#[cfg(any(feature = "serve"))]
 pub mod rpc;
 
 // Internal configuration, messaging etc

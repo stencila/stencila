@@ -1,5 +1,5 @@
 /// Download from a URL to a path
-#[cfg(feature = "request")]
+#[cfg(feature = "reqwest")]
 pub async fn download<P: AsRef<std::path::Path>>(url: &str, path: P) -> eyre::Result<()> {
     use std::{fs::File, io};
 

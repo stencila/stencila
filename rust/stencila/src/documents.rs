@@ -185,10 +185,10 @@ pub struct Document {
     /// The root Stencila Schema node of the document
     ///
     /// Can be any type of `Node` but defaults to an empty `Article`.
-    /// 
+    ///
     /// A [`RwLock`] to enable separate, concurrent tasks to read (e.g. for dumping to some
     /// format) and write (e.g. to apply patches from clients) the node.
-    /// 
+    ///
     /// Skipped during serialization because will often be large.
     #[def = "RwLock::new(Node::Article(Article::default()))"]
     #[serde(skip)]
@@ -1964,8 +1964,8 @@ pub mod commands {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::fixtures;
     use maplit::hashmap;
+    use test_utils::fixtures;
 
     #[test]
     fn new() {

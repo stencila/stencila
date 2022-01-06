@@ -24,12 +24,6 @@ serve-stdio = ["serve"]
 serve-http = ["serve", "sudo", "warp", "jsonwebtoken", "rust-embed"]
 serve-ws = ["serve-http"]
 
-request = []
-request-docker = ["bollard"]
-request-http = ["reqwest", "jsonwebtoken"]
-request-stdio = []
-request-ws = ["tokio-tungstenite", "jsonwebtoken"]
-
 upgrade = ["self_update"]
 
 import-elife = ["minidom"]
@@ -91,12 +85,7 @@ default = [
   "serve-stdio",
   "serve-http",
   "serve-ws",
-  "request",
-  "request-docker",
-  "request-http",
-  "request-stdio",
-  "request-ws",
-  "binaries",
+  "reqwest",
   "upgrade",
   "import-elife",
   "import-github",
@@ -110,7 +99,6 @@ default = [
 ansi_term = { version = "=0.12.1", optional = true }
 async-recursion = "0.3.2"
 async-trait = "=0.1.51"
-bollard = { version = "=0.11.0", optional = true }
 chrono = { version = "=0.4.19", features = ["serde"] }
 color-eyre = { version = "=0.5.11", optional = true }
 crossbeam-channel = "=0.5.1"
@@ -131,7 +119,6 @@ ignore = "=0.4.18"
 itertools = "0.10.1"
 jmespatch = { version = "=0.3.0", optional = true }
 json5 = "=0.4.1"
-jsonschema = { version = "=0.12.2", optional = true }
 jsonwebtoken = { version = "=7.2.0", optional = true }
 maplit = "=1.0.2"
 mime_guess = "=2.0.3"
@@ -206,5 +193,4 @@ path-utils = { path = "../path-utils", version = "0.0.0" }
 uuids = { path = "../uuids", version = "0.0.0" }
 
 [dev-dependencies]
-insta = { version = "1.8.0", features = ["glob"] }
-pretty_assertions = "1.0.0"
+test-utils = { path = "../test-utils", version = "0.0.0" }

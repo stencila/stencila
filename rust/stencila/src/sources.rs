@@ -385,7 +385,7 @@ pub mod commands {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use pretty_assertions::assert_eq;
+    use test_utils::pretty_assertions::assert_eq;
 
     #[test]
     fn elife_resolve() -> Result<()> {
