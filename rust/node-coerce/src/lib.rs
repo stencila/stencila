@@ -122,6 +122,7 @@ pub fn coerce_to_validator(node: &Node, validator: &ValidatorTypes) -> Result<No
 /// validation in the Stencila Schema (e.g. excludes `patternProperties`)
 #[derive(Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 struct JsonSchema {
     #[serde(rename = "type")]
     r#type: Option<String>,
