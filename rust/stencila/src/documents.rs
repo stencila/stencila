@@ -8,13 +8,14 @@ use graph_triples::Relations;
 use itertools::Itertools;
 use kernels::KernelSpace;
 use maplit::hashset;
-use node_address::Addresses;
-use node_execute::compile;
-use node_patch::{diff, merge, Patch};
+use node_address::AddressMap;
+use node_execute::{compile, Planner};
+use node_patch::{apply, diff, merge, Patch};
 use node_pointer::{resolve, Pointer};
 use node_reshape::reshape;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
+use path_slash::PathBufExt;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -27,7 +28,10 @@ use std::{
 };
 use stencila_schema::{Article, Node};
 use strum::Display;
-use tokio::{sync::Mutex, task::JoinHandle};
+use tokio::{
+    sync::{mpsc, Mutex},
+    task::JoinHandle,
+};
 
 #[derive(Debug, JsonSchema, Serialize, Display)]
 #[serde(rename_all = "lowercase")]
@@ -192,7 +196,18 @@ pub struct Document {
     /// pointers or references will change as the document is patched.
     /// These addresses are shifted when the document is patched to account for this.
     #[schemars(schema_with = "Document::schema_addresses")]
-    addresses: Addresses,
+    addresses: AddressMap,
+
+    /// The execution planner for this document.
+    #[schemars(skip)]
+    planner: Planner,
+
+    /// The kernel space for this document.
+    ///
+    /// This is where document variables are stored and executable nodes such as
+    /// `CodeChunk`s and `Parameters`s are executed.
+    #[serde(skip)]
+    kernels: Arc<KernelSpace>,
 
     /// The set of dependency relations between this document, or nodes in this document,
     /// and other resources.
@@ -212,13 +227,6 @@ pub struct Document {
     #[serde(skip_deserializing)]
     #[schemars(skip)]
     pub graph: Graph,
-
-    /// The kernel space for this document.
-    ///
-    /// This is where document variables are stored and executable nodes such as
-    /// `CodeChunk`s and `Parameters`s are executed.
-    #[serde(skip)]
-    kernels: KernelSpace,
 
     /// The clients that are subscribed to each topic for this document
     ///
@@ -337,6 +345,7 @@ impl Document {
             format: self.format.clone(),
             previewable: self.previewable,
             addresses: self.addresses.clone(),
+            planner: self.planner.clone(),
             graph: self.graph.clone(),
             subscriptions: self.subscriptions.clone(),
             ..Default::default()
@@ -520,7 +529,7 @@ impl Document {
             if let Some(theme) = theme {
                 options.theme = theme
             }
-            codecs::to_path(root, &path, &format, Some(options)).await?;
+            codecs::to_path(root, path, &format, Some(options)).await?;
         } else {
             tracing::debug!("Document has no root node");
         }
@@ -631,7 +640,7 @@ impl Document {
     /// error in other methods where it is used.
     pub fn resolve<'root>(
         root: &'root mut Option<Node>,
-        addresses: &Addresses,
+        address_map: &AddressMap,
         node_id: Option<String>,
     ) -> Result<Pointer<'root>> {
         let root = match root {
@@ -645,7 +654,7 @@ impl Document {
             return Ok(Pointer::Node(root));
         };
 
-        let address = if let Some(address) = addresses.get(&node_id) {
+        let address = if let Some(address) = address_map.get(&node_id) {
             if address.is_empty() {
                 return Ok(Pointer::Node(root));
             }
@@ -665,27 +674,38 @@ impl Document {
     ///
     /// # Arguments
     ///
-    /// - `node_id`:  the id of the node at the origin of the patch; defaults to `root`
     /// - `patch`: the patch to apply
     #[tracing::instrument(skip(self, patch))]
-    pub fn patch(&mut self, mut patch: Patch) -> Result<()> {
+    pub async fn patch(&mut self, mut patch: Patch) -> Result<()> {
         tracing::debug!("Patching document `{}`", self.id);
 
-        let mut pointer = Self::resolve(&mut self.root, &self.addresses, patch.target.clone())?;
-        pointer.patch(&patch)?;
+        let topic = self.topic("patched");
+        let subscribers = self.subscribers("patched");
 
-        // TODO: Only publish the patch if there are subscribers
-        if !patch.is_empty() {
-            let root = match &self.root {
-                Some(root) => root,
-                None => bail!("Attempting to patch a document that has no root node"),
-            };
+        let root = match &mut self.root {
+            Some(root) => root,
+            None => bail!("Attempting to patch a document that has no root node"),
+        };
+
+        // If the patch has a `target` but no `address` then use `address_map` to populate the address
+        // of faster patch application
+        if let (None, Some(node_id)) = (&patch.address, &patch.target) {
+            if let Some(address) = self.addresses.get(node_id) {
+                patch.address = Some(address.clone());
+            }
+        }
+
+        // Apply the patch and update self
+        apply(root, &patch);
+
+        // Publish the patch for other subscribers
+        if !patch.is_empty() && subscribers > 0 {
             patch.prepublish(root);
             publish(
-                &["documents:", &self.id, ":patched"].concat(),
+                &topic,
                 &DocumentEvent {
                     type_: DocumentEventType::Patched,
-                    document: self.repr(),
+                    document: Document::new(None, None),
                     content: None,
                     format: None,
                     patch: Some(patch),
@@ -698,34 +718,68 @@ impl Document {
 
     /// Execute the document, or a node within it, and publishing a patch of changes if there are any subscribers.
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&mut self, node_id: Option<String>) -> Result<()> {
+    pub async fn execute(&mut self, start: Option<String>) -> Result<()> {
         tracing::debug!("Executing document `{}`", self.id);
 
-        let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id.clone())?;
-        let mut patch = pointer.execute(&mut self.kernels).await?;
+        let topic = self.topic("patched");
 
-        // TODO: Only publish the patch if there are subscribers
-        if !patch.is_empty() {
-            patch.target = node_id;
-            let root = match &self.root {
-                Some(root) => root,
-                None => {
-                    tracing::warn!("Executing document with no root node is a no-op");
-                    return Ok(());
-                }
-            };
-            patch.prepublish(root);
-            publish(
-                &["documents:", &self.id, ":patched"].concat(),
-                &DocumentEvent {
-                    type_: DocumentEventType::Patched,
-                    document: self.repr(),
-                    content: None,
-                    format: None,
-                    patch: Some(patch),
-                },
-            );
-        }
+        let mut root = match &mut self.root {
+            Some(root) => root,
+            None => return Ok(()),
+        };
+
+        // Compile the `root` to update `addresses` and `planner` needed below
+        let (address_map, relations, parse_map) = compile(root, &self.path, &self.project)?;
+        self.addresses = address_map;
+        self.planner
+            .update(&self.path, &relations, parse_map, None)
+            .await?;
+
+        // Need to translate the `start` node id into a resource id to generate plan
+        let start = start.map(|node_id| {
+            [
+                "code://",
+                self.path.to_slash_lossy().as_str(),
+                "#",
+                &node_id,
+            ]
+            .concat()
+        });
+
+        let root_clone = root.clone();
+        let (sender, mut receiver) = mpsc::channel::<Patch>(10);
+        let patch_publisher = tokio::spawn(async move {
+            while let Some(mut patch) = receiver.recv().await {
+                patch.prepublish(&root_clone);
+                publish(
+                    &topic,
+                    &DocumentEvent {
+                        type_: DocumentEventType::Patched,
+                        document: Document::new(None, None),
+                        content: None,
+                        format: None,
+                        patch: Some(patch),
+                    },
+                )
+            }
+            tracing::debug!("Finished publishing patches");
+        });
+
+        let kernels = self.kernels.clone();
+        self.planner
+            .execute(
+                &mut root,
+                &self.addresses,
+                kernels,
+                Some(sender),
+                start,
+                None,
+            )
+            .await?;
+
+        // Wait for all the patches to be sent. `patch_publisher` should finish
+        // once all sender clones have been dropped.
+        patch_publisher.await?;
 
         Ok(())
     }
@@ -781,12 +835,12 @@ impl Document {
         // TODO: Pass user options for reshaping through
         reshape(&mut root, None)?;
 
-        // Attempt to compile the `root` and update document intra- and inter- dependencies
+        // Attempt to compile the `root` to assign ids (needed for HTML rendering and patching)
+        // and update intra- and inter- dependencies. No need to update `planner` now.
         match compile(&mut root, &self.path, &self.project) {
-            Ok((addresses, relations)) => {
+            Ok((addresses, relations, parse_map)) => {
                 self.addresses = addresses;
                 self.graph = Graph::from_relations(&self.path, &relations);
-                self.relations = relations;
             }
             Err(error) => tracing::warn!(
                 "While compiling document `{}`: {}",
@@ -1324,7 +1378,7 @@ impl Documents {
     pub async fn patch(&self, id: &str, patch: Patch) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        document_guard.patch(patch)
+        document_guard.patch(patch).await
     }
 
     /// Execute a node within a document
@@ -1332,10 +1386,10 @@ impl Documents {
     /// Like `patch()`, given this function is likely to be called often, do not return
     /// the document.
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, id: &str, node_id: Option<String>) -> Result<()> {
+    pub async fn execute(&self, id: &str, start: Option<String>) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        document_guard.execute(node_id).await
+        document_guard.execute(start).await
     }
 
     /// Get a document that has previously been opened
@@ -1563,8 +1617,10 @@ pub mod commands {
     impl Run for Execute {
         async fn run(&self) -> Result {
             let document = self.file.get().await?;
-            let mut document = document.lock().await;
-            self.execute.run(&mut document.kernels).await
+            let document = document.lock().await;
+            let _kernels = document.kernels.clone();
+            //self.execute.run(&mut kernels).await
+            result::nothing()
         }
     }
 
@@ -1585,7 +1641,8 @@ pub mod commands {
         async fn run(&self) -> Result {
             let document = self.file.get().await?;
             let document = document.lock().await;
-            self.kernels.run(&document.kernels).await
+            let kernels = document.kernels.clone();
+            self.kernels.run(&*kernels).await
         }
     }
 
@@ -1606,7 +1663,8 @@ pub mod commands {
         async fn run(&self) -> Result {
             let document = self.file.get().await?;
             let document = document.lock().await;
-            self.tasks.run(&document.kernels).await
+            let kernels = document.kernels.clone();
+            self.tasks.run(&*kernels).await
         }
     }
 
@@ -1627,7 +1685,8 @@ pub mod commands {
         async fn run(&self) -> Result {
             let document = self.file.get().await?;
             let document = document.lock().await;
-            self.queues.run(&document.kernels).await
+            let kernels = document.kernels.clone();
+            self.queues.run(&kernels).await
         }
     }
 
@@ -1647,8 +1706,10 @@ pub mod commands {
     impl Run for Cancel {
         async fn run(&self) -> Result {
             let document = self.file.get().await?;
-            let mut document = document.lock().await;
-            self.cancel.run(&mut document.kernels).await
+            let document = document.lock().await;
+            let _kernels = document.kernels.clone();
+            //self.cancel.run(&mut *kernels).await
+            result::nothing()
         }
     }
     #[derive(Debug, StructOpt)]
@@ -1668,7 +1729,8 @@ pub mod commands {
         async fn run(&self) -> Result {
             let document = self.file.get().await?;
             let document = document.lock().await;
-            self.symbols.run(&document.kernels).await
+            let kernels = document.kernels.clone();
+            self.symbols.run(&kernels).await
         }
     }
 
