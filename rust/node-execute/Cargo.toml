@@ -12,7 +12,6 @@ formats = { path = "../formats", version = "0.0.0" }
 futures = "0.3.19"
 graph = { path = "../graph", version = "0.0.0" }
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
-hash-utils = { path = "../hash-utils", version = "0.0.0" }
 kernels = { path = "../kernels", version = "0.0.0" }
 node-address = { path = "../node-address", version = "0.0.0" }
 node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
