@@ -8,6 +8,7 @@ use strum::{EnumIter, IntoEnumIterator};
 pub enum Format {
     Bash,
     Calc,
+    Date,
     Directory,
     Dockerfile,
     Docx,
@@ -27,6 +28,8 @@ pub enum Format {
     Odt,
     Ogg,
     Ogv,
+    Pandoc,
+    Person,
     PlainText,
     Png,
     Python,
@@ -78,6 +81,7 @@ impl Format {
             Format::Ipynb => FormatSpec::new("Jupyter Notebook", "ipynb", &[], false, true, FormatNodeType::Article),
             Format::Markdown => FormatSpec::new("Markdown", "md", &[], false, true, FormatNodeType::Article),
             Format::Odt => FormatSpec::new("Open Office Text", "odt", &[], true, true, FormatNodeType::Article),
+            Format::Pandoc => FormatSpec::new("Pandoc JSON", "pandoc", &[], false, true, FormatNodeType::Article),
             Format::RMarkdown => FormatSpec::new("R Markdown", "rmd", &[], false, true, FormatNodeType::Article),
             Format::LaTeX => FormatSpec::new("LaTeX", "latex", &["tex"], false, true, FormatNodeType::Article),
 
@@ -100,6 +104,8 @@ impl Format {
 
             // Other
             Format::PlainText => FormatSpec::new("Plain text", "txt", &[], false, false, FormatNodeType::Unknown),
+            Format::Person => FormatSpec::new("Person", "person", &[], false, false, FormatNodeType::Person),
+            Format::Date => FormatSpec::new("Date", "date", &[], false, false, FormatNodeType::Date),
 
             // Specials
             Format::Directory => FormatSpec::directory(),
@@ -116,6 +122,8 @@ pub enum FormatNodeType {
     ImageObject,
     VideoObject,
     SoftwareSourceCode,
+    Date,
+    Person,
     Unknown,
 }
 
