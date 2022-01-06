@@ -1,14 +1,25 @@
 use crate::{
-    plan::{PlanOrdering, Stage, Step},
-    Plan, PlanOptions,
+    plan::{Plan, PlanOptions, PlanOrdering, Stage, Step, StepInfo},
+    Executable,
 };
-use eyre::Result;
+use chrono::Utc;
+use eyre::{bail, Result};
+use futures::{stream::FuturesUnordered, StreamExt};
 use graph::Graph;
 use graph_triples::{Relations, Resource, ResourceDependencies, ResourceId};
-use kernels::{Kernel, KernelSelector};
+use kernels::{Kernel, KernelSelector, KernelSpace};
+use node_address::AddressMap;
+use node_patch::{apply, diff, Patch};
+use node_pointer::resolve;
 use parsers::ParseMap;
 use serde::Serialize;
-use std::{collections::BTreeMap, path::Path};
+use std::{
+    collections::{BTreeMap, HashSet},
+    path::Path,
+    sync::Arc,
+};
+use stencila_schema::Node;
+use tokio::sync::mpsc;
 
 /// An execution planner for a document
 #[derive(Debug, Clone, Default, Serialize)]
@@ -44,16 +55,16 @@ pub struct Planner {
 
     /// The kernels that are available to execute nodes
     kernels: Vec<Kernel>,
+
+    /// Information on when a resource was last executed
+    ///
+    /// Used to determine which dependencies of a resource need to be executed
+    /// before it is.
+    executed: BTreeMap<ResourceId, StepInfo>,
 }
 
 impl Planner {
-    /// Create an execution planner for a document
-    ///
-    /// # Arguments
-    ///
-    /// - `path`: The path of the document (needed to create a dependency graph)
-    ///
-    /// - `relations`: The dependency relations between nodes (used to create a
+    /// Create a new execution planner for a document
     ///    dependency graph)
     #[allow(clippy::ptr_arg)]
     pub async fn new(
@@ -62,30 +73,47 @@ impl Planner {
         parse_map: ParseMap,
         kernels: Option<Vec<Kernel>>,
     ) -> Result<Planner> {
-        // Store the appearance order from `relations`
-        let appearance_order = relations.iter().map(|(subject, ..)| subject.id()).collect();
+        let mut planner = Planner::default();
+        planner.update(path, relations, parse_map, kernels).await?;
+        Ok(planner)
+    }
+
+    /// Update the execution planner for a document
+    ///
+    /// # Arguments
+    ///
+    /// - `path`: The path of the document (needed to create a dependency graph)
+    ///
+    /// - `relations`: The dependency relations between nodes (used to create a
+    ///    dependency graph)
+    #[allow(clippy::ptr_arg)]
+    pub async fn update(
+        &mut self,
+        path: &Path,
+        relations: &Relations,
+        parse_map: ParseMap,
+        kernels: Option<Vec<Kernel>>,
+    ) -> Result<()> {
+        // Get the appearance order from `relations`
+        self.appearance_order = relations.iter().map(|(subject, ..)| subject.id()).collect();
 
         // Create a dependency graph and do a topological sort
         let graph = Graph::from_relations(path, relations);
-        let topological_order = graph.toposort()?;
+        self.topological_order = graph.toposort()?;
 
         // Get the resources from the graph since that already keeps a list of
         // unique resources (including those that are only in relations)
-        let resources = graph.resource_map();
+        self.resources = graph.resource_map();
 
-        // If no kernel list was supplied, get it
-        let kernels: Vec<Kernel> = match kernels {
+        self.parse_map = parse_map;
+
+        // If no list of kernels was supplied, get it
+        self.kernels = match kernels {
             Some(kernels) => kernels,
             None => kernels::available().await?,
         };
 
-        Ok(Planner {
-            resources,
-            appearance_order,
-            topological_order,
-            parse_map,
-            kernels,
-        })
+        Ok(())
     }
 
     /// Generate an execution plan
@@ -152,7 +180,8 @@ impl Planner {
 
             // Create the step and add it to the current stage
             let step = Step {
-                node: code.clone(),
+                resource_id: resource_id.clone(),
+                code: code.clone(),
                 kernel_name,
                 parse_info,
                 is_fork,
@@ -193,15 +222,16 @@ impl Planner {
     ///
     /// - `options`: Options for the plan
     pub fn plan_topological(&self, start: Option<ResourceId>, options: PlanOptions) -> Plan {
-        let mut stages = Vec::with_capacity(self.topological_order.len());
-        let mut stage: Stage = Stage::default();
+        // First iteration, in topological order, to determine which resources to include
+        let mut include = HashSet::new();
         let mut started = start.is_none();
         for resource_dependencies in &self.topological_order {
             let resource_id = &resource_dependencies.id;
+            let dependencies = &resource_dependencies.dependencies;
 
             // Should we start collecting steps?
             if !started {
-                started = start.as_ref().map_or(true, |start| start == resource_id)
+                started = start.as_ref().map_or(true, |start| start == resource_id);
             }
             if !started {
                 continue;
@@ -209,19 +239,64 @@ impl Planner {
 
             // Only include resources that are `start` or have `start` in their dependencies
             if let Some(start) = &start {
-                if !(start == resource_id || resource_dependencies.dependencies.contains(start)) {
+                if !(start == resource_id || dependencies.contains(start)) {
                     continue;
                 }
             }
 
             // Only include `Code` resources (i.e. ignore `Symbol`s etc which will also be in the dependency
             // graph and therefore in `topological_order` as well)
+            match self.resources.get(resource_id) {
+                Some(Resource::Code(..)) => include.insert(resource_id),
+                _ => continue,
+            };
+
+            // Include any dependencies that are not yet included and which have not been
+            // executed yet or have a change in hash.
+            for dependency in dependencies {
+                let execute = match self.executed.get(dependency) {
+                    Some(step_info) => {
+                        if let Some(parse_info) = self.parse_map.get(dependency) {
+                            if parse_info.semantic_hash != 0 {
+                                parse_info.semantic_hash != step_info.semantic_hash
+                            } else if parse_info.code_hash != 0 {
+                                parse_info.code_hash != step_info.code_hash
+                            } else {
+                                // No hashes available, so execute (perhaps unnecessarily)
+                                true
+                            }
+                        } else {
+                            // No parse info available, so execute (perhaps unnecessarily)
+                            true
+                        }
+                    }
+                    // Note yet executed (in this session)
+                    None => true,
+                };
+                if execute {
+                    include.insert(dependency);
+                }
+            }
+        }
+
+        // Second iteration, in topological order, to create stages and steps
+        let mut stages = Vec::with_capacity(include.len());
+        let mut stage: Stage = Stage::default();
+        for resource_dependencies in &self.topological_order {
+            let resource_id = &resource_dependencies.id;
+
+            // Only include resources included above
+            if !include.contains(resource_id) {
+                continue;
+            }
+
+            // Get the `Code` resource to be executed
             let code = match self.resources.get(resource_id) {
                 Some(Resource::Code(code)) => code,
                 _ => continue,
             };
 
-            // Find a kernel capable of executing code
+            // Only execute resources for which there is a kernel capable of executing code
             let selector = KernelSelector::new(None, code.language.clone(), None);
             let kernel = selector.select(&self.kernels);
             let (kernel_name, kernel_forkable) = match kernel {
@@ -239,7 +314,8 @@ impl Planner {
 
             // Create the step and add it to the current stage
             let step = Step {
-                node: code.clone(),
+                resource_id: resource_id.clone(),
+                code: code.clone(),
                 kernel_name,
                 parse_info,
                 is_fork,
@@ -265,5 +341,129 @@ impl Planner {
             },
             stages,
         }
+    }
+
+    /// Execute a plan
+    pub async fn execute(
+        &mut self,
+        node: &mut Node,
+        addresses: &AddressMap,
+        kernel_space: Arc<KernelSpace>,
+        sender: Option<mpsc::Sender<Patch>>,
+        start: Option<ResourceId>,
+        plan_options: Option<PlanOptions>,
+    ) -> Result<()> {
+        let plan = self.plan(start, plan_options);
+
+        let stage_count = plan.stages.len();
+        for (stage_index, stage) in plan.stages.iter().enumerate() {
+            tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
+
+            // Create a task for each step
+            let step_count = stage.steps.len();
+            let mut tasks = Vec::with_capacity(step_count);
+            for (step_index, step) in stage.steps.iter().enumerate() {
+                // Get the node from the document
+                let node_address = addresses.get(&step.code.id).cloned();
+                let node_id = Some(step.code.id.clone());
+                let pointer = resolve(node, node_address.clone(), node_id.clone())?;
+
+                let pre = pointer.to_node()?;
+                let kernel_space = kernel_space.clone();
+                let kernel_selector = KernelSelector::new(step.kernel_name.clone(), None, None);
+                let resource_id = step.resource_id.clone();
+                let parse_info = step.parse_info.clone();
+                let is_fork = step.is_fork;
+
+                let task = async move {
+                    tracing::debug!(
+                        "Starting step {}/{} of stage {}/{}",
+                        step_index + 1,
+                        step_count,
+                        stage_index + 1,
+                        stage_count
+                    );
+
+                    let mut post = pre.clone();
+                    match post
+                        .execute(
+                            &kernel_space,
+                            &kernel_selector,
+                            parse_info.as_ref(),
+                            is_fork,
+                        )
+                        .await
+                    {
+                        Ok(_) => {
+                            let mut patch = diff(&pre, &post);
+                            patch.address = node_address;
+                            patch.target = node_id;
+
+                            let (code_hash, semantic_hash) = match parse_info {
+                                Some(parse_info) => {
+                                    (parse_info.code_hash, parse_info.semantic_hash)
+                                }
+                                None => (0, 0),
+                            };
+
+                            let step_info = StepInfo {
+                                finished: Utc::now(),
+                                code_hash,
+                                semantic_hash,
+                            };
+
+                            Ok((step_index, resource_id, step_info, patch))
+                        }
+                        Err(error) => bail!(error),
+                    }
+                };
+                tasks.push(task);
+            }
+
+            // Spawn them all and wait for them to finish
+            let mut results = tasks
+                .into_iter()
+                .map(tokio::spawn)
+                .collect::<FuturesUnordered<_>>();
+            while let Some(result) = results.next().await {
+                let (step_index, resource_id, step_info, patch) = result??;
+
+                tracing::debug!(
+                    "Finished step {}/{} of stage {}/{} for {}",
+                    step_index + 1,
+                    step_count,
+                    stage_index + 1,
+                    stage_count,
+                    resource_id
+                );
+
+                // Update the record of executed resources
+                self.executed.insert(resource_id, step_info);
+
+                // If the patch is empty there is nothing else to do
+                if patch.is_empty() {
+                    continue;
+                }
+
+                // Apply the patch to the node
+                apply(node, &patch)?;
+
+                // Send the patch if a sender was supplied
+                if let Some(sender) = &sender {
+                    if let Err(error) = sender.send(patch).await {
+                        tracing::debug!(
+                            "When sending patch for step {} of stage {}: {}",
+                            step_index + 1,
+                            stage_index + 1,
+                            error
+                        );
+                    }
+                }
+            }
+
+            tracing::debug!("Finished stage {}/{}", stage_index + 1, stage_count);
+        }
+
+        Ok(())
     }
 }

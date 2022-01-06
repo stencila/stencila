@@ -12,7 +12,8 @@ expression: "&plan"
     {
       "steps": [
         {
-          "node": {
+          "resource_id": "code://articles/code-relations.md#cc-1",
+          "code": {
             "path": "articles/code-relations.md",
             "id": "cc-1",
             "kind": "CodeChunk",
@@ -38,7 +39,9 @@ expression: "&plan"
                   "kind": "Number"
                 }
               ]
-            ]
+            ],
+            "code_hash": 10928936340105698480,
+            "semantic_hash": 16226591357607741206
           },
           "is_fork": false
         }
@@ -47,14 +50,37 @@ expression: "&plan"
     {
       "steps": [
         {
-          "node": {
+          "resource_id": "code://articles/code-relations.md#pa-1",
+          "code": {
             "path": "articles/code-relations.md",
             "id": "pa-1",
             "kind": "Parameter",
             "language": "Calc"
           },
           "kernel_name": "calc",
-          "parse_info": null,
+          "parse_info": {
+            "relations": [
+              [
+                {
+                  "type": "Assign",
+                  "range": [
+                    0,
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "c",
+                  "kind": "Number"
+                }
+              ]
+            ],
+            "code_hash": 0,
+            "semantic_hash": 8287080770758489890
+          },
           "is_fork": false
         }
       ]
@@ -62,7 +88,8 @@ expression: "&plan"
     {
       "steps": [
         {
-          "node": {
+          "resource_id": "code://articles/code-relations.md#cc-2",
+          "code": {
             "path": "articles/code-relations.md",
             "id": "cc-2",
             "kind": "CodeChunk",
@@ -88,12 +115,15 @@ expression: "&plan"
                   "kind": "Number"
                 }
               ]
-            ]
+            ],
+            "code_hash": 2793776793815597345,
+            "semantic_hash": 11043762613817869961
           },
           "is_fork": true
         },
         {
-          "node": {
+          "resource_id": "code://articles/code-relations.md#ce-1",
+          "code": {
             "path": "articles/code-relations.md",
             "id": "ce-1",
             "kind": "CodeExpression",
@@ -119,12 +149,15 @@ expression: "&plan"
                   "kind": "Number"
                 }
               ]
-            ]
+            ],
+            "code_hash": 2163782608257791764,
+            "semantic_hash": 9249280947852919825
           },
           "is_fork": true
         },
         {
-          "node": {
+          "resource_id": "code://articles/code-relations.md#ce-2",
+          "code": {
             "path": "articles/code-relations.md",
             "id": "ce-2",
             "kind": "CodeExpression",
@@ -150,12 +183,15 @@ expression: "&plan"
                   "kind": "Number"
                 }
               ]
-            ]
+            ],
+            "code_hash": 14019092709095535176,
+            "semantic_hash": 9913234574917194086
           },
           "is_fork": true
         },
         {
-          "node": {
+          "resource_id": "code://articles/code-relations.md#cc-3",
+          "code": {
             "path": "articles/code-relations.md",
             "id": "cc-3",
             "kind": "CodeChunk",
@@ -198,7 +234,9 @@ expression: "&plan"
                   "kind": "Number"
                 }
               ]
-            ]
+            ],
+            "code_hash": 7588371112026034362,
+            "semantic_hash": 815467210106486598
           },
           "is_fork": false
         }
@@ -207,7 +245,8 @@ expression: "&plan"
     {
       "steps": [
         {
-          "node": {
+          "resource_id": "code://articles/code-relations.md#ce-3",
+          "code": {
             "path": "articles/code-relations.md",
             "id": "ce-3",
             "kind": "CodeExpression",
@@ -233,12 +272,15 @@ expression: "&plan"
                   "kind": "Number"
                 }
               ]
-            ]
+            ],
+            "code_hash": 8429727549850329759,
+            "semantic_hash": 12030885075119909472
           },
           "is_fork": true
         },
         {
-          "node": {
+          "resource_id": "code://articles/code-relations.md#ce-4",
+          "code": {
             "path": "articles/code-relations.md",
             "id": "ce-4",
             "kind": "CodeExpression",
@@ -264,12 +306,15 @@ expression: "&plan"
                   "kind": "Number"
                 }
               ]
-            ]
+            ],
+            "code_hash": 4915618905584968245,
+            "semantic_hash": 11728191173642750958
           },
           "is_fork": true
         },
         {
-          "node": {
+          "resource_id": "code://articles/code-relations.md#cc-4",
+          "code": {
             "path": "articles/code-relations.md",
             "id": "cc-4",
             "kind": "CodeChunk",
@@ -329,7 +374,9 @@ expression: "&plan"
                   "kind": "Number"
                 }
               ]
-            ]
+            ],
+            "code_hash": 15163360800131959913,
+            "semantic_hash": 6563335939302249467
           },
           "is_fork": true
         }

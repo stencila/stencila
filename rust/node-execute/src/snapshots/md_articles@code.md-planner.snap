@@ -90,22 +90,34 @@ expression: "&planner"
   ],
   "parse_map": {
     "code://articles/code.md#cc-1": {
-      "relations": []
+      "relations": [],
+      "code_hash": 6101472620703051070,
+      "semantic_hash": 0
     },
     "code://articles/code.md#ce-1": {
-      "relations": []
+      "relations": [],
+      "code_hash": 6389728446471130707,
+      "semantic_hash": 0
     },
     "code://articles/code.md#ce-2": {
-      "relations": []
+      "relations": [],
+      "code_hash": 4354326460050488635,
+      "semantic_hash": 0
     },
     "code://articles/code.md#ce-3": {
-      "relations": []
+      "relations": [],
+      "code_hash": 9111240237536649538,
+      "semantic_hash": 0
     },
     "code://articles/code.md#ce-4": {
-      "relations": []
+      "relations": [],
+      "code_hash": 3754087167691285593,
+      "semantic_hash": 0
     },
     "code://articles/code.md#ce-5": {
-      "relations": []
+      "relations": [],
+      "code_hash": 13742428408092511402,
+      "semantic_hash": 0
     }
   },
   "kernels": [
@@ -123,5 +135,6 @@ expression: "&planner"
       ],
       "forkable": true
     }
-  ]
+  ],
+  "executed": {}
 }

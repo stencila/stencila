@@ -15,7 +15,7 @@ use std::{
     sync::Arc,
     time::Duration,
 };
-#[warn(unused_imports)]
+#[allow(unused_imports)]
 use strum::{EnumString, EnumVariantNames, VariantNames};
 use tokio::sync::{broadcast, mpsc, Mutex};
 

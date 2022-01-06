@@ -6,6 +6,7 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1.51"
+chrono = { version = "0.4.19", features = ["serde"] }
 eyre = "0.6.5"
 formats = { path = "../formats", version = "0.0.0" }
 futures = "0.3.19"
@@ -32,5 +33,5 @@ codec-md = { path = "../codec-md", version = "0.0.0" }
 node-patch = { path = "../node-patch", version = "0.0.0" }
 test-snaps = { path = "../test-snaps", version = "0.0.0" }
 # Enable the parser and kernel for any languages used in tests
-parsers = { path = "../parsers", version = "0.0.0", features = ["parser-calc"] }
+parsers = { path = "../parsers", version = "0.0.0", features = ["parser-calc", "parser-r", "parser-py"] }
 kernels = { path = "../kernels", version = "0.0.0", features = ["kernel-store", "kernel-calc"] }

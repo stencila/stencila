@@ -258,6 +258,7 @@ impl Executable for Parameter {
             "Parameter",
             context.programming_language.clone(),
         );
+        let resource_id = subject.id();
 
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
@@ -268,12 +269,23 @@ impl Executable for Parameter {
             Some(ValidatorTypes::ArrayValidator(..)) => "Array",
             _ => "",
         };
-
         let object = resources::symbol(&context.path, &self.name, kind);
 
         let relations = vec![(relations::assigns(NULL_RANGE), object)];
+        context.relations.push((subject, relations.clone()));
 
-        context.relations.push((subject, relations));
+        let value = self
+            .value
+            .as_deref()
+            .or_else(|| self.default.as_deref())
+            .map(|node| format!("{:?}", node))
+            .unwrap_or_else(|| "".to_string());
+        let parse_info = ParseInfo {
+            relations,
+            semantic_hash: ParseInfo::hash(&value),
+            ..Default::default()
+        };
+        context.parse_map.insert(resource_id, parse_info);
 
         Ok(())
     }
@@ -322,6 +334,7 @@ impl Executable for CodeChunk {
         context
             .relations
             .push((subject, parse_info.relations.clone()));
+
         context.parse_map.insert(resource_id, parse_info);
 
         Ok(())
@@ -397,6 +410,7 @@ impl Executable for CodeExpression {
         context
             .relations
             .push((subject, parse_info.relations.clone()));
+
         context.parse_map.insert(resource_id, parse_info);
 
         Ok(())

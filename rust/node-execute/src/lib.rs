@@ -62,9 +62,10 @@ pub async fn execute(
     plan_options: Option<PlanOptions>,
 ) -> Result<()> {
     let (addresses, relations, parse_info) = compile(node, path, project)?;
-    let planner = Planner::new(path, &relations, parse_info, None).await?;
-    let plan = planner.plan(None, plan_options);
-    plan.execute(node, &addresses, kernel_space, None).await
+    let mut planner = Planner::new(path, &relations, parse_info, None).await?;
+    planner
+        .execute(node, &addresses, kernel_space, None, None, plan_options)
+        .await
 }
 
 #[cfg(test)]
@@ -115,7 +116,8 @@ mod tests {
             });
 
             // Create an execution planner for the article
-            let planner = Planner::new(path, &relations, parse_info, Some(kernels.clone())).await?;
+            let mut planner =
+                Planner::new(path, &relations, parse_info, Some(kernels.clone())).await?;
             snapshot_set_suffix(&[name, "-planner"].concat(), || {
                 assert_json_snapshot!(&planner)
             });
@@ -162,15 +164,16 @@ mod tests {
             // Execute the article (with default execution plan) and snapshot
             // changes in it
             let pre = article.clone();
-            execute(
-                &mut article,
-                "<node-id>",
-                path,
-                project,
-                Arc::new(KernelSpace::new()),
-                None,
-            )
-            .await?;
+            planner
+                .execute(
+                    &mut article,
+                    &addresses,
+                    Arc::new(KernelSpace::new()),
+                    None,
+                    None,
+                    None,
+                )
+                .await?;
 
             let patch = diff(&pre, &article);
             snapshot_set_suffix(&[name, "-change"].concat(), || {

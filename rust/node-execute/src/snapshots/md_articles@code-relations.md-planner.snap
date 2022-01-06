@@ -217,7 +217,9 @@ expression: "&planner"
             "kind": "Number"
           }
         ]
-      ]
+      ],
+      "code_hash": 10928936340105698480,
+      "semantic_hash": 16226591357607741206
     },
     "code://articles/code-relations.md#cc-2": {
       "relations": [
@@ -238,7 +240,9 @@ expression: "&planner"
             "kind": "Number"
           }
         ]
-      ]
+      ],
+      "code_hash": 2793776793815597345,
+      "semantic_hash": 11043762613817869961
     },
     "code://articles/code-relations.md#cc-3": {
       "relations": [
@@ -276,7 +280,9 @@ expression: "&planner"
             "kind": "Number"
           }
         ]
-      ]
+      ],
+      "code_hash": 7588371112026034362,
+      "semantic_hash": 815467210106486598
     },
     "code://articles/code-relations.md#cc-4": {
       "relations": [
@@ -331,7 +337,9 @@ expression: "&planner"
             "kind": "Number"
           }
         ]
-      ]
+      ],
+      "code_hash": 15163360800131959913,
+      "semantic_hash": 6563335939302249467
     },
     "code://articles/code-relations.md#ce-1": {
       "relations": [
@@ -352,7 +360,9 @@ expression: "&planner"
             "kind": "Number"
           }
         ]
-      ]
+      ],
+      "code_hash": 2163782608257791764,
+      "semantic_hash": 9249280947852919825
     },
     "code://articles/code-relations.md#ce-2": {
       "relations": [
@@ -373,7 +383,9 @@ expression: "&planner"
             "kind": "Number"
           }
         ]
-      ]
+      ],
+      "code_hash": 14019092709095535176,
+      "semantic_hash": 9913234574917194086
     },
     "code://articles/code-relations.md#ce-3": {
       "relations": [
@@ -394,7 +406,9 @@ expression: "&planner"
             "kind": "Number"
           }
         ]
-      ]
+      ],
+      "code_hash": 8429727549850329759,
+      "semantic_hash": 12030885075119909472
     },
     "code://articles/code-relations.md#ce-4": {
       "relations": [
@@ -415,7 +429,32 @@ expression: "&planner"
             "kind": "Number"
           }
         ]
-      ]
+      ],
+      "code_hash": 4915618905584968245,
+      "semantic_hash": 11728191173642750958
+    },
+    "code://articles/code-relations.md#pa-1": {
+      "relations": [
+        [
+          {
+            "type": "Assign",
+            "range": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "type": "Symbol",
+            "path": "articles/code-relations.md",
+            "name": "c",
+            "kind": "Number"
+          }
+        ]
+      ],
+      "code_hash": 0,
+      "semantic_hash": 8287080770758489890
     }
   },
   "kernels": [
@@ -433,5 +472,6 @@ expression: "&planner"
       ],
       "forkable": true
     }
-  ]
+  ],
+  "executed": {}
 }
