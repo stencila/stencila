@@ -1,0 +1,47 @@
+---
+source: rust/parser-calc/src/lib.rs
+expression: parse_info
+input_file: fixtures/fragments/calc/tags.calc
+
+---
+{
+  "pure": false,
+  "relations": [
+    [
+      {
+        "type": "Assign",
+        "range": [
+          0,
+          0,
+          0,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/tags.calc",
+        "name": "var1",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          0,
+          1,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/tags.calc",
+        "name": "var2",
+        "kind": "Number"
+      }
+    ]
+  ],
+  "code_hash": 16707364090484535009,
+  "semantic_hash": 4993634590567809493
+}

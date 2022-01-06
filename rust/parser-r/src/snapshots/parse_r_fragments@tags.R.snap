@@ -5,6 +5,7 @@ input_file: fixtures/fragments/r/tags.R
 
 ---
 {
+  "pure": false,
   "relations": [
     [
       {
@@ -150,6 +151,6 @@ input_file: fixtures/fragments/r/tags.R
       }
     ]
   ],
-  "code_hash": 6660659064151719661,
+  "code_hash": 978223497817747580,
   "semantic_hash": 0
 }

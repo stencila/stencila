@@ -33,7 +33,7 @@ pub fn apply_tags(
     parse_info: &mut ParseInfo,
 ) {
     static REGEX_TAGS: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"@(imports|assigns|alters|uses|reads|writes|pure|impure)\s+(.*?)(\*/)?$")
+        Regex::new(r"@(imports|assigns|alters|uses|reads|writes|pure|impure)((?:\s+).*?)?(\*/)?$")
             .expect("Unable to create regex")
     });
     static REGEX_ITEMS: Lazy<Regex> =
