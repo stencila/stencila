@@ -57,10 +57,10 @@ pub struct ParseInfo {
     pub code_hash: u64,
 
     /// A "semantic" hash of the parsed code
-    /// 
+    ///
     /// Usually derived from the AST of the code and should only change
     /// when the semantics of the code (including tags in comments) change.
-    pub semantic_hash: u64
+    pub semantic_hash: u64,
 }
 
 impl ParseInfo {

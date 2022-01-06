@@ -106,7 +106,7 @@ impl Parsers {
         let path = path.as_ref();
         let format = match_name(language);
 
-        let info = if let Some(result) = dispatch_builtins!(format, parse, path, code) {
+        let parse_info = if let Some(result) = dispatch_builtins!(format, parse, path, code) {
             result?
         } else {
             bail!(
@@ -116,8 +116,8 @@ impl Parsers {
         };
 
         // Normalize pairs by removing any `Uses` of locally assigned variables
-        let mut normalized: Pairs = Vec::with_capacity(info.relations.len());
-        for (relation, object) in info.relations {
+        let mut normalized: Pairs = Vec::with_capacity(parse_info.relations.len());
+        for (relation, object) in parse_info.relations {
             let mut include = true;
             if matches!(relation, Relation::Use(..)) {
                 for (other_relation, other_object) in &normalized {
@@ -136,7 +136,7 @@ impl Parsers {
 
         Ok(ParseInfo {
             relations: normalized,
-            ..Default::default()
+            ..parse_info
         })
     }
 }
