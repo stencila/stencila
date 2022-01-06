@@ -3,7 +3,7 @@ use parser_treesitter::{
     eyre::Result,
     formats::Format,
     graph_triples::{relations, resources, Pair},
-    parse_comments, path_utils,
+    parse_info, path_utils,
     utils::remove_quotes,
     Capture, ParseInfo, Parser, ParserTrait, TreesitterParser,
 };
@@ -250,7 +250,7 @@ impl ParserTrait for JsParser {
             .filter_map(|(pattern, capture)| handle_patterns(path, code, pattern, capture))
             .collect();
 
-        let parse_info = parse_comments(path, &Self::spec().language, matches, 0, relations);
+        let parse_info = parse_info(path, &Self::spec().language, code, matches, 0, relations);
         Ok(parse_info)
     }
 }

@@ -463,5 +463,7 @@ input_file: fixtures/fragments/js/uses.js
         "kind": "Number"
       }
     ]
-  ]
+  ],
+  "code_hash": 15923718947757850484,
+  "semantic_hash": 0
 }

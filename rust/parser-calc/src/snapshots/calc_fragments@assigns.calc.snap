@@ -125,5 +125,7 @@ input_file: fixtures/fragments/calc/assigns.calc
         "kind": "Number"
       }
     ]
-  ]
+  ],
+  "code_hash": 5333666408187653751,
+  "semantic_hash": 6562551704068249854
 }

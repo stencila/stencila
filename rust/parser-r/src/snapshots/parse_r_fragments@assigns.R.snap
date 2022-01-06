@@ -210,5 +210,7 @@ input_file: fixtures/fragments/r/assigns.R
         "kind": "Datatable"
       }
     ]
-  ]
+  ],
+  "code_hash": 2700331896561842976,
+  "semantic_hash": 0
 }

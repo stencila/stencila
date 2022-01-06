@@ -397,5 +397,7 @@ input_file: fixtures/fragments/py/uses.py
         "kind": "Integer"
       }
     ]
-  ]
+  ],
+  "code_hash": 7898540935834819409,
+  "semantic_hash": 0
 }

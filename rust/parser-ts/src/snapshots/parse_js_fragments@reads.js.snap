@@ -166,5 +166,7 @@ input_file: fixtures/fragments/js/reads.js
         "path": "fragments/js/path4"
       }
     ]
-  ]
+  ],
+  "code_hash": 420281725237057188,
+  "semantic_hash": 0
 }

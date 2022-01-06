@@ -228,5 +228,7 @@ input_file: fixtures/fragments/py/writes.py
         "kind": ""
       }
     ]
-  ]
+  ],
+  "code_hash": 14229518101447420502,
+  "semantic_hash": 0
 }

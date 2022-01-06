@@ -133,5 +133,7 @@ input_file: fixtures/fragments/js/tags.js
         "path": "file3"
       }
     ]
-  ]
+  ],
+  "code_hash": 1404126051611199431,
+  "semantic_hash": 0
 }

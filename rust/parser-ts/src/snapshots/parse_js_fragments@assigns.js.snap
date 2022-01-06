@@ -261,5 +261,7 @@ input_file: fixtures/fragments/js/assigns.js
         "kind": "Function"
       }
     ]
-  ]
+  ],
+  "code_hash": 15600916752288650213,
+  "semantic_hash": 0
 }

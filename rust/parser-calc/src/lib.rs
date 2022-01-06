@@ -33,6 +33,7 @@ impl ParserTrait for CalcParser {
         });
 
         let mut comments = Vec::new();
+        let mut semantics = String::new();
         let pairs = code
             .split('\n')
             .enumerate()
@@ -77,6 +78,10 @@ impl ParserTrait for CalcParser {
                     }
                 }
 
+                // Add line to semantics
+                semantics.push_str(line);
+                semantics.push('\n');
+
                 pairs
             });
 
@@ -89,13 +94,18 @@ impl ParserTrait for CalcParser {
         for (row, line) in comments {
             apply_tags(
                 path,
-                "Calc",
+                &Self::spec().language,
                 row,
                 line,
                 Some("Number".to_string()),
                 &mut parse_info,
             );
         }
+
+        // Generate hashes
+        parse_info.code_hash = ParseInfo::hash(&code);
+        parse_info.semantic_hash =
+            ParseInfo::hash(&[semantics, parse_info.is_pure().to_string()].concat());
 
         Ok(parse_info)
     }

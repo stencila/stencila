@@ -397,5 +397,7 @@ input_file: fixtures/fragments/r/uses.R
         "kind": "Function"
       }
     ]
-  ]
+  ],
+  "code_hash": 2166747434661340578,
+  "semantic_hash": 0
 }

@@ -57,5 +57,7 @@ input_file: fixtures/fragments/rust/uses.rs
         "kind": ""
       }
     ]
-  ]
+  ],
+  "code_hash": 16353070670767508084,
+  "semantic_hash": 0
 }

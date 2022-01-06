@@ -74,5 +74,7 @@ input_file: fixtures/fragments/bash/assigns.bash
         "kind": "String"
       }
     ]
-  ]
+  ],
+  "code_hash": 2128202195706757769,
+  "semantic_hash": 0
 }

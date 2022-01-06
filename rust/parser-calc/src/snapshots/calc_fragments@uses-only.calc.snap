@@ -23,5 +23,7 @@ input_file: fixtures/fragments/calc/uses-only.calc
         "kind": "Number"
       }
     ]
-  ]
+  ],
+  "code_hash": 554477857553681937,
+  "semantic_hash": 6563335939302249467
 }

@@ -3,7 +3,7 @@ use parser_treesitter::{
     eyre::Result,
     formats::Format,
     graph_triples::{relations, resources},
-    parse_comments, ParseInfo, Parser, ParserTrait, TreesitterParser,
+    parse_info, ParseInfo, Parser, ParserTrait, TreesitterParser,
 };
 use std::path::Path;
 
@@ -109,7 +109,7 @@ impl ParserTrait for TsParser {
 
         let relations = relations_typed.chain(relations_untyped).collect();
 
-        let parse_info = parse_comments(path, &Self::spec().language, matches, 0, relations);
+        let parse_info = parse_info(path, &Self::spec().language, code, matches, 0, relations);
         Ok(parse_info)
     }
 }

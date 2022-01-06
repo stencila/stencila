@@ -85,5 +85,7 @@ input_file: fixtures/fragments/r/reads.R
         "path": "fragments/r/path3"
       }
     ]
-  ]
+  ],
+  "code_hash": 8737317289240586029,
+  "semantic_hash": 0
 }

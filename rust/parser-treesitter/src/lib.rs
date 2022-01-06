@@ -189,39 +189,43 @@ pub fn child_text<'tree>(
         .unwrap_or("")
 }
 
-/// Apply manual tags (e.g. `@uses`) in a comments to the relations derived from
+/// Create a [`ParseInfo`] instance from a Treesitter parse tree and pattern matches
+///
+/// Applies manual tags (e.g. `@uses`) in a comments to the relations derived from
 /// semantic code analysis.
 ///
 /// # Arguments
 ///
 /// - `path`: The path of the subject code resource
 /// - `lang`: The language (used for creating `Resource::Module` variants)
+/// - `code`: The code that was parsed
 /// - `matches`: The matches from querying the code
-/// - `pattern`: The index of the pattern from which to extract tags
-/// - `pairs`: The relation pairs used to create the initial [`ParseInfo`]
+/// - `comment_pattern`: The index of the pattern from which to extract tags
+/// - `relations`: The relation pairs
 ///
 /// Assumes that the first capture has the text content of the comment.
 /// If the tag ends in `only` then all existing relations of that type
 /// will be removed from `relations`.
-pub fn parse_comments(
+pub fn parse_info(
     path: &Path,
     lang: &str,
+    code: &[u8],
     matches: Vec<(usize, Vec<Capture>)>,
-    pattern: usize,
-    pairs: Pairs,
+    comment_pattern: usize,
+    relations: Pairs,
 ) -> ParseInfo {
     let mut parse_info = ParseInfo {
-        relations: pairs,
+        relations,
+        code_hash: ParseInfo::hash(&code),
         ..Default::default()
     };
 
     for (pattern_, captures) in matches {
-        if pattern_ != pattern {
+        if pattern_ != comment_pattern {
             continue;
         }
 
         let comment = &captures[0];
-
         apply_tags(
             path,
             lang,

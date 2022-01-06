@@ -2,7 +2,11 @@ use eyre::Result;
 use graph_triples::{resources::Symbol, Pairs, Relation, Resource, ResourceId};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::{collections::BTreeMap, path::Path};
+use std::{
+    collections::{hash_map::DefaultHasher, BTreeMap},
+    hash::{Hash, Hasher},
+    path::Path,
+};
 
 // Export and re-export for the convenience of crates that implement a parser
 pub mod utils;
@@ -48,9 +52,25 @@ pub struct ParseInfo {
     /// The [`Relation`]-[`Resource`] pairs between the code and other resources
     /// (e.g. `Symbol`s, `File`s)
     pub relations: Pairs,
+
+    /// A hash of the code that was parsed
+    pub code_hash: u64,
+
+    /// A "semantic" hash of the parsed code
+    /// 
+    /// Usually derived from the AST of the code and should only change
+    /// when the semantics of the code (including tags in comments) change.
+    pub semantic_hash: u64
 }
 
 impl ParseInfo {
+    /// Hash something into a `u64` suitable for the `code_hash` or `semantic_hash` properties
+    pub fn hash<T: Hash>(value: &T) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        value.hash(&mut hasher);
+        hasher.finish()
+    }
+
     /// Is the parsed code pure (i.e. has no side effects)?
     ///
     /// If the code has not been explicitly tagged as `@pure` or `@impure` then

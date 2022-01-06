@@ -261,5 +261,7 @@ input_file: fixtures/fragments/ts/assigns.ts
         "kind": "Function"
       }
     ]
-  ]
+  ],
+  "code_hash": 3521825640660386581,
+  "semantic_hash": 0
 }

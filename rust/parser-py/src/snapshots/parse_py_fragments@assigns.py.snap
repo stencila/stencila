@@ -193,5 +193,7 @@ input_file: fixtures/fragments/py/assigns.py
         "kind": "Object"
       }
     ]
-  ]
+  ],
+  "code_hash": 12704580260682257304,
+  "semantic_hash": 0
 }

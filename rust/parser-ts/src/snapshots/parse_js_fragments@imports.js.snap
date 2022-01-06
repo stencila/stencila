@@ -352,5 +352,7 @@ input_file: fixtures/fragments/js/imports.js
         "kind": ""
       }
     ]
-  ]
+  ],
+  "code_hash": 393440215137895122,
+  "semantic_hash": 0
 }

@@ -120,5 +120,7 @@ input_file: fixtures/fragments/r/imports.R
         "kind": "String"
       }
     ]
-  ]
+  ],
+  "code_hash": 12979174040159270248,
+  "semantic_hash": 0
 }

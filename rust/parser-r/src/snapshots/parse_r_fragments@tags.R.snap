@@ -149,5 +149,7 @@ input_file: fixtures/fragments/r/tags.R
         "path": "file3"
       }
     ]
-  ]
+  ],
+  "code_hash": 6660659064151719661,
+  "semantic_hash": 0
 }

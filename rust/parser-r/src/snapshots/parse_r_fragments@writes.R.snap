@@ -202,5 +202,7 @@ input_file: fixtures/fragments/r/writes.R
         "kind": ""
       }
     ]
-  ]
+  ],
+  "code_hash": 7448082658918213561,
+  "semantic_hash": 0
 }
