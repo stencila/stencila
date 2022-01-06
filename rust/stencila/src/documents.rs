@@ -5,7 +5,6 @@ use eyre::{bail, Result};
 use formats::FormatSpec;
 use graph::Graph;
 use graph_triples::Relations;
-use itertools::Itertools;
 use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::AddressMap;
@@ -22,6 +21,7 @@ use serde_with::skip_serializing_none;
 use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
     env, fs,
+    ops::Deref,
     path::{Path, PathBuf},
     sync::Arc,
     time::{Duration, Instant},
@@ -29,7 +29,7 @@ use std::{
 use stencila_schema::{Article, Node};
 use strum::Display;
 use tokio::{
-    sync::{mpsc, Mutex},
+    sync::{mpsc, Mutex, RwLock},
     task::JoinHandle,
 };
 
@@ -184,9 +184,15 @@ pub struct Document {
 
     /// The root Stencila Schema node of the document
     ///
-    /// Skipped during serialization will often be large.
+    /// Can be any type of `Node` but defaults to an empty `Article`.
+    /// 
+    /// A [`RwLock`] to enable separate, concurrent tasks to read (e.g. for dumping to some
+    /// format) and write (e.g. to apply patches from clients) the node.
+    /// 
+    /// Skipped during serialization because will often be large.
+    #[def = "RwLock::new(Node::Article(Article::default()))"]
     #[serde(skip)]
-    pub root: Option<Node>,
+    pub root: RwLock<Node>,
 
     /// Addresses of nodes in `root` that have an `id`
     ///
@@ -514,6 +520,7 @@ impl Document {
         theme: Option<String>,
     ) -> Result<()> {
         let path = path.as_ref();
+
         let format = format.unwrap_or_else(|| {
             path.extension().map_or_else(
                 || self.format.extension.clone(),
@@ -521,18 +528,16 @@ impl Document {
             )
         });
 
-        if let Some(root) = &self.root {
-            let mut options = codecs::EncodeOptions {
-                standalone: true,
-                ..Default::default()
-            };
-            if let Some(theme) = theme {
-                options.theme = theme
-            }
-            codecs::to_path(root, path, &format, Some(options)).await?;
-        } else {
-            tracing::debug!("Document has no root node");
+        let mut options = codecs::EncodeOptions {
+            standalone: true,
+            ..Default::default()
+        };
+        if let Some(theme) = theme {
+            options.theme = theme
         }
+
+        let root = &*self.root.read().await;
+        codecs::to_path(root, path, &format, Some(options)).await?;
 
         Ok(())
     }
@@ -550,12 +555,8 @@ impl Document {
             None => return Ok(self.content.clone()),
         };
 
-        if let Some(root) = &self.root {
-            codecs::to_string(root, &format, None).await
-        } else {
-            tracing::debug!("Document has no root node");
-            Ok(String::new())
-        }
+        let root = &*self.root.read().await;
+        codecs::to_string(root, &format, None).await
     }
 
     /// Load content into the document
@@ -577,7 +578,8 @@ impl Document {
                 if !self.format.binary {
                     self.content = codecs::to_string(&node, &self.format.extension, None).await?;
                 }
-                self.root = Some(node);
+                let mut root = &mut *self.root.write().await;
+                *root = node;
                 decode_content = false;
             } else {
                 self.content = content;
@@ -592,11 +594,10 @@ impl Document {
 
     /// Generate a [`Patch`] describing the operations needed to modify this
     /// document so that it is equal to another.
-    pub fn diff(&self, other: &Document) -> Result<Patch> {
-        let patch = match (&self.root, &other.root) {
-            (Some(me), Some(other)) => diff(me, other),
-            _ => bail!("One or more of the documents is empty"),
-        };
+    pub async fn diff(&self, other: &Document) -> Result<Patch> {
+        let me = &*self.root.read().await;
+        let other = &*other.root.read().await;
+        let patch = diff(me, other);
         Ok(patch)
     }
 
@@ -604,31 +605,28 @@ impl Document {
     ///
     /// See documentation on the [`merge`] function for how any conflicts
     /// are resolved.
-    pub async fn merge(&mut self, derived: &[Document]) -> Result<()> {
-        // If the current document has not root (e.g. empty document)
-        // then make it an empty `Article` node so that there is at least a
-        // node to merge into.
-        if self.root.is_none() {
-            self.root = Some(Node::Article(Article::default()));
-        }
-        let root = self.root.as_mut().expect("Just ensured root was some node");
+    pub async fn merge(&mut self, deriveds: &[Document]) -> Result<()> {
+        let mut guard = self.root.write().await;
 
-        // For derived documents, ignore documents that have no root
-        // i.e. those that are empty.
-        let derived = derived
-            .iter()
-            .filter_map(|derived| derived.root.as_ref())
-            .collect_vec();
+        // Need to store `let` bindings to read guards before dereferencing them
+        let mut guards = Vec::new();
+        for derived in deriveds {
+            let guard = derived.root.read().await;
+            guards.push(guard)
+        }
+        let others: Vec<&Node> = guards.iter().map(|guard| guard.deref()).collect();
 
         // Do the merge into root
-        merge(root, &derived);
+        merge(&mut *guard, &others);
 
         // TODO updating of *content from root* and publishing of events etc needs to be sorted out
         if !self.format.binary {
-            self.content =
-                codecs::to_string(self.root.as_ref().unwrap(), &self.format.extension, None)
-                    .await?;
+            self.content = codecs::to_string(&*guard, &self.format.extension, None).await?;
         }
+
+        // Drop root guard to allow update
+        drop(guard);
+
         self.update(false).await?;
 
         Ok(())
@@ -682,10 +680,7 @@ impl Document {
         let topic = self.topic("patched");
         let subscribers = self.subscribers("patched");
 
-        let root = match &mut self.root {
-            Some(root) => root,
-            None => bail!("Attempting to patch a document that has no root node"),
-        };
+        let root = &mut *self.root.write().await;
 
         // If the patch has a `target` but no `address` then use `address_map` to populate the address
         // of faster patch application
@@ -723,10 +718,7 @@ impl Document {
 
         let topic = self.topic("patched");
 
-        let mut root = match &mut self.root {
-            Some(root) => root,
-            None => return Ok(()),
-        };
+        let root = &mut *self.root.write().await;
 
         // Compile the `root` to update `addresses` and `planner` needed below
         let (address_map, relations, parse_map) = compile(root, &self.path, &self.project)?;
@@ -767,14 +759,7 @@ impl Document {
 
         let kernels = self.kernels.clone();
         self.planner
-            .execute(
-                &mut root,
-                &self.addresses,
-                kernels,
-                Some(sender),
-                start,
-                None,
-            )
+            .execute(root, &self.addresses, kernels, Some(sender), start, None)
             .await?;
 
         // Wait for all the patches to be sent. `patch_publisher` should finish
@@ -810,25 +795,18 @@ impl Document {
                 tracing::debug!("Decoding document root from path");
                 codecs::from_path(&self.path, format, None).await?
             } else {
-                match self.root.as_ref() {
-                    Some(root) => root.clone(),
-                    None => return Ok(()),
-                }
+                self.root.read().await.clone()
             }
         } else if !self.content.is_empty() {
             if decode_content {
                 tracing::debug!("Decoding document root from content");
                 codecs::from_str(&self.content, format, None).await?
             } else {
-                match self.root.as_ref() {
-                    Some(root) => root.clone(),
-                    None => return Ok(()),
-                }
+                self.root.read().await.clone()
             }
         } else {
-            tracing::debug!("Setting document root to `None`");
-            self.root = None;
-            return Ok(());
+            tracing::debug!("Setting document root to  empty article");
+            Node::Article(Article::default())
         };
 
         // Reshape the `root`
@@ -853,22 +831,20 @@ impl Document {
         for subscription in self.subscriptions.keys() {
             // Generate a diff if there are any `patched` subscriptions
             if subscription == "patched" {
-                if let Some(current_root) = &self.root {
-                    tracing::debug!("Generating patch for document `{}`", self.id);
-
-                    let mut patch = diff(current_root, &root);
-                    patch.prepublish(&root);
-                    publish(
-                        &["documents:", &self.id, ":patched"].concat(),
-                        &DocumentEvent {
-                            type_: DocumentEventType::Patched,
-                            document: self.repr(),
-                            content: None,
-                            format: None,
-                            patch: Some(patch),
-                        },
-                    )
-                }
+                tracing::debug!("Generating patch for document `{}`", self.id);
+                let current_root = &*self.root.read().await;
+                let mut patch = diff(current_root, &root);
+                patch.prepublish(&root);
+                publish(
+                    &["documents:", &self.id, ":patched"].concat(),
+                    &DocumentEvent {
+                        type_: DocumentEventType::Patched,
+                        document: self.repr(),
+                        content: None,
+                        format: None,
+                        patch: Some(patch),
+                    },
+                )
             }
             // Encode the `root` into each of the formats for which there are subscriptions
             else if let Some(format) = subscription.strip_prefix("encoded:") {
@@ -900,7 +876,8 @@ impl Document {
 
         // Now that we're done borrowing the root node for encoding to
         // different formats, store it.
-        self.root = Some(root);
+        let self_root = &mut *self.root.write().await;
+        *self_root = root;
 
         Ok(())
     }
@@ -908,17 +885,18 @@ impl Document {
     /// Query the document
     ///
     /// Returns a JSON value. Returns `null` if the query does not select anything.
-    pub fn query(&self, query: &str, lang: &str) -> Result<serde_json::Value> {
+    pub async fn query(&self, query: &str, lang: &str) -> Result<serde_json::Value> {
+        let root = &*self.root.read().await;
         let result = match lang {
             #[cfg(feature = "query-jmespath")]
             "jmespath" => {
                 let expr = jmespatch::compile(query)?;
-                let result = expr.search(&self.root)?;
+                let result = expr.search(root)?;
                 serde_json::to_value(result)?
             }
             #[cfg(feature = "query-jsonptr")]
             "jsonptr" => {
-                let data = serde_json::to_value(&self.root)?;
+                let data = serde_json::to_value(root)?;
                 let result = data.pointer(query);
                 match result {
                     Some(value) => value.clone(),
@@ -1585,7 +1563,8 @@ pub mod commands {
                 if pointer == "content" {
                     result::content(&document.format.extension, &document.content)
                 } else if pointer == "root" {
-                    result::value(&document.root)
+                    let root = &*document.root.read().await;
+                    result::value(root)
                 } else {
                     let data = serde_json::to_value(document)?;
                     if let Some(part) = data.pointer(&json::pointer(pointer)) {
@@ -1806,7 +1785,7 @@ pub mod commands {
                 lang,
             } = self;
             let document = DOCUMENTS.open(file, format.clone()).await?;
-            let result = document.query(query, lang)?;
+            let result = document.query(query, lang).await?;
             result::value(result)
         }
     }
@@ -1893,10 +1872,8 @@ pub mod commands {
             let first = Document::open(first, None).await?;
             let second = Document::open(second, None).await?;
 
-            let (first, second) = match (&first.root, &second.root) {
-                (Some(first), Some(second)) => (first, second),
-                _ => bail!("One or more of the documents is empty"),
-            };
+            let first = &*first.root.read().await;
+            let second = &*second.root.read().await;
 
             if format == "raw" {
                 let patch = diff(first, second);
@@ -1998,7 +1975,6 @@ mod tests {
         assert!(matches!(doc.status, DocumentStatus::Synced));
         assert_eq!(doc.format.extension, "txt");
         assert_eq!(doc.content, "");
-        assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
 
         let doc = Document::new(None, Some("md".to_string()));
@@ -2007,7 +1983,6 @@ mod tests {
         assert!(matches!(doc.status, DocumentStatus::Synced));
         assert_eq!(doc.format.extension, "md");
         assert_eq!(doc.content, "");
-        assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
     }
 
@@ -2019,7 +1994,6 @@ mod tests {
             assert!(matches!(doc.status, DocumentStatus::Synced));
             assert_eq!(doc.format.extension, "json");
             assert!(!doc.content.is_empty());
-            assert!(doc.root.is_some());
             assert_eq!(doc.subscriptions, hashmap! {});
         }
 
