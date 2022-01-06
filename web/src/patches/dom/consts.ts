@@ -1,13 +1,15 @@
 /**
  * HTML element attributes that are used to represent properties of `struct`s.
  *
- * These are mappings from Stencila Schema property names to
+ * These are mappings from Stencila Schema property names to the
  * [HTML attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes)
- * used to represent them
+ * used to represent them.
  */
 export const STRUCT_ATTRIBUTES: Record<string, string> = {
   // Entity
   id: 'id',
+  // CodeChunk and CodeExpression
+  programmingLanguage: 'programming-language',
   // TableCell
   rowspan: 'rowspan',
   colspan: 'colspan',

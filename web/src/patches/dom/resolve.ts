@@ -50,13 +50,19 @@ export function resolveTarget(target?: ElementId): Element {
 /**
  * Generate a DOM `Element` selector for a name slot
  *
- * The generated selector matches against several attributes. Note:
- * - `slot` is used because even though one of the other attributes may be present
- *   in the original encoding, a Web Component may replace it; using `slot` avoids this
+ * Notes:
+ *
+ * - `:not(meta)` is used to avoid <meta> tags which are only ever added for Microdata
+ *   enrichment and which should not be selected for patch application instead of other
+ *   elements or attributes
+ *
+ * - `slot` is used because, even though one of the other attributes may be present
+ *   in the original encoding, a Web Component may replace it; specifying `slot` here avoids this
+ *
  * - `data-prop` may replace `data-itemprop` in the future
  */
 export function slotSelector(name: string): string {
-  return `[data-itemprop="${name}"], [itemprop="${name}"], [slot="${name}"]`
+  return `[data-itemprop="${name}"], :not(meta)[itemprop="${name}"], [slot="${name}"]`
 }
 
 /**
