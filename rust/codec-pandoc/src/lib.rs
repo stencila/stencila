@@ -6,7 +6,8 @@ use codec::{
     Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
 use pandoc_types::definition as pandoc;
-use std::{io::Write, path::PathBuf, process::Stdio};
+use std::{path::PathBuf, process::Stdio};
+use tokio::io::AsyncWriteExt;
 
 #[cfg(feature = "decode")]
 mod decode;
@@ -72,7 +73,7 @@ impl CodecTrait for PandocCodec {
 ///
 ///   pandoc 2.11 (2020-10-11) : pandoc-types 1.22
 ///   pandoc 2.10 (2020-06-29) : pandoc-types 1.21
-/// 
+///
 /// If/when there are future changes the `pandoc-types` version used in Pandoc itself
 /// then this semver requirement will need to be updated (i.e. be given an upper bound
 /// or `pandoc_types` crate updated and the lower bound raised)
@@ -103,12 +104,12 @@ pub async fn from_pandoc(
         } else {
             let mut child = command.stdin(Stdio::piped()).spawn()?;
             if let Some(mut stdin) = child.stdin.take() {
-                stdin.write_all(input.as_ref())?;
+                stdin.write_all(input.as_ref()).await?;
             }
             child
         };
 
-        let result = child.wait_with_output()?;
+        let result = child.wait_with_output().await?;
         std::str::from_utf8(result.stdout.as_ref())?.to_string()
     };
 
@@ -141,10 +142,10 @@ pub async fn to_pandoc(
             .stdin(Stdio::piped())
             .spawn()?;
         if let Some(mut stdin) = child.stdin.take() {
-            stdin.write_all(json.as_ref())?;
+            stdin.write_all(json.as_ref()).await?;
         }
 
-        let result = child.wait_with_output()?;
+        let result = child.wait_with_output().await?;
         let stdout = std::str::from_utf8(result.stdout.as_ref())?.to_string();
 
         if let Some(path) = path {

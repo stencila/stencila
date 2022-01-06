@@ -7,7 +7,7 @@ use codec::{
 use codec_json::JsonCodec;
 use codec_rpng::RpngCodec;
 use codec_txt::ToTxt;
-use formats::{FormatNodeType, FORMATS};
+use formats::FormatNodeType;
 use node_coerce::coerce;
 use pandoc_types::definition as pandoc;
 use slug::slugify;
@@ -480,7 +480,7 @@ fn translate_inline(element: &pandoc::Inline, context: &DecodeContext) -> Vec<In
                 false => Some(Box::new(CreativeWorkTitle::String(title.to_string()))),
             };
 
-            match FORMATS.match_path(&content_url).node_type {
+            match formats::match_path(&content_url).spec().node_type {
                 FormatNodeType::AudioObject => {
                     vec![InlineContent::AudioObject(AudioObjectSimple {
                         content_url,

@@ -23,9 +23,9 @@ path-slash = "0.1.4"
 serde_json = "1.0.72"
 slug = "0.1.4"
 tempfile = "3.2.0"
+tokio = { version = "1.13.0", features = ["io-util", "macros"] }
 
 [dev-dependencies]
 test-props = { path = "../test-props", version = "0.0.0" }
 test-snaps = { path = "../test-snaps", version = "0.0.0" }
 test-utils = { path = "../test-utils", version = "0.0.0" }
-tokio = { version = "1.13.0", features = ["macros"] }
