@@ -91,23 +91,23 @@ default = [
 
 # Required external crates
 
-async-recursion = "0.3.2"
+async-recursion = "=0.3.2"
 async-trait = "=0.1.51"
 chrono = { version = "=0.4.19", features = ["serde"] }
 crossbeam-channel = "=0.5.1"
 defaults = "=0.2.0"
 derivative = "=2.2.0"
-derive_more = "0.99.17"
+derive_more = "=0.99.17"
 dirs-next = "=2.0.0"
 enum_dispatch = "=0.3.7"
 eyre = "=0.6.5"
-futures = "0.3.19"
+futures = "=0.3.19"
 gitignore = "=1.0.7"
 glob = "=0.3.0"
 handlebars = "=4.1.6"
 humantime = "=2.1.0"
 ignore = "=0.4.18"
-itertools = "0.10.1"
+itertools = "=0.10.3"
 maplit = "=1.0.2"
 mime_guess = "=2.0.3"
 notify = "=4.0.17"
@@ -165,11 +165,11 @@ structopt = { version = "=0.3.25", features = ["wrap_help"], optional = true }
 
 jsonwebtoken = { version = "=7.2.0", optional = true }
 key-utils = { path = "../key-utils", version = "0.0.0", optional = true }
-portpicker = { version = "0.1.1", optional = true }
-rust-embed = { version = "=6.2.0", features = ["compression"], optional = true }
+portpicker = { version = "=0.1.1", optional = true }
+rust-embed = { version = "=6.3.0", features = ["compression"], optional = true }
 sudo = { version = "=0.6.0", optional = true }
 tokio-stream = { version = "=0.1.7", optional = true }
-urlencoding = { version = "2.1.0", optional = true }
+urlencoding = { version = "=2.1.0", optional = true }
 warp = { version = "=0.3.2", optional = true }
 webbrowser = { version = "=0.5.5", optional = true }
 
