@@ -6,12 +6,20 @@ edition = "2021"
 
 [features]
 
-cli = ["cli-utils", "structopt"]
+cli = ["cli-utils", "structopt", "exitcode"]
 cli-pretty = ["cli-utils/pretty"]
 cli-progress = ["cli-utils/progress"]
 cli-interact = ["cli-utils/interact"]
 
-serve = [
+# These features are needed for use in `cfg` attributes
+# because features of dependencies e.g `codecs/cli` are
+# not recognised there (it needs to be a feature of this crate)
+codecs-cli = ["codecs/cli"]
+parsers-cli = ["parsers/cli"]
+kernels-cli = ["kernels/cli"]
+binaries-cli = ["binaries/cli"]
+
+server = [
   "jsonwebtoken",
   "portpicker",
   "rust-embed",
@@ -38,12 +46,8 @@ default = [
   "cli-pretty",
   "cli-interact",
 
-  # Serve & upgrade
-  "serve",
-  "upgrade",
-
   # Codecs
-  "codecs/cli",
+  "codecs-cli",
   "codecs/codec-html",
   "codecs/codec-ipynb",
   "codecs/codec-json",
@@ -54,7 +58,7 @@ default = [
   "codecs/codec-yaml",
 
   # Parsers
-  "parsers/cli",
+  "parsers-cli",
   "parsers/parser-bash",
   "parsers/parser-calc",
   "parsers/parser-js",
@@ -64,7 +68,7 @@ default = [
   "parsers/parser-ts",
 
   # Kernels
-  "kernels/cli",
+  "kernels-cli",
   "kernels/kernel-bash",
   "kernels/kernel-calc",
   "kernels/kernel-deno",
@@ -76,13 +80,17 @@ default = [
   "kernels/kernel-zsh",
 
   # Binaries
-  "binaries/cli",
+  "binaries-cli",
   "binaries/binary-chrome",
   "binaries/binary-chromium",
   "binaries/binary-node",
   "binaries/binary-pandoc",
   "binaries/binary-python",
   "binaries/binary-rscript",
+
+  # Server & upgrade
+  "server",
+  "upgrade",
 
   # Features likely to be moved into other internal crates
 
@@ -106,7 +114,6 @@ derivative = "=2.2.0"
 derive_more = "0.99.17"
 dirs-next = "=2.0.0"
 enum_dispatch = "=0.3.7"
-exitcode = "=1.1.2"
 eyre = "=0.6.5"
 futures = "0.3.19"
 gitignore = "=1.0.7"
@@ -164,9 +171,10 @@ uuids = { path = "../uuids", version = "0.0.0" }
 # Optional crates related to `cli` feature
 
 cli-utils = { path = "../cli-utils", version = "0.0.0", optional = true }
+exitcode = { version = "=1.1.2", optional = true }
 structopt = { version = "=0.3.25", features = ["wrap_help"], optional = true }
 
-# Optional crates related to `serve` feature
+# Optional crates related to `server` feature
 
 jsonwebtoken = { version = "=7.2.0", optional = true }
 key-utils = { path = "../key-utils", version = "0.0.0", optional = true }

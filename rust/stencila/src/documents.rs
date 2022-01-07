@@ -1422,17 +1422,17 @@ pub mod commands {
         Close(Close),
         Show(Show),
 
-        #[cfg(feature = "kernels/cli")]
+        #[cfg(feature = "kernels-cli")]
         Execute(kernel_commands::Execute),
-        #[cfg(feature = "kernels/cli")]
+        #[cfg(feature = "kernels-cli")]
         Kernels(kernel_commands::Kernels),
-        #[cfg(feature = "kernels/cli")]
+        #[cfg(feature = "kernels-cli")]
         Tasks(kernel_commands::Tasks),
-        #[cfg(feature = "kernels/cli")]
+        #[cfg(feature = "kernels-cli")]
         Queues(kernel_commands::Queues),
-        #[cfg(feature = "kernels/cli")]
+        #[cfg(feature = "kernels-cli")]
         Cancel(kernel_commands::Cancel),
-        #[cfg(feature = "kernels/cli")]
+        #[cfg(feature = "kernels-cli")]
         Symbols(kernel_commands::Symbols),
 
         Graph(Graph),
@@ -1453,17 +1453,17 @@ pub mod commands {
                 Action::Close(action) => action.run().await,
                 Action::Show(action) => action.run().await,
 
-                #[cfg(feature = "kernels/cli")]
+                #[cfg(feature = "kernels-cli")]
                 Action::Execute(action) => action.run().await,
-                #[cfg(feature = "kernels/cli")]
+                #[cfg(feature = "kernels-cli")]
                 Action::Kernels(action) => action.run().await,
-                #[cfg(feature = "kernels/cli")]
+                #[cfg(feature = "kernels-cli")]
                 Action::Tasks(action) => action.run().await,
-                #[cfg(feature = "kernels/cli")]
+                #[cfg(feature = "kernels-cli")]
                 Action::Queues(action) => action.run().await,
-                #[cfg(feature = "kernels/cli")]
+                #[cfg(feature = "kernels-cli")]
                 Action::Cancel(action) => action.run().await,
-                #[cfg(feature = "kernels/cli")]
+                #[cfg(feature = "kernels-cli")]
                 Action::Symbols(action) => action.run().await,
 
                 Action::Graph(action) => action.run().await,
@@ -1591,9 +1591,10 @@ pub mod commands {
         }
     }
 
-    // Subcommands that only work if `kernels/cli` feature is enabled
-    #[cfg(feature = "kernels/cli")]
+    // Subcommands that only work if `kernels-cli` feature is enabled
+    #[cfg(feature = "kernels-cli")]
     mod kernel_commands {
+        use super::*;
 
         #[derive(Debug, StructOpt)]
         #[structopt(

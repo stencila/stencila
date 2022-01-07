@@ -26,16 +26,19 @@ pub mod methods {
 //
 // Features that can be turned off
 
+#[cfg(feature = "cli")]
+pub mod cli;
+
 #[cfg(feature = "upgrade")]
 pub mod upgrade;
 
-#[cfg(feature = "serve")]
-pub mod serve;
+#[cfg(feature = "server")]
+pub mod server;
 
-#[cfg(any(feature = "serve"))]
+#[cfg(any(feature = "server"))]
 pub mod jwt;
 
-#[cfg(any(feature = "serve"))]
+#[cfg(any(feature = "server"))]
 pub mod rpc;
 
 // Internal configuration, messaging etc

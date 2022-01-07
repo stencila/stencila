@@ -73,8 +73,8 @@ pub struct Config {
 
     pub telemetry: telemetry::config::TelemetryConfig,
 
-    #[cfg(feature = "serve")]
-    pub serve: crate::serve::config::ServeConfig,
+    #[cfg(feature = "server")]
+    pub server: crate::server::config::ServerConfig,
 
     #[cfg(feature = "plugins")]
     pub plugins: crate::plugins::config::PluginsConfig,
@@ -237,8 +237,8 @@ impl Config {
             #[cfg(feature = "plugins")]
             "plugins" => self.plugins = crate::plugins::config::PluginsConfig::default(),
 
-            #[cfg(feature = "serve")]
-            "serve" => self.serve = crate::serve::config::ServeConfig::default(),
+            #[cfg(feature = "server")]
+            "server" => self.server = crate::server::config::ServerConfig::default(),
 
             #[cfg(feature = "upgrade")]
             "upgrade" => self.upgrade = crate::upgrade::config::UpgradeConfig::default(),
