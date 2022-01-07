@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use parser::{
     eyre::Result,
     formats::Format,
-    graph_triples::{relations, resources, ResourceInfo},
+    graph_triples::{relations, resources, Resource, ResourceInfo},
     utils::apply_tags,
     Parser, ParserTrait,
 };
@@ -19,7 +19,7 @@ impl ParserTrait for CalcParser {
         }
     }
 
-    fn parse(path: &Path, code: &str) -> Result<ResourceInfo> {
+    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
         static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*=(.*)").expect("Unable to create regex")
         });
@@ -34,7 +34,7 @@ impl ParserTrait for CalcParser {
 
         let mut comments = Vec::new();
         let mut semantics = String::new();
-        let pairs = code
+        let relations = code
             .split('\n')
             .enumerate()
             .fold(Vec::new(), |mut pairs, (row, line)| {
@@ -85,10 +85,7 @@ impl ParserTrait for CalcParser {
                 pairs
             });
 
-        let mut resource_info = ResourceInfo {
-            relations: pairs,
-            ..Default::default()
-        };
+        let mut resource_info = ResourceInfo::new(resource, relations, None, None);
 
         // Apply tags from comments (this needs to be done at the end because if may remove pairs if `only` is specified)
         for (row, line) in comments {
@@ -102,7 +99,7 @@ impl ParserTrait for CalcParser {
             );
         }
 
-        // Generate hashes
+        // Generate digest to include `is_pure`
         resource_info.self_digest =
             ResourceInfo::sha256_digest(&[semantics, resource_info.is_pure().to_string()].concat());
 
@@ -121,7 +118,8 @@ mod tests {
         snapshot_fixtures("fragments/calc/*.calc", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource_info = CalcParser::parse(path, &code).expect("Unable to parse");
+            let resource = resources::code(path, "", "SoftwareSourceCode", Some("Calc".to_string()));
+            let resource_info = CalcParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })
     }

@@ -5,6 +5,13 @@ input_file: fixtures/fragments/js/writes.js
 
 ---
 {
+  "resource": {
+    "type": "Code",
+    "path": "fragments/js/writes.js",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "JavaScript"
+  },
   "relations": [
     [
       {

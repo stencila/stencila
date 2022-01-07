@@ -5,6 +5,13 @@ input_file: fixtures/fragments/calc/uses-only.calc
 
 ---
 {
+  "resource": {
+    "type": "Code",
+    "path": "fragments/calc/uses-only.calc",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Calc"
+  },
   "relations": [
     [
       {

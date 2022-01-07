@@ -5,6 +5,13 @@ input_file: fixtures/fragments/r/assigns.R
 
 ---
 {
+  "resource": {
+    "type": "Code",
+    "path": "fragments/r/assigns.R",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "R"
+  },
   "relations": [
     [
       {

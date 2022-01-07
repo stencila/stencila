@@ -254,13 +254,13 @@ impl Executable for Parameter {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("pa", self, address, context);
 
-        let subject = resources::code(
+        let resource = resources::code(
             &context.path,
             &id,
             "Parameter",
             context.programming_language.clone(),
         );
-        let resource_id = subject.id();
+        let resource_id = resource.id();
 
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
@@ -274,7 +274,6 @@ impl Executable for Parameter {
         let object = resources::symbol(&context.path, &self.name, kind);
 
         let relations = vec![(relations::assigns(NULL_RANGE), object)];
-        context.relations.push((subject, relations.clone()));
 
         let value = self
             .value
@@ -282,11 +281,14 @@ impl Executable for Parameter {
             .or_else(|| self.default.as_deref())
             .map(|node| format!("{:?}", node))
             .unwrap_or_else(|| "".to_string());
-        let resource_info = ResourceInfo {
-            relations,
-            self_digest: ResourceInfo::sha256_digest(&value),
-            ..Default::default()
-        };
+        let resource_info = ResourceInfo::new(
+            resource.clone(),
+            relations.clone(),
+            Some(ResourceInfo::sha256_digest(&value)),
+            None,
+        );
+
+        context.relations.push((resource, relations));
         context.parse_map.insert(resource_id, resource_info);
 
         Ok(())
@@ -322,20 +324,20 @@ impl Executable for CodeChunk {
         let id = identify!("cc", self, address, context);
         let lang = langify!(self, context);
 
-        let resource_info = match parsers::parse(&context.path, &self.text, &lang) {
+        let resource = resources::code(&context.path, &id, "CodeChunk", Some(lang));
+        let resource_info = match parsers::parse(resource.clone(), &self.text) {
             Ok(resource_info) => resource_info,
             Err(error) => {
                 tracing::debug!("While parsing code chunk `{}`: {}", id, error);
-                ResourceInfo::default()
+                return Ok(());
             }
         };
 
-        let subject = resources::code(&context.path, &id, "CodeChunk", Some(lang));
-        let resource_id = subject.id();
+        let resource_id = resource.id();
 
         context
             .relations
-            .push((subject, resource_info.relations.clone()));
+            .push((resource, resource_info.relations.clone()));
 
         context.parse_map.insert(resource_id, resource_info);
 
@@ -393,25 +395,25 @@ impl Executable for CodeExpression {
         let id = identify!("ce", self, address, context);
         let lang = langify!(self, context);
 
-        let resource_info = match parsers::parse(&context.path, &self.text, &lang) {
-            Ok(resource_info) => resource_info,
-            Err(error) => {
-                tracing::debug!("While parsing code expression `{}`: {}", id, error);
-                ResourceInfo::default()
-            }
-        };
-
-        let subject = resources::code(
+        let resource = resources::code(
             &context.path,
             &id,
             "CodeExpression",
             Some(normalize_title(&lang)),
         );
-        let resource_id = subject.id();
+        let resource_info = match parsers::parse(resource.clone(), &self.text) {
+            Ok(resource_info) => resource_info,
+            Err(error) => {
+                tracing::debug!("While parsing code expression `{}`: {}", id, error);
+                return Ok(());
+            }
+        };
+
+        let resource_id = resource.id();
 
         context
             .relations
-            .push((subject, resource_info.relations.clone()));
+            .push((resource, resource_info.relations.clone()));
 
         context.parse_map.insert(resource_id, resource_info);
 
@@ -457,13 +459,19 @@ impl Executable for CodeExpression {
 /// relations.
 impl Executable for SoftwareSourceCode {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        identify!("sc", self, address, context);
-        if let (Some(text), Some(programming_language)) =
+        let id = identify!("sc", self, address, context);
+
+        if let (Some(code), Some(language)) =
             (self.text.as_deref(), self.programming_language.as_deref())
         {
-            let subject = resources::file(&context.path);
-            let resource_info = parsers::parse(&context.path, text, programming_language)?;
-            context.relations.push((subject, resource_info.relations));
+            let resource = resources::code(
+                &context.path,
+                &id,
+                "SoftwareSourceCode",
+                Some(language.clone()),
+            );
+            let resource_info = parsers::parse(resource.clone(), code)?;
+            context.relations.push((resource, resource_info.relations));
         }
 
         Ok(())

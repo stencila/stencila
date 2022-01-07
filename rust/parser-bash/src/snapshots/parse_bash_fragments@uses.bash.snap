@@ -5,6 +5,13 @@ input_file: fixtures/fragments/bash/uses.bash
 
 ---
 {
+  "resource": {
+    "type": "Code",
+    "path": "fragments/bash/uses.bash",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Bash"
+  },
   "relations": [
     [
       {

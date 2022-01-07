@@ -5,6 +5,13 @@ input_file: fixtures/fragments/js/tags.js
 
 ---
 {
+  "resource": {
+    "type": "Code",
+    "path": "fragments/js/tags.js",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "JavaScript"
+  },
   "relations": [
     [
       {

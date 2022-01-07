@@ -5,6 +5,13 @@ input_file: fixtures/fragments/py/assigns.py
 
 ---
 {
+  "resource": {
+    "type": "Code",
+    "path": "fragments/py/assigns.py",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Python"
+  },
   "relations": [
     [
       {

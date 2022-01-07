@@ -1,6 +1,5 @@
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
-
 use graph_triples::ResourceInfo;
 #[allow(unused_imports)]
 use kernel::{
@@ -1238,8 +1237,10 @@ impl KernelSpace {
     ) -> cli_utils::Result {
         use cli_utils::result;
         use events::{subscribe, unsubscribe, Subscriber};
+        use graph_triples::resources;
         use once_cell::sync::Lazy;
         use regex::Regex;
+        use std::path::PathBuf;
 
         static SYMBOL: Lazy<Regex> =
             Lazy::new(|| Regex::new(r"^[a-zA-Z]\w*$").expect("Unable to create regex"));
@@ -1259,9 +1260,11 @@ impl KernelSpace {
 
             // If possible, parse the code so that we can use the relations to determine variables that
             // are assigned or used (needed for variable mirroring).
-            let resource_info = match &language {
-                Some(language) => parsers::parse("<cli>", &code, language).unwrap_or_default(),
-                None => ResourceInfo::default(),
+            let path = PathBuf::from("<cli>");
+            let resource = resources::code(&path, "<id>", "<file>", language.clone());
+            let resource_info = match parsers::parse(resource.clone(), &code) {
+                Ok(resource_info) => resource_info,
+                Err(..) => ResourceInfo::new(resource, Vec::new(), None, None),
             };
 
             // Determine the kernel selector

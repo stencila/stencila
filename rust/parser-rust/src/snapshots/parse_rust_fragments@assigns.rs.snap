@@ -5,6 +5,13 @@ input_file: fixtures/fragments/rust/assigns.rs
 
 ---
 {
+  "resource": {
+    "type": "Code",
+    "path": "fragments/rust/assigns.rs",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Rust"
+  },
   "relations": [
     [
       {

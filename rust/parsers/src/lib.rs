@@ -2,11 +2,11 @@ use formats::{match_name, Format};
 use once_cell::sync::Lazy;
 use parser::{
     eyre::{bail, Result},
-    graph_triples::{Pairs, Relation, ResourceInfo},
+    graph_triples::{Pairs, Relation, Resource, ResourceInfo},
     ParserTrait,
 };
+use std::collections::BTreeMap;
 use std::sync::Arc;
-use std::{collections::BTreeMap, path::Path};
 
 // Re-exports
 pub use parser::Parser;
@@ -15,8 +15,8 @@ pub use parser::Parser;
 // detail of having a static list of parsers. They are intended as the
 // only public interface for this crate.
 
-pub fn parse<P: AsRef<Path>>(path: P, code: &str, language: &str) -> Result<ResourceInfo> {
-    PARSERS.parse(path, code, language)
+pub fn parse(resource: Resource, code: &str) -> Result<ResourceInfo> {
+    PARSERS.parse(resource, code)
 }
 
 /// The set of registered parsers in the current process
@@ -101,19 +101,25 @@ impl Parsers {
         }
     }
 
-    /// Parse code in a particular language
-    fn parse<P: AsRef<Path>>(&self, path: P, code: &str, language: &str) -> Result<ResourceInfo> {
-        let path = path.as_ref();
-        let format = match_name(language);
-
-        let resource_info = if let Some(result) = dispatch_builtins!(format, parse, path, code) {
-            result?
+    /// Parse a code resource
+    fn parse(&self, resource: Resource, code: &str) -> Result<ResourceInfo> {
+        let (path, language) = if let Resource::Code(code) = &resource {
+            (code.path.clone(), code.language.clone().unwrap_or_default())
         } else {
-            bail!(
-                "Unable to parse code in language `{}`: no matching parser found",
-                language
-            )
+            bail!("Attempting to parse a resource that is not a `Code` resource")
         };
+
+        let format = match_name(&language);
+
+        let resource_info =
+            if let Some(result) = dispatch_builtins!(format, parse, resource, &path, code) {
+                result?
+            } else {
+                bail!(
+                    "Unable to parse code in language `{}`: no matching parser found",
+                    language
+                )
+            };
 
         // Normalize pairs by removing any `Uses` of locally assigned variables
         let mut normalized: Pairs = Vec::with_capacity(resource_info.relations.len());
@@ -153,6 +159,7 @@ pub mod commands {
 
     use super::*;
     use cli_utils::{async_trait::async_trait, result, Result, Run};
+    use parser::graph_triples::resources;
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -249,7 +256,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Parse {
         async fn run(&self) -> Result {
-            let (file, code, lang) = if self.text || self.code.len() > 1 {
+            let (path, code, lang) = if self.text || self.code.len() > 1 {
                 let code = self.code.join(" ");
                 (
                     "<text>".to_string(),
@@ -267,8 +274,10 @@ pub mod commands {
                 (file, code, lang)
             };
 
-            let pairs = PARSERS.parse(file, &code, &lang)?;
-            result::value(pairs)
+            let path = PathBuf::from(path);
+            let resource = resources::code(&path, "<id>", "<cli>", Some(lang));
+            let resource_info = PARSERS.parse(resource, &code)?;
+            result::value(resource_info)
         }
     }
 }
@@ -284,7 +293,8 @@ mod tests {
     #[cfg(feature = "parser-calc")]
     fn test_parse() -> Result<()> {
         let path = PathBuf::from("<test>");
-        let resource_info = parse(&path, "a = 1\nb = a * a", "calc")?;
+        let resource = resources::code(&path, "<id>", "<cli>", Some("Calc".to_string()));
+        let resource_info = parse(resource, "a = 1\nb = a * a")?;
         assert!(matches!(resource_info.pure, None));
         assert!(!resource_info.is_pure());
         assert_json_eq!(

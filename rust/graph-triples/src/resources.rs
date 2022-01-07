@@ -66,21 +66,16 @@ impl Resource {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct ResourceInfo {
+    /// The resource (the "subject") that this information if for
+    pub resource: Resource,
+
     /// The [`Relation`]-[`Resource`] pairs between the resource (the "subject") and
     /// other resources (the "objects").
     ///
     /// This is the primary data used to build the dependency graph between resources.
     pub relations: Pairs,
-
-    /// Whether the resource is explicitly marked as pure or impure
-    ///
-    /// Pure resources do not modify other resources (i.e. they have no side effects).
-    /// This can be determined from whether the resource has any `Assign`, `Alter` or `Write`
-    /// relations. Additionally, the user may mark the resource as pure or impure
-    /// for example, by using `@pure` or `@impure` tags in code comments.
-    pub pure: Option<bool>,
 
     /// A digest of the resource itself
     ///
@@ -90,11 +85,34 @@ pub struct ResourceInfo {
     /// when the semantics of the code change. For `File` resources, this may be
     /// a hash digest of the entire file or of it's modification time.
     pub self_digest: String,
+
+    /// Whether the resource is explicitly marked as pure or impure
+    ///
+    /// Pure resources do not modify other resources (i.e. they have no side effects).
+    /// This can be determined from whether the resource has any `Assign`, `Alter` or `Write`
+    /// relations. Additionally, the user may mark the resource as pure or impure
+    /// for example, by using `@pure` or `@impure` tags in code comments.
+    pub pure: Option<bool>,
 }
 
 impl ResourceInfo {
+    /// Create a new `ResourceInfo` object
+    pub fn new(
+        resource: Resource,
+        relations: Pairs,
+        self_digest: Option<String>,
+        pure: Option<bool>,
+    ) -> Self {
+        Self {
+            resource,
+            relations,
+            self_digest: self_digest.unwrap_or_default(),
+            pure,
+        }
+    }
+
     /// Create a SHA256 hash digest from a value
-    /// 
+    ///
     /// Suitable for use when generating the `_digest` properties of a [`ResourceInfo`]
     /// object.
     pub fn sha256_digest<T: Display>(value: &T) -> String {

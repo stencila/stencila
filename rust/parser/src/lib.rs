@@ -1,5 +1,5 @@
 use eyre::Result;
-use graph_triples::ResourceInfo;
+use graph_triples::{ResourceInfo, Resource};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
@@ -33,6 +33,6 @@ pub trait ParserTrait {
     /// Get the [`Parser`] specification
     fn spec() -> Parser;
 
-    /// Parse some code into a [`ResourceInfo`] object
-    fn parse(path: &Path, code: &str) -> Result<ResourceInfo>;
+    /// Parse a `Resource::Code` object into a [`ResourceInfo`] object
+    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo>;
 }

@@ -3,7 +3,7 @@ use parser_treesitter::{
     captures_as_args_map,
     eyre::Result,
     formats::Format,
-    graph_triples::{relations, resources, ResourceInfo},
+    graph_triples::{relations, resources, Resource, ResourceInfo},
     path_utils, resource_info,
     utils::{is_quoted, remove_quotes},
     Parser, ParserTrait, TreesitterParser,
@@ -77,7 +77,7 @@ impl ParserTrait for PyParser {
         }
     }
 
-    fn parse(path: &Path, code: &str) -> Result<ResourceInfo> {
+    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
         let code = code.as_bytes();
         let tree = PARSER.parse(code);
         let matches = PARSER.query(code, &tree);
@@ -224,8 +224,15 @@ impl ParserTrait for PyParser {
             })
             .collect();
 
-        let resource_info =
-            resource_info(path, &Self::spec().language, code, matches, 0, relations);
+        let resource_info = resource_info(
+            resource,
+            path,
+            &Self::spec().language,
+            code,
+            matches,
+            0,
+            relations,
+        );
         Ok(resource_info)
     }
 }
@@ -241,7 +248,8 @@ mod tests {
         snapshot_fixtures("fragments/py/*.py", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource_info = PyParser::parse(path, &code).expect("Unable to parse");
+            let resource = resources::code(path, "", "SoftwareSourceCode", Some("Python".to_string()));
+            let resource_info = PyParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })
     }

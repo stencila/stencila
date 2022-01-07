@@ -5,6 +5,13 @@ input_file: fixtures/fragments/r/tags.R
 
 ---
 {
+  "resource": {
+    "type": "Code",
+    "path": "fragments/r/tags.R",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "R"
+  },
   "relations": [
     [
       {
@@ -150,6 +157,6 @@ input_file: fixtures/fragments/r/tags.R
       }
     ]
   ],
-  "pure": false,
-  "self_digest": "fac603e436b0b2675b9e3252ea46e7d36d72604a4e4185bc57148caebfdb93f2"
+  "self_digest": "fac603e436b0b2675b9e3252ea46e7d36d72604a4e4185bc57148caebfdb93f2",
+  "pure": false
 }

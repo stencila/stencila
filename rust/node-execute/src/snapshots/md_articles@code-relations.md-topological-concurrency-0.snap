@@ -21,6 +21,13 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "cc-1",
+              "kind": "CodeChunk",
+              "language": "Calc"
+            },
             "relations": [
               [
                 {
@@ -58,6 +65,13 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "pa-1",
+              "kind": "Parameter",
+              "language": "Calc"
+            },
             "relations": [
               [
                 {
@@ -95,6 +109,13 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "cc-2",
+              "kind": "CodeChunk",
+              "language": "Calc"
+            },
             "relations": [
               [
                 {
@@ -132,6 +153,13 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "ce-1",
+              "kind": "CodeExpression",
+              "language": "Calc"
+            },
             "relations": [
               [
                 {
@@ -169,6 +197,13 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "ce-2",
+              "kind": "CodeExpression",
+              "language": "Calc"
+            },
             "relations": [
               [
                 {
@@ -206,6 +241,13 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "cc-3",
+              "kind": "CodeChunk",
+              "language": "Calc"
+            },
             "relations": [
               [
                 {
@@ -260,6 +302,13 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "ce-3",
+              "kind": "CodeExpression",
+              "language": "Calc"
+            },
             "relations": [
               [
                 {
@@ -297,6 +346,13 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "ce-4",
+              "kind": "CodeExpression",
+              "language": "Calc"
+            },
             "relations": [
               [
                 {
@@ -334,6 +390,13 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "resource_info": {
+            "resource": {
+              "type": "Code",
+              "path": "articles/code-relations.md",
+              "id": "cc-4",
+              "kind": "CodeChunk",
+              "language": "Calc"
+            },
             "relations": [
               [
                 {

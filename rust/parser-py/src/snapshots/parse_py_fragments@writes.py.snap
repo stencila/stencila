@@ -5,6 +5,13 @@ input_file: fixtures/fragments/py/writes.py
 
 ---
 {
+  "resource": {
+    "type": "Code",
+    "path": "fragments/py/writes.py",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Python"
+  },
   "relations": [
     [
       {

@@ -5,6 +5,13 @@ input_file: fixtures/fragments/calc/tags.calc
 
 ---
 {
+  "resource": {
+    "type": "Code",
+    "path": "fragments/calc/tags.calc",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Calc"
+  },
   "relations": [
     [
       {
@@ -41,6 +48,6 @@ input_file: fixtures/fragments/calc/tags.calc
       }
     ]
   ],
-  "pure": false,
-  "self_digest": "da157ea96acaaba5922c57271929d8c96eaf4ecbdaa8b9b04bcf9266cdfa8eb9"
+  "self_digest": "da157ea96acaaba5922c57271929d8c96eaf4ecbdaa8b9b04bcf9266cdfa8eb9",
+  "pure": false
 }

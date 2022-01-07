@@ -1,5 +1,5 @@
 use parser::{
-    graph_triples::{relations::Range, Pairs, ResourceInfo},
+    graph_triples::{relations::Range, Pairs, ResourceInfo, Resource},
     utils::apply_tags,
 };
 use std::{collections::HashMap, path::Path, sync::Mutex};
@@ -207,6 +207,7 @@ pub fn child_text<'tree>(
 /// If the tag ends in `only` then all existing relations of that type
 /// will be removed from `relations`.
 pub fn resource_info(
+    resource: Resource,
     path: &Path,
     lang: &str,
     code: &[u8],
@@ -219,12 +220,9 @@ pub fn resource_info(
     let code = std::str::from_utf8(code)
         .unwrap_or_default()
         .replace("\r", "");
+    let self_digest = ResourceInfo::sha256_digest(&code);
 
-    let mut resource_info = ResourceInfo {
-        relations,
-        self_digest: ResourceInfo::sha256_digest(&code),
-        ..Default::default()
-    };
+    let mut resource_info = ResourceInfo::new(resource, relations, Some(self_digest), None);
 
     for (pattern_, captures) in matches {
         if pattern_ != comment_pattern {
