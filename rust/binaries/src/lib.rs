@@ -104,6 +104,30 @@ pub async fn installed(name: &str, semver: &str) -> bool {
     installation(name, semver).await.is_ok()
 }
 
+/// Install a binary
+pub async fn install(name: &str, semver: &str) -> Result<BinaryInstallation> {
+    let name_semver = [name, "@", semver].concat();
+    let semver = if semver == "*" {
+        None
+    } else {
+        Some(semver.into())
+    };
+
+    let binary = match registered(name) {
+        Some(binary) => binary,
+        None => bail!("Unable to automatically install binary `{}`", name),
+    };
+    binary.install(semver.clone(), None, None).await?;
+
+    if let Some(installation) = binary.installed(semver)? {
+        let mut installations = INSTALLATIONS.write().await;
+        installations.insert(name_semver, installation.clone());
+        Ok(installation)
+    } else {
+        bail!("Failed to automatically install binary `{}`", name)
+    }
+}
+
 /// Get a binary installation meeting semantic versioning requirements.
 ///
 /// If the binary is already available, or automatic installs are configured, returns
@@ -117,28 +141,25 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
     // TODO: Use an env var to set this?
     let auto = true;
     if auto {
-        let name_semver = [name, "@", semver].concat();
-        let semver = if semver == "*" {
-            None
-        } else {
-            Some(semver.into())
-        };
-
-        let binary = match registered(name) {
-            Some(binary) => binary,
-            None => bail!("Unable to automatically install binary `{}`", name),
-        };
-        binary.install(semver.clone(), None, None).await?;
-
-        if let Some(installation) = binary.installed(semver)? {
-            let mut installations = INSTALLATIONS.write().await;
-            installations.insert(name_semver, installation.clone());
-            Ok(installation)
-        } else {
-            bail!("Failed to automatically install binary `{}`", name)
-        }
+        install(name, semver).await
     } else {
         bail!("Required binary `{}` is not installed", name)
+    }
+}
+
+/// Get a binary installation meeting one of the semantic versioning requirements.
+///
+/// If none are installed, will install the first in the list (assuming auto-install
+/// is configured as on).
+pub async fn require_any(binaries: &[(&str, &str)]) -> Result<BinaryInstallation> {
+    for (name, semver) in binaries {
+        if let Ok(installation) = installation(name, semver).await {
+            return Ok(installation);
+        }
+    }
+    match binaries.get(0) {
+        Some((name, semver)) => require(name, semver).await,
+        None => bail!("No name/semver pairs provided"),
     }
 }
 

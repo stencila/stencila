@@ -39,7 +39,7 @@ impl CodecTrait for PdfCodec {
             }),
         )?;
 
-        let chrome = binaries::require("chrome", "*").await?;
+        let chrome = binaries::require_any(&[("chrome", "*"), ("chromium", "*")]).await?;
 
         let config = BrowserConfig::builder()
             .chrome_executable(chrome.path)
