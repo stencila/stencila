@@ -186,9 +186,9 @@ impl<S: tracing::subscriber::Subscriber> tracing_subscriber::layer::Layer<S> for
         if level >= self.level {
             let level_name = level.to_string().to_uppercase();
 
-            #[cfg(feature = "ansi_term")]
+            #[cfg(feature = "cli-pretty")]
             let level_name = {
-                use ansi_term::Color::{Blue, Green, Purple, Red, White, Yellow};
+                use cli_utils::ansi_term::Color::{Blue, Green, Purple, Red, White, Yellow};
                 match level {
                     LoggingLevel::Trace => Purple,
                     LoggingLevel::Debug => Blue,

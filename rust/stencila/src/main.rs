@@ -381,10 +381,10 @@ impl Run for WithCommand {
 /// Main entry point function
 #[tokio::main]
 pub async fn main() -> eyre::Result<()> {
-    #[cfg(all(windows, feature = "ansi_term"))]
+    #[cfg(all(windows, feature = "cli-pretty"))]
     #[allow(unused_must_use)]
     {
-        ansi_term::enable_ansi_support();
+        cli_utils::ansi_term::enable_ansi_support();
     }
 
     let args: Vec<String> = std::env::args().collect();

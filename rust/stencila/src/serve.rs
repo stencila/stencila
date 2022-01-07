@@ -717,7 +717,6 @@ fn error_response(
 /// has a symlink to `web/dist/browser` (and maybe in the future other folders).
 /// At build time these are embedded in the binary. Use `include` and `exclude`
 /// glob patterns to only include the assets that are required.
-#[cfg(feature = "serve-http")]
 #[derive(RustEmbed)]
 #[folder = "static"]
 #[exclude = "web/*.map"]
