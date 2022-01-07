@@ -2879,15 +2879,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "minidom"
-version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "332592c2149fc7dd40a64fc9ef6f0d65607284b474cef9817d1fc8c7e7b3608e"
-dependencies = [
- "quick-xml 0.20.0",
-]
-
-[[package]]
 name = "minimad"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4848,7 +4839,6 @@ dependencies = [
  "key-utils",
  "maplit",
  "mime_guess",
- "minidom",
  "node-address",
  "node-dispatch",
  "node-execute",
@@ -4864,7 +4854,6 @@ dependencies = [
  "pathdiff",
  "portpicker",
  "regex",
- "reqwest",
  "rust-embed",
  "schemars",
  "self_update",

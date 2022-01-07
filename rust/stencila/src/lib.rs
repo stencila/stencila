@@ -13,15 +13,6 @@ pub mod projects;
 pub mod sessions;
 pub mod sources;
 
-// Methods
-//
-// Core functions that operate on Stencila objects and which
-// may be delegated to plugins
-
-pub mod methods {
-    pub mod import;
-}
-
 // Features
 //
 // Features that can be turned off

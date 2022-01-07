@@ -2,7 +2,6 @@ use crate::config::CONFIG;
 use crate::conversions::Conversion;
 use crate::documents::DOCUMENTS;
 use crate::files::{File, FileEvent, Files};
-use crate::methods::import::import;
 use crate::sources::{self, Source, SourceDestination, SourceTrait};
 use crate::utils::schemas;
 use events::publish;
@@ -583,7 +582,7 @@ impl Project {
         }
 
         // Add the source if necessary
-        let source = if let Some(source) = source {
+        let _source = if let Some(source) = source {
             source
         } else {
             self.add_source(name_or_identifier, destination.clone(), None)
@@ -591,7 +590,9 @@ impl Project {
         };
 
         // Import the source
-        let files = import(&self.path, &source, destination).await?;
+        // TODO: Re-enable this
+        // let files = import(&self.path, &source, destination).await?;
+        let files = vec![];
 
         Ok(files)
     }
