@@ -727,6 +727,11 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-pandoc",
+ "once_cell",
+ "tempfile",
+ "test-props",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]
@@ -816,6 +821,10 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-pandoc",
+ "once_cell",
+ "test-props",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]
@@ -861,6 +870,9 @@ dependencies = [
  "serde_json",
  "slug",
  "tempfile",
+ "test-props",
+ "test-snaps",
+ "test-utils",
  "tokio",
 ]
 
@@ -873,6 +885,7 @@ dependencies = [
  "codec",
  "codec-html",
  "futures",
+ "tempfile",
  "tokio",
 ]
 
@@ -897,6 +910,7 @@ dependencies = [
  "codec",
  "codec-html",
  "futures",
+ "tempfile",
  "tokio",
 ]
 
@@ -920,6 +934,10 @@ dependencies = [
  "codec-json",
  "codec-png",
  "png",
+ "tempfile",
+ "test-props",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]

@@ -59,8 +59,7 @@ impl CodecTrait for RpngCodec {
     /// This override is necessary to read the file as bytes, not as a string, and then to
     /// directly decode those bytes, rather than Base64 decoding them first.
     /// Decode a document node from a file system path
-    async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node>
-    {
+    async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
         let bytes = fs::read(path)?;
         bytes_to_node(bytes.as_slice(), options)
     }
@@ -78,8 +77,7 @@ impl CodecTrait for RpngCodec {
     ///
     /// This override is necessary to avoid the dataURI prefix and Base64 encoding that `to_string_async`
     /// does. It simply writes that bytes to a file at the path.
-    async fn to_path( node: &Node, path: &Path, options: Option<EncodeOptions>, ) -> Result<()>
-    {
+    async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
         let bytes = nodes_to_bytes(&[node], options).await?;
         fs::write(path, &bytes[0])?;
         Ok(())

@@ -19,8 +19,8 @@ proptest! {
         RUNTIME.block_on(async {
             let file = tempfile::NamedTempFile::new().unwrap();
             let path = file.path();
-            DocxCodec::to_path(&input, &path, None).await.unwrap();
-            let output = DocxCodec::from_path(&path, None).await.unwrap();
+            DocxCodec::to_path(&input, path, None).await.unwrap();
+            let output = DocxCodec::from_path(path, None).await.unwrap();
             assert_json_eq!(input, output)
         })
     }

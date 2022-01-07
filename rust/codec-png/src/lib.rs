@@ -39,12 +39,7 @@ impl CodecTrait for PngCodec {
     ///
     /// This override is necessary to avoid the dataURI prefix and Base64 encoding that `to_string_async`
     /// does. It simply writes that bytes to a file at the path.
-    async fn to_path(
-        node: &Node,
-        path: &Path,
-        options: Option<EncodeOptions>,
-    ) -> Result<()>
-    {
+    async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
         let bytes = nodes_to_bytes(&[node], options).await?;
         fs::write(path, &bytes[0])?;
         Ok(())
