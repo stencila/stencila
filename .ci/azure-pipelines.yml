@@ -316,6 +316,19 @@ jobs:
         startsWith(variables['Build.SourceBranch'], 'refs/tags/')
       )
     steps:
+      # There is a 10Gb disk limit (at time of writing) which we are hitting (at time
+      # of writing). So attempt to free space by doing a shallow fetch and
+      # removing Docker images we don't use.
+      - checkout: self
+        fetchDepth: 1
+        clean: true
+      - script: |
+          set -e
+          df -h
+          docker rmi -f $(docker images -aq)
+          df -h
+        displayName: 'Chore: Free up storage'
+
       - task: Cache@2
         inputs:
           path: $(RUST_CACHE)
