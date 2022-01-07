@@ -882,32 +882,6 @@ impl Document {
         Ok(())
     }
 
-    /// Query the document
-    ///
-    /// Returns a JSON value. Returns `null` if the query does not select anything.
-    pub async fn query(&self, query: &str, lang: &str) -> Result<serde_json::Value> {
-        let root = &*self.root.read().await;
-        let result = match lang {
-            #[cfg(feature = "query-jmespath")]
-            "jmespath" => {
-                let expr = jmespatch::compile(query)?;
-                let result = expr.search(root)?;
-                serde_json::to_value(result)?
-            }
-            #[cfg(feature = "query-jsonptr")]
-            "jsonptr" => {
-                let data = serde_json::to_value(root)?;
-                let result = data.pointer(query);
-                match result {
-                    Some(value) => value.clone(),
-                    None => serde_json::Value::Null,
-                }
-            }
-            _ => bail!("Unknown query language '{}'", lang),
-        };
-        Ok(result)
-    }
-
     /// Generate a topic string for the document
     pub fn topic(&self, subtopic: &str) -> String {
         ["documents:", &self.id, ":", subtopic].concat()
@@ -1787,12 +1761,11 @@ pub mod commands {
             short,
             long,
             default_value = "jmespath",
-            possible_values = &QUERY_LANGS
+            possible_values = &node_query::LANGS
         )]
         lang: String,
     }
 
-    const QUERY_LANGS: [&str; 2] = ["jmespath", "jsonptr"];
     #[async_trait]
     impl Run for Query {
         async fn run(&self) -> Result {
@@ -1803,7 +1776,8 @@ pub mod commands {
                 lang,
             } = self;
             let document = DOCUMENTS.open(file, format.clone()).await?;
-            let result = document.query(query, lang).await?;
+            let node = &*document.root.read().await;
+            let result = node_query::query(node, query, lang)?;
             result::value(result)
         }
     }

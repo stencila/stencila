@@ -3211,6 +3211,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-query"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "jmespatch",
+ "serde_json",
+ "stencila-schema",
+]
+
+[[package]]
 name = "node-reshape"
 version = "0.0.0"
 dependencies = [
@@ -4833,7 +4843,6 @@ dependencies = [
  "humantime",
  "ignore",
  "itertools",
- "jmespatch",
  "jsonwebtoken",
  "kernels",
  "key-utils",
@@ -4845,6 +4854,7 @@ dependencies = [
  "node-execute",
  "node-patch",
  "node-pointer",
+ "node-query",
  "node-reshape",
  "notify",
  "once_cell",

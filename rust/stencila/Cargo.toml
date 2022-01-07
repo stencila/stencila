@@ -36,9 +36,6 @@ upgrade = ["self_update"]
 import-elife = ["minidom"]
 import-github = []
 
-query-jmespath = ["jmespatch"]
-query-jsonptr = []
-
 default = [
   # CLI
   "cli",
@@ -96,9 +93,7 @@ default = [
 
   "reqwest",
   "import-elife",
-  "import-github",
-  "query-jsonptr",
-  "query-jmespath",
+  "import-github"
 ]
 
 [dependencies]
@@ -163,6 +158,7 @@ node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
 node-execute = { path = "../node-execute", version = "0.0.0" }
 node-patch = { path = "../node-patch", version = "0.0.0" }
 node-pointer = { path = "../node-pointer", version = "0.0.0" }
+node-query = { path = "../node-query", version = "0.0.0" }
 node-reshape = { path = "../node-reshape", version = "0.0.0" }
 parsers = { path = "../parsers", version = "0.0.0" }
 path-utils = { path = "../path-utils", version = "0.0.0" }
@@ -197,7 +193,6 @@ self_update = { version = "=0.27.0", optional = true, features = [
 
 # Optional crates likely to be factored out into another internal crate
 
-jmespatch = { version = "=0.3.0", optional = true }
 minidom = { version = "=0.13.0", optional = true }
 reqwest = { version = "=0.11.7", optional = true, features = ["json"] }
 
