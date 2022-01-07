@@ -1,6 +1,6 @@
 ---
 source: rust/parser-ts/src/lib.rs
-expression: parse_info
+expression: resource_info
 input_file: fixtures/fragments/js/uses.js
 
 ---
@@ -464,5 +464,5 @@ input_file: fixtures/fragments/js/uses.js
       }
     ]
   ],
-  "code_digest": "1ba586f07cff8c1b0af785dcacad2135740b9131e43cfd05d1c6c12cbe2231f0"
+  "self_digest": "1ba586f07cff8c1b0af785dcacad2135740b9131e43cfd05d1c6c12cbe2231f0"
 }

@@ -1,6 +1,6 @@
 ---
 source: rust/parser-ts/src/lib.rs
-expression: parse_info
+expression: resource_info
 input_file: fixtures/fragments/ts/assigns.ts
 
 ---
@@ -262,5 +262,5 @@ input_file: fixtures/fragments/ts/assigns.ts
       }
     ]
   ],
-  "code_digest": "4e6362587709a03fa3eda204f98ce16c6223c9266a67d2501f92418fe558b58c"
+  "self_digest": "4e6362587709a03fa3eda204f98ce16c6223c9266a67d2501f92418fe558b58c"
 }

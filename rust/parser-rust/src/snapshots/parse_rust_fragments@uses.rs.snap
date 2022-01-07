@@ -1,6 +1,6 @@
 ---
 source: rust/parser-rust/src/lib.rs
-expression: parse_info
+expression: resource_info
 input_file: fixtures/fragments/rust/uses.rs
 
 ---
@@ -58,5 +58,5 @@ input_file: fixtures/fragments/rust/uses.rs
       }
     ]
   ],
-  "code_digest": "d6f5e969bb658d729fa6357976123e1c59f712463ee83d9e9a548befb08fbd6a"
+  "self_digest": "d6f5e969bb658d729fa6357976123e1c59f712463ee83d9e9a548befb08fbd6a"
 }

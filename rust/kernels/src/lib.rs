@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
 
+use graph_triples::ResourceInfo;
 #[allow(unused_imports)]
 use kernel::{
     async_trait::async_trait,
@@ -8,7 +9,6 @@ use kernel::{
     stencila_schema::{CodeError, Node},
     KernelId, KernelInfo, KernelStatus, KernelTrait, TaskId, TaskMessages, TaskOutputs,
 };
-use parser::ParseInfo;
 use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, BTreeMap, HashMap, HashSet, VecDeque},
@@ -417,7 +417,7 @@ pub struct TaskInfo {
     pub code: String,
 
     /// The result of parsing the code
-    pub parse_info: ParseInfo,
+    pub resource_info: ResourceInfo,
 
     /// The id of the kernel that the task was dispatched to
     pub kernel_id: Option<String>,
@@ -519,7 +519,7 @@ impl KernelTasks {
         &mut self,
         task: &Task,
         code: &str,
-        parse_info: &ParseInfo,
+        resource_info: &ResourceInfo,
         kernel_id: &str,
         is_fork: bool,
         is_deferred: bool,
@@ -529,7 +529,7 @@ impl KernelTasks {
         let task_info = TaskInfo {
             num: self.counter,
             code: code.to_string(),
-            parse_info: parse_info.clone(),
+            resource_info: resource_info.clone(),
             kernel_id: Some(kernel_id.to_string()),
             is_fork,
             is_deferred,
@@ -814,7 +814,7 @@ impl KernelSpace {
     pub async fn exec(
         &self,
         code: &str,
-        parse_info: &ParseInfo,
+        resource_info: &ResourceInfo,
         is_fork: bool,
         selector: &KernelSelector,
     ) -> Result<TaskInfo> {
@@ -832,13 +832,14 @@ impl KernelSpace {
         } else {
             let symbols = &mut *self.symbols.lock().await;
             let task =
-                KernelSpace::dispatch_task(code, parse_info, symbols, &kernel_id, kernels).await?;
+                KernelSpace::dispatch_task(code, resource_info, symbols, &kernel_id, kernels)
+                    .await?;
             (false, task)
         };
 
         // Either way, store the task
         let task_info = self
-            .store(&task, code, parse_info, &kernel_id, is_fork, is_deferred)
+            .store(&task, code, resource_info, &kernel_id, is_fork, is_deferred)
             .await;
         Ok(task_info)
     }
@@ -851,13 +852,13 @@ impl KernelSpace {
     #[allow(clippy::too_many_arguments)]
     async fn dispatch_task(
         code: &str,
-        parse_info: &ParseInfo,
+        resource_info: &ResourceInfo,
         symbols: &mut KernelSymbols,
         kernel_id: &str,
         kernels: &mut KernelMap,
     ) -> Result<Task> {
         // Mirror used symbols into the kernel
-        for symbol in parse_info.symbols_used() {
+        for symbol in resource_info.symbols_used() {
             let name = &symbol.name;
             let symbol = match symbols.get_mut(name) {
                 Some(symbol) => symbol,
@@ -898,7 +899,7 @@ impl KernelSpace {
         }
 
         // Execute the code in the kernel
-        let pure = parse_info.is_pure();
+        let pure = resource_info.is_pure();
         let kernel = kernels.get_mut(kernel_id)?;
         let task = if pure {
             kernel.exec_fork(code).await?
@@ -908,7 +909,7 @@ impl KernelSpace {
 
         // Record symbols assigned in kernel (unless it was a fork)
         if !pure {
-            for symbol in parse_info.symbols_modified() {
+            for symbol in resource_info.symbols_modified() {
                 symbols
                     .entry(symbol.name.clone())
                     .and_modify(|info| {
@@ -1036,7 +1037,7 @@ impl KernelSpace {
         // Dispatch the task
         let started_task = KernelSpace::dispatch_task(
             &task_info.code,
-            &task_info.parse_info,
+            &task_info.resource_info,
             symbols,
             kernel_id,
             kernels,
@@ -1107,7 +1108,7 @@ impl KernelSpace {
         &self,
         task: &Task,
         code: &str,
-        parse_info: &ParseInfo,
+        resource_info: &ResourceInfo,
         kernel_id: &str,
         is_fork: bool,
         is_deferred: bool,
@@ -1138,7 +1139,7 @@ impl KernelSpace {
 
         let mut tasks = self.tasks.lock().await;
         tasks
-            .put(task, code, parse_info, kernel_id, is_fork, is_deferred)
+            .put(task, code, resource_info, kernel_id, is_fork, is_deferred)
             .await
     }
 
@@ -1258,9 +1259,9 @@ impl KernelSpace {
 
             // If possible, parse the code so that we can use the relations to determine variables that
             // are assigned or used (needed for variable mirroring).
-            let parse_info = match &language {
+            let resource_info = match &language {
                 Some(language) => parsers::parse("<cli>", &code, language).unwrap_or_default(),
-                None => ParseInfo::default(),
+                None => ResourceInfo::default(),
             };
 
             // Determine the kernel selector
@@ -1290,7 +1291,7 @@ impl KernelSpace {
             };
 
             // Execute the code
-            let mut task_info = self.exec(&code, &parse_info, is_fork, &selector).await?;
+            let mut task_info = self.exec(&code, &resource_info, is_fork, &selector).await?;
 
             if background {
                 // Indicate task is running in background

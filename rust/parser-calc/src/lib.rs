@@ -2,9 +2,9 @@ use once_cell::sync::Lazy;
 use parser::{
     eyre::Result,
     formats::Format,
-    graph_triples::{relations, resources},
+    graph_triples::{relations, resources, ResourceInfo},
     utils::apply_tags,
-    ParseInfo, Parser, ParserTrait,
+    Parser, ParserTrait,
 };
 use regex::Regex;
 use std::path::Path;
@@ -19,7 +19,7 @@ impl ParserTrait for CalcParser {
         }
     }
 
-    fn parse(path: &Path, code: &str) -> Result<ParseInfo> {
+    fn parse(path: &Path, code: &str) -> Result<ResourceInfo> {
         static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*=(.*)").expect("Unable to create regex")
         });
@@ -85,7 +85,7 @@ impl ParserTrait for CalcParser {
                 pairs
             });
 
-        let mut parse_info = ParseInfo {
+        let mut resource_info = ResourceInfo {
             relations: pairs,
             ..Default::default()
         };
@@ -98,15 +98,15 @@ impl ParserTrait for CalcParser {
                 row,
                 line,
                 Some("Number".to_string()),
-                &mut parse_info,
+                &mut resource_info,
             );
         }
 
         // Generate hashes
-        parse_info.code_digest =
-            ParseInfo::sha256_digest(&[semantics, parse_info.is_pure().to_string()].concat());
+        resource_info.self_digest =
+            ResourceInfo::sha256_digest(&[semantics, resource_info.is_pure().to_string()].concat());
 
-        Ok(parse_info)
+        Ok(resource_info)
     }
 }
 
@@ -121,8 +121,8 @@ mod tests {
         snapshot_fixtures("fragments/calc/*.calc", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let parse_info = CalcParser::parse(path, &code).expect("Unable to parse");
-            assert_json_snapshot!(parse_info);
+            let resource_info = CalcParser::parse(path, &code).expect("Unable to parse");
+            assert_json_snapshot!(resource_info);
         })
     }
 }

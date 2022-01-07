@@ -1,6 +1,6 @@
 ---
 source: rust/parser-py/src/lib.rs
-expression: parse_info
+expression: resource_info
 input_file: fixtures/fragments/py/writes.py
 
 ---
@@ -229,5 +229,5 @@ input_file: fixtures/fragments/py/writes.py
       }
     ]
   ],
-  "code_digest": "634fb8a01b4768823fdb32d346c45c6d4e838f185036d32cf9692c67fdeb3423"
+  "self_digest": "634fb8a01b4768823fdb32d346c45c6d4e838f185036d32cf9692c67fdeb3423"
 }

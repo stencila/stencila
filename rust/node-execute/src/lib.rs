@@ -1,7 +1,6 @@
 use eyre::Result;
-use graph_triples::Relations;
+use graph_triples::{Relations, ResourceMap};
 use node_address::{Address, AddressMap};
-use parsers::ParseMap;
 use std::{path::Path, sync::Arc};
 use stencila_schema::*;
 
@@ -35,7 +34,7 @@ pub fn compile(
     node: &mut Node,
     path: &Path,
     project: &Path,
-) -> Result<(AddressMap, Relations, ParseMap)> {
+) -> Result<(AddressMap, Relations, ResourceMap)> {
     let mut address = Address::default();
     let mut context = CompileContext::new(path, project);
     node.compile(&mut address, &mut context)?;
@@ -61,8 +60,8 @@ pub async fn execute(
     kernel_space: Arc<KernelSpace>,
     plan_options: Option<PlanOptions>,
 ) -> Result<()> {
-    let (addresses, relations, parse_info) = compile(node, path, project)?;
-    let mut planner = Planner::new(path, &relations, parse_info, None).await?;
+    let (addresses, relations, resource_info) = compile(node, path, project)?;
+    let mut planner = Planner::new(path, &relations, resource_info, None).await?;
     planner
         .execute(node, &addresses, kernel_space, None, None, plan_options)
         .await
@@ -110,14 +109,14 @@ mod tests {
             let project = path.parent().unwrap();
 
             // Compile the article and snapshot the result
-            let (addresses, relations, parse_info) = compile(&mut article, path, project)?;
+            let (addresses, relations, resource_info) = compile(&mut article, path, project)?;
             snapshot_set_suffix(&[name, "-compile"].concat(), || {
                 assert_json_snapshot!((&addresses, &relations))
             });
 
             // Create an execution planner for the article
             let mut planner =
-                Planner::new(path, &relations, parse_info, Some(kernels.clone())).await?;
+                Planner::new(path, &relations, resource_info, Some(kernels.clone())).await?;
             snapshot_set_suffix(&[name, "-planner"].concat(), || {
                 assert_json_snapshot!(&planner)
             });

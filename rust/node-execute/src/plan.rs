@@ -1,6 +1,5 @@
 use chrono::{DateTime, Utc};
-use graph_triples::{resources, ResourceId};
-use parsers::ParseInfo;
+use graph_triples::{resources, ResourceId, ResourceInfo};
 use serde::Serialize;
 
 /// A step in an execution plan
@@ -25,7 +24,7 @@ pub struct Step {
     pub(crate) kernel_name: Option<String>,
 
     /// The parse info for the code
-    pub(crate) parse_info: Option<ParseInfo>,
+    pub(crate) resource_info: Option<ResourceInfo>,
 
     /// The code will be executed in a fork of the kernel
     ///

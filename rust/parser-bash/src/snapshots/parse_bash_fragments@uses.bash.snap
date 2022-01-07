@@ -1,6 +1,6 @@
 ---
 source: rust/parser-bash/src/lib.rs
-expression: parse_info
+expression: resource_info
 input_file: fixtures/fragments/bash/uses.bash
 
 ---
@@ -92,5 +92,5 @@ input_file: fixtures/fragments/bash/uses.bash
       }
     ]
   ],
-  "code_digest": "6b2a910d9854790bc3c17b21a09a25bbfd59d5febab283902ded1ac28a389d20"
+  "self_digest": "6b2a910d9854790bc3c17b21a09a25bbfd59d5febab283902ded1ac28a389d20"
 }

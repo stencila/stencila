@@ -1,6 +1,6 @@
 ---
 source: rust/parser-js/src/lib.rs
-expression: parse_info
+expression: resource_info
 input_file: fixtures/fragments/js/writes.js
 
 ---
@@ -186,5 +186,5 @@ input_file: fixtures/fragments/js/writes.js
       }
     ]
   ],
-  "code_digest": "754bf63762ca56cc96d4d1ec287abdfc3873776fcf8974e2e20a2a20e436bf22"
+  "self_digest": "754bf63762ca56cc96d4d1ec287abdfc3873776fcf8974e2e20a2a20e436bf22"
 }

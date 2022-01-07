@@ -1,6 +1,6 @@
 ---
 source: rust/parser-calc/src/lib.rs
-expression: parse_info
+expression: resource_info
 input_file: fixtures/fragments/calc/assigns-only.calc
 
 ---
@@ -24,5 +24,5 @@ input_file: fixtures/fragments/calc/assigns-only.calc
       }
     ]
   ],
-  "code_digest": "ef49b3d43d514ec4e5ac1493aa9baee644c196e7d90bdcb21ab851c5f9139081"
+  "self_digest": "ef49b3d43d514ec4e5ac1493aa9baee644c196e7d90bdcb21ab851c5f9139081"
 }

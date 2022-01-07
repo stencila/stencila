@@ -1,11 +1,13 @@
 use async_trait::async_trait;
 use eyre::{eyre, Result};
 use formats::normalize_title;
-use graph_triples::{relations, relations::NULL_RANGE, resources, Relation, Relations, ResourceId};
+use graph_triples::{
+    relations, relations::NULL_RANGE, resources, Relation, Relations, ResourceId, ResourceInfo,
+    ResourceMap,
+};
 use kernels::{KernelSelector, KernelSpace, TaskResult};
 use node_address::{Address, AddressMap, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
-use parsers::{ParseInfo, ParseMap};
 use path_utils::merge;
 use std::{
     collections::{BTreeMap, HashMap},
@@ -44,7 +46,7 @@ pub struct CompileContext {
     pub(crate) relations: Relations,
 
     /// Parse results from parsing code during compilation
-    pub(crate) parse_map: ParseMap,
+    pub(crate) parse_map: ResourceMap,
 }
 
 impl CompileContext {
@@ -71,7 +73,7 @@ impl CompileContext {
 #[derive(Debug, Default)]
 pub struct ExecuteContext {
     /// Parse results from parsing code during compilation
-    pub(crate) parse_info: BTreeMap<ResourceId, ParseInfo>,
+    pub(crate) resource_info: BTreeMap<ResourceId, ResourceInfo>,
 }
 
 /// Trait for executable document nodes
@@ -87,7 +89,7 @@ pub trait Executable {
         &mut self,
         _kernel_space: &KernelSpace,
         _kernel_selector: &KernelSelector,
-        _parse_info: Option<&ParseInfo>,
+        _parse_info: Option<&ResourceInfo>,
         _is_fork: bool,
     ) -> Result<()> {
         Ok(())
@@ -280,12 +282,12 @@ impl Executable for Parameter {
             .or_else(|| self.default.as_deref())
             .map(|node| format!("{:?}", node))
             .unwrap_or_else(|| "".to_string());
-        let parse_info = ParseInfo {
+        let resource_info = ResourceInfo {
             relations,
-            code_digest: ParseInfo::sha256_digest(&value),
+            self_digest: ResourceInfo::sha256_digest(&value),
             ..Default::default()
         };
-        context.parse_map.insert(resource_id, parse_info);
+        context.parse_map.insert(resource_id, resource_info);
 
         Ok(())
     }
@@ -294,7 +296,7 @@ impl Executable for Parameter {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        _parse_info: Option<&ParseInfo>,
+        _parse_info: Option<&ResourceInfo>,
         _is_fork: bool,
     ) -> Result<()> {
         tracing::debug!("Executing `Parameter`");
@@ -320,11 +322,11 @@ impl Executable for CodeChunk {
         let id = identify!("cc", self, address, context);
         let lang = langify!(self, context);
 
-        let parse_info = match parsers::parse(&context.path, &self.text, &lang) {
-            Ok(parse_info) => parse_info,
+        let resource_info = match parsers::parse(&context.path, &self.text, &lang) {
+            Ok(resource_info) => resource_info,
             Err(error) => {
                 tracing::debug!("While parsing code chunk `{}`: {}", id, error);
-                ParseInfo::default()
+                ResourceInfo::default()
             }
         };
 
@@ -333,9 +335,9 @@ impl Executable for CodeChunk {
 
         context
             .relations
-            .push((subject, parse_info.relations.clone()));
+            .push((subject, resource_info.relations.clone()));
 
-        context.parse_map.insert(resource_id, parse_info);
+        context.parse_map.insert(resource_id, resource_info);
 
         Ok(())
     }
@@ -344,16 +346,16 @@ impl Executable for CodeChunk {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        parse_info: Option<&ParseInfo>,
+        resource_info: Option<&ResourceInfo>,
         is_fork: bool,
     ) -> Result<()> {
         tracing::debug!("Executing `CodeChunk`");
 
-        let parse_info =
-            parse_info.ok_or_else(|| eyre!("Parse info is required to execute CodeChunk"))?;
+        let resource_info =
+            resource_info.ok_or_else(|| eyre!("Parse info is required to execute CodeChunk"))?;
 
         let mut task = kernel_space
-            .exec(&self.text, parse_info, is_fork, kernel_selector)
+            .exec(&self.text, resource_info, is_fork, kernel_selector)
             .await?;
 
         let TaskResult {
@@ -391,11 +393,11 @@ impl Executable for CodeExpression {
         let id = identify!("ce", self, address, context);
         let lang = langify!(self, context);
 
-        let parse_info = match parsers::parse(&context.path, &self.text, &lang) {
-            Ok(parse_info) => parse_info,
+        let resource_info = match parsers::parse(&context.path, &self.text, &lang) {
+            Ok(resource_info) => resource_info,
             Err(error) => {
                 tracing::debug!("While parsing code expression `{}`: {}", id, error);
-                ParseInfo::default()
+                ResourceInfo::default()
             }
         };
 
@@ -409,9 +411,9 @@ impl Executable for CodeExpression {
 
         context
             .relations
-            .push((subject, parse_info.relations.clone()));
+            .push((subject, resource_info.relations.clone()));
 
-        context.parse_map.insert(resource_id, parse_info);
+        context.parse_map.insert(resource_id, resource_info);
 
         Ok(())
     }
@@ -420,16 +422,16 @@ impl Executable for CodeExpression {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        parse_info: Option<&ParseInfo>,
+        resource_info: Option<&ResourceInfo>,
         is_fork: bool,
     ) -> Result<()> {
         tracing::debug!("Executing `CodeExpression`");
 
-        let parse_info =
-            parse_info.ok_or_else(|| eyre!("Parse info is required to execute CodeExpression"))?;
+        let resource_info = resource_info
+            .ok_or_else(|| eyre!("Parse info is required to execute CodeExpression"))?;
 
         let mut task = kernel_space
-            .exec(&self.text, parse_info, is_fork, kernel_selector)
+            .exec(&self.text, resource_info, is_fork, kernel_selector)
             .await?;
 
         let TaskResult {
@@ -460,8 +462,8 @@ impl Executable for SoftwareSourceCode {
             (self.text.as_deref(), self.programming_language.as_deref())
         {
             let subject = resources::file(&context.path);
-            let parse_info = parsers::parse(&context.path, text, programming_language)?;
-            context.relations.push((subject, parse_info.relations));
+            let resource_info = parsers::parse(&context.path, text, programming_language)?;
+            context.relations.push((subject, resource_info.relations));
         }
 
         Ok(())
@@ -562,7 +564,7 @@ impl Executable for Node {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        parse_info: Option<&ParseInfo>,
+        resource_info: Option<&ResourceInfo>,
         is_fork: bool,
     ) -> Result<()> {
         dispatch_node!(
@@ -571,7 +573,7 @@ impl Executable for Node {
             execute,
             kernel_space,
             kernel_selector,
-            parse_info,
+            resource_info,
             is_fork
         )
         .await
@@ -588,7 +590,7 @@ impl Executable for CreativeWorkTypes {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        parse_info: Option<&ParseInfo>,
+        resource_info: Option<&ResourceInfo>,
         is_fork: bool,
     ) -> Result<()> {
         dispatch_work!(
@@ -596,7 +598,7 @@ impl Executable for CreativeWorkTypes {
             execute,
             kernel_space,
             kernel_selector,
-            parse_info,
+            resource_info,
             is_fork
         )
         .await
@@ -613,7 +615,7 @@ impl Executable for BlockContent {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        parse_info: Option<&ParseInfo>,
+        resource_info: Option<&ResourceInfo>,
         is_fork: bool,
     ) -> Result<()> {
         dispatch_block!(
@@ -621,7 +623,7 @@ impl Executable for BlockContent {
             execute,
             kernel_space,
             kernel_selector,
-            parse_info,
+            resource_info,
             is_fork
         )
         .await
@@ -638,7 +640,7 @@ impl Executable for InlineContent {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        parse_info: Option<&ParseInfo>,
+        resource_info: Option<&ResourceInfo>,
         is_fork: bool,
     ) -> Result<()> {
         dispatch_inline!(
@@ -646,7 +648,7 @@ impl Executable for InlineContent {
             execute,
             kernel_space,
             kernel_selector,
-            parse_info,
+            resource_info,
             is_fork
         )
         .await
@@ -670,12 +672,12 @@ where
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        parse_info: Option<&ParseInfo>,
+        resource_info: Option<&ResourceInfo>,
         is_fork: bool,
     ) -> Result<()> {
         if let Some(value) = self {
             value
-                .execute(kernel_space, kernel_selector, parse_info, is_fork)
+                .execute(kernel_space, kernel_selector, resource_info, is_fork)
                 .await
         } else {
             Ok(())
@@ -696,11 +698,11 @@ where
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        parse_info: Option<&ParseInfo>,
+        resource_info: Option<&ResourceInfo>,
         is_fork: bool,
     ) -> Result<()> {
         (**self)
-            .execute(kernel_space, kernel_selector, parse_info, is_fork)
+            .execute(kernel_space, kernel_selector, resource_info, is_fork)
             .await
     }
 }
@@ -723,11 +725,11 @@ where
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        parse_info: Option<&ParseInfo>,
+        resource_info: Option<&ResourceInfo>,
         is_fork: bool,
     ) -> Result<()> {
         for item in self.iter_mut() {
-            item.execute(kernel_space, kernel_selector, parse_info, is_fork)
+            item.execute(kernel_space, kernel_selector, resource_info, is_fork)
                 .await?;
         }
         Ok(())
@@ -752,11 +754,11 @@ macro_rules! executable_fields {
                 &mut self,
                 kernel_space: &KernelSpace,
                 kernel_selector: &KernelSelector,
-                parse_info: Option<&ParseInfo>,
+                resource_info: Option<&ResourceInfo>,
                 is_fork: bool,
             ) -> Result<()> {
                 $(
-                    self.$field.execute(kernel_space, kernel_selector, parse_info, is_fork).await?;
+                    self.$field.execute(kernel_space, kernel_selector, resource_info, is_fork).await?;
                 )*
                 Ok(())
             }
@@ -827,12 +829,12 @@ macro_rules! executable_variants {
                 &mut self,
                 kernel_space: &KernelSpace,
                 kernel_selector: &KernelSelector,
-                parse_info: Option<&ParseInfo>,
+                resource_info: Option<&ResourceInfo>,
                 is_fork: bool,
             ) -> Result<()> {
                 match self {
                     $(
-                        $variant(node) => node.execute(kernel_space, kernel_selector, parse_info, is_fork).await,
+                        $variant(node) => node.execute(kernel_space, kernel_selector, resource_info, is_fork).await,
                     )*
                 }
             }

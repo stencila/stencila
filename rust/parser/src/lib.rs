@@ -1,9 +1,7 @@
 use eyre::Result;
-use graph_triples::{resources::Symbol, Pairs, Relation, Resource, ResourceId};
-use hash_utils::str_sha256_hex;
+use graph_triples::ResourceInfo;
 use serde::{Deserialize, Serialize};
-use serde_with::skip_serializing_none;
-use std::{collections::BTreeMap, fmt::Display, path::Path};
+use std::path::Path;
 
 // Export and re-export for the convenience of crates that implement a parser
 pub mod utils;
@@ -35,84 +33,6 @@ pub trait ParserTrait {
     /// Get the [`Parser`] specification
     fn spec() -> Parser;
 
-    /// Parse some code and return a set of graph pairs
-    fn parse(path: &Path, code: &str) -> Result<ParseInfo>;
+    /// Parse some code into a [`ResourceInfo`] object
+    fn parse(path: &Path, code: &str) -> Result<ResourceInfo>;
 }
-
-/// The result of parsing
-#[skip_serializing_none]
-#[derive(Debug, Clone, Default, Serialize)]
-pub struct ParseInfo {
-    /// Whether the code had an explicit `@pure` or `@impure` tag
-    pub pure: Option<bool>,
-
-    /// The [`Relation`]-[`Resource`] pairs between the code and other resources
-    /// (e.g. `Symbol`s, `File`s)
-    pub relations: Pairs,
-
-    /// A digest of the code that was parsed
-    ///
-    /// Preferably derived from the AST of the code and should only change
-    /// when the semantics of the code (including tags in comments) change.
-    pub code_digest: String,
-}
-
-impl ParseInfo {
-    /// Create a SHA256 hash digest from a value
-    pub fn sha256_digest<T: Display>(value: &T) -> String {
-        str_sha256_hex(&value.to_string())
-    }
-
-    /// Is the parsed code pure (i.e. has no side effects)?
-    ///
-    /// If the code has not been explicitly tagged as `@pure` or `@impure` then
-    /// returns `true` if there are any side-effect causing relations.
-    pub fn is_pure(&self) -> bool {
-        self.pure.unwrap_or_else(|| {
-            self.relations
-                .iter()
-                .filter(|(relation, ..)| {
-                    matches!(
-                        relation,
-                        Relation::Assign(..)
-                            | Relation::Alter(..)
-                            | Relation::Import(..)
-                            | Relation::Write(..)
-                    )
-                })
-                .count()
-                == 0
-        })
-    }
-
-    /// Get a list of symbols used by the parsed code
-    pub fn symbols_used(&self) -> Vec<Symbol> {
-        self.relations
-            .iter()
-            .filter_map(|pair| match pair {
-                (Relation::Use(..), Resource::Symbol(symbol)) => Some(symbol),
-                _ => None,
-            })
-            .cloned()
-            .collect()
-    }
-
-    /// Get a list of symbols modified by the code
-    pub fn symbols_modified(&self) -> Vec<Symbol> {
-        self.relations
-            .iter()
-            .filter_map(|pair| match pair {
-                (Relation::Assign(..), Resource::Symbol(symbol))
-                | (Relation::Alter(..), Resource::Symbol(symbol)) => Some(symbol),
-                _ => None,
-            })
-            .cloned()
-            .collect()
-    }
-}
-
-/// A map of node ids to their `ParseInfo`
-///
-/// A `BTreeMap` is used instead of a `HashMap` for determinism in order
-/// of entries.
-pub type ParseMap = BTreeMap<ResourceId, ParseInfo>;

@@ -2007,6 +2007,7 @@ version = "0.0.0"
 dependencies = [
  "derivative",
  "eyre",
+ "hash-utils",
  "path-slash",
  "schemars",
  "serde",
@@ -3528,7 +3529,6 @@ dependencies = [
  "eyre",
  "formats",
  "graph-triples",
- "hash-utils",
  "once_cell",
  "regex",
  "serde",

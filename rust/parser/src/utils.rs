@@ -5,11 +5,11 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::{Path, PathBuf};
 
-use crate::ParseInfo;
+use crate::ResourceInfo;
 
-/// Apply comment tags to a [`ParseInfo`] object.
+/// Apply comment tags to a [`ResourceInfo`] object.
 ///
-/// Parses tags from a comment and updates the supplied [`ParseInfo`]. This pattern is
+/// Parses tags from a comment and updates the supplied [`ResourceInfo`]. This pattern is
 /// used because (a) the parse info may already be partially populated based on semantic
 /// analysis of the code (which comments wish to override), and (b) there might be multiple
 /// comments in a code resources each with (potentially overriding) tags
@@ -30,7 +30,7 @@ pub fn apply_tags(
     row: usize,
     comment: &str,
     kind: Option<String>,
-    parse_info: &mut ParseInfo,
+    resource_info: &mut ResourceInfo,
 ) {
     static REGEX_TAGS: Lazy<Regex> = Lazy::new(|| {
         Regex::new(r"@(imports|assigns|alters|uses|reads|writes|pure|impure)((?:\s+).*?)?(\*/)?$")
@@ -48,11 +48,11 @@ pub fn apply_tags(
 
             let relation = match tag.as_str() {
                 "pure" => {
-                    parse_info.pure = Some(true);
+                    resource_info.pure = Some(true);
                     continue;
                 }
                 "impure" => {
-                    parse_info.pure = Some(false);
+                    resource_info.pure = Some(false);
                     continue;
                 }
                 "imports" => relations::uses(range),
@@ -90,7 +90,7 @@ pub fn apply_tags(
 
     // Remove existing pairs for relation types where the `only` keyword is present in tags
     for only in onlies {
-        parse_info.relations.retain(|(relation, _resource)| {
+        resource_info.relations.retain(|(relation, _resource)| {
             !(matches!(relation, Relation::Import(..)) && only == "imports"
                 || matches!(relation, Relation::Assign(..)) && only == "assigns"
                 || matches!(relation, Relation::Alter(..)) && only == "alters"
@@ -101,7 +101,7 @@ pub fn apply_tags(
     }
 
     // Append pairs from tags
-    parse_info.relations.append(&mut pairs);
+    resource_info.relations.append(&mut pairs);
 }
 
 /// Is some text quoted?

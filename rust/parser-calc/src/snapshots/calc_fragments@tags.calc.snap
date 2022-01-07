@@ -1,11 +1,10 @@
 ---
 source: rust/parser-calc/src/lib.rs
-expression: parse_info
+expression: resource_info
 input_file: fixtures/fragments/calc/tags.calc
 
 ---
 {
-  "pure": false,
   "relations": [
     [
       {
@@ -42,5 +41,6 @@ input_file: fixtures/fragments/calc/tags.calc
       }
     ]
   ],
-  "code_digest": "da157ea96acaaba5922c57271929d8c96eaf4ecbdaa8b9b04bcf9266cdfa8eb9"
+  "pure": false,
+  "self_digest": "da157ea96acaaba5922c57271929d8c96eaf4ecbdaa8b9b04bcf9266cdfa8eb9"
 }

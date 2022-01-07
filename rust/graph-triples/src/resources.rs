@@ -1,10 +1,17 @@
 use derivative::Derivative;
 use eyre::Result;
+use hash_utils::str_sha256_hex;
 use path_slash::PathExt;
 use schemars::JsonSchema;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::path::{Path, PathBuf};
+use std::{
+    collections::BTreeMap,
+    fmt::Display,
+    path::{Path, PathBuf},
+};
+
+use crate::{Pairs, Relation};
 
 /// A resource in a dependency graph (the nodes of the graph)
 #[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
@@ -57,6 +64,96 @@ impl Resource {
         }
     }
 }
+
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct ResourceInfo {
+    /// The [`Relation`]-[`Resource`] pairs between the resource (the "subject") and
+    /// other resources (the "objects").
+    ///
+    /// This is the primary data used to build the dependency graph between resources.
+    pub relations: Pairs,
+
+    /// Whether the resource is explicitly marked as pure or impure
+    ///
+    /// Pure resources do not modify other resources (i.e. they have no side effects).
+    /// This can be determined from whether the resource has any `Assign`, `Alter` or `Write`
+    /// relations. Additionally, the user may mark the resource as pure or impure
+    /// for example, by using `@pure` or `@impure` tags in code comments.
+    pub pure: Option<bool>,
+
+    /// A digest of the resource itself
+    ///
+    /// This digest is intended to capture the "semantic intent" of the resource
+    /// with respect to the dependency graph. For example, for `Code` resources
+    /// it is preferably derived from the AST of the code and should only change
+    /// when the semantics of the code change. For `File` resources, this may be
+    /// a hash digest of the entire file or of it's modification time.
+    pub self_digest: String,
+}
+
+impl ResourceInfo {
+    /// Create a SHA256 hash digest from a value
+    /// 
+    /// Suitable for use when generating the `_digest` properties of a [`ResourceInfo`]
+    /// object.
+    pub fn sha256_digest<T: Display>(value: &T) -> String {
+        str_sha256_hex(&value.to_string())
+    }
+
+    /// Is the resource pure (i.e. has no side effects)?
+    ///
+    /// If the resource has not been explicitly tagged as pure or impure then
+    /// returns `true` if there are any side-effect causing relations.
+    pub fn is_pure(&self) -> bool {
+        self.pure.unwrap_or_else(|| {
+            self.relations
+                .iter()
+                .filter(|(relation, ..)| {
+                    matches!(
+                        relation,
+                        Relation::Assign(..)
+                            | Relation::Alter(..)
+                            | Relation::Import(..)
+                            | Relation::Write(..)
+                    )
+                })
+                .count()
+                == 0
+        })
+    }
+
+    /// Get a list of symbols used by the resource
+    pub fn symbols_used(&self) -> Vec<Symbol> {
+        self.relations
+            .iter()
+            .filter_map(|pair| match pair {
+                (Relation::Use(..), Resource::Symbol(symbol)) => Some(symbol),
+                _ => None,
+            })
+            .cloned()
+            .collect()
+    }
+
+    /// Get a list of symbols modified by the resource
+    pub fn symbols_modified(&self) -> Vec<Symbol> {
+        self.relations
+            .iter()
+            .filter_map(|pair| match pair {
+                (Relation::Assign(..), Resource::Symbol(symbol))
+                | (Relation::Alter(..), Resource::Symbol(symbol)) => Some(symbol),
+                _ => None,
+            })
+            .cloned()
+            .collect()
+    }
+}
+
+/// A map of node ids to their `ResourceInfo`
+///
+/// A `BTreeMap` is used instead of a `HashMap` for determinism in order
+/// of entries.
+pub type ResourceMap = BTreeMap<ResourceId, ResourceInfo>;
 
 /// A summary of the dependencies of a resource in a dependency graph
 #[derive(Debug, Clone, Serialize)]

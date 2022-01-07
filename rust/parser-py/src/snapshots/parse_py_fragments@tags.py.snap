@@ -1,6 +1,6 @@
 ---
 source: rust/parser-py/src/lib.rs
-expression: parse_info
+expression: resource_info
 input_file: fixtures/fragments/py/tags.py
 
 ---
@@ -118,5 +118,5 @@ input_file: fixtures/fragments/py/tags.py
       }
     ]
   ],
-  "code_digest": "8736c45a5c9c818f06016f3e0fd427f701ec869c4f1252f9fc076474a6f10101"
+  "self_digest": "8736c45a5c9c818f06016f3e0fd427f701ec869c4f1252f9fc076474a6f10101"
 }

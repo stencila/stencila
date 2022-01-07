@@ -218,7 +218,7 @@ expression: "&planner"
           }
         ]
       ],
-      "code_digest": "e06b6287fefb278647c92335025955764c3536c8f19a56d267ce058fbc0777fe"
+      "self_digest": "e06b6287fefb278647c92335025955764c3536c8f19a56d267ce058fbc0777fe"
     },
     "code://articles/code-relations.md#cc-2": {
       "relations": [
@@ -240,7 +240,7 @@ expression: "&planner"
           }
         ]
       ],
-      "code_digest": "9f6546a7c0efee8e71ad84a49ad79795370a269f808664517e83fe40d9a00ac2"
+      "self_digest": "9f6546a7c0efee8e71ad84a49ad79795370a269f808664517e83fe40d9a00ac2"
     },
     "code://articles/code-relations.md#cc-3": {
       "relations": [
@@ -279,7 +279,7 @@ expression: "&planner"
           }
         ]
       ],
-      "code_digest": "8681e1dcec83472c718e8034c38c6262579b16b6461f9e26c477e3bd5ba843b1"
+      "self_digest": "8681e1dcec83472c718e8034c38c6262579b16b6461f9e26c477e3bd5ba843b1"
     },
     "code://articles/code-relations.md#cc-4": {
       "relations": [
@@ -335,7 +335,7 @@ expression: "&planner"
           }
         ]
       ],
-      "code_digest": "a3cdd0bc4b3db2b050c57b1591fbaf16b07fbaad589a5e5e273fe0aba426c7e8"
+      "self_digest": "a3cdd0bc4b3db2b050c57b1591fbaf16b07fbaad589a5e5e273fe0aba426c7e8"
     },
     "code://articles/code-relations.md#ce-1": {
       "relations": [
@@ -357,7 +357,7 @@ expression: "&planner"
           }
         ]
       ],
-      "code_digest": "0d6ff42a4e75b9ddd23a499d6b200455b8d98fbf15d04641bda9d67aaf1c3bd8"
+      "self_digest": "0d6ff42a4e75b9ddd23a499d6b200455b8d98fbf15d04641bda9d67aaf1c3bd8"
     },
     "code://articles/code-relations.md#ce-2": {
       "relations": [
@@ -379,7 +379,7 @@ expression: "&planner"
           }
         ]
       ],
-      "code_digest": "6d2d22d2b42937f1d22bbc508e06ec315090fcd91f4cc635030d0f578d4ebd22"
+      "self_digest": "6d2d22d2b42937f1d22bbc508e06ec315090fcd91f4cc635030d0f578d4ebd22"
     },
     "code://articles/code-relations.md#ce-3": {
       "relations": [
@@ -401,7 +401,7 @@ expression: "&planner"
           }
         ]
       ],
-      "code_digest": "18405335fbaa0a1c6ad71ba87083f4e57c9d1742cdf93a60e7e2fe80f8a08f19"
+      "self_digest": "18405335fbaa0a1c6ad71ba87083f4e57c9d1742cdf93a60e7e2fe80f8a08f19"
     },
     "code://articles/code-relations.md#ce-4": {
       "relations": [
@@ -423,7 +423,7 @@ expression: "&planner"
           }
         ]
       ],
-      "code_digest": "bc8baaf9e697936a869d3bdcf4e60b44b96117f6efad09e3236848276fae0fd7"
+      "self_digest": "bc8baaf9e697936a869d3bdcf4e60b44b96117f6efad09e3236848276fae0fd7"
     },
     "code://articles/code-relations.md#pa-1": {
       "relations": [
@@ -445,7 +445,7 @@ expression: "&planner"
           }
         ]
       ],
-      "code_digest": "d96363b310b0db1bf9a66221363c5e1db946342a9455000c8e571dded86a5a80"
+      "self_digest": "d96363b310b0db1bf9a66221363c5e1db946342a9455000c8e571dded86a5a80"
     }
   },
   "kernels": [

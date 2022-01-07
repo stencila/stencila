@@ -1,11 +1,10 @@
 ---
 source: rust/parser-r/src/lib.rs
-expression: parse_info
+expression: resource_info
 input_file: fixtures/fragments/r/tags.R
 
 ---
 {
-  "pure": false,
   "relations": [
     [
       {
@@ -151,5 +150,6 @@ input_file: fixtures/fragments/r/tags.R
       }
     ]
   ],
-  "code_digest": "fac603e436b0b2675b9e3252ea46e7d36d72604a4e4185bc57148caebfdb93f2"
+  "pure": false,
+  "self_digest": "fac603e436b0b2675b9e3252ea46e7d36d72604a4e4185bc57148caebfdb93f2"
 }

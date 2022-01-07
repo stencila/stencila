@@ -2,20 +2,20 @@ use formats::{match_name, Format};
 use once_cell::sync::Lazy;
 use parser::{
     eyre::{bail, Result},
-    graph_triples::{Pairs, Relation},
+    graph_triples::{Pairs, Relation, ResourceInfo},
     ParserTrait,
 };
 use std::sync::Arc;
 use std::{collections::BTreeMap, path::Path};
 
 // Re-exports
-pub use parser::{ParseInfo, ParseMap, Parser};
+pub use parser::Parser;
 
 // The following high level functions hide the implementation
 // detail of having a static list of parsers. They are intended as the
 // only public interface for this crate.
 
-pub fn parse<P: AsRef<Path>>(path: P, code: &str, language: &str) -> Result<ParseInfo> {
+pub fn parse<P: AsRef<Path>>(path: P, code: &str, language: &str) -> Result<ResourceInfo> {
     PARSERS.parse(path, code, language)
 }
 
@@ -48,7 +48,7 @@ macro_rules! dispatch_builtins {
             #[cfg(feature = "parser-ts")]
             Format::TypeScript => Some(parser_ts::TsParser::$method($($arg),*)),
             // Fallback to empty result
-            _ => Option::<Result<ParseInfo>>::None
+            _ => Option::<Result<ResourceInfo>>::None
         }
     };
 }
@@ -102,11 +102,11 @@ impl Parsers {
     }
 
     /// Parse code in a particular language
-    fn parse<P: AsRef<Path>>(&self, path: P, code: &str, language: &str) -> Result<ParseInfo> {
+    fn parse<P: AsRef<Path>>(&self, path: P, code: &str, language: &str) -> Result<ResourceInfo> {
         let path = path.as_ref();
         let format = match_name(language);
 
-        let parse_info = if let Some(result) = dispatch_builtins!(format, parse, path, code) {
+        let resource_info = if let Some(result) = dispatch_builtins!(format, parse, path, code) {
             result?
         } else {
             bail!(
@@ -116,8 +116,8 @@ impl Parsers {
         };
 
         // Normalize pairs by removing any `Uses` of locally assigned variables
-        let mut normalized: Pairs = Vec::with_capacity(parse_info.relations.len());
-        for (relation, object) in parse_info.relations {
+        let mut normalized: Pairs = Vec::with_capacity(resource_info.relations.len());
+        for (relation, object) in resource_info.relations {
             let mut include = true;
             if matches!(relation, Relation::Use(..)) {
                 for (other_relation, other_object) in &normalized {
@@ -134,9 +134,9 @@ impl Parsers {
             normalized.push((relation, object))
         }
 
-        Ok(ParseInfo {
+        Ok(ResourceInfo {
             relations: normalized,
-            ..parse_info
+            ..resource_info
         })
     }
 }
@@ -284,11 +284,11 @@ mod tests {
     #[cfg(feature = "parser-calc")]
     fn test_parse() -> Result<()> {
         let path = PathBuf::from("<test>");
-        let parse_info = parse(&path, "a = 1\nb = a * a", "calc")?;
-        assert!(matches!(parse_info.pure, None));
-        assert!(!parse_info.is_pure());
+        let resource_info = parse(&path, "a = 1\nb = a * a", "calc")?;
+        assert!(matches!(resource_info.pure, None));
+        assert!(!resource_info.is_pure());
         assert_json_eq!(
-            parse_info.relations,
+            resource_info.relations,
             vec![
                 (
                     relations::assigns((0, 0, 0, 1)),

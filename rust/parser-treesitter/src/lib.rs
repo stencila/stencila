@@ -1,5 +1,5 @@
 use parser::{
-    graph_triples::{relations::Range, Pairs},
+    graph_triples::{relations::Range, Pairs, ResourceInfo},
     utils::apply_tags,
 };
 use std::{collections::HashMap, path::Path, sync::Mutex};
@@ -189,7 +189,7 @@ pub fn child_text<'tree>(
         .unwrap_or("")
 }
 
-/// Create a [`ParseInfo`] instance from a Treesitter parse tree and pattern matches
+/// Create a [`ResourceInfo`] instance from a Treesitter parse tree and pattern matches
 ///
 /// Applies manual tags (e.g. `@uses`) in a comments to the relations derived from
 /// semantic code analysis.
@@ -206,23 +206,23 @@ pub fn child_text<'tree>(
 /// Assumes that the first capture has the text content of the comment.
 /// If the tag ends in `only` then all existing relations of that type
 /// will be removed from `relations`.
-pub fn parse_info(
+pub fn resource_info(
     path: &Path,
     lang: &str,
     code: &[u8],
     matches: Vec<(usize, Vec<Capture>)>,
     comment_pattern: usize,
     relations: Pairs,
-) -> ParseInfo {
+) -> ResourceInfo {
     // Remove carriage returns from code to avoid cross platform
     // differences in code before calculating digest
     let code = std::str::from_utf8(code)
         .unwrap_or_default()
         .replace("\r", "");
 
-    let mut parse_info = ParseInfo {
+    let mut resource_info = ResourceInfo {
         relations,
-        code_digest: ParseInfo::sha256_digest(&code),
+        self_digest: ResourceInfo::sha256_digest(&code),
         ..Default::default()
     };
 
@@ -238,9 +238,9 @@ pub fn parse_info(
             comment.range.0,
             &comment.text,
             None,
-            &mut parse_info,
+            &mut resource_info,
         )
     }
 
-    parse_info
+    resource_info
 }

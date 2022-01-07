@@ -6,12 +6,11 @@ use chrono::Utc;
 use eyre::{bail, Result};
 use futures::{stream::FuturesUnordered, StreamExt};
 use graph::Graph;
-use graph_triples::{Relations, Resource, ResourceDependencies, ResourceId};
+use graph_triples::{Relations, Resource, ResourceDependencies, ResourceId, ResourceMap};
 use kernels::{Kernel, KernelSelector, KernelSpace};
 use node_address::AddressMap;
 use node_patch::{apply, diff, Patch};
 use node_pointer::resolve;
-use parsers::ParseMap;
 use serde::Serialize;
 use std::{
     collections::{BTreeMap, HashSet},
@@ -51,7 +50,7 @@ pub struct Planner {
     topological_order: Vec<ResourceDependencies>,
 
     /// The parsing results for code resources
-    parse_map: ParseMap,
+    parse_map: ResourceMap,
 
     /// The kernels that are available to execute nodes
     kernels: Vec<Kernel>,
@@ -70,7 +69,7 @@ impl Planner {
     pub async fn new(
         path: &Path,
         relations: &Relations,
-        parse_map: ParseMap,
+        parse_map: ResourceMap,
         kernels: Option<Vec<Kernel>>,
     ) -> Result<Planner> {
         let mut planner = Planner::default();
@@ -91,7 +90,7 @@ impl Planner {
         &mut self,
         path: &Path,
         relations: &Relations,
-        parse_map: ParseMap,
+        parse_map: ResourceMap,
         kernels: Option<Vec<Kernel>>,
     ) -> Result<()> {
         // Get the appearance order from `relations`
@@ -172,10 +171,10 @@ impl Planner {
 
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
-            let parse_info = self.parse_map.get(resource_id).cloned();
-            let is_pure = parse_info
+            let resource_info = self.parse_map.get(resource_id).cloned();
+            let is_pure = resource_info
                 .as_ref()
-                .map_or(false, |parse_info| parse_info.is_pure());
+                .map_or(false, |resource_info| resource_info.is_pure());
             let is_fork = kernel_forkable && is_pure && stage.steps.len() < options.max_concurrency;
 
             // Create the step and add it to the current stage
@@ -183,7 +182,7 @@ impl Planner {
                 resource_id: resource_id.clone(),
                 code: code.clone(),
                 kernel_name,
-                parse_info,
+                resource_info,
                 is_fork,
             };
             stage.steps.push(step);
@@ -256,9 +255,9 @@ impl Planner {
             for dependency in dependencies {
                 let execute = match self.executed.get(dependency) {
                     Some(step_info) => {
-                        if let Some(parse_info) = self.parse_map.get(dependency) {
-                            if !parse_info.code_digest.is_empty() {
-                                parse_info.code_digest != step_info.execute_digest
+                        if let Some(resource_info) = self.parse_map.get(dependency) {
+                            if !resource_info.self_digest.is_empty() {
+                                resource_info.self_digest != step_info.execute_digest
                             } else {
                                 // No hashes available, so execute (perhaps unnecessarily)
                                 true
@@ -304,10 +303,10 @@ impl Planner {
 
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
-            let parse_info = self.parse_map.get(resource_id).cloned();
-            let is_pure = parse_info
+            let resource_info = self.parse_map.get(resource_id).cloned();
+            let is_pure = resource_info
                 .as_ref()
-                .map_or(false, |parse_info| parse_info.is_pure());
+                .map_or(false, |resource_info| resource_info.is_pure());
             let is_fork = kernel_forkable && is_pure && stage.steps.len() < options.max_concurrency;
 
             // Create the step and add it to the current stage
@@ -315,7 +314,7 @@ impl Planner {
                 resource_id: resource_id.clone(),
                 code: code.clone(),
                 kernel_name,
-                parse_info,
+                resource_info,
                 is_fork,
             };
             stage.steps.push(step);
@@ -370,7 +369,7 @@ impl Planner {
                 let kernel_space = kernel_space.clone();
                 let kernel_selector = KernelSelector::new(step.kernel_name.clone(), None, None);
                 let resource_id = step.resource_id.clone();
-                let parse_info = step.parse_info.clone();
+                let resource_info = step.resource_info.clone();
                 let is_fork = step.is_fork;
 
                 let task = async move {
@@ -387,7 +386,7 @@ impl Planner {
                         .execute(
                             &kernel_space,
                             &kernel_selector,
-                            parse_info.as_ref(),
+                            resource_info.as_ref(),
                             is_fork,
                         )
                         .await
@@ -399,8 +398,10 @@ impl Planner {
 
                             let step_info = StepInfo {
                                 finished: Utc::now(),
-                                execute_digest: parse_info
-                                    .map_or("".to_string(), |parse_info| parse_info.code_digest),
+                                execute_digest: resource_info
+                                    .map_or("".to_string(), |resource_info| {
+                                        resource_info.self_digest
+                                    }),
                             };
 
                             Ok((step_index, resource_id, step_info, patch))
