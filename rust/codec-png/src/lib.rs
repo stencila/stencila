@@ -109,8 +109,8 @@ pub async fn nodes_to_bytes(
 mod tests {
     use super::*;
     use codec::stencila_schema::CodeChunk;
+    use test_utils::tempfile;
 
-    #[cfg(target_os = "linux")]
     #[tokio::test]
     async fn encode() -> super::Result<()> {
         let node = Node::CodeChunk(CodeChunk {

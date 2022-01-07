@@ -70,8 +70,8 @@ impl CodecTrait for PdfCodec {
 mod tests {
     use super::*;
     use codec::stencila_schema::Article;
+    use test_utils::tempfile;
 
-    #[cfg(target_os = "linux")]
     #[tokio::test]
     async fn encode() -> super::Result<()> {
         let node = Node::Article(Article::default());

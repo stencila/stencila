@@ -168,11 +168,10 @@ pub async fn nodes_to_bytes(
 mod tests {
     use super::*;
     use codec::stencila_schema::CodeChunk;
-    use test_utils::assert_json_eq;
+    use test_utils::{assert_json_eq, tempfile};
 
     /// End-to-end test of encoding a node to a PNG and then decoding
     /// it from the PNG. See `../tests/prop.rs` for more intensive end-to-end testing.
-    #[cfg(target_os = "linux")]
     #[tokio::test]
     async fn encode_decode() -> Result<()> {
         let input = Node::CodeChunk(CodeChunk {

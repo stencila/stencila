@@ -885,7 +885,7 @@ dependencies = [
  "codec",
  "codec-html",
  "futures",
- "tempfile",
+ "test-utils",
  "tokio",
 ]
 
@@ -910,7 +910,7 @@ dependencies = [
  "codec",
  "codec-html",
  "futures",
- "tempfile",
+ "test-utils",
  "tokio",
 ]
 
@@ -934,7 +934,6 @@ dependencies = [
  "codec-json",
  "codec-png",
  "png",
- "tempfile",
  "test-props",
  "test-utils",
  "tokio",
@@ -5174,6 +5173,7 @@ version = "0.0.0"
 dependencies = [
  "pretty_assertions",
  "serde_json",
+ "tempfile",
  "tracing",
  "tracing-subscriber 0.3.3",
 ]
