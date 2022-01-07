@@ -330,6 +330,7 @@ dependencies = [
  "tar",
  "tokio",
  "tracing",
+ "url",
  "which",
  "xz2",
  "zip",

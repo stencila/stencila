@@ -341,7 +341,7 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Download a URL (usually an archive) to a temporary, but optionally cached, file
-    #[cfg(feature = "reqwest")]
+    #[cfg(feature = "download")]
     async fn download(&self, url: &str) -> Result<PathBuf> {
         let url_parsed = url::Url::parse(url)?;
         let filename = url_parsed
