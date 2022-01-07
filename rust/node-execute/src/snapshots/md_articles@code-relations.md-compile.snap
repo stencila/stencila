@@ -1,6 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
-expression: "(&addresses, &relations)"
+expression: "(&addresses, &resources)"
 
 ---
 [
@@ -113,15 +113,15 @@ expression: "(&addresses, &relations)"
     ]
   },
   [
-    [
-      {
+    {
+      "resource": {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "cc-1",
         "kind": "CodeChunk",
         "language": "Calc"
       },
-      [
+      "relations": [
         [
           {
             "type": "Assign",
@@ -139,17 +139,18 @@ expression: "(&addresses, &relations)"
             "kind": "Number"
           }
         ]
-      ]
-    ],
-    [
-      {
+      ],
+      "self_digest": "e06b6287fefb278647c92335025955764c3536c8f19a56d267ce058fbc0777fe"
+    },
+    {
+      "resource": {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "cc-2",
         "kind": "CodeChunk",
         "language": "Calc"
       },
-      [
+      "relations": [
         [
           {
             "type": "Use",
@@ -167,17 +168,18 @@ expression: "(&addresses, &relations)"
             "kind": "Number"
           }
         ]
-      ]
-    ],
-    [
-      {
+      ],
+      "self_digest": "9f6546a7c0efee8e71ad84a49ad79795370a269f808664517e83fe40d9a00ac2"
+    },
+    {
+      "resource": {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "ce-1",
         "kind": "CodeExpression",
         "language": "Calc"
       },
-      [
+      "relations": [
         [
           {
             "type": "Use",
@@ -195,17 +197,18 @@ expression: "(&addresses, &relations)"
             "kind": "Number"
           }
         ]
-      ]
-    ],
-    [
-      {
+      ],
+      "self_digest": "0d6ff42a4e75b9ddd23a499d6b200455b8d98fbf15d04641bda9d67aaf1c3bd8"
+    },
+    {
+      "resource": {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "ce-2",
         "kind": "CodeExpression",
         "language": "Calc"
       },
-      [
+      "relations": [
         [
           {
             "type": "Use",
@@ -223,17 +226,18 @@ expression: "(&addresses, &relations)"
             "kind": "Number"
           }
         ]
-      ]
-    ],
-    [
-      {
+      ],
+      "self_digest": "6d2d22d2b42937f1d22bbc508e06ec315090fcd91f4cc635030d0f578d4ebd22"
+    },
+    {
+      "resource": {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "cc-3",
         "kind": "CodeChunk",
         "language": "Calc"
       },
-      [
+      "relations": [
         [
           {
             "type": "Assign",
@@ -268,17 +272,18 @@ expression: "(&addresses, &relations)"
             "kind": "Number"
           }
         ]
-      ]
-    ],
-    [
-      {
+      ],
+      "self_digest": "8681e1dcec83472c718e8034c38c6262579b16b6461f9e26c477e3bd5ba843b1"
+    },
+    {
+      "resource": {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "ce-3",
         "kind": "CodeExpression",
         "language": "Calc"
       },
-      [
+      "relations": [
         [
           {
             "type": "Use",
@@ -296,17 +301,18 @@ expression: "(&addresses, &relations)"
             "kind": "Number"
           }
         ]
-      ]
-    ],
-    [
-      {
+      ],
+      "self_digest": "18405335fbaa0a1c6ad71ba87083f4e57c9d1742cdf93a60e7e2fe80f8a08f19"
+    },
+    {
+      "resource": {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "ce-4",
         "kind": "CodeExpression",
         "language": "Calc"
       },
-      [
+      "relations": [
         [
           {
             "type": "Use",
@@ -324,17 +330,18 @@ expression: "(&addresses, &relations)"
             "kind": "Number"
           }
         ]
-      ]
-    ],
-    [
-      {
+      ],
+      "self_digest": "bc8baaf9e697936a869d3bdcf4e60b44b96117f6efad09e3236848276fae0fd7"
+    },
+    {
+      "resource": {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "pa-1",
         "kind": "Parameter",
         "language": "Calc"
       },
-      [
+      "relations": [
         [
           {
             "type": "Assign",
@@ -352,17 +359,18 @@ expression: "(&addresses, &relations)"
             "kind": "Number"
           }
         ]
-      ]
-    ],
-    [
-      {
+      ],
+      "self_digest": "d96363b310b0db1bf9a66221363c5e1db946342a9455000c8e571dded86a5a80"
+    },
+    {
+      "resource": {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "cc-4",
         "kind": "CodeChunk",
         "language": "Calc"
       },
-      [
+      "relations": [
         [
           {
             "type": "Use",
@@ -414,7 +422,8 @@ expression: "(&addresses, &relations)"
             "kind": "Number"
           }
         ]
-      ]
-    ]
+      ],
+      "self_digest": "a3cdd0bc4b3db2b050c57b1591fbaf16b07fbaad589a5e5e273fe0aba426c7e8"
+    }
   ]
 ]

@@ -2,8 +2,7 @@ use async_trait::async_trait;
 use eyre::{eyre, Result};
 use formats::normalize_title;
 use graph_triples::{
-    relations, relations::NULL_RANGE, resources, Relation, Relations, ResourceId, ResourceInfo,
-    ResourceMap,
+    relations, relations::NULL_RANGE, resources, Relation, ResourceId, ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskResult};
 use node_address::{Address, AddressMap, Slot};
@@ -39,14 +38,10 @@ pub struct CompileContext {
     programming_language: Option<String>,
 
     /// A map of node ids to addresses
-    pub(crate) address_map: AddressMap,
+    pub(crate) addresses: AddressMap,
 
-    /// Relations with other resources for each compiled resource
-    /// in the document.
-    pub(crate) relations: Relations,
-
-    /// Parse results from parsing code during compilation
-    pub(crate) parse_map: ResourceMap,
+    /// A list of resources compiles from the node
+    pub(crate) resources: Vec<ResourceInfo>,
 }
 
 impl CompileContext {
@@ -114,7 +109,7 @@ macro_rules! identify {
             $node.id = Some(Box::new(id.clone()));
             id
         };
-        $context.address_map.insert(id.clone(), $address.clone());
+        $context.addresses.insert(id.clone(), $address.clone());
         id
     }};
 }
@@ -145,7 +140,9 @@ macro_rules! langify {
 impl Executable for Link {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("li", self, address, context);
-        let subject = resources::node(&context.path, &id, "Link");
+
+        let resource = resources::node(&context.path, &id, "Link");
+
         let target = &self.target;
         let object = if target.starts_with("http://") || target.starts_with("https://") {
             resources::url(target)
@@ -153,9 +150,8 @@ impl Executable for Link {
             resources::file(&merge(&context.path, target))
         };
 
-        context
-            .relations
-            .push((subject, vec![(Relation::Link, object)]));
+        let resource_info = ResourceInfo::new(resource, vec![(Relation::Link, object)], None, None);
+        context.resources.push(resource_info);
 
         Ok(())
     }
@@ -215,7 +211,9 @@ macro_rules! executable_media_object {
                 context: &mut CompileContext,
             ) -> Result<()> {
                 let id = identify!($prefix, self, address, context);
-                let subject = resources::node(&context.path, &id, stringify!($type));
+
+                let resource = resources::node(&context.path, &id, stringify!($type));
+
                 let url = executable_content_url(&self.content_url, context);
                 let object = if url.starts_with("http") || url.starts_with("data:") {
                     resources::url(&url)
@@ -223,9 +221,10 @@ macro_rules! executable_media_object {
                     let url = url.strip_prefix("file://").unwrap_or(&url);
                     resources::file(&Path::new(&url))
                 };
-                context
-                    .relations
-                    .push((subject, vec![(Relation::Embed, object)]));
+
+                let resource_info =
+                    ResourceInfo::new(resource, vec![(Relation::Embed, object)], None, None);
+                context.resources.push(resource_info);
 
                 self.content_url = url;
 
@@ -260,7 +259,6 @@ impl Executable for Parameter {
             "Parameter",
             context.programming_language.clone(),
         );
-        let resource_id = resource.id();
 
         let kind = match self.validator.as_deref() {
             Some(ValidatorTypes::BooleanValidator(..)) => "Boolean",
@@ -272,7 +270,6 @@ impl Executable for Parameter {
             _ => "",
         };
         let object = resources::symbol(&context.path, &self.name, kind);
-
         let relations = vec![(relations::assigns(NULL_RANGE), object)];
 
         let value = self
@@ -281,15 +278,14 @@ impl Executable for Parameter {
             .or_else(|| self.default.as_deref())
             .map(|node| format!("{:?}", node))
             .unwrap_or_else(|| "".to_string());
+
         let resource_info = ResourceInfo::new(
-            resource.clone(),
-            relations.clone(),
+            resource,
+            relations,
             Some(ResourceInfo::sha256_digest(&value)),
             None,
         );
-
-        context.relations.push((resource, relations));
-        context.parse_map.insert(resource_id, resource_info);
+        context.resources.push(resource_info);
 
         Ok(())
     }
@@ -325,21 +321,14 @@ impl Executable for CodeChunk {
         let lang = langify!(self, context);
 
         let resource = resources::code(&context.path, &id, "CodeChunk", Some(lang));
-        let resource_info = match parsers::parse(resource.clone(), &self.text) {
+        let resource_info = match parsers::parse(resource, &self.text) {
             Ok(resource_info) => resource_info,
             Err(error) => {
                 tracing::debug!("While parsing code chunk `{}`: {}", id, error);
                 return Ok(());
             }
         };
-
-        let resource_id = resource.id();
-
-        context
-            .relations
-            .push((resource, resource_info.relations.clone()));
-
-        context.parse_map.insert(resource_id, resource_info);
+        context.resources.push(resource_info);
 
         Ok(())
     }
@@ -401,21 +390,14 @@ impl Executable for CodeExpression {
             "CodeExpression",
             Some(normalize_title(&lang)),
         );
-        let resource_info = match parsers::parse(resource.clone(), &self.text) {
+        let resource_info = match parsers::parse(resource, &self.text) {
             Ok(resource_info) => resource_info,
             Err(error) => {
                 tracing::debug!("While parsing code expression `{}`: {}", id, error);
                 return Ok(());
             }
         };
-
-        let resource_id = resource.id();
-
-        context
-            .relations
-            .push((resource, resource_info.relations.clone()));
-
-        context.parse_map.insert(resource_id, resource_info);
+        context.resources.push(resource_info);
 
         Ok(())
     }
@@ -470,8 +452,8 @@ impl Executable for SoftwareSourceCode {
                 "SoftwareSourceCode",
                 Some(language.clone()),
             );
-            let resource_info = parsers::parse(resource.clone(), code)?;
-            context.relations.push((resource, resource_info.relations));
+            let resource_info = parsers::parse(resource, code)?;
+            context.resources.push(resource_info);
         }
 
         Ok(())
@@ -484,13 +466,15 @@ impl Executable for SoftwareSourceCode {
 impl Executable for Include {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         let id = identify!("in", self, address, context);
-        let subject = resources::node(&context.path, &id, "Include");
+
+        let resource = resources::node(&context.path, &id, "Include");
+
         let path = merge(&context.path, &self.source);
         let object = resources::file(&path);
 
-        context
-            .relations
-            .push((subject, vec![(Relation::Include, object)]));
+        let resource_info =
+            ResourceInfo::new(resource, vec![(Relation::Include, object)], None, None);
+        context.resources.push(resource_info);
 
         Ok(())
     }
