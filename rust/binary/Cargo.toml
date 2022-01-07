@@ -19,7 +19,6 @@ serde = { version = "1.0.130", features = ["derive"] }
 semver = "1.0.4"
 tokio = { version = "1.13.0", features = ["process", "macros"] }
 tracing = "0.1.29"
-url = "2.2.2"
 which = "4.2.2"
 
 flate2 = { version = "1.0.22", optional = true }

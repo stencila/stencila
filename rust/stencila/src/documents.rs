@@ -1422,14 +1422,20 @@ pub mod commands {
         Close(Close),
         Show(Show),
 
-        Execute(Execute),
-        Kernels(Kernels),
-        Tasks(Tasks),
-        Queues(Queues),
-        Cancel(Cancel),
-        Symbols(Symbols),
-        Graph(Graph),
+        #[cfg(feature = "kernels/cli")]
+        Execute(kernel_commands::Execute),
+        #[cfg(feature = "kernels/cli")]
+        Kernels(kernel_commands::Kernels),
+        #[cfg(feature = "kernels/cli")]
+        Tasks(kernel_commands::Tasks),
+        #[cfg(feature = "kernels/cli")]
+        Queues(kernel_commands::Queues),
+        #[cfg(feature = "kernels/cli")]
+        Cancel(kernel_commands::Cancel),
+        #[cfg(feature = "kernels/cli")]
+        Symbols(kernel_commands::Symbols),
 
+        Graph(Graph),
         Query(Query),
         Convert(Convert),
         Diff(Diff),
@@ -1447,14 +1453,20 @@ pub mod commands {
                 Action::Close(action) => action.run().await,
                 Action::Show(action) => action.run().await,
 
+                #[cfg(feature = "kernels/cli")]
                 Action::Execute(action) => action.run().await,
+                #[cfg(feature = "kernels/cli")]
                 Action::Kernels(action) => action.run().await,
+                #[cfg(feature = "kernels/cli")]
                 Action::Tasks(action) => action.run().await,
+                #[cfg(feature = "kernels/cli")]
                 Action::Queues(action) => action.run().await,
+                #[cfg(feature = "kernels/cli")]
                 Action::Cancel(action) => action.run().await,
+                #[cfg(feature = "kernels/cli")]
                 Action::Symbols(action) => action.run().await,
-                Action::Graph(action) => action.run().await,
 
+                Action::Graph(action) => action.run().await,
                 Action::Query(action) => action.run().await,
                 Action::Convert(action) => action.run().await,
                 Action::Diff(action) => action.run().await,
@@ -1579,137 +1591,142 @@ pub mod commands {
         }
     }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        alias = "exec",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Execute {
-        #[structopt(flatten)]
-        file: File,
+    // Subcommands that only work if `kernels/cli` feature is enabled
+    #[cfg(feature = "kernels/cli")]
+    mod kernel_commands {
 
-        #[structopt(flatten)]
-        execute: kernels::commands::Execute,
-    }
-    #[async_trait]
-    impl Run for Execute {
-        async fn run(&self) -> Result {
-            let document = self.file.get().await?;
-            let document = document.lock().await;
-            let _kernels = document.kernels.clone();
-            //self.execute.run(&mut kernels).await
-            result::nothing()
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            alias = "exec",
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Execute {
+            #[structopt(flatten)]
+            file: File,
+
+            #[structopt(flatten)]
+            execute: kernels::commands::Execute,
         }
-    }
-
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Kernels {
-        #[structopt(flatten)]
-        file: File,
-
-        #[structopt(flatten)]
-        kernels: kernels::commands::Running,
-    }
-    #[async_trait]
-    impl Run for Kernels {
-        async fn run(&self) -> Result {
-            let document = self.file.get().await?;
-            let document = document.lock().await;
-            let kernels = document.kernels.clone();
-            self.kernels.run(&*kernels).await
+        #[async_trait]
+        impl Run for Execute {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let _kernels = document.kernels.clone();
+                //self.execute.run(&mut kernels).await
+                result::nothing()
+            }
         }
-    }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Tasks {
-        #[structopt(flatten)]
-        file: File,
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Kernels {
+            #[structopt(flatten)]
+            file: File,
 
-        #[structopt(flatten)]
-        tasks: kernels::commands::Tasks,
-    }
-    #[async_trait]
-    impl Run for Tasks {
-        async fn run(&self) -> Result {
-            let document = self.file.get().await?;
-            let document = document.lock().await;
-            let kernels = document.kernels.clone();
-            self.tasks.run(&*kernels).await
+            #[structopt(flatten)]
+            kernels: kernels::commands::Running,
         }
-    }
-
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Queues {
-        #[structopt(flatten)]
-        file: File,
-
-        #[structopt(flatten)]
-        queues: kernels::commands::Queues,
-    }
-    #[async_trait]
-    impl Run for Queues {
-        async fn run(&self) -> Result {
-            let document = self.file.get().await?;
-            let document = document.lock().await;
-            let kernels = document.kernels.clone();
-            self.queues.run(&kernels).await
+        #[async_trait]
+        impl Run for Kernels {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let kernels = document.kernels.clone();
+                self.kernels.run(&*kernels).await
+            }
         }
-    }
 
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Cancel {
-        #[structopt(flatten)]
-        file: File,
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Tasks {
+            #[structopt(flatten)]
+            file: File,
 
-        #[structopt(flatten)]
-        cancel: kernels::commands::Cancel,
-    }
-    #[async_trait]
-    impl Run for Cancel {
-        async fn run(&self) -> Result {
-            let document = self.file.get().await?;
-            let document = document.lock().await;
-            let _kernels = document.kernels.clone();
-            //self.cancel.run(&mut *kernels).await
-            result::nothing()
+            #[structopt(flatten)]
+            tasks: kernels::commands::Tasks,
         }
-    }
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Symbols {
-        #[structopt(flatten)]
-        file: File,
+        #[async_trait]
+        impl Run for Tasks {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let kernels = document.kernels.clone();
+                self.tasks.run(&*kernels).await
+            }
+        }
 
-        #[structopt(flatten)]
-        symbols: kernels::commands::Symbols,
-    }
-    #[async_trait]
-    impl Run for Symbols {
-        async fn run(&self) -> Result {
-            let document = self.file.get().await?;
-            let document = document.lock().await;
-            let kernels = document.kernels.clone();
-            self.symbols.run(&kernels).await
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Queues {
+            #[structopt(flatten)]
+            file: File,
+
+            #[structopt(flatten)]
+            queues: kernels::commands::Queues,
+        }
+        #[async_trait]
+        impl Run for Queues {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let kernels = document.kernels.clone();
+                self.queues.run(&kernels).await
+            }
+        }
+
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Cancel {
+            #[structopt(flatten)]
+            file: File,
+
+            #[structopt(flatten)]
+            cancel: kernels::commands::Cancel,
+        }
+        #[async_trait]
+        impl Run for Cancel {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let _kernels = document.kernels.clone();
+                //self.cancel.run(&mut *kernels).await
+                result::nothing()
+            }
+        }
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Symbols {
+            #[structopt(flatten)]
+            file: File,
+
+            #[structopt(flatten)]
+            symbols: kernels::commands::Symbols,
+        }
+        #[async_trait]
+        impl Run for Symbols {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let kernels = document.kernels.clone();
+                self.symbols.run(&kernels).await
+            }
         }
     }
 

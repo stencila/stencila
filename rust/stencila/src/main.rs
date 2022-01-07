@@ -108,22 +108,23 @@ pub enum Command {
     #[structopt(aliases = &["source"])]
     Sources(sources::commands::Command),
 
+    #[cfg(feature = "codecs/cli")]
     #[structopt(aliases = &["codec"])]
     Codecs(codecs::commands::Command),
 
+    #[cfg(feature = "parsers/cli")]
     #[structopt(aliases = &["parser"])]
     Parsers(parsers::commands::Command),
 
+    #[cfg(feature = "kernels/cli")]
     #[structopt(aliases = &["kernel"])]
     Kernels(kernels::commands::Command),
 
-    Config(config::commands::Command),
-
-    #[cfg(feature = "binaries")]
+    #[cfg(feature = "binaries/cli")]
     #[structopt(aliases = &["binary"])]
     Binaries(binaries::commands::Command),
 
-    #[cfg(feature = "plugins")]
+    #[cfg(feature = "plugins/cli")]
     #[structopt(aliases = &["plugin"])]
     Plugins(stencila::plugins::commands::Command),
 
@@ -133,6 +134,8 @@ pub enum Command {
     #[cfg(feature = "serve")]
     #[structopt(aliases = &["serve"])]
     Server(stencila::serve::commands::Command),
+
+    Config(config::commands::Command),
 }
 
 #[async_trait]
@@ -150,19 +153,24 @@ impl Run for Command {
             Command::Documents(command) => command.run().await,
             Command::Projects(command) => command.run().await,
             Command::Sources(command) => command.run().await,
+            
+            #[cfg(feature = "codecs/cli")]
             Command::Codecs(command) => command.run().await,
+            #[cfg(feature = "parsers/cli")]
             Command::Parsers(command) => command.run().await,
+            #[cfg(feature = "kernels/cli")]
             Command::Kernels(command) => command.run().await,
-            Command::Config(command) => command.run().await,
-
-            #[cfg(feature = "binaries")]
+            #[cfg(feature = "binaries/cli")]
             Command::Binaries(command) => command.run().await,
-            #[cfg(feature = "plugins")]
+            #[cfg(feature = "plugins/cli")]
             Command::Plugins(command) => command.run().await,
+
             #[cfg(feature = "upgrade")]
             Command::Upgrade(command) => command.run().await,
             #[cfg(feature = "serve")]
             Command::Server(command) => command.run().await,
+
+            Command::Config(command) => command.run().await,
         }
     }
 }
@@ -295,8 +303,8 @@ impl Run for OpenCommand {
     }
 
     #[cfg(not(feature = "serve"))]
-    async fn run(self, _context: &mut Context) -> Result {
-        bail!("The `serve` feature has not been enabled")
+    async fn run(&self) -> Result {
+        eyre::bail!("The `serve` feature has not been enabled")
     }
 }
 
