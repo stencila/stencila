@@ -214,9 +214,15 @@ pub fn parse_info(
     comment_pattern: usize,
     relations: Pairs,
 ) -> ParseInfo {
+    // Remove carriage returns from code to avoid cross platform
+    // differences in code before calculating digest
+    let code = std::str::from_utf8(code)
+        .unwrap_or_default()
+        .replace("\r", "");
+
     let mut parse_info = ParseInfo {
         relations,
-        code_digest: ParseInfo::sha256_digest(&std::str::from_utf8(code).unwrap_or_default()),
+        code_digest: ParseInfo::sha256_digest(&code),
         ..Default::default()
     };
 
