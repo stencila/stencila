@@ -1,12 +1,9 @@
 use eyre::Result;
 use graph_triples::{resources::Symbol, Pairs, Relation, Resource, ResourceId};
+use hash_utils::str_sha256_hex;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::{
-    collections::{hash_map::DefaultHasher, BTreeMap},
-    hash::{Hash, Hasher},
-    path::Path,
-};
+use std::{collections::BTreeMap, fmt::Display, path::Path};
 
 // Export and re-export for the convenience of crates that implement a parser
 pub mod utils;
@@ -53,22 +50,17 @@ pub struct ParseInfo {
     /// (e.g. `Symbol`s, `File`s)
     pub relations: Pairs,
 
-    /// A hash of the code that was parsed
-    pub code_hash: u64,
-
-    /// A "semantic" hash of the parsed code
+    /// A digest of the code that was parsed
     ///
-    /// Usually derived from the AST of the code and should only change
+    /// Preferably derived from the AST of the code and should only change
     /// when the semantics of the code (including tags in comments) change.
-    pub semantic_hash: u64,
+    pub code_digest: String,
 }
 
 impl ParseInfo {
-    /// Hash something into a `u64` suitable for the `code_hash` or `semantic_hash` properties
-    pub fn hash<T: Hash>(value: &T) -> u64 {
-        let mut hasher = DefaultHasher::new();
-        value.hash(&mut hasher);
-        hasher.finish()
+    /// Create a SHA256 hash digest from a value
+    pub fn sha256_digest<T: Display>(value: &T) -> String {
+        str_sha256_hex(&value.to_string())
     }
 
     /// Is the parsed code pure (i.e. has no side effects)?

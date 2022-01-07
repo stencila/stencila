@@ -42,6 +42,5 @@ input_file: fixtures/fragments/calc/tags.calc
       }
     ]
   ],
-  "code_hash": 16707364090484535009,
-  "semantic_hash": 4993634590567809493
+  "code_digest": "da157ea96acaaba5922c57271929d8c96eaf4ecbdaa8b9b04bcf9266cdfa8eb9"
 }

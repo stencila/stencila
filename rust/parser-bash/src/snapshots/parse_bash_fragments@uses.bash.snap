@@ -92,6 +92,5 @@ input_file: fixtures/fragments/bash/uses.bash
       }
     ]
   ],
-  "code_hash": 11451247097687299881,
-  "semantic_hash": 0
+  "code_digest": "6b2a910d9854790bc3c17b21a09a25bbfd59d5febab283902ded1ac28a389d20"
 }

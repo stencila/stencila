@@ -194,6 +194,5 @@ input_file: fixtures/fragments/py/assigns.py
       }
     ]
   ],
-  "code_hash": 12704580260682257304,
-  "semantic_hash": 0
+  "code_digest": "94597c17b9e3d957742e0ae6847ac06f82f720d7aae609e0a54ddbba41cd2a9f"
 }

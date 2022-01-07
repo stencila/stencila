@@ -464,6 +464,5 @@ input_file: fixtures/fragments/js/uses.js
       }
     ]
   ],
-  "code_hash": 15923718947757850484,
-  "semantic_hash": 0
+  "code_digest": "1ba586f07cff8c1b0af785dcacad2135740b9131e43cfd05d1c6c12cbe2231f0"
 }

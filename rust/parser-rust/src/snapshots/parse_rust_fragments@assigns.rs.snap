@@ -160,6 +160,5 @@ input_file: fixtures/fragments/rust/assigns.rs
       }
     ]
   ],
-  "code_hash": 10825341131779723506,
-  "semantic_hash": 0
+  "code_digest": "d3c5fa8f34fa08f42d1c6a23e40c6a0982a6ff23495b99e50cbe5b95fa7729b0"
 }

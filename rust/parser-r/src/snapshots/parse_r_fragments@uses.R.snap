@@ -398,6 +398,5 @@ input_file: fixtures/fragments/r/uses.R
       }
     ]
   ],
-  "code_hash": 2166747434661340578,
-  "semantic_hash": 0
+  "code_digest": "4b0c2b380e1e0ce76d466cebdf5ce7161742c9865e9e81061ff6379172e7f7a4"
 }

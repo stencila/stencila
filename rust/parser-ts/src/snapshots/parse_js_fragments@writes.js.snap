@@ -186,6 +186,5 @@ input_file: fixtures/fragments/js/writes.js
       }
     ]
   ],
-  "code_hash": 9812086044947973961,
-  "semantic_hash": 0
+  "code_digest": "754bf63762ca56cc96d4d1ec287abdfc3873776fcf8974e2e20a2a20e436bf22"
 }

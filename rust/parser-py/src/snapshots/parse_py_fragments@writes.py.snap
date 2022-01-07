@@ -229,6 +229,5 @@ input_file: fixtures/fragments/py/writes.py
       }
     ]
   ],
-  "code_hash": 14229518101447420502,
-  "semantic_hash": 0
+  "code_digest": "634fb8a01b4768823fdb32d346c45c6d4e838f185036d32cf9692c67fdeb3423"
 }

@@ -3528,6 +3528,7 @@ dependencies = [
  "eyre",
  "formats",
  "graph-triples",
+ "hash-utils",
  "once_cell",
  "regex",
  "serde",

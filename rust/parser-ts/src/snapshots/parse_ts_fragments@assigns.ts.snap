@@ -262,6 +262,5 @@ input_file: fixtures/fragments/ts/assigns.ts
       }
     ]
   ],
-  "code_hash": 3521825640660386581,
-  "semantic_hash": 0
+  "code_digest": "4e6362587709a03fa3eda204f98ce16c6223c9266a67d2501f92418fe558b58c"
 }

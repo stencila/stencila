@@ -91,33 +91,27 @@ expression: "&planner"
   "parse_map": {
     "code://articles/code.md#cc-1": {
       "relations": [],
-      "code_hash": 6101472620703051070,
-      "semantic_hash": 0
+      "code_digest": "f8ab6e051db0591e2db54a8d1973f145b4edd8887cd123fd802b8e0a799d32de"
     },
     "code://articles/code.md#ce-1": {
       "relations": [],
-      "code_hash": 6389728446471130707,
-      "semantic_hash": 0
+      "code_digest": "4a1b21d876ae00c8ed5c4d1cde09c61f8a61b50fe370a801b10c339831f370ab"
     },
     "code://articles/code.md#ce-2": {
       "relations": [],
-      "code_hash": 4354326460050488635,
-      "semantic_hash": 0
+      "code_digest": "1acf86226c68c1485ca3939884c43ed99abeea344e806548af7ee813c1c0cff3"
     },
     "code://articles/code.md#ce-3": {
       "relations": [],
-      "code_hash": 9111240237536649538,
-      "semantic_hash": 0
+      "code_digest": "f0973176bfeea20f2753ce4859b48727aeda002324461ae34a536ae14f3bcce2"
     },
     "code://articles/code.md#ce-4": {
       "relations": [],
-      "code_hash": 3754087167691285593,
-      "semantic_hash": 0
+      "code_digest": "5d4b463cb15d83aac4d6990aefe248d9c6a43fed0a8bd6fc4d84763537edd190"
     },
     "code://articles/code.md#ce-5": {
       "relations": [],
-      "code_hash": 13742428408092511402,
-      "semantic_hash": 0
+      "code_digest": "ffdeb24e8d894df9583f3d040617c15dfa4f33a357016a3fbfacf8d261fc6e65"
     }
   },
   "kernels": [

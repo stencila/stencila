@@ -143,6 +143,5 @@ input_file: fixtures/fragments/calc/uses.calc
       }
     ]
   ],
-  "code_hash": 7627298410788792966,
-  "semantic_hash": 16913029982430693902
+  "code_digest": "f075b55879a23bdac4a04eb96b2307879e41393e58301773da609f325d345408"
 }

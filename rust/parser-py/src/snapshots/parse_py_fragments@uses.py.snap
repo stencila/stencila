@@ -398,6 +398,5 @@ input_file: fixtures/fragments/py/uses.py
       }
     ]
   ],
-  "code_hash": 7898540935834819409,
-  "semantic_hash": 0
+  "code_digest": "4caa8778b1779993a90a6f97c1e88fde700c37f8f62df9bbfe4d80ecd3068454"
 }

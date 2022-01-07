@@ -369,6 +369,5 @@ input_file: fixtures/fragments/js/imports.js
       }
     ]
   ],
-  "code_hash": 393440215137895122,
-  "semantic_hash": 0
+  "code_digest": "275899d13b3e66994d0146ad8b9f123083cb297f7adc514ac869fb3913eba64b"
 }

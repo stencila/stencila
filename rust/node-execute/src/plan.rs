@@ -43,11 +43,8 @@ pub struct StepInfo {
     /// When the step finished
     pub(crate) finished: DateTime<Utc>,
 
-    /// The `code_hash` of the code at the time it was executed
-    pub(crate) code_hash: u64,
-
-    /// The `semantic_hash` of the code at the time it was executed
-    pub(crate) semantic_hash: u64,
+    /// A digest of the code at the time it was executed
+    pub(crate) execute_digest: String,
 }
 
 /// A stage in an execution plan

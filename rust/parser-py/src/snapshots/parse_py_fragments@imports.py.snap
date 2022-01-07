@@ -71,6 +71,5 @@ input_file: fixtures/fragments/py/imports.py
       }
     ]
   ],
-  "code_hash": 4578282476713329378,
-  "semantic_hash": 0
+  "code_digest": "3aab782fc6a48415b9a5b4035d06e2372105e9e614ebbfcb9b884dd5de904b80"
 }

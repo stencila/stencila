@@ -167,6 +167,5 @@ input_file: fixtures/fragments/js/reads.js
       }
     ]
   ],
-  "code_hash": 420281725237057188,
-  "semantic_hash": 0
+  "code_digest": "4133caddb0a205ae0fdac74637ad41712c75c97e5449c502d7fe2d9b6d979ed9"
 }

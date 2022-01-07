@@ -216,7 +216,7 @@ pub fn parse_info(
 ) -> ParseInfo {
     let mut parse_info = ParseInfo {
         relations,
-        code_hash: ParseInfo::hash(&code),
+        code_digest: ParseInfo::sha256_digest(&std::str::from_utf8(code).unwrap_or_default()),
         ..Default::default()
     };
 

@@ -103,9 +103,8 @@ impl ParserTrait for CalcParser {
         }
 
         // Generate hashes
-        parse_info.code_hash = ParseInfo::hash(&code);
-        parse_info.semantic_hash =
-            ParseInfo::hash(&[semantics, parse_info.is_pure().to_string()].concat());
+        parse_info.code_digest =
+            ParseInfo::sha256_digest(&[semantics, parse_info.is_pure().to_string()].concat());
 
         Ok(parse_info)
     }

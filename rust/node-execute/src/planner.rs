@@ -257,10 +257,8 @@ impl Planner {
                 let execute = match self.executed.get(dependency) {
                     Some(step_info) => {
                         if let Some(parse_info) = self.parse_map.get(dependency) {
-                            if parse_info.semantic_hash != 0 {
-                                parse_info.semantic_hash != step_info.semantic_hash
-                            } else if parse_info.code_hash != 0 {
-                                parse_info.code_hash != step_info.code_hash
+                            if !parse_info.code_digest.is_empty() {
+                                parse_info.code_digest != step_info.execute_digest
                             } else {
                                 // No hashes available, so execute (perhaps unnecessarily)
                                 true
@@ -399,17 +397,10 @@ impl Planner {
                             patch.address = node_address;
                             patch.target = node_id;
 
-                            let (code_hash, semantic_hash) = match parse_info {
-                                Some(parse_info) => {
-                                    (parse_info.code_hash, parse_info.semantic_hash)
-                                }
-                                None => (0, 0),
-                            };
-
                             let step_info = StepInfo {
                                 finished: Utc::now(),
-                                code_hash,
-                                semantic_hash,
+                                execute_digest: parse_info
+                                    .map_or("".to_string(), |parse_info| parse_info.code_digest),
                             };
 
                             Ok((step_index, resource_id, step_info, patch))

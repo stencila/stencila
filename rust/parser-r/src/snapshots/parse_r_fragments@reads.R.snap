@@ -86,6 +86,5 @@ input_file: fixtures/fragments/r/reads.R
       }
     ]
   ],
-  "code_hash": 8737317289240586029,
-  "semantic_hash": 0
+  "code_digest": "e1b5733ccc9332fd65791be395afffd314bc136dbd04ed722a52daa243ce0275"
 }

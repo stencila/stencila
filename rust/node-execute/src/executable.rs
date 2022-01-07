@@ -282,7 +282,7 @@ impl Executable for Parameter {
             .unwrap_or_else(|| "".to_string());
         let parse_info = ParseInfo {
             relations,
-            semantic_hash: ParseInfo::hash(&value),
+            code_digest: ParseInfo::sha256_digest(&value),
             ..Default::default()
         };
         context.parse_map.insert(resource_id, parse_info);
