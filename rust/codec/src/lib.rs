@@ -150,7 +150,7 @@ pub trait CodecTrait {
 
     /// Encode a document node to a file system path
     async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
-        let mut file = File::open(path)?;
+        let mut file = File::create(path)?;
         Self::to_file(node, &mut file, options).await
     }
 }
