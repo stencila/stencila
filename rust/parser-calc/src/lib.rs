@@ -100,8 +100,8 @@ impl ParserTrait for CalcParser {
         }
 
         // Generate digest to include `is_pure`
-        resource_info.self_digest =
-            ResourceInfo::sha256_digest(&[semantics, resource_info.is_pure().to_string()].concat());
+        let digest = ResourceInfo::sha256_digest(&[semantics, resource_info.is_pure().to_string()].concat());
+        resource_info.compile_digest = Some(digest);
 
         Ok(resource_info)
     }

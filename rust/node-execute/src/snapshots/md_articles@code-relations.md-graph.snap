@@ -1,0 +1,269 @@
+---
+source: rust/node-execute/src/lib.rs
+expression: "&graph"
+
+---
+{
+  "nodes": [
+    {
+      "type": "Code",
+      "path": "articles/code-relations.md",
+      "id": "cc-1",
+      "kind": "CodeChunk",
+      "language": "Calc",
+      "compile_digest": "e06b6287fefb278647c92335025955764c3536c8f19a56d267ce058fbc0777fe",
+      "index": 0
+    },
+    {
+      "type": "Symbol",
+      "path": "",
+      "name": "a",
+      "kind": "Number",
+      "index": 1
+    },
+    {
+      "type": "Code",
+      "path": "articles/code-relations.md",
+      "id": "cc-2",
+      "kind": "CodeChunk",
+      "language": "Calc",
+      "compile_digest": "9f6546a7c0efee8e71ad84a49ad79795370a269f808664517e83fe40d9a00ac2",
+      "index": 2
+    },
+    {
+      "type": "Code",
+      "path": "articles/code-relations.md",
+      "id": "ce-1",
+      "kind": "CodeExpression",
+      "language": "Calc",
+      "compile_digest": "0d6ff42a4e75b9ddd23a499d6b200455b8d98fbf15d04641bda9d67aaf1c3bd8",
+      "index": 3
+    },
+    {
+      "type": "Code",
+      "path": "articles/code-relations.md",
+      "id": "ce-2",
+      "kind": "CodeExpression",
+      "language": "Calc",
+      "compile_digest": "6d2d22d2b42937f1d22bbc508e06ec315090fcd91f4cc635030d0f578d4ebd22",
+      "index": 4
+    },
+    {
+      "type": "Code",
+      "path": "articles/code-relations.md",
+      "id": "cc-3",
+      "kind": "CodeChunk",
+      "language": "Calc",
+      "compile_digest": "8681e1dcec83472c718e8034c38c6262579b16b6461f9e26c477e3bd5ba843b1",
+      "index": 5
+    },
+    {
+      "type": "Symbol",
+      "path": "",
+      "name": "b",
+      "kind": "Number",
+      "index": 6
+    },
+    {
+      "type": "Code",
+      "path": "articles/code-relations.md",
+      "id": "ce-3",
+      "kind": "CodeExpression",
+      "language": "Calc",
+      "compile_digest": "18405335fbaa0a1c6ad71ba87083f4e57c9d1742cdf93a60e7e2fe80f8a08f19",
+      "index": 7
+    },
+    {
+      "type": "Code",
+      "path": "articles/code-relations.md",
+      "id": "ce-4",
+      "kind": "CodeExpression",
+      "language": "Calc",
+      "compile_digest": "bc8baaf9e697936a869d3bdcf4e60b44b96117f6efad09e3236848276fae0fd7",
+      "index": 8
+    },
+    {
+      "type": "Code",
+      "path": "articles/code-relations.md",
+      "id": "pa-1",
+      "kind": "Parameter",
+      "language": "Calc",
+      "compile_digest": "d96363b310b0db1bf9a66221363c5e1db946342a9455000c8e571dded86a5a80",
+      "index": 9
+    },
+    {
+      "type": "Symbol",
+      "path": "",
+      "name": "c",
+      "kind": "Number",
+      "index": 10
+    },
+    {
+      "type": "Code",
+      "path": "articles/code-relations.md",
+      "id": "cc-4",
+      "kind": "CodeChunk",
+      "language": "Calc",
+      "compile_digest": "a3cdd0bc4b3db2b050c57b1591fbaf16b07fbaad589a5e5e273fe0aba426c7e8",
+      "index": 11
+    }
+  ],
+  "edges": [
+    {
+      "from": 0,
+      "to": 1,
+      "relation": {
+        "type": "Assign",
+        "range": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "relation": {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "from": 1,
+      "to": 3,
+      "relation": {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "from": 1,
+      "to": 4,
+      "relation": {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "from": 5,
+      "to": 6,
+      "relation": {
+        "type": "Assign",
+        "range": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "from": 1,
+      "to": 5,
+      "relation": {
+        "type": "Use",
+        "range": [
+          0,
+          4,
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "from": 6,
+      "to": 7,
+      "relation": {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "from": 6,
+      "to": 8,
+      "relation": {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "from": 9,
+      "to": 10,
+      "relation": {
+        "type": "Assign",
+        "range": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "from": 1,
+      "to": 11,
+      "relation": {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    },
+    {
+      "from": 6,
+      "to": 11,
+      "relation": {
+        "type": "Use",
+        "range": [
+          0,
+          4,
+          0,
+          5
+        ]
+      }
+    },
+    {
+      "from": 10,
+      "to": 11,
+      "relation": {
+        "type": "Use",
+        "range": [
+          0,
+          8,
+          0,
+          9
+        ]
+      }
+    }
+  ]
+}

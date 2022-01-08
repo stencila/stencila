@@ -2,7 +2,7 @@ use eyre::{bail, Result};
 use graph_triples::{
     direction, relations,
     resources::{ResourceDependencies, ResourceId},
-    Direction, Pairs, Relation, Resource, Triple,
+    Direction, Pairs, Relation, Resource, ResourceInfo, Triple,
 };
 use path_slash::PathExt;
 use petgraph::{
@@ -36,17 +36,23 @@ pub struct Graph {
     /// if ever persisting the graph.
     path: PathBuf,
 
+    /// Information on each of the resources in the graph
+    ///
+    /// Uses a `BTreeMap` for determinism.
+    resources: BTreeMap<Resource, ResourceInfo>,
+
+    /// The indices of the resources in the graph
+    ///
+    /// It is necessary to store [`NodeIndex`] for each resource
+    /// so we can keep track of which resources are already in the
+    /// graph and re-use their index if they are.
+    indices: HashMap<Resource, NodeIndex>,
+
     /// The graph itself
     ///
     /// Use a `petgraph::StableGraph` so that nodes can be added and removed
     /// without changing node indices.
     graph: StableGraph<Resource, Relation>,
-
-    /// Indices of the nodes in the tree
-    ///
-    /// This is necessary to keep track of which resources
-    /// are already in the graph and re-use their index if they are.
-    indices: HashMap<Resource, NodeIndex>,
 }
 
 impl Serialize for Graph {
@@ -78,6 +84,22 @@ impl Serialize for Graph {
                         .unwrap_or(&path)
                         .to_slash_lossy();
                     obj.insert("path".to_string(), json!(path));
+                }
+
+                // Add info from `resources`
+                if let Some(resource_info) = self.resources.get(resource) {
+                    if let Some(pure) = resource_info.pure {
+                        obj.insert("pure".to_string(), json!(pure));
+                    }
+                    if let Some(compile_digest) = &resource_info.compile_digest {
+                        obj.insert("compile_digest".to_string(), json!(compile_digest));
+                    }
+                    if let Some(link_digest) = &resource_info.link_digest {
+                        obj.insert("link_digest".to_string(), json!(link_digest));
+                    }
+                    if let Some(execute_digest) = &resource_info.execute_digest {
+                        obj.insert("execute_digest".to_string(), json!(execute_digest));
+                    }
                 }
 
                 obj.insert("index".to_string(), json!(index));
@@ -112,13 +134,69 @@ impl Graph {
     pub fn new<P: AsRef<Path>>(path: P) -> Graph {
         Graph {
             path: PathBuf::from(path.as_ref()),
+            resources: BTreeMap::new(),
             indices: HashMap::new(),
             graph: StableGraph::new(),
         }
     }
 
+    /// Create a graph from a set of [`ResourceInfo`] objects
+    ///
+    /// Optimized for creating a new graph (compared to other functions which are more
+    /// suited to updating an existing graph).
+    pub fn from_resource_infos<P: AsRef<Path>>(path: P, resource_infos: Vec<ResourceInfo>) -> Self {
+        let path = PathBuf::from(path.as_ref());
+        let mut resources = BTreeMap::new();
+        let mut indices = HashMap::new();
+        let mut graph = StableGraph::new();
+
+        for resource_info in resource_infos.into_iter() {
+            let subject = resource_info.resource.clone();
+            let relations = resource_info.relations.clone();
+
+            // Add the resource to the graph
+            let subject_index = match indices.get(&subject) {
+                Some(index) => *index,
+                None => {
+                    let index = graph.add_node(subject.clone());
+                    indices.insert(subject.clone(), index);
+                    index
+                }
+            };
+
+            // Add all the `Resource`s and `Relation`s that are in `relations`
+            // for the resource
+            for (relation, object) in relations.into_iter() {
+                let object_index = match indices.get(&object) {
+                    Some(index) => *index,
+                    None => {
+                        let index = graph.add_node(object.clone());
+                        indices.insert(object.clone(), index);
+                        index
+                    }
+                };
+
+                let (from, to) = match direction(&relation) {
+                    Direction::From => (object_index, subject_index),
+                    Direction::To => (subject_index, object_index),
+                };
+                graph.add_edge(from, to, relation);
+            }
+
+            // Add the resource to the map of resources
+            resources.insert(subject, resource_info);
+        }
+
+        Self {
+            path,
+            resources,
+            indices,
+            graph,
+        }
+    }
+
     /// Create a graph from set of dependency relations
-    pub fn from_relations<P: AsRef<Path>>(path: P, relations: &[(Resource, Pairs)]) -> Graph {
+    pub fn from_relations<P: AsRef<Path>>(path: P, relations: &[(Resource, Pairs)]) -> Self {
         let mut graph = Graph::new(path);
         graph.add_relations(relations);
         graph

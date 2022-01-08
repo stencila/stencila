@@ -14,7 +14,7 @@ use std::{
 use crate::{Pairs, Relation};
 
 /// A resource in a dependency graph (the nodes of the graph)
-#[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
 #[serde(tag = "type")]
 pub enum Resource {
     /// A symbol within code, within a document
@@ -77,15 +77,6 @@ pub struct ResourceInfo {
     /// This is the primary data used to build the dependency graph between resources.
     pub relations: Pairs,
 
-    /// A digest of the resource itself
-    ///
-    /// This digest is intended to capture the "semantic intent" of the resource
-    /// with respect to the dependency graph. For example, for `Code` resources
-    /// it is preferably derived from the AST of the code and should only change
-    /// when the semantics of the code change. For `File` resources, this may be
-    /// a hash digest of the entire file or of it's modification time.
-    pub self_digest: String,
-
     /// Whether the resource is explicitly marked as pure or impure
     ///
     /// Pure resources do not modify other resources (i.e. they have no side effects).
@@ -93,6 +84,21 @@ pub struct ResourceInfo {
     /// relations. Additionally, the user may mark the resource as pure or impure
     /// for example, by using `@pure` or `@impure` tags in code comments.
     pub pure: Option<bool>,
+
+    /// A digest of the resource when it was compiled
+    ///
+    /// This digest is intended to capture the "semantic intent" of the resource
+    /// with respect to the dependency graph. For example, for `Code` resources
+    /// it is preferably derived from the AST of the code and should only change
+    /// when the semantics of the code change. For `File` resources, this may be
+    /// a hash digest of the entire file, or of it's modification time for large files.
+    pub compile_digest: Option<String>,
+
+    /// A digest of the resource when it was linked with other resources
+    pub link_digest: Option<String>,
+
+    /// A digest of the resource the last time that it was executed
+    pub execute_digest: Option<String>,
 }
 
 impl ResourceInfo {
@@ -100,14 +106,16 @@ impl ResourceInfo {
     pub fn new(
         resource: Resource,
         relations: Pairs,
-        self_digest: Option<String>,
         pure: Option<bool>,
+        compile_digest: Option<String>,
     ) -> Self {
         Self {
             resource,
             relations,
-            self_digest: self_digest.unwrap_or_default(),
             pure,
+            compile_digest,
+            link_digest: None,
+            execute_digest: None,
         }
     }
 
@@ -190,7 +198,7 @@ pub struct ResourceDependencies {
 }
 
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
-#[derivative(PartialEq, Eq, Hash)]
+#[derivative(PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[schemars(deny_unknown_fields)]
 pub struct Symbol {
     /// The path of the file that the symbol is defined in
@@ -205,6 +213,7 @@ pub struct Symbol {
     /// Should be used as a hint only, and as such is excluded from
     /// equality and hash functions.
     #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialOrd = "ignore")]
     #[derivative(Hash = "ignore")]
     pub kind: String,
 }
@@ -218,7 +227,8 @@ pub fn symbol(path: &Path, name: &str, kind: &str) -> Resource {
     })
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+#[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
+#[derivative(PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[schemars(deny_unknown_fields)]
 pub struct Node {
     /// The path of the file that the node is defined in
@@ -229,6 +239,12 @@ pub struct Node {
     pub id: String,
 
     /// The type of node e.g. `Link`, `ImageObject`
+    ///
+    /// Should be used as a hint only, and as such is excluded from
+    /// equality and hash functions.
+    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialOrd = "ignore")]
+    #[derivative(Hash = "ignore")]
     pub kind: String,
 }
 
@@ -242,7 +258,7 @@ pub fn node(path: &Path, id: &str, kind: &str) -> Resource {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Code {
     /// The path of the file that the node is defined in
@@ -269,7 +285,7 @@ pub fn code(path: &Path, id: &str, kind: &str, language: Option<String>) -> Reso
     })
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct File {
     /// The path of the file
@@ -284,7 +300,7 @@ pub fn file(path: &Path) -> Resource {
     })
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Source {
     /// The name of the project source
@@ -296,7 +312,7 @@ pub fn source(name: &str) -> Resource {
     Resource::Source(Source { name: name.into() })
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Module {
     /// The programming language of the module
@@ -314,7 +330,7 @@ pub fn module(language: &str, name: &str) -> Resource {
     })
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq, Hash, JsonSchema, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Url {
     /// The URL of the external resource

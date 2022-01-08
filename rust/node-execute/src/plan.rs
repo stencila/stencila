@@ -43,7 +43,7 @@ pub struct StepInfo {
     pub(crate) finished: DateTime<Utc>,
 
     /// A digest of the code at the time it was executed
-    pub(crate) execute_digest: String,
+    pub(crate) execute_digest: Option<String>,
 }
 
 /// A stage in an execution plan

@@ -1,5 +1,5 @@
 use parser::{
-    graph_triples::{relations::Range, Pairs, ResourceInfo, Resource},
+    graph_triples::{relations::Range, Pairs, Resource, ResourceInfo},
     utils::apply_tags,
 };
 use std::{collections::HashMap, path::Path, sync::Mutex};
@@ -220,9 +220,9 @@ pub fn resource_info(
     let code = std::str::from_utf8(code)
         .unwrap_or_default()
         .replace("\r", "");
-    let self_digest = ResourceInfo::sha256_digest(&code);
+    let digest = ResourceInfo::sha256_digest(&code);
 
-    let mut resource_info = ResourceInfo::new(resource, relations, Some(self_digest), None);
+    let mut resource_info = ResourceInfo::new(resource, relations, None, Some(digest));
 
     for (pattern_, captures) in matches {
         if pattern_ != comment_pattern {

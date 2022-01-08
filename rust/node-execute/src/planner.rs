@@ -256,10 +256,12 @@ impl Planner {
                 let execute = match self.executed.get(dependency) {
                     Some(step_info) => {
                         if let Some(resource_info) = self.parse_map.get(dependency) {
-                            if !resource_info.self_digest.is_empty() {
-                                resource_info.self_digest != step_info.execute_digest
+                            if let (Some(step_digest), Some(resource_digest)) =
+                                (&step_info.execute_digest, &resource_info.execute_digest)
+                            {
+                                step_digest != resource_digest
                             } else {
-                                // No hashes available, so execute (perhaps unnecessarily)
+                                // No digests available, so execute (perhaps unnecessarily)
                                 true
                             }
                         } else {
@@ -399,8 +401,8 @@ impl Planner {
                             let step_info = StepInfo {
                                 finished: Utc::now(),
                                 execute_digest: resource_info
-                                    .map_or("".to_string(), |resource_info| {
-                                        resource_info.self_digest
+                                    .map_or(Some("".to_string()), |resource_info| {
+                                        resource_info.execute_digest
                                     }),
                             };
 

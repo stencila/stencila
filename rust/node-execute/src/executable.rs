@@ -282,8 +282,8 @@ impl Executable for Parameter {
         let resource_info = ResourceInfo::new(
             resource,
             relations,
-            Some(ResourceInfo::sha256_digest(&value)),
             None,
+            Some(ResourceInfo::sha256_digest(&value)),
         );
         context.resources.push(resource_info);
 
