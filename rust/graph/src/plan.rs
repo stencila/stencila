@@ -1,4 +1,4 @@
-use graph_triples::{ResourceInfo};
+use graph_triples::ResourceInfo;
 use serde::Serialize;
 
 /// An execution plan for a document

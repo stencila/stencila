@@ -48,6 +48,6 @@ input_file: fixtures/fragments/calc/tags.calc
       }
     ]
   ],
-  "self_digest": "da157ea96acaaba5922c57271929d8c96eaf4ecbdaa8b9b04bcf9266cdfa8eb9",
-  "pure": false
+  "pure": false,
+  "compile_digest": "da157ea96acaaba5922c57271929d8c96eaf4ecbdaa8b9b04bcf9266cdfa8eb9"
 }

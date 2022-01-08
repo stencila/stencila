@@ -78,5 +78,5 @@ input_file: fixtures/fragments/py/imports.py
       }
     ]
   ],
-  "self_digest": "3aab782fc6a48415b9a5b4035d06e2372105e9e614ebbfcb9b884dd5de904b80"
+  "compile_digest": "3aab782fc6a48415b9a5b4035d06e2372105e9e614ebbfcb9b884dd5de904b80"
 }

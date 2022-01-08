@@ -218,5 +218,5 @@ input_file: fixtures/fragments/r/assigns.R
       }
     ]
   ],
-  "self_digest": "1cb8d2cf6be22f956726cf04b2cd8820c89d449714e5eb74b45112148e9f03c3"
+  "compile_digest": "1cb8d2cf6be22f956726cf04b2cd8820c89d449714e5eb74b45112148e9f03c3"
 }

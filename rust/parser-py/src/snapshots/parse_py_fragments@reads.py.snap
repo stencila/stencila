@@ -315,5 +315,5 @@ input_file: fixtures/fragments/py/reads.py
       }
     ]
   ],
-  "self_digest": "d49ac547a4dc548cbf1dfb1a2b1fca67d72accc23cf500dcbccb0281f948ca9a"
+  "compile_digest": "d49ac547a4dc548cbf1dfb1a2b1fca67d72accc23cf500dcbccb0281f948ca9a"
 }

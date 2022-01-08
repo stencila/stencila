@@ -31,5 +31,5 @@ input_file: fixtures/fragments/calc/uses-only.calc
       }
     ]
   ],
-  "self_digest": "a3cdd0bc4b3db2b050c57b1591fbaf16b07fbaad589a5e5e273fe0aba426c7e8"
+  "compile_digest": "a3cdd0bc4b3db2b050c57b1591fbaf16b07fbaad589a5e5e273fe0aba426c7e8"
 }

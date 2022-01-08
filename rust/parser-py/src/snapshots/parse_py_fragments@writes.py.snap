@@ -236,5 +236,5 @@ input_file: fixtures/fragments/py/writes.py
       }
     ]
   ],
-  "self_digest": "634fb8a01b4768823fdb32d346c45c6d4e838f185036d32cf9692c67fdeb3423"
+  "compile_digest": "634fb8a01b4768823fdb32d346c45c6d4e838f185036d32cf9692c67fdeb3423"
 }

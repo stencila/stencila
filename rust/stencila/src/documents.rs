@@ -4,17 +4,16 @@ use events::publish;
 use eyre::{bail, Result};
 use formats::FormatSpec;
 use graph::Graph;
-use graph_triples::Relations;
+use graph_triples::{resources, Relations};
 use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::AddressMap;
-use node_execute::{compile, Planner};
+use node_execute::{compile, execute_plan};
 use node_patch::{apply, diff, merge, Patch};
 use node_pointer::{resolve, Pointer};
 use node_reshape::reshape;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
-use path_slash::PathBufExt;
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -204,10 +203,6 @@ pub struct Document {
     #[schemars(schema_with = "Document::schema_addresses")]
     addresses: AddressMap,
 
-    /// The execution planner for this document.
-    #[schemars(skip)]
-    planner: Planner,
-
     /// The kernel space for this document.
     ///
     /// This is where document variables are stored and executable nodes such as
@@ -351,7 +346,6 @@ impl Document {
             format: self.format.clone(),
             previewable: self.previewable,
             addresses: self.addresses.clone(),
-            planner: self.planner.clone(),
             graph: self.graph.clone(),
             subscriptions: self.subscriptions.clone(),
             ..Default::default()
@@ -721,22 +715,13 @@ impl Document {
         let root = &mut *self.root.write().await;
 
         // Compile the `root` to update `addresses` and `planner` needed below
-        let (address_map, relations, parse_map) = compile(root, &self.path, &self.project)?;
+        let (address_map, resource_infos) = compile(root, &self.path, &self.project)?;
         self.addresses = address_map;
-        self.planner
-            .update(&self.path, &relations, parse_map, None)
-            .await?;
+        self.graph = Graph::from_resource_infos(&self.path, resource_infos)?;
 
-        // Need to translate the `start` node id into a resource id to generate plan
-        let start = start.map(|node_id| {
-            [
-                "code://",
-                self.path.to_slash_lossy().as_str(),
-                "#",
-                &node_id,
-            ]
-            .concat()
-        });
+        // Need to translate the `start` node id into a resource to generate plan
+        let start = start.map(|node_id| resources::code(&self.path, &node_id, "", None));
+        let plan = self.graph.plan(start, None, None).await?;
 
         let root_clone = root.clone();
         let (sender, mut receiver) = mpsc::channel::<Patch>(10);
@@ -757,10 +742,14 @@ impl Document {
             tracing::debug!("Finished publishing patches");
         });
 
-        let kernels = self.kernels.clone();
-        self.planner
-            .execute(root, &self.addresses, kernels, Some(sender), start, None)
-            .await?;
+        execute_plan(
+            &plan,
+            root,
+            &self.addresses,
+            self.kernels.clone(),
+            Some(sender),
+        )
+        .await?;
 
         // Wait for all the patches to be sent. `patch_publisher` should finish
         // once all sender clones have been dropped.
@@ -816,9 +805,9 @@ impl Document {
         // Attempt to compile the `root` to assign ids (needed for HTML rendering and patching)
         // and update intra- and inter- dependencies. No need to update `planner` now.
         match compile(&mut root, &self.path, &self.project) {
-            Ok((addresses, relations, parse_map)) => {
+            Ok((addresses, resource_infos)) => {
                 self.addresses = addresses;
-                self.graph = Graph::from_relations(&self.path, &relations);
+                self.graph = Graph::from_resource_infos(&self.path, resource_infos)?;
             }
             Err(error) => tracing::warn!(
                 "While compiling document `{}`: {}",

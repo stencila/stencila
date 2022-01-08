@@ -167,5 +167,5 @@ input_file: fixtures/fragments/rust/assigns.rs
       }
     ]
   ],
-  "self_digest": "d3c5fa8f34fa08f42d1c6a23e40c6a0982a6ff23495b99e50cbe5b95fa7729b0"
+  "compile_digest": "d3c5fa8f34fa08f42d1c6a23e40c6a0982a6ff23495b99e50cbe5b95fa7729b0"
 }

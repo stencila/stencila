@@ -435,14 +435,14 @@ impl Project {
             Ok(())
         }
         if let Some(path) = self.main_path.as_ref() {
-            graph.add_resource(resources::file(path));
+            graph.add_resource(resources::file(path), None);
             walk(&mut Vec::new(), path, &mut graph).await?;
         }
 
         // Add sources and relations with associated files
         if let Some(sources) = self.sources.as_ref() {
             for (name, source) in sources {
-                graph.add_resource(resources::source(name));
+                graph.add_resource(resources::source(name), None);
                 graph.add_triples(source.triples(name, &self.path))
             }
         }

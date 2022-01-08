@@ -12,8 +12,6 @@ pub use execute::*;
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
-
     use super::*;
     use codec::CodecTrait;
     use codec_md::MdCodec;
@@ -111,7 +109,9 @@ mod tests {
                 &mut article,
                 path,
                 project,
-                Arc::new(KernelSpace::new()),
+                None,
+                Some(kernels.clone()),
+                None,
                 None,
             )
             .await?;

@@ -133,5 +133,5 @@ input_file: fixtures/fragments/calc/assigns.calc
       }
     ]
   ],
-  "self_digest": "a407e4654b59a7f9d453db4f5a6c87fd51c826405c1d2ffa7d4c55a85869a0c1"
+  "compile_digest": "a407e4654b59a7f9d453db4f5a6c87fd51c826405c1d2ffa7d4c55a85869a0c1"
 }

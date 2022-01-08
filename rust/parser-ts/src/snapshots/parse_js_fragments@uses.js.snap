@@ -471,5 +471,5 @@ input_file: fixtures/fragments/js/uses.js
       }
     ]
   ],
-  "self_digest": "1ba586f07cff8c1b0af785dcacad2135740b9131e43cfd05d1c6c12cbe2231f0"
+  "compile_digest": "1ba586f07cff8c1b0af785dcacad2135740b9131e43cfd05d1c6c12cbe2231f0"
 }

@@ -3,7 +3,8 @@ use std::{path::Path, sync::Arc};
 use eyre::{bail, eyre, Result};
 use futures::stream::{FuturesUnordered, StreamExt};
 use graph::{Graph, Plan, PlanOptions};
-use kernels::{KernelSelector, KernelSpace};
+use graph_triples::Resource;
+use kernels::{Kernel, KernelSelector, KernelSpace};
 use node_address::AddressMap;
 use node_patch::{apply, diff, Patch};
 use node_pointer::resolve;
@@ -27,12 +28,15 @@ pub async fn execute(
     node: &mut Node,
     path: &Path,
     project: &Path,
-    kernel_space: Arc<KernelSpace>,
+    start: Option<Resource>,
+    kernels: Option<Vec<Kernel>>,
+    kernel_space: Option<Arc<KernelSpace>>,
     options: Option<PlanOptions>,
 ) -> Result<()> {
     let (addresses, resources) = compile(node, path, project)?;
     let graph = Graph::from_resource_infos(path, resources)?;
-    let plan = graph.plan(None, None, options).await?;
+    let plan = graph.plan(start, kernels, options).await?;
+    let kernel_space = kernel_space.unwrap_or_default();
     execute_plan(&plan, node, &addresses, kernel_space, None).await
 }
 

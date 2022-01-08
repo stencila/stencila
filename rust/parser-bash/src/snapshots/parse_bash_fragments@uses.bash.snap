@@ -99,5 +99,5 @@ input_file: fixtures/fragments/bash/uses.bash
       }
     ]
   ],
-  "self_digest": "6b2a910d9854790bc3c17b21a09a25bbfd59d5febab283902ded1ac28a389d20"
+  "compile_digest": "6b2a910d9854790bc3c17b21a09a25bbfd59d5febab283902ded1ac28a389d20"
 }

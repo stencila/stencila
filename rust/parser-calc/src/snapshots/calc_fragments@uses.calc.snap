@@ -150,5 +150,5 @@ input_file: fixtures/fragments/calc/uses.calc
       }
     ]
   ],
-  "self_digest": "f075b55879a23bdac4a04eb96b2307879e41393e58301773da609f325d345408"
+  "compile_digest": "f075b55879a23bdac4a04eb96b2307879e41393e58301773da609f325d345408"
 }

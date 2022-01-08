@@ -210,5 +210,5 @@ input_file: fixtures/fragments/r/writes.R
       }
     ]
   ],
-  "self_digest": "7ff84f22638938b188850df0f6806c0df0d238eed5629bd6393ba9efdce438e6"
+  "compile_digest": "7ff84f22638938b188850df0f6806c0df0d238eed5629bd6393ba9efdce438e6"
 }

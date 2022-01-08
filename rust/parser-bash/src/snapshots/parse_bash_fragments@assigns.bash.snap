@@ -82,5 +82,5 @@ input_file: fixtures/fragments/bash/assigns.bash
       }
     ]
   ],
-  "self_digest": "21fee40cb98be7d1928b536a2bedd84bee98f2b6fbcffc51a2af44eeb0ca2eca"
+  "compile_digest": "21fee40cb98be7d1928b536a2bedd84bee98f2b6fbcffc51a2af44eeb0ca2eca"
 }

@@ -193,5 +193,5 @@ input_file: fixtures/fragments/js/writes.js
       }
     ]
   ],
-  "self_digest": "754bf63762ca56cc96d4d1ec287abdfc3873776fcf8974e2e20a2a20e436bf22"
+  "compile_digest": "754bf63762ca56cc96d4d1ec287abdfc3873776fcf8974e2e20a2a20e436bf22"
 }

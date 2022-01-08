@@ -128,5 +128,5 @@ input_file: fixtures/fragments/r/imports.R
       }
     ]
   ],
-  "self_digest": "2e5d32c1d134ecb89b1452d55aed21d68e04727f8ac49ce255ac1005e84d38e4"
+  "compile_digest": "2e5d32c1d134ecb89b1452d55aed21d68e04727f8ac49ce255ac1005e84d38e4"
 }

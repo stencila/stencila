@@ -65,5 +65,5 @@ input_file: fixtures/fragments/rust/uses.rs
       }
     ]
   ],
-  "self_digest": "d6f5e969bb658d729fa6357976123e1c59f712463ee83d9e9a548befb08fbd6a"
+  "compile_digest": "d6f5e969bb658d729fa6357976123e1c59f712463ee83d9e9a548befb08fbd6a"
 }

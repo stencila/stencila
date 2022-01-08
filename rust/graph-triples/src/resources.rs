@@ -277,7 +277,8 @@ pub fn node(path: &Path, id: &str, kind: &str) -> Resource {
 }
 
 #[skip_serializing_none]
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, JsonSchema, Serialize)]
+#[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
+#[derivative(PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[schemars(deny_unknown_fields)]
 pub struct Code {
     /// The path of the file that the node is defined in
@@ -288,9 +289,15 @@ pub struct Code {
     pub id: String,
 
     /// The type of node e.g. `Parameter`, `CodeChunk`
+    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialOrd = "ignore")]
+    #[derivative(Hash = "ignore")]
     pub kind: String,
 
     /// The programming language associated with the node (if any)
+    #[derivative(PartialEq = "ignore")]
+    #[derivative(PartialOrd = "ignore")]
+    #[derivative(Hash = "ignore")]
     pub language: Option<String>,
 }
 

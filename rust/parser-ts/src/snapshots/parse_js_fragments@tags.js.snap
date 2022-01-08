@@ -141,5 +141,5 @@ input_file: fixtures/fragments/js/tags.js
       }
     ]
   ],
-  "self_digest": "7fb2c8dd54b4d9df712a0c1c012bcaf422ac9606fe99f19fe02e47f54da8964f"
+  "compile_digest": "7fb2c8dd54b4d9df712a0c1c012bcaf422ac9606fe99f19fe02e47f54da8964f"
 }
