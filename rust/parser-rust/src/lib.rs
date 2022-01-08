@@ -96,7 +96,8 @@ mod tests {
         snapshot_fixtures("fragments/rust/*.rs", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Some("Rust".to_string()));
+            let resource =
+                resources::code(path, "", "SoftwareSourceCode", Some("Rust".to_string()));
             let resource_info = RustParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })

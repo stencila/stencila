@@ -1,5 +1,5 @@
 use eyre::Result;
-use graph_triples::{ResourceInfo, Resource};
+use graph_triples::{Resource, ResourceInfo};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 

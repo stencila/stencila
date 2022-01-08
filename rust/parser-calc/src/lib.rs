@@ -85,7 +85,7 @@ impl ParserTrait for CalcParser {
                 pairs
             });
 
-        let mut resource_info = ResourceInfo::new(resource, relations, None, None);
+        let mut resource_info = ResourceInfo::new(resource, Some(relations), None, None);
 
         // Apply tags from comments (this needs to be done at the end because if may remove pairs if `only` is specified)
         for (row, line) in comments {
@@ -100,7 +100,8 @@ impl ParserTrait for CalcParser {
         }
 
         // Generate digest to include `is_pure`
-        let digest = ResourceInfo::sha256_digest(&[semantics, resource_info.is_pure().to_string()].concat());
+        let digest =
+            ResourceInfo::sha256_digest(&[semantics, resource_info.is_pure().to_string()].concat());
         resource_info.compile_digest = Some(digest);
 
         Ok(resource_info)
@@ -118,7 +119,8 @@ mod tests {
         snapshot_fixtures("fragments/calc/*.calc", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Some("Calc".to_string()));
+            let resource =
+                resources::code(path, "", "SoftwareSourceCode", Some("Calc".to_string()));
             let resource_info = CalcParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })

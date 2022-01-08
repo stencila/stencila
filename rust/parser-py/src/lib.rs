@@ -248,7 +248,8 @@ mod tests {
         snapshot_fixtures("fragments/py/*.py", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let resource = resources::code(path, "", "SoftwareSourceCode", Some("Python".to_string()));
+            let resource =
+                resources::code(path, "", "SoftwareSourceCode", Some("Python".to_string()));
             let resource_info = PyParser::parse(resource, path, &code).expect("Unable to parse");
             assert_json_snapshot!(resource_info);
         })

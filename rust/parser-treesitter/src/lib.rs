@@ -222,7 +222,7 @@ pub fn resource_info(
         .replace("\r", "");
     let digest = ResourceInfo::sha256_digest(&code);
 
-    let mut resource_info = ResourceInfo::new(resource, relations, None, Some(digest));
+    let mut resource_info = ResourceInfo::new(resource, Some(relations), None, Some(digest));
 
     for (pattern_, captures) in matches {
         if pattern_ != comment_pattern {
