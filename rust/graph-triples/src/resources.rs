@@ -6,7 +6,6 @@ use schemars::JsonSchema;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
-    collections::BTreeMap,
     fmt::Display,
     path::{Path, PathBuf},
 };
@@ -209,29 +208,6 @@ impl ResourceInfo {
         }
     }
 }
-
-/// A map of node ids to their `ResourceInfo`
-///
-/// A `BTreeMap` is used instead of a `HashMap` for determinism in order
-/// of entries.
-pub type ResourceMap = BTreeMap<ResourceId, ResourceInfo>;
-
-/// A summary of the dependencies of a resource in a dependency graph
-#[derive(Debug, Clone, Serialize)]
-pub struct ResourceDependencies {
-    /// The id of the resource
-    pub id: String,
-
-    /// The ids of any dependencies in the dependency graph
-    pub dependencies: Vec<String>,
-
-    /// The depth of the resource in the dependency graph.
-    ///
-    /// A resource that has no dependencies has a depth of zero.
-    /// Otherwise the depth is the maximum depth of dependencies plus one.
-    pub depth: usize,
-}
-
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
 #[derivative(PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[schemars(deny_unknown_fields)]

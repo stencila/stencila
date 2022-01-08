@@ -9,6 +9,8 @@ eyre = "0.6.5"
 events = { path = "../events", version = "0.0.0" }
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
 hash-utils = { path = "../hash-utils", version = "0.0.0" }
+kernels = { path = "../kernels", version = "0.0.0" }
+num_cpus = "1.13.1"
 path-slash = "0.1.4"
 petgraph = { version = "0.6.0", features = ["serde-1"] }
 schemars = { version = "0.8.8", features = ["preserve_order"] }

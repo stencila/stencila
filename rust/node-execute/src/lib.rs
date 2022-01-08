@@ -1,5 +1,6 @@
 use eyre::Result;
-use graph_triples::{Relations, ResourceInfo, ResourceMap};
+use graph::PlanOptions;
+use graph_triples::ResourceInfo;
 use node_address::{Address, AddressMap};
 use std::{path::Path, sync::Arc};
 use stencila_schema::*;
@@ -9,12 +10,6 @@ pub use kernels::{KernelSelector, KernelSpace, TaskResult};
 
 mod executable;
 pub use executable::*;
-
-mod plan;
-pub use plan::{Plan, PlanOptions, PlanOrdering};
-
-mod planner;
-pub use planner::Planner;
 
 /// Compile a node
 ///
@@ -73,10 +68,9 @@ pub async fn execute(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::plan::{PlanOptions, PlanOrdering};
     use codec::CodecTrait;
     use codec_md::MdCodec;
-    use graph::Graph;
+    use graph::{Graph, PlanOrdering};
     use kernels::{Kernel, KernelType};
     use node_patch::diff;
     use test_snaps::{
@@ -118,18 +112,9 @@ mod tests {
                 assert_json_snapshot!((&addresses, &resources))
             });
 
-            // Generate and snapshot the article graph
+            // Generate and snapshot the article dependency graph
             let graph = Graph::from_resource_infos(path, resources)?;
             snapshot_set_suffix(&[name, "-graph"].concat(), || assert_json_snapshot!(&graph));
-
-            // Create an execution planner for the article
-            /*
-            let mut planner =
-                Planner::new(path, &relations, resource_info, Some(kernels.clone())).await?;
-            snapshot_set_suffix(&[name, "-planner"].concat(), || {
-                assert_json_snapshot!(&planner)
-            });
-
 
             // Generate various execution plans for the article using alternative options
             // and snapshot them all. Always specify `max_concurrency` to avoid differences
@@ -164,12 +149,13 @@ mod tests {
                     },
                 ),
             ] {
-                let plan = planner.plan(None, Some(options));
+                let plan = graph.plan(None, Some(kernels.clone()), Some(options)).await?;
                 snapshot_set_suffix(&[name, "-", suffix].concat(), || {
                     assert_json_snapshot!(&plan)
                 });
             }
 
+            /*
             // Execute the article (with default execution plan) and snapshot
             // changes in it
             let pre = article.clone();

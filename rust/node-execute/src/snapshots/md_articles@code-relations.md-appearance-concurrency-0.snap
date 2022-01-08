@@ -12,14 +12,6 @@ expression: "&plan"
     {
       "steps": [
         {
-          "resource_id": "code://articles/code-relations.md#cc-1",
-          "code": {
-            "path": "articles/code-relations.md",
-            "id": "cc-1",
-            "kind": "CodeChunk",
-            "language": "Calc"
-          },
-          "kernel_name": "calc",
           "resource_info": {
             "resource": {
               "type": "Code",
@@ -47,8 +39,12 @@ expression: "&plan"
                 }
               ]
             ],
-            "self_digest": "e06b6287fefb278647c92335025955764c3536c8f19a56d267ce058fbc0777fe"
+            "dependencies": [],
+            "depth": 0,
+            "compile_digest": "e06b6287fefb278647c92335025955764c3536c8f19a56d267ce058fbc0777fe",
+            "link_digest": "e06b6287fefb278647c92335025955764c3536c8f19a56d267ce058fbc0777fe"
           },
+          "kernel_name": "calc",
           "is_fork": false
         }
       ]
@@ -56,14 +52,6 @@ expression: "&plan"
     {
       "steps": [
         {
-          "resource_id": "code://articles/code-relations.md#cc-2",
-          "code": {
-            "path": "articles/code-relations.md",
-            "id": "cc-2",
-            "kind": "CodeChunk",
-            "language": "Calc"
-          },
-          "kernel_name": "calc",
           "resource_info": {
             "resource": {
               "type": "Code",
@@ -91,8 +79,26 @@ expression: "&plan"
                 }
               ]
             ],
-            "self_digest": "9f6546a7c0efee8e71ad84a49ad79795370a269f808664517e83fe40d9a00ac2"
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              }
+            ],
+            "depth": 2,
+            "compile_digest": "9f6546a7c0efee8e71ad84a49ad79795370a269f808664517e83fe40d9a00ac2",
+            "link_digest": "1dc7a58816b63bded2d2ddeb9c604598929bec3d8468a37c47c73b5536669307"
           },
+          "kernel_name": "calc",
           "is_fork": false
         }
       ]
@@ -100,14 +106,6 @@ expression: "&plan"
     {
       "steps": [
         {
-          "resource_id": "code://articles/code-relations.md#ce-1",
-          "code": {
-            "path": "articles/code-relations.md",
-            "id": "ce-1",
-            "kind": "CodeExpression",
-            "language": "Calc"
-          },
-          "kernel_name": "calc",
           "resource_info": {
             "resource": {
               "type": "Code",
@@ -135,8 +133,26 @@ expression: "&plan"
                 }
               ]
             ],
-            "self_digest": "0d6ff42a4e75b9ddd23a499d6b200455b8d98fbf15d04641bda9d67aaf1c3bd8"
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              }
+            ],
+            "depth": 2,
+            "compile_digest": "0d6ff42a4e75b9ddd23a499d6b200455b8d98fbf15d04641bda9d67aaf1c3bd8",
+            "link_digest": "c5f0040981662648d06f5e1511b880295b19495429035b702313c6768b0380d5"
           },
+          "kernel_name": "calc",
           "is_fork": false
         }
       ]
@@ -144,14 +160,6 @@ expression: "&plan"
     {
       "steps": [
         {
-          "resource_id": "code://articles/code-relations.md#ce-2",
-          "code": {
-            "path": "articles/code-relations.md",
-            "id": "ce-2",
-            "kind": "CodeExpression",
-            "language": "Calc"
-          },
-          "kernel_name": "calc",
           "resource_info": {
             "resource": {
               "type": "Code",
@@ -179,8 +187,26 @@ expression: "&plan"
                 }
               ]
             ],
-            "self_digest": "6d2d22d2b42937f1d22bbc508e06ec315090fcd91f4cc635030d0f578d4ebd22"
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              }
+            ],
+            "depth": 2,
+            "compile_digest": "6d2d22d2b42937f1d22bbc508e06ec315090fcd91f4cc635030d0f578d4ebd22",
+            "link_digest": "1f4c9628925609304ed61f93199155f186ff8c281f338ce0588d0737fd4360fb"
           },
+          "kernel_name": "calc",
           "is_fork": false
         }
       ]
@@ -188,14 +214,6 @@ expression: "&plan"
     {
       "steps": [
         {
-          "resource_id": "code://articles/code-relations.md#cc-3",
-          "code": {
-            "path": "articles/code-relations.md",
-            "id": "cc-3",
-            "kind": "CodeChunk",
-            "language": "Calc"
-          },
-          "kernel_name": "calc",
           "resource_info": {
             "resource": {
               "type": "Code",
@@ -240,8 +258,26 @@ expression: "&plan"
                 }
               ]
             ],
-            "self_digest": "8681e1dcec83472c718e8034c38c6262579b16b6461f9e26c477e3bd5ba843b1"
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              }
+            ],
+            "depth": 2,
+            "compile_digest": "8681e1dcec83472c718e8034c38c6262579b16b6461f9e26c477e3bd5ba843b1",
+            "link_digest": "d6042c0a0ed298bf6f284eaf3fa09a6481b8ace3d29c795e564b98709a4f940c"
           },
+          "kernel_name": "calc",
           "is_fork": false
         }
       ]
@@ -249,14 +285,6 @@ expression: "&plan"
     {
       "steps": [
         {
-          "resource_id": "code://articles/code-relations.md#ce-3",
-          "code": {
-            "path": "articles/code-relations.md",
-            "id": "ce-3",
-            "kind": "CodeExpression",
-            "language": "Calc"
-          },
-          "kernel_name": "calc",
           "resource_info": {
             "resource": {
               "type": "Code",
@@ -284,8 +312,39 @@ expression: "&plan"
                 }
               ]
             ],
-            "self_digest": "18405335fbaa0a1c6ad71ba87083f4e57c9d1742cdf93a60e7e2fe80f8a08f19"
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-3",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
+                "kind": "Number"
+              }
+            ],
+            "depth": 4,
+            "compile_digest": "18405335fbaa0a1c6ad71ba87083f4e57c9d1742cdf93a60e7e2fe80f8a08f19",
+            "link_digest": "37bfd6003a65338474945e72ecb35bf7a3513697e2ac55240dd66d45ece62b78"
           },
+          "kernel_name": "calc",
           "is_fork": false
         }
       ]
@@ -293,14 +352,6 @@ expression: "&plan"
     {
       "steps": [
         {
-          "resource_id": "code://articles/code-relations.md#ce-4",
-          "code": {
-            "path": "articles/code-relations.md",
-            "id": "ce-4",
-            "kind": "CodeExpression",
-            "language": "Calc"
-          },
-          "kernel_name": "calc",
           "resource_info": {
             "resource": {
               "type": "Code",
@@ -328,8 +379,39 @@ expression: "&plan"
                 }
               ]
             ],
-            "self_digest": "bc8baaf9e697936a869d3bdcf4e60b44b96117f6efad09e3236848276fae0fd7"
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-3",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
+                "kind": "Number"
+              }
+            ],
+            "depth": 4,
+            "compile_digest": "bc8baaf9e697936a869d3bdcf4e60b44b96117f6efad09e3236848276fae0fd7",
+            "link_digest": "da2432d586de84e185680f912d9c8df366eef38c202cf65da3a4c9f2b3f2a4cc"
           },
+          "kernel_name": "calc",
           "is_fork": false
         }
       ]
@@ -337,14 +419,6 @@ expression: "&plan"
     {
       "steps": [
         {
-          "resource_id": "code://articles/code-relations.md#pa-1",
-          "code": {
-            "path": "articles/code-relations.md",
-            "id": "pa-1",
-            "kind": "Parameter",
-            "language": "Calc"
-          },
-          "kernel_name": "calc",
           "resource_info": {
             "resource": {
               "type": "Code",
@@ -372,8 +446,12 @@ expression: "&plan"
                 }
               ]
             ],
-            "self_digest": "d96363b310b0db1bf9a66221363c5e1db946342a9455000c8e571dded86a5a80"
+            "dependencies": [],
+            "depth": 0,
+            "compile_digest": "d96363b310b0db1bf9a66221363c5e1db946342a9455000c8e571dded86a5a80",
+            "link_digest": "d96363b310b0db1bf9a66221363c5e1db946342a9455000c8e571dded86a5a80"
           },
+          "kernel_name": "calc",
           "is_fork": false
         }
       ]
@@ -381,14 +459,6 @@ expression: "&plan"
     {
       "steps": [
         {
-          "resource_id": "code://articles/code-relations.md#cc-4",
-          "code": {
-            "path": "articles/code-relations.md",
-            "id": "cc-4",
-            "kind": "CodeChunk",
-            "language": "Calc"
-          },
-          "kernel_name": "calc",
           "resource_info": {
             "resource": {
               "type": "Code",
@@ -450,8 +520,52 @@ expression: "&plan"
                 }
               ]
             ],
-            "self_digest": "a3cdd0bc4b3db2b050c57b1591fbaf16b07fbaad589a5e5e273fe0aba426c7e8"
+            "dependencies": [
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "pa-1",
+                "kind": "Parameter",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "c",
+                "kind": "Number"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-1",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
+                "type": "Code",
+                "path": "articles/code-relations.md",
+                "id": "cc-3",
+                "kind": "CodeChunk",
+                "language": "Calc"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
+                "kind": "Number"
+              }
+            ],
+            "depth": 4,
+            "compile_digest": "a3cdd0bc4b3db2b050c57b1591fbaf16b07fbaad589a5e5e273fe0aba426c7e8",
+            "link_digest": "b513cff160f459242c74f7915632f64c6b00ba1c12d5f7a8fa8c82f02132929a"
           },
+          "kernel_name": "calc",
           "is_fork": false
         }
       ]
