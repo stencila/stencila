@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use eyre::{eyre, Result};
+use eyre::Result;
 use formats::normalize_title;
 use graph_triples::{
     relations, relations::NULL_RANGE, resources, Relation, ResourceId, ResourceInfo,
@@ -84,7 +84,7 @@ pub trait Executable {
         &mut self,
         _kernel_space: &KernelSpace,
         _kernel_selector: &KernelSelector,
-        _parse_info: Option<&ResourceInfo>,
+        _resource_info: &ResourceInfo,
         _is_fork: bool,
     ) -> Result<()> {
         Ok(())
@@ -295,7 +295,7 @@ impl Executable for Parameter {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        _parse_info: Option<&ResourceInfo>,
+        _resource_info: &ResourceInfo,
         _is_fork: bool,
     ) -> Result<()> {
         tracing::debug!("Executing `Parameter`");
@@ -338,13 +338,10 @@ impl Executable for CodeChunk {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: Option<&ResourceInfo>,
+        resource_info: &ResourceInfo,
         is_fork: bool,
     ) -> Result<()> {
         tracing::debug!("Executing `CodeChunk`");
-
-        let resource_info =
-            resource_info.ok_or_else(|| eyre!("Parse info is required to execute CodeChunk"))?;
 
         let mut task = kernel_space
             .exec(&self.text, resource_info, is_fork, kernel_selector)
@@ -407,13 +404,10 @@ impl Executable for CodeExpression {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: Option<&ResourceInfo>,
+        resource_info: &ResourceInfo,
         is_fork: bool,
     ) -> Result<()> {
         tracing::debug!("Executing `CodeExpression`");
-
-        let resource_info = resource_info
-            .ok_or_else(|| eyre!("Parse info is required to execute CodeExpression"))?;
 
         let mut task = kernel_space
             .exec(&self.text, resource_info, is_fork, kernel_selector)
@@ -557,7 +551,7 @@ impl Executable for Node {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: Option<&ResourceInfo>,
+        resource_info: &ResourceInfo,
         is_fork: bool,
     ) -> Result<()> {
         dispatch_node!(
@@ -583,7 +577,7 @@ impl Executable for CreativeWorkTypes {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: Option<&ResourceInfo>,
+        resource_info: &ResourceInfo,
         is_fork: bool,
     ) -> Result<()> {
         dispatch_work!(
@@ -608,7 +602,7 @@ impl Executable for BlockContent {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: Option<&ResourceInfo>,
+        resource_info: &ResourceInfo,
         is_fork: bool,
     ) -> Result<()> {
         dispatch_block!(
@@ -633,7 +627,7 @@ impl Executable for InlineContent {
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: Option<&ResourceInfo>,
+        resource_info: &ResourceInfo,
         is_fork: bool,
     ) -> Result<()> {
         dispatch_inline!(
@@ -665,7 +659,7 @@ where
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: Option<&ResourceInfo>,
+        resource_info: &ResourceInfo,
         is_fork: bool,
     ) -> Result<()> {
         if let Some(value) = self {
@@ -691,7 +685,7 @@ where
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: Option<&ResourceInfo>,
+        resource_info: &ResourceInfo,
         is_fork: bool,
     ) -> Result<()> {
         (**self)
@@ -718,7 +712,7 @@ where
         &mut self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
-        resource_info: Option<&ResourceInfo>,
+        resource_info: &ResourceInfo,
         is_fork: bool,
     ) -> Result<()> {
         for item in self.iter_mut() {
@@ -747,7 +741,7 @@ macro_rules! executable_fields {
                 &mut self,
                 kernel_space: &KernelSpace,
                 kernel_selector: &KernelSelector,
-                resource_info: Option<&ResourceInfo>,
+                resource_info: &ResourceInfo,
                 is_fork: bool,
             ) -> Result<()> {
                 $(
@@ -822,7 +816,7 @@ macro_rules! executable_variants {
                 &mut self,
                 kernel_space: &KernelSpace,
                 kernel_selector: &KernelSelector,
-                resource_info: Option<&ResourceInfo>,
+                resource_info: &ResourceInfo,
                 is_fork: bool,
             ) -> Result<()> {
                 match self {

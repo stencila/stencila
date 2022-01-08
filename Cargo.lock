@@ -2001,6 +2001,7 @@ dependencies = [
  "serde_with",
  "serde_yaml",
  "strum 0.23.0",
+ "tokio",
  "utils",
 ]
 
@@ -3143,12 +3144,14 @@ dependencies = [
  "codec-md",
  "eyre",
  "formats",
+ "futures",
  "graph",
  "graph-triples",
  "kernels",
  "node-address",
  "node-dispatch",
  "node-patch",
+ "node-pointer",
  "parsers",
  "path-utils",
  "serde",

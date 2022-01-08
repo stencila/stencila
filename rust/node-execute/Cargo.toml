@@ -9,17 +9,20 @@ async-trait = "0.1.51"
 chrono = { version = "0.4.19", features = ["serde"] }
 eyre = "0.6.5"
 formats = { path = "../formats", version = "0.0.0" }
+futures = "0.3.19"
 graph = { path = "../graph", version = "0.0.0" }
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
 kernels = { path = "../kernels", version = "0.0.0" }
 node-address = { path = "../node-address", version = "0.0.0" }
 node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
+node-patch = { path = "../node-patch", version = "0.0.0" }
+node-pointer = { path = "../node-pointer", version = "0.0.0" }
 parsers = { path = "../parsers", version = "0.0.0" }
 path-utils = { path = "../path-utils", version = "0.0.0" }
 serde = { version = "1.0.130", features = ["derive"] }
 stencila-schema = "1.12.0"
-tracing = "0.1.29"
 tokio = { version = "1.13.0", features = ["macros"] }
+tracing = "0.1.29"
 uuids = { path = "../uuids", version = "0.0.0" }
 
 [dev-dependencies]

@@ -1,14 +1,14 @@
-use graph_triples::{ResourceId, ResourceInfo};
+use graph_triples::{ResourceInfo, Resource};
 use serde::Serialize;
 
 /// An execution plan for a document
 #[derive(Debug, Default, Serialize)]
 pub struct Plan {
     /// The options used to generate the plan
-    pub(crate) options: PlanOptions,
+    pub options: PlanOptions,
 
     /// The stages to be executed
-    pub(crate) stages: Vec<Stage>,
+    pub stages: Vec<Stage>,
 }
 
 /// Options for generating a plan
@@ -52,7 +52,7 @@ pub enum PlanOrdering {
 #[derive(Debug, Default, Serialize)]
 pub struct Stage {
     /// The steps to be executed
-    pub(crate) steps: Vec<Step>,
+    pub steps: Vec<Step>,
 }
 
 /// A step in an execution plan
@@ -61,18 +61,20 @@ pub struct Stage {
 /// (but to avoid confusion we use a different name here).
 #[derive(Debug, Serialize)]
 pub struct Step {
-    /// The resource to be executed
-    pub(crate) resource_info: Option<ResourceInfo>,
+    /// Information on the resource to be executed
+    /// 
+    /// Passed to kernel for `symbols_used` etc
+    pub resource_info: ResourceInfo,
 
     /// The name of the kernel that the code will be executed in
     ///
     /// If this is `None` it indicates that no kernel capable of executing
     /// the node is available on the machine
-    pub(crate) kernel_name: Option<String>,
+    pub kernel_name: Option<String>,
 
     /// The code will be executed in a fork of the kernel
     ///
     /// Code that has no side effects or who's side effects should be
     /// ignored (i.e. is "@pure") are executed in a fork of the kernel.
-    pub(crate) is_fork: bool,
+    pub is_fork: bool,
 }

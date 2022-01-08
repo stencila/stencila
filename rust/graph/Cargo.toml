@@ -5,8 +5,8 @@ edition = "2021"
 
 [dependencies]
 derivative = "2.2.0"
-eyre = "0.6.5"
 events = { path = "../events", version = "0.0.0" }
+eyre = "0.6.5"
 graph-triples = { path = "../graph-triples", version = "0.0.0" }
 hash-utils = { path = "../hash-utils", version = "0.0.0" }
 kernels = { path = "../kernels", version = "0.0.0" }
@@ -19,4 +19,5 @@ serde_json = { version = "1.0.72", features = ["preserve_order"] }
 serde_with = "1.11.0"
 serde_yaml = "0.8.21"
 strum = { version = "0.23.0", features = ["derive"] }
+tokio = { version = "1.13.0", features = ["macros"] }
 utils = { path = "../utils", version = "0.0.0" }

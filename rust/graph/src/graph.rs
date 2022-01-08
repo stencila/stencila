@@ -191,7 +191,7 @@ impl Graph {
         if let Some(index) = self.indices.get(&resource) {
             *index
         } else {
-            let resource_info = resource_info.unwrap_or_else(|| resource.info());
+            let resource_info = resource_info.unwrap_or_else(|| resource.resource_info());
             self.resources.insert(resource.clone(), resource_info);
 
             let index = self.graph.add_node(resource.clone());
@@ -284,7 +284,7 @@ impl Graph {
     pub fn resource_map(&self) -> BTreeMap<ResourceId, Resource> {
         self.indices
             .iter()
-            .map(|(resource, ..)| (resource.id(), resource.clone()))
+            .map(|(resource, ..)| (resource.resource_id(), resource.clone()))
             .collect()
     }
 
@@ -447,17 +447,20 @@ impl Graph {
                 None => continue,
             };
 
+            let resource_info = self
+                .resources
+                .get(resource)
+                .ok_or_else(|| eyre!("No info for resource"))?;
+
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
-            let resource_info = self.resources.get(resource).cloned();
-            let is_pure = resource_info
-                .as_ref()
-                .map_or(false, |resource_info| resource_info.is_pure());
-            let is_fork = kernel_forkable && is_pure && stage.steps.len() < options.max_concurrency;
+            let is_fork = kernel_forkable
+                && resource_info.is_pure()
+                && stage.steps.len() < options.max_concurrency;
 
             // Create the step and add it to the current stage
             let step = Step {
-                resource_info,
+                resource_info: resource_info.clone(),
                 kernel_name,
                 is_fork,
             };
@@ -595,17 +598,20 @@ impl Graph {
                 None => continue,
             };
 
+            let resource_info = self
+                .resources
+                .get(resource)
+                .ok_or_else(|| eyre!("No info for resource"))?;
+
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
-            let resource_info = self.resources.get(resource).cloned();
-            let is_pure = resource_info
-                .as_ref()
-                .map_or(false, |resource_info| resource_info.is_pure());
-            let is_fork = kernel_forkable && is_pure && stage.steps.len() < options.max_concurrency;
+            let is_fork = kernel_forkable
+                && resource_info.is_pure()
+                && stage.steps.len() < options.max_concurrency;
 
             // Create the step and add it to the current stage
             let step = Step {
-                resource_info,
+                resource_info: resource_info.clone(),
                 kernel_name,
                 is_fork,
             };

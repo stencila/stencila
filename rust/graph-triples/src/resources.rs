@@ -43,7 +43,7 @@ pub type ResourceId = String;
 
 impl Resource {
     /// Get the [`ResourceId`] for a resource
-    pub fn id(&self) -> ResourceId {
+    pub fn resource_id(&self) -> ResourceId {
         match self {
             Resource::Symbol(Symbol { path, name, .. }) => {
                 ["symbol://", &path.to_slash_lossy(), "#", name].concat()
@@ -67,15 +67,23 @@ impl Resource {
     pub fn compile_digest(&self) -> String {
         match self {
             Resource::File(File { path }) => {
-                file_sha256_hex(path).unwrap_or_else(|_| str_sha256_hex(&self.id()))
+                file_sha256_hex(path).unwrap_or_else(|_| str_sha256_hex(&self.resource_id()))
             }
-            _ => str_sha256_hex(&self.id()),
+            _ => str_sha256_hex(&self.resource_id()),
         }
     }
 
     /// Get the [`ResourceInfo`] for a resource
-    pub fn info(&self) -> ResourceInfo {
+    pub fn resource_info(&self) -> ResourceInfo {
         ResourceInfo::new(self.clone(), None, None, Some(self.compile_digest()))
+    }
+
+    /// Get the [`NodeId`] for resources that have it
+    pub fn node_id(&self) -> Option<String> {
+        match self {
+            Resource::Code(Code { id, .. }) | Resource::Node(Node { id, .. }) => Some(id.clone()),
+            _ => None,
+        }
     }
 }
 
