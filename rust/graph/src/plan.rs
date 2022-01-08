@@ -1,4 +1,4 @@
-use graph_triples::{ResourceInfo, Resource};
+use graph_triples::{ResourceInfo};
 use serde::Serialize;
 
 /// An execution plan for a document
@@ -62,7 +62,7 @@ pub struct Stage {
 #[derive(Debug, Serialize)]
 pub struct Step {
     /// Information on the resource to be executed
-    /// 
+    ///
     /// Passed to kernel for `symbols_used` etc
     pub resource_info: ResourceInfo,
 

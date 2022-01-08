@@ -100,7 +100,7 @@ pub async fn execute_plan(
             .map(tokio::spawn)
             .collect::<FuturesUnordered<_>>();
         while let Some(result) = results.next().await {
-            let (step_index, resource, patch) = result??;
+            let (step_index, _resource, patch) = result??;
 
             tracing::debug!(
                 "Finished step {}/{} of stage {}/{}",
