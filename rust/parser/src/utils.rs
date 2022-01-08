@@ -89,19 +89,27 @@ pub fn apply_tags(
     }
 
     // Remove existing pairs for relation types where the `only` keyword is present in tags
-    for only in onlies {
-        resource_info.relations.retain(|(relation, _resource)| {
-            !(matches!(relation, Relation::Import(..)) && only == "imports"
-                || matches!(relation, Relation::Assign(..)) && only == "assigns"
-                || matches!(relation, Relation::Alter(..)) && only == "alters"
-                || matches!(relation, Relation::Use(..)) && only == "uses"
-                || matches!(relation, Relation::Read(..)) && only == "reads"
-                || matches!(relation, Relation::Write(..)) && only == "writes")
-        })
+    if let Some(relations) = &mut resource_info.relations {
+        for only in onlies {
+            relations.retain(|(relation, _resource)| {
+                !(matches!(relation, Relation::Import(..)) && only == "imports"
+                    || matches!(relation, Relation::Assign(..)) && only == "assigns"
+                    || matches!(relation, Relation::Alter(..)) && only == "alters"
+                    || matches!(relation, Relation::Use(..)) && only == "uses"
+                    || matches!(relation, Relation::Read(..)) && only == "reads"
+                    || matches!(relation, Relation::Write(..)) && only == "writes")
+            })
+        }
     }
 
     // Append pairs from tags
-    resource_info.relations.append(&mut pairs);
+    if !pairs.is_empty() {
+        if let Some(relations) = &mut resource_info.relations {
+            relations.append(&mut pairs);
+        } else {
+            resource_info.relations = Some(pairs)
+        }
+    }
 }
 
 /// Is some text quoted?

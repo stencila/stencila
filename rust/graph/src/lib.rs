@@ -1,9 +1,10 @@
-use eyre::{bail, Result};
+use eyre::{bail, eyre, Result};
 use graph_triples::{
     direction, relations,
     resources::{ResourceDependencies, ResourceId},
     Direction, Pairs, Relation, Resource, ResourceInfo, Triple,
 };
+use hash_utils::{sha2, sha2::Digest};
 use path_slash::PathExt;
 use petgraph::{
     graph::NodeIndex,
@@ -91,6 +92,12 @@ impl Serialize for Graph {
                     if let Some(pure) = resource_info.pure {
                         obj.insert("pure".to_string(), json!(pure));
                     }
+                    if let Some(dependencies) = &resource_info.dependencies {
+                        obj.insert("dependencies".to_string(), json!(dependencies.len()));
+                    }
+                    if let Some(depth) = resource_info.depth {
+                        obj.insert("depth".to_string(), json!(depth));
+                    }
                     if let Some(compile_digest) = &resource_info.compile_digest {
                         obj.insert("compile_digest".to_string(), json!(compile_digest));
                     }
@@ -141,58 +148,14 @@ impl Graph {
     }
 
     /// Create a graph from a set of [`ResourceInfo`] objects
-    ///
-    /// Optimized for creating a new graph (compared to other functions which are more
-    /// suited to updating an existing graph).
-    pub fn from_resource_infos<P: AsRef<Path>>(path: P, resource_infos: Vec<ResourceInfo>) -> Self {
-        let path = PathBuf::from(path.as_ref());
-        let mut resources = BTreeMap::new();
-        let mut indices = HashMap::new();
-        let mut graph = StableGraph::new();
-
-        for resource_info in resource_infos.into_iter() {
-            let subject = resource_info.resource.clone();
-            let relations = resource_info.relations.clone();
-
-            // Add the resource to the graph
-            let subject_index = match indices.get(&subject) {
-                Some(index) => *index,
-                None => {
-                    let index = graph.add_node(subject.clone());
-                    indices.insert(subject.clone(), index);
-                    index
-                }
-            };
-
-            // Add all the `Resource`s and `Relation`s that are in `relations`
-            // for the resource
-            for (relation, object) in relations.into_iter() {
-                let object_index = match indices.get(&object) {
-                    Some(index) => *index,
-                    None => {
-                        let index = graph.add_node(object.clone());
-                        indices.insert(object.clone(), index);
-                        index
-                    }
-                };
-
-                let (from, to) = match direction(&relation) {
-                    Direction::From => (object_index, subject_index),
-                    Direction::To => (subject_index, object_index),
-                };
-                graph.add_edge(from, to, relation);
-            }
-
-            // Add the resource to the map of resources
-            resources.insert(subject, resource_info);
-        }
-
-        Self {
-            path,
-            resources,
-            indices,
-            graph,
-        }
+    pub fn from_resource_infos<P: AsRef<Path>>(
+        path: P,
+        resource_infos: Vec<ResourceInfo>,
+    ) -> Result<Self> {
+        let mut graph = Graph::new(path);
+        graph.add_resource_infos(resource_infos);
+        graph.update(None)?;
+        Ok(graph)
     }
 
     /// Create a graph from set of dependency relations
@@ -203,10 +166,23 @@ impl Graph {
     }
 
     /// Add a resource to the graph
-    pub fn add_resource(&mut self, resource: Resource) {
-        if self.indices.get(&resource).is_none() {
+    ///
+    /// Add a resource, and optionally information on the resource, to the graph. If `resource_info` is
+    /// `None` then will calculate it for that resource type.
+    pub fn add_resource(
+        &mut self,
+        resource: Resource,
+        resource_info: Option<ResourceInfo>,
+    ) -> NodeIndex {
+        if let Some(index) = self.indices.get(&resource) {
+            *index
+        } else {
+            let resource_info = resource_info.unwrap_or_else(|| resource.info());
+            self.resources.insert(resource.clone(), resource_info);
+
             let index = self.graph.add_node(resource.clone());
             self.indices.insert(resource, index);
+            index
         }
     }
 
@@ -250,12 +226,39 @@ impl Graph {
     pub fn add_relations(&mut self, relations: &[(Resource, Pairs)]) {
         for (subject, pairs) in relations {
             if pairs.is_empty() {
-                self.add_resource(subject.clone());
+                self.add_resource(subject.clone(), None);
                 continue;
             }
 
             for (relation, object) in pairs {
                 self.add_triple((subject.clone(), relation.clone(), object.clone()));
+            }
+        }
+    }
+
+    /// Add a set of [`ResourceInfo`] objects to the graph
+    pub fn add_resource_infos(&mut self, resource_infos: Vec<ResourceInfo>) {
+        for resource_info in resource_infos.into_iter() {
+            let subject = resource_info.resource.clone();
+            let relations = resource_info.relations.clone();
+
+            // Add the subject resource (if it is not already)
+            let subject_index = self.add_resource(subject, Some(resource_info));
+
+            // Add all the `Resource`s and `Relation`s that are in `relations`
+            // for the resource
+            if let Some(relations) = relations {
+                for (relation, object) in relations.into_iter() {
+                    // Add the object resource (if it is not already)
+                    let object_index = self.add_resource(object, None);
+
+                    // Add an edge
+                    let (from, to) = match direction(&relation) {
+                        Direction::From => (object_index, subject_index),
+                        Direction::To => (subject_index, object_index),
+                    };
+                    self.graph.add_edge(from, to, relation);
+                }
             }
         }
     }
@@ -266,6 +269,88 @@ impl Graph {
             .iter()
             .map(|(resource, ..)| (resource.id(), resource.clone()))
             .collect()
+    }
+
+    /// Update the graph, usually in response to a change in one of it's resources
+    ///
+    /// # Arguments
+    ///
+    /// - `start`: The graph resource from which the update should be started
+    ///   (in topological order); if `None` will update all resources in the graph.
+    pub fn update(&mut self, start: Option<Resource>) -> Result<()> {
+        let graph = &self.graph;
+
+        let mut started = start.is_none();
+        let mut topo = visit::Topo::new(&graph);
+        while let Some(node_index) = topo.next(&graph) {
+            let resource = &graph[node_index];
+            if !started {
+                if let Some(start) = &start {
+                    started = start == resource;
+                }
+            }
+            if !started {
+                continue;
+            }
+
+            let incomings = graph.neighbors_directed(node_index, Incoming);
+            let mut dependencies = Vec::new();
+            let mut depth = 0;
+            let mut link_digest_hasher = sha2::Sha256::new();
+            for incoming_index in incomings {
+                let dependency = &graph[incoming_index];
+                let dependency_info = self
+                    .resources
+                    .get(dependency)
+                    .ok_or_else(|| eyre!("No info for dependency"))?;
+
+                if let Some(dependency_dependencies) = &dependency_info.dependencies {
+                    for other in dependency_dependencies {
+                        if !dependencies.contains(other) {
+                            dependencies.push(other.clone())
+                        }
+                    }
+                }
+                if !dependencies.contains(dependency) {
+                    dependencies.push(dependency.clone());
+                }
+
+                let dependency_depth = dependency_info.depth.unwrap_or_default();
+                if dependency_depth + 1 > depth {
+                    depth = dependency_depth + 1
+                }
+
+                let link_digest = dependency_info
+                    .link_digest
+                    .as_ref()
+                    .ok_or_else(|| eyre!("Dependency has no link digest"))?;
+                link_digest_hasher.update(link_digest);
+            }
+
+            let resource_info = self
+                .resources
+                .get_mut(resource)
+                .ok_or_else(|| eyre!("No info for resource"))?;
+
+            let compile_digest = resource_info
+                .compile_digest
+                .clone()
+                .unwrap_or_else(|| resource.compile_digest());
+
+            let link_digest = if depth == 0 {
+                compile_digest.clone()
+            } else {
+                link_digest_hasher.update(&compile_digest);
+                format!("{:x}", link_digest_hasher.finalize())
+            };
+
+            resource_info.dependencies = Some(dependencies);
+            resource_info.depth = Some(depth);
+            resource_info.compile_digest = Some(compile_digest);
+            resource_info.link_digest = Some(link_digest);
+        }
+
+        Ok(())
     }
 
     /// Perform a topological sort of the graph

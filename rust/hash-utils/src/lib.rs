@@ -2,6 +2,9 @@ use eyre::Result;
 use sha2::{digest::Output, Digest, Sha256};
 use std::{convert::TryInto, fs::File, io, path::Path};
 
+// Re-exports
+pub use sha2;
+
 /// Get a SHA-256 digest of a string as a hex string
 pub fn str_sha256_hex(str: &str) -> String {
     format!("{:x}", str_sha256(str))

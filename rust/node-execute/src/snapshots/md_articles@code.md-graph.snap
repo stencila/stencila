@@ -11,7 +11,10 @@ expression: "&graph"
       "id": "ce-1",
       "kind": "CodeExpression",
       "language": "R",
+      "dependencies": 0,
+      "depth": 0,
       "compile_digest": "4a1b21d876ae00c8ed5c4d1cde09c61f8a61b50fe370a801b10c339831f370ab",
+      "link_digest": "4a1b21d876ae00c8ed5c4d1cde09c61f8a61b50fe370a801b10c339831f370ab",
       "index": 0
     },
     {
@@ -20,7 +23,10 @@ expression: "&graph"
       "id": "ce-2",
       "kind": "CodeExpression",
       "language": "Python",
+      "dependencies": 0,
+      "depth": 0,
       "compile_digest": "1acf86226c68c1485ca3939884c43ed99abeea344e806548af7ee813c1c0cff3",
+      "link_digest": "1acf86226c68c1485ca3939884c43ed99abeea344e806548af7ee813c1c0cff3",
       "index": 1
     },
     {
@@ -29,7 +35,10 @@ expression: "&graph"
       "id": "ce-3",
       "kind": "CodeExpression",
       "language": "Python",
+      "dependencies": 0,
+      "depth": 0,
       "compile_digest": "f0973176bfeea20f2753ce4859b48727aeda002324461ae34a536ae14f3bcce2",
+      "link_digest": "f0973176bfeea20f2753ce4859b48727aeda002324461ae34a536ae14f3bcce2",
       "index": 2
     },
     {
@@ -38,7 +47,10 @@ expression: "&graph"
       "id": "ce-4",
       "kind": "CodeExpression",
       "language": "Python",
+      "dependencies": 0,
+      "depth": 0,
       "compile_digest": "5d4b463cb15d83aac4d6990aefe248d9c6a43fed0a8bd6fc4d84763537edd190",
+      "link_digest": "5d4b463cb15d83aac4d6990aefe248d9c6a43fed0a8bd6fc4d84763537edd190",
       "index": 3
     },
     {
@@ -47,7 +59,10 @@ expression: "&graph"
       "id": "ce-5",
       "kind": "CodeExpression",
       "language": "Python",
+      "dependencies": 0,
+      "depth": 0,
       "compile_digest": "ffdeb24e8d894df9583f3d040617c15dfa4f33a357016a3fbfacf8d261fc6e65",
+      "link_digest": "ffdeb24e8d894df9583f3d040617c15dfa4f33a357016a3fbfacf8d261fc6e65",
       "index": 4
     },
     {
@@ -56,7 +71,10 @@ expression: "&graph"
       "id": "cc-1",
       "kind": "CodeChunk",
       "language": "R",
+      "dependencies": 0,
+      "depth": 0,
       "compile_digest": "f8ab6e051db0591e2db54a8d1973f145b4edd8887cd123fd802b8e0a799d32de",
+      "link_digest": "f8ab6e051db0591e2db54a8d1973f145b4edd8887cd123fd802b8e0a799d32de",
       "index": 5
     }
   ],

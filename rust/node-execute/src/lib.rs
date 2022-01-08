@@ -1,5 +1,5 @@
 use eyre::Result;
-use graph_triples::{Relations, ResourceMap, ResourceInfo};
+use graph_triples::{Relations, ResourceInfo, ResourceMap};
 use node_address::{Address, AddressMap};
 use std::{path::Path, sync::Arc};
 use stencila_schema::*;
@@ -119,10 +119,8 @@ mod tests {
             });
 
             // Generate and snapshot the article graph
-            let graph = Graph::from_resource_infos(path, resources);
-            snapshot_set_suffix(&[name, "-graph"].concat(), || {
-                assert_json_snapshot!(&graph)
-            });
+            let graph = Graph::from_resource_infos(path, resources)?;
+            snapshot_set_suffix(&[name, "-graph"].concat(), || assert_json_snapshot!(&graph));
 
             // Create an execution planner for the article
             /*
@@ -131,7 +129,7 @@ mod tests {
             snapshot_set_suffix(&[name, "-planner"].concat(), || {
                 assert_json_snapshot!(&planner)
             });
-            
+
 
             // Generate various execution plans for the article using alternative options
             // and snapshot them all. Always specify `max_concurrency` to avoid differences

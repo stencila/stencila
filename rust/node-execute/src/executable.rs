@@ -149,8 +149,9 @@ impl Executable for Link {
         } else {
             resources::file(&merge(&context.path, target))
         };
+        let relations = vec![(Relation::Link, object)];
 
-        let resource_info = ResourceInfo::new(resource, vec![(Relation::Link, object)], None, None);
+        let resource_info = ResourceInfo::new(resource, Some(relations), None, None);
         context.resources.push(resource_info);
 
         Ok(())
@@ -221,9 +222,9 @@ macro_rules! executable_media_object {
                     let url = url.strip_prefix("file://").unwrap_or(&url);
                     resources::file(&Path::new(&url))
                 };
+                let relations = vec![(Relation::Embed, object)];
 
-                let resource_info =
-                    ResourceInfo::new(resource, vec![(Relation::Embed, object)], None, None);
+                let resource_info = ResourceInfo::new(resource, Some(relations), None, None);
                 context.resources.push(resource_info);
 
                 self.content_url = url;
@@ -281,7 +282,7 @@ impl Executable for Parameter {
 
         let resource_info = ResourceInfo::new(
             resource,
-            relations,
+            Some(relations),
             None,
             Some(ResourceInfo::sha256_digest(&value)),
         );
@@ -471,9 +472,9 @@ impl Executable for Include {
 
         let path = merge(&context.path, &self.source);
         let object = resources::file(&path);
+        let relations = vec![(Relation::Include, object)];
 
-        let resource_info =
-            ResourceInfo::new(resource, vec![(Relation::Include, object)], None, None);
+        let resource_info = ResourceInfo::new(resource, Some(relations), None, None);
         context.resources.push(resource_info);
 
         Ok(())

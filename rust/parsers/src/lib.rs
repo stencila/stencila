@@ -111,7 +111,7 @@ impl Parsers {
 
         let format = match_name(&language);
 
-        let resource_info =
+        let mut resource_info =
             if let Some(result) = dispatch_builtins!(format, parse, resource, &path, code) {
                 result?
             } else {
@@ -122,28 +122,29 @@ impl Parsers {
             };
 
         // Normalize pairs by removing any `Uses` of locally assigned variables
-        let mut normalized: Pairs = Vec::with_capacity(resource_info.relations.len());
-        for (relation, object) in resource_info.relations {
-            let mut include = true;
-            if matches!(relation, Relation::Use(..)) {
-                for (other_relation, other_object) in &normalized {
-                    if matches!(other_relation, Relation::Assign(..)) && *other_object == object {
-                        include = false;
-                        break;
+        if let Some(relations) = resource_info.relations {
+            let mut normalized: Pairs = Vec::with_capacity(relations.len());
+            for (relation, object) in relations {
+                let mut include = true;
+                if matches!(relation, Relation::Use(..)) {
+                    for (other_relation, other_object) in &normalized {
+                        if matches!(other_relation, Relation::Assign(..)) && *other_object == object
+                        {
+                            include = false;
+                            break;
+                        }
                     }
                 }
-            }
-            if !include {
-                continue;
-            }
+                if !include {
+                    continue;
+                }
 
-            normalized.push((relation, object))
+                normalized.push((relation, object))
+            }
+            resource_info.relations = Some(normalized);
         }
 
-        Ok(ResourceInfo {
-            relations: normalized,
-            ..resource_info
-        })
+        Ok(resource_info)
     }
 }
 

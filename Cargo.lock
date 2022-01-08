@@ -1990,6 +1990,7 @@ dependencies = [
  "events",
  "eyre",
  "graph-triples",
+ "hash-utils",
  "path-slash",
  "petgraph",
  "schemars",

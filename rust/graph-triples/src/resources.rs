@@ -1,6 +1,6 @@
 use derivative::Derivative;
 use eyre::Result;
-use hash_utils::str_sha256_hex;
+use hash_utils::{file_sha256_hex, str_sha256_hex};
 use path_slash::PathExt;
 use schemars::JsonSchema;
 use serde::Serialize;
@@ -43,8 +43,8 @@ pub enum Resource {
 pub type ResourceId = String;
 
 impl Resource {
-    /// Get the resource id
-    pub fn id(&self) -> String {
+    /// Get the [`ResourceId`] for a resource
+    pub fn id(&self) -> ResourceId {
         match self {
             Resource::Symbol(Symbol { path, name, .. }) => {
                 ["symbol://", &path.to_slash_lossy(), "#", name].concat()
@@ -63,19 +63,43 @@ impl Resource {
             Resource::Url(Url { url }) => url.clone(),
         }
     }
+
+    /// Generate a `compile_digest` for a resource
+    pub fn compile_digest(&self) -> String {
+        match self {
+            Resource::File(File { path }) => {
+                file_sha256_hex(path).unwrap_or_else(|_| str_sha256_hex(&self.id()))
+            }
+            _ => str_sha256_hex(&self.id()),
+        }
+    }
+
+    /// Get the [`ResourceInfo`] for a resource
+    pub fn info(&self) -> ResourceInfo {
+        ResourceInfo::new(self.clone(), None, None, Some(self.compile_digest()))
+    }
 }
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize)]
 pub struct ResourceInfo {
-    /// The resource (the "subject") that this information if for
+    /// The resource (the "subject") that this information is for
     pub resource: Resource,
 
     /// The [`Relation`]-[`Resource`] pairs between the resource (the "subject") and
     /// other resources (the "objects").
     ///
     /// This is the primary data used to build the dependency graph between resources.
-    pub relations: Pairs,
+    pub relations: Option<Pairs>,
+
+    /// The dependencies of the resource
+    pub dependencies: Option<Vec<Resource>>,
+
+    /// The depth of the resource in the dependency graph.
+    ///
+    /// A resource that has no dependencies has a depth of zero.
+    /// Otherwise the depth is the maximum depth of dependencies plus one.
+    pub depth: Option<usize>,
 
     /// Whether the resource is explicitly marked as pure or impure
     ///
@@ -105,13 +129,15 @@ impl ResourceInfo {
     /// Create a new `ResourceInfo` object
     pub fn new(
         resource: Resource,
-        relations: Pairs,
+        relations: Option<Pairs>,
         pure: Option<bool>,
         compile_digest: Option<String>,
     ) -> Self {
         Self {
             resource,
             relations,
+            dependencies: None,
+            depth: None,
             pure,
             compile_digest,
             link_digest: None,
@@ -132,46 +158,55 @@ impl ResourceInfo {
     /// If the resource has not been explicitly tagged as pure or impure then
     /// returns `true` if there are any side-effect causing relations.
     pub fn is_pure(&self) -> bool {
-        self.pure.unwrap_or_else(|| {
-            self.relations
-                .iter()
-                .filter(|(relation, ..)| {
-                    matches!(
-                        relation,
-                        Relation::Assign(..)
-                            | Relation::Alter(..)
-                            | Relation::Import(..)
-                            | Relation::Write(..)
-                    )
-                })
-                .count()
-                == 0
+        self.pure.unwrap_or_else(|| match &self.relations {
+            Some(relations) => {
+                relations
+                    .iter()
+                    .filter(|(relation, ..)| {
+                        matches!(
+                            relation,
+                            Relation::Assign(..)
+                                | Relation::Alter(..)
+                                | Relation::Import(..)
+                                | Relation::Write(..)
+                        )
+                    })
+                    .count()
+                    == 0
+            }
+            None => false,
         })
     }
 
     /// Get a list of symbols used by the resource
     pub fn symbols_used(&self) -> Vec<Symbol> {
-        self.relations
-            .iter()
-            .filter_map(|pair| match pair {
-                (Relation::Use(..), Resource::Symbol(symbol)) => Some(symbol),
-                _ => None,
-            })
-            .cloned()
-            .collect()
+        match &self.relations {
+            Some(relations) => relations
+                .iter()
+                .filter_map(|pair| match pair {
+                    (Relation::Use(..), Resource::Symbol(symbol)) => Some(symbol),
+                    _ => None,
+                })
+                .cloned()
+                .collect(),
+            None => Vec::new(),
+        }
     }
 
     /// Get a list of symbols modified by the resource
     pub fn symbols_modified(&self) -> Vec<Symbol> {
-        self.relations
-            .iter()
-            .filter_map(|pair| match pair {
-                (Relation::Assign(..), Resource::Symbol(symbol))
-                | (Relation::Alter(..), Resource::Symbol(symbol)) => Some(symbol),
-                _ => None,
-            })
-            .cloned()
-            .collect()
+        match &self.relations {
+            Some(relations) => relations
+                .iter()
+                .filter_map(|pair| match pair {
+                    (Relation::Assign(..), Resource::Symbol(symbol))
+                    | (Relation::Alter(..), Resource::Symbol(symbol)) => Some(symbol),
+                    _ => None,
+                })
+                .cloned()
+                .collect(),
+            None => Vec::new(),
+        }
     }
 }
 
