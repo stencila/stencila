@@ -1,3 +1,21 @@
+# [1.13.0](https://github.com/stencila/schema/compare/v1.12.0...v1.13.0) (2022-01-09)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate serde to 1.0.132 ([b47af3d](https://github.com/stencila/schema/commit/b47af3df961f014f3cc1f6aaceba6ee51f0c025a))
+* **dependencies:** update rust crate serde_json to 1.0.73 ([8dab589](https://github.com/stencila/schema/commit/8dab58976e8fa1831649326dcfa7355ab1ac9c4e))
+* **dependencies:** update rust crate serde_with to 1.11.0 ([f4b789f](https://github.com/stencila/schema/commit/f4b789ff35c711409d2052b358c8c893fd0fca46))
+* **dependencies:** update rust crate strum to 0.23.0 ([2769bf8](https://github.com/stencila/schema/commit/2769bf8c3b80e9c8d7e0e1ae12f2dd730039400d))
+* **Rust:** Fix error message ([a597cf8](https://github.com/stencila/schema/commit/a597cf81bd7c8c8072985b0ca2b911afbd28d6a7))
+
+
+### Features
+
+* **Executable code nodes:** Add properties for execution status etc ([9e3de92](https://github.com/stencila/schema/commit/9e3de9270888e0d19a2279cc8d40263566f1cfa3))
+* **Rust:** Add `Cord` for use in digest, and other, properties ([bcc186d](https://github.com/stencila/schema/commit/bcc186d9e56a3563a2831824b090496d6930cfea))
+* **Rust:** Add convieience functions for `Date` type ([3d6e89d](https://github.com/stencila/schema/commit/3d6e89d9eccf134e05e9207b7beda773d377c4c5))
+
 # [1.12.0](https://github.com/stencila/schema/compare/v1.11.4...v1.12.0) (2021-09-26)
 
 
