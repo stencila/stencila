@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 pub use defaults::Defaults;
 pub use serde::{Deserialize, Serialize};
 pub use serde_json::Value;
@@ -85,13 +86,25 @@ pub enum Primitive {
 /// Defined primarily so that a customized `Patchable` implementation
 /// can be defined for strings where it is more appropriate to replace,
 /// rather than diff the string.
-#[derive(
-    Clone,
-    Debug,
-    PartialEq,
-    Eq,
-    Hash,
-    Serialize,
-    Deserialize
-)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Cord(pub String);
+
+// Convenience functions for `Date`
+
+impl From<DateTime<Utc>> for crate::Date {
+    fn from(date_time: DateTime<Utc>) -> Self {
+        Self {
+            value: date_time.to_rfc3339(),
+            ..Default::default()
+        }
+    }
+}
+
+impl crate::Date {
+    pub fn now() -> Self {
+        Self {
+            value: Utc::now().to_rfc3339(),
+            ..Default::default()
+        }
+    }
+}
