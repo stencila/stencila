@@ -1,6 +1,6 @@
 use derivative::Derivative;
 use eyre::Result;
-use hash_utils::{file_sha256_hex, str_sha256_hex};
+use hash_utils::{file_sha256, str_sha256};
 use path_slash::PathExt;
 use schemars::JsonSchema;
 use serde::Serialize;
@@ -63,19 +63,20 @@ impl Resource {
         }
     }
 
-    /// Generate a `compile_digest` for a resource
-    pub fn compile_digest(&self) -> String {
+    /// Generate a [`ResourceDigest`] for a resource.
+    ///
+    /// If the resource variant does not support generation of a digest,
+    /// a default (empty) digest is returned.
+    pub fn digest(&self) -> ResourceDigest {
         match self {
-            Resource::File(File { path }) => {
-                file_sha256_hex(path).unwrap_or_else(|_| str_sha256_hex(&self.resource_id()))
-            }
-            _ => str_sha256_hex(&self.resource_id()),
+            Resource::File(File { path }) => ResourceDigest::from_file(path),
+            _ => ResourceDigest::default(),
         }
     }
 
     /// Get the [`ResourceInfo`] for a resource
     pub fn resource_info(&self) -> ResourceInfo {
-        ResourceInfo::new(self.clone(), None, None, Some(self.compile_digest()))
+        ResourceInfo::new(self.clone(), None, None, Some(self.digest()), None)
     }
 
     /// Get the [`NodeId`] for resources that have it
@@ -84,6 +85,120 @@ impl Resource {
             Resource::Code(Code { id, .. }) | Resource::Node(Node { id, .. }) => Some(id.clone()),
             _ => None,
         }
+    }
+}
+
+/// A digest representing the state of a [`Resource`] and its dependencies.
+/// 
+/// The digest is separated into several parts. Although initially it may seem that the
+/// parts are redundant ("can't they all be folded into a single digest?"), each
+/// part provides useful information. For example, it is useful, to store
+/// the `content_digest`, in addition to `semantic_digest`, to be able
+/// to indicate to the user that a change in the resource has been detected but
+/// that it does not appear to change its semantics.
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub struct ResourceDigest {
+    /// A digest that captures the content of the resource (e.g the `text`
+    /// of a `CodeChunk`, or the bytes of a file).
+    pub content_digest: String,
+
+    /// A digest that captures the "semantic intent" of the resource
+    /// with respect to the dependency graph.
+    /// 
+    /// For example, for `Code` resources it is preferably derived from the AST
+    /// of the code and should only change when the semantics of the code change.
+    pub semantic_digest: String,
+
+    /// A digest of the `dependencies_digest`s of the dependencies of a resource.
+    /// 
+    /// If there are no dependencies then `dependencies_digest` is an empty string.
+    pub dependencies_digest: String,
+
+    /// The count of the number of code dependencies that have a `compile_digest` that
+    /// is unequal to the `execute_digest` (i.e. are out of sync with the `KernelSpace`).
+    /// 
+    /// If there are no dependencies then `dependencies_unsynced` is zero. May include
+    /// duplicates for diamond shaped dependency graphs so this represents a maximum number.
+    pub dependencies_unsynced: u32,
+}
+
+impl ResourceDigest {
+    /// Create a new `ResourceDigest` from strings for content and semantics.
+    ///
+    /// Before generating the hash of strings remove carriage returns from strings to avoid
+    /// cross platform differences in generated digests.
+    pub fn from_strings(content_str: &str, semantic_str: Option<&str>) -> Self {
+        let content_digest = Self::base64_encode(&str_sha256(&Self::strip_chars(content_str)));
+        let semantic_digest = semantic_str.map_or_else(String::default, |str| {
+            Self::base64_encode(&str_sha256(&Self::strip_chars(str)))
+        });
+        Self {
+            content_digest,
+            semantic_digest,
+            ..Default::default()
+        }
+    }
+
+    /// Create a new `ResourceDigest` from a file
+    ///
+    /// If there is an error when hashing the file, a default (empty) digest is returned.
+    pub fn from_file(path: &Path) -> Self {
+        match file_sha256(path) {
+            Ok(bytes) => Self::from_bytes(&bytes, None),
+            Err(..) => Self::default(),
+        }
+    }
+
+    /// Create a new `ResourceDigest` from bytes for content and semantics
+    ///
+    /// To minimize the size of the digest while maintaining uniqueness, the bytes are usually,
+    /// but not necessarily, the output of a hashing function.
+    pub fn from_bytes(content_bytes: &[u8], semantic_bytes: Option<&[u8]>) -> Self {
+        let content_digest = Self::base64_encode(content_bytes);
+        let semantic_digest =
+            semantic_bytes.map_or_else(String::default, |bytes| Self::base64_encode(bytes));
+        Self {
+            content_digest,
+            semantic_digest,
+            ..Default::default()
+        }
+    }
+
+    /// Strip carriage returns (and possibly other problematic characters) from strings
+    pub fn strip_chars(bytes: &str) -> String {
+        bytes.replace("\r", "")
+    }
+
+    /// Encode bytes as Base64
+    ///
+    /// Uses a URL safe (https://tools.ietf.org/html/rfc3548#section-4) character set
+    /// and does not include padding (because it is unnecessary in this use case).
+    pub fn base64_encode(bytes: &[u8]) -> String {
+        base64::encode_config(bytes, base64::URL_SAFE_NO_PAD)
+    }
+}
+
+// String representation of `ResourceDigest`
+impl Display for ResourceDigest {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            formatter,
+            "{}.{}.{}.{}",
+            self.content_digest,
+            self.semantic_digest,
+            self.dependencies_digest,
+            self.dependencies_unsynced
+        )
+    }
+}
+
+// Use `Display` for serialization
+impl Serialize for ResourceDigest {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.collect_str(&self.to_string())
     }
 }
 
@@ -100,36 +215,34 @@ pub struct ResourceInfo {
     pub relations: Option<Pairs>,
 
     /// The dependencies of the resource
+    ///
+    /// Derived during graph `update()`.
+    /// Used when generating an execution plan to determine which of
+    /// a resource's dependencies need to be executed as well.
     pub dependencies: Option<Vec<Resource>>,
 
     /// The depth of the resource in the dependency graph.
     ///
+    /// Derived during graph `update()` from the depths of the
+    /// resource's `dependencies`.
     /// A resource that has no dependencies has a depth of zero.
-    /// Otherwise the depth is the maximum depth of dependencies plus one.
+    /// Otherwise, the depth is the maximum depth of dependencies plus one.
     pub depth: Option<usize>,
 
-    /// Whether the resource is explicitly marked as pure or impure
+    /// Whether the resource is explicitly marked as pure or impure.
     ///
     /// Pure resources do not modify other resources (i.e. they have no side effects).
     /// This can be determined from whether the resource has any `Assign`, `Alter` or `Write`
     /// relations. Additionally, the user may mark the resource as pure or impure
-    /// for example, by using `@pure` or `@impure` tags in code comments.
+    /// for example, by using `@pure` or `@impure` tags in code comments. This property
+    /// stores that explicit tag.
     pub pure: Option<bool>,
 
-    /// A digest of the resource when it was compiled
-    ///
-    /// This digest is intended to capture the "semantic intent" of the resource
-    /// with respect to the dependency graph. For example, for `Code` resources
-    /// it is preferably derived from the AST of the code and should only change
-    /// when the semantics of the code change. For `File` resources, this may be
-    /// a hash digest of the entire file, or of it's modification time for large files.
-    pub compile_digest: Option<String>,
+    /// The [`ResourceDigest`] of the resource when it was last compiled
+    pub compile_digest: Option<ResourceDigest>,
 
-    /// A digest of the resource when it was linked with other resources
-    pub link_digest: Option<String>,
-
-    /// A digest of the resource the last time that it was executed
-    pub execute_digest: Option<String>,
+    /// The [`ResourceDigest`] of the resource when it was last executed
+    pub execute_digest: Option<ResourceDigest>,
 }
 
 impl ResourceInfo {
@@ -138,7 +251,8 @@ impl ResourceInfo {
         resource: Resource,
         relations: Option<Pairs>,
         pure: Option<bool>,
-        compile_digest: Option<String>,
+        compile_digest: Option<ResourceDigest>,
+        execute_digest: Option<ResourceDigest>,
     ) -> Self {
         Self {
             resource,
@@ -147,17 +261,8 @@ impl ResourceInfo {
             depth: None,
             pure,
             compile_digest,
-            link_digest: None,
-            execute_digest: None,
+            execute_digest,
         }
-    }
-
-    /// Create a SHA256 hash digest from a value
-    ///
-    /// Suitable for use when generating the `_digest` properties of a [`ResourceInfo`]
-    /// object.
-    pub fn sha256_digest<T: Display>(value: &T) -> String {
-        str_sha256_hex(&value.to_string())
     }
 
     /// Is the resource pure (i.e. has no side effects)?

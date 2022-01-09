@@ -1,5 +1,5 @@
 use parser::{
-    graph_triples::{relations::Range, Pairs, Resource, ResourceInfo},
+    graph_triples::{relations::Range, resources::ResourceDigest, Pairs, Resource, ResourceInfo},
     utils::apply_tags,
 };
 use std::{collections::HashMap, path::Path, sync::Mutex};
@@ -215,15 +215,28 @@ pub fn resource_info(
     comment_pattern: usize,
     relations: Pairs,
 ) -> ResourceInfo {
-    // Remove carriage returns from code to avoid cross platform
-    // differences in code before calculating digest
-    let code = std::str::from_utf8(code)
-        .unwrap_or_default()
-        .replace("\r", "");
-    let digest = ResourceInfo::sha256_digest(&code);
+    // The content of the resource (used for generating digest)
+    let content_str = std::str::from_utf8(code).unwrap_or_default();
 
-    let mut resource_info = ResourceInfo::new(resource, Some(relations), None, Some(digest));
+    // The semantics of the resource (used for generating digest).
+    // Includes the language name. In the future may be generated from the
+    // parsed AST.
+    let semantic_str = [lang, content_str].concat();
 
+    // Make the resource
+    let mut resource_info = ResourceInfo::new(
+        resource,
+        Some(relations),
+        None,
+        Some(ResourceDigest::from_strings(
+            content_str,
+            Some(&semantic_str),
+        )),
+        None,
+    );
+
+    // Apply tags from comments (this needs to be done at the end because tags
+    // may remove pairs if `only` is specified)
     for (pattern_, captures) in matches {
         if pattern_ != comment_pattern {
             continue;

@@ -2009,6 +2009,7 @@ dependencies = [
 name = "graph-triples"
 version = "0.0.0"
 dependencies = [
+ "base64 0.13.0",
  "derivative",
  "eyre",
  "hash-utils",

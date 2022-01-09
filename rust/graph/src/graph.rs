@@ -1,7 +1,8 @@
 use eyre::{bail, eyre, Result};
 use graph_triples::{
-    direction, relations, resources::ResourceId, Direction, Pairs, Relation, Resource,
-    ResourceInfo, Triple,
+    direction, relations,
+    resources::{ResourceDigest, ResourceId},
+    Direction, Pairs, Relation, Resource, ResourceInfo, Triple,
 };
 use hash_utils::{sha2, sha2::Digest};
 use kernels::{Kernel, KernelSelector};
@@ -111,9 +112,6 @@ impl Serialize for Graph {
                     }
                     if let Some(compile_digest) = &resource_info.compile_digest {
                         obj.insert("compile_digest".to_string(), json!(compile_digest));
-                    }
-                    if let Some(link_digest) = &resource_info.link_digest {
-                        obj.insert("link_digest".to_string(), json!(link_digest));
                     }
                     if let Some(execute_digest) = &resource_info.execute_digest {
                         obj.insert("execute_digest".to_string(), json!(execute_digest));
@@ -315,10 +313,12 @@ impl Graph {
                 continue;
             }
 
+            // Calculate stuff from dependencies
             let incomings = graph.neighbors_directed(node_index, Incoming);
             let mut dependencies = Vec::new();
             let mut depth = 0;
-            let mut link_digest_hasher = sha2::Sha256::new();
+            let mut dependencies_digest = sha2::Sha256::new();
+            let mut dependencies_unsynced = 0;
             for incoming_index in incomings {
                 let dependency = &graph[incoming_index];
                 let dependency_info = self
@@ -326,6 +326,7 @@ impl Graph {
                     .get(dependency)
                     .ok_or_else(|| eyre!("No info for dependency"))?;
 
+                // Update list of dependencies
                 if let Some(dependency_dependencies) = &dependency_info.dependencies {
                     for other in dependency_dependencies {
                         if !dependencies.contains(other) {
@@ -337,39 +338,73 @@ impl Graph {
                     dependencies.push(dependency.clone());
                 }
 
+                // Update depth
                 let dependency_depth = dependency_info.depth.unwrap_or_default();
                 if dependency_depth + 1 > depth {
                     depth = dependency_depth + 1
                 }
 
-                let link_digest = dependency_info
-                    .link_digest
+                let compile_digest = dependency_info
+                    .compile_digest
                     .as_ref()
-                    .ok_or_else(|| eyre!("Dependency has no link digest"))?;
-                link_digest_hasher.update(link_digest);
+                    .ok_or_else(|| eyre!("Dependency has no compile_digest"))?;
+
+                // Update the digest of dependencies using a concatenation of their content, semantic,
+                // and dependencies digests (note that some of these may be empty which is why we
+                // need to include all three).
+                let digest = [
+                    compile_digest.content_digest.as_str(),
+                    compile_digest.semantic_digest.as_str(),
+                    compile_digest.dependencies_digest.as_str(),
+                ]
+                .concat();
+                dependencies_digest.update(digest);
+
+                // Update the number of `Code` dependencies that are unsynced. This is transitive,
+                // so if the resource is not code (e.g. a `Symbol`) then add its value.
+                if matches!(dependency, Resource::Code(..)) {
+                    if let Some(execute_digest) = &dependency_info.execute_digest {
+                        // Has dependency changed since it was last executed?
+                        if execute_digest != compile_digest {
+                            dependencies_unsynced += 1;
+                        }
+                    } else {
+                        // Dependency has not been executed
+                        dependencies_unsynced += 1;
+                    }
+                } else {
+                    dependencies_unsynced += compile_digest.dependencies_unsynced;
+                }
             }
 
+            // If there are no dependencies then `dependencies_digest` is an empty string
+            let dependencies_digest = match !dependencies.is_empty() {
+                true => ResourceDigest::base64_encode(&dependencies_digest.finalize()),
+                false => String::default(),
+            };
+
+            // Get the resource info we're about to update
             let resource_info = self
                 .resources
                 .get_mut(resource)
                 .ok_or_else(|| eyre!("No info for resource"))?;
 
-            let compile_digest = resource_info
-                .compile_digest
-                .clone()
-                .unwrap_or_else(|| resource.compile_digest());
-
-            let link_digest = if depth == 0 {
-                compile_digest.clone()
-            } else {
-                link_digest_hasher.update(&compile_digest);
-                format!("{:x}", link_digest_hasher.finalize())
-            };
-
             resource_info.dependencies = Some(dependencies);
             resource_info.depth = Some(depth);
-            resource_info.compile_digest = Some(compile_digest);
-            resource_info.link_digest = Some(link_digest);
+
+            // Update the compile digest, or create one if there isn't one already.
+            match resource_info.compile_digest.as_mut() {
+                Some(compile_digest) => {
+                    compile_digest.dependencies_digest = dependencies_digest;
+                    compile_digest.dependencies_unsynced = dependencies_unsynced;
+                }
+                None => {
+                    let mut compile_digest = resource.digest();
+                    compile_digest.dependencies_digest = dependencies_digest;
+                    compile_digest.dependencies_unsynced = dependencies_unsynced;
+                    resource_info.compile_digest = Some(compile_digest);
+                }
+            }
         }
 
         Ok(())

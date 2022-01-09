@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+base64 = "0.13.0"
 derivative = "2.2.0"
 eyre = "0.6.5"
 hash-utils = { path = "../hash-utils", version = "0.0.0" }

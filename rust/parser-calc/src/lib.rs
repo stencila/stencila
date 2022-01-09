@@ -2,7 +2,11 @@ use once_cell::sync::Lazy;
 use parser::{
     eyre::Result,
     formats::Format,
-    graph_triples::{relations, resources, Resource, ResourceInfo},
+    graph_triples::{
+        relations,
+        resources::{self, ResourceDigest},
+        Resource, ResourceInfo,
+    },
     utils::apply_tags,
     Parser, ParserTrait,
 };
@@ -32,8 +36,9 @@ impl ParserTrait for CalcParser {
             Regex::new(r"(\b[a-zA-Z_][a-zA-Z_0-9]*\b)(\s*\()?").expect("Unable to create regex")
         });
 
+        // The semantic content of the code (includes the language name and ignores comments)
+        let mut semantics = Self::spec().language;
         let mut comments = Vec::new();
-        let mut semantics = String::new();
         let relations = code
             .split('\n')
             .enumerate()
@@ -85,9 +90,16 @@ impl ParserTrait for CalcParser {
                 pairs
             });
 
-        let mut resource_info = ResourceInfo::new(resource, Some(relations), None, None);
+        let mut resource_info = ResourceInfo::new(
+            resource,
+            Some(relations),
+            None,
+            Some(ResourceDigest::from_strings(code, Some(&semantics))),
+            None,
+        );
 
-        // Apply tags from comments (this needs to be done at the end because if may remove pairs if `only` is specified)
+        // Apply tags from comments (this needs to be done at the end because tags
+        // may remove pairs if `only` is specified)
         for (row, line) in comments {
             apply_tags(
                 path,
@@ -98,11 +110,6 @@ impl ParserTrait for CalcParser {
                 &mut resource_info,
             );
         }
-
-        // Generate digest to include `is_pure`
-        let digest =
-            ResourceInfo::sha256_digest(&[semantics, resource_info.is_pure().to_string()].concat());
-        resource_info.compile_digest = Some(digest);
 
         Ok(resource_info)
     }

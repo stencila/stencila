@@ -29,14 +29,14 @@ pub fn file_sha256_bytes<P: AsRef<Path>>(path: P) -> Result<[u8; 32]> {
 }
 
 /// Get a SHA-256 digest of a string
-fn str_sha256(str: &str) -> Output<Sha256> {
+pub fn str_sha256(str: &str) -> Output<Sha256> {
     let mut sha256 = Sha256::new();
     sha256.update(str);
     sha256.finalize()
 }
 
 /// Get a SHA-256 digest of a file
-fn file_sha256<P: AsRef<Path>>(path: P) -> Result<Output<Sha256>> {
+pub fn file_sha256<P: AsRef<Path>>(path: P) -> Result<Output<Sha256>> {
     let path = path.as_ref();
     let mut file = File::open(path)?;
     let mut sha256 = Sha256::new();

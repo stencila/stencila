@@ -2,7 +2,10 @@ use async_trait::async_trait;
 use eyre::Result;
 use formats::normalize_title;
 use graph_triples::{
-    relations, relations::NULL_RANGE, resources, Relation, ResourceId, ResourceInfo,
+    relations,
+    relations::NULL_RANGE,
+    resources::{self, ResourceDigest},
+    Relation, ResourceId, ResourceInfo,
 };
 use kernels::{KernelSelector, KernelSpace, TaskResult};
 use node_address::{Address, AddressMap, Slot};
@@ -151,7 +154,7 @@ impl Executable for Link {
         };
         let relations = vec![(Relation::Link, object)];
 
-        let resource_info = ResourceInfo::new(resource, Some(relations), None, None);
+        let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None);
         context.resources.push(resource_info);
 
         Ok(())
@@ -224,7 +227,7 @@ macro_rules! executable_media_object {
                 };
                 let relations = vec![(Relation::Embed, object)];
 
-                let resource_info = ResourceInfo::new(resource, Some(relations), None, None);
+                let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None);
                 context.resources.push(resource_info);
 
                 self.content_url = url;
@@ -273,18 +276,25 @@ impl Executable for Parameter {
         let object = resources::symbol(&context.path, &self.name, kind);
         let relations = vec![(relations::assigns(NULL_RANGE), object)];
 
-        let value = self
+        // For `ResourceDigest`, content is Debug repr of node value or default
+        // and semantic string adds name
+        let content_str = self
             .value
             .as_deref()
             .or_else(|| self.default.as_deref())
             .map(|node| format!("{:?}", node))
             .unwrap_or_else(|| "".to_string());
+        let semantic_str = [self.name.as_str(), content_str.as_str()].concat();
 
         let resource_info = ResourceInfo::new(
             resource,
             Some(relations),
             None,
-            Some(ResourceInfo::sha256_digest(&value)),
+            Some(ResourceDigest::from_strings(
+                &content_str,
+                Some(&semantic_str),
+            )),
+            None,
         );
         context.resources.push(resource_info);
 
@@ -468,7 +478,7 @@ impl Executable for Include {
         let object = resources::file(&path);
         let relations = vec![(Relation::Include, object)];
 
-        let resource_info = ResourceInfo::new(resource, Some(relations), None, None);
+        let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None);
         context.resources.push(resource_info);
 
         Ok(())
