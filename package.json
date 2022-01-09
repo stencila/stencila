@@ -46,6 +46,7 @@
     "@semantic-release/exec": "6.0.3",
     "@stencila/dev-config": "3.0.4",
     "@stencila/eslint-config": "3.0.1",
+    "@stencila/semantic-release-config": "2.0.6",
     "@stoplight/json-ref-resolver": "3.1.3",
     "@types/fs-extra": "9.0.13",
     "@types/jest": "27.4.0",
