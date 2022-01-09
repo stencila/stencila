@@ -331,9 +331,11 @@ export interface CodeExecutable extends Code {
   type: 'CodeExecutable' | 'CodeChunk' | 'CodeExpression'
   programmingLanguage: String
   compileDigest?: String
-  duration?: Number
   errors?: Array<CodeError>
   executeDigest?: String
+  executeDuration?: Number
+  executeEnded?: Date
+  executeStatus?: 'Scheduled' | 'Running' | 'Succeeded' | 'Failed' | 'Cancelled'
 }
 
 /**

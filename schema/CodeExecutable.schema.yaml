@@ -11,27 +11,35 @@ $comment: |
 properties:
   compileDigest:
     '@id': stencila:compileDigest
-    description: The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
+    description: A digest of the content, semantics and dependencies of the node.
     type: string
-    $comment: |
-      Used to determine whether it is necessary to re-compile the node (i.e. to semantically analyse it
-      for dependencies).
   executeDigest:
     '@id': stencila:executeDigest
-    description: The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
+    description: The `compileDigest` of the node when it was last executed.
     type: string
-    $comment: |
-      Used to determine whether it is necessary to re-execute the code.
+  executeStatus:
+    '@id': stencila:executeStatus
+    description: Status of the last execution of the code.
+    enum:
+      - Scheduled
+      - Running
+      - Succeeded
+      - Failed
+      - Cancelled
+  executeEnded:
+    '@id': stencila:executeEnded
+    description: The date-time that the the last execution of the code ended.
+    $ref: Date
+  executeDuration:
+    '@id': stencila:executeDuration
+    description: Duration in seconds of the last execution of the code.
+    type: number
+    minimum: 0
   errors:
     '@id': stencila:errors
     description: Errors when compiling (e.g. syntax errors) or executing the chunk.
     type: array
     items:
       $ref: CodeError
-  duration:
-    '@id': stencila:duration
-    description: Duration in seconds of the last execution of the code.
-    type: number
-    minimum: 0
 required:
   - programmingLanguage

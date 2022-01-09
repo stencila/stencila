@@ -167,10 +167,12 @@ CodeBlock <- function(
 #' @name CodeExecutable
 #' @param programmingLanguage The programming language of the code. \bold{Required}.
 #' @param text The text of the code. \bold{Required}.
-#' @param compileDigest The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
-#' @param duration Duration in seconds of the last execution of the code.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
-#' @param executeDigest The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration in seconds of the last execution of the code.
+#' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeStatus Status of the last execution of the code.
 #' @param id The identifier for this item.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
@@ -181,9 +183,11 @@ CodeExecutable <- function(
   programmingLanguage,
   text,
   compileDigest,
-  duration,
   errors,
   executeDigest,
+  executeDuration,
+  executeEnded,
+  executeStatus,
   id,
   mediaType,
   meta
@@ -198,9 +202,11 @@ CodeExecutable <- function(
   self$type <- as_scalar("CodeExecutable")
   self[["programmingLanguage"]] <- check_property("CodeExecutable", "programmingLanguage", TRUE, missing(programmingLanguage), "character", programmingLanguage)
   self[["compileDigest"]] <- check_property("CodeExecutable", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
-  self[["duration"]] <- check_property("CodeExecutable", "duration", FALSE, missing(duration), "numeric", duration)
   self[["errors"]] <- check_property("CodeExecutable", "errors", FALSE, missing(errors), Array(CodeError), errors)
   self[["executeDigest"]] <- check_property("CodeExecutable", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
+  self[["executeDuration"]] <- check_property("CodeExecutable", "executeDuration", FALSE, missing(executeDuration), "numeric", executeDuration)
+  self[["executeEnded"]] <- check_property("CodeExecutable", "executeEnded", FALSE, missing(executeEnded), Date, executeEnded)
+  self[["executeStatus"]] <- check_property("CodeExecutable", "executeStatus", FALSE, missing(executeStatus), Enum("Scheduled", "Running", "Succeeded", "Failed", "Cancelled"), executeStatus)
   class(self) <- c(class(self), "CodeExecutable")
   self
 }
@@ -212,10 +218,12 @@ CodeExecutable <- function(
 #' @param programmingLanguage The programming language of the code. \bold{Required}.
 #' @param text The text of the code. \bold{Required}.
 #' @param caption A caption for the CodeChunk.
-#' @param compileDigest The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
-#' @param duration Duration in seconds of the last execution of the code.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
-#' @param executeDigest The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration in seconds of the last execution of the code.
+#' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeStatus Status of the last execution of the code.
 #' @param id The identifier for this item.
 #' @param label A short label for the CodeChunk.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
@@ -249,9 +257,11 @@ CodeChunk <- function(
   text,
   caption,
   compileDigest,
-  duration,
   errors,
   executeDigest,
+  executeDuration,
+  executeEnded,
+  executeStatus,
   id,
   label,
   mediaType,
@@ -262,9 +272,11 @@ CodeChunk <- function(
     programmingLanguage = programmingLanguage,
     text = text,
     compileDigest = compileDigest,
-    duration = duration,
     errors = errors,
     executeDigest = executeDigest,
+    executeDuration = executeDuration,
+    executeEnded = executeEnded,
+    executeStatus = executeStatus,
     id = id,
     mediaType = mediaType,
     meta = meta
@@ -284,10 +296,12 @@ CodeChunk <- function(
 #' @name CodeExpression
 #' @param programmingLanguage The programming language of the code. \bold{Required}.
 #' @param text The text of the code. \bold{Required}.
-#' @param compileDigest The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
-#' @param duration Duration in seconds of the last execution of the code.
+#' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
-#' @param executeDigest The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
+#' @param executeDigest The `compileDigest` of the node when it was last executed.
+#' @param executeDuration Duration in seconds of the last execution of the code.
+#' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeStatus Status of the last execution of the code.
 #' @param id The identifier for this item.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
 #' @param meta Metadata associated with this item.
@@ -299,9 +313,11 @@ CodeExpression <- function(
   programmingLanguage,
   text,
   compileDigest,
-  duration,
   errors,
   executeDigest,
+  executeDuration,
+  executeEnded,
+  executeStatus,
   id,
   mediaType,
   meta,
@@ -311,9 +327,11 @@ CodeExpression <- function(
     programmingLanguage = programmingLanguage,
     text = text,
     compileDigest = compileDigest,
-    duration = duration,
     errors = errors,
     executeDigest = executeDigest,
+    executeDuration = executeDuration,
+    executeEnded = executeEnded,
+    executeStatus = executeStatus,
     id = id,
     mediaType = mediaType,
     meta = meta

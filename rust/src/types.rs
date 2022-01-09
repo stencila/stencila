@@ -162,18 +162,23 @@ pub struct CodeExecutable {
     /// The text of the code.
     pub text: String,
 
-    /// The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
-    #[serde(skip)]
-    pub compile_digest: Option<Cord>,
-
-    /// Duration in seconds of the last execution of the code.
-    pub duration: Option<Number>,
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
 
-    /// The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
-    pub execute_digest: Option<Cord>,
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration in seconds of the last execution of the code.
+    pub execute_duration: Option<Number>,
+
+    /// The date-time that the the last execution of the code ended.
+    pub execute_ended: Option<Box<Date>>,
+
+    /// Status of the last execution of the code.
+    pub execute_status: Option<CodeExecutableExecuteStatus>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
@@ -205,18 +210,23 @@ pub struct CodeChunk {
     /// A caption for the CodeChunk.
     pub caption: Option<Box<CodeChunkCaption>>,
 
-    /// The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
-    #[serde(skip)]
-    pub compile_digest: Option<Cord>,
-
-    /// Duration in seconds of the last execution of the code.
-    pub duration: Option<Number>,
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
 
-    /// The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
-    pub execute_digest: Option<Cord>,
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration in seconds of the last execution of the code.
+    pub execute_duration: Option<Number>,
+
+    /// The date-time that the the last execution of the code ended.
+    pub execute_ended: Option<Box<Date>>,
+
+    /// Status of the last execution of the code.
+    pub execute_status: Option<CodeExecutableExecuteStatus>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
@@ -251,18 +261,23 @@ pub struct CodeExpression {
     /// The text of the code.
     pub text: String,
 
-    /// The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled.
-    #[serde(skip)]
-    pub compile_digest: Option<Cord>,
-
-    /// Duration in seconds of the last execution of the code.
-    pub duration: Option<Number>,
+    /// A digest of the content, semantics and dependencies of the node.
+    pub compile_digest: Option<Box<Cord>>,
 
     /// Errors when compiling (e.g. syntax errors) or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
 
-    /// The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed.
-    pub execute_digest: Option<Cord>,
+    /// The `compileDigest` of the node when it was last executed.
+    pub execute_digest: Option<Box<Cord>>,
+
+    /// Duration in seconds of the last execution of the code.
+    pub execute_duration: Option<Number>,
+
+    /// The date-time that the the last execution of the code ended.
+    pub execute_ended: Option<Box<Date>>,
+
+    /// Status of the last execution of the code.
+    pub execute_status: Option<CodeExecutableExecuteStatus>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
@@ -2184,7 +2199,7 @@ pub struct Include {
     pub source: String,
 
     /// The SHA-256 digest of the `source` and `mediaType` properties the last time the node was built.
-    pub build_digest: Option<Cord>,
+    pub build_digest: Option<Box<Cord>>,
 
     /// The structured content decoded from the source.
     pub content: Option<Vec<BlockContent>>,
@@ -2637,7 +2652,7 @@ pub struct Parameter {
     pub default: Option<Box<Node>>,
 
     /// The SHA-256 digest of the `value` property the last time the node was executed.
-    pub execute_digest: Option<Cord>,
+    pub execute_digest: Option<Box<Cord>>,
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
@@ -4370,6 +4385,15 @@ pub enum CitePageEnd {
 pub enum CitePageStart {
     Integer(Integer),
     String(String),
+}
+
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+pub enum CodeExecutableExecuteStatus {
+    Scheduled,
+    Running,
+    Succeeded,
+    Failed,
+    Cancelled,
 }
 
 /// Types permitted for the `caption` property of a `CodeChunk` node.

@@ -16,6 +16,8 @@ Object = Dict[str, Any]
 
 ECitationMode = Enum("CitationMode", ["Parenthetical", "Narrative", "NarrativeAuthor", "NarrativeYear", "normal", "suppressAuthor"])
 
+EExecuteStatus = Enum("ExecuteStatus", ["Scheduled", "Running", "Succeeded", "Failed", "Cancelled"])
+
 EClaimType = Enum("ClaimType", ["Statement", "Theorem", "Lemma", "Proof", "Postulate", "Hypothesis", "Proposition", "Corollary"])
 
 EItemListOrder = Enum("ItemListOrder", ["Ascending", "Descending", "Unordered"])
@@ -214,16 +216,22 @@ class CodeExecutable(Code):
     """The programming language of the code."""
 
     compileDigest: Optional[String] = None
-    """The SHA-256 digest of the `text`, `programmingLanguage` and `mediaType` properties the last time the node was compiled."""
-
-    duration: Optional[Number] = None
-    """Duration in seconds of the last execution of the code."""
+    """A digest of the content, semantics and dependencies of the node."""
 
     errors: Optional[Array["CodeError"]] = None
     """Errors when compiling (e.g. syntax errors) or executing the chunk."""
 
     executeDigest: Optional[String] = None
-    """The SHA-256 digest of `compileDigest` and the `executeDigest`s of all dependencies, the last time the node was executed."""
+    """The `compileDigest` of the node when it was last executed."""
+
+    executeDuration: Optional[Number] = None
+    """Duration in seconds of the last execution of the code."""
+
+    executeEnded: Optional["Date"] = None
+    """The date-time that the the last execution of the code ended."""
+
+    executeStatus: Optional["EExecuteStatus"] = None
+    """Status of the last execution of the code."""
 
 
     def __init__(
@@ -231,9 +239,11 @@ class CodeExecutable(Code):
         programmingLanguage: String,
         text: String,
         compileDigest: Optional[String] = None,
-        duration: Optional[Number] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeDigest: Optional[String] = None,
+        executeDuration: Optional[Number] = None,
+        executeEnded: Optional["Date"] = None,
+        executeStatus: Optional["EExecuteStatus"] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
         meta: Optional[Object] = None
@@ -249,12 +259,16 @@ class CodeExecutable(Code):
             self.programmingLanguage = programmingLanguage
         if compileDigest is not None:
             self.compileDigest = compileDigest
-        if duration is not None:
-            self.duration = duration
         if errors is not None:
             self.errors = errors
         if executeDigest is not None:
             self.executeDigest = executeDigest
+        if executeDuration is not None:
+            self.executeDuration = executeDuration
+        if executeEnded is not None:
+            self.executeEnded = executeEnded
+        if executeStatus is not None:
+            self.executeStatus = executeStatus
 
 
 class CodeChunk(CodeExecutable):
@@ -279,9 +293,11 @@ class CodeChunk(CodeExecutable):
         text: String,
         caption: Optional[Union[Array["BlockContent"], String]] = None,
         compileDigest: Optional[String] = None,
-        duration: Optional[Number] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeDigest: Optional[String] = None,
+        executeDuration: Optional[Number] = None,
+        executeEnded: Optional["Date"] = None,
+        executeStatus: Optional["EExecuteStatus"] = None,
         id: Optional[String] = None,
         label: Optional[String] = None,
         mediaType: Optional[String] = None,
@@ -292,9 +308,11 @@ class CodeChunk(CodeExecutable):
             programmingLanguage=programmingLanguage,
             text=text,
             compileDigest=compileDigest,
-            duration=duration,
             errors=errors,
             executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeStatus=executeStatus,
             id=id,
             mediaType=mediaType,
             meta=meta
@@ -324,9 +342,11 @@ class CodeExpression(CodeExecutable):
         programmingLanguage: String,
         text: String,
         compileDigest: Optional[String] = None,
-        duration: Optional[Number] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeDigest: Optional[String] = None,
+        executeDuration: Optional[Number] = None,
+        executeEnded: Optional["Date"] = None,
+        executeStatus: Optional["EExecuteStatus"] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
         meta: Optional[Object] = None,
@@ -336,9 +356,11 @@ class CodeExpression(CodeExecutable):
             programmingLanguage=programmingLanguage,
             text=text,
             compileDigest=compileDigest,
-            duration=duration,
             errors=errors,
             executeDigest=executeDigest,
+            executeDuration=executeDuration,
+            executeEnded=executeEnded,
+            executeStatus=executeStatus,
             id=id,
             mediaType=mediaType,
             meta=meta

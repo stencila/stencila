@@ -42,11 +42,6 @@ const propertyAttributes: Record<string, string[]> = {
   'PropertyValue.value': [
     '#[def = "PropertyValueValue::String(String::new())"]',
   ],
-  // Skip serializing the compile digest since the results of compiling
-  // are not stored with the node (at present) and so always need recompiling.
-  // This is not true to `executeDigest`, for example `CodeChunk.outputs` are the
-  // result of execution.
-  '*.compileDigest': ['#[serde(skip)]'],
 }
 
 // Custom types for particular properties
@@ -70,9 +65,9 @@ const propertyTypes: Record<string, string> = {
   'StringValidator.minLength': 'u32',
   'StringValidator.maxLength': 'u32',
   // Use `Cord` instead of string for more efficient patching of digests
-  '*.compileDigest': 'Cord',
-  '*.buildDigest': 'Cord',
-  '*.executeDigest': 'Cord',
+  '*.compileDigest': 'Box<Cord>',
+  '*.buildDigest': 'Box<Cord>',
+  '*.executeDigest': 'Box<Cord>',
 }
 
 // Types that should not get automatically boxed if the property is
@@ -86,6 +81,7 @@ const noBoxTypes = [
   // Enums with no data
   'CiteCitationMode',
   'ClaimClaimType',
+  'CodeExecutableExecuteStatus',
   'ListOrder',
   'NoteNoteType',
   'SoftwareSessionStatus',
