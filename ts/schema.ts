@@ -241,7 +241,7 @@ const checkSchema = (
       ) {
         error(`${title} has a $ref to unknown type "${child}"`)
       }
-      walk(child)
+      walk(child as JsonSchema)
     }
   }
   walk(schema)
@@ -414,12 +414,13 @@ const processSchema = (
           !child.endsWith('.schema.json')
         )
           node[key] = child + '.schema.json'
-        walk(child)
+        walk(child as JsonSchema)
       }
     }
     walk(schema)
   } catch (error) {
     throw new Error(
+      // @ts-expect-error error is unknown type
       // eslint-disable-next-line
       `Error when processing "${schema.source}": "${error.stack}"`
     )

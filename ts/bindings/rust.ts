@@ -260,7 +260,7 @@ export function interfaceSchemaToStruct(
         pointerProperties.includes(propertyPath) ||
         pointerProperties.includes(`*.${name}`)
 
-      let attrs =
+      const attrs =
         propertyAttributes[propertyPath] ??
         propertyAttributes[`*.${name}`] ??
         []
