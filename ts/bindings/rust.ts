@@ -69,11 +69,10 @@ const propertyTypes: Record<string, string> = {
   'ArrayValidator.maxItems': 'u32',
   'StringValidator.minLength': 'u32',
   'StringValidator.maxLength': 'u32',
-  // SHA-256 digests are most efficiently represented as 32 bytes but
-  // for readability when serialized we use a string.
-  '*.compileDigest': 'String',
-  '*.buildDigest': 'String',
-  '*.executeDigest': 'String',
+  // Use `Cord` instead of string for more efficient patching of digests
+  '*.compileDigest': 'Cord',
+  '*.buildDigest': 'Cord',
+  '*.executeDigest': 'Cord',
 }
 
 // Types that should not get automatically boxed if the property is

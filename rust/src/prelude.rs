@@ -79,3 +79,19 @@ pub enum Primitive {
     Object(Object),
     Array(Array),
 }
+
+/// A newtype derived from `String`
+///
+/// Defined primarily so that a customized `Patchable` implementation
+/// can be defined for strings where it is more appropriate to replace,
+/// rather than diff the string.
+#[derive(
+    Clone,
+    Debug,
+    PartialEq,
+    Eq,
+    Hash,
+    Serialize,
+    Deserialize
+)]
+pub struct Cord(pub String);
