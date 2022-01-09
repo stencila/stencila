@@ -41,7 +41,7 @@ impl<'de> Deserialize<'de> for Null {
         let value = serde_json::Value::deserialize(deserializer)?;
         match value.is_null() {
             true => Ok(Null {}),
-            false => Err(serde::de::Error::custom("Exepected")),
+            false => Err(serde::de::Error::custom("Expected a null value")),
         }
     }
 }
