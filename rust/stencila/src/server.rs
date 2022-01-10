@@ -759,7 +759,7 @@ async fn get_static(
     path: warp::path::Tail,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str().to_string();
-    tracing::debug!("GET ~static /{}", path);
+    // tracing::debug!("GET ~static /{}", path);
 
     // Remove the version number with warnings if it is not present
     // or different to current version
