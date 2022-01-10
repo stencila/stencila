@@ -101,7 +101,16 @@ export function applyAddStruct(
   // Is the slot represented by an attribute?
   const alias = STRUCT_ATTRIBUTES[name]
   if (alias !== undefined) {
-    const attr = value == null ? 'null' : value.toString()
+    let attr = ''
+    if (value == null) attr = 'null'
+    else if (typeof value == 'object' && !Array.isArray(value)) {
+      if (value.type === 'Date') {
+        // Use the ISO date string as the attribute
+        attr = value.value as string
+      }
+    }
+    else attr = value.toString()
+    
     struct.setAttribute(alias, escapeAttr(attr))
     return
   }

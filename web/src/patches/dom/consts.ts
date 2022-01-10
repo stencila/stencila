@@ -10,6 +10,11 @@ export const STRUCT_ATTRIBUTES: Record<string, string> = {
   id: 'id',
   // CodeChunk and CodeExpression
   programmingLanguage: 'programming-language',
+  compileDigest: 'compile-digest',
+  executeDigest: 'execute-digest',
+  executeStatus: 'execute-status',
+  executeEnded: 'execute-ended',
+  executeDuration: 'execute-duration',
   // TableCell
   rowspan: 'rowspan',
   colspan: 'colspan',
