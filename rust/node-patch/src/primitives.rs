@@ -155,6 +155,10 @@ patchable_atomic!(Boolean, hash);
 patchable_atomic!(Integer, hash);
 patchable_atomic!(Number, hash_float);
 
+// A `Cord` is a `String` that is intended to be replaced wholly
+// rather than diffed. So treat it as an atomic.
+patchable_atomic!(Cord, hash);
+
 #[cfg(test)]
 mod tests {
     use super::*;

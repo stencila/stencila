@@ -286,6 +286,7 @@ impl Operation {
             BlockContent
 
             // Child types of the above
+            CodeExecutableExecuteStatus
             ListItem
             TableCaption
             TableRow
@@ -308,6 +309,7 @@ impl Operation {
             // Primitives
             Primitive
             String
+            Cord
             Number
             Integer
             Boolean
@@ -333,7 +335,7 @@ impl Operation {
     }
 
     /// Generate HTML for the `value` field of an operation
-    fn value_html(value: &Value, root: &Node) -> String {
+    fn value_html(value: &Value, root: &Node) -> Option<String> {
         use codec_html::{EncodeContext, ToHtml};
 
         let context = EncodeContext {
@@ -345,13 +347,13 @@ impl Operation {
         macro_rules! to_html {
             ($type:ty) => {
                 if let Some(node) = value.downcast_ref::<$type>() {
-                    return node.to_html(&context);
+                    return Some(node.to_html(&context));
                 }
                 if let Some(boxed) = value.downcast_ref::<Box<$type>>() {
-                    return boxed.to_html(&context);
+                    return Some(boxed.to_html(&context));
                 }
                 if let Some(nodes) = value.downcast_ref::<Vec<$type>>() {
-                    return nodes.to_html(&context);
+                    return Some(nodes.to_html(&context));
                 }
             };
             ($($type:ty)*) => {
@@ -401,7 +403,7 @@ impl Operation {
         macro_rules! to_html_atomic {
             ($type:ty) => {
                 if let Some(node) = value.downcast_ref::<$type>() {
-                    return node.to_string()
+                    return Some(node.to_string())
                 }
             };
             ($($type:ty)*) => {
@@ -419,57 +421,55 @@ impl Operation {
         // In that case we want to deserialize it to one of the above types and
         // then encode as HTML
         if let Some(value) = value.downcast_ref::<serde_json::Value>() {
-            if let Some(str) = value.as_str() {
-                return str.to_string();
+            let html = if let Some(str) = value.as_str() {
+                str.to_string()
             } else if let Ok(nodes) = serde_json::from_value::<InlineContent>(value.clone()) {
-                return nodes.to_html(&context);
+                nodes.to_html(&context)
             } else if let Ok(nodes) = serde_json::from_value::<Vec<InlineContent>>(value.clone()) {
-                return nodes.to_html(&context);
+                nodes.to_html(&context)
             } else if let Ok(nodes) = serde_json::from_value::<BlockContent>(value.clone()) {
-                return nodes.to_html(&context);
+                nodes.to_html(&context)
             } else if let Ok(nodes) = serde_json::from_value::<Vec<BlockContent>>(value.clone()) {
-                return nodes.to_html(&context);
+                nodes.to_html(&context)
             } else if let Ok(nodes) = serde_json::from_value::<ListItem>(value.clone()) {
-                return nodes.to_html(&context);
+                nodes.to_html(&context)
             } else if let Ok(nodes) = serde_json::from_value::<Vec<ListItem>>(value.clone()) {
-                return nodes.to_html(&context);
+                nodes.to_html(&context)
             } else {
                 tracing::error!(
                     "Unhandled JSON value type when generating HTML for patch operation: {}",
                     value.to_string()
                 );
-            }
-        } else {
-            tracing::error!("Unhandled value type when generating HTML for patch operation");
+                return None;
+            };
+            return Some(html);
         }
 
-        // Send HTML that indicates error to developers (in addition to above tracing error)
-        // but is invisible to users.
-        "<meta name=\"error\" content=\"Unhandled patch value type\">".to_string()
+        // Return `None` to indicate no HTML representation for this value
+        None
     }
 
     /// Set the `html` field from the `value` field
-    fn html_set(&mut self, root: &Node) -> &mut Self {
+    fn html_set(&mut self, root: &Node) {
         match self {
             Operation::Add { value, html, .. } | Operation::Replace { value, html, .. } => {
-                // As an optimization, if the value is a `String` or `serde_json::Value::String`
+                // As an optimization, if the patch value is string-like
                 // (but not if it is a `InlineContent::String` or `Node::String`), then there
                 // is no need to generate HTML since it is the same as the value and the `web`
                 // module will fallback to `value` if necessary.
-                if value.is::<String>() {
-                    return self;
+                if value.is::<String>() || value.is::<Cord>() {
+                    return;
                 }
                 if let Some(value) = value.downcast_mut::<serde_json::Value>() {
                     if value.is_string() {
-                        return self;
+                        return;
                     }
                 }
 
-                *html = Some(Operation::value_html(value, root));
+                *html = Operation::value_html(value, root)
             }
             _ => {}
         }
-        self
     }
 }
 
@@ -494,7 +494,7 @@ pub struct Patch {
 
 impl Patch {
     /// Create a new patch from a set of operations
-    fn new(ops: Vec<Operation>) -> Self {
+    pub fn new(ops: Vec<Operation>) -> Self {
         Self {
             ops,
             address: None,

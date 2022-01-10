@@ -183,7 +183,18 @@ patchable_enum!(CitePageEnd);
 patchable_enum!(CitePageStart);
 patchable_struct!(CiteGroup, items);
 
-patchable_struct!(CodeExpression, programming_language, text, output, errors);
+patchable_struct!(
+    CodeExpression,
+    programming_language,
+    text,
+    output,
+    errors,
+    compile_digest,
+    execute_digest,
+    execute_status,
+    execute_ended,
+    execute_duration
+);
 patchable_struct!(CodeFragment, programming_language, text);
 patchable_struct!(Delete, content);
 patchable_struct!(Emphasis, content);
