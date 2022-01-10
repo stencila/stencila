@@ -7,7 +7,7 @@ use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
     fmt::Display,
-    path::{Path, PathBuf}
+    path::{Path, PathBuf},
 };
 
 use crate::{Pairs, Relation};
