@@ -116,12 +116,12 @@ path-slash = "=0.1.4"
 pathdiff = "=0.2.1"
 regex = "=1.5.4"
 schemars = { version = "=0.8.8", features = ["preserve_order", "chrono"] }
-serde = { version = "=1.0.130", features = ["derive", "rc"] }
-serde_json = { version = "=1.0.72", features = ["preserve_order"] }
+serde = { version = "1.0.130", features = ["derive", "rc"] }
+serde_json = { version = "1.0.72", features = ["preserve_order"] }
 serde_with = "=1.11.0"
 serde_yaml = "=0.8.21"
 slug = "=0.1.4"
-stencila-schema = "=1.12.0"
+stencila-schema = "1.13.0" 
 strum = { version = "=0.23.0", features = ["derive"] }
 strum_macros = "=0.23.1"
 thiserror = "=1.0.30"

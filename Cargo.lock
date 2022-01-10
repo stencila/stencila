@@ -1240,7 +1240,7 @@ checksum = "754b69d351cdc2d8ee09ae203db831e005560fc6030da058f86ad60c92a9cb0a"
 dependencies = [
  "cssparser-macros",
  "dtoa-short",
- "itoa",
+ "itoa 0.4.8",
  "matches",
  "phf",
  "proc-macro2",
@@ -1718,7 +1718,7 @@ dependencies = [
  "Inflector",
  "schemars",
  "serde",
- "strum 0.23.0",
+ "strum",
 ]
 
 [[package]]
@@ -2000,7 +2000,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "serde_yaml",
- "strum 0.23.0",
+ "strum",
  "tokio",
  "utils",
 ]
@@ -2018,7 +2018,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
- "strum 0.23.0",
+ "strum",
 ]
 
 [[package]]
@@ -2158,7 +2158,7 @@ checksum = "1323096b05d41827dadeaee54c9981958c0f94e670bc94ed80037d1a7b8b186b"
 dependencies = [
  "bytes",
  "fnv",
- "itoa",
+ "itoa 0.4.8",
 ]
 
 [[package]]
@@ -2223,7 +2223,7 @@ dependencies = [
  "http-body",
  "httparse",
  "httpdate",
- "itoa",
+ "itoa 0.4.8",
  "pin-project-lite",
  "socket2",
  "tokio",
@@ -2426,6 +2426,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b71991ff56294aa922b450139ee08b3bfc70982c6b2c7562771375cf73542dd4"
 
 [[package]]
+name = "itoa"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1aab8fc367588b89dcee83ab0fd66b72b50b72fa1904d7095045ace2b0c81c35"
+
+[[package]]
 name = "jmespatch"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2483,7 +2489,7 @@ dependencies = [
  "regex",
  "serde",
  "stencila-schema",
- "strum 0.23.0",
+ "strum",
  "test-utils",
  "tokio",
  "tracing",
@@ -2658,7 +2664,7 @@ dependencies = [
  "serde_json",
  "slug",
  "structopt",
- "strum 0.23.0",
+ "strum",
  "tokio",
  "tracing",
 ]
@@ -3106,7 +3112,7 @@ dependencies = [
  "eyre",
  "schemars",
  "serde",
- "strum 0.23.0",
+ "strum",
  "thiserror",
 ]
 
@@ -3184,7 +3190,7 @@ dependencies = [
  "serde_with",
  "similar 2.1.0",
  "stencila-schema",
- "strum 0.23.0",
+ "strum",
  "test-props",
  "test-snaps",
  "test-utils",
@@ -4521,18 +4527,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.130"
+version = "1.0.133"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f12d06de37cf59146fbdecab66aa99f9fe4f78722e3607577a5375d66bd0c913"
+checksum = "97565067517b60e2d1ea8b268e59ce036de907ac523ad83a0475da04e818989a"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.130"
+version = "1.0.133"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7bc1a1ab1961464eae040d96713baa5a724a8152c1222492465b54322ec508b"
+checksum = "ed201699328568d8d08208fdd080e3ff594e6c422e438b6705905da01005d537"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4552,12 +4558,12 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.72"
+version = "1.0.74"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d0ffa0837f2dfa6fb90868c2b5468cad482e175f7dad97e7421951e663f2b527"
+checksum = "ee2bb9cd061c5865d345bb02ca49fcef1391741b672b54a0bf7b679badec3142"
 dependencies = [
  "indexmap",
- "itoa",
+ "itoa 1.0.1",
  "ryu",
  "serde",
 ]
@@ -4569,7 +4575,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "edfa57a7f8d9c1d260a549e7224100f6c43d43f9103e06dd8b4095a9b2b43ce9"
 dependencies = [
  "form_urlencoded",
- "itoa",
+ "itoa 0.4.8",
  "ryu",
  "serde",
 ]
@@ -4867,8 +4873,8 @@ dependencies = [
  "slug",
  "stencila-schema",
  "structopt",
- "strum 0.23.0",
- "strum_macros 0.23.1",
+ "strum",
+ "strum_macros",
  "sudo",
  "test-utils",
  "thiserror",
@@ -4901,16 +4907,16 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.12.0"
+version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28b2f5c0d8d63d306063450c4551c8560c1dbb559cdb196769b6f77fcffd0175"
+checksum = "e874e3137750a4f08fcc54ffcaddba1c86960f83a8e51ffb3c4a51fe3497fcb5"
 dependencies = [
  "chrono",
  "defaults",
  "serde",
  "serde_json",
  "serde_with",
- "strum 0.21.0",
+ "strum",
 ]
 
 [[package]]
@@ -4992,32 +4998,11 @@ dependencies = [
 
 [[package]]
 name = "strum"
-version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aaf86bbcfd1fa9670b7a129f64fc0c9fcbbfe4f1bc4210e9e98fe71ffc12cde2"
-dependencies = [
- "strum_macros 0.21.1",
-]
-
-[[package]]
-name = "strum"
 version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cae14b91c7d11c9a851d3fbc80a963198998c2a64eec840477fa92d8ce9b70bb"
 dependencies = [
- "strum_macros 0.23.1",
-]
-
-[[package]]
-name = "strum_macros"
-version = "0.21.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d06aaeeee809dbc59eb4556183dd927df67db1540de5be8d3ec0b6636358a5ec"
-dependencies = [
- "heck",
- "proc-macro2",
- "quote",
- "syn",
+ "strum_macros",
 ]
 
 [[package]]
@@ -5244,7 +5229,7 @@ version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "41effe7cfa8af36f439fac33861b66b049edc6f9a32331e2312660529c1c24ad"
 dependencies = [
- "itoa",
+ "itoa 0.4.8",
  "libc",
 ]
 
