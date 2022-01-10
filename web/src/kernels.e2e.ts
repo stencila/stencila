@@ -18,5 +18,5 @@ afterAll(() => {
 
 test('basic', async () => {
   const kernels = await languages(client, 'sessionId')
-  expect(kernels).toEqual(expect.arrayContaining(['calc']))
+  expect(kernels).toEqual(expect.arrayContaining(['Calc']))
 })

@@ -81,12 +81,24 @@ macro_rules! uuid_family {
         }
 
         impl std::cmp::PartialEq for $name {
-            fn eq(&self, other: &$name) -> bool {
+            fn eq(&self, other: &Self) -> bool {
                 self.0 == other.0
             }
         }
 
         impl std::cmp::Eq for $name {}
+
+        impl std::cmp::PartialOrd for $name {
+            fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+                self.0.partial_cmp(&other.0)
+            }
+        }
+
+        impl std::cmp::Ord for $name {
+            fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+                self.0.cmp(&other.0)
+            }
+        }
 
         impl std::hash::Hash for $name {
             fn hash<H: std::hash::Hasher>(&self, state: &mut H) {

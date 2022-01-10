@@ -2,9 +2,10 @@
 
 use std::path::PathBuf;
 
-// Expose dependency for use by other internal crates (e.g. so macros work)
+// Expose dependencies for use by other internal crates (e.g. so macros work)
 pub use pretty_assertions;
 pub use serde_json;
+pub use tempfile;
 
 /// Get the path of the home directory of this repository
 pub fn home() -> PathBuf {

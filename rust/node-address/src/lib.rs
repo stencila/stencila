@@ -4,6 +4,7 @@ use inflector::cases::{camelcase::to_camel_case, snakecase::to_snake_case};
 use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::any::type_name;
+use std::collections::BTreeMap;
 use std::{
     collections::VecDeque,
     fmt::{self, Debug},
@@ -137,6 +138,13 @@ impl Address {
         concat
     }
 }
+
+/// A map of node ids to their address
+///
+/// Used to enable faster access to a node based on it's id.
+/// A `BTreeMap` is used instead of a `HashMap` for determinism in order
+/// of entries.
+pub type AddressMap = BTreeMap<String, Address>;
 
 /// An enumeration of custom errors returned by this library
 ///

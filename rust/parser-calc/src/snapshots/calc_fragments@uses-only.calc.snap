@@ -1,0 +1,35 @@
+---
+source: rust/parser-calc/src/lib.rs
+expression: resource_info
+input_file: fixtures/fragments/calc/uses-only.calc
+
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/calc/uses-only.calc",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Calc"
+  },
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          13
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/uses-only.calc",
+        "name": "a",
+        "kind": "Number"
+      }
+    ]
+  ],
+  "compile_digest": "lBFKnfaDWTfNE0ZCTkZvMtrEA54NXqBOxr1-QPejUlw.M6AC6G3o9zXmDvh2_Zw0SZXwdm8ihrO9A1kRbEFlwm0..0"
+}

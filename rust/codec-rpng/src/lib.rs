@@ -59,10 +59,7 @@ impl CodecTrait for RpngCodec {
     /// This override is necessary to read the file as bytes, not as a string, and then to
     /// directly decode those bytes, rather than Base64 decoding them first.
     /// Decode a document node from a file system path
-    async fn from_path<T: AsRef<Path>>(path: &T, options: Option<DecodeOptions>) -> Result<Node>
-    where
-        T: Send + Sync,
-    {
+    async fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<Node> {
         let bytes = fs::read(path)?;
         bytes_to_node(bytes.as_slice(), options)
     }
@@ -80,14 +77,7 @@ impl CodecTrait for RpngCodec {
     ///
     /// This override is necessary to avoid the dataURI prefix and Base64 encoding that `to_string_async`
     /// does. It simply writes that bytes to a file at the path.
-    async fn to_path<T: AsRef<Path>>(
-        node: &Node,
-        path: &T,
-        options: Option<EncodeOptions>,
-    ) -> Result<()>
-    where
-        T: Send + Sync,
-    {
+    async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
         let bytes = nodes_to_bytes(&[node], options).await?;
         fs::write(path, &bytes[0])?;
         Ok(())
@@ -178,11 +168,10 @@ pub async fn nodes_to_bytes(
 mod tests {
     use super::*;
     use codec::stencila_schema::CodeChunk;
-    use test_utils::assert_json_eq;
+    use test_utils::{assert_json_eq, tempfile};
 
     /// End-to-end test of encoding a node to a PNG and then decoding
     /// it from the PNG. See `../tests/prop.rs` for more intensive end-to-end testing.
-    #[cfg(target_os = "linux")]
     #[tokio::test]
     async fn encode_decode() -> Result<()> {
         let input = Node::CodeChunk(CodeChunk {

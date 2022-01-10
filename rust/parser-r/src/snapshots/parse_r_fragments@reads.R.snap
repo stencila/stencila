@@ -1,87 +1,97 @@
 ---
 source: rust/parser-r/src/lib.rs
-expression: pairs
+expression: resource_info
 input_file: fixtures/fragments/r/reads.R
 
 ---
-[
-  [
-    {
-      "type": "Read",
-      "range": [
-        1,
-        9,
-        1,
-        16
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/r/path1"
-    }
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/r/reads.R",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "R"
+  },
+  "relations": [
+    [
+      {
+        "type": "Read",
+        "range": [
+          1,
+          9,
+          1,
+          16
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/r/path1"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          4,
+          0,
+          4,
+          4
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/reads.R",
+        "name": "data",
+        "kind": "Datatable"
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          4,
+          19,
+          4,
+          26
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/r/path2"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          7,
+          0,
+          7,
+          3
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/reads.R",
+        "name": "foo",
+        "kind": "Function"
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          8,
+          22,
+          8,
+          29
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/r/path3"
+      }
+    ]
   ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        4,
-        0,
-        4,
-        4
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/reads.R",
-      "name": "data",
-      "kind": "Datatable"
-    }
-  ],
-  [
-    {
-      "type": "Read",
-      "range": [
-        4,
-        19,
-        4,
-        26
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/r/path2"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        7,
-        0,
-        7,
-        3
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/reads.R",
-      "name": "foo",
-      "kind": "Function"
-    }
-  ],
-  [
-    {
-      "type": "Read",
-      "range": [
-        8,
-        22,
-        8,
-        29
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/r/path3"
-    }
-  ]
-]
+  "compile_digest": "4bVzPMyTMv1leRvjla__0xS8E229BO1yKlLaokPOAnU.w-_Pi7Rv2TpOTO9EX0IkVmkhbCNKwyMCtj5qiajZrCk..0"
+}

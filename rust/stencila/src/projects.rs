@@ -2,7 +2,6 @@ use crate::config::CONFIG;
 use crate::conversions::Conversion;
 use crate::documents::DOCUMENTS;
 use crate::files::{File, FileEvent, Files};
-use crate::methods::import::import;
 use crate::sources::{self, Source, SourceDestination, SourceTrait};
 use crate::utils::schemas;
 use events::publish;
@@ -141,7 +140,7 @@ pub struct Project {
     /// The project's dependency graph
     #[serde(skip_deserializing)]
     #[schemars(schema_with = "Project::schema_graph")]
-    graph: Graph,
+    pub graph: Graph,
 }
 
 impl Project {
@@ -436,14 +435,14 @@ impl Project {
             Ok(())
         }
         if let Some(path) = self.main_path.as_ref() {
-            graph.add_resource(resources::file(path));
+            graph.add_resource(resources::file(path), None);
             walk(&mut Vec::new(), path, &mut graph).await?;
         }
 
         // Add sources and relations with associated files
         if let Some(sources) = self.sources.as_ref() {
             for (name, source) in sources {
-                graph.add_resource(resources::source(name));
+                graph.add_resource(resources::source(name), None);
                 graph.add_triples(source.triples(name, &self.path))
             }
         }
@@ -583,7 +582,7 @@ impl Project {
         }
 
         // Add the source if necessary
-        let source = if let Some(source) = source {
+        let _source = if let Some(source) = source {
             source
         } else {
             self.add_source(name_or_identifier, destination.clone(), None)
@@ -591,19 +590,11 @@ impl Project {
         };
 
         // Import the source
-        let files = import(&self.path, &source, destination).await?;
+        // TODO: Re-enable this
+        // let files = import(&self.path, &source, destination).await?;
+        let files = vec![];
 
         Ok(files)
-    }
-
-    /// Get the project graph in some format
-    pub fn graph(&self, format: &str) -> Result<String> {
-        Ok(match format {
-            "dot" => self.graph.to_dot(),
-            "json" => serde_json::to_string_pretty(&self.graph)?,
-            "yaml" => serde_yaml::to_string(&self.graph)?,
-            _ => bail!("Unknown graph format '{}'", format),
-        })
     }
 }
 
@@ -1159,14 +1150,13 @@ pub mod commands {
         }
     }
 
-    /// Output a dependency graph for a project
+    /// Output the dependency graph for a project
     ///
-    /// When using the DOT format, if you have GraphViz and ImageMagick installed
-    /// you can view the graph by piping the output to them. For example, to
-    /// view a graph of the current project:
+    /// Tip: When using the DOT format (the default), if you have GraphViz and ImageMagick
+    /// installed you can view the graph by piping the output to them. e.g.
     ///
     /// ```sh
-    /// stencila projects graph --format dot | dot -Tpng | display
+    /// stencila documents graph mydoc.md | dot -Tpng | display
     /// ```
     ///
     #[derive(Debug, StructOpt)]
@@ -1179,17 +1169,16 @@ pub mod commands {
         folder: Option<PathBuf>,
 
         /// The format to output the graph as
-        #[structopt(long, short, default_value = "dot", possible_values = &GRAPH_FORMATS)]
-        format: String,
+        #[structopt(long, short, default_value = "dot", possible_values = &graph::FORMATS)]
+        r#as: String,
     }
 
-    const GRAPH_FORMATS: [&str; 3] = ["dot", "json", "yaml"];
     #[async_trait]
     impl Run for Graph {
         async fn run(&self) -> Result {
             let project = &mut PROJECTS.open(self.folder.clone(), false).await?;
-            let content = project.graph(&self.format)?;
-            result::content(&self.format, &content)
+            let content = project.graph.to_format(&self.r#as)?;
+            result::content(&self.r#as, &content)
         }
     }
 

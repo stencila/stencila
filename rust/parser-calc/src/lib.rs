@@ -1,8 +1,13 @@
 use once_cell::sync::Lazy;
 use parser::{
     eyre::Result,
-    graph_triples::{relations, resources, Pairs},
-    utils::parse_tags,
+    formats::Format,
+    graph_triples::{
+        relations,
+        resources::{self, ResourceDigest},
+        Resource, ResourceInfo,
+    },
+    utils::apply_tags,
     Parser, ParserTrait,
 };
 use regex::Regex;
@@ -14,11 +19,11 @@ pub struct CalcParser {}
 impl ParserTrait for CalcParser {
     fn spec() -> Parser {
         Parser {
-            language: "calc".to_string(),
+            language: Format::Calc.spec().title,
         }
     }
 
-    fn parse(path: &Path, code: &str) -> Result<Pairs> {
+    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
         static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*=(.*)").expect("Unable to create regex")
         });
@@ -31,7 +36,10 @@ impl ParserTrait for CalcParser {
             Regex::new(r"(\b[a-zA-Z_][a-zA-Z_0-9]*\b)(\s*\()?").expect("Unable to create regex")
         });
 
-        let pairs = code
+        // The semantic content of the code (includes the language name and ignores comments)
+        let mut semantics = Self::spec().language;
+        let mut comments = Vec::new();
+        let relations = code
             .split('\n')
             .enumerate()
             .fold(Vec::new(), |mut pairs, (row, line)| {
@@ -40,15 +48,13 @@ impl ParserTrait for CalcParser {
                     return pairs;
                 }
 
-                // Parse any comment
+                // Parse comment line
                 if line.trim_start().starts_with('#') {
-                    let (mut relations, _only) =
-                        parse_tags(path, "calc", row, line, Some("Number".to_string()));
-                    pairs.append(&mut relations);
+                    comments.push((row, line));
                     return pairs;
                 }
 
-                // Parse for assignments
+                // Parse line for assignments
                 let (start, expr) = if let Some(captures) = ASSIGN_REGEX.captures(line) {
                     let symbol = captures.get(1).expect("Should always have group 1");
                     let expr = captures.get(2).expect("Should always have group 2");
@@ -61,7 +67,7 @@ impl ParserTrait for CalcParser {
                     (0, line)
                 };
 
-                // Parse for uses of variables
+                // Parse line for uses of variables
                 for captures in VAR_REGEX.captures_iter(expr) {
                     if captures.get(2).is_none() {
                         let symbol = captures.get(1).expect("Should always have group 1");
@@ -77,10 +83,35 @@ impl ParserTrait for CalcParser {
                     }
                 }
 
+                // Add line to semantics
+                semantics.push_str(line);
+                semantics.push('\n');
+
                 pairs
             });
 
-        Ok(pairs)
+        let mut resource_info = ResourceInfo::new(
+            resource,
+            Some(relations),
+            None,
+            Some(ResourceDigest::from_strings(code, Some(&semantics))),
+            None,
+        );
+
+        // Apply tags from comments (this needs to be done at the end because tags
+        // may remove pairs if `only` is specified)
+        for (row, line) in comments {
+            apply_tags(
+                path,
+                &Self::spec().language,
+                row,
+                line,
+                Some("Number".to_string()),
+                &mut resource_info,
+            );
+        }
+
+        Ok(resource_info)
     }
 }
 
@@ -95,8 +126,10 @@ mod tests {
         snapshot_fixtures("fragments/calc/*.calc", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let pairs = CalcParser::parse(path, &code).expect("Unable to parse");
-            assert_json_snapshot!(pairs);
+            let resource =
+                resources::code(path, "", "SoftwareSourceCode", Some("Calc".to_string()));
+            let resource_info = CalcParser::parse(resource, path, &code).expect("Unable to parse");
+            assert_json_snapshot!(resource_info);
         })
     }
 }

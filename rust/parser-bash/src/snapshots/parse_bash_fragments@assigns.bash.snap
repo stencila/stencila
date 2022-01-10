@@ -1,76 +1,86 @@
 ---
 source: rust/parser-bash/src/lib.rs
-expression: pairs
+expression: resource_info
 input_file: fixtures/fragments/bash/assigns.bash
 
 ---
-[
-  [
-    {
-      "type": "Assign",
-      "range": [
-        0,
-        0,
-        0,
-        4
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/bash/assigns.bash",
-      "name": "var1",
-      "kind": "String"
-    }
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/bash/assigns.bash",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Bash"
+  },
+  "relations": [
+    [
+      {
+        "type": "Assign",
+        "range": [
+          0,
+          0,
+          0,
+          4
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/bash/assigns.bash",
+        "name": "var1",
+        "kind": "String"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          1,
+          0,
+          1,
+          4
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/bash/assigns.bash",
+        "name": "var2",
+        "kind": "String"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          6,
+          1,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/bash/assigns.bash",
+        "name": "var1",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          2,
+          0,
+          2,
+          4
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/bash/assigns.bash",
+        "name": "var3",
+        "kind": "String"
+      }
+    ]
   ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        1,
-        0,
-        1,
-        4
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/bash/assigns.bash",
-      "name": "var2",
-      "kind": "String"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        6,
-        1,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/bash/assigns.bash",
-      "name": "var1",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        2,
-        0,
-        2,
-        4
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/bash/assigns.bash",
-      "name": "var3",
-      "kind": "String"
-    }
-  ]
-]
+  "compile_digest": "If7kDLmL59GSi1NqK-3YS-6Y8rb7z_xRoq9E7rDKLso.phLzV2g7F8MJ3XYORqgqm0UAzlMsCuFPRrp-Opb1VcE..0"
+}

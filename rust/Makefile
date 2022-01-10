@@ -15,21 +15,22 @@ setup:
 
 fix:
 	cargo fmt --all
-	cargo clippy --tests --fix --allow-dirty --all --exclude stencila-node
+	cargo clippy --workspace --exclude stencila-node --all-features --tests --fix --allow-dirty
 
 lint:
-	cargo clippy --tests --all --exclude stencila-node
+	cargo clippy --workspace --exclude stencila-node --all-features --tests
 
 test:
-	cargo test --all --exclude stencila-node -- --nocapture
+	cargo test --workspace --exclude stencila-node --all-features -- --nocapture
 
 cover:
 	cargo tarpaulin --ignore-tests --exclude-files tests/* \
 	  --out Xml --out Html --output-dir coverage \
-	  --timeout 600 --all --exclude stencila-node
+	  --timeout 600 \
+	  --workspace --exclude stencila-node --all-features
 
 audit:
-	cargo +nightly udeps
+	cargo +nightly udeps --workspace --exclude stencila-node --all-features
 
 build:
 	# Build / install embedded static assets

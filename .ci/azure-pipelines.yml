@@ -347,10 +347,12 @@ jobs:
           python3 -m ipykernel install --user
         displayName: 'Install: Jupyter kernels'
 
+      # At the time of writing, when running all the tests, storage space was being exceed
+      # so this skips the `codec-*` tests.
       - script: |
           set -e
           cd rust
-          cargo test
+          cargo test  --workspace --exclude "codec-*"
         condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 

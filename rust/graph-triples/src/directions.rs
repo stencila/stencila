@@ -10,6 +10,7 @@ pub enum Direction {
 pub fn direction(relation: &Relation) -> Direction {
     match relation {
         Relation::Assign(..) => Direction::To,
+        Relation::Alter(..) => Direction::To,
         Relation::Convert(..) => Direction::To,
         Relation::Embed => Direction::From,
         Relation::Import(..) => Direction::To,

@@ -1,11 +1,12 @@
 use eyre::Result;
-use graph_triples::Pairs;
+use graph_triples::{Resource, ResourceInfo};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
 // Export and re-export for the convenience of crates that implement a parser
 pub mod utils;
 pub use eyre;
+pub use formats;
 pub use graph_triples;
 
 /// A specification for parsers
@@ -32,19 +33,6 @@ pub trait ParserTrait {
     /// Get the [`Parser`] specification
     fn spec() -> Parser;
 
-    /// Parse some code and return a set of graph pairs
-    fn parse(path: &Path, code: &str) -> Result<Pairs>;
-}
-
-/// Parsing options
-///
-/// Parsing functions (including those in plugins) are encouraged to respect these options
-/// but are not required to.
-#[derive(Clone)]
-pub struct ParseOptions {}
-
-impl Default for ParseOptions {
-    fn default() -> Self {
-        Self {}
-    }
+    /// Parse a `Resource::Code` object into a [`ResourceInfo`] object
+    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo>;
 }

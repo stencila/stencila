@@ -5,33 +5,59 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::{Path, PathBuf};
 
-/// Parse a comment string into a set of `Relation`/`Resource` pairs and the name relation
-/// types for which those specified should be the only relations
-pub fn parse_tags(
+use crate::ResourceInfo;
+
+/// Apply comment tags to a [`ResourceInfo`] object.
+///
+/// Parses tags from a comment and updates the supplied [`ResourceInfo`]. This pattern is
+/// used because (a) the parse info may already be partially populated based on semantic
+/// analysis of the code (which comments wish to override), and (b) there might be multiple
+/// comments in a code resources each with (potentially overriding) tags
+///
+/// # Arguments
+///
+/// - `path`:    The path of the file.
+///              Used, for example, when constructing `Symbol` resources for `@assigns` etc tags.
+/// - `lang`:    The language of code that the comment is part of.
+///              Used, for example, when constructing `Module` resources for `@imports` tags.
+/// - `row`:     The line number of the start of the comment.
+///              Used for constructing a `Range` for resources.
+/// - `comment`: The comment from which to parse tags, usually a comment
+/// - `kind`:    The default type for `Symbol` resources.
+pub fn apply_tags(
     path: &Path,
     lang: &str,
     row: usize,
     comment: &str,
     kind: Option<String>,
-) -> (Vec<(Relation, Resource)>, Vec<String>) {
-    static REGEX_TAG: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"@(imports|assigns|uses|modifies|reads|writes)\s+(.*?)(\*/)?$")
+    resource_info: &mut ResourceInfo,
+) {
+    static REGEX_TAGS: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r"@(imports|assigns|alters|uses|reads|writes|pure|impure)((?:\s+).*?)?(\*/)?$")
             .expect("Unable to create regex")
     });
     static REGEX_ITEMS: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"\s+|(\s*,\s*)").expect("Unable to create regex"));
 
-    let kind = kind.unwrap_or_else(|| "".to_string());
-
-    let mut relations: Vec<(Relation, Resource)> = Vec::new();
-    let mut only: Vec<String> = Vec::new();
+    let mut pairs: Vec<(Relation, Resource)> = Vec::new();
+    let mut onlies: Vec<String> = Vec::new();
     for (index, line) in comment.lines().enumerate() {
         let range = (row + index, 0, row + index, line.len() - 1);
-        if let Some(captures) = REGEX_TAG.captures(line) {
+        if let Some(captures) = REGEX_TAGS.captures(line) {
             let tag = captures[1].to_string();
+
             let relation = match tag.as_str() {
+                "pure" => {
+                    resource_info.pure = Some(true);
+                    continue;
+                }
+                "impure" => {
+                    resource_info.pure = Some(false);
+                    continue;
+                }
                 "imports" => relations::uses(range),
                 "assigns" => relations::assigns(range),
+                "alters" => relations::alters(range),
                 "uses" => relations::uses(range),
                 "reads" => relations::reads(range),
                 "writes" => relations::writes(range),
@@ -42,26 +68,51 @@ pub fn parse_tags(
                 .split(captures[2].trim())
                 .map(|item| item.to_string())
                 .collect();
+
             for item in items {
                 if item == "only" {
-                    only.push(tag.clone());
+                    onlies.push(tag.clone());
                     continue;
                 }
 
                 let resource = match tag.as_str() {
                     "imports" => resources::module(lang, &item),
-                    "assigns" | "uses" => resources::symbol(path, &item, &kind),
+                    "assigns" | "alters" | "uses" => {
+                        resources::symbol(path, &item, &kind.clone().unwrap_or_default())
+                    }
                     "reads" | "writes" => resources::file(&PathBuf::from(item)),
                     _ => continue,
                 };
-                relations.push((relation.clone(), resource))
+                pairs.push((relation.clone(), resource))
             }
         }
     }
-    (relations, only)
+
+    // Remove existing pairs for relation types where the `only` keyword is present in tags
+    if let Some(relations) = &mut resource_info.relations {
+        for only in onlies {
+            relations.retain(|(relation, _resource)| {
+                !(matches!(relation, Relation::Import(..)) && only == "imports"
+                    || matches!(relation, Relation::Assign(..)) && only == "assigns"
+                    || matches!(relation, Relation::Alter(..)) && only == "alters"
+                    || matches!(relation, Relation::Use(..)) && only == "uses"
+                    || matches!(relation, Relation::Read(..)) && only == "reads"
+                    || matches!(relation, Relation::Write(..)) && only == "writes")
+            })
+        }
+    }
+
+    // Append pairs from tags
+    if !pairs.is_empty() {
+        if let Some(relations) = &mut resource_info.relations {
+            relations.append(&mut pairs);
+        } else {
+            resource_info.relations = Some(pairs)
+        }
+    }
 }
 
-/// Whether or not text is quoted
+/// Is some text quoted?
 pub fn is_quoted(text: &str) -> bool {
     (text.starts_with('"') && text.ends_with('"'))
         || (text.starts_with('\'') && text.ends_with('\''))

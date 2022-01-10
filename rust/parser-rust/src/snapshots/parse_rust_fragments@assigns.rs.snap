@@ -1,161 +1,171 @@
 ---
 source: rust/parser-rust/src/lib.rs
-expression: pairs
+expression: resource_info
 input_file: fixtures/fragments/rust/assigns.rs
 
 ---
-[
-  [
-    {
-      "type": "Assign",
-      "range": [
-        0,
-        6,
-        0,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/assigns.rs",
-      "name": "var1",
-      "kind": ""
-    }
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/rust/assigns.rs",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Rust"
+  },
+  "relations": [
+    [
+      {
+        "type": "Assign",
+        "range": [
+          0,
+          6,
+          0,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/assigns.rs",
+        "name": "var1",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          1,
+          7,
+          1,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/assigns.rs",
+        "name": "var2",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          3,
+          4,
+          3,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/assigns.rs",
+        "name": "var3",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          4,
+          4,
+          4,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/assigns.rs",
+        "name": "var4",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          5,
+          4,
+          5,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/assigns.rs",
+        "name": "var5",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          6,
+          4,
+          6,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/assigns.rs",
+        "name": "var6",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          7,
+          4,
+          7,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/assigns.rs",
+        "name": "var7",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          8,
+          4,
+          8,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/assigns.rs",
+        "name": "var8",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          9,
+          4,
+          9,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/assigns.rs",
+        "name": "var9",
+        "kind": ""
+      }
+    ]
   ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        1,
-        7,
-        1,
-        11
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/assigns.rs",
-      "name": "var2",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        3,
-        4,
-        3,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/assigns.rs",
-      "name": "var3",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        4,
-        4,
-        4,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/assigns.rs",
-      "name": "var4",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        5,
-        4,
-        5,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/assigns.rs",
-      "name": "var5",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        6,
-        4,
-        6,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/assigns.rs",
-      "name": "var6",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        7,
-        4,
-        7,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/assigns.rs",
-      "name": "var7",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        8,
-        4,
-        8,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/assigns.rs",
-      "name": "var8",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        9,
-        4,
-        9,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/rust/assigns.rs",
-      "name": "var9",
-      "kind": ""
-    }
-  ]
-]
+  "compile_digest": "08X6jzT6CPQtHGoj5AxqCYKm_yNJW5nlDL5blfp3KbA.RtFpWRazVrrtN2dE1UVU49rm98qhXC1yUmNqOugBsQI..0"
+}

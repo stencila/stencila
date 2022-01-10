@@ -25,7 +25,12 @@ input_file: fixtures/articles/code.md
           "type": "CodeFragment",
           "text": "Parameter"
         },
-        " nodes."
+        " nodes. See also ",
+        {
+          "type": "CodeFragment",
+          "text": "../fragments/md/code-*.md"
+        },
+        " fixtures. This fixture intentionally does not have any relations between code nodes (e.g a variable assigned in one, used in another)."
       ]
     },
     {
@@ -59,9 +64,9 @@ input_file: fixtures/articles/code.md
         {
           "type": "CodeExpression",
           "programmingLanguage": "",
-          "text": "x"
+          "text": "3+3"
         },
-        " (in which case it may default to the file's language e.g. pymd files)."
+        " (in which case it will default to the language of the previous code element)."
       ]
     },
     {

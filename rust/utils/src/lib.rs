@@ -1,7 +1,7 @@
 /// Concisely create a `Some::<String>`
 #[macro_export]
 macro_rules! some_string {
-    ($x:literal) => {
+    ($x:expr) => {
         Some($x.to_string())
     };
 }
@@ -9,7 +9,7 @@ macro_rules! some_string {
 /// Concisely create a `Some::<Box<String>>`
 #[macro_export]
 macro_rules! some_box_string {
-    ($x:literal) => {
+    ($x:expr) => {
         Some(Box::new($x.to_string()))
     };
 }

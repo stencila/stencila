@@ -1,0 +1,35 @@
+---
+source: rust/parser-calc/src/lib.rs
+expression: resource_info
+input_file: fixtures/fragments/calc/assigns-only.calc
+
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/calc/assigns-only.calc",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Calc"
+  },
+  "relations": [
+    [
+      {
+        "type": "Assign",
+        "range": [
+          0,
+          0,
+          0,
+          16
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/assigns-only.calc",
+        "name": "a",
+        "kind": "Number"
+      }
+    ]
+  ],
+  "compile_digest": "S_6o5NBIQAmADL5Gg-5aFx1rbL6N7DMx0DUzouBWTLQ.p4hDGsNeggHt4DQlyiiXz33fgLjNgKxzC0nqGV9QnP0..0"
+}

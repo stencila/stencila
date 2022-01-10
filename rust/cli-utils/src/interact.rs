@@ -47,8 +47,8 @@ interactive session (see the shortcut keystrokes below).
         ("↑     ", "Go back through command history"),
         ("↓     ", "Go forward through command history"),
         ("?     ", "Print this message"),
-        ("Ctrl+C", "Cancel the current command"),
-        ("Ctrl+D", "Exit interactive application"),
+        ("Ctrl+C", "Cancel the current task (if any)"),
+        ("Ctrl+D", "Exit interactive session"),
     ] {
         help += &format!("    {} {}\n", Green.paint(*keys), desc)
     }
@@ -161,11 +161,12 @@ where
                 }
             }
             Err(ReadlineError::Interrupted) => {
-                tracing::info!("Ctrl+C pressed, use Ctrl+D to end session");
-                // TODO Cancel the current task, if it is cancellable
+                tracing::info!(
+                    "Ctrl+C pressed, but no active task (use Ctrl+D to end interactive session)"
+                );
             }
             Err(ReadlineError::Eof) => {
-                tracing::info!("Ctrl+D pressed, ending session");
+                tracing::info!("Ctrl+D pressed, ending interactive session");
                 break;
             }
             Err(error) => bail!(error),

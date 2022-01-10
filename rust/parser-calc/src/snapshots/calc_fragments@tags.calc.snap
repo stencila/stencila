@@ -1,0 +1,53 @@
+---
+source: rust/parser-calc/src/lib.rs
+expression: resource_info
+input_file: fixtures/fragments/calc/tags.calc
+
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/calc/tags.calc",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Calc"
+  },
+  "relations": [
+    [
+      {
+        "type": "Assign",
+        "range": [
+          0,
+          0,
+          0,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/tags.calc",
+        "name": "var1",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          0,
+          1,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/tags.calc",
+        "name": "var2",
+        "kind": "Number"
+      }
+    ]
+  ],
+  "pure": false,
+  "compile_digest": "afxa8qF04b5SdIj5ksufSKhlN_HjVlnLa0Wauk-M0A4.8s1J1YcykkWZDK0WFV8TJi_s54lrR5bBUwu-i69Zs3o..0"
+}

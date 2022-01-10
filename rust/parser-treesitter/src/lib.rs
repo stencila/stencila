@@ -1,10 +1,11 @@
-use graph_triples::{relations::Range, Relation, Resource};
-use parser::utils::parse_tags;
+use parser::{
+    graph_triples::{relations::Range, resources::ResourceDigest, Pairs, Resource, ResourceInfo},
+    utils::apply_tags,
+};
 use std::{collections::HashMap, path::Path, sync::Mutex};
 
 // Re-exports for the convenience of crates implementing a Tree-sitter
 // based parser
-pub use graph_triples;
 pub use parser::*;
 pub use path_utils;
 
@@ -188,52 +189,69 @@ pub fn child_text<'tree>(
         .unwrap_or("")
 }
 
-/// Apply manual tags (e.g. `@uses` in a comment) to the relations
+/// Create a [`ResourceInfo`] instance from a Treesitter parse tree and pattern matches
+///
+/// Applies manual tags (e.g. `@uses`) in a comments to the relations derived from
+/// semantic code analysis.
 ///
 /// # Arguments
 ///
 /// - `path`: The path of the subject code resource
 /// - `lang`: The language (used for creating `Resource::Module` variants)
+/// - `code`: The code that was parsed
 /// - `matches`: The matches from querying the code
-/// - `pattern`: The pattern from which to extract tags
-/// - `relations`: The relations to update based on tags
+/// - `comment_pattern`: The index of the pattern from which to extract tags
+/// - `relations`: The relation pairs
 ///
-/// Assumes that the first capture has the text content
-/// of the comment.
+/// Assumes that the first capture has the text content of the comment.
 /// If the tag ends in `only` then all existing relations of that type
 /// will be removed from `relations`.
-pub fn apply_tags(
+pub fn resource_info(
+    resource: Resource,
     path: &Path,
     lang: &str,
+    code: &[u8],
     matches: Vec<(usize, Vec<Capture>)>,
-    pattern: usize,
-    mut relations: Vec<(Relation, Resource)>,
-) -> Vec<(Relation, Resource)> {
+    comment_pattern: usize,
+    relations: Pairs,
+) -> ResourceInfo {
+    // The content of the resource (used for generating digest)
+    let content_str = std::str::from_utf8(code).unwrap_or_default();
+
+    // The semantics of the resource (used for generating digest).
+    // Includes the language name. In the future may be generated from the
+    // parsed AST.
+    let semantic_str = [lang, content_str].concat();
+
+    // Make the resource
+    let mut resource_info = ResourceInfo::new(
+        resource,
+        Some(relations),
+        None,
+        Some(ResourceDigest::from_strings(
+            content_str,
+            Some(&semantic_str),
+        )),
+        None,
+    );
+
+    // Apply tags from comments (this needs to be done at the end because tags
+    // may remove pairs if `only` is specified)
     for (pattern_, captures) in matches {
-        if pattern_ != pattern {
+        if pattern_ != comment_pattern {
             continue;
         }
 
-        // Get the new relations from the comment
         let comment = &captures[0];
-        let (mut specified_relations, only_relations) =
-            parse_tags(path, lang, comment.range.0, &comment.text, None);
-
-        // Remove existing relations if `only` indicators are present
-        for only in only_relations {
-            relations.retain(|(relation, resource)| {
-                !(matches!(relation, Relation::Use(..))
-                    && matches!(resource, Resource::Module(..))
-                    && only == "imports"
-                    || matches!(relation, Relation::Assign(..)) && only == "assigns"
-                    || matches!(relation, Relation::Use(..))
-                        && matches!(resource, Resource::Symbol(..))
-                        && only == "uses")
-            })
-        }
-
-        // Add specified relations
-        relations.append(&mut specified_relations);
+        apply_tags(
+            path,
+            lang,
+            comment.range.0,
+            &comment.text,
+            None,
+            &mut resource_info,
+        )
     }
-    relations
+
+    resource_info
 }

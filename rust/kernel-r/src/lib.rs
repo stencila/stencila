@@ -12,17 +12,19 @@ pub fn new() -> MicroKernel {
         &["{{script}}"],
         include_file!("r-kernel.r"),
         &[include_file!("r-codec.r")],
-        "{{name}} <- decode_value(\"{{json}}\")",
-        "{{name}}",
+        "{{name}} <- decode_value('{{json}}')",
+        "cat(encode_value({{name}}, unbox = TRUE))",
     )
 }
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use super::*;
     use kernel::{
         eyre::{bail, Result},
-        stencila_schema::Node,
+        stencila_schema::{Array, Node, Object, Primitive},
         KernelTrait, TaskResult,
     };
     use once_cell::sync::Lazy;
@@ -37,7 +39,7 @@ mod tests {
 
     async fn skip_or_kernel() -> Result<MicroKernel> {
         let mut kernel = new();
-        if !kernel.is_forkable().await {
+        if !kernel.is_available().await {
             eprintln!("R not available on this machine");
             bail!("Skipping")
         } else {
@@ -100,12 +102,44 @@ mod tests {
         // Set and get another variable
         kernel.set("b", Node::Integer(3)).await?;
         let b = kernel.get("b").await?;
-        assert_json_is!(b, [3]);
+        assert_json_is!(b, 3);
 
         // Use both variables
         let (outputs, messages) = kernel.exec("a*b").await?;
         assert_json_is!(messages, []);
         assert_json_is!(outputs, [[6]]);
+
+        // Set and get are "reversible"
+        let vars: HashMap<String, Node> = [
+            ("var1", Node::Boolean(true)),
+            ("var2", Node::Boolean(false)),
+            ("var3", Node::Integer(123)),
+            ("var4", Node::Number(1.23)),
+            (
+                "var5",
+                Node::Array(Array::from([
+                    Primitive::Integer(1),
+                    Primitive::Integer(2),
+                    Primitive::Integer(3),
+                ])),
+            ),
+            (
+                "var6",
+                Node::Object(Object::from([
+                    ("a".to_string(), Primitive::Integer(1)),
+                    ("b".to_string(), Primitive::Integer(2)),
+                    ("c".to_string(), Primitive::Integer(3)),
+                ])),
+            ),
+        ]
+        .map(|(name, node)| (name.to_string(), node))
+        .into();
+
+        for (name, value) in vars {
+            kernel.set(&name, value.clone()).await?;
+            let got = kernel.get(&name).await?;
+            assert_json_eq!(got, value)
+        }
 
         Ok(())
     }
@@ -366,10 +400,10 @@ mod tests {
         assert_json_is!(outputs[0], var);
 
         // Back in the parent kernel, var should still have its original value
-        assert_json_eq!(var, kernel.get("var").await?);
         let (outputs, messages) = kernel.exec("var").await?;
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
+        assert_json_eq!(outputs[0], var);
 
         Ok(())
     }

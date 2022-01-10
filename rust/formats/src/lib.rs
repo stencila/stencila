@@ -1,3 +1,4 @@
+use inflector::Inflector;
 use schemars::JsonSchema;
 use serde::Serialize;
 use std::path::Path;
@@ -7,6 +8,7 @@ use strum::{EnumIter, IntoEnumIterator};
 pub enum Format {
     Bash,
     Calc,
+    Date,
     Directory,
     Dockerfile,
     Docx,
@@ -26,6 +28,8 @@ pub enum Format {
     Odt,
     Ogg,
     Ogv,
+    Pandoc,
+    Person,
     PlainText,
     Png,
     Python,
@@ -68,7 +72,7 @@ impl Format {
             Format::R => FormatSpec::new("R", "r", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::Rust => FormatSpec::new("Rust", "rust", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::Shell => FormatSpec::new("Shell", "sh", &[], false, false, FormatNodeType::SoftwareSourceCode),
-            Format::TypeScript => FormatSpec::new("Typescript", "ts", &[], false, false, FormatNodeType::SoftwareSourceCode),
+            Format::TypeScript => FormatSpec::new("TypeScript", "ts", &[], false, false, FormatNodeType::SoftwareSourceCode),
             Format::Zsh => FormatSpec::new("ZSH", "zsh", &[], false, false, FormatNodeType::SoftwareSourceCode),
 
             // Article formats
@@ -77,6 +81,7 @@ impl Format {
             Format::Ipynb => FormatSpec::new("Jupyter Notebook", "ipynb", &[], false, true, FormatNodeType::Article),
             Format::Markdown => FormatSpec::new("Markdown", "md", &[], false, true, FormatNodeType::Article),
             Format::Odt => FormatSpec::new("Open Office Text", "odt", &[], true, true, FormatNodeType::Article),
+            Format::Pandoc => FormatSpec::new("Pandoc JSON", "pandoc", &[], false, true, FormatNodeType::Article),
             Format::RMarkdown => FormatSpec::new("R Markdown", "rmd", &[], false, true, FormatNodeType::Article),
             Format::LaTeX => FormatSpec::new("LaTeX", "latex", &["tex"], false, true, FormatNodeType::Article),
 
@@ -99,6 +104,8 @@ impl Format {
 
             // Other
             Format::PlainText => FormatSpec::new("Plain text", "txt", &[], false, false, FormatNodeType::Unknown),
+            Format::Person => FormatSpec::new("Person", "person", &[], false, false, FormatNodeType::Person),
+            Format::Date => FormatSpec::new("Date", "date", &[], false, false, FormatNodeType::Date),
 
             // Specials
             Format::Directory => FormatSpec::directory(),
@@ -115,6 +122,8 @@ pub enum FormatNodeType {
     ImageObject,
     VideoObject,
     SoftwareSourceCode,
+    Date,
+    Person,
     Unknown,
 }
 
@@ -212,6 +221,14 @@ impl FormatSpec {
 /// Iterates over the `Format` variants and returns the first
 /// that has a title, extension or aliases that match it.
 pub fn match_name(name: &str) -> Format {
+    let name = name.trim();
+
+    // Early return for empty strings to avoid matching `Directory`
+    // which has an empty extension.
+    if name.is_empty() {
+        return Format::Unknown;
+    }
+
     let name = name.to_lowercase();
     for format in Format::iter() {
         let spec = format.spec();
@@ -222,6 +239,7 @@ pub fn match_name(name: &str) -> Format {
             return format;
         }
     }
+
     Format::Unknown
 }
 
@@ -244,4 +262,17 @@ pub fn match_path<P: AsRef<Path>>(path: &P) -> Format {
 
     // Match that name
     match_name(&name.to_string_lossy().to_string())
+}
+
+/// Normalize a format name to its title
+///
+/// If the name can be matched against a known format then its
+/// title will be returned. Otherwise, the name converted to title
+/// case will be returned.
+pub fn normalize_title(name: &str) -> String {
+    let format = match_name(name);
+    match format {
+        Format::Unknown => name.to_title_case(),
+        _ => format.spec().title,
+    }
 }

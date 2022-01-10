@@ -1,7 +1,6 @@
 use eyre::{bail, Result};
 use node_address::Address;
-use node_execute::{execute, KernelSpace};
-use node_patch::{diff, Patch, Patchable};
+use node_transform::Transform;
 use stencila_schema::{BlockContent, CreativeWorkTypes, InlineContent, Node};
 
 /// Resolve a node [`Address`] or id into a node [`Pointer`]
@@ -30,6 +29,7 @@ pub fn resolve<Type: Pointable>(
     }
 }
 
+/// A pointer to a node within the tree of another root node
 #[derive(Debug)]
 pub enum Pointer<'lt> {
     None,
@@ -41,46 +41,69 @@ pub enum Pointer<'lt> {
 }
 
 impl<'lt> Pointer<'lt> {
-    /// Apply a patch to the node that is pointed to
-    pub fn patch(&mut self, patch: &Patch) -> Result<()> {
+    pub fn as_inline(&self) -> Option<&InlineContent> {
         match self {
-            Pointer::Inline(node) => node.apply_patch(patch),
-            Pointer::Block(node) => node.apply_patch(patch),
-            Pointer::Work(node) => node.apply_patch(patch),
-            Pointer::Node(node) => node.apply_patch(patch),
-            _ => bail!("Invalid node pointer: {:?}", self),
+            Pointer::Inline(inline) => Some(inline),
+            _ => None,
         }
     }
 
-    /// Execute the node that is pointed to
-    ///
-    /// Returns a patch representing the change in the node resulting from
-    /// the execution (usually to its outputs, but potentially to its errors also)
-    pub async fn execute(&mut self, kernels: &mut KernelSpace) -> Result<Patch> {
-        let patch = match self {
-            Pointer::Inline(node) => {
-                let pre = node.clone();
-                execute(*node, kernels).await?;
-                diff(&pre, node)
-            }
-            Pointer::Block(node) => {
-                let pre = node.clone();
-                execute(*node, kernels).await?;
-                diff(&pre, node)
-            }
-            Pointer::Work(node) => {
-                let pre = node.clone();
-                execute(*node, kernels).await?;
-                diff(&pre, node)
-            }
-            Pointer::Node(node) => {
-                let pre = node.clone();
-                execute(*node, kernels).await?;
-                diff(&pre, node)
-            }
+    pub fn as_inline_mut(&mut self) -> Option<&mut InlineContent> {
+        match self {
+            Pointer::Inline(inline) => Some(inline),
+            _ => None,
+        }
+    }
+
+    pub fn as_block(&self) -> Option<&BlockContent> {
+        match self {
+            Pointer::Block(block) => Some(block),
+            _ => None,
+        }
+    }
+
+    pub fn as_block_mut(&mut self) -> Option<&mut BlockContent> {
+        match self {
+            Pointer::Block(block) => Some(block),
+            _ => None,
+        }
+    }
+
+    pub fn as_work(&self) -> Option<&CreativeWorkTypes> {
+        match self {
+            Pointer::Work(work) => Some(work),
+            _ => None,
+        }
+    }
+
+    pub fn as_work_mut(&mut self) -> Option<&mut CreativeWorkTypes> {
+        match self {
+            Pointer::Work(work) => Some(work),
+            _ => None,
+        }
+    }
+
+    pub fn as_node(&self) -> Option<&Node> {
+        match self {
+            Pointer::Node(node) => Some(node),
+            _ => None,
+        }
+    }
+
+    pub fn as_node_mut(&mut self) -> Option<&mut Node> {
+        match self {
+            Pointer::Node(node) => Some(node),
+            _ => None,
+        }
+    }
+
+    pub fn to_node(&self) -> Result<Node> {
+        Ok(match self {
+            Pointer::Inline(node) => node.to_node(),
+            Pointer::Block(node) => node.to_node(),
+            Pointer::Node(node) => node.to_node(),
             _ => bail!("Invalid node pointer: {:?}", self),
-        };
-        Ok(patch)
+        })
     }
 }
 

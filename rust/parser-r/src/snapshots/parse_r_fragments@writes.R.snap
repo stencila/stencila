@@ -1,204 +1,214 @@
 ---
 source: rust/parser-r/src/lib.rs
-expression: pairs
+expression: resource_info
 input_file: fixtures/fragments/r/writes.R
 
 ---
-[
-  [
-    {
-      "type": "Use",
-      "range": [
-        0,
-        10,
-        0,
-        14
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/writes.R",
-      "name": "data",
-      "kind": ""
-    }
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/r/writes.R",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "R"
+  },
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          0,
+          10,
+          0,
+          14
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/writes.R",
+        "name": "data",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Write",
+        "range": [
+          0,
+          16,
+          0,
+          23
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/r/path1"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          2,
+          12,
+          2,
+          16
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/writes.R",
+        "name": "data",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Write",
+        "range": [
+          2,
+          25,
+          2,
+          32
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/r/path2"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          4,
+          0,
+          4,
+          3
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/writes.R",
+        "name": "foo",
+        "kind": "Function"
+      }
+    ],
+    [
+      {
+        "type": "Write",
+        "range": [
+          5,
+          29,
+          5,
+          36
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/r/path3"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          8,
+          17,
+          8,
+          21
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/writes.R",
+        "name": "data",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Write",
+        "range": [
+          8,
+          31,
+          8,
+          38
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/r/path4"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          12,
+          12,
+          12,
+          16
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/writes.R",
+        "name": "data",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          12,
+          18,
+          12,
+          24
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/writes.R",
+        "name": "ignore",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          14,
+          10,
+          14,
+          14
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/writes.R",
+        "name": "data",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          14,
+          23,
+          14,
+          29
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/r/writes.R",
+        "name": "ignore",
+        "kind": ""
+      }
+    ]
   ],
-  [
-    {
-      "type": "Write",
-      "range": [
-        0,
-        16,
-        0,
-        23
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/r/path1"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        2,
-        12,
-        2,
-        16
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/writes.R",
-      "name": "data",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Write",
-      "range": [
-        2,
-        25,
-        2,
-        32
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/r/path2"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        4,
-        0,
-        4,
-        3
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/writes.R",
-      "name": "foo",
-      "kind": "Function"
-    }
-  ],
-  [
-    {
-      "type": "Write",
-      "range": [
-        5,
-        29,
-        5,
-        36
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/r/path3"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        8,
-        17,
-        8,
-        21
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/writes.R",
-      "name": "data",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Write",
-      "range": [
-        8,
-        31,
-        8,
-        38
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/r/path4"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        12,
-        12,
-        12,
-        16
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/writes.R",
-      "name": "data",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        12,
-        18,
-        12,
-        24
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/writes.R",
-      "name": "ignore",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        14,
-        10,
-        14,
-        14
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/writes.R",
-      "name": "data",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        14,
-        23,
-        14,
-        29
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/r/writes.R",
-      "name": "ignore",
-      "kind": ""
-    }
-  ]
-]
+  "compile_digest": "f_hPImOJOLGIhQ3w9oBsDfDSOO7VYpvWOTup79zkOOY.NbpXxqilDAdWwujcaKtkz-yxQzNNvLRwE1YKbZZkfZs..0"
+}

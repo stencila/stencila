@@ -1,0 +1,17 @@
+[package]
+name = "node-query"
+description = "Query a Stencila document node"
+version = "0.0.0"
+edition = "2021"
+
+[features]
+jsonptr = []
+jmespath = ["jmespatch"]
+default = ["jsonptr", "jmespath"]
+
+[dependencies]
+eyre = "0.6.5"
+serde_json = "1.0.72"
+stencila-schema = "1.13.0" 
+
+jmespatch = { version = "0.3.0", optional = true }

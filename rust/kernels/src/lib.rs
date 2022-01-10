@@ -1,23 +1,25 @@
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
-use graph_triples::{resources::Symbol, Relation, Resource};
+use graph_triples::ResourceInfo;
 #[allow(unused_imports)]
 use kernel::{
     async_trait::async_trait,
     eyre::{bail, eyre, Result},
     stencila_schema::{CodeError, Node},
-    Kernel, KernelId, KernelInfo, KernelStatus, KernelTrait,
+    KernelId, KernelInfo, KernelStatus, KernelTrait, TaskId, TaskMessages, TaskOutputs,
 };
-use kernel::{TaskId, TaskMessages, TaskOutputs};
 use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, BTreeMap, HashMap, HashSet, VecDeque},
     sync::Arc,
+    time::Duration,
 };
+#[allow(unused_imports)]
+use strum::{EnumString, EnumVariantNames, VariantNames};
 use tokio::sync::{broadcast, mpsc, Mutex};
 
 // Re-exports
-pub use kernel::{KernelSelector, Task, TaskResult};
+pub use kernel::{Kernel, KernelSelector, KernelType, Task, TaskResult};
 
 /// A "meta" kernel to dispatch to different types of kernels
 ///
@@ -180,7 +182,12 @@ impl KernelMap {
     async fn ensure(&mut self, selector: &KernelSelector) -> Result<KernelId> {
         // Is there already a running kernel that matches the selector?
         for (kernel_id, kernel) in self.iter_mut() {
-            if !selector.matches(&kernel.spec()) {
+            if let Some(id) = &selector.id {
+                if id != kernel_id {
+                    // Not the right id, so keep looking
+                    continue;
+                }
+            } else if !selector.matches(&kernel.spec()) {
                 // Not a match, so keep looking
                 continue;
             }
@@ -261,8 +268,10 @@ impl KernelMap {
 
     /// Get a list of kernels in the kernel space
     #[cfg(feature = "cli")]
-    pub async fn display(&self) -> Vec<KernelInfo> {
-        let mut info = Vec::new();
+    pub async fn display(&self) -> cli_utils::Result {
+        use cli_utils::result;
+
+        let mut list = Vec::new();
         for (id, kernel) in self.iter() {
             let id = id.to_string();
             let spec = kernel.spec();
@@ -275,7 +284,7 @@ impl KernelMap {
             };
             let interruptable = kernel.is_interruptable().await;
             let forkable = kernel.is_forkable().await;
-            info.push(KernelInfo {
+            list.push(KernelInfo {
                 id,
                 status,
                 spec,
@@ -283,7 +292,36 @@ impl KernelMap {
                 forkable,
             })
         }
-        info
+
+        let cols = "|--|------|----|----|---------|-------------|--------|";
+        let head = "|Id|Status|Type|Name|Languages|Interruptable|Forkable|";
+        let body = list
+            .iter()
+            .map(|info| {
+                format!(
+                    "|{}|{}|{}|{}|{}|{}|{}|",
+                    info.id,
+                    info.status,
+                    info.spec.r#type,
+                    info.spec.name,
+                    info.spec.languages.join(", "),
+                    info.interruptable,
+                    info.forkable
+                )
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        let md = format!(
+            "{top}\n{head}\n{align}\n{body}\n{bottom}\n",
+            top = cols,
+            head = head,
+            align = cols,
+            body = body,
+            bottom = if !list.is_empty() { cols } else { "" }
+        );
+
+        result::new("md", &md, list)
     }
 }
 
@@ -301,11 +339,11 @@ pub struct SymbolInfo {
     /// As such, a symbol's home kernel can change, although this is discouraged.
     home: KernelId,
 
-    /// The time that the symbol was last assigned in the home kernel
+    /// The time that the symbol was last modified in the home kernel
     ///
-    /// A symbol is considered assigned when  a `CodeChunk` with an `Assign` relation
-    /// to the symbol is executed or the `kernel.set` method is called.
-    assigned: DateTime<Utc>,
+    /// A symbol is considered modified when a `CodeChunk` with an `Assign` or `Alter`
+    /// relation to the symbol is executed or the `kernel.set` method is called.
+    modified: DateTime<Utc>,
 
     /// The time that the symbol was last mirrored to other kernels
     ///
@@ -320,13 +358,52 @@ impl SymbolInfo {
         SymbolInfo {
             kind: kind.into(),
             home: kernel_id.into(),
-            assigned: Utc::now(),
+            modified: Utc::now(),
             mirrored: HashMap::new(),
         }
     }
 }
 
 type KernelSymbols = HashMap<String, SymbolInfo>;
+
+/// Display kernel symbols
+#[cfg(feature = "cli")]
+fn display_symbols(symbols: &KernelSymbols) -> cli_utils::Result {
+    use cli_utils::result;
+
+    let cols = "|------|----|-----------|------------|-------------------|";
+    let head = "|Symbol|Type|Home kernel|Last altered|Mirrored in kernels|";
+    let body = symbols
+        .iter()
+        .map(|(symbol, symbol_info)| {
+            format!(
+                "|{}|{}|{}|{}|{}|",
+                symbol,
+                symbol_info.kind,
+                symbol_info.home,
+                format_time(symbol_info.modified),
+                symbol_info
+                    .mirrored
+                    .iter()
+                    .map(|(kernel, time)| format!("{} ({})", kernel, format_time(*time)))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )
+        })
+        .collect::<Vec<String>>()
+        .join("\n");
+
+    let md = format!(
+        "{top}\n{head}\n{align}\n{body}\n{bottom}\n",
+        top = cols,
+        head = head,
+        align = cols,
+        body = body,
+        bottom = if !symbols.is_empty() { cols } else { "" }
+    );
+
+    result::new("md", &md, symbols)
+}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct TaskInfo {
@@ -338,11 +415,8 @@ pub struct TaskInfo {
     /// The code that was executed
     pub code: String,
 
-    /// The symbols that are used by this code
-    pub symbols_used: Vec<Symbol>,
-
-    /// The symbols that are assigned by this code
-    pub symbols_assigned: Vec<Symbol>,
+    /// The result of parsing the code
+    pub resource_info: ResourceInfo,
 
     /// The id of the kernel that the task was dispatched to
     pub kernel_id: Option<String>,
@@ -369,9 +443,44 @@ impl TaskInfo {
     pub async fn result(&mut self) -> Result<TaskResult> {
         self.task.result().await
     }
+
+    /// Was the task started?
+    pub fn was_started(&self) -> bool {
+        self.task.started.is_some()
+    }
+
+    /// Was the task finished?
+    pub fn was_finished(&self) -> bool {
+        self.task.finished.is_some()
+    }
+
+    /// Was the task cancelled?
+    pub fn was_cancelled(&self) -> bool {
+        self.task.cancelled.is_some()
+    }
+
+    /// Time that the the task ended (either finished, cancelled, or `None`)
+    pub fn ended(&self) -> Option<DateTime<Utc>> {
+        self.task.finished.or(self.task.cancelled)
+    }
+
+    /// Calculate the task duration in seconds
+    pub fn duration(&self) -> Option<f64> {
+        let duration = if let (Some(began), Some(ended)) = (self.task.started, self.ended()) {
+            Some(ended - began)
+        } else {
+            self.task.started.map(|started| (Utc::now() - started))
+        };
+        duration.map(|duration| duration.to_std().unwrap_or(Duration::ZERO).as_secs_f64())
+    }
 }
 
 /// A list of [`Task`]s associated with a [`KernelSpace`]
+///
+/// The main purpose of maintaining this list of tasks is for introspection
+/// and the ability to cancel running or queued tasks. To avoid the list growing
+/// indefinitely, tasks are removed on a periodic basis, if the list is greater
+/// than a certain size.
 #[derive(Debug, Default)]
 struct KernelTasks {
     /// The list of tasks
@@ -379,6 +488,21 @@ struct KernelTasks {
 
     /// A counter to be able to assign unique numbers to tasks
     counter: u64,
+}
+
+#[derive(Debug, EnumVariantNames, EnumString)]
+#[strum(serialize_all = "lowercase")]
+enum KernelTaskSorting {
+    /// Sort by task number (default)
+    Number,
+    /// Sort by time created
+    Created,
+    /// Sort by time started
+    Started,
+    /// Sort by time finished
+    Finished,
+    /// Sort by time cancelled
+    Cancelled,
 }
 
 impl KernelTasks {
@@ -400,6 +524,16 @@ impl KernelTasks {
     }
 
     /// Get a task using its [`TaskId`]
+    fn get<'lt>(&'lt self, task_id: &TaskId) -> Option<&'lt TaskInfo> {
+        for task_info in self.inner.iter() {
+            if task_info.task.id == *task_id {
+                return Some(task_info);
+            }
+        }
+        None
+    }
+
+    /// Get a task using its [`TaskId`]
     fn get_mut<'lt>(&'lt mut self, task_id: &TaskId) -> Option<&'lt mut TaskInfo> {
         for task_info in self.inner.iter_mut() {
             if task_info.task.id == *task_id {
@@ -410,13 +544,11 @@ impl KernelTasks {
     }
 
     /// Put a task onto the list
-    #[allow(clippy::too_many_arguments)]
     async fn put(
         &mut self,
         task: &Task,
         code: &str,
-        symbols_used: &[Symbol],
-        symbols_assigned: &[Symbol],
+        resource_info: &ResourceInfo,
         kernel_id: &str,
         is_fork: bool,
         is_deferred: bool,
@@ -426,11 +558,10 @@ impl KernelTasks {
         let task_info = TaskInfo {
             num: self.counter,
             code: code.to_string(),
-            symbols_used: symbols_used.into(),
-            symbols_assigned: symbols_assigned.into(),
+            resource_info: resource_info.clone(),
             kernel_id: Some(kernel_id.to_string()),
-            is_deferred,
             is_fork,
+            is_deferred,
             is_async: task.is_async(),
             is_cancellable: task.is_cancellable(),
             task: task.clone(),
@@ -446,14 +577,178 @@ impl KernelTasks {
     /// Mainly for inspection, in the future may return a formatted table
     /// with more information
     #[cfg(feature = "cli")]
-    async fn display(&self) -> cli_utils::Result {
+    async fn display(
+        &self,
+        num: usize,
+        sort: &KernelTaskSorting,
+        desc: bool,
+        kernel: Option<KernelId>,
+        queues: &KernelQueues,
+    ) -> cli_utils::Result {
         use cli_utils::result;
 
-        result::value(self.inner.clone())
+        let mut list = self.inner.clone();
+
+        if kernel.is_some() {
+            list = list
+                .into_iter()
+                .filter(|task_info| task_info.kernel_id == kernel)
+                .collect::<Vec<TaskInfo>>();
+        }
+
+        match sort {
+            KernelTaskSorting::Number => (),
+            &KernelTaskSorting::Created => list.sort_by(|a, b| a.task.created.cmp(&b.task.created)),
+            &KernelTaskSorting::Started => list.sort_by(|a, b| a.task.started.cmp(&b.task.started)),
+            &KernelTaskSorting::Finished => {
+                list.sort_by(|a, b| a.task.finished.cmp(&b.task.finished))
+            }
+            &KernelTaskSorting::Cancelled => {
+                list.sort_by(|a, b| a.task.cancelled.cmp(&b.task.cancelled))
+            }
+        }
+
+        if desc {
+            list.reverse()
+        }
+
+        if list.len() > num {
+            if desc {
+                list.drain(..num);
+            } else {
+                list.drain(..(list.len() - num));
+            }
+        }
+
+        let cols =
+            "|-|-------|-------|--------|---------|--------|------|------|------|-----------|----|";
+        let head =
+            "|#|Created|Started|Finished|Cancelled|Duration|Kernel|Queued|Forked|Cancellable|Code|";
+        let align =
+            "|-|------:|------:|-------:|--------:|-------:|:-----|-----:|-----:|----------:|:---|";
+        let body = list
+            .iter()
+            .map(|task_info| {
+                let task = &task_info.task;
+
+                let kernel_id = task_info.kernel_id.clone().unwrap_or_default();
+
+                let queue_pos = queues
+                    .get(&kernel_id)
+                    .and_then(|queue| queue.binary_search(&task.id).ok())
+                    .map(|index| (index + 1).to_string())
+                    .unwrap_or_default();
+
+                let fork = if task_info.is_fork { "yes" } else { "no" };
+
+                let cancellable = if task_info.is_cancellable {
+                    "yes"
+                } else {
+                    "no"
+                };
+
+                let mut code = task_info.code.clone();
+                if code.len() > 20 {
+                    code.truncate(17);
+                    code += "...";
+                }
+                code = code.replace("\n", "; ");
+
+                format!(
+                    "|{}|{}|{}|{}|{}|{}|{}|{}|{}|{}|`{}`|",
+                    task_info.num,
+                    format_time(task.created),
+                    task.started.map(format_time).unwrap_or_default(),
+                    task.finished.map(format_time).unwrap_or_default(),
+                    task.cancelled.map(format_time).unwrap_or_default(),
+                    format_duration(task_info.duration()),
+                    kernel_id,
+                    queue_pos,
+                    fork,
+                    cancellable,
+                    code,
+                )
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        let md = format!(
+            "{top}\n{head}\n{align}\n{body}\n{bottom}\n",
+            top = cols,
+            head = head,
+            align = align,
+            body = body,
+            bottom = if !list.is_empty() { cols } else { "" }
+        );
+
+        result::new("md", &md, list)
     }
 }
 
 type KernelQueues = HashMap<KernelId, VecDeque<TaskId>>;
+
+/// Display task queues
+#[cfg(feature = "cli")]
+fn display_queues(queues: &KernelQueues, tasks: &KernelTasks) -> cli_utils::Result {
+    use cli_utils::result;
+
+    let md = queues
+        .keys()
+        .map(|kernel_id| {
+            let display = display_queue(queues, kernel_id, tasks)
+                .map(|value| value.content.unwrap_or_default())
+                .unwrap_or_else(|err| err.to_string());
+            format!("# {}\n\n{}", kernel_id, display)
+        })
+        .collect::<Vec<String>>()
+        .join("\n\n");
+
+    result::new("md", &md, queues)
+}
+
+/// Display a task queue
+#[cfg(feature = "cli")]
+fn display_queue(queues: &KernelQueues, kernel_id: &str, tasks: &KernelTasks) -> cli_utils::Result {
+    use cli_utils::result;
+
+    let queue = queues
+        .get(kernel_id)
+        .map_or_else(VecDeque::new, |queue| queue.clone());
+
+    let cols = "|--------|-----------|--------|-------|";
+    let head = "|Position|Task number| Task id|Created|";
+    let body = queue
+        .iter()
+        .enumerate()
+        .map(|(index, task_id)| {
+            let task_info = match tasks.get(task_id) {
+                Some(task) => task,
+                None => return "".to_string(),
+            };
+            let task = &task_info.task;
+
+            format!(
+                "|{}|{}|{}|{}|",
+                index + 1,
+                task_info.num,
+                task.id,
+                format_time(task.created)
+            )
+        })
+        .collect::<Vec<String>>()
+        .join("\n");
+
+    let md = format!(
+        "{top}\n{head}\n{align}\n{body}\n{bottom}\n",
+        top = cols,
+        head = head,
+        align = cols,
+        body = body,
+        bottom = if !queue.is_empty() { cols } else { "" }
+    );
+
+    result::new("md", &md, queue)
+}
 
 #[derive(Debug, Default, Serialize)]
 pub struct KernelSpace {
@@ -497,18 +792,18 @@ impl KernelSpace {
         tasks: &Arc<Mutex<KernelTasks>>,
         symbols: &Arc<Mutex<KernelSymbols>>,
     ) {
-        use tokio::time::{sleep, Duration};
+        const PERIOD: Duration = Duration::from_millis(100);
 
         tracing::debug!("Began kernel space monitoring");
         loop {
             KernelSpace::dispatch_queue(queues, tasks, kernels, symbols).await;
-
-            sleep(Duration::from_millis(300)).await;
+            KernelSpace::clean_tasks(tasks).await;
+            tokio::time::sleep(PERIOD).await;
         }
     }
 
     /// Get a symbol from the kernel space
-    pub async fn get(&mut self, name: &str) -> Result<Node> {
+    pub async fn get(&self, name: &str) -> Result<Node> {
         let symbols = &mut *self.symbols.lock().await;
         let symbol_info = symbols
             .get(name)
@@ -520,12 +815,10 @@ impl KernelSpace {
     }
 
     /// Set a symbol in the kernel space
-    pub async fn set(&mut self, name: &str, value: Node, language: &str) -> Result<()> {
-        let selector = KernelSelector::parse(language);
-
+    pub async fn set(&self, name: &str, value: Node, selector: &KernelSelector) -> Result<()> {
         let kernels = &mut *self.kernels.lock().await;
 
-        let kernel_id = kernels.ensure(&selector).await?;
+        let kernel_id = kernels.ensure(selector).await?;
         tracing::debug!("Setting symbol `{}` in kernel `{}`", name, kernel_id);
 
         let kernel = kernels.get_mut(&kernel_id)?;
@@ -536,7 +829,7 @@ impl KernelSpace {
             Entry::Occupied(mut occupied) => {
                 let info = occupied.get_mut();
                 info.home = kernel_id;
-                info.assigned = Utc::now();
+                info.modified = Utc::now();
             }
             Entry::Vacant(vacant) => {
                 vacant.insert(SymbolInfo::new("", &kernel_id));
@@ -548,29 +841,13 @@ impl KernelSpace {
 
     /// Execute some code in the kernel space
     pub async fn exec(
-        &mut self,
+        &self,
         code: &str,
-        selector: &KernelSelector,
-        relations: Option<Vec<(Relation, Resource)>>,
-        is_async: bool,
+        resource_info: &ResourceInfo,
         is_fork: bool,
+        selector: &KernelSelector,
     ) -> Result<TaskInfo> {
         let kernels = &mut *self.kernels.lock().await;
-
-        // Summarize relations into symbols used and assigned
-        let mut symbols_used = Vec::new();
-        let mut symbols_assigned = Vec::new();
-        if let Some(relations) = relations {
-            for pair in relations {
-                match pair {
-                    (Relation::Use(..), Resource::Symbol(symbol)) => symbols_used.push(symbol),
-                    (Relation::Assign(..), Resource::Symbol(symbol)) => {
-                        symbols_assigned.push(symbol)
-                    }
-                    _ => (),
-                }
-            }
-        }
 
         // Determine the kernel to execute in
         let kernel_id = kernels.ensure(selector).await?;
@@ -578,36 +855,20 @@ impl KernelSpace {
 
         // If the kernel is busy then defer the task, otherwise dispatch to the kernel now
         let kernel = kernels.get(&kernel_id)?;
-        let (deferred, task) = if kernel.is_busy().await? {
+        let (is_deferred, task) = if kernel.is_busy().await? {
             let task = self.defer_task(&kernel_id).await;
             (true, task)
         } else {
             let symbols = &mut *self.symbols.lock().await;
-            let task = KernelSpace::dispatch_task(
-                code,
-                &symbols_used,
-                &symbols_assigned,
-                is_async,
-                is_fork,
-                symbols,
-                &kernel_id,
-                kernels,
-            )
-            .await?;
+            let task =
+                KernelSpace::dispatch_task(code, resource_info, symbols, &kernel_id, kernels)
+                    .await?;
             (false, task)
         };
 
         // Either way, store the task
         let task_info = self
-            .store(
-                &task,
-                code,
-                &symbols_used,
-                &symbols_assigned,
-                is_fork,
-                &kernel_id,
-                deferred,
-            )
+            .store(&task, code, resource_info, &kernel_id, is_fork, is_deferred)
             .await;
         Ok(task_info)
     }
@@ -620,16 +881,13 @@ impl KernelSpace {
     #[allow(clippy::too_many_arguments)]
     async fn dispatch_task(
         code: &str,
-        symbols_used: &[Symbol],
-        symbols_assigned: &[Symbol],
-        is_async: bool,
-        is_fork: bool,
+        resource_info: &ResourceInfo,
         symbols: &mut KernelSymbols,
         kernel_id: &str,
         kernels: &mut KernelMap,
     ) -> Result<Task> {
         // Mirror used symbols into the kernel
-        for symbol in symbols_used {
+        for symbol in resource_info.symbols_used() {
             let name = &symbol.name;
             let symbol = match symbols.get_mut(name) {
                 Some(symbol) => symbol,
@@ -644,7 +902,7 @@ impl KernelSpace {
 
             // Skip if already mirrored since last assigned
             if let Some(mirrored) = symbol.mirrored.get(kernel_id) {
-                if mirrored >= &symbol.assigned {
+                if mirrored >= &symbol.modified {
                     continue;
                 }
             }
@@ -670,23 +928,22 @@ impl KernelSpace {
         }
 
         // Execute the code in the kernel
+        let pure = resource_info.is_pure();
         let kernel = kernels.get_mut(kernel_id)?;
-        let task = if is_fork {
+        let task = if pure {
             kernel.exec_fork(code).await?
-        } else if is_async {
-            kernel.exec_async(code).await?
         } else {
-            kernel.exec_sync(code).await?
+            kernel.exec_async(code).await?
         };
 
         // Record symbols assigned in kernel (unless it was a fork)
-        if !is_fork {
-            for symbol in symbols_assigned {
+        if !pure {
+            for symbol in resource_info.symbols_modified() {
                 symbols
                     .entry(symbol.name.clone())
                     .and_modify(|info| {
                         info.home = kernel_id.to_string();
-                        info.assigned = Utc::now();
+                        info.modified = Utc::now();
                     })
                     .or_insert_with(|| SymbolInfo::new(&symbol.kind, kernel_id));
             }
@@ -729,7 +986,7 @@ impl KernelSpace {
         task
     }
 
-    /// Dispatch tasks of a kernel space queues
+    /// Dispatch tasks from the queue to a kernel
     async fn dispatch_queue(
         queues: &Arc<Mutex<KernelQueues>>,
         tasks: &Arc<Mutex<KernelTasks>>,
@@ -809,10 +1066,7 @@ impl KernelSpace {
         // Dispatch the task
         let started_task = KernelSpace::dispatch_task(
             &task_info.code,
-            &task_info.symbols_used,
-            &task_info.symbols_assigned,
-            task_info.is_async,
-            task_info.is_fork,
+            &task_info.resource_info,
             symbols,
             kernel_id,
             kernels,
@@ -883,10 +1137,9 @@ impl KernelSpace {
         &self,
         task: &Task,
         code: &str,
-        symbols_used: &[Symbol],
-        symbols_assigned: &[Symbol],
-        is_fork: bool,
+        resource_info: &ResourceInfo,
         kernel_id: &str,
+        is_fork: bool,
         is_deferred: bool,
     ) -> TaskInfo {
         if let (false, Ok(mut receiver)) = (task.is_done(), task.subscribe()) {
@@ -915,20 +1168,12 @@ impl KernelSpace {
 
         let mut tasks = self.tasks.lock().await;
         tasks
-            .put(
-                task,
-                code,
-                symbols_used,
-                symbols_assigned,
-                kernel_id,
-                is_fork,
-                is_deferred,
-            )
+            .put(task, code, resource_info, kernel_id, is_fork, is_deferred)
             .await
     }
 
     /// Cancel a task
-    async fn cancel(&mut self, task_num_or_id: &str) -> Result<()> {
+    async fn cancel(&self, task_num_or_id: &str) -> Result<()> {
         let mut tasks = self.tasks.lock().await;
         if let Some(task_info) = tasks.find_mut(task_num_or_id) {
             task_info.task.cancel().await
@@ -941,42 +1186,96 @@ impl KernelSpace {
         }
     }
 
+    /// Cancel all unfinished tasks
+    async fn cancel_all(&self) -> Result<()> {
+        let mut tasks = self.tasks.lock().await;
+        for TaskInfo { task, .. } in tasks.inner.iter_mut() {
+            if !task.is_done() {
+                task.cancel().await?;
+            }
+        }
+        Ok(())
+    }
+
+    /// Remove old tasks to avoid the `tasks` list growing indefinitely in long running processes.
+    async fn clean_tasks(tasks: &Arc<Mutex<KernelTasks>>) {
+        // Currently a large MAX_SIZE to avoid removing unfinished task and assuming each task
+        // does not take up too much memory.
+        // May need to be made an env var and the default reduced.
+        const MAX_SIZE: usize = 100_000;
+
+        let tasks = &mut *tasks.lock().await;
+        let list = &mut tasks.inner;
+
+        // Work out how many tasks need to be removed
+        let count = list.len().saturating_sub(MAX_SIZE);
+        if count == 0 {
+            return;
+        }
+
+        tracing::debug!("Removing `{}` tasks from task list", count);
+        let mut remove = Vec::with_capacity(count);
+
+        // Try to remove those tasks that are "done" first
+        for (index, task_info) in list.iter().enumerate() {
+            if remove.len() >= count {
+                break;
+            }
+            if task_info.task.is_done() {
+                remove.push(index);
+            }
+        }
+
+        // If not are enough are removed then warn, and remove the oldest
+        if remove.len() < count {
+            tracing::warn!("While cleaning tasks, have to remove `{}` unfinished tasks to respect MAX_SIZE of {}", count - remove.len(), MAX_SIZE);
+            for index in 0..(list.len()) {
+                if remove.len() >= count {
+                    break;
+                }
+                if !remove.contains(&index) {
+                    remove.push(index)
+                }
+            }
+        }
+
+        // Finally, do the actual removal. This involves a call to `cancel` for tasks that are
+        // not finished to make sure they are removed from the queue and any result receivers are stopped.
+        for index in remove {
+            let TaskInfo { task, .. } = &mut list[index];
+            if !task.is_done() {
+                if let Err(error) = task.cancel().await {
+                    tracing::debug!("While cancelling unfinished task `{}`: {}", task.id, error)
+                }
+            }
+            list.remove(index);
+        }
+    }
+
     /// A read-evaluate-print function
     ///
-    /// Primarily intended for use in interactive mode as an execution REPL.
-    /// Adds execution related shortcuts e.g. `%symbols` for changing the language.
+    /// Primarily intended for use in interactive mode to execute a line of code REPL style
+    /// (see the `Execute` CLI command).
     #[cfg(feature = "cli")]
     pub async fn repl(
-        &mut self,
+        &self,
         code: &str,
         language: Option<String>,
         kernel: Option<String>,
+        background: bool,
+        is_fork: bool,
     ) -> cli_utils::Result {
         use cli_utils::result;
+        use events::{subscribe, unsubscribe, Subscriber};
+        use graph_triples::resources;
         use once_cell::sync::Lazy;
         use regex::Regex;
+        use std::path::PathBuf;
 
         static SYMBOL: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"^\w+$").expect("Unable to create regex"));
+            Lazy::new(|| Regex::new(r"^[a-zA-Z]\w*$").expect("Unable to create regex"));
 
         if code.is_empty() {
-            result::nothing()
-        } else if code == "%kernels" {
-            let kernels = self.kernels.lock().await;
-            result::value(kernels.display().await)
-        } else if code == "%symbols" {
-            let symbols = self.symbols.lock().await;
-            result::value(symbols.clone())
-        } else if code == "%tasks" {
-            let tasks = self.tasks.lock().await;
-            tasks.display().await
-        } else if code == "%queues" {
-            let queue = self.queues.lock().await;
-            result::value(queue.clone())
-        } else if let Some(task_num_or_id) = code.strip_prefix("%cancel") {
-            let task_num_or_id = task_num_or_id.trim();
-            let task_num_or_id = task_num_or_id.strip_prefix('#').unwrap_or(task_num_or_id);
-            self.cancel(task_num_or_id).await?;
             result::nothing()
         } else if language.is_none() && kernel.is_none() && SYMBOL.is_match(code) {
             match self.get(code).await {
@@ -987,49 +1286,87 @@ impl KernelSpace {
                 }
             }
         } else {
-            let (background, code) = if code.contains("@back") {
-                (true, code.replace("@back", ""))
-            } else {
-                (false, code.to_string())
-            };
-            let (fork, code) = if code.contains("@fork") {
-                (true, code.replace("@fork", ""))
-            } else {
-                (false, code)
-            };
-
             let code = code.trim().replace("\\n", "\n");
-
-            let language = language.unwrap_or_else(|| "calc".to_string());
 
             // If possible, parse the code so that we can use the relations to determine variables that
             // are assigned or used (needed for variable mirroring).
-            let relations = match parsers::parse("<cli>", &code, &language) {
-                Ok(pairs) => pairs,
-                Err(..) => Vec::new(),
+            let path = PathBuf::from("<cli>");
+            let resource = resources::code(&path, "<id>", "<file>", language.clone());
+            let resource_info = match parsers::parse(resource.clone(), &code) {
+                Ok(resource_info) => resource_info,
+                Err(..) => ResourceInfo::new(resource, None, None, None, None),
             };
 
             // Determine the kernel selector
             let selector = match kernel {
                 Some(kernel) => {
+                    // Combine the kernel language option with the provided selector
                     let mut selector = KernelSelector::parse(&kernel);
-                    selector.lang = Some(language);
+                    selector.lang = language;
                     selector
                 }
-                None => KernelSelector::new(None, Some(language), None),
+                None => match language {
+                    // Selector based on language only
+                    Some(_) => KernelSelector::new(None, language, None),
+                    None => {
+                        let tasks = self.tasks.lock().await;
+                        match tasks.inner.last() {
+                            // Select for kernel used for the last task
+                            Some(task_info) => KernelSelector {
+                                id: task_info.kernel_id.clone(),
+                                ..Default::default()
+                            },
+                            // Select anything (will select the first kernel)
+                            None => KernelSelector::new(None, None, None),
+                        }
+                    }
+                },
             };
 
             // Execute the code
-            let mut task_info = self
-                .exec(&code, &selector, Some(relations), background, fork)
-                .await?;
+            let mut task_info = self.exec(&code, &resource_info, is_fork, &selector).await?;
 
-            // If not a background task, or if results are already available, show results.
             if background {
+                // Indicate task is running in background
                 tracing::info!("Task #{} is running in background", task_info.num);
                 result::nothing()
             } else {
+                // If cancellable, subscribe to user interrupt, cancelling the task on that event
+                let subscription_id = if task_info.task.is_cancellable() {
+                    let tasks = self.tasks.clone();
+                    let task_id = task_info.task.id.clone();
+                    let (sender, mut receiver) = mpsc::unbounded_channel();
+                    tokio::spawn(async move {
+                        // This ends on interrupt or on unsubscribe (when the channel sender is dropped)
+                        if let Some(..) = receiver.recv().await {
+                            let mut tasks = tasks.lock().await;
+                            if let Some(TaskInfo { task, .. }) = tasks.find_mut(&task_id) {
+                                if let Err(error) = task.cancel().await {
+                                    tracing::error!(
+                                        "While cancelling task `{}`: {}",
+                                        task_id,
+                                        error
+                                    );
+                                }
+                            }
+                        }
+                    });
+
+                    let subscription_id = subscribe("interrupt", Subscriber::Sender(sender))?;
+                    Some(subscription_id)
+                } else {
+                    None
+                };
+
+                // Wait for the result
                 let TaskResult { outputs, messages } = task_info.result().await?;
+
+                // Cancel interrupt subscription
+                if let Some(subscription_id) = subscription_id {
+                    unsubscribe(&subscription_id)?;
+                }
+
+                // Output messages and  outputs
                 if !messages.is_empty() {
                     for error in messages {
                         let mut err = error.error_message;
@@ -1050,15 +1387,15 @@ impl KernelSpace {
 }
 
 /// List the kernels that are available on this machine
-#[allow(clippy::vec_init_then_push)]
+#[allow(clippy::vec_init_then_push, unused_mut)]
 pub async fn available() -> Result<Vec<Kernel>> {
     let mut available: Vec<Kernel> = Vec::new();
 
+    #[cfg(feature = "kernel-store")]
+    available.push(kernel_store::StoreKernel::new().spec());
+
     #[cfg(feature = "kernel-calc")]
     available.push(kernel_calc::CalcKernel::new().spec());
-
-    #[cfg(feature = "kernel-jupyter")]
-    available.append(&mut kernel_jupyter::JupyterKernel::available().await?);
 
     macro_rules! microkernel_available {
         ($feat:literal, $crat:ident, $list:expr) => {
@@ -1078,6 +1415,9 @@ pub async fn available() -> Result<Vec<Kernel>> {
     microkernel_available!("kernel-r", kernel_r, available);
     microkernel_available!("kernel-zsh", kernel_zsh, available);
 
+    #[cfg(feature = "kernel-jupyter")]
+    available.append(&mut kernel_jupyter::JupyterKernel::available().await?);
+
     Ok(available)
 }
 
@@ -1090,6 +1430,11 @@ pub async fn languages() -> Result<Vec<String>> {
     let kernels = available().await?;
     for kernel in kernels {
         for lang in kernel.languages {
+            let format = formats::match_name(&lang);
+            let lang = match format {
+                formats::Format::Unknown => lang,
+                _ => format.spec().title,
+            };
             languages.insert(lang);
         }
     }
@@ -1098,8 +1443,8 @@ pub async fn languages() -> Result<Vec<String>> {
     Ok(languages)
 }
 
-/// List the kernels (and servers) that are currently running on this machine
-pub async fn running() -> Result<serde_json::Value> {
+/// List the Jupyter kernels and servers that are currently running on this machine
+pub async fn jupyter_running() -> Result<serde_json::Value> {
     #[cfg(feature = "kernel-jupyter")]
     {
         let kernels = kernel_jupyter::JupyterKernel::running().await?;
@@ -1116,7 +1461,7 @@ pub async fn running() -> Result<serde_json::Value> {
 }
 
 /// List the directories that are searched for Jupyter kernel spaces
-pub async fn directories() -> Result<serde_json::Value> {
+pub async fn jupyter_directories() -> Result<serde_json::Value> {
     #[cfg(feature = "kernel-jupyter")]
     {
         Ok(serde_json::json!({
@@ -1127,6 +1472,28 @@ pub async fn directories() -> Result<serde_json::Value> {
     #[cfg(not(feature = "kernel-jupyter"))]
     {
         bail!("Jupyter kernels are not enabled")
+    }
+}
+
+/// Format an optional `DateTime` into a human readable "ago" duration
+fn format_time(time: DateTime<Utc>) -> String {
+    let duration = (Utc::now() - time).to_std().unwrap_or(Duration::ZERO);
+    let rounded = Duration::from_secs(duration.as_secs());
+    [
+        humantime::format_duration(rounded).to_string(),
+        " ago".to_string(),
+    ]
+    .concat()
+}
+
+/// Format begin and end times into a human readable, rounded to milliseconds
+fn format_duration(seconds: Option<f64>) -> String {
+    match seconds {
+        Some(seconds) => {
+            let duration = Duration::from_secs(seconds as u64);
+            humantime::format_duration(duration).to_string()
+        }
+        _ => "".to_string(),
     }
 }
 
@@ -1156,14 +1523,21 @@ pub mod commands {
     pub enum Action {
         Available(Available),
         Languages(Languages),
+
         Running(Running),
-        Directories(Directories),
-        Execute(Execute),
         Start(Start),
         Connect(Connect),
         Stop(Stop),
-        Status(Status),
         Show(Show),
+
+        Execute(Execute),
+        Tasks(Tasks),
+        Queues(Queues),
+        Cancel(Cancel),
+        Symbols(Symbols),
+
+        External(External),
+        Directories(Directories),
     }
 
     #[async_trait]
@@ -1173,14 +1547,26 @@ pub mod commands {
             match action {
                 Action::Available(action) => action.run().await,
                 Action::Languages(action) => action.run().await,
-                Action::Running(action) => action.run().await,
+                Action::External(action) => action.run().await,
                 Action::Directories(action) => action.run().await,
-                Action::Execute(action) => action.run().await,
-                Action::Start(action) => action.run().await,
-                Action::Connect(action) => action.run().await,
-                Action::Stop(action) => action.run().await,
-                Action::Status(action) => action.run().await,
-                Action::Show(action) => action.run().await,
+                _ => {
+                    let kernel_space = &mut *KERNEL_SPACE.lock().await;
+                    match action {
+                        Action::Running(action) => action.run(kernel_space).await,
+                        Action::Start(action) => action.run(kernel_space).await,
+                        Action::Connect(action) => action.run(kernel_space).await,
+                        Action::Stop(action) => action.run(kernel_space).await,
+                        Action::Show(action) => action.run(kernel_space).await,
+
+                        Action::Execute(action) => action.run(kernel_space).await,
+                        Action::Tasks(action) => action.run(kernel_space).await,
+                        Action::Queues(action) => action.run(kernel_space).await,
+                        Action::Cancel(action) => action.run(kernel_space).await,
+                        Action::Symbols(action) => action.run(kernel_space).await,
+
+                        _ => bail!("Unhandled action: {:?}", action),
+                    }
+                }
             }
         }
     }
@@ -1219,7 +1605,7 @@ pub mod commands {
         }
     }
 
-    /// List the Jupyter kernels (and servers) that are currently running
+    /// List the Jupyter kernels and servers that are currently running on this machine
     ///
     /// This command scans the Jupyter `runtime` directory to get a list of running
     /// Jupyter notebook servers. It then gets a list of kernels from the REST API
@@ -1228,11 +1614,11 @@ pub mod commands {
     #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Running {}
+    pub struct External {}
     #[async_trait]
-    impl Run for Running {
+    impl Run for External {
         async fn run(&self) -> Result {
-            result::value(running().await?)
+            result::value(jupyter_running().await?)
         }
     }
 
@@ -1247,7 +1633,7 @@ pub mod commands {
     #[async_trait]
     impl Run for Directories {
         async fn run(&self) -> Result {
-            result::value(directories().await?)
+            result::value(jupyter_directories().await?)
         }
     }
 
@@ -1256,7 +1642,7 @@ pub mod commands {
     /// interactive mode
     static KERNEL_SPACE: Lazy<Mutex<KernelSpace>> = Lazy::new(|| Mutex::new(KernelSpace::new()));
 
-    /// Execute code within a temporary "kernel space"
+    /// Execute code within a document kernel space
     ///
     /// Mainly intended for testing that Stencila is able to talk
     /// to Jupyter kernels and execute code within them.
@@ -1283,27 +1669,154 @@ pub mod commands {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Execute {
-        /// Code to execute within the document's kernel space
-        // Using a Vec and the `multiple` option allows for spaces in the code
+        /// Code to execute within the kernel space
+        // Using a `Vec` and the `multiple` option allows for spaces in the code
         #[structopt(multiple = true)]
         code: Vec<String>,
 
-        /// The name of the programming language
+        /// The programming language of the code
         #[structopt(short, long)]
         lang: Option<String>,
 
         /// The kernel where the code should executed (a kernel selector string)
         #[structopt(short, long)]
         kernel: Option<String>,
+
+        /// The task should run be in the background
+        #[structopt(short, long, alias = "back")]
+        background: bool,
+
+        /// The task should run be in a kernel fork (if possible)
+        #[structopt(long)]
+        fork: bool,
     }
-    #[async_trait]
-    impl Run for Execute {
-        async fn run(&self) -> Result {
-            KERNEL_SPACE
-                .lock()
+    impl Execute {
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
+            kernel_space
+                .repl(
+                    &self.code.join(" "),
+                    self.lang.clone(),
+                    self.kernel.clone(),
+                    self.background,
+                    self.fork,
+                )
                 .await
-                .repl(&self.code.join(" "), self.lang.clone(), self.kernel.clone())
+        }
+    }
+
+    /// List the code execution tasks in a document kernel space
+    #[derive(Debug, StructOpt)]
+    pub struct Tasks {
+        /// The maximum number of tasks to show
+        #[structopt(short, long, default_value = "100")]
+        num: usize,
+
+        /// The order to sort tasks (defaults to by task number)
+        #[structopt(
+            short, long,
+            possible_values = KernelTaskSorting::VARIANTS,
+            default_value = "number"
+        )]
+        sort: KernelTaskSorting,
+
+        /// Whether to sort in descending order
+        #[structopt(short, long)]
+        desc: bool,
+
+        /// Only show tasks assigned to a specific kernel
+        #[structopt(short, long)]
+        kernel: Option<KernelId>,
+    }
+    impl Tasks {
+        pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
+            let tasks = kernel_space.tasks.lock().await;
+            let queues = kernel_space.queues.lock().await;
+            tasks
+                .display(
+                    self.num,
+                    &self.sort,
+                    self.desc,
+                    self.kernel.clone(),
+                    &*queues,
+                )
                 .await
+        }
+    }
+
+    /// Show the code execution queues in a document kernel space
+    #[derive(Debug, StructOpt)]
+    pub struct Queues {
+        /// Only show the queue for a specific kernel
+        #[structopt(short, long)]
+        kernel: Option<KernelId>,
+    }
+    impl Queues {
+        pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
+            let tasks = kernel_space.tasks.lock().await;
+            let queues = kernel_space.queues.lock().await;
+            match &self.kernel {
+                Some(kernel) => display_queue(&*queues, kernel, &*tasks),
+                None => display_queues(&*queues, &*tasks),
+            }
+        }
+    }
+
+    /// Show the code symbols in a document kernel space
+    #[derive(Debug, StructOpt)]
+    pub struct Symbols {}
+    impl Symbols {
+        pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
+            let symbols = kernel_space.symbols.lock().await;
+            display_symbols(&*symbols)
+        }
+    }
+
+    /// Cancel a code execution task, or all tasks, in a document kernel space
+    ///
+    /// Use an integer to cancel a task by it's number.
+    /// Use "all" to cancel all unfinished tasks.
+    #[derive(Debug, StructOpt)]
+    pub struct Cancel {
+        /// The task number or id, or "all"
+        task: String,
+    }
+    impl Cancel {
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
+            let which = self.task.trim();
+            if which == "all" {
+                kernel_space.cancel_all().await?;
+            } else {
+                let which = which.strip_prefix('#').unwrap_or(which);
+                kernel_space.cancel(which).await?;
+            }
+            result::nothing()
+        }
+    }
+
+    /// List the kernels in a document kernel space
+    ///
+    /// Mainly intended for interactive mode testing / inspection. Note that
+    /// for a kernel to be in this list it must have either been started by Stencila,
+    ///
+    /// > kernels start r
+    ///
+    /// or connected to from Stencila,
+    ///  
+    /// > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
+    ///
+    /// To get a list of externally started Jupyter kernels that can be connected to run,
+    ///
+    /// > kernels external
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        alias = "kernels",
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Running {}
+    impl Running {
+        pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
+            let kernels = kernel_space.kernels.lock().await;
+            kernels.display().await
         }
     }
 
@@ -1319,10 +1832,8 @@ pub mod commands {
         /// The name or programming language of the kernel
         selector: String,
     }
-    #[async_trait]
-    impl Run for Start {
-        async fn run(&self) -> Result {
-            let kernel_space = KERNEL_SPACE.lock().await;
+    impl Start {
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
             let mut kernels = kernel_space.kernels.lock().await;
             let selector = KernelSelector::parse(&self.selector);
             let kernel_id = kernels.start(&selector).await?;
@@ -1348,10 +1859,8 @@ pub mod commands {
         /// The id of the kernel (see `kernels status`)
         id: String,
     }
-    #[async_trait]
-    impl Run for Stop {
-        async fn run(&self) -> Result {
-            let kernel_space = KERNEL_SPACE.lock().await;
+    impl Stop {
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
             let mut kernels = kernel_space.kernels.lock().await;
             kernels.stop(&self.id).await?;
             tracing::info!("Stopped kernel `{}`", self.id);
@@ -1359,14 +1868,14 @@ pub mod commands {
         }
     }
 
-    /// Connect to a running kernel
+    /// Connect to a running Jupyter kernel
     ///
     /// Mainly intended for testing that Stencila is able to connect
     /// to an existing kernel (e.g. one that was started from Jupyter notebook).
     ///
     /// To get a list of externally started kernels that can be connected to run,
     ///
-    /// > kernels running
+    /// > kernels external
     ///
     /// and then connect to a kernel using its Jupyter id e.g.,
     ///
@@ -1386,39 +1895,11 @@ pub mod commands {
         id_or_path: String,
     }
     impl Connect {
-        pub async fn run(&self) -> Result {
-            let kernel_space = KERNEL_SPACE.lock().await;
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
             let mut kernels = kernel_space.kernels.lock().await;
             let id = kernels.connect(&self.id_or_path).await?;
             tracing::info!("Connected to kernel `{}`", id);
             result::nothing()
-        }
-    }
-
-    /// Get a list of the kernels in the current kernel space
-    ///
-    /// Mainly intended for interactive mode testing / inspection. Note that
-    /// for a kernel to be in this list it must have either been started by Stencila,
-    ///
-    /// > kernels start r
-    ///
-    /// or connected to from Stencila,
-    ///  
-    /// > kernels connect beaac32f-32a4-46bc-9940-186a14d9acc9
-    ///
-    /// To get a list of externally started kernels that can be connected to run,
-    ///
-    /// > kernels running
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::ColoredHelp
-    )]
-    pub struct Status {}
-    impl Status {
-        pub async fn run(&self) -> Result {
-            let kernel_space = KERNEL_SPACE.lock().await;
-            let kernels = kernel_space.kernels.lock().await;
-            result::value(kernels.display().await)
         }
     }
 
@@ -1434,8 +1915,7 @@ pub mod commands {
         id: KernelId,
     }
     impl Show {
-        pub async fn run(&self) -> Result {
-            let kernel_space = KERNEL_SPACE.lock().await;
+        pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
             let kernels = kernel_space.kernels.lock().await;
             let kernel = kernels.get(&self.id)?;
             result::value(kernel)

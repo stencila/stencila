@@ -1,93 +1,103 @@
 ---
 source: rust/parser-bash/src/lib.rs
-expression: pairs
+expression: resource_info
 input_file: fixtures/fragments/bash/uses.bash
 
 ---
-[
-  [
-    {
-      "type": "Use",
-      "range": [
-        0,
-        1,
-        0,
-        5
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/bash/uses.bash",
-      "name": "var1",
-      "kind": ""
-    }
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/bash/uses.bash",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Bash"
+  },
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          0,
+          1,
+          0,
+          5
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/bash/uses.bash",
+        "name": "var1",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          6,
+          1,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/bash/uses.bash",
+        "name": "var2",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          2,
+          0,
+          2,
+          4
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/bash/uses.bash",
+        "name": "var4",
+        "kind": "String"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          2,
+          6,
+          2,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/bash/uses.bash",
+        "name": "var3",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          3,
+          7,
+          3,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/bash/uses.bash",
+        "name": "var5",
+        "kind": ""
+      }
+    ]
   ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        6,
-        1,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/bash/uses.bash",
-      "name": "var2",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        2,
-        0,
-        2,
-        4
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/bash/uses.bash",
-      "name": "var4",
-      "kind": "String"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        2,
-        6,
-        2,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/bash/uses.bash",
-      "name": "var3",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        3,
-        7,
-        3,
-        11
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/bash/uses.bash",
-      "name": "var5",
-      "kind": ""
-    }
-  ]
-]
+  "compile_digest": "ayqRDZhUeQvDwXshoJolu_1Z1f66soOQLe0awoo4nSA.Umh-htdKf8X8CqZNEMGqcdJfrX0u5hNH5pkntzyMrok..0"
+}

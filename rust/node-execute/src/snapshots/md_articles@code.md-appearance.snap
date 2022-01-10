@@ -1,0 +1,12 @@
+---
+source: rust/node-execute/src/lib.rs
+expression: "&plan"
+
+---
+{
+  "options": {
+    "ordering": "Appearance",
+    "max_concurrency": 10
+  },
+  "stages": []
+}

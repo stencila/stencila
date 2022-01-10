@@ -1,8 +1,9 @@
 //! Encode `InlineContent` nodes to HTML
 
 use super::{
-    attr, attr_id, attr_itemprop, attr_itemtype, attr_itemtype_str, attr_prop, attr_slot, concat,
-    elem, elem_empty, elem_meta, elem_placeholder, json, nothing, EncodeContext, ToHtml,
+    attr, attr_and_meta, attr_and_meta_opt, attr_id, attr_itemprop, attr_itemtype,
+    attr_itemtype_str, attr_prop, attr_slot, concat, elem, elem_empty, elem_meta, elem_placeholder,
+    json, nothing, EncodeContext, ToHtml,
 };
 use html_escape::encode_safe;
 use std::{fs, path::PathBuf};
@@ -334,8 +335,38 @@ impl ToHtml for CiteGroup {
 
 impl ToHtml for CodeExpression {
     fn to_html(&self, context: &EncodeContext) -> String {
-        let lang_attr = attr("programming-language", &self.programming_language);
-        let lang_meta = elem_meta("programmingLanguage", &self.programming_language);
+        let lang = attr_and_meta("programming_language", &self.programming_language);
+
+        let compile_digest = attr_and_meta_opt(
+            "compile_digest",
+            self.compile_digest.as_ref().map(|cord| cord.0.to_string()),
+        );
+
+        let execute_digest = attr_and_meta_opt(
+            "execute_digest",
+            self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
+        );
+
+        let execute_status = attr_and_meta_opt(
+            "execute_status",
+            self.execute_status
+                .as_ref()
+                .map(|status| (*status).as_ref().to_string()),
+        );
+
+        let execute_ended = attr_and_meta_opt(
+            "execute_ended",
+            self.execute_ended
+                .as_ref()
+                .map(|date| (**date).value.to_string()),
+        );
+
+        let execute_duration = attr_and_meta_opt(
+            "execute_duration",
+            self.execute_duration
+                .as_ref()
+                .map(|seconds| seconds.to_string()),
+        );
 
         let text = elem(
             "code",
@@ -359,8 +390,28 @@ impl ToHtml for CodeExpression {
 
         elem(
             "stencila-code-expression",
-            &[attr_itemtype::<Self>(), attr_id(&self.id), lang_attr],
-            &[lang_meta, text, output, errors].concat(),
+            &[
+                attr_itemtype::<Self>(),
+                attr_id(&self.id),
+                lang.0,
+                compile_digest.0,
+                execute_digest.0,
+                execute_status.0,
+                execute_ended.0,
+                execute_duration.0,
+            ],
+            &[
+                lang.1,
+                compile_digest.1,
+                execute_digest.1,
+                execute_status.1,
+                execute_ended.1,
+                execute_duration.1,
+                text,
+                output,
+                errors,
+            ]
+            .concat(),
         )
     }
 }

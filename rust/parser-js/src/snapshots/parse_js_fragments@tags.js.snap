@@ -1,135 +1,145 @@
 ---
 source: rust/parser-js/src/lib.rs
-expression: pairs
+expression: resource_info
 input_file: fixtures/fragments/js/tags.js
 
 ---
-[
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        0,
-        1,
-        26
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "js",
-      "name": "mod1"
-    }
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/js/tags.js",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "JavaScript"
+  },
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          0,
+          1,
+          26
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "JavaScript",
+        "name": "mod1"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          0,
+          1,
+          26
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "JavaScript",
+        "name": "mod2"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          0,
+          1,
+          26
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "JavaScript",
+        "name": "mod3"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          2,
+          0,
+          2,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/tags.js",
+        "name": "var1",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          3,
+          0,
+          3,
+          12
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/tags.js",
+        "name": "var2",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          5,
+          0,
+          5,
+          23
+        ]
+      },
+      {
+        "type": "File",
+        "path": "file1"
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          5,
+          0,
+          5,
+          23
+        ]
+      },
+      {
+        "type": "File",
+        "path": "file2"
+      }
+    ],
+    [
+      {
+        "type": "Write",
+        "range": [
+          6,
+          0,
+          6,
+          15
+        ]
+      },
+      {
+        "type": "File",
+        "path": "file3"
+      }
+    ]
   ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        0,
-        1,
-        26
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "js",
-      "name": "mod2"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        0,
-        1,
-        26
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "js",
-      "name": "mod3"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        2,
-        0,
-        2,
-        20
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/tags.js",
-      "name": "var1",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        3,
-        0,
-        3,
-        12
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/tags.js",
-      "name": "var2",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Read",
-      "range": [
-        5,
-        0,
-        5,
-        23
-      ]
-    },
-    {
-      "type": "File",
-      "path": "file1"
-    }
-  ],
-  [
-    {
-      "type": "Read",
-      "range": [
-        5,
-        0,
-        5,
-        23
-      ]
-    },
-    {
-      "type": "File",
-      "path": "file2"
-    }
-  ],
-  [
-    {
-      "type": "Write",
-      "range": [
-        6,
-        0,
-        6,
-        15
-      ]
-    },
-    {
-      "type": "File",
-      "path": "file3"
-    }
-  ]
-]
+  "compile_digest": "f7LI3VS02d9xKgwcASvK9CKslgb-mfGf4C5H9U2olk8.-D7bbvOJF9IfeSj4s09y0UPkZjT1usEnKW8DQFf8kA8..0"
+}

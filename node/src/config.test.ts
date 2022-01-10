@@ -16,7 +16,7 @@ test('schema', () => {
       properties: expect.objectContaining({
         projects: expect.objectContaining({}),
         logging: expect.objectContaining({}),
-        serve: expect.objectContaining({}),
+        server: expect.objectContaining({}),
         upgrade: expect.objectContaining({}),
       }),
     })
@@ -28,7 +28,7 @@ test('get', () => {
   expect(conf).toEqual(
     expect.objectContaining({
       logging: expect.objectContaining({}),
-      serve: expect.objectContaining({}),
+      server: expect.objectContaining({}),
       upgrade: expect.objectContaining({}),
     })
   )

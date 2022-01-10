@@ -36,7 +36,7 @@ mod tests {
         }
 
         let mut kernel = new();
-        if !kernel.is_forkable().await {
+        if !kernel.is_available().await {
             return Ok(());
         } else {
             kernel.start().await?;

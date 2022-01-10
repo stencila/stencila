@@ -7,11 +7,11 @@ edition = "2021"
 [features]
 default = []
 pretty = ["atty", "syntect", "serde_yaml", "termimad", "urlencoding"]
-progress = ["ansi_term", "events", "linya", "once_cell"]
-interact = ["ansi_term", "rustyline", "rustyline-derive", "tracing"]
+progress = ["events", "linya", "once_cell"]
+interact = ["rustyline", "rustyline-derive", "tracing"]
 
 [dependencies]
-ansi_term = { version = "0.12.1", optional = true }
+ansi_term = "0.12.1"
 async-trait = "0.1.51"
 atty = { version = "0.2.14", optional = true }
 color-eyre = "0.5.11"

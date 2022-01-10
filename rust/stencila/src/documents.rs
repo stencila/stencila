@@ -1,15 +1,14 @@
 use crate::utils::schemas;
-use defaults::Defaults;
 use events::publish;
 use eyre::{bail, Result};
 use formats::FormatSpec;
-use graph_triples::{Relation, Resource};
-use itertools::Itertools;
+use graph::Graph;
+use graph_triples::{resources, Relations, Resource};
 use kernels::KernelSpace;
 use maplit::hashset;
-use node_address::Address;
-use node_execute::compile;
-use node_patch::{diff, merge, Patch};
+use node_address::AddressMap;
+use node_execute::{compile, execute};
+use node_patch::{apply, diff, merge, Patch};
 use node_pointer::{resolve, Pointer};
 use node_reshape::reshape;
 use notify::DebouncedEvent;
@@ -18,18 +17,19 @@ use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
-    collections::HashSet,
-    time::{Duration, Instant},
-};
-use std::{
-    collections::{hash_map::Entry, HashMap},
+    collections::{hash_map::Entry, HashMap, HashSet},
     env, fs,
+    ops::Deref,
     path::{Path, PathBuf},
     sync::Arc,
+    time::{Duration, Instant},
 };
-use stencila_schema::{Article, Node};
+use stencila_schema::{Article, Cord, Node};
 use strum::Display;
-use tokio::{sync::Mutex, task::JoinHandle};
+use tokio::{
+    sync::{mpsc, Mutex, RwLock},
+    task::JoinHandle,
+};
 
 #[derive(Debug, JsonSchema, Serialize, Display)]
 #[serde(rename_all = "lowercase")]
@@ -105,7 +105,7 @@ enum DocumentStatus {
 }
 
 /// An in-memory representation of a document
-#[derive(Debug, Defaults, JsonSchema, Serialize)]
+#[derive(Debug, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Document {
     /// The document identifier
@@ -132,7 +132,6 @@ pub struct Document {
     /// This is orthogonal to `temporary` because a document's
     /// `content` can be synced or un-synced with the file system
     /// regardless of whether or not its `path` is temporary..
-    #[def = "DocumentStatus::Unread"]
     status: DocumentStatus,
 
     /// The last time that the document was written to disk.
@@ -151,7 +150,6 @@ pub struct Document {
     /// On initialization, this is inferred, if possible, from the file name extension
     /// of the document's `path`. However, it may change whilst the document is
     /// open in memory (e.g. if the `load` function sets a different format).
-    #[def = "FormatSpec::unknown(\"unknown\")"]
     #[schemars(schema_with = "Document::schema_format")]
     format: FormatSpec,
 
@@ -166,7 +164,6 @@ pub struct Document {
     /// a preview panel for a document by default. Regardless of its value,
     /// a user should be able to open a preview panel, in HTML or some other
     /// format, for any document.
-    #[def = "false"]
     previewable: bool,
 
     /// The current UTF8 string content of the document.
@@ -182,9 +179,14 @@ pub struct Document {
 
     /// The root Stencila Schema node of the document
     ///
-    /// Skipped during serialization will often be large.
+    /// Can be any type of `Node` but defaults to an empty `Article`.
+    ///
+    /// A [`RwLock`] to enable separate, concurrent tasks to read (e.g. for dumping to some
+    /// format) and write (e.g. to apply patches from clients) the node.
+    ///
+    /// Skipped during serialization because will often be large.
     #[serde(skip)]
-    pub root: Option<Node>,
+    root: Arc<RwLock<Node>>,
 
     /// Addresses of nodes in `root` that have an `id`
     ///
@@ -193,25 +195,33 @@ pub struct Document {
     /// It is necessary to use [`Address`] here (rather than say raw pointers) because
     /// pointers or references will change as the document is patched.
     /// These addresses are shifted when the document is patched to account for this.
-    #[schemars(schema_with = "Document::schema_addresses")]
-    addresses: HashMap<String, Address>,
-
-    /// The set of relations between this document, or nodes in this document, and other
-    /// resources.
-    ///
-    /// Relations may be external (e.g. this document links to
-    /// another file) or internal (e.g. the second code chunk uses a variable
-    /// defined in the first code chunk).
-    #[schemars(schema_with = "Document::schema_relations")]
-    #[serde(skip_deserializing, serialize_with = "Document::serialize_relations")]
-    pub relations: HashMap<Resource, Vec<(Relation, Resource)>>,
+    #[serde(skip)]
+    addresses: Arc<RwLock<AddressMap>>,
 
     /// The kernel space for this document.
     ///
     /// This is where document variables are stored and executable nodes such as
     /// `CodeChunk`s and `Parameters`s are executed.
     #[serde(skip)]
-    kernels: KernelSpace,
+    kernels: Arc<KernelSpace>,
+
+    /// The set of dependency relations between this document, or nodes in this document,
+    /// and other resources.
+    ///
+    /// Relations may be external (e.g. the document links to another `Resource::File`),
+    /// or internal (e.g. the second code chunk uses a `Resource::Symbol` defined in the
+    /// first code chunk).
+    ///
+    /// Stored for use in building the project's graph, but that may be removed
+    /// in the future. Not serialized since this information is in `self.graph`.
+    #[serde(skip)]
+    pub relations: Relations,
+
+    /// The document's dependency graph
+    ///
+    /// This is derived from `relations`.
+    #[serde(skip)]
+    pub graph: Arc<RwLock<Graph>>,
 
     /// The clients that are subscribed to each topic for this document
     ///
@@ -228,6 +238,12 @@ pub struct Document {
     ///    is changed internally or externally and  conversions have been
     ///    completed e.g. `encoded:html`
     subscriptions: HashMap<String, HashSet<String>>,
+
+    #[serde(skip)]
+    patch_sender: mpsc::Sender<Patch>,
+
+    #[serde(skip)]
+    compile_sender: mpsc::Sender<()>,
 }
 
 #[allow(unused)]
@@ -241,34 +257,6 @@ impl Document {
     /// Generate the JSON Schema for the `addresses` property to avoid duplicated types.
     fn schema_addresses(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
         schemas::typescript("Record<string, Address>", true)
-    }
-
-    /// Generate the JSON Schema for the `relations` property to avoid duplicated
-    /// inline types and allow for custom serialization.
-    fn schema_relations(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Record<string, [Relation, Resource]>", false)
-    }
-
-    /// Serialize the `relations` property.
-    ///
-    /// This custom serialization is necessary because a JSON object must have a `String` key (not
-    /// a `Resource` key). So we can't just serialize the `HashMap`. This serializes `relations` as an array,
-    /// which causes some repetition, but avoids having to generate a string identifier for each resource,
-    /// whilst trying not to loose information.
-    fn serialize_relations<S>(
-        relations: &HashMap<Resource, Vec<(Relation, Resource)>>,
-        serializer: S,
-    ) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let triples: Vec<(&Resource, &Relation, &Resource)> = relations
-            .iter()
-            .flat_map(|(resource, pairs)| {
-                pairs.iter().map(move |pair| (resource, &pair.0, &pair.1))
-            })
-            .collect();
-        triples.serialize(serializer)
     }
 
     /// Create a new empty document.
@@ -329,16 +317,88 @@ impl Document {
             .expect("Unable to get path parent")
             .to_path_buf();
 
+        let root = Arc::new(RwLock::new(Node::Article(Article::default())));
+        let addresses = Arc::new(RwLock::new(AddressMap::default()));
+        let graph = Arc::new(RwLock::new(Graph::default()));
+
+        let (patch_sender, mut patch_receiver) = mpsc::channel::<Patch>(100);
+        let root_clone = root.clone();
+        let addresses_clone = addresses.clone();
+        let id_clone = id.clone();
+        tokio::spawn(async move {
+            while let Some(patch) = patch_receiver.recv().await {
+                Self::patch_impl(&root_clone, &addresses_clone, &id_clone, patch).await;
+            }
+        });
+
+        let (compile_sender, mut compile_receiver) = mpsc::channel::<()>(100);
+        let root_clone = root.clone();
+        let addresses_clone = addresses.clone();
+        let graph_clone = graph.clone();
+        let patch_sender_clone = patch_sender.clone();
+        let id_clone = id.clone();
+        let path_clone = path.clone();
+        let project_clone = project.clone();
+        tokio::spawn(async move {
+            let duration = Duration::from_millis(300);
+            let mut compile = false;
+            loop {
+                match tokio::time::timeout(duration, compile_receiver.recv()).await {
+                    // Timeout so perhaps do a compile
+                    Err(..) => {
+                        if !compile {
+                            continue;
+                        }
+                    }
+                    // Request send so set marker and continue
+                    Ok(Some(..)) => {
+                        compile = true;
+                        continue;
+                    }
+                    // Sender dropped, end of task
+                    Ok(None) => break,
+                };
+
+                if let Err(error) = Self::compile_impl(
+                    &root_clone,
+                    &addresses_clone,
+                    &graph_clone,
+                    &patch_sender_clone,
+                    &id_clone,
+                    &path_clone,
+                    &project_clone,
+                )
+                .await
+                {
+                    tracing::error!("While compiling document `{}`: {}", id_clone, error)
+                }
+                compile = false;
+            }
+        });
+
         Document {
             id,
             path,
             project,
             temporary,
-            status: DocumentStatus::Synced,
             name,
             format,
             previewable,
-            ..Default::default()
+
+            status: DocumentStatus::Synced,
+            last_write: Default::default(),
+            content: Default::default(),
+
+            root,
+            addresses,
+            graph,
+
+            kernels: Default::default(),
+            relations: Default::default(),
+            subscriptions: Default::default(),
+
+            patch_sender,
+            compile_sender,
         }
     }
 
@@ -347,6 +407,9 @@ impl Document {
     /// Used to represent the document in events and as the return value of functions without
     /// to provide properties such as `path` and `status` without cloning things such as
     /// its `kernels`.
+    ///
+    /// TODO: This function needs to be factored out of existence or create a lighter weight
+    /// repr / summary of a document for serialization.
     pub fn repr(&self) -> Self {
         Self {
             id: self.id.clone(),
@@ -358,9 +421,17 @@ impl Document {
             format: self.format.clone(),
             previewable: self.previewable,
             addresses: self.addresses.clone(),
-            relations: self.relations.clone(),
+            graph: self.graph.clone(),
             subscriptions: self.subscriptions.clone(),
-            ..Default::default()
+            last_write: self.last_write,
+
+            content: Default::default(),
+            kernels: Default::default(),
+            relations: Default::default(),
+
+            root: Arc::new(RwLock::new(Node::Article(Article::default()))),
+            patch_sender: self.patch_sender.clone(),
+            compile_sender: self.compile_sender.clone(),
         }
     }
 
@@ -374,18 +445,9 @@ impl Document {
     ///             the path's file extension.
     /// TODO: add project: Option<PathBuf> so that project can be explictly set
     pub async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
-        let path = path.as_ref();
+        let path = PathBuf::from(path.as_ref());
 
-        // Create a new document with unique id
-        let mut document = Document {
-            id: uuids::generate("do").to_string(),
-            ..Default::default()
-        };
-
-        // Apply path and format arguments
-        document.alter(Some(path), format).await?;
-
-        // Attempt to read the document from the file
+        let mut document = Document::new(Some(path.clone()), format);
         match document.read(true).await {
             Ok(..) => (),
             Err(error) => tracing::warn!("While reading document `{}`: {}", path.display(), error),
@@ -526,6 +588,7 @@ impl Document {
         theme: Option<String>,
     ) -> Result<()> {
         let path = path.as_ref();
+
         let format = format.unwrap_or_else(|| {
             path.extension().map_or_else(
                 || self.format.extension.clone(),
@@ -533,18 +596,16 @@ impl Document {
             )
         });
 
-        if let Some(root) = &self.root {
-            let mut options = codecs::EncodeOptions {
-                standalone: true,
-                ..Default::default()
-            };
-            if let Some(theme) = theme {
-                options.theme = theme
-            }
-            codecs::to_path(root, &path, &format, Some(options)).await?;
-        } else {
-            tracing::debug!("Document has no root node");
+        let mut options = codecs::EncodeOptions {
+            standalone: true,
+            ..Default::default()
+        };
+        if let Some(theme) = theme {
+            options.theme = theme
         }
+
+        let root = &*self.root.read().await;
+        codecs::to_path(root, path, &format, Some(options)).await?;
 
         Ok(())
     }
@@ -562,12 +623,8 @@ impl Document {
             None => return Ok(self.content.clone()),
         };
 
-        if let Some(root) = &self.root {
-            codecs::to_string(root, &format, None).await
-        } else {
-            tracing::debug!("Document has no root node");
-            Ok(String::new())
-        }
+        let root = &*self.root.read().await;
+        codecs::to_string(root, &format, None).await
     }
 
     /// Load content into the document
@@ -589,7 +646,8 @@ impl Document {
                 if !self.format.binary {
                     self.content = codecs::to_string(&node, &self.format.extension, None).await?;
                 }
-                self.root = Some(node);
+                let mut root = &mut *self.root.write().await;
+                *root = node;
                 decode_content = false;
             } else {
                 self.content = content;
@@ -604,11 +662,10 @@ impl Document {
 
     /// Generate a [`Patch`] describing the operations needed to modify this
     /// document so that it is equal to another.
-    pub fn diff(&self, other: &Document) -> Result<Patch> {
-        let patch = match (&self.root, &other.root) {
-            (Some(me), Some(other)) => diff(me, other),
-            _ => bail!("One or more of the documents is empty"),
-        };
+    pub async fn diff(&self, other: &Document) -> Result<Patch> {
+        let me = &*self.root.read().await;
+        let other = &*other.root.read().await;
+        let patch = diff(me, other);
         Ok(patch)
     }
 
@@ -616,31 +673,28 @@ impl Document {
     ///
     /// See documentation on the [`merge`] function for how any conflicts
     /// are resolved.
-    pub async fn merge(&mut self, derived: &[Document]) -> Result<()> {
-        // If the current document has not root (e.g. empty document)
-        // then make it an empty `Article` node so that there is at least a
-        // node to merge into.
-        if self.root.is_none() {
-            self.root = Some(Node::Article(Article::default()));
-        }
-        let root = self.root.as_mut().expect("Just ensured root was some node");
+    pub async fn merge(&mut self, deriveds: &[Document]) -> Result<()> {
+        let mut guard = self.root.write().await;
 
-        // For derived documents, ignore documents that have no root
-        // i.e. those that are empty.
-        let derived = derived
-            .iter()
-            .filter_map(|derived| derived.root.as_ref())
-            .collect_vec();
+        // Need to store `let` bindings to read guards before dereferencing them
+        let mut guards = Vec::new();
+        for derived in deriveds {
+            let guard = derived.root.read().await;
+            guards.push(guard)
+        }
+        let others: Vec<&Node> = guards.iter().map(|guard| guard.deref()).collect();
 
         // Do the merge into root
-        merge(root, &derived);
+        merge(&mut *guard, &others);
 
         // TODO updating of *content from root* and publishing of events etc needs to be sorted out
         if !self.format.binary {
-            self.content =
-                codecs::to_string(self.root.as_ref().unwrap(), &self.format.extension, None)
-                    .await?;
+            self.content = codecs::to_string(&*guard, &self.format.extension, None).await?;
         }
+
+        // Drop root guard to allow update
+        drop(guard);
+
         self.update(false).await?;
 
         Ok(())
@@ -652,7 +706,7 @@ impl Document {
     /// error in other methods where it is used.
     pub fn resolve<'root>(
         root: &'root mut Option<Node>,
-        addresses: &HashMap<String, Address>,
+        address_map: &AddressMap,
         node_id: Option<String>,
     ) -> Result<Pointer<'root>> {
         let root = match root {
@@ -666,7 +720,7 @@ impl Document {
             return Ok(Pointer::Node(root));
         };
 
-        let address = if let Some(address) = addresses.get(&node_id) {
+        let address = if let Some(address) = address_map.get(&node_id) {
             if address.is_empty() {
                 return Ok(Pointer::Node(root));
             }
@@ -682,36 +736,153 @@ impl Document {
         resolve(root, address, Some(node_id))
     }
 
-    /// Apply a [`Patch`] to this document
+    /// Apply a [`Patch`] to the root node of the document
     ///
     /// # Arguments
     ///
-    /// - `node_id`:  the id of the node at the origin of the patch; defaults to `root`
-    /// - `patch`: the patch to apply
+    /// - `patch`: The patch to apply
+    ///
+    /// This function will trigger a recompile of the document
     #[tracing::instrument(skip(self, patch))]
-    pub fn patch(&mut self, mut patch: Patch) -> Result<()> {
-        tracing::debug!("Patching document `{}`", self.id);
+    pub async fn patch(&self, patch: Patch) -> Result<()> {
+        tracing::debug!("Applying patch to document `{}`", self.id);
 
-        let mut pointer = Self::resolve(&mut self.root, &self.addresses, patch.target.clone())?;
-        pointer.patch(&patch)?;
+        if let Err(..) = self.patch_sender.send(patch).await {
+            bail!("Error when sending patch for document `{}`", self.id)
+        }
+        if let Err(..) = self.compile_sender.send(()).await {
+            bail!("Error when compile request for document `{}`", self.id)
+        }
 
-        // TODO: Only publish the patch if there are subscribers
-        if !patch.is_empty() {
-            let root = match &self.root {
-                Some(root) => root,
-                None => bail!("Attempting to patch a document that has no root node"),
-            };
-            patch.prepublish(root);
-            publish(
-                &["documents:", &self.id, ":patched"].concat(),
-                &DocumentEvent {
-                    type_: DocumentEventType::Patched,
-                    document: self.repr(),
-                    content: None,
-                    format: None,
-                    patch: Some(patch),
-                },
-            );
+        Ok(())
+    }
+
+    /// Apply a [`Patch`] to the root node of the document
+    ///
+    /// # Arguments
+    ///
+    /// - `root`: The root [`Node`] to apply the patch to (write locked)
+    ///
+    /// - `addresses`: The [`AddressMap`] to use to locate nodes within the root node (read locked)
+    ///
+    /// - `id`: The id of the document (used in the published event topic)
+    ///
+    /// - `patch`: The patch to apply and publish
+    async fn patch_impl(
+        root: &Arc<RwLock<Node>>,
+        addresses: &Arc<RwLock<AddressMap>>,
+        id: &str,
+        mut patch: Patch,
+    ) {
+        tracing::debug!("Applying patch to document `{}`", id);
+
+        // If the patch is empty then return early rather than take lock etc
+        if patch.is_empty() {
+            return;
+        }
+
+        // Obtain necessary locks
+        let root = &mut *root.write().await;
+        let addresses = &*addresses.read().await;
+
+        // If the patch has a `target` but no `address` then use `address_map` to populate the address
+        // of faster patch application.
+        if let (None, Some(node_id)) = (&patch.address, &patch.target) {
+            if let Some(address) = addresses.get(node_id) {
+                patch.address = Some(address.clone());
+            }
+        }
+
+        // Apply the patch to the root node
+        apply(root, &patch);
+
+        // Publish the patch
+        patch.prepublish(root);
+        publish(
+            &["documents:", id, ":patched"].concat(),
+            &DocumentEvent {
+                type_: DocumentEventType::Patched,
+                patch: Some(patch),
+                // TODO: The following are made `None` to keep the size of the event smaller but really
+                // should be removed from the event (`Document:new()` is particularly wasteful of compute)
+                document: Document::new(None, None),
+                content: None,
+                format: None,
+            },
+        );
+    }
+
+    /// Compile the root node of the document
+    ///
+    /// # Arguments
+    ///
+    /// - `root`: The root [`Node`] to apply the patch to (write locked)
+    ///
+    /// - `addresses`: The [`AddressMap`] to be updated (write locked)
+    ///
+    /// - `graph`:  The [`Graph`] to be updated (write locked)
+    ///
+    /// - `id`: The id of the document (used in the published event topic)
+    async fn compile_impl(
+        root: &Arc<RwLock<Node>>,
+        addresses: &Arc<RwLock<AddressMap>>,
+        graph: &Arc<RwLock<Graph>>,
+        patch_sender: &mpsc::Sender<Patch>,
+        id: &str,
+        path: &Path,
+        project: &Path,
+    ) -> Result<()> {
+        tracing::debug!("Compiling document `{}`", id);
+
+        // Obtain necessary locks
+        let mut root = root.write().await;
+        let mut addresses = addresses.write().await;
+        let mut graph = graph.write().await;
+
+        // Compile the `root` to update `addresses` and `graph`
+        let (address_map_new, resource_infos) = compile(&mut *root, path, project)?;
+        *addresses = address_map_new;
+        *graph = Graph::from_resource_infos(path, resource_infos)?;
+
+        // Gather patches for the updated `compile_digest`s from the graph
+        let mut patches = Vec::new();
+        for resource_info in graph.get_resource_infos() {
+            let resource = &resource_info.resource;
+            if let Resource::Code(resources::Code { id, kind, .. }) = resource {
+                let address = addresses.get(id).cloned();
+                let id = Some(id.clone());
+                let pointer = resolve(&mut *root, address.clone(), id.clone())?;
+
+                let before = pointer.to_node()?;
+                let mut after = before.clone();
+
+                let digest = resource_info
+                    .compile_digest
+                    .clone()
+                    .map(|digest| Box::new(Cord(digest.to_string())));
+                match &mut after {
+                    Node::CodeChunk(node) => node.compile_digest = digest,
+                    Node::CodeExpression(node) => node.compile_digest = digest,
+                    _ => {}
+                }
+
+                let mut patch = diff(&before, &after);
+                patch.address = address;
+                patch.target = id;
+                if !patch.is_empty() {
+                    patches.push(patch);
+                }
+            }
+        }
+
+        // Drop locks (before sending patches because patch task needs some of them)
+        drop(root);
+        drop(addresses);
+        drop(graph);
+
+        // Send patches (in the future we may send patches together as a single "transaction")
+        for patch in patches {
+            patch_sender.send(patch).await;
         }
 
         Ok(())
@@ -719,34 +890,26 @@ impl Document {
 
     /// Execute the document, or a node within it, and publishing a patch of changes if there are any subscribers.
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&mut self, node_id: Option<String>) -> Result<()> {
+    pub async fn execute(&mut self, start: Option<String>) -> Result<()> {
         tracing::debug!("Executing document `{}`", self.id);
 
-        let mut pointer = Self::resolve(&mut self.root, &self.addresses, node_id.clone())?;
-        let mut patch = pointer.execute(&mut self.kernels).await?;
+        let root = &mut *self.root.write().await;
+        let address_map = &mut *self.addresses.write().await;
+        let graph = &mut *self.graph.write().await;
 
-        // TODO: Only publish the patch if there are subscribers
-        if !patch.is_empty() {
-            patch.target = node_id;
-            let root = match &self.root {
-                Some(root) => root,
-                None => {
-                    tracing::warn!("Executing document with no root node is a no-op");
-                    return Ok(());
-                }
-            };
-            patch.prepublish(root);
-            publish(
-                &["documents:", &self.id, ":patched"].concat(),
-                &DocumentEvent {
-                    type_: DocumentEventType::Patched,
-                    document: self.repr(),
-                    content: None,
-                    format: None,
-                    patch: Some(patch),
-                },
-            );
-        }
+        // Need to translate the `start` node id into a resource to generate plan
+        let start = start.map(|node_id| resources::code(&self.path, &node_id, "", None));
+        let plan = graph.plan(start, None, None).await?;
+
+        let patch_sender = self.patch_sender.clone();
+        execute(
+            &plan,
+            root,
+            address_map,
+            patch_sender,
+            Some(self.kernels.clone()),
+        )
+        .await?;
 
         Ok(())
     }
@@ -777,36 +940,30 @@ impl Document {
                 tracing::debug!("Decoding document root from path");
                 codecs::from_path(&self.path, format, None).await?
             } else {
-                match self.root.as_ref() {
-                    Some(root) => root.clone(),
-                    None => return Ok(()),
-                }
+                self.root.read().await.clone()
             }
         } else if !self.content.is_empty() {
             if decode_content {
                 tracing::debug!("Decoding document root from content");
                 codecs::from_str(&self.content, format, None).await?
             } else {
-                match self.root.as_ref() {
-                    Some(root) => root.clone(),
-                    None => return Ok(()),
-                }
+                self.root.read().await.clone()
             }
         } else {
-            tracing::debug!("Setting document root to `None`");
-            self.root = None;
-            return Ok(());
+            tracing::debug!("Setting document root to  empty article");
+            Node::Article(Article::default())
         };
 
         // Reshape the `root`
         // TODO: Pass user options for reshaping through
         reshape(&mut root, None)?;
 
-        // Attempt to compile the `root` and update document intra- and inter- dependencies
+        // Attempt to compile the `root` to assign ids (needed for HTML rendering and patching)
+        // and update intra- and inter- dependencies. No need to update `planner` now.
         match compile(&mut root, &self.path, &self.project) {
-            Ok((addresses, relations)) => {
-                self.addresses = addresses;
-                self.relations = relations;
+            Ok((addresses, resource_infos)) => {
+                *self.addresses.write().await = addresses;
+                *self.graph.write().await = Graph::from_resource_infos(&self.path, resource_infos)?;
             }
             Err(error) => tracing::warn!(
                 "While compiling document `{}`: {}",
@@ -819,22 +976,20 @@ impl Document {
         for subscription in self.subscriptions.keys() {
             // Generate a diff if there are any `patched` subscriptions
             if subscription == "patched" {
-                if let Some(current_root) = &self.root {
-                    tracing::debug!("Generating patch for document `{}`", self.id);
-
-                    let mut patch = diff(current_root, &root);
-                    patch.prepublish(&root);
-                    publish(
-                        &["documents:", &self.id, ":patched"].concat(),
-                        &DocumentEvent {
-                            type_: DocumentEventType::Patched,
-                            document: self.repr(),
-                            content: None,
-                            format: None,
-                            patch: Some(patch),
-                        },
-                    )
-                }
+                tracing::debug!("Generating patch for document `{}`", self.id);
+                let current_root = &*self.root.read().await;
+                let mut patch = diff(current_root, &root);
+                patch.prepublish(&root);
+                publish(
+                    &["documents:", &self.id, ":patched"].concat(),
+                    &DocumentEvent {
+                        type_: DocumentEventType::Patched,
+                        document: self.repr(),
+                        content: None,
+                        format: None,
+                        patch: Some(patch),
+                    },
+                )
             }
             // Encode the `root` into each of the formats for which there are subscriptions
             else if let Some(format) = subscription.strip_prefix("encoded:") {
@@ -866,34 +1021,10 @@ impl Document {
 
         // Now that we're done borrowing the root node for encoding to
         // different formats, store it.
-        self.root = Some(root);
+        let self_root = &mut *self.root.write().await;
+        *self_root = root;
 
         Ok(())
-    }
-
-    /// Query the document
-    ///
-    /// Returns a JSON value. Returns `null` if the query does not select anything.
-    pub fn query(&self, query: &str, lang: &str) -> Result<serde_json::Value> {
-        let result = match lang {
-            #[cfg(feature = "query-jmespath")]
-            "jmespath" => {
-                let expr = jmespatch::compile(query)?;
-                let result = expr.search(&self.root)?;
-                serde_json::to_value(result)?
-            }
-            #[cfg(feature = "query-jsonptr")]
-            "jsonptr" => {
-                let data = serde_json::to_value(&self.root)?;
-                let result = data.pointer(query);
-                match result {
-                    Some(value) => value.clone(),
-                    None => serde_json::Value::Null,
-                }
-            }
-            _ => bail!("Unknown query language '{}'", lang),
-        };
-        Ok(result)
     }
 
     /// Generate a topic string for the document
@@ -1343,8 +1474,8 @@ impl Documents {
     #[tracing::instrument(skip(self))]
     pub async fn patch(&self, id: &str, patch: Patch) -> Result<()> {
         let document_lock = self.get(id).await?;
-        let mut document_guard = document_lock.lock().await;
-        document_guard.patch(patch)
+        let document_guard = document_lock.lock().await;
+        document_guard.patch(patch).await
     }
 
     /// Execute a node within a document
@@ -1352,10 +1483,10 @@ impl Documents {
     /// Like `patch()`, given this function is likely to be called often, do not return
     /// the document.
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, id: &str, node_id: Option<String>) -> Result<()> {
+    pub async fn execute(&self, id: &str, start: Option<String>) -> Result<()> {
         let document_lock = self.get(id).await?;
         let mut document_guard = document_lock.lock().await;
-        document_guard.execute(node_id).await
+        document_guard.execute(start).await
     }
 
     /// Get a document that has previously been opened
@@ -1409,8 +1540,21 @@ pub mod commands {
         Open(Open),
         Close(Close),
         Show(Show),
-        #[structopt(aliases = &["exec"])]
-        Execute(Execute),
+
+        #[cfg(feature = "kernels-cli")]
+        Execute(kernel_commands::Execute),
+        #[cfg(feature = "kernels-cli")]
+        Kernels(kernel_commands::Kernels),
+        #[cfg(feature = "kernels-cli")]
+        Tasks(kernel_commands::Tasks),
+        #[cfg(feature = "kernels-cli")]
+        Queues(kernel_commands::Queues),
+        #[cfg(feature = "kernels-cli")]
+        Cancel(kernel_commands::Cancel),
+        #[cfg(feature = "kernels-cli")]
+        Symbols(kernel_commands::Symbols),
+
+        Graph(Graph),
         Query(Query),
         Convert(Convert),
         Diff(Diff),
@@ -1427,7 +1571,21 @@ pub mod commands {
                 Action::Open(action) => action.run().await,
                 Action::Close(action) => action.run().await,
                 Action::Show(action) => action.run().await,
+
+                #[cfg(feature = "kernels-cli")]
                 Action::Execute(action) => action.run().await,
+                #[cfg(feature = "kernels-cli")]
+                Action::Kernels(action) => action.run().await,
+                #[cfg(feature = "kernels-cli")]
+                Action::Tasks(action) => action.run().await,
+                #[cfg(feature = "kernels-cli")]
+                Action::Queues(action) => action.run().await,
+                #[cfg(feature = "kernels-cli")]
+                Action::Cancel(action) => action.run().await,
+                #[cfg(feature = "kernels-cli")]
+                Action::Symbols(action) => action.run().await,
+
+                Action::Graph(action) => action.run().await,
                 Action::Query(action) => action.run().await,
                 Action::Convert(action) => action.run().await,
                 Action::Diff(action) => action.run().await,
@@ -1437,9 +1595,34 @@ pub mod commands {
         }
     }
 
+    // The arguments used to specify the document file path and format
+    // Reused (with flatten) below
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "List open documents",
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    struct File {
+        /// The path of the document file
+        path: String,
+
+        /// The format of the document file
+        #[structopt(short, long)]
+        format: Option<String>,
+    }
+    impl File {
+        async fn open(&self) -> eyre::Result<Document> {
+            DOCUMENTS.open(&self.path, self.format.clone()).await
+        }
+
+        async fn get(&self) -> eyre::Result<Arc<Mutex<Document>>> {
+            let document = self.open().await?;
+            DOCUMENTS.get(&document.id).await
+        }
+    }
+
+    /// List open documents
+    #[derive(Debug, StructOpt)]
+    #[structopt(
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct List {}
@@ -1451,80 +1634,68 @@ pub mod commands {
         }
     }
 
+    /// Open a document
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Open a document",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Open {
-        /// The path of the document file
-        #[structopt(default_value = ".")]
-        pub file: String,
+        #[structopt(flatten)]
+        file: File,
     }
     #[async_trait]
     impl Run for Open {
         async fn run(&self) -> Result {
-            let Self { file } = self;
-            DOCUMENTS.open(file, None).await?;
+            self.file.open().await?;
             result::nothing()
         }
     }
 
+    /// Close a document
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Close a document",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Close {
         /// The path of the document file
-        #[structopt(default_value = ".")]
-        pub file: String,
+        pub path: String,
     }
     #[async_trait]
     impl Run for Close {
         async fn run(&self) -> Result {
-            let Self { file } = self;
-            DOCUMENTS.close(file).await?;
+            DOCUMENTS.close(&self.path).await?;
             result::nothing()
         }
     }
 
+    /// Show a document
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Show a document",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Show {
-        /// The path of the document file
-        pub file: String,
+        #[structopt(flatten)]
+        file: File,
 
         /// A pointer to the part of the document to show e.g. `variables`, `format.name`
         ///
         /// Some, usually large, document properties are only shown when specified with a
         /// pointer (e.g. `content` and `root`).
         pub pointer: Option<String>,
-
-        /// The format of the file
-        #[structopt(short, long)]
-        format: Option<String>,
     }
     #[async_trait]
     impl Run for Show {
         async fn run(&self) -> Result {
-            let Self {
-                file,
-                pointer,
-                format,
-            } = self;
-            let document = DOCUMENTS.open(file, format.clone()).await?;
-            if let Some(pointer) = pointer {
+            let document = self.file.open().await?;
+            if let Some(pointer) = &self.pointer {
                 if pointer == "content" {
                     result::content(&document.format.extension, &document.content)
                 } else if pointer == "root" {
-                    result::value(&document.root)
+                    let root = &*document.root.read().await;
+                    result::value(root)
                 } else {
                     let data = serde_json::to_value(document)?;
                     if let Some(part) = data.pointer(&json::pointer(pointer)) {
@@ -1539,49 +1710,177 @@ pub mod commands {
         }
     }
 
-    /// Execute a document
+    // Subcommands that only work if `kernels-cli` feature is enabled
+    #[cfg(feature = "kernels-cli")]
+    mod kernel_commands {
+        use super::*;
+
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            alias = "exec",
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Execute {
+            #[structopt(flatten)]
+            file: File,
+
+            #[structopt(flatten)]
+            execute: kernels::commands::Execute,
+        }
+        #[async_trait]
+        impl Run for Execute {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let _kernels = document.kernels.clone();
+                //self.execute.run(&mut kernels).await
+                result::nothing()
+            }
+        }
+
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Kernels {
+            #[structopt(flatten)]
+            file: File,
+
+            #[structopt(flatten)]
+            kernels: kernels::commands::Running,
+        }
+        #[async_trait]
+        impl Run for Kernels {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let kernels = document.kernels.clone();
+                self.kernels.run(&*kernels).await
+            }
+        }
+
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Tasks {
+            #[structopt(flatten)]
+            file: File,
+
+            #[structopt(flatten)]
+            tasks: kernels::commands::Tasks,
+        }
+        #[async_trait]
+        impl Run for Tasks {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let kernels = document.kernels.clone();
+                self.tasks.run(&*kernels).await
+            }
+        }
+
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Queues {
+            #[structopt(flatten)]
+            file: File,
+
+            #[structopt(flatten)]
+            queues: kernels::commands::Queues,
+        }
+        #[async_trait]
+        impl Run for Queues {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let kernels = document.kernels.clone();
+                self.queues.run(&kernels).await
+            }
+        }
+
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Cancel {
+            #[structopt(flatten)]
+            file: File,
+
+            #[structopt(flatten)]
+            cancel: kernels::commands::Cancel,
+        }
+        #[async_trait]
+        impl Run for Cancel {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let _kernels = document.kernels.clone();
+                //self.cancel.run(&mut *kernels).await
+                result::nothing()
+            }
+        }
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Symbols {
+            #[structopt(flatten)]
+            file: File,
+
+            #[structopt(flatten)]
+            symbols: kernels::commands::Symbols,
+        }
+        #[async_trait]
+        impl Run for Symbols {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let kernels = document.kernels.clone();
+                self.symbols.run(&kernels).await
+            }
+        }
+    }
+
+    /// Output the dependency graph for a document
+    ///
+    /// Tip: When using the DOT format (the default), if you have GraphViz and ImageMagick
+    /// installed you can view the graph by piping the output to them. For example, to
+    /// view a graph of the current project:
+    ///
+    /// ```sh
+    /// stencila documents graph | dot -Tpng | display
+    /// ```
+    ///
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Execute {
-        /// The path of the document file
-        file: String,
+    pub struct Graph {
+        #[structopt(flatten)]
+        file: File,
 
-        /// Code to execute within the document's kernel space
-        ///
-        /// This code will be run after all executable nodes in the document
-        /// have been run.
-        // Using a Vec and the `multiple` option allows for spaces in the code
-        #[structopt(multiple = true)]
-        code: Vec<String>,
-
-        /// The format of the file
-        #[structopt(short, long)]
-        format: Option<String>,
-
-        /// The programming language of the code
-        #[structopt(short, long)]
-        lang: Option<String>,
+        /// The format to output the graph as
+        #[structopt(long, short, default_value = "dot", possible_values = &graph::FORMATS)]
+        r#as: String,
     }
-    #[async_trait]
-    impl Run for Execute {
-        async fn run(&self) -> Result {
-            let Self {
-                file,
-                format,
-                code,
-                lang,
-            } = self;
-            let document = DOCUMENTS.open(file, format.clone()).await?;
-            let document = DOCUMENTS.get(&document.id).await?;
-            let mut document = document.lock().await;
 
-            document
-                .kernels
-                .repl(&code.join(" "), lang.clone(), None)
-                .await
+    #[async_trait]
+    impl Run for Graph {
+        async fn run(&self) -> Result {
+            let document = self.file.get().await?;
+            let document = document.lock().await;
+            let content = document.graph.read().await.to_format(&self.r#as)?;
+            result::content(&self.r#as, &content)
         }
     }
 
@@ -1607,12 +1906,11 @@ pub mod commands {
             short,
             long,
             default_value = "jmespath",
-            possible_values = &QUERY_LANGS
+            possible_values = &node_query::LANGS
         )]
         lang: String,
     }
 
-    const QUERY_LANGS: [&str; 2] = ["jmespath", "jsonptr"];
     #[async_trait]
     impl Run for Query {
         async fn run(&self) -> Result {
@@ -1623,7 +1921,8 @@ pub mod commands {
                 lang,
             } = self;
             let document = DOCUMENTS.open(file, format.clone()).await?;
-            let result = document.query(query, lang)?;
+            let node = &*document.root.read().await;
+            let result = node_query::query(node, query, lang)?;
             result::value(result)
         }
     }
@@ -1710,10 +2009,8 @@ pub mod commands {
             let first = Document::open(first, None).await?;
             let second = Document::open(second, None).await?;
 
-            let (first, second) = match (&first.root, &second.root) {
-                (Some(first), Some(second)) => (first, second),
-                _ => bail!("One or more of the documents is empty"),
-            };
+            let first = &*first.root.read().await;
+            let second = &*second.root.read().await;
 
             if format == "raw" {
                 let patch = diff(first, second);
@@ -1804,8 +2101,8 @@ pub mod commands {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::tests::fixtures;
     use maplit::hashmap;
+    use test_utils::fixtures;
 
     #[test]
     fn new() {
@@ -1815,7 +2112,6 @@ mod tests {
         assert!(matches!(doc.status, DocumentStatus::Synced));
         assert_eq!(doc.format.extension, "txt");
         assert_eq!(doc.content, "");
-        assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
 
         let doc = Document::new(None, Some("md".to_string()));
@@ -1824,7 +2120,6 @@ mod tests {
         assert!(matches!(doc.status, DocumentStatus::Synced));
         assert_eq!(doc.format.extension, "md");
         assert_eq!(doc.content, "");
-        assert!(doc.root.is_none());
         assert_eq!(doc.subscriptions, hashmap! {});
     }
 
@@ -1836,7 +2131,6 @@ mod tests {
             assert!(matches!(doc.status, DocumentStatus::Synced));
             assert_eq!(doc.format.extension, "json");
             assert!(!doc.content.is_empty());
-            assert!(doc.root.is_some());
             assert_eq!(doc.subscriptions, hashmap! {});
         }
 

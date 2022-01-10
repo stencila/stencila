@@ -33,7 +33,7 @@ mod tests {
         }
 
         let mut kernel = new();
-        if !kernel.is_forkable().await {
+        if !kernel.is_available().await {
             eprintln!("Python not available on this machine");
             bail!("Skipping")
         } else {

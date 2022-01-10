@@ -56,7 +56,7 @@
   "devDependencies": {
     "@stencila/dev-config": "3.0.2",
     "@stencila/eslint-config": "3.0.0",
-    "@stencila/schema": "1.11.1",
+    "@stencila/schema": "1.13.0",
     "@types/jest": "27.0.1",
     "@types/prosemirror-collab": "1.1.2",
     "@types/prosemirror-commands": "1.0.4",

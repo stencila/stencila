@@ -34,6 +34,23 @@ use warp::{
     ws, Filter, Reply,
 };
 
+/// Main server entry point function
+///
+/// Used when there is no fancy CLI and all that is wanted is a minimal
+/// server process.
+///
+/// This is currently bare bones and quite useless because it uses an unknown, randomly
+/// generated secret key for auth. Instead, it should read options from config file,
+/// start accordingly, initialize logging etc and gracefully shutdown on `SIGINT`.
+pub async fn main() -> Result<()> {
+    use tokio::time::{sleep, Duration};
+
+    start(None, None, None, false, false, false).await?;
+    sleep(Duration::MAX).await;
+
+    Ok(())
+}
+
 /// Start the server
 #[tracing::instrument]
 pub async fn start(
@@ -193,7 +210,7 @@ impl Server {
         traversal: bool,
         root: bool,
     ) -> Result<Self> {
-        let config = &CONFIG.lock().await.serve;
+        let config = &CONFIG.lock().await.server;
 
         let home = match &home {
             Some(home) => home.canonicalize()?,
@@ -717,7 +734,6 @@ fn error_response(
 /// has a symlink to `web/dist/browser` (and maybe in the future other folders).
 /// At build time these are embedded in the binary. Use `include` and `exclude`
 /// glob patterns to only include the assets that are required.
-#[cfg(feature = "serve-http")]
 #[derive(RustEmbed)]
 #[folder = "static"]
 #[exclude = "web/*.map"]
@@ -743,7 +759,7 @@ async fn get_static(
     path: warp::path::Tail,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str().to_string();
-    tracing::debug!("GET ~static /{}", path);
+    // tracing::debug!("GET ~static /{}", path);
 
     // Remove the version number with warnings if it is not present
     // or different to current version
@@ -1494,7 +1510,7 @@ pub mod config {
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
     #[schemars(deny_unknown_fields)]
-    pub struct ServeConfig {
+    pub struct ServerConfig {
         /// The URL to serve on
         #[validate(url(message = "Not a valid URL"))]
         pub url: Option<String>,

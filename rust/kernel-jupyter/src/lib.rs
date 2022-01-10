@@ -719,7 +719,7 @@ impl JupyterKernel {
 #[async_trait]
 impl KernelTrait for JupyterKernel {
     fn spec(&self) -> Kernel {
-        Kernel::new(&self.name, KernelType::Jupyter, &[&self.language])
+        Kernel::new(&self.name, KernelType::Jupyter, &[&self.language], false)
     }
 
     async fn is_available(&self) -> bool {

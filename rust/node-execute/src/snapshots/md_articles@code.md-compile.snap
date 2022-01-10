@@ -1,0 +1,169 @@
+---
+source: rust/node-execute/src/lib.rs
+expression: "(&addresses, &resources)"
+
+---
+[
+  {
+    "cb-1": [
+      "content",
+      9
+    ],
+    "cc-1": [
+      "content",
+      7
+    ],
+    "ce-1": [
+      "content",
+      2,
+      "content",
+      3
+    ],
+    "ce-2": [
+      "content",
+      2,
+      "content",
+      5
+    ],
+    "ce-3": [
+      "content",
+      2,
+      "content",
+      7
+    ],
+    "ce-4": [
+      "content",
+      3,
+      "content",
+      1
+    ],
+    "ce-5": [
+      "content",
+      3,
+      "content",
+      3
+    ],
+    "cf-1": [
+      "content",
+      0,
+      "content",
+      1
+    ],
+    "cf-2": [
+      "content",
+      0,
+      "content",
+      3
+    ],
+    "cf-3": [
+      "content",
+      0,
+      "content",
+      5
+    ],
+    "cf-4": [
+      "content",
+      0,
+      "content",
+      7
+    ],
+    "cf-5": [
+      "content",
+      2,
+      "content",
+      1
+    ],
+    "cf-6": [
+      "content",
+      4,
+      "content",
+      1
+    ],
+    "cf-7": [
+      "content",
+      4,
+      "content",
+      3
+    ],
+    "cf-8": [
+      "content",
+      6,
+      "content",
+      1
+    ],
+    "cf-9": [
+      "content",
+      8,
+      "content",
+      1
+    ]
+  },
+  [
+    {
+      "resource": {
+        "type": "Code",
+        "path": "articles/code.md",
+        "id": "ce-1",
+        "kind": "CodeExpression",
+        "language": "R"
+      },
+      "relations": [],
+      "compile_digest": "Shsh2HauAMjtXE0c3gnGH4phtQ_jcKgBsQwzmDHzcKs.sKa1lN35R1qYIDF_5pBn4y7HqpZHg78gGir12Px3XP4..0"
+    },
+    {
+      "resource": {
+        "type": "Code",
+        "path": "articles/code.md",
+        "id": "ce-2",
+        "kind": "CodeExpression",
+        "language": "Python"
+      },
+      "relations": [],
+      "compile_digest": "Gs-GImxowUhco5OYhMQ-2Zq-6jROgGVIr37oE8HAz_M.0MIJscT8aFeWiuviD3EZK7T2kiglkfCO0NPvFVlL8bQ..0"
+    },
+    {
+      "resource": {
+        "type": "Code",
+        "path": "articles/code.md",
+        "id": "ce-3",
+        "kind": "CodeExpression",
+        "language": "Python"
+      },
+      "relations": [],
+      "compile_digest": "8Jcxdr_uog8nU85IWbSHJ67aACMkRhrjSlNq4U87zOI.WTk2LOm4gZ0UmUlT0XWdef-3W6JVajT2Zwas1meIYDI..0"
+    },
+    {
+      "resource": {
+        "type": "Code",
+        "path": "articles/code.md",
+        "id": "ce-4",
+        "kind": "CodeExpression",
+        "language": "Python"
+      },
+      "relations": [],
+      "compile_digest": "XUtGPLFdg6rE1pkK7-JI2cakP-0Ki9b8TYR2NTft0ZA.perBJOxmu4RygSmdTF1Mq2e9-7SvwC4TW65hS-yW3Lw..0"
+    },
+    {
+      "resource": {
+        "type": "Code",
+        "path": "articles/code.md",
+        "id": "ce-5",
+        "kind": "CodeExpression",
+        "language": "Python"
+      },
+      "relations": [],
+      "compile_digest": "_96yTo2JTflYPz0EBhfBXfpPM6NXAWo_v6z40mH8bmU.PTSjGQPAJdqQLgptZTkO7HwhlXuBe1orBfPta5mgTGU..0"
+    },
+    {
+      "resource": {
+        "type": "Code",
+        "path": "articles/code.md",
+        "id": "cc-1",
+        "kind": "CodeChunk",
+        "language": "R"
+      },
+      "relations": [],
+      "compile_digest": "-KtuBR2wWR4ttUqNGXPxRbTt2Ih80SP9gCuOCnmdMt4.mguTVp0eEQa1LaXve-sRgMsegT02c_6TpX1mueiMlCU..0"
+    }
+  ]
+]

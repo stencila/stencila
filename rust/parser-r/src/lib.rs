@@ -1,9 +1,10 @@
 use once_cell::sync::Lazy;
 use parser_treesitter::{
-    apply_tags, captures_as_args_map, child_text,
+    captures_as_args_map, child_text,
     eyre::Result,
-    graph_triples::{relations, resources, Pairs},
-    path_utils,
+    formats::Format,
+    graph_triples::{relations, resources, Resource, ResourceInfo},
+    path_utils, resource_info,
     utils::{is_quoted, remove_quotes},
     Parser, ParserTrait, TreesitterParser,
 };
@@ -83,11 +84,11 @@ pub struct RParser {}
 impl ParserTrait for RParser {
     fn spec() -> Parser {
         Parser {
-            language: "r".to_string(),
+            language: Format::R.spec().title,
         }
     }
 
-    fn parse(path: &Path, code: &str) -> Result<Pairs> {
+    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
         let code = code.as_bytes();
         let tree = PARSER.parse(code);
         let matches = PARSER.query(code, &tree);
@@ -236,8 +237,16 @@ impl ParserTrait for RParser {
             })
             .collect();
 
-        let pairs = apply_tags(path, &Self::spec().language, matches, 0, relations);
-        Ok(pairs)
+        let resource_info = resource_info(
+            resource,
+            path,
+            &Self::spec().language,
+            code,
+            matches,
+            0,
+            relations,
+        );
+        Ok(resource_info)
     }
 }
 
@@ -252,8 +261,9 @@ mod tests {
         snapshot_fixtures("fragments/r/*.R", |path| {
             let code = std::fs::read_to_string(path).expect("Unable to read");
             let path = path.strip_prefix(fixtures()).expect("Unable to strip");
-            let pairs = RParser::parse(path, &code).expect("Unable to parse");
-            assert_json_snapshot!(pairs);
+            let resource = resources::code(path, "", "SoftwareSourceCode", Some("R".to_string()));
+            let resource_info = RParser::parse(resource, path, &code).expect("Unable to parse");
+            assert_json_snapshot!(resource_info);
         })
     }
 }

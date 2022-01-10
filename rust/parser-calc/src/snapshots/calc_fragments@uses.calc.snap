@@ -1,144 +1,154 @@
 ---
-source: rust/src/methods/compile/code/calc.rs
-expression: "compile(&PathBuf::from(path), code)"
+source: rust/parser-calc/src/lib.rs
+expression: resource_info
 input_file: fixtures/fragments/calc/uses.calc
 
 ---
-[
-  [
-    {
-      "type": "Use",
-      "range": [
-        0,
-        0,
-        0,
-        1
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/calc/uses.calc",
-      "name": "a",
-      "kind": "Number"
-    }
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/calc/uses.calc",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Calc"
+  },
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/uses.calc",
+        "name": "a",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          0,
+          1,
+          1
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/uses.calc",
+        "name": "b",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          8,
+          1,
+          9
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/uses.calc",
+        "name": "c",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          2,
+          0,
+          2,
+          1
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/uses.calc",
+        "name": "d",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          2,
+          2,
+          2,
+          3
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/uses.calc",
+        "name": "e",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          2,
+          10,
+          2,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/uses.calc",
+        "name": "f",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          3,
+          0,
+          3,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/uses.calc",
+        "name": "g",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          3,
+          0,
+          3,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/calc/uses.calc",
+        "name": "h",
+        "kind": "Number"
+      }
+    ]
   ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        0,
-        1,
-        1
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/calc/uses.calc",
-      "name": "b",
-      "kind": "Number"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        8,
-        1,
-        9
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/calc/uses.calc",
-      "name": "c",
-      "kind": "Number"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        2,
-        0,
-        2,
-        1
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/calc/uses.calc",
-      "name": "d",
-      "kind": "Number"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        2,
-        2,
-        2,
-        3
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/calc/uses.calc",
-      "name": "e",
-      "kind": "Number"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        2,
-        10,
-        2,
-        11
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/calc/uses.calc",
-      "name": "f",
-      "kind": "Number"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        3,
-        0,
-        3,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/calc/uses.calc",
-      "name": "g",
-      "kind": "Number"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        3,
-        0,
-        3,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/calc/uses.calc",
-      "name": "h",
-      "kind": "Number"
-    }
-  ]
-]
+  "compile_digest": "86oVD8-JpDGmPgyyR3wOYN9OokLskKvbEaaNIb9nRiQ.mdBvmThQ6N9NPgAb3r4Gb5m6JVR667nv_BlUN6JxP3k..0"
+}

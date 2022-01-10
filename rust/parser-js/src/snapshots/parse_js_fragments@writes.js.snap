@@ -1,187 +1,197 @@
 ---
 source: rust/parser-js/src/lib.rs
-expression: pairs
+expression: resource_info
 input_file: fixtures/fragments/js/writes.js
 
 ---
-[
-  [
-    {
-      "type": "Use",
-      "range": [
-        0,
-        15,
-        0,
-        19
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "fs"
-    }
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/js/writes.js",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "JavaScript"
+  },
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          0,
+          15,
+          0,
+          19
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "fs"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          1,
+          28,
+          1,
+          32
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "javascript",
+        "name": "fs"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          3,
+          4,
+          3,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/writes.js",
+        "name": "data",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          3,
+          11,
+          3,
+          13
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/writes.js",
+        "name": "fs",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Write",
+        "range": [
+          3,
+          24,
+          3,
+          31
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/js/path1"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          3,
+          33,
+          3,
+          37
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/writes.js",
+        "name": "data",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          4,
+          0,
+          4,
+          13
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/writes.js",
+        "name": "writeFileSync",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Write",
+        "range": [
+          4,
+          14,
+          4,
+          21
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/js/path2"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          4,
+          23,
+          4,
+          27
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/writes.js",
+        "name": "data",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          6,
+          9,
+          6,
+          18
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/writes.js",
+        "name": "writeData",
+        "kind": "Function"
+      }
+    ],
+    [
+      {
+        "type": "Write",
+        "range": [
+          7,
+          15,
+          7,
+          22
+        ]
+      },
+      {
+        "type": "File",
+        "path": "fragments/js/path3"
+      }
+    ]
   ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        1,
-        28,
-        1,
-        32
-      ]
-    },
-    {
-      "type": "Module",
-      "language": "javascript",
-      "name": "fs"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        3,
-        4,
-        3,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/writes.js",
-      "name": "data",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        3,
-        11,
-        3,
-        13
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/writes.js",
-      "name": "fs",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Write",
-      "range": [
-        3,
-        24,
-        3,
-        31
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/js/path1"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        3,
-        33,
-        3,
-        37
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/writes.js",
-      "name": "data",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        4,
-        0,
-        4,
-        13
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/writes.js",
-      "name": "writeFileSync",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Write",
-      "range": [
-        4,
-        14,
-        4,
-        21
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/js/path2"
-    }
-  ],
-  [
-    {
-      "type": "Use",
-      "range": [
-        4,
-        23,
-        4,
-        27
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/writes.js",
-      "name": "data",
-      "kind": ""
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        6,
-        9,
-        6,
-        18
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/js/writes.js",
-      "name": "writeData",
-      "kind": "Function"
-    }
-  ],
-  [
-    {
-      "type": "Write",
-      "range": [
-        7,
-        15,
-        7,
-        22
-      ]
-    },
-    {
-      "type": "File",
-      "path": "fragments/js/path3"
-    }
-  ]
-]
+  "compile_digest": "dUv2N2LKVsyW1NHsKHq9_Dhzd2_PiXTi4goqIOQ2vyI.wDvKZzopJ0kbeYSB8Fa_VBhkT7QB3OEmMJJX1aYsdRs..0"
+}

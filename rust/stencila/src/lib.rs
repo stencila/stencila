@@ -13,32 +13,23 @@ pub mod projects;
 pub mod sessions;
 pub mod sources;
 
-// Methods
-//
-// Core functions that operate on Stencila objects and which
-// may be delegated to plugins
-
-pub mod methods {
-    pub mod import;
-}
-
 // Features
 //
 // Features that can be turned off
 
+#[cfg(feature = "cli")]
+pub mod cli;
+
 #[cfg(feature = "upgrade")]
 pub mod upgrade;
 
-#[cfg(feature = "request")]
-pub mod request;
+#[cfg(feature = "server")]
+pub mod server;
 
-#[cfg(feature = "serve")]
-pub mod serve;
-
-#[cfg(any(feature = "request", feature = "serve"))]
+#[cfg(any(feature = "server"))]
 pub mod jwt;
 
-#[cfg(any(feature = "request", feature = "serve"))]
+#[cfg(any(feature = "server"))]
 pub mod rpc;
 
 // Internal configuration, messaging etc

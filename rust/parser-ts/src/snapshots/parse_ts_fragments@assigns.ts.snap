@@ -1,263 +1,273 @@
 ---
 source: rust/parser-ts/src/lib.rs
-expression: pairs
+expression: resource_info
 input_file: fixtures/fragments/ts/assigns.ts
 
 ---
-[
-  [
-    {
-      "type": "Assign",
-      "range": [
-        1,
-        4,
-        1,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var1",
-      "kind": "Object"
-    }
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/ts/assigns.ts",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "TypeScript"
+  },
+  "relations": [
+    [
+      {
+        "type": "Assign",
+        "range": [
+          1,
+          4,
+          1,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var1",
+        "kind": "Object"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          2,
+          4,
+          2,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var2",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          3,
+          4,
+          3,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var3",
+        "kind": "String"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          5,
+          6,
+          5,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var4",
+        "kind": "Array"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          6,
+          13,
+          6,
+          17
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var5",
+        "kind": "Object"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          9,
+          6,
+          9,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var6",
+        "kind": "Boolean"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          10,
+          6,
+          10,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var7",
+        "kind": "Boolean"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          11,
+          6,
+          11,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var8",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          12,
+          6,
+          12,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var9",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          13,
+          6,
+          13,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var10",
+        "kind": "String"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          14,
+          6,
+          14,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var11",
+        "kind": "Array"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          15,
+          6,
+          15,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "var12",
+        "kind": "Object"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          17,
+          9,
+          17,
+          13
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "fun1",
+        "kind": "Function"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          18,
+          6,
+          18,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "fun2",
+        "kind": "Function"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          19,
+          16,
+          19,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/assigns.ts",
+        "name": "fun3",
+        "kind": "Function"
+      }
+    ]
   ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        2,
-        4,
-        2,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var2",
-      "kind": "Number"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        3,
-        4,
-        3,
-        8
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var3",
-      "kind": "String"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        5,
-        6,
-        5,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var4",
-      "kind": "Array"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        6,
-        13,
-        6,
-        17
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var5",
-      "kind": "Object"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        9,
-        6,
-        9,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var6",
-      "kind": "Boolean"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        10,
-        6,
-        10,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var7",
-      "kind": "Boolean"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        11,
-        6,
-        11,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var8",
-      "kind": "Number"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        12,
-        6,
-        12,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var9",
-      "kind": "Number"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        13,
-        6,
-        13,
-        11
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var10",
-      "kind": "String"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        14,
-        6,
-        14,
-        11
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var11",
-      "kind": "Array"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        15,
-        6,
-        15,
-        11
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "var12",
-      "kind": "Object"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        17,
-        9,
-        17,
-        13
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "fun1",
-      "kind": "Function"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        18,
-        6,
-        18,
-        10
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "fun2",
-      "kind": "Function"
-    }
-  ],
-  [
-    {
-      "type": "Assign",
-      "range": [
-        19,
-        16,
-        19,
-        20
-      ]
-    },
-    {
-      "type": "Symbol",
-      "path": "fragments/ts/assigns.ts",
-      "name": "fun3",
-      "kind": "Function"
-    }
-  ]
-]
+  "compile_digest": "TmNiWHcJoD-j7aIE-YzhbGIjySZqZ9JQH5JBj-VYtYw.BmVC8miP3duBQhJPCTCkjAhTUkGAMLVEyV3CastQrJo..0"
+}

@@ -1,7 +1,9 @@
 use codec::{
     eyre::{bail, Result},
-    stencila_schema::{Article, AudioObject, ImageObject, Node, SoftwareSourceCode, VideoObject},
-    utils::vec_string,
+    stencila_schema::{
+        Article, AudioObject, Date, ImageObject, Node, Person, SoftwareSourceCode, VideoObject,
+    },
+    utils::{some_box_string, vec_string},
     Codec, CodecTrait, DecodeOptions,
 };
 use formats::{match_name, FormatNodeType};
@@ -18,7 +20,9 @@ impl CodecTrait for FormatCodec {
                 "AudioObject",
                 "ImageObject",
                 "VideoObject",
-                "SoftwareSourceCode"
+                "SoftwareSourceCode",
+                "Date",
+                "Person"
             ],
             from_string: true,
             from_path: true,
@@ -36,7 +40,7 @@ impl CodecTrait for FormatCodec {
 
         let node = match format.node_type {
             FormatNodeType::Article => Node::Article(Article {
-                text: Some(Box::new(content.to_string())),
+                text: some_box_string!(content),
                 ..Default::default()
             }),
             FormatNodeType::AudioObject => Node::AudioObject(AudioObject {
@@ -52,11 +56,19 @@ impl CodecTrait for FormatCodec {
                 ..Default::default()
             }),
             FormatNodeType::SoftwareSourceCode => Node::SoftwareSourceCode(SoftwareSourceCode {
-                text: Some(Box::new(content.to_string())),
+                text: some_box_string!(content),
                 programming_language: match format_name.is_empty() {
                     true => None,
-                    false => Some(Box::new(format_name)),
+                    false => some_box_string!(format_name),
                 },
+                ..Default::default()
+            }),
+            FormatNodeType::Date => Node::Date(Date {
+                value: content.to_string(),
+                ..Default::default()
+            }),
+            FormatNodeType::Person => Node::Person(Person {
+                name: some_box_string!(content),
                 ..Default::default()
             }),
             FormatNodeType::Unknown => bail!("Unknown format kind"),

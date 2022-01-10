@@ -2,21 +2,21 @@ use formats::{match_name, Format};
 use once_cell::sync::Lazy;
 use parser::{
     eyre::{bail, Result},
-    graph_triples::{Pairs, Relation},
-    Parser, ParserTrait,
+    graph_triples::{Pairs, Relation, Resource, ResourceInfo},
+    ParserTrait,
 };
+use std::collections::BTreeMap;
 use std::sync::Arc;
-use std::{collections::BTreeMap, path::Path};
 
-// Re-exports for convenience elsewhere
-pub use parser::ParseOptions;
+// Re-exports
+pub use parser::Parser;
 
 // The following high level functions hide the implementation
 // detail of having a static list of parsers. They are intended as the
 // only public interface for this crate.
 
-pub fn parse<P: AsRef<Path>>(path: P, code: &str, language: &str) -> Result<Pairs> {
-    PARSERS.parse(path, code, language)
+pub fn parse(resource: Resource, code: &str) -> Result<ResourceInfo> {
+    PARSERS.parse(resource, code)
 }
 
 /// The set of registered parsers in the current process
@@ -48,7 +48,7 @@ macro_rules! dispatch_builtins {
             #[cfg(feature = "parser-ts")]
             Format::TypeScript => Some(parser_ts::TsParser::$method($($arg),*)),
             // Fallback to empty result
-            _ => Option::<Result<Pairs>>::None
+            _ => Option::<Result<ResourceInfo>>::None
         }
     };
 }
@@ -101,39 +101,50 @@ impl Parsers {
         }
     }
 
-    /// Parse code in a particular language
-    fn parse<P: AsRef<Path>>(&self, path: P, code: &str, language: &str) -> Result<Pairs> {
-        let path = path.as_ref();
-        let format = match_name(language);
-
-        let pairs = if let Some(result) = dispatch_builtins!(format, parse, path, code) {
-            result?
+    /// Parse a code resource
+    fn parse(&self, resource: Resource, code: &str) -> Result<ResourceInfo> {
+        let (path, language) = if let Resource::Code(code) = &resource {
+            (code.path.clone(), code.language.clone().unwrap_or_default())
         } else {
-            bail!(
-                "Unable to parse code in language `{}`: no matching parser found",
-                language
-            )
+            bail!("Attempting to parse a resource that is not a `Code` resource")
         };
 
+        let format = match_name(&language);
+
+        let mut resource_info =
+            if let Some(result) = dispatch_builtins!(format, parse, resource, &path, code) {
+                result?
+            } else {
+                bail!(
+                    "Unable to parse code in language `{}`: no matching parser found",
+                    language
+                )
+            };
+
         // Normalize pairs by removing any `Uses` of locally assigned variables
-        let mut normalized: Pairs = Vec::with_capacity(pairs.len());
-        for (relation, object) in pairs {
-            let mut include = true;
-            if matches!(relation, Relation::Use(..)) {
-                for (other_relation, other_object) in &normalized {
-                    if matches!(other_relation, Relation::Assign(..)) && *other_object == object {
-                        include = false;
-                        break;
+        if let Some(relations) = resource_info.relations {
+            let mut normalized: Pairs = Vec::with_capacity(relations.len());
+            for (relation, object) in relations {
+                let mut include = true;
+                if matches!(relation, Relation::Use(..)) {
+                    for (other_relation, other_object) in &normalized {
+                        if matches!(other_relation, Relation::Assign(..)) && *other_object == object
+                        {
+                            include = false;
+                            break;
+                        }
                     }
                 }
-            }
-            if !include {
-                continue;
-            }
+                if !include {
+                    continue;
+                }
 
-            normalized.push((relation, object))
+                normalized.push((relation, object))
+            }
+            resource_info.relations = Some(normalized);
         }
-        Ok(normalized)
+
+        Ok(resource_info)
     }
 }
 
@@ -149,6 +160,7 @@ pub mod commands {
 
     use super::*;
     use cli_utils::{async_trait::async_trait, result, Result, Run};
+    use parser::graph_triples::resources;
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -230,8 +242,13 @@ pub mod commands {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Parse {
-        /// The file to parse
-        file: PathBuf,
+        /// The file (or code) to parse
+        #[structopt(multiple = true)]
+        code: Vec<String>,
+
+        /// If the argument should be treated as text, rather than a file path
+        #[structopt(short, long)]
+        text: bool,
 
         /// The language of the code
         #[structopt(short, long)]
@@ -240,15 +257,28 @@ pub mod commands {
     #[async_trait]
     impl Run for Parse {
         async fn run(&self) -> Result {
-            let code = fs::read_to_string(&self.file)?;
-            let ext = self
-                .file
-                .extension()
-                .map(|ext| ext.to_string_lossy().to_string())
-                .unwrap_or_default();
-            let lang = self.lang.as_ref().unwrap_or(&ext);
-            let pairs = PARSERS.parse(&*self.file.to_string_lossy(), &code, lang)?;
-            result::value(pairs)
+            let (path, code, lang) = if self.text || self.code.len() > 1 {
+                let code = self.code.join(" ");
+                (
+                    "<text>".to_string(),
+                    code,
+                    self.lang.clone().unwrap_or_default(),
+                )
+            } else {
+                let file = self.code[0].clone();
+                let code = fs::read_to_string(&file)?;
+                let ext = PathBuf::from(&file)
+                    .extension()
+                    .map(|ext| ext.to_string_lossy().to_string())
+                    .unwrap_or_default();
+                let lang = self.lang.clone().or(Some(ext)).unwrap_or_default();
+                (file, code, lang)
+            };
+
+            let path = PathBuf::from(path);
+            let resource = resources::code(&path, "<id>", "<cli>", Some(lang));
+            let resource_info = PARSERS.parse(resource, &code)?;
+            result::value(resource_info)
         }
     }
 }
@@ -264,9 +294,12 @@ mod tests {
     #[cfg(feature = "parser-calc")]
     fn test_parse() -> Result<()> {
         let path = PathBuf::from("<test>");
-        let pairs = parse(&path, "a = 1\nb = a * a", "calc")?;
+        let resource = resources::code(&path, "<id>", "<cli>", Some("Calc".to_string()));
+        let resource_info = parse(resource, "a = 1\nb = a * a")?;
+        assert!(matches!(resource_info.pure, None));
+        assert!(!resource_info.is_pure());
         assert_json_eq!(
-            pairs,
+            resource_info.relations,
             vec![
                 (
                     relations::assigns((0, 0, 0, 1)),

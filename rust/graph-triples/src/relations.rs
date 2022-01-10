@@ -10,6 +10,7 @@ use strum::Display;
 #[serde(tag = "type")]
 pub enum Relation {
     Assign(Assign),
+    Alter(Alter),
     Convert(Convert),
     Embed,
     Import(Import),
@@ -41,7 +42,21 @@ pub fn assigns(range: Range) -> Relation {
     Relation::Assign(Assign { range })
 }
 
-/// Imports a file from a `Source`
+/// Alters a symbol
+#[derive(Debug, Clone, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct Alter {
+    /// The range within code that the alter
+    pub range: Range,
+}
+
+/// Create a new `Alter` relation
+pub fn alters(range: Range) -> Relation {
+    Relation::Alter(Alter { range })
+}
+
+/// Imports a `File` from a `Provider` or a `Symbol` from
+/// a `Module`.
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Import {

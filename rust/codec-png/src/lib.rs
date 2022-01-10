@@ -39,14 +39,7 @@ impl CodecTrait for PngCodec {
     ///
     /// This override is necessary to avoid the dataURI prefix and Base64 encoding that `to_string_async`
     /// does. It simply writes that bytes to a file at the path.
-    async fn to_path<T: AsRef<Path>>(
-        node: &Node,
-        path: &T,
-        options: Option<EncodeOptions>,
-    ) -> Result<()>
-    where
-        T: Send + Sync,
-    {
+    async fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<()> {
         let bytes = nodes_to_bytes(&[node], options).await?;
         fs::write(path, &bytes[0])?;
         Ok(())
@@ -85,7 +78,7 @@ pub async fn nodes_to_bytes(
     let html = codec_html::wrap_standalone("PNG", &theme, &html);
 
     // Launch the browser
-    let chrome = binaries::require("chrome", "*").await?;
+    let chrome = binaries::require_any(&[("chrome", "*"), ("chromium", "*")]).await?;
     let config = BrowserConfig::builder()
         .chrome_executable(chrome.path)
         .build()
@@ -116,8 +109,8 @@ pub async fn nodes_to_bytes(
 mod tests {
     use super::*;
     use codec::stencila_schema::CodeChunk;
+    use test_utils::tempfile;
 
-    #[cfg(target_os = "linux")]
     #[tokio::test]
     async fn encode() -> super::Result<()> {
         let node = Node::CodeChunk(CodeChunk {
