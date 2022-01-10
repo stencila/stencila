@@ -103,14 +103,13 @@ export function applyAddStruct(
   if (alias !== undefined) {
     let attr = ''
     if (value == null) attr = 'null'
-    else if (typeof value == 'object' && !Array.isArray(value)) {
+    else if (typeof value === 'object' && !Array.isArray(value)) {
       if (value.type === 'Date') {
         // Use the ISO date string as the attribute
         attr = value.value as string
       }
-    }
-    else attr = value.toString()
-    
+    } else attr = value.toString()
+
     struct.setAttribute(alias, escapeAttr(attr))
     return
   }
