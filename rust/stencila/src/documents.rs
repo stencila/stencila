@@ -2104,8 +2104,8 @@ mod tests {
     use maplit::hashmap;
     use test_utils::fixtures;
 
-    #[test]
-    fn new() {
+    #[tokio::test]
+    async fn new() {
         let doc = Document::new(None, None);
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
