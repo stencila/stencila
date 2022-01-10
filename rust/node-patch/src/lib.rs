@@ -479,7 +479,7 @@ impl Operation {
 #[schemars(deny_unknown_fields)]
 pub struct Patch {
     /// The [`Operation`]s to apply
-    ops: Vec<Operation>,
+    pub ops: Vec<Operation>,
 
     /// The address of the node to which apply this patch
     pub address: Option<Address>,

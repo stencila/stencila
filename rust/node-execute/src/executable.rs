@@ -7,7 +7,7 @@ use graph_triples::{
     resources::{self, ResourceDigest},
     Relation, ResourceId, ResourceInfo,
 };
-use kernels::{KernelSelector, KernelSpace, TaskResult};
+use kernels::{KernelSelector, KernelSpace, TaskInfo, TaskResult};
 use node_address::{Address, AddressMap, Slot};
 use node_dispatch::{dispatch_block, dispatch_inline, dispatch_node, dispatch_work};
 use path_utils::merge;
@@ -320,6 +320,23 @@ impl Executable for Parameter {
     }
 }
 
+/// Determine the status of an executable code node from kernel `TaskInfo` and list of messages
+fn code_execute_status(task_info: &TaskInfo, errors: &[CodeError]) -> CodeExecutableExecuteStatus {
+    if task_info.was_finished() {
+        if errors.is_empty() {
+            CodeExecutableExecuteStatus::Succeeded
+        } else {
+            CodeExecutableExecuteStatus::Failed
+        }
+    } else if task_info.was_cancelled() {
+        CodeExecutableExecuteStatus::Cancelled
+    } else if task_info.was_started() {
+        CodeExecutableExecuteStatus::Running
+    } else {
+        CodeExecutableExecuteStatus::Scheduled
+    }
+}
+
 #[async_trait]
 impl Executable for CodeChunk {
     /// Compile a `CodeChunk` node
@@ -331,14 +348,23 @@ impl Executable for CodeChunk {
         let id = identify!("cc", self, address, context);
         let lang = langify!(self, context);
 
+        // Generate `ResourceInfo` by parsing the code
         let resource = resources::code(&context.path, &id, "CodeChunk", Some(lang));
-        let resource_info = match parsers::parse(resource, &self.text) {
+        let mut resource_info = match parsers::parse(resource, &self.text) {
             Ok(resource_info) => resource_info,
             Err(error) => {
                 tracing::debug!("While parsing code chunk `{}`: {}", id, error);
                 return Ok(());
             }
         };
+
+        // Update the resource info (which has (an incomplete) `compile_digest`) with the `execute_digest` from
+        // the last time the code chunk was executed
+        resource_info.execute_digest = self
+            .execute_digest
+            .clone()
+            .map(|cord| ResourceDigest::from_string(&cord.0));
+
         context.resources.push(resource_info);
 
         Ok(())
@@ -353,21 +379,34 @@ impl Executable for CodeChunk {
     ) -> Result<()> {
         tracing::debug!("Executing `CodeChunk`");
 
-        let mut task = kernel_space
+        // Execute the code and wait for result
+        let mut task_info = kernel_space
             .exec(&self.text, resource_info, is_fork, kernel_selector)
             .await?;
-
         let TaskResult {
             outputs,
             messages: errors,
-        } = task.result().await?;
+        } = task_info.result().await?;
 
+        // Update both `compile_digest` and `execute_digest` to the compile digest
+        let digest = resource_info
+            .compile_digest
+            .clone()
+            .map(|digest| Box::new(Cord(digest.to_string())));
+        self.compile_digest = digest.clone();
+        self.execute_digest = digest;
+
+        // Update execution status, ended, duration
+        self.execute_status = Some(code_execute_status(&task_info, &errors));
+        self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
+        self.execute_duration = task_info.duration();
+
+        // Update outputs and errors
         self.outputs = if outputs.is_empty() {
             None
         } else {
             Some(outputs)
         };
-
         self.errors = if errors.is_empty() {
             None
         } else {
@@ -392,19 +431,28 @@ impl Executable for CodeExpression {
         let id = identify!("ce", self, address, context);
         let lang = langify!(self, context);
 
+        // Generate `ResourceInfo` by parsing the code
         let resource = resources::code(
             &context.path,
             &id,
             "CodeExpression",
             Some(normalize_title(&lang)),
         );
-        let resource_info = match parsers::parse(resource, &self.text) {
+        let mut resource_info = match parsers::parse(resource, &self.text) {
             Ok(resource_info) => resource_info,
             Err(error) => {
                 tracing::debug!("While parsing code expression `{}`: {}", id, error);
                 return Ok(());
             }
         };
+
+        // Update the resource info (which has (an incomplete) `compile_digest`) with the `execute_digest` from
+        // the last time the code chunk was executed
+        resource_info.execute_digest = self
+            .execute_digest
+            .clone()
+            .map(|cord| ResourceDigest::from_string(&cord.0));
+
         context.resources.push(resource_info);
 
         Ok(())
@@ -419,17 +467,30 @@ impl Executable for CodeExpression {
     ) -> Result<()> {
         tracing::debug!("Executing `CodeExpression`");
 
-        let mut task = kernel_space
+        // Execute the code and wait for result
+        let mut task_info = kernel_space
             .exec(&self.text, resource_info, is_fork, kernel_selector)
             .await?;
-
         let TaskResult {
             outputs,
             messages: errors,
-        } = task.result().await?;
+        } = task_info.result().await?;
 
+        // Update both `compile_digest` and `execute_digest` to the compile digest
+        let digest = resource_info
+            .compile_digest
+            .clone()
+            .map(|digest| Box::new(Cord(digest.to_string())));
+        self.compile_digest = digest.clone();
+        self.execute_digest = digest;
+
+        // Update execution status, ended, duration
+        self.execute_status = Some(code_execute_status(&task_info, &errors));
+        self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
+        self.execute_duration = task_info.duration();
+
+        // Update output and errors
         self.output = outputs.get(0).map(|output| Box::new(output.clone()));
-
         self.errors = if errors.is_empty() {
             None
         } else {

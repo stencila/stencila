@@ -7,7 +7,7 @@ use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
     fmt::Display,
-    path::{Path, PathBuf},
+    path::{Path, PathBuf}
 };
 
 use crate::{Pairs, Relation};
@@ -89,7 +89,7 @@ impl Resource {
 }
 
 /// A digest representing the state of a [`Resource`] and its dependencies.
-/// 
+///
 /// The digest is separated into several parts. Although initially it may seem that the
 /// parts are redundant ("can't they all be folded into a single digest?"), each
 /// part provides useful information. For example, it is useful, to store
@@ -104,25 +104,42 @@ pub struct ResourceDigest {
 
     /// A digest that captures the "semantic intent" of the resource
     /// with respect to the dependency graph.
-    /// 
+    ///
     /// For example, for `Code` resources it is preferably derived from the AST
     /// of the code and should only change when the semantics of the code change.
     pub semantic_digest: String,
 
     /// A digest of the `dependencies_digest`s of the dependencies of a resource.
-    /// 
+    ///
     /// If there are no dependencies then `dependencies_digest` is an empty string.
     pub dependencies_digest: String,
 
     /// The count of the number of code dependencies that have a `compile_digest` that
     /// is unequal to the `execute_digest` (i.e. are out of sync with the `KernelSpace`).
-    /// 
+    ///
     /// If there are no dependencies then `dependencies_unsynced` is zero. May include
     /// duplicates for diamond shaped dependency graphs so this represents a maximum number.
     pub dependencies_unsynced: u32,
 }
 
 impl ResourceDigest {
+    /// Create a new `ResourceDigest` from its string representation
+    pub fn from_string(string: &str) -> Self {
+        let parts: Vec<&str> = string.split('.').collect();
+        let content_digest = parts.get(0).map_or_else(String::new, |str| str.to_string());
+        let semantic_digest = parts.get(1).map_or_else(String::new, |str| str.to_string());
+        let dependencies_digest = parts.get(2).map_or_else(String::new, |str| str.to_string());
+        let dependencies_unsynced = parts
+            .get(3)
+            .map_or(0, |str| str.parse().unwrap_or_default());
+        Self {
+            content_digest,
+            semantic_digest,
+            dependencies_digest,
+            dependencies_unsynced,
+        }
+    }
+
     /// Create a new `ResourceDigest` from strings for content and semantics.
     ///
     /// Before generating the hash of strings remove carriage returns from strings to avoid

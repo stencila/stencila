@@ -18,12 +18,14 @@ mod tests {
     use eyre::Result;
     use graph::{Graph, PlanOptions, PlanOrdering};
     use kernels::{Kernel, KernelType};
-    use node_patch::diff;
+    use node_address::Slot;
+    use node_patch::{Operation, Patch};
     use test_snaps::{
         fixtures,
         insta::{self, assert_json_snapshot},
         snapshot_set_suffix,
     };
+    use tokio::sync::mpsc;
 
     /// Higher level tests of the top level functions in this crate
     #[tokio::test]
@@ -103,22 +105,43 @@ mod tests {
                 });
             }
 
-            // Execute the article (with default execution plan) and snapshot changes in it
-            let pre = article.clone();
-            execute(
-                &mut article,
-                path,
-                project,
-                None,
-                Some(kernels.clone()),
-                None,
-                None,
-            )
-            .await?;
+            // Execute the article (with topological execution plan) and snapshot the resultant patches
+            let plan = graph
+                .plan(
+                    None,
+                    Some(kernels.clone()),
+                    Some(PlanOptions {
+                        ordering: PlanOrdering::Topological,
+                        max_concurrency: 10,
+                    }),
+                )
+                .await?;
 
-            let patch = diff(&pre, &article);
-            snapshot_set_suffix(&[name, "-change"].concat(), || {
-                assert_json_snapshot!(&patch)
+            let (patch_sender, mut patch_receiver) = mpsc::channel::<Patch>(10);
+            let patches = tokio::spawn(async move {
+                let mut patches = Vec::new();
+                while let Some(mut patch) = patch_receiver.recv().await {
+                    // Redact execute time and duration from patch because they will
+                    // change across test runs
+                    for op in patch.ops.iter_mut() {
+                        if let Operation::Add { address, value, .. } = op {
+                            if let Some(Slot::Name(name)) = address.back() {
+                                if name == "execute_ended" || name == "execute_duration" {
+                                    *value = Box::new("<redacted>".to_string());
+                                }
+                            }
+                        }
+                    }
+                    patches.push(patch);
+                }
+                patches
+            });
+
+            execute(&plan, &mut article, &addresses, patch_sender, None).await?;
+
+            let patches = patches.await?;
+            snapshot_set_suffix(&[name, "-patches"].concat(), || {
+                assert_json_snapshot!(&patches);
             });
         }
 

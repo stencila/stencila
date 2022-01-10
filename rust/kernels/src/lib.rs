@@ -443,6 +443,36 @@ impl TaskInfo {
     pub async fn result(&mut self) -> Result<TaskResult> {
         self.task.result().await
     }
+
+    /// Was the task started?
+    pub fn was_started(&self) -> bool {
+        self.task.started.is_some()
+    }
+
+    /// Was the task finished?
+    pub fn was_finished(&self) -> bool {
+        self.task.finished.is_some()
+    }
+
+    /// Was the task cancelled?
+    pub fn was_cancelled(&self) -> bool {
+        self.task.cancelled.is_some()
+    }
+
+    /// Time that the the task ended (either finished, cancelled, or `None`)
+    pub fn ended(&self) -> Option<DateTime<Utc>> {
+        self.task.finished.or(self.task.cancelled)
+    }
+
+    /// Calculate the task duration in seconds
+    pub fn duration(&self) -> Option<f64> {
+        let duration = if let (Some(began), Some(ended)) = (self.task.started, self.ended()) {
+            Some(ended - began)
+        } else {
+            self.task.started.map(|started| (Utc::now() - started))
+        };
+        duration.map(|duration| duration.to_std().unwrap_or(Duration::ZERO).as_secs_f64())
+    }
 }
 
 /// A list of [`Task`]s associated with a [`KernelSpace`]
@@ -631,7 +661,7 @@ impl KernelTasks {
                     task.started.map(format_time).unwrap_or_default(),
                     task.finished.map(format_time).unwrap_or_default(),
                     task.cancelled.map(format_time).unwrap_or_default(),
-                    format_duration(task.started, task.finished),
+                    format_duration(task_info.duration()),
                     kernel_id,
                     queue_pos,
                     fork,
@@ -1457,13 +1487,11 @@ fn format_time(time: DateTime<Utc>) -> String {
 }
 
 /// Format begin and end times into a human readable, rounded to milliseconds
-fn format_duration(begin: Option<DateTime<Utc>>, end: Option<DateTime<Utc>>) -> String {
-    match (begin, end) {
-        (Some(begin), Some(end)) => {
-            let duration = (end - begin).to_std().unwrap_or(Duration::ZERO);
-            let rounded =
-                Duration::from_millis(duration.as_millis().try_into().unwrap_or(u64::MAX));
-            humantime::format_duration(rounded).to_string()
+fn format_duration(seconds: Option<f64>) -> String {
+    match seconds {
+        Some(seconds) => {
+            let duration = Duration::from_secs(seconds as u64);
+            humantime::format_duration(duration).to_string()
         }
         _ => "".to_string(),
     }

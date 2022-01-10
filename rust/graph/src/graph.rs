@@ -1,8 +1,7 @@
 use eyre::{bail, eyre, Result};
 use graph_triples::{
-    direction, relations,
-    resources::{ResourceDigest, ResourceId},
-    Direction, Pairs, Relation, Resource, ResourceInfo, Triple,
+    direction, relations, resources::ResourceDigest, Direction, Pairs, Relation, Resource,
+    ResourceInfo, Triple,
 };
 use hash_utils::{sha2, sha2::Digest};
 use kernels::{Kernel, KernelSelector};
@@ -277,12 +276,9 @@ impl Graph {
         }
     }
 
-    /// Get a mapping of [`ResourceId`]s to [`Resource`]s in the graph
-    pub fn resource_map(&self) -> BTreeMap<ResourceId, Resource> {
-        self.indices
-            .iter()
-            .map(|(resource, ..)| (resource.resource_id(), resource.clone()))
-            .collect()
+    /// Get [`ResourceInfo`] objects in the graph
+    pub fn get_resource_infos(&mut self) -> Vec<&ResourceInfo> {
+        self.resources.values().collect()
     }
 
     /// Update the graph, usually in response to a change in one of it's resources

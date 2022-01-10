@@ -1,8 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
-expression: "&patch"
+expression: "&patches"
 
 ---
-{
-  "ops": []
-}
+[]
