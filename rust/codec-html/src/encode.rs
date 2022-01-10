@@ -1,6 +1,6 @@
 use codec::{eyre::Result, EncodeOptions};
 use html_escape::{encode_double_quoted_attribute, encode_safe};
-use inflector::cases::camelcase::to_camel_case;
+use inflector::cases::{camelcase::to_camel_case, kebabcase::to_kebab_case};
 use std::any::type_name;
 use stencila_schema::*;
 
@@ -245,7 +245,7 @@ fn elem_placeholder<T: ToHtml>(
 /// Encode a HTML element attribute, ensuring that the value is escaped correctly
 fn attr(name: &str, value: &str) -> String {
     [
-        name,
+        &to_kebab_case(name),
         "=\"",
         encode_double_quoted_attribute(&value).as_ref(),
         "\"",
@@ -257,7 +257,7 @@ fn attr(name: &str, value: &str) -> String {
 ///
 /// Will ensure that the name is camelCased.
 fn attr_bool(name: &str) -> String {
-    to_camel_case(name)
+    to_kebab_case(name)
 }
 
 /// Encode one of the attributes used to identify a property of a Stencila node
@@ -326,6 +326,21 @@ fn attr_id(id: &Option<Box<String>>) -> String {
 /// same value but which will be encoded as a "data-itemprop" if the element is not a Web Component.
 fn attr_slot(name: &str) -> String {
     attr("slot", name)
+}
+
+/// Encode a property as both an attribute and a <meta> element
+fn attr_and_meta(name: &str, value: &str) -> (String, String) {
+    (attr(name, value), elem_meta(name, value))
+}
+
+/// Encode an optional property as both an attribute and a <meta> element
+///
+/// If the property value is `None` returns a pair of empty strings.
+fn attr_and_meta_opt(name: &str, value: Option<String>) -> (String, String) {
+    match value {
+        Some(value) => attr_and_meta(name, &value),
+        None => (nothing(), nothing()),
+    }
 }
 
 /// Encode a node as JSON
