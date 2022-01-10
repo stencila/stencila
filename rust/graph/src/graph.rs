@@ -345,12 +345,13 @@ impl Graph {
                     .as_ref()
                     .ok_or_else(|| eyre!("Dependency has no compile_digest"))?;
 
-                // Update the digest of dependencies using a concatenation of their content, semantic,
-                // and dependencies digests (note that some of these may be empty which is why we
-                // need to include all three).
+                // Update the digest of dependencies using a concatenation of semantic digest
+                // (or content digest if that is empty) and dependencies digest.
                 let digest = [
-                    compile_digest.content_digest.as_str(),
-                    compile_digest.semantic_digest.as_str(),
+                    match !compile_digest.semantic_digest.is_empty() {
+                        true => compile_digest.semantic_digest.as_str(),
+                        false => compile_digest.content_digest.as_str(),
+                    },
                     compile_digest.dependencies_digest.as_str(),
                 ]
                 .concat();
