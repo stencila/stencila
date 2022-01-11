@@ -1,7 +1,8 @@
 use eyre::{bail, eyre, Result};
 use graph_triples::{
-    direction, relations, resources::ResourceDigest, Direction, Pairs, Relation, Resource,
-    ResourceInfo, Triple,
+    direction, relations,
+    resources::{ResourceAutorun, ResourceDigest},
+    Direction, Pairs, Relation, Resource, ResourceInfo, Triple,
 };
 use hash_utils::{sha2, sha2::Digest};
 use kernels::{Kernel, KernelSelector};
@@ -281,6 +282,16 @@ impl Graph {
         self.resources.values().collect()
     }
 
+    /// Update a [`ResourceInfo`] objects in the graph
+    ///
+    /// If the resource does not exist in the graph (it may have been removed since execution
+    /// was started for example) then no update is made.
+    pub fn update_resource_info(&mut self, resource_info: ResourceInfo) {
+        if let Some(existing) = self.resources.get_mut(&resource_info.resource) {
+            *existing = resource_info
+        }
+    }
+
     /// Update the graph, usually in response to a change in one of it's resources
     ///
     /// # Arguments
@@ -483,6 +494,15 @@ impl Graph {
                 .get(resource)
                 .ok_or_else(|| eyre!("No info for resource"))?;
 
+            // If this is not the explicitly executed resource `start`
+            // and `autorun == Never` then exclude it and any following resources
+            if start.is_some()
+                && Some(resource) != start.as_ref()
+                && matches!(resource_info.autorun, ResourceAutorun::Never)
+            {
+                break;
+            }
+
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
             let is_fork = kernel_forkable
@@ -539,6 +559,7 @@ impl Graph {
         // First iteration, in topological order, to determine which resources to include
         let mut include = HashSet::new();
         let mut started = start.is_none();
+        let mut nevers = HashSet::new();
         for resource in &self.topological_order {
             // Should we start collecting steps?
             if !started {
@@ -550,60 +571,64 @@ impl Graph {
                 continue;
             }
 
+            // Skip non-`Code` resources (i.e ignore `Symbol`s etc which will also be in the dependency
+            // graph and therefore in `topological_order` as well)
+            if !matches!(resource, Resource::Code(..)) {
+                continue;
+            }
+
             let resource_info = self
                 .resources
                 .get(resource)
                 .ok_or_else(|| eyre!("No info for resource"))?;
 
-            // Only include resources that are `start` or have `start` in their dependencies
+            let dependencies: Vec<_> = resource_info.dependencies.iter().flatten().collect();
+
+            // If this is not the explicitly executed resource `start`...
             if let Some(start) = &start {
-                if !(start == resource
-                    || resource_info
-                        .dependencies
-                        .as_ref()
-                        .map_or(false, |deps| deps.contains(start)))
-                {
-                    continue;
+                if resource != start {
+                    // Exclude it if `start` is not in it's dependencies
+                    if !dependencies.contains(&start) {
+                        continue;
+                    }
+
+                    // If `autorun == Never` then exclude it and any downstream dependents
+                    if matches!(resource_info.autorun, ResourceAutorun::Never) {
+                        nevers.insert(resource);
+                        continue;
+                    } else if dependencies
+                        .iter()
+                        .any(|dependency| nevers.contains(*dependency))
+                    {
+                        continue;
+                    }
                 }
             }
 
-            // Only include `Code` resources (i.e. ignore `Symbol`s etc which will also be in the dependency
-            // graph and therefore in `topological_order` as well)
-            match resource {
-                Resource::Code(..) => include.insert(resource),
-                _ => continue,
-            };
+            // OK, we got this far, so include the resource
+            include.insert(resource);
 
-            /*
-            TODO
-            // Include any dependencies that are not yet included and which have not been
-            // executed yet or have a change in digest.
-            for dependency in resource_info.dependencies {
-                let execute = match self.executed.get(dependency) {
-                    Some(step_info) => {
-                        if let Some(resource_info) = self.parse_map.get(dependency) {
-                            if let (Some(step_digest), Some(resource_digest)) =
-                                (&step_info.execute_digest, &resource_info.execute_digest)
-                            {
-                                step_digest != resource_digest
-                            } else {
-                                // No digests available, so execute (perhaps unnecessarily)
-                                true
-                            }
-                        } else {
-                            // No parse info available, so execute (perhaps unnecessarily)
-                            true
-                        }
-                    }
-                    // Note yet executed (in this session)
-                    None => true,
+            // Also, include any dependencies that are not yet included and which:
+            //
+            // - are `autorun == Always`
+            // - are not `autorun == Never`
+            // - are stale
+            for dependency in dependencies {
+                let dependency_info = self
+                    .resources
+                    .get(dependency)
+                    .ok_or_else(|| eyre!("No info for dependency"))?;
+
+                let execute = match dependency_info.autorun {
+                    ResourceAutorun::Always => true,
+                    ResourceAutorun::Never => false,
+                    ResourceAutorun::Needed => dependency_info.is_stale(),
                 };
+
                 if execute {
                     include.insert(dependency);
                 }
             }
-
-            */
         }
 
         // Second iteration, in topological order, to create stages and steps

@@ -3,7 +3,7 @@ use events::publish;
 use eyre::{bail, Result};
 use formats::FormatSpec;
 use graph::Graph;
-use graph_triples::{resources, Relations, Resource};
+use graph_triples::{resources, Relations, Resource, ResourceInfo};
 use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::AddressMap;
@@ -893,20 +893,25 @@ impl Document {
     pub async fn execute(&mut self, start: Option<String>) -> Result<()> {
         tracing::debug!("Executing document `{}`", self.id);
 
-        let root = &mut *self.root.write().await;
-        let address_map = &mut *self.addresses.write().await;
-        let graph = &mut *self.graph.write().await;
-
         // Need to translate the `start` node id into a resource to generate plan
         let start = start.map(|node_id| resources::code(&self.path, &node_id, "", None));
-        let plan = graph.plan(start, None, None).await?;
+        let plan = self.graph.read().await.plan(start, None, None).await?;
 
-        let patch_sender = self.patch_sender.clone();
+        // A task to update the graph to reflect that resources were executed
+        let (resource_info_sender, mut resource_info_receiver) = mpsc::channel::<ResourceInfo>(1);
+        let graph = self.graph.clone();
+        tokio::spawn(async move {
+            while let Some(resource_info) = resource_info_receiver.recv().await {
+                graph.write().await.update_resource_info(resource_info);
+            }
+        });
+
         execute(
             &plan,
-            root,
-            address_map,
-            patch_sender,
+            &mut *self.root.write().await,
+            &*self.addresses.read().await,
+            resource_info_sender,
+            self.patch_sender.clone(),
             Some(self.kernels.clone()),
         )
         .await?;

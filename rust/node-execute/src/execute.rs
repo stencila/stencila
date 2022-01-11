@@ -3,6 +3,7 @@ use std::sync::Arc;
 use eyre::{bail, eyre, Result};
 use futures::stream::{FuturesUnordered, StreamExt};
 use graph::Plan;
+use graph_triples::ResourceInfo;
 use kernels::{KernelSelector, KernelSpace};
 use node_address::AddressMap;
 use node_patch::{diff, Patch};
@@ -23,8 +24,11 @@ use crate::Executable;
 /// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
 ///                  included in the plan within the `root` node)
 ///
+/// - `resource_info_sender`: A [`ResourceInfo`] channel sender to update the graph on the
+///                  execution status of resources
+///
 /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
-///                   executed nodes.
+///                   executed nodes
 ///
 /// - `kernel_space`: The `KernelSpace` within which to execute the plan
 ///
@@ -32,6 +36,7 @@ pub async fn execute(
     plan: &Plan,
     root: &mut Node,
     address_map: &AddressMap,
+    resource_info_sender: Sender<ResourceInfo>,
     patch_sender: Sender<Patch>,
     kernel_space: Option<Arc<KernelSpace>>,
 ) -> Result<()> {
@@ -60,7 +65,7 @@ pub async fn execute(
             let before = pointer.to_node()?;
             let kernel_space = kernel_space.clone();
             let kernel_selector = KernelSelector::new(step.kernel_name.clone(), None, None);
-            let resource_info = step.resource_info.clone();
+            let mut resource_info = step.resource_info.clone();
             let is_fork = step.is_fork;
 
             // Create a future for the task that will be spawned later
@@ -80,11 +85,15 @@ pub async fn execute(
                     .await
                 {
                     Ok(_) => {
+                        // Indicate that the resource was executed
+                        resource_info.did_execute();
+
                         // Generate a patch for the differences resulting from execution
                         let mut patch = diff(&before, &after);
                         patch.address = node_address;
                         patch.target = node_id;
-                        Ok((step_index, patch))
+
+                        Ok((step_index, resource_info, patch))
                     }
                     Err(error) => bail!(error),
                 }
@@ -99,7 +108,7 @@ pub async fn execute(
             .map(tokio::spawn)
             .collect::<FuturesUnordered<_>>();
         while let Some(result) = results.next().await {
-            let (step_index, patch) = result??;
+            let (step_index, resource_info, patch) = result??;
 
             tracing::debug!(
                 "Finished step {}/{} of stage {}/{}",
@@ -108,6 +117,15 @@ pub async fn execute(
                 stage_index + 1,
                 stage_count
             );
+
+            if let Err(error) = resource_info_sender.send(resource_info).await {
+                tracing::debug!(
+                    "When sending resource info for step {} of stage {}: {}",
+                    step_index + 1,
+                    stage_index + 1,
+                    error
+                );
+            }
 
             if !patch.is_empty() {
                 if let Err(error) = patch_sender.send(patch).await {

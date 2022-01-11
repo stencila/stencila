@@ -1,5 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
+assertion_line: 65
 expression: "&graph"
 
 ---
@@ -13,7 +14,7 @@ expression: "&graph"
       "language": "Calc",
       "dependencies": 0,
       "depth": 0,
-      "compile_digest": "tbwf_ZCRL7GL7259gJCRksemSSiWMgFW1n-68QTGVEo.6n7aj6ejT9qhLyTucvtLVqYbqy0bkcxA-y7azALl03M..0",
+      "compile_digest": "Tvt1ilqkzMqkbonWFun97yUtcI6unFBZMKXzFK3A0QQ.cSI6l7J-C3NXWHVLVurgbQlumKe3QjGqYN6zrFfMhMM..0",
       "index": 0
     },
     {
@@ -23,7 +24,7 @@ expression: "&graph"
       "kind": "Number",
       "dependencies": 1,
       "depth": 1,
-      "compile_digest": "..dqSokc-yMq1L2dwYrrQGvghhBVK-uWhAqA9d7WAPyi0.1",
+      "compile_digest": "..i7oQYKCKb93FiTWkkLlMepPgbW12hJfbsMJ3nkRTbcU.1",
       "index": 1
     },
     {
@@ -34,7 +35,7 @@ expression: "&graph"
       "language": "Calc",
       "dependencies": 2,
       "depth": 2,
-      "compile_digest": "GXkR7WzluQeHlWpgFstC1vLFs35veOtBe9QfEDuhjLI.nh_hPQhnXRlBiSBOhC-26iqBQeRPMBA4OJ1Ml9T33IY.VfPmpWUcG8CWRcu1rLd26RpIOpgFAt3u1zYjju_E-DE.1",
+      "compile_digest": "GXkR7WzluQeHlWpgFstC1vLFs35veOtBe9QfEDuhjLI.nh_hPQhnXRlBiSBOhC-26iqBQeRPMBA4OJ1Ml9T33IY.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
       "index": 2
     },
     {
@@ -45,7 +46,7 @@ expression: "&graph"
       "language": "Calc",
       "dependencies": 2,
       "depth": 2,
-      "compile_digest": "5vFFLK9PlUPQ_3BqZ6mmkwOS6N3mAbgK2RgSSmMFCJ0.v8xJ_Bw14WouYXGUyTn2bePyCsd7eCYvhEmLHNimv10.VfPmpWUcG8CWRcu1rLd26RpIOpgFAt3u1zYjju_E-DE.1",
+      "compile_digest": "5vFFLK9PlUPQ_3BqZ6mmkwOS6N3mAbgK2RgSSmMFCJ0.v8xJ_Bw14WouYXGUyTn2bePyCsd7eCYvhEmLHNimv10.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
       "index": 3
     },
     {
@@ -56,7 +57,7 @@ expression: "&graph"
       "language": "Calc",
       "dependencies": 2,
       "depth": 2,
-      "compile_digest": "MbSHMsqe4WgCFlwGviQpo7ie6BFo2eJXiebtlL8MBbI.u-ZxGlUEKMqo4UdU997v5JUeHzEbqxrxpiqqqKEjgBo.VfPmpWUcG8CWRcu1rLd26RpIOpgFAt3u1zYjju_E-DE.1",
+      "compile_digest": "MbSHMsqe4WgCFlwGviQpo7ie6BFo2eJXiebtlL8MBbI.u-ZxGlUEKMqo4UdU997v5JUeHzEbqxrxpiqqqKEjgBo.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
       "index": 4
     },
     {
@@ -67,7 +68,7 @@ expression: "&graph"
       "language": "Calc",
       "dependencies": 2,
       "depth": 2,
-      "compile_digest": "LWmKUvr2Is0IzgsiIyCuaVmsqgmrkycJ29bhMiugjMo.5ynKKMKOhu8RFLS1Rl6GniJkZT7e7jbn6CscFNLMnZ8.VfPmpWUcG8CWRcu1rLd26RpIOpgFAt3u1zYjju_E-DE.1",
+      "compile_digest": "8fu7AlpXiNp1R2KwSLy_SWs_iZzx8CY3eL-wVpofNAQ.nfQpoBKEuoIW8JVJVcp7gA35783IoA_ciPFWPFSaed8.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
       "index": 5
     },
     {
@@ -77,7 +78,7 @@ expression: "&graph"
       "kind": "Number",
       "dependencies": 3,
       "depth": 3,
-      "compile_digest": "..IE-W3ZaSol7VlGvZxbGMR7yzL5lmJHDRmIwoVYuWllg.1",
+      "compile_digest": "..HGZaUBVRpv6a8McAXdvnwzXVv0dedhcArudMpYu5MYI.1",
       "index": 6
     },
     {
@@ -88,7 +89,7 @@ expression: "&graph"
       "language": "Calc",
       "dependencies": 4,
       "depth": 4,
-      "compile_digest": "4wxAgWB65X0l0qR31Eezb9f6FRJ3J2VJATd5amdGD1o.NEwPns0Ln5AvblNQiOxE55WuSp3Lq1AcFVodSUvJiL8.1Kuk7sVSKGOyZbhIafG_nIZ-EmYJkI2w7SfL0YcN1mU.1",
+      "compile_digest": "4wxAgWB65X0l0qR31Eezb9f6FRJ3J2VJATd5amdGD1o.NEwPns0Ln5AvblNQiOxE55WuSp3Lq1AcFVodSUvJiL8.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1",
       "index": 7
     },
     {
@@ -99,7 +100,7 @@ expression: "&graph"
       "language": "Calc",
       "dependencies": 4,
       "depth": 4,
-      "compile_digest": "QKuMwjpkYoQH-jlp9EcheEeb38xk_Rf0UhOxgNmnnAk.G34cpLFC4Fi3PXZ5ql3bZ5_qpNPh7QGanFH7UBmOA7g.1Kuk7sVSKGOyZbhIafG_nIZ-EmYJkI2w7SfL0YcN1mU.1",
+      "compile_digest": "QKuMwjpkYoQH-jlp9EcheEeb38xk_Rf0UhOxgNmnnAk.G34cpLFC4Fi3PXZ5ql3bZ5_qpNPh7QGanFH7UBmOA7g.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1",
       "index": 8
     },
     {
@@ -131,7 +132,7 @@ expression: "&graph"
       "language": "Calc",
       "dependencies": 6,
       "depth": 4,
-      "compile_digest": "gb5HoVcTF46uTQDbkikofGxBKPtBmF74X8w0Z-S9gzk.M6AC6G3o9zXmDvh2_Zw0SZXwdm8ihrO9A1kRbEFlwm0.tA-hfhR7q9m93YMvERLiyr1xYYH1w5lUhRPRf3SuN7o.3",
+      "compile_digest": "gb5HoVcTF46uTQDbkikofGxBKPtBmF74X8w0Z-S9gzk.M6AC6G3o9zXmDvh2_Zw0SZXwdm8ihrO9A1kRbEFlwm0.iHdGgGRifAVlA4p5T25ajwR0rVMlpiXFyHZsuVjyfQs.3",
       "index": 11
     }
   ],
@@ -142,9 +143,9 @@ expression: "&graph"
       "relation": {
         "type": "Assign",
         "range": [
+          1,
           0,
-          0,
-          0,
+          1,
           1
         ]
       }
@@ -194,9 +195,9 @@ expression: "&graph"
       "relation": {
         "type": "Assign",
         "range": [
+          1,
           0,
-          0,
-          0,
+          1,
           1
         ]
       }
@@ -207,9 +208,9 @@ expression: "&graph"
       "relation": {
         "type": "Use",
         "range": [
-          0,
+          1,
           4,
-          0,
+          1,
           5
         ]
       }

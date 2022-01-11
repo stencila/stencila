@@ -1,5 +1,6 @@
 ---
 source: rust/codec-md/src/decode.rs
+assertion_line: 1270
 expression: "decode(content).expect(\"Unable to decode Markdown\")"
 input_file: fixtures/articles/code-relations.md
 
@@ -10,7 +11,7 @@ input_file: fixtures/articles/code-relations.md
     {
       "type": "Paragraph",
       "content": [
-        "This fixture is focussed on relations between ",
+        "This fixture is focussed on dependency relations between ",
         {
           "type": "CodeFragment",
           "text": "CodeChunk"
@@ -41,18 +42,23 @@ input_file: fixtures/articles/code-relations.md
           "type": "CodeFragment",
           "text": "CodeChunk"
         },
-        " that assigns a variable, ",
+        " that assigns a variable ",
         {
           "type": "CodeFragment",
           "text": "a"
         },
-        ":"
+        ", and which is always autorun when downstream dependents are run. When manual testing you may wish to set ",
+        {
+          "type": "CodeFragment",
+          "text": "a = now()"
+        },
+        " to see the effect of this (for deterministic test snapshots this is not done by default)."
       ]
     },
     {
       "type": "CodeChunk",
       "programmingLanguage": "calc",
-      "text": "a = 1"
+      "text": "# @autorun always\na = 1\na"
     },
     {
       "type": "Paragraph",
@@ -96,18 +102,23 @@ input_file: fixtures/articles/code-relations.md
     {
       "type": "Paragraph",
       "content": [
-        "A chunk that derives another variable from ",
+        "A chunk that derives another variable ",
+        {
+          "type": "CodeFragment",
+          "text": "b"
+        },
+        " from ",
         {
           "type": "CodeFragment",
           "text": "a"
         },
-        ":"
+        " and never gets autorun (must be explicitly run):"
       ]
     },
     {
       "type": "CodeChunk",
       "programmingLanguage": "calc",
-      "text": "b = a + 1"
+      "text": "# @autorun never\nb = a + 1\nb"
     },
     {
       "type": "Paragraph",
@@ -135,7 +146,12 @@ input_file: fixtures/articles/code-relations.md
           "type": "CodeFragment",
           "text": "Parameter"
         },
-        " that sets a third symbol: ",
+        " that sets a third symbol ",
+        {
+          "type": "CodeFragment",
+          "text": "c"
+        },
+        " : ",
         {
           "type": "Parameter",
           "name": "c",

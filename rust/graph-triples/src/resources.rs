@@ -403,6 +403,22 @@ impl ResourceInfo {
             None => Vec::new(),
         }
     }
+
+    /// Is the resource stale?
+    pub fn is_stale(&self) -> bool {
+        if let (Some(compile_digest), Some(execute_digest)) =
+            (&self.compile_digest, &self.execute_digest)
+        {
+            compile_digest != execute_digest
+        } else {
+            true
+        }
+    }
+
+    /// The resource was executed, so update the `execute_digest` to the `compile_digest`
+    pub fn did_execute(&mut self) {
+        self.execute_digest = self.compile_digest.clone();
+    }
 }
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
 #[derivative(PartialEq, Eq, PartialOrd, Ord, Hash)]

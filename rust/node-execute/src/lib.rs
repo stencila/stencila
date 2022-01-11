@@ -17,6 +17,7 @@ mod tests {
     use codec_md::MdCodec;
     use eyre::Result;
     use graph::{Graph, PlanOptions, PlanOrdering};
+    use graph_triples::ResourceInfo;
     use kernels::{Kernel, KernelType};
     use node_address::Slot;
     use node_patch::{Operation, Patch};
@@ -117,6 +118,14 @@ mod tests {
                 )
                 .await?;
 
+            let (resource_info_sender, mut resource_info_receiver) =
+                mpsc::channel::<ResourceInfo>(1);
+            tokio::spawn(async move {
+                while let Some(_resource_info) = resource_info_receiver.recv().await {
+                    // Ignore for this test
+                }
+            });
+
             let (patch_sender, mut patch_receiver) = mpsc::channel::<Patch>(10);
             let patches = tokio::spawn(async move {
                 let mut patches = Vec::new();
@@ -137,7 +146,15 @@ mod tests {
                 patches
             });
 
-            execute(&plan, &mut article, &addresses, patch_sender, None).await?;
+            execute(
+                &plan,
+                &mut article,
+                &addresses,
+                resource_info_sender,
+                patch_sender,
+                None,
+            )
+            .await?;
 
             let patches = patches.await?;
             snapshot_set_suffix(&[name, "-patches"].concat(), || {
