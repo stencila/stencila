@@ -140,7 +140,7 @@ pub enum ResourceAutorun {
 /// the `content_digest`, in addition to `semantic_digest`, to be able
 /// to indicate to the user that a change in the resource has been detected but
 /// that it does not appear to change its semantics.
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Clone)]
 pub struct ResourceDigest {
     /// A digest that captures the content of the resource (e.g the `text`
     /// of a `CodeChunk`, or the bytes of a file).
@@ -158,12 +158,11 @@ pub struct ResourceDigest {
     /// If there are no dependencies then `dependencies_digest` is an empty string.
     pub dependencies_digest: String,
 
-    /// The count of the number of code dependencies that have a `compile_digest` that
-    /// is unequal to the `execute_digest` (i.e. are out of sync with the `KernelSpace`).
+    /// The count of the number of code dependencies that are stale (i.e. are out of sync with the `KernelSpace`).
     ///
-    /// If there are no dependencies then `dependencies_unsynced` is zero. May include
+    /// If there are no dependencies then `dependencies_stale` is zero. May include
     /// duplicates for diamond shaped dependency graphs so this represents a maximum number.
-    pub dependencies_unsynced: u32,
+    pub dependencies_stale: u32,
 }
 
 impl ResourceDigest {
@@ -173,14 +172,14 @@ impl ResourceDigest {
         let content_digest = parts.get(0).map_or_else(String::new, |str| str.to_string());
         let semantic_digest = parts.get(1).map_or_else(String::new, |str| str.to_string());
         let dependencies_digest = parts.get(2).map_or_else(String::new, |str| str.to_string());
-        let dependencies_unsynced = parts
+        let dependencies_stale = parts
             .get(3)
             .map_or(0, |str| str.parse().unwrap_or_default());
         Self {
             content_digest,
             semantic_digest,
             dependencies_digest,
-            dependencies_unsynced,
+            dependencies_stale,
         }
     }
 
@@ -248,7 +247,7 @@ impl Display for ResourceDigest {
             self.content_digest,
             self.semantic_digest,
             self.dependencies_digest,
-            self.dependencies_unsynced
+            self.dependencies_stale
         )
     }
 }
@@ -405,11 +404,19 @@ impl ResourceInfo {
     }
 
     /// Is the resource stale?
+    ///
+    /// Note that, when comparing the `execute_digest` and `compile_digest` for this determination,
+    /// the `content_digest` part is ignored. This avoids re-execution in situations such as when
+    /// the user removes a `@autorun always` comment (they probably don't want it to be run again
+    /// automatically next time). We currently include `dependencies_stale` in the comparison but
+    /// that may also be unnecessary/inappropriate as well?
     pub fn is_stale(&self) -> bool {
         if let (Some(compile_digest), Some(execute_digest)) =
             (&self.compile_digest, &self.execute_digest)
         {
-            compile_digest != execute_digest
+            compile_digest.semantic_digest != execute_digest.semantic_digest
+                || compile_digest.dependencies_digest != execute_digest.dependencies_digest
+                || compile_digest.dependencies_stale != execute_digest.dependencies_stale
         } else {
             true
         }

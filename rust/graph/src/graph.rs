@@ -325,7 +325,7 @@ impl Graph {
             let mut dependencies = Vec::new();
             let mut depth = 0;
             let mut dependencies_digest = sha2::Sha256::new();
-            let mut dependencies_unsynced = 0;
+            let mut dependencies_stale = 0;
             for incoming_index in incomings {
                 let dependency = &graph[incoming_index];
                 let dependency_info = self
@@ -368,20 +368,14 @@ impl Graph {
                 .concat();
                 dependencies_digest.update(digest);
 
-                // Update the number of `Code` dependencies that are unsynced. This is transitive,
+                // Update the number of `Code` dependencies that are stale. This is transitive,
                 // so if the resource is not code (e.g. a `Symbol`) then add its value.
                 if matches!(dependency, Resource::Code(..)) {
-                    if let Some(execute_digest) = &dependency_info.execute_digest {
-                        // Has dependency changed since it was last executed?
-                        if execute_digest != compile_digest {
-                            dependencies_unsynced += 1;
-                        }
-                    } else {
-                        // Dependency has not been executed
-                        dependencies_unsynced += 1;
+                    if dependency_info.is_stale() {
+                        dependencies_stale += 1;
                     }
                 } else {
-                    dependencies_unsynced += compile_digest.dependencies_unsynced;
+                    dependencies_stale += compile_digest.dependencies_stale;
                 }
             }
 
@@ -404,12 +398,12 @@ impl Graph {
             match resource_info.compile_digest.as_mut() {
                 Some(compile_digest) => {
                     compile_digest.dependencies_digest = dependencies_digest;
-                    compile_digest.dependencies_unsynced = dependencies_unsynced;
+                    compile_digest.dependencies_stale = dependencies_stale;
                 }
                 None => {
                     let mut compile_digest = resource.digest();
                     compile_digest.dependencies_digest = dependencies_digest;
-                    compile_digest.dependencies_unsynced = dependencies_unsynced;
+                    compile_digest.dependencies_stale = dependencies_stale;
                     resource_info.compile_digest = Some(compile_digest);
                 }
             }
