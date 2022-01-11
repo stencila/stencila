@@ -80,8 +80,16 @@ impl KernelTrait for CalcKernel {
                 (None, statement)
             };
 
+            // A fasteval callback function that defines some custom functions
+            let mut cb = |name: &str, _args: Vec<f64>| -> Option<f64> {
+                match name {
+                    "now" => now(),
+                    _ => self.symbols.get(name).copied(),
+                }
+            };
+
             // Evaluate the expression
-            match ez_eval(expr, &mut self.symbols) {
+            match ez_eval(expr, &mut cb) {
                 Ok(num) => {
                     // Either assign the result, or add it to outputs
                     if let Some(symbol) = symbol {
@@ -123,6 +131,18 @@ impl KernelTrait for CalcKernel {
         let mut fork = self.clone();
         fork.exec_async(code).await
     }
+}
+
+// Custom functions
+
+/// The current system time as seconds (to millisecond resolution) since the Unix epoch
+fn now() -> Option<f64> {
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .ok()
+        .map(|duration| duration.as_millis() as f64 / 1000.0)
 }
 
 #[cfg(test)]
