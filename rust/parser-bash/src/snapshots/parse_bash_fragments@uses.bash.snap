@@ -1,5 +1,6 @@
 ---
 source: rust/parser-bash/src/lib.rs
+assertion_line: 94
 expression: resource_info
 input_file: fixtures/fragments/bash/uses.bash
 
@@ -99,5 +100,6 @@ input_file: fixtures/fragments/bash/uses.bash
       }
     ]
   ],
+  "autorun": "Needed",
   "compile_digest": "ayqRDZhUeQvDwXshoJolu_1Z1f66soOQLe0awoo4nSA.Umh-htdKf8X8CqZNEMGqcdJfrX0u5hNH5pkntzyMrok..0"
 }

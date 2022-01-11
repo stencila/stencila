@@ -1,5 +1,6 @@
 ---
 source: rust/parser-py/src/lib.rs
+assertion_line: 254
 expression: resource_info
 input_file: fixtures/fragments/py/uses.py
 
@@ -405,5 +406,6 @@ input_file: fixtures/fragments/py/uses.py
       }
     ]
   ],
+  "autorun": "Needed",
   "compile_digest": "TKqHeLF3mZOpCm-XweiP3nAMN_j2Lfm7_k2A7NMGhFQ.NhnHadPHdvOlenKe-anB7Aq7lrfvoEyIw5q2cnkb2sU..0"
 }

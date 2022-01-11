@@ -1,5 +1,6 @@
 ---
 source: rust/parser-ts/src/lib.rs
+assertion_line: 159
 expression: resource_info
 input_file: fixtures/fragments/js/assigns.js
 
@@ -269,5 +270,6 @@ input_file: fixtures/fragments/js/assigns.js
       }
     ]
   ],
+  "autorun": "Needed",
   "compile_digest": "2hEh79-fWUDlXSmxSjB8AXWl0PRS7DOIHKx_ZQgzLMI.5bMly7iZmysqrRdj4eQfSnWczDcglGS6Yqvd0nCtXPY..0"
 }
