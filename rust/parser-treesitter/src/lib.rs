@@ -228,6 +228,7 @@ pub fn resource_info(
         resource,
         Some(relations),
         None,
+        None,
         Some(ResourceDigest::from_strings(
             content_str,
             Some(&semantic_str),

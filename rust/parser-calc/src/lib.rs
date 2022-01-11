@@ -94,6 +94,7 @@ impl ParserTrait for CalcParser {
             resource,
             Some(relations),
             None,
+            None,
             Some(ResourceDigest::from_strings(code, Some(&semantics))),
             None,
         );

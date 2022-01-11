@@ -154,7 +154,7 @@ impl Executable for Link {
         };
         let relations = vec![(Relation::Link, object)];
 
-        let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None);
+        let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None, None);
         context.resources.push(resource_info);
 
         Ok(())
@@ -227,7 +227,8 @@ macro_rules! executable_media_object {
                 };
                 let relations = vec![(Relation::Embed, object)];
 
-                let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None);
+                let resource_info =
+                    ResourceInfo::new(resource, Some(relations), None, None, None, None);
                 context.resources.push(resource_info);
 
                 self.content_url = url;
@@ -289,6 +290,7 @@ impl Executable for Parameter {
         let resource_info = ResourceInfo::new(
             resource,
             Some(relations),
+            None,
             None,
             Some(ResourceDigest::from_strings(
                 &content_str,
@@ -539,7 +541,7 @@ impl Executable for Include {
         let object = resources::file(&path);
         let relations = vec![(Relation::Include, object)];
 
-        let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None);
+        let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None, None);
         context.resources.push(resource_info);
 
         Ok(())

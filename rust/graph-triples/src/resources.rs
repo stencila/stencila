@@ -76,7 +76,7 @@ impl Resource {
 
     /// Get the [`ResourceInfo`] for a resource
     pub fn resource_info(&self) -> ResourceInfo {
-        ResourceInfo::new(self.clone(), None, None, Some(self.digest()), None)
+        ResourceInfo::new(self.clone(), None, None, None, Some(self.digest()), None)
     }
 
     /// Get the [`NodeId`] for resources that have it
@@ -88,11 +88,55 @@ impl Resource {
     }
 }
 
+/// Under which circumstances a [`Resource`] should be automatically run.
+///
+/// In the below descriptions:
+///
+/// - "run" means that the user made an explicit request to execute the specific resource
+///   (e.g. presses the run button on a `CodeChunk`), or the containing resource (e.g. presses
+///   the run button on the parent `Article`).
+///
+/// - "autorun" means that the resource is automatically executed, without an explicit
+///   user request do so (but in some cases in response to one).
+#[derive(Debug, Clone, Serialize)]
+pub enum ResourceAutorun {
+    /// Never automatically execute the resource.
+    /// Only execute when the user explicitly runs the resource (or its containing resource).
+    ///
+    /// e.g. a user may tag a `CodeBlock` as `@autorun never` if it is long running
+    /// and they want to check the outputs of previous code chunks before proceeding
+    ///
+    /// When generating an execution `Plan`s using:
+    ///
+    /// - the `PlanOrdering::Topological` option: the resource, and any of its downstream
+    ///   dependents should be excluded from the plan.
+    ///
+    /// - the `PlanOrdering::Appearance` option: the resource, and any following resources
+    ///   should be excluded from the plan.
+    Never,
+
+    /// Execute the resource if it is an upstream dependency of a resource that has been run.
+    /// This is the default.
+    ///
+    /// e.g. `CodeExpression` #1 depends upon a variable assigned in `CodeChunk` #2.
+    /// If #2 is run, and #1 is stale, then #1 will be autorun before #2.
+    ///
+    /// This only affects execution `Plan`s generated with the `PlanOrdering::Topological` option.
+    Needed,
+
+    /// Always execute the resource
+    ///
+    /// e.g. a user may tag a `CodeBlock` as `@autorun always` if it assigns a random variable
+    /// (i.e. is non-deterministic) and everytime one of its downstream dependents is run, they
+    /// want it to be updated.
+    Always,
+}
+
 /// A digest representing the state of a [`Resource`] and its dependencies.
 ///
 /// The digest is separated into several parts. Although initially it may seem that the
 /// parts are redundant ("can't they all be folded into a single digest?"), each
-/// part provides useful information. For example, it is useful, to store
+/// part provides useful information. For example, it is useful to store
 /// the `content_digest`, in addition to `semantic_digest`, to be able
 /// to indicate to the user that a change in the resource has been detected but
 /// that it does not appear to change its semantics.
@@ -246,14 +290,20 @@ pub struct ResourceInfo {
     /// Otherwise, the depth is the maximum depth of dependencies plus one.
     pub depth: Option<usize>,
 
-    /// Whether the resource is explicitly marked as pure or impure.
+    /// Whether the resource is marked as pure or impure.
     ///
     /// Pure resources do not modify other resources (i.e. they have no side effects).
     /// This can be determined from whether the resource has any `Assign`, `Alter` or `Write`
-    /// relations. Additionally, the user may mark the resource as pure or impure
-    /// for example, by using `@pure` or `@impure` tags in code comments. This property
-    /// stores that explicit tag.
+    /// in its `relations`. Additionally, the user may mark the resource as pure or impure
+    /// either using `@pure` or `@impure` tags in code comments or via user interfaces.
+    /// This property stores that explicit mark. If it is `None` then the resources "purity"
+    /// will be inferred from its `relations`.
     pub pure: Option<bool>,
+
+    /// Under which circumstances the resource should be automatically executed
+    ///
+    /// This defaults to `Needed` but may be overridden using the `@autorun` tag in comments.
+    pub autorun: ResourceAutorun,
 
     /// The [`ResourceDigest`] of the resource when it was last compiled
     pub compile_digest: Option<ResourceDigest>,
@@ -263,11 +313,26 @@ pub struct ResourceInfo {
 }
 
 impl ResourceInfo {
+    /// Create a default `ResourceInfo` object with only a reference to a `Resource`
+    pub fn default(resource: Resource) -> Self {
+        Self {
+            resource,
+            relations: None,
+            dependencies: None,
+            depth: None,
+            autorun: ResourceAutorun::Needed,
+            pure: None,
+            compile_digest: None,
+            execute_digest: None,
+        }
+    }
+
     /// Create a new `ResourceInfo` object
     pub fn new(
         resource: Resource,
         relations: Option<Pairs>,
         pure: Option<bool>,
+        autorun: Option<ResourceAutorun>,
         compile_digest: Option<ResourceDigest>,
         execute_digest: Option<ResourceDigest>,
     ) -> Self {
@@ -276,6 +341,7 @@ impl ResourceInfo {
             relations,
             dependencies: None,
             depth: None,
+            autorun: autorun.unwrap_or(ResourceAutorun::Needed),
             pure,
             compile_digest,
             execute_digest,

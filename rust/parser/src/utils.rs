@@ -1,6 +1,10 @@
 //! Utility functions for use by parser implementations
 
-use graph_triples::{relations, resources, Relation, Resource};
+use graph_triples::{
+    relations,
+    resources::{self, ResourceAutorun},
+    Relation, Resource,
+};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::path::{Path, PathBuf};
@@ -10,7 +14,7 @@ use crate::ResourceInfo;
 /// Apply comment tags to a [`ResourceInfo`] object.
 ///
 /// Parses tags from a comment and updates the supplied [`ResourceInfo`]. This pattern is
-/// used because (a) the parse info may already be partially populated based on semantic
+/// used because (a) the resource info may already be partially populated based on semantic
 /// analysis of the code (which comments wish to override), and (b) there might be multiple
 /// comments in a code resources each with (potentially overriding) tags
 ///
@@ -24,6 +28,7 @@ use crate::ResourceInfo;
 ///              Used for constructing a `Range` for resources.
 /// - `comment`: The comment from which to parse tags, usually a comment
 /// - `kind`:    The default type for `Symbol` resources.
+/// - `resource_info`: The [`ResourceInfo`] object to update
 pub fn apply_tags(
     path: &Path,
     lang: &str,
@@ -33,8 +38,10 @@ pub fn apply_tags(
     resource_info: &mut ResourceInfo,
 ) {
     static REGEX_TAGS: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"@(imports|assigns|alters|uses|reads|writes|pure|impure)((?:\s+).*?)?(\*/)?$")
-            .expect("Unable to create regex")
+        Regex::new(
+            r"@(pure|impure|autorun|imports|assigns|alters|uses|reads|writes)((?:\s+).*?)?(\*/)?$",
+        )
+        .expect("Unable to create regex")
     });
     static REGEX_ITEMS: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"\s+|(\s*,\s*)").expect("Unable to create regex"));
@@ -45,42 +52,51 @@ pub fn apply_tags(
         let range = (row + index, 0, row + index, line.len() - 1);
         if let Some(captures) = REGEX_TAGS.captures(line) {
             let tag = captures[1].to_string();
+            let args = captures[2].trim();
 
             let relation = match tag.as_str() {
-                "pure" => {
-                    resource_info.pure = Some(true);
+                "pure" | "impure" => {
+                    resource_info.pure = Some(tag == "pure");
                     continue;
                 }
-                "impure" => {
-                    resource_info.pure = Some(false);
+
+                "autorun" => {
+                    let variant = match args {
+                        "always" => ResourceAutorun::Always,
+                        "never" => ResourceAutorun::Never,
+                        _ => ResourceAutorun::Needed,
+                    };
+                    resource_info.autorun = variant;
                     continue;
                 }
+
                 "imports" => relations::uses(range),
                 "assigns" => relations::assigns(range),
                 "alters" => relations::alters(range),
                 "uses" => relations::uses(range),
                 "reads" => relations::reads(range),
                 "writes" => relations::writes(range),
+
                 _ => continue,
             };
 
-            let items: Vec<String> = REGEX_ITEMS
-                .split(captures[2].trim())
+            let args: Vec<String> = REGEX_ITEMS
+                .split(args)
                 .map(|item| item.to_string())
                 .collect();
 
-            for item in items {
-                if item == "only" {
+            for arg in args {
+                if arg == "only" {
                     onlies.push(tag.clone());
                     continue;
                 }
 
                 let resource = match tag.as_str() {
-                    "imports" => resources::module(lang, &item),
+                    "imports" => resources::module(lang, &arg),
                     "assigns" | "alters" | "uses" => {
-                        resources::symbol(path, &item, &kind.clone().unwrap_or_default())
+                        resources::symbol(path, &arg, &kind.clone().unwrap_or_default())
                     }
-                    "reads" | "writes" => resources::file(&PathBuf::from(item)),
+                    "reads" | "writes" => resources::file(&PathBuf::from(arg)),
                     _ => continue,
                 };
                 pairs.push((relation.clone(), resource))

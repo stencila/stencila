@@ -1294,7 +1294,7 @@ impl KernelSpace {
             let resource = resources::code(&path, "<id>", "<file>", language.clone());
             let resource_info = match parsers::parse(resource.clone(), &code) {
                 Ok(resource_info) => resource_info,
-                Err(..) => ResourceInfo::new(resource, None, None, None, None),
+                Err(..) => ResourceInfo::default(resource),
             };
 
             // Determine the kernel selector
