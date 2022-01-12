@@ -31,7 +31,19 @@ where
 {
     let mut differ = Differ::default();
     node1.diff(node2, &mut differ);
-    Patch::new(differ.ops)
+    Patch::from_ops(differ.ops)
+}
+
+/// Generate a [`Patch`] describing the difference between two nodes of the same type
+/// at a specific address.
+#[tracing::instrument(skip(node1, node2))]
+pub fn diff_address<Type>(address: Address, node1: &Type, node2: &Type) -> Patch
+where
+    Type: Patchable,
+{
+    let mut patch = diff(node1, node2);
+    patch.address = Some(address);
+    patch
 }
 
 /// Display the difference between two nodes as a "unified diff" of the nodes
@@ -503,13 +515,49 @@ pub struct Patch {
 
 impl Patch {
     /// Create a new patch from a set of operations
-    pub fn new(ops: Vec<Operation>) -> Self {
+    pub fn from_ops(ops: Vec<Operation>) -> Self {
         Self {
             ops,
             address: None,
             target: None,
             actor: None,
         }
+    }
+
+    /// Create a new patch by combining a set of patches
+    ///
+    /// For each patch, if the patch has an address, then that address will be prepended
+    /// to each of its operations before they are combined.
+    pub fn from_patches(patches: Vec<Patch>) -> Self {
+        let ops = patches
+            .into_iter()
+            .flat_map(|patch| {
+                if let Some(patch_address) = patch.address {
+                    patch
+                        .ops
+                        .into_iter()
+                        .map(|mut op| {
+                            match &mut op {
+                                Operation::Add { address, .. }
+                                | Operation::Remove { address, .. }
+                                | Operation::Replace { address, .. }
+                                | Operation::Transform { address, .. } => {
+                                    address.prepend(&patch_address)
+                                }
+                                Operation::Move { from, to, .. } => {
+                                    from.prepend(&patch_address);
+                                    to.prepend(&patch_address);
+                                }
+                            };
+                            op
+                        })
+                        .collect()
+                } else {
+                    patch.ops
+                }
+            })
+            .collect();
+        Patch::from_ops(ops)
     }
 
     /// Does the patch have any operations?

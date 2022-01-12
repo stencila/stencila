@@ -3,7 +3,7 @@ use eyre::Result;
 use graph::Graph;
 use graph_triples::{resources, Resource};
 use node_address::{Address, AddressMap};
-use node_patch::{diff, Patch};
+use node_patch::{diff_address, Patch};
 use node_pointer::resolve;
 use std::{collections::HashMap, path::Path};
 use stencila_schema::{
@@ -143,91 +143,99 @@ pub fn compile_patches(
 
     // Derive some more properties from the first set, apply the new properties to the node, calculate patches and send them
     // over `patch_sender` for application.
-    for (
-        node_id,
-        (address, node, dependencies, dependents, new_compile_digest, new_execute_required),
-    ) in &nodes
-    {
-        let dependencies = dependencies
-            .iter()
-            .filter_map(|node_id| nodes.get(node_id))
-            .filter_map(|(_address, node, .., execute_required)| match node {
-                Node::CodeChunk(node) => {
-                    Some(CodeExecutableCodeDependencies::CodeChunk(CodeChunk {
-                        id: node.id.clone(),
-                        programming_language: node.programming_language.clone(),
-                        execute_required: Some(execute_required.clone()),
-                        execute_status: node.execute_status.clone(),
-                        ..Default::default()
-                    }))
+    let patches = nodes
+        .iter()
+        .map(
+            |(
+                _node_id,
+                (address, node, dependencies, dependents, new_compile_digest, new_execute_required),
+            )| {
+                let dependencies = dependencies
+                    .iter()
+                    .filter_map(|node_id| nodes.get(node_id))
+                    .filter_map(|(_address, node, .., execute_required)| match node {
+                        Node::CodeChunk(node) => {
+                            Some(CodeExecutableCodeDependencies::CodeChunk(CodeChunk {
+                                id: node.id.clone(),
+                                programming_language: node.programming_language.clone(),
+                                execute_required: Some(execute_required.clone()),
+                                execute_status: node.execute_status.clone(),
+                                ..Default::default()
+                            }))
+                        }
+                        Node::Parameter(node) => {
+                            Some(CodeExecutableCodeDependencies::Parameter(Parameter {
+                                id: node.id.clone(),
+                                name: node.name.clone(),
+                                ..Default::default()
+                            }))
+                        }
+                        _ => None,
+                    })
+                    .collect();
+
+                let dependents = dependents
+                    .iter()
+                    .filter_map(|node_id| nodes.get(node_id))
+                    .filter_map(|(_address, .., execute_required)| match node {
+                        Node::CodeChunk(node) => {
+                            Some(CodeExecutableCodeDependents::CodeChunk(CodeChunk {
+                                id: node.id.clone(),
+                                programming_language: node.programming_language.clone(),
+                                execute_required: Some(execute_required.clone()),
+                                execute_status: node.execute_status.clone(),
+                                ..Default::default()
+                            }))
+                        }
+                        Node::CodeExpression(node) => Some(
+                            CodeExecutableCodeDependents::CodeExpression(CodeExpression {
+                                id: node.id.clone(),
+                                programming_language: node.programming_language.clone(),
+                                execute_required: Some(execute_required.clone()),
+                                execute_status: node.execute_status.clone(),
+                                ..Default::default()
+                            }),
+                        ),
+                        _ => None,
+                    })
+                    .collect();
+
+                let mut after = node.clone();
+                match &mut after {
+                    Node::CodeChunk(CodeChunk {
+                        code_dependencies,
+                        code_dependents,
+                        compile_digest,
+                        execute_required,
+                        ..
+                    })
+                    | Node::CodeExpression(CodeExpression {
+                        code_dependencies,
+                        code_dependents,
+                        compile_digest,
+                        execute_required,
+                        ..
+                    }) => {
+                        *code_dependencies = Some(dependencies);
+                        *code_dependents = Some(dependents);
+                        *compile_digest = Some(new_compile_digest.clone());
+                        *execute_required = Some(new_execute_required.clone());
+                    }
+                    _ => (),
                 }
-                Node::Parameter(node) => {
-                    Some(CodeExecutableCodeDependencies::Parameter(Parameter {
-                        id: node.id.clone(),
-                        name: node.name.clone(),
-                        ..Default::default()
-                    }))
-                }
-                _ => None,
-            })
-            .collect();
 
-        let dependents = dependents
-            .iter()
-            .filter_map(|node_id| nodes.get(node_id))
-            .filter_map(|(_address, .., execute_required)| match node {
-                Node::CodeChunk(node) => Some(CodeExecutableCodeDependents::CodeChunk(CodeChunk {
-                    id: node.id.clone(),
-                    programming_language: node.programming_language.clone(),
-                    execute_required: Some(execute_required.clone()),
-                    execute_status: node.execute_status.clone(),
-                    ..Default::default()
-                })),
-                Node::CodeExpression(node) => Some(CodeExecutableCodeDependents::CodeExpression(
-                    CodeExpression {
-                        id: node.id.clone(),
-                        programming_language: node.programming_language.clone(),
-                        execute_required: Some(execute_required.clone()),
-                        execute_status: node.execute_status.clone(),
-                        ..Default::default()
-                    },
-                )),
-                _ => None,
-            })
-            .collect();
+                diff_address(address.clone().unwrap(), node, &after)
+            },
+        )
+        .collect();
 
-        let mut after = node.clone();
-        match &mut after {
-            Node::CodeChunk(CodeChunk {
-                code_dependencies,
-                code_dependents,
-                compile_digest,
-                execute_required,
-                ..
-            })
-            | Node::CodeExpression(CodeExpression {
-                code_dependencies,
-                code_dependents,
-                compile_digest,
-                execute_required,
-                ..
-            }) => {
-                *code_dependencies = Some(dependencies);
-                *code_dependents = Some(dependents);
-                *compile_digest = Some(new_compile_digest.clone());
-                *execute_required = Some(new_execute_required.clone());
-            }
-            _ => (),
-        }
+    // Rather than sending many patches, combine them into one
+    let patch = Patch::from_patches(patches);
 
-        let mut patch = diff(node, &after);
-        patch.target = Some(node_id.clone());
-        patch.address = address.clone();
-
-        if !patch.is_empty() {
-            if let Err(error) = patch_sender.send(patch) {
-                tracing::debug!("When sending patch during compilation: {}", error);
-            }
+    // Send patch to root, if it's not empty
+    if !patch.is_empty() {
+        if let Err(error) = patch_sender.send(patch) {
+            tracing::debug!("When sending patch during compilation: {}", error);
         }
     }
 }
