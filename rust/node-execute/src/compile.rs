@@ -12,7 +12,7 @@ use stencila_schema::{
 };
 use tokio::sync::mpsc::UnboundedSender;
 
-/// Compile a node
+/// Compile a node, usually the `root` node of a document
 ///
 /// Compiling a node involves walking over its node tree and compiling each
 /// child node so that it is ready to be executed. This includes
@@ -47,14 +47,27 @@ pub fn compile(
     let mut address = Address::default();
     let mut context = CompileContext::new(path, project);
     root.compile(&mut address, &mut context)?;
-    let (address_map, resource_infos) = (context.addresses, context.resources);
+    let (address_map, resource_infos) = (context.address_map, context.resource_infos);
 
-    // Construct a `Graph` from the collected `ResourceInfo`s and get an updated
-    // set of resource infos
-    let mut graph = Graph::from_resource_infos(path, resource_infos)?;
-    let resource_infos = graph.get_resource_infos();
+    // Construct a new `Graph` from the collected `ResourceInfo`s and get an updated
+    // set of resource infos from it (with data on inter-dependencies etc)
+    let graph = Graph::from_resource_infos(path, resource_infos)?;
 
+    // Send patches with new dependency information to root
+    compile_patches(root, &address_map, &graph, patch_sender);
+
+    Ok((address_map, graph))
+}
+
+/// Update nodes in root with information from dependency graph by sending patches
+pub fn compile_patches(
+    root: &mut Node,
+    address_map: &AddressMap,
+    graph: &Graph,
+    patch_sender: &UnboundedSender<Patch>,
+) {
     // Collect the nodes and the values of their updated properties
+    let resource_infos = graph.get_resource_infos();
     let nodes: HashMap<String, _> = resource_infos
         .iter()
         .filter_map(|(resource, resource_info)| {
@@ -217,6 +230,4 @@ pub fn compile(
             }
         }
     }
-
-    Ok((address_map, graph))
 }

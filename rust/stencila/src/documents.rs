@@ -7,7 +7,7 @@ use graph_triples::{resources, Relations, ResourceInfo};
 use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::AddressMap;
-use node_execute::{compile, execute};
+use node_execute::{compile, compile_patches, execute};
 use node_patch::{apply, diff, merge, Patch};
 use node_pointer::{resolve, Pointer};
 use node_reshape::reshape;
@@ -873,22 +873,38 @@ impl Document {
         // A task to update the graph to reflect that resources were executed
         let (resource_info_sender, mut resource_info_receiver) = mpsc::channel::<ResourceInfo>(1);
         let graph = self.graph.clone();
-        tokio::spawn(async move {
+        let graph_updater = tokio::spawn(async move {
             while let Some(resource_info) = resource_info_receiver.recv().await {
                 graph.write().await.update_resource_info(resource_info);
             }
         });
 
+        let root = &mut *self.root.write().await;
+        let address_map = &*self.addresses.read().await;
+        let patch_sender = self.patch_sender.clone();
+
         // Execute the plan on the root node, sending on patches to the patching task
         execute(
             &plan,
-            &mut *self.root.write().await,
-            &*self.addresses.read().await,
-            resource_info_sender,
-            self.patch_sender.clone(),
+            root,
+            address_map,
+            &resource_info_sender,
+            &patch_sender,
             Some(self.kernels.clone()),
         )
         .await?;
+
+        // Wait for updates to graph to finish
+        drop(resource_info_sender);
+        graph_updater.await?;
+
+        // Then do a recompile, using the existing graph, so that node properties such as
+        // `code_dependencies` and `code_dependents` get updated with the new execution status
+        // of nodes. 
+        // TODO: Move this into the `graph_updater` task so the update get send as soon as available
+        // This requires that both `execute` and `compile_patches` be able to take an immutable ref
+        // to root to avoid deadlocks
+        compile_patches(root, address_map, &*self.graph.read().await, &patch_sender);
 
         Ok(())
     }

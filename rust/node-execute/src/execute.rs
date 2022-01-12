@@ -36,8 +36,8 @@ pub async fn execute(
     plan: &Plan,
     root: &mut Node,
     address_map: &AddressMap,
-    resource_info_sender: Sender<ResourceInfo>,
-    patch_sender: UnboundedSender<Patch>,
+    resource_info_sender: &Sender<ResourceInfo>,
+    patch_sender: &UnboundedSender<Patch>,
     kernel_space: Option<Arc<KernelSpace>>,
 ) -> Result<()> {
     let kernel_space = kernel_space.unwrap_or_default();

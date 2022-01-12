@@ -284,7 +284,7 @@ impl Graph {
     }
 
     /// Get [`ResourceInfo`] objects in the graph
-    pub fn get_resource_infos(&mut self) -> &BTreeMap<Resource, ResourceInfo> {
+    pub fn get_resource_infos(&self) -> &BTreeMap<Resource, ResourceInfo> {
         &self.resources
     }
 

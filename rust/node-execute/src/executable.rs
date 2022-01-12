@@ -41,10 +41,10 @@ pub struct CompileContext {
     programming_language: Option<String>,
 
     /// A map of node ids to addresses
-    pub(crate) addresses: AddressMap,
+    pub(crate) address_map: AddressMap,
 
     /// A list of resources compiles from the node
-    pub(crate) resources: Vec<ResourceInfo>,
+    pub(crate) resource_infos: Vec<ResourceInfo>,
 }
 
 impl CompileContext {
@@ -112,7 +112,7 @@ macro_rules! identify {
             $node.id = Some(Box::new(id.clone()));
             id
         };
-        $context.addresses.insert(id.clone(), $address.clone());
+        $context.address_map.insert(id.clone(), $address.clone());
         id
     }};
 }
@@ -155,7 +155,7 @@ impl Executable for Link {
         let relations = vec![(Relation::Link, object)];
 
         let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None, None);
-        context.resources.push(resource_info);
+        context.resource_infos.push(resource_info);
 
         Ok(())
     }
@@ -229,7 +229,7 @@ macro_rules! executable_media_object {
 
                 let resource_info =
                     ResourceInfo::new(resource, Some(relations), None, None, None, None);
-                context.resources.push(resource_info);
+                context.resource_infos.push(resource_info);
 
                 self.content_url = url;
 
@@ -298,7 +298,7 @@ impl Executable for Parameter {
             )),
             None,
         );
-        context.resources.push(resource_info);
+        context.resource_infos.push(resource_info);
 
         Ok(())
     }
@@ -367,7 +367,7 @@ impl Executable for CodeChunk {
             .clone()
             .map(|cord| ResourceDigest::from_string(&cord.0));
 
-        context.resources.push(resource_info);
+        context.resource_infos.push(resource_info);
 
         Ok(())
     }
@@ -456,7 +456,7 @@ impl Executable for CodeExpression {
             .clone()
             .map(|cord| ResourceDigest::from_string(&cord.0));
 
-        context.resources.push(resource_info);
+        context.resource_infos.push(resource_info);
 
         Ok(())
     }
@@ -523,7 +523,7 @@ impl Executable for SoftwareSourceCode {
                 Some(language.clone()),
             );
             let resource_info = parsers::parse(resource, code)?;
-            context.resources.push(resource_info);
+            context.resource_infos.push(resource_info);
         }
 
         Ok(())
@@ -544,7 +544,7 @@ impl Executable for Include {
         let relations = vec![(Relation::Include, object)];
 
         let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None, None);
-        context.resources.push(resource_info);
+        context.resource_infos.push(resource_info);
 
         Ok(())
     }
