@@ -7,5 +7,5 @@ edition = "2021"
 [dependencies]
 insta = { version = "1.8.0", features = ["glob"] }
 serde_json = "1.0.72"
-stencila-schema = "1.13.0" 
+stencila-schema = "1.14.0" 
 test-utils = { path = "../test-utils", version = "0.0.0" }
