@@ -17,19 +17,24 @@ impl ToHtml for Node {
             return array_to_html(array, context);
         }
 
-        // Wrap strings in a `<pre>` with the `itemtype` attribute.
-        // This encoding will be used in places such as `CodeChunk.outputs`, `CodeExpression.output` etc
-        // where pre-formatting is important and wrapping in an element is needed for patches (whitespace
-        // can be lost if not wrapped in a <pre>).
+        // Previously, we said:
+        //   Wrap strings in a `<pre>` with the `itemtype` attribute.
+        //   This encoding will be used in places such as `CodeChunk.outputs`, `CodeExpression.output` etc
+        //   where pre-formatting is important and wrapping in an element is needed for patches (whitespace
+        //   can be lost if not wrapped in a <pre>).
+        // But..that caused problems for `CodeExpression.output` rendering. So here, it is changed back to <span>
+        // and we'll see if we can find another way of dealing with the above issue.
+        //
         // See note under `ToHtml` for `InlineContent` for how strings are handled in that context.
         if let Node::String(string) = self {
             return elem(
-                "pre",
+                "span",
                 &[attr_itemtype_str("Text")],
                 &string.to_html(context),
             );
         }
 
+        // Fallback to default `to_html` for other `Node` variants
         dispatch_node!(
             self,
             elem("div", &[attr("class", "unsupported")], &json(self)),
