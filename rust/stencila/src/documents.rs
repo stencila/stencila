@@ -24,7 +24,9 @@ use std::{
     sync::Arc,
     time::{Duration, Instant},
 };
-use stencila_schema::{Article, Cord, Node};
+use stencila_schema::{
+    Article, CodeChunk, CodeExecutableExecuteRequired, CodeExpression, Cord, Node,
+};
 use strum::Display;
 use tokio::{
     sync::{mpsc, Mutex, RwLock},
@@ -845,6 +847,8 @@ impl Document {
         *graph = Graph::from_resource_infos(path, resource_infos)?;
 
         // Gather patches for the updated `compile_digest`s from the graph
+        // TODO: This logic should be moved into `node-execute` crate in a similar way to
+        // how patches are generated for its `execute` function
         let mut patches = Vec::new();
         for resource_info in graph.get_resource_infos() {
             let resource = &resource_info.resource;
@@ -855,14 +859,42 @@ impl Document {
 
                 let before = pointer.to_node()?;
                 let mut after = before.clone();
-
-                let digest = resource_info
-                    .compile_digest
-                    .clone()
-                    .map(|digest| Box::new(Cord(digest.to_string())));
                 match &mut after {
-                    Node::CodeChunk(node) => node.compile_digest = digest,
-                    Node::CodeExpression(node) => node.compile_digest = digest,
+                    Node::CodeChunk(CodeChunk {
+                        compile_digest,
+                        execute_digest,
+                        execute_required,
+                        ..
+                    })
+                    | Node::CodeExpression(CodeExpression {
+                        compile_digest,
+                        execute_digest,
+                        execute_required,
+                        ..
+                    }) => {
+                        if let Some(new_compile_digest) = resource_info.compile_digest.as_ref() {
+                            *compile_digest = Some(Box::new(Cord(new_compile_digest.to_string())));
+                            *execute_required = Some(match execute_digest {
+                                None => CodeExecutableExecuteRequired::NeverExecuted,
+                                Some(execute_digest) => {
+                                    let parts = execute_digest.0.split('.').collect::<Vec<&str>>();
+                                    if new_compile_digest.semantic_digest
+                                        != *parts.get(1).unwrap_or(&"")
+                                    {
+                                        CodeExecutableExecuteRequired::SemanticsChanged
+                                    } else if new_compile_digest.dependencies_digest
+                                        != *parts.get(2).unwrap_or(&"")
+                                    {
+                                        CodeExecutableExecuteRequired::DependenciesChanged
+                                    } else {
+                                        CodeExecutableExecuteRequired::No
+                                    }
+                                }
+                            })
+                        } else {
+                            tracing::warn!("The compile digest for a node was unexpectedly None");
+                        }
+                    }
                     _ => {}
                 }
 

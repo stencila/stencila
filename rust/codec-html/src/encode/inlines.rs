@@ -347,6 +347,13 @@ impl ToHtml for CodeExpression {
             self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
         );
 
+        let execute_required = attr_and_meta_opt(
+            "execute_required",
+            self.execute_required
+                .as_ref()
+                .map(|required| (*required).as_ref().to_string()),
+        );
+
         let execute_status = attr_and_meta_opt(
             "execute_status",
             self.execute_status
@@ -396,6 +403,7 @@ impl ToHtml for CodeExpression {
                 lang.0,
                 compile_digest.0,
                 execute_digest.0,
+                execute_required.0,
                 execute_status.0,
                 execute_ended.0,
                 execute_duration.0,
@@ -404,6 +412,7 @@ impl ToHtml for CodeExpression {
                 lang.1,
                 compile_digest.1,
                 execute_digest.1,
+                execute_required.1,
                 execute_status.1,
                 execute_ended.1,
                 execute_duration.1,

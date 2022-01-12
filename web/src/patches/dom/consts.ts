@@ -12,6 +12,7 @@ export const STRUCT_ATTRIBUTES: Record<string, string> = {
   programmingLanguage: 'programming-language',
   compileDigest: 'compile-digest',
   executeDigest: 'execute-digest',
+  executeRequired: 'execute-required',
   executeStatus: 'execute-status',
   executeEnded: 'execute-ended',
   executeDuration: 'execute-duration',

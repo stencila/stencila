@@ -286,6 +286,7 @@ impl Operation {
             BlockContent
 
             // Child types of the above
+            CodeExecutableExecuteRequired
             CodeExecutableExecuteStatus
             ListItem
             TableCaption
