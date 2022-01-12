@@ -330,11 +330,18 @@ export const codeBlock = (props: Omit<CodeBlock, 'type'>): CodeBlock => ({
 export interface CodeExecutable extends Code {
   type: 'CodeExecutable' | 'CodeChunk' | 'CodeExpression'
   programmingLanguage: String
+  codeDependencies?: Array<CodeChunk | CodeExpression | Parameter>
+  codeDependents?: Array<CodeChunk | CodeExpression>
   compileDigest?: String
   errors?: Array<CodeError>
   executeDigest?: String
   executeDuration?: Number
   executeEnded?: Date
+  executeRequired?:
+    | 'No'
+    | 'NeverExecuted'
+    | 'SemanticsChanged'
+    | 'DependenciesChanged'
   executeStatus?: 'Scheduled' | 'Running' | 'Succeeded' | 'Failed' | 'Cancelled'
 }
 

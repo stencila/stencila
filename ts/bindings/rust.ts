@@ -81,6 +81,7 @@ const noBoxTypes = [
   // Enums with no data
   'CiteCitationMode',
   'ClaimClaimType',
+  'CodeExecutableExecuteRequired',
   'CodeExecutableExecuteStatus',
   'ListOrder',
   'NoteNoteType',

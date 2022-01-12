@@ -16,6 +16,8 @@ Object = Dict[str, Any]
 
 ECitationMode = Enum("CitationMode", ["Parenthetical", "Narrative", "NarrativeAuthor", "NarrativeYear", "normal", "suppressAuthor"])
 
+EExecuteRequired = Enum("ExecuteRequired", ["No", "NeverExecuted", "SemanticsChanged", "DependenciesChanged"])
+
 EExecuteStatus = Enum("ExecuteStatus", ["Scheduled", "Running", "Succeeded", "Failed", "Cancelled"])
 
 EClaimType = Enum("ClaimType", ["Statement", "Theorem", "Lemma", "Proof", "Postulate", "Hypothesis", "Proposition", "Corollary"])
@@ -215,6 +217,12 @@ class CodeExecutable(Code):
     programmingLanguage: String # type: ignore
     """The programming language of the code."""
 
+    codeDependencies: Optional[Array[Union["CodeChunk", "CodeExpression", "Parameter"]]] = None
+    """The upstream dependencies of the code."""
+
+    codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None
+    """The downstream dependents of the code."""
+
     compileDigest: Optional[String] = None
     """A digest of the content, semantics and dependencies of the node."""
 
@@ -230,6 +238,9 @@ class CodeExecutable(Code):
     executeEnded: Optional["Date"] = None
     """The date-time that the the last execution of the code ended."""
 
+    executeRequired: Optional["EExecuteRequired"] = None
+    """Whether, and why, a node requires execution or re-execution."""
+
     executeStatus: Optional["EExecuteStatus"] = None
     """Status of the last execution of the code."""
 
@@ -238,11 +249,14 @@ class CodeExecutable(Code):
         self,
         programmingLanguage: String,
         text: String,
+        codeDependencies: Optional[Array[Union["CodeChunk", "CodeExpression", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executeRequired: Optional["EExecuteRequired"] = None,
         executeStatus: Optional["EExecuteStatus"] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
@@ -257,6 +271,10 @@ class CodeExecutable(Code):
         )
         if programmingLanguage is not None:
             self.programmingLanguage = programmingLanguage
+        if codeDependencies is not None:
+            self.codeDependencies = codeDependencies
+        if codeDependents is not None:
+            self.codeDependents = codeDependents
         if compileDigest is not None:
             self.compileDigest = compileDigest
         if errors is not None:
@@ -267,6 +285,8 @@ class CodeExecutable(Code):
             self.executeDuration = executeDuration
         if executeEnded is not None:
             self.executeEnded = executeEnded
+        if executeRequired is not None:
+            self.executeRequired = executeRequired
         if executeStatus is not None:
             self.executeStatus = executeStatus
 
@@ -292,11 +312,14 @@ class CodeChunk(CodeExecutable):
         programmingLanguage: String,
         text: String,
         caption: Optional[Union[Array["BlockContent"], String]] = None,
+        codeDependencies: Optional[Array[Union["CodeChunk", "CodeExpression", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executeRequired: Optional["EExecuteRequired"] = None,
         executeStatus: Optional["EExecuteStatus"] = None,
         id: Optional[String] = None,
         label: Optional[String] = None,
@@ -307,11 +330,14 @@ class CodeChunk(CodeExecutable):
         super().__init__(
             programmingLanguage=programmingLanguage,
             text=text,
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
             compileDigest=compileDigest,
             errors=errors,
             executeDigest=executeDigest,
             executeDuration=executeDuration,
             executeEnded=executeEnded,
+            executeRequired=executeRequired,
             executeStatus=executeStatus,
             id=id,
             mediaType=mediaType,
@@ -341,11 +367,14 @@ class CodeExpression(CodeExecutable):
         self,
         programmingLanguage: String,
         text: String,
+        codeDependencies: Optional[Array[Union["CodeChunk", "CodeExpression", "Parameter"]]] = None,
+        codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executeRequired: Optional["EExecuteRequired"] = None,
         executeStatus: Optional["EExecuteStatus"] = None,
         id: Optional[String] = None,
         mediaType: Optional[String] = None,
@@ -355,11 +384,14 @@ class CodeExpression(CodeExecutable):
         super().__init__(
             programmingLanguage=programmingLanguage,
             text=text,
+            codeDependencies=codeDependencies,
+            codeDependents=codeDependents,
             compileDigest=compileDigest,
             errors=errors,
             executeDigest=executeDigest,
             executeDuration=executeDuration,
             executeEnded=executeEnded,
+            executeRequired=executeRequired,
             executeStatus=executeStatus,
             id=id,
             mediaType=mediaType,

@@ -167,11 +167,14 @@ CodeBlock <- function(
 #' @name CodeExecutable
 #' @param programmingLanguage The programming language of the code. \bold{Required}.
 #' @param text The text of the code. \bold{Required}.
+#' @param codeDependencies The upstream dependencies of the code.
+#' @param codeDependents The downstream dependents of the code.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution of the code.
 #' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeRequired Whether, and why, a node requires execution or re-execution.
 #' @param executeStatus Status of the last execution of the code.
 #' @param id The identifier for this item.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
@@ -182,11 +185,14 @@ CodeBlock <- function(
 CodeExecutable <- function(
   programmingLanguage,
   text,
+  codeDependencies,
+  codeDependents,
   compileDigest,
   errors,
   executeDigest,
   executeDuration,
   executeEnded,
+  executeRequired,
   executeStatus,
   id,
   mediaType,
@@ -201,11 +207,14 @@ CodeExecutable <- function(
   )
   self$type <- as_scalar("CodeExecutable")
   self[["programmingLanguage"]] <- check_property("CodeExecutable", "programmingLanguage", TRUE, missing(programmingLanguage), "character", programmingLanguage)
+  self[["codeDependencies"]] <- check_property("CodeExecutable", "codeDependencies", FALSE, missing(codeDependencies), Array(Union(CodeChunk, CodeExpression, Parameter)), codeDependencies)
+  self[["codeDependents"]] <- check_property("CodeExecutable", "codeDependents", FALSE, missing(codeDependents), Array(Union(CodeChunk, CodeExpression)), codeDependents)
   self[["compileDigest"]] <- check_property("CodeExecutable", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
   self[["errors"]] <- check_property("CodeExecutable", "errors", FALSE, missing(errors), Array(CodeError), errors)
   self[["executeDigest"]] <- check_property("CodeExecutable", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
   self[["executeDuration"]] <- check_property("CodeExecutable", "executeDuration", FALSE, missing(executeDuration), "numeric", executeDuration)
   self[["executeEnded"]] <- check_property("CodeExecutable", "executeEnded", FALSE, missing(executeEnded), Date, executeEnded)
+  self[["executeRequired"]] <- check_property("CodeExecutable", "executeRequired", FALSE, missing(executeRequired), Enum("No", "NeverExecuted", "SemanticsChanged", "DependenciesChanged"), executeRequired)
   self[["executeStatus"]] <- check_property("CodeExecutable", "executeStatus", FALSE, missing(executeStatus), Enum("Scheduled", "Running", "Succeeded", "Failed", "Cancelled"), executeStatus)
   class(self) <- c(class(self), "CodeExecutable")
   self
@@ -218,11 +227,14 @@ CodeExecutable <- function(
 #' @param programmingLanguage The programming language of the code. \bold{Required}.
 #' @param text The text of the code. \bold{Required}.
 #' @param caption A caption for the CodeChunk.
+#' @param codeDependencies The upstream dependencies of the code.
+#' @param codeDependents The downstream dependents of the code.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution of the code.
 #' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeRequired Whether, and why, a node requires execution or re-execution.
 #' @param executeStatus Status of the last execution of the code.
 #' @param id The identifier for this item.
 #' @param label A short label for the CodeChunk.
@@ -256,11 +268,14 @@ CodeChunk <- function(
   programmingLanguage,
   text,
   caption,
+  codeDependencies,
+  codeDependents,
   compileDigest,
   errors,
   executeDigest,
   executeDuration,
   executeEnded,
+  executeRequired,
   executeStatus,
   id,
   label,
@@ -271,11 +286,14 @@ CodeChunk <- function(
   self <- CodeExecutable(
     programmingLanguage = programmingLanguage,
     text = text,
+    codeDependencies = codeDependencies,
+    codeDependents = codeDependents,
     compileDigest = compileDigest,
     errors = errors,
     executeDigest = executeDigest,
     executeDuration = executeDuration,
     executeEnded = executeEnded,
+    executeRequired = executeRequired,
     executeStatus = executeStatus,
     id = id,
     mediaType = mediaType,
@@ -296,11 +314,14 @@ CodeChunk <- function(
 #' @name CodeExpression
 #' @param programmingLanguage The programming language of the code. \bold{Required}.
 #' @param text The text of the code. \bold{Required}.
+#' @param codeDependencies The upstream dependencies of the code.
+#' @param codeDependents The downstream dependents of the code.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution of the code.
 #' @param executeEnded The date-time that the the last execution of the code ended.
+#' @param executeRequired Whether, and why, a node requires execution or re-execution.
 #' @param executeStatus Status of the last execution of the code.
 #' @param id The identifier for this item.
 #' @param mediaType Media type, typically expressed using a MIME format, of the code.
@@ -312,11 +333,14 @@ CodeChunk <- function(
 CodeExpression <- function(
   programmingLanguage,
   text,
+  codeDependencies,
+  codeDependents,
   compileDigest,
   errors,
   executeDigest,
   executeDuration,
   executeEnded,
+  executeRequired,
   executeStatus,
   id,
   mediaType,
@@ -326,11 +350,14 @@ CodeExpression <- function(
   self <- CodeExecutable(
     programmingLanguage = programmingLanguage,
     text = text,
+    codeDependencies = codeDependencies,
+    codeDependents = codeDependents,
     compileDigest = compileDigest,
     errors = errors,
     executeDigest = executeDigest,
     executeDuration = executeDuration,
     executeEnded = executeEnded,
+    executeRequired = executeRequired,
     executeStatus = executeStatus,
     id = id,
     mediaType = mediaType,

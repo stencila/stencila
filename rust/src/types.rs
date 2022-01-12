@@ -162,6 +162,12 @@ pub struct CodeExecutable {
     /// The text of the code.
     pub text: String,
 
+    /// The upstream dependencies of the code.
+    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
+
+    /// The downstream dependents of the code.
+    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
+
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<Box<Cord>>,
 
@@ -176,6 +182,9 @@ pub struct CodeExecutable {
 
     /// The date-time that the the last execution of the code ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// Whether, and why, a node requires execution or re-execution.
+    pub execute_required: Option<CodeExecutableExecuteRequired>,
 
     /// Status of the last execution of the code.
     pub execute_status: Option<CodeExecutableExecuteStatus>,
@@ -210,6 +219,12 @@ pub struct CodeChunk {
     /// A caption for the CodeChunk.
     pub caption: Option<Box<CodeChunkCaption>>,
 
+    /// The upstream dependencies of the code.
+    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
+
+    /// The downstream dependents of the code.
+    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
+
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<Box<Cord>>,
 
@@ -224,6 +239,9 @@ pub struct CodeChunk {
 
     /// The date-time that the the last execution of the code ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// Whether, and why, a node requires execution or re-execution.
+    pub execute_required: Option<CodeExecutableExecuteRequired>,
 
     /// Status of the last execution of the code.
     pub execute_status: Option<CodeExecutableExecuteStatus>,
@@ -261,6 +279,12 @@ pub struct CodeExpression {
     /// The text of the code.
     pub text: String,
 
+    /// The upstream dependencies of the code.
+    pub code_dependencies: Option<Vec<CodeExecutableCodeDependencies>>,
+
+    /// The downstream dependents of the code.
+    pub code_dependents: Option<Vec<CodeExecutableCodeDependents>>,
+
     /// A digest of the content, semantics and dependencies of the node.
     pub compile_digest: Option<Box<Cord>>,
 
@@ -275,6 +299,9 @@ pub struct CodeExpression {
 
     /// The date-time that the the last execution of the code ended.
     pub execute_ended: Option<Box<Date>>,
+
+    /// Whether, and why, a node requires execution or re-execution.
+    pub execute_required: Option<CodeExecutableExecuteRequired>,
 
     /// Status of the last execution of the code.
     pub execute_status: Option<CodeExecutableExecuteStatus>,
@@ -4385,6 +4412,31 @@ pub enum CitePageEnd {
 pub enum CitePageStart {
     Integer(Integer),
     String(String),
+}
+
+/// Types permitted for the `codeDependencies` property of a `CodeExecutable` node.
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CodeExecutableCodeDependencies {
+    CodeChunk(CodeChunk),
+    CodeExpression(CodeExpression),
+    Parameter(Parameter),
+}
+
+/// Types permitted for the `codeDependents` property of a `CodeExecutable` node.
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CodeExecutableCodeDependents {
+    CodeChunk(CodeChunk),
+    CodeExpression(CodeExpression),
+}
+
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+pub enum CodeExecutableExecuteRequired {
+    No,
+    NeverExecuted,
+    SemanticsChanged,
+    DependenciesChanged,
 }
 
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
