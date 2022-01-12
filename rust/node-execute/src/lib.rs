@@ -152,8 +152,8 @@ mod tests {
                 &plan,
                 &mut root,
                 &addresses,
-                resource_info_sender,
-                patch_sender,
+                &resource_info_sender,
+                &patch_sender,
                 None,
             )
             .await?;
