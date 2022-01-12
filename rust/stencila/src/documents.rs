@@ -3,7 +3,7 @@ use events::publish;
 use eyre::{bail, Result};
 use formats::FormatSpec;
 use graph::Graph;
-use graph_triples::{resources, Relations, Resource, ResourceInfo};
+use graph_triples::{resources, Relations, ResourceInfo};
 use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::AddressMap;
@@ -24,9 +24,7 @@ use std::{
     sync::Arc,
     time::{Duration, Instant},
 };
-use stencila_schema::{
-    Article, CodeChunk, CodeExecutableExecuteRequired, CodeExpression, Cord, Node,
-};
+use stencila_schema::{Article, Node};
 use strum::Display;
 use tokio::{
     sync::{mpsc, Mutex, RwLock},
@@ -242,7 +240,7 @@ pub struct Document {
     subscriptions: HashMap<String, HashSet<String>>,
 
     #[serde(skip)]
-    patch_sender: mpsc::Sender<Patch>,
+    patch_sender: mpsc::UnboundedSender<Patch>,
 
     #[serde(skip)]
     compile_sender: mpsc::Sender<()>,
@@ -323,58 +321,58 @@ impl Document {
         let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
 
-        let (patch_sender, mut patch_receiver) = mpsc::channel::<Patch>(100);
+        // Use an unbounded channel for sending patches, so that sending threads never block (if there are lots of patches)
+        // and thereby hold on to locks causing a deadlock (because `patch_impl` needs them)
+        let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<Patch>();
+        let id_clone = id.clone();
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
-        let id_clone = id.clone();
         tokio::spawn(async move {
             while let Some(patch) = patch_receiver.recv().await {
-                Self::patch_impl(&root_clone, &addresses_clone, &id_clone, patch).await;
+                Self::patch_impl(&id_clone, &root_clone, &addresses_clone, patch).await;
             }
         });
 
         let (compile_sender, mut compile_receiver) = mpsc::channel::<()>(100);
+        let id_clone = id.clone();
+        let path_clone = path.clone();
+        let project_clone = project.clone();
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
         let graph_clone = graph.clone();
         let patch_sender_clone = patch_sender.clone();
-        let id_clone = id.clone();
-        let path_clone = path.clone();
-        let project_clone = project.clone();
         tokio::spawn(async move {
             let duration = Duration::from_millis(300);
-            let mut compile = false;
+            let mut compile_needed = false;
             loop {
                 match tokio::time::timeout(duration, compile_receiver.recv()).await {
-                    // Timeout so perhaps do a compile
+                    // Timeout so perhaps do a compile if needed
                     Err(..) => {
-                        if !compile {
+                        if !compile_needed {
                             continue;
                         }
                     }
-                    // Request send so set marker and continue
+                    // Request sent so set `compile_needed` and continue
                     Ok(Some(..)) => {
-                        compile = true;
+                        compile_needed = true;
                         continue;
                     }
                     // Sender dropped, end of task
                     Ok(None) => break,
                 };
 
-                if let Err(error) = Self::compile_impl(
+                Self::compile_impl(
+                    &id_clone,
+                    &path_clone,
+                    &project_clone,
                     &root_clone,
                     &addresses_clone,
                     &graph_clone,
                     &patch_sender_clone,
-                    &id_clone,
-                    &path_clone,
-                    &project_clone,
                 )
-                .await
-                {
-                    tracing::error!("While compiling document `{}`: {}", id_clone, error)
-                }
-                compile = false;
+                .await;
+
+                compile_needed = false;
             }
         });
 
@@ -749,11 +747,17 @@ impl Document {
     pub async fn patch(&self, patch: Patch) -> Result<()> {
         tracing::debug!("Applying patch to document `{}`", self.id);
 
-        if let Err(..) = self.patch_sender.send(patch).await {
-            bail!("Error when sending patch for document `{}`", self.id)
+        if let Err(..) = self.patch_sender.send(patch) {
+            bail!(
+                "When sending patch for document `{}`: the receiver has dropped",
+                self.id
+            )
         }
         if let Err(..) = self.compile_sender.send(()).await {
-            bail!("Error when compile request for document `{}`", self.id)
+            bail!(
+                "When sending compile request for document `{}`: the receiver has dropped",
+                self.id
+            )
         }
 
         Ok(())
@@ -771,9 +775,9 @@ impl Document {
     ///
     /// - `patch`: The patch to apply and publish
     async fn patch_impl(
+        id: &str,
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
-        id: &str,
         mut patch: Patch,
     ) {
         tracing::debug!("Applying patch to document `{}`", id);
@@ -814,9 +818,16 @@ impl Document {
         );
     }
 
-    /// Compile the root node of the document
+    /// Compile the root node of the document and update its address map
+    /// and dependency graph
     ///
     /// # Arguments
+    ///
+    /// - `id`: The id of the document
+    ///
+    /// - `path`: The path of the document to be compiled
+    ///
+    /// - `project`: The project of the document to be compiled
     ///
     /// - `root`: The root [`Node`] to apply the patch to (write locked)
     ///
@@ -824,100 +835,29 @@ impl Document {
     ///
     /// - `graph`:  The [`Graph`] to be updated (write locked)
     ///
-    /// - `id`: The id of the document (used in the published event topic)
+    /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
+    ///                   compiled nodes
+    ///
     async fn compile_impl(
-        root: &Arc<RwLock<Node>>,
-        addresses: &Arc<RwLock<AddressMap>>,
-        graph: &Arc<RwLock<Graph>>,
-        patch_sender: &mpsc::Sender<Patch>,
         id: &str,
         path: &Path,
         project: &Path,
-    ) -> Result<()> {
+        root: &Arc<RwLock<Node>>,
+        addresses: &Arc<RwLock<AddressMap>>,
+        graph: &Arc<RwLock<Graph>>,
+        patch_sender: &mpsc::UnboundedSender<Patch>,
+    ) {
         tracing::debug!("Compiling document `{}`", id);
 
-        // Obtain necessary locks
-        let mut root = root.write().await;
-        let mut addresses = addresses.write().await;
-        let mut graph = graph.write().await;
-
-        // Compile the `root` to update `addresses` and `graph`
-        let (address_map_new, resource_infos) = compile(&mut *root, path, project)?;
-        *addresses = address_map_new;
-        *graph = Graph::from_resource_infos(path, resource_infos)?;
-
-        // Gather patches for the updated `compile_digest`s from the graph
-        // TODO: This logic should be moved into `node-execute` crate in a similar way to
-        // how patches are generated for its `execute` function
-        let mut patches = Vec::new();
-        for resource_info in graph.get_resource_infos() {
-            let resource = &resource_info.resource;
-            if let Resource::Code(resources::Code { id, kind, .. }) = resource {
-                let address = addresses.get(id).cloned();
-                let id = Some(id.clone());
-                let pointer = resolve(&mut *root, address.clone(), id.clone())?;
-
-                let before = pointer.to_node()?;
-                let mut after = before.clone();
-                match &mut after {
-                    Node::CodeChunk(CodeChunk {
-                        compile_digest,
-                        execute_digest,
-                        execute_required,
-                        ..
-                    })
-                    | Node::CodeExpression(CodeExpression {
-                        compile_digest,
-                        execute_digest,
-                        execute_required,
-                        ..
-                    }) => {
-                        if let Some(new_compile_digest) = resource_info.compile_digest.as_ref() {
-                            *compile_digest = Some(Box::new(Cord(new_compile_digest.to_string())));
-                            *execute_required = Some(match execute_digest {
-                                None => CodeExecutableExecuteRequired::NeverExecuted,
-                                Some(execute_digest) => {
-                                    let parts = execute_digest.0.split('.').collect::<Vec<&str>>();
-                                    if new_compile_digest.semantic_digest
-                                        != *parts.get(1).unwrap_or(&"")
-                                    {
-                                        CodeExecutableExecuteRequired::SemanticsChanged
-                                    } else if new_compile_digest.dependencies_digest
-                                        != *parts.get(2).unwrap_or(&"")
-                                    {
-                                        CodeExecutableExecuteRequired::DependenciesChanged
-                                    } else {
-                                        CodeExecutableExecuteRequired::No
-                                    }
-                                }
-                            })
-                        } else {
-                            tracing::warn!("The compile digest for a node was unexpectedly None");
-                        }
-                    }
-                    _ => {}
-                }
-
-                let mut patch = diff(&before, &after);
-                patch.address = address;
-                patch.target = id;
-                if !patch.is_empty() {
-                    patches.push(patch);
-                }
+        match compile(path, project, &mut *root.write().await, patch_sender) {
+            Ok((new_addresses, new_graph)) => {
+                *addresses.write().await = new_addresses;
+                *graph.write().await = new_graph;
+            }
+            Err(error) => {
+                tracing::error!("While compiling document `{}`: {}", id, error)
             }
         }
-
-        // Drop locks (before sending patches because patch task needs some of them)
-        drop(root);
-        drop(addresses);
-        drop(graph);
-
-        // Send patches (in the future we may send patches together as a single "transaction")
-        for patch in patches {
-            patch_sender.send(patch).await;
-        }
-
-        Ok(())
     }
 
     /// Execute the document, or a node within it, and publishing a patch of changes if there are any subscribers.
@@ -925,6 +865,7 @@ impl Document {
     pub async fn execute(&mut self, start: Option<String>) -> Result<()> {
         tracing::debug!("Executing document `{}`", self.id);
 
+        // Generate an execution plan
         // Need to translate the `start` node id into a resource to generate plan
         let start = start.map(|node_id| resources::code(&self.path, &node_id, "", None));
         let plan = self.graph.read().await.plan(start, None, None).await?;
@@ -938,6 +879,7 @@ impl Document {
             }
         });
 
+        // Execute the plan on the root node, sending on patches to the patching task
         execute(
             &plan,
             &mut *self.root.write().await,
@@ -995,41 +937,24 @@ impl Document {
         // TODO: Pass user options for reshaping through
         reshape(&mut root, None)?;
 
-        // Attempt to compile the `root` to assign ids (needed for HTML rendering and patching)
-        // and update intra- and inter- dependencies. No need to update `planner` now.
-        match compile(&mut root, &self.path, &self.project) {
-            Ok((addresses, resource_infos)) => {
-                *self.addresses.write().await = addresses;
-                *self.graph.write().await = Graph::from_resource_infos(&self.path, resource_infos)?;
-            }
-            Err(error) => tracing::warn!(
-                "While compiling document `{}`: {}",
-                self.path.display(),
-                error
-            ),
-        }
+        // Determine if the document is preview-able, based on the type of the root
+        // This list of types should be updated as HTML encoding is implemented for each.
+        self.previewable = matches!(
+            root,
+            Node::Article(..)
+                | Node::ImageObject(..)
+                | Node::AudioObject(..)
+                | Node::VideoObject(..)
+        );
 
-        // Publish any events for which there are subscriptions
+        // Generate a patch to update the current root (this will also recompile it)
+        let patch = diff(&*self.root.read().await, &root);
+        self.patch(patch).await?;
+
+        // Publish any events for which there are subscriptions (this will probably go elsewhere)
         for subscription in self.subscriptions.keys() {
-            // Generate a diff if there are any `patched` subscriptions
-            if subscription == "patched" {
-                tracing::debug!("Generating patch for document `{}`", self.id);
-                let current_root = &*self.root.read().await;
-                let mut patch = diff(current_root, &root);
-                patch.prepublish(&root);
-                publish(
-                    &["documents:", &self.id, ":patched"].concat(),
-                    &DocumentEvent {
-                        type_: DocumentEventType::Patched,
-                        document: self.repr(),
-                        content: None,
-                        format: None,
-                        patch: Some(patch),
-                    },
-                )
-            }
             // Encode the `root` into each of the formats for which there are subscriptions
-            else if let Some(format) = subscription.strip_prefix("encoded:") {
+            if let Some(format) = subscription.strip_prefix("encoded:") {
                 tracing::debug!("Encoding document `{}` to format `{}`", self.id, format);
                 match codecs::to_string(&root, format, None).await {
                     Ok(content) => {
@@ -1045,21 +970,6 @@ impl Document {
                 }
             }
         }
-
-        // Determine if the document is preview-able, based on the type of the root
-        // This list of types should be updated as HTML encoding is implemented for each.
-        self.previewable = matches!(
-            root,
-            Node::Article(..)
-                | Node::ImageObject(..)
-                | Node::AudioObject(..)
-                | Node::VideoObject(..)
-        );
-
-        // Now that we're done borrowing the root node for encoding to
-        // different formats, store it.
-        let self_root = &mut *self.root.write().await;
-        *self_root = root;
 
         Ok(())
     }

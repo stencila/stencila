@@ -9,7 +9,7 @@ use node_address::AddressMap;
 use node_patch::{diff, Patch};
 use node_pointer::resolve;
 use stencila_schema::Node;
-use tokio::sync::mpsc::Sender;
+use tokio::sync::mpsc::{Sender, UnboundedSender};
 
 use crate::Executable;
 
@@ -37,11 +37,12 @@ pub async fn execute(
     root: &mut Node,
     address_map: &AddressMap,
     resource_info_sender: Sender<ResourceInfo>,
-    patch_sender: Sender<Patch>,
+    patch_sender: UnboundedSender<Patch>,
     kernel_space: Option<Arc<KernelSpace>>,
 ) -> Result<()> {
     let kernel_space = kernel_space.unwrap_or_default();
 
+    // For each stage in plan...
     let stage_count = plan.stages.len();
     for (stage_index, stage) in plan.stages.iter().enumerate() {
         tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
@@ -128,7 +129,7 @@ pub async fn execute(
             }
 
             if !patch.is_empty() {
-                if let Err(error) = patch_sender.send(patch).await {
+                if let Err(error) = patch_sender.send(patch) {
                     tracing::debug!(
                         "When sending patch for step {} of stage {}: {}",
                         step_index + 1,

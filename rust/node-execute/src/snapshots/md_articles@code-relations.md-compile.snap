@@ -1,7 +1,7 @@
 ---
 source: rust/node-execute/src/lib.rs
-assertion_line: 60
-expression: "(&addresses, &resources)"
+assertion_line: 67
+expression: "(&addresses, &graph)"
 
 ---
 [
@@ -131,327 +131,295 @@ expression: "(&addresses, &resources)"
       5
     ]
   },
-  [
-    {
-      "resource": {
+  {
+    "nodes": [
+      {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "cc-1",
         "kind": "CodeChunk",
-        "language": "Calc"
+        "language": "Calc",
+        "dependencies": 0,
+        "depth": 0,
+        "compile_digest": "Tvt1ilqkzMqkbonWFun97yUtcI6unFBZMKXzFK3A0QQ.cSI6l7J-C3NXWHVLVurgbQlumKe3QjGqYN6zrFfMhMM..0",
+        "index": 0
       },
-      "relations": [
-        [
-          {
-            "type": "Assign",
-            "range": [
-              1,
-              0,
-              1,
-              1
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "a",
-            "kind": "Number"
-          }
-        ]
-      ],
-      "autorun": "Always",
-      "compile_digest": "Tvt1ilqkzMqkbonWFun97yUtcI6unFBZMKXzFK3A0QQ.cSI6l7J-C3NXWHVLVurgbQlumKe3QjGqYN6zrFfMhMM..0"
-    },
-    {
-      "resource": {
+      {
+        "type": "Symbol",
+        "path": "",
+        "name": "a",
+        "kind": "Number",
+        "dependencies": 1,
+        "depth": 1,
+        "compile_digest": "..i7oQYKCKb93FiTWkkLlMepPgbW12hJfbsMJ3nkRTbcU.1",
+        "index": 1
+      },
+      {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "cc-2",
         "kind": "CodeChunk",
-        "language": "Calc"
+        "language": "Calc",
+        "dependencies": 2,
+        "depth": 2,
+        "compile_digest": "GXkR7WzluQeHlWpgFstC1vLFs35veOtBe9QfEDuhjLI.nh_hPQhnXRlBiSBOhC-26iqBQeRPMBA4OJ1Ml9T33IY.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
+        "index": 2
       },
-      "relations": [
-        [
-          {
-            "type": "Use",
-            "range": [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "a",
-            "kind": "Number"
-          }
-        ]
-      ],
-      "autorun": "Needed",
-      "compile_digest": "GXkR7WzluQeHlWpgFstC1vLFs35veOtBe9QfEDuhjLI.nh_hPQhnXRlBiSBOhC-26iqBQeRPMBA4OJ1Ml9T33IY..0"
-    },
-    {
-      "resource": {
+      {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "ce-1",
         "kind": "CodeExpression",
-        "language": "Calc"
+        "language": "Calc",
+        "dependencies": 2,
+        "depth": 2,
+        "compile_digest": "5vFFLK9PlUPQ_3BqZ6mmkwOS6N3mAbgK2RgSSmMFCJ0.v8xJ_Bw14WouYXGUyTn2bePyCsd7eCYvhEmLHNimv10.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
+        "index": 3
       },
-      "relations": [
-        [
-          {
-            "type": "Use",
-            "range": [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "a",
-            "kind": "Number"
-          }
-        ]
-      ],
-      "autorun": "Needed",
-      "compile_digest": "5vFFLK9PlUPQ_3BqZ6mmkwOS6N3mAbgK2RgSSmMFCJ0.v8xJ_Bw14WouYXGUyTn2bePyCsd7eCYvhEmLHNimv10..0"
-    },
-    {
-      "resource": {
+      {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "ce-2",
         "kind": "CodeExpression",
-        "language": "Calc"
+        "language": "Calc",
+        "dependencies": 2,
+        "depth": 2,
+        "compile_digest": "MbSHMsqe4WgCFlwGviQpo7ie6BFo2eJXiebtlL8MBbI.u-ZxGlUEKMqo4UdU997v5JUeHzEbqxrxpiqqqKEjgBo.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
+        "index": 4
       },
-      "relations": [
-        [
-          {
-            "type": "Use",
-            "range": [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "a",
-            "kind": "Number"
-          }
-        ]
-      ],
-      "autorun": "Needed",
-      "compile_digest": "MbSHMsqe4WgCFlwGviQpo7ie6BFo2eJXiebtlL8MBbI.u-ZxGlUEKMqo4UdU997v5JUeHzEbqxrxpiqqqKEjgBo..0"
-    },
-    {
-      "resource": {
+      {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "cc-3",
         "kind": "CodeChunk",
-        "language": "Calc"
+        "language": "Calc",
+        "dependencies": 2,
+        "depth": 2,
+        "compile_digest": "8fu7AlpXiNp1R2KwSLy_SWs_iZzx8CY3eL-wVpofNAQ.nfQpoBKEuoIW8JVJVcp7gA35783IoA_ciPFWPFSaed8.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
+        "index": 5
       },
-      "relations": [
-        [
-          {
-            "type": "Assign",
-            "range": [
-              1,
-              0,
-              1,
-              1
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "b",
-            "kind": "Number"
-          }
-        ],
-        [
-          {
-            "type": "Use",
-            "range": [
-              1,
-              4,
-              1,
-              5
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "a",
-            "kind": "Number"
-          }
-        ]
-      ],
-      "autorun": "Never",
-      "compile_digest": "8fu7AlpXiNp1R2KwSLy_SWs_iZzx8CY3eL-wVpofNAQ.nfQpoBKEuoIW8JVJVcp7gA35783IoA_ciPFWPFSaed8..0"
-    },
-    {
-      "resource": {
+      {
+        "type": "Symbol",
+        "path": "",
+        "name": "b",
+        "kind": "Number",
+        "dependencies": 3,
+        "depth": 3,
+        "compile_digest": "..HGZaUBVRpv6a8McAXdvnwzXVv0dedhcArudMpYu5MYI.1",
+        "index": 6
+      },
+      {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "ce-3",
         "kind": "CodeExpression",
-        "language": "Calc"
+        "language": "Calc",
+        "dependencies": 4,
+        "depth": 4,
+        "compile_digest": "4wxAgWB65X0l0qR31Eezb9f6FRJ3J2VJATd5amdGD1o.NEwPns0Ln5AvblNQiOxE55WuSp3Lq1AcFVodSUvJiL8.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1",
+        "index": 7
       },
-      "relations": [
-        [
-          {
-            "type": "Use",
-            "range": [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "b",
-            "kind": "Number"
-          }
-        ]
-      ],
-      "autorun": "Needed",
-      "compile_digest": "4wxAgWB65X0l0qR31Eezb9f6FRJ3J2VJATd5amdGD1o.NEwPns0Ln5AvblNQiOxE55WuSp3Lq1AcFVodSUvJiL8..0"
-    },
-    {
-      "resource": {
+      {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "ce-4",
         "kind": "CodeExpression",
-        "language": "Calc"
+        "language": "Calc",
+        "dependencies": 4,
+        "depth": 4,
+        "compile_digest": "QKuMwjpkYoQH-jlp9EcheEeb38xk_Rf0UhOxgNmnnAk.G34cpLFC4Fi3PXZ5ql3bZ5_qpNPh7QGanFH7UBmOA7g.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1",
+        "index": 8
       },
-      "relations": [
-        [
-          {
-            "type": "Use",
-            "range": [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "b",
-            "kind": "Number"
-          }
-        ]
-      ],
-      "autorun": "Needed",
-      "compile_digest": "QKuMwjpkYoQH-jlp9EcheEeb38xk_Rf0UhOxgNmnnAk.G34cpLFC4Fi3PXZ5ql3bZ5_qpNPh7QGanFH7UBmOA7g..0"
-    },
-    {
-      "resource": {
+      {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "pa-1",
         "kind": "Parameter",
-        "language": "Calc"
+        "language": "Calc",
+        "dependencies": 0,
+        "depth": 0,
+        "compile_digest": "2WNjsxCw2xv5pmIhNjxeHblGNCqUVQAMjlcd3thqWoA.OK3HQRbU6F4AzHJV7c4ecasJHauR23oKIwqeKCslXoE..0",
+        "index": 9
       },
-      "relations": [
-        [
-          {
-            "type": "Assign",
-            "range": [
-              0,
-              0,
-              0,
-              0
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "c",
-            "kind": "Number"
-          }
-        ]
-      ],
-      "autorun": "Needed",
-      "compile_digest": "2WNjsxCw2xv5pmIhNjxeHblGNCqUVQAMjlcd3thqWoA.OK3HQRbU6F4AzHJV7c4ecasJHauR23oKIwqeKCslXoE..0"
-    },
-    {
-      "resource": {
+      {
+        "type": "Symbol",
+        "path": "",
+        "name": "c",
+        "kind": "Number",
+        "dependencies": 1,
+        "depth": 1,
+        "compile_digest": "..iyTcJmiIN1Kk4z4mZ7368l7PW5PoLawoTCA6JNH47kQ.1",
+        "index": 10
+      },
+      {
         "type": "Code",
         "path": "articles/code-relations.md",
         "id": "cc-4",
         "kind": "CodeChunk",
-        "language": "Calc"
+        "language": "Calc",
+        "dependencies": 6,
+        "depth": 4,
+        "compile_digest": "gb5HoVcTF46uTQDbkikofGxBKPtBmF74X8w0Z-S9gzk.M6AC6G3o9zXmDvh2_Zw0SZXwdm8ihrO9A1kRbEFlwm0.iHdGgGRifAVlA4p5T25ajwR0rVMlpiXFyHZsuVjyfQs.3",
+        "index": 11
+      }
+    ],
+    "edges": [
+      {
+        "from": 0,
+        "to": 1,
+        "relation": {
+          "type": "Assign",
+          "range": [
+            1,
+            0,
+            1,
+            1
+          ]
+        }
       },
-      "relations": [
-        [
-          {
-            "type": "Use",
-            "range": [
-              0,
-              0,
-              0,
-              1
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "a",
-            "kind": "Number"
-          }
-        ],
-        [
-          {
-            "type": "Use",
-            "range": [
-              0,
-              4,
-              0,
-              5
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "b",
-            "kind": "Number"
-          }
-        ],
-        [
-          {
-            "type": "Use",
-            "range": [
-              0,
-              8,
-              0,
-              9
-            ]
-          },
-          {
-            "type": "Symbol",
-            "path": "articles/code-relations.md",
-            "name": "c",
-            "kind": "Number"
-          }
-        ]
-      ],
-      "autorun": "Needed",
-      "compile_digest": "gb5HoVcTF46uTQDbkikofGxBKPtBmF74X8w0Z-S9gzk.M6AC6G3o9zXmDvh2_Zw0SZXwdm8ihrO9A1kRbEFlwm0..0"
-    }
-  ]
+      {
+        "from": 1,
+        "to": 2,
+        "relation": {
+          "type": "Use",
+          "range": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      {
+        "from": 1,
+        "to": 3,
+        "relation": {
+          "type": "Use",
+          "range": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      {
+        "from": 1,
+        "to": 4,
+        "relation": {
+          "type": "Use",
+          "range": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      {
+        "from": 5,
+        "to": 6,
+        "relation": {
+          "type": "Assign",
+          "range": [
+            1,
+            0,
+            1,
+            1
+          ]
+        }
+      },
+      {
+        "from": 1,
+        "to": 5,
+        "relation": {
+          "type": "Use",
+          "range": [
+            1,
+            4,
+            1,
+            5
+          ]
+        }
+      },
+      {
+        "from": 6,
+        "to": 7,
+        "relation": {
+          "type": "Use",
+          "range": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      {
+        "from": 6,
+        "to": 8,
+        "relation": {
+          "type": "Use",
+          "range": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      {
+        "from": 9,
+        "to": 10,
+        "relation": {
+          "type": "Assign",
+          "range": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      {
+        "from": 1,
+        "to": 11,
+        "relation": {
+          "type": "Use",
+          "range": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      {
+        "from": 6,
+        "to": 11,
+        "relation": {
+          "type": "Use",
+          "range": [
+            0,
+            4,
+            0,
+            5
+          ]
+        }
+      },
+      {
+        "from": 10,
+        "to": 11,
+        "relation": {
+          "type": "Use",
+          "range": [
+            0,
+            8,
+            0,
+            9
+          ]
+        }
+      }
+    ]
+  }
 ]
