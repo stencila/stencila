@@ -51,10 +51,12 @@ pub fn apply_tags(
     for (index, line) in comment.lines().enumerate() {
         let range = (row + index, 0, row + index, line.len() - 1);
         if let Some(captures) = REGEX_TAGS.captures(line) {
-            let tag = captures[1].to_string();
-            let args = captures[2].trim();
+            let tag = captures.get(1).map_or_else(|| "", |group| group.as_str());
+            let args = captures
+                .get(2)
+                .map_or_else(|| "", |group| group.as_str().trim());
 
-            let relation = match tag.as_str() {
+            let relation = match tag {
                 "pure" | "impure" => {
                     resource_info.pure = Some(tag == "pure");
                     continue;
@@ -87,11 +89,11 @@ pub fn apply_tags(
 
             for arg in args {
                 if arg == "only" {
-                    onlies.push(tag.clone());
+                    onlies.push(tag.to_string());
                     continue;
                 }
 
-                let resource = match tag.as_str() {
+                let resource = match tag {
                     "imports" => resources::module(lang, &arg),
                     "assigns" | "alters" | "uses" => {
                         resources::symbol(path, &arg, &kind.clone().unwrap_or_default())
