@@ -89,6 +89,8 @@ patchable_struct!(
     errors,
     label,
     caption,
+    code_dependencies,
+    code_dependents,
     compile_digest,
     execute_digest,
     execute_required,
@@ -102,6 +104,17 @@ patchable_variants!(
     CodeChunkCaption::String
 );
 patchable_struct!(CodeError, error_message, error_type, stack_trace);
+patchable_variants!(
+    CodeExecutableCodeDependencies,
+    CodeExecutableCodeDependencies::CodeChunk,
+    CodeExecutableCodeDependencies::CodeExpression,
+    CodeExecutableCodeDependencies::Parameter
+);
+patchable_variants!(
+    CodeExecutableCodeDependents,
+    CodeExecutableCodeDependents::CodeChunk,
+    CodeExecutableCodeDependents::CodeExpression
+);
 patchable_enum!(CodeExecutableExecuteRequired);
 patchable_enum!(CodeExecutableExecuteStatus);
 

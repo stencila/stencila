@@ -128,6 +128,23 @@ impl ToHtml for CodeChunk {
             &self.text.to_html(context),
         );
 
+        let dependencies = elem_placeholder(
+            "stencila-code-dependencies",
+            &[
+                attr_prop("code-dependencies"),
+                attr_slot("code-dependencies"),
+            ],
+            &self.code_dependencies,
+            context,
+        );
+
+        let dependents = elem_placeholder(
+            "stencila-code-dependents",
+            &[attr_prop("code-dependents"), attr_slot("code-dependents")],
+            &self.code_dependents,
+            context,
+        );
+
         let outputs = elem_placeholder(
             "div",
             &[attr_prop("outputs"), attr_slot("outputs")],
@@ -178,6 +195,8 @@ impl ToHtml for CodeChunk {
                 execute_ended.1,
                 execute_duration.1,
                 text,
+                dependencies,
+                dependents,
                 outputs,
                 errors,
                 label,

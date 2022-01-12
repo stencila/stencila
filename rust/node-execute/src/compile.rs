@@ -5,8 +5,11 @@ use graph_triples::{resources, Resource};
 use node_address::{Address, AddressMap};
 use node_patch::{diff, Patch};
 use node_pointer::resolve;
-use std::path::Path;
-use stencila_schema::{CodeChunk, CodeExecutableExecuteRequired, CodeExpression, Cord, Node};
+use std::{collections::HashMap, path::Path};
+use stencila_schema::{
+    CodeChunk, CodeExecutableCodeDependencies, CodeExecutableCodeDependents,
+    CodeExecutableExecuteRequired, CodeExpression, Cord, Node, Parameter,
+};
 use tokio::sync::mpsc::UnboundedSender;
 
 /// Compile a node
@@ -46,67 +49,171 @@ pub fn compile(
     root.compile(&mut address, &mut context)?;
     let (address_map, resource_infos) = (context.addresses, context.resources);
 
-    // Construct a `Graph` from the collected `ResourceInfo`s
+    // Construct a `Graph` from the collected `ResourceInfo`s and get an updated
+    // set of resource infos
     let mut graph = Graph::from_resource_infos(path, resource_infos)?;
+    let resource_infos = graph.get_resource_infos();
 
-    // Calculate the patches required to root to reflect the compilation done by the graph
-    // and send them on for handling
-    for resource_info in graph.get_resource_infos() {
-        let resource = &resource_info.resource;
-        if let Resource::Code(resources::Code { id, .. }) = resource {
-            let address = address_map.get(id).cloned();
-            let id = Some(id.clone());
-            let pointer = resolve(&mut *root, address.clone(), id.clone())?;
+    // Collect the nodes and the values of their updated properties
+    let nodes: HashMap<String, _> = resource_infos
+        .iter()
+        .filter_map(|(resource, resource_info)| {
+            if let Resource::Code(resources::Code { id: node_id, .. }) = resource {
+                let address = address_map.get(node_id).cloned();
+                let node = if let Ok(node) =
+                    resolve(&mut *root, address.clone(), Some(node_id.clone()))
+                        .and_then(|pointer| pointer.to_node())
+                {
+                    node
+                } else {
+                    tracing::warn!("Unable to resolve node `{}`", node_id);
+                    return None;
+                };
 
-            let before = pointer.to_node()?;
-            let mut after = before.clone();
-            match &mut after {
-                Node::CodeChunk(CodeChunk {
-                    compile_digest,
-                    execute_digest,
-                    execute_required,
-                    ..
-                })
-                | Node::CodeExpression(CodeExpression {
-                    compile_digest,
-                    execute_digest,
-                    execute_required,
-                    ..
-                }) => {
-                    if let Some(new_compile_digest) = resource_info.compile_digest.as_ref() {
-                        *compile_digest = Some(Box::new(Cord(new_compile_digest.to_string())));
-                        *execute_required = Some(match execute_digest {
-                            None => CodeExecutableExecuteRequired::NeverExecuted,
-                            Some(execute_digest) => {
-                                let parts = execute_digest.0.split('.').collect::<Vec<&str>>();
-                                if new_compile_digest.semantic_digest
-                                    != *parts.get(1).unwrap_or(&"")
-                                {
-                                    CodeExecutableExecuteRequired::SemanticsChanged
-                                } else if new_compile_digest.dependencies_digest
-                                    != *parts.get(2).unwrap_or(&"")
-                                {
-                                    CodeExecutableExecuteRequired::DependenciesChanged
-                                } else {
-                                    CodeExecutableExecuteRequired::No
-                                }
+                let dependencies: Vec<String> = resource_info
+                    .dependencies
+                    .iter()
+                    .flatten()
+                    .filter_map(|resource| resource.node_id())
+                    .collect();
+
+                let dependents: Vec<String> = resource_info
+                    .dependents
+                    .iter()
+                    .flatten()
+                    .filter_map(|resource| resource.node_id())
+                    .collect();
+
+                let (compile_digest, execute_required) = if let Some(compile_digest) =
+                    &resource_info.compile_digest
+                {
+                    let execute_required = match &resource_info.execute_digest {
+                        None => CodeExecutableExecuteRequired::NeverExecuted,
+                        Some(execute_digest) => {
+                            if compile_digest.semantic_digest != execute_digest.semantic_digest {
+                                CodeExecutableExecuteRequired::SemanticsChanged
+                            } else if compile_digest.dependencies_digest
+                                != execute_digest.dependencies_digest
+                            {
+                                CodeExecutableExecuteRequired::DependenciesChanged
+                            } else {
+                                CodeExecutableExecuteRequired::No
                             }
-                        })
-                    } else {
-                        tracing::warn!("The compile digest for a node was unexpectedly None");
-                    }
-                }
-                _ => {}
+                        }
+                    };
+                    let compile_digest = Box::new(Cord(compile_digest.to_string()));
+                    (compile_digest, execute_required)
+                } else {
+                    tracing::warn!(
+                        "Compile digest was unexpectedly missing for node `{}`",
+                        node_id
+                    );
+                    return None;
+                };
+
+                Some((
+                    node_id.clone(),
+                    (
+                        address,
+                        node,
+                        dependencies,
+                        dependents,
+                        compile_digest,
+                        execute_required,
+                    ),
+                ))
+            } else {
+                None
             }
+        })
+        .collect();
 
-            let mut patch = diff(&before, &after);
-            patch.address = address;
-            patch.target = id;
-
-            if !patch.is_empty() {
-                if let Err(error) = patch_sender.send(patch) {
-                    tracing::debug!("When sending patch during compilation: {}", error);
+    // Derive some more properties from the first set, apply the new properties to the node, calculate patches and send them
+    // over `patch_sender` for application.
+    for (
+        node_id,
+        (address, node, dependencies, dependents, new_compile_digest, new_execute_required),
+    ) in &nodes
+    {
+        let dependencies = dependencies
+            .iter()
+            .filter_map(|node_id| nodes.get(node_id))
+            .filter_map(|(_address, node, .., execute_required)| match node {
+                Node::CodeChunk(node) => {
+                    Some(CodeExecutableCodeDependencies::CodeChunk(CodeChunk {
+                        id: node.id.clone(),
+                        programming_language: node.programming_language.clone(),
+                        execute_required: Some(execute_required.clone()),
+                        execute_status: node.execute_status.clone(),
+                        ..Default::default()
+                    }))
                 }
+                Node::Parameter(node) => {
+                    Some(CodeExecutableCodeDependencies::Parameter(Parameter {
+                        id: node.id.clone(),
+                        name: node.name.clone(),
+                        ..Default::default()
+                    }))
+                }
+                _ => None,
+            })
+            .collect();
+
+        let dependents = dependents
+            .iter()
+            .filter_map(|node_id| nodes.get(node_id))
+            .filter_map(|(_address, .., execute_required)| match node {
+                Node::CodeChunk(node) => Some(CodeExecutableCodeDependents::CodeChunk(CodeChunk {
+                    id: node.id.clone(),
+                    programming_language: node.programming_language.clone(),
+                    execute_required: Some(execute_required.clone()),
+                    execute_status: node.execute_status.clone(),
+                    ..Default::default()
+                })),
+                Node::CodeExpression(node) => Some(CodeExecutableCodeDependents::CodeExpression(
+                    CodeExpression {
+                        id: node.id.clone(),
+                        programming_language: node.programming_language.clone(),
+                        execute_required: Some(execute_required.clone()),
+                        execute_status: node.execute_status.clone(),
+                        ..Default::default()
+                    },
+                )),
+                _ => None,
+            })
+            .collect();
+
+        let mut after = node.clone();
+        match &mut after {
+            Node::CodeChunk(CodeChunk {
+                code_dependencies,
+                code_dependents,
+                compile_digest,
+                execute_required,
+                ..
+            })
+            | Node::CodeExpression(CodeExpression {
+                code_dependencies,
+                code_dependents,
+                compile_digest,
+                execute_required,
+                ..
+            }) => {
+                *code_dependencies = Some(dependencies);
+                *code_dependents = Some(dependents);
+                *compile_digest = Some(new_compile_digest.clone());
+                *execute_required = Some(new_execute_required.clone());
+            }
+            _ => (),
+        }
+
+        let mut patch = diff(node, &after);
+        patch.target = Some(node_id.clone());
+        patch.address = address.clone();
+
+        if !patch.is_empty() {
+            if let Err(error) = patch_sender.send(patch) {
+                tracing::debug!("When sending patch during compilation: {}", error);
             }
         }
     }

@@ -381,6 +381,16 @@ impl ToHtml for CodeExpression {
             &self.text.to_html(context),
         );
 
+        let dependencies = elem_placeholder(
+            "stencila-code-dependencies",
+            &[
+                attr_prop("code-dependencies"),
+                attr_slot("code-dependencies"),
+            ],
+            &self.code_dependencies,
+            context,
+        );
+
         let output = elem_placeholder(
             "output",
             &[attr_prop("output"), attr_slot("output")],
@@ -417,6 +427,7 @@ impl ToHtml for CodeExpression {
                 execute_ended.1,
                 execute_duration.1,
                 text,
+                dependencies,
                 output,
                 errors,
             ]

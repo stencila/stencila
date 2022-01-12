@@ -285,9 +285,13 @@ impl Operation {
             InlineContent
             BlockContent
 
-            // Child types of the above
+            // Types related to compilation and execution
+            CodeExecutableCodeDependencies
+            CodeExecutableCodeDependents
             CodeExecutableExecuteRequired
             CodeExecutableExecuteStatus
+
+            // Child types of the above
             ListItem
             TableCaption
             TableRow
@@ -368,6 +372,10 @@ impl Operation {
             // Main content types
             InlineContent
             BlockContent
+
+            // Types related to compilation of code
+            CodeExecutableCodeDependencies
+            CodeExecutableCodeDependents
 
             // Child types of the above
             ListItem
