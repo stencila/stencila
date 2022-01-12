@@ -37,9 +37,9 @@ impl ToHtml for CodeExecutableCodeDependencies {
             CodeExecutableCodeDependencies::Parameter(Parameter { id, name, .. }) => {
                 ("Parameter", id, &None, &None, Some(name.as_str()))
             },
-            // `CodeExpression` nodes should not assign anything so should be a variant
-            // here; if they are just ignore.
-            CodeExecutableCodeDependencies::CodeExpression(..) => return ""
+            // `CodeExpression` nodes should not assign anything so should not actually be a 
+            // `CodeExecutableCodeDependencies` variant; so just ignore.
+            CodeExecutableCodeDependencies::CodeExpression(..) => return "".to_string()
         };
         elem(
             "stencila-code-dependency",
