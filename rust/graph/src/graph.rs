@@ -11,7 +11,7 @@ use petgraph::{
     graph::NodeIndex,
     stable_graph::StableGraph,
     visit::{self, EdgeRef, IntoEdgeReferences, IntoNodeReferences},
-    EdgeDirection::Incoming,
+    EdgeDirection::{Incoming, Outgoing},
 };
 use schemars::{
     gen::SchemaGenerator,
@@ -99,13 +99,18 @@ impl Serialize for Graph {
                     obj.insert("path".to_string(), json!(path));
                 }
 
-                // Add info from `resources`
+                // Merge in fields from resource info but skip info already there or implicit
+                // in the graph
                 if let Some(resource_info) = self.resources.get(resource) {
+                    obj.insert("autorun".to_string(), json!(resource_info.autorun));
                     if let Some(pure) = resource_info.pure {
                         obj.insert("pure".to_string(), json!(pure));
                     }
                     if let Some(dependencies) = &resource_info.dependencies {
                         obj.insert("dependencies".to_string(), json!(dependencies.len()));
+                    }
+                    if let Some(dependents) = &resource_info.dependents {
+                        obj.insert("dependents".to_string(), json!(dependents.len()));
                     }
                     if let Some(depth) = resource_info.depth {
                         obj.insert("depth".to_string(), json!(depth));
@@ -119,6 +124,7 @@ impl Serialize for Graph {
                 }
 
                 obj.insert("index".to_string(), json!(index));
+
                 json!(obj)
             })
             .collect();
@@ -292,7 +298,7 @@ impl Graph {
         }
     }
 
-    /// Update the graph, usually in response to a change in one of it's resources
+    /// Update the graph
     ///
     /// # Arguments
     ///
@@ -385,6 +391,12 @@ impl Graph {
                 false => String::default(),
             };
 
+            // Update the list of direct dependents
+            let dependants = graph
+                .neighbors_directed(node_index, Outgoing)
+                .map(|outgoing_index| graph[outgoing_index].clone())
+                .collect();
+
             // Get the resource info we're about to update
             let resource_info = self
                 .resources
@@ -392,6 +404,7 @@ impl Graph {
                 .ok_or_else(|| eyre!("No info for resource"))?;
 
             resource_info.dependencies = Some(dependencies);
+            resource_info.dependents = Some(dependants);
             resource_info.depth = Some(depth);
 
             // Update the compile digest, or create one if there isn't one already.

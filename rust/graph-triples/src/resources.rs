@@ -281,6 +281,13 @@ pub struct ResourceInfo {
     /// a resource's dependencies need to be executed as well.
     pub dependencies: Option<Vec<Resource>>,
 
+    /// The direct dependents of the resource
+    ///
+    /// Derived during graph `update()`.
+    /// However, since that is done in topological order, we are unable to get all dependents.
+    /// Doing so would require `update()` to be more time consuming, so at this stage we're avoiding that.
+    pub dependents: Option<Vec<Resource>>,
+
     /// The depth of the resource in the dependency graph.
     ///
     /// Derived during graph `update()` from the depths of the
@@ -318,6 +325,7 @@ impl ResourceInfo {
             resource,
             relations: None,
             dependencies: None,
+            dependents: None,
             depth: None,
             autorun: ResourceAutorun::Needed,
             pure: None,
@@ -339,6 +347,7 @@ impl ResourceInfo {
             resource,
             relations,
             dependencies: None,
+            dependents: None,
             depth: None,
             autorun: autorun.unwrap_or(ResourceAutorun::Needed),
             pure,

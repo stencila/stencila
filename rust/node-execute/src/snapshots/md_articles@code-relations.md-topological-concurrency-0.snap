@@ -1,6 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
-assertion_line: 104
+assertion_line: 107
 expression: "&plan"
 
 ---
@@ -41,6 +41,14 @@ expression: "&plan"
               ]
             ],
             "dependencies": [],
+            "dependents": [
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "c",
+                "kind": "Number"
+              }
+            ],
             "depth": 0,
             "autorun": "Needed",
             "compile_digest": "2WNjsxCw2xv5pmIhNjxeHblGNCqUVQAMjlcd3thqWoA.OK3HQRbU6F4AzHJV7c4ecasJHauR23oKIwqeKCslXoE..0"
@@ -81,6 +89,14 @@ expression: "&plan"
               ]
             ],
             "dependencies": [],
+            "dependents": [
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              }
+            ],
             "depth": 0,
             "autorun": "Always",
             "compile_digest": "Tvt1ilqkzMqkbonWFun97yUtcI6unFBZMKXzFK3A0QQ.cSI6l7J-C3NXWHVLVurgbQlumKe3QjGqYN6zrFfMhMM..0"
@@ -135,6 +151,7 @@ expression: "&plan"
                 "kind": "Number"
               }
             ],
+            "dependents": [],
             "depth": 2,
             "autorun": "Needed",
             "compile_digest": "GXkR7WzluQeHlWpgFstC1vLFs35veOtBe9QfEDuhjLI.nh_hPQhnXRlBiSBOhC-26iqBQeRPMBA4OJ1Ml9T33IY.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1"
@@ -189,6 +206,7 @@ expression: "&plan"
                 "kind": "Number"
               }
             ],
+            "dependents": [],
             "depth": 2,
             "autorun": "Needed",
             "compile_digest": "5vFFLK9PlUPQ_3BqZ6mmkwOS6N3mAbgK2RgSSmMFCJ0.v8xJ_Bw14WouYXGUyTn2bePyCsd7eCYvhEmLHNimv10.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1"
@@ -243,6 +261,7 @@ expression: "&plan"
                 "kind": "Number"
               }
             ],
+            "dependents": [],
             "depth": 2,
             "autorun": "Needed",
             "compile_digest": "MbSHMsqe4WgCFlwGviQpo7ie6BFo2eJXiebtlL8MBbI.u-ZxGlUEKMqo4UdU997v5JUeHzEbqxrxpiqqqKEjgBo.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1"
@@ -314,6 +333,14 @@ expression: "&plan"
                 "kind": "Number"
               }
             ],
+            "dependents": [
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
+                "kind": "Number"
+              }
+            ],
             "depth": 2,
             "autorun": "Never",
             "compile_digest": "8fu7AlpXiNp1R2KwSLy_SWs_iZzx8CY3eL-wVpofNAQ.nfQpoBKEuoIW8JVJVcp7gA35783IoA_ciPFWPFSaed8.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1"
@@ -381,6 +408,7 @@ expression: "&plan"
                 "kind": "Number"
               }
             ],
+            "dependents": [],
             "depth": 4,
             "autorun": "Needed",
             "compile_digest": "4wxAgWB65X0l0qR31Eezb9f6FRJ3J2VJATd5amdGD1o.NEwPns0Ln5AvblNQiOxE55WuSp3Lq1AcFVodSUvJiL8.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1"
@@ -448,6 +476,7 @@ expression: "&plan"
                 "kind": "Number"
               }
             ],
+            "dependents": [],
             "depth": 4,
             "autorun": "Needed",
             "compile_digest": "QKuMwjpkYoQH-jlp9EcheEeb38xk_Rf0UhOxgNmnnAk.G34cpLFC4Fi3PXZ5ql3bZ5_qpNPh7QGanFH7UBmOA7g.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1"
@@ -562,6 +591,7 @@ expression: "&plan"
                 "kind": "Number"
               }
             ],
+            "dependents": [],
             "depth": 4,
             "autorun": "Needed",
             "compile_digest": "gb5HoVcTF46uTQDbkikofGxBKPtBmF74X8w0Z-S9gzk.M6AC6G3o9zXmDvh2_Zw0SZXwdm8ihrO9A1kRbEFlwm0.iHdGgGRifAVlA4p5T25ajwR0rVMlpiXFyHZsuVjyfQs.3"
