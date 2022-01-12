@@ -158,6 +158,9 @@ mod tests {
             )
             .await?;
 
+            drop(resource_info_sender);
+            drop(patch_sender);
+
             let patches = patches.await?;
             snapshot_set_suffix(&[name, "-patches"].concat(), || {
                 assert_json_snapshot!(&patches);
