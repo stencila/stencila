@@ -1,4 +1,4 @@
-use crate::{Pointable, Pointer};
+use crate::{Pointable, Pointer, PointerMut};
 use eyre::{bail, Result};
 use node_address::Address;
 use stencila_schema::*;
