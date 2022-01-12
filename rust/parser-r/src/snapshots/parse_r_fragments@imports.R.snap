@@ -1,5 +1,6 @@
 ---
 source: rust/parser-r/src/lib.rs
+assertion_line: 266
 expression: resource_info
 input_file: fixtures/fragments/r/imports.R
 
@@ -128,5 +129,6 @@ input_file: fixtures/fragments/r/imports.R
       }
     ]
   ],
+  "autorun": "Needed",
   "compile_digest": "Ll0ywdE07LibFFLVWu0h1o4Ecn-KxJziVawQBehNOOQ.i7mcuY4HODPZm4gA8C5TMq4qe9sPBglxyTbFF5V-u_Q..0"
 }
