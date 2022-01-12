@@ -13,7 +13,7 @@ input_file: fixtures/nodes/code-chunk.json
   <stencila-code-dependents data-itemprop="codeDependents" slot="code-dependents">
   </stencila-code-dependents>
   <div data-itemprop="outputs" slot="outputs">
-    <pre itemtype="http://schema.org/Text" itemscope>a string output</pre>
+    <span itemtype="http://schema.org/Text" itemscope>a string output</span>
     <span itemtype="http://schema.stenci.la/Boolean" itemscope>true</span>
     <span itemtype="http://schema.stenci.la/Integer" itemscope>42</span>
     <span itemtype="http://schema.stenci.la/Number" itemscope>1.23</span>

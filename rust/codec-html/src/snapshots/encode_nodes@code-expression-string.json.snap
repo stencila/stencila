@@ -11,7 +11,7 @@ input_file: fixtures/nodes/code-expression-string.json
   <stencila-code-dependencies data-itemprop="codeDependencies" slot="code-dependencies">
   </stencila-code-dependencies>
   <output data-itemprop="output" slot="output">
-    <pre itemtype="http://schema.org/Text" itemscope>foo</pre>
+    <span itemtype="http://schema.org/Text" itemscope>foo</span>
   </output>
   <span data-itemprop="errors" slot="errors">
   </span>
