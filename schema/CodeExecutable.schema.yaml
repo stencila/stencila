@@ -47,8 +47,10 @@ properties:
       - NeverExecuted
       - SemanticsChanged
       - DependenciesChanged
+      - DependenciesFailed
     $comment: |
-      Derived from a comparison of `compileDigest` and `executeDigest`.
+      Derived from a comparison of `compileDigest` and `executeDigest` and the `executeStatus`
+      of dependencies.
       `No`: no re-execution is required, the semantics of the code and its dependencies has not changed
       since it was last executed.
       `NeverExecuted`: execution is required because the code has never been executed (or any previous
@@ -57,6 +59,8 @@ properties:
       last executed.
       `DependenciesChanged`: the semantics of one or more dependencies (including transitive dependencies) 
       changed since it was last executed.
+      `DependenciesFailed`: one or more dependencies (including transitive dependencies) failed when it was
+      last executed.
   executeStatus:
     '@id': stencila:executeStatus
     description: Status of the last execution of the code.
