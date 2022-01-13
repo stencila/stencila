@@ -16,8 +16,10 @@ properties:
     items:
       anyOf:
         - $ref: CodeChunk
-        - $ref: CodeExpression
         - $ref: Parameter
+    $comment: |
+      Note that this excludes `CodeExpression` nodes since they should not have side effects
+      (e.g. assigning variables) that would cause another node to be dependent upon them.
   codeDependents:
     '@id': stencila:codeDependents
     description: The downstream dependents of the code.
