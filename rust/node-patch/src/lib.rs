@@ -1,7 +1,7 @@
 use defaults::Defaults;
 use eyre::{bail, Result};
 use node_address::{Address, Slot};
-use node_pointer::{resolve, Pointable};
+use node_pointer::{resolve_mut, Pointable};
 use schemars::JsonSchema;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -78,7 +78,7 @@ where
     Type: Patchable + Pointable,
 {
     if patch.address.is_some() || patch.target.is_some() {
-        let mut pointer = resolve(node, patch.address.clone(), patch.target.clone())?;
+        let mut pointer = resolve_mut(node, patch.address.clone(), patch.target.clone())?;
         if let Some(inline) = pointer.as_inline_mut() {
             inline.apply_patch(patch)
         } else if let Some(block) = pointer.as_block_mut() {
