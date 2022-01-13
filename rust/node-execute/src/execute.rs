@@ -9,11 +9,18 @@ use node_address::AddressMap;
 use node_patch::{diff, Patch};
 use node_pointer::resolve;
 use stencila_schema::Node;
-use tokio::sync::mpsc::{Sender, UnboundedSender};
+use tokio::sync::{
+    mpsc::{Sender, UnboundedSender},
+    RwLock,
+};
 
 use crate::Executable;
 
 /// Execute a [`Plan`] on a [`Node`]
+/// 
+/// Uses a a `RwLock` for `root` and `address_map` so that locks can be held for as short as
+/// time as possible (i.e. not while waiting for execution of tasks, which is what would
+/// happen if held by the caller).
 ///
 /// # Arguments
 ///
@@ -34,8 +41,8 @@ use crate::Executable;
 ///
 pub async fn execute(
     plan: &Plan,
-    root: &mut Node,
-    address_map: &AddressMap,
+    root: &Arc<RwLock<Node>>,
+    address_map: &Arc<RwLock<AddressMap>>,
     resource_info_sender: &Sender<ResourceInfo>,
     patch_sender: &UnboundedSender<Patch>,
     kernel_space: Option<Arc<KernelSpace>>,
@@ -50,6 +57,9 @@ pub async fn execute(
         // Create a kernel task for each step in this stage
         let step_count = stage.steps.len();
         let mut futures = Vec::with_capacity(step_count);
+        // Get locks
+        let root = root.read().await;
+        let address_map = address_map.read().await;
         for (step_index, step) in stage.steps.iter().enumerate() {
             // Get a pointer to the step's node from the root node
             let node_id = step
@@ -59,7 +69,7 @@ pub async fn execute(
                 .ok_or_else(|| eyre!("Expected to get code id for resource"))?;
             let node_address = address_map.get(&node_id).cloned();
             let node_id = Some(node_id.clone());
-            let pointer = resolve(root, node_address.clone(), node_id.clone())?;
+            let pointer = resolve(&*root, node_address.clone(), node_id.clone())?;
 
             // Create a copy of the node that can be moved to the async task and create clones
             // of other variables needed to execute the task
@@ -101,9 +111,13 @@ pub async fn execute(
             };
             futures.push(future);
         }
+        // Release locks
+        drop(root);
+        drop(address_map);
 
         // Spawn all tasks in the stage and wait for each to finish, sending on the resultant `Patch`
         // for application and publishing (if it is not empty)
+        // TODO: Replace `FuturesUnordered` with `TaskSet`. See https://news.ycombinator.com/item?id=29912386
         let mut results = futures
             .into_iter()
             .map(tokio::spawn)

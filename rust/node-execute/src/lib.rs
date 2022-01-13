@@ -12,6 +12,8 @@ pub use execute::*;
 
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use super::*;
     use codec::CodecTrait;
     use codec_md::MdCodec;
@@ -26,7 +28,7 @@ mod tests {
         insta::{self, assert_json_snapshot},
         snapshot_set_suffix,
     };
-    use tokio::sync::mpsc;
+    use tokio::sync::{mpsc, RwLock};
 
     /// Higher level tests of the top level functions in this crate
     #[tokio::test]
@@ -49,7 +51,7 @@ mod tests {
             let path = fixtures.join("articles").join(name);
 
             // Load the article
-            let mut root = MdCodec::from_path(&path, None).await?;
+            let root = Arc::new(RwLock::new(MdCodec::from_path(&path, None).await?));
 
             // Strip the fixtures path so it does not differ between machines
             let path = path.strip_prefix(&fixtures)?;
@@ -62,7 +64,7 @@ mod tests {
                     // Ignore for this test
                 }
             });
-            let (addresses, graph) = compile(path, project, &mut root, &patch_sender)?;
+            let (addresses, graph) = compile(path, project, &root, &patch_sender).await?;
             snapshot_set_suffix(&[name, "-compile"].concat(), || {
                 assert_json_snapshot!((&addresses, &graph))
             });
@@ -150,8 +152,8 @@ mod tests {
 
             execute(
                 &plan,
-                &mut root,
-                &addresses,
+                &root,
+                &Arc::new(RwLock::new(addresses)),
                 &resource_info_sender,
                 &patch_sender,
                 None,

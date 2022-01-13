@@ -5,12 +5,12 @@ use graph_triples::{resources, Resource};
 use node_address::{Address, AddressMap};
 use node_patch::{diff_address, Patch};
 use node_pointer::resolve;
-use std::{collections::HashMap, path::Path};
+use std::{collections::HashMap, path::Path, sync::Arc};
 use stencila_schema::{
     CodeChunk, CodeExecutableCodeDependencies, CodeExecutableCodeDependents,
     CodeExecutableExecuteRequired, CodeExpression, Cord, Node, Parameter,
 };
-use tokio::sync::mpsc::UnboundedSender;
+use tokio::sync::{mpsc::UnboundedSender, RwLock};
 
 /// Compile a node, usually the `root` node of a document
 ///
@@ -24,6 +24,9 @@ use tokio::sync::mpsc::UnboundedSender;
 /// - for executable nodes (e.g. `CodeChunk`) performing semantic analysis of the code
 ///
 /// - determining dependencies within and between documents and other resources
+/// 
+/// Uses a `RwLock` for `root` so that locks can be held for as short as
+/// time as possible and for consistency with the `execute` function.
 ///
 /// # Arguments
 ///
@@ -35,18 +38,16 @@ use tokio::sync::mpsc::UnboundedSender;
 ///
 /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
 ///                   executed nodes
-///
-#[tracing::instrument(skip(root))]
-pub fn compile(
+pub async fn compile(
     path: &Path,
     project: &Path,
-    root: &mut Node,
+    root: &Arc<RwLock<Node>>,
     patch_sender: &UnboundedSender<Patch>,
 ) -> Result<(AddressMap, Graph)> {
     // Walk over the root node calling `compile` on children
     let mut address = Address::default();
     let mut context = CompileContext::new(path, project);
-    root.compile(&mut address, &mut context)?;
+    root.write().await.compile(&mut address, &mut context)?;
     let (address_map, resource_infos) = (context.address_map, context.resource_infos);
 
     // Construct a new `Graph` from the collected `ResourceInfo`s and get an updated
@@ -54,14 +55,33 @@ pub fn compile(
     let graph = Graph::from_resource_infos(path, resource_infos)?;
 
     // Send patches with new dependency information to root
-    compile_patches(root, &address_map, &graph, patch_sender);
+    compile_patches_and_send(&*root.read().await, &address_map, &graph, patch_sender);
 
     Ok((address_map, graph))
 }
 
+/// Compile a node, usually the `root` node of a document, wihout walking it
+/// by using an existing address map and graph
+/// 
+/// Uses a `RwLock` for the first three parameters for consistency with the `compile` function.
+pub async fn compile_no_walk(
+    root: &Arc<RwLock<Node>>,
+    address_map: &Arc<RwLock<AddressMap>>,
+    graph: &Arc<RwLock<Graph>>,
+    patch_sender: &UnboundedSender<Patch>,
+) -> Result<()> {
+    compile_patches_and_send(
+        &*root.read().await,
+        &*address_map.read().await,
+        &*graph.read().await,
+        patch_sender,
+    );
+    Ok(())
+}
+
 /// Update nodes in root with information from dependency graph by sending patches
-pub fn compile_patches(
-    root: &mut Node,
+fn compile_patches_and_send(
+    root: &Node,
     address_map: &AddressMap,
     graph: &Graph,
     patch_sender: &UnboundedSender<Patch>,
@@ -73,9 +93,8 @@ pub fn compile_patches(
         .filter_map(|(resource, resource_info)| {
             if let Resource::Code(resources::Code { id: node_id, .. }) = resource {
                 let address = address_map.get(node_id).cloned();
-                let node = if let Ok(node) =
-                    resolve(&mut *root, address.clone(), Some(node_id.clone()))
-                        .and_then(|pointer| pointer.to_node())
+                let node = if let Ok(node) = resolve(root, address.clone(), Some(node_id.clone()))
+                    .and_then(|pointer| pointer.to_node())
                 {
                     node
                 } else {

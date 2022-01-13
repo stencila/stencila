@@ -7,9 +7,8 @@ use graph_triples::{resources, Relations, ResourceInfo};
 use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::AddressMap;
-use node_execute::{compile, compile_patches, execute};
+use node_execute::{compile, compile_no_walk, execute};
 use node_patch::{apply, diff, merge, Patch};
-use node_pointer::{resolve, Pointer};
 use node_reshape::reshape;
 use notify::DebouncedEvent;
 use once_cell::sync::Lazy;
@@ -700,42 +699,6 @@ impl Document {
         Ok(())
     }
 
-    /// Resolve a node within the current document using an id
-    ///
-    /// This does not use `&mut self` to avoid the "cannot borrow as mutable more than once at a time"
-    /// error in other methods where it is used.
-    pub fn resolve<'root>(
-        root: &'root mut Option<Node>,
-        address_map: &AddressMap,
-        node_id: Option<String>,
-    ) -> Result<Pointer<'root>> {
-        let root = match root {
-            Some(root) => root,
-            None => bail!("Document does not have a `root` node from which to resolve"),
-        };
-
-        let node_id = if let Some(node_id) = node_id {
-            node_id
-        } else {
-            return Ok(Pointer::Node(root));
-        };
-
-        let address = if let Some(address) = address_map.get(&node_id) {
-            if address.is_empty() {
-                return Ok(Pointer::Node(root));
-            }
-            Some(address.clone())
-        } else {
-            tracing::warn!(
-                "Unregistered node id `{}`; will attempt to `find()` node",
-                node_id
-            );
-            None
-        };
-
-        resolve(root, address, Some(node_id))
-    }
-
     /// Apply a [`Patch`] to the root node of the document
     ///
     /// # Arguments
@@ -849,7 +812,7 @@ impl Document {
     ) {
         tracing::debug!("Compiling document `{}`", id);
 
-        match compile(path, project, &mut *root.write().await, patch_sender) {
+        match compile(path, project, root, patch_sender).await {
             Ok((new_addresses, new_graph)) => {
                 *addresses.write().await = new_addresses;
                 *graph.write().await = new_graph;
@@ -870,41 +833,34 @@ impl Document {
         let start = start.map(|node_id| resources::code(&self.path, &node_id, "", None));
         let plan = self.graph.read().await.plan(start, None, None).await?;
 
-        // A task to update the graph to reflect that resources were executed
+        // A task to update the graph to reflect that each resource was executed,
+        // when it is executed.
         let (resource_info_sender, mut resource_info_receiver) = mpsc::channel::<ResourceInfo>(1);
         let graph = self.graph.clone();
-        let graph_updater = tokio::spawn(async move {
+        let root = self.root.clone();
+        let address_map = self.addresses.clone();
+        let patch_sender = self.patch_sender.clone();
+        tokio::spawn(async move {
             while let Some(resource_info) = resource_info_receiver.recv().await {
+                // Update the graph with new resource info
                 graph.write().await.update_resource_info(resource_info);
+                // Then do a recompile, using the graph, so that node properties such as
+                // `code_dependencies` and `code_dependents` get updated with the new execution status
+                // of nodes.
+                compile_no_walk(&root, &address_map, &graph, &patch_sender).await;
             }
         });
-
-        let root = &mut *self.root.write().await;
-        let address_map = &*self.addresses.read().await;
-        let patch_sender = self.patch_sender.clone();
 
         // Execute the plan on the root node, sending on patches to the patching task
         execute(
             &plan,
-            root,
-            address_map,
+            &self.root,
+            &self.addresses,
             &resource_info_sender,
-            &patch_sender,
+            &self.patch_sender,
             Some(self.kernels.clone()),
         )
         .await?;
-
-        // Wait for updates to graph to finish
-        drop(resource_info_sender);
-        graph_updater.await?;
-
-        // Then do a recompile, using the existing graph, so that node properties such as
-        // `code_dependencies` and `code_dependents` get updated with the new execution status
-        // of nodes. 
-        // TODO: Move this into the `graph_updater` task so the update get send as soon as available
-        // This requires that both `execute` and `compile_patches` be able to take an immutable ref
-        // to root to avoid deadlocks
-        compile_patches(root, address_map, &*self.graph.read().await, &patch_sender);
 
         Ok(())
     }
