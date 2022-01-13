@@ -107,7 +107,6 @@ patchable_struct!(CodeError, error_message, error_type, stack_trace);
 patchable_variants!(
     CodeExecutableCodeDependencies,
     CodeExecutableCodeDependencies::CodeChunk,
-    CodeExecutableCodeDependencies::CodeExpression,
     CodeExecutableCodeDependencies::Parameter
 );
 patchable_variants!(
