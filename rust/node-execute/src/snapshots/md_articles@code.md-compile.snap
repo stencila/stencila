@@ -1,6 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
-assertion_line: 67
+assertion_line: 69
 expression: "(&addresses, &graph)"
 
 ---
@@ -109,7 +109,6 @@ expression: "(&addresses, &graph)"
         "language": "R",
         "autorun": "Needed",
         "dependencies": 0,
-        "dependents": 0,
         "depth": 0,
         "compile_digest": "Shsh2HauAMjtXE0c3gnGH4phtQ_jcKgBsQwzmDHzcKs.sKa1lN35R1qYIDF_5pBn4y7HqpZHg78gGir12Px3XP4..0",
         "index": 0
@@ -122,7 +121,6 @@ expression: "(&addresses, &graph)"
         "language": "Python",
         "autorun": "Needed",
         "dependencies": 0,
-        "dependents": 0,
         "depth": 0,
         "compile_digest": "Gs-GImxowUhco5OYhMQ-2Zq-6jROgGVIr37oE8HAz_M.0MIJscT8aFeWiuviD3EZK7T2kiglkfCO0NPvFVlL8bQ..0",
         "index": 1
@@ -135,7 +133,6 @@ expression: "(&addresses, &graph)"
         "language": "Python",
         "autorun": "Needed",
         "dependencies": 0,
-        "dependents": 0,
         "depth": 0,
         "compile_digest": "8Jcxdr_uog8nU85IWbSHJ67aACMkRhrjSlNq4U87zOI.WTk2LOm4gZ0UmUlT0XWdef-3W6JVajT2Zwas1meIYDI..0",
         "index": 2
@@ -148,7 +145,6 @@ expression: "(&addresses, &graph)"
         "language": "Python",
         "autorun": "Needed",
         "dependencies": 0,
-        "dependents": 0,
         "depth": 0,
         "compile_digest": "XUtGPLFdg6rE1pkK7-JI2cakP-0Ki9b8TYR2NTft0ZA.perBJOxmu4RygSmdTF1Mq2e9-7SvwC4TW65hS-yW3Lw..0",
         "index": 3
@@ -161,7 +157,6 @@ expression: "(&addresses, &graph)"
         "language": "Python",
         "autorun": "Needed",
         "dependencies": 0,
-        "dependents": 0,
         "depth": 0,
         "compile_digest": "_96yTo2JTflYPz0EBhfBXfpPM6NXAWo_v6z40mH8bmU.PTSjGQPAJdqQLgptZTkO7HwhlXuBe1orBfPta5mgTGU..0",
         "index": 4
@@ -174,7 +169,6 @@ expression: "(&addresses, &graph)"
         "language": "R",
         "autorun": "Needed",
         "dependencies": 0,
-        "dependents": 0,
         "depth": 0,
         "compile_digest": "-KtuBR2wWR4ttUqNGXPxRbTt2Ih80SP9gCuOCnmdMt4.mguTVp0eEQa1LaXve-sRgMsegT02c_6TpX1mueiMlCU..0",
         "index": 5

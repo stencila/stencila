@@ -11,7 +11,7 @@ use petgraph::{
     graph::NodeIndex,
     stable_graph::StableGraph,
     visit::{self, EdgeRef, IntoEdgeReferences, IntoNodeReferences},
-    EdgeDirection::{Incoming, Outgoing},
+    EdgeDirection::Incoming,
 };
 use schemars::{
     gen::SchemaGenerator,
@@ -22,6 +22,7 @@ use serde::{ser::SerializeMap, Serialize};
 use serde_json::json;
 use serde_with::skip_serializing_none;
 use std::{
+    cmp::Ordering,
     collections::{BTreeMap, HashMap, HashSet},
     path::{Path, PathBuf},
 };
@@ -385,32 +386,11 @@ impl Graph {
                 }
             }
 
-            // Sort dependencies by appearance order (the order is not used here but appearance order
-            // is best for HTML UI rendering). Resources that do not appear in the document e.g. `File`
-            // and `Symbol` will be at the top.
-            dependencies.sort_by(|a, b| {
-                let a = self
-                    .appearance_order
-                    .iter()
-                    .position(|resource| resource == a);
-                let b = self
-                    .appearance_order
-                    .iter()
-                    .position(|resource| resource == b);
-                a.cmp(&b)
-            });
-
             // If there are no dependencies then `dependencies_digest` is an empty string
             let dependencies_digest = match !dependencies.is_empty() {
                 true => ResourceDigest::base64_encode(&dependencies_digest.finalize()),
                 false => String::default(),
             };
-
-            // Update the list of direct dependents
-            let dependents = graph
-                .neighbors_directed(node_index, Outgoing)
-                .map(|outgoing_index| graph[outgoing_index].clone())
-                .collect();
 
             // Get the resource info we're about to update
             let resource_info = self
@@ -419,7 +399,6 @@ impl Graph {
                 .ok_or_else(|| eyre!("No info for resource"))?;
 
             resource_info.dependencies = Some(dependencies);
-            resource_info.dependents = Some(dependents);
             resource_info.depth = Some(depth);
 
             // Update the compile digest, or create one if there isn't one already.
@@ -434,6 +413,65 @@ impl Graph {
                     compile_digest.dependencies_stale = dependencies_stale;
                     resource_info.compile_digest = Some(compile_digest);
                 }
+            }
+        }
+
+        // Populate dependents and sort dependencies and dependents.
+        let mut dependents_map: HashMap<Resource, HashSet<Resource>> = HashMap::new();
+        for (resource, resource_info) in self.resources.iter_mut() {
+            if let Some(dependencies) = &mut resource_info.dependencies {
+                // Map dependencies into dependents
+                for dependency in dependencies.iter() {
+                    dependents_map
+                        .entry(dependency.clone())
+                        .or_insert_with(HashSet::new)
+                        .insert(resource.clone());
+                }
+
+                dependencies.sort_by(|a, b| match (a, b) {
+                    // Sort code dependencies by appearance order. The order is not important for
+                    // dependency analysis or plan generation but appearance order is better for
+                    // user interfaces.
+                    (Resource::Code(..), Resource::Code(..)) => {
+                        let a = self
+                            .appearance_order
+                            .iter()
+                            .position(|resource| resource == a);
+                        let b = self
+                            .appearance_order
+                            .iter()
+                            .position(|resource| resource == b);
+                        a.cmp(&b)
+                    }
+                    // Other types of dependencies (e.g. `File`, `Symbol`) come last.
+                    (Resource::Code(..), ..) => Ordering::Less,
+                    (.., Resource::Code(..)) => Ordering::Greater,
+                    _ => a.cmp(b)
+                });
+            }
+        }
+        for (resource, dependents) in dependents_map {
+            if let Some(resource_info) = self.resources.get_mut(&resource) {
+                let mut dependents = Vec::from_iter(dependents);
+                dependents.sort_by(|a, b| match (a, b) {
+                    // As for dependencies, sort code dependents by appearance order.
+                    (Resource::Code(..), Resource::Code(..)) => {
+                        let a = self
+                            .appearance_order
+                            .iter()
+                            .position(|resource| resource == a);
+                        let b = self
+                            .appearance_order
+                            .iter()
+                            .position(|resource| resource == b);
+                        a.cmp(&b)
+                    }
+                    // Other types of dependencies (e.g. `File`, `Symbol`) come last.
+                    (Resource::Code(..), ..) => Ordering::Greater,
+                    (.., Resource::Code(..)) => Ordering::Less,
+                    _ => a.cmp(b)
+                });
+                resource_info.dependents = Some(dependents)
             }
         }
 
