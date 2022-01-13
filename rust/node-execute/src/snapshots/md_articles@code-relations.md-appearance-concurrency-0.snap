@@ -1,6 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
-assertion_line: 107
+assertion_line: 109
 expression: "&plan"
 
 ---
@@ -90,17 +90,17 @@ expression: "&plan"
             ],
             "dependencies": [
               {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
                 "type": "Code",
                 "path": "articles/code-relations.md",
                 "id": "cc-1",
                 "kind": "CodeChunk",
                 "language": "Calc"
-              },
-              {
-                "type": "Symbol",
-                "path": "articles/code-relations.md",
-                "name": "a",
-                "kind": "Number"
               }
             ],
             "dependents": [],
@@ -145,17 +145,17 @@ expression: "&plan"
             ],
             "dependencies": [
               {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
                 "type": "Code",
                 "path": "articles/code-relations.md",
                 "id": "cc-1",
                 "kind": "CodeChunk",
                 "language": "Calc"
-              },
-              {
-                "type": "Symbol",
-                "path": "articles/code-relations.md",
-                "name": "a",
-                "kind": "Number"
               }
             ],
             "dependents": [],
@@ -200,17 +200,17 @@ expression: "&plan"
             ],
             "dependencies": [
               {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
                 "type": "Code",
                 "path": "articles/code-relations.md",
                 "id": "cc-1",
                 "kind": "CodeChunk",
                 "language": "Calc"
-              },
-              {
-                "type": "Symbol",
-                "path": "articles/code-relations.md",
-                "name": "a",
-                "kind": "Number"
               }
             ],
             "dependents": [],
@@ -272,17 +272,17 @@ expression: "&plan"
             ],
             "dependencies": [
               {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
                 "type": "Code",
                 "path": "articles/code-relations.md",
                 "id": "cc-1",
                 "kind": "CodeChunk",
                 "language": "Calc"
-              },
-              {
-                "type": "Symbol",
-                "path": "articles/code-relations.md",
-                "name": "a",
-                "kind": "Number"
               }
             ],
             "dependents": [
@@ -334,6 +334,18 @@ expression: "&plan"
             ],
             "dependencies": [
               {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
+                "kind": "Number"
+              },
+              {
                 "type": "Code",
                 "path": "articles/code-relations.md",
                 "id": "cc-1",
@@ -341,23 +353,11 @@ expression: "&plan"
                 "language": "Calc"
               },
               {
-                "type": "Symbol",
-                "path": "articles/code-relations.md",
-                "name": "a",
-                "kind": "Number"
-              },
-              {
                 "type": "Code",
                 "path": "articles/code-relations.md",
                 "id": "cc-3",
                 "kind": "CodeChunk",
                 "language": "Calc"
-              },
-              {
-                "type": "Symbol",
-                "path": "articles/code-relations.md",
-                "name": "b",
-                "kind": "Number"
               }
             ],
             "dependents": [],
@@ -402,6 +402,18 @@ expression: "&plan"
             ],
             "dependencies": [
               {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
+                "kind": "Number"
+              },
+              {
                 "type": "Code",
                 "path": "articles/code-relations.md",
                 "id": "cc-1",
@@ -409,23 +421,11 @@ expression: "&plan"
                 "language": "Calc"
               },
               {
-                "type": "Symbol",
-                "path": "articles/code-relations.md",
-                "name": "a",
-                "kind": "Number"
-              },
-              {
                 "type": "Code",
                 "path": "articles/code-relations.md",
                 "id": "cc-3",
                 "kind": "CodeChunk",
                 "language": "Calc"
-              },
-              {
-                "type": "Symbol",
-                "path": "articles/code-relations.md",
-                "name": "b",
-                "kind": "Number"
               }
             ],
             "dependents": [],
@@ -552,16 +552,21 @@ expression: "&plan"
             ],
             "dependencies": [
               {
-                "type": "Code",
+                "type": "Symbol",
                 "path": "articles/code-relations.md",
-                "id": "pa-1",
-                "kind": "Parameter",
-                "language": "Calc"
+                "name": "c",
+                "kind": "Number"
               },
               {
                 "type": "Symbol",
                 "path": "articles/code-relations.md",
-                "name": "c",
+                "name": "a",
+                "kind": "Number"
+              },
+              {
+                "type": "Symbol",
+                "path": "articles/code-relations.md",
+                "name": "b",
                 "kind": "Number"
               },
               {
@@ -572,12 +577,6 @@ expression: "&plan"
                 "language": "Calc"
               },
               {
-                "type": "Symbol",
-                "path": "articles/code-relations.md",
-                "name": "a",
-                "kind": "Number"
-              },
-              {
                 "type": "Code",
                 "path": "articles/code-relations.md",
                 "id": "cc-3",
@@ -585,10 +584,11 @@ expression: "&plan"
                 "language": "Calc"
               },
               {
-                "type": "Symbol",
+                "type": "Code",
                 "path": "articles/code-relations.md",
-                "name": "b",
-                "kind": "Number"
+                "id": "pa-1",
+                "kind": "Parameter",
+                "language": "Calc"
               }
             ],
             "dependents": [],

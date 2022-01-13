@@ -385,6 +385,21 @@ impl Graph {
                 }
             }
 
+            // Sort dependencies by appearance order (the order is not used here but appearance order
+            // is best for HTML UI rendering). Resources that do not appear in the document e.g. `File`
+            // and `Symbol` will be at the top.
+            dependencies.sort_by(|a, b| {
+                let a = self
+                    .appearance_order
+                    .iter()
+                    .position(|resource| resource == a);
+                let b = self
+                    .appearance_order
+                    .iter()
+                    .position(|resource| resource == b);
+                a.cmp(&b)
+            });
+
             // If there are no dependencies then `dependencies_digest` is an empty string
             let dependencies_digest = match !dependencies.is_empty() {
                 true => ResourceDigest::base64_encode(&dependencies_digest.finalize()),
@@ -392,7 +407,7 @@ impl Graph {
             };
 
             // Update the list of direct dependents
-            let dependants = graph
+            let dependents = graph
                 .neighbors_directed(node_index, Outgoing)
                 .map(|outgoing_index| graph[outgoing_index].clone())
                 .collect();
@@ -404,7 +419,7 @@ impl Graph {
                 .ok_or_else(|| eyre!("No info for resource"))?;
 
             resource_info.dependencies = Some(dependencies);
-            resource_info.dependents = Some(dependants);
+            resource_info.dependents = Some(dependents);
             resource_info.depth = Some(depth);
 
             // Update the compile digest, or create one if there isn't one already.
