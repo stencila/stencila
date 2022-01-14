@@ -1,9 +1,7 @@
 //! Utility functions for use by parser implementations
 
 use graph_triples::{
-    relations,
-    resources::{self, ResourceAutorun},
-    Relation, Resource,
+    relations, resources, stencila_schema::CodeChunkExecuteAuto, Relation, Resource,
 };
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -58,17 +56,17 @@ pub fn apply_tags(
 
             let relation = match tag {
                 "pure" | "impure" => {
-                    resource_info.pure = Some(tag == "pure");
+                    resource_info.execute_pure = Some(tag == "pure");
                     continue;
                 }
 
                 "autorun" => {
                     let variant = match args {
-                        "always" => ResourceAutorun::Always,
-                        "never" => ResourceAutorun::Never,
-                        _ => ResourceAutorun::Needed,
+                        "always" => Some(CodeChunkExecuteAuto::Always),
+                        "never" => Some(CodeChunkExecuteAuto::Never),
+                        _ => Some(CodeChunkExecuteAuto::Needed),
                     };
-                    resource_info.autorun = variant;
+                    resource_info.execute_auto = variant;
                     continue;
                 }
 

@@ -8,7 +8,7 @@ use kernels::{KernelSelector, KernelSpace};
 use node_address::AddressMap;
 use node_patch::{diff, Patch};
 use node_pointer::resolve;
-use stencila_schema::{CodeChunk, CodeExecutableExecuteStatus, CodeExpression, Node};
+use stencila_schema::{CodeChunk, CodeExpression, Node};
 use tokio::sync::{
     mpsc::{Sender, UnboundedSender},
     RwLock,
@@ -18,7 +18,7 @@ use crate::Executable;
 
 /// Execute a [`Plan`] on a [`Node`]
 ///
-/// Uses a a `RwLock` for `root` and `address_map` so that locks can be held for as short as
+/// Uses a `RwLock` for `root` and `address_map` so that read locks can be held for as short as
 /// time as possible (i.e. not while waiting for execution of tasks, which is what would
 /// happen if held by the caller).
 ///
@@ -26,10 +26,10 @@ use crate::Executable;
 ///
 /// - `plan`: The plan to be executed
 ///
-/// - `root`: The root node to execute the plan on
+/// - `root`: The root node to execute the plan on (takes a read lock)
 ///
 /// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
-///                  included in the plan within the `root` node)
+///                  included in the plan within the `root` node; takes a read lock)
 ///
 /// - `resource_info_sender`: A [`ResourceInfo`] channel sender to update the graph on the
 ///                  execution status of resources
@@ -97,18 +97,14 @@ pub async fn execute(
                 {
                     Ok(_) => {
                         // Update the resource to indicate that the resource was executed
-                        let succeeded = match &after {
+                        let execute_status = match &after {
                             Node::CodeChunk(CodeChunk { execute_status, .. })
                             | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                                execute_status.as_ref().and_then(|status| match status {
-                                    CodeExecutableExecuteStatus::Succeeded => Some(true),
-                                    CodeExecutableExecuteStatus::Failed => Some(false),
-                                    _ => None,
-                                })
+                                execute_status.clone()
                             }
                             _ => None,
                         };
-                        resource_info.did_execute(succeeded);
+                        resource_info.did_execute(execute_status);
 
                         // Generate a patch for the differences resulting from execution
                         let mut patch = diff(&before, &after);

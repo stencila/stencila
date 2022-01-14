@@ -316,6 +316,5 @@ input_file: fixtures/fragments/py/reads.py
       }
     ]
   ],
-  "autorun": "Needed",
   "compile_digest": "1JrFR6TcVIy_HfsaKx_KZ9cqzMI89QDcvMsCgflIypo.YAua72kZ9gIFtv8b40i_937-BwMPqxn-ji8lRcHAw_g..0.0"
 }

@@ -219,6 +219,5 @@ input_file: fixtures/fragments/r/assigns.R
       }
     ]
   ],
-  "autorun": "Needed",
   "compile_digest": "HLjSz2viL5VnJs8Ess2IIMidRJcU5et0tFESFI6fA8M.GoXHbBnOfMgTYSmTQ8C_7W87YeFhHcq4NLownyPN5Fk..0.0"
 }

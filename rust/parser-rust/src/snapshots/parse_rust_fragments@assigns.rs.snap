@@ -168,6 +168,5 @@ input_file: fixtures/fragments/rust/assigns.rs
       }
     ]
   ],
-  "autorun": "Needed",
   "compile_digest": "08X6jzT6CPQtHGoj5AxqCYKm_yNJW5nlDL5blfp3KbA.RtFpWRazVrrtN2dE1UVU49rm98qhXC1yUmNqOugBsQI..0.0"
 }

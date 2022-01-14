@@ -406,6 +406,5 @@ input_file: fixtures/fragments/r/uses.R
       }
     ]
   ],
-  "autorun": "Needed",
   "compile_digest": "SwwrOA4eDOdtRmzr31znFhdCyYZenoEGH_Y3kXLn96Q.3Cv2Auh1vqnmcJCzxMgQr98rNGdo35ub5dQvVM_szjI..0.0"
 }

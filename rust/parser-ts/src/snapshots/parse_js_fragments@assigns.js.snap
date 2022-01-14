@@ -270,6 +270,5 @@ input_file: fixtures/fragments/js/assigns.js
       }
     ]
   ],
-  "autorun": "Needed",
   "compile_digest": "2hEh79-fWUDlXSmxSjB8AXWl0PRS7DOIHKx_ZQgzLMI.5bMly7iZmysqrRdj4eQfSnWczDcglGS6Yqvd0nCtXPY..0.0"
 }

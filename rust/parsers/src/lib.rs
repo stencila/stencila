@@ -296,7 +296,7 @@ mod tests {
         let path = PathBuf::from("<test>");
         let resource = resources::code(&path, "<id>", "<cli>", Some("Calc".to_string()));
         let resource_info = parse(resource, "a = 1\nb = a * a")?;
-        assert!(matches!(resource_info.pure, None));
+        assert!(matches!(resource_info.execute_pure, None));
         assert!(!resource_info.is_pure());
         assert_json_eq!(
             resource_info.relations,

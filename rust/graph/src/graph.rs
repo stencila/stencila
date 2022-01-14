@@ -1,7 +1,6 @@
 use eyre::{bail, eyre, Result};
 use graph_triples::{
-    direction, relations,
-    resources::{ResourceAutorun, ResourceDigest},
+    direction, relations, resources::ResourceDigest, stencila_schema::CodeChunkExecuteAuto,
     Direction, Pairs, Relation, Resource, ResourceInfo, Triple,
 };
 use hash_utils::{sha2, sha2::Digest};
@@ -103,10 +102,6 @@ impl Serialize for Graph {
                 // Merge in fields from resource info but skip info already there or implicit
                 // in the graph
                 if let Some(resource_info) = self.resources.get(resource) {
-                    obj.insert("autorun".to_string(), json!(resource_info.autorun));
-                    if let Some(pure) = resource_info.pure {
-                        obj.insert("pure".to_string(), json!(pure));
-                    }
                     if let Some(dependencies) = &resource_info.dependencies {
                         obj.insert("dependencies".to_string(), json!(dependencies.len()));
                     }
@@ -115,6 +110,12 @@ impl Serialize for Graph {
                     }
                     if let Some(depth) = resource_info.depth {
                         obj.insert("depth".to_string(), json!(depth));
+                    }
+                    if let Some(execute_auto) = &resource_info.execute_auto {
+                        obj.insert("execute_auto".to_string(), json!(execute_auto));
+                    }
+                    if let Some(execute_pure) = resource_info.execute_pure {
+                        obj.insert("execute_pure".to_string(), json!(execute_pure));
                     }
                     if let Some(compile_digest) = &resource_info.compile_digest {
                         obj.insert("compile_digest".to_string(), json!(compile_digest));
@@ -569,7 +570,10 @@ impl Graph {
             // and `autorun == Never` then exclude it and any following resources
             if start.is_some()
                 && Some(resource) != start.as_ref()
-                && matches!(resource_info.autorun, ResourceAutorun::Never)
+                && matches!(
+                    resource_info.execute_auto,
+                    Some(CodeChunkExecuteAuto::Never)
+                )
             {
                 break;
             }
@@ -664,7 +668,10 @@ impl Graph {
                     }
 
                     // If `autorun == Never` then exclude it and any downstream dependents
-                    if matches!(resource_info.autorun, ResourceAutorun::Never) {
+                    if matches!(
+                        resource_info.execute_auto,
+                        Some(CodeChunkExecuteAuto::Never)
+                    ) {
                         nevers.insert(resource);
                         continue;
                     } else if dependencies
@@ -690,10 +697,10 @@ impl Graph {
                     .get(dependency)
                     .ok_or_else(|| eyre!("No info for dependency"))?;
 
-                let execute = match dependency_info.autorun {
-                    ResourceAutorun::Always => true,
-                    ResourceAutorun::Never => false,
-                    ResourceAutorun::Needed => dependency_info.is_stale(),
+                let execute = match dependency_info.execute_auto {
+                    Some(CodeChunkExecuteAuto::Always) => true,
+                    Some(CodeChunkExecuteAuto::Never) => false,
+                    _ => dependency_info.is_stale(),
                 };
 
                 if execute {

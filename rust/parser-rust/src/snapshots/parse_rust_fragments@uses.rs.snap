@@ -66,6 +66,5 @@ input_file: fixtures/fragments/rust/uses.rs
       }
     ]
   ],
-  "autorun": "Needed",
   "compile_digest": "1vXpabtljXKfpjV5dhI-HFn3EkY-6D2emlSL77CPvWo.CudJQ-4z2LsT8aWsNQcFzvPbuqKOzN9UzsAHMvICG_o..0.0"
 }

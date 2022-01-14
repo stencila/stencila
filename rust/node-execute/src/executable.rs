@@ -341,15 +341,6 @@ fn code_execute_status(task_info: &TaskInfo, errors: &[CodeError]) -> CodeExecut
     }
 }
 
-/// Convert the `execute_status` an executable code node to an Option<bool> for `ResourceInfo`
-fn code_execute_succeeded(execute_status: &CodeExecutableExecuteStatus) -> Option<bool> {
-    match execute_status {
-        CodeExecutableExecuteStatus::Succeeded => Some(true),
-        CodeExecutableExecuteStatus::Failed => Some(false),
-        _ => None,
-    }
-}
-
 #[async_trait]
 impl Executable for CodeChunk {
     /// Compile a `CodeChunk` node
@@ -371,16 +362,16 @@ impl Executable for CodeChunk {
             }
         };
 
-        // Update the resource info (which has (an incomplete) `compile_digest`) with the `execute_digest` from
-        // the last time the code chunk was executed
+        // Update the node with properties from resource info derived from parsing it's code
+        self.execute_auto = resource_info.execute_auto.clone();
+        self.execute_pure = resource_info.execute_pure;
+
+        // Update the resource info with properties from the node
         resource_info.execute_digest = self
             .execute_digest
             .as_ref()
             .map(|cord| ResourceDigest::from_string(&cord.0));
-        resource_info.execute_succeeded = self
-            .execute_status
-            .as_ref()
-            .and_then(code_execute_succeeded);
+        resource_info.execute_status = self.execute_status.clone();
 
         context.resource_infos.push(resource_info);
 
@@ -471,10 +462,12 @@ impl Executable for CodeExpression {
             .execute_digest
             .as_ref()
             .map(|cord| ResourceDigest::from_string(&cord.0));
-        resource_info.execute_succeeded = self
-            .execute_status
-            .as_ref()
-            .and_then(code_execute_succeeded);
+        resource_info.execute_status = self.execute_status.clone();
+
+        // Force code expression execution semantics (in case `@impure` or `@autorun` tags
+        // where inadvertently used in code) by setting to `None`
+        resource_info.execute_auto = None;
+        resource_info.execute_pure = None;
 
         context.resource_infos.push(resource_info);
 

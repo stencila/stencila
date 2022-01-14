@@ -9,6 +9,7 @@ use std::{
     fmt::Display,
     path::{Path, PathBuf},
 };
+use stencila_schema::{CodeChunkExecuteAuto, CodeExecutableExecuteStatus};
 
 use crate::{Pairs, Relation};
 
@@ -95,51 +96,6 @@ impl Resource {
         }
     }
 }
-
-/// Under which circumstances a [`Resource`] should be automatically run.
-///
-/// In the below descriptions:
-///
-/// - "run" means that the user made an explicit request to execute the specific resource
-///   (e.g. presses the run button on a `CodeChunk`), or the containing resource (e.g. presses
-///   the run button on the parent `Article`).
-///
-/// - "autorun" means that the resource is automatically executed, without an explicit
-///   user request do so (but in some cases in response to one).
-#[derive(Debug, Clone, Serialize)]
-pub enum ResourceAutorun {
-    /// Never automatically execute the resource.
-    /// Only execute when the user explicitly runs the resource (or its containing resource).
-    ///
-    /// e.g. a user may tag a `CodeBlock` as `@autorun never` if it is long running
-    /// and they want to check the outputs of previous code chunks before proceeding
-    ///
-    /// When generating an execution `Plan`s using:
-    ///
-    /// - the `PlanOrdering::Topological` option: the resource, and any of its downstream
-    ///   dependents should be excluded from the plan.
-    ///
-    /// - the `PlanOrdering::Appearance` option: the resource, and any following resources
-    ///   should be excluded from the plan.
-    Never,
-
-    /// Execute the resource if it is an upstream dependency of a resource that has been run.
-    /// This is the default.
-    ///
-    /// e.g. `CodeExpression` #1 depends upon a variable assigned in `CodeChunk` #2.
-    /// If #2 is run, and #1 is stale, then #1 will be autorun before #2.
-    ///
-    /// This only affects execution `Plan`s generated with the `PlanOrdering::Topological` option.
-    Needed,
-
-    /// Always execute the resource
-    ///
-    /// e.g. a user may tag a `CodeBlock` as `@autorun always` if it assigns a random variable
-    /// (i.e. is non-deterministic) and everytime one of its downstream dependents is run, they
-    /// want it to be updated.
-    Always,
-}
-
 /// A digest representing the state of a [`Resource`] and its dependencies.
 ///
 /// The digest is separated into several parts. Although initially it may seem that the
@@ -315,6 +271,53 @@ pub struct ResourceInfo {
     /// Otherwise, the depth is the maximum depth of dependencies plus one.
     pub depth: Option<usize>,
 
+    /// Under which circumstances the resource should be automatically executed
+    ///
+    /// In the below descriptions:
+    ///
+    /// - "run" means that the user made an explicit request to execute the specific resource
+    ///   (e.g. presses the run button on a `CodeChunk`), or the containing resource (e.g. presses
+    ///   the run button on the parent `Article`).
+    ///
+    /// - "autorun" means that the resource is automatically executed, without an explicit
+    ///   user request do so (but in some cases in response to one).
+    ///
+    /// ## `Never`
+    ///
+    /// Never automatically execute the resource.
+    /// Only execute when the user explicitly runs the resource (or its containing resource).
+    ///
+    /// e.g. a user may tag a `CodeBlock` as `@autorun never` if it is long running
+    /// and they want to check the outputs of previous code chunks before proceeding
+    ///
+    /// When generating an execution `Plan`s using:
+    ///
+    /// - the `PlanOrdering::Topological` option: the resource, and any of its downstream
+    ///   dependents should be excluded from the plan.
+    ///
+    /// - the `PlanOrdering::Appearance` option: the resource, and any following resources
+    ///   should be excluded from the plan.
+    ///
+    /// ## `Needed`
+    ///
+    /// Execute the resource if it is an upstream dependency of a resource that has been run.
+    /// This is the default.
+    ///
+    /// e.g. `CodeExpression` #1 depends upon a variable assigned in `CodeChunk` #2.
+    /// If #2 is run, and #1 is stale, then #1 will be autorun before #2.
+    ///
+    /// This only affects execution `Plan`s generated with the `PlanOrdering::Topological` option.
+    ///
+    /// ## `Always`
+    ///
+    /// Always execute the resource
+    ///
+    /// e.g. a user may tag a `CodeBlock` as `@autorun always` if it assigns a random variable
+    /// (i.e. is non-deterministic) and everytime one of its downstream dependents is run, they
+    /// want it to be updated.
+    ///
+    pub execute_auto: Option<CodeChunkExecuteAuto>,
+
     /// Whether the resource is marked as pure or impure.
     ///
     /// Pure resources do not modify other resources (i.e. they have no side effects).
@@ -323,12 +326,7 @@ pub struct ResourceInfo {
     /// either using `@pure` or `@impure` tags in code comments or via user interfaces.
     /// This property stores that explicit mark. If it is `None` then the resources "purity"
     /// will be inferred from its `relations`.
-    pub pure: Option<bool>,
-
-    /// Under which circumstances the resource should be automatically executed
-    ///
-    /// This defaults to `Needed` but may be overridden using the `@autorun` tag in comments.
-    pub autorun: ResourceAutorun,
+    pub execute_pure: Option<bool>,
 
     /// The [`ResourceDigest`] of the resource when it was last compiled
     pub compile_digest: Option<ResourceDigest>,
@@ -337,7 +335,7 @@ pub struct ResourceInfo {
     pub execute_digest: Option<ResourceDigest>,
 
     /// Whether the last execution of the resource succeeded
-    pub execute_succeeded: Option<bool>,
+    pub execute_status: Option<CodeExecutableExecuteStatus>,
 }
 
 impl ResourceInfo {
@@ -349,11 +347,11 @@ impl ResourceInfo {
             dependencies: None,
             dependents: None,
             depth: None,
-            autorun: ResourceAutorun::Needed,
-            pure: None,
+            execute_auto: None,
+            execute_pure: None,
             compile_digest: None,
             execute_digest: None,
-            execute_succeeded: None,
+            execute_status: None,
         }
     }
 
@@ -361,11 +359,11 @@ impl ResourceInfo {
     pub fn new(
         resource: Resource,
         relations: Option<Pairs>,
-        pure: Option<bool>,
-        autorun: Option<ResourceAutorun>,
+        execute_auto: Option<CodeChunkExecuteAuto>,
+        execute_pure: Option<bool>,
         compile_digest: Option<ResourceDigest>,
         execute_digest: Option<ResourceDigest>,
-        execute_succeeded: Option<bool>,
+        execute_status: Option<CodeExecutableExecuteStatus>,
     ) -> Self {
         Self {
             resource,
@@ -373,11 +371,11 @@ impl ResourceInfo {
             dependencies: None,
             dependents: None,
             depth: None,
-            autorun: autorun.unwrap_or(ResourceAutorun::Needed),
-            pure,
+            execute_auto,
+            execute_pure,
             compile_digest,
             execute_digest,
-            execute_succeeded,
+            execute_status,
         }
     }
 
@@ -386,7 +384,7 @@ impl ResourceInfo {
     /// If the resource has not been explicitly tagged as pure or impure then
     /// returns `true` if there are any side-effect causing relations.
     pub fn is_pure(&self) -> bool {
-        self.pure.unwrap_or_else(|| match &self.relations {
+        self.execute_pure.unwrap_or_else(|| match &self.relations {
             Some(relations) => {
                 relations
                     .iter()
@@ -461,14 +459,17 @@ impl ResourceInfo {
     /// Returns `false` if the resource has not been executed or was executed
     /// and succeeded.
     pub fn is_fail(&self) -> bool {
-        self.execute_succeeded.map_or(false, |success| !success)
+        matches!(
+            self.execute_status,
+            Some(CodeExecutableExecuteStatus::Failed)
+        )
     }
 
     /// The resource was executed, so update the `execute_digest` to the `compile_digest`,
     /// and `execute_succeeded` property.
-    pub fn did_execute(&mut self, succeeded: Option<bool>) {
+    pub fn did_execute(&mut self, execute_status: Option<CodeExecutableExecuteStatus>) {
         self.execute_digest = self.compile_digest.clone();
-        self.execute_succeeded = succeeded;
+        self.execute_status = execute_status;
     }
 }
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]

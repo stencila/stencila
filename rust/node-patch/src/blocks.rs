@@ -114,6 +114,7 @@ patchable_variants!(
     CodeExecutableCodeDependents::CodeChunk,
     CodeExecutableCodeDependents::CodeExpression
 );
+patchable_enum!(CodeChunkExecuteAuto);
 patchable_enum!(CodeExecutableExecuteRequired);
 patchable_enum!(CodeExecutableExecuteStatus);
 
