@@ -160,5 +160,5 @@ input_file: fixtures/fragments/r/tags.R
   ],
   "pure": false,
   "autorun": "Needed",
-  "compile_digest": "-sYD5DawsmdbnjJS6kbn021yYEpOQYW8VxSMrr_bk_I.iM8Bkr--cYF6GZLuwiGcYeFl-P6OFGyR--NyAl7xEto..0"
+  "compile_digest": "-sYD5DawsmdbnjJS6kbn021yYEpOQYW8VxSMrr_bk_I.iM8Bkr--cYF6GZLuwiGcYeFl-P6OFGyR--NyAl7xEto..0.0"
 }

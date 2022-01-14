@@ -97,6 +97,7 @@ impl ParserTrait for CalcParser {
             None,
             Some(ResourceDigest::from_strings(code, Some(&semantics))),
             None,
+            None,
         );
 
         // Apply tags from comments (this needs to be done at the end because tags

@@ -271,5 +271,5 @@ input_file: fixtures/fragments/ts/assigns.ts
     ]
   ],
   "autorun": "Needed",
-  "compile_digest": "TmNiWHcJoD-j7aIE-YzhbGIjySZqZ9JQH5JBj-VYtYw.BmVC8miP3duBQhJPCTCkjAhTUkGAMLVEyV3CastQrJo..0"
+  "compile_digest": "TmNiWHcJoD-j7aIE-YzhbGIjySZqZ9JQH5JBj-VYtYw.BmVC8miP3duBQhJPCTCkjAhTUkGAMLVEyV3CastQrJo..0.0"
 }

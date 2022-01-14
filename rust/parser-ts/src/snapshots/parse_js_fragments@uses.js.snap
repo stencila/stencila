@@ -473,5 +473,5 @@ input_file: fixtures/fragments/js/uses.js
     ]
   ],
   "autorun": "Needed",
-  "compile_digest": "G6WG8Hz_jBsK94XcrK0hNXQLkTHkPP0F0cbBLL4iMfA.D552glSbn55L_cJmqo_TFN_YudtucfojQyDKVMyiEWI..0"
+  "compile_digest": "G6WG8Hz_jBsK94XcrK0hNXQLkTHkPP0F0cbBLL4iMfA.D552glSbn55L_cJmqo_TFN_YudtucfojQyDKVMyiEWI..0.0"
 }

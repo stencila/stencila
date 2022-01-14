@@ -8,7 +8,7 @@ use kernels::{KernelSelector, KernelSpace};
 use node_address::AddressMap;
 use node_patch::{diff, Patch};
 use node_pointer::resolve;
-use stencila_schema::Node;
+use stencila_schema::{CodeChunk, CodeExecutableExecuteStatus, CodeExpression, Node};
 use tokio::sync::{
     mpsc::{Sender, UnboundedSender},
     RwLock,
@@ -17,7 +17,7 @@ use tokio::sync::{
 use crate::Executable;
 
 /// Execute a [`Plan`] on a [`Node`]
-/// 
+///
 /// Uses a a `RwLock` for `root` and `address_map` so that locks can be held for as short as
 /// time as possible (i.e. not while waiting for execution of tasks, which is what would
 /// happen if held by the caller).
@@ -96,8 +96,19 @@ pub async fn execute(
                     .await
                 {
                     Ok(_) => {
-                        // Indicate that the resource was executed
-                        resource_info.did_execute();
+                        // Update the resource to indicate that the resource was executed
+                        let succeeded = match &after {
+                            Node::CodeChunk(CodeChunk { execute_status, .. })
+                            | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
+                                execute_status.as_ref().and_then(|status| match status {
+                                    CodeExecutableExecuteStatus::Succeeded => Some(true),
+                                    CodeExecutableExecuteStatus::Failed => Some(false),
+                                    _ => None,
+                                })
+                            }
+                            _ => None,
+                        };
+                        resource_info.did_execute(succeeded);
 
                         // Generate a patch for the differences resulting from execution
                         let mut patch = diff(&before, &after);

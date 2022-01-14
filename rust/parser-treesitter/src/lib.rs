@@ -234,6 +234,7 @@ pub fn resource_info(
             Some(&semantic_str),
         )),
         None,
+        None,
     );
 
     // Apply tags from comments (this needs to be done at the end because tags

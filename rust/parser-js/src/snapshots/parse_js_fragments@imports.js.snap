@@ -378,5 +378,5 @@ input_file: fixtures/fragments/js/imports.js
     ]
   ],
   "autorun": "Needed",
-  "compile_digest": "J1iZ0Ts-ZplNAUati58SMIPLKX963FFKyGn7ORPrpks.01k0_ZtlRyvkXENQOXB60o6pE9vgYPvCYHqHk5YoqiY..0"
+  "compile_digest": "J1iZ0Ts-ZplNAUati58SMIPLKX963FFKyGn7ORPrpks.01k0_ZtlRyvkXENQOXB60o6pE9vgYPvCYHqHk5YoqiY..0.0"
 }

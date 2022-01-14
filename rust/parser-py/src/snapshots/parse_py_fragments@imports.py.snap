@@ -80,5 +80,5 @@ input_file: fixtures/fragments/py/imports.py
     ]
   ],
   "autorun": "Needed",
-  "compile_digest": "Oqt4L8akhBW5pbQDXQbiNyEF6eYU67_Lm4hN1d6QS4A.lspxmotfHNrlKE5gfUSiclNyr9mySjuIa1pzs0WxKdc..0"
+  "compile_digest": "Oqt4L8akhBW5pbQDXQbiNyEF6eYU67_Lm4hN1d6QS4A.lspxmotfHNrlKE5gfUSiclNyr9mySjuIa1pzs0WxKdc..0.0"
 }

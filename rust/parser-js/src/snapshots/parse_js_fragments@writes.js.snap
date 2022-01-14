@@ -195,5 +195,5 @@ input_file: fixtures/fragments/js/writes.js
     ]
   ],
   "autorun": "Needed",
-  "compile_digest": "dUv2N2LKVsyW1NHsKHq9_Dhzd2_PiXTi4goqIOQ2vyI.wDvKZzopJ0kbeYSB8Fa_VBhkT7QB3OEmMJJX1aYsdRs..0"
+  "compile_digest": "dUv2N2LKVsyW1NHsKHq9_Dhzd2_PiXTi4goqIOQ2vyI.wDvKZzopJ0kbeYSB8Fa_VBhkT7QB3OEmMJJX1aYsdRs..0.0"
 }

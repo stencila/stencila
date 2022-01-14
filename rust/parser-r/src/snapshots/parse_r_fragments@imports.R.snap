@@ -130,5 +130,5 @@ input_file: fixtures/fragments/r/imports.R
     ]
   ],
   "autorun": "Needed",
-  "compile_digest": "Ll0ywdE07LibFFLVWu0h1o4Ecn-KxJziVawQBehNOOQ.i7mcuY4HODPZm4gA8C5TMq4qe9sPBglxyTbFF5V-u_Q..0"
+  "compile_digest": "Ll0ywdE07LibFFLVWu0h1o4Ecn-KxJziVawQBehNOOQ.i7mcuY4HODPZm4gA8C5TMq4qe9sPBglxyTbFF5V-u_Q..0.0"
 }

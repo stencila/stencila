@@ -212,5 +212,5 @@ input_file: fixtures/fragments/r/writes.R
     ]
   ],
   "autorun": "Needed",
-  "compile_digest": "f_hPImOJOLGIhQ3w9oBsDfDSOO7VYpvWOTup79zkOOY.NbpXxqilDAdWwujcaKtkz-yxQzNNvLRwE1YKbZZkfZs..0"
+  "compile_digest": "f_hPImOJOLGIhQ3w9oBsDfDSOO7VYpvWOTup79zkOOY.NbpXxqilDAdWwujcaKtkz-yxQzNNvLRwE1YKbZZkfZs..0.0"
 }

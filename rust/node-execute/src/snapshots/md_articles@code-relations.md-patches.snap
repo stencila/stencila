@@ -1,6 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
-assertion_line: 161
+assertion_line: 168
 expression: "&patches"
 
 ---
@@ -22,7 +22,7 @@ expression: "&patches"
         "address": [
           "compileDigest"
         ],
-        "value": "Tvt1ilqkzMqkbonWFun97yUtcI6unFBZMKXzFK3A0QQ.cSI6l7J-C3NXWHVLVurgbQlumKe3QjGqYN6zrFfMhMM..0",
+        "value": "Tvt1ilqkzMqkbonWFun97yUtcI6unFBZMKXzFK3A0QQ.cSI6l7J-C3NXWHVLVurgbQlumKe3QjGqYN6zrFfMhMM..0.0",
         "length": 1
       },
       {
@@ -30,15 +30,7 @@ expression: "&patches"
         "address": [
           "executeDigest"
         ],
-        "value": "Tvt1ilqkzMqkbonWFun97yUtcI6unFBZMKXzFK3A0QQ.cSI6l7J-C3NXWHVLVurgbQlumKe3QjGqYN6zrFfMhMM..0",
-        "length": 1
-      },
-      {
-        "type": "Add",
-        "address": [
-          "executeRequired"
-        ],
-        "value": "No",
+        "value": "Tvt1ilqkzMqkbonWFun97yUtcI6unFBZMKXzFK3A0QQ.cSI6l7J-C3NXWHVLVurgbQlumKe3QjGqYN6zrFfMhMM..0.0",
         "length": 1
       },
       {
@@ -89,7 +81,7 @@ expression: "&patches"
         "address": [
           "compileDigest"
         ],
-        "value": "GXkR7WzluQeHlWpgFstC1vLFs35veOtBe9QfEDuhjLI.nh_hPQhnXRlBiSBOhC-26iqBQeRPMBA4OJ1Ml9T33IY.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
+        "value": "GXkR7WzluQeHlWpgFstC1vLFs35veOtBe9QfEDuhjLI.nh_hPQhnXRlBiSBOhC-26iqBQeRPMBA4OJ1Ml9T33IY.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1.0",
         "length": 1
       },
       {
@@ -97,15 +89,7 @@ expression: "&patches"
         "address": [
           "executeDigest"
         ],
-        "value": "GXkR7WzluQeHlWpgFstC1vLFs35veOtBe9QfEDuhjLI.nh_hPQhnXRlBiSBOhC-26iqBQeRPMBA4OJ1Ml9T33IY.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
-        "length": 1
-      },
-      {
-        "type": "Add",
-        "address": [
-          "executeRequired"
-        ],
-        "value": "No",
+        "value": "GXkR7WzluQeHlWpgFstC1vLFs35veOtBe9QfEDuhjLI.nh_hPQhnXRlBiSBOhC-26iqBQeRPMBA4OJ1Ml9T33IY.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1.0",
         "length": 1
       },
       {
@@ -154,7 +138,7 @@ expression: "&patches"
         "address": [
           "compileDigest"
         ],
-        "value": "5vFFLK9PlUPQ_3BqZ6mmkwOS6N3mAbgK2RgSSmMFCJ0.v8xJ_Bw14WouYXGUyTn2bePyCsd7eCYvhEmLHNimv10.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
+        "value": "5vFFLK9PlUPQ_3BqZ6mmkwOS6N3mAbgK2RgSSmMFCJ0.v8xJ_Bw14WouYXGUyTn2bePyCsd7eCYvhEmLHNimv10.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1.0",
         "length": 1
       },
       {
@@ -162,15 +146,7 @@ expression: "&patches"
         "address": [
           "executeDigest"
         ],
-        "value": "5vFFLK9PlUPQ_3BqZ6mmkwOS6N3mAbgK2RgSSmMFCJ0.v8xJ_Bw14WouYXGUyTn2bePyCsd7eCYvhEmLHNimv10.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
-        "length": 1
-      },
-      {
-        "type": "Add",
-        "address": [
-          "executeRequired"
-        ],
-        "value": "No",
+        "value": "5vFFLK9PlUPQ_3BqZ6mmkwOS6N3mAbgK2RgSSmMFCJ0.v8xJ_Bw14WouYXGUyTn2bePyCsd7eCYvhEmLHNimv10.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1.0",
         "length": 1
       },
       {
@@ -221,7 +197,7 @@ expression: "&patches"
         "address": [
           "compileDigest"
         ],
-        "value": "MbSHMsqe4WgCFlwGviQpo7ie6BFo2eJXiebtlL8MBbI.u-ZxGlUEKMqo4UdU997v5JUeHzEbqxrxpiqqqKEjgBo.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
+        "value": "MbSHMsqe4WgCFlwGviQpo7ie6BFo2eJXiebtlL8MBbI.u-ZxGlUEKMqo4UdU997v5JUeHzEbqxrxpiqqqKEjgBo.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1.0",
         "length": 1
       },
       {
@@ -229,15 +205,7 @@ expression: "&patches"
         "address": [
           "executeDigest"
         ],
-        "value": "MbSHMsqe4WgCFlwGviQpo7ie6BFo2eJXiebtlL8MBbI.u-ZxGlUEKMqo4UdU997v5JUeHzEbqxrxpiqqqKEjgBo.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
-        "length": 1
-      },
-      {
-        "type": "Add",
-        "address": [
-          "executeRequired"
-        ],
-        "value": "No",
+        "value": "MbSHMsqe4WgCFlwGviQpo7ie6BFo2eJXiebtlL8MBbI.u-ZxGlUEKMqo4UdU997v5JUeHzEbqxrxpiqqqKEjgBo.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1.0",
         "length": 1
       },
       {
@@ -290,7 +258,7 @@ expression: "&patches"
         "address": [
           "compileDigest"
         ],
-        "value": "8fu7AlpXiNp1R2KwSLy_SWs_iZzx8CY3eL-wVpofNAQ.nfQpoBKEuoIW8JVJVcp7gA35783IoA_ciPFWPFSaed8.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
+        "value": "8fu7AlpXiNp1R2KwSLy_SWs_iZzx8CY3eL-wVpofNAQ.nfQpoBKEuoIW8JVJVcp7gA35783IoA_ciPFWPFSaed8.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1.0",
         "length": 1
       },
       {
@@ -298,15 +266,7 @@ expression: "&patches"
         "address": [
           "executeDigest"
         ],
-        "value": "8fu7AlpXiNp1R2KwSLy_SWs_iZzx8CY3eL-wVpofNAQ.nfQpoBKEuoIW8JVJVcp7gA35783IoA_ciPFWPFSaed8.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1",
-        "length": 1
-      },
-      {
-        "type": "Add",
-        "address": [
-          "executeRequired"
-        ],
-        "value": "No",
+        "value": "8fu7AlpXiNp1R2KwSLy_SWs_iZzx8CY3eL-wVpofNAQ.nfQpoBKEuoIW8JVJVcp7gA35783IoA_ciPFWPFSaed8.HhVSCU6G4nyKhaM3OrePODVEvGKILAcIBHeL5KeJlIQ.1.0",
         "length": 1
       },
       {
@@ -355,7 +315,7 @@ expression: "&patches"
         "address": [
           "compileDigest"
         ],
-        "value": "4wxAgWB65X0l0qR31Eezb9f6FRJ3J2VJATd5amdGD1o.NEwPns0Ln5AvblNQiOxE55WuSp3Lq1AcFVodSUvJiL8.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1",
+        "value": "4wxAgWB65X0l0qR31Eezb9f6FRJ3J2VJATd5amdGD1o.NEwPns0Ln5AvblNQiOxE55WuSp3Lq1AcFVodSUvJiL8.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1.0",
         "length": 1
       },
       {
@@ -363,15 +323,7 @@ expression: "&patches"
         "address": [
           "executeDigest"
         ],
-        "value": "4wxAgWB65X0l0qR31Eezb9f6FRJ3J2VJATd5amdGD1o.NEwPns0Ln5AvblNQiOxE55WuSp3Lq1AcFVodSUvJiL8.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1",
-        "length": 1
-      },
-      {
-        "type": "Add",
-        "address": [
-          "executeRequired"
-        ],
-        "value": "No",
+        "value": "4wxAgWB65X0l0qR31Eezb9f6FRJ3J2VJATd5amdGD1o.NEwPns0Ln5AvblNQiOxE55WuSp3Lq1AcFVodSUvJiL8.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1.0",
         "length": 1
       },
       {
@@ -422,7 +374,7 @@ expression: "&patches"
         "address": [
           "compileDigest"
         ],
-        "value": "QKuMwjpkYoQH-jlp9EcheEeb38xk_Rf0UhOxgNmnnAk.G34cpLFC4Fi3PXZ5ql3bZ5_qpNPh7QGanFH7UBmOA7g.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1",
+        "value": "QKuMwjpkYoQH-jlp9EcheEeb38xk_Rf0UhOxgNmnnAk.G34cpLFC4Fi3PXZ5ql3bZ5_qpNPh7QGanFH7UBmOA7g.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1.0",
         "length": 1
       },
       {
@@ -430,15 +382,7 @@ expression: "&patches"
         "address": [
           "executeDigest"
         ],
-        "value": "QKuMwjpkYoQH-jlp9EcheEeb38xk_Rf0UhOxgNmnnAk.G34cpLFC4Fi3PXZ5ql3bZ5_qpNPh7QGanFH7UBmOA7g.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1",
-        "length": 1
-      },
-      {
-        "type": "Add",
-        "address": [
-          "executeRequired"
-        ],
-        "value": "No",
+        "value": "QKuMwjpkYoQH-jlp9EcheEeb38xk_Rf0UhOxgNmnnAk.G34cpLFC4Fi3PXZ5ql3bZ5_qpNPh7QGanFH7UBmOA7g.D3hcVVpy-IvARfm9AuHwoX5Gu6XDD-QA07pHJJvfRvM.1.0",
         "length": 1
       },
       {
@@ -491,7 +435,7 @@ expression: "&patches"
         "address": [
           "compileDigest"
         ],
-        "value": "gb5HoVcTF46uTQDbkikofGxBKPtBmF74X8w0Z-S9gzk.M6AC6G3o9zXmDvh2_Zw0SZXwdm8ihrO9A1kRbEFlwm0.iHdGgGRifAVlA4p5T25ajwR0rVMlpiXFyHZsuVjyfQs.3",
+        "value": "gb5HoVcTF46uTQDbkikofGxBKPtBmF74X8w0Z-S9gzk.M6AC6G3o9zXmDvh2_Zw0SZXwdm8ihrO9A1kRbEFlwm0.iHdGgGRifAVlA4p5T25ajwR0rVMlpiXFyHZsuVjyfQs.3.0",
         "length": 1
       },
       {
@@ -499,15 +443,7 @@ expression: "&patches"
         "address": [
           "executeDigest"
         ],
-        "value": "gb5HoVcTF46uTQDbkikofGxBKPtBmF74X8w0Z-S9gzk.M6AC6G3o9zXmDvh2_Zw0SZXwdm8ihrO9A1kRbEFlwm0.iHdGgGRifAVlA4p5T25ajwR0rVMlpiXFyHZsuVjyfQs.3",
-        "length": 1
-      },
-      {
-        "type": "Add",
-        "address": [
-          "executeRequired"
-        ],
-        "value": "No",
+        "value": "gb5HoVcTF46uTQDbkikofGxBKPtBmF74X8w0Z-S9gzk.M6AC6G3o9zXmDvh2_Zw0SZXwdm8ihrO9A1kRbEFlwm0.iHdGgGRifAVlA4p5T25ajwR0rVMlpiXFyHZsuVjyfQs.3.0",
         "length": 1
       },
       {

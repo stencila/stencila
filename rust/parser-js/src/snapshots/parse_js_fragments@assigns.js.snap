@@ -271,5 +271,5 @@ input_file: fixtures/fragments/js/assigns.js
     ]
   ],
   "autorun": "Needed",
-  "compile_digest": "2hEh79-fWUDlXSmxSjB8AXWl0PRS7DOIHKx_ZQgzLMI.qYzA1PvesziUstysOC4V8ZlQ3P3dmfKI4XhKGGvc1p4..0"
+  "compile_digest": "2hEh79-fWUDlXSmxSjB8AXWl0PRS7DOIHKx_ZQgzLMI.qYzA1PvesziUstysOC4V8ZlQ3P3dmfKI4XhKGGvc1p4..0.0"
 }

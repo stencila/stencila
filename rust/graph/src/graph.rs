@@ -171,8 +171,7 @@ impl Graph {
         resource_infos: Vec<ResourceInfo>,
     ) -> Result<Self> {
         let mut graph = Graph::new(path);
-        graph.add_resource_infos(resource_infos);
-        graph.update(None)?;
+        graph.add_resource_infos(resource_infos)?;
         Ok(graph)
     }
 
@@ -254,8 +253,13 @@ impl Graph {
         }
     }
 
+    /// Get [`ResourceInfo`] objects in the graph
+    pub fn get_resource_infos(&self) -> &BTreeMap<Resource, ResourceInfo> {
+        &self.resources
+    }
+
     /// Add a set of [`ResourceInfo`] objects to the graph
-    pub fn add_resource_infos(&mut self, resource_infos: Vec<ResourceInfo>) {
+    pub fn add_resource_infos(&mut self, resource_infos: Vec<ResourceInfo>) -> Result<()> {
         for resource_info in resource_infos.into_iter() {
             let subject = resource_info.resource.clone();
             let relations = resource_info.relations.clone();
@@ -282,21 +286,21 @@ impl Graph {
                 }
             }
         }
-    }
-
-    /// Get [`ResourceInfo`] objects in the graph
-    pub fn get_resource_infos(&self) -> &BTreeMap<Resource, ResourceInfo> {
-        &self.resources
+        self.update(None)?;
+        Ok(())
     }
 
     /// Update a [`ResourceInfo`] objects in the graph
     ///
     /// If the resource does not exist in the graph (it may have been removed since execution
     /// was started for example) then no update is made.
-    pub fn update_resource_info(&mut self, resource_info: ResourceInfo) {
-        if let Some(existing) = self.resources.get_mut(&resource_info.resource) {
+    pub fn update_resource_info(&mut self, resource_info: ResourceInfo) -> Result<()> {
+        let resource = resource_info.resource.clone();
+        if let Some(existing) = self.resources.get_mut(&resource) {
             *existing = resource_info
         }
+        self.update(Some(resource))?;
+        Ok(())
     }
 
     /// Update the graph
@@ -333,6 +337,7 @@ impl Graph {
             let mut depth = 0;
             let mut dependencies_digest = sha2::Sha256::new();
             let mut dependencies_stale = 0;
+            let mut dependencies_failed = 0;
             for incoming_index in incomings {
                 let dependency = &graph[incoming_index];
                 let dependency_info = self
@@ -375,14 +380,18 @@ impl Graph {
                 .concat();
                 dependencies_digest.update(digest);
 
-                // Update the number of `Code` dependencies that are stale. This is transitive,
+                // Update the number of `Code` dependencies that are stale and failed. This is transitive,
                 // so if the resource is not code (e.g. a `Symbol`) then add its value.
                 if matches!(dependency, Resource::Code(..)) {
                     if dependency_info.is_stale() {
                         dependencies_stale += 1;
                     }
+                    if dependency_info.is_fail() {
+                        dependencies_failed += 1;
+                    }
                 } else {
                     dependencies_stale += compile_digest.dependencies_stale;
+                    dependencies_failed += compile_digest.dependencies_failed;
                 }
             }
 
@@ -406,11 +415,13 @@ impl Graph {
                 Some(compile_digest) => {
                     compile_digest.dependencies_digest = dependencies_digest;
                     compile_digest.dependencies_stale = dependencies_stale;
+                    compile_digest.dependencies_failed = dependencies_failed;
                 }
                 None => {
                     let mut compile_digest = resource.digest();
                     compile_digest.dependencies_digest = dependencies_digest;
                     compile_digest.dependencies_stale = dependencies_stale;
+                    compile_digest.dependencies_failed = dependencies_failed;
                     resource_info.compile_digest = Some(compile_digest);
                 }
             }
@@ -446,7 +457,7 @@ impl Graph {
                     // Other types of dependencies (e.g. `File`, `Symbol`) come last.
                     (Resource::Code(..), ..) => Ordering::Less,
                     (.., Resource::Code(..)) => Ordering::Greater,
-                    _ => a.cmp(b)
+                    _ => a.cmp(b),
                 });
             }
         }
@@ -469,7 +480,7 @@ impl Graph {
                     // Other types of dependencies (e.g. `File`, `Symbol`) come last.
                     (Resource::Code(..), ..) => Ordering::Greater,
                     (.., Resource::Code(..)) => Ordering::Less,
-                    _ => a.cmp(b)
+                    _ => a.cmp(b),
                 });
                 resource_info.dependents = Some(dependents)
             }

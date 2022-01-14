@@ -154,7 +154,8 @@ impl Executable for Link {
         };
         let relations = vec![(Relation::Link, object)];
 
-        let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None, None);
+        let resource_info =
+            ResourceInfo::new(resource, Some(relations), None, None, None, None, None);
         context.resource_infos.push(resource_info);
 
         Ok(())
@@ -228,7 +229,7 @@ macro_rules! executable_media_object {
                 let relations = vec![(Relation::Embed, object)];
 
                 let resource_info =
-                    ResourceInfo::new(resource, Some(relations), None, None, None, None);
+                    ResourceInfo::new(resource, Some(relations), None, None, None, None, None);
                 context.resource_infos.push(resource_info);
 
                 self.content_url = url;
@@ -297,6 +298,7 @@ impl Executable for Parameter {
                 Some(&semantic_str),
             )),
             None,
+            None,
         );
         context.resource_infos.push(resource_info);
 
@@ -339,6 +341,15 @@ fn code_execute_status(task_info: &TaskInfo, errors: &[CodeError]) -> CodeExecut
     }
 }
 
+/// Convert the `execute_status` an executable code node to an Option<bool> for `ResourceInfo`
+fn code_execute_succeeded(execute_status: &CodeExecutableExecuteStatus) -> Option<bool> {
+    match execute_status {
+        CodeExecutableExecuteStatus::Succeeded => Some(true),
+        CodeExecutableExecuteStatus::Failed => Some(false),
+        _ => None,
+    }
+}
+
 #[async_trait]
 impl Executable for CodeChunk {
     /// Compile a `CodeChunk` node
@@ -364,8 +375,12 @@ impl Executable for CodeChunk {
         // the last time the code chunk was executed
         resource_info.execute_digest = self
             .execute_digest
-            .clone()
+            .as_ref()
             .map(|cord| ResourceDigest::from_string(&cord.0));
+        resource_info.execute_succeeded = self
+            .execute_status
+            .as_ref()
+            .and_then(code_execute_succeeded);
 
         context.resource_infos.push(resource_info);
 
@@ -398,8 +413,9 @@ impl Executable for CodeChunk {
         self.compile_digest = digest.clone();
         self.execute_digest = digest;
 
-        // Update execution required, status, etc
-        self.execute_required = Some(CodeExecutableExecuteRequired::No);
+        // Update execution status, etc
+        // Do not update `execute_required` here since that is done in `compile()` based on
+        // dependency analysis
         self.execute_status = Some(code_execute_status(&task_info, &errors));
         self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
         self.execute_duration = task_info.duration();
@@ -453,8 +469,12 @@ impl Executable for CodeExpression {
         // the last time the code chunk was executed
         resource_info.execute_digest = self
             .execute_digest
-            .clone()
+            .as_ref()
             .map(|cord| ResourceDigest::from_string(&cord.0));
+        resource_info.execute_succeeded = self
+            .execute_status
+            .as_ref()
+            .and_then(code_execute_succeeded);
 
         context.resource_infos.push(resource_info);
 
@@ -487,8 +507,9 @@ impl Executable for CodeExpression {
         self.compile_digest = digest.clone();
         self.execute_digest = digest;
 
-        // Update execution required, status, etc
-        self.execute_required = Some(CodeExecutableExecuteRequired::No);
+        // Update execution status, etc
+        // Do not update `execute_required` here since that is done in `compile()` based on
+        // dependency analysis
         self.execute_status = Some(code_execute_status(&task_info, &errors));
         self.execute_ended = task_info.ended().map(|date| Box::new(Date::from(date)));
         self.execute_duration = task_info.duration();
@@ -543,7 +564,8 @@ impl Executable for Include {
         let object = resources::file(&path);
         let relations = vec![(Relation::Include, object)];
 
-        let resource_info = ResourceInfo::new(resource, Some(relations), None, None, None, None);
+        let resource_info =
+            ResourceInfo::new(resource, Some(relations), None, None, None, None, None);
         context.resource_infos.push(resource_info);
 
         Ok(())

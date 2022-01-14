@@ -238,5 +238,5 @@ input_file: fixtures/fragments/py/writes.py
     ]
   ],
   "autorun": "Needed",
-  "compile_digest": "Y0-4oBtHaII_2zLTRsRcbU6DjxhQNtMs-WksZ_3rNCM.GCmDgk4UOAja8H_RzHy_dysHxPIxd43-0kKMaNa-IoM..0"
+  "compile_digest": "Y0-4oBtHaII_2zLTRsRcbU6DjxhQNtMs-WksZ_3rNCM.GCmDgk4UOAja8H_RzHy_dysHxPIxd43-0kKMaNa-IoM..0.0"
 }

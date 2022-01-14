@@ -1,6 +1,6 @@
 ---
 source: rust/parser-calc/src/lib.rs
-assertion_line: 133
+assertion_line: 132
 expression: resource_info
 input_file: fixtures/fragments/calc/uses.calc
 
@@ -152,5 +152,5 @@ input_file: fixtures/fragments/calc/uses.calc
     ]
   ],
   "autorun": "Needed",
-  "compile_digest": "86oVD8-JpDGmPgyyR3wOYN9OokLskKvbEaaNIb9nRiQ.mdBvmThQ6N9NPgAb3r4Gb5m6JVR667nv_BlUN6JxP3k..0"
+  "compile_digest": "86oVD8-JpDGmPgyyR3wOYN9OokLskKvbEaaNIb9nRiQ.mdBvmThQ6N9NPgAb3r4Gb5m6JVR667nv_BlUN6JxP3k..0.0"
 }

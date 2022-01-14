@@ -86,7 +86,7 @@ fn compile_patches_and_send(
     graph: &Graph,
     patch_sender: &UnboundedSender<Patch>,
 ) {
-    // Collect all the code nodes in the graph and new values for some of their prpoerties
+    // Collect all the code nodes in the graph and new values for some of their properties
     let resource_infos = graph.get_resource_infos();
     let nodes: HashMap<String, _> = resource_infos
         .iter()
@@ -131,6 +131,8 @@ fn compile_patches_and_send(
                                 != execute_digest.dependencies_digest
                             {
                                 CodeExecutableExecuteRequired::DependenciesChanged
+                            } else if compile_digest.dependencies_failed > 0 {
+                                CodeExecutableExecuteRequired::DependenciesFailed
                             } else {
                                 CodeExecutableExecuteRequired::No
                             }
@@ -206,27 +208,29 @@ fn compile_patches_and_send(
                 let dependents = dependents
                     .iter()
                     .filter_map(|dependent_id| nodes.get(dependent_id))
-                    .filter_map(|(_address, dependent, .., new_execute_required)| match dependent {
-                        Node::CodeChunk(dependant) => {
-                            Some(CodeExecutableCodeDependents::CodeChunk(CodeChunk {
-                                id: dependant.id.clone(),
-                                programming_language: dependant.programming_language.clone(),
-                                execute_required: Some(new_execute_required.clone()),
-                                execute_status: dependant.execute_status.clone(),
-                                ..Default::default()
-                            }))
-                        }
-                        Node::CodeExpression(dependant) => Some(
-                            CodeExecutableCodeDependents::CodeExpression(CodeExpression {
-                                id: dependant.id.clone(),
-                                programming_language: dependant.programming_language.clone(),
-                                execute_required: Some(new_execute_required.clone()),
-                                execute_status: dependant.execute_status.clone(),
-                                ..Default::default()
-                            }),
-                        ),
-                        _ => None,
-                    })
+                    .filter_map(
+                        |(_address, dependent, .., new_execute_required)| match dependent {
+                            Node::CodeChunk(dependant) => {
+                                Some(CodeExecutableCodeDependents::CodeChunk(CodeChunk {
+                                    id: dependant.id.clone(),
+                                    programming_language: dependant.programming_language.clone(),
+                                    execute_required: Some(new_execute_required.clone()),
+                                    execute_status: dependant.execute_status.clone(),
+                                    ..Default::default()
+                                }))
+                            }
+                            Node::CodeExpression(dependant) => Some(
+                                CodeExecutableCodeDependents::CodeExpression(CodeExpression {
+                                    id: dependant.id.clone(),
+                                    programming_language: dependant.programming_language.clone(),
+                                    execute_required: Some(new_execute_required.clone()),
+                                    execute_status: dependant.execute_status.clone(),
+                                    ..Default::default()
+                                }),
+                            ),
+                            _ => None,
+                        },
+                    )
                     .collect();
 
                 let mut after = node.clone();

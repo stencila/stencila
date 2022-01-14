@@ -76,7 +76,15 @@ impl Resource {
 
     /// Get the [`ResourceInfo`] for a resource
     pub fn resource_info(&self) -> ResourceInfo {
-        ResourceInfo::new(self.clone(), None, None, None, Some(self.digest()), None)
+        ResourceInfo::new(
+            self.clone(),
+            None,
+            None,
+            None,
+            Some(self.digest()),
+            None,
+            None,
+        )
     }
 
     /// Get the [`NodeId`] for resources that have it
@@ -163,6 +171,12 @@ pub struct ResourceDigest {
     /// If there are no dependencies then `dependencies_stale` is zero. May include
     /// duplicates for diamond shaped dependency graphs so this represents a maximum number.
     pub dependencies_stale: u32,
+
+    /// The count of the number of code dependencies that had `execute_status == Failed`
+    ///
+    /// If there are no dependencies then `dependencies_failed` is zero. May include
+    /// duplicates for diamond shaped dependency graphs so this represents a maximum number.
+    pub dependencies_failed: u32,
 }
 
 impl ResourceDigest {
@@ -175,11 +189,15 @@ impl ResourceDigest {
         let dependencies_stale = parts
             .get(3)
             .map_or(0, |str| str.parse().unwrap_or_default());
+        let dependencies_failed = parts
+            .get(4)
+            .map_or(0, |str| str.parse().unwrap_or_default());
         Self {
             content_digest,
             semantic_digest,
             dependencies_digest,
             dependencies_stale,
+            dependencies_failed,
         }
     }
 
@@ -243,11 +261,12 @@ impl Display for ResourceDigest {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             formatter,
-            "{}.{}.{}.{}",
+            "{}.{}.{}.{}.{}",
             self.content_digest,
             self.semantic_digest,
             self.dependencies_digest,
-            self.dependencies_stale
+            self.dependencies_stale,
+            self.dependencies_failed
         )
     }
 }
@@ -316,6 +335,9 @@ pub struct ResourceInfo {
 
     /// The [`ResourceDigest`] of the resource when it was last executed
     pub execute_digest: Option<ResourceDigest>,
+
+    /// Whether the last execution of the resource succeeded
+    pub execute_succeeded: Option<bool>,
 }
 
 impl ResourceInfo {
@@ -331,6 +353,7 @@ impl ResourceInfo {
             pure: None,
             compile_digest: None,
             execute_digest: None,
+            execute_succeeded: None,
         }
     }
 
@@ -342,6 +365,7 @@ impl ResourceInfo {
         autorun: Option<ResourceAutorun>,
         compile_digest: Option<ResourceDigest>,
         execute_digest: Option<ResourceDigest>,
+        execute_succeeded: Option<bool>,
     ) -> Self {
         Self {
             resource,
@@ -353,6 +377,7 @@ impl ResourceInfo {
             pure,
             compile_digest,
             execute_digest,
+            execute_succeeded,
         }
     }
 
@@ -431,9 +456,19 @@ impl ResourceInfo {
         }
     }
 
-    /// The resource was executed, so update the `execute_digest` to the `compile_digest`
-    pub fn did_execute(&mut self) {
+    /// Did execution fail the last time the resource was executed
+    ///
+    /// Returns `false` if the resource has not been executed or was executed
+    /// and succeeded.
+    pub fn is_fail(&self) -> bool {
+        self.execute_succeeded.map_or(false, |success| !success)
+    }
+
+    /// The resource was executed, so update the `execute_digest` to the `compile_digest`,
+    /// and `execute_succeeded` property.
+    pub fn did_execute(&mut self, succeeded: Option<bool>) {
         self.execute_digest = self.compile_digest.clone();
+        self.execute_succeeded = succeeded;
     }
 }
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]
