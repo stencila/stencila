@@ -63,10 +63,12 @@ properties:
       last executed.
   executeStatus:
     '@id': stencila:executeStatus
-    description: Status of the last execution of the code.
+    description: Status of the most recent, including in progress, execution of the code.
     enum:
       - Scheduled
+      - ScheduledPreviouslyFailed
       - Running
+      - RunningPreviouslyFailed
       - Succeeded
       - Failed
       - Cancelled
