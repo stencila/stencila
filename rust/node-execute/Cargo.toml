@@ -20,7 +20,7 @@ node-pointer = { path = "../node-pointer", version = "0.0.0" }
 parsers = { path = "../parsers", version = "0.0.0" }
 path-utils = { path = "../path-utils", version = "0.0.0" }
 serde = { version = "1.0.130", features = ["derive"] }
-stencila-schema = "1.14.0" 
+stencila-schema = "1.15.0"
 tokio = { version = "1.13.0", features = ["macros"] }
 tracing = "0.1.29"
 uuids = { path = "../uuids", version = "0.0.0" }

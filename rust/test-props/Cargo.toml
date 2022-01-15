@@ -7,4 +7,4 @@ edition = "2021"
 [dependencies]
 itertools = "0.10.1"
 proptest = "1.0.0"
-stencila-schema = "1.14.0" 
+stencila-schema = "1.15.0"
