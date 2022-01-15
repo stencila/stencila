@@ -184,6 +184,8 @@ impl ParserTrait for RParser {
             path,
             &Self::spec().language,
             code,
+            &tree,
+            &["comment"],
             matches,
             0,
             relations,

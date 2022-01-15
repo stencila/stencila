@@ -1,6 +1,6 @@
 ---
 source: rust/parser-r/src/lib.rs
-assertion_line: 266
+assertion_line: 210
 expression: resource_info
 input_file: fixtures/fragments/r/tags.R
 
@@ -159,5 +159,5 @@ input_file: fixtures/fragments/r/tags.R
     ]
   ],
   "execute_pure": false,
-  "compile_digest": "-sYD5DawsmdbnjJS6kbn021yYEpOQYW8VxSMrr_bk_I.iM8Bkr--cYF6GZLuwiGcYeFl-P6OFGyR--NyAl7xEto..0.0"
+  "compile_digest": "-sYD5DawsmdbnjJS6kbn021yYEpOQYW8VxSMrr_bk_I.IimvhNoWp6CViUNeDXRt3z2FoGwHZb02bnCgVlTYmw0..0.0"
 }

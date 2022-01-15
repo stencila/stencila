@@ -1,6 +1,6 @@
 ---
 source: rust/parser-rust/src/lib.rs
-assertion_line: 102
+assertion_line: 104
 expression: resource_info
 input_file: fixtures/fragments/rust/assigns.rs
 
@@ -168,5 +168,5 @@ input_file: fixtures/fragments/rust/assigns.rs
       }
     ]
   ],
-  "compile_digest": "08X6jzT6CPQtHGoj5AxqCYKm_yNJW5nlDL5blfp3KbA.RtFpWRazVrrtN2dE1UVU49rm98qhXC1yUmNqOugBsQI..0.0"
+  "compile_digest": "08X6jzT6CPQtHGoj5AxqCYKm_yNJW5nlDL5blfp3KbA.7a9LALTvFhtFB1HuIhMRvRwtKlmTUaPi-pHcaNcHNfA..0.0"
 }

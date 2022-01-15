@@ -3604,6 +3604,7 @@ dependencies = [
 name = "parser-treesitter"
 version = "0.0.0"
 dependencies = [
+ "hash-utils",
  "parser",
  "path-utils",
  "tree-sitter",

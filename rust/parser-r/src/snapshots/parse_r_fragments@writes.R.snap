@@ -1,6 +1,6 @@
 ---
 source: rust/parser-r/src/lib.rs
-assertion_line: 266
+assertion_line: 210
 expression: resource_info
 input_file: fixtures/fragments/r/writes.R
 
@@ -211,5 +211,5 @@ input_file: fixtures/fragments/r/writes.R
       }
     ]
   ],
-  "compile_digest": "f_hPImOJOLGIhQ3w9oBsDfDSOO7VYpvWOTup79zkOOY.NbpXxqilDAdWwujcaKtkz-yxQzNNvLRwE1YKbZZkfZs..0.0"
+  "compile_digest": "f_hPImOJOLGIhQ3w9oBsDfDSOO7VYpvWOTup79zkOOY.z5VYQYHtKUI0LzxfmB0MkjOkCTzyzUJMI-rrPo37YHc..0.0"
 }

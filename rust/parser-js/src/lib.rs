@@ -169,6 +169,8 @@ impl ParserTrait for JsParser {
             path,
             &Self::spec().language,
             code,
+            &tree,
+            &["comment"],
             matches,
             0,
             relations,

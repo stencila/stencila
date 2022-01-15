@@ -77,6 +77,8 @@ impl ParserTrait for RustParser {
             path,
             &Self::spec().language,
             code,
+            &tree,
+            &["comment"],
             matches,
             0,
             relations,

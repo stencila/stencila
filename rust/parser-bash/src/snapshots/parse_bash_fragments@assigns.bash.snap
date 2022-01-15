@@ -1,6 +1,6 @@
 ---
 source: rust/parser-bash/src/lib.rs
-assertion_line: 94
+assertion_line: 96
 expression: resource_info
 input_file: fixtures/fragments/bash/assigns.bash
 
@@ -83,5 +83,5 @@ input_file: fixtures/fragments/bash/assigns.bash
       }
     ]
   ],
-  "compile_digest": "If7kDLmL59GSi1NqK-3YS-6Y8rb7z_xRoq9E7rDKLso.phLzV2g7F8MJ3XYORqgqm0UAzlMsCuFPRrp-Opb1VcE..0.0"
+  "compile_digest": "If7kDLmL59GSi1NqK-3YS-6Y8rb7z_xRoq9E7rDKLso.atOoKTNLWndOM25z577zoaQrsnlMf6Iu0-6iDT8S8sQ..0.0"
 }

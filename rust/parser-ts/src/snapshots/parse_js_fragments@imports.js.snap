@@ -1,6 +1,6 @@
 ---
 source: rust/parser-ts/src/lib.rs
-assertion_line: 159
+assertion_line: 136
 expression: resource_info
 input_file: fixtures/fragments/js/imports.js
 
@@ -361,5 +361,5 @@ input_file: fixtures/fragments/js/imports.js
       }
     ]
   ],
-  "compile_digest": "J1iZ0Ts-ZplNAUati58SMIPLKX963FFKyGn7ORPrpks.uVIoecMY1LSCeasa7B9KyqnCqUhV4Rb8H7BTs2tMt9I..0.0"
+  "compile_digest": "J1iZ0Ts-ZplNAUati58SMIPLKX963FFKyGn7ORPrpks.LbJUpqxGNz4sw-J4oEFTzheMqMeSNTrsvepL2jlCSwI..0.0"
 }

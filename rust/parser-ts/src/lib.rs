@@ -89,6 +89,8 @@ impl ParserTrait for TsParser {
             path,
             &Self::spec().language,
             code,
+            &tree,
+            &["comment"],
             matches,
             0,
             relations,

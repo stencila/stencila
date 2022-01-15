@@ -1,8 +1,10 @@
+use hash_utils::sha2::{Digest, Sha256};
 use parser::{
     graph_triples::{relations::Range, resources::ResourceDigest, Pairs, Resource, ResourceInfo},
     utils::apply_tags,
 };
 use std::{collections::HashMap, path::Path, sync::Mutex};
+use tree_sitter::Tree;
 
 // Re-exports for the convenience of crates implementing a Tree-sitter
 // based parser
@@ -206,32 +208,27 @@ pub fn child_text<'tree>(
 /// Assumes that the first capture has the text content of the comment.
 /// If the tag ends in `only` then all existing relations of that type
 /// will be removed from `relations`.
+#[allow(clippy::too_many_arguments)]
 pub fn resource_info(
     resource: Resource,
     path: &Path,
     lang: &str,
     code: &[u8],
+    tree: &Tree,
+    semantics_exclude: &[&str],
     matches: Vec<(usize, Vec<Capture>)>,
     comment_pattern: usize,
     relations: Pairs,
 ) -> ResourceInfo {
-    // The content of the resource (used for generating digest)
-    let content_str = std::str::from_utf8(code).unwrap_or_default();
-
-    // The semantics of the resource (used for generating digest).
-    // Includes the language name. In the future may be generated from the
-    // parsed AST.
-    let semantic_str = [lang, content_str].concat();
-
     // Make the resource
     let mut resource_info = ResourceInfo::new(
         resource,
         Some(relations),
         None,
         None,
-        Some(ResourceDigest::from_strings(
-            content_str,
-            Some(&semantic_str),
+        Some(ResourceDigest::from_bytes(
+            &content_digest(code),
+            Some(&semantic_digest(tree, code, semantics_exclude)),
         )),
         None,
         None,
@@ -256,4 +253,67 @@ pub fn resource_info(
     }
 
     resource_info
+}
+
+/// Generate a content digest of the code (just a SHA256 of the content)
+fn content_digest(code: &[u8]) -> [u8; 32] {
+    let mut sha256 = Sha256::new();
+    sha256.update(code);
+    sha256
+        .finalize()
+        .as_slice()
+        .try_into()
+        .expect("Should always convert to 32 bytes")
+}
+
+/// Generate a semantic digest of a Tree-sitter tree
+///
+/// The digest excludes "anonymous" nodes and some "named" nodes.
+/// See https://tree-sitter.github.io/tree-sitter/using-parsers#named-vs-anonymous-nodes
+/// for a discussion of the distinction between the two.
+fn semantic_digest(tree: &Tree, code: &[u8], exclude: &[&str]) -> [u8; 32] {
+    let mut sha256 = Sha256::new();
+
+    // Traverse tree adding the text of named leaf nodes.
+    //
+    // This implementation derived from https://github.com/tree-sitter/py-tree-sitter/issues/33#issuecomment-864557166
+    // and https://github.com/skmendez/tree-sitter-traversal/blob/main/src/lib.rs
+    let mut cursor = tree.walk();
+    let mut finished = false;
+    while !finished {
+        // Get current node
+        let node = cursor.node();
+        let kind = node.kind();
+        if node.is_named() && !exclude.contains(&kind) {
+            sha256.update(&kind);
+            if node.child_count() == 0 {
+                let text = node.utf8_text(code).unwrap();
+                sha256.update(&text);
+            }
+        }
+
+        // Continue traverse
+        if cursor.goto_first_child() {
+            continue;
+        }
+        if cursor.goto_next_sibling() {
+            continue;
+        }
+        let mut retracing = true;
+        while retracing {
+            if !cursor.goto_parent() {
+                retracing = false;
+                finished = true;
+            }
+            if cursor.goto_next_sibling() {
+                retracing = false;
+            }
+        }
+    }
+
+    sha256
+        .finalize()
+        .as_slice()
+        .try_into()
+        .expect("Should always convert to 32 bytes")
 }
