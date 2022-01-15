@@ -25,7 +25,7 @@ use tokio::sync::{mpsc::UnboundedSender, RwLock};
 ///
 /// - determining dependencies within and between documents and other resources
 ///
-/// Uses a `RwLock` for `root` so that locks can be held for as short as
+/// Uses a `RwLock` for `root` so that write lock can be held for as short as
 /// time as possible and for consistency with the `execute` function.
 ///
 /// # Arguments
@@ -63,7 +63,8 @@ pub async fn compile(
 /// Compile a node, usually the `root` node of a document, wihout walking it
 /// by using an existing address map and graph
 ///
-/// Uses a `RwLock` for the first three parameters for consistency with the `compile` function.
+/// Uses a `RwLock` for the first three parameters for consistency with the `compile` function
+/// but only takes read locks of these.
 pub async fn compile_no_walk(
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
@@ -188,6 +189,7 @@ fn compile_patches_and_send(
                                 Some(CodeExecutableCodeDependencies::CodeChunk(CodeChunk {
                                     id: dependency.id.clone(),
                                     programming_language: dependency.programming_language.clone(),
+                                    execute_auto: dependency.execute_auto.clone(),
                                     execute_required: Some(new_execute_required.clone()),
                                     execute_status: dependency.execute_status.clone(),
                                     ..Default::default()
@@ -214,6 +216,7 @@ fn compile_patches_and_send(
                                 Some(CodeExecutableCodeDependents::CodeChunk(CodeChunk {
                                     id: dependant.id.clone(),
                                     programming_language: dependant.programming_language.clone(),
+                                    execute_auto: dependant.execute_auto.clone(),
                                     execute_required: Some(new_execute_required.clone()),
                                     execute_status: dependant.execute_status.clone(),
                                     ..Default::default()
