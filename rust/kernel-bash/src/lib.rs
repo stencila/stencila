@@ -7,7 +7,7 @@ use kernel_micro::{include_file, MicroKernel};
 pub fn new() -> MicroKernel {
     MicroKernel::new(
         "bash-micro",
-        &["bash"],
+        &["Bash", "Shell"],
         true,
         false,
         false,
