@@ -32,7 +32,7 @@ impl ParserTrait for RustParser {
         let relations = matches
             .iter()
             .filter_map(|(pattern, captures)| match pattern {
-                0 | 1 | 2 => {
+                1 | 2 | 3 => {
                     // Assigns a variable
                     let range = captures[0].range;
                     let name = captures[0].text.clone();
@@ -41,7 +41,7 @@ impl ParserTrait for RustParser {
                         resources::symbol(path, &name, ""),
                     ))
                 }
-                3 => {
+                4 => {
                     // Uses a variable
                     let node = captures[0].node;
                     let range = captures[0].range;
