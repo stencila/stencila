@@ -256,9 +256,12 @@ pub fn resource_info(
 }
 
 /// Generate a content digest of the code (just a SHA256 of the content)
+///
+/// Strips carriage returns to avoid different digests on Windows.
 fn content_digest(code: &[u8]) -> [u8; 32] {
     let mut sha256 = Sha256::new();
-    sha256.update(code);
+    let text = String::from_utf8_lossy(code).replace("\r", "");
+    sha256.update(&text);
     sha256
         .finalize()
         .as_slice()
@@ -271,6 +274,8 @@ fn content_digest(code: &[u8]) -> [u8; 32] {
 /// The digest excludes "anonymous" nodes and some "named" nodes.
 /// See https://tree-sitter.github.io/tree-sitter/using-parsers#named-vs-anonymous-nodes
 /// for a discussion of the distinction between the two.
+///
+/// Strips carriage returns to avoid different digests on Windows.
 fn semantic_digest(tree: &Tree, code: &[u8], exclude: &[&str]) -> [u8; 32] {
     let mut sha256 = Sha256::new();
 
@@ -287,7 +292,7 @@ fn semantic_digest(tree: &Tree, code: &[u8], exclude: &[&str]) -> [u8; 32] {
         if node.is_named() && !exclude.contains(&kind) {
             sha256.update(&kind);
             if node.child_count() == 0 {
-                let text = node.utf8_text(code).unwrap();
+                let text = node.utf8_text(code).unwrap().replace("\r", "");
                 sha256.update(&text);
             }
         }
