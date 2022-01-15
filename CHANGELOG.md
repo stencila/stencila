@@ -1,3 +1,17 @@
+# [1.15.0](https://github.com/stencila/schema/compare/v1.14.0...v1.15.0) (2022-01-15)
+
+
+### Bug Fixes
+
+* **CodeExecutable:** Remove `CodeExpression` variant from `codeDependencies` ([294e606](https://github.com/stencila/schema/commit/294e606649078b7fd092ad7489a70a796694efa2))
+
+
+### Features
+
+* **CodeChunk:** Add `executeAuto` and `executePure` properties ([16a4bd8](https://github.com/stencila/schema/commit/16a4bd81d6d11c089cd65c254046f7c2fd7355fc))
+* **CodeExecutable:** Add `DependenciesFailed` variant to `executeRequired` ([3cde344](https://github.com/stencila/schema/commit/3cde3440600e8d4aacce107a2fa15f9709940826))
+* **CodeExecutable:** Add variants to `executeStatus` ([7b01a09](https://github.com/stencila/schema/commit/7b01a09220701d11b04a3d9fccd4f39801b59367))
+
 # [1.14.0](https://github.com/stencila/schema/compare/v1.13.0...v1.14.0) (2022-01-12)
 
 
