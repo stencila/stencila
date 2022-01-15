@@ -10,6 +10,8 @@ pub use compile::*;
 mod execute;
 pub use execute::*;
 
+mod utils;
+
 #[cfg(test)]
 mod tests {
     use std::sync::Arc;
