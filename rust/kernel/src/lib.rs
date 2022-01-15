@@ -395,6 +395,27 @@ impl Task {
         }
     }
 
+    /// Create a task that could not be dispatched to a kernel and give the reason for that
+    pub fn not_dispatched(message: &str) -> Self {
+        let now = Utc::now();
+        Self {
+            id: TaskId::new(),
+            created: now,
+            started: Some(now),
+            finished: Some(now),
+            cancelled: None,
+            result: Some(TaskResult::new(
+                Vec::new(),
+                vec![CodeError {
+                    error_message: message.to_string(),
+                    ..Default::default()
+                }],
+            )),
+            sender: None,
+            canceller: None,
+        }
+    }
+
     /// Start a task
     pub fn start(sender: Option<TaskSender>, canceller: Option<TaskCanceller>) -> Self {
         let now = Utc::now();

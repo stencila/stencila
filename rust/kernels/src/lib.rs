@@ -861,8 +861,12 @@ impl KernelSpace {
         } else {
             let symbols = &mut *self.symbols.lock().await;
             let task =
-                KernelSpace::dispatch_task(code, resource_info, symbols, &kernel_id, kernels)
-                    .await?;
+                match KernelSpace::dispatch_task(code, resource_info, symbols, &kernel_id, kernels)
+                    .await
+                {
+                    Ok(task) => task,
+                    Err(error) => Task::not_dispatched(&error.to_string()),
+                };
             (false, task)
         };
 
