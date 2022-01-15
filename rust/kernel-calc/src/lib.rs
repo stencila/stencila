@@ -52,22 +52,28 @@ impl KernelTrait for CalcKernel {
             },
             Node::Integer(integer) => integer as f64,
             Node::Number(number) => number,
-            Node::Array(array) => match array.first() {
-                Some(Primitive::Null(..)) => 0.,
-                Some(Primitive::Boolean(boolean)) => match boolean {
-                    true => 1.,
-                    false => 0.,
-                },
-                Some(Primitive::Integer(integer)) => *integer as f64,
-                Some(Primitive::Number(number)) => *number,
-                None => 0.,
-                _ => bail!(
-                    "Unable to convert first item of array to a number for use in Calc kernel"
-                ),
+            Node::String(string) => match string.trim().parse() {
+                Ok(number) => number,
+                Err(..) => bail!("Unable to convert string `{}` to a number", string),
             },
-            _ => bail!(
-                "Node is of type that can not be converted to a number for use in Calc kernel"
-            ),
+            Node::Array(array) => match array.first() {
+                Some(value) => match value {
+                    Primitive::Null(..) => 0.,
+                    Primitive::Boolean(boolean) => match boolean {
+                        true => 1.,
+                        false => 0.,
+                    },
+                    Primitive::Integer(integer) => *integer as f64,
+                    Primitive::Number(number) => *number,
+                    Primitive::String(string) => match string.trim().parse() {
+                        Ok(number) => number,
+                        Err(..) => bail!("Unable to convert string `{}` to a number", string),
+                    },
+                    _ => bail!("Unable to convert first item of array to a number"),
+                },
+                _ => bail!("Unable to convert empty array to a number"),
+            },
+            _ => bail!("Node is of type that can not be converted to a number"),
         };
         self.symbols.insert(name.to_string(), value);
         Ok(())
@@ -193,7 +199,7 @@ mod tests {
             Ok(..) => bail!("Expected an error"),
             Err(error) => assert!(error
                 .to_string()
-                .contains("Unable to convert node to a number")),
+                .contains("Unable to convert string `A` to a number")),
         };
 
         kernel.set("a", Node::Number(1.23)).await?;
