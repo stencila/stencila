@@ -55,6 +55,12 @@ pub struct Kernel {
     /// the `formats` crate (but don't have to be). Many kernels only support one language.
     pub languages: Vec<String>,
 
+    /// Is the kernel available on the current machine?
+    pub available: bool,
+
+    /// Is the kernel interruptable on the current machine?
+    pub interruptable: bool,
+
     /// Is the kernel fork-able on the current machine?
     ///
     /// Used when generating execution plans to determine which execution steps
@@ -64,7 +70,14 @@ pub struct Kernel {
 
 impl Kernel {
     // Create a new kernel specification
-    pub fn new(name: &str, r#type: KernelType, languages: &[&str], forkable: bool) -> Self {
+    pub fn new(
+        name: &str,
+        r#type: KernelType,
+        languages: &[&str],
+        available: bool,
+        interruptable: bool,
+        forkable: bool,
+    ) -> Self {
         let languages = languages
             .iter()
             .map(|language| language.to_string())
@@ -73,6 +86,8 @@ impl Kernel {
             name: name.to_string(),
             r#type,
             languages,
+            available,
+            interruptable,
             forkable,
         }
     }
@@ -550,27 +565,21 @@ pub trait KernelTrait {
     /// Get the [`Kernel`] specification for this implementation
     ///
     /// Must be implemented by [`KernelTrait`] implementations.
-    fn spec(&self) -> Kernel;
+    async fn spec(&self) -> Kernel;
 
     /// Is the kernel available on the current machine?
     async fn is_available(&self) -> bool {
-        true
+        self.spec().await.available
     }
 
-    /// Can the kernel interrupt tasks?
-    ///
-    /// Some kernels listen for an interrupt signal (`SINGIT` on POSIX) to
-    /// cancel long running tasks.
+    /// Is the kernel interruptable on the current machine?
     async fn is_interruptable(&self) -> bool {
-        false
+        self.spec().await.interruptable
     }
 
-    /// Can the kernel be forked an the current machine?
-    ///
-    /// Kernel trait implementations can use this method to override the `forkable`
-    /// value in the `Kernel` spec if it is machine dependent.
+    /// Is the kernel forkable on the current machine?
     async fn is_forkable(&self) -> bool {
-        self.spec().forkable
+        self.spec().await.forkable
     }
 
     /// Start the kernel
@@ -696,7 +705,14 @@ mod test {
 
     #[test]
     fn kernel_selector_matches() {
-        let k = Kernel::new("foo", KernelType::Builtin, &["bar", "baz"], false);
+        let k = Kernel::new(
+            "foo",
+            KernelType::Builtin,
+            &["bar", "baz"],
+            true,
+            false,
+            false,
+        );
 
         assert!(KernelSelector::parse("foo").matches(&k));
         assert!(KernelSelector::parse("bar").matches(&k));

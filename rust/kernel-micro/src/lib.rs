@@ -268,38 +268,23 @@ impl MicroKernelSignaller {
 #[async_trait]
 impl KernelTrait for MicroKernel {
     /// Get the [`Kernel`] specification
-    fn spec(&self) -> Kernel {
+    async fn spec(&self) -> Kernel {
+        // Override `self.available == true` with check that binary is installed
+        let available = if !self.available {
+            false
+        } else {
+            let (name, semver) = &self.runtime;
+            binaries::installed(name, semver).await
+        };
+
         Kernel {
             name: self.name.clone(),
             r#type: KernelType::Micro,
             languages: self.languages.clone(),
+            available,
+            interruptable: self.interruptable,
             forkable: self.forkable,
         }
-    }
-
-    /// Is the kernel available on the current machine?
-    ///
-    /// Returns `true` if the operating system is listed in `oses` and
-    /// a runtime matching the semver requirements in `runtime` is found to be installed.
-    async fn is_available(&self) -> bool {
-        if !self.available {
-            return false;
-        }
-        let (name, semver) = &self.runtime;
-        binaries::installed(name, semver).await
-    }
-
-    /// Is the kernel interruptable on the current machine?
-    ///
-    /// Although the microkernel itself may handle interrupts across operating systems,
-    /// here we only support if for *nix. So return false, if on Windows
-    async fn is_interruptable(&self) -> bool {
-        self.interruptable && cfg!(not(target_os = "windows"))
-    }
-
-    /// Is the kernel forkable on the current machine?
-    async fn is_forkable(&self) -> bool {
-        self.forkable
     }
 
     /// Start the kernel

@@ -54,7 +54,7 @@ impl MetaKernel {
             ($feat:literal, $variant:path, $kernel:expr) => {
                 #[cfg(feature = $feat)]
                 {
-                    if selector.matches(&$kernel.spec()) && $kernel.is_available().await {
+                    if selector.matches(&$kernel.spec().await) && $kernel.is_available().await {
                         return Ok($variant($kernel));
                     }
                 }
@@ -104,8 +104,8 @@ macro_rules! dispatch_variants {
 
 #[async_trait]
 impl KernelTrait for MetaKernel {
-    fn spec(&self) -> Kernel {
-        dispatch_variants!(self, spec)
+    async fn spec(&self) -> Kernel {
+        dispatch_variants!(self, spec).await
     }
 
     async fn is_available(&self) -> bool {
@@ -187,7 +187,7 @@ impl KernelMap {
                     // Not the right id, so keep looking
                     continue;
                 }
-            } else if !selector.matches(&kernel.spec()) {
+            } else if !selector.matches(&kernel.spec().await) {
                 // Not a match, so keep looking
                 continue;
             }
@@ -226,7 +226,7 @@ impl KernelMap {
         kernel.start().await?;
 
         // Generate the kernel id from the selector, adding a numeric suffix if necessary
-        let kernel_id = slug::slugify(kernel.spec().name);
+        let kernel_id = slug::slugify(kernel.spec().await.name);
         let count = self
             .keys()
             .filter(|key| key.starts_with(&kernel_id))
@@ -274,7 +274,7 @@ impl KernelMap {
         let mut list = Vec::new();
         for (id, kernel) in self.iter() {
             let id = id.to_string();
-            let spec = kernel.spec();
+            let spec = kernel.spec().await;
             let status = match kernel.status().await {
                 Ok(status) => status,
                 Err(error) => {
@@ -844,7 +844,7 @@ impl KernelSpace {
         &self,
         code: &str,
         resource_info: &ResourceInfo,
-        is_fork: bool,
+        force_fork: bool,
         selector: &KernelSelector,
     ) -> Result<TaskInfo> {
         let kernels = &mut *self.kernels.lock().await;
@@ -860,19 +860,32 @@ impl KernelSpace {
             (true, task)
         } else {
             let symbols = &mut *self.symbols.lock().await;
-            let task =
-                match KernelSpace::dispatch_task(code, resource_info, symbols, &kernel_id, kernels)
-                    .await
-                {
-                    Ok(task) => task,
-                    Err(error) => Task::not_dispatched(&error.to_string()),
-                };
+            let task = match KernelSpace::dispatch_task(
+                code,
+                resource_info,
+                force_fork,
+                symbols,
+                &kernel_id,
+                kernels,
+            )
+            .await
+            {
+                Ok(task) => task,
+                Err(error) => Task::not_dispatched(&error.to_string()),
+            };
             (false, task)
         };
 
         // Either way, store the task
         let task_info = self
-            .store(&task, code, resource_info, &kernel_id, is_fork, is_deferred)
+            .store(
+                &task,
+                code,
+                resource_info,
+                &kernel_id,
+                force_fork,
+                is_deferred,
+            )
             .await;
         Ok(task_info)
     }
@@ -886,6 +899,7 @@ impl KernelSpace {
     async fn dispatch_task(
         code: &str,
         resource_info: &ResourceInfo,
+        force_fork: bool,
         symbols: &mut KernelSymbols,
         kernel_id: &str,
         kernels: &mut KernelMap,
@@ -934,7 +948,7 @@ impl KernelSpace {
         // Execute the code in the kernel
         let pure = resource_info.is_pure();
         let kernel = kernels.get_mut(kernel_id)?;
-        let task = if pure {
+        let task = if force_fork || (pure && kernel.is_forkable().await) {
             kernel.exec_fork(code).await?
         } else {
             kernel.exec_async(code).await?
@@ -1071,6 +1085,7 @@ impl KernelSpace {
         let started_task = KernelSpace::dispatch_task(
             &task_info.code,
             &task_info.resource_info,
+            false,
             symbols,
             kernel_id,
             kernels,
@@ -1396,10 +1411,10 @@ pub async fn available() -> Result<Vec<Kernel>> {
     let mut available: Vec<Kernel> = Vec::new();
 
     #[cfg(feature = "kernel-store")]
-    available.push(kernel_store::StoreKernel::new().spec());
+    available.push(kernel_store::StoreKernel::new().spec().await);
 
     #[cfg(feature = "kernel-calc")]
-    available.push(kernel_calc::CalcKernel::new().spec());
+    available.push(kernel_calc::CalcKernel::new().spec().await);
 
     macro_rules! microkernel_available {
         ($feat:literal, $crat:ident, $list:expr) => {
@@ -1407,7 +1422,7 @@ pub async fn available() -> Result<Vec<Kernel>> {
             {
                 let kernel = $crat::new();
                 if kernel.is_available().await {
-                    $list.push(kernel.spec())
+                    $list.push(kernel.spec().await)
                 }
             }
         };

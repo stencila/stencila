@@ -28,8 +28,8 @@ impl CalcKernel {
 
 #[async_trait]
 impl KernelTrait for CalcKernel {
-    fn spec(&self) -> Kernel {
-        Kernel::new("calc", KernelType::Builtin, &["calc"], true)
+    async fn spec(&self) -> Kernel {
+        Kernel::new("calc", KernelType::Builtin, &["calc"], true, false, true)
     }
 
     async fn status(&self) -> Result<KernelStatus> {

@@ -6,7 +6,7 @@ pub fn new() -> MicroKernel {
         "r-micro",
         &["r"],
         true,
-        true,
+        cfg!(not(target_os = "windows")),
         cfg!(any(target_os = "linux", target_os = "macos")),
         ("Rscript", "*"),
         &["{{script}}"],
