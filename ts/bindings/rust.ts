@@ -83,6 +83,7 @@ const noBoxTypes = [
   'ClaimClaimType',
   'CodeExecutableExecuteRequired',
   'CodeExecutableExecuteStatus',
+  'CodeChunkExecuteAuto',
   'ListOrder',
   'NoteNoteType',
   'SoftwareSessionStatus',
