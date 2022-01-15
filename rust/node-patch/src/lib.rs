@@ -46,6 +46,24 @@ where
     patch
 }
 
+/// Generate a [`Patch`] using a mutating function
+///
+/// Inspired by [Immer](https://immerjs.github.io/immer/produce/)'s `produce` function.
+pub fn mutate(
+    node: &Node,
+    node_id: Option<String>,
+    node_address: Option<Address>,
+    recipe: &dyn Fn(&mut Node),
+) -> Patch {
+    let mut draft = node.clone();
+    recipe(&mut draft);
+
+    let mut patch = diff(node, &draft);
+    patch.target = node_id;
+    patch.address = node_address;
+    patch
+}
+
 /// Display the difference between two nodes as a "unified diff" of the nodes
 /// converted to a given format.
 ///
