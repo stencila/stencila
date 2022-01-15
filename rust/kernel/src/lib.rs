@@ -565,12 +565,12 @@ pub trait KernelTrait {
         false
     }
 
-    /// Can the kernel be forked?
+    /// Can the kernel be forked an the current machine?
     ///
-    /// Some kernels can be "forked" to support parallel execution. On POSIX
-    /// this is generally implemented using the `fork` system call.
+    /// Kernel trait implementations can use this method to override the `forkable`
+    /// value in the `Kernel` spec if it is machine dependent.
     async fn is_forkable(&self) -> bool {
-        false
+        self.spec().forkable
     }
 
     /// Start the kernel
