@@ -3,7 +3,7 @@ use kernel::{
     async_trait::async_trait,
     eyre::{bail, Result},
     serde::Serialize,
-    stencila_schema::{CodeError, Node},
+    stencila_schema::{CodeError, Node, Primitive},
     Kernel, KernelStatus, KernelTrait, KernelType, Task, TaskResult,
 };
 use once_cell::sync::Lazy;
@@ -45,9 +45,29 @@ impl KernelTrait for CalcKernel {
 
     async fn set(&mut self, name: &str, value: Node) -> Result<()> {
         let value = match value {
+            Node::Null(..) => 0.,
+            Node::Boolean(boolean) => match boolean {
+                true => 1.,
+                false => 0.,
+            },
             Node::Integer(integer) => integer as f64,
             Node::Number(number) => number,
-            _ => bail!("Unable to convert node to a number"),
+            Node::Array(array) => match array.first() {
+                Some(Primitive::Null(..)) => 0.,
+                Some(Primitive::Boolean(boolean)) => match boolean {
+                    true => 1.,
+                    false => 0.,
+                },
+                Some(Primitive::Integer(integer)) => *integer as f64,
+                Some(Primitive::Number(number)) => *number,
+                None => 0.,
+                _ => bail!(
+                    "Unable to convert first item of array to a number for use in Calc kernel"
+                ),
+            },
+            _ => bail!(
+                "Node is of type that can not be converted to a number for use in Calc kernel"
+            ),
         };
         self.symbols.insert(name.to_string(), value);
         Ok(())
