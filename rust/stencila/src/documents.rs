@@ -268,6 +268,7 @@ impl Document {
     /// This function is intended to be used by editors when creating
     /// a new document. If the `path` is not specified, the created document
     /// will be `temporary: true` and have a temporary file path.
+    #[tracing::instrument]
     fn new(path: Option<PathBuf>, format: Option<String>) -> Document {
         let id = uuids::generate("do").to_string();
 
@@ -320,16 +321,18 @@ impl Document {
         let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
 
-        // Use an unbounded channel for sending patches, so that sending threads never block (if there are lots of patches)
-        // and thereby hold on to locks causing a deadlock (because `patch_impl` needs them)
         let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<Patch>();
         let id_clone = id.clone();
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
         tokio::spawn(async move {
-            while let Some(patch) = patch_receiver.recv().await {
-                Self::patch_impl(&id_clone, &root_clone, &addresses_clone, patch).await;
-            }
+            Self::patch_task(
+                &id_clone,
+                &root_clone,
+                &addresses_clone,
+                &mut patch_receiver,
+            )
+            .await
         });
 
         let (compile_sender, mut compile_receiver) = mpsc::channel::<()>(100);
@@ -341,38 +344,17 @@ impl Document {
         let graph_clone = graph.clone();
         let patch_sender_clone = patch_sender.clone();
         tokio::spawn(async move {
-            let duration = Duration::from_millis(300);
-            let mut compile_needed = false;
-            loop {
-                match tokio::time::timeout(duration, compile_receiver.recv()).await {
-                    // Timeout so perhaps do a compile if needed
-                    Err(..) => {
-                        if !compile_needed {
-                            continue;
-                        }
-                    }
-                    // Request sent so set `compile_needed` and continue
-                    Ok(Some(..)) => {
-                        compile_needed = true;
-                        continue;
-                    }
-                    // Sender dropped, end of task
-                    Ok(None) => break,
-                };
-
-                Self::compile_impl(
-                    &id_clone,
-                    &path_clone,
-                    &project_clone,
-                    &root_clone,
-                    &addresses_clone,
-                    &graph_clone,
-                    &patch_sender_clone,
-                )
-                .await;
-
-                compile_needed = false;
-            }
+            Self::compile_task(
+                &id_clone,
+                &path_clone,
+                &project_clone,
+                &root_clone,
+                &addresses_clone,
+                &graph_clone,
+                &patch_sender_clone,
+                &mut compile_receiver,
+            )
+            .await
         });
 
         Document {
@@ -443,13 +425,13 @@ impl Document {
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the path's file extension.
     /// TODO: add project: Option<PathBuf> so that project can be explictly set
+    #[tracing::instrument(skip(path))]
     pub async fn open<P: AsRef<Path>>(path: P, format: Option<String>) -> Result<Document> {
         let path = PathBuf::from(path.as_ref());
 
         let mut document = Document::new(Some(path.clone()), format);
-        match document.read(true).await {
-            Ok(..) => (),
-            Err(error) => tracing::warn!("While reading document `{}`: {}", path.display(), error),
+        if let Err(error) = document.read(true).await {
+            tracing::warn!("While reading document `{}`: {}", path.display(), error)
         };
 
         Ok(document)
@@ -463,6 +445,7 @@ impl Document {
     ///
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the path's file extension.
+    #[tracing::instrument(skip(self, path))]
     pub async fn alter<P: AsRef<Path>>(
         &mut self,
         path: Option<P>,
@@ -520,6 +503,7 @@ impl Document {
     /// Sets `status` to `Synced`. For binary files, does not actually read the content
     /// but will update the document nonetheless (possibly delegating the actual read
     /// to a binary or plugin)
+    #[tracing::instrument(skip(self))]
     pub async fn read(&mut self, force_load: bool) -> Result<String> {
         let content = if !self.format.binary {
             let content = fs::read_to_string(&self.path)?;
@@ -545,6 +529,7 @@ impl Document {
     ///    the document's existing format.
     ///
     /// Sets `status` to `Synced`.
+    #[tracing::instrument(skip(self, content))]
     pub async fn write(&mut self, content: Option<String>, format: Option<String>) -> Result<()> {
         if let Some(content) = content {
             self.load(content, format.clone()).await?;
@@ -580,6 +565,7 @@ impl Document {
     ///
     /// Note: this does not change the `path`, `format` or `status` of the current
     /// document.
+    #[tracing::instrument(skip(self, path))]
     pub async fn write_as<P: AsRef<Path>>(
         &self,
         path: P,
@@ -616,6 +602,7 @@ impl Document {
     ///
     /// - `format`: the format to dump the content as; if not supplied assumed to be
     ///    the document's existing format.
+    #[tracing::instrument(skip(self))]
     pub async fn dump(&self, format: Option<String>) -> Result<String> {
         let format = match format {
             Some(format) => format,
@@ -636,6 +623,7 @@ impl Document {
     /// - `content`: the content to load into the document
     /// - `format`: the format of the content; if not supplied assumed to be
     ///    the document's existing format.
+    #[tracing::instrument(skip(self, content))]
     pub async fn load(&mut self, content: String, format: Option<String>) -> Result<()> {
         let mut decode_content = true;
         if let Some(format) = format {
@@ -661,6 +649,7 @@ impl Document {
 
     /// Generate a [`Patch`] describing the operations needed to modify this
     /// document so that it is equal to another.
+    #[tracing::instrument(skip(self, other))]
     pub async fn diff(&self, other: &Document) -> Result<Patch> {
         let me = &*self.root.read().await;
         let other = &*other.root.read().await;
@@ -672,6 +661,7 @@ impl Document {
     ///
     /// See documentation on the [`merge`] function for how any conflicts
     /// are resolved.
+    #[tracing::instrument(skip(self, deriveds))]
     pub async fn merge(&mut self, deriveds: &[Document]) -> Result<()> {
         let mut guard = self.root.write().await;
 
@@ -708,8 +698,6 @@ impl Document {
     /// This function will trigger a recompile of the document
     #[tracing::instrument(skip(self, patch))]
     pub async fn patch(&self, patch: Patch) -> Result<()> {
-        tracing::debug!("Applying patch to document `{}`", self.id);
-
         if let Err(..) = self.patch_sender.send(patch) {
             bail!(
                 "When sending patch for document `{}`: the receiver has dropped",
@@ -726,15 +714,43 @@ impl Document {
         Ok(())
     }
 
+    /// A background task to patch the root node of the document on request
+    ///
+    /// Use an unbounded channel for sending patches, so that sending threads never
+    /// block (if there are lots of patches) and thereby hold on to locks causing a
+    /// deadlock (because `patch_impl` needs them)
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: The id of the document (used in the published event topic)
+    ///
+    /// - `root`: The root [`Node`] to apply the patch to (will be write locked)
+    ///
+    /// - `addresses`: The [`AddressMap`] to use to locate nodes within the root
+    ///                node (will be read locked)
+    ///
+    /// - `patch_receiver`: The [`Patch`] receiver
+    async fn patch_task(
+        id: &str,
+        root: &Arc<RwLock<Node>>,
+        addresses: &Arc<RwLock<AddressMap>>,
+        patch_receiver: &mut mpsc::UnboundedReceiver<Patch>,
+    ) {
+        while let Some(patch) = patch_receiver.recv().await {
+            Self::patch_impl(id, root, addresses, patch).await;
+        }
+    }
+
     /// Apply a [`Patch`] to the root node of the document
     ///
     /// # Arguments
     ///
-    /// - `root`: The root [`Node`] to apply the patch to (write locked)
-    ///
-    /// - `addresses`: The [`AddressMap`] to use to locate nodes within the root node (read locked)
-    ///
     /// - `id`: The id of the document (used in the published event topic)
+    ///
+    /// - `root`: The root [`Node`] to apply the patch to (will be write locked)
+    ///
+    /// - `addresses`: The [`AddressMap`] to use to locate nodes within the root
+    ///                node (will be read locked)
     ///
     /// - `patch`: The patch to apply and publish
     async fn patch_impl(
@@ -781,6 +797,86 @@ impl Document {
         );
     }
 
+    /// Compile the root node of the document
+    ///
+    /// Usually compilation is done by sending a request over `compile_sender` to the
+    /// background `compile_task`. However, in some cases (notably on initial loading
+    /// of the document into memory) compilation needs to be done inline, rather than
+    /// in the background, to avoid race conditions.
+    #[tracing::instrument(skip(self))]
+    pub async fn compile(&self) -> Result<()> {
+        Self::compile_impl(
+            &self.id,
+            &self.path,
+            &self.project,
+            &self.root,
+            &self.addresses,
+            &self.graph,
+            &self.patch_sender,
+        )
+        .await
+    }
+
+    /// A background task to compile the root node of the document on request
+    ///
+    /// # Arguments
+    ///
+    /// - `id`: The id of the document
+    ///
+    /// - `path`: The path of the document to be compiled
+    ///
+    /// - `project`: The project of the document to be compiled
+    ///
+    /// - `root`: The root [`Node`] to apply the compilation patch to
+    ///
+    /// - `addresses`: The [`AddressMap`] to be updated
+    ///
+    /// - `graph`:  The [`Graph`] to be updated
+    ///
+    /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
+    ///                   compiled nodes
+    ///
+    /// - `compile_receiver`: A void channel receiver to receive compile requests on
+    #[allow(clippy::too_many_arguments)]
+    pub async fn compile_task(
+        id: &str,
+        path: &Path,
+        project: &Path,
+        root: &Arc<RwLock<Node>>,
+        addresses: &Arc<RwLock<AddressMap>>,
+        graph: &Arc<RwLock<Graph>>,
+        patch_sender: &mpsc::UnboundedSender<Patch>,
+        compile_receiver: &mut mpsc::Receiver<()>,
+    ) {
+        let duration = Duration::from_millis(300);
+        let mut compile_needed = false;
+        loop {
+            match tokio::time::timeout(duration, compile_receiver.recv()).await {
+                // Timeout so perhaps do a compile if needed
+                Err(..) => {
+                    if !compile_needed {
+                        continue;
+                    }
+                }
+                // Request sent so set `compile_needed` and continue
+                Ok(Some(..)) => {
+                    compile_needed = true;
+                    continue;
+                }
+                // Sender dropped, end of task
+                Ok(None) => break,
+            };
+
+            if let Err(error) =
+                Self::compile_impl(id, path, project, root, addresses, graph, patch_sender).await
+            {
+                tracing::error!("While compiling document `{}`: {}", id, error)
+            };
+
+            compile_needed = false;
+        }
+    }
+
     /// Compile the root node of the document and update its address map
     /// and dependency graph
     ///
@@ -792,11 +888,11 @@ impl Document {
     ///
     /// - `project`: The project of the document to be compiled
     ///
-    /// - `root`: The root [`Node`] to apply the patch to (write locked)
+    /// - `root`: The root [`Node`] to apply the compilation patch to
     ///
-    /// - `addresses`: The [`AddressMap`] to be updated (write locked)
+    /// - `addresses`: The [`AddressMap`] to be updated (will be write locked)
     ///
-    /// - `graph`:  The [`Graph`] to be updated (write locked)
+    /// - `graph`:  The [`Graph`] to be updated (will be write locked)
     ///
     /// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
     ///                   compiled nodes
@@ -809,17 +905,16 @@ impl Document {
         addresses: &Arc<RwLock<AddressMap>>,
         graph: &Arc<RwLock<Graph>>,
         patch_sender: &mpsc::UnboundedSender<Patch>,
-    ) {
+    ) -> Result<()> {
         tracing::debug!("Compiling document `{}`", id);
 
         match compile(path, project, root, patch_sender).await {
             Ok((new_addresses, new_graph)) => {
                 *addresses.write().await = new_addresses;
                 *graph.write().await = new_graph;
+                Ok(())
             }
-            Err(error) => {
-                tracing::error!("While compiling document `{}`: {}", id, error)
-            }
+            Err(error) => Err(error),
         }
     }
 
@@ -876,6 +971,7 @@ impl Document {
     /// - `decode_content`: Should the current content of the be decoded?. This
     ///                     is an optimization for situations where the `root` has
     ///                     just been decoded from the current `content`.
+    #[tracing::instrument(skip(self))]
     async fn update(&mut self, decode_content: bool) -> Result<()> {
         tracing::debug!(
             "Updating document `{}` at `{}`",
@@ -919,16 +1015,17 @@ impl Document {
                 | Node::VideoObject(..)
         );
 
-        // Generate a patch to update the current root (this will also recompile it)
-        let patch = diff(&*self.root.read().await, &root);
-        self.patch(patch).await?;
+        // Set the root and compile
+        // TODO: Reconsider this in refactoring of alternative format representations of docs
+        *self.root.write().await = root;
+        self.compile().await?;
 
         // Publish any events for which there are subscriptions (this will probably go elsewhere)
         for subscription in self.subscriptions.keys() {
             // Encode the `root` into each of the formats for which there are subscriptions
             if let Some(format) = subscription.strip_prefix("encoded:") {
                 tracing::debug!("Encoding document `{}` to format `{}`", self.id, format);
-                match codecs::to_string(&root, format, None).await {
+                match codecs::to_string(&*self.root.read().await, format, None).await {
                     Ok(content) => {
                         self.publish(
                             DocumentEventType::Encoded,
