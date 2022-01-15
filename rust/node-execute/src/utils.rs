@@ -5,13 +5,13 @@ use node_pointer::resolve;
 use stencila_schema::Node;
 
 /// Get the [`Node`] corresponding to a [`Resource`]
-/// 
+///
 /// # Arguments
-/// 
+///
 /// - `resource`: The [`Resource::Node`] or [`Resource::Code`] that refers to a node in `root`
-/// 
+///
 /// - `root`: The root [`Node`] that contains the referred to node
-/// 
+///
 /// - `address_map`: The [`AddressMap`] for `root` used to [`resolve`] the node
 pub fn resource_to_node(
     resource: &Resource,
