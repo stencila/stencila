@@ -186,7 +186,7 @@ pub struct CodeExecutable {
     /// Whether, and why, a node requires execution or re-execution.
     pub execute_required: Option<CodeExecutableExecuteRequired>,
 
-    /// Status of the last execution of the code.
+    /// Status of the most recent, including any current, execution of the code.
     pub execute_status: Option<CodeExecutableExecuteStatus>,
 
     /// The identifier for this item.
@@ -231,6 +231,9 @@ pub struct CodeChunk {
     /// Errors when compiling (e.g. syntax errors) or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
 
+    /// Under which circumstances the node should be automatically executed.
+    pub execute_auto: Option<CodeChunkExecuteAuto>,
+
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
@@ -240,10 +243,13 @@ pub struct CodeChunk {
     /// The date-time that the the last execution of the code ended.
     pub execute_ended: Option<Box<Date>>,
 
+    /// Whether the code should be treated as side-effect free when executed.
+    pub execute_pure: Option<Boolean>,
+
     /// Whether, and why, a node requires execution or re-execution.
     pub execute_required: Option<CodeExecutableExecuteRequired>,
 
-    /// Status of the last execution of the code.
+    /// Status of the most recent, including any current, execution of the code.
     pub execute_status: Option<CodeExecutableExecuteStatus>,
 
     /// The identifier for this item.
@@ -303,7 +309,7 @@ pub struct CodeExpression {
     /// Whether, and why, a node requires execution or re-execution.
     pub execute_required: Option<CodeExecutableExecuteRequired>,
 
-    /// Status of the last execution of the code.
+    /// Status of the most recent, including any current, execution of the code.
     pub execute_status: Option<CodeExecutableExecuteStatus>,
 
     /// The identifier for this item.
@@ -4419,7 +4425,6 @@ pub enum CitePageStart {
 #[serde(untagged)]
 pub enum CodeExecutableCodeDependencies {
     CodeChunk(CodeChunk),
-    CodeExpression(CodeExpression),
     Parameter(Parameter),
 }
 
@@ -4437,12 +4442,15 @@ pub enum CodeExecutableExecuteRequired {
     NeverExecuted,
     SemanticsChanged,
     DependenciesChanged,
+    DependenciesFailed,
 }
 
 #[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
 pub enum CodeExecutableExecuteStatus {
     Scheduled,
+    ScheduledPreviouslyFailed,
     Running,
+    RunningPreviouslyFailed,
     Succeeded,
     Failed,
     Cancelled,
@@ -4454,6 +4462,13 @@ pub enum CodeExecutableExecuteStatus {
 pub enum CodeChunkCaption {
     VecBlockContent(Vec<BlockContent>),
     String(String),
+}
+
+#[derive(Clone, Debug, AsRefStr, Serialize, Deserialize)]
+pub enum CodeChunkExecuteAuto {
+    Never,
+    Needed,
+    Always,
 }
 
 /// Types permitted for the `description` property of a `Thing` node.

@@ -16,9 +16,11 @@ Object = Dict[str, Any]
 
 ECitationMode = Enum("CitationMode", ["Parenthetical", "Narrative", "NarrativeAuthor", "NarrativeYear", "normal", "suppressAuthor"])
 
-EExecuteRequired = Enum("ExecuteRequired", ["No", "NeverExecuted", "SemanticsChanged", "DependenciesChanged"])
+EExecuteRequired = Enum("ExecuteRequired", ["No", "NeverExecuted", "SemanticsChanged", "DependenciesChanged", "DependenciesFailed"])
 
-EExecuteStatus = Enum("ExecuteStatus", ["Scheduled", "Running", "Succeeded", "Failed", "Cancelled"])
+EExecuteStatus = Enum("ExecuteStatus", ["Scheduled", "ScheduledPreviouslyFailed", "Running", "RunningPreviouslyFailed", "Succeeded", "Failed", "Cancelled"])
+
+EExecuteAuto = Enum("ExecuteAuto", ["Never", "Needed", "Always"])
 
 EClaimType = Enum("ClaimType", ["Statement", "Theorem", "Lemma", "Proof", "Postulate", "Hypothesis", "Proposition", "Corollary"])
 
@@ -217,7 +219,7 @@ class CodeExecutable(Code):
     programmingLanguage: String # type: ignore
     """The programming language of the code."""
 
-    codeDependencies: Optional[Array[Union["CodeChunk", "CodeExpression", "Parameter"]]] = None
+    codeDependencies: Optional[Array[Union["CodeChunk", "Parameter"]]] = None
     """The upstream dependencies of the code."""
 
     codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None
@@ -242,14 +244,14 @@ class CodeExecutable(Code):
     """Whether, and why, a node requires execution or re-execution."""
 
     executeStatus: Optional["EExecuteStatus"] = None
-    """Status of the last execution of the code."""
+    """Status of the most recent, including any current, execution of the code."""
 
 
     def __init__(
         self,
         programmingLanguage: String,
         text: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "CodeExpression", "Parameter"]]] = None,
+        codeDependencies: Optional[Array[Union["CodeChunk", "Parameter"]]] = None,
         codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
@@ -300,6 +302,12 @@ class CodeChunk(CodeExecutable):
     caption: Optional[Union[Array["BlockContent"], String]] = None
     """A caption for the CodeChunk."""
 
+    executeAuto: Optional["EExecuteAuto"] = None
+    """Under which circumstances the node should be automatically executed."""
+
+    executePure: Optional[Boolean] = None
+    """Whether the code should be treated as side-effect free when executed."""
+
     label: Optional[String] = None
     """A short label for the CodeChunk."""
 
@@ -312,13 +320,15 @@ class CodeChunk(CodeExecutable):
         programmingLanguage: String,
         text: String,
         caption: Optional[Union[Array["BlockContent"], String]] = None,
-        codeDependencies: Optional[Array[Union["CodeChunk", "CodeExpression", "Parameter"]]] = None,
+        codeDependencies: Optional[Array[Union["CodeChunk", "Parameter"]]] = None,
         codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
+        executeAuto: Optional["EExecuteAuto"] = None,
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
+        executePure: Optional[Boolean] = None,
         executeRequired: Optional["EExecuteRequired"] = None,
         executeStatus: Optional["EExecuteStatus"] = None,
         id: Optional[String] = None,
@@ -347,6 +357,10 @@ class CodeChunk(CodeExecutable):
             self.programmingLanguage = programmingLanguage
         if caption is not None:
             self.caption = caption
+        if executeAuto is not None:
+            self.executeAuto = executeAuto
+        if executePure is not None:
+            self.executePure = executePure
         if label is not None:
             self.label = label
         if outputs is not None:
@@ -367,7 +381,7 @@ class CodeExpression(CodeExecutable):
         self,
         programmingLanguage: String,
         text: String,
-        codeDependencies: Optional[Array[Union["CodeChunk", "CodeExpression", "Parameter"]]] = None,
+        codeDependencies: Optional[Array[Union["CodeChunk", "Parameter"]]] = None,
         codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
