@@ -1,4 +1,6 @@
-(program 
+(program (comment) @comment)
+
+(program
     (variable_assignment
         name: (variable_name) @name
     )
