@@ -24,5 +24,5 @@ echo "Error to cancel next stage" >&2
 
 ```bash exec
 # @uses chunk3
-echo "This output should not show (because the chunk should not run) and the chunk should show that a dependency failed."
+echo "This output should not show (unless it is explicitly run) and the chunk should show that a dependency failed."
 ```

@@ -11,7 +11,7 @@ chunk1 = datetime.now()
 print(f"Chunk 1 succeeded at {chunk1}")
 ```
 
-Stage 2, three code chunks that should get scheduled at the same time and execute in parallel but with different durations:
+Stage 2, four code chunks that should get scheduled at the same time and execute in parallel but with different durations. Chunk 5 should begin when chunk 1 is finished and before any of the other chunks in this stage.
 
 ```python exec
 sleep(1)
@@ -28,18 +28,13 @@ sleep(3)
 print(f"Chunk 4 succeeded at {datetime.now()} ({datetime.now()-chunk1} after chunk 1)")
 ```
 
-Stage 3, code chunk which should begin when chunk 1 is finished and before any of the chunks in stage 2 are finished.
-
 ```python exec
-# This is intended to be run in kernel, not in a fork, but doing so
-# currently causes issues so declare it as pure.
-# @pure
 sleep(1)
 chunk5 = datetime.now()
 print(f"Chunk 5 succeeded at {chunk5} ({chunk5-chunk1} after chunk 1)")
 ```
 
-Stage 4, starts after chunk 5 is finished
+Stage 3, starts after chunk 5 is finished
 
 ```python exec
 sleep(1)
