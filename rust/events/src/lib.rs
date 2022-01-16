@@ -63,7 +63,7 @@ fn obtain() -> Result<MutexGuard<'static, HashMap<SubscriptionId, Subscription>>
 
 /// Subscribe to a topic
 pub fn subscribe(topic: &str, subscriber: Subscriber) -> Result<SubscriptionId> {
-    tracing::debug!("Subscribing to topic `{}`", topic);
+    tracing::trace!("Subscribing to topic `{}`", topic);
 
     // If the subscription is for the user "interrupt" topic then lazily start
     // the Ctrl-C listener.
@@ -98,7 +98,7 @@ pub fn subscribe(topic: &str, subscriber: Subscriber) -> Result<SubscriptionId> 
 
 /// Unsubscribe
 pub fn unsubscribe(subscription_id: &SubscriptionId) -> Result<()> {
-    tracing::debug!("Unsubscribing subscription `{}`", subscription_id);
+    tracing::trace!("Unsubscribing subscription `{}`", subscription_id);
 
     match obtain() {
         Ok(mut subscriptions) => {
@@ -121,7 +121,7 @@ where
     Event: Serialize,
 {
     if topic != "logging" {
-        tracing::debug!("Publishing event for topic `{}`", topic);
+        tracing::trace!("Publishing event for topic `{}`", topic);
     }
 
     match obtain() {

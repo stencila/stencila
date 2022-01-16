@@ -523,7 +523,7 @@ impl Clients {
         self.remove(client_id).await;
 
         if gracefully {
-            tracing::debug!("Graceful disconnection by client `{}`", client_id)
+            tracing::trace!("Graceful disconnection by client `{}`", client_id)
         } else {
             tracing::warn!("Ungraceful disconnection by client `{}`", client_id)
         }
@@ -533,7 +533,7 @@ impl Clients {
     pub async fn subscribe(&self, client_id: &str, topic: &str) {
         let mut clients = self.inner.write().await;
         if let Some(client) = clients.get_mut(client_id) {
-            tracing::debug!("Subscribing client `{}` to topic `{}`", client_id, topic);
+            tracing::trace!("Subscribing client `{}` to topic `{}`", client_id, topic);
             let mut subscriptions = self.subscriptions.write().await;
             match subscriptions.entry(topic.to_string()) {
                 Entry::Occupied(mut occupied) => {
@@ -591,7 +591,7 @@ impl Clients {
         let mut clients = self.inner.write().await;
         if let Some(client) = clients.get_mut(client_id) {
             let subscriptions = &mut *self.subscriptions.write().await;
-            tracing::debug!(
+            tracing::trace!(
                 "Unsubscribing client `{}` from topic `{}`",
                 client_id,
                 topic
@@ -661,7 +661,7 @@ impl Clients {
     ) {
         let mut receiver = tokio_stream::wrappers::UnboundedReceiverStream::new(receiver);
         while let Some((topic, event)) = receiver.next().await {
-            tracing::debug!("Received event for topic `{}`", topic);
+            tracing::trace!("Received event for topic `{}`", topic);
 
             // Get a list of clients that are subscribed to this topic
             let clients = clients.read().await;
@@ -693,7 +693,7 @@ impl Clients {
                 }
             };
 
-            tracing::debug!(
+            tracing::trace!(
                 "Relaying event to subscribed clients `{}`",
                 clients
                     .iter()
@@ -707,8 +707,6 @@ impl Clients {
                 client.send_text(&json)
             }
         }
-
-        tracing::debug!("Relaying task ended");
     }
 }
 
@@ -759,7 +757,7 @@ async fn get_static(
     path: warp::path::Tail,
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str().to_string();
-    // tracing::debug!("GET ~static /{}", path);
+    tracing::trace!("GET ~static /{}", path);
 
     // Remove the version number with warnings if it is not present
     // or different to current version
@@ -878,7 +876,7 @@ fn authentication_filter(
 
                     // Attempt to get from query parameter
                     let (token, claims) = if let Some(param) = param {
-                        tracing::debug!("Authentication claims from param");
+                        tracing::trace!("Authentication claims from param");
                         (Some(param.clone()), jwt::decode(&param, &key))
                     } else {
                         (None, Err(JwtError::NoTokenSupplied))
@@ -886,7 +884,7 @@ fn authentication_filter(
 
                     // Attempt to get from authorization header
                     let (token, claims) = if let (Err(..), Some(header)) = (&claims, header) {
-                        tracing::debug!("Authentication claims from header");
+                        tracing::trace!("Authentication claims from header");
                         match jwt::from_auth_header(header) {
                             Ok(token) => (Some(token.clone()), jwt::decode(&token, &key)),
                             Err(error) => {
@@ -901,7 +899,7 @@ fn authentication_filter(
                     // Attempt to get from cookie
                     let (token, claims, from_cookie) =
                         if let (Err(..), Some(cookie)) = (&claims, cookie) {
-                            tracing::debug!("Authentication claims from cookie");
+                            tracing::trace!("Authentication claims from cookie");
                             let claims = jwt::decode(&cookie, &key);
                             let ok = claims.is_ok();
                             (Some(cookie), claims, ok)
@@ -1001,7 +999,7 @@ async fn get_handler(
     (home, traversal): (PathBuf, bool),
 ) -> Result<warp::reply::Response, std::convert::Infallible> {
     let path = path.as_str();
-    tracing::debug!("GET {}", path);
+    tracing::trace!("GET {}", path);
 
     // Determine if the requested path is relative to the server `home` directory;
     // otherwise construct an absolute path accordingly
@@ -1359,7 +1357,7 @@ fn ws_handshake(
 ) -> Box<dyn warp::Reply> {
     use warp::reply;
 
-    tracing::debug!("WebSocket handshake");
+    tracing::trace!("WebSocket handshake");
 
     // Check that client is authorized to access the path
     // On MacOS and Linux the leading slash is removed from the URL path so it
@@ -1385,7 +1383,7 @@ fn ws_handshake(
 /// has successfully connected.
 #[tracing::instrument(skip(socket))]
 async fn ws_connected(socket: warp::ws::WebSocket, client_id: String) {
-    tracing::debug!("WebSocket connected");
+    tracing::trace!("WebSocket connected");
 
     let (mut ws_sender, mut ws_receiver) = socket.split();
 

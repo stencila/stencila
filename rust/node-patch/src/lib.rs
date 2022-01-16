@@ -749,7 +749,7 @@ pub trait Patchable {
 
     /// Apply a patch to this node.
     fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
-        tracing::debug!("Applying patch to type '{}'", type_name::<Self>());
+        tracing::trace!("Applying patch to type '{}'", type_name::<Self>());
         for op in &patch.ops {
             self.apply_op(op)?
         }

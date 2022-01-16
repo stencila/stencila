@@ -299,7 +299,7 @@ pub fn init(
     // so we may add another flag for this in the future.
     // e.g. `--log-scope=stencila` vs `--log-scope=all`.
     let directives = format!(
-        "{},html5ever=info,hyper=info,reqwest=info,rustyline=info,warp=info",
+        "{},html5ever=info,hyper=info,mio=info,reqwest=info,rustyline=info,tungstenite=info,warp=info",
         min_level.to_string()
     );
 

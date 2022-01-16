@@ -490,12 +490,12 @@ impl KernelTrait for MicroKernel {
             let task_id = task.id.clone();
             let signaller = MicroKernelSignaller::new(self)?;
             tokio::spawn(async move {
-                tracing::debug!("Began canceller for exec_async task `{}", task_id);
+                tracing::trace!("Began canceller for exec_async task `{}", task_id);
                 if let Some(..) = cancellee.recv().await {
                     tracing::debug!("Cancelling exec_async task `{}`", task_id);
                     signaller.interrupt()
                 }
-                tracing::debug!("Ended canceller for exec_async task `{}`", task_id);
+                tracing::trace!("Ended canceller for exec_async task `{}`", task_id);
             });
         }
 
@@ -651,7 +651,7 @@ async fn send_task<W: AsyncWrite + Unpin>(task: &[String], stdin: &mut BufWriter
     let task = task.join("\n");
     let task = task.replace("\n", "\\n");
     let task = [&task, "\n"].concat();
-    tracing::debug!("Sending task on stdin");
+    tracing::trace!("Sending task on stdin");
     if let Err(error) = stdin.write_all(task.as_bytes()).await {
         bail!("When writing code to kernel: {}", error)
     }
@@ -708,7 +708,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
             }
         };
 
-        tracing::debug!("Received on stdout: {}", &line);
+        tracing::trace!("Received on stdout: {}", &line);
         if !handle_line(&line, &mut output, &mut outputs) {
             break;
         }
@@ -745,7 +745,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
             }
         };
 
-        tracing::debug!("Received on stderr: {}", &line);
+        tracing::trace!("Received on stderr: {}", &line);
         if !handle_line(&line, &mut message, &mut messages) {
             break;
         }

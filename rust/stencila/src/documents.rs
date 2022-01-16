@@ -944,7 +944,7 @@ impl Document {
     /// Execute the document using an existing plan
     #[tracing::instrument(skip(self, plan))]
     pub async fn execute_plan(&self, plan: &Plan) -> Result<()> {
-        tracing::debug!("Executing document plan`{}`", self.id);
+        tracing::debug!("Executing plan for document `{}`", self.id);
 
         execute(
             plan,
@@ -1288,7 +1288,7 @@ impl DocumentHandler {
             let path_string = path.display().to_string();
             let span = tracing::info_span!("document_watch", path = path_string.as_str());
             let _enter = span.enter();
-            tracing::debug!(
+            tracing::trace!(
                 "Starting document watcher for '{}' at '{}'",
                 id,
                 path_string
@@ -1309,7 +1309,7 @@ impl DocumentHandler {
                     break;
                 }
             }
-            tracing::debug!("Ending document watcher for '{}' at '{}'", id, path_string);
+            tracing::trace!("Ending document watcher for '{}' at '{}'", id, path_string);
 
             // Drop the sync send so that the event handling thread also ends
             drop(async_sender);
@@ -1320,7 +1320,7 @@ impl DocumentHandler {
         // Async task to handle events
         let handler = tokio::spawn(async move {
             let mut document_path = path_cloned;
-            tracing::debug!("Starting document handler");
+            tracing::trace!("Starting document handler");
             while let Some(event) = async_receiver.recv().await {
                 match event {
                     DebouncedEvent::Create(path) | DebouncedEvent::Write(path) => {
@@ -1344,7 +1344,7 @@ impl DocumentHandler {
             }
             // Because we abort this thread, this entry may never get
             // printed (only if the `async_sender` is dropped before this is aborted)
-            tracing::debug!("Ending document handler");
+            tracing::trace!("Ending document handler");
         });
 
         (thread_sender, handler)

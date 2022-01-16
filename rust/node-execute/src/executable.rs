@@ -385,7 +385,7 @@ impl Executable for CodeChunk {
         resource_info: &ResourceInfo,
         is_fork: bool,
     ) -> Result<()> {
-        tracing::debug!("Executing `CodeChunk`");
+        tracing::trace!("Executing `CodeChunk` `{:?}`", self.id);
 
         // Execute the code and wait for result
         let mut task_info = kernel_space
@@ -481,7 +481,7 @@ impl Executable for CodeExpression {
         resource_info: &ResourceInfo,
         is_fork: bool,
     ) -> Result<()> {
-        tracing::debug!("Executing `CodeExpression`");
+        tracing::trace!("Executing `CodeExpression` `{:?}`", self.id);
 
         // Execute the code and wait for result
         let mut task_info = kernel_space
