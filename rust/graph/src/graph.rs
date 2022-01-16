@@ -587,7 +587,7 @@ impl Graph {
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
             let is_fork = kernel_forkable
                 && resource_info.is_pure()
-                && stage.steps.len() < options.max_concurrency;
+                && stage.steps.len() < options.max_concurrency.saturating_sub(1);
 
             // Create the step and add it to the current stage
             let step = Step {
@@ -746,7 +746,7 @@ impl Graph {
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
             let is_fork = kernel_forkable
                 && resource_info.is_pure()
-                && stage.steps.len() < options.max_concurrency;
+                && stage.steps.len() < options.max_concurrency.saturating_sub(1);
 
             // Create the step and add it to the current stage
             let step = Step {
