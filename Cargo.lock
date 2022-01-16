@@ -323,6 +323,7 @@ dependencies = [
  "eyre",
  "flate2",
  "glob",
+ "once_cell",
  "regex",
  "reqwest",
  "semver 1.0.4",
