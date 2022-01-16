@@ -23,7 +23,11 @@ pub fn new() -> MicroKernel {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kernel::{eyre::Result, stencila_schema::Node, KernelTrait};
+    use kernel::{
+        eyre::{bail, Result},
+        stencila_schema::Node,
+        KernelTrait,
+    };
     use test_utils::{assert_json_eq, serde_json::json, skip_ci_os};
 
     /// Tests of basic functionality
@@ -70,6 +74,30 @@ mod tests {
         let (outputs, messages) = kernel.exec("echo $a$b").await?;
         assert_json_eq!(messages, json!([]));
         assert_json_eq!(outputs, [23]);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn percent_escaping() -> Result<()> {
+        if skip_ci_os("windows", "test currently failing on windows") {
+            return Ok(());
+        }
+
+        let mut kernel = new();
+        if !kernel.is_available().await {
+            return Ok(());
+        } else {
+            kernel.start().await?;
+        }
+
+        let (outputs, messages) = kernel.exec("date +%s").await?;
+        assert_json_eq!(messages, json!([]));
+        let timestamp = outputs.first().unwrap();
+        match timestamp {
+            Node::Integer(timestamp) => assert!(*timestamp > 1600000000),
+            _ => bail!("Expected an integer"),
+        }
 
         Ok(())
     }
