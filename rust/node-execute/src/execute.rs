@@ -1,4 +1,7 @@
-use std::{collections::BTreeMap, sync::Arc};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    sync::Arc,
+};
 
 use eyre::{bail, Result};
 use futures::stream::{FuturesUnordered, StreamExt};
@@ -95,19 +98,40 @@ pub async fn execute(
     let stage_count = plan.stages.len();
     let mut dependencies_failed = false;
     for (stage_index, stage) in plan.stages.iter().enumerate() {
-        tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
-
         // Before running the steps in this stage, check that all their dependencies have succeeded
-        // and stop if they have not
+        // and stop if they have not. Collects to a `BTreeSet` to generate unique set (some steps in
+        // the stage may have the shared dependencies)
         dependencies_failed = stage
             .steps
             .iter()
             .flat_map(|step| step.resource_info.dependencies.iter().flatten())
+            .collect::<BTreeSet<&Resource>>()
+            .iter()
             .filter_map(|dependency| nodes.get(dependency))
-            .map(|tuple| get_execute_status(&tuple.3))
-            .any(|status| !matches!(status, Some(CodeExecutableExecuteStatus::Succeeded)));
+            .map(|tuple| (&tuple.1, get_execute_status(&tuple.3)))
+            .any(|(node_id, status)| {
+                tracing::trace!(
+                    "Status of dependency of stage {}/{} `{}`: {:?}",
+                    stage_index + 1,
+                    stage_count,
+                    node_id,
+                    status
+                );
+                matches!(
+                    status,
+                    None | Some(CodeExecutableExecuteStatus::Failed)
+                        | Some(CodeExecutableExecuteStatus::Cancelled)
+                )
+            });
         if dependencies_failed {
+            tracing::debug!(
+                "Stopping before stage {}/{}: some dependencies failed or were cancelled",
+                stage_index + 1,
+                stage_count
+            );
             break;
+        } else {
+            tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
         }
 
         // Create a kernel task for each step in this stage
@@ -243,6 +267,8 @@ fn get_execute_status(node: &Node) -> Option<CodeExecutableExecuteStatus> {
     match node {
         Node::CodeChunk(CodeChunk { execute_status, .. })
         | Node::CodeExpression(CodeExpression { execute_status, .. }) => execute_status.clone(),
+        // At present, assumes the execution of parameters always succeeds
+        Node::Parameter(..) => Some(CodeExecutableExecuteStatus::Succeeded),
         _ => None,
     }
 }
