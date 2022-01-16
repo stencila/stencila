@@ -325,7 +325,7 @@ async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscr
     let id = required_string(params, "documentId")?;
     let node_id = optional_string(params, "nodeId")?;
 
-    let document = DOCUMENTS.execute(&id, node_id).await?;
+    let document = DOCUMENTS.execute_from(&id, node_id).await?;
     Ok((json!(document), Subscription::None))
 }
 

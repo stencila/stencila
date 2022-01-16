@@ -2,7 +2,7 @@ use crate::utils::schemas;
 use events::publish;
 use eyre::{bail, Result};
 use formats::FormatSpec;
-use graph::Graph;
+use graph::{Graph, Plan};
 use graph_triples::{resources, Relations};
 use kernels::KernelSpace;
 use maplit::hashset;
@@ -918,28 +918,43 @@ impl Document {
         }
     }
 
-    /// Execute the document, or a node within it, and publishing a patch of changes if there are any subscribers.
+    /// Execute the document
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&mut self, start: Option<String>) -> Result<()> {
+    pub async fn execute(&self) -> Result<()> {
         tracing::debug!("Executing document `{}`", self.id);
 
-        // Generate an execution plan
-        // Need to translate the `start` node id into a resource to generate plan
+        self.execute_from(None).await
+    }
+
+    /// Execute the document from a `start` node
+    #[tracing::instrument(skip(self))]
+    pub async fn execute_from(&self, start: Option<String>) -> Result<()> {
+        tracing::debug!("Executing document `{}` from node `{:?}`", self.id, start);
+
+        // Translate the `start` node id into a resource
         let start = start.map(|node_id| resources::code(&self.path, &node_id, "", None));
+
+        // Generate an execution plan
         let plan = self.graph.read().await.plan(start, None, None).await?;
 
-        // Execute the plan on the root node, sending on patches to the patching task
+        // Execute the plan
+        self.execute_plan(&plan).await
+    }
+
+    /// Execute the document using an existing plan
+    #[tracing::instrument(skip(self, plan))]
+    pub async fn execute_plan(&self, plan: &Plan) -> Result<()> {
+        tracing::debug!("Executing document plan`{}`", self.id);
+
         execute(
-            &plan,
+            plan,
             &self.root,
             &self.addresses,
             &self.graph,
             &self.patch_sender,
             Some(self.kernels.clone()),
         )
-        .await?;
-
-        Ok(())
+        .await
     }
 
     /// Update the `root` (and associated properties) of the document and publish updated encodings
@@ -1481,10 +1496,10 @@ impl Documents {
     /// Like `patch()`, given this function is likely to be called often, do not return
     /// the document.
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, id: &str, start: Option<String>) -> Result<()> {
+    pub async fn execute_from(&self, id: &str, start: Option<String>) -> Result<()> {
         let document_lock = self.get(id).await?;
-        let mut document_guard = document_lock.lock().await;
-        document_guard.execute(start).await
+        let document_guard = document_lock.lock().await;
+        document_guard.execute_from(start).await
     }
 
     /// Get a document that has previously been opened
@@ -1515,7 +1530,9 @@ pub mod commands {
     use crate::utils::json;
     use async_trait::async_trait;
     use cli_utils::{result, Result, Run};
+    use graph::{PlanOptions, PlanOrdering};
     use node_patch::diff_display;
+    use std::str::FromStr;
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -1553,6 +1570,7 @@ pub mod commands {
         Symbols(kernel_commands::Symbols),
 
         Graph(Graph),
+        Run(Runn),
         Query(Query),
         Convert(Convert),
         Diff(Diff),
@@ -1584,6 +1602,7 @@ pub mod commands {
                 Action::Symbols(action) => action.run().await,
 
                 Action::Graph(action) => action.run().await,
+                Action::Run(action) => action.run().await,
                 Action::Query(action) => action.run().await,
                 Action::Convert(action) => action.run().await,
                 Action::Diff(action) => action.run().await,
@@ -1879,6 +1898,102 @@ pub mod commands {
             let document = document.lock().await;
             let content = document.graph.read().await.to_format(&self.r#as)?;
             result::content(&self.r#as, &content)
+        }
+    }
+
+    /// Run a document
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Runn {
+        /// The path of the document to execute
+        pub input: PathBuf,
+
+        /// The path to save the executed document
+        pub output: Option<PathBuf>,
+
+        /// The format of the input (defaults to being inferred from the file extension or content type)
+        #[structopt(short, long)]
+        from: Option<String>,
+
+        /// The format of the output (defaults to being inferred from the file extension)
+        #[structopt(short, long)]
+        to: Option<String>,
+
+        /// The theme to apply to the output (only for HTML and PDF)
+        #[structopt(short = "e", long)]
+        theme: Option<String>,
+
+        /// Ordering for the execution plan
+        #[structopt(short, long, parse(try_from_str = PlanOrdering::from_str), case_insensitive = true)]
+        ordering: Option<PlanOrdering>,
+
+        /// Maximum concurrency for the execution plan
+        ///
+        /// A maximum concurrency of 2 means that no more than two execution steps will
+        /// run at the same time (ie. in the same stage).
+        /// Defaults to the number of CPUs on the machine.
+        #[structopt(short, long)]
+        concurrency: Option<usize>,
+
+        /// Generate execution plan but do not execute it
+        #[structopt(short, long)]
+        dry_run: bool,
+
+        /// Do not display execution plan or progress
+        #[structopt(short, long)]
+        quiet: bool,
+    }
+
+    #[async_trait]
+    impl Run for Runn {
+        async fn run(&self) -> Result {
+            // Open document
+            let document = Document::open(&self.input, self.from.clone()).await?;
+
+            // Generate plan
+            let options = PlanOptions {
+                ordering: self
+                    .ordering
+                    .clone()
+                    .unwrap_or_else(PlanOptions::default_ordering),
+                max_concurrency: self
+                    .concurrency
+                    .unwrap_or_else(PlanOptions::default_max_concurrency),
+            };
+            let plan = {
+                let graph = document.graph.write().await;
+                graph.plan(None, None, Some(options)).await?
+            };
+
+            // Represent plan in Markdown and exit here is dry run
+            let plan_md = plan.to_markdown();
+            if self.dry_run {
+                return result::new("md", &plan_md, &plan);
+            } else if !self.quiet {
+                cli_utils::result::print::markdown(&plan_md)?;
+            }
+
+            // Execute plan
+            document.execute_plan(&plan).await?;
+
+            // Display or write output
+            if let Some(output) = &self.output {
+                let out = output.display().to_string();
+                if out == "-" {
+                    let format = self.to.clone().unwrap_or_else(|| "json".to_string());
+                    let content = document.dump(Some(format.clone())).await?;
+                    return result::content(&format, &content);
+                } else {
+                    document
+                        .write_as(output, self.to.clone(), self.theme.clone())
+                        .await?;
+                }
+            }
+
+            result::nothing()
         }
     }
 

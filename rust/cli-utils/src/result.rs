@@ -104,7 +104,7 @@ pub mod print {
             if let (Some(content), Some(format)) = (content, format) {
                 if format == preference {
                     return match format.as_str() {
-                        "md" => markdown(format, content),
+                        "md" => markdown(content),
                         _ => highlight(format, content),
                     };
                 }
@@ -125,7 +125,7 @@ pub mod print {
         // Fallback to displaying content if available, otherwise value as JSON.
         if let (Some(content), Some(format)) = (content, format) {
             match format.as_str() {
-                "md" => return markdown(format, content),
+                "md" => return markdown(content),
                 _ => return highlight(format, content),
             };
         } else if let Some(value) = value {
@@ -137,7 +137,7 @@ pub mod print {
     }
 
     // Print Markdown to the terminal
-    fn markdown(_format: &str, content: &str) -> eyre::Result<()> {
+    pub fn markdown(content: &str) -> eyre::Result<()> {
         if atty::isnt(atty::Stream::Stdout) {
             println!("{}", content)
         } else {
@@ -149,7 +149,7 @@ pub mod print {
     }
 
     // Apply syntax highlighting and print to terminal
-    fn highlight(format: &str, content: &str) -> eyre::Result<()> {
+    pub fn highlight(format: &str, content: &str) -> eyre::Result<()> {
         use once_cell::sync::Lazy;
         use syntect::{
             easy::HighlightLines,
