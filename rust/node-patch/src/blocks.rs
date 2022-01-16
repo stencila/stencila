@@ -92,6 +92,8 @@ patchable_struct!(
     code_dependencies,
     code_dependents,
     compile_digest,
+    execute_auto,
+    execute_pure,
     execute_digest,
     execute_required,
     execute_status,
