@@ -88,10 +88,20 @@ impl Resource {
         )
     }
 
-    /// Get the [`NodeId`] for resources that have it
-    pub fn node_id(&self) -> Option<String> {
+    /// Get the type of [`Node`] for resources that have it
+    pub fn node_type(&self) -> Option<&str> {
         match self {
-            Resource::Code(Code { id, .. }) | Resource::Node(Node { id, .. }) => Some(id.clone()),
+            Resource::Code(Code { kind, .. }) | Resource::Node(Node { kind, .. }) => {
+                Some(kind.as_str())
+            }
+            _ => None,
+        }
+    }
+
+    /// Get the [`NodeId`] for resources that have it
+    pub fn node_id(&self) -> Option<&str> {
+        match self {
+            Resource::Code(Code { id, .. }) | Resource::Node(Node { id, .. }) => Some(id.as_str()),
             _ => None,
         }
     }

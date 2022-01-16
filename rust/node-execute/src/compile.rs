@@ -109,14 +109,14 @@ fn compile_patches_and_send(
                     .dependencies
                     .iter()
                     .flatten()
-                    .filter_map(|resource| resource.node_id())
+                    .filter_map(|resource| resource.node_id().map(|id| id.to_string()))
                     .collect();
 
                 let dependents: Vec<String> = resource_info
                     .dependents
                     .iter()
                     .flatten()
-                    .filter_map(|resource| resource.node_id())
+                    .filter_map(|resource| resource.node_id().map(|id| id.to_string()))
                     .collect();
 
                 let (compile_digest, execute_required) = if let Some(compile_digest) =
