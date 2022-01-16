@@ -3,7 +3,10 @@ use async_trait::async_trait;
 use defaults::Defaults;
 use enum_dispatch::enum_dispatch;
 use eyre::{bail, Result};
-use graph_triples::{relations::{self, NULL_RANGE}, resources, Triple};
+use graph_triples::{
+    relations::{self, NULL_RANGE},
+    resources, Triple,
+};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use schemars::JsonSchema;
