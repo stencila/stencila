@@ -3,11 +3,11 @@ use events::publish;
 use eyre::{bail, Result};
 use formats::FormatSpec;
 use graph::Graph;
-use graph_triples::{resources, Relations, ResourceInfo};
+use graph_triples::{resources, Relations};
 use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::AddressMap;
-use node_execute::{compile, compile_no_walk, execute};
+use node_execute::{compile, execute};
 use node_patch::{apply, diff, merge, Patch};
 use node_reshape::reshape;
 use notify::DebouncedEvent;
@@ -928,30 +928,12 @@ impl Document {
         let start = start.map(|node_id| resources::code(&self.path, &node_id, "", None));
         let plan = self.graph.read().await.plan(start, None, None).await?;
 
-        // A task to update the graph to reflect that each resource was executed,
-        // when it is executed.
-        let (resource_info_sender, mut resource_info_receiver) = mpsc::channel::<ResourceInfo>(1);
-        let graph = self.graph.clone();
-        let root = self.root.clone();
-        let address_map = self.addresses.clone();
-        let patch_sender = self.patch_sender.clone();
-        tokio::spawn(async move {
-            while let Some(resource_info) = resource_info_receiver.recv().await {
-                // Update the graph with new resource info
-                graph.write().await.update_resource_info(resource_info);
-                // Then do a recompile, using the graph, so that node properties such as
-                // `code_dependencies` and `code_dependents` get updated with the new execution status
-                // of nodes.
-                compile_no_walk(&root, &address_map, &graph, &patch_sender).await;
-            }
-        });
-
         // Execute the plan on the root node, sending on patches to the patching task
         execute(
             &plan,
             &self.root,
             &self.addresses,
-            &resource_info_sender,
+            &self.graph,
             &self.patch_sender,
             Some(self.kernels.clone()),
         )

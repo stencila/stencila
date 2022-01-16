@@ -1,4 +1,4 @@
-use crate::{CompileContext, Executable};
+use crate::{utils::send_patches, CompileContext, Executable};
 use eyre::Result;
 use graph::Graph;
 use graph_triples::{resources, Resource};
@@ -265,13 +265,5 @@ fn compile_patches_and_send(
         )
         .collect();
 
-    // Rather than sending many patches, combine them into one
-    let patch = Patch::from_patches(patches);
-
-    // Send patch to root, if it's not empty
-    if !patch.is_empty() {
-        if let Err(error) = patch_sender.send(patch) {
-            tracing::debug!("When sending patch during compilation: {}", error);
-        }
-    }
+    send_patches(patch_sender, patches)
 }

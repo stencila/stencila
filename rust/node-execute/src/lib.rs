@@ -21,7 +21,7 @@ mod tests {
     use codec_md::MdCodec;
     use eyre::Result;
     use graph::{PlanOptions, PlanOrdering};
-    use graph_triples::ResourceInfo;
+
     use kernels::{Kernel, KernelType};
     use node_address::Slot;
     use node_patch::{Operation, Patch};
@@ -124,14 +124,6 @@ mod tests {
                 )
                 .await?;
 
-            let (resource_info_sender, mut resource_info_receiver) =
-                mpsc::channel::<ResourceInfo>(1);
-            tokio::spawn(async move {
-                while let Some(_resource_info) = resource_info_receiver.recv().await {
-                    // Ignore for this test
-                }
-            });
-
             let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<Patch>();
             let patches = tokio::spawn(async move {
                 let mut patches = Vec::new();
@@ -156,13 +148,12 @@ mod tests {
                 &plan,
                 &root,
                 &Arc::new(RwLock::new(addresses)),
-                &resource_info_sender,
+                &Arc::new(RwLock::new(graph)),
                 &patch_sender,
                 None,
             )
             .await?;
 
-            drop(resource_info_sender);
             drop(patch_sender);
 
             let patches = patches.await?;

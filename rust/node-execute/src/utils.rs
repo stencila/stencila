@@ -1,8 +1,10 @@
 use eyre::{eyre, Result};
 use graph_triples::Resource;
 use node_address::{Address, AddressMap};
+use node_patch::Patch;
 use node_pointer::resolve;
 use stencila_schema::Node;
+use tokio::sync::mpsc::UnboundedSender;
 
 /// Get the [`Node`] corresponding to a [`Resource`]
 ///
@@ -13,7 +15,7 @@ use stencila_schema::Node;
 /// - `root`: The root [`Node`] that contains the referred to node
 ///
 /// - `address_map`: The [`AddressMap`] for `root` used to [`resolve`] the node
-pub fn resource_to_node(
+pub(crate) fn resource_to_node(
     resource: &Resource,
     root: &Node,
     address_map: &AddressMap,
@@ -34,4 +36,19 @@ pub fn resource_to_node(
     let node = pointer.to_node()?;
 
     Ok((node, node_id, node_address))
+}
+
+/// Sends a [`Patch`] using a channel sender (if the patch is not empty)
+pub(crate) fn send_patch(patch_sender: &UnboundedSender<Patch>, patch: Patch) {
+    if !patch.is_empty() {
+        if let Err(error) = patch_sender.send(patch) {
+            tracing::debug!("When sending patch: {}", error);
+        }
+    }
+}
+
+/// Sends multiple [`Patch`]es using a channel sender (combining them into a single patch before sending)
+pub(crate) fn send_patches(patch_sender: &UnboundedSender<Patch>, patches: Vec<Patch>) {
+    let patch = Patch::from_patches(patches);
+    send_patch(patch_sender, patch)
 }
