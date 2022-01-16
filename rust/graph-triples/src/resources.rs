@@ -382,7 +382,7 @@ impl ResourceInfo {
     /// Is the resource pure (i.e. has no side effects)?
     ///
     /// If the resource has not been explicitly tagged as pure or impure then
-    /// returns `true` if there are any side-effect causing relations.
+    /// returns `true` if there are no side-effect causing relations.
     pub fn is_pure(&self) -> bool {
         self.execute_pure.unwrap_or_else(|| match &self.relations {
             Some(relations) => {

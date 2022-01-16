@@ -42,7 +42,7 @@ pub fn handle_patterns(
             } else {
                 resources::module("javascript", &module)
             };
-            Some((relations::uses(range), object))
+            Some((relations::imports(range), object))
         }
         3 => {
             // Reads a file

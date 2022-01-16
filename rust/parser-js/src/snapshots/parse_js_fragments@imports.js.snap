@@ -16,7 +16,7 @@ input_file: fixtures/fragments/js/imports.js
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           2,
           26,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           3,
           22,
@@ -48,7 +48,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           4,
           24,
@@ -64,7 +64,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           5,
           33,
@@ -80,7 +80,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           6,
           34,
@@ -96,7 +96,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           7,
           43,
@@ -112,7 +112,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           8,
           39,
@@ -128,7 +128,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           9,
           37,
@@ -144,7 +144,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           10,
           7,
@@ -177,7 +177,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           11,
           21,
@@ -227,7 +227,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           14,
           28,
@@ -277,7 +277,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           15,
           20,

@@ -220,7 +220,7 @@ input_file: fixtures/fragments/js/uses.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           12,
           19,
@@ -236,7 +236,7 @@ input_file: fixtures/fragments/js/uses.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           13,
           21,

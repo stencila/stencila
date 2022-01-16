@@ -47,7 +47,7 @@ impl ParserTrait for PyParser {
                         true => resources::file(&path),
                         false => resources::module("python", module),
                     };
-                    Some((relations::uses(range), object))
+                    Some((relations::imports(range), object))
                 }
                 3 => {
                     // Opens a file for reading or writing

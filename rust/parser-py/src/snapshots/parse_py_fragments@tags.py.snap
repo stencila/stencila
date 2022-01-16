@@ -18,22 +18,6 @@ input_file: fixtures/fragments/py/tags.py
       {
         "type": "Use",
         "range": [
-          8,
-          7,
-          8,
-          11
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "python",
-        "name": "mod2"
-      }
-    ],
-    [
-      {
-        "type": "Use",
-        "range": [
           1,
           0,
           1,

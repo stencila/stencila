@@ -16,7 +16,7 @@ input_file: fixtures/fragments/js/writes.js
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           0,
           15,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           1,
           28,

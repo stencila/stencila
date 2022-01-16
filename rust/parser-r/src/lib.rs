@@ -52,7 +52,7 @@ impl ParserTrait for RParser {
                                 return None;
                             }
                             Some((
-                                relations::uses(package.range),
+                                relations::imports(package.range),
                                 resources::module("r", &remove_quotes(&package.text)),
                             ))
                         })

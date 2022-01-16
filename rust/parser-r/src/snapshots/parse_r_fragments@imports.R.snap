@@ -16,7 +16,7 @@ input_file: fixtures/fragments/r/imports.R
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           1,
           8,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/r/imports.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           2,
           8,
@@ -48,7 +48,7 @@ input_file: fixtures/fragments/r/imports.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           5,
           8,
@@ -64,7 +64,7 @@ input_file: fixtures/fragments/r/imports.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           5,
           8,
@@ -97,7 +97,7 @@ input_file: fixtures/fragments/r/imports.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           9,
           12,

@@ -259,6 +259,11 @@ impl Graph {
         &self.resources
     }
 
+    /// Get a [`ResourceInfo`] object for a [`Resource`] in the graph
+    pub fn get_resource_info(&self, resource: &Resource) -> Option<&ResourceInfo> {
+        self.resources.get(resource)
+    }
+
     /// Add a set of [`ResourceInfo`] objects to the graph
     pub fn add_resource_infos(&mut self, resource_infos: Vec<ResourceInfo>) -> Result<()> {
         for resource_info in resource_infos.into_iter() {
@@ -897,13 +902,13 @@ impl Graph {
                     self.graph.edge_weight(edge),
                 ) {
                     let (label, style) = match relation {
-                        Relation::Convert(relations::Convert { auto: active })
-                        | Relation::Import(relations::Import { auto: active }) => (
+                        Relation::Convert(relations::Convert { auto: active }) => (
                             relation.to_string(),
                             if *active { "solid" } else { "dashed" },
                         ),
                         Relation::Assign(relations::Assign { range })
                         | Relation::Use(relations::Use { range })
+                        | Relation::Import(relations::Import { range })
                         | Relation::Read(relations::Read { range })
                         | Relation::Write(relations::Write { range }) => {
                             let label = if *range == relations::NULL_RANGE {

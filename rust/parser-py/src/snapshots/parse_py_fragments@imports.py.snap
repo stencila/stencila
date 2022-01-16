@@ -16,7 +16,7 @@ input_file: fixtures/fragments/py/imports.py
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           0,
           7,
@@ -32,7 +32,7 @@ input_file: fixtures/fragments/py/imports.py
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           1,
           5,
@@ -48,7 +48,7 @@ input_file: fixtures/fragments/py/imports.py
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           2,
           5,
@@ -64,7 +64,7 @@ input_file: fixtures/fragments/py/imports.py
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           3,
           5,
