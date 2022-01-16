@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::BTreeMap, sync::Arc};
 
 use eyre::{bail, Result};
 use futures::stream::{FuturesUnordered, StreamExt};
@@ -52,7 +52,7 @@ pub async fn execute(
 
     // Get a snapshot of all nodes involved in the plan at the start
     // Also get their `execute_status` so it can be restored at the end if needs be.
-    let mut nodes = plan
+    let mut nodes: BTreeMap<Resource, _> = plan
         .stages
         .iter()
         .flat_map(|stage| stage.steps.iter())
@@ -73,7 +73,7 @@ pub async fn execute(
                 }
             }
         })
-        .collect::<HashMap<Resource, _>>();
+        .collect();
 
     // Release locks
     drop(root_guard);
