@@ -1,5 +1,6 @@
 ---
 source: rust/codec-ipynb/src/encode.rs
+assertion_line: 281
 expression: json
 input_file: fixtures/articles/kitchen-sink.ipynb
 
@@ -58,6 +59,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "# Python"
       ],
       "outputs": [],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -70,6 +72,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "// JavaScript"
       ],
       "outputs": [],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "javascript"
@@ -90,6 +93,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "# No output"
       ],
       "outputs": [],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -120,9 +124,11 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "Hello world"
             ]
           },
+          "execution_count": null,
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -142,9 +148,11 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "true"
             ]
           },
+          "execution_count": null,
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -164,9 +172,11 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "false"
             ]
           },
+          "execution_count": null,
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -186,9 +196,11 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "42"
             ]
           },
+          "execution_count": null,
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -209,9 +221,11 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "3.141592653589793"
             ]
           },
+          "execution_count": null,
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -231,9 +245,11 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "{\"a\":1,\"b\":2}"
             ]
           },
+          "execution_count": null,
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -253,9 +269,11 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "[0,1,2,3,4,5,6,7,8,9]"
             ]
           },
+          "execution_count": null,
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -275,9 +293,11 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "{\"a\":\"string\",\"b\":1,\"c\":3.14,\"d\":[1,2,3],\"e\":{\"f\":1}}"
             ]
           },
+          "execution_count": null,
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -298,9 +318,11 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "Just a string\n"
             ]
           },
+          "execution_count": null,
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -337,6 +359,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -1530,6 +1553,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -1626,6 +1650,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -1659,9 +1684,11 @@ input_file: fixtures/articles/kitchen-sink.ipynb
           "data": {
             "text/plain": []
           },
+          "execution_count": null,
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -1695,9 +1722,11 @@ input_file: fixtures/articles/kitchen-sink.ipynb
               "2  7  8  9\n"
             ]
           },
+          "execution_count": null,
           "metadata": {}
         }
       ],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -1720,6 +1749,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "A syntax error"
       ],
       "outputs": [],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -1732,6 +1762,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "foo()"
       ],
       "outputs": [],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
@@ -1745,6 +1776,7 @@ input_file: fixtures/articles/kitchen-sink.ipynb
         "print(\"Whooaah!\", file=sys.stderr)"
       ],
       "outputs": [],
+      "execution_count": null,
       "metadata": {
         "language_info": {
           "name": "python"
