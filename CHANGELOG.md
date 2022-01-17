@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/stencila/schema/compare/v1.15.0...v1.16.0) (2022-01-17)
+
+
+### Features
+
+* **Executable code nodes:** Add `executeCount` property ([56e0902](https://github.com/stencila/schema/commit/56e09028389b49813a8c0cd32c837fa883ed4fa3))
+
 # [1.15.0](https://github.com/stencila/schema/compare/v1.14.0...v1.15.0) (2022-01-15)
 
 
