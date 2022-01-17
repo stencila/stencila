@@ -2,7 +2,6 @@
 
 import json
 import os
-import resource
 from sys import stdin, stdout, stderr
 
 from python_codec import decode_value, encode_exception, encode_message, encode_value
@@ -22,11 +21,12 @@ def print(*objects, sep=" ", end="\n", file=stdout, flush=False):
         stdout.write(json + RESULT)
 
 
-globals_dict = globals()
-globals_dict.update({"print": print, "decode_value": decode_value})
+# Create execution context with monkey patched `print` and `decode_value` function
+# for setting variables
+context = {}
+context.update({"print": print, "__decode_value__": decode_value})
 
-locals_dict = {}
-
+# Signal that kernel is ready
 stdout.write(READY)
 stdout.flush()
 stderr.write(READY)
@@ -74,13 +74,13 @@ while True:
                 last = compile(last, "<code>", "eval")
             except:
                 compiled = compile("\n".join(lines), "<code>", "exec")
-                exec(compiled, globals_dict, locals_dict)
+                exec(compiled, context)
             else:
                 if rest:
                     joined = "\n".join(rest)
                     compiled = compile(joined, "<code>", "exec")
-                    exec(compiled, globals_dict, locals_dict)
-                value = eval(last, globals_dict, locals_dict)
+                    exec(compiled, context)
+                value = eval(last, context)
                 if value is not None:
                     json = encode_value(value)
                     stdout.write(json + RESULT)

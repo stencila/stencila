@@ -12,7 +12,7 @@ pub fn new() -> MicroKernel {
         &["{{script}}"],
         include_file!("python_kernel.py"),
         &[include_file!("python_codec.py")],
-        "{{name}} = decode_value(\"{{json}}\")",
+        "{{name}} = __decode_value__(\"{{json}}\")",
         "{{name}}",
     )
 }
@@ -56,7 +56,7 @@ mod tests {
         // The execution context should start off empty
         let (outputs, messages) = kernel.exec("dir()").await?;
         assert_json_is!(messages, []);
-        assert_json_is!(outputs, [[]]);
+        assert_json_is!(outputs[0], ["__builtins__", "__decode_value__", "print"]);
 
         // Assign a variable and output it
         let (outputs, messages) = kernel.exec("a = 2\na").await?;
@@ -66,7 +66,10 @@ mod tests {
         // The execution context should now have the var
         let (outputs, messages) = kernel.exec("dir()").await?;
         assert_json_is!(messages, []);
-        assert_json_is!(outputs, [["a"]]);
+        assert_json_is!(
+            outputs[0],
+            ["__builtins__", "__decode_value__", "a", "print"]
+        );
 
         // Print the variable twice and then output it
         let (outputs, messages) = kernel.exec("print(a)\nprint(a)\na").await?;
@@ -169,6 +172,34 @@ mod tests {
         // Back in the parent kernel, var should still have its original value
         assert_json_eq!(var, kernel.get("var").await?);
         let (outputs, messages) = kernel.exec("var").await?;
+        assert_json_is!(messages, []);
+        assert_eq!(outputs.len(), 1);
+
+        Ok(())
+    }
+
+    /// Test that imported modules are available in functions
+    ///
+    /// This is a regression test for a bug found during usage.
+    /// Before the associated fix would get error "name 'time' is not defined"
+    #[tokio::test]
+    async fn imports() -> Result<()> {
+        let mut kernel = match skip_or_kernel().await {
+            Ok(kernel) => kernel,
+            Err(..) => return Ok(()),
+        };
+
+        // Import a module and a function from another module in one task
+        let (outputs, messages) = kernel
+            .exec("import time\nfrom datetime import datetime")
+            .await?;
+        assert_json_is!(messages, []);
+        assert_json_is!(outputs, []);
+
+        // Check that both can be used from within a function in another task
+        let (outputs, messages) = kernel
+            .exec("def func():\n\treturn (time.time(), datetime.now())\nfunc()")
+            .await?;
         assert_json_is!(messages, []);
         assert_eq!(outputs.len(), 1);
 
