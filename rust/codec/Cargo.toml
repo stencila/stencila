@@ -5,7 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-async-trait = "0.1.51"
+async-trait = "0.1.52"
 eyre = "0.6.5"
 serde = { version = "1.0.130", features = ["derive"] }
 stencila-schema = "1.16.0"

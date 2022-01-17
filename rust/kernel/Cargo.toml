@@ -5,7 +5,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-async-trait = "0.1.51"
+async-trait = "0.1.52"
 chrono = { version = "0.4.19", features = ["serde"] }
 eyre = "0.6.5"
 formats = { path = "../formats", version = "0.0.0" }

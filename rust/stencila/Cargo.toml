@@ -92,7 +92,7 @@ default = [
 # Required external crates
 
 async-recursion = "=0.3.2"
-async-trait = "=0.1.51"
+async-trait = "0.1.52"
 chrono = { version = "=0.4.19", features = ["serde"] }
 crossbeam-channel = "=0.5.1"
 defaults = "=0.2.0"

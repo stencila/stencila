@@ -12,7 +12,7 @@ download-tar-gz = ["download-tar", "flate2"]
 download-tar-xz = ["download-tar", "xz2"]
 
 [dependencies]
-async-trait = "0.1.51"
+async-trait = "0.1.52"
 defaults = "0.2.0"
 dirs = "4.0.0"
 eyre = "0.6.5"
