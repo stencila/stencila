@@ -131,7 +131,7 @@ tracing = "=0.1.29"
 tracing-appender = "=0.2.0"
 tracing-error = "=0.2.0"
 tracing-serde = "=0.1.2"
-tracing-subscriber = { version = "=0.3.3", features = ["env-filter", "json"] }
+tracing-subscriber = { version = "=0.3.6", features = ["env-filter", "json"] }
 url = "=2.2.2"
 validator = { version = "=0.14.0", features = ["derive"] }
 

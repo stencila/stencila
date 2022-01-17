@@ -4870,7 +4870,7 @@ dependencies = [
  "tracing-appender",
  "tracing-error 0.2.0",
  "tracing-serde",
- "tracing-subscriber 0.3.3",
+ "tracing-subscriber 0.3.6",
  "url",
  "urlencoding",
  "uuids",
@@ -5149,7 +5149,7 @@ dependencies = [
  "serde_json",
  "tempfile",
  "tracing",
- "tracing-subscriber 0.3.3",
+ "tracing-subscriber 0.3.6",
 ]
 
 [[package]]
@@ -5353,7 +5353,7 @@ checksum = "94571df2eae3ed4353815ea5a90974a594a1792d8782ff2cbcc9392d1101f366"
 dependencies = [
  "crossbeam-channel",
  "time 0.3.5",
- "tracing-subscriber 0.3.3",
+ "tracing-subscriber 0.3.6",
 ]
 
 [[package]]
@@ -5393,7 +5393,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d686ec1c0f384b1277f097b2f279a2ecc11afe8c133c1aabf036a27cb4cd206e"
 dependencies = [
  "tracing",
- "tracing-subscriber 0.3.3",
+ "tracing-subscriber 0.3.6",
 ]
 
 [[package]]
@@ -5430,9 +5430,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-subscriber"
-version = "0.3.3"
+version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "245da694cc7fc4729f3f418b304cb57789f1bed2a78c575407ab8a23f53cb4d3"
+checksum = "77be66445c4eeebb934a7340f227bfe7b338173d3f8c00a60a5a58005c9faecf"
 dependencies = [
  "ansi_term",
  "lazy_static",
