@@ -1,0 +1,38 @@
+---
+source: rust/codec-md/src/decode.rs
+assertion_line: 1270
+expression: "decode(content).expect(\"Unable to decode Markdown\")"
+input_file: fixtures/articles/code-serial.md
+
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "This fixture is focussed on testing scheduling of serial execution plans. The execution plan for this document should have four stages, scheduled to be run serially, but the fourth should not run because the third stage, which it depends upon, fails."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "bash",
+      "text": "sleep 3\nchunk1=$(date)\necho \"Succeeded at $chunk1.\""
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "bash",
+      "text": "# @uses chunk1\nsleep 3\nchunk2=$(date)\necho \"Succeeded at $chunk2.\""
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "bash",
+      "text": "# @uses chunk2\nsleep 3\nchunk3=$(date)\necho \"Failed at $chunk3.\"\necho \"This chunk should show an error and the next should be scheduled but not run\"\necho \"Error to cancel next stage\" >&2"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "bash",
+      "text": "# @uses chunk3\necho \"This output should not show (unless it is explicitly run) and the chunk should show that a dependency failed.\""
+    }
+  ]
+}
