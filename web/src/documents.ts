@@ -120,14 +120,18 @@ export async function unsubscribe(
 /**
  * Send a document patch to the server
  *
- * Will generate an error if the patch could not be
- * applied e.g. no node with the id could be found or
- * the patch was inconsistent with the node.
+ * Will generate an error if the patch could not be applied e.g. no node with the id could
+ * be found or the patch was inconsistent with the node.
+ *
+ * The `execute` option can be used to immediately execute the document, starting at the
+ * patch's target if any, otherwise the entire document. Combining patch and execute operations
+ * in a single request ensures that they occur in the correct order.
  */
 export async function sendPatch(
   client: Client,
   documentId: DocumentId,
-  patch: Patch
+  patch: Patch,
+  execute = false
 ): Promise<void> {
   // During development it's very useful to see the patch operations being sent
   if (process.env.NODE_ENV !== 'production') {
@@ -139,6 +143,7 @@ export async function sendPatch(
   return client.call('documents.patch', {
     documentId,
     patch,
+    execute,
   }) as Promise<void>
 }
 
@@ -416,7 +421,7 @@ async function onParameterChange(
     ops: [op],
   }
 
-  return sendPatch(client, documentId, patch)
+  return sendPatch(client, documentId, patch, true)
 }
 
 /**

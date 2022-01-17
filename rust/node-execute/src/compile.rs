@@ -1,9 +1,9 @@
-use crate::{utils::send_patches, CompileContext, Executable};
+use crate::{utils::send_patches, CompileContext, Executable, PatchMessage};
 use eyre::Result;
 use graph::Graph;
 use graph_triples::{resources, Resource};
 use node_address::{Address, AddressMap};
-use node_patch::{diff_address, Patch};
+use node_patch::diff_address;
 use node_pointer::resolve;
 use std::{collections::HashMap, path::Path, sync::Arc};
 use stencila_schema::{
@@ -42,7 +42,7 @@ pub async fn compile(
     path: &Path,
     project: &Path,
     root: &Arc<RwLock<Node>>,
-    patch_sender: &UnboundedSender<Patch>,
+    patch_sender: &UnboundedSender<PatchMessage>,
 ) -> Result<(AddressMap, Graph)> {
     // Walk over the root node calling `compile` on children
     let mut address = Address::default();
@@ -69,7 +69,7 @@ pub async fn compile_no_walk(
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
     graph: &Arc<RwLock<Graph>>,
-    patch_sender: &UnboundedSender<Patch>,
+    patch_sender: &UnboundedSender<PatchMessage>,
 ) -> Result<()> {
     compile_patches_and_send(
         &*root.read().await,
@@ -85,7 +85,7 @@ fn compile_patches_and_send(
     root: &Node,
     address_map: &AddressMap,
     graph: &Graph,
-    patch_sender: &UnboundedSender<Patch>,
+    patch_sender: &UnboundedSender<PatchMessage>,
 ) {
     // Collect all the code nodes in the graph and new values for some of their properties
     let resource_infos = graph.get_resource_infos();

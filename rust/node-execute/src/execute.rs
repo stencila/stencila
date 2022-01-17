@@ -15,8 +15,8 @@ use tokio::sync::{mpsc::UnboundedSender, RwLock};
 
 use crate::{
     compile_no_walk,
-    utils::{resource_to_node, send_patches},
-    Executable,
+    utils::{resource_to_node, send_patch, send_patches},
+    Executable, PatchMessage,
 };
 
 /// Execute a [`Plan`] on a [`Node`]
@@ -44,7 +44,7 @@ pub async fn execute(
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
     graph: &Arc<RwLock<Graph>>,
-    patch_sender: &UnboundedSender<Patch>,
+    patch_sender: &UnboundedSender<PatchMessage>,
     kernel_space: Option<Arc<KernelSpace>>,
 ) -> Result<()> {
     let kernel_space = kernel_space.unwrap_or_default();
@@ -219,17 +219,9 @@ pub async fn execute(
             );
 
             // Send the patch reflecting the changed state of the executed node
-            if !patch.is_empty() {
-                if let Err(error) = patch_sender.send(patch) {
-                    tracing::debug!(
-                        "When sending patch for step {} of stage {}: {}",
-                        step_index + 1,
-                        stage_index + 1,
-                        error
-                    );
-                }
-            }
+            send_patch(patch_sender, patch);
 
+            // Update the state of the node in this function's record of nodes
             nodes
                 .entry(resource_info.resource.clone())
                 .and_modify(|info| info.3 = node);
