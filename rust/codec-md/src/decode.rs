@@ -255,11 +255,14 @@ pub fn decode_fragment(md: &str, default_lang: Option<String>) -> Vec<BlockConte
                 }
 
                 // Block nodes with inline content
-                Tag::Heading(depth) => blocks.push_node(BlockContent::Heading(Heading {
-                    depth: Some(depth as u8),
-                    content: inlines.pop_all(),
-                    ..Default::default()
-                })),
+                Tag::Heading(depth, id, _classes) => {
+                    blocks.push_node(BlockContent::Heading(Heading {
+                        id: id.map(|id| Box::new(id.to_string())),
+                        depth: Some(depth as u8),
+                        content: inlines.pop_all(),
+                        ..Default::default()
+                    }))
+                }
                 Tag::Paragraph => blocks.push_node(BlockContent::Paragraph(Paragraph {
                     content: inlines.pop_all(),
                     ..Default::default()
