@@ -1,3 +1,67 @@
+# [0.139.0](https://github.com/stencila/stencila/compare/v0.138.0...v0.139.0) (2022-01-17)
+
+
+### Bug Fixes
+
+* **Bash kernel:** Escape percent signs ([180c3ea](https://github.com/stencila/stencila/commit/180c3eae6ff17420842a7d647f6fadd70ac6ddfc))
+* **Bash parser:** Handle tags in comments ([b2c6a2c](https://github.com/stencila/stencila/commit/b2c6a2c02ef37973db01dece5ed8d09996d7c152))
+* **Calc kernel:** Convert more types of nodes to numbers ([9736d67](https://github.com/stencila/stencila/commit/9736d670779e1128e037042f8d7f5c4bb446d29d))
+* **Calc kernel:** Handle conversion of strings to numbers ([0eb8aa1](https://github.com/stencila/stencila/commit/0eb8aa1469d904755eb8d2bcbbc94d072756eb99))
+* **Calc parser:** More robust handling for regex groups ([6df16e6](https://github.com/stencila/stencila/commit/6df16e6513ddac93bdf2c5054487867c81f98909))
+* **Code analysis:** Fix population of dependents and sorting ([1838737](https://github.com/stencila/stencila/commit/18387379a482c9bdd4238b1e22a211a74137aee1))
+* **Code dependencies:** Order by appearance in document ([9853c2d](https://github.com/stencila/stencila/commit/9853c2dc45cc810d3c6a05db7c8b699c62c16d0b))
+* **Code dependencies:** Remove invalid variant for `CodeExpression` ([09fe667](https://github.com/stencila/stencila/commit/09fe667abe926887278d1a45975cb10b1854c08d))
+* **dependencies:** update dependency @stencila/components to v0.48.0 ([c163e69](https://github.com/stencila/stencila/commit/c163e695031bc4bf3b2716f992108a81e47400da))
+* **Dependencies:** Upgrade to `async-trait` 0.1.52 ([d4f5ebb](https://github.com/stencila/stencila/commit/d4f5ebbaabaa87e92075e124b84b93c4e2284d2e))
+* **Dependencies:** Upgrade to `once_cell` 1.9.0 ([85daa8e](https://github.com/stencila/stencila/commit/85daa8e0e503f00e52840696cc302881602df6b9))
+* **Dependencies:** Upgrade to `pulldown-cmark` 0.9.0 ([f0119e7](https://github.com/stencila/stencila/commit/f0119e793f5d6e32138cc79708c5ab689fad8e79))
+* **Dependencies:** Upgrade to `reqwest` 0.11.9 ([14b1612](https://github.com/stencila/stencila/commit/14b161250ad8c0ada8e9ea37f505172d288bc8b7))
+* **Dependencies:** Upgrade to `serde_json` 1.0.75 ([a481dab](https://github.com/stencila/stencila/commit/a481dabad470901f61ffdae067b4871154d20097))
+* **Dependencies:** Upgrade to `serde_yaml` 0.8.23 ([ceee49f](https://github.com/stencila/stencila/commit/ceee49f77c1030262939c92a273aa958d30ba10f))
+* **Dependencies:** Upgrade to `stencila-schema` 1.16.0 ([05a6b8e](https://github.com/stencila/stencila/commit/05a6b8efcef57ac5878af7f18523f26d37e3aaa6))
+* **Dependencies:** Upgrade to `tracing-subscriber` 0.3.6 ([ee17f32](https://github.com/stencila/stencila/commit/ee17f321c79ca3c0f96423449da0f237b67b2e2a))
+* **Dependencies:** Upgrade to Stencila schema 1.15.0 ([b053a88](https://github.com/stencila/stencila/commit/b053a88f8037603cb4cc13a878b1aadaa551cfc2))
+* **Deps:** Upgrade to schema 1.14.0 ([fdcbb52](https://github.com/stencila/stencila/commit/fdcbb52ca0dd2201f7a4e7e0df1fb65ca7cdf7be))
+* **Documents:** Fix initial reading of document to ensure compile before render ([f43f503](https://github.com/stencila/stencila/commit/f43f5034d6b88455bccc9ba1fc51d362d5646467))
+* **Execution plans:** Consider `autorun` when generating plans ([2b47db0](https://github.com/stencila/stencila/commit/2b47db07341b08f2fa58ba3548e682fbaea230f9))
+* **Execution plans:** Fix application of maximum concurrency ([70446ea](https://github.com/stencila/stencila/commit/70446ea044514ca92fc5fea50468fcd64d87a89e))
+* **Execution plans:** Ignore `content_digest` when determining `is_stale` ([d9d4e10](https://github.com/stencila/stencila/commit/d9d4e1015c0e1eed821fc45922b9398225e7d64a))
+* **HTML encoding:** Encode `executeAuto` property of dependencies and dependents ([934a871](https://github.com/stencila/stencila/commit/934a871647fd4d993f26b7a63acd41fd01a6d5a5))
+* **HTML encoding:** Return `String` ([305a672](https://github.com/stencila/stencila/commit/305a67292d5ff74c0e728495158745d999802e31))
+* **HTML encoding:** Use `<span>` instead of `<pre>` for text outputs ([656bea1](https://github.com/stencila/stencila/commit/656bea13fe2560cdb403d37ab4870a38f0d35fee))
+* **HTML encoding:** Use existing attribute names when encoding attributes for code dependencies ([4cef1a0](https://github.com/stencila/stencila/commit/4cef1a0ce6e5a09ca25b03cbf29bb1ffe8cdd6ba))
+* **IPYNB encoding:** Add required `execution_count` property ([5831741](https://github.com/stencila/stencila/commit/583174109da78d3720fc6451e33cea5443498164))
+* **Jupyter kernels:** Upgrade `sha2` and `hmac` dependencies ([2df071a](https://github.com/stencila/stencila/commit/2df071a02701bb7879b1b0b79b943fcefeaff362))
+* **Kernel:** Make `is_forkable` default to returning value from spec ([d17871f](https://github.com/stencila/stencila/commit/d17871fb5f851ce8e480e53609dba0fbfa9510df))
+* **Kernels:** Return a task with error when unable to dispatch ([14ed433](https://github.com/stencila/stencila/commit/14ed433199032ce42fce2ccb5b695e40b235384e))
+* **Node dependencies:** Do partial recompile after execution ([ff61de6](https://github.com/stencila/stencila/commit/ff61de6df6029b390d4388d8dcb1db4f67f2735a))
+* **Node execution:** Fix assesment of early stopping of stages ([80b9c28](https://github.com/stencila/stencila/commit/80b9c283cc96dc5a00d9d858fbcc0563d264df23))
+* **Node execution:** Include `DependenciesFailed` variant in `execute_required` property ([76bbb40](https://github.com/stencila/stencila/commit/76bbb409950ed60d9d41feb6207708c30a6fca97))
+* **Node execution:** Update execute status of nodes and stop if any dependencies have not suceeded ([48d048d](https://github.com/stencila/stencila/commit/48d048d3816dcd4881c0ba0ae5d5794e64f4ad07))
+* **Node execution:** Use new immmutable pointer and alter API for better performance ([ec12738](https://github.com/stencila/stencila/commit/ec127383a67754ea3dda731af93cb813ef1a84b2))
+* **Parsers:** Treat module imports as side effect causing ([31bf256](https://github.com/stencila/stencila/commit/31bf256b7cec17899331d5ed1ee094cde020aae2))
+* **Rust parser:** Handle tags in comments ([9430e5e](https://github.com/stencila/stencila/commit/9430e5ef7e233371710974823b206ac58024aaae))
+* **Rust:** Upgrade various dependencies ([aef793e](https://github.com/stencila/stencila/commit/aef793ef434a27d6713931c88f5578f95e871f6d))
+* **Tree-sitter parsers:** Strip carriage returns to avoid different digests on Windows ([957ce8b](https://github.com/stencila/stencila/commit/957ce8bb203359b01178b7b52839caa5052fd264))
+
+
+### Features
+
+* **Calc kernel:** Add `now` function ([6c3c713](https://github.com/stencila/stencila/commit/6c3c7133b18aebbd50c81abc2d774500e6fc0d37))
+* **Code dependencies and dependents:** Enable patching and encode to HTML ([3e81984](https://github.com/stencila/stencila/commit/3e81984ec03d3655b72f5c718fe6b7474777512d))
+* **Document parameters:** Execute after patch of parameter value ([09a3ecc](https://github.com/stencila/stencila/commit/09a3eccafd382940a2455ce6ef664c56d146ad30))
+* **Documents:** Add `run` CLI command (includes display of execution plan) ([9d525e4](https://github.com/stencila/stencila/commit/9d525e4b6439d5ff61a049b3d0c8af4beb653f9f))
+* **Execution plans:** Add `autorun` property to `ResourceInfo` and corresponding comment tag ([63c24df](https://github.com/stencila/stencila/commit/63c24dfc3a49dfd95e84dedfa26d3ae50090de93))
+* **Node patches:** Add `mutate` function for convienient patch generation ([011fbbf](https://github.com/stencila/stencila/commit/011fbbf21fc6db185b738055d14893c24cb326ea))
+* **Node patches:** Add `produce` function ([c643e86](https://github.com/stencila/stencila/commit/c643e86e7e6577452ff7718f3f808e21cb773ff9))
+* **Patches:** Combine several patches into one ([f898e7b](https://github.com/stencila/stencila/commit/f898e7bb2152b072312b166dee258597a8e3336c))
+* **Tree-sitter parsers:** Generate a semantic digest of the parsed concrete syntax tree ([6577997](https://github.com/stencila/stencila/commit/65779972acae606c5cba4e84f0a749e233981ab2))
+
+
+### Performance Improvements
+
+* **Binary crate:** Cache `$PATH` directories and reduce `debug!` logs ([5e6cc18](https://github.com/stencila/stencila/commit/5e6cc18ad4ad58953356317e00a754c61d8b3308))
+
 # [0.138.0](https://github.com/stencila/stencila/compare/v0.137.1...v0.138.0) (2022-01-10)
 
 
