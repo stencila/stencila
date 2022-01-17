@@ -9,7 +9,7 @@ codec-pandoc = { path = "../codec-pandoc", version = "0.0.0" }
 codec = { path = "../codec", version = "0.0.0" }
 
 [dev-dependencies]
-once_cell = "1.8.0"
+once_cell = "1.9.0"
 tempfile = "3.2.0"
 test-props = { path = "../test-props", version = "0.0.0" }
 test-utils = { path = "../test-utils", version = "0.0.0" }

@@ -18,7 +18,7 @@ hex = "0.4.3"
 hmac = "0.11.0"
 kernel = {path = "../kernel", version = "0.0.0"}
 key-utils = {path = "../key-utils", version = "0.0.0"}
-once_cell = "1.8.0"
+once_cell = "1.9.0"
 path-slash = "0.1.4"
 portpicker = "0.1.1"
 reqwest = "0.11.7"
