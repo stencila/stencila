@@ -3,7 +3,7 @@ use crate::{
     messages::HmacSha256,
 };
 use defaults::Defaults;
-use hmac::NewMac;
+use hmac::Mac;
 use kernel::{
     eyre::{eyre, Result},
     serde::{Deserialize, Serialize},
