@@ -7,7 +7,7 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec", version = "0.0.0" }
 node-coerce = { path = "../node-coerce", version = "0.0.0" }
-serde_yaml = "0.8.21"
+serde_yaml = "0.8.23"
 
 [dev-dependencies]
 test-props = { path = "../test-props", version = "0.0.0" }

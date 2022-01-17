@@ -19,6 +19,6 @@ tracing = "0.1.29"
 utils = { path = "../utils", version = "0.0.0" }
 
 [dev-dependencies]
-serde_yaml = "0.8.21"
+serde_yaml = "0.8.23"
 test-snaps = { path = "../test-snaps", version = "0.0.0" }
 test-utils = { path = "../test-utils", version = "0.0.0" }
