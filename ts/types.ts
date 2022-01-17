@@ -334,6 +334,7 @@ export interface CodeExecutable extends Code {
   codeDependents?: Array<CodeChunk | CodeExpression>
   compileDigest?: String
   errors?: Array<CodeError>
+  executeCount?: Integer
   executeDigest?: String
   executeDuration?: Number
   executeEnded?: Date

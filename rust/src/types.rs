@@ -174,6 +174,9 @@ pub struct CodeExecutable {
     /// Errors when compiling (e.g. syntax errors) or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
 
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
+
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
 
@@ -233,6 +236,9 @@ pub struct CodeChunk {
 
     /// Under which circumstances the node should be automatically executed.
     pub execute_auto: Option<CodeChunkExecuteAuto>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
 
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,
@@ -296,6 +302,9 @@ pub struct CodeExpression {
 
     /// Errors when compiling (e.g. syntax errors) or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
+
+    /// A count of the number of times that the node has been executed.
+    pub execute_count: Option<Integer>,
 
     /// The `compileDigest` of the node when it was last executed.
     pub execute_digest: Option<Box<Cord>>,

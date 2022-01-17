@@ -171,6 +171,7 @@ CodeBlock <- function(
 #' @param codeDependents The downstream dependents of the code.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
+#' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution of the code.
 #' @param executeEnded The date-time that the the last execution of the code ended.
@@ -189,6 +190,7 @@ CodeExecutable <- function(
   codeDependents,
   compileDigest,
   errors,
+  executeCount,
   executeDigest,
   executeDuration,
   executeEnded,
@@ -211,6 +213,7 @@ CodeExecutable <- function(
   self[["codeDependents"]] <- check_property("CodeExecutable", "codeDependents", FALSE, missing(codeDependents), Array(Union(CodeChunk, CodeExpression)), codeDependents)
   self[["compileDigest"]] <- check_property("CodeExecutable", "compileDigest", FALSE, missing(compileDigest), "character", compileDigest)
   self[["errors"]] <- check_property("CodeExecutable", "errors", FALSE, missing(errors), Array(CodeError), errors)
+  self[["executeCount"]] <- check_property("CodeExecutable", "executeCount", FALSE, missing(executeCount), "numeric", executeCount)
   self[["executeDigest"]] <- check_property("CodeExecutable", "executeDigest", FALSE, missing(executeDigest), "character", executeDigest)
   self[["executeDuration"]] <- check_property("CodeExecutable", "executeDuration", FALSE, missing(executeDuration), "numeric", executeDuration)
   self[["executeEnded"]] <- check_property("CodeExecutable", "executeEnded", FALSE, missing(executeEnded), Date, executeEnded)
@@ -232,6 +235,7 @@ CodeExecutable <- function(
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
 #' @param executeAuto Under which circumstances the node should be automatically executed.
+#' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution of the code.
 #' @param executeEnded The date-time that the the last execution of the code ended.
@@ -275,6 +279,7 @@ CodeChunk <- function(
   compileDigest,
   errors,
   executeAuto,
+  executeCount,
   executeDigest,
   executeDuration,
   executeEnded,
@@ -294,6 +299,7 @@ CodeChunk <- function(
     codeDependents = codeDependents,
     compileDigest = compileDigest,
     errors = errors,
+    executeCount = executeCount,
     executeDigest = executeDigest,
     executeDuration = executeDuration,
     executeEnded = executeEnded,
@@ -324,6 +330,7 @@ CodeChunk <- function(
 #' @param codeDependents The downstream dependents of the code.
 #' @param compileDigest A digest of the content, semantics and dependencies of the node.
 #' @param errors Errors when compiling (e.g. syntax errors) or executing the chunk.
+#' @param executeCount A count of the number of times that the node has been executed.
 #' @param executeDigest The `compileDigest` of the node when it was last executed.
 #' @param executeDuration Duration in seconds of the last execution of the code.
 #' @param executeEnded The date-time that the the last execution of the code ended.
@@ -343,6 +350,7 @@ CodeExpression <- function(
   codeDependents,
   compileDigest,
   errors,
+  executeCount,
   executeDigest,
   executeDuration,
   executeEnded,
@@ -360,6 +368,7 @@ CodeExpression <- function(
     codeDependents = codeDependents,
     compileDigest = compileDigest,
     errors = errors,
+    executeCount = executeCount,
     executeDigest = executeDigest,
     executeDuration = executeDuration,
     executeEnded = executeEnded,

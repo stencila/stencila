@@ -35,6 +35,14 @@ properties:
     '@id': stencila:compileDigest
     description: A digest of the content, semantics and dependencies of the node.
     type: string
+  executeCount:
+    '@id': stencila:executeCount
+    description: A count of the number of times that the node has been executed.
+    type: integer
+    minimum: 0
+    $comment: |
+      Analogous to `execution_count` in Jupyter Notebook format v4.5 but not a required
+      property as it is there.
   executeDigest:
     '@id': stencila:executeDigest
     description: The `compileDigest` of the node when it was last executed.

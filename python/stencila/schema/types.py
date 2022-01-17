@@ -231,6 +231,9 @@ class CodeExecutable(Code):
     errors: Optional[Array["CodeError"]] = None
     """Errors when compiling (e.g. syntax errors) or executing the chunk."""
 
+    executeCount: Optional[Integer] = None
+    """A count of the number of times that the node has been executed."""
+
     executeDigest: Optional[String] = None
     """The `compileDigest` of the node when it was last executed."""
 
@@ -255,6 +258,7 @@ class CodeExecutable(Code):
         codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
+        executeCount: Optional[Integer] = None,
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
@@ -281,6 +285,8 @@ class CodeExecutable(Code):
             self.compileDigest = compileDigest
         if errors is not None:
             self.errors = errors
+        if executeCount is not None:
+            self.executeCount = executeCount
         if executeDigest is not None:
             self.executeDigest = executeDigest
         if executeDuration is not None:
@@ -325,6 +331,7 @@ class CodeChunk(CodeExecutable):
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
         executeAuto: Optional["EExecuteAuto"] = None,
+        executeCount: Optional[Integer] = None,
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
@@ -344,6 +351,7 @@ class CodeChunk(CodeExecutable):
             codeDependents=codeDependents,
             compileDigest=compileDigest,
             errors=errors,
+            executeCount=executeCount,
             executeDigest=executeDigest,
             executeDuration=executeDuration,
             executeEnded=executeEnded,
@@ -385,6 +393,7 @@ class CodeExpression(CodeExecutable):
         codeDependents: Optional[Array[Union["CodeChunk", "CodeExpression"]]] = None,
         compileDigest: Optional[String] = None,
         errors: Optional[Array["CodeError"]] = None,
+        executeCount: Optional[Integer] = None,
         executeDigest: Optional[String] = None,
         executeDuration: Optional[Number] = None,
         executeEnded: Optional["Date"] = None,
@@ -402,6 +411,7 @@ class CodeExpression(CodeExecutable):
             codeDependents=codeDependents,
             compileDigest=compileDigest,
             errors=errors,
+            executeCount=executeCount,
             executeDigest=executeDigest,
             executeDuration=executeDuration,
             executeEnded=executeEnded,
