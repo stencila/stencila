@@ -13,5 +13,5 @@ schemars = { version = "0.8.8", features = ["preserve_order"] }
 serde = "1.0.130"
 serde_json = { version = "1.0.75", features = ["preserve_order"] }
 serde_with = "1.11.0"
-stencila-schema = "1.15.0"
+stencila-schema = "1.16.0"
 strum = { version = "0.23.0", features = ["derive"] }
