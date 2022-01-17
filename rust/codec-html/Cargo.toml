@@ -41,7 +41,7 @@ tracing = { version = "0.1.29", optional = true }
 uuids = { path = "../uuids", version = "0.0.0" }
 
 [dev-dependencies]
-reqwest = "0.11.7"
+reqwest = "0.11.9"
 test-props = { path = "../test-props", version = "0.0.0" }
 test-snaps = { path = "../test-snaps", version = "0.0.0" }
 test-utils = { path = "../test-utils", version = "0.0.0" }
