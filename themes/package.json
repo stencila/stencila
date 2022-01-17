@@ -93,7 +93,7 @@
     "file-loader": "6.2.0",
     "filemanager-webpack-plugin": "6.1.7",
     "geckodriver": "2.0.4",
-    "globby": "11.0.4",
+    "globby": "12.2.0",
     "html-loader": "3.0.0",
     "html-webpack-plugin": "5.4.0",
     "jest": "26.6.3",
