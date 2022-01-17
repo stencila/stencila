@@ -32,7 +32,7 @@ impl ParserTrait for BashParser {
         let relations = matches
             .iter()
             .filter_map(|(pattern, captures)| match pattern {
-                0 => {
+                1 => {
                     // Assigns a string variable
                     let range = captures[0].range;
                     let name = captures[0].text.clone();
@@ -41,7 +41,7 @@ impl ParserTrait for BashParser {
                         resources::symbol(path, &name, "String"),
                     ))
                 }
-                1 => {
+                2 => {
                     // Uses a variable
                     let node = captures[0].node;
                     let range = captures[0].range;
@@ -69,6 +69,8 @@ impl ParserTrait for BashParser {
             path,
             &Self::spec().language,
             code,
+            &tree,
+            &["comment"],
             matches,
             0,
             relations,

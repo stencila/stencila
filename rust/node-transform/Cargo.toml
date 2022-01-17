@@ -6,4 +6,4 @@ edition = "2021"
 
 [dependencies]
 codec-txt = { path = "../codec-txt", version = "0.0.0" }
-stencila-schema = "1.13.0" 
+stencila-schema = "1.15.0"

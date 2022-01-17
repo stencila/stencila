@@ -1,0 +1,54 @@
+---
+source: rust/parser-bash/src/lib.rs
+assertion_line: 96
+expression: resource_info
+input_file: fixtures/fragments/bash/tags.bash
+
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/bash/tags.bash",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Bash"
+  },
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          2,
+          6,
+          2,
+          12
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/bash/tags.bash",
+        "name": "RANDOM",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          1,
+          0,
+          1,
+          19
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/bash/tags.bash",
+        "name": "var1",
+        "kind": ""
+      }
+    ]
+  ],
+  "execute_auto": "Always",
+  "compile_digest": "R_tcWn7tKVT-tkyB1kiaEcbCDbtPCfpE19-beeBqYJw.AbWACaIMV9asNHPrh_6f-N-IH3pkQVnjlfHumNBjVtI..0.0"
+}

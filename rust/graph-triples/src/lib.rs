@@ -25,3 +25,6 @@ pub use relations::Relation;
 
 mod directions;
 pub use directions::{direction, Direction};
+
+// Re-exports
+pub use stencila_schema;

@@ -1,5 +1,6 @@
 ---
 source: rust/parser-py/src/lib.rs
+assertion_line: 209
 expression: resource_info
 input_file: fixtures/fragments/py/reads.py
 
@@ -315,5 +316,5 @@ input_file: fixtures/fragments/py/reads.py
       }
     ]
   ],
-  "compile_digest": "1JrFR6TcVIy_HfsaKx_KZ9cqzMI89QDcvMsCgflIypo.YAua72kZ9gIFtv8b40i_937-BwMPqxn-ji8lRcHAw_g..0"
+  "compile_digest": "1JrFR6TcVIy_HfsaKx_KZ9cqzMI89QDcvMsCgflIypo.zk65IYrtZ80r1Lv_QNDB9sqZx_6d_EwHMBfxqBzPUug..0.0"
 }

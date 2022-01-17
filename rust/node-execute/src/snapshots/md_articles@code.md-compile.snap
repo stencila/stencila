@@ -1,6 +1,7 @@
 ---
 source: rust/node-execute/src/lib.rs
-expression: "(&addresses, &resources)"
+assertion_line: 69
+expression: "(&addresses, &graph)"
 
 ---
 [
@@ -98,72 +99,75 @@ expression: "(&addresses, &resources)"
       1
     ]
   },
-  [
-    {
-      "resource": {
+  {
+    "nodes": [
+      {
         "type": "Code",
         "path": "articles/code.md",
         "id": "ce-1",
         "kind": "CodeExpression",
-        "language": "R"
+        "language": "R",
+        "dependencies": 0,
+        "depth": 0,
+        "compile_digest": "Shsh2HauAMjtXE0c3gnGH4phtQ_jcKgBsQwzmDHzcKs.p80zpLdo3MsUboJGvN8lKiu78RQGLGzldVKFUfbfAqk..0.0",
+        "index": 0
       },
-      "relations": [],
-      "compile_digest": "Shsh2HauAMjtXE0c3gnGH4phtQ_jcKgBsQwzmDHzcKs.sKa1lN35R1qYIDF_5pBn4y7HqpZHg78gGir12Px3XP4..0"
-    },
-    {
-      "resource": {
+      {
         "type": "Code",
         "path": "articles/code.md",
         "id": "ce-2",
         "kind": "CodeExpression",
-        "language": "Python"
+        "language": "Python",
+        "dependencies": 0,
+        "depth": 0,
+        "compile_digest": "Gs-GImxowUhco5OYhMQ-2Zq-6jROgGVIr37oE8HAz_M.1BJlv1qBTWlNFU__XAii4Nc7L-sk0o2Xsjs4zll3yOY..0.0",
+        "index": 1
       },
-      "relations": [],
-      "compile_digest": "Gs-GImxowUhco5OYhMQ-2Zq-6jROgGVIr37oE8HAz_M.0MIJscT8aFeWiuviD3EZK7T2kiglkfCO0NPvFVlL8bQ..0"
-    },
-    {
-      "resource": {
+      {
         "type": "Code",
         "path": "articles/code.md",
         "id": "ce-3",
         "kind": "CodeExpression",
-        "language": "Python"
+        "language": "Python",
+        "dependencies": 0,
+        "depth": 0,
+        "compile_digest": "8Jcxdr_uog8nU85IWbSHJ67aACMkRhrjSlNq4U87zOI.dPC5FFL3eij3lxrU1xEsIHYbQ2bI5ls2MYCD5LfCBI8..0.0",
+        "index": 2
       },
-      "relations": [],
-      "compile_digest": "8Jcxdr_uog8nU85IWbSHJ67aACMkRhrjSlNq4U87zOI.WTk2LOm4gZ0UmUlT0XWdef-3W6JVajT2Zwas1meIYDI..0"
-    },
-    {
-      "resource": {
+      {
         "type": "Code",
         "path": "articles/code.md",
         "id": "ce-4",
         "kind": "CodeExpression",
-        "language": "Python"
+        "language": "Python",
+        "dependencies": 0,
+        "depth": 0,
+        "compile_digest": "XUtGPLFdg6rE1pkK7-JI2cakP-0Ki9b8TYR2NTft0ZA.4A0Up4hHe3EwA5TO8PQaq2Vy8vh5ez5mqaxMQmidKUY..0.0",
+        "index": 3
       },
-      "relations": [],
-      "compile_digest": "XUtGPLFdg6rE1pkK7-JI2cakP-0Ki9b8TYR2NTft0ZA.perBJOxmu4RygSmdTF1Mq2e9-7SvwC4TW65hS-yW3Lw..0"
-    },
-    {
-      "resource": {
+      {
         "type": "Code",
         "path": "articles/code.md",
         "id": "ce-5",
         "kind": "CodeExpression",
-        "language": "Python"
+        "language": "Python",
+        "dependencies": 0,
+        "depth": 0,
+        "compile_digest": "_96yTo2JTflYPz0EBhfBXfpPM6NXAWo_v6z40mH8bmU.kcRhg1FAbm-DQ6S1x8r2EFSt_amhYXGGuDwpxW_UKrQ..0.0",
+        "index": 4
       },
-      "relations": [],
-      "compile_digest": "_96yTo2JTflYPz0EBhfBXfpPM6NXAWo_v6z40mH8bmU.PTSjGQPAJdqQLgptZTkO7HwhlXuBe1orBfPta5mgTGU..0"
-    },
-    {
-      "resource": {
+      {
         "type": "Code",
         "path": "articles/code.md",
         "id": "cc-1",
         "kind": "CodeChunk",
-        "language": "R"
-      },
-      "relations": [],
-      "compile_digest": "-KtuBR2wWR4ttUqNGXPxRbTt2Ih80SP9gCuOCnmdMt4.mguTVp0eEQa1LaXve-sRgMsegT02c_6TpX1mueiMlCU..0"
-    }
-  ]
+        "language": "R",
+        "dependencies": 0,
+        "depth": 0,
+        "compile_digest": "-KtuBR2wWR4ttUqNGXPxRbTt2Ih80SP9gCuOCnmdMt4.NbRiugxjKwUFQaagfFSTrbK68Q5GCcfqZkD2vgO0B5w..0.0",
+        "index": 5
+      }
+    ],
+    "edges": []
+  }
 ]

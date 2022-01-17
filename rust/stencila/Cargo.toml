@@ -121,7 +121,7 @@ serde_json = { version = "1.0.72", features = ["preserve_order"] }
 serde_with = "=1.11.0"
 serde_yaml = "=0.8.21"
 slug = "=0.1.4"
-stencila-schema = "1.13.0" 
+stencila-schema = "1.15.0"
 strum = { version = "=0.23.0", features = ["derive"] }
 strum_macros = "=0.23.1"
 thiserror = "=1.0.30"

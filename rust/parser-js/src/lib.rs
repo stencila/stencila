@@ -16,93 +16,7 @@ static PARSER: Lazy<TreesitterParser> =
 /// Tree-sitter AST query for JavaScript
 ///
 /// Made public for use by `parser-ts`.
-pub const QUERY: &str = r#"
-(program (comment) @comment)
-
-(import_statement
-    source: (string) @module
-)
-(call_expression
-    function: [(import)(identifier)] @function (#match? @function "^import|require$")
-    arguments: (arguments . (string) @module)
-)
-
-(call_expression
-    function: [
-        (
-            (identifier) @function (#match? @function "^readFile")
-        )
-        (
-            member_expression
-                object: (_)
-                property: (property_identifier)  @function (#match? @function "^readFile")
-        )
-    ]
-    arguments: (arguments . (string) @path)
-)
-
-(call_expression
-    function: [
-        (
-            (identifier) @function (#match? @function "^writeFile")
-        )
-        (
-            member_expression
-                object: (_)
-                property: (property_identifier)  @function (#match? @function "^writeFile")
-        )
-    ]
-    arguments: (arguments . (string) @path)
-)
-
-(program
-    [
-        (expression_statement
-            (assignment_expression
-                left: (identifier) @name
-                right: (_) @value
-            )
-        )
-        (variable_declaration
-            (variable_declarator
-                name: (identifier) @name
-                .
-                value: (_) @value
-            )
-        )
-        (lexical_declaration
-            (variable_declarator
-                name: (identifier) @name
-                .
-                value: (_) @value
-            )
-        )
-        (export_statement
-            declaration: (lexical_declaration
-                (variable_declarator
-                    name: (identifier) @name
-                    .
-                    value: (_) @value
-                )
-            )
-        )
-    ]
-)
-(program
-    [
-        (function_declaration
-            name: (identifier) @name
-        )
-        (export_statement
-            declaration: (function_declaration
-                name: (identifier) @name
-            )
-        )
-    ]
-)
-
-((identifier) @identifer)
-"#;
+pub const QUERY: &str = include_str!("query.txt");
 
 /// Handle a pattern match
 ///
@@ -128,7 +42,7 @@ pub fn handle_patterns(
             } else {
                 resources::module("javascript", &module)
             };
-            Some((relations::uses(range), object))
+            Some((relations::imports(range), object))
         }
         3 => {
             // Reads a file
@@ -255,6 +169,8 @@ impl ParserTrait for JsParser {
             path,
             &Self::spec().language,
             code,
+            &tree,
+            &["comment"],
             matches,
             0,
             relations,

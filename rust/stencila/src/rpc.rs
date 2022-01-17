@@ -44,7 +44,7 @@ impl Request {
 
     #[tracing::instrument(skip(self))]
     pub async fn dispatch(self, client: &str) -> (Response, Subscription) {
-        tracing::debug!("Dispatching request for client `{}`", client);
+        tracing::trace!("Dispatching request for client `{}`", client);
 
         let result: Result<(serde_json::Value, Subscription)> = match self.method.as_str() {
             "sessions.start" => sessions_start(&self.params).await,
@@ -316,8 +316,11 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
     let id = required_string(params, "documentId")?;
     let patch = required_value(params, "patch")?;
     let patch: Patch = serde_json::from_value(patch)?;
+    let execute = optional_value(params, "execute")
+        .and_then(|value| value.as_bool())
+        .unwrap_or(false);
 
-    let document = DOCUMENTS.patch(&id, patch).await?;
+    let document = DOCUMENTS.patch(&id, patch, true, execute).await?;
     Ok((json!(document), Subscription::None))
 }
 

@@ -87,6 +87,7 @@ pub enum Command {
     Open(OpenCommand),
     Close(CloseCommand),
     Show(ShowCommand),
+    Run(RunCommand),
     Convert(ConvertCommand),
     Diff(DiffCommand),
     Merge(MergeCommand),
@@ -144,6 +145,7 @@ impl Run for Command {
             Command::Open(command) => command.run().await,
             Command::Close(command) => command.run().await,
             Command::Show(command) => command.run().await,
+            Command::Run(command) => command.run().await,
             Command::Convert(command) => command.run().await,
             Command::Diff(command) => command.run().await,
             Command::Merge(command) => command.run().await,
@@ -367,6 +369,7 @@ impl Run for ShowCommand {
 }
 
 /// Currently, these commands simply delegate to the `documents` module
+type RunCommand = documents::commands::Runn;
 type ConvertCommand = documents::commands::Convert;
 type DiffCommand = documents::commands::Diff;
 type MergeCommand = documents::commands::Merge;

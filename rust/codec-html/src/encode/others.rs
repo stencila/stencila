@@ -23,3 +23,128 @@ impl ToHtml for Date {
         elem("time", &[attr("datetime", &self.value)], &content)
     }
 }
+
+/// Encode a dependency of an executable code node
+///
+/// Note that for this type, and for `CodeExecutableCodeDependents`, the node being
+/// encoded is a _partial_ copy of a node. So any properties encoded here must be copied
+/// across in the `node-execute::compile` module.
+impl ToHtml for CodeExecutableCodeDependencies {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        let (
+            node_type,
+            id,
+            execute_auto,
+            execute_required,
+            execute_status,
+            programming_language,
+            name,
+        ) = match self {
+            CodeExecutableCodeDependencies::CodeChunk(CodeChunk {
+                id,
+                programming_language,
+                execute_auto,
+                execute_required,
+                execute_status,
+                ..
+            }) => (
+                "CodeChunk",
+                id,
+                execute_auto
+                    .as_ref()
+                    .map_or("Needed", |value| value.as_ref()),
+                execute_required,
+                execute_status,
+                Some(programming_language),
+                None,
+            ),
+            CodeExecutableCodeDependencies::Parameter(Parameter { id, name, .. }) => (
+                "Parameter",
+                id,
+                "Needed",
+                &None,
+                &None,
+                None,
+                Some(name.as_str()),
+            ),
+        };
+        elem(
+            "stencila-code-dependency",
+            &[
+                attr("node-type", node_type),
+                id.as_ref()
+                    .map_or("".to_string(), |value| attr("node-id", value.as_str())),
+                attr("execute-auto", execute_auto),
+                execute_required.as_ref().map_or("".to_string(), |value| {
+                    attr("execute-required", value.as_ref())
+                }),
+                execute_status.as_ref().map_or("".to_string(), |value| {
+                    attr("execute-status", value.as_ref())
+                }),
+                programming_language
+                    .as_ref()
+                    .map_or("".to_string(), |value| attr("programming-language", value)),
+                name.as_ref()
+                    .map_or("".to_string(), |value| attr("name", value)),
+            ],
+            "",
+        )
+    }
+}
+
+/// Encode a dependent of an executable code node
+impl ToHtml for CodeExecutableCodeDependents {
+    fn to_html(&self, _context: &EncodeContext) -> String {
+        let (node_type, id, execute_auto, execute_required, execute_status, programming_language) =
+            match self {
+                CodeExecutableCodeDependents::CodeChunk(CodeChunk {
+                    id,
+                    programming_language,
+                    execute_auto,
+                    execute_required,
+                    execute_status,
+                    ..
+                }) => (
+                    "CodeChunk",
+                    id,
+                    execute_auto
+                        .as_ref()
+                        .map_or("Needed", |value| value.as_ref()),
+                    execute_required,
+                    execute_status,
+                    programming_language,
+                ),
+                CodeExecutableCodeDependents::CodeExpression(CodeExpression {
+                    id,
+                    programming_language,
+                    execute_required,
+                    execute_status,
+                    ..
+                }) => (
+                    "CodeExpression",
+                    id,
+                    "Needed",
+                    execute_required,
+                    execute_status,
+                    programming_language,
+                ),
+            };
+        elem(
+            "stencila-code-dependent",
+            &[
+                attr("node-type", node_type),
+                id.as_ref()
+                    .map_or("".to_string(), |value| attr("node-id", value.as_str())),
+                attr("execute-auto", execute_auto),
+                execute_required.as_ref().map_or("".to_string(), |value| {
+                    attr("execute-required", value.as_ref())
+                }),
+                execute_status.as_ref().map_or("".to_string(), |value| {
+                    attr("execute-status", value.as_ref())
+                }),
+                attr("programming-language", programming_language),
+            ],
+            "",
+        )
+    }
+}

@@ -7,7 +7,7 @@ use kernel_micro::{include_file, MicroKernel};
 pub fn new() -> MicroKernel {
     MicroKernel::new(
         "zsh-micro",
-        &["zsh"],
+        &["Zsh", "Shell"],
         true,
         false,
         false,

@@ -1,5 +1,6 @@
 ---
 source: rust/parser-r/src/lib.rs
+assertion_line: 210
 expression: resource_info
 input_file: fixtures/fragments/r/imports.R
 
@@ -15,7 +16,7 @@ input_file: fixtures/fragments/r/imports.R
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           1,
           8,
@@ -31,7 +32,7 @@ input_file: fixtures/fragments/r/imports.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           2,
           8,
@@ -47,7 +48,7 @@ input_file: fixtures/fragments/r/imports.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           5,
           8,
@@ -63,7 +64,7 @@ input_file: fixtures/fragments/r/imports.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           5,
           8,
@@ -96,7 +97,7 @@ input_file: fixtures/fragments/r/imports.R
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           9,
           12,
@@ -128,5 +129,5 @@ input_file: fixtures/fragments/r/imports.R
       }
     ]
   ],
-  "compile_digest": "Ll0ywdE07LibFFLVWu0h1o4Ecn-KxJziVawQBehNOOQ.i7mcuY4HODPZm4gA8C5TMq4qe9sPBglxyTbFF5V-u_Q..0"
+  "compile_digest": "Ll0ywdE07LibFFLVWu0h1o4Ecn-KxJziVawQBehNOOQ.oMgznCp8eErJ0LERSpSlY3tG0c5YJJfBmOfd6Zq59EA..0.0"
 }

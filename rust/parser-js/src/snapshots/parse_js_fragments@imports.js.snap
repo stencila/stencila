@@ -1,5 +1,6 @@
 ---
 source: rust/parser-js/src/lib.rs
+assertion_line: 200
 expression: resource_info
 input_file: fixtures/fragments/js/imports.js
 
@@ -15,7 +16,7 @@ input_file: fixtures/fragments/js/imports.js
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           2,
           26,
@@ -31,7 +32,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           3,
           22,
@@ -47,7 +48,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           4,
           24,
@@ -63,7 +64,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           5,
           33,
@@ -79,7 +80,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           6,
           34,
@@ -95,7 +96,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           7,
           43,
@@ -111,7 +112,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           8,
           39,
@@ -127,7 +128,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           9,
           37,
@@ -143,7 +144,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           10,
           7,
@@ -176,7 +177,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           11,
           21,
@@ -226,7 +227,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           14,
           28,
@@ -276,7 +277,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           15,
           20,
@@ -376,5 +377,5 @@ input_file: fixtures/fragments/js/imports.js
       }
     ]
   ],
-  "compile_digest": "J1iZ0Ts-ZplNAUati58SMIPLKX963FFKyGn7ORPrpks.01k0_ZtlRyvkXENQOXB60o6pE9vgYPvCYHqHk5YoqiY..0"
+  "compile_digest": "J1iZ0Ts-ZplNAUati58SMIPLKX963FFKyGn7ORPrpks.LbJUpqxGNz4sw-J4oEFTzheMqMeSNTrsvepL2jlCSwI..0.0"
 }

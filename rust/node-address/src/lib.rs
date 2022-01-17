@@ -131,7 +131,12 @@ impl Address {
         Self::default()
     }
 
-    /// Concatenate an address with another
+    /// Prepend an address with another
+    pub fn prepend(&mut self, other: &Address) {
+        *self = other.concat(self)
+    }
+
+    /// Concatenate an address with another into a new address
     pub fn concat(&self, other: &Address) -> Self {
         let mut concat = self.clone();
         concat.append(&mut other.clone());

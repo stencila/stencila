@@ -55,18 +55,17 @@ pub fn alters(range: Range) -> Relation {
     Relation::Alter(Alter { range })
 }
 
-/// Imports a `File` from a `Provider` or a `Symbol` from
-/// a `Module`.
+/// Imports a `Module` or a `File`
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Import {
-    /// Whether or not the import is automatically updated
-    pub auto: bool,
+    /// The range within code
+    pub range: Range,
 }
 
 /// Create a new `Import` relation
-pub fn imports(auto: bool) -> Relation {
-    Relation::Import(Import { auto })
+pub fn imports(range: Range) -> Relation {
+    Relation::Import(Import { range })
 }
 
 /// Converts a file into another

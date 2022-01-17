@@ -1,4 +1,4 @@
-use crate::{Pointable, Pointer};
+use crate::{Pointable, Pointer, PointerMut};
 use eyre::{bail, Result};
 use node_address::Address;
 use node_dispatch::dispatch_block;
@@ -9,20 +9,32 @@ impl Pointable for BlockContent {
     ///
     /// `BlockContent` is one of the pointer variants so return a `Pointer::Block` if
     /// the address is empty. Otherwise dispatch to variant.
-    fn resolve(&mut self, address: &mut Address) -> Result<Pointer> {
+    fn resolve(&self, address: &mut Address) -> Result<Pointer> {
         match address.is_empty() {
             true => Ok(Pointer::Block(self)),
             false => dispatch_block!(self, resolve, address),
+        }
+    }
+    fn resolve_mut(&mut self, address: &mut Address) -> Result<PointerMut> {
+        match address.is_empty() {
+            true => Ok(PointerMut::Block(self)),
+            false => dispatch_block!(self, resolve_mut, address),
         }
     }
 
     /// Find a node based on its `id` and return a [`Pointer`] to it.
     ///
     /// Dispatch to variant and if it returns `Pointer::Some` then rewrite to `Pointer::Block`
-    fn find(&mut self, id: &str) -> Pointer {
+    fn find(&self, id: &str) -> Pointer {
         match dispatch_block!(self, find, id) {
             Pointer::Some => Pointer::Block(self),
             _ => Pointer::None,
+        }
+    }
+    fn find_mut(&mut self, id: &str) -> PointerMut {
+        match dispatch_block!(self, find_mut, id) {
+            PointerMut::Some => PointerMut::Block(self),
+            _ => PointerMut::None,
         }
     }
 }

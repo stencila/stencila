@@ -1,7 +1,7 @@
 use eyre::{bail, eyre, Result};
 use graph_triples::{
-    direction, relations, resources::ResourceDigest, Direction, Pairs, Relation, Resource,
-    ResourceInfo, Triple,
+    direction, relations, resources::ResourceDigest, stencila_schema::CodeChunkExecuteAuto,
+    Direction, Pairs, Relation, Resource, ResourceInfo, Triple,
 };
 use hash_utils::{sha2, sha2::Digest};
 use kernels::{Kernel, KernelSelector};
@@ -21,6 +21,7 @@ use serde::{ser::SerializeMap, Serialize};
 use serde_json::json;
 use serde_with::skip_serializing_none;
 use std::{
+    cmp::Ordering,
     collections::{BTreeMap, HashMap, HashSet},
     path::{Path, PathBuf},
 };
@@ -98,16 +99,23 @@ impl Serialize for Graph {
                     obj.insert("path".to_string(), json!(path));
                 }
 
-                // Add info from `resources`
+                // Merge in fields from resource info but skip info already there or implicit
+                // in the graph
                 if let Some(resource_info) = self.resources.get(resource) {
-                    if let Some(pure) = resource_info.pure {
-                        obj.insert("pure".to_string(), json!(pure));
-                    }
                     if let Some(dependencies) = &resource_info.dependencies {
                         obj.insert("dependencies".to_string(), json!(dependencies.len()));
                     }
+                    if let Some(dependents) = &resource_info.dependents {
+                        obj.insert("dependents".to_string(), json!(dependents.len()));
+                    }
                     if let Some(depth) = resource_info.depth {
                         obj.insert("depth".to_string(), json!(depth));
+                    }
+                    if let Some(execute_auto) = &resource_info.execute_auto {
+                        obj.insert("execute_auto".to_string(), json!(execute_auto));
+                    }
+                    if let Some(execute_pure) = resource_info.execute_pure {
+                        obj.insert("execute_pure".to_string(), json!(execute_pure));
                     }
                     if let Some(compile_digest) = &resource_info.compile_digest {
                         obj.insert("compile_digest".to_string(), json!(compile_digest));
@@ -118,6 +126,7 @@ impl Serialize for Graph {
                 }
 
                 obj.insert("index".to_string(), json!(index));
+
                 json!(obj)
             })
             .collect();
@@ -163,8 +172,7 @@ impl Graph {
         resource_infos: Vec<ResourceInfo>,
     ) -> Result<Self> {
         let mut graph = Graph::new(path);
-        graph.add_resource_infos(resource_infos);
-        graph.update(None)?;
+        graph.add_resource_infos(resource_infos)?;
         Ok(graph)
     }
 
@@ -246,8 +254,18 @@ impl Graph {
         }
     }
 
+    /// Get [`ResourceInfo`] objects in the graph
+    pub fn get_resource_infos(&self) -> &BTreeMap<Resource, ResourceInfo> {
+        &self.resources
+    }
+
+    /// Get a [`ResourceInfo`] object for a [`Resource`] in the graph
+    pub fn get_resource_info(&self, resource: &Resource) -> Option<&ResourceInfo> {
+        self.resources.get(resource)
+    }
+
     /// Add a set of [`ResourceInfo`] objects to the graph
-    pub fn add_resource_infos(&mut self, resource_infos: Vec<ResourceInfo>) {
+    pub fn add_resource_infos(&mut self, resource_infos: Vec<ResourceInfo>) -> Result<()> {
         for resource_info in resource_infos.into_iter() {
             let subject = resource_info.resource.clone();
             let relations = resource_info.relations.clone();
@@ -274,14 +292,24 @@ impl Graph {
                 }
             }
         }
+        self.update(None)?;
+        Ok(())
     }
 
-    /// Get [`ResourceInfo`] objects in the graph
-    pub fn get_resource_infos(&mut self) -> Vec<&ResourceInfo> {
-        self.resources.values().collect()
+    /// Update a [`ResourceInfo`] objects in the graph
+    ///
+    /// If the resource does not exist in the graph (it may have been removed since execution
+    /// was started for example) then no update is made.
+    pub fn update_resource_info(&mut self, resource_info: ResourceInfo) -> Result<()> {
+        let resource = resource_info.resource.clone();
+        if let Some(existing) = self.resources.get_mut(&resource) {
+            *existing = resource_info
+        }
+        self.update(Some(resource))?;
+        Ok(())
     }
 
-    /// Update the graph, usually in response to a change in one of it's resources
+    /// Update the graph
     ///
     /// # Arguments
     ///
@@ -314,7 +342,8 @@ impl Graph {
             let mut dependencies = Vec::new();
             let mut depth = 0;
             let mut dependencies_digest = sha2::Sha256::new();
-            let mut dependencies_unsynced = 0;
+            let mut dependencies_stale = 0;
+            let mut dependencies_failed = 0;
             for incoming_index in incomings {
                 let dependency = &graph[incoming_index];
                 let dependency_info = self
@@ -357,20 +386,18 @@ impl Graph {
                 .concat();
                 dependencies_digest.update(digest);
 
-                // Update the number of `Code` dependencies that are unsynced. This is transitive,
+                // Update the number of `Code` dependencies that are stale and failed. This is transitive,
                 // so if the resource is not code (e.g. a `Symbol`) then add its value.
                 if matches!(dependency, Resource::Code(..)) {
-                    if let Some(execute_digest) = &dependency_info.execute_digest {
-                        // Has dependency changed since it was last executed?
-                        if execute_digest != compile_digest {
-                            dependencies_unsynced += 1;
-                        }
-                    } else {
-                        // Dependency has not been executed
-                        dependencies_unsynced += 1;
+                    if dependency_info.is_stale() {
+                        dependencies_stale += 1;
+                    }
+                    if dependency_info.is_fail() {
+                        dependencies_failed += 1;
                     }
                 } else {
-                    dependencies_unsynced += compile_digest.dependencies_unsynced;
+                    dependencies_stale += compile_digest.dependencies_stale;
+                    dependencies_failed += compile_digest.dependencies_failed;
                 }
             }
 
@@ -393,14 +420,75 @@ impl Graph {
             match resource_info.compile_digest.as_mut() {
                 Some(compile_digest) => {
                     compile_digest.dependencies_digest = dependencies_digest;
-                    compile_digest.dependencies_unsynced = dependencies_unsynced;
+                    compile_digest.dependencies_stale = dependencies_stale;
+                    compile_digest.dependencies_failed = dependencies_failed;
                 }
                 None => {
                     let mut compile_digest = resource.digest();
                     compile_digest.dependencies_digest = dependencies_digest;
-                    compile_digest.dependencies_unsynced = dependencies_unsynced;
+                    compile_digest.dependencies_stale = dependencies_stale;
+                    compile_digest.dependencies_failed = dependencies_failed;
                     resource_info.compile_digest = Some(compile_digest);
                 }
+            }
+        }
+
+        // Populate dependents and sort dependencies and dependents.
+        let mut dependents_map: HashMap<Resource, HashSet<Resource>> = HashMap::new();
+        for (resource, resource_info) in self.resources.iter_mut() {
+            if let Some(dependencies) = &mut resource_info.dependencies {
+                // Map dependencies into dependents
+                for dependency in dependencies.iter() {
+                    dependents_map
+                        .entry(dependency.clone())
+                        .or_insert_with(HashSet::new)
+                        .insert(resource.clone());
+                }
+
+                dependencies.sort_by(|a, b| match (a, b) {
+                    // Sort code dependencies by appearance order. The order is not important for
+                    // dependency analysis or plan generation but appearance order is better for
+                    // user interfaces.
+                    (Resource::Code(..), Resource::Code(..)) => {
+                        let a = self
+                            .appearance_order
+                            .iter()
+                            .position(|resource| resource == a);
+                        let b = self
+                            .appearance_order
+                            .iter()
+                            .position(|resource| resource == b);
+                        a.cmp(&b)
+                    }
+                    // Other types of dependencies (e.g. `File`, `Symbol`) come last.
+                    (Resource::Code(..), ..) => Ordering::Less,
+                    (.., Resource::Code(..)) => Ordering::Greater,
+                    _ => a.cmp(b),
+                });
+            }
+        }
+        for (resource, dependents) in dependents_map {
+            if let Some(resource_info) = self.resources.get_mut(&resource) {
+                let mut dependents = Vec::from_iter(dependents);
+                dependents.sort_by(|a, b| match (a, b) {
+                    // As for dependencies, sort code dependents by appearance order.
+                    (Resource::Code(..), Resource::Code(..)) => {
+                        let a = self
+                            .appearance_order
+                            .iter()
+                            .position(|resource| resource == a);
+                        let b = self
+                            .appearance_order
+                            .iter()
+                            .position(|resource| resource == b);
+                        a.cmp(&b)
+                    }
+                    // Other types of dependencies (e.g. `File`, `Symbol`) come last.
+                    (Resource::Code(..), ..) => Ordering::Greater,
+                    (.., Resource::Code(..)) => Ordering::Less,
+                    _ => a.cmp(b),
+                });
+                resource_info.dependents = Some(dependents)
             }
         }
 
@@ -483,11 +571,23 @@ impl Graph {
                 .get(resource)
                 .ok_or_else(|| eyre!("No info for resource"))?;
 
+            // If this is not the explicitly executed resource `start`
+            // and `autorun == Never` then exclude it and any following resources
+            if start.is_some()
+                && Some(resource) != start.as_ref()
+                && matches!(
+                    resource_info.execute_auto,
+                    Some(CodeChunkExecuteAuto::Never)
+                )
+            {
+                break;
+            }
+
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
             let is_fork = kernel_forkable
                 && resource_info.is_pure()
-                && stage.steps.len() < options.max_concurrency;
+                && stage.steps.len() < options.max_concurrency.saturating_sub(1);
 
             // Create the step and add it to the current stage
             let step = Step {
@@ -539,6 +639,7 @@ impl Graph {
         // First iteration, in topological order, to determine which resources to include
         let mut include = HashSet::new();
         let mut started = start.is_none();
+        let mut nevers = HashSet::new();
         for resource in &self.topological_order {
             // Should we start collecting steps?
             if !started {
@@ -550,60 +651,67 @@ impl Graph {
                 continue;
             }
 
+            // Skip non-`Code` resources (i.e ignore `Symbol`s etc which will also be in the dependency
+            // graph and therefore in `topological_order` as well)
+            if !matches!(resource, Resource::Code(..)) {
+                continue;
+            }
+
             let resource_info = self
                 .resources
                 .get(resource)
                 .ok_or_else(|| eyre!("No info for resource"))?;
 
-            // Only include resources that are `start` or have `start` in their dependencies
+            let dependencies: Vec<_> = resource_info.dependencies.iter().flatten().collect();
+
+            // If this is not the explicitly executed resource `start`...
             if let Some(start) = &start {
-                if !(start == resource
-                    || resource_info
-                        .dependencies
-                        .as_ref()
-                        .map_or(false, |deps| deps.contains(start)))
-                {
-                    continue;
+                if resource != start {
+                    // Exclude it if `start` is not in it's dependencies
+                    if !dependencies.contains(&start) {
+                        continue;
+                    }
+
+                    // If `autorun == Never` then exclude it and any downstream dependents
+                    if matches!(
+                        resource_info.execute_auto,
+                        Some(CodeChunkExecuteAuto::Never)
+                    ) {
+                        nevers.insert(resource);
+                        continue;
+                    } else if dependencies
+                        .iter()
+                        .any(|dependency| nevers.contains(*dependency))
+                    {
+                        continue;
+                    }
                 }
             }
 
-            // Only include `Code` resources (i.e. ignore `Symbol`s etc which will also be in the dependency
-            // graph and therefore in `topological_order` as well)
-            match resource {
-                Resource::Code(..) => include.insert(resource),
-                _ => continue,
-            };
+            // OK, we got this far, so include the resource
+            include.insert(resource);
 
-            /*
-            TODO
-            // Include any dependencies that are not yet included and which have not been
-            // executed yet or have a change in digest.
-            for dependency in resource_info.dependencies {
-                let execute = match self.executed.get(dependency) {
-                    Some(step_info) => {
-                        if let Some(resource_info) = self.parse_map.get(dependency) {
-                            if let (Some(step_digest), Some(resource_digest)) =
-                                (&step_info.execute_digest, &resource_info.execute_digest)
-                            {
-                                step_digest != resource_digest
-                            } else {
-                                // No digests available, so execute (perhaps unnecessarily)
-                                true
-                            }
-                        } else {
-                            // No parse info available, so execute (perhaps unnecessarily)
-                            true
-                        }
-                    }
-                    // Note yet executed (in this session)
-                    None => true,
+            // Also, include any dependencies that are not yet included and which:
+            //
+            // - are `autorun == Always`
+            // - are not `autorun == Never`
+            // - are stale
+            for dependency in dependencies {
+                let dependency_info = self
+                    .resources
+                    .get(dependency)
+                    .ok_or_else(|| eyre!("No info for dependency"))?;
+
+                let execute = match dependency_info.execute_auto {
+                    Some(CodeChunkExecuteAuto::Always) => true,
+                    Some(CodeChunkExecuteAuto::Never) => false,
+                    _ => dependency_info.is_stale(),
                 };
+
                 if execute {
                     include.insert(dependency);
                 }
             }
-
-            */
         }
 
         // Second iteration, in topological order, to create stages and steps
@@ -638,7 +746,7 @@ impl Graph {
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
             let is_fork = kernel_forkable
                 && resource_info.is_pure()
-                && stage.steps.len() < options.max_concurrency;
+                && stage.steps.len() < options.max_concurrency.saturating_sub(1);
 
             // Create the step and add it to the current stage
             let step = Step {
@@ -794,13 +902,13 @@ impl Graph {
                     self.graph.edge_weight(edge),
                 ) {
                     let (label, style) = match relation {
-                        Relation::Convert(relations::Convert { auto: active })
-                        | Relation::Import(relations::Import { auto: active }) => (
+                        Relation::Convert(relations::Convert { auto: active }) => (
                             relation.to_string(),
                             if *active { "solid" } else { "dashed" },
                         ),
                         Relation::Assign(relations::Assign { range })
                         | Relation::Use(relations::Use { range })
+                        | Relation::Import(relations::Import { range })
                         | Relation::Read(relations::Read { range })
                         | Relation::Write(relations::Write { range }) => {
                             let label = if *range == relations::NULL_RANGE {

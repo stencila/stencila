@@ -94,6 +94,25 @@ impl ToHtml for CodeChunk {
             self.execute_digest.as_ref().map(|cord| cord.0.to_string()),
         );
 
+        let execute_auto = attr_and_meta_opt(
+            "execute_auto",
+            self.execute_auto
+                .as_ref()
+                .map(|auto| (*auto).as_ref().to_string()),
+        );
+
+        let execute_pure = attr_and_meta_opt(
+            "execute_pure",
+            self.execute_pure.as_ref().map(|value| value.to_string()),
+        );
+
+        let execute_required = attr_and_meta_opt(
+            "execute_required",
+            self.execute_required
+                .as_ref()
+                .map(|required| (*required).as_ref().to_string()),
+        );
+
         let execute_status = attr_and_meta_opt(
             "execute_status",
             self.execute_status
@@ -119,6 +138,23 @@ impl ToHtml for CodeChunk {
             "pre",
             &[attr_prop("text"), attr_slot("text")],
             &self.text.to_html(context),
+        );
+
+        let dependencies = elem_placeholder(
+            "stencila-code-dependencies",
+            &[
+                attr_prop("code-dependencies"),
+                attr_slot("code-dependencies"),
+            ],
+            &self.code_dependencies,
+            context,
+        );
+
+        let dependents = elem_placeholder(
+            "stencila-code-dependents",
+            &[attr_prop("code-dependents"), attr_slot("code-dependents")],
+            &self.code_dependents,
+            context,
         );
 
         let outputs = elem_placeholder(
@@ -157,6 +193,9 @@ impl ToHtml for CodeChunk {
                 lang.0,
                 compile_digest.0,
                 execute_digest.0,
+                execute_auto.0,
+                execute_pure.0,
+                execute_required.0,
                 execute_status.0,
                 execute_ended.0,
                 execute_duration.0,
@@ -165,10 +204,15 @@ impl ToHtml for CodeChunk {
                 lang.1,
                 compile_digest.1,
                 execute_digest.1,
+                execute_auto.1,
+                execute_pure.1,
+                execute_required.1,
                 execute_status.1,
                 execute_ended.1,
                 execute_duration.1,
                 text,
+                dependencies,
+                dependents,
                 outputs,
                 errors,
                 label,

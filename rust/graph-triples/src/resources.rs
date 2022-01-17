@@ -9,6 +9,7 @@ use std::{
     fmt::Display,
     path::{Path, PathBuf},
 };
+use stencila_schema::{CodeChunkExecuteAuto, CodeExecutableExecuteStatus};
 
 use crate::{Pairs, Relation};
 
@@ -76,27 +77,44 @@ impl Resource {
 
     /// Get the [`ResourceInfo`] for a resource
     pub fn resource_info(&self) -> ResourceInfo {
-        ResourceInfo::new(self.clone(), None, None, Some(self.digest()), None)
+        ResourceInfo::new(
+            self.clone(),
+            None,
+            None,
+            None,
+            Some(self.digest()),
+            None,
+            None,
+        )
+    }
+
+    /// Get the type of [`Node`] for resources that have it
+    pub fn node_type(&self) -> Option<&str> {
+        match self {
+            Resource::Code(Code { kind, .. }) | Resource::Node(Node { kind, .. }) => {
+                Some(kind.as_str())
+            }
+            _ => None,
+        }
     }
 
     /// Get the [`NodeId`] for resources that have it
-    pub fn node_id(&self) -> Option<String> {
+    pub fn node_id(&self) -> Option<&str> {
         match self {
-            Resource::Code(Code { id, .. }) | Resource::Node(Node { id, .. }) => Some(id.clone()),
+            Resource::Code(Code { id, .. }) | Resource::Node(Node { id, .. }) => Some(id.as_str()),
             _ => None,
         }
     }
 }
-
 /// A digest representing the state of a [`Resource`] and its dependencies.
 ///
 /// The digest is separated into several parts. Although initially it may seem that the
 /// parts are redundant ("can't they all be folded into a single digest?"), each
-/// part provides useful information. For example, it is useful, to store
+/// part provides useful information. For example, it is useful to store
 /// the `content_digest`, in addition to `semantic_digest`, to be able
 /// to indicate to the user that a change in the resource has been detected but
 /// that it does not appear to change its semantics.
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Clone)]
 pub struct ResourceDigest {
     /// A digest that captures the content of the resource (e.g the `text`
     /// of a `CodeChunk`, or the bytes of a file).
@@ -114,12 +132,17 @@ pub struct ResourceDigest {
     /// If there are no dependencies then `dependencies_digest` is an empty string.
     pub dependencies_digest: String,
 
-    /// The count of the number of code dependencies that have a `compile_digest` that
-    /// is unequal to the `execute_digest` (i.e. are out of sync with the `KernelSpace`).
+    /// The count of the number of code dependencies that are stale (i.e. are out of sync with the `KernelSpace`).
     ///
-    /// If there are no dependencies then `dependencies_unsynced` is zero. May include
+    /// If there are no dependencies then `dependencies_stale` is zero. May include
     /// duplicates for diamond shaped dependency graphs so this represents a maximum number.
-    pub dependencies_unsynced: u32,
+    pub dependencies_stale: u32,
+
+    /// The count of the number of code dependencies that had `execute_status == Failed`
+    ///
+    /// If there are no dependencies then `dependencies_failed` is zero. May include
+    /// duplicates for diamond shaped dependency graphs so this represents a maximum number.
+    pub dependencies_failed: u32,
 }
 
 impl ResourceDigest {
@@ -129,14 +152,18 @@ impl ResourceDigest {
         let content_digest = parts.get(0).map_or_else(String::new, |str| str.to_string());
         let semantic_digest = parts.get(1).map_or_else(String::new, |str| str.to_string());
         let dependencies_digest = parts.get(2).map_or_else(String::new, |str| str.to_string());
-        let dependencies_unsynced = parts
+        let dependencies_stale = parts
             .get(3)
+            .map_or(0, |str| str.parse().unwrap_or_default());
+        let dependencies_failed = parts
+            .get(4)
             .map_or(0, |str| str.parse().unwrap_or_default());
         Self {
             content_digest,
             semantic_digest,
             dependencies_digest,
-            dependencies_unsynced,
+            dependencies_stale,
+            dependencies_failed,
         }
     }
 
@@ -200,11 +227,12 @@ impl Display for ResourceDigest {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             formatter,
-            "{}.{}.{}.{}",
+            "{}.{}.{}.{}.{}",
             self.content_digest,
             self.semantic_digest,
             self.dependencies_digest,
-            self.dependencies_unsynced
+            self.dependencies_stale,
+            self.dependencies_failed
         )
     }
 }
@@ -238,6 +266,13 @@ pub struct ResourceInfo {
     /// a resource's dependencies need to be executed as well.
     pub dependencies: Option<Vec<Resource>>,
 
+    /// The direct dependents of the resource
+    ///
+    /// Derived during graph `update()`.
+    /// However, since that is done in topological order, we are unable to get all dependents.
+    /// Doing so would require `update()` to be more time consuming, so at this stage we're avoiding that.
+    pub dependents: Option<Vec<Resource>>,
+
     /// The depth of the resource in the dependency graph.
     ///
     /// Derived during graph `update()` from the depths of the
@@ -246,48 +281,120 @@ pub struct ResourceInfo {
     /// Otherwise, the depth is the maximum depth of dependencies plus one.
     pub depth: Option<usize>,
 
-    /// Whether the resource is explicitly marked as pure or impure.
+    /// Under which circumstances the resource should be automatically executed
+    ///
+    /// In the below descriptions:
+    ///
+    /// - "run" means that the user made an explicit request to execute the specific resource
+    ///   (e.g. presses the run button on a `CodeChunk`), or the containing resource (e.g. presses
+    ///   the run button on the parent `Article`).
+    ///
+    /// - "autorun" means that the resource is automatically executed, without an explicit
+    ///   user request do so (but in some cases in response to one).
+    ///
+    /// ## `Never`
+    ///
+    /// Never automatically execute the resource.
+    /// Only execute when the user explicitly runs the resource (or its containing resource).
+    ///
+    /// e.g. a user may tag a `CodeBlock` as `@autorun never` if it is long running
+    /// and they want to check the outputs of previous code chunks before proceeding
+    ///
+    /// When generating an execution `Plan`s using:
+    ///
+    /// - the `PlanOrdering::Topological` option: the resource, and any of its downstream
+    ///   dependents should be excluded from the plan.
+    ///
+    /// - the `PlanOrdering::Appearance` option: the resource, and any following resources
+    ///   should be excluded from the plan.
+    ///
+    /// ## `Needed`
+    ///
+    /// Execute the resource if it is an upstream dependency of a resource that has been run.
+    /// This is the default.
+    ///
+    /// e.g. `CodeExpression` #1 depends upon a variable assigned in `CodeChunk` #2.
+    /// If #2 is run, and #1 is stale, then #1 will be autorun before #2.
+    ///
+    /// This only affects execution `Plan`s generated with the `PlanOrdering::Topological` option.
+    ///
+    /// ## `Always`
+    ///
+    /// Always execute the resource
+    ///
+    /// e.g. a user may tag a `CodeBlock` as `@autorun always` if it assigns a random variable
+    /// (i.e. is non-deterministic) and everytime one of its downstream dependents is run, they
+    /// want it to be updated.
+    ///
+    pub execute_auto: Option<CodeChunkExecuteAuto>,
+
+    /// Whether the resource is marked as pure or impure.
     ///
     /// Pure resources do not modify other resources (i.e. they have no side effects).
     /// This can be determined from whether the resource has any `Assign`, `Alter` or `Write`
-    /// relations. Additionally, the user may mark the resource as pure or impure
-    /// for example, by using `@pure` or `@impure` tags in code comments. This property
-    /// stores that explicit tag.
-    pub pure: Option<bool>,
+    /// in its `relations`. Additionally, the user may mark the resource as pure or impure
+    /// either using `@pure` or `@impure` tags in code comments or via user interfaces.
+    /// This property stores that explicit mark. If it is `None` then the resources "purity"
+    /// will be inferred from its `relations`.
+    pub execute_pure: Option<bool>,
 
     /// The [`ResourceDigest`] of the resource when it was last compiled
     pub compile_digest: Option<ResourceDigest>,
 
     /// The [`ResourceDigest`] of the resource when it was last executed
     pub execute_digest: Option<ResourceDigest>,
+
+    /// Whether the last execution of the resource succeeded
+    pub execute_status: Option<CodeExecutableExecuteStatus>,
 }
 
 impl ResourceInfo {
+    /// Create a default `ResourceInfo` object with only a reference to a `Resource`
+    pub fn default(resource: Resource) -> Self {
+        Self {
+            resource,
+            relations: None,
+            dependencies: None,
+            dependents: None,
+            depth: None,
+            execute_auto: None,
+            execute_pure: None,
+            compile_digest: None,
+            execute_digest: None,
+            execute_status: None,
+        }
+    }
+
     /// Create a new `ResourceInfo` object
     pub fn new(
         resource: Resource,
         relations: Option<Pairs>,
-        pure: Option<bool>,
+        execute_auto: Option<CodeChunkExecuteAuto>,
+        execute_pure: Option<bool>,
         compile_digest: Option<ResourceDigest>,
         execute_digest: Option<ResourceDigest>,
+        execute_status: Option<CodeExecutableExecuteStatus>,
     ) -> Self {
         Self {
             resource,
             relations,
             dependencies: None,
+            dependents: None,
             depth: None,
-            pure,
+            execute_auto,
+            execute_pure,
             compile_digest,
             execute_digest,
+            execute_status,
         }
     }
 
     /// Is the resource pure (i.e. has no side effects)?
     ///
     /// If the resource has not been explicitly tagged as pure or impure then
-    /// returns `true` if there are any side-effect causing relations.
+    /// returns `true` if there are no side-effect causing relations.
     pub fn is_pure(&self) -> bool {
-        self.pure.unwrap_or_else(|| match &self.relations {
+        self.execute_pure.unwrap_or_else(|| match &self.relations {
             Some(relations) => {
                 relations
                     .iter()
@@ -336,6 +443,43 @@ impl ResourceInfo {
                 .collect(),
             None => Vec::new(),
         }
+    }
+
+    /// Is the resource stale?
+    ///
+    /// Note that, when comparing the `execute_digest` and `compile_digest` for this determination,
+    /// the `content_digest` part is ignored. This avoids re-execution in situations such as when
+    /// the user removes a `@autorun always` comment (they probably don't want it to be run again
+    /// automatically next time). We currently include `dependencies_stale` in the comparison but
+    /// that may also be unnecessary/inappropriate as well?
+    pub fn is_stale(&self) -> bool {
+        if let (Some(compile_digest), Some(execute_digest)) =
+            (&self.compile_digest, &self.execute_digest)
+        {
+            compile_digest.semantic_digest != execute_digest.semantic_digest
+                || compile_digest.dependencies_digest != execute_digest.dependencies_digest
+                || compile_digest.dependencies_stale != execute_digest.dependencies_stale
+        } else {
+            true
+        }
+    }
+
+    /// Did execution fail the last time the resource was executed
+    ///
+    /// Returns `false` if the resource has not been executed or was executed
+    /// and succeeded.
+    pub fn is_fail(&self) -> bool {
+        matches!(
+            self.execute_status,
+            Some(CodeExecutableExecuteStatus::Failed)
+        )
+    }
+
+    /// The resource was executed, so update the `execute_digest` to the `compile_digest`,
+    /// and `execute_succeeded` property.
+    pub fn did_execute(&mut self, execute_status: Option<CodeExecutableExecuteStatus>) {
+        self.execute_digest = self.compile_digest.clone();
+        self.execute_status = execute_status;
     }
 }
 #[derive(Debug, Clone, Derivative, JsonSchema, Serialize)]

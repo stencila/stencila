@@ -23,32 +23,7 @@ static PARSER_TS: Lazy<TreesitterParser> =
 ///
 /// These are query patterns that extend those for JavaScript defined
 /// in `parser-js`.
-const QUERY: &str = r#"
-(program
-    [
-        (variable_declaration
-            (variable_declarator
-                name: (identifier) @name
-                type: (type_annotation) @type
-            )
-        )
-        (lexical_declaration
-            (variable_declarator
-                name: (identifier) @name
-                type: (type_annotation) @type
-            )
-        )
-        (export_statement
-            declaration: (lexical_declaration
-                (variable_declarator
-                    name: (identifier) @name
-                    type: (type_annotation) @type
-                )
-            )
-        )
-    ]
-)
-"#;
+const QUERY: &str = include_str!("query.txt");
 
 /// A parser for TypeScript
 pub struct TsParser {}
@@ -114,6 +89,8 @@ impl ParserTrait for TsParser {
             path,
             &Self::spec().language,
             code,
+            &tree,
+            &["comment"],
             matches,
             0,
             relations,

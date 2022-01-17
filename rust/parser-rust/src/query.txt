@@ -1,4 +1,6 @@
-(source_file 
+(source_file (line_comment) @comment)
+
+(source_file
     (const_item
         name: (identifier) @name
     )

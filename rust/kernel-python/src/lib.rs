@@ -6,7 +6,7 @@ pub fn new() -> MicroKernel {
         "python-micro",
         &["python"],
         true,
-        true,
+        cfg!(not(target_os = "windows")),
         cfg!(any(target_os = "linux", target_os = "macos")),
         ("python3", "*"),
         &["{{script}}"],

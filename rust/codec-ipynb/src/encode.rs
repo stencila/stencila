@@ -176,6 +176,9 @@ fn encode_chunk(chunk: &CodeChunk) -> serde_json::Value {
         "cell_type": "code",
         "source" : source,
         "outputs": outputs,
+        // The `execution_count` is required in Jupyter Notebook v4.5 but can be `null`;
+        // it is not the same as Stencila `execute_count`which increments across sessions.
+        "execution_count": null,
         "metadata": metadata
     })
 }
@@ -241,6 +244,9 @@ fn encode_execute_result(node: &Node) -> serde_json::Value {
     json!({
         "output_type": "execute_result",
         "data": data,
+        // The `execution_count` is required in Jupyter Notebook v4.5 but can be `null`;
+        // it is not the same as Stencila `execute_count`which increments across sessions.
+        "execution_count": null,
         "metadata": {},
     })
 }

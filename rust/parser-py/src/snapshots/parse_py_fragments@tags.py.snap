@@ -1,5 +1,6 @@
 ---
 source: rust/parser-py/src/lib.rs
+assertion_line: 209
 expression: resource_info
 input_file: fixtures/fragments/py/tags.py
 
@@ -13,22 +14,6 @@ input_file: fixtures/fragments/py/tags.py
     "language": "Python"
   },
   "relations": [
-    [
-      {
-        "type": "Use",
-        "range": [
-          8,
-          7,
-          8,
-          11
-        ]
-      },
-      {
-        "type": "Module",
-        "language": "python",
-        "name": "mod2"
-      }
-    ],
     [
       {
         "type": "Use",
@@ -125,5 +110,5 @@ input_file: fixtures/fragments/py/tags.py
       }
     ]
   ],
-  "compile_digest": "hzbEWlycgY8GAW8-D9Qn9wHshpxPElL5_AdkdKbxAQE.1w591t2NKEZIW7AOTW1-6mCOhf7GNLGcvUmyjX2qJ0E..0"
+  "compile_digest": "hzbEWlycgY8GAW8-D9Qn9wHshpxPElL5_AdkdKbxAQE.-3JhwRIo10WsEZ0epUDXDrHiHFEm1lcMmkDG0luW7NY..0.0"
 }

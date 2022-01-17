@@ -10,22 +10,30 @@ pub use compile::*;
 mod execute;
 pub use execute::*;
 
+mod messages;
+pub use messages::*;
+
+mod utils;
+
 #[cfg(test)]
 mod tests {
+    use std::sync::Arc;
+
     use super::*;
     use codec::CodecTrait;
     use codec_md::MdCodec;
     use eyre::Result;
-    use graph::{Graph, PlanOptions, PlanOrdering};
+    use graph::{PlanOptions, PlanOrdering};
+
     use kernels::{Kernel, KernelType};
     use node_address::Slot;
-    use node_patch::{Operation, Patch};
+    use node_patch::{Operation};
     use test_snaps::{
         fixtures,
         insta::{self, assert_json_snapshot},
         snapshot_set_suffix,
     };
-    use tokio::sync::mpsc;
+    use tokio::sync::{mpsc, RwLock};
 
     /// Higher level tests of the top level functions in this crate
     #[tokio::test]
@@ -48,21 +56,23 @@ mod tests {
             let path = fixtures.join("articles").join(name);
 
             // Load the article
-            let mut article = MdCodec::from_path(&path, None).await?;
+            let root = Arc::new(RwLock::new(MdCodec::from_path(&path, None).await?));
 
             // Strip the fixtures path so it does not differ between machines
             let path = path.strip_prefix(&fixtures)?;
             let project = path.parent().unwrap();
 
             // Compile the article and snapshot the result
-            let (addresses, resources) = compile(&mut article, path, project)?;
-            snapshot_set_suffix(&[name, "-compile"].concat(), || {
-                assert_json_snapshot!((&addresses, &resources))
+            let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<PatchMessage>();
+            tokio::spawn(async move {
+                while let Some(_patch) = patch_receiver.recv().await {
+                    // Ignore for this test
+                }
             });
-
-            // Generate and snapshot the article dependency graph
-            let graph = Graph::from_resource_infos(path, resources)?;
-            snapshot_set_suffix(&[name, "-graph"].concat(), || assert_json_snapshot!(&graph));
+            let (addresses, graph) = compile(path, project, &root, &patch_sender).await?;
+            snapshot_set_suffix(&[name, "-compile"].concat(), || {
+                assert_json_snapshot!((&addresses, &graph))
+            });
 
             // Generate various execution plans for the article using alternative options
             // and snapshot them all. Always specify `max_concurrency` to avoid differences
@@ -117,10 +127,10 @@ mod tests {
                 )
                 .await?;
 
-            let (patch_sender, mut patch_receiver) = mpsc::channel::<Patch>(10);
+            let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<PatchMessage>();
             let patches = tokio::spawn(async move {
                 let mut patches = Vec::new();
-                while let Some(mut patch) = patch_receiver.recv().await {
+                while let Some(PatchMessage { mut patch, .. }) = patch_receiver.recv().await {
                     // Redact execute time and duration from patch because they will
                     // change across test runs
                     for op in patch.ops.iter_mut() {
@@ -137,12 +147,26 @@ mod tests {
                 patches
             });
 
-            execute(&plan, &mut article, &addresses, patch_sender, None).await?;
+            execute(
+                &plan,
+                &root,
+                &Arc::new(RwLock::new(addresses)),
+                &Arc::new(RwLock::new(graph)),
+                &patch_sender,
+                None,
+            )
+            .await?;
 
-            let patches = patches.await?;
+            drop(patch_sender);
+
+            let _patches = patches.await?;
+            /*
+            Snapshotting of patches turned off for now because order is not-deterministic
+
             snapshot_set_suffix(&[name, "-patches"].concat(), || {
                 assert_json_snapshot!(&patches);
             });
+            */
         }
 
         Ok(())

@@ -3,7 +3,10 @@ use async_trait::async_trait;
 use defaults::Defaults;
 use enum_dispatch::enum_dispatch;
 use eyre::{bail, Result};
-use graph_triples::{relations, resources, Triple};
+use graph_triples::{
+    relations::{self, NULL_RANGE},
+    resources, Triple,
+};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use schemars::JsonSchema;
@@ -122,7 +125,7 @@ impl SourceDestination {
                 .map(|file| {
                     (
                         resources::source(name),
-                        relations::imports(self.active),
+                        relations::imports(NULL_RANGE),
                         resources::file(&project.join(file)),
                     )
                 })

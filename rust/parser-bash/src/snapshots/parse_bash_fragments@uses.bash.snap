@@ -1,5 +1,6 @@
 ---
 source: rust/parser-bash/src/lib.rs
+assertion_line: 96
 expression: resource_info
 input_file: fixtures/fragments/bash/uses.bash
 
@@ -99,5 +100,5 @@ input_file: fixtures/fragments/bash/uses.bash
       }
     ]
   ],
-  "compile_digest": "ayqRDZhUeQvDwXshoJolu_1Z1f66soOQLe0awoo4nSA.Umh-htdKf8X8CqZNEMGqcdJfrX0u5hNH5pkntzyMrok..0"
+  "compile_digest": "ayqRDZhUeQvDwXshoJolu_1Z1f66soOQLe0awoo4nSA.2_zxjBgpigXHGzsy6RNJFldIc1YdoqjDUA7ydn0iXKI..0.0"
 }

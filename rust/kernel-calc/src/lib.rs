@@ -3,7 +3,7 @@ use kernel::{
     async_trait::async_trait,
     eyre::{bail, Result},
     serde::Serialize,
-    stencila_schema::{CodeError, Node},
+    stencila_schema::{CodeError, Node, Primitive},
     Kernel, KernelStatus, KernelTrait, KernelType, Task, TaskResult,
 };
 use once_cell::sync::Lazy;
@@ -28,8 +28,8 @@ impl CalcKernel {
 
 #[async_trait]
 impl KernelTrait for CalcKernel {
-    fn spec(&self) -> Kernel {
-        Kernel::new("calc", KernelType::Builtin, &["calc"], true)
+    async fn spec(&self) -> Kernel {
+        Kernel::new("calc", KernelType::Builtin, &["calc"], true, false, true)
     }
 
     async fn status(&self) -> Result<KernelStatus> {
@@ -45,9 +45,35 @@ impl KernelTrait for CalcKernel {
 
     async fn set(&mut self, name: &str, value: Node) -> Result<()> {
         let value = match value {
+            Node::Null(..) => 0.,
+            Node::Boolean(boolean) => match boolean {
+                true => 1.,
+                false => 0.,
+            },
             Node::Integer(integer) => integer as f64,
             Node::Number(number) => number,
-            _ => bail!("Unable to convert node to a number"),
+            Node::String(string) => match string.trim().parse() {
+                Ok(number) => number,
+                Err(..) => bail!("Unable to convert string `{}` to a number", string),
+            },
+            Node::Array(array) => match array.first() {
+                Some(value) => match value {
+                    Primitive::Null(..) => 0.,
+                    Primitive::Boolean(boolean) => match boolean {
+                        true => 1.,
+                        false => 0.,
+                    },
+                    Primitive::Integer(integer) => *integer as f64,
+                    Primitive::Number(number) => *number,
+                    Primitive::String(string) => match string.trim().parse() {
+                        Ok(number) => number,
+                        Err(..) => bail!("Unable to convert string `{}` to a number", string),
+                    },
+                    _ => bail!("Unable to convert first item of array to a number"),
+                },
+                _ => bail!("Unable to convert empty array to a number"),
+            },
+            _ => bail!("Node is of type that can not be converted to a number"),
         };
         self.symbols.insert(name.to_string(), value);
         Ok(())
@@ -80,8 +106,16 @@ impl KernelTrait for CalcKernel {
                 (None, statement)
             };
 
+            // A fasteval callback function that defines some custom functions
+            let mut cb = |name: &str, _args: Vec<f64>| -> Option<f64> {
+                match name {
+                    "now" => now(),
+                    _ => self.symbols.get(name).copied(),
+                }
+            };
+
             // Evaluate the expression
-            match ez_eval(expr, &mut self.symbols) {
+            match ez_eval(expr, &mut cb) {
                 Ok(num) => {
                     // Either assign the result, or add it to outputs
                     if let Some(symbol) = symbol {
@@ -125,6 +159,18 @@ impl KernelTrait for CalcKernel {
     }
 }
 
+// Custom functions
+
+/// The current system time as seconds (to millisecond resolution) since the Unix epoch
+fn now() -> Option<f64> {
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .ok()
+        .map(|duration| duration.as_millis() as f64 / 1000.0)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -153,7 +199,7 @@ mod tests {
             Ok(..) => bail!("Expected an error"),
             Err(error) => assert!(error
                 .to_string()
-                .contains("Unable to convert node to a number")),
+                .contains("Unable to convert string `A` to a number")),
         };
 
         kernel.set("a", Node::Number(1.23)).await?;

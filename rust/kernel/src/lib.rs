@@ -55,6 +55,12 @@ pub struct Kernel {
     /// the `formats` crate (but don't have to be). Many kernels only support one language.
     pub languages: Vec<String>,
 
+    /// Is the kernel available on the current machine?
+    pub available: bool,
+
+    /// Is the kernel interruptable on the current machine?
+    pub interruptable: bool,
+
     /// Is the kernel fork-able on the current machine?
     ///
     /// Used when generating execution plans to determine which execution steps
@@ -64,7 +70,14 @@ pub struct Kernel {
 
 impl Kernel {
     // Create a new kernel specification
-    pub fn new(name: &str, r#type: KernelType, languages: &[&str], forkable: bool) -> Self {
+    pub fn new(
+        name: &str,
+        r#type: KernelType,
+        languages: &[&str],
+        available: bool,
+        interruptable: bool,
+        forkable: bool,
+    ) -> Self {
         let languages = languages
             .iter()
             .map(|language| language.to_string())
@@ -73,6 +86,8 @@ impl Kernel {
             name: name.to_string(),
             r#type,
             languages,
+            available,
+            interruptable,
             forkable,
         }
     }
@@ -395,6 +410,27 @@ impl Task {
         }
     }
 
+    /// Create a task that could not be dispatched to a kernel and give the reason for that
+    pub fn not_dispatched(message: &str) -> Self {
+        let now = Utc::now();
+        Self {
+            id: TaskId::new(),
+            created: now,
+            started: Some(now),
+            finished: Some(now),
+            cancelled: None,
+            result: Some(TaskResult::new(
+                Vec::new(),
+                vec![CodeError {
+                    error_message: message.to_string(),
+                    ..Default::default()
+                }],
+            )),
+            sender: None,
+            canceller: None,
+        }
+    }
+
     /// Start a task
     pub fn start(sender: Option<TaskSender>, canceller: Option<TaskCanceller>) -> Self {
         let now = Utc::now();
@@ -529,27 +565,21 @@ pub trait KernelTrait {
     /// Get the [`Kernel`] specification for this implementation
     ///
     /// Must be implemented by [`KernelTrait`] implementations.
-    fn spec(&self) -> Kernel;
+    async fn spec(&self) -> Kernel;
 
     /// Is the kernel available on the current machine?
     async fn is_available(&self) -> bool {
-        true
+        self.spec().await.available
     }
 
-    /// Can the kernel interrupt tasks?
-    ///
-    /// Some kernels listen for an interrupt signal (`SINGIT` on POSIX) to
-    /// cancel long running tasks.
+    /// Is the kernel interruptable on the current machine?
     async fn is_interruptable(&self) -> bool {
-        false
+        self.spec().await.interruptable
     }
 
-    /// Can the kernel be forked?
-    ///
-    /// Some kernels can be "forked" to support parallel execution. On POSIX
-    /// this is generally implemented using the `fork` system call.
+    /// Is the kernel forkable on the current machine?
     async fn is_forkable(&self) -> bool {
-        false
+        self.spec().await.forkable
     }
 
     /// Start the kernel
@@ -675,7 +705,14 @@ mod test {
 
     #[test]
     fn kernel_selector_matches() {
-        let k = Kernel::new("foo", KernelType::Builtin, &["bar", "baz"], false);
+        let k = Kernel::new(
+            "foo",
+            KernelType::Builtin,
+            &["bar", "baz"],
+            true,
+            false,
+            false,
+        );
 
         assert!(KernelSelector::parse("foo").matches(&k));
         assert!(KernelSelector::parse("bar").matches(&k));

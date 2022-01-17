@@ -1,7 +1,7 @@
 use defaults::Defaults;
 use eyre::{bail, Result};
 use node_address::{Address, Slot};
-use node_pointer::{resolve, Pointable};
+use node_pointer::{resolve_mut, Pointable};
 use schemars::JsonSchema;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -31,7 +31,55 @@ where
 {
     let mut differ = Differ::default();
     node1.diff(node2, &mut differ);
-    Patch::new(differ.ops)
+    Patch::from_ops(differ.ops)
+}
+
+/// Generate a [`Patch`] describing the difference between two nodes of the same type
+/// at a specific address.
+#[tracing::instrument(skip(node1, node2))]
+pub fn diff_address<Type>(address: Address, node1: &Type, node2: &Type) -> Patch
+where
+    Type: Patchable,
+{
+    let mut patch = diff(node1, node2);
+    patch.address = Some(address);
+    patch
+}
+
+/// Generate a [`Patch`] using a recipe function
+///
+/// Inspired by [Immer](https://immerjs.github.io/immer/produce/)'s `produce` function.
+pub fn produce(
+    node: &Node,
+    node_id: Option<String>,
+    node_address: Option<Address>,
+    recipe: &dyn Fn(&mut Node),
+) -> Patch {
+    let mut draft = node.clone();
+    recipe(&mut draft);
+
+    let mut patch = diff(node, &draft);
+    patch.target = node_id;
+    patch.address = node_address;
+    patch
+}
+
+/// Generate a [`Patch`] using a mutating function
+///
+/// Like [`produce`] but mutates the node as well as generating a patch.
+pub fn mutate(
+    node: &mut Node,
+    node_id: Option<String>,
+    node_address: Option<Address>,
+    recipe: &dyn Fn(&mut Node),
+) -> Patch {
+    let before = node.clone();
+    recipe(node);
+
+    let mut patch = diff(&before, node);
+    patch.target = node_id;
+    patch.address = node_address;
+    patch
 }
 
 /// Display the difference between two nodes as a "unified diff" of the nodes
@@ -66,7 +114,7 @@ where
     Type: Patchable + Pointable,
 {
     if patch.address.is_some() || patch.target.is_some() {
-        let mut pointer = resolve(node, patch.address.clone(), patch.target.clone())?;
+        let mut pointer = resolve_mut(node, patch.address.clone(), patch.target.clone())?;
         if let Some(inline) = pointer.as_inline_mut() {
             inline.apply_patch(patch)
         } else if let Some(block) = pointer.as_block_mut() {
@@ -285,8 +333,13 @@ impl Operation {
             InlineContent
             BlockContent
 
-            // Child types of the above
+            // Types related to compilation and execution
+            CodeExecutableCodeDependencies
+            CodeExecutableCodeDependents
+            CodeExecutableExecuteRequired
             CodeExecutableExecuteStatus
+
+            // Child types of the above
             ListItem
             TableCaption
             TableRow
@@ -367,6 +420,10 @@ impl Operation {
             // Main content types
             InlineContent
             BlockContent
+
+            // Types related to compilation of code
+            CodeExecutableCodeDependencies
+            CodeExecutableCodeDependents
 
             // Child types of the above
             ListItem
@@ -494,13 +551,49 @@ pub struct Patch {
 
 impl Patch {
     /// Create a new patch from a set of operations
-    pub fn new(ops: Vec<Operation>) -> Self {
+    pub fn from_ops(ops: Vec<Operation>) -> Self {
         Self {
             ops,
             address: None,
             target: None,
             actor: None,
         }
+    }
+
+    /// Create a new patch by combining a set of patches
+    ///
+    /// For each patch, if the patch has an address, then that address will be prepended
+    /// to each of its operations before they are combined.
+    pub fn from_patches(patches: Vec<Patch>) -> Self {
+        let ops = patches
+            .into_iter()
+            .flat_map(|patch| {
+                if let Some(patch_address) = patch.address {
+                    patch
+                        .ops
+                        .into_iter()
+                        .map(|mut op| {
+                            match &mut op {
+                                Operation::Add { address, .. }
+                                | Operation::Remove { address, .. }
+                                | Operation::Replace { address, .. }
+                                | Operation::Transform { address, .. } => {
+                                    address.prepend(&patch_address)
+                                }
+                                Operation::Move { from, to, .. } => {
+                                    from.prepend(&patch_address);
+                                    to.prepend(&patch_address);
+                                }
+                            };
+                            op
+                        })
+                        .collect()
+                } else {
+                    patch.ops
+                }
+            })
+            .collect();
+        Patch::from_ops(ops)
     }
 
     /// Does the patch have any operations?
@@ -656,7 +749,7 @@ pub trait Patchable {
 
     /// Apply a patch to this node.
     fn apply_patch(&mut self, patch: &Patch) -> Result<()> {
-        tracing::debug!("Applying patch to type '{}'", type_name::<Self>());
+        tracing::trace!("Applying patch to type '{}'", type_name::<Self>());
         for op in &patch.ops {
             self.apply_op(op)?
         }

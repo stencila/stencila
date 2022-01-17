@@ -223,7 +223,7 @@ impl JupyterKernel {
                 if path.exists() {
                     let name = dir.file_name().to_string_lossy().to_string();
                     let kernel = JupyterKernel::read(&name, &path).await?;
-                    list.push(kernel.spec())
+                    list.push(kernel.spec().await)
                 }
             }
         }
@@ -234,7 +234,7 @@ impl JupyterKernel {
     /// Create an "unavailable" Jupyter kernel
     ///
     /// This is used when no kernel matching the kernel selector is
-    /// found on the machine. Used in `KernelTrait::available` to return false.
+    /// found on the machine. Used in `KernelTrait::is_available` to return false.
     pub fn unavailable() -> Self {
         Self {
             name: "<unavailable>".to_string(),
@@ -718,8 +718,15 @@ impl JupyterKernel {
 
 #[async_trait]
 impl KernelTrait for JupyterKernel {
-    fn spec(&self) -> Kernel {
-        Kernel::new(&self.name, KernelType::Jupyter, &[&self.language], false)
+    async fn spec(&self) -> Kernel {
+        Kernel::new(
+            &self.name,
+            KernelType::Jupyter,
+            &[&self.language],
+            true,
+            false,
+            false,
+        )
     }
 
     async fn is_available(&self) -> bool {

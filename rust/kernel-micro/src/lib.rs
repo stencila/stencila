@@ -268,38 +268,23 @@ impl MicroKernelSignaller {
 #[async_trait]
 impl KernelTrait for MicroKernel {
     /// Get the [`Kernel`] specification
-    fn spec(&self) -> Kernel {
+    async fn spec(&self) -> Kernel {
+        // Override `self.available == true` with check that binary is installed
+        let available = if !self.available {
+            false
+        } else {
+            let (name, semver) = &self.runtime;
+            binaries::installed(name, semver).await
+        };
+
         Kernel {
             name: self.name.clone(),
             r#type: KernelType::Micro,
             languages: self.languages.clone(),
+            available,
+            interruptable: self.interruptable,
             forkable: self.forkable,
         }
-    }
-
-    /// Is the kernel available on the current machine?
-    ///
-    /// Returns `true` if the operating system is listed in `oses` and
-    /// a runtime matching the semver requirements in `runtime` is found to be installed.
-    async fn is_available(&self) -> bool {
-        if !self.available {
-            return false;
-        }
-        let (name, semver) = &self.runtime;
-        binaries::installed(name, semver).await
-    }
-
-    /// Is the kernel interruptable on the current machine?
-    ///
-    /// Although the microkernel itself may handle interrupts across operating systems,
-    /// here we only support if for *nix. So return false, if on Windows
-    async fn is_interruptable(&self) -> bool {
-        self.interruptable && cfg!(not(target_os = "windows"))
-    }
-
-    /// Is the kernel forkable on the current machine?
-    async fn is_forkable(&self) -> bool {
-        self.forkable
     }
 
     /// Start the kernel
@@ -505,12 +490,12 @@ impl KernelTrait for MicroKernel {
             let task_id = task.id.clone();
             let signaller = MicroKernelSignaller::new(self)?;
             tokio::spawn(async move {
-                tracing::debug!("Began canceller for exec_async task `{}", task_id);
+                tracing::trace!("Began canceller for exec_async task `{}", task_id);
                 if let Some(..) = cancellee.recv().await {
                     tracing::debug!("Cancelling exec_async task `{}`", task_id);
                     signaller.interrupt()
                 }
-                tracing::debug!("Ended canceller for exec_async task `{}`", task_id);
+                tracing::trace!("Ended canceller for exec_async task `{}`", task_id);
             });
         }
 
@@ -666,7 +651,7 @@ async fn send_task<W: AsyncWrite + Unpin>(task: &[String], stdin: &mut BufWriter
     let task = task.join("\n");
     let task = task.replace("\n", "\\n");
     let task = [&task, "\n"].concat();
-    tracing::debug!("Sending task on stdin");
+    tracing::trace!("Sending task on stdin");
     if let Err(error) = stdin.write_all(task.as_bytes()).await {
         bail!("When writing code to kernel: {}", error)
     }
@@ -723,7 +708,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
             }
         };
 
-        tracing::debug!("Received on stdout: {}", &line);
+        tracing::trace!("Received on stdout: {}", &line);
         if !handle_line(&line, &mut output, &mut outputs) {
             break;
         }
@@ -760,7 +745,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
             }
         };
 
-        tracing::debug!("Received on stderr: {}", &line);
+        tracing::trace!("Received on stderr: {}", &line);
         if !handle_line(&line, &mut message, &mut messages) {
             break;
         }

@@ -323,6 +323,7 @@ dependencies = [
  "eyre",
  "flate2",
  "glob",
+ "once_cell",
  "regex",
  "reqwest",
  "semver 1.0.4",
@@ -2005,6 +2006,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+ "stencila-schema",
  "strum",
 ]
 
@@ -3603,6 +3605,7 @@ dependencies = [
 name = "parser-treesitter"
 version = "0.0.0"
 dependencies = [
+ "hash-utils",
  "parser",
  "path-utils",
  "tree-sitter",
@@ -4888,9 +4891,9 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.13.0"
+version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e874e3137750a4f08fcc54ffcaddba1c86960f83a8e51ffb3c4a51fe3497fcb5"
+checksum = "3981956c6df39bd4281cbe04c8e76fbe562dce09ed049161fafc49a77f55c2be"
 dependencies = [
  "chrono",
  "defaults",

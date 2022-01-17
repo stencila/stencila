@@ -1,0 +1,164 @@
+---
+source: rust/parser-rust/src/lib.rs
+assertion_line: 104
+expression: resource_info
+input_file: fixtures/fragments/rust/tags.rs
+
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/rust/tags.rs",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "Rust"
+  },
+  "relations": [
+    [
+      {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          31
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "Rust",
+        "name": "pkg1"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          31
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "Rust",
+        "name": "pkg2"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          31
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "Rust",
+        "name": "pkg3"
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          0,
+          0,
+          0,
+          31
+        ]
+      },
+      {
+        "type": "Module",
+        "language": "Rust",
+        "name": "pkg4"
+      }
+    ],
+    [
+      {
+        "type": "Assign",
+        "range": [
+          1,
+          0,
+          1,
+          21
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/tags.rs",
+        "name": "var1",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Use",
+        "range": [
+          2,
+          0,
+          2,
+          13
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/tags.rs",
+        "name": "var2",
+        "kind": ""
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          3,
+          0,
+          3,
+          21
+        ]
+      },
+      {
+        "type": "File",
+        "path": "file1"
+      }
+    ],
+    [
+      {
+        "type": "Read",
+        "range": [
+          3,
+          0,
+          3,
+          21
+        ]
+      },
+      {
+        "type": "File",
+        "path": "file2"
+      }
+    ],
+    [
+      {
+        "type": "Write",
+        "range": [
+          4,
+          0,
+          4,
+          20
+        ]
+      },
+      {
+        "type": "File",
+        "path": "file3"
+      }
+    ]
+  ],
+  "execute_auto": "Never",
+  "execute_pure": false,
+  "compile_digest": "42H_co3JmISPYQV7G5J21RvgkRCvEBLQvWW7IMmBOQU.8CZ53cECr8E4VqOMLhDmMdInTQGuQ99MTGxeyKZf3O8..0.0"
+}

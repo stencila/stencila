@@ -189,8 +189,11 @@ patchable_struct!(
     text,
     output,
     errors,
+    code_dependencies,
+    code_dependents,
     compile_digest,
     execute_digest,
+    execute_required,
     execute_status,
     execute_ended,
     execute_duration

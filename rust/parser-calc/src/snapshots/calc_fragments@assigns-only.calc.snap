@@ -1,5 +1,6 @@
 ---
 source: rust/parser-calc/src/lib.rs
+assertion_line: 134
 expression: resource_info
 input_file: fixtures/fragments/calc/assigns-only.calc
 
@@ -31,5 +32,5 @@ input_file: fixtures/fragments/calc/assigns-only.calc
       }
     ]
   ],
-  "compile_digest": "S_6o5NBIQAmADL5Gg-5aFx1rbL6N7DMx0DUzouBWTLQ.p4hDGsNeggHt4DQlyiiXz33fgLjNgKxzC0nqGV9QnP0..0"
+  "compile_digest": "S_6o5NBIQAmADL5Gg-5aFx1rbL6N7DMx0DUzouBWTLQ.p4hDGsNeggHt4DQlyiiXz33fgLjNgKxzC0nqGV9QnP0..0.0"
 }

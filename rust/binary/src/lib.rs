@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use defaults::Defaults;
 use eyre::{bail, Result};
+use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
 #[allow(unused_imports)]
@@ -192,7 +193,9 @@ pub trait BinaryTrait: Send + Sync {
                 }
             }
         }
-        tracing::debug!("Found Stencila install dirs: {:?}", dirs);
+        if !dirs.is_empty() {
+            tracing::trace!("Found Stencila install dirs: {:?}", dirs);
+        }
 
         // Collect the directories matching the globs
         if !globs.is_empty() {
@@ -204,16 +207,24 @@ pub trait BinaryTrait: Send + Sync {
                 };
                 globbed.append(&mut found)
             }
-            tracing::debug!("Found globbed dirs: {:?}", globbed);
+            if !globbed.is_empty() {
+                tracing::trace!("Found globbed dirs: {:?}", globbed);
+            }
             dirs.append(&mut globbed)
         }
 
-        // Add the system PATH env var
-        if let Some(path) = env::var_os("PATH") {
-            tracing::debug!("Found $PATH: {:?}", path);
-            let mut paths = env::split_paths(&path).collect();
-            dirs.append(&mut paths);
-        }
+        // Add the system PATH
+        // Cache the parsed PATH for efficiency
+        static PATH: Lazy<Vec<PathBuf>> = Lazy::new(|| {
+            if let Some(path) = env::var_os("PATH") {
+                tracing::trace!("Found $PATH: {:?}", path);
+                env::split_paths(&path).collect()
+            } else {
+                tracing::trace!("No $PATH env var found");
+                Vec::new()
+            }
+        });
+        dirs.append(&mut PATH.clone());
 
         // Join all the dirs together in a PATH style string to pass to `which_in_all`
         let dirs = if !dirs.is_empty() {
@@ -230,7 +241,6 @@ pub trait BinaryTrait: Send + Sync {
 
         // Search for executables with name or one of aliases
         let names = [vec![name.clone()], aliases].concat();
-        tracing::debug!("Searching for names: {:?}", names);
         let paths = names
             .iter()
             .map(|name| {

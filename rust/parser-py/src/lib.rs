@@ -15,54 +15,7 @@ static PARSER: Lazy<TreesitterParser> =
     Lazy::new(|| TreesitterParser::new(tree_sitter_python::language(), QUERY));
 
 /// Tree-sitter AST query
-const QUERY: &str = r#"
-(module
-    [
-        (expression_statement (string) @comment)
-        (comment) @comment
-    ]
-)
-        
-(import_statement
-    name: (dotted_name) @module
-)
-(import_from_statement
-    module_name: (dotted_name) @module
-)
-
-(call
-    function: (identifier) @function (#match? @function "^open$")
-    arguments: (
-        argument_list
-            ([(string)(identifier)] @arg)*
-            ([(string)(identifier)] @arg)*
-            (keyword_argument
-                name: (identifier) @arg_name
-                value: (string) @arg_value
-            )*
-            (keyword_argument
-                name: (identifier) @arg_name
-                value: (string) @arg_value
-            )*
-    )
-)
-
-(module
-    (expression_statement
-        (assignment
-            left: (identifier) @name
-            right: (_) @value
-        )
-    )
-) 
-(module
-    (function_definition
-      name: (identifier) @name
-    )
-)
-
-((identifier) @identifer)
-"#;
+const QUERY: &str = include_str!("query.txt");
 
 mod ignores;
 use ignores::USE_IGNORE;
@@ -94,7 +47,7 @@ impl ParserTrait for PyParser {
                         true => resources::file(&path),
                         false => resources::module("python", module),
                     };
-                    Some((relations::uses(range), object))
+                    Some((relations::imports(range), object))
                 }
                 3 => {
                     // Opens a file for reading or writing
@@ -229,6 +182,8 @@ impl ParserTrait for PyParser {
             path,
             &Self::spec().language,
             code,
+            &tree,
+            &["comment"],
             matches,
             0,
             relations,

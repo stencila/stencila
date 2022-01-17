@@ -1,5 +1,6 @@
 ---
 source: rust/parser-ts/src/lib.rs
+assertion_line: 136
 expression: resource_info
 input_file: fixtures/fragments/js/writes.js
 
@@ -15,7 +16,7 @@ input_file: fixtures/fragments/js/writes.js
   "relations": [
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           0,
           15,
@@ -31,7 +32,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Use",
+        "type": "Import",
         "range": [
           1,
           28,
@@ -193,5 +194,5 @@ input_file: fixtures/fragments/js/writes.js
       }
     ]
   ],
-  "compile_digest": "dUv2N2LKVsyW1NHsKHq9_Dhzd2_PiXTi4goqIOQ2vyI.CSK0CJIMBgd4VjwzSGIc0fF9s4jHqvG0dKlgutLWDg8..0"
+  "compile_digest": "dUv2N2LKVsyW1NHsKHq9_Dhzd2_PiXTi4goqIOQ2vyI.olfttVq3ZZvjIXF-sLtcdP2vmBBgppxEINGBkpGm-64..0.0"
 }

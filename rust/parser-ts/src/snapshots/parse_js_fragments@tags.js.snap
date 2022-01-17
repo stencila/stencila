@@ -1,5 +1,6 @@
 ---
 source: rust/parser-ts/src/lib.rs
+assertion_line: 136
 expression: resource_info
 input_file: fixtures/fragments/js/tags.js
 
@@ -141,5 +142,5 @@ input_file: fixtures/fragments/js/tags.js
       }
     ]
   ],
-  "compile_digest": "f7LI3VS02d9xKgwcASvK9CKslgb-mfGf4C5H9U2olk8.iws8oBrqtD2PsrFAKffUF16j5cR8lejWdPNx3sumq-Y..0"
+  "compile_digest": "f7LI3VS02d9xKgwcASvK9CKslgb-mfGf4C5H9U2olk8.GfN1ed0zN2AhFTz8rKIETxQ3upk1yzZfot_fISpc49s..0.0"
 }
