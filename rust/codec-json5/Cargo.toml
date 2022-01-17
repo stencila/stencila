@@ -8,7 +8,7 @@ edition = "2021"
 codec = { path = "../codec", version = "0.0.0" }
 json5 = "0.4.1"
 node-coerce = { path = "../node-coerce", version = "0.0.0" }
-serde_json = "1.0.72"
+serde_json = "1.0.75"
 
 [dev-dependencies]
 test-props = { path = "../test-props", version = "0.0.0" }
