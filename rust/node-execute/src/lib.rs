@@ -27,7 +27,7 @@ mod tests {
 
     use kernels::{Kernel, KernelType};
     use node_address::Slot;
-    use node_patch::{Operation};
+    use node_patch::Operation;
     use test_snaps::{
         fixtures,
         insta::{self, assert_json_snapshot},
