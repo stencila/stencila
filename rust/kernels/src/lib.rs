@@ -46,8 +46,11 @@ impl MetaKernel {
     /// name or language of the kernel
     async fn new(selector: &KernelSelector) -> Result<Self> {
         #[cfg(feature = "kernel-store")]
-        if selector.is_empty() {
-            return Ok(MetaKernel::Store(kernel_store::StoreKernel::new()));
+        {
+            let kernel = kernel_store::StoreKernel::new();
+            if selector.is_empty() || selector.matches(&kernel.spec().await) {
+                return Ok(MetaKernel::Store(kernel));
+            }
         }
 
         macro_rules! matches_kernel {
