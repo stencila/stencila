@@ -148,7 +148,7 @@ impl Step {
         let fork = if self.is_fork { "**fork**" } else { "" };
 
         format!(
-            "Run `{}` *#{}* in *{}* kernel {}",
+            "Run `{}` *{}* in *{}* kernel {}",
             node_type, node_id, kernel_name, fork,
         )
     }
