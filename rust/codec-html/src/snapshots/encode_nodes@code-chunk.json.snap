@@ -10,8 +10,8 @@ input_file: fixtures/nodes/code-chunk.json
   <pre data-itemprop="text" slot="text"># Some code</pre>
   <stencila-code-dependencies data-itemprop="codeDependencies" slot="code-dependencies">
   </stencila-code-dependencies>
-  <stencila-code-dependents data-itemprop="codeDependents" slot="code-dependents">
-  </stencila-code-dependents>
+  <stencila-code-dependencies data-itemprop="codeDependents" slot="code-dependents">
+  </stencila-code-dependencies>
   <div data-itemprop="outputs" slot="outputs">
     <span itemtype="http://schema.org/Text" itemscope>a string output</span>
     <span itemtype="http://schema.stenci.la/Boolean" itemscope>true</span>
