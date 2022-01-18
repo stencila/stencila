@@ -2031,6 +2031,10 @@ pub mod commands {
         #[structopt(short = "e", long)]
         theme: Option<String>,
 
+        /// The id of the node to start execution from
+        #[structopt(short, long)]
+        start: Option<String>,
+
         /// Ordering for the execution plan
         #[structopt(short, long, parse(try_from_str = PlanOrdering::from_str), case_insensitive = true)]
         ordering: Option<PlanOrdering>,
@@ -2059,6 +2063,10 @@ pub mod commands {
             let document = Document::open(&self.input, self.from.clone()).await?;
 
             // Generate plan
+            let start = self
+                .start
+                .as_ref()
+                .map(|node_id| resources::code(&document.path, node_id, "", None));
             let options = PlanOptions {
                 ordering: self
                     .ordering
@@ -2070,10 +2078,10 @@ pub mod commands {
             };
             let plan = {
                 let graph = document.graph.write().await;
-                graph.plan(None, None, Some(options)).await?
+                graph.plan(start, None, Some(options)).await?
             };
 
-            // Represent plan in Markdown and exit here is dry run
+            // Represent plan in Markdown and exit here if dry run
             let plan_md = plan.to_markdown();
             if self.dry_run {
                 return result::new("md", &plan_md, &plan);
