@@ -665,7 +665,7 @@ impl Graph {
             //  - they are a code resource
             //  - does not have `autorun == Never`
             //  - does not have any dependencies that are stale and have `autorun == Never`
-            //    (there is no point running these)
+            //    (there is no point running these) unless the dependency is `start`
             let mut should_include = |resource_info: &ResourceInfo| -> Result<bool> {
                 // Cache set of excluded resources in particular to avoid the following loop
                 if excluded.contains(&resource_info.resource) {
@@ -683,7 +683,7 @@ impl Graph {
                 }
 
                 for dependency in resource_info.dependencies.iter().flatten() {
-                    if matches!(dependency, Resource::Code(..)) {
+                    if dependency != start && matches!(dependency, Resource::Code(..)) {
                         let dependency_info = self.get_resource_info(dependency)?;
                         if dependency_info.is_stale()
                             && matches!(
