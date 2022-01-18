@@ -16,7 +16,7 @@ use tokio::sync::{mpsc::UnboundedSender, RwLock};
 use crate::{
     compile_no_walk,
     utils::{resource_to_node, send_patch, send_patches},
-    Executable, PatchMessage,
+    Executable, PatchRequest,
 };
 
 /// Execute a [`Plan`] on a [`Node`]
@@ -44,7 +44,7 @@ pub async fn execute(
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
     graph: &Arc<RwLock<Graph>>,
-    patch_sender: &UnboundedSender<PatchMessage>,
+    patch_sender: &UnboundedSender<PatchRequest>,
     kernel_space: Option<Arc<KernelSpace>>,
 ) -> Result<()> {
     let kernel_space = kernel_space.unwrap_or_default();

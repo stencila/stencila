@@ -1,4 +1,4 @@
-use crate::{utils::send_patches, CompileContext, Executable, PatchMessage};
+use crate::{utils::send_patches, CompileContext, Executable, PatchRequest};
 use eyre::Result;
 use graph::Graph;
 use graph_triples::{resources, Resource};
@@ -42,7 +42,7 @@ pub async fn compile(
     path: &Path,
     project: &Path,
     root: &Arc<RwLock<Node>>,
-    patch_sender: &UnboundedSender<PatchMessage>,
+    patch_sender: &UnboundedSender<PatchRequest>,
 ) -> Result<(AddressMap, Graph)> {
     // Walk over the root node calling `compile` on children
     let mut address = Address::default();
@@ -69,7 +69,7 @@ pub async fn compile_no_walk(
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
     graph: &Arc<RwLock<Graph>>,
-    patch_sender: &UnboundedSender<PatchMessage>,
+    patch_sender: &UnboundedSender<PatchRequest>,
 ) -> Result<()> {
     compile_patches_and_send(
         &*root.read().await,
@@ -85,7 +85,7 @@ fn compile_patches_and_send(
     root: &Node,
     address_map: &AddressMap,
     graph: &Graph,
-    patch_sender: &UnboundedSender<PatchMessage>,
+    patch_sender: &UnboundedSender<PatchRequest>,
 ) {
     // Collect all the code nodes in the graph and new values for some of their properties
     let resource_infos = graph.get_resource_infos();

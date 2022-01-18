@@ -7,7 +7,7 @@ use graph_triples::{resources, Relations};
 use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::AddressMap;
-use node_execute::{compile, execute, CompileMessage, ExecuteMessage, PatchMessage};
+use node_execute::{compile, execute, CompileRequest, ExecuteRequest, PatchRequest};
 use node_patch::{apply, diff, merge, Patch};
 use node_reshape::reshape;
 use notify::DebouncedEvent;
@@ -239,13 +239,13 @@ pub struct Document {
     subscriptions: HashMap<String, HashSet<String>>,
 
     #[serde(skip)]
-    patch_sender: mpsc::UnboundedSender<PatchMessage>,
+    patch_sender: mpsc::UnboundedSender<PatchRequest>,
 
     #[serde(skip)]
-    compile_sender: mpsc::Sender<CompileMessage>,
+    compile_sender: mpsc::Sender<CompileRequest>,
 
     #[serde(skip)]
-    execute_sender: mpsc::Sender<ExecuteMessage>,
+    execute_sender: mpsc::Sender<ExecuteRequest>,
 }
 
 #[allow(unused)]
@@ -325,9 +325,9 @@ impl Document {
         let graph = Arc::new(RwLock::new(Graph::default()));
         let kernels = Arc::new(KernelSpace::default());
 
-        let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<PatchMessage>();
-        let (compile_sender, mut compile_receiver) = mpsc::channel::<CompileMessage>(100);
-        let (execute_sender, mut execute_receiver) = mpsc::channel::<ExecuteMessage>(100);
+        let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<PatchRequest>();
+        let (compile_sender, mut compile_receiver) = mpsc::channel::<CompileRequest>(100);
+        let (execute_sender, mut execute_receiver) = mpsc::channel::<ExecuteRequest>(100);
 
         let id_clone = id.clone();
         let root_clone = root.clone();
@@ -732,7 +732,7 @@ impl Document {
     ///
     /// - `compile`: Should the document be compiled after the patch is applied?
     ///
-    /// - `execute`: Should the document be executed after the patch is applied?
+    /// - `execute`: Should the document be executed after the patch is applied and it is compiled?
     ///              If the patch as a `target` then the document will be executed from that
     ///              node, otherwise the entire document will be executed.
     ///
@@ -740,11 +740,7 @@ impl Document {
     #[tracing::instrument(skip(self, patch))]
     pub async fn patch(&self, patch: Patch, compile: bool, execute: bool) -> Result<()> {
         self.patch_sender
-            .send(PatchMessage {
-                patch,
-                compile,
-                execute,
-            })
+            .send(PatchRequest::new(patch, compile, execute))
             .or_else(|_| {
                 bail!(
                     "When sending patch message for document `{}`: the receiver has dropped",
@@ -773,21 +769,22 @@ impl Document {
         id: &str,
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
-        compile_sender: &mpsc::Sender<CompileMessage>,
-        patch_receiver: &mut mpsc::UnboundedReceiver<PatchMessage>,
+        compile_sender: &mpsc::Sender<CompileRequest>,
+        patch_receiver: &mut mpsc::UnboundedReceiver<PatchRequest>,
     ) {
-        while let Some(PatchMessage {
-            patch,
-            compile,
-            execute,
-        }) = patch_receiver.recv().await
-        {
-            let from = patch.target.clone();
+        while let Some(request) = patch_receiver.recv().await {
+            let start = request.patch.target.clone();
 
-            Self::patch_impl(id, root, addresses, patch).await;
+            Self::patch_impl(id, root, addresses, request.patch).await;
 
-            if compile {
-                compile_sender.send(CompileMessage { execute, from }).await;
+            if request.compile {
+                compile_sender
+                    .send(CompileRequest {
+                        id: request.id,
+                        execute: request.execute,
+                        start,
+                    })
+                    .await;
             }
         }
     }
@@ -898,49 +895,44 @@ impl Document {
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
         graph: &Arc<RwLock<Graph>>,
-        patch_sender: &mpsc::UnboundedSender<PatchMessage>,
-        execute_sender: &mpsc::Sender<ExecuteMessage>,
-        compile_receiver: &mut mpsc::Receiver<CompileMessage>,
+        patch_sender: &mpsc::UnboundedSender<PatchRequest>,
+        execute_sender: &mpsc::Sender<ExecuteRequest>,
+        compile_receiver: &mut mpsc::Receiver<CompileRequest>,
     ) {
         let duration = Duration::from_millis(300);
-        let mut compile_needed = false;
-        let mut execute_next = false;
-        let mut execute_from = None;
+        let mut last_request = None;
         loop {
             match tokio::time::timeout(duration, compile_receiver.recv()).await {
-                // Timeout so perhaps do a compile if needed
-                Err(..) => {
-                    if !compile_needed {
-                        continue;
-                    }
-                }
-                // Request sent so set `compile_needed` and continue
-                Ok(Some(CompileMessage { execute, from })) => {
-                    compile_needed = true;
-                    execute_next |= execute;
-                    execute_from = from;
+                // Compile request received, so record it and continue to wait for timeout
+                Ok(Some(request)) => {
+                    last_request = Some(request);
                     continue;
                 }
                 // Sender dropped, end of task
                 Ok(None) => break,
+                // Timeout so do the following with the last unhandled request, if any
+                Err(..) => {}
             };
 
-            if let Err(error) =
-                Self::compile_impl(id, path, project, root, addresses, graph, patch_sender).await
-            {
-                tracing::error!("While compiling document `{}`: {}", id, error)
-            };
+            if let Some(request) = last_request {
+                if let Err(error) =
+                    Self::compile_impl(id, path, project, root, addresses, graph, patch_sender)
+                        .await
+                {
+                    tracing::error!("While compiling document `{}`: {}", id, error)
+                };
 
-            if execute_next {
-                execute_sender
-                    .send(ExecuteMessage {
-                        from: execute_from.clone(),
-                    })
-                    .await;
-                execute_next = false;
+                // Pass on request for execution
+                if request.execute {
+                    let execute_request = ExecuteRequest {
+                        id: request.id.clone(),
+                        start: request.start.clone(),
+                    };
+                    execute_sender.send(execute_request).await;
+                }
+
+                last_request = None;
             }
-
-            compile_needed = false;
         }
     }
 
@@ -969,7 +961,7 @@ impl Document {
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
         graph: &Arc<RwLock<Graph>>,
-        patch_sender: &mpsc::UnboundedSender<PatchMessage>,
+        patch_sender: &mpsc::UnboundedSender<PatchRequest>,
     ) -> Result<()> {
         tracing::debug!("Compiling document `{}`", id);
 
@@ -1012,11 +1004,13 @@ impl Document {
         addresses: &Arc<RwLock<AddressMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<KernelSpace>,
-        patch_sender: &mpsc::UnboundedSender<PatchMessage>,
-        execute_receiver: &mut mpsc::Receiver<ExecuteMessage>,
+        patch_sender: &mpsc::UnboundedSender<PatchRequest>,
+        execute_receiver: &mut mpsc::Receiver<ExecuteRequest>,
     ) {
-        while let Some(ExecuteMessage { from }) = execute_receiver.recv().await {
-            let start = from.map(|node_id| resources::code(path, &node_id, "", None));
+        while let Some(request) = execute_receiver.recv().await {
+            let start = request
+                .start
+                .map(|node_id| resources::code(path, &node_id, "", None));
             let plan = graph.read().await.plan(start, None, None).await.unwrap();
             execute(
                 &plan,
@@ -1032,11 +1026,11 @@ impl Document {
 
     /// Execute the document
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, from: Option<String>) -> Result<()> {
+    pub async fn execute(&self, start: Option<String>) -> Result<()> {
         tracing::debug!("Executing document `{}`", self.id);
 
         self.execute_sender
-            .send(ExecuteMessage { from })
+            .send(ExecuteRequest::new(start))
             .await
             .or_else(|_| {
                 bail!(
