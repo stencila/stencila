@@ -32,16 +32,17 @@ impl ToHtml for Date {
 impl ToHtml for CodeExecutableCodeDependencies {
     fn to_html(&self, _context: &EncodeContext) -> String {
         let (
-            node_type,
+            node_kind,
             id,
+            label,
+            programming_language,
             execute_auto,
             execute_required,
             execute_status,
-            programming_language,
-            name,
         ) = match self {
             CodeExecutableCodeDependencies::CodeChunk(CodeChunk {
                 id,
+                label,
                 programming_language,
                 execute_auto,
                 execute_required,
@@ -50,30 +51,36 @@ impl ToHtml for CodeExecutableCodeDependencies {
             }) => (
                 "CodeChunk",
                 id,
+                label.as_ref().map(|label| label.as_str()),
+                Some(programming_language),
                 execute_auto
                     .as_ref()
                     .map_or("Needed", |value| value.as_ref()),
                 execute_required,
                 execute_status,
-                Some(programming_language),
-                None,
             ),
             CodeExecutableCodeDependencies::Parameter(Parameter { id, name, .. }) => (
                 "Parameter",
                 id,
+                Some(name.as_str()),
+                None,
                 "Needed",
                 &None,
                 &None,
-                None,
-                Some(name.as_str()),
             ),
         };
         elem(
             "stencila-code-dependency",
             &[
-                attr("node-type", node_type),
+                attr("node-kind", node_kind),
                 id.as_ref()
                     .map_or("".to_string(), |value| attr("node-id", value.as_str())),
+                label
+                    .as_ref()
+                    .map_or("".to_string(), |value| attr("label", value.as_ref())),
+                programming_language
+                    .as_ref()
+                    .map_or("".to_string(), |value| attr("programming-language", value)),
                 attr("execute-auto", execute_auto),
                 execute_required.as_ref().map_or("".to_string(), |value| {
                     attr("execute-required", value.as_ref())
@@ -81,11 +88,6 @@ impl ToHtml for CodeExecutableCodeDependencies {
                 execute_status.as_ref().map_or("".to_string(), |value| {
                     attr("execute-status", value.as_ref())
                 }),
-                programming_language
-                    .as_ref()
-                    .map_or("".to_string(), |value| attr("programming-language", value)),
-                name.as_ref()
-                    .map_or("".to_string(), |value| attr("name", value)),
             ],
             "",
         )
@@ -95,46 +97,60 @@ impl ToHtml for CodeExecutableCodeDependencies {
 /// Encode a dependent of an executable code node
 impl ToHtml for CodeExecutableCodeDependents {
     fn to_html(&self, _context: &EncodeContext) -> String {
-        let (node_type, id, execute_auto, execute_required, execute_status, programming_language) =
-            match self {
-                CodeExecutableCodeDependents::CodeChunk(CodeChunk {
-                    id,
-                    programming_language,
-                    execute_auto,
-                    execute_required,
-                    execute_status,
-                    ..
-                }) => (
-                    "CodeChunk",
-                    id,
-                    execute_auto
-                        .as_ref()
-                        .map_or("Needed", |value| value.as_ref()),
-                    execute_required,
-                    execute_status,
-                    programming_language,
-                ),
-                CodeExecutableCodeDependents::CodeExpression(CodeExpression {
-                    id,
-                    programming_language,
-                    execute_required,
-                    execute_status,
-                    ..
-                }) => (
-                    "CodeExpression",
-                    id,
-                    "Needed",
-                    execute_required,
-                    execute_status,
-                    programming_language,
-                ),
-            };
+        let (
+            node_kind,
+            id,
+            label,
+            programming_language,
+            execute_auto,
+            execute_required,
+            execute_status,
+        ) = match self {
+            CodeExecutableCodeDependents::CodeChunk(CodeChunk {
+                id,
+                label,
+                programming_language,
+                execute_auto,
+                execute_required,
+                execute_status,
+                ..
+            }) => (
+                "CodeChunk",
+                id,
+                label,
+                programming_language,
+                execute_auto
+                    .as_ref()
+                    .map_or("Needed", |value| value.as_ref()),
+                execute_required,
+                execute_status,
+            ),
+            CodeExecutableCodeDependents::CodeExpression(CodeExpression {
+                id,
+                programming_language,
+                execute_required,
+                execute_status,
+                ..
+            }) => (
+                "CodeExpression",
+                id,
+                &None,
+                programming_language,
+                "Needed",
+                execute_required,
+                execute_status,
+            ),
+        };
         elem(
-            "stencila-code-dependent",
+            "stencila-code-dependency",
             &[
-                attr("node-type", node_type),
+                attr("node-kind", node_kind),
                 id.as_ref()
                     .map_or("".to_string(), |value| attr("node-id", value.as_str())),
+                label
+                    .as_ref()
+                    .map_or("".to_string(), |value| attr("label", value.as_ref())),
+                attr("programming-language", programming_language),
                 attr("execute-auto", execute_auto),
                 execute_required.as_ref().map_or("".to_string(), |value| {
                     attr("execute-required", value.as_ref())
@@ -142,7 +158,6 @@ impl ToHtml for CodeExecutableCodeDependents {
                 execute_status.as_ref().map_or("".to_string(), |value| {
                     attr("execute-status", value.as_ref())
                 }),
-                attr("programming-language", programming_language),
             ],
             "",
         )

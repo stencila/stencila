@@ -440,7 +440,6 @@ h6:--Heading {
   padding: 0.25em 1em;
 }
 
-:--Article a,
 :--Link {
   transition: color 125ms ease-in-out;
 

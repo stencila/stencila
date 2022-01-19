@@ -75,7 +75,7 @@ export const main = (
 
     documents.listen(client, clientId, document.id)
 
-    window.addEventListener('appload', initComponents)
+    initComponents()
 
     return [client, document, session]
   }

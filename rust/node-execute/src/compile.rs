@@ -188,6 +188,7 @@ fn compile_patches_and_send(
                             Node::CodeChunk(dependency) => {
                                 Some(CodeExecutableCodeDependencies::CodeChunk(CodeChunk {
                                     id: dependency.id.clone(),
+                                    label: dependency.label.clone(),
                                     programming_language: dependency.programming_language.clone(),
                                     execute_auto: dependency.execute_auto.clone(),
                                     execute_required: Some(new_execute_required.clone()),
@@ -215,6 +216,7 @@ fn compile_patches_and_send(
                             Node::CodeChunk(dependant) => {
                                 Some(CodeExecutableCodeDependents::CodeChunk(CodeChunk {
                                     id: dependant.id.clone(),
+                                    label: dependant.label.clone(),
                                     programming_language: dependant.programming_language.clone(),
                                     execute_auto: dependant.execute_auto.clone(),
                                     execute_required: Some(new_execute_required.clone()),

@@ -151,7 +151,7 @@ impl ToHtml for CodeChunk {
         );
 
         let dependents = elem_placeholder(
-            "stencila-code-dependents",
+            "stencila-code-dependencies",
             &[attr_prop("code-dependents"), attr_slot("code-dependents")],
             &self.code_dependents,
             context,
