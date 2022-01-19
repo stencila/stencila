@@ -109,3 +109,37 @@ impl ExecuteResponse {
         Self { id }
     }
 }
+
+/// An internal request to cancel execution of a document
+#[derive(Debug)]
+pub struct CancelRequest {
+    pub id: RequestId,
+    pub start: Option<String>,
+}
+
+impl CancelRequest {
+    pub fn new(start: Option<String>) -> Self {
+        Self {
+            id: RequestId::new(),
+            start,
+        }
+    }
+}
+
+/// A response to an internal request to cancel execution of a document
+#[derive(Debug)]
+pub struct CancelResponse {
+    pub id: RequestId,
+}
+
+impl CancelResponse {
+    pub fn null() -> Self {
+        Self {
+            id: RequestId("".into()),
+        }
+    }
+
+    pub fn new(id: RequestId) -> Self {
+        Self { id }
+    }
+}

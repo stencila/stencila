@@ -158,12 +158,16 @@ mod tests {
                 }
             });
 
+            let (_cancel_request_sender, mut cancel_request_receiver) =
+                mpsc::channel::<CancelRequest>(1);
+
             execute(
                 &plan,
                 &root,
                 &Arc::new(RwLock::new(addresses)),
                 &patch_request_sender,
                 &compile_request_sender,
+                &mut cancel_request_receiver,
                 None,
             )
             .await?;

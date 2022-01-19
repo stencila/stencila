@@ -56,6 +56,7 @@ impl Request {
             "documents.close" => documents_close(&self.params).await,
             "documents.patch" => documents_patch(&self.params).await,
             "documents.execute" => documents_execute(&self.params).await,
+            "documents.cancel" => documents_cancel(&self.params).await,
             "documents.subscribe" => documents_subscribe(&self.params, client).await,
             "documents.unsubscribe" => documents_unsubscribe(&self.params, client).await,
             _ => {
@@ -329,6 +330,14 @@ async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscr
     let node_id = optional_string(params, "nodeId")?;
 
     let document = DOCUMENTS.execute(&id, node_id).await?;
+    Ok((json!(document), Subscription::None))
+}
+
+async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let id = required_string(params, "documentId")?;
+    let node_id = optional_string(params, "nodeId")?;
+
+    let document = DOCUMENTS.cancel(&id, node_id).await?;
     Ok((json!(document), Subscription::None))
 }
 

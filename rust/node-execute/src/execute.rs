@@ -12,13 +12,13 @@ use node_address::{Address, AddressMap};
 use node_patch::{diff, mutate, Patch};
 use stencila_schema::{CodeChunk, CodeExecutableExecuteStatus, CodeExpression, Node};
 use tokio::sync::{
-    mpsc::{Sender, UnboundedSender},
+    mpsc::{Receiver, Sender, UnboundedSender},
     RwLock,
 };
 
 use crate::{
     utils::{resource_to_node, send_patch, send_patches},
-    CompileRequest, Executable, PatchRequest,
+    CancelRequest, CompileRequest, Executable, PatchRequest,
 };
 
 /// Execute a [`Plan`] on a [`Node`]
@@ -42,6 +42,9 @@ use crate::{
 /// - `compile_request_sender`: A [`CompileRequest`] channel sender to request re-compiles due to changes to
 ///                   executed nodes
 ///
+/// - `cancel_request_receiver`: A [`CancelRequest`] channel receiver to request cancellation of one or more
+///                   steps in the plan
+///
 /// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
 ///
 pub async fn execute(
@@ -50,6 +53,7 @@ pub async fn execute(
     address_map: &Arc<RwLock<AddressMap>>,
     patch_request_sender: &UnboundedSender<PatchRequest>,
     compile_request_sender: &Sender<CompileRequest>,
+    cancel_request_receiver: &mut Receiver<CancelRequest>,
     kernel_space: Option<Arc<KernelSpace>>,
 ) -> Result<()> {
     let kernel_space = kernel_space.unwrap_or_default();
@@ -103,6 +107,46 @@ pub async fn execute(
     let stage_count = plan.stages.len();
     let mut dependencies_failed = false;
     for (stage_index, stage) in plan.stages.iter().enumerate() {
+        // Check for any cancellation requests
+        let mut was_cancelled = false;
+        while let Ok(request) = cancel_request_receiver.try_recv() {
+            if let Some(start) = request.start {
+                // A start node was specified...
+                if let Some((node_id, node_address, node)) =
+                    nodes
+                        .values_mut()
+                        .find_map(|(_, node_id, node_address, node, ..)| {
+                            if *node_id == start {
+                                Some((node_id, node_address, node))
+                            } else {
+                                None
+                            }
+                        })
+                {
+                    // TODO: This just sets status to cancelled and stops the loop. It is
+                    // temporary
+                    send_patch(
+                        patch_request_sender,
+                        set_execute_status_cancelled(node_id, node_address, node),
+                    );
+                    was_cancelled = true;
+                    break;
+                }
+            } else {
+                // TODO No start node was specified so cancel them all.
+                was_cancelled = true;
+                break;
+            }
+        }
+        if was_cancelled {
+            tracing::debug!(
+                "Received cancellation request before stage {}/{}",
+                stage_index + 1,
+                stage_count
+            );
+            break;
+        }
+
         // Before running the steps in this stage, check that all their dependencies have succeeded
         // and stop if they have not. Collects to a `BTreeSet` to generate unique set (some steps in
         // the stage may have the shared dependencies)
@@ -135,9 +179,9 @@ pub async fn execute(
                 stage_count
             );
             break;
-        } else {
-            tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
         }
+
+        tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
 
         // Create a kernel task for each step in this stage
         let step_count = stage.steps.len();
@@ -308,6 +352,21 @@ fn set_execute_status_running(node_id: &str, node_address: &Address, node: &mut 
                     }
                     _ => CodeExecutableExecuteStatus::Running,
                 });
+            }
+            _ => {}
+        },
+    )
+}
+
+fn set_execute_status_cancelled(node_id: &str, node_address: &Address, node: &mut Node) -> Patch {
+    mutate(
+        node,
+        Some(node_id.to_string()),
+        Some(node_address.clone()),
+        &|node: &mut Node| match node {
+            Node::CodeChunk(CodeChunk { execute_status, .. })
+            | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
+                *execute_status = Some(CodeExecutableExecuteStatus::Cancelled);
             }
             _ => {}
         },

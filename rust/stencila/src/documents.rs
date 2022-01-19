@@ -8,8 +8,8 @@ use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::AddressMap;
 use node_execute::{
-    compile, execute, CompileRequest, CompileResponse, ExecuteRequest, ExecuteResponse,
-    PatchRequest, PatchResponse, RequestId,
+    compile, execute, CancelRequest, CancelResponse, CompileRequest, CompileResponse,
+    ExecuteRequest, ExecuteResponse, PatchRequest, PatchResponse, RequestId,
 };
 use node_patch::{apply, diff, merge, Patch};
 use node_reshape::reshape;
@@ -258,6 +258,12 @@ pub struct Document {
 
     #[serde(skip)]
     execute_response_receiver: watch::Receiver<ExecuteResponse>,
+
+    #[serde(skip)]
+    cancel_request_sender: mpsc::Sender<CancelRequest>,
+
+    #[serde(skip)]
+    cancel_response_receiver: watch::Receiver<CancelResponse>,
 }
 
 #[allow(unused)]
@@ -352,6 +358,11 @@ impl Document {
         let (execute_response_sender, mut execute_response_receiver) =
             watch::channel::<ExecuteResponse>(ExecuteResponse::null());
 
+        let (cancel_request_sender, mut cancel_request_receiver) =
+            mpsc::channel::<CancelRequest>(100);
+        let (cancel_response_sender, mut cancel_response_receiver) =
+            watch::channel::<CancelResponse>(CancelResponse::null());
+
         let id_clone = id.clone();
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
@@ -412,6 +423,7 @@ impl Document {
                 &kernels_clone,
                 &patch_sender_clone,
                 &compile_sender_clone,
+                &mut cancel_request_receiver,
                 &mut execute_request_receiver,
                 &execute_response_sender,
             )
@@ -447,6 +459,9 @@ impl Document {
 
             execute_request_sender,
             execute_response_receiver,
+
+            cancel_request_sender,
+            cancel_response_receiver,
         }
     }
 
@@ -487,6 +502,9 @@ impl Document {
 
             execute_request_sender: self.execute_request_sender.clone(),
             execute_response_receiver: self.execute_response_receiver.clone(),
+
+            cancel_request_sender: self.cancel_request_sender.clone(),
+            cancel_response_receiver: self.cancel_response_receiver.clone(),
         }
     }
 
@@ -884,7 +902,7 @@ impl Document {
         let request_id = request.id.clone();
         self.patch_request_sender.send(request).or_else(|_| {
             bail!(
-                "When sending patch message for document `{}`: the receiver has dropped",
+                "When sending patch request for document `{}`: the receiver has dropped",
                 self.id
             )
         });
@@ -1001,7 +1019,7 @@ impl Document {
             .await
             .or_else(|_| {
                 bail!(
-                    "When sending patch message for document `{}`: the receiver has dropped",
+                    "When sending patch request for document `{}`: the receiver has dropped",
                     self.id
                 )
             });
@@ -1070,10 +1088,11 @@ impl Document {
         kernel_space: &Arc<KernelSpace>,
         patch_request_sender: &mpsc::UnboundedSender<PatchRequest>,
         compile_request_sender: &mpsc::Sender<CompileRequest>,
-        request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
-        response_sender: &watch::Sender<ExecuteResponse>,
+        cancel_request_receiver: &mut mpsc::Receiver<CancelRequest>,
+        execute_request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
+        execute_response_sender: &watch::Sender<ExecuteResponse>,
     ) {
-        while let Some(request) = request_receiver.recv().await {
+        while let Some(request) = execute_request_receiver.recv().await {
             tracing::trace!("Executing document `{}` for request `{}`", &id, request.id);
 
             let start = request
@@ -1088,12 +1107,14 @@ impl Document {
                 addresses,
                 patch_request_sender,
                 compile_request_sender,
+                cancel_request_receiver,
                 Some(kernel_space.clone()),
             )
             .await;
 
             // Send response
-            if let Err(..) = response_sender.send(ExecuteResponse::new(request.id.clone())) {
+            if let Err(..) = execute_response_sender.send(ExecuteResponse::new(request.id.clone()))
+            {
                 tracing::error!(
                     "While sending patch response for document `{}`: channel closed",
                     id
@@ -1105,7 +1126,7 @@ impl Document {
     /// Execute the root node of the document
     #[tracing::instrument(skip(self))]
     pub async fn execute(&self, start: Option<String>) -> Result<RequestId> {
-        tracing::debug!("Executing document `{}`", self.id);
+        tracing::debug!("Executing document `{}` starting at `{:?}`", self.id, start);
 
         let request = ExecuteRequest::new(start);
         let request_id = request.id.clone();
@@ -1114,7 +1135,7 @@ impl Document {
             .await
             .or_else(|_| {
                 bail!(
-                    "When sending execute message for document `{}`: the receiver has dropped",
+                    "When sending execute request for document `{}`: the receiver has dropped",
                     self.id
                 )
             });
@@ -1160,15 +1181,45 @@ impl Document {
     pub async fn execute_plan(&self, plan: &Plan) -> Result<()> {
         tracing::debug!("Executing plan for document `{}`", self.id);
 
+        let (_cancel_request_sender, mut cancel_request_receiver) =
+            mpsc::channel::<CancelRequest>(1);
+
         execute(
             plan,
             &self.root,
             &self.addresses,
             &self.patch_request_sender,
             &self.compile_request_sender,
+            &mut cancel_request_receiver,
             Some(self.kernels.clone()),
         )
         .await
+    }
+
+    /// Cancel the execution of the document
+    ///
+    /// # Arguments
+    ///
+    /// - `start`: The node from which to cancel the execution "down" from
+    ///            (in topological order).
+    #[tracing::instrument(skip(self))]
+    pub async fn cancel(&self, start: Option<String>) -> Result<RequestId> {
+        tracing::debug!(
+            "Cancelling execution of document `{}` starting at `{:?}`",
+            self.id,
+            start
+        );
+
+        let request = CancelRequest::new(start);
+        let request_id = request.id.clone();
+        self.cancel_request_sender.send(request).await.or_else(|_| {
+            bail!(
+                "When sending cancel request for document `{}`: the receiver has dropped",
+                self.id
+            )
+        });
+
+        Ok(request_id)
     }
 
     /// Update the `root` (and associated properties) of the document and publish updated encodings
@@ -1716,10 +1767,18 @@ impl Documents {
     /// Like `patch()`, given this function is likely to be called often, do not return
     /// the document.
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, id: &str, from: Option<String>) -> Result<RequestId> {
+    pub async fn execute(&self, id: &str, start: Option<String>) -> Result<RequestId> {
         let document_lock = self.get(id).await?;
         let document_guard = document_lock.lock().await;
-        document_guard.execute(from).await
+        document_guard.execute(start).await
+    }
+
+    /// Cancel execution of a node within a document
+    #[tracing::instrument(skip(self))]
+    pub async fn cancel(&self, id: &str, start: Option<String>) -> Result<RequestId> {
+        let document_lock = self.get(id).await?;
+        let document_guard = document_lock.lock().await;
+        document_guard.cancel(start).await
     }
 
     /// Get a document that has previously been opened

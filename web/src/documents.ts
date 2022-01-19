@@ -179,9 +179,6 @@ export function receivePatch(clientId: ClientId, event: DocumentEvent): void {
 
 /**
  * Execute a document node
- *
- * Optionally, pass a patch to apply to the node
- * prior to executing it.
  */
 export async function execute(
   client: Client,
@@ -189,6 +186,20 @@ export async function execute(
   nodeId: NodeId
 ): Promise<void> {
   return client.call('documents.execute', {
+    documentId,
+    nodeId,
+  }) as Promise<void>
+}
+
+/**
+ * Cancel execution of a document node
+ */
+export async function cancel(
+  client: Client,
+  documentId: DocumentId,
+  nodeId: NodeId
+): Promise<void> {
+  return client.call('documents.cancel', {
     documentId,
     nodeId,
   }) as Promise<void>
