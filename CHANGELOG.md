@@ -1,3 +1,33 @@
+# [0.140.0](https://github.com/stencila/stencila/compare/v0.139.0...v0.140.0) (2022-01-19)
+
+
+### Bug Fixes
+
+* **Dependencies:** Upgrade to `@stencila/components` 0.49.0 ([9df5777](https://github.com/stencila/stencila/commit/9df57773a4b383400f93418e46a18700e2a0fd41))
+* **Documents:** Add response receivers to enable waiting for `patch`, `compile` and `execute` ([96b0d4e](https://github.com/stencila/stencila/commit/96b0d4eb0033f5958e20202caa47f3357b9407f8))
+* **Execution plan:** Do not exclude nodes with `start` as a dependency ([7b6089b](https://github.com/stencila/stencila/commit/7b6089bf93ffbbbda8cc9fac512c2a3b49011dbb))
+* **Execution plan:** Remove unessary # prefix for id ([640911a](https://github.com/stencila/stencila/commit/640911a4322fb129cc83bec688fe11ca6030438f))
+* **HTML encoding:** Nest code dependency elements within own `div` for compatability with patching ([ef2be8c](https://github.com/stencila/stencila/commit/ef2be8cf8426eb18ffcd74f8cd7fceb42deb0a67))
+* **HTML encoding:** Refinement to encoding of code dependencies ([09503c8](https://github.com/stencila/stencila/commit/09503c8f4bd4c708f6b8edcecdfe93d02e9bd03b))
+* **HTML encoding:** Use <span> for `CodeExpression` dependencies ([f61545c](https://github.com/stencila/stencila/commit/f61545c9058ec3e54256b059bf612a5e32dc4522))
+* **Kernels:** Select `store` kernel is specifically selected ([85048a0](https://github.com/stencila/stencila/commit/85048a0521a268f5e0086dd2d03399ed29a3d318))
+* **Node execution:** Improve assessment of which nodes to include in execution plan ([9a71570](https://github.com/stencila/stencila/commit/9a715706886345071792aba6f4cfac4bc86f9c65))
+* **Node execution:** Request a full compile after each node is executed ([dcf39e9](https://github.com/stencila/stencila/commit/dcf39e9dde774414b544e8506f3efcbb64ffdcc2))
+* **Node patches:** Include `id` when diffing and patching code nodes ([5159968](https://github.com/stencila/stencila/commit/5159968a7dc04338cf88ad49dfc5fa9b9ffe5b95))
+* **Python microkernel:** Fix issue availability of imports in functions ([3b0d442](https://github.com/stencila/stencila/commit/3b0d44285be4c3fb4e10de8d7647bf90d64ed8c0))
+* **Web patches:** Handle extraneous comments in Web Components ([9b65da8](https://github.com/stencila/stencila/commit/9b65da8dff782d8e00b4d99c90743ed49b6380f5))
+* **Wilmore:** Only style Link schema nodes ([bbcb998](https://github.com/stencila/stencila/commit/bbcb998261d1958c80fdeed714311675deff0b9d))
+
+
+### Features
+
+* **Documents:** Add `start` argument for `run` command ([317b48d](https://github.com/stencila/stencila/commit/317b48dcddf25ca45f0e224452d6556dd61086c9))
+
+
+### Performance Improvements
+
+* **Web:** Don't wait for components before populating kernels ([18101f1](https://github.com/stencila/stencila/commit/18101f130c953443192e9093b140c870bf017063))
+
 # [0.139.0](https://github.com/stencila/stencila/compare/v0.138.0...v0.139.0) (2022-01-17)
 
 
