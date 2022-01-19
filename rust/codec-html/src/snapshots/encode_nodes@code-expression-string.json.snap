@@ -9,8 +9,8 @@ input_file: fixtures/nodes/code-expression-string.json
   <meta itemprop="programmingLanguage" content="r"/>
   <code data-itemprop="text" slot="text">print(&#x27;foo&#x27;)</code>
   <stencila-code-dependencies slot="code-dependencies">
-    <div data-itemprop="codeDependencies">
-    </div>
+    <span data-itemprop="codeDependencies">
+    </span>
   </stencila-code-dependencies>
   <output data-itemprop="output" slot="output">
     <span itemtype="http://schema.org/Text" itemscope>foo</span>
