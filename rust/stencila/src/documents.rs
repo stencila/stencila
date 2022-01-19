@@ -7,7 +7,10 @@ use graph_triples::{resources, Relations};
 use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::AddressMap;
-use node_execute::{compile, execute, CompileRequest, ExecuteRequest, PatchRequest};
+use node_execute::{
+    compile, execute, CompileRequest, CompileResponse, ExecuteRequest, ExecuteResponse,
+    PatchRequest, PatchResponse, RequestId,
+};
 use node_patch::{apply, diff, merge, Patch};
 use node_reshape::reshape;
 use notify::DebouncedEvent;
@@ -26,7 +29,7 @@ use std::{
 use stencila_schema::{Article, Node};
 use strum::Display;
 use tokio::{
-    sync::{mpsc, Mutex, RwLock},
+    sync::{mpsc, watch, Mutex, RwLock},
     task::JoinHandle,
 };
 
@@ -239,13 +242,22 @@ pub struct Document {
     subscriptions: HashMap<String, HashSet<String>>,
 
     #[serde(skip)]
-    patch_sender: mpsc::UnboundedSender<PatchRequest>,
+    patch_request_sender: mpsc::UnboundedSender<PatchRequest>,
 
     #[serde(skip)]
-    compile_sender: mpsc::Sender<CompileRequest>,
+    patch_response_receiver: watch::Receiver<PatchResponse>,
 
     #[serde(skip)]
-    execute_sender: mpsc::Sender<ExecuteRequest>,
+    compile_request_sender: mpsc::Sender<CompileRequest>,
+
+    #[serde(skip)]
+    compile_response_receiver: watch::Receiver<CompileResponse>,
+
+    #[serde(skip)]
+    execute_request_sender: mpsc::Sender<ExecuteRequest>,
+
+    #[serde(skip)]
+    execute_response_receiver: watch::Receiver<ExecuteResponse>,
 }
 
 #[allow(unused)]
@@ -325,21 +337,33 @@ impl Document {
         let graph = Arc::new(RwLock::new(Graph::default()));
         let kernels = Arc::new(KernelSpace::default());
 
-        let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<PatchRequest>();
-        let (compile_sender, mut compile_receiver) = mpsc::channel::<CompileRequest>(100);
-        let (execute_sender, mut execute_receiver) = mpsc::channel::<ExecuteRequest>(100);
+        let (patch_request_sender, mut patch_request_receiver) =
+            mpsc::unbounded_channel::<PatchRequest>();
+        let (patch_response_sender, mut patch_response_receiver) =
+            watch::channel::<PatchResponse>(PatchResponse::null());
+
+        let (compile_request_sender, mut compile_request_receiver) =
+            mpsc::channel::<CompileRequest>(100);
+        let (compile_response_sender, mut compile_response_receiver) =
+            watch::channel::<CompileResponse>(CompileResponse::null());
+
+        let (execute_request_sender, mut execute_request_receiver) =
+            mpsc::channel::<ExecuteRequest>(100);
+        let (execute_response_sender, mut execute_response_receiver) =
+            watch::channel::<ExecuteResponse>(ExecuteResponse::null());
 
         let id_clone = id.clone();
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
-        let compile_sender_clone = compile_sender.clone();
+        let compile_sender_clone = compile_request_sender.clone();
         tokio::spawn(async move {
             Self::patch_task(
                 &id_clone,
                 &root_clone,
                 &addresses_clone,
                 &compile_sender_clone,
-                &mut patch_receiver,
+                &mut patch_request_receiver,
+                &patch_response_sender,
             )
             .await
         });
@@ -350,8 +374,8 @@ impl Document {
         let root_clone = root.clone();
         let addresses_clone = addresses.clone();
         let graph_clone = graph.clone();
-        let patch_sender_clone = patch_sender.clone();
-        let execute_sender_clone = execute_sender.clone();
+        let patch_sender_clone = patch_request_sender.clone();
+        let execute_sender_clone = execute_request_sender.clone();
         tokio::spawn(async move {
             Self::compile_task(
                 &id_clone,
@@ -362,7 +386,8 @@ impl Document {
                 &graph_clone,
                 &patch_sender_clone,
                 &execute_sender_clone,
-                &mut compile_receiver,
+                &mut compile_request_receiver,
+                &compile_response_sender,
             )
             .await
         });
@@ -374,7 +399,7 @@ impl Document {
         let addresses_clone = addresses.clone();
         let graph_clone = graph.clone();
         let kernels_clone = kernels.clone();
-        let patch_sender_clone = patch_sender.clone();
+        let patch_sender_clone = patch_request_sender.clone();
         tokio::spawn(async move {
             Self::execute_task(
                 &id_clone,
@@ -385,7 +410,8 @@ impl Document {
                 &graph_clone,
                 &kernels_clone,
                 &patch_sender_clone,
-                &mut execute_receiver,
+                &mut execute_request_receiver,
+                &execute_response_sender,
             )
             .await
         });
@@ -411,9 +437,14 @@ impl Document {
             relations: Default::default(),
             subscriptions: Default::default(),
 
-            patch_sender,
-            compile_sender,
-            execute_sender,
+            patch_request_sender,
+            patch_response_receiver,
+
+            compile_request_sender,
+            compile_response_receiver,
+
+            execute_request_sender,
+            execute_response_receiver,
         }
     }
 
@@ -445,9 +476,15 @@ impl Document {
             relations: Default::default(),
 
             root: Arc::new(RwLock::new(Node::Article(Article::default()))),
-            patch_sender: self.patch_sender.clone(),
-            compile_sender: self.compile_sender.clone(),
-            execute_sender: self.execute_sender.clone(),
+
+            patch_request_sender: self.patch_request_sender.clone(),
+            patch_response_receiver: self.patch_response_receiver.clone(),
+
+            compile_request_sender: self.compile_request_sender.clone(),
+            compile_response_receiver: self.compile_response_receiver.clone(),
+
+            execute_request_sender: self.execute_request_sender.clone(),
+            execute_response_receiver: self.execute_response_receiver.clone(),
         }
     }
 
@@ -724,31 +761,6 @@ impl Document {
         Ok(())
     }
 
-    /// Apply a [`Patch`] to the root node of the document
-    ///
-    /// # Arguments
-    ///
-    /// - `patch`: The patch to apply
-    ///
-    /// - `compile`: Should the document be compiled after the patch is applied?
-    ///
-    /// - `execute`: Should the document be executed after the patch is applied and it is compiled?
-    ///              If the patch as a `target` then the document will be executed from that
-    ///              node, otherwise the entire document will be executed.
-    ///
-    /// This function will trigger a recompile of the document
-    #[tracing::instrument(skip(self, patch))]
-    pub async fn patch(&self, patch: Patch, compile: bool, execute: bool) -> Result<()> {
-        self.patch_sender
-            .send(PatchRequest::new(patch, compile, execute))
-            .or_else(|_| {
-                bail!(
-                    "When sending patch message for document `{}`: the receiver has dropped",
-                    self.id
-                )
-            })
-    }
-
     /// A background task to patch the root node of the document on request
     ///
     /// Use an unbounded channel for sending patches, so that sending threads never
@@ -763,28 +775,77 @@ impl Document {
     ///
     /// - `addresses`: The [`AddressMap`] to use to locate nodes within the root
     ///                node (will be read locked)
-    ///
-    /// - `patch_receiver`: The ([`Patch`], compile, execute) tuple receiver
     async fn patch_task(
         id: &str,
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
         compile_sender: &mpsc::Sender<CompileRequest>,
-        patch_receiver: &mut mpsc::UnboundedReceiver<PatchRequest>,
+        request_receiver: &mut mpsc::UnboundedReceiver<PatchRequest>,
+        response_sender: &watch::Sender<PatchResponse>,
     ) {
-        while let Some(request) = patch_receiver.recv().await {
-            let start = request.patch.target.clone();
+        while let Some(request) = request_receiver.recv().await {
+            let mut patch = request.patch;
+            let start = patch.target.clone();
 
-            Self::patch_impl(id, root, addresses, request.patch).await;
+            // If the patch is empty then continue early rather than take locks etc
+            if patch.is_empty() {
+                continue;
+            }
 
+            // Obtain necessary locks
+            let root = &mut *root.write().await;
+            let addresses = &*addresses.read().await;
+
+            // If the patch has a `target` but no `address` then use `address_map` to populate the address
+            // for faster patch application.
+            if let (None, Some(node_id)) = (&patch.address, &patch.target) {
+                if let Some(address) = addresses.get(node_id) {
+                    patch.address = Some(address.clone());
+                }
+            }
+
+            // Apply the patch to the root node
+            apply(root, &patch);
+
+            // Publish the patch
+            patch.prepublish(root);
+            publish(
+                &["documents:", id, ":patched"].concat(),
+                &DocumentEvent {
+                    type_: DocumentEventType::Patched,
+                    patch: Some(patch),
+                    // TODO: The following are made `None` to keep the size of the event smaller but really
+                    // should be removed from the event (`Document:new()` is particularly wasteful of compute)
+                    document: Document::new(None, None),
+                    content: None,
+                    format: None,
+                },
+            );
+
+            // Send response
+            if let Err(..) = response_sender.send(PatchResponse::new(request.id.clone())) {
+                tracing::error!(
+                    "While sending patch response for document `{}`: channel closed",
+                    id
+                );
+            }
+
+            // Possibly compile
             if request.compile {
-                compile_sender
+                if let Err(error) = compile_sender
                     .send(CompileRequest {
                         id: request.id,
                         execute: request.execute,
                         start,
                     })
-                    .await;
+                    .await
+                {
+                    tracing::error!(
+                        "While sending compile request for document `{}`: {}",
+                        id,
+                        error
+                    );
+                }
             }
         }
     }
@@ -793,76 +854,29 @@ impl Document {
     ///
     /// # Arguments
     ///
-    /// - `id`: The id of the document (used in the published event topic)
+    /// - `patch`: The patch to apply
     ///
-    /// - `root`: The root [`Node`] to apply the patch to (will be write locked)
+    /// - `compile`: Should the document be compiled after the patch is applied?
     ///
-    /// - `addresses`: The [`AddressMap`] to use to locate nodes within the root
-    ///                node (will be read locked)
+    /// - `execute`: Should the document be executed after the patch is applied and it is compiled?
+    ///              If the patch as a `target` then the document will be executed from that
+    ///              node, otherwise the entire document will be executed.
     ///
-    /// - `patch`: The patch to apply and publish
-    async fn patch_impl(
-        id: &str,
-        root: &Arc<RwLock<Node>>,
-        addresses: &Arc<RwLock<AddressMap>>,
-        mut patch: Patch,
-    ) {
-        tracing::debug!("Applying patch to document `{}`", id);
+    /// This function will trigger a recompile of the document
+    #[tracing::instrument(skip(self, patch))]
+    pub async fn patch(&self, patch: Patch, compile: bool, execute: bool) -> Result<RequestId> {
+        tracing::debug!("Patching document `{}`", self.id);
 
-        // If the patch is empty then return early rather than take lock etc
-        if patch.is_empty() {
-            return;
-        }
+        let request = PatchRequest::new(patch, compile, execute);
+        let request_id = request.id.clone();
+        self.patch_request_sender.send(request).or_else(|_| {
+            bail!(
+                "When sending patch message for document `{}`: the receiver has dropped",
+                self.id
+            )
+        });
 
-        // Obtain necessary locks
-        let root = &mut *root.write().await;
-        let addresses = &*addresses.read().await;
-
-        // If the patch has a `target` but no `address` then use `address_map` to populate the address
-        // of faster patch application.
-        if let (None, Some(node_id)) = (&patch.address, &patch.target) {
-            if let Some(address) = addresses.get(node_id) {
-                patch.address = Some(address.clone());
-            }
-        }
-
-        // Apply the patch to the root node
-        apply(root, &patch);
-
-        // Publish the patch
-        patch.prepublish(root);
-        publish(
-            &["documents:", id, ":patched"].concat(),
-            &DocumentEvent {
-                type_: DocumentEventType::Patched,
-                patch: Some(patch),
-                // TODO: The following are made `None` to keep the size of the event smaller but really
-                // should be removed from the event (`Document:new()` is particularly wasteful of compute)
-                document: Document::new(None, None),
-                content: None,
-                format: None,
-            },
-        );
-    }
-
-    /// Compile the root node of the document
-    ///
-    /// Usually compilation is done by sending a request over `compile_sender` to the
-    /// background `compile_task`. However, in some cases (notably on initial loading
-    /// of the document into memory) compilation needs to be done inline, rather than
-    /// in the background, to avoid race conditions.
-    #[tracing::instrument(skip(self))]
-    pub async fn compile(&self) -> Result<()> {
-        Self::compile_impl(
-            &self.id,
-            &self.path,
-            &self.project,
-            &self.root,
-            &self.addresses,
-            &self.graph,
-            &self.patch_sender,
-        )
-        .await
+        Ok(request_id)
     }
 
     /// A background task to compile the root node of the document on request
@@ -897,12 +911,13 @@ impl Document {
         graph: &Arc<RwLock<Graph>>,
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
         execute_sender: &mpsc::Sender<ExecuteRequest>,
-        compile_receiver: &mut mpsc::Receiver<CompileRequest>,
+        request_receiver: &mut mpsc::Receiver<CompileRequest>,
+        response_sender: &watch::Sender<CompileResponse>,
     ) {
         let duration = Duration::from_millis(300);
         let mut last_request = None;
         loop {
-            match tokio::time::timeout(duration, compile_receiver.recv()).await {
+            match tokio::time::timeout(duration, request_receiver.recv()).await {
                 // Compile request received, so record it and continue to wait for timeout
                 Ok(Some(request)) => {
                     last_request = Some(request);
@@ -915,20 +930,36 @@ impl Document {
             };
 
             if let Some(request) = last_request {
-                if let Err(error) =
-                    Self::compile_impl(id, path, project, root, addresses, graph, patch_sender)
-                        .await
-                {
-                    tracing::error!("While compiling document `{}`: {}", id, error)
-                };
+                // Compile the root node
+                match compile(path, project, root, patch_sender).await {
+                    Ok((new_addresses, new_graph)) => {
+                        *addresses.write().await = new_addresses;
+                        *graph.write().await = new_graph;
+                    }
+                    Err(error) => tracing::error!("While compiling document `{}`: {}", id, error),
+                }
 
-                // Pass on request for execution
+                // Send response
+                if let Err(..) = response_sender.send(CompileResponse::new(request.id.clone())) {
+                    tracing::error!(
+                        "While sending patch response for document `{}`: channel closed",
+                        id
+                    );
+                }
+
+                // Possibly execute
                 if request.execute {
                     let execute_request = ExecuteRequest {
                         id: request.id.clone(),
                         start: request.start.clone(),
                     };
-                    execute_sender.send(execute_request).await;
+                    if let Err(error) = execute_sender.send(execute_request).await {
+                        tracing::error!(
+                            "While sending compile request for document `{}`: {}",
+                            id,
+                            error
+                        );
+                    }
                 }
 
                 last_request = None;
@@ -936,43 +967,54 @@ impl Document {
         }
     }
 
-    /// Compile the root node of the document and update its address map
-    /// and dependency graph
-    ///
-    /// # Arguments
-    ///
-    /// - `id`: The id of the document
-    ///
-    /// - `path`: The path of the document to be compiled
-    ///
-    /// - `project`: The project of the document to be compiled
-    ///
-    /// - `root`: The root [`Node`] to apply the compilation patch to
-    ///
-    /// - `addresses`: The [`AddressMap`] to be updated (will be write locked)
-    ///
-    /// - `graph`:  The [`Graph`] to be updated (will be write locked)
-    ///
-    /// - `patch_sender`: A [`PatchMessage`] sender
-    async fn compile_impl(
-        id: &str,
-        path: &Path,
-        project: &Path,
-        root: &Arc<RwLock<Node>>,
-        addresses: &Arc<RwLock<AddressMap>>,
-        graph: &Arc<RwLock<Graph>>,
-        patch_sender: &mpsc::UnboundedSender<PatchRequest>,
-    ) -> Result<()> {
-        tracing::debug!("Compiling document `{}`", id);
+    /// Compile the root node of the document in the background
+    #[tracing::instrument(skip(self))]
+    pub async fn compile(&self, execute: bool, start: Option<String>) -> Result<RequestId> {
+        tracing::debug!("Compiling document `{}`", self.id);
 
-        match compile(path, project, root, patch_sender).await {
-            Ok((new_addresses, new_graph)) => {
-                *addresses.write().await = new_addresses;
-                *graph.write().await = new_graph;
-                Ok(())
+        let request = CompileRequest::new(execute, start);
+        let request_id = request.id.clone();
+        self.compile_request_sender
+            .send(request)
+            .await
+            .or_else(|_| {
+                bail!(
+                    "When sending patch message for document `{}`: the receiver has dropped",
+                    self.id
+                )
+            });
+
+        Ok(request_id)
+    }
+
+    /// Compile the root node of the document and wait until finished
+    ///
+    /// This method is the same as `compile` but will wait for the compilation to finish
+    /// before returning. This is useful in some circumstances, such as ensuring the document
+    /// is compiled before HTML is encoded for it on initial opening.
+    #[tracing::instrument(skip(self))]
+    pub async fn compile_wait(&mut self, execute: bool, start: Option<String>) -> Result<()> {
+        let request_id = self.compile(execute, start).await?;
+
+        tracing::trace!(
+            "Waiting for compile response for document `{}` for request `{}`",
+            self.id,
+            request_id
+        );
+        loop {
+            self.compile_response_receiver.changed().await?;
+            let response = self.compile_response_receiver.borrow();
+            if response.id == request_id {
+                break;
             }
-            Err(error) => Err(error),
+            tracing::trace!(
+                "Ignoring compile response for document `{}` for request `{}`",
+                self.id,
+                response.id
+            );
         }
+
+        Ok(())
     }
 
     /// A background task to execute the root node of the document on request
@@ -1005,13 +1047,16 @@ impl Document {
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<KernelSpace>,
         patch_sender: &mpsc::UnboundedSender<PatchRequest>,
-        execute_receiver: &mut mpsc::Receiver<ExecuteRequest>,
+        request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
+        response_sender: &watch::Sender<ExecuteResponse>,
     ) {
-        while let Some(request) = execute_receiver.recv().await {
+        while let Some(request) = request_receiver.recv().await {
             let start = request
                 .start
                 .map(|node_id| resources::code(path, &node_id, "", None));
             let plan = graph.read().await.plan(start, None, None).await.unwrap();
+
+            // Execute the root node
             execute(
                 &plan,
                 root,
@@ -1021,26 +1066,71 @@ impl Document {
                 Some(kernel_space.clone()),
             )
             .await;
+
+            // Send response
+            if let Err(..) = response_sender.send(ExecuteResponse::new(request.id.clone())) {
+                tracing::error!(
+                    "While sending patch response for document `{}`: channel closed",
+                    id
+                );
+            }
         }
     }
 
-    /// Execute the document
+    /// Execute the root node of the document
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, start: Option<String>) -> Result<()> {
+    pub async fn execute(&self, start: Option<String>) -> Result<RequestId> {
         tracing::debug!("Executing document `{}`", self.id);
 
-        self.execute_sender
-            .send(ExecuteRequest::new(start))
+        let request = ExecuteRequest::new(start);
+        let request_id = request.id.clone();
+        self.execute_request_sender
+            .send(request)
             .await
             .or_else(|_| {
                 bail!(
                     "When sending execute message for document `{}`: the receiver has dropped",
                     self.id
                 )
-            })
+            });
+
+        Ok(request_id)
+    }
+
+    /// Execute the root node of the document and wait until finished
+    ///
+    /// This method is the same as `execute` but will wait for the compilation to finish
+    /// before returning. This is useful in some circumstances, such as ensuring the document
+    /// is executed before saving it to file.
+    #[tracing::instrument(skip(self))]
+    pub async fn execute_wait(&mut self, start: Option<String>) -> Result<()> {
+        let request_id = self.execute(start).await?;
+
+        tracing::trace!(
+            "Waiting for execute response for document `{}` for request `{}`",
+            self.id,
+            request_id
+        );
+        loop {
+            self.execute_response_receiver.changed().await?;
+            let response = self.execute_response_receiver.borrow();
+            if response.id == request_id {
+                break;
+            }
+            tracing::trace!(
+                "Ignoring execute response for document `{}` for request `{}`",
+                self.id,
+                response.id
+            );
+        }
+
+        Ok(())
     }
 
     /// Execute the document using an existing plan
+    ///
+    /// This method is currently only used from the CLI's `run` command where we also want to be
+    /// able to display the execution plan.
     #[tracing::instrument(skip(self, plan))]
     pub async fn execute_plan(&self, plan: &Plan) -> Result<()> {
         tracing::debug!("Executing plan for document `{}`", self.id);
@@ -1050,7 +1140,7 @@ impl Document {
             &self.root,
             &self.addresses,
             &self.graph,
-            &self.patch_sender,
+            &self.patch_request_sender,
             Some(self.kernels.clone()),
         )
         .await
@@ -1114,7 +1204,7 @@ impl Document {
         // Set the root and compile
         // TODO: Reconsider this in refactoring of alternative format representations of docs
         *self.root.write().await = root;
-        self.compile().await?;
+        self.compile_wait(false, None).await?;
 
         // Publish any events for which there are subscriptions (this will probably go elsewhere)
         for subscription in self.subscriptions.keys() {
@@ -1584,7 +1674,13 @@ impl Documents {
     /// Given that this function is likely to be called often, to avoid a `clone()` and
     /// to reduce WebSocket message sizes, unlike other functions it does not return the object.
     #[tracing::instrument(skip(self))]
-    pub async fn patch(&self, id: &str, patch: Patch, compile: bool, execute: bool) -> Result<()> {
+    pub async fn patch(
+        &self,
+        id: &str,
+        patch: Patch,
+        compile: bool,
+        execute: bool,
+    ) -> Result<RequestId> {
         let document_lock = self.get(id).await?;
         let document_guard = document_lock.lock().await;
         document_guard.patch(patch, compile, execute).await
@@ -1595,7 +1691,7 @@ impl Documents {
     /// Like `patch()`, given this function is likely to be called often, do not return
     /// the document.
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, id: &str, from: Option<String>) -> Result<()> {
+    pub async fn execute(&self, id: &str, from: Option<String>) -> Result<RequestId> {
         let document_lock = self.get(id).await?;
         let document_guard = document_lock.lock().await;
         document_guard.execute(from).await
