@@ -27,7 +27,7 @@ mod tests {
 
     use kernels::{Kernel, KernelType};
     use node_address::Slot;
-    use node_patch::{Operation};
+    use node_patch::Operation;
     use test_snaps::{
         fixtures,
         insta::{self, assert_json_snapshot},
@@ -63,7 +63,7 @@ mod tests {
             let project = path.parent().unwrap();
 
             // Compile the article and snapshot the result
-            let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<PatchMessage>();
+            let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<PatchRequest>();
             tokio::spawn(async move {
                 while let Some(_patch) = patch_receiver.recv().await {
                     // Ignore for this test
@@ -127,10 +127,10 @@ mod tests {
                 )
                 .await?;
 
-            let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<PatchMessage>();
+            let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<PatchRequest>();
             let patches = tokio::spawn(async move {
                 let mut patches = Vec::new();
-                while let Some(PatchMessage { mut patch, .. }) = patch_receiver.recv().await {
+                while let Some(PatchRequest { mut patch, .. }) = patch_receiver.recv().await {
                     // Redact execute time and duration from patch because they will
                     // change across test runs
                     for op in patch.ops.iter_mut() {

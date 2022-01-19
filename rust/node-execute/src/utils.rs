@@ -6,7 +6,7 @@ use node_pointer::resolve;
 use stencila_schema::Node;
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::PatchMessage;
+use crate::PatchRequest;
 
 /// Get the [`Node`] corresponding to a [`Resource`]
 ///
@@ -45,13 +45,9 @@ pub(crate) fn resource_to_node(
 }
 
 /// Sends a [`Patch`] using a channel sender (if the patch is not empty)
-pub(crate) fn send_patch(patch_sender: &UnboundedSender<PatchMessage>, patch: Patch) {
+pub(crate) fn send_patch(patch_sender: &UnboundedSender<PatchRequest>, patch: Patch) {
     if !patch.is_empty() {
-        let patch_message = PatchMessage {
-            patch,
-            compile: false,
-            execute: false,
-        };
+        let patch_message = PatchRequest::new(patch, false, false);
         if let Err(error) = patch_sender.send(patch_message) {
             tracing::debug!("When sending patch: {}", error);
         }
@@ -59,7 +55,7 @@ pub(crate) fn send_patch(patch_sender: &UnboundedSender<PatchMessage>, patch: Pa
 }
 
 /// Sends multiple [`Patch`]es using a channel sender (combining them into a single patch before sending)
-pub(crate) fn send_patches(patch_sender: &UnboundedSender<PatchMessage>, patches: Vec<Patch>) {
+pub(crate) fn send_patches(patch_sender: &UnboundedSender<PatchRequest>, patches: Vec<Patch>) {
     let patch = Patch::from_patches(patches);
     send_patch(patch_sender, patch)
 }

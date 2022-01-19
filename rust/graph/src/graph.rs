@@ -260,8 +260,10 @@ impl Graph {
     }
 
     /// Get a [`ResourceInfo`] object for a [`Resource`] in the graph
-    pub fn get_resource_info(&self, resource: &Resource) -> Option<&ResourceInfo> {
-        self.resources.get(resource)
+    pub fn get_resource_info(&self, resource: &Resource) -> Result<&ResourceInfo> {
+        self.resources
+            .get(resource)
+            .ok_or_else(|| eyre!("Graph as no info for resource: {}", resource.resource_id()))
     }
 
     /// Add a set of [`ResourceInfo`] objects to the graph
@@ -346,10 +348,7 @@ impl Graph {
             let mut dependencies_failed = 0;
             for incoming_index in incomings {
                 let dependency = &graph[incoming_index];
-                let dependency_info = self
-                    .resources
-                    .get(dependency)
-                    .ok_or_else(|| eyre!("No info for dependency"))?;
+                let dependency_info = self.get_resource_info(dependency)?;
 
                 // Update list of dependencies
                 if let Some(dependency_dependencies) = &dependency_info.dependencies {
@@ -566,10 +565,7 @@ impl Graph {
                 None => continue,
             };
 
-            let resource_info = self
-                .resources
-                .get(resource)
-                .ok_or_else(|| eyre!("No info for resource"))?;
+            let resource_info = self.get_resource_info(resource)?;
 
             // If this is not the explicitly executed resource `start`
             // and `autorun == Never` then exclude it and any following resources
@@ -637,9 +633,9 @@ impl Graph {
         options: PlanOptions,
     ) -> Result<Plan> {
         // First iteration, in topological order, to determine which resources to include
-        let mut include = HashSet::new();
+        let mut included = HashSet::new();
+        let mut excluded = HashSet::new();
         let mut started = start.is_none();
-        let mut nevers = HashSet::new();
         for resource in &self.topological_order {
             // Should we start collecting steps?
             if !started {
@@ -657,69 +653,99 @@ impl Graph {
                 continue;
             }
 
-            let resource_info = self
-                .resources
-                .get(resource)
-                .ok_or_else(|| eyre!("No info for resource"))?;
+            let start = if let Some(start) = &start {
+                start
+            } else {
+                // If `start` is None (i.e. whole document run) always include the resource and continue
+                included.insert(resource);
+                continue;
+            };
 
-            let dependencies: Vec<_> = resource_info.dependencies.iter().flatten().collect();
+            // Other resources will be included if:
+            //  - they are a code resource
+            //  - does not have `autorun == Never`
+            //  - does not have any dependencies that are stale and have `autorun == Never`
+            //    (there is no point running these) unless the dependency is `start`
+            let mut should_include = |resource_info: &ResourceInfo| -> Result<bool> {
+                // Cache set of excluded resources in particular to avoid the following loop
+                if excluded.contains(&resource_info.resource) {
+                    return Ok(false);
+                }
 
-            // If this is not the explicitly executed resource `start`...
-            if let Some(start) = &start {
-                if resource != start {
-                    // Exclude it if `start` is not in it's dependencies
-                    if !dependencies.contains(&start) {
-                        continue;
-                    }
-
-                    // If `autorun == Never` then exclude it and any downstream dependents
-                    if matches!(
+                if !matches!(resource_info.resource, Resource::Code(..))
+                    || matches!(
                         resource_info.execute_auto,
                         Some(CodeChunkExecuteAuto::Never)
-                    ) {
-                        nevers.insert(resource);
-                        continue;
-                    } else if dependencies
-                        .iter()
-                        .any(|dependency| nevers.contains(*dependency))
-                    {
-                        continue;
+                    )
+                {
+                    excluded.insert(resource_info.resource.clone());
+                    return Ok(false);
+                }
+
+                for dependency in resource_info.dependencies.iter().flatten() {
+                    if dependency != start && matches!(dependency, Resource::Code(..)) {
+                        let dependency_info = self.get_resource_info(dependency)?;
+                        if dependency_info.is_stale()
+                            && matches!(
+                                dependency_info.execute_auto,
+                                Some(CodeChunkExecuteAuto::Never)
+                            )
+                        {
+                            excluded.insert(resource_info.resource.clone());
+                            return Ok(false);
+                        }
                     }
                 }
-            }
 
-            // OK, we got this far, so include the resource
-            include.insert(resource);
+                Ok(true)
+            };
 
-            // Also, include any dependencies that are not yet included and which:
-            //
-            // - are `autorun == Always`
-            // - are not `autorun == Never`
-            // - are stale
+            let resource_info = self.get_resource_info(resource)?;
+            let dependencies: Vec<_> = resource_info.dependencies.iter().flatten().collect();
+
+            if resource == start {
+                // Resource is start so always include
+                included.insert(resource);
+            } else if dependencies.contains(&start) {
+                // Resource has start as a dependency so maybe include (if not blocked by other dependencies)
+                if should_include(resource_info)? {
+                    included.insert(resource);
+                } else {
+                    continue;
+                }
+            } else {
+                // Resource is not `start` and does not depend upon it
+                continue;
+            };
+
+            // If the resource was included then ensure any of its dependency that are stale or are
+            // `autorun == Always` are also included, as well as dependents of those dependencies
             for dependency in dependencies {
-                let dependency_info = self
-                    .resources
-                    .get(dependency)
-                    .ok_or_else(|| eyre!("No info for dependency"))?;
+                let dependency_info = self.get_resource_info(dependency)?;
+                if (matches!(
+                    dependency_info.execute_auto,
+                    Some(CodeChunkExecuteAuto::Always)
+                ) || dependency_info.is_stale())
+                    && should_include(dependency_info)?
+                {
+                    included.insert(dependency);
 
-                let execute = match dependency_info.execute_auto {
-                    Some(CodeChunkExecuteAuto::Always) => true,
-                    Some(CodeChunkExecuteAuto::Never) => false,
-                    _ => dependency_info.is_stale(),
-                };
-
-                if execute {
-                    include.insert(dependency);
+                    for dependent in dependency_info.dependents.iter().flatten() {
+                        let dependent_info = self.get_resource_info(dependent)?;
+                        if should_include(dependent_info)? {
+                            included.insert(dependent);
+                        }
+                    }
                 }
             }
         }
 
         // Second iteration, in topological order, to create stages and steps
-        let mut stages = Vec::with_capacity(include.len());
+        let mut stages = Vec::with_capacity(included.len());
         let mut stage: Stage = Stage::default();
         for resource in &self.topological_order {
             // Only include resources included above
-            if !include.contains(resource) {
+            if !included.contains(resource) {
                 continue;
             }
 
@@ -737,10 +763,7 @@ impl Graph {
                 None => continue,
             };
 
-            let resource_info = self
-                .resources
-                .get(resource)
-                .ok_or_else(|| eyre!("No info for resource"))?;
+            let resource_info = self.get_resource_info(resource)?;
 
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
             // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
