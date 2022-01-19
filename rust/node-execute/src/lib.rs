@@ -63,13 +63,14 @@ mod tests {
             let project = path.parent().unwrap();
 
             // Compile the article and snapshot the result
-            let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<PatchRequest>();
+            let (patch_request_sender, mut patch_request_receiver) =
+                mpsc::unbounded_channel::<PatchRequest>();
             tokio::spawn(async move {
-                while let Some(_patch) = patch_receiver.recv().await {
+                while let Some(_request) = patch_request_receiver.recv().await {
                     // Ignore for this test
                 }
             });
-            let (addresses, graph) = compile(path, project, &root, &patch_sender).await?;
+            let (addresses, graph) = compile(path, project, &root, &patch_request_sender).await?;
             snapshot_set_suffix(&[name, "-compile"].concat(), || {
                 assert_json_snapshot!((&addresses, &graph))
             });
@@ -127,10 +128,12 @@ mod tests {
                 )
                 .await?;
 
-            let (patch_sender, mut patch_receiver) = mpsc::unbounded_channel::<PatchRequest>();
+            let (patch_request_sender, mut patch_request_receiver) =
+                mpsc::unbounded_channel::<PatchRequest>();
             let patches = tokio::spawn(async move {
                 let mut patches = Vec::new();
-                while let Some(PatchRequest { mut patch, .. }) = patch_receiver.recv().await {
+                while let Some(PatchRequest { mut patch, .. }) = patch_request_receiver.recv().await
+                {
                     // Redact execute time and duration from patch because they will
                     // change across test runs
                     for op in patch.ops.iter_mut() {
@@ -147,17 +150,26 @@ mod tests {
                 patches
             });
 
+            let (compile_request_sender, mut compile_request_receiver) =
+                mpsc::channel::<CompileRequest>(100);
+            tokio::spawn(async move {
+                while let Some(_request) = compile_request_receiver.recv().await {
+                    // Ignore for this test
+                }
+            });
+
             execute(
                 &plan,
                 &root,
                 &Arc::new(RwLock::new(addresses)),
-                &Arc::new(RwLock::new(graph)),
-                &patch_sender,
+                &patch_request_sender,
+                &compile_request_sender,
                 None,
             )
             .await?;
 
-            drop(patch_sender);
+            drop(patch_request_sender);
+            drop(compile_request_sender);
 
             let _patches = patches.await?;
             /*

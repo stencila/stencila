@@ -400,6 +400,7 @@ impl Document {
         let graph_clone = graph.clone();
         let kernels_clone = kernels.clone();
         let patch_sender_clone = patch_request_sender.clone();
+        let compile_sender_clone = compile_request_sender.clone();
         tokio::spawn(async move {
             Self::execute_task(
                 &id_clone,
@@ -410,6 +411,7 @@ impl Document {
                 &graph_clone,
                 &kernels_clone,
                 &patch_sender_clone,
+                &compile_sender_clone,
                 &mut execute_request_receiver,
                 &execute_response_sender,
             )
@@ -1066,7 +1068,8 @@ impl Document {
         addresses: &Arc<RwLock<AddressMap>>,
         graph: &Arc<RwLock<Graph>>,
         kernel_space: &Arc<KernelSpace>,
-        patch_sender: &mpsc::UnboundedSender<PatchRequest>,
+        patch_request_sender: &mpsc::UnboundedSender<PatchRequest>,
+        compile_request_sender: &mpsc::Sender<CompileRequest>,
         request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
         response_sender: &watch::Sender<ExecuteResponse>,
     ) {
@@ -1083,8 +1086,8 @@ impl Document {
                 &plan,
                 root,
                 addresses,
-                graph,
-                patch_sender,
+                patch_request_sender,
+                compile_request_sender,
                 Some(kernel_space.clone()),
             )
             .await;
@@ -1161,8 +1164,8 @@ impl Document {
             plan,
             &self.root,
             &self.addresses,
-            &self.graph,
             &self.patch_request_sender,
+            &self.compile_request_sender,
             Some(self.kernels.clone()),
         )
         .await

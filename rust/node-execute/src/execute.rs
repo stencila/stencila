@@ -5,18 +5,20 @@ use std::{
 
 use eyre::{bail, Result};
 use futures::stream::{FuturesUnordered, StreamExt};
-use graph::{Graph, Plan};
+use graph::Plan;
 use graph_triples::Resource;
 use kernels::{KernelSelector, KernelSpace};
 use node_address::{Address, AddressMap};
 use node_patch::{diff, mutate, Patch};
 use stencila_schema::{CodeChunk, CodeExecutableExecuteStatus, CodeExpression, Node};
-use tokio::sync::{mpsc::UnboundedSender, RwLock};
+use tokio::sync::{
+    mpsc::{Sender, UnboundedSender},
+    RwLock,
+};
 
 use crate::{
-    compile_no_walk,
     utils::{resource_to_node, send_patch, send_patches},
-    Executable, PatchRequest,
+    CompileRequest, Executable, PatchRequest,
 };
 
 /// Execute a [`Plan`] on a [`Node`]
@@ -34,7 +36,10 @@ use crate::{
 /// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
 ///                  included in the plan within the `root` node; takes a read lock)
 ///
-/// - `patch_sender`: A [`Patch`] channel sender to send patches describing the changes to
+/// - `patch_request_sender`: A [`PatchRequest`] channel sender to send patches describing the changes to
+///                   executed nodes
+///
+/// - `compile_request_sender`: A [`CompileRequest`] channel sender to request re-compiles due to changes to
 ///                   executed nodes
 ///
 /// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
@@ -43,8 +48,8 @@ pub async fn execute(
     plan: &Plan,
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
-    graph: &Arc<RwLock<Graph>>,
-    patch_sender: &UnboundedSender<PatchRequest>,
+    patch_request_sender: &UnboundedSender<PatchRequest>,
+    compile_request_sender: &Sender<CompileRequest>,
     kernel_space: Option<Arc<KernelSpace>>,
 ) -> Result<()> {
     let kernel_space = kernel_space.unwrap_or_default();
@@ -85,7 +90,7 @@ pub async fn execute(
     // Set the `execute_status` of all nodes to `Scheduled` or `ScheduledPreviouslyFailed`
     // and send the resulting patch
     send_patches(
-        patch_sender,
+        patch_request_sender,
         nodes
             .values_mut()
             .map(|(_, node_id, node_address, node, ..)| {
@@ -198,7 +203,7 @@ pub async fn execute(
             };
             futures.push(future);
         }
-        send_patches(patch_sender, patches);
+        send_patches(patch_request_sender, patches);
 
         // Spawn all tasks in the stage and wait for each to finish, sending on the resultant `Patch`
         // for application and publishing (if it is not empty)
@@ -219,20 +224,23 @@ pub async fn execute(
             );
 
             // Send the patch reflecting the changed state of the executed node
-            send_patch(patch_sender, patch);
+            send_patch(patch_request_sender, patch);
 
             // Update the state of the node in this function's record of nodes
             nodes
                 .entry(resource_info.resource.clone())
                 .and_modify(|info| info.3 = node);
 
-            // Update the graph with new resource info
-            graph.write().await.update_resource_info(resource_info)?;
-
-            // Then do a recompile, using the graph, so that node properties such as
-            // `code_dependencies` and `code_dependents` get updated with the new execution status
-            // of nodes.
-            compile_no_walk(root, address_map, graph, patch_sender).await?;
+            // Send a patch request so that properties of other nodes such as `code_dependencies` and
+            // `code_dependents` get updated with the new execution status the node that was executed in
+            // this task. Previously we tried to take shortcut to this by just updating the graph and
+            // calling `compile_no_walk` ut that proved unreliable so instead make a (debounced) request
+            if let Err(..) = compile_request_sender
+                .send(CompileRequest::new(false, None))
+                .await
+            {
+                tracing::debug!("When sending compile request: receiver dropped");
+            }
         }
 
         tracing::debug!("Finished stage {}/{}", stage_index + 1, stage_count);
@@ -242,7 +250,7 @@ pub async fn execute(
     // restore their previous execution status
     if dependencies_failed {
         send_patches(
-            patch_sender,
+            patch_request_sender,
             nodes
                 .values_mut()
                 .map(|(_, node_id, node_address, node, execute_status)| {
