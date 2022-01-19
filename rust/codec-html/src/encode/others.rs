@@ -77,7 +77,7 @@ impl ToHtml for CodeExecutableCodeDependencies {
                     .map_or("".to_string(), |value| attr("node-id", value.as_str())),
                 label
                     .as_ref()
-                    .map_or("".to_string(), |value| attr("label", value.as_ref())),
+                    .map_or("".to_string(), |value| attr("label", value)),
                 programming_language
                     .as_ref()
                     .map_or("".to_string(), |value| attr("programming-language", value)),
