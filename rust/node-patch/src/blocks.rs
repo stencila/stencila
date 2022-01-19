@@ -83,6 +83,7 @@ patchable_struct!(QuoteBlock, content);
 patchable_struct!(CodeBlock, programming_language, text);
 patchable_struct!(
     CodeChunk,
+    id,
     programming_language,
     text,
     outputs,

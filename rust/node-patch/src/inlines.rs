@@ -185,6 +185,7 @@ patchable_struct!(CiteGroup, items);
 
 patchable_struct!(
     CodeExpression,
+    id,
     programming_language,
     text,
     output,
