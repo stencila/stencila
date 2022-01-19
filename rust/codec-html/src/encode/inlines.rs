@@ -381,14 +381,18 @@ impl ToHtml for CodeExpression {
             &self.text.to_html(context),
         );
 
-        let dependencies = elem_placeholder(
+        // For code_dependencies it is necessary to place the items in a <div> under
+        // the custom element to avoid elements added by the Web Component interfering
+        // with patch indexes.
+        let dependencies = elem(
             "stencila-code-dependencies",
-            &[
-                attr_prop("code-dependencies"),
-                attr_slot("code-dependencies"),
-            ],
-            &self.code_dependencies,
-            context,
+            &[attr_slot("code-dependencies")],
+            &elem_placeholder(
+                "div",
+                &[attr_prop("code-dependencies")],
+                &self.code_dependencies,
+                context,
+            ),
         );
 
         let output = elem_placeholder(

@@ -4,7 +4,6 @@ import { ElementId } from '../../types'
 import {
   assert,
   assertElement,
-  isComment,
   isElement,
   isName,
   isText,
@@ -176,17 +175,7 @@ export function resolveSlot(
     }
 
     // Select the child at the slot index
-    let children = Array.from(parent.childNodes)
-    if (isStencilaElement(parent)) {
-      // With `<stencila-...` custom elements the Web Components rendering can insert extraneous
-      // comment children (and text children around them) as well as menu item dividers,
-      // so filter those out before indexing
-      children = children.filter(
-        (child) =>
-          !(isComment(child) || isText(child) || isMenuItemDivider(child))
-      )
-    }
-    const child: ChildNode | undefined = children[slot]
+    const child: ChildNode | undefined = parent.childNodes[slot]
     if (child === undefined) {
       throw panic(
         `Unable to get slot '${slot}' from element with ${parent.childNodes.length} children`
@@ -294,17 +283,6 @@ export function resolveObjectKey(
  */
 export function isStencilaElement(elem: Element): boolean {
   return elem.tagName.startsWith('STENCILA')
-}
-
-/**
- * Is the element a <stencila-menu-item divider>?
- */
-export function isMenuItemDivider(node: Node): boolean {
-  return (
-    isElement(node) &&
-    node.tagName.startsWith('STENCILA-MENU-ITEM') &&
-    node.hasAttribute('divider')
-  )
 }
 
 /**

@@ -140,21 +140,30 @@ impl ToHtml for CodeChunk {
             &self.text.to_html(context),
         );
 
-        let dependencies = elem_placeholder(
+        // For code_dependencies and code_dependents it is necessary to
+        // place the items in a <div> under the custom element to avoid
+        // elements added by the Web Component interfering with patch indexes.
+
+        let dependencies = elem(
             "stencila-code-dependencies",
-            &[
-                attr_prop("code-dependencies"),
-                attr_slot("code-dependencies"),
-            ],
-            &self.code_dependencies,
-            context,
+            &[attr_slot("code-dependencies")],
+            &elem_placeholder(
+                "div",
+                &[attr_prop("code-dependencies")],
+                &self.code_dependencies,
+                context,
+            ),
         );
 
-        let dependents = elem_placeholder(
+        let dependents = elem(
             "stencila-code-dependencies",
-            &[attr_prop("code-dependents"), attr_slot("code-dependents")],
-            &self.code_dependents,
-            context,
+            &[attr_slot("code-dependents")],
+            &elem_placeholder(
+                "div",
+                &[attr_prop("code-dependents")],
+                &self.code_dependents,
+                context,
+            ),
         );
 
         let outputs = elem_placeholder(
