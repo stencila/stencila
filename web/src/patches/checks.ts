@@ -94,6 +94,13 @@ export function isText(node: Node | null | undefined): node is Text {
   return node?.nodeType === Node.TEXT_NODE
 }
 
+/**
+ * Is a DOM node a comment?
+ */
+export function isComment(node: Node | null | undefined): node is Comment {
+  return node?.nodeType === Node.COMMENT_NODE
+}
+
 export type JsonValue =
   | string
   | number

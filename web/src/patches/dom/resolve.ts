@@ -4,6 +4,7 @@ import { ElementId } from '../../types'
 import {
   assert,
   assertElement,
+  isComment,
   isElement,
   isName,
   isText,
@@ -174,8 +175,18 @@ export function resolveSlot(
       parent = parent.querySelector('ol') as Element
     }
 
-    // Select the child at the slot index.
-    const child: ChildNode | undefined = parent.childNodes[slot]
+    // Select the child at the slot index
+    let children = Array.from(parent.childNodes)
+    if (isStencilaElement(parent)) {
+      // With `<stencila-...` custom elements the Web Components rendering can insert extraneous
+      // comment children (and text children around them) as well as menu item dividers,
+      // so filter those out before indexing
+      children = children.filter(
+        (child) =>
+          !(isComment(child) || isText(child) || isMenuItemDivider(child))
+      )
+    }
+    const child: ChildNode | undefined = children[slot]
     if (child === undefined) {
       throw panic(
         `Unable to get slot '${slot}' from element with ${parent.childNodes.length} children`
@@ -200,7 +211,7 @@ export function resolveSlot(
     } else if (isText(child)) {
       return child
     } else {
-      throw panic('Unexpected node type')
+      throw panic(`Unexpected node type '${child.nodeName}' for slot '${slot}'`)
     }
   }
 }
@@ -276,6 +287,24 @@ export function resolveObjectKey(
       return dt
     }
   }
+}
+
+/**
+ * Is the element a Stencila custom element?
+ */
+export function isStencilaElement(elem: Element): boolean {
+  return elem.tagName.startsWith('STENCILA')
+}
+
+/**
+ * Is the element a <stencila-menu-item divider>?
+ */
+export function isMenuItemDivider(node: Node): boolean {
+  return (
+    isElement(node) &&
+    node.tagName.startsWith('STENCILA-MENU-ITEM') &&
+    node.hasAttribute('divider')
+  )
 }
 
 /**
