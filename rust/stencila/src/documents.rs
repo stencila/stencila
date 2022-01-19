@@ -784,6 +784,8 @@ impl Document {
         response_sender: &watch::Sender<PatchResponse>,
     ) {
         while let Some(request) = request_receiver.recv().await {
+            tracing::trace!("Patching document `{}` for request `{}`", &id, request.id);
+
             let mut patch = request.patch;
             let start = patch.target.clone();
 
@@ -792,23 +794,27 @@ impl Document {
                 continue;
             }
 
-            // Obtain necessary locks
-            let root = &mut *root.write().await;
-            let addresses = &*addresses.read().await;
+            // Block for minimal longevity locks
+            {
+                let root = &mut *root.write().await;
+                let addresses = &*addresses.read().await;
 
-            // If the patch has a `target` but no `address` then use `address_map` to populate the address
-            // for faster patch application.
-            if let (None, Some(node_id)) = (&patch.address, &patch.target) {
-                if let Some(address) = addresses.get(node_id) {
-                    patch.address = Some(address.clone());
+                // If the patch has a `target` but no `address` then use `address_map` to populate the address
+                // for faster patch application.
+                if let (None, Some(node_id)) = (&patch.address, &patch.target) {
+                    if let Some(address) = addresses.get(node_id) {
+                        patch.address = Some(address.clone());
+                    }
                 }
+
+                // Apply the patch to the root node
+                apply(root, &patch);
+
+                // Publish the patch
+                patch.prepublish(root);
             }
 
-            // Apply the patch to the root node
-            apply(root, &patch);
-
             // Publish the patch
-            patch.prepublish(root);
             publish(
                 &["documents:", id, ":patched"].concat(),
                 &DocumentEvent {
@@ -832,6 +838,11 @@ impl Document {
 
             // Possibly compile
             if request.compile {
+                tracing::trace!(
+                    "Sending compile request for document `{}` for request `{}`",
+                    &id,
+                    request.id
+                );
                 if let Err(error) = compile_sender
                     .send(CompileRequest {
                         id: request.id,
@@ -930,6 +941,8 @@ impl Document {
             };
 
             if let Some(request) = last_request {
+                tracing::trace!("Compiling document `{}` for request `{}`", &id, request.id);
+
                 // Compile the root node
                 match compile(path, project, root, patch_sender).await {
                     Ok((new_addresses, new_graph)) => {
@@ -949,13 +962,20 @@ impl Document {
 
                 // Possibly execute
                 if request.execute {
-                    let execute_request = ExecuteRequest {
-                        id: request.id.clone(),
-                        start: request.start.clone(),
-                    };
-                    if let Err(error) = execute_sender.send(execute_request).await {
+                    tracing::trace!(
+                        "Sending execute request for document `{}` for request `{}`",
+                        &id,
+                        request.id
+                    );
+                    if let Err(error) = execute_sender
+                        .send(ExecuteRequest {
+                            id: request.id.clone(),
+                            start: request.start.clone(),
+                        })
+                        .await
+                    {
                         tracing::error!(
-                            "While sending compile request for document `{}`: {}",
+                            "While sending execute request for document `{}`: {}",
                             id,
                             error
                         );
@@ -1051,6 +1071,8 @@ impl Document {
         response_sender: &watch::Sender<ExecuteResponse>,
     ) {
         while let Some(request) = request_receiver.recv().await {
+            tracing::trace!("Executing document `{}` for request `{}`", &id, request.id);
+
             let start = request
                 .start
                 .map(|node_id| resources::code(path, &node_id, "", None));

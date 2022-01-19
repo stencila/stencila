@@ -47,9 +47,9 @@ pub(crate) fn resource_to_node(
 /// Sends a [`Patch`] using a channel sender (if the patch is not empty)
 pub(crate) fn send_patch(patch_sender: &UnboundedSender<PatchRequest>, patch: Patch) {
     if !patch.is_empty() {
-        let patch_message = PatchRequest::new(patch, false, false);
-        if let Err(error) = patch_sender.send(patch_message) {
-            tracing::debug!("When sending patch: {}", error);
+        tracing::trace!("Sending patch request with `{}` operations", patch.ops.len());
+        if let Err(..) = patch_sender.send(PatchRequest::new(patch, false, false)) {
+            tracing::debug!("When sending patch: receiver dropped");
         }
     }
 }

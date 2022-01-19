@@ -167,8 +167,7 @@ fn compile_patches_and_send(
         })
         .collect();
 
-    // Derive some more properties from the first set, apply the new properties to the node, calculate patches and send them
-    // over `patch_sender` for application.
+    // Derive some more properties from the first set, apply the new properties to the node, calculate patches
     let patches = nodes
         .values()
         .map(
