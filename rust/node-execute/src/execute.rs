@@ -58,6 +58,10 @@ pub async fn execute(
 ) -> Result<()> {
     let kernel_space = kernel_space.unwrap_or_default();
 
+    // Drain the cancellation channel in case there are any requests inadvertantly
+    // sent by a client for a previous execute request.
+    while let Ok(..) = cancel_request_receiver.try_recv() {}
+
     // Obtain locks
     let root_guard = root.read().await;
     let address_map_guard = address_map.read().await;
@@ -99,45 +103,9 @@ pub async fn execute(
 
     // For each stage in plan...
     let stage_count = plan.stages.len();
+    let mut cancelled = Vec::new();
     let mut dependencies_failed = false;
     for (stage_index, stage) in plan.stages.iter().enumerate() {
-        // Before running the steps in this stage, check for any cancellation requests
-        // and remove nodes from the plan.
-        let mut was_cancelled = false;
-        while let Ok(request) = cancel_request_receiver.try_recv() {
-            if let Some(start) = request.start {
-                // A start node was specified...
-                if let Some(node_info) = node_infos.values_mut().find_map(|node_info| {
-                    if *node_info.node_id == start {
-                        Some(node_info)
-                    } else {
-                        None
-                    }
-                }) {
-                    // TODO: This just sets status to cancelled and stops the loop. It is
-                    // temporary
-                    send_patch(
-                        patch_request_sender,
-                        node_info.set_execute_status_cancelled(),
-                    );
-                    was_cancelled = true;
-                    break;
-                }
-            } else {
-                // TODO No start node was specified so cancel them all.
-                was_cancelled = true;
-                break;
-            }
-        }
-        if was_cancelled {
-            tracing::debug!(
-                "Received cancellation request before stage {}/{}",
-                stage_index + 1,
-                stage_count
-            );
-            break;
-        }
-
         // Before running the steps in this stage, check that all their dependencies have succeeded
         // and stop if they have not. Collects to a `BTreeSet` to generate unique set (some steps in
         // the stage may have shared dependencies)
@@ -173,16 +141,34 @@ pub async fn execute(
 
         tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
 
+        // Before creating tasks for each steps check for any cancellation requests
+        cancelled.append(&mut collect_cancelled_nodes(
+            &mut node_infos,
+            cancel_request_receiver,
+        ));
+
         // Create a kernel task for each step in this stage
         let step_count = stage.steps.len();
         let mut patches = Vec::with_capacity(step_count);
         let mut futures = Vec::with_capacity(step_count);
         for (step_index, step) in stage.steps.iter().enumerate() {
-            // Get the node
+            // Get the node info for the step
             let mut node_info = node_infos
                 .get(&step.resource_info.resource)
                 .cloned()
                 .expect("Node info for resource should be available");
+
+            // Has the step been cancelled?
+            if cancelled.contains(&node_info.node_id) {
+                tracing::trace!(
+                    "Step for node `{}` was cancelled before it was run",
+                    node_info.node_id
+                );
+                // Send a patch to revert `execute_status` to previous status
+                // (the `Cancelled` state is reserved for nodes that have started and are cancelled)
+                patches.push(node_info.restore_previous_execute_status());
+                continue;
+            }
 
             // Set the `execute_status` of the node to `Running` or `RunningPreviouslyFailed`
             // and send the resulting patch
@@ -205,14 +191,14 @@ pub async fn execute(
                 );
 
                 // Create a mutable draft of the node and execute it in the kernel space
-                let mut draft = node_info.node.clone();
-                match draft
+                let mut executed = node_info.node.clone();
+                match executed
                     .execute(&kernel_space, &kernel_selector, &resource_info, is_fork)
                     .await
                 {
                     Ok(_) => {
                         // Update the resource to indicate that the resource was executed
-                        let execute_status = match &draft {
+                        let execute_status = match &executed {
                             Node::CodeChunk(CodeChunk { execute_status, .. })
                             | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
                                 execute_status.clone()
@@ -222,11 +208,15 @@ pub async fn execute(
                         resource_info.did_execute(execute_status);
 
                         // Generate a patch for the differences resulting from execution
-                        let mut patch = diff(&node_info.node, &draft);
+                        let mut patch = diff(&node_info.node, &executed);
                         patch.address = Some(node_info.node_address.clone());
                         patch.target = Some(node_info.node_id.clone());
 
-                        Ok((step_index, resource_info, draft, patch))
+                        // Having generated the patch, update the node_info.node (which may be used
+                        // for assesing execution status etc)
+                        node_info.node = executed;
+
+                        Ok((step_index, resource_info, node_info, patch))
                     }
                     Err(error) => bail!(error),
                 }
@@ -242,34 +232,90 @@ pub async fn execute(
             .into_iter()
             .map(tokio::spawn)
             .collect::<FuturesUnordered<_>>();
-        while let Some(result) = results.next().await {
-            let (step_index, resource_info, node, patch) = result??;
 
+        if results.is_empty() {
             tracing::debug!(
-                "Finished step {}/{} of stage {}/{}",
-                step_index + 1,
-                step_count,
+                "Skipping stage {}/{}, all steps cancelled",
                 stage_index + 1,
                 stage_count
             );
+            continue;
+        }
 
-            // Send the patch reflecting the changed state of the executed node
-            send_patch(patch_request_sender, patch);
+        // Wait for both execution results and any cancellation requests and act
+        // accordingly
+        loop {
+            tokio::select! {
+                result = results.next() => {
+                    let result = match result {
+                        Some(result) => result,
+                        // If next() is none, we've reached the end of the tasks so break
+                        None => break
+                    };
+                    let result = match result {
+                        Ok(result) => match result {
+                            Ok(result) => Some(result),
+                            Err(error) => {
+                                tracing::error!("While executing a task: {}", error);
+                                None
+                            }
+                        },
+                        Err(error) => {
+                            tracing::error!("While attempting to join task: {}", error);
+                            None
+                        }
+                    };
 
-            // Update the state of the node in this function's record of nodes
-            node_infos
-                .entry(resource_info.resource.clone())
-                .and_modify(|node_info| node_info.node = node);
+                    if let Some((step_index, resource_info, mut node_info, patch)) = result {
+                        tracing::debug!(
+                            "Finished step {}/{} of stage {}/{}",
+                            step_index + 1,
+                            step_count,
+                            stage_index + 1,
+                            stage_count
+                        );
 
-            // Send a patch request so that properties of other nodes such as `code_dependencies` and
-            // `code_dependents` get updated with the new execution status the node that was executed in
-            // this task. Previously we tried to take shortcut to this by just updating the graph and
-            // calling `compile_no_walk` ut that proved unreliable so instead make a (debounced) request
-            if let Err(..) = compile_request_sender
-                .send(CompileRequest::new(false, None))
-                .await
-            {
-                tracing::debug!("When sending compile request: receiver dropped");
+                        // Check if step result should be ignored and node not patched
+                        if cancelled.contains(&node_info.node_id) {
+                            tracing::trace!(
+                                "Step for node `{}` was cancelled so result ignored",
+                                node_info.node_id
+                            );
+                            // Send patch to indicate that the node was cancelled i.e. side effects
+                            // may have occurred but node will not be patched
+                            send_patch(
+                                patch_request_sender,
+                                node_info.set_execute_status_cancelled(),
+                            );
+                        } else {
+                            // Send the patch reflecting the changed state of the executed node
+                            send_patch(patch_request_sender, patch);
+                        }
+
+                        // Update the node_info record used elsewhere in this function (mainly for the new execution status of nodes)
+                        node_infos
+                            .entry(resource_info.resource.clone())
+                            .and_modify(|current_node_info| *current_node_info = node_info);
+
+                        // Send a compile request so that properties of other nodes such as `code_dependencies` and
+                        // `code_dependents` get updated with the new execution status of the node.
+                        // Previously we tried to take shortcut to this by just updating the graph and
+                        // calling `compile_no_walk` but that proved unreliable so instead make a (debounced) request
+                        if let Err(..) = compile_request_sender
+                            .send(CompileRequest::new(false, None))
+                            .await
+                        {
+                            tracing::debug!("When sending compile request: receiver dropped");
+                        }
+                    }
+                }
+                Some(request) = cancel_request_receiver.recv() => {
+                    if let Some(start) = request.start {
+                        // Add to list of cancelled nodes
+                        // TODO cancel the actual task if possible
+                        cancelled.push(start);
+                    }
+                }
             }
         }
 
@@ -307,7 +353,7 @@ struct NodeInfo {
     /// A copy of the node
     ///
     /// We take a copy of the node initially at the start of [`execute`] and
-    /// then and send pathces for it to update stateus and execution results.
+    /// then and send pathces for it to update status and execution results.
     node: Node,
 
     /// The execution state of the node prior to [`execute`]
@@ -410,6 +456,8 @@ impl NodeInfo {
                         execute_status,
                         Some(CodeExecutableExecuteStatus::Scheduled)
                             | Some(CodeExecutableExecuteStatus::ScheduledPreviouslyFailed)
+                            | Some(CodeExecutableExecuteStatus::Running)
+                            | Some(CodeExecutableExecuteStatus::RunningPreviouslyFailed)
                     ) {
                         *execute_status = self.previous_execute_status.clone();
                     }
@@ -418,4 +466,26 @@ impl NodeInfo {
             },
         )
     }
+}
+
+fn collect_cancelled_nodes(
+    node_infos: &mut BTreeMap<Resource, NodeInfo>,
+    cancel_request_receiver: &mut Receiver<CancelRequest>,
+) -> Vec<String> {
+    let mut cancelled = Vec::new();
+    while let Ok(request) = cancel_request_receiver.try_recv() {
+        if let Some(start) = request.start {
+            // Cancel execution a specific node and optionally all its downsteams
+            cancelled.push(start)
+        } else {
+            // Cancel execution of all nodes
+            cancelled.append(
+                &mut node_infos
+                    .values()
+                    .map(|node_info| node_info.node_id.clone())
+                    .collect(),
+            );
+        }
+    }
+    cancelled
 }
