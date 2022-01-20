@@ -109,6 +109,13 @@ export const main = (
           return Promise.resolve({ ...node, output: '' })
         }
       })
+
+    // Temporary function for testing in the console
+    // @ts-ignore
+    window.stencilaCancel = async (nodeId: string) => {
+      const [client, document] = await startup()
+      await documents.cancel(client, document.id, nodeId)
+    }
   }
 
   // Shutdown and disconnect on page unload
