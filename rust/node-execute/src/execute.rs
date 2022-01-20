@@ -12,13 +12,13 @@ use node_address::{Address, AddressMap};
 use node_patch::{diff, mutate, Patch};
 use stencila_schema::{CodeChunk, CodeExecutableExecuteStatus, CodeExpression, Node};
 use tokio::sync::{
-    mpsc::{Receiver, Sender, UnboundedSender},
+    mpsc::{Receiver, UnboundedSender},
     RwLock,
 };
 
 use crate::{
     utils::{resource_to_node, send_patch, send_patches},
-    CancelRequest, CompileRequest, Executable, PatchRequest,
+    CancelRequest, Executable, PatchRequest,
 };
 
 /// Execute a [`Plan`] on a [`Node`]
@@ -39,9 +39,6 @@ use crate::{
 /// - `patch_request_sender`: A [`PatchRequest`] channel sender to send patches describing the changes to
 ///                   executed nodes
 ///
-/// - `compile_request_sender`: A [`CompileRequest`] channel sender to request re-compiles due to changes to
-///                   executed nodes
-///
 /// - `cancel_request_receiver`: A [`CancelRequest`] channel receiver to request cancellation of one or more
 ///                   steps in the plan
 ///
@@ -52,7 +49,6 @@ pub async fn execute(
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
     patch_request_sender: &UnboundedSender<PatchRequest>,
-    compile_request_sender: &Sender<CompileRequest>,
     cancel_request_receiver: &mut Receiver<CancelRequest>,
     kernel_space: Option<Arc<KernelSpace>>,
 ) -> Result<()> {
@@ -99,6 +95,7 @@ pub async fn execute(
             .values_mut()
             .map(|node_info| node_info.set_execute_status_scheduled())
             .collect(),
+        true,
     );
 
     // For each stage in plan...
@@ -223,7 +220,7 @@ pub async fn execute(
             };
             futures.push(future);
         }
-        send_patches(patch_request_sender, patches);
+        send_patches(patch_request_sender, patches, true);
 
         // Spawn all tasks in the stage and wait for each to finish, sending on the resultant `Patch`
         // for application and publishing (if it is not empty)
@@ -286,27 +283,17 @@ pub async fn execute(
                             send_patch(
                                 patch_request_sender,
                                 node_info.set_execute_status_cancelled(),
+                                true
                             );
                         } else {
                             // Send the patch reflecting the changed state of the executed node
-                            send_patch(patch_request_sender, patch);
+                            send_patch(patch_request_sender, patch, true);
                         }
 
                         // Update the node_info record used elsewhere in this function (mainly for the new execution status of nodes)
                         node_infos
                             .entry(resource_info.resource.clone())
                             .and_modify(|current_node_info| *current_node_info = node_info);
-
-                        // Send a compile request so that properties of other nodes such as `code_dependencies` and
-                        // `code_dependents` get updated with the new execution status of the node.
-                        // Previously we tried to take shortcut to this by just updating the graph and
-                        // calling `compile_no_walk` but that proved unreliable so instead make a (debounced) request
-                        if let Err(..) = compile_request_sender
-                            .send(CompileRequest::new(false, None))
-                            .await
-                        {
-                            tracing::debug!("When sending compile request: receiver dropped");
-                        }
                     }
                 }
                 Some(request) = cancel_request_receiver.recv() => {
@@ -331,6 +318,7 @@ pub async fn execute(
                 .values_mut()
                 .map(|node_info| node_info.restore_previous_execute_status())
                 .collect(),
+            true,
         );
     }
 
