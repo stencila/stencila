@@ -341,7 +341,7 @@ impl Document {
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
         let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
-        let kernels = Arc::new(KernelSpace::default());
+        let kernels = Arc::new(KernelSpace::new());
 
         let (patch_request_sender, mut patch_request_receiver) =
             mpsc::unbounded_channel::<PatchRequest>();
