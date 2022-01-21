@@ -396,8 +396,11 @@ pub struct Task {
 }
 
 impl Task {
-    /// Create a task
-    pub fn create(sender: Option<TaskSender>, canceller: Option<TaskCanceller>) -> Self {
+    /// Create a task that will be deferred until later
+    ///
+    /// Used when a kernel is busy an tasks need to be queued.
+    /// Until the task is started, the `canceller` will be used to remove it from said queue.
+    pub fn defer(sender: Option<TaskSender>, canceller: Option<TaskCanceller>) -> Self {
         Self {
             id: TaskId::new(),
             created: Utc::now(),
@@ -431,7 +434,7 @@ impl Task {
         }
     }
 
-    /// Start a task
+    /// Create and immeaditely start a task
     pub fn start(sender: Option<TaskSender>, canceller: Option<TaskCanceller>) -> Self {
         let now = Utc::now();
         Self {
@@ -446,12 +449,12 @@ impl Task {
         }
     }
 
-    /// Start a synchronous task
+    /// Create and immeadiately start a synchronous task
     pub fn start_sync() -> Self {
         Self::start(None, None)
     }
 
-    /// Start an asynchronous task
+    /// Create and immeaditely start an asynchronus task
     pub fn start_async(sender: TaskSender) -> Self {
         Self::start(Some(sender), None)
     }

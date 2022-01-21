@@ -978,10 +978,15 @@ impl KernelSpace {
     /// Used when a kernel is busy. Instead of dispatching the task to the kernel,
     /// add it to the task queue so it can be more easily, and less expensively, cancelled
     /// by simply removing it from the queue rather than interrupting the kernel.
+    ///
+    /// When using an execution `Plan` this method should not be necessary since the tasks
+    /// will usually only be created when the kernel is `Idle`. Nonetheless, this method
+    /// may be invoked in other circumstances such as when multiple background tasks are
+    /// dispatched to the same kernel from the CLI.
     async fn defer_task(&self, kernel_id: &str) -> Task {
         let (sender, ..) = broadcast::channel(1);
         let (canceller, mut cancellee) = mpsc::channel(1);
-        let task = Task::create(Some(sender), Some(canceller));
+        let task = Task::defer(Some(sender), Some(canceller));
 
         // Add the task to the queue for the kernel
         let mut queues = self.queues.lock().await;
