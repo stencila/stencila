@@ -37,7 +37,7 @@ pub fn apply_tags(
 ) {
     static REGEX_TAGS: Lazy<Regex> = Lazy::new(|| {
         Regex::new(
-            r"@(pure|impure|autorun|imports|assigns|alters|uses|reads|writes)((?:\s+).*?)?(\*/)?$",
+            r"@(pure|impure|autorun|imports|assigns|alters|uses|reads|writes|requires)((?:\s+).*?)?(\*/)?$",
         )
         .expect("Unable to create regex")
     });
@@ -76,6 +76,7 @@ pub fn apply_tags(
                 "uses" => relations::uses(range),
                 "reads" => relations::reads(range),
                 "writes" => relations::writes(range),
+                "requires" => relations::requires(range),
 
                 _ => continue,
             };
@@ -97,6 +98,7 @@ pub fn apply_tags(
                         resources::symbol(path, &arg, &kind.clone().unwrap_or_default())
                     }
                     "reads" | "writes" => resources::file(&PathBuf::from(arg)),
+                    "requires" => resources::code(path, &arg, "", None),
                     _ => continue,
                 };
                 pairs.push((relation.clone(), resource))

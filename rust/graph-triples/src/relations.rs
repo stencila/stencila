@@ -19,6 +19,7 @@ pub enum Relation {
     Read(Read),
     Use(Use),
     Write(Write),
+    Require(Require),
 }
 
 /// The two dimensional range that a relation is defined within some
@@ -118,4 +119,22 @@ pub struct Write {
 /// Create a new `Write` relation
 pub fn writes(range: Range) -> Relation {
     Relation::Write(Write { range })
+}
+
+/// Requires another code node to be executed first
+///
+/// Allows the dependency of one code resource on another to be
+/// explicitly declared, using its id, rather than relying on semantic
+/// analysis or `@uses` tags.
+#[derive(Debug, Clone, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct Require {
+    /// The range within code that the require is declared
+    /// (usually within a comment tag, `@requires`)
+    pub range: Range,
+}
+
+/// Create a new `Require` relation
+pub fn requires(range: Range) -> Relation {
+    Relation::Require(Require { range })
 }
