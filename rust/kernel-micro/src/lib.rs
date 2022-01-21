@@ -521,7 +521,7 @@ impl KernelTrait for MicroKernel {
         // Start async task to wait for result and send to receivers
         let task_id = task.id.clone();
         tokio::spawn(async move {
-            tracing::debug!("Began exec_fork task `{}`", task_id);
+            tracing::trace!("Began exec_fork task `{}`", task_id);
             let result = match fork.state().await.receive_result().await {
                 Ok((outputs, messages)) => TaskResult::new(outputs, messages),
                 Err(error) => {
@@ -544,19 +544,19 @@ impl KernelTrait for MicroKernel {
                     error
                 );
             }
-            tracing::debug!("Ended exec_fork task `{}`", task_id);
+            tracing::trace!("Ended exec_fork task `{}`", task_id);
         });
 
         // Start async task to listen for cancellation message
         // This should finish when the `canceller` is either triggered or dropped
         let task_id = task.id.clone();
         tokio::spawn(async move {
-            tracing::debug!("Began canceller for exec_fork task `{}` began", task_id);
+            tracing::trace!("Began canceller for exec_fork task `{}` began", task_id);
             if let Some(..) = cancellee.recv().await {
                 tracing::debug!("Cancelling exec_fork task `{}`", task_id);
                 signaller.kill()
             }
-            tracing::debug!("Ended canceller for exec_fork task `{}` ended", task_id);
+            tracing::trace!("Ended canceller for exec_fork task `{}` ended", task_id);
         });
 
         Ok(task)
@@ -609,11 +609,11 @@ impl MicroKernel {
         // Open the fork `stdout` and `stderr` FIFO pipes. These calls will block until the child
         // process has opened the pipes for writing. So perhaps this should have a timeout
         // in case that fails.
-        tracing::debug!("Waiting to open stdout");
+        tracing::trace!("Waiting to open stdout");
         let fork_stdout = File::open(fork_stdout).await?;
-        tracing::debug!("Waiting to open stderr");
+        tracing::trace!("Waiting to open stderr");
         let fork_stderr = File::open(fork_stderr).await?;
-        tracing::debug!("Fork has opened stdout and stderr");
+        tracing::trace!("Fork has opened stdout and stderr");
 
         Ok(Self {
             // Copied from parent..
