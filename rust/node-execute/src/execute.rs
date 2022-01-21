@@ -66,20 +66,35 @@ pub async fn execute(
     let mut node_infos: BTreeMap<Resource, NodeInfo> = plan
         .stages
         .iter()
-        .flat_map(|stage| stage.steps.iter())
-        .filter_map(|step| {
-            let resource_info = step.resource_info.clone();
-            let resource = &resource_info.resource;
-            match resource_to_node(resource, &root_guard, &address_map_guard) {
-                Ok((node, node_id, node_address)) => Some((
-                    resource.clone(),
-                    NodeInfo::new(resource_info, node_id, node_address, node),
-                )),
-                Err(error) => {
-                    tracing::warn!("While executing plan: {}", error);
-                    None
-                }
-            }
+        .enumerate()
+        .flat_map(|(stage_index, stage)| {
+            let root_guard = &root_guard;
+            let address_map_guard = &address_map_guard;
+            stage
+                .steps
+                .iter()
+                .enumerate()
+                .filter_map(move |(step_index, step)| {
+                    let resource_info = step.resource_info.clone();
+                    let resource = &resource_info.resource;
+                    match resource_to_node(resource, root_guard, address_map_guard) {
+                        Ok((node, node_id, node_address)) => Some((
+                            resource.clone(),
+                            NodeInfo::new(
+                                stage_index,
+                                step_index,
+                                resource_info,
+                                node_id,
+                                node_address,
+                                node,
+                            ),
+                        )),
+                        Err(error) => {
+                            tracing::warn!("While executing plan: {}", error);
+                            None
+                        }
+                    }
+                })
         })
         .collect();
 
@@ -87,13 +102,21 @@ pub async fn execute(
     drop(root_guard);
     drop(address_map_guard);
 
-    // Set the `execute_status` of all nodes to `Scheduled` or `ScheduledPreviouslyFailed`
-    // and send the resulting patch
+    // Set the `execute_status` of all nodes in stages other thatn the first
+    // to `Scheduled` or `ScheduledPreviouslyFailed` and send the resulting patch.
+    // Do not do this for first stage as an optimization to avoid unecessary patches
+    // (they will go directly to `Running` or `RunningPreviouslyFailed`)
     send_patches(
         patch_request_sender,
         node_infos
             .values_mut()
-            .map(|node_info| node_info.set_execute_status_scheduled())
+            .filter_map(|node_info| {
+                if node_info.stage_index != 0 {
+                    Some(node_info.set_execute_status_scheduled())
+                } else {
+                    None
+                }
+            })
             .collect(),
         true,
     );
@@ -138,7 +161,7 @@ pub async fn execute(
 
         tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
 
-        // Before creating tasks for each steps check for any cancellation requests
+        // Before creating tasks for each step in this stage, check for any cancellation requests
         cancelled.append(&mut collect_cancelled_nodes(
             &mut node_infos,
             cancel_request_receiver,
@@ -271,7 +294,7 @@ pub async fn execute(
             futures.push(future);
         }
 
-        // Send patches updated execution status
+        // Send patches for updated execution status
         send_patches(patch_request_sender, patches, true);
 
         if futures.is_empty() {
@@ -290,8 +313,7 @@ pub async fn execute(
             .map(tokio::spawn)
             .collect::<FuturesUnordered<_>>();
 
-        // Wait for both execution results and any cancellation requests and act
-        // accordingly
+        // Wait for both execution results and any cancellation requests and act accordingly
         loop {
             tokio::select! {
                 // Handle tasks that have finished
@@ -408,6 +430,12 @@ pub async fn execute(
 /// execution plan during its execution
 #[derive(Clone)]
 struct NodeInfo {
+    // The index of the stage of the plan the node is in
+    stage_index: usize,
+
+    // The index of the step in the stage associated with the node
+    step_index: usize,
+
     /// The associated [`ResourceInfo`]
     resource_info: ResourceInfo,
 
@@ -429,12 +457,16 @@ struct NodeInfo {
 
 impl NodeInfo {
     fn new(
+        stage_index: usize,
+        step_index: usize,
         resource_info: ResourceInfo,
         node_id: String,
         node_address: Address,
         node: Node,
     ) -> Self {
         let mut node_info = Self {
+            stage_index,
+            step_index,
             resource_info,
             node_id,
             node_address,
