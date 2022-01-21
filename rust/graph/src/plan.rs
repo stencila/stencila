@@ -12,7 +12,7 @@ pub struct Plan {
     pub options: PlanOptions,
 
     /// The stages to be executed
-    pub stages: Vec<Stage>,
+    pub stages: Vec<PlanStage>,
 }
 
 impl Plan {
@@ -35,9 +35,9 @@ pub struct PlanOptions {
     /// The ordering of nodes used when generating the plan
     pub ordering: PlanOrdering,
 
-    /// The maximum step concurrency
+    /// The maximum task concurrency
     ///
-    /// Limits the number of [`Step`]s that can be grouped together in a [`Stage`].
+    /// Limits the number of tasks that can be grouped together in a stage.
     /// Defaults to the number of logical CPU cores on the current machine.
     pub max_concurrency: usize,
 }
@@ -98,30 +98,29 @@ impl FromStr for PlanOrdering {
 
 /// A stage in an execution plan
 ///
-/// A stage represents a group of [`Step`]s that can be executed concurrently
+/// A stage represents a group of [`PlanTask`]s that can be executed concurrently
 /// (e.g. because they can be executed in different kernels or a kernel fork)
 #[derive(Debug, Default, Serialize)]
-pub struct Stage {
-    /// The steps to be executed
-    pub steps: Vec<Step>,
+pub struct PlanStage {
+    /// The tasks to be executed
+    pub tasks: Vec<PlanTask>,
 }
 
-impl Stage {
+impl PlanStage {
     pub fn to_markdown(&self) -> String {
-        self.steps
+        self.tasks
             .iter()
-            .map(|step| ["- ", &step.to_markdown()].concat())
+            .map(|task| ["- ", &task.to_markdown()].concat())
             .collect::<Vec<String>>()
             .join("\n")
     }
 }
 
-/// A step in an execution plan
+/// A task in an execution plan
 ///
-/// A step is the smallest unit in an execution plan and corresponds to a kernel [`Task`]
-/// (but to avoid confusion we use a different name here).
+/// A task is the smallest unit in an execution plan and corresponds to a kernel [`Task`]
 #[derive(Debug, Serialize)]
-pub struct Step {
+pub struct PlanTask {
     /// Information on the resource to be executed
     ///
     /// Passed to kernel for `symbols_used` etc
@@ -140,7 +139,7 @@ pub struct Step {
     pub is_fork: bool,
 }
 
-impl Step {
+impl PlanTask {
     pub fn to_markdown(&self) -> String {
         let node_type = self.resource_info.resource.node_type().unwrap_or("?");
         let node_id = self.resource_info.resource.node_id().unwrap_or("?");

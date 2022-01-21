@@ -63,7 +63,7 @@ pub struct Kernel {
 
     /// Is the kernel fork-able on the current machine?
     ///
-    /// Used when generating execution plans to determine which execution steps
+    /// Used when generating execution plans to determine which tasks
     /// can be conducted concurrently
     pub forkable: bool,
 }

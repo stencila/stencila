@@ -2210,7 +2210,7 @@ pub mod commands {
 
         /// Maximum concurrency for the execution plan
         ///
-        /// A maximum concurrency of 2 means that no more than two execution steps will
+        /// A maximum concurrency of 2 means that no more than two tasks will
         /// run at the same time (ie. in the same stage).
         /// Defaults to the number of CPUs on the machine.
         #[structopt(short, long)]

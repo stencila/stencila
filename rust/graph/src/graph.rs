@@ -28,7 +28,7 @@ use std::{
 use strum::Display;
 use utils::some_string;
 
-use crate::{Plan, PlanOptions, PlanOrdering, Stage, Step};
+use crate::{Plan, PlanOptions, PlanOrdering, PlanStage, PlanTask};
 
 /// A dependency graph for a project or document
 #[derive(Debug, Default, Clone)]
@@ -537,11 +537,11 @@ impl Graph {
         kernels: Vec<Kernel>,
         options: PlanOptions,
     ) -> Result<Plan> {
-        let mut stages: Vec<Stage> = Vec::with_capacity(self.appearance_order.len());
-        let mut stage: Stage = Stage::default();
+        let mut stages: Vec<PlanStage> = Vec::with_capacity(self.appearance_order.len());
+        let mut stage: PlanStage = PlanStage::default();
         let mut started = start.is_none();
         for resource in &self.appearance_order {
-            // Should we start collecting steps?
+            // Should we start collecting tasks?
             if !started {
                 if let Some(start) = &start {
                     started = start == resource;
@@ -580,28 +580,28 @@ impl Graph {
             }
 
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
-            // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
+            // and (c) the maximum concurrency has not been exceeded then execute the task in a fork
             let is_fork = kernel_forkable
                 && resource_info.is_pure()
-                && stage.steps.len() < options.max_concurrency.saturating_sub(1);
+                && stage.tasks.len() < options.max_concurrency.saturating_sub(1);
 
-            // Create the step and add it to the current stage
-            let step = Step {
+            // Create the task and add it to the current stage
+            let task = PlanTask {
                 resource_info: resource_info.clone(),
                 kernel_name,
                 is_fork,
             };
-            stage.steps.push(step);
+            stage.tasks.push(task);
 
             // If not in a fork, start a new stage.
             if !is_fork {
                 stages.push(stage);
-                stage = Stage::default();
+                stage = PlanStage::default();
             }
         }
 
-        // Collect any steps not yet added (e.g. a `CodeExpression` at end of document)
-        if !stage.steps.is_empty() {
+        // Collect any tasks not yet added (e.g. a `CodeExpression` at end of document)
+        if !stage.tasks.is_empty() {
             stages.push(stage);
         }
 
@@ -637,7 +637,7 @@ impl Graph {
         let mut excluded = HashSet::new();
         let mut started = start.is_none();
         for resource in &self.topological_order {
-            // Should we start collecting steps?
+            // Should we start collecting tasks?
             if !started {
                 if let Some(start) = &start {
                     started = start == resource;
@@ -740,9 +740,9 @@ impl Graph {
             }
         }
 
-        // Second iteration, in topological order, to create stages and steps
+        // Second iteration, in topological order, to create stages and tasks
         let mut stages = Vec::with_capacity(included.len());
-        let mut stage: Stage = Stage::default();
+        let mut stage: PlanStage = PlanStage::default();
         for resource in &self.topological_order {
             // Only include resources included above
             if !included.contains(resource) {
@@ -766,28 +766,28 @@ impl Graph {
             let resource_info = self.get_resource_info(resource)?;
 
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
-            // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
+            // and (c) the maximum concurrency has not been exceeded then execute the task in a fork
             let is_fork = kernel_forkable
                 && resource_info.is_pure()
-                && stage.steps.len() < options.max_concurrency.saturating_sub(1);
+                && stage.tasks.len() < options.max_concurrency.saturating_sub(1);
 
-            // Create the step and add it to the current stage
-            let step = Step {
+            // Create the task and add it to the current stage
+            let task = PlanTask {
                 resource_info: resource_info.clone(),
                 kernel_name,
                 is_fork,
             };
-            stage.steps.push(step);
+            stage.tasks.push(task);
 
             // If not in a fork, start a new stage.
             if !is_fork {
                 stages.push(stage);
-                stage = Stage::default();
+                stage = PlanStage::default();
             }
         }
 
-        // Collect any steps not yet added (e.g. a `CodeExpression` at end of document)
-        if !stage.steps.is_empty() {
+        // Collect any tasks not yet added (e.g. a `CodeExpression` at end of document)
+        if !stage.tasks.is_empty() {
             stages.push(stage);
         }
 

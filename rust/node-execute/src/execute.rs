@@ -36,11 +36,11 @@ use crate::{
 /// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
 ///                  included in the plan within the `root` node; takes a read lock)
 ///
-/// - `patch_request_sender`: A [`PatchRequest`] channel sender to send patches describing the changes to
-///                   executed nodes
+/// - `patch_request_sender`: A [`PatchRequest`] channel sender to send patches describing the
+///                   changes to executed nodes
 ///
-/// - `cancel_request_receiver`: A [`CancelRequest`] channel receiver to request cancellation of one or more
-///                   steps in the plan
+/// - `cancel_request_receiver`: A [`CancelRequest`] channel receiver to request cancellation of
+///                   one or more tasks in the plan
 ///
 /// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
 ///
@@ -71,18 +71,18 @@ pub async fn execute(
             let root_guard = &root_guard;
             let address_map_guard = &address_map_guard;
             stage
-                .steps
+                .tasks
                 .iter()
                 .enumerate()
-                .filter_map(move |(step_index, step)| {
-                    let resource_info = step.resource_info.clone();
+                .filter_map(move |(task_index, task)| {
+                    let resource_info = task.resource_info.clone();
                     let resource = &resource_info.resource;
                     match resource_to_node(resource, root_guard, address_map_guard) {
                         Ok((node, node_id, node_address)) => Some((
                             resource.clone(),
                             NodeInfo::new(
                                 stage_index,
-                                step_index,
+                                task_index,
                                 resource_info,
                                 node_id,
                                 node_address,
@@ -126,13 +126,13 @@ pub async fn execute(
     let mut cancelled = Vec::new();
     let mut dependencies_failed = false;
     for (stage_index, stage) in plan.stages.iter().enumerate() {
-        // Before running the steps in this stage, check that all their dependencies have succeeded
-        // and stop if they have not. Collects to a `BTreeSet` to generate unique set (some steps in
+        // Before running the tasks in this stage, check that all their dependencies have succeeded
+        // and stop if they have not. Collects to a `BTreeSet` to generate unique set (some tasks in
         // the stage may have shared dependencies)
         dependencies_failed = stage
-            .steps
+            .tasks
             .iter()
-            .flat_map(|step| step.resource_info.dependencies.iter().flatten())
+            .flat_map(|task| task.resource_info.dependencies.iter().flatten())
             .collect::<BTreeSet<&Resource>>()
             .iter()
             .filter_map(|dependency| node_infos.get(dependency))
@@ -161,26 +161,26 @@ pub async fn execute(
 
         tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
 
-        // Before creating tasks for each step in this stage, check for any cancellation requests
+        // Before creating tasks for each task in this stage, check for any cancellation requests
         cancelled.append(&mut collect_cancelled_nodes(
             &mut node_infos,
             cancel_request_receiver,
         ));
 
-        // Create a kernel task for each step in this stage
-        let step_count = stage.steps.len();
-        let mut patches = Vec::with_capacity(step_count);
+        // Create a kernel task for each task in this stage
+        let task_count = stage.tasks.len();
+        let mut patches = Vec::with_capacity(task_count);
         let mut cancellers = HashMap::new();
         let mut futures = Vec::new();
-        for (step_index, step) in stage.steps.iter().enumerate() {
-            // Get the node info for the step
+        for (task_index, task) in stage.tasks.iter().enumerate() {
+            // Get the node info for the task
             let mut node_info = node_infos
-                .get(&step.resource_info.resource)
+                .get(&task.resource_info.resource)
                 .cloned()
                 .expect("Node info for resource should be available");
             let node_id = node_info.node_id.clone();
 
-            // Has the step been cancelled?
+            // Has the task been cancelled?
             if cancelled.contains(&node_id) {
                 tracing::trace!(
                     "Step for node `{}` was cancelled before it was run",
@@ -201,16 +201,16 @@ pub async fn execute(
 
             // Create clones of variables needed to execute the task
             let kernel_space = kernel_space.clone();
-            let kernel_selector = KernelSelector::new(step.kernel_name.clone(), None, None);
-            let mut resource_info = step.resource_info.clone();
-            let is_fork = step.is_fork;
+            let kernel_selector = KernelSelector::new(task.kernel_name.clone(), None, None);
+            let mut resource_info = task.resource_info.clone();
+            let is_fork = task.is_fork;
 
             // Create a future for the task that will be spawned later
             let future = async move {
                 tracing::debug!(
-                    "Starting step {}/{} of stage {}/{}",
-                    step_index + 1,
-                    step_count,
+                    "Starting task {}/{} of stage {}/{}",
+                    task_index + 1,
+                    task_count,
                     stage_index + 1,
                     stage_count
                 );
@@ -226,9 +226,9 @@ pub async fn execute(
                     Ok(task_info) => task_info,
                     Err(error) => {
                         tracing::error!(
-                            "While beginning task for step {}/{}: {}",
-                            step_index + 1,
-                            step_count,
+                            "While beginning task {}/{}: {}",
+                            task_index + 1,
+                            task_count,
                             error
                         );
                         None
@@ -288,7 +288,7 @@ pub async fn execute(
                 // for assesing execution status etc)
                 node_info.node = executed;
 
-                Ok::<_, Report>((step_index, resource_info, node_info, patch))
+                Ok::<_, Report>((task_index, resource_info, node_info, patch))
             };
             cancellers.insert(node_id, cancel_sender);
             futures.push(future);
@@ -299,7 +299,7 @@ pub async fn execute(
 
         if futures.is_empty() {
             tracing::debug!(
-                "Skipping stage {}/{}, all steps cancelled",
+                "Skipping stage {}/{}, all tasks cancelled",
                 stage_index + 1,
                 stage_count
             );
@@ -337,16 +337,16 @@ pub async fn execute(
                         }
                     };
 
-                    if let Some((step_index, resource_info, mut node_info, patch)) = result {
+                    if let Some((task_index, resource_info, mut node_info, patch)) = result {
                         tracing::debug!(
-                            "Finished step {}/{} of stage {}/{}",
-                            step_index + 1,
-                            step_count,
+                            "Finished task {}/{} of stage {}/{}",
+                            task_index + 1,
+                            task_count,
                             stage_index + 1,
                             stage_count
                         );
 
-                        // Check if step result should be ignored and node not patched
+                        // Check if task result should be ignored and node not patched
                         if cancelled.contains(&node_info.node_id) {
                             tracing::trace!(
                                 "Step for node `{}` was cancelled so result ignored",
@@ -433,8 +433,8 @@ struct NodeInfo {
     // The index of the stage of the plan the node is in
     stage_index: usize,
 
-    // The index of the step in the stage associated with the node
-    step_index: usize,
+    // The index of the task in the stage associated with the node
+    task_index: usize,
 
     /// The associated [`ResourceInfo`]
     resource_info: ResourceInfo,
@@ -458,7 +458,7 @@ struct NodeInfo {
 impl NodeInfo {
     fn new(
         stage_index: usize,
-        step_index: usize,
+        task_index: usize,
         resource_info: ResourceInfo,
         node_id: String,
         node_address: Address,
@@ -466,7 +466,7 @@ impl NodeInfo {
     ) -> Self {
         let mut node_info = Self {
             stage_index,
-            step_index,
+            task_index,
             resource_info,
             node_id,
             node_address,
