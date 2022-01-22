@@ -515,9 +515,68 @@ impl Graph {
 
         let options = options.unwrap_or_default();
         match options.ordering {
+            PlanOrdering::Single => self.plan_single(start, kernels, options),
             PlanOrdering::Appearance => self.plan_appearance(start, kernels, options),
             PlanOrdering::Topological => self.plan_topological(start, kernels, options),
         }
+    }
+
+    /// Generate an execution plan for a single node
+    /// 
+    /// The start resource must be supplied and be a code node with a kernel
+    /// capable of executing it. If the kernel is forkable, and the code is
+    /// `@pure` (inferred or declared), then the code will be executed in a fork
+    /// to avoid any unintended side-effects.
+    ///
+    /// # Arguments
+    ///
+    /// - `start`: The node at which the plan should start. If `None` then
+    ///            starts at the first node in the document.
+    ///
+    /// - `kernels`: The kernels available to execute the plan
+    ///
+    /// - `options`: Options for the plan
+    pub fn plan_single(
+        &self,
+        start: Option<Resource>,
+        kernels: Vec<Kernel>,
+        options: PlanOptions,
+    ) -> Result<Plan> {
+        let resource = match start {
+            Some(start) => start,
+            None => {
+                bail!("A resource must be supplied for plan ordering `Single`")
+            }
+        };
+
+        let code = match &resource {
+            Resource::Code(code) => code,
+            _ => bail!("The resource must be a `Code` node for plan ordering `Simple`"),
+        };
+
+        let kernel = KernelSelector::new(None, code.language.clone(), None).select(&kernels);
+        let (kernel_name, kernel_forkable) = match kernel {
+            Some(kernel) => (Some(kernel.name.clone()), kernel.forkable),
+            None => bail!("There is no kernel available capable of executing the code"),
+        };
+
+        let resource_info = self.get_resource_info(&resource)?.clone();
+
+        let is_fork = kernel_forkable && resource_info.is_pure();
+
+        Ok(Plan {
+            options: PlanOptions {
+                ordering: PlanOrdering::Single,
+                ..options
+            },
+            stages: vec![PlanStage {
+                tasks: vec![PlanTask {
+                    resource_info,
+                    kernel_name,
+                    is_fork,
+                }],
+            }],
+        })
     }
 
     /// Generate an execution plan based on appearance order
@@ -529,6 +588,8 @@ impl Graph {
     ///
     /// - `start`: The node at which the plan should start. If `None` then
     ///            starts at the first node in the document.
+    ///
+    /// - `kernels`: The kernels available to execute the plan
     ///
     /// - `options`: Options for the plan
     pub fn plan_appearance(
@@ -621,9 +682,12 @@ impl Graph {
     ///
     /// # Arguments
     ///
-    /// - `start`: The node at which the plan should start. Only nodes that have `start`
-    ///            as a dependency (direct or transitive) will be executed. If `None` then
-    ///            the plan applies to all nodes in the document.
+    /// - `start`: The node at which the plan should start. Nodes that are upstream dependencies
+    ///            of `start` and are stale (and not `executeAuto == Never`) or are downstream
+    ///            dependent of `start` (and not `executeAuto == Never`) will be executed.
+    ///            If `None` then the plan includes all nodes in the document.
+    ///
+    /// - `kernels`: The kernels available to execute the plan
     ///
     /// - `options`: Options for the plan
     pub fn plan_topological(

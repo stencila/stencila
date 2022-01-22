@@ -75,6 +75,9 @@ impl Default for PlanOptions {
 /// The ordering of nodes used when generating a plan
 #[derive(Debug, Clone, Serialize, AsRefStr)]
 pub enum PlanOrdering {
+    /// Only a single, specified, node is to be executed
+    Single,
+
     /// Nodes are executed in the order that they appear in the
     /// document, top to bottom, left to right.
     Appearance,
@@ -89,9 +92,32 @@ impl FromStr for PlanOrdering {
 
     fn from_str(str: &str) -> Result<PlanOrdering> {
         Ok(match str.to_lowercase().as_str() {
+            "s" | "si" | "sin" | "single" => PlanOrdering::Single,
             "a" | "ap" | "app" | "appear" | "appearance" => PlanOrdering::Appearance,
             "t" | "to" | "top" | "topo" | "topological" => PlanOrdering::Topological,
             _ => bail!("Unrecognized plan ordering: {}", str),
+        })
+    }
+}
+
+/// The scope of a cancellation request
+#[derive(Debug, Clone, Serialize, AsRefStr)]
+pub enum PlanScope {
+    /// A single node in the current execution plan
+    Single,
+
+    /// All nodes in the current execution plan
+    All,
+}
+
+impl FromStr for PlanScope {
+    type Err = eyre::Report;
+
+    fn from_str(str: &str) -> Result<PlanScope> {
+        Ok(match str.to_lowercase().as_str() {
+            "s" | "si" | "sin" | "single" => PlanScope::Single,
+            "a" | "all" => PlanScope::All,
+            _ => bail!("Unrecognized plan scope: {}", str),
         })
     }
 }

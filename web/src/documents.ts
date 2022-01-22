@@ -178,30 +178,34 @@ export function receivePatch(clientId: ClientId, event: DocumentEvent): void {
 }
 
 /**
- * Execute a document node
+ * Execute a document
  */
 export async function execute(
   client: Client,
   documentId: DocumentId,
-  nodeId: NodeId
+  nodeId: null | NodeId,
+  ordering: 'Single' | 'Appearance' | 'Topological' = 'Topological'
 ): Promise<void> {
   return client.call('documents.execute', {
     documentId,
     nodeId,
+    ordering
   }) as Promise<void>
 }
 
 /**
- * Cancel execution of a document node
+ * Cancel execution of a document
  */
 export async function cancel(
   client: Client,
   documentId: DocumentId,
-  nodeId: NodeId
+  nodeId: null | NodeId,
+  scope: 'Single' | 'All' = 'All'
 ): Promise<void> {
   return client.call('documents.cancel', {
     documentId,
     nodeId,
+    scope
   }) as Promise<void>
 }
 

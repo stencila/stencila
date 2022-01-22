@@ -1,11 +1,13 @@
 use crate::{documents::DOCUMENTS, sessions::SESSIONS};
 use defaults::Defaults;
 use eyre::{bail, Result};
+use graph::{PlanOrdering, PlanScope};
 use node_patch::Patch;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
+use std::str::FromStr;
 
 type Params = HashMap<String, serde_json::Value>;
 
@@ -328,16 +330,24 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
 async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
     let node_id = optional_string(params, "nodeId")?;
+    let ordering = match optional_string(params, "ordering")? {
+        Some(ordering) => Some(PlanOrdering::from_str(&ordering)?),
+        None => None,
+    };
 
-    let document = DOCUMENTS.execute(&id, node_id).await?;
+    let document = DOCUMENTS.execute(&id, node_id, ordering).await?;
     Ok((json!(document), Subscription::None))
 }
 
 async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
     let node_id = optional_string(params, "nodeId")?;
+    let scope = match optional_string(params, "scope")? {
+        Some(scope) => Some(PlanScope::from_str(&scope)?),
+        None => None,
+    };
 
-    let document = DOCUMENTS.cancel(&id, node_id).await?;
+    let document = DOCUMENTS.cancel(&id, node_id, scope).await?;
     Ok((json!(document), Subscription::None))
 }
 
@@ -377,7 +387,9 @@ fn optional_string(params: &Params, name: &str) -> Result<Option<String>> {
     } else {
         return Ok(None);
     };
-    if let Some(param) = param.as_str() {
+    if param.is_null() {
+        Ok(None)
+    } else if let Some(param) = param.as_str() {
         Ok(Some(param.to_string()))
     } else {
         bail!(Error::invalid_param_error(&format!(

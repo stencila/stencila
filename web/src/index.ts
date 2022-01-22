@@ -110,11 +110,16 @@ export const main = (
         }
       })
 
-    // Temporary function for testing in the console
+    // Temporary functions for testing in the console
     // @ts-ignore
-    window.stencilaCancel = async (nodeId: string) => {
+    window.stencilaExecute = async (nodeId: null | string, ordering: 'Single' | 'Appearance' | 'Topological') => {
       const [client, document] = await startup()
-      await documents.cancel(client, document.id, nodeId)
+      await documents.execute(client, document.id, nodeId, ordering)
+    }
+    // @ts-ignore
+    window.stencilaCancel = async (nodeId: null | string, scope: 'Single' | 'All') => {
+      const [client, document] = await startup()
+      await documents.cancel(client, document.id, nodeId, scope)
     }
   }
 

@@ -2,7 +2,7 @@ use crate::utils::schemas;
 use events::publish;
 use eyre::{bail, Result};
 use formats::FormatSpec;
-use graph::{Graph, Plan};
+use graph::{Graph, Plan, PlanOrdering, PlanScope};
 use graph_triples::{resources, Relations};
 use kernels::KernelSpace;
 use maplit::hashset;
@@ -989,6 +989,7 @@ impl Document {
                         .send(ExecuteRequest {
                             id: request.id.clone(),
                             start: request.start.clone(),
+                            ordering: None,
                         })
                         .await
                     {
@@ -1121,10 +1122,14 @@ impl Document {
 
     /// Execute the root node of the document
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, start: Option<String>) -> Result<RequestId> {
-        tracing::debug!("Executing document `{}` starting at `{:?}`", self.id, start);
+    pub async fn execute(
+        &self,
+        start: Option<String>,
+        ordering: Option<PlanOrdering>,
+    ) -> Result<RequestId> {
+        tracing::debug!("Executing document `{}`", self.id);
 
-        let request = ExecuteRequest::new(start);
+        let request = ExecuteRequest::new(start, ordering);
         let request_id = request.id.clone();
         self.execute_request_sender
             .send(request)
@@ -1145,8 +1150,12 @@ impl Document {
     /// before returning. This is useful in some circumstances, such as ensuring the document
     /// is executed before saving it to file.
     #[tracing::instrument(skip(self))]
-    pub async fn execute_wait(&mut self, start: Option<String>) -> Result<()> {
-        let request_id = self.execute(start).await?;
+    pub async fn execute_wait(
+        &mut self,
+        start: Option<String>,
+        ordering: Option<PlanOrdering>,
+    ) -> Result<()> {
+        let request_id = self.execute(start, ordering).await?;
 
         tracing::trace!(
             "Waiting for execute response for document `{}` for request `{}`",
@@ -1195,17 +1204,19 @@ impl Document {
     ///
     /// # Arguments
     ///
-    /// - `start`: The node from which to cancel the execution "down" from
-    ///            (in topological order).
+    /// - `start`: The node whose execution should be cancelled.
+    ///
+    /// - `scope`: The scope of the cancellation (the `Single` node identified
+    ///            by `start` or `All` nodes in the current plan).
     #[tracing::instrument(skip(self))]
-    pub async fn cancel(&self, start: Option<String>) -> Result<RequestId> {
-        tracing::debug!(
-            "Cancelling execution of document `{}` starting at `{:?}`",
-            self.id,
-            start
-        );
+    pub async fn cancel(
+        &self,
+        start: Option<String>,
+        scope: Option<PlanScope>,
+    ) -> Result<RequestId> {
+        tracing::debug!("Cancelling execution of document `{}`", self.id);
 
-        let request = CancelRequest::new(start);
+        let request = CancelRequest::new(start, scope);
         let request_id = request.id.clone();
         self.cancel_request_sender.send(request).await.or_else(|_| {
             bail!(
@@ -1762,18 +1773,28 @@ impl Documents {
     /// Like `patch()`, given this function is likely to be called often, do not return
     /// the document.
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, id: &str, start: Option<String>) -> Result<RequestId> {
+    pub async fn execute(
+        &self,
+        id: &str,
+        start: Option<String>,
+        ordering: Option<PlanOrdering>,
+    ) -> Result<RequestId> {
         let document_lock = self.get(id).await?;
         let document_guard = document_lock.lock().await;
-        document_guard.execute(start).await
+        document_guard.execute(start, ordering).await
     }
 
     /// Cancel execution of a node within a document
     #[tracing::instrument(skip(self))]
-    pub async fn cancel(&self, id: &str, start: Option<String>) -> Result<RequestId> {
+    pub async fn cancel(
+        &self,
+        id: &str,
+        start: Option<String>,
+        scope: Option<PlanScope>,
+    ) -> Result<RequestId> {
         let document_lock = self.get(id).await?;
         let document_guard = document_lock.lock().await;
-        document_guard.cancel(start).await
+        document_guard.cancel(start, scope).await
     }
 
     /// Get a document that has previously been opened
