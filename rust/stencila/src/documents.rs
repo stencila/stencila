@@ -1763,52 +1763,6 @@ impl Documents {
         Ok((document_guard.repr(), topic))
     }
 
-    /// Patch a document
-    ///
-    /// Given that this function is likely to be called often, to avoid a `clone()` and
-    /// to reduce WebSocket message sizes, unlike other functions it does not return the object.
-    #[tracing::instrument(skip(self))]
-    pub async fn patch(
-        &self,
-        id: &str,
-        patch: Patch,
-        compile: bool,
-        execute: bool,
-    ) -> Result<RequestId> {
-        let document_lock = self.get(id).await?;
-        let document_guard = document_lock.lock().await;
-        document_guard.patch(patch, compile, execute).await
-    }
-
-    /// Execute a node within a document
-    ///
-    /// Like `patch()`, given this function is likely to be called often, do not return
-    /// the document.
-    #[tracing::instrument(skip(self))]
-    pub async fn execute(
-        &self,
-        id: &str,
-        start: Option<String>,
-        ordering: Option<PlanOrdering>,
-    ) -> Result<RequestId> {
-        let document_lock = self.get(id).await?;
-        let document_guard = document_lock.lock().await;
-        document_guard.execute(start, ordering).await
-    }
-
-    /// Cancel execution of a node within a document
-    #[tracing::instrument(skip(self))]
-    pub async fn cancel(
-        &self,
-        id: &str,
-        start: Option<String>,
-        scope: Option<PlanScope>,
-    ) -> Result<RequestId> {
-        let document_lock = self.get(id).await?;
-        let document_guard = document_lock.lock().await;
-        document_guard.cancel(start, scope).await
-    }
-
     /// Get a document that has previously been opened
     pub async fn get(&self, id: &str) -> Result<Arc<Mutex<Document>>> {
         if let Some(handler) = self.registry.lock().await.get(id) {

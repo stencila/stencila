@@ -323,8 +323,14 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
         .and_then(|value| value.as_bool())
         .unwrap_or(false);
 
-    let document = DOCUMENTS.patch(&id, patch, true, execute).await?;
-    Ok((json!(document), Subscription::None))
+    DOCUMENTS
+        .get(&id)
+        .await?
+        .lock()
+        .await
+        .patch(patch, true, execute)
+        .await?;
+    Ok((serde_json::Value::Null, Subscription::None))
 }
 
 async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
@@ -335,8 +341,14 @@ async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscr
         None => None,
     };
 
-    let document = DOCUMENTS.execute(&id, node_id, ordering).await?;
-    Ok((json!(document), Subscription::None))
+    DOCUMENTS
+        .get(&id)
+        .await?
+        .lock()
+        .await
+        .execute(node_id, ordering)
+        .await?;
+    Ok((serde_json::Value::Null, Subscription::None))
 }
 
 async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscription)> {
@@ -347,8 +359,14 @@ async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscri
         None => None,
     };
 
-    let document = DOCUMENTS.cancel(&id, node_id, scope).await?;
-    Ok((json!(document), Subscription::None))
+    DOCUMENTS
+        .get(&id)
+        .await?
+        .lock()
+        .await
+        .cancel(node_id, scope)
+        .await?;
+    Ok((serde_json::Value::Null, Subscription::None))
 }
 
 // Helper functions for getting JSON-RPC parameters and raising appropriate errors
