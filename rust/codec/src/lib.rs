@@ -7,6 +7,7 @@ use std::{
     path::Path,
 };
 use stencila_schema::Node;
+use utils::vec_string;
 
 // Re-export for the convenience of crates that implement `CodecTrait`
 pub use ::async_trait;
@@ -21,10 +22,11 @@ pub use utils;
 /// specification. Rust implementations return a `Codec` instance from the
 /// `spec` function of `CodecTrait`. Plugins provide a JSON or YAML serialization
 /// as part of their manifest.
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Codec {
-    /// A list of format names (or aliases) that the codec can handle
+    /// A list of format names (or aliases) that the codec can decode from
+    /// or encode to
     pub formats: Vec<String>,
 
     /// Whether the codec supports decoding from string content
@@ -59,10 +61,24 @@ pub struct Codec {
     /// when encoding using the codec.
     pub unsupported_properties: Vec<String>,
 
-    /// The status of the codec e.g. `alpha`, `beta`
-    ///
-    /// Leave a blank string for stable, production ready codecs.
+    /// The status of the codec e.g. `alpha`, `beta`, `stable`
     pub status: String,
+}
+
+impl Default for Codec {
+    fn default() -> Self {
+        Self {
+            formats: vec![],
+            from_string: true,
+            from_path: true,
+            to_string: true,
+            to_path: true,
+            root_types: vec_string!["Article"],
+            unsupported_types: vec![],
+            unsupported_properties: vec![],
+            status: "alpha".to_string(),
+        }
+    }
 }
 
 /// A trait for codecs
