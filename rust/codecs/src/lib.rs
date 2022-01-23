@@ -75,6 +75,8 @@ macro_rules! dispatch_builtins {
             Format::LaTeX => Some(codec_latex::LatexCodec::$method($($arg),*)),
             #[cfg(feature = "codec-pandoc")]
             Format::Pandoc => Some(codec_pandoc::PandocCodec::$method($($arg),*)),
+            #[cfg(feature = "codec-pdf")]
+            Format::Pdf => Some(codec_pdf::PdfCodec::$method($($arg),*)),
             #[cfg(feature = "codec-person")]
             Format::Person => Some(codec_person::PersonCodec::$method($($arg),*)),
             #[cfg(feature = "codec-md")]
@@ -120,6 +122,8 @@ impl Codecs {
             ("latex", codec_latex::LatexCodec::spec()),
             #[cfg(feature = "codec-pandoc")]
             ("pandoc", codec_pandoc::PandocCodec::spec()),
+            #[cfg(feature = "codec-pdf")]
+            ("pdf", codec_pdf::PdfCodec::spec()),
             #[cfg(feature = "codec-person")]
             ("person", codec_person::PersonCodec::spec()),
             #[cfg(feature = "codec-md")]
@@ -184,7 +188,7 @@ impl Codecs {
         }
 
         bail!(
-            "Unable to decode node from string with format `{}`: no matching codec found",
+            "Unable to decode from string with format `{}`: no matching codec found",
             format_spec.title
         )
     }
@@ -210,7 +214,7 @@ impl Codecs {
         }
 
         bail!(
-            "Unable to decode node from path with format `{}`: no matching codec found",
+            "Unable to decode from path with format `{}`: no matching codec found",
             format_spec.title
         )
     }
@@ -236,7 +240,7 @@ impl Codecs {
         }
 
         bail!(
-            "Unable to encode node to string of format `{}`: no matching codec found",
+            "Unable to encode to string of format `{}`: no matching codec found",
             format_spec.title
         )
     }
@@ -262,7 +266,7 @@ impl Codecs {
         }
 
         bail!(
-            "Unable to encode node to path of format `{}`: no matching codec found",
+            "Unable to encode to path with format `{}`: no matching codec found",
             format_spec.title
         )
     }

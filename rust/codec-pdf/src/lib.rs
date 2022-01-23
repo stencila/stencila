@@ -20,7 +20,9 @@ impl CodecTrait for PdfCodec {
             status: "alpha".to_string(),
             formats: vec_string!["pdf"],
             root_types: vec_string!["Article"],
-            to_path: true,
+            from_string: false,
+            from_path: false,
+            to_string: false,
             ..Default::default()
         }
     }
