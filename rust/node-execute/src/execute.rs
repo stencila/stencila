@@ -5,7 +5,7 @@ use std::{
 
 use eyre::{Report, Result};
 use futures::stream::{FuturesUnordered, StreamExt};
-use graph::Plan;
+use graph::{Plan, PlanScope};
 use graph_triples::{Resource, ResourceInfo};
 use kernels::{KernelSelector, KernelSpace};
 use node_address::{Address, AddressMap};
@@ -124,12 +124,11 @@ pub async fn execute(
     // For each stage in plan...
     let stage_count = plan.stages.len();
     let mut cancelled = Vec::new();
-    let mut dependencies_failed = false;
     for (stage_index, stage) in plan.stages.iter().enumerate() {
         // Before running the tasks in this stage, check that all their dependencies have succeeded
         // and stop if they have not. Collects to a `BTreeSet` to generate unique set (some tasks in
         // the stage may have shared dependencies)
-        dependencies_failed = stage
+        let dependencies_failed = stage
             .tasks
             .iter()
             .flat_map(|task| task.resource_info.dependencies.iter().flatten())
@@ -161,17 +160,30 @@ pub async fn execute(
 
         tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
 
-        // Before creating tasks for each task in this stage, check for any cancellation requests
-        cancelled.append(&mut collect_cancelled_nodes(
-            &mut node_infos,
-            cancel_request_receiver,
-        ));
-
-        // Create a kernel task for each task in this stage
         let task_count = stage.tasks.len();
         let mut patches = Vec::with_capacity(task_count);
-        let mut cancellers = HashMap::new();
         let mut futures = Vec::new();
+        let mut cancellers = HashMap::new();
+
+        // Before creating tasks check for any cancellation requests
+        let mut cancel_all = false;
+        while let Ok(request) = cancel_request_receiver.try_recv() {
+            cancel_all = handle_cancel_request(
+                request,
+                &node_infos,
+                &mut cancellers,
+                &mut cancelled,
+                patch_request_sender,
+            );
+            if cancel_all {
+                break;
+            }
+        }
+        if cancel_all {
+            break;
+        }
+
+        // Create a kernel task for each task in this stage
         for (task_index, task) in stage.tasks.iter().enumerate() {
             // Get the node info for the task
             let mut node_info = node_infos
@@ -183,12 +195,12 @@ pub async fn execute(
             // Has the task been cancelled?
             if cancelled.contains(&node_id) {
                 tracing::trace!(
-                    "Step for node `{}` was cancelled before it was run",
+                    "Execution of node `{}` was cancelled before it was started",
                     node_id
                 );
                 // Send a patch to revert `execute_status` to previous status
                 // (the `Cancelled` state is reserved for nodes that have started and are cancelled)
-                patches.push(node_info.restore_previous_execute_status());
+                patches.push(node_info.reset_execute_status());
                 continue;
             }
 
@@ -349,7 +361,7 @@ pub async fn execute(
                         // Check if task result should be ignored and node not patched
                         if cancelled.contains(&node_info.node_id) {
                             tracing::trace!(
-                                "Step for node `{}` was cancelled so result ignored",
+                                "Execution of node `{}` was cancelled so result was ignored",
                                 node_info.node_id
                             );
                             // Send patch to indicate that the node was cancelled i.e. side effects
@@ -371,37 +383,12 @@ pub async fn execute(
                     }
                 }
 
-                // Handle cancellation requests
+                // Handle cancellation requests, exiting the loop if the cancellation scope is
+                // `All` (i.e the whole plan)
                 Some(request) = cancel_request_receiver.recv() => {
-                    if let Some(node_id) = request.start {
-                        // Try to find matching cancel channel sender
-                        match cancellers.remove(&node_id) {
-                            Some(cancel_task_sender) => {
-                                tracing::debug!("Cancelling node `{}` in stage {}/{}",
-                                    node_id,
-                                    stage_index + 1,
-                                    stage_count
-                                );
-                                if let Err(..) = cancel_task_sender.send(()) {
-                                    tracing::error!(
-                                        "While attempting to cancel node `{}` in stage {}/{}: channel closed",
-                                        node_id,
-                                        stage_index + 1,
-                                        stage_count
-                                    );
-                                }
-                            },
-                            None => {
-                                tracing::debug!(
-                                    "No canceller for node `{}` in stage {}/{}: already cancelled?",
-                                    node_id,
-                                    stage_index + 1,
-                                    stage_count
-                                );
-                            }
-                        }
-                        // Add to list of cancelled nodes
-                        cancelled.push(node_id);
+                    let all = handle_cancel_request(request, &node_infos, &mut cancellers, &mut cancelled, patch_request_sender);
+                    if all {
+                        break;
                     }
                 }
             }
@@ -410,18 +397,16 @@ pub async fn execute(
         tracing::debug!("Finished stage {}/{}", stage_index + 1, stage_count);
     }
 
-    // For nodes that were scheduled but never got to run because dependencies did not succeed,
-    // restore their previous execution status
-    if dependencies_failed {
-        send_patches(
-            patch_request_sender,
-            node_infos
-                .values_mut()
-                .map(|node_info| node_info.restore_previous_execute_status())
-                .collect(),
-            true,
-        );
-    }
+    // For nodes that were scheduled but never got to run (e.g. because dependencies did not succeed
+    // or the plan was cancelled), or were running but got cancelled, reset execute status
+    send_patches(
+        patch_request_sender,
+        node_infos
+            .values_mut()
+            .map(|node_info| node_info.reset_execute_status())
+            .collect(),
+        true,
+    );
 
     Ok(())
 }
@@ -543,7 +528,7 @@ impl NodeInfo {
         )
     }
 
-    fn restore_previous_execute_status(&mut self) -> Patch {
+    fn reset_execute_status(&mut self) -> Patch {
         mutate(
             &mut self.node,
             Some(self.node_id.to_string()),
@@ -551,14 +536,18 @@ impl NodeInfo {
             &|node: &mut Node| match node {
                 Node::CodeChunk(CodeChunk { execute_status, .. })
                 | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                    if matches!(
-                        execute_status,
+                    match execute_status {
                         Some(CodeExecutableExecuteStatus::Scheduled)
-                            | Some(CodeExecutableExecuteStatus::ScheduledPreviouslyFailed)
-                            | Some(CodeExecutableExecuteStatus::Running)
-                            | Some(CodeExecutableExecuteStatus::RunningPreviouslyFailed)
-                    ) {
-                        *execute_status = self.previous_execute_status.clone();
+                        | Some(CodeExecutableExecuteStatus::ScheduledPreviouslyFailed) => {
+                            *execute_status = self.previous_execute_status.clone()
+                        }
+
+                        Some(CodeExecutableExecuteStatus::Running)
+                        | Some(CodeExecutableExecuteStatus::RunningPreviouslyFailed) => {
+                            *execute_status = Some(CodeExecutableExecuteStatus::Cancelled)
+                        }
+
+                        _ => {}
                     }
                 }
                 _ => {}
@@ -567,24 +556,86 @@ impl NodeInfo {
     }
 }
 
-fn collect_cancelled_nodes(
-    node_infos: &mut BTreeMap<Resource, NodeInfo>,
-    cancel_request_receiver: &mut Receiver<CancelRequest>,
-) -> Vec<String> {
-    let mut cancelled = Vec::new();
-    while let Ok(request) = cancel_request_receiver.try_recv() {
-        if let Some(start) = request.start {
-            // Cancel execution a specific node and optionally all its downsteams
-            cancelled.push(start)
-        } else {
-            // Cancel execution of all nodes
-            cancelled.append(
-                &mut node_infos
-                    .values()
-                    .map(|node_info| node_info.node_id.clone())
-                    .collect(),
-            );
+fn get_node_info(node_infos: &BTreeMap<Resource, NodeInfo>, node_id: &str) -> Option<NodeInfo> {
+    for node_info in node_infos.values() {
+        if node_info.node_id == node_id {
+            return Some(node_info.clone());
         }
     }
-    cancelled
+    None
+}
+
+fn handle_cancel_request(
+    request: CancelRequest,
+    node_infos: &BTreeMap<Resource, NodeInfo>,
+    cancellers: &mut HashMap<String, oneshot::Sender<()>>,
+    cancelled: &mut Vec<String>,
+    patch_request_sender: &UnboundedSender<PatchRequest>,
+) -> bool {
+    let node_id = request.start;
+    let scope = request.scope.unwrap_or(PlanScope::Single);
+
+    match scope {
+        PlanScope::Single => {
+            let node_id = match node_id {
+                Some(node_id) => node_id,
+                None => {
+                    tracing::error!(
+                        "Cancellation scope is `Single` but no node id supplied: ignored"
+                    );
+                    return false;
+                }
+            };
+
+            // If the node is currently running cancel it
+            if let Some(canceller) = cancellers.remove(&node_id) {
+                tracing::debug!("Cancelling running node `{}`", node_id);
+                if let Err(..) = canceller.send(()) {
+                    tracing::error!(
+                        "While attempting to cancel node `{}`: channel closed",
+                        node_id
+                    );
+                } else if let Some(mut node_info) = get_node_info(node_infos, &node_id) {
+                    send_patch(
+                        patch_request_sender,
+                        node_info.set_execute_status_cancelled(),
+                        true,
+                    );
+                }
+            }
+
+            // Add to list of cancelled nodes so if scheduled, does not get run
+            cancelled.push(node_id);
+
+            false
+        }
+        PlanScope::All => {
+            let mut node_ids: Vec<String> = node_infos
+                .values()
+                .map(|node_info| node_info.node_id.clone())
+                .collect();
+
+            // Cancel all nodes that are currently running
+            tracing::debug!("Cancelling all running nodes");
+            let mut patches = Vec::new();
+            for node_id in node_ids.iter() {
+                if let Some(canceller) = cancellers.remove(node_id) {
+                    if let Err(..) = canceller.send(()) {
+                        tracing::error!(
+                            "While attempting to cancel node `{}`: channel closed",
+                            node_id
+                        );
+                    } else if let Some(mut node_info) = get_node_info(node_infos, node_id) {
+                        patches.push(node_info.set_execute_status_cancelled());
+                    }
+                }
+            }
+            send_patches(patch_request_sender, patches, true);
+
+            // Add all nodes in the plan to list of cancelled nodes
+            cancelled.append(&mut node_ids);
+
+            true
+        }
+    }
 }

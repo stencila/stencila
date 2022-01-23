@@ -263,7 +263,24 @@ impl Graph {
     pub fn get_resource_info(&self, resource: &Resource) -> Result<&ResourceInfo> {
         self.resources
             .get(resource)
-            .ok_or_else(|| eyre!("Graph as no info for resource: {}", resource.resource_id()))
+            .ok_or_else(|| eyre!("Graph has no info for resource: {}", resource.resource_id(),))
+    }
+
+    /// Find a [`ResourceInfo`] object for a [`Resource`] that is equal to one in the graph
+    ///
+    /// Even though `self.resources` is keyed by `Resource`, it seems to be necessary to
+    /// use `find` (and the equality operator) when attempting to get resources that are not
+    /// aleady a key in `resources`.
+    pub fn find_resource_info(&self, resource: &Resource) -> Result<&ResourceInfo> {
+        self.resources
+            .values()
+            .find(|resource_info| resource_info.resource == *resource)
+            .ok_or_else(|| {
+                eyre!(
+                    "Could not find info for resource: {}",
+                    resource.resource_id(),
+                )
+            })
     }
 
     /// Add a set of [`ResourceInfo`] objects to the graph
@@ -522,7 +539,7 @@ impl Graph {
     }
 
     /// Generate an execution plan for a single node
-    /// 
+    ///
     /// The start resource must be supplied and be a code node with a kernel
     /// capable of executing it. If the kernel is forkable, and the code is
     /// `@pure` (inferred or declared), then the code will be executed in a fork
@@ -542,14 +559,19 @@ impl Graph {
         kernels: Vec<Kernel>,
         options: PlanOptions,
     ) -> Result<Plan> {
-        let resource = match start {
+        let start = match start {
             Some(start) => start,
             None => {
                 bail!("A resource must be supplied for plan ordering `Single`")
             }
         };
 
-        let code = match &resource {
+        // Get the `ResourceInfo` and `Resource` for `start` which have more information
+        // (such as the code language etc)
+        let resource_info = self.find_resource_info(&start)?.clone();
+        let resource = &resource_info.resource;
+
+        let code = match resource {
             Resource::Code(code) => code,
             _ => bail!("The resource must be a `Code` node for plan ordering `Simple`"),
         };
@@ -559,8 +581,6 @@ impl Graph {
             Some(kernel) => (Some(kernel.name.clone()), kernel.forkable),
             None => bail!("There is no kernel available capable of executing the code"),
         };
-
-        let resource_info = self.get_resource_info(&resource)?.clone();
 
         let is_fork = kernel_forkable && resource_info.is_pure();
 

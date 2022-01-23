@@ -2,7 +2,7 @@ use crate::utils::schemas;
 use events::publish;
 use eyre::{bail, Result};
 use formats::FormatSpec;
-use graph::{Graph, Plan, PlanOrdering, PlanScope};
+use graph::{Graph, Plan, PlanOptions, PlanOrdering, PlanScope};
 use graph_triples::{resources, Relations};
 use kernels::KernelSpace;
 use maplit::hashset;
@@ -1093,12 +1093,24 @@ impl Document {
         while let Some(request) = execute_request_receiver.recv().await {
             tracing::trace!("Executing document `{}` for request `{}`", &id, request.id);
 
+            // Generate the execution plan
             let start = request
                 .start
                 .map(|node_id| resources::code(path, &node_id, "", None));
-            let plan = graph.read().await.plan(start, None, None).await.unwrap();
+            let ordering = request.ordering.unwrap_or(PlanOrdering::Topological);
+            let options = PlanOptions {
+                ordering,
+                ..Default::default()
+            };
+            let plan = match graph.read().await.plan(start, None, Some(options)).await {
+                Ok(plan) => plan,
+                Err(error) => {
+                    tracing::error!("While generating execution plan: {}", error);
+                    continue;
+                }
+            };
 
-            // Execute the root node
+            // Execute the plan on the root node
             execute(
                 &plan,
                 root,
