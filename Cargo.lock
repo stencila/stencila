@@ -709,6 +709,7 @@ dependencies = [
  "eyre",
  "serde",
  "stencila-schema",
+ "tokio",
  "utils",
 ]
 
