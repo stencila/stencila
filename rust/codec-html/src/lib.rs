@@ -19,6 +19,7 @@ pub struct HtmlCodec {}
 impl CodecTrait for HtmlCodec {
     fn spec() -> Codec {
         Codec {
+            status: "beta".to_string(),
             formats: vec_string!["html"],
             root_types: vec_string!["*"],
             from_string: cfg!(feature = "decode"),
