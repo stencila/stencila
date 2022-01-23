@@ -261,7 +261,11 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "is_fork": true
-        },
+        }
+      ]
+    },
+    {
+      "tasks": [
         {
           "resource_info": {
             "resource": {
@@ -485,7 +489,11 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "is_fork": true
-        },
+        }
+      ]
+    },
+    {
+      "tasks": [
         {
           "resource_info": {
             "resource": {

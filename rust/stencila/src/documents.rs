@@ -989,7 +989,7 @@ impl Document {
                         .send(ExecuteRequest {
                             id: request.id.clone(),
                             start: request.start.clone(),
-                            ordering: None
+                            ordering: None,
                         })
                         .await
                     {

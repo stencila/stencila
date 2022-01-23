@@ -666,18 +666,27 @@ impl Graph {
                 && resource_info.is_pure()
                 && stage.tasks.len() < options.max_concurrency.saturating_sub(1);
 
-            // Create the task and add it to the current stage
+            // Create the task
             let task = PlanTask {
                 resource_info: resource_info.clone(),
                 kernel_name,
                 is_fork,
             };
-            stage.tasks.push(task);
 
-            // If not in a fork, start a new stage.
-            if !is_fork {
-                stages.push(stage);
-                stage = PlanStage::default();
+            if is_fork {
+                // Fork tasks can be added to the current stage along side other
+                // fork tasks (possibly)
+                stage.tasks.push(task);
+            } else {
+                // Non-forked tasks must have their own stage to ensure they are
+                // executed before downstream dependents
+
+                if !stage.tasks.is_empty() {
+                    stages.push(stage);
+                    stage = PlanStage::default();
+                }
+
+                stages.push(PlanStage { tasks: vec![task] });
             }
         }
 
@@ -855,18 +864,27 @@ impl Graph {
                 && resource_info.is_pure()
                 && stage.tasks.len() < options.max_concurrency.saturating_sub(1);
 
-            // Create the task and add it to the current stage
+            // Create the task
             let task = PlanTask {
                 resource_info: resource_info.clone(),
                 kernel_name,
                 is_fork,
             };
-            stage.tasks.push(task);
 
-            // If not in a fork, start a new stage.
-            if !is_fork {
-                stages.push(stage);
-                stage = PlanStage::default();
+            if is_fork {
+                // Fork tasks can be added to the current stage along side other
+                // fork tasks (possibly)
+                stage.tasks.push(task);
+            } else {
+                // Non-forked tasks must have their own stage to ensure they are
+                // executed before downstream dependents
+
+                if !stage.tasks.is_empty() {
+                    stages.push(stage);
+                    stage = PlanStage::default();
+                }
+
+                stages.push(PlanStage { tasks: vec![task] });
             }
         }
 
