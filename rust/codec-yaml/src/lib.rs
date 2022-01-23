@@ -10,12 +10,9 @@ pub struct YamlCodec {}
 impl CodecTrait for YamlCodec {
     fn spec() -> Codec {
         Codec {
+            status: "stable".to_string(),
             formats: vec_string!["yaml"],
             root_types: vec_string!["*"],
-            from_string: true,
-            from_path: true,
-            to_string: true,
-            to_path: true,
             ..Default::default()
         }
     }
