@@ -21,6 +21,7 @@ pub struct MdCodec {}
 impl CodecTrait for MdCodec {
     fn spec() -> Codec {
         Codec {
+            status: "beta".to_string(),
             formats: vec_string!["md"],
             root_types: vec_string!["Article"],
             from_string: cfg!(feature = "decode"),
