@@ -157,9 +157,9 @@ mod tests {
                 &plan,
                 &root,
                 &Arc::new(RwLock::new(addresses)),
+                &Arc::new(RwLock::new(KernelSpace::new())),
                 &patch_request_sender,
                 &mut cancel_request_receiver,
-                None,
             )
             .await?;
 

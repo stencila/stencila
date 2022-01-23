@@ -36,24 +36,21 @@ use crate::{
 /// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
 ///                  included in the plan within the `root` node; takes a read lock)
 ///
+/// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
+///
 /// - `patch_request_sender`: A [`PatchRequest`] channel sender to send patches describing the
 ///                   changes to executed nodes
 ///
 /// - `cancel_request_receiver`: A [`CancelRequest`] channel receiver to request cancellation of
 ///                   one or more tasks in the plan
-///
-/// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
-///
 pub async fn execute(
     plan: &Plan,
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
+    kernel_space: &Arc<RwLock<KernelSpace>>,
     patch_request_sender: &UnboundedSender<PatchRequest>,
     cancel_request_receiver: &mut Receiver<CancelRequest>,
-    kernel_space: Option<Arc<KernelSpace>>,
 ) -> Result<()> {
-    let kernel_space = kernel_space.unwrap_or_default();
-
     // Drain the cancellation channel in case there are any requests inadvertantly
     // sent by a client for a previous execute request.
     while let Ok(..) = cancel_request_receiver.try_recv() {}
@@ -232,7 +229,12 @@ pub async fn execute(
 
                 // Start execution of the node
                 let task_info = match executed
-                    .execute_begin(&kernel_space, &kernel_selector, &resource_info, is_fork)
+                    .execute_begin(
+                        &*kernel_space.read().await,
+                        &kernel_selector,
+                        &resource_info,
+                        is_fork,
+                    )
                     .await
                 {
                     Ok(task_info) => task_info,

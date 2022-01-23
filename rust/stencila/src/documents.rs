@@ -205,7 +205,7 @@ pub struct Document {
     /// This is where document variables are stored and executable nodes such as
     /// `CodeChunk`s and `Parameters`s are executed.
     #[serde(skip)]
-    kernels: Arc<KernelSpace>,
+    kernels: Arc<RwLock<KernelSpace>>,
 
     /// The set of dependency relations between this document, or nodes in this document,
     /// and other resources.
@@ -341,7 +341,7 @@ impl Document {
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
         let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
-        let kernels = Arc::new(KernelSpace::new());
+        let kernels = Arc::new(RwLock::new(KernelSpace::new()));
 
         let (patch_request_sender, mut patch_request_receiver) =
             mpsc::unbounded_channel::<PatchRequest>();
@@ -989,7 +989,7 @@ impl Document {
                         .send(ExecuteRequest {
                             id: request.id.clone(),
                             start: request.start.clone(),
-                            ordering: None,
+                            ordering: None
                         })
                         .await
                     {
@@ -1084,7 +1084,7 @@ impl Document {
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
         graph: &Arc<RwLock<Graph>>,
-        kernel_space: &Arc<KernelSpace>,
+        kernel_space: &Arc<RwLock<KernelSpace>>,
         patch_request_sender: &mpsc::UnboundedSender<PatchRequest>,
         cancel_request_receiver: &mut mpsc::Receiver<CancelRequest>,
         execute_request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
@@ -1115,9 +1115,9 @@ impl Document {
                 &plan,
                 root,
                 addresses,
+                kernel_space,
                 patch_request_sender,
                 cancel_request_receiver,
-                Some(kernel_space.clone()),
             )
             .await;
 
@@ -1205,9 +1205,9 @@ impl Document {
             plan,
             &self.root,
             &self.addresses,
+            &self.kernels,
             &self.patch_request_sender,
             &mut cancel_request_receiver,
-            Some(self.kernels.clone()),
         )
         .await
     }
@@ -1238,6 +1238,20 @@ impl Document {
         });
 
         Ok(request_id)
+    }
+
+    /// Restart the document's kernel space
+    ///
+    /// Cancels any execution plan that is running, destroy the document's
+    /// existing kernel, and create's a new one
+    #[tracing::instrument(skip(self))]
+    pub async fn restart(&self) -> Result<()> {
+        tracing::debug!("Restarting kernel space for document `{}`", self.id);
+
+        self.cancel(None, Some(PlanScope::All)).await;
+        *self.kernels.write().await = KernelSpace::new();
+
+        Ok(())
     }
 
     /// Update the `root` (and associated properties) of the document and publish updated encodings
@@ -2034,7 +2048,7 @@ pub mod commands {
             async fn run(&self) -> Result {
                 let document = self.file.get().await?;
                 let document = document.lock().await;
-                let kernels = document.kernels.clone();
+                let kernels = document.kernels.read().await;
                 self.kernels.run(&*kernels).await
             }
         }
@@ -2056,7 +2070,7 @@ pub mod commands {
             async fn run(&self) -> Result {
                 let document = self.file.get().await?;
                 let document = document.lock().await;
-                let kernels = document.kernels.clone();
+                let kernels = document.kernels.read().await;
                 self.tasks.run(&*kernels).await
             }
         }
@@ -2078,8 +2092,8 @@ pub mod commands {
             async fn run(&self) -> Result {
                 let document = self.file.get().await?;
                 let document = document.lock().await;
-                let kernels = document.kernels.clone();
-                self.queues.run(&kernels).await
+                let kernels = document.kernels.read().await;
+                self.queues.run(&*kernels).await
             }
         }
 
@@ -2122,8 +2136,8 @@ pub mod commands {
             async fn run(&self) -> Result {
                 let document = self.file.get().await?;
                 let document = document.lock().await;
-                let kernels = document.kernels.clone();
-                self.symbols.run(&kernels).await
+                let kernels = document.kernels.read().await;
+                self.symbols.run(&*kernels).await
             }
         }
     }

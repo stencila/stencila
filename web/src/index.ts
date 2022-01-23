@@ -121,6 +121,11 @@ export const main = (
       const [client, document] = await startup()
       await documents.cancel(client, document.id, nodeId, scope)
     }
+    // @ts-ignore
+    window.stencilaRestart = async () => {
+      const [client, document] = await startup()
+      await documents.restart(client, document.id)
+    }
   }
 
   // Shutdown and disconnect on page unload

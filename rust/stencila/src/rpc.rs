@@ -59,6 +59,7 @@ impl Request {
             "documents.patch" => documents_patch(&self.params).await,
             "documents.execute" => documents_execute(&self.params).await,
             "documents.cancel" => documents_cancel(&self.params).await,
+            "documents.restart" => documents_restart(&self.params).await,
             "documents.subscribe" => documents_subscribe(&self.params, client).await,
             "documents.unsubscribe" => documents_unsubscribe(&self.params, client).await,
             _ => {
@@ -366,6 +367,13 @@ async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscri
         .await
         .cancel(node_id, scope)
         .await?;
+    Ok((serde_json::Value::Null, Subscription::None))
+}
+
+async fn documents_restart(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let id = required_string(params, "documentId")?;
+
+    DOCUMENTS.get(&id).await?.lock().await.restart().await?;
     Ok((serde_json::Value::Null, Subscription::None))
 }
 
