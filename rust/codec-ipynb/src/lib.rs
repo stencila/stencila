@@ -22,7 +22,7 @@ impl CodecTrait for IpynbCodec {
     fn spec() -> Codec {
         let md_codec = MdCodec::spec();
         Codec {
-            status: "alpha".to_string(),
+            status: "beta".to_string(),
             formats: vec_string!["ipynb"],
             root_types: vec_string!["*"],
             from_string: cfg!(feature = "decode"),
