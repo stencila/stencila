@@ -73,14 +73,16 @@ macro_rules! dispatch_builtins {
             Format::Json5 => Some(codec_json5::Json5Codec::$method($($arg),*)),
             #[cfg(feature = "codec-latex")]
             Format::LaTeX => Some(codec_latex::LatexCodec::$method($($arg),*)),
+            #[cfg(feature = "codec-md")]
+            Format::Markdown => Some(codec_md::MdCodec::$method($($arg),*)),
             #[cfg(feature = "codec-pandoc")]
             Format::Pandoc => Some(codec_pandoc::PandocCodec::$method($($arg),*)),
             #[cfg(feature = "codec-pdf")]
             Format::Pdf => Some(codec_pdf::PdfCodec::$method($($arg),*)),
             #[cfg(feature = "codec-person")]
             Format::Person => Some(codec_person::PersonCodec::$method($($arg),*)),
-            #[cfg(feature = "codec-md")]
-            Format::Markdown => Some(codec_md::MdCodec::$method($($arg),*)),
+            #[cfg(feature = "codec-png")]
+            Format::Png => Some(codec_png::PngCodec::$method($($arg),*)),
             #[cfg(feature = "codec-rmd")]
             Format::RMarkdown => Some(codec_rmd::RmdCodec::$method($($arg),*)),
             #[cfg(feature = "codec-rpng")]
@@ -120,14 +122,16 @@ impl Codecs {
             ("json5", codec_json5::Json5Codec::spec()),
             #[cfg(feature = "codec-latex")]
             ("latex", codec_latex::LatexCodec::spec()),
+            #[cfg(feature = "codec-md")]
+            ("md", codec_md::MdCodec::spec()),
             #[cfg(feature = "codec-pandoc")]
             ("pandoc", codec_pandoc::PandocCodec::spec()),
             #[cfg(feature = "codec-pdf")]
             ("pdf", codec_pdf::PdfCodec::spec()),
             #[cfg(feature = "codec-person")]
             ("person", codec_person::PersonCodec::spec()),
-            #[cfg(feature = "codec-md")]
-            ("md", codec_md::MdCodec::spec()),
+            #[cfg(feature = "codec-png")]
+            ("png", codec_png::PngCodec::spec()),
             #[cfg(feature = "codec-rmd")]
             ("rmd", codec_rmd::RmdCodec::spec()),
             #[cfg(feature = "codec-rpng")]
