@@ -112,12 +112,18 @@ export const main = (
 
     // Temporary functions for testing in the console
     // @ts-ignore
-    window.stencilaExecute = async (nodeId: null | string, ordering: 'Single' | 'Appearance' | 'Topological') => {
+    window.stencilaExecute = async (
+      nodeId: null | string,
+      ordering: 'Single' | 'Appearance' | 'Topological'
+    ) => {
       const [client, document] = await startup()
       await documents.execute(client, document.id, nodeId, ordering)
     }
     // @ts-ignore
-    window.stencilaCancel = async (nodeId: null | string, scope: 'Single' | 'All') => {
+    window.stencilaCancel = async (
+      nodeId: null | string,
+      scope: 'Single' | 'All'
+    ) => {
       const [client, document] = await startup()
       await documents.cancel(client, document.id, nodeId, scope)
     }

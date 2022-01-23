@@ -189,7 +189,7 @@ export async function execute(
   return client.call('documents.execute', {
     documentId,
     nodeId,
-    ordering
+    ordering,
   }) as Promise<void>
 }
 
@@ -205,7 +205,7 @@ export async function cancel(
   return client.call('documents.cancel', {
     documentId,
     nodeId,
-    scope
+    scope,
   }) as Promise<void>
 }
 
@@ -217,7 +217,7 @@ export async function restart(
   documentId: DocumentId
 ): Promise<void> {
   return client.call('documents.restart', {
-    documentId
+    documentId,
   }) as Promise<void>
 }
 
@@ -360,15 +360,15 @@ async function onContentChange(
  */
 export interface ValidatorChangeEvent extends CustomEvent {
   detail:
-  | {
-    type: 'property'
-    name: string
-    value: string
-  }
-  | {
-    type: 'validator'
-    value: Exclude<ValidatorTypes['type'], 'Validator'>
-  }
+    | {
+        type: 'property'
+        name: string
+        value: string
+      }
+    | {
+        type: 'validator'
+        value: Exclude<ValidatorTypes['type'], 'Validator'>
+      }
 }
 
 /**
@@ -385,16 +385,16 @@ async function onValidatorChange(
   const [address, value]: [Address, JsonValue] =
     event.detail.type === 'property'
       ? // The new validator property value
-      [
         [
-          // ...except for `default` which is actually a property of the parent parameter
-          ...(event.detail.name === 'default' ? [] : ['validator']),
-          event.detail.name,
-        ],
-        event.detail.value,
-      ]
+          [
+            // ...except for `default` which is actually a property of the parent parameter
+            ...(event.detail.name === 'default' ? [] : ['validator']),
+            event.detail.name,
+          ],
+          event.detail.value,
+        ]
       : // The new validator as an object with `type`
-      [['validator'], { type: event.detail.value }]
+        [['validator'], { type: event.detail.value }]
 
   const op: Operation = {
     type: 'Replace',
