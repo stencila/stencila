@@ -10,14 +10,14 @@ mod decode;
 #[cfg(feature = "encode")]
 mod encode;
 
-/// A codec for markdown
+/// A codec for R Markdown
 pub struct RmdCodec {}
 
 impl CodecTrait for RmdCodec {
     fn spec() -> Codec {
         let md_codec = MdCodec::spec();
         Codec {
-            status: "alpha".to_string(),
+            status: "beta".to_string(),
             formats: vec_string!["rmd"],
             root_types: vec_string!["Article"],
             from_string: cfg!(feature = "decode"),
