@@ -1,4 +1,4 @@
-use crate::{Pointable, Pointer, PointerMut};
+use crate::{Pointable, Pointer, PointerMut, Visitor, VisitorMut};
 use eyre::{bail, Result};
 use node_address::Address;
 use node_dispatch::dispatch_inline;
@@ -37,6 +37,23 @@ impl Pointable for InlineContent {
         match pointer {
             PointerMut::Some => PointerMut::Inline(self),
             _ => PointerMut::None,
+        }
+    }
+
+    /// Walk over a node with a [`Visitor`]
+    ///
+    /// `InlineContent` is one of the visited types so call `visit_inline` and,
+    /// if it returns `true`, continue walk over variant.
+    fn walk(&self, address: Address, visitor: &mut impl Visitor) {
+        let cont = visitor.visit_inline(&address, self);
+        if cont {
+            dispatch_inline!(self, walk, address, visitor)
+        }
+    }
+    fn walk_mut(&mut self, address: Address, visitor: &mut impl VisitorMut) {
+        let cont = visitor.visit_inline_mut(&address, self);
+        if cont {
+            dispatch_inline!(self, walk_mut, address, visitor)
         }
     }
 }

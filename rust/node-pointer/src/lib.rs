@@ -1,7 +1,9 @@
-use eyre::{bail, Result};
-use node_address::Address;
 use node_transform::Transform;
 use stencila_schema::{BlockContent, CreativeWorkTypes, InlineContent, Node};
+
+// Re-exports for convenience of dependant crates
+pub use eyre::{bail, Result};
+pub use node_address::Address;
 
 /// Resolve a node [`Address`] or id into a node [`Pointer`]
 ///
@@ -50,6 +52,16 @@ pub fn resolve_mut<Type: Pointable>(
     } else {
         bail!("One of address or node id must be supplied to resolve a node")
     }
+}
+
+/// Walk over a node with a type implementing the [`Visitor`] trait
+pub fn walk<P: Pointable, V: Visitor>(node: &P, visitor: &mut V) {
+    node.walk(Address::empty(), visitor)
+}
+
+/// Walk over a node with a type implementing the [`VisitorMut`] trait
+pub fn walk_mut<P: Pointable, V: VisitorMut>(node: &mut P, visitor: &mut V) {
+    node.walk_mut(Address::empty(), visitor)
 }
 
 /// A pointer to a node within the tree of another root node
@@ -143,6 +155,60 @@ impl<'lt> PointerMut<'lt> {
     }
 }
 
+/// A node visitor
+///
+/// The methods of this trait are called while walking over nodes in a node tree.
+/// They return `true` to indicate that the walk should continue downwards through
+/// the tree and `false` otherwise.
+/// The methods are able to mutate the visitor, but not the visited node.
+pub trait Visitor {
+    /// Visit a `Node` node
+    fn visit_node(&mut self, _address: &Address, _node: &Node) -> bool {
+        true
+    }
+
+    /// Visit a `CreativeWork` node
+    fn visit_work(&mut self, _address: &Address, _node: &CreativeWorkTypes) -> bool {
+        true
+    }
+
+    /// Visit a `BlockContent` node
+    fn visit_block(&mut self, _address: &Address, _node: &BlockContent) -> bool {
+        true
+    }
+
+    /// Visit an `InlineContent` node
+    fn visit_inline(&mut self, _address: &Address, _node: &InlineContent) -> bool {
+        true
+    }
+}
+
+/// A mutating node visitor
+///
+/// Unlinke [`Visitor`], the methods of [`VisitorMut`] are able to mutate both the visitor,
+/// and the visited node.
+pub trait VisitorMut {
+    /// Visit, and possibly mutate, a `Node` node
+    fn visit_node_mut(&mut self, _address: &Address, _node: &mut Node) -> bool {
+        true
+    }
+
+    /// Visit, and possibly mutate, a `CreativeWork` node
+    fn visit_work_mut(&mut self, _address: &Address, _node: &mut CreativeWorkTypes) -> bool {
+        true
+    }
+
+    /// Visit, and possibly mutate, a `BlockContent` node
+    fn visit_block_mut(&mut self, _address: &Address, _node: &mut BlockContent) -> bool {
+        true
+    }
+
+    /// Visit, and possibly mutate, an `InlineContent` node
+    fn visit_inline_mut(&mut self, _address: &Address, _node: &mut InlineContent) -> bool {
+        true
+    }
+}
+
 /// A trait for document node types that are able to be pointed to
 pub trait Pointable {
     /// Resolve an [`Address`] into a node [`Pointer`].
@@ -192,6 +258,16 @@ pub trait Pointable {
     /// Mutable version of `find`
     fn find_mut(&mut self, _id: &str) -> PointerMut {
         PointerMut::None
+    }
+
+    /// Walk over a node with a [`Visitor`]
+    fn walk(&self, _address: Address, _visitor: &mut impl Visitor) {
+        // Default implementation does nothing
+    }
+
+    /// Walk over a node with a [`VisitorMut`]
+    fn walk_mut(&mut self, _address: Address, _visitor: &mut impl VisitorMut) {
+        // Default implementation does nothing
     }
 }
 
