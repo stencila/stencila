@@ -1,3 +1,27 @@
+# [0.141.0](https://github.com/stencila/stencila/compare/v0.140.0...v0.141.0) (2022-01-24)
+
+
+### Bug Fixes
+
+* **Dependencies:** Upgrade to `stencila-schema` 1.16.1 with fixed regex for media types ([f81f78f](https://github.com/stencila/stencila/commit/f81f78fb31169f38ffe9feda2ac87d872f14a4b5))
+* **IPYNB codec:** Change `root_types` to `Article` only ([eb5e88f](https://github.com/stencila/stencila/commit/eb5e88f0458d9554f39aa62d4be75d7ce995ebca))
+* **Node coerce:** Handle unrecognised escape sequence in schema regex patterns ([8a809e0](https://github.com/stencila/stencila/commit/8a809e050e60fe5aa675b2751d1e1af39f8fc643))
+* **Pandoc codec:** Strip any `file://` prefix from the URL of media objects ([eb77b44](https://github.com/stencila/stencila/commit/eb77b44c68b349cb3508fc5a34aa8e7d856cb58d))
+* **Patches:** Include `media_type` property when diffing `MediaObject` nodes ([c4312ac](https://github.com/stencila/stencila/commit/c4312accfd3da4e0e40c1313237330439204f2a5))
+* **PNG codec:** Abort handler task before dropping browser ([286640f](https://github.com/stencila/stencila/commit/286640fce435f3729dc90399c098f3f2806cec8c))
+
+
+### Features
+
+* **Codecs CLI:** Generate a Markdown table for `list` command ([50f203f](https://github.com/stencila/stencila/commit/50f203f3d0cba4516a690a705896b404f636de58))
+* **Codecs:** Integrate all codecs into application ([92f7ca5](https://github.com/stencila/stencila/commit/92f7ca5f6759a141b17798bed4ac3d128804f87d))
+* **Person codec:** Implement `to_string` ([b4a0edf](https://github.com/stencila/stencila/commit/b4a0edfa9f9ce9aae136a2074cfd09ba2a4eb78b))
+
+
+### Performance Improvements
+
+* **Codecs:** Use async read/write ([445492b](https://github.com/stencila/stencila/commit/445492bc1982a3c8d793e73481e849db63a5afbe))
+
 # [0.140.0](https://github.com/stencila/stencila/compare/v0.139.0...v0.140.0) (2022-01-19)
 
 
