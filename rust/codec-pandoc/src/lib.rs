@@ -42,8 +42,9 @@ impl CodecTrait for PandocCodec {
             to_string: cfg!(feature = "encode"),
             to_path: cfg!(feature = "encode"),
             unsupported_types: vec_string![
-                // TODO: Fix these
-                "Table"
+                // TODO: Implement support for these
+                "Table",
+                "Parameter"
             ],
             ..Default::default()
         }
