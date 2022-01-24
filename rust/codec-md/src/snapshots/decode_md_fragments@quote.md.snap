@@ -1,0 +1,22 @@
+---
+source: rust/codec-md/src/decode.rs
+assertion_line: 1280
+expression: "decode_fragment(content, None)"
+input_file: fixtures/fragments/md/quote.md
+
+---
+[
+  {
+    "type": "Paragraph",
+    "content": [
+      "This is an inline ",
+      {
+        "type": "Quote",
+        "content": [
+          "quote"
+        ]
+      },
+      "."
+    ]
+  }
+]
