@@ -150,13 +150,42 @@ impl Codecs {
         Self { inner }
     }
 
-    /// List all the codecs
-    fn list(&self) -> Vec<String> {
-        self.inner
-            .keys()
-            .into_iter()
-            .cloned()
+    /// List the available codecs
+    fn list(&self) -> &BTreeMap<String, Codec> {
+        &self.inner
+    }
+
+    /// Generate a Markdown table of the available codecs
+    fn table(&self) -> String {
+        let cols = "|-----|------|-------|----------|-------------------|";
+        let head = "|Label|Status|Formats|Root types|Unsupported content";
+        let body = self
+            .inner
+            .iter()
+            .map(|(label, codec)| {
+                format!(
+                    "|{}|{}|{}|{}|{}|",
+                    label,
+                    codec.status,
+                    codec.formats.join(", "),
+                    if codec.root_types == vec!["*"] {
+                        "*all*".to_string()
+                    } else {
+                        codec.root_types.join(", ")
+                    },
+                    codec.unsupported_types.join(", ")
+                )
+            })
             .collect::<Vec<String>>()
+            .join("\n");
+        format!(
+            "{top}\n{head}\n{align}\n{body}\n{bottom}\n",
+            top = cols,
+            head = head,
+            align = cols,
+            body = body,
+            bottom = cols
+        )
     }
 
     /// Get the codec with the given id
@@ -339,7 +368,8 @@ pub mod commands {
     impl Run for List {
         async fn run(&self) -> Result {
             let list = CODECS.list();
-            result::value(list)
+            let table = CODECS.table();
+            result::new("md", &table, &list)
         }
     }
 
