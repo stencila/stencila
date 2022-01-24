@@ -8,6 +8,6 @@ edition = "2021"
 async-trait = "0.1.52"
 eyre = "0.6.5"
 serde = { version = "1.0.130", features = ["derive"] }
-stencila-schema = "1.16.0"
+stencila-schema = "1.16.1"
 tokio = { version = "1.13.0", features = ["fs", "io-util"] }
 utils = { path = "../utils", version = "0.0.0" }

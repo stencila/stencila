@@ -580,8 +580,7 @@ fn matches_pattern(pattern: &str, string: &str) -> bool {
     let regexes = &mut *REGEXES.lock().unwrap();
     let regex = regexes.entry(pattern.to_string()).or_insert_with(|| {
         // Remove unrecognized (unnecessary?) escape sequence
-        let pattern = pattern.replace("\\/", "/");
-        match Regex::new(&pattern) {
+        match Regex::new(pattern) {
             Ok(regex) => regex,
             Err(error) => {
                 tracing::error!("While compiling regex pattern: {}", error);

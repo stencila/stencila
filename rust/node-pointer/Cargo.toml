@@ -9,4 +9,4 @@ eyre = "0.6.5"
 node-address = { path = "../node-address", version = "0.0.0" }
 node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
 node-transform = { path = "../node-transform", version = "0.0.0" }
-stencila-schema = "1.16.0"
+stencila-schema = "1.16.1"
