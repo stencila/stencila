@@ -38,6 +38,8 @@ impl ToHtml for CreativeWorkContent {
 
 impl ToHtml for Article {
     fn to_html(&self, context: &EncodeContext) -> String {
+        let toolbar = elem("stencila-document-toolbar", &[], "");
+
         let title = match &self.title {
             Some(title) => {
                 let title = match &**title {
@@ -134,7 +136,7 @@ impl ToHtml for Article {
         elem(
             "article",
             &[attr_itemtype::<Self>(), attr_id(&self.id)],
-            &[title, authors, affiliations, abstract_, content].concat(),
+            &[toolbar, title, authors, affiliations, abstract_, content].concat(),
         )
     }
 }

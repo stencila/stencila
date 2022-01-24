@@ -1,10 +1,13 @@
 ---
 source: rust/codec-html/src/encode.rs
+assertion_line: 442
 expression: encoded
 input_file: fixtures/fragments/html/list.html
 
 ---
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <stencila-document-toolbar>
+  </stencila-document-toolbar>
   <div data-itemprop="content">
     <ul itemtype="http://schema.stenci.la/List" itemscope>
       <li itemtype="http://schema.stenci.la/ListItem" itemscope>

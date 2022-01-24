@@ -1,10 +1,13 @@
 ---
 source: rust/codec-html/src/encode.rs
+assertion_line: 442
 expression: encoded
 input_file: fixtures/fragments/html/table.html
 
 ---
 <article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+  <stencila-document-toolbar>
+  </stencila-document-toolbar>
   <div data-itemprop="content">
     <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
       <span>Example based on how a Pandas dat a frame is encoded to HTML in a Jupyter notebook:</span>
