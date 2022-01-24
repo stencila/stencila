@@ -571,6 +571,26 @@ fn valid_for_number_schema(value: &JsonValue, schema: &JsonSchema) -> bool {
     true
 }
 
+/// Does a string match a regex pattern?
+///
+/// For efficiency, caches compiled regexes from schemas
+fn matches_pattern(pattern: &str, string: &str) -> bool {
+    static REGEXES: Lazy<Mutex<HashMap<String, Regex>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+
+    let regexes = &mut *REGEXES.lock().unwrap();
+    let regex = regexes.entry(pattern.to_string()).or_insert_with(|| {
+        // Remove unrecognized (unnecessary?) escape sequence
+        match Regex::new(pattern) {
+            Ok(regex) => regex,
+            Err(error) => {
+                tracing::error!("While compiling regex pattern: {}", error);
+                Regex::new(".*").unwrap()
+            }
+        }
+    });
+    regex.is_match(string)
+}
+
 /// Coerce a JSON value to a string schema
 ///
 /// Respects `minLength` (via right padding) and `maxLength` keywords
@@ -601,13 +621,8 @@ fn coerce_to_string_schema(value: &mut JsonValue, schema: &JsonSchema) {
     }
 
     if let Some(pattern) = &schema.pattern {
-        match Regex::new(pattern) {
-            Ok(regex) => {
-                if !regex.is_match(value.as_str().unwrap()) {
-                    *value = json!("")
-                }
-            }
-            Err(error) => tracing::error!("While compiling regex pattern: {}", error),
+        if !matches_pattern(pattern, value.as_str().unwrap()) {
+            *value = json!("")
         }
     }
 }
@@ -634,13 +649,8 @@ fn valid_for_string_schema(value: &JsonValue, schema: &JsonSchema) -> bool {
     }
 
     if let Some(pattern) = &schema.pattern {
-        match Regex::new(pattern) {
-            Ok(regex) => {
-                if !regex.is_match(value.as_str().unwrap()) {
-                    return false;
-                }
-            }
-            Err(error) => tracing::error!("While compiling regex pattern: {}", error),
+        if !matches_pattern(pattern, string) {
+            return false;
         }
     }
 

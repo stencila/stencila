@@ -1,7 +1,10 @@
 use chromiumoxide::{cdp::browser_protocol::page::CaptureScreenshotFormat, Browser, BrowserConfig};
 use codec::{
-    async_trait::async_trait, eyre::Result, stencila_schema::Node, utils::vec_string, Codec,
-    CodecTrait, EncodeOptions,
+    async_trait::async_trait,
+    eyre::Result,
+    stencila_schema::{ImageObject, Node},
+    utils::vec_string,
+    Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
 use codec_html::HtmlCodec;
 use futures::StreamExt;
@@ -9,7 +12,8 @@ use std::{fs, path::Path};
 
 /// Encode and decode a document node to a PNG image.
 ///
-/// This codec uses a headless browser to take a screenshot of the HTML
+/// This codec will "decode" strings or files to an `ImageObject` and uses a
+/// headless browser to encode nodes as a screenshot of the HTML
 /// encoding of the node.
 pub struct PngCodec {}
 
@@ -20,10 +24,29 @@ impl CodecTrait for PngCodec {
             status: "alpha".to_string(),
             formats: vec_string!["png"],
             root_types: vec_string!["*"],
-            to_string: true,
-            to_path: true,
             ..Default::default()
         }
+    }
+
+    /// Decode a document node from a string
+    ///
+    /// Simply returns an `ImageObject` with the string as its `content_url`
+    /// (i.e assumes that the string is a DataURI with a Base64 encoded PNG)
+    fn from_str(str: &str, _options: Option<DecodeOptions>) -> Result<Node> {
+        Ok(Node::ImageObject(ImageObject {
+            content_url: str.to_string(),
+            ..Default::default()
+        }))
+    }
+
+    /// Decode a document node from a file system path
+    ///
+    /// Simply returns an `ImageObject` with the path as its `content_url`
+    async fn from_path(path: &Path, _options: Option<DecodeOptions>) -> Result<Node> {
+        Ok(Node::ImageObject(ImageObject {
+            content_url: path.display().to_string(),
+            ..Default::default()
+        }))
     }
 
     /// Encode a document node to a string
@@ -84,7 +107,7 @@ pub async fn nodes_to_bytes(
         .build()
         .expect("Should build config");
     let (browser, mut handler) = Browser::launch(config).await?;
-    tokio::task::spawn(async move {
+    let handler_task = tokio::task::spawn(async move {
         loop {
             let _ = handler.next().await.unwrap();
         }
@@ -101,6 +124,10 @@ pub async fn nodes_to_bytes(
         let bytes = element.screenshot(CaptureScreenshotFormat::Png).await?;
         pngs.push(bytes)
     }
+
+    // Abort the handler task (if this is not done can get a `ResetWithoutClosingHandshake`
+    // when this function ends
+    handler_task.abort();
 
     Ok(pngs)
 }

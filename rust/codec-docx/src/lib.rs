@@ -16,14 +16,12 @@ impl CodecTrait for DocxCodec {
             status: "alpha".to_string(),
             formats: vec_string!["docx"],
             root_types: vec_string!["Article"],
-            from_path: true,
-            to_path: true,
+            from_string: false,
+            to_string: false,
             unsupported_types: [
                 pandoc_codec.unsupported_types,
-                vec_string![
-                    // TODO: Fix decoding of quotes from DOCX
-                    "Quote"
-                ],
+                // TODO: Fix decoding of quotes from DOCX
+                vec_string!["Quote"],
             ]
             .concat(),
             ..Default::default()

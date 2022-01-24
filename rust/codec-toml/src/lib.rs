@@ -14,12 +14,9 @@ pub struct TomlCodec {}
 impl CodecTrait for TomlCodec {
     fn spec() -> Codec {
         Codec {
+            status: "stable".to_string(),
             formats: vec_string!["toml"],
             root_types: vec_string!["*"],
-            from_string: true,
-            from_path: true,
-            to_string: true,
-            to_path: true,
             ..Default::default()
         }
     }

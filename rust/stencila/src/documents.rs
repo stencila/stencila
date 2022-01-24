@@ -2281,6 +2281,7 @@ pub mod commands {
         /// The path of the output document
         ///
         /// Use `-` to print output to the console's standard output.
+        #[structopt(default_value = "-")]
         pub output: PathBuf,
 
         /// The format of the input (defaults to being inferred from the file extension or content type)

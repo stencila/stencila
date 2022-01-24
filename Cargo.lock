@@ -709,6 +709,7 @@ dependencies = [
  "eyre",
  "serde",
  "stencila-schema",
+ "tokio",
  "utils",
 ]
 
@@ -4880,9 +4881,9 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.16.0"
+version = "1.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8e865a3c9740c2ce7cf9a9997ef384be73fd5d505d5b8fd8cd36519bb82ac6b"
+checksum = "57b42e044fd27225b1af83689f278eee21e262bc6e5b9d955e8ea89f7173abd7"
 dependencies = [
  "chrono",
  "defaults",

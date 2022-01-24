@@ -30,6 +30,7 @@ pub enum Format {
     Ogg,
     Ogv,
     Pandoc,
+    Pdf,
     Person,
     PlainText,
     Png,
@@ -84,6 +85,7 @@ impl Format {
             Format::Markdown => FormatSpec::new("Markdown", "md", &[], false, true, FormatNodeType::Article),
             Format::Odt => FormatSpec::new("Open Office Text", "odt", &[], true, true, FormatNodeType::Article),
             Format::Pandoc => FormatSpec::new("Pandoc JSON", "pandoc", &[], false, true, FormatNodeType::Article),
+            Format::Pdf => FormatSpec::new("Portable Document Format", "pdf", &[], true, false, FormatNodeType::Article),
             Format::RMarkdown => FormatSpec::new("R Markdown", "rmd", &[], false, true, FormatNodeType::Article),
             Format::LaTeX => FormatSpec::new("LaTeX", "latex", &["tex"], false, true, FormatNodeType::Article),
 

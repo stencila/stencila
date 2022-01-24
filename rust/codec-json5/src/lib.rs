@@ -10,12 +10,9 @@ pub struct Json5Codec {}
 impl CodecTrait for Json5Codec {
     fn spec() -> Codec {
         Codec {
+            status: "stable".to_string(),
             formats: vec_string!["json5"],
             root_types: vec_string!["*"],
-            from_string: true,
-            from_path: true,
-            to_string: true,
-            to_path: true,
             ..Default::default()
         }
     }

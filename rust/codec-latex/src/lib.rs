@@ -15,16 +15,13 @@ impl CodecTrait for LatexCodec {
             status: "alpha".to_string(),
             formats: vec_string!["latex"],
             root_types: vec_string!["Article"],
-            from_string: true,
-            from_path: true,
-            to_string: true,
-            to_path: true,
             unsupported_types: [
                 pandoc_codec.unsupported_types,
                 vec_string![
                     // TODO: Add support for these. See https://github.com/stencila/encoda/blob/master/src/codecs/latex/__fixtures__/code.tex
                     "CodeChunk",
-                    "CodeExpression"
+                    "CodeExpression",
+                    "Parameter"
                 ],
             ]
             .concat(),

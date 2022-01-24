@@ -18,12 +18,9 @@ pub struct TxtCodec {}
 impl CodecTrait for TxtCodec {
     fn spec() -> Codec {
         Codec {
+            status: "beta".to_string(),
             formats: vec_string!["txt"],
             root_types: vec_string!["*"],
-            from_string: true,
-            from_path: true,
-            to_string: true,
-            to_path: true,
             ..Default::default()
         }
     }

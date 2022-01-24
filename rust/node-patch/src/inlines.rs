@@ -215,10 +215,10 @@ patchable_struct!(Superscript, content);
 /// a very large number of operations when diffing a base64 encoded images (which
 /// can swamp client as well as being slow to generate)
 macro_rules! patchable_media_object {
-    ($type:ty $(, $field:ident )*) => {
+    ($type:ty $(,$field:ident)* $(,)?) => {
         impl Patchable for $type {
-            patchable_struct_is_equal!($( $field )*);
-            patchable_struct_hash!($( $field )*);
+            patchable_struct_is_equal!($($field,)*);
+            patchable_struct_hash!($($field,)*);
 
             fn diff(&self, other: &Self, differ: &mut Differ) {
                 $(
@@ -241,21 +241,21 @@ macro_rules! patchable_media_object {
                 )*
             }
 
-            patchable_struct_apply_add!($( $field )*);
-            patchable_struct_apply_remove!($( $field )*);
-            patchable_struct_apply_replace!($( $field )*);
-            patchable_struct_apply_move!($( $field )*);
-            patchable_struct_apply_transform!($( $field )*);
+            patchable_struct_apply_add!($($field,)*);
+            patchable_struct_apply_remove!($($field,)*);
+            patchable_struct_apply_replace!($($field,)*);
+            patchable_struct_apply_move!($($field,)*);
+            patchable_struct_apply_transform!($($field,)*);
         }
     };
 }
 
-patchable_media_object!(AudioObject, content_url);
-patchable_media_object!(AudioObjectSimple, content_url);
-patchable_media_object!(ImageObject, content_url);
-patchable_media_object!(ImageObjectSimple, content_url);
-patchable_media_object!(VideoObject, content_url);
-patchable_media_object!(VideoObjectSimple, content_url);
+patchable_media_object!(AudioObject, content_url, media_type);
+patchable_media_object!(AudioObjectSimple, content_url, media_type);
+patchable_media_object!(ImageObject, content_url, media_type);
+patchable_media_object!(ImageObjectSimple, content_url, media_type);
+patchable_media_object!(VideoObject, content_url, media_type);
+patchable_media_object!(VideoObjectSimple, content_url, media_type);
 
 #[cfg(test)]
 mod tests {

@@ -165,10 +165,17 @@ macro_rules! inline_media_to_pandoc_image {
     ($type:ty) => {
         impl ToPandoc for $type {
             fn to_pandoc_inline(&self, _context: &mut EncodeContext) -> pandoc::Inline {
+                let url = if let Some(path) = self.content_url.strip_prefix("file://") {
+                    path.to_string()
+                } else {
+                    self.content_url.clone()
+                };
+                // TODO: Work out if / what should go into title
+                let title = "".to_string();
                 pandoc::Inline::Image(
                     attrs_empty(),
                     Vec::new(), // TODO: content or caption here
-                    pandoc::Target(self.content_url.clone(), "".to_string()),
+                    pandoc::Target(url, title),
                 )
             }
         }

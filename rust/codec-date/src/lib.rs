@@ -3,20 +3,19 @@ use codec::{
     eyre::{bail, Result},
     stencila_schema::{Date, Node},
     utils::vec_string,
-    Codec, CodecTrait, DecodeOptions,
+    Codec, CodecTrait, DecodeOptions, EncodeOptions,
 };
 use dtparse::parse;
 
-// A codec for `Date` nodes
+// A codec for date/time strings
 pub struct DateCodec {}
 
 impl CodecTrait for DateCodec {
     fn spec() -> Codec {
         Codec {
+            status: "beta".to_string(),
             formats: vec_string!["date"],
             root_types: vec_string!["Date"],
-            from_string: true,
-            from_path: true,
             ..Default::default()
         }
     }
@@ -38,7 +37,14 @@ impl CodecTrait for DateCodec {
                 ..Default::default()
             }))
         } else {
-            bail!("Unable to decode as a `Date`: {}", str)
+            bail!("Unable to decode string to a `Date`: {}", str)
+        }
+    }
+
+    fn to_string(node: &Node, _options: Option<EncodeOptions>) -> Result<String> {
+        match node {
+            Node::Date(date) => Ok(date.value.clone()),
+            _ => bail!("Unable to encode node that is not a `Date`"),
         }
     }
 }
@@ -72,6 +78,31 @@ mod tests {
                 value: "2021-07-11T00:00:00+00:00".to_string(),
                 ..Default::default()
             })
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn to_string() -> Result<()> {
+        assert_eq!(
+            DateCodec::to_string(
+                &Node::Date(Date {
+                    value: "2021-07-11T00:00:00+00:00".to_string(),
+                    ..Default::default()
+                }),
+                None
+            )?,
+            "2021-07-11T00:00:00+00:00"
+        );
+        assert_eq!(
+            DateCodec::to_string(
+                &Node::Date(Date {
+                    value: "2021-07-11".to_string(),
+                    ..Default::default()
+                }),
+                None
+            )?,
+            "2021-07-11"
         );
         Ok(())
     }

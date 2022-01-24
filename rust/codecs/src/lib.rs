@@ -73,12 +73,16 @@ macro_rules! dispatch_builtins {
             Format::Json5 => Some(codec_json5::Json5Codec::$method($($arg),*)),
             #[cfg(feature = "codec-latex")]
             Format::LaTeX => Some(codec_latex::LatexCodec::$method($($arg),*)),
-            #[cfg(feature = "codec-pandoc")]
-            Format::Pandoc => Some(codec_pandoc::PandocCodec::$method($($arg),*)),
-            #[cfg(feature = "codec-person")]
-            Format::Person => Some(codec_person::PersonCodec::$method($($arg),*)),
             #[cfg(feature = "codec-md")]
             Format::Markdown => Some(codec_md::MdCodec::$method($($arg),*)),
+            #[cfg(feature = "codec-pandoc")]
+            Format::Pandoc => Some(codec_pandoc::PandocCodec::$method($($arg),*)),
+            #[cfg(feature = "codec-pdf")]
+            Format::Pdf => Some(codec_pdf::PdfCodec::$method($($arg),*)),
+            #[cfg(feature = "codec-person")]
+            Format::Person => Some(codec_person::PersonCodec::$method($($arg),*)),
+            #[cfg(feature = "codec-png")]
+            Format::Png => Some(codec_png::PngCodec::$method($($arg),*)),
             #[cfg(feature = "codec-rmd")]
             Format::RMarkdown => Some(codec_rmd::RmdCodec::$method($($arg),*)),
             #[cfg(feature = "codec-rpng")]
@@ -118,12 +122,16 @@ impl Codecs {
             ("json5", codec_json5::Json5Codec::spec()),
             #[cfg(feature = "codec-latex")]
             ("latex", codec_latex::LatexCodec::spec()),
-            #[cfg(feature = "codec-pandoc")]
-            ("pandoc", codec_pandoc::PandocCodec::spec()),
-            #[cfg(feature = "codec-person")]
-            ("person", codec_person::PersonCodec::spec()),
             #[cfg(feature = "codec-md")]
             ("md", codec_md::MdCodec::spec()),
+            #[cfg(feature = "codec-pandoc")]
+            ("pandoc", codec_pandoc::PandocCodec::spec()),
+            #[cfg(feature = "codec-pdf")]
+            ("pdf", codec_pdf::PdfCodec::spec()),
+            #[cfg(feature = "codec-person")]
+            ("person", codec_person::PersonCodec::spec()),
+            #[cfg(feature = "codec-png")]
+            ("png", codec_png::PngCodec::spec()),
             #[cfg(feature = "codec-rmd")]
             ("rmd", codec_rmd::RmdCodec::spec()),
             #[cfg(feature = "codec-rpng")]
@@ -142,13 +150,42 @@ impl Codecs {
         Self { inner }
     }
 
-    /// List all the codecs
-    fn list(&self) -> Vec<String> {
-        self.inner
-            .keys()
-            .into_iter()
-            .cloned()
+    /// List the available codecs
+    fn list(&self) -> &BTreeMap<String, Codec> {
+        &self.inner
+    }
+
+    /// Generate a Markdown table of the available codecs
+    fn table(&self) -> String {
+        let cols = "|-----|------|-------|----------|-------------------|";
+        let head = "|Label|Status|Formats|Root types|Unsupported content";
+        let body = self
+            .inner
+            .iter()
+            .map(|(label, codec)| {
+                format!(
+                    "|{}|{}|{}|{}|{}|",
+                    label,
+                    codec.status,
+                    codec.formats.join(", "),
+                    if codec.root_types == vec!["*"] {
+                        "*all*".to_string()
+                    } else {
+                        codec.root_types.join(", ")
+                    },
+                    codec.unsupported_types.join(", ")
+                )
+            })
             .collect::<Vec<String>>()
+            .join("\n");
+        format!(
+            "{top}\n{head}\n{align}\n{body}\n{bottom}\n",
+            top = cols,
+            head = head,
+            align = cols,
+            body = body,
+            bottom = cols
+        )
     }
 
     /// Get the codec with the given id
@@ -184,7 +221,7 @@ impl Codecs {
         }
 
         bail!(
-            "Unable to decode node from string with format `{}`: no matching codec found",
+            "Unable to decode from string with format `{}`: no matching codec found",
             format_spec.title
         )
     }
@@ -210,7 +247,7 @@ impl Codecs {
         }
 
         bail!(
-            "Unable to decode node from path with format `{}`: no matching codec found",
+            "Unable to decode from path with format `{}`: no matching codec found",
             format_spec.title
         )
     }
@@ -236,7 +273,7 @@ impl Codecs {
         }
 
         bail!(
-            "Unable to encode node to string of format `{}`: no matching codec found",
+            "Unable to encode to string of format `{}`: no matching codec found",
             format_spec.title
         )
     }
@@ -262,7 +299,7 @@ impl Codecs {
         }
 
         bail!(
-            "Unable to encode node to path of format `{}`: no matching codec found",
+            "Unable to encode to path with format `{}`: no matching codec found",
             format_spec.title
         )
     }
@@ -331,7 +368,8 @@ pub mod commands {
     impl Run for List {
         async fn run(&self) -> Result {
             let list = CODECS.list();
-            result::value(list)
+            let table = CODECS.table();
+            result::new("md", &table, &list)
         }
     }
 
