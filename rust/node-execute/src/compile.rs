@@ -266,5 +266,5 @@ fn compile_patches_and_send(
         )
         .collect();
 
-    send_patches(patch_sender, patches)
+    send_patches(patch_sender, patches, false)
 }

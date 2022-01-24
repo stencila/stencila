@@ -83,13 +83,17 @@ pub trait Executable {
         Ok(())
     }
 
-    async fn execute(
-        &mut self,
+    async fn execute_begin(
+        &self,
         _kernel_space: &KernelSpace,
         _kernel_selector: &KernelSelector,
         _resource_info: &ResourceInfo,
         _is_fork: bool,
-    ) -> Result<()> {
+    ) -> Result<Option<TaskInfo>> {
+        Ok(None)
+    }
+
+    fn execute_end(&mut self, _task_info: TaskInfo, _task_result: TaskResult) -> Result<()> {
         Ok(())
     }
 }
@@ -305,13 +309,13 @@ impl Executable for Parameter {
         Ok(())
     }
 
-    async fn execute(
-        &mut self,
+    async fn execute_begin(
+        &self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         _resource_info: &ResourceInfo,
         _is_fork: bool,
-    ) -> Result<()> {
+    ) -> Result<Option<TaskInfo>> {
         tracing::debug!("Executing `Parameter`");
 
         if let Some(value) = self.value.as_deref().or_else(|| self.default.as_deref()) {
@@ -320,7 +324,7 @@ impl Executable for Parameter {
                 .await?;
         }
 
-        Ok(())
+        Ok(None)
     }
 }
 
@@ -378,26 +382,31 @@ impl Executable for CodeChunk {
         Ok(())
     }
 
-    async fn execute(
-        &mut self,
+    async fn execute_begin(
+        &self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         resource_info: &ResourceInfo,
         is_fork: bool,
-    ) -> Result<()> {
+    ) -> Result<Option<TaskInfo>> {
         tracing::trace!("Executing `CodeChunk` `{:?}`", self.id);
 
-        // Execute the code and wait for result
-        let mut task_info = kernel_space
+        let task_info = kernel_space
             .exec(&self.text, resource_info, is_fork, kernel_selector)
             .await?;
+
+        Ok(Some(task_info))
+    }
+
+    fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
         let TaskResult {
             outputs,
             messages: errors,
-        } = task_info.result().await?;
+        } = task_result;
 
         // Update both `compile_digest` and `execute_digest` to the compile digest
-        let digest = resource_info
+        let digest = task_info
+            .resource_info
             .compile_digest
             .clone()
             .map(|digest| Box::new(Cord(digest.to_string())));
@@ -474,26 +483,31 @@ impl Executable for CodeExpression {
         Ok(())
     }
 
-    async fn execute(
-        &mut self,
+    async fn execute_begin(
+        &self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         resource_info: &ResourceInfo,
         is_fork: bool,
-    ) -> Result<()> {
+    ) -> Result<Option<TaskInfo>> {
         tracing::trace!("Executing `CodeExpression` `{:?}`", self.id);
 
-        // Execute the code and wait for result
-        let mut task_info = kernel_space
+        let task_info = kernel_space
             .exec(&self.text, resource_info, is_fork, kernel_selector)
             .await?;
+
+        Ok(Some(task_info))
+    }
+
+    fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
         let TaskResult {
             outputs,
             messages: errors,
-        } = task_info.result().await?;
+        } = task_result;
 
         // Update both `compile_digest` and `execute_digest` to the compile digest
-        let digest = resource_info
+        let digest = task_info
+            .resource_info
             .compile_digest
             .clone()
             .map(|digest| Box::new(Cord(digest.to_string())));
@@ -627,9 +641,8 @@ executable_nothing!(
     TupleValidator
 );
 
-// The following are simple "dispatching" implementations of `compile`.
-// They implement the depth first walk across a node tree by calling `compile`
-// on child nodes and where necessary pushing slots onto the address.
+// The following are "enum variant dispatching" implementations of `Executable` for
+// the types that are also `Pointable`
 
 #[async_trait]
 impl Executable for Node {
@@ -637,17 +650,17 @@ impl Executable for Node {
         dispatch_node!(self, Ok(()), compile, address, context)
     }
 
-    async fn execute(
-        &mut self,
+    async fn execute_begin(
+        &self,
         kernel_space: &KernelSpace,
         kernel_selector: &KernelSelector,
         resource_info: &ResourceInfo,
         is_fork: bool,
-    ) -> Result<()> {
+    ) -> Result<Option<TaskInfo>> {
         dispatch_node!(
             self,
-            Box::pin(async { Ok(()) }),
-            execute,
+            Box::pin(async { Ok(None) }),
+            execute_begin,
             kernel_space,
             kernel_selector,
             resource_info,
@@ -655,109 +668,65 @@ impl Executable for Node {
         )
         .await
     }
-}
 
-#[async_trait]
-impl Executable for CreativeWorkTypes {
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        dispatch_work!(self, compile, address, context)
-    }
-
-    async fn execute(
-        &mut self,
-        kernel_space: &KernelSpace,
-        kernel_selector: &KernelSelector,
-        resource_info: &ResourceInfo,
-        is_fork: bool,
-    ) -> Result<()> {
-        dispatch_work!(
-            self,
-            execute,
-            kernel_space,
-            kernel_selector,
-            resource_info,
-            is_fork
-        )
-        .await
+    fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
+        dispatch_node!(self, Ok(()), execute_end, task_info, task_result)
     }
 }
 
-#[async_trait]
-impl Executable for BlockContent {
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        dispatch_block!(self, compile, address, context)
-    }
+macro_rules! executable_enum {
+    ($type: ty, $dispatch_macro: ident) => {
+        #[async_trait]
+        impl Executable for $type {
+            fn compile(
+                &mut self,
+                address: &mut Address,
+                context: &mut CompileContext,
+            ) -> Result<()> {
+                $dispatch_macro!(self, compile, address, context)
+            }
 
-    async fn execute(
-        &mut self,
-        kernel_space: &KernelSpace,
-        kernel_selector: &KernelSelector,
-        resource_info: &ResourceInfo,
-        is_fork: bool,
-    ) -> Result<()> {
-        dispatch_block!(
-            self,
-            execute,
-            kernel_space,
-            kernel_selector,
-            resource_info,
-            is_fork
-        )
-        .await
-    }
+            async fn execute_begin(
+                &self,
+                kernel_space: &KernelSpace,
+                kernel_selector: &KernelSelector,
+                resource_info: &ResourceInfo,
+                is_fork: bool,
+            ) -> Result<Option<TaskInfo>> {
+                $dispatch_macro!(
+                    self,
+                    execute_begin,
+                    kernel_space,
+                    kernel_selector,
+                    resource_info,
+                    is_fork
+                )
+                .await
+            }
+
+            fn execute_end(&mut self, task_info: TaskInfo, task_result: TaskResult) -> Result<()> {
+                $dispatch_macro!(self, execute_end, task_info, task_result)
+            }
+        }
+    };
 }
 
-#[async_trait]
-impl Executable for InlineContent {
-    fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        dispatch_inline!(self, compile, address, context)
-    }
+executable_enum!(CreativeWorkTypes, dispatch_work);
+executable_enum!(BlockContent, dispatch_block);
+executable_enum!(InlineContent, dispatch_inline);
 
-    async fn execute(
-        &mut self,
-        kernel_space: &KernelSpace,
-        kernel_selector: &KernelSelector,
-        resource_info: &ResourceInfo,
-        is_fork: bool,
-    ) -> Result<()> {
-        dispatch_inline!(
-            self,
-            execute,
-            kernel_space,
-            kernel_selector,
-            resource_info,
-            is_fork
-        )
-        .await
-    }
-}
+// The following implementations of `Executable` for generic types, only implement `compile`
+// to "collect up" executable children into the `CompileContext` when they are walked over.
 
 #[async_trait]
 impl<T> Executable for Option<T>
 where
-    T: Executable + Send,
+    T: Executable,
 {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
-        if let Some(value) = self {
-            value.compile(address, context)
-        } else {
-            Ok(())
-        }
-    }
-
-    async fn execute(
-        &mut self,
-        kernel_space: &KernelSpace,
-        kernel_selector: &KernelSelector,
-        resource_info: &ResourceInfo,
-        is_fork: bool,
-    ) -> Result<()> {
-        if let Some(value) = self {
-            value
-                .execute(kernel_space, kernel_selector, resource_info, is_fork)
-                .await
-        } else {
-            Ok(())
+        match self {
+            Some(value) => value.compile(address, context),
+            None => Ok(()),
         }
     }
 }
@@ -765,49 +734,23 @@ where
 #[async_trait]
 impl<T> Executable for Box<T>
 where
-    T: Executable + Send,
+    T: Executable,
 {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         (**self).compile(address, context)
-    }
-
-    async fn execute(
-        &mut self,
-        kernel_space: &KernelSpace,
-        kernel_selector: &KernelSelector,
-        resource_info: &ResourceInfo,
-        is_fork: bool,
-    ) -> Result<()> {
-        (**self)
-            .execute(kernel_space, kernel_selector, resource_info, is_fork)
-            .await
     }
 }
 
 #[async_trait]
 impl<T> Executable for Vec<T>
 where
-    T: Executable + Send,
+    T: Executable,
 {
     fn compile(&mut self, address: &mut Address, context: &mut CompileContext) -> Result<()> {
         for (index, item) in self.iter_mut().enumerate() {
             address.push_back(Slot::Index(index));
             item.compile(address, context)?;
             address.pop_back();
-        }
-        Ok(())
-    }
-
-    async fn execute(
-        &mut self,
-        kernel_space: &KernelSpace,
-        kernel_selector: &KernelSelector,
-        resource_info: &ResourceInfo,
-        is_fork: bool,
-    ) -> Result<()> {
-        for item in self.iter_mut() {
-            item.execute(kernel_space, kernel_selector, resource_info, is_fork)
-                .await?;
         }
         Ok(())
     }
@@ -823,19 +766,6 @@ macro_rules! executable_fields {
                     address.push_back(Slot::Name(stringify!($field).to_string()));
                     self.$field.compile(address, context)?;
                     address.pop_back();
-                )*
-                Ok(())
-            }
-
-            async fn execute(
-                &mut self,
-                kernel_space: &KernelSpace,
-                kernel_selector: &KernelSelector,
-                resource_info: &ResourceInfo,
-                is_fork: bool,
-            ) -> Result<()> {
-                $(
-                    self.$field.execute(kernel_space, kernel_selector, resource_info, is_fork).await?;
                 )*
                 Ok(())
             }
@@ -898,20 +828,6 @@ macro_rules! executable_variants {
                 match self {
                     $(
                         $variant(node) => node.compile(address, context),
-                    )*
-                }
-            }
-
-            async fn execute(
-                &mut self,
-                kernel_space: &KernelSpace,
-                kernel_selector: &KernelSelector,
-                resource_info: &ResourceInfo,
-                is_fork: bool,
-            ) -> Result<()> {
-                match self {
-                    $(
-                        $variant(node) => node.execute(kernel_space, kernel_selector, resource_info, is_fork).await,
                     )*
                 }
             }

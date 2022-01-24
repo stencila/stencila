@@ -109,6 +109,29 @@ export const main = (
           return Promise.resolve({ ...node, output: '' })
         }
       })
+
+    // Temporary functions for testing in the console
+    // @ts-ignore
+    window.stencilaExecute = async (
+      nodeId: null | string,
+      ordering: 'Single' | 'Appearance' | 'Topological'
+    ) => {
+      const [client, document] = await startup()
+      await documents.execute(client, document.id, nodeId, ordering)
+    }
+    // @ts-ignore
+    window.stencilaCancel = async (
+      nodeId: null | string,
+      scope: 'Single' | 'All'
+    ) => {
+      const [client, document] = await startup()
+      await documents.cancel(client, document.id, nodeId, scope)
+    }
+    // @ts-ignore
+    window.stencilaRestart = async () => {
+      const [client, document] = await startup()
+      await documents.restart(client, document.id)
+    }
   }
 
   // Shutdown and disconnect on page unload

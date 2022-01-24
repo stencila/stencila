@@ -150,26 +150,21 @@ mod tests {
                 patches
             });
 
-            let (compile_request_sender, mut compile_request_receiver) =
-                mpsc::channel::<CompileRequest>(100);
-            tokio::spawn(async move {
-                while let Some(_request) = compile_request_receiver.recv().await {
-                    // Ignore for this test
-                }
-            });
+            let (cancel_request_sender, mut cancel_request_receiver) =
+                mpsc::channel::<CancelRequest>(1);
 
             execute(
                 &plan,
                 &root,
                 &Arc::new(RwLock::new(addresses)),
+                &Arc::new(RwLock::new(KernelSpace::new())),
                 &patch_request_sender,
-                &compile_request_sender,
-                None,
+                &mut cancel_request_receiver,
             )
             .await?;
 
             drop(patch_request_sender);
-            drop(compile_request_sender);
+            drop(cancel_request_sender);
 
             let _patches = patches.await?;
             /*

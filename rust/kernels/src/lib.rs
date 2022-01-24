@@ -16,7 +16,10 @@ use std::{
 };
 #[allow(unused_imports)]
 use strum::{EnumString, EnumVariantNames, VariantNames};
-use tokio::sync::{broadcast, mpsc, Mutex};
+use tokio::{
+    sync::{broadcast, mpsc, Mutex},
+    task::JoinHandle,
+};
 
 // Re-exports
 pub use kernel::{Kernel, KernelSelector, KernelType, Task, TaskResult};
@@ -701,7 +704,7 @@ fn display_queues(queues: &KernelQueues, tasks: &KernelTasks) -> cli_utils::Resu
             let display = display_queue(queues, kernel_id, tasks)
                 .map(|value| value.content.unwrap_or_default())
                 .unwrap_or_else(|err| err.to_string());
-            format!("# {}\n\n{}", kernel_id, display)
+            format!("## Kernel '{}'\n\n{}", kernel_id, display)
         })
         .collect::<Vec<String>>()
         .join("\n\n");
@@ -753,37 +756,46 @@ fn display_queue(queues: &KernelQueues, kernel_id: &str, tasks: &KernelTasks) ->
     result::new("md", &md, queue)
 }
 
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default)]
 pub struct KernelSpace {
     /// The kernels in the kernel space
-    #[serde(skip)]
     kernels: Arc<Mutex<KernelMap>>,
 
     /// The symbols in the kernel space
-    #[serde(skip)]
     symbols: Arc<Mutex<KernelSymbols>>,
 
     /// The list of all tasks sent to this kernel space
-    #[serde(skip)]
     tasks: Arc<Mutex<KernelTasks>>,
 
     /// The queue of deferred tasks
-    #[serde(skip)]
     queues: Arc<Mutex<KernelQueues>>,
+
+    /// The monitoring task for the kernel
+    monitoring: Option<JoinHandle<()>>,
+}
+
+impl Drop for KernelSpace {
+    fn drop(&mut self) {
+        if let Some(monitoring) = &self.monitoring {
+            monitoring.abort()
+        }
+    }
 }
 
 impl KernelSpace {
-    /// Create a new kernel space
+    /// Create a new kernel space and start its monitoring task
     pub fn new() -> Self {
-        let new = Self::default();
+        let mut kernel_space = Self::default();
 
-        let kernels = new.kernels.clone();
-        let queue = new.queues.clone();
-        let tasks = new.tasks.clone();
-        let symbols = new.symbols.clone();
-        tokio::spawn(async move { KernelSpace::monitor(&kernels, &queue, &tasks, &symbols).await });
+        let kernels = kernel_space.kernels.clone();
+        let queue = kernel_space.queues.clone();
+        let tasks = kernel_space.tasks.clone();
+        let symbols = kernel_space.symbols.clone();
+        kernel_space.monitoring = Some(tokio::spawn(async move {
+            KernelSpace::monitor(&kernels, &queue, &tasks, &symbols).await
+        }));
 
-        new
+        kernel_space
     }
 
     /// Monitor the kernel space
@@ -797,7 +809,7 @@ impl KernelSpace {
     ) {
         const PERIOD: Duration = Duration::from_millis(100);
 
-        tracing::debug!("Began kernel space monitoring");
+        tracing::trace!("Began kernel space monitoring");
         loop {
             KernelSpace::dispatch_queue(queues, tasks, kernels, symbols).await;
             KernelSpace::clean_tasks(tasks).await;
@@ -854,7 +866,6 @@ impl KernelSpace {
 
         // Determine the kernel to execute in
         let kernel_id = kernels.ensure(selector).await?;
-        tracing::debug!("Executing code in kernel `{}`", kernel_id);
 
         // If the kernel is busy then defer the task, otherwise dispatch to the kernel now
         let kernel = kernels.get(&kernel_id)?;
@@ -907,6 +918,8 @@ impl KernelSpace {
         kernel_id: &str,
         kernels: &mut KernelMap,
     ) -> Result<Task> {
+        tracing::trace!("Dispatching task to kernel `{}`", kernel_id);
+
         // Mirror used symbols into the kernel
         for symbol in resource_info.symbols_used() {
             let name = &symbol.name;
@@ -978,10 +991,17 @@ impl KernelSpace {
     /// Used when a kernel is busy. Instead of dispatching the task to the kernel,
     /// add it to the task queue so it can be more easily, and less expensively, cancelled
     /// by simply removing it from the queue rather than interrupting the kernel.
+    ///
+    /// When using an execution `Plan` this method should not be necessary since the tasks
+    /// will usually only be created when the kernel is `Idle`. Nonetheless, this method
+    /// may be invoked in other circumstances such as when multiple background tasks are
+    /// dispatched to the same kernel from the CLI.
     async fn defer_task(&self, kernel_id: &str) -> Task {
+        tracing::trace!("Deferring task for kernel `{}`", kernel_id);
+
         let (sender, ..) = broadcast::channel(1);
         let (canceller, mut cancellee) = mpsc::channel(1);
-        let task = Task::create(Some(sender), Some(canceller));
+        let task = Task::defer(Some(sender), Some(canceller));
 
         // Add the task to the queue for the kernel
         let mut queues = self.queues.lock().await;
@@ -1081,6 +1101,12 @@ impl KernelSpace {
         kernels: &mut KernelMap,
         symbols: &mut KernelSymbols,
     ) -> Result<()> {
+        tracing::trace!(
+            "Dispatching deferred task `{}` to kernel `{}`",
+            task_info.task.id,
+            kernel_id
+        );
+
         let deferred_task = &mut task_info.task;
         let task_id = deferred_task.id.clone();
 

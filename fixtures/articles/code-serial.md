@@ -2,27 +2,24 @@ This fixture is focussed on testing scheduling of serial execution plans. The ex
 
 ```bash exec
 sleep 3
-chunk1=$(date)
-echo "Succeeded at $chunk1."
+echo "Succeeded at $(date)."
 ```
 
 ```bash exec
-# @uses chunk1
+# @requires cc-1
 sleep 3
-chunk2=$(date)
-echo "Succeeded at $chunk2."
+echo "Succeeded at $(date)."
 ```
 
 ```bash exec
-# @uses chunk2
+# @requires cc-2
 sleep 3
-chunk3=$(date)
-echo "Failed at $chunk3."
+echo "Failed at $(date)."
 echo "This chunk should show an error and the next should be scheduled but not run"
 echo "Error to cancel next stage" >&2
 ```
 
 ```bash exec
-# @uses chunk3
+# @requires cc-3
 echo "This output should not show (unless it is explicitly run) and the chunk should show that a dependency failed."
 ```

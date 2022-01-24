@@ -1,0 +1,82 @@
+---
+source: rust/codec-md/src/decode.rs
+assertion_line: 1273
+expression: "decode(content).expect(\"Unable to decode Markdown\")"
+input_file: fixtures/articles/code-parallel-python.md
+
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "This fixture is focussed on testing scheduling of parallel execution plans with Python."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stage 1, a single setup chunk:"
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "from time import sleep\nfrom datetime import datetime\n\ndef show_time(curr, prev_time, prev):\n    return f\"Chunk {curr} succeeded at {datetime.now()}, {datetime.now()-prev_time} after chunk {prev}\"\n\nsleep(1)\nchunk1 = datetime.now()\nprint(f\"Chunk 1 succeeded at {chunk1}\")"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stage 2, three code chunks that should start at the same time and execute in parallel but with different durations."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "sleep(1)\nshow_time(2, chunk1, 1)"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "sleep(2)\nshow_time(3, chunk1, 1)"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "sleep(3)\nshow_time(4, chunk1, 1)"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stage 3, should begin after chunks 2-4 have finished."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "sleep(1)\nchunk5 = datetime.now()\nshow_time(5, chunk1, 1)"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Stage 4, three chunks that should run in parallel after chunk 5 and finish about 1 second after it."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "sleep(1)\nshow_time(6, chunk5, 5)"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "sleep(1)\nshow_time(7, chunk5, 5)"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "sleep(1)\nshow_time(8, chunk5, 5)"
+    }
+  ]
+}

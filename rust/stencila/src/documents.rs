@@ -2,14 +2,14 @@ use crate::utils::schemas;
 use events::publish;
 use eyre::{bail, Result};
 use formats::FormatSpec;
-use graph::{Graph, Plan};
+use graph::{Graph, Plan, PlanOptions, PlanOrdering, PlanScope};
 use graph_triples::{resources, Relations};
 use kernels::KernelSpace;
 use maplit::hashset;
 use node_address::AddressMap;
 use node_execute::{
-    compile, execute, CompileRequest, CompileResponse, ExecuteRequest, ExecuteResponse,
-    PatchRequest, PatchResponse, RequestId,
+    compile, execute, CancelRequest, CancelResponse, CompileRequest, CompileResponse,
+    ExecuteRequest, ExecuteResponse, PatchRequest, PatchResponse, RequestId,
 };
 use node_patch::{apply, diff, merge, Patch};
 use node_reshape::reshape;
@@ -205,7 +205,7 @@ pub struct Document {
     /// This is where document variables are stored and executable nodes such as
     /// `CodeChunk`s and `Parameters`s are executed.
     #[serde(skip)]
-    kernels: Arc<KernelSpace>,
+    kernels: Arc<RwLock<KernelSpace>>,
 
     /// The set of dependency relations between this document, or nodes in this document,
     /// and other resources.
@@ -258,6 +258,12 @@ pub struct Document {
 
     #[serde(skip)]
     execute_response_receiver: watch::Receiver<ExecuteResponse>,
+
+    #[serde(skip)]
+    cancel_request_sender: mpsc::Sender<CancelRequest>,
+
+    #[serde(skip)]
+    cancel_response_receiver: watch::Receiver<CancelResponse>,
 }
 
 #[allow(unused)]
@@ -335,7 +341,7 @@ impl Document {
         let root = Arc::new(RwLock::new(Node::Article(Article::default())));
         let addresses = Arc::new(RwLock::new(AddressMap::default()));
         let graph = Arc::new(RwLock::new(Graph::default()));
-        let kernels = Arc::new(KernelSpace::default());
+        let kernels = Arc::new(RwLock::new(KernelSpace::new()));
 
         let (patch_request_sender, mut patch_request_receiver) =
             mpsc::unbounded_channel::<PatchRequest>();
@@ -351,6 +357,11 @@ impl Document {
             mpsc::channel::<ExecuteRequest>(100);
         let (execute_response_sender, mut execute_response_receiver) =
             watch::channel::<ExecuteResponse>(ExecuteResponse::null());
+
+        let (cancel_request_sender, mut cancel_request_receiver) =
+            mpsc::channel::<CancelRequest>(100);
+        let (cancel_response_sender, mut cancel_response_receiver) =
+            watch::channel::<CancelResponse>(CancelResponse::null());
 
         let id_clone = id.clone();
         let root_clone = root.clone();
@@ -400,7 +411,6 @@ impl Document {
         let graph_clone = graph.clone();
         let kernels_clone = kernels.clone();
         let patch_sender_clone = patch_request_sender.clone();
-        let compile_sender_clone = compile_request_sender.clone();
         tokio::spawn(async move {
             Self::execute_task(
                 &id_clone,
@@ -411,7 +421,7 @@ impl Document {
                 &graph_clone,
                 &kernels_clone,
                 &patch_sender_clone,
-                &compile_sender_clone,
+                &mut cancel_request_receiver,
                 &mut execute_request_receiver,
                 &execute_response_sender,
             )
@@ -447,6 +457,9 @@ impl Document {
 
             execute_request_sender,
             execute_response_receiver,
+
+            cancel_request_sender,
+            cancel_response_receiver,
         }
     }
 
@@ -487,6 +500,9 @@ impl Document {
 
             execute_request_sender: self.execute_request_sender.clone(),
             execute_response_receiver: self.execute_response_receiver.clone(),
+
+            cancel_request_sender: self.cancel_request_sender.clone(),
+            cancel_response_receiver: self.cancel_response_receiver.clone(),
         }
     }
 
@@ -884,7 +900,7 @@ impl Document {
         let request_id = request.id.clone();
         self.patch_request_sender.send(request).or_else(|_| {
             bail!(
-                "When sending patch message for document `{}`: the receiver has dropped",
+                "When sending patch request for document `{}`: the receiver has dropped",
                 self.id
             )
         });
@@ -973,6 +989,7 @@ impl Document {
                         .send(ExecuteRequest {
                             id: request.id.clone(),
                             start: request.start.clone(),
+                            ordering: None,
                         })
                         .await
                     {
@@ -1001,7 +1018,7 @@ impl Document {
             .await
             .or_else(|_| {
                 bail!(
-                    "When sending patch message for document `{}`: the receiver has dropped",
+                    "When sending patch request for document `{}`: the receiver has dropped",
                     self.id
                 )
             });
@@ -1067,33 +1084,46 @@ impl Document {
         root: &Arc<RwLock<Node>>,
         addresses: &Arc<RwLock<AddressMap>>,
         graph: &Arc<RwLock<Graph>>,
-        kernel_space: &Arc<KernelSpace>,
+        kernel_space: &Arc<RwLock<KernelSpace>>,
         patch_request_sender: &mpsc::UnboundedSender<PatchRequest>,
-        compile_request_sender: &mpsc::Sender<CompileRequest>,
-        request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
-        response_sender: &watch::Sender<ExecuteResponse>,
+        cancel_request_receiver: &mut mpsc::Receiver<CancelRequest>,
+        execute_request_receiver: &mut mpsc::Receiver<ExecuteRequest>,
+        execute_response_sender: &watch::Sender<ExecuteResponse>,
     ) {
-        while let Some(request) = request_receiver.recv().await {
+        while let Some(request) = execute_request_receiver.recv().await {
             tracing::trace!("Executing document `{}` for request `{}`", &id, request.id);
 
+            // Generate the execution plan
             let start = request
                 .start
                 .map(|node_id| resources::code(path, &node_id, "", None));
-            let plan = graph.read().await.plan(start, None, None).await.unwrap();
+            let ordering = request.ordering.unwrap_or(PlanOrdering::Topological);
+            let options = PlanOptions {
+                ordering,
+                ..Default::default()
+            };
+            let plan = match graph.read().await.plan(start, None, Some(options)).await {
+                Ok(plan) => plan,
+                Err(error) => {
+                    tracing::error!("While generating execution plan: {}", error);
+                    continue;
+                }
+            };
 
-            // Execute the root node
+            // Execute the plan on the root node
             execute(
                 &plan,
                 root,
                 addresses,
+                kernel_space,
                 patch_request_sender,
-                compile_request_sender,
-                Some(kernel_space.clone()),
+                cancel_request_receiver,
             )
             .await;
 
             // Send response
-            if let Err(..) = response_sender.send(ExecuteResponse::new(request.id.clone())) {
+            if let Err(..) = execute_response_sender.send(ExecuteResponse::new(request.id.clone()))
+            {
                 tracing::error!(
                     "While sending patch response for document `{}`: channel closed",
                     id
@@ -1104,17 +1134,21 @@ impl Document {
 
     /// Execute the root node of the document
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, start: Option<String>) -> Result<RequestId> {
+    pub async fn execute(
+        &self,
+        start: Option<String>,
+        ordering: Option<PlanOrdering>,
+    ) -> Result<RequestId> {
         tracing::debug!("Executing document `{}`", self.id);
 
-        let request = ExecuteRequest::new(start);
+        let request = ExecuteRequest::new(start, ordering);
         let request_id = request.id.clone();
         self.execute_request_sender
             .send(request)
             .await
             .or_else(|_| {
                 bail!(
-                    "When sending execute message for document `{}`: the receiver has dropped",
+                    "When sending execute request for document `{}`: the receiver has dropped",
                     self.id
                 )
             });
@@ -1128,8 +1162,12 @@ impl Document {
     /// before returning. This is useful in some circumstances, such as ensuring the document
     /// is executed before saving it to file.
     #[tracing::instrument(skip(self))]
-    pub async fn execute_wait(&mut self, start: Option<String>) -> Result<()> {
-        let request_id = self.execute(start).await?;
+    pub async fn execute_wait(
+        &mut self,
+        start: Option<String>,
+        ordering: Option<PlanOrdering>,
+    ) -> Result<()> {
+        let request_id = self.execute(start, ordering).await?;
 
         tracing::trace!(
             "Waiting for execute response for document `{}` for request `{}`",
@@ -1160,15 +1198,60 @@ impl Document {
     pub async fn execute_plan(&self, plan: &Plan) -> Result<()> {
         tracing::debug!("Executing plan for document `{}`", self.id);
 
+        let (_cancel_request_sender, mut cancel_request_receiver) =
+            mpsc::channel::<CancelRequest>(1);
+
         execute(
             plan,
             &self.root,
             &self.addresses,
+            &self.kernels,
             &self.patch_request_sender,
-            &self.compile_request_sender,
-            Some(self.kernels.clone()),
+            &mut cancel_request_receiver,
         )
         .await
+    }
+
+    /// Cancel the execution of the document
+    ///
+    /// # Arguments
+    ///
+    /// - `start`: The node whose execution should be cancelled.
+    ///
+    /// - `scope`: The scope of the cancellation (the `Single` node identified
+    ///            by `start` or `All` nodes in the current plan).
+    #[tracing::instrument(skip(self))]
+    pub async fn cancel(
+        &self,
+        start: Option<String>,
+        scope: Option<PlanScope>,
+    ) -> Result<RequestId> {
+        tracing::debug!("Cancelling execution of document `{}`", self.id);
+
+        let request = CancelRequest::new(start, scope);
+        let request_id = request.id.clone();
+        self.cancel_request_sender.send(request).await.or_else(|_| {
+            bail!(
+                "When sending cancel request for document `{}`: the receiver has dropped",
+                self.id
+            )
+        });
+
+        Ok(request_id)
+    }
+
+    /// Restart the document's kernel space
+    ///
+    /// Cancels any execution plan that is running, destroy the document's
+    /// existing kernel, and create's a new one
+    #[tracing::instrument(skip(self))]
+    pub async fn restart(&self) -> Result<()> {
+        tracing::debug!("Restarting kernel space for document `{}`", self.id);
+
+        self.cancel(None, Some(PlanScope::All)).await;
+        *self.kernels.write().await = KernelSpace::new();
+
+        Ok(())
     }
 
     /// Update the `root` (and associated properties) of the document and publish updated encodings
@@ -1694,34 +1777,6 @@ impl Documents {
         Ok((document_guard.repr(), topic))
     }
 
-    /// Patch a document
-    ///
-    /// Given that this function is likely to be called often, to avoid a `clone()` and
-    /// to reduce WebSocket message sizes, unlike other functions it does not return the object.
-    #[tracing::instrument(skip(self))]
-    pub async fn patch(
-        &self,
-        id: &str,
-        patch: Patch,
-        compile: bool,
-        execute: bool,
-    ) -> Result<RequestId> {
-        let document_lock = self.get(id).await?;
-        let document_guard = document_lock.lock().await;
-        document_guard.patch(patch, compile, execute).await
-    }
-
-    /// Execute a node within a document
-    ///
-    /// Like `patch()`, given this function is likely to be called often, do not return
-    /// the document.
-    #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, id: &str, from: Option<String>) -> Result<RequestId> {
-        let document_lock = self.get(id).await?;
-        let document_guard = document_lock.lock().await;
-        document_guard.execute(from).await
-    }
-
     /// Get a document that has previously been opened
     pub async fn get(&self, id: &str) -> Result<Arc<Mutex<Document>>> {
         if let Some(handler) = self.registry.lock().await.get(id) {
@@ -1993,7 +2048,7 @@ pub mod commands {
             async fn run(&self) -> Result {
                 let document = self.file.get().await?;
                 let document = document.lock().await;
-                let kernels = document.kernels.clone();
+                let kernels = document.kernels.read().await;
                 self.kernels.run(&*kernels).await
             }
         }
@@ -2015,7 +2070,7 @@ pub mod commands {
             async fn run(&self) -> Result {
                 let document = self.file.get().await?;
                 let document = document.lock().await;
-                let kernels = document.kernels.clone();
+                let kernels = document.kernels.read().await;
                 self.tasks.run(&*kernels).await
             }
         }
@@ -2037,8 +2092,8 @@ pub mod commands {
             async fn run(&self) -> Result {
                 let document = self.file.get().await?;
                 let document = document.lock().await;
-                let kernels = document.kernels.clone();
-                self.queues.run(&kernels).await
+                let kernels = document.kernels.read().await;
+                self.queues.run(&*kernels).await
             }
         }
 
@@ -2081,8 +2136,8 @@ pub mod commands {
             async fn run(&self) -> Result {
                 let document = self.file.get().await?;
                 let document = document.lock().await;
-                let kernels = document.kernels.clone();
-                self.symbols.run(&kernels).await
+                let kernels = document.kernels.read().await;
+                self.symbols.run(&*kernels).await
             }
         }
     }
@@ -2156,7 +2211,7 @@ pub mod commands {
 
         /// Maximum concurrency for the execution plan
         ///
-        /// A maximum concurrency of 2 means that no more than two execution steps will
+        /// A maximum concurrency of 2 means that no more than two tasks will
         /// run at the same time (ie. in the same stage).
         /// Defaults to the number of CPUs on the machine.
         #[structopt(short, long)]

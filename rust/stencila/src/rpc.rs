@@ -1,11 +1,13 @@
 use crate::{documents::DOCUMENTS, sessions::SESSIONS};
 use defaults::Defaults;
 use eyre::{bail, Result};
+use graph::{PlanOrdering, PlanScope};
 use node_patch::Patch;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
+use std::str::FromStr;
 
 type Params = HashMap<String, serde_json::Value>;
 
@@ -56,6 +58,8 @@ impl Request {
             "documents.close" => documents_close(&self.params).await,
             "documents.patch" => documents_patch(&self.params).await,
             "documents.execute" => documents_execute(&self.params).await,
+            "documents.cancel" => documents_cancel(&self.params).await,
+            "documents.restart" => documents_restart(&self.params).await,
             "documents.subscribe" => documents_subscribe(&self.params, client).await,
             "documents.unsubscribe" => documents_unsubscribe(&self.params, client).await,
             _ => {
@@ -320,16 +324,57 @@ async fn documents_patch(params: &Params) -> Result<(serde_json::Value, Subscrip
         .and_then(|value| value.as_bool())
         .unwrap_or(false);
 
-    let document = DOCUMENTS.patch(&id, patch, true, execute).await?;
-    Ok((json!(document), Subscription::None))
+    DOCUMENTS
+        .get(&id)
+        .await?
+        .lock()
+        .await
+        .patch(patch, true, execute)
+        .await?;
+    Ok((serde_json::Value::Null, Subscription::None))
 }
 
 async fn documents_execute(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
     let node_id = optional_string(params, "nodeId")?;
+    let ordering = match optional_string(params, "ordering")? {
+        Some(ordering) => Some(PlanOrdering::from_str(&ordering)?),
+        None => None,
+    };
 
-    let document = DOCUMENTS.execute(&id, node_id).await?;
-    Ok((json!(document), Subscription::None))
+    DOCUMENTS
+        .get(&id)
+        .await?
+        .lock()
+        .await
+        .execute(node_id, ordering)
+        .await?;
+    Ok((serde_json::Value::Null, Subscription::None))
+}
+
+async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let id = required_string(params, "documentId")?;
+    let node_id = optional_string(params, "nodeId")?;
+    let scope = match optional_string(params, "scope")? {
+        Some(scope) => Some(PlanScope::from_str(&scope)?),
+        None => None,
+    };
+
+    DOCUMENTS
+        .get(&id)
+        .await?
+        .lock()
+        .await
+        .cancel(node_id, scope)
+        .await?;
+    Ok((serde_json::Value::Null, Subscription::None))
+}
+
+async fn documents_restart(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let id = required_string(params, "documentId")?;
+
+    DOCUMENTS.get(&id).await?.lock().await.restart().await?;
+    Ok((serde_json::Value::Null, Subscription::None))
 }
 
 // Helper functions for getting JSON-RPC parameters and raising appropriate errors
@@ -368,7 +413,9 @@ fn optional_string(params: &Params, name: &str) -> Result<Option<String>> {
     } else {
         return Ok(None);
     };
-    if let Some(param) = param.as_str() {
+    if param.is_null() {
+        Ok(None)
+    } else if let Some(param) = param.as_str() {
         Ok(Some(param.to_string()))
     } else {
         bail!(Error::invalid_param_error(&format!(

@@ -1,6 +1,6 @@
 ---
 source: rust/node-execute/src/lib.rs
-assertion_line: 109
+assertion_line: 115
 expression: "&plan"
 
 ---
@@ -11,7 +11,7 @@ expression: "&plan"
   },
   "stages": [
     {
-      "steps": [
+      "tasks": [
         {
           "resource_info": {
             "resource": {
@@ -114,7 +114,7 @@ expression: "&plan"
       ]
     },
     {
-      "steps": [
+      "tasks": [
         {
           "resource_info": {
             "resource": {
@@ -261,7 +261,11 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "is_fork": true
-        },
+        }
+      ]
+    },
+    {
+      "tasks": [
         {
           "resource_info": {
             "resource": {
@@ -361,7 +365,7 @@ expression: "&plan"
       ]
     },
     {
-      "steps": [
+      "tasks": [
         {
           "resource_info": {
             "resource": {
@@ -485,7 +489,11 @@ expression: "&plan"
           },
           "kernel_name": "calc",
           "is_fork": true
-        },
+        }
+      ]
+    },
+    {
+      "tasks": [
         {
           "resource_info": {
             "resource": {
@@ -539,7 +547,7 @@ expression: "&plan"
       ]
     },
     {
-      "steps": [
+      "tasks": [
         {
           "resource_info": {
             "resource": {

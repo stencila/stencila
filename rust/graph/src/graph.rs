@@ -28,7 +28,7 @@ use std::{
 use strum::Display;
 use utils::some_string;
 
-use crate::{Plan, PlanOptions, PlanOrdering, Stage, Step};
+use crate::{Plan, PlanOptions, PlanOrdering, PlanStage, PlanTask};
 
 /// A dependency graph for a project or document
 #[derive(Debug, Default, Clone)]
@@ -263,7 +263,24 @@ impl Graph {
     pub fn get_resource_info(&self, resource: &Resource) -> Result<&ResourceInfo> {
         self.resources
             .get(resource)
-            .ok_or_else(|| eyre!("Graph as no info for resource: {}", resource.resource_id()))
+            .ok_or_else(|| eyre!("Graph has no info for resource: {}", resource.resource_id(),))
+    }
+
+    /// Find a [`ResourceInfo`] object for a [`Resource`] that is equal to one in the graph
+    ///
+    /// Even though `self.resources` is keyed by `Resource`, it seems to be necessary to
+    /// use `find` (and the equality operator) when attempting to get resources that are not
+    /// aleady a key in `resources`.
+    pub fn find_resource_info(&self, resource: &Resource) -> Result<&ResourceInfo> {
+        self.resources
+            .values()
+            .find(|resource_info| resource_info.resource == *resource)
+            .ok_or_else(|| {
+                eyre!(
+                    "Could not find info for resource: {}",
+                    resource.resource_id(),
+                )
+            })
     }
 
     /// Add a set of [`ResourceInfo`] objects to the graph
@@ -515,9 +532,71 @@ impl Graph {
 
         let options = options.unwrap_or_default();
         match options.ordering {
+            PlanOrdering::Single => self.plan_single(start, kernels, options),
             PlanOrdering::Appearance => self.plan_appearance(start, kernels, options),
             PlanOrdering::Topological => self.plan_topological(start, kernels, options),
         }
+    }
+
+    /// Generate an execution plan for a single node
+    ///
+    /// The start resource must be supplied and be a code node with a kernel
+    /// capable of executing it. If the kernel is forkable, and the code is
+    /// `@pure` (inferred or declared), then the code will be executed in a fork
+    /// to avoid any unintended side-effects.
+    ///
+    /// # Arguments
+    ///
+    /// - `start`: The node at which the plan should start. If `None` then
+    ///            starts at the first node in the document.
+    ///
+    /// - `kernels`: The kernels available to execute the plan
+    ///
+    /// - `options`: Options for the plan
+    pub fn plan_single(
+        &self,
+        start: Option<Resource>,
+        kernels: Vec<Kernel>,
+        options: PlanOptions,
+    ) -> Result<Plan> {
+        let start = match start {
+            Some(start) => start,
+            None => {
+                bail!("A resource must be supplied for plan ordering `Single`")
+            }
+        };
+
+        // Get the `ResourceInfo` and `Resource` for `start` which have more information
+        // (such as the code language etc)
+        let resource_info = self.find_resource_info(&start)?.clone();
+        let resource = &resource_info.resource;
+
+        let code = match resource {
+            Resource::Code(code) => code,
+            _ => bail!("The resource must be a `Code` node for plan ordering `Simple`"),
+        };
+
+        let kernel = KernelSelector::new(None, code.language.clone(), None).select(&kernels);
+        let (kernel_name, kernel_forkable) = match kernel {
+            Some(kernel) => (Some(kernel.name.clone()), kernel.forkable),
+            None => bail!("There is no kernel available capable of executing the code"),
+        };
+
+        let is_fork = kernel_forkable && resource_info.is_pure();
+
+        Ok(Plan {
+            options: PlanOptions {
+                ordering: PlanOrdering::Single,
+                ..options
+            },
+            stages: vec![PlanStage {
+                tasks: vec![PlanTask {
+                    resource_info,
+                    kernel_name,
+                    is_fork,
+                }],
+            }],
+        })
     }
 
     /// Generate an execution plan based on appearance order
@@ -530,6 +609,8 @@ impl Graph {
     /// - `start`: The node at which the plan should start. If `None` then
     ///            starts at the first node in the document.
     ///
+    /// - `kernels`: The kernels available to execute the plan
+    ///
     /// - `options`: Options for the plan
     pub fn plan_appearance(
         &self,
@@ -537,11 +618,11 @@ impl Graph {
         kernels: Vec<Kernel>,
         options: PlanOptions,
     ) -> Result<Plan> {
-        let mut stages: Vec<Stage> = Vec::with_capacity(self.appearance_order.len());
-        let mut stage: Stage = Stage::default();
+        let mut stages: Vec<PlanStage> = Vec::with_capacity(self.appearance_order.len());
+        let mut stage: PlanStage = PlanStage::default();
         let mut started = start.is_none();
         for resource in &self.appearance_order {
-            // Should we start collecting steps?
+            // Should we start collecting tasks?
             if !started {
                 if let Some(start) = &start {
                     started = start == resource;
@@ -580,28 +661,37 @@ impl Graph {
             }
 
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
-            // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
+            // and (c) the maximum concurrency has not been exceeded then execute the task in a fork
             let is_fork = kernel_forkable
                 && resource_info.is_pure()
-                && stage.steps.len() < options.max_concurrency.saturating_sub(1);
+                && stage.tasks.len() < options.max_concurrency.saturating_sub(1);
 
-            // Create the step and add it to the current stage
-            let step = Step {
+            // Create the task
+            let task = PlanTask {
                 resource_info: resource_info.clone(),
                 kernel_name,
                 is_fork,
             };
-            stage.steps.push(step);
 
-            // If not in a fork, start a new stage.
-            if !is_fork {
-                stages.push(stage);
-                stage = Stage::default();
+            if is_fork {
+                // Fork tasks can be added to the current stage along side other
+                // fork tasks (possibly)
+                stage.tasks.push(task);
+            } else {
+                // Non-forked tasks must have their own stage to ensure they are
+                // executed before downstream dependents
+
+                if !stage.tasks.is_empty() {
+                    stages.push(stage);
+                    stage = PlanStage::default();
+                }
+
+                stages.push(PlanStage { tasks: vec![task] });
             }
         }
 
-        // Collect any steps not yet added (e.g. a `CodeExpression` at end of document)
-        if !stage.steps.is_empty() {
+        // Collect any tasks not yet added (e.g. a `CodeExpression` at end of document)
+        if !stage.tasks.is_empty() {
             stages.push(stage);
         }
 
@@ -621,9 +711,12 @@ impl Graph {
     ///
     /// # Arguments
     ///
-    /// - `start`: The node at which the plan should start. Only nodes that have `start`
-    ///            as a dependency (direct or transitive) will be executed. If `None` then
-    ///            the plan applies to all nodes in the document.
+    /// - `start`: The node at which the plan should start. Nodes that are upstream dependencies
+    ///            of `start` and are stale (and not `executeAuto == Never`) or are downstream
+    ///            dependent of `start` (and not `executeAuto == Never`) will be executed.
+    ///            If `None` then the plan includes all nodes in the document.
+    ///
+    /// - `kernels`: The kernels available to execute the plan
     ///
     /// - `options`: Options for the plan
     pub fn plan_topological(
@@ -637,7 +730,7 @@ impl Graph {
         let mut excluded = HashSet::new();
         let mut started = start.is_none();
         for resource in &self.topological_order {
-            // Should we start collecting steps?
+            // Should we start collecting tasks?
             if !started {
                 if let Some(start) = &start {
                     started = start == resource;
@@ -740,9 +833,9 @@ impl Graph {
             }
         }
 
-        // Second iteration, in topological order, to create stages and steps
+        // Second iteration, in topological order, to create stages and tasks
         let mut stages = Vec::with_capacity(included.len());
-        let mut stage: Stage = Stage::default();
+        let mut stage: PlanStage = PlanStage::default();
         for resource in &self.topological_order {
             // Only include resources included above
             if !included.contains(resource) {
@@ -766,28 +859,37 @@ impl Graph {
             let resource_info = self.get_resource_info(resource)?;
 
             // If (a) the kernel is forkable, (b) the code is `@pure` (inferred or declared),
-            // and (c) the maximum concurrency has not been exceeded then execute the step in a fork
+            // and (c) the maximum concurrency has not been exceeded then execute the task in a fork
             let is_fork = kernel_forkable
                 && resource_info.is_pure()
-                && stage.steps.len() < options.max_concurrency.saturating_sub(1);
+                && stage.tasks.len() < options.max_concurrency.saturating_sub(1);
 
-            // Create the step and add it to the current stage
-            let step = Step {
+            // Create the task
+            let task = PlanTask {
                 resource_info: resource_info.clone(),
                 kernel_name,
                 is_fork,
             };
-            stage.steps.push(step);
 
-            // If not in a fork, start a new stage.
-            if !is_fork {
-                stages.push(stage);
-                stage = Stage::default();
+            if is_fork {
+                // Fork tasks can be added to the current stage along side other
+                // fork tasks (possibly)
+                stage.tasks.push(task);
+            } else {
+                // Non-forked tasks must have their own stage to ensure they are
+                // executed before downstream dependents
+
+                if !stage.tasks.is_empty() {
+                    stages.push(stage);
+                    stage = PlanStage::default();
+                }
+
+                stages.push(PlanStage { tasks: vec![task] });
             }
         }
 
-        // Collect any steps not yet added (e.g. a `CodeExpression` at end of document)
-        if !stage.steps.is_empty() {
+        // Collect any tasks not yet added (e.g. a `CodeExpression` at end of document)
+        if !stage.tasks.is_empty() {
             stages.push(stage);
         }
 

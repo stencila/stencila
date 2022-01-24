@@ -1,24 +1,24 @@
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, HashMap},
     sync::Arc,
 };
 
-use eyre::{bail, Result};
+use eyre::{Report, Result};
 use futures::stream::{FuturesUnordered, StreamExt};
-use graph::Plan;
-use graph_triples::Resource;
+use graph::{Plan, PlanScope};
+use graph_triples::{Resource, ResourceInfo};
 use kernels::{KernelSelector, KernelSpace};
 use node_address::{Address, AddressMap};
 use node_patch::{diff, mutate, Patch};
 use stencila_schema::{CodeChunk, CodeExecutableExecuteStatus, CodeExpression, Node};
 use tokio::sync::{
-    mpsc::{Sender, UnboundedSender},
-    RwLock,
+    mpsc::{Receiver, UnboundedSender},
+    oneshot, RwLock,
 };
 
 use crate::{
     utils::{resource_to_node, send_patch, send_patches},
-    CompileRequest, Executable, PatchRequest,
+    CancelRequest, Executable, PatchRequest,
 };
 
 /// Execute a [`Plan`] on a [`Node`]
@@ -36,50 +36,62 @@ use crate::{
 /// - `address_map`: The [`AddressMap`] map for the `root` node (used to locate code nodes
 ///                  included in the plan within the `root` node; takes a read lock)
 ///
-/// - `patch_request_sender`: A [`PatchRequest`] channel sender to send patches describing the changes to
-///                   executed nodes
-///
-/// - `compile_request_sender`: A [`CompileRequest`] channel sender to request re-compiles due to changes to
-///                   executed nodes
-///
 /// - `kernel_space`: The [`KernelSpace`] within which to execute the plan
 ///
+/// - `patch_request_sender`: A [`PatchRequest`] channel sender to send patches describing the
+///                   changes to executed nodes
+///
+/// - `cancel_request_receiver`: A [`CancelRequest`] channel receiver to request cancellation of
+///                   one or more tasks in the plan
 pub async fn execute(
     plan: &Plan,
     root: &Arc<RwLock<Node>>,
     address_map: &Arc<RwLock<AddressMap>>,
+    kernel_space: &Arc<RwLock<KernelSpace>>,
     patch_request_sender: &UnboundedSender<PatchRequest>,
-    compile_request_sender: &Sender<CompileRequest>,
-    kernel_space: Option<Arc<KernelSpace>>,
+    cancel_request_receiver: &mut Receiver<CancelRequest>,
 ) -> Result<()> {
-    let kernel_space = kernel_space.unwrap_or_default();
+    // Drain the cancellation channel in case there are any requests inadvertantly
+    // sent by a client for a previous execute request.
+    while let Ok(..) = cancel_request_receiver.try_recv() {}
 
     // Obtain locks
     let root_guard = root.read().await;
     let address_map_guard = address_map.read().await;
 
     // Get a snapshot of all nodes involved in the plan at the start
-    // Also get their `execute_status` so it can be restored at the end if needs be.
-    let mut nodes: BTreeMap<Resource, _> = plan
+    let mut node_infos: BTreeMap<Resource, NodeInfo> = plan
         .stages
         .iter()
-        .flat_map(|stage| stage.steps.iter())
-        .filter_map(|step| {
-            let resource_info = step.resource_info.clone();
-            let resource = &resource_info.resource;
-            match resource_to_node(resource, &root_guard, &address_map_guard) {
-                Ok((node, node_id, node_address)) => {
-                    let execution_status = get_execute_status(&node);
-                    Some((
-                        resource.clone(),
-                        (resource_info, node_id, node_address, node, execution_status),
-                    ))
-                }
-                Err(error) => {
-                    tracing::warn!("While executing plan: {}", error);
-                    None
-                }
-            }
+        .enumerate()
+        .flat_map(|(stage_index, stage)| {
+            let root_guard = &root_guard;
+            let address_map_guard = &address_map_guard;
+            stage
+                .tasks
+                .iter()
+                .enumerate()
+                .filter_map(move |(task_index, task)| {
+                    let resource_info = task.resource_info.clone();
+                    let resource = &resource_info.resource;
+                    match resource_to_node(resource, root_guard, address_map_guard) {
+                        Ok((node, node_id, node_address)) => Some((
+                            resource.clone(),
+                            NodeInfo::new(
+                                stage_index,
+                                task_index,
+                                resource_info,
+                                node_id,
+                                node_address,
+                                node,
+                            ),
+                        )),
+                        Err(error) => {
+                            tracing::warn!("While executing plan: {}", error);
+                            None
+                        }
+                    }
+                })
         })
         .collect();
 
@@ -87,43 +99,49 @@ pub async fn execute(
     drop(root_guard);
     drop(address_map_guard);
 
-    // Set the `execute_status` of all nodes to `Scheduled` or `ScheduledPreviouslyFailed`
-    // and send the resulting patch
+    // Set the `execute_status` of all nodes in stages other thatn the first
+    // to `Scheduled` or `ScheduledPreviouslyFailed` and send the resulting patch.
+    // Do not do this for first stage as an optimization to avoid unecessary patches
+    // (they will go directly to `Running` or `RunningPreviouslyFailed`)
     send_patches(
         patch_request_sender,
-        nodes
+        node_infos
             .values_mut()
-            .map(|(_, node_id, node_address, node, ..)| {
-                set_execute_status_scheduled(node_id, node_address, node)
+            .filter_map(|node_info| {
+                if node_info.stage_index != 0 {
+                    Some(node_info.set_execute_status_scheduled())
+                } else {
+                    None
+                }
             })
             .collect(),
+        true,
     );
 
     // For each stage in plan...
     let stage_count = plan.stages.len();
-    let mut dependencies_failed = false;
+    let mut cancelled = Vec::new();
     for (stage_index, stage) in plan.stages.iter().enumerate() {
-        // Before running the steps in this stage, check that all their dependencies have succeeded
-        // and stop if they have not. Collects to a `BTreeSet` to generate unique set (some steps in
-        // the stage may have the shared dependencies)
-        dependencies_failed = stage
-            .steps
+        // Before running the tasks in this stage, check that all their dependencies have succeeded
+        // and stop if they have not. Collects to a `BTreeSet` to generate unique set (some tasks in
+        // the stage may have shared dependencies)
+        let dependencies_failed = stage
+            .tasks
             .iter()
-            .flat_map(|step| step.resource_info.dependencies.iter().flatten())
+            .flat_map(|task| task.resource_info.dependencies.iter().flatten())
             .collect::<BTreeSet<&Resource>>()
             .iter()
-            .filter_map(|dependency| nodes.get(dependency))
-            .map(|tuple| (&tuple.1, get_execute_status(&tuple.3)))
-            .any(|(node_id, status)| {
+            .filter_map(|dependency| node_infos.get(dependency))
+            .any(|node_info| {
                 tracing::trace!(
                     "Status of dependency of stage {}/{} `{}`: {:?}",
                     stage_index + 1,
                     stage_count,
-                    node_id,
-                    status
+                    node_info.node_id,
+                    node_info.get_execute_status()
                 );
                 matches!(
-                    status,
+                    node_info.get_execute_status(),
                     None | Some(CodeExecutableExecuteStatus::Failed)
                         | Some(CodeExecutableExecuteStatus::Cancelled)
                 )
@@ -135,207 +153,491 @@ pub async fn execute(
                 stage_count
             );
             break;
-        } else {
-            tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
         }
 
-        // Create a kernel task for each step in this stage
-        let step_count = stage.steps.len();
-        let mut patches = Vec::with_capacity(step_count);
-        let mut futures = Vec::with_capacity(step_count);
-        for (step_index, step) in stage.steps.iter().enumerate() {
-            // Get the node
-            let (_, node_id, node_address, mut node, ..) = nodes
-                .get(&step.resource_info.resource)
-                .expect("Node for resource should be in nodes")
-                .clone();
+        tracing::debug!("Starting stage {}/{}", stage_index + 1, stage_count);
+
+        let task_count = stage.tasks.len();
+        let mut patches = Vec::with_capacity(task_count);
+        let mut futures = Vec::new();
+        let mut cancellers = HashMap::new();
+
+        // Before creating tasks check for any cancellation requests
+        let mut cancel_all = false;
+        while let Ok(request) = cancel_request_receiver.try_recv() {
+            cancel_all = handle_cancel_request(
+                request,
+                &node_infos,
+                &mut cancellers,
+                &mut cancelled,
+                patch_request_sender,
+            );
+            if cancel_all {
+                break;
+            }
+        }
+        if cancel_all {
+            break;
+        }
+
+        // Create a kernel task for each task in this stage
+        for (task_index, task) in stage.tasks.iter().enumerate() {
+            // Get the node info for the task
+            let mut node_info = node_infos
+                .get(&task.resource_info.resource)
+                .cloned()
+                .expect("Node info for resource should be available");
+            let node_id = node_info.node_id.clone();
+
+            // Has the task been cancelled?
+            if cancelled.contains(&node_id) {
+                tracing::trace!(
+                    "Execution of node `{}` was cancelled before it was started",
+                    node_id
+                );
+                // Send a patch to revert `execute_status` to previous status
+                // (the `Cancelled` state is reserved for nodes that have started and are cancelled)
+                patches.push(node_info.reset_execute_status());
+                continue;
+            }
 
             // Set the `execute_status` of the node to `Running` or `RunningPreviouslyFailed`
             // and send the resulting patch
-            patches.push(set_execute_status_running(
-                &node_id,
-                &node_address,
-                &mut node,
-            ));
+            patches.push(node_info.set_execute_status_running());
+
+            // Create a channel to send cancel requests to task
+            let (cancel_sender, cancel_receiver) = oneshot::channel::<()>();
 
             // Create clones of variables needed to execute the task
             let kernel_space = kernel_space.clone();
-            let kernel_selector = KernelSelector::new(step.kernel_name.clone(), None, None);
-            let mut resource_info = step.resource_info.clone();
-            let is_fork = step.is_fork;
+            let kernel_selector = KernelSelector::new(task.kernel_name.clone(), None, None);
+            let mut resource_info = task.resource_info.clone();
+            let is_fork = task.is_fork;
 
             // Create a future for the task that will be spawned later
             let future = async move {
                 tracing::debug!(
-                    "Starting step {}/{} of stage {}/{}",
-                    step_index + 1,
-                    step_count,
+                    "Starting task {}/{} of stage {}/{}",
+                    task_index + 1,
+                    task_count,
                     stage_index + 1,
                     stage_count
                 );
 
                 // Create a mutable draft of the node and execute it in the kernel space
-                let mut draft = node.clone();
-                match draft
-                    .execute(&kernel_space, &kernel_selector, &resource_info, is_fork)
+                let mut executed = node_info.node.clone();
+
+                // Start execution of the node
+                let task_info = match executed
+                    .execute_begin(
+                        &*kernel_space.read().await,
+                        &kernel_selector,
+                        &resource_info,
+                        is_fork,
+                    )
                     .await
                 {
-                    Ok(_) => {
-                        // Update the resource to indicate that the resource was executed
-                        let execute_status = match &draft {
-                            Node::CodeChunk(CodeChunk { execute_status, .. })
-                            | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                                execute_status.clone()
-                            }
-                            _ => None,
-                        };
-                        resource_info.did_execute(execute_status);
-
-                        // Generate a patch for the differences resulting from execution
-                        let mut patch = diff(&node, &draft);
-                        patch.address = Some(node_address.clone());
-                        patch.target = Some(node_id.clone());
-
-                        Ok((step_index, resource_info, draft, patch))
+                    Ok(task_info) => task_info,
+                    Err(error) => {
+                        tracing::error!(
+                            "While beginning task {}/{}: {}",
+                            task_index + 1,
+                            task_count,
+                            error
+                        );
+                        None
                     }
-                    Err(error) => bail!(error),
+                };
+
+                // If a `TaskInfo` was returned, the execution is async, can potentially be
+                // cancelled, and need to be waited for...
+                if let Some(mut task_info) = task_info {
+                    // Hook the `cancel_receiver` to the task's `canceller`, if it has one
+                    // (i.e. if it is cancellable)
+                    if let Some(task_cancel_sender) = task_info.task.canceller.clone() {
+                        tracing::trace!("Task is `{}` cancellable", task_info.task.id);
+                        let task_id = task_info.task.id.clone();
+                        tokio::spawn(async move {
+                            if let Ok(..) = cancel_receiver.await {
+                                tracing::trace!(
+                                    "Attempting to cancel task `{}` in stage {}/{}",
+                                    task_id,
+                                    stage_index + 1,
+                                    stage_count
+                                );
+                                if let Err(error) = task_cancel_sender.send(()).await {
+                                    tracing::error!(
+                                        "While attempting to cancel task `{}`: {}",
+                                        task_id,
+                                        error
+                                    );
+                                }
+                            }
+                        });
+                    } else {
+                        tracing::trace!("Task `{}` is not cancellable", task_info.task.id);
+                    };
+
+                    // Wait for the task to finish (or be cancelled and update the executed node when it has
+                    let task_result = task_info.result().await?;
+                    executed.execute_end(task_info, task_result)?;
                 }
+
+                // Update the resource to indicate that the resource was executed
+                let execute_status = match &executed {
+                    Node::CodeChunk(CodeChunk { execute_status, .. })
+                    | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
+                        execute_status.clone()
+                    }
+                    _ => None,
+                };
+                resource_info.did_execute(execute_status);
+
+                // Generate a patch for the differences resulting from execution
+                let mut patch = diff(&node_info.node, &executed);
+                patch.address = Some(node_info.node_address.clone());
+                patch.target = Some(node_info.node_id.clone());
+
+                // Having generated the patch, update the node_info.node (which may be used
+                // for assesing execution status etc)
+                node_info.node = executed;
+
+                Ok::<_, Report>((task_index, resource_info, node_info, patch))
             };
+            cancellers.insert(node_id, cancel_sender);
             futures.push(future);
         }
-        send_patches(patch_request_sender, patches);
 
-        // Spawn all tasks in the stage and wait for each to finish, sending on the resultant `Patch`
-        // for application and publishing (if it is not empty)
-        // TODO: Replace `FuturesUnordered` with `TaskSet`. See https://news.ycombinator.com/item?id=29912386
-        let mut results = futures
-            .into_iter()
-            .map(tokio::spawn)
-            .collect::<FuturesUnordered<_>>();
-        while let Some(result) = results.next().await {
-            let (step_index, resource_info, node, patch) = result??;
+        // Send patches for updated execution status
+        send_patches(patch_request_sender, patches, true);
 
+        if futures.is_empty() {
             tracing::debug!(
-                "Finished step {}/{} of stage {}/{}",
-                step_index + 1,
-                step_count,
+                "Skipping stage {}/{}, all tasks cancelled",
                 stage_index + 1,
                 stage_count
             );
+            continue;
+        }
 
-            // Send the patch reflecting the changed state of the executed node
-            send_patch(patch_request_sender, patch);
+        // Spawn all task futures
+        // TODO: Replace `FuturesUnordered` with `TaskSet`. See https://news.ycombinator.com/item?id=29912386
+        let mut futures_unordered = futures
+            .into_iter()
+            .map(tokio::spawn)
+            .collect::<FuturesUnordered<_>>();
 
-            // Update the state of the node in this function's record of nodes
-            nodes
-                .entry(resource_info.resource.clone())
-                .and_modify(|info| info.3 = node);
+        // Wait for both execution results and any cancellation requests and act accordingly
+        loop {
+            tokio::select! {
+                // Handle tasks that have finished
+                result = futures_unordered.next() => {
+                    let result = match result {
+                        Some(result) => result,
+                        // If next() is none, we've reached the end of the tasks so break
+                        None => break
+                    };
+                    let result = match result {
+                        Ok(result) => match result {
+                            Ok(result) => Some(result),
+                            Err(error) => {
+                                tracing::error!("While executing a task: {}", error);
+                                None
+                            }
+                        },
+                        Err(error) => {
+                            tracing::error!("While attempting to join task: {}", error);
+                            None
+                        }
+                    };
 
-            // Send a patch request so that properties of other nodes such as `code_dependencies` and
-            // `code_dependents` get updated with the new execution status the node that was executed in
-            // this task. Previously we tried to take shortcut to this by just updating the graph and
-            // calling `compile_no_walk` ut that proved unreliable so instead make a (debounced) request
-            if let Err(..) = compile_request_sender
-                .send(CompileRequest::new(false, None))
-                .await
-            {
-                tracing::debug!("When sending compile request: receiver dropped");
+                    if let Some((task_index, resource_info, mut node_info, patch)) = result {
+                        tracing::debug!(
+                            "Finished task {}/{} of stage {}/{}",
+                            task_index + 1,
+                            task_count,
+                            stage_index + 1,
+                            stage_count
+                        );
+
+                        // Check if task result should be ignored and node not patched
+                        if cancelled.contains(&node_info.node_id) {
+                            tracing::trace!(
+                                "Execution of node `{}` was cancelled so result was ignored",
+                                node_info.node_id
+                            );
+                            // Send patch to indicate that the node was cancelled i.e. side effects
+                            // may have occurred but node will not be patched
+                            send_patch(
+                                patch_request_sender,
+                                node_info.set_execute_status_cancelled(),
+                                true
+                            );
+                        } else {
+                            // Send the patch reflecting the changed state of the executed node
+                            send_patch(patch_request_sender, patch, true);
+                        }
+
+                        // Update the node_info record used elsewhere in this function (mainly for the new execution status of nodes)
+                        node_infos
+                            .entry(resource_info.resource.clone())
+                            .and_modify(|current_node_info| *current_node_info = node_info);
+                    }
+                }
+
+                // Handle cancellation requests, exiting the loop if the cancellation scope is
+                // `All` (i.e the whole plan)
+                Some(request) = cancel_request_receiver.recv() => {
+                    let all = handle_cancel_request(request, &node_infos, &mut cancellers, &mut cancelled, patch_request_sender);
+                    if all {
+                        break;
+                    }
+                }
             }
         }
 
         tracing::debug!("Finished stage {}/{}", stage_index + 1, stage_count);
     }
 
-    // For nodes that were scheduled but never got to run because dependencies did not succeed,
-    // restore their previous execution status
-    if dependencies_failed {
-        send_patches(
-            patch_request_sender,
-            nodes
-                .values_mut()
-                .map(|(_, node_id, node_address, node, execute_status)| {
-                    restore_previous_execute_status(node_id, node_address, node, execute_status)
-                })
-                .collect(),
-        );
-    }
+    // For nodes that were scheduled but never got to run (e.g. because dependencies did not succeed
+    // or the plan was cancelled), or were running but got cancelled, reset execute status
+    send_patches(
+        patch_request_sender,
+        node_infos
+            .values_mut()
+            .map(|node_info| node_info.reset_execute_status())
+            .collect(),
+        true,
+    );
 
     Ok(())
 }
 
-fn get_execute_status(node: &Node) -> Option<CodeExecutableExecuteStatus> {
-    match node {
-        Node::CodeChunk(CodeChunk { execute_status, .. })
-        | Node::CodeExpression(CodeExpression { execute_status, .. }) => execute_status.clone(),
-        // At present, assumes the execution of parameters always succeeds
-        Node::Parameter(..) => Some(CodeExecutableExecuteStatus::Succeeded),
-        _ => None,
+/// A private internal struct to keep track of details of each node in the
+/// execution plan during its execution
+#[derive(Clone)]
+struct NodeInfo {
+    // The index of the stage of the plan the node is in
+    stage_index: usize,
+
+    // The index of the task in the stage associated with the node
+    task_index: usize,
+
+    /// The associated [`ResourceInfo`]
+    resource_info: ResourceInfo,
+
+    /// The id of the node
+    node_id: String,
+
+    /// The address of the node
+    node_address: Address,
+
+    /// A copy of the node
+    ///
+    /// We take a copy of the node initially at the start of [`execute`] and
+    /// then and send pathces for it to update status and execution results.
+    node: Node,
+
+    /// The execution state of the node prior to [`execute`]
+    previous_execute_status: Option<CodeExecutableExecuteStatus>,
+}
+
+impl NodeInfo {
+    fn new(
+        stage_index: usize,
+        task_index: usize,
+        resource_info: ResourceInfo,
+        node_id: String,
+        node_address: Address,
+        node: Node,
+    ) -> Self {
+        let mut node_info = Self {
+            stage_index,
+            task_index,
+            resource_info,
+            node_id,
+            node_address,
+            node,
+            previous_execute_status: None,
+        };
+        node_info.previous_execute_status = node_info.get_execute_status();
+        node_info
+    }
+
+    fn get_execute_status(&self) -> Option<CodeExecutableExecuteStatus> {
+        match &self.node {
+            Node::CodeChunk(CodeChunk { execute_status, .. })
+            | Node::CodeExpression(CodeExpression { execute_status, .. }) => execute_status.clone(),
+            // At present, assumes the execution of parameters always succeeds
+            Node::Parameter(..) => Some(CodeExecutableExecuteStatus::Succeeded),
+            _ => None,
+        }
+    }
+
+    fn set_execute_status_scheduled(&mut self) -> Patch {
+        mutate(
+            &mut self.node,
+            Some(self.node_id.to_string()),
+            Some(self.node_address.clone()),
+            &|node: &mut Node| match node {
+                Node::CodeChunk(CodeChunk { execute_status, .. })
+                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
+                    *execute_status = Some(match execute_status {
+                        Some(CodeExecutableExecuteStatus::Failed) => {
+                            CodeExecutableExecuteStatus::ScheduledPreviouslyFailed
+                        }
+                        _ => CodeExecutableExecuteStatus::Scheduled,
+                    });
+                }
+                _ => {}
+            },
+        )
+    }
+
+    fn set_execute_status_running(&mut self) -> Patch {
+        mutate(
+            &mut self.node,
+            Some(self.node_id.to_string()),
+            Some(self.node_address.clone()),
+            &|node: &mut Node| match node {
+                Node::CodeChunk(CodeChunk { execute_status, .. })
+                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
+                    *execute_status = Some(match execute_status {
+                        Some(CodeExecutableExecuteStatus::Failed)
+                        | Some(CodeExecutableExecuteStatus::ScheduledPreviouslyFailed) => {
+                            CodeExecutableExecuteStatus::RunningPreviouslyFailed
+                        }
+                        _ => CodeExecutableExecuteStatus::Running,
+                    });
+                }
+                _ => {}
+            },
+        )
+    }
+
+    fn set_execute_status_cancelled(&mut self) -> Patch {
+        mutate(
+            &mut self.node,
+            Some(self.node_id.to_string()),
+            Some(self.node_address.clone()),
+            &|node: &mut Node| match node {
+                Node::CodeChunk(CodeChunk { execute_status, .. })
+                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
+                    *execute_status = Some(CodeExecutableExecuteStatus::Cancelled);
+                }
+                _ => {}
+            },
+        )
+    }
+
+    fn reset_execute_status(&mut self) -> Patch {
+        mutate(
+            &mut self.node,
+            Some(self.node_id.to_string()),
+            Some(self.node_address.clone()),
+            &|node: &mut Node| match node {
+                Node::CodeChunk(CodeChunk { execute_status, .. })
+                | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
+                    match execute_status {
+                        Some(CodeExecutableExecuteStatus::Scheduled)
+                        | Some(CodeExecutableExecuteStatus::ScheduledPreviouslyFailed) => {
+                            *execute_status = self.previous_execute_status.clone()
+                        }
+
+                        Some(CodeExecutableExecuteStatus::Running)
+                        | Some(CodeExecutableExecuteStatus::RunningPreviouslyFailed) => {
+                            *execute_status = Some(CodeExecutableExecuteStatus::Cancelled)
+                        }
+
+                        _ => {}
+                    }
+                }
+                _ => {}
+            },
+        )
     }
 }
 
-fn set_execute_status_scheduled(node_id: &str, node_address: &Address, node: &mut Node) -> Patch {
-    mutate(
-        node,
-        Some(node_id.to_string()),
-        Some(node_address.clone()),
-        &|node: &mut Node| match node {
-            Node::CodeChunk(CodeChunk { execute_status, .. })
-            | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                *execute_status = Some(match execute_status {
-                    Some(CodeExecutableExecuteStatus::Failed) => {
-                        CodeExecutableExecuteStatus::ScheduledPreviouslyFailed
-                    }
-                    _ => CodeExecutableExecuteStatus::Scheduled,
-                });
-            }
-            _ => {}
-        },
-    )
+fn get_node_info(node_infos: &BTreeMap<Resource, NodeInfo>, node_id: &str) -> Option<NodeInfo> {
+    for node_info in node_infos.values() {
+        if node_info.node_id == node_id {
+            return Some(node_info.clone());
+        }
+    }
+    None
 }
 
-fn set_execute_status_running(node_id: &str, node_address: &Address, node: &mut Node) -> Patch {
-    mutate(
-        node,
-        Some(node_id.to_string()),
-        Some(node_address.clone()),
-        &|node: &mut Node| match node {
-            Node::CodeChunk(CodeChunk { execute_status, .. })
-            | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                *execute_status = Some(match execute_status {
-                    Some(CodeExecutableExecuteStatus::Failed)
-                    | Some(CodeExecutableExecuteStatus::ScheduledPreviouslyFailed) => {
-                        CodeExecutableExecuteStatus::RunningPreviouslyFailed
-                    }
-                    _ => CodeExecutableExecuteStatus::Running,
-                });
-            }
-            _ => {}
-        },
-    )
-}
+fn handle_cancel_request(
+    request: CancelRequest,
+    node_infos: &BTreeMap<Resource, NodeInfo>,
+    cancellers: &mut HashMap<String, oneshot::Sender<()>>,
+    cancelled: &mut Vec<String>,
+    patch_request_sender: &UnboundedSender<PatchRequest>,
+) -> bool {
+    let node_id = request.start;
+    let scope = request.scope.unwrap_or(PlanScope::Single);
 
-fn restore_previous_execute_status(
-    node_id: &str,
-    node_address: &Address,
-    node: &mut Node,
-    previous_execute_status: &Option<CodeExecutableExecuteStatus>,
-) -> Patch {
-    mutate(
-        node,
-        Some(node_id.to_string()),
-        Some(node_address.clone()),
-        &|node: &mut Node| match node {
-            Node::CodeChunk(CodeChunk { execute_status, .. })
-            | Node::CodeExpression(CodeExpression { execute_status, .. }) => {
-                if matches!(
-                    execute_status,
-                    Some(CodeExecutableExecuteStatus::Scheduled)
-                        | Some(CodeExecutableExecuteStatus::ScheduledPreviouslyFailed)
-                ) {
-                    *execute_status = previous_execute_status.clone();
+    match scope {
+        PlanScope::Single => {
+            let node_id = match node_id {
+                Some(node_id) => node_id,
+                None => {
+                    tracing::error!(
+                        "Cancellation scope is `Single` but no node id supplied: ignored"
+                    );
+                    return false;
+                }
+            };
+
+            // If the node is currently running cancel it
+            if let Some(canceller) = cancellers.remove(&node_id) {
+                tracing::debug!("Cancelling running node `{}`", node_id);
+                if let Err(..) = canceller.send(()) {
+                    tracing::error!(
+                        "While attempting to cancel node `{}`: channel closed",
+                        node_id
+                    );
+                } else if let Some(mut node_info) = get_node_info(node_infos, &node_id) {
+                    send_patch(
+                        patch_request_sender,
+                        node_info.set_execute_status_cancelled(),
+                        true,
+                    );
                 }
             }
-            _ => {}
-        },
-    )
+
+            // Add to list of cancelled nodes so if scheduled, does not get run
+            cancelled.push(node_id);
+
+            false
+        }
+        PlanScope::All => {
+            let mut node_ids: Vec<String> = node_infos
+                .values()
+                .map(|node_info| node_info.node_id.clone())
+                .collect();
+
+            // Cancel all nodes that are currently running
+            tracing::debug!("Cancelling all running nodes");
+            let mut patches = Vec::new();
+            for node_id in node_ids.iter() {
+                if let Some(canceller) = cancellers.remove(node_id) {
+                    if let Err(..) = canceller.send(()) {
+                        tracing::error!(
+                            "While attempting to cancel node `{}`: channel closed",
+                            node_id
+                        );
+                    } else if let Some(mut node_info) = get_node_info(node_infos, node_id) {
+                        patches.push(node_info.set_execute_status_cancelled());
+                    }
+                }
+            }
+            send_patches(patch_request_sender, patches, true);
+
+            // Add all nodes in the plan to list of cancelled nodes
+            cancelled.append(&mut node_ids);
+
+            true
+        }
+    }
 }

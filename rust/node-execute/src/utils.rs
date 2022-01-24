@@ -45,20 +45,31 @@ pub(crate) fn resource_to_node(
 }
 
 /// Sends a [`Patch`] using a channel sender (if the patch is not empty)
-pub(crate) fn send_patch(patch_sender: &UnboundedSender<PatchRequest>, patch: Patch) {
+///
+/// Use `compile == true` in `execute()` function but not in `compile()` function to avoid
+/// infinite loops.
+pub(crate) fn send_patch(
+    patch_sender: &UnboundedSender<PatchRequest>,
+    patch: Patch,
+    compile: bool,
+) {
     if !patch.is_empty() {
         tracing::trace!(
             "Sending patch request with `{}` operations",
             patch.ops.len()
         );
-        if let Err(..) = patch_sender.send(PatchRequest::new(patch, false, false)) {
+        if let Err(..) = patch_sender.send(PatchRequest::new(patch, compile, false)) {
             tracing::debug!("When sending patch: receiver dropped");
         }
     }
 }
 
 /// Sends multiple [`Patch`]es using a channel sender (combining them into a single patch before sending)
-pub(crate) fn send_patches(patch_sender: &UnboundedSender<PatchRequest>, patches: Vec<Patch>) {
+pub(crate) fn send_patches(
+    patch_sender: &UnboundedSender<PatchRequest>,
+    patches: Vec<Patch>,
+    compile: bool,
+) {
     let patch = Patch::from_patches(patches);
-    send_patch(patch_sender, patch)
+    send_patch(patch_sender, patch, compile)
 }

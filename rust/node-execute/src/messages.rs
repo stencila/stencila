@@ -1,3 +1,4 @@
+use graph::{PlanOrdering, PlanScope};
 use node_patch::Patch;
 use uuids::uuid_family;
 
@@ -81,13 +82,15 @@ impl CompileResponse {
 pub struct ExecuteRequest {
     pub id: RequestId,
     pub start: Option<String>,
+    pub ordering: Option<PlanOrdering>,
 }
 
 impl ExecuteRequest {
-    pub fn new(start: Option<String>) -> Self {
+    pub fn new(start: Option<String>, ordering: Option<PlanOrdering>) -> Self {
         Self {
             id: RequestId::new(),
             start,
+            ordering,
         }
     }
 }
@@ -99,6 +102,42 @@ pub struct ExecuteResponse {
 }
 
 impl ExecuteResponse {
+    pub fn null() -> Self {
+        Self {
+            id: RequestId("".into()),
+        }
+    }
+
+    pub fn new(id: RequestId) -> Self {
+        Self { id }
+    }
+}
+
+/// An internal request to cancel execution of a document
+#[derive(Debug)]
+pub struct CancelRequest {
+    pub id: RequestId,
+    pub start: Option<String>,
+    pub scope: Option<PlanScope>,
+}
+
+impl CancelRequest {
+    pub fn new(start: Option<String>, scope: Option<PlanScope>) -> Self {
+        Self {
+            id: RequestId::new(),
+            start,
+            scope,
+        }
+    }
+}
+
+/// A response to an internal request to cancel execution of a document
+#[derive(Debug)]
+pub struct CancelResponse {
+    pub id: RequestId,
+}
+
+impl CancelResponse {
     pub fn null() -> Self {
         Self {
             id: RequestId("".into()),
