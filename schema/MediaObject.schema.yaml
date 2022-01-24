@@ -43,7 +43,7 @@ properties:
       expects either Text or URL for this property. This schema expects a media type e.g. `text/html`
       as listed at http://www.iana.org/assignments/media-types/media-types.xhtml.
     type: string
-    pattern: '^[a-z]+(\/[a-z\+\-]+)$'
+    pattern: '^\w+/[-+.\w]+$'
 required:
   # `contentUrl` is required since it seems to make little sense to have a `MediaObject`
   # that does not have it
