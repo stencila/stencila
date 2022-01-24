@@ -107,7 +107,7 @@ pub async fn nodes_to_bytes(
         .build()
         .expect("Should build config");
     let (browser, mut handler) = Browser::launch(config).await?;
-    tokio::task::spawn(async move {
+    let handler_task = tokio::task::spawn(async move {
         loop {
             let _ = handler.next().await.unwrap();
         }
@@ -124,6 +124,10 @@ pub async fn nodes_to_bytes(
         let bytes = element.screenshot(CaptureScreenshotFormat::Png).await?;
         pngs.push(bytes)
     }
+
+    // Abort the handler task (if this is not done can get a `ResetWithoutClosingHandshake`
+    // when this function ends
+    handler_task.abort();
 
     Ok(pngs)
 }
