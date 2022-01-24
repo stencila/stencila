@@ -29,10 +29,6 @@ impl CodecTrait for RpngCodec {
             status: "alpha".to_string(),
             formats: vec_string!["rpng"],
             root_types: vec_string!["*"],
-            from_string: true,
-            from_path: true,
-            to_string: true,
-            to_path: true,
             ..Default::default()
         }
     }
