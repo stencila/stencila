@@ -1,4 +1,4 @@
-use codec::CodecTrait;
+use codec::{utils::vec_string, CodecTrait};
 use codec_docx::DocxCodec;
 use once_cell::sync::Lazy;
 use test_props::{article, proptest::prelude::*, Freedom};
@@ -13,7 +13,12 @@ proptest! {
     #[test]
     fn test(input in article(
         Freedom::Min,
-        DocxCodec::spec().unsupported_types,
+        [
+            DocxCodec::spec().unsupported_types,
+            // Pandoc replaces the media object with the description if
+            // it can not find the file. So exclude these types from the test.
+            vec_string!["AudioObject", "ImageObject", "VideoObject"]
+        ].concat(),
         DocxCodec::spec().unsupported_properties
     )) {
         RUNTIME.block_on(async {
