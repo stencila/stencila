@@ -24,7 +24,7 @@ impl CodecTrait for IpynbCodec {
         Codec {
             status: "beta".to_string(),
             formats: vec_string!["ipynb"],
-            root_types: vec_string!["*"],
+            root_types: vec_string!["Article"],
             from_string: cfg!(feature = "decode"),
             from_path: cfg!(feature = "decode"),
             to_string: cfg!(feature = "encode"),
