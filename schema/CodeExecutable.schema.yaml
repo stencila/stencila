@@ -41,8 +41,9 @@ properties:
     type: integer
     minimum: 0
     $comment: |
-      Analogous to `execution_count` in Jupyter Notebook format v4.5 but not a required
-      property as it is there.
+      Intended to increment with each successive execution of the node, including across sessions.
+      Note that this differs to the `execution_count` in Jupyter Notebook format which is
+      the "code cell's prompt number" and which resets at the start of each new session.
   executeDigest:
     '@id': stencila:executeDigest
     description: The `compileDigest` of the node when it was last executed.
