@@ -1,3 +1,11 @@
+## [1.16.1](https://github.com/stencila/schema/compare/v1.16.0...v1.16.1) (2022-01-24)
+
+
+### Bug Fixes
+
+* **Executable code nodes:** Make `executeCount` unsigned and clarify docs ([1704980](https://github.com/stencila/schema/commit/1704980722a5f988cbeeac9e0cd040d6e48f732b))
+* **Media objects:** Make `mediaType` regex more permissive ([e1d2c21](https://github.com/stencila/schema/commit/e1d2c2113a84ce2cb428906f4ef1eeae530aad65))
+
 # [1.16.0](https://github.com/stencila/schema/compare/v1.15.0...v1.16.0) (2022-01-17)
 
 
