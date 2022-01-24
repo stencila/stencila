@@ -43,10 +43,7 @@ impl CodecTrait for PandocCodec {
             to_path: cfg!(feature = "encode"),
             unsupported_types: vec_string![
                 // TODO: Fix these
-                "Table",
-                "AudioObject",
-                "ImageObject",
-                "VideoObject"
+                "Table"
             ],
             ..Default::default()
         }
