@@ -1,3 +1,21 @@
+# [0.142.0](https://github.com/stencila/stencila/compare/v0.141.0...v0.142.0) (2022-01-24)
+
+
+### Bug Fixes
+
+* **Execution cancellation:** Improve handling of cancel requests ([116329b](https://github.com/stencila/stencila/commit/116329be20fee5284a70489b6e24c041fa41d4d9))
+* **Kernel spaces:** Abort monitoring task when dropped; ensure `new` called from `documents` module to start ([b9b136e](https://github.com/stencila/stencila/commit/b9b136ed00d07ab5c577f8047538c93d4d5a72e3))
+* **Node execution:** Ensure that on-forked tasks are in their own stage ([81ac7a0](https://github.com/stencila/stencila/commit/81ac7a02f230b711fb4dbba6a50bca847bfc3414))
+* **Node execution:** Handle cancelling of node properly ([8516ce1](https://github.com/stencila/stencila/commit/8516ce14e8ba0188b6369c8f0fe2fd98ede52498))
+
+
+### Features
+
+* **Dependency graphs:** Add `require` relation to moe succinctly, less hackily express dependency between code nodes ([33384d5](https://github.com/stencila/stencila/commit/33384d598e96c7301a3f674abd50fbd7ca3f0ced))
+* **Documents:** Add `restart` method for replacing `KernelSpace` ([712b98f](https://github.com/stencila/stencila/commit/712b98fac04be557d6f7814b1cb055fd52d99aea))
+* **HTML encoding:** Add document toolbar ([e76e1ed](https://github.com/stencila/stencila/commit/e76e1eda4e0d8d6abe9086513505b766e28cf56d))
+* **Node execution:** Cancel execution tasks where possible ([843861e](https://github.com/stencila/stencila/commit/843861e6cebbfd577c21076be791e51d7f1b76c3))
+
 # [0.141.0](https://github.com/stencila/stencila/compare/v0.140.0...v0.141.0) (2022-01-24)
 
 
