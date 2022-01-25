@@ -1,0 +1,116 @@
+{
+  "indexed": {
+    "date-parts": [[2021, 12, 11]],
+    "date-time": "2021-12-11T03:35:37Z",
+    "timestamp": 1639193737742
+  },
+  "reference-count": 6,
+  "publisher": "Ubiquity Press, Ltd.",
+  "license": [
+    {
+      "start": {
+        "date-parts": [[2019, 1, 1]],
+        "date-time": "2019-01-01T00:00:00Z",
+        "timestamp": 1546300800000
+      },
+      "content-version": "vor",
+      "delay-in-days": 0,
+      "URL": "http://creativecommons.org/licenses/by/4.0"
+    }
+  ],
+  "content-domain": { "domain": [], "crossmark-restriction": false },
+  "published-print": { "date-parts": [[2019, 3, 21]] },
+  "DOI": "10.5334/jors.182",
+  "type": "journal-article",
+  "created": {
+    "date-parts": [[2019, 3, 21]],
+    "date-time": "2019-03-21T16:41:18Z",
+    "timestamp": 1553186478000
+  },
+  "source": "Crossref",
+  "is-referenced-by-count": 2,
+  "title": "Tensors.jl \u2014 Tensor Computations in Julia",
+  "prefix": "10.5334",
+  "volume": "7",
+  "author": [
+    {
+      "ORCID": "http://orcid.org/0000-0001-9092-3092",
+      "authenticated-orcid": false,
+      "given": "Kristoffer",
+      "family": "Carlsson",
+      "sequence": "first",
+      "affiliation": []
+    },
+    {
+      "ORCID": "http://orcid.org/0000-0003-2476-5406",
+      "authenticated-orcid": false,
+      "given": "Fredrik",
+      "family": "Ekre",
+      "sequence": "additional",
+      "affiliation": []
+    }
+  ],
+  "member": "3285",
+  "reference": [
+    {
+      "key": "key20190321124106_B1",
+      "volume-title": "Finite Element Procedures",
+      "year": "1996"
+    },
+    {
+      "issue": "1",
+      "key": "key20190321124106_B2",
+      "doi-asserted-by": "crossref",
+      "first-page": "65",
+      "DOI": "10.1137/141000671",
+      "article-title": "\u201cJulia: A Fresh Approach to Numerical Computing\u201d",
+      "volume": "59",
+      "year": "2017",
+      "journal-title": "SIAM Review"
+    },
+    {
+      "key": "key20190321124106_B3",
+      "volume-title": "The finite element method: linear static and dynamic finite element analysis",
+      "year": "1987"
+    },
+    {
+      "key": "key20190321124106_B4",
+      "volume-title": "The Art of Differentiating Computer Programs: An Introduction to Algorithmic Differentiation",
+      "year": "2012"
+    },
+    {
+      "key": "key20190321124106_B5",
+      "unstructured": "Revels, J, Lubin, M and Papamarkou, T 2016 \u201cForward-Mode Automatic Differentiation in Julia\u201d. In: arXiv:1607.07892 [cs.MS]. URL: https://arxiv.org/abs/1607.07892."
+    },
+    {
+      "key": "key20190321124106_B6",
+      "first-page": "1",
+      "volume-title": "The Finite Element Method for Solid and Structural Mechanics (Seventh Edition)",
+      "year": "2014",
+      "edition": "Seventh"
+    }
+  ],
+  "container-title": "Journal of Open Research Software",
+  "original-title": [],
+  "language": "en",
+  "deposited": {
+    "date-parts": [[2020, 12, 17]],
+    "date-time": "2020-12-17T14:43:53Z",
+    "timestamp": 1608216233000
+  },
+  "score": 1,
+  "subtitle": [],
+  "short-title": [],
+  "issued": { "date-parts": [[2019]] },
+  "references-count": 6,
+  "alternative-id": ["10.5334/jors.182"],
+  "URL": "http://dx.doi.org/10.5334/jors.182",
+  "relation": {},
+  "ISSN": ["2049-9647"],
+  "subject": [
+    "Library and Information Sciences",
+    "Information Systems",
+    "Software"
+  ],
+  "published": { "date-parts": [[2019]] }
+}

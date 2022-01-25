@@ -1,0 +1,57 @@
+---
+source: rust/codec-csl/src/lib.rs
+assertion_line: 237
+expression: node
+input_file: fixtures/fragments/csl/10-5334-jors-182.json
+
+---
+{
+  "type": "Article",
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Carlsson"
+      ],
+      "givenNames": [
+        "Kristoffer"
+      ],
+      "identifiers": [
+        "http://orcid.org/0000-0001-9092-3092"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Ekre"
+      ],
+      "givenNames": [
+        "Fredrik"
+      ],
+      "identifiers": [
+        "http://orcid.org/0000-0003-2476-5406"
+      ]
+    }
+  ],
+  "datePublished": {
+    "type": "Date",
+    "value": "2019"
+  },
+  "isPartOf": {
+    "type": "PublicationIssue",
+    "isPartOf": {
+      "type": "PublicationVolume",
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Journal of Open Research Software"
+      },
+      "volumeNumber": "7"
+    },
+    "issueNumber": "7"
+  },
+  "publisher": {
+    "type": "Organization",
+    "name": "Ubiquity Press, Ltd."
+  },
+  "title": "Tensors.jl — Tensor Computations in Julia"
+}
