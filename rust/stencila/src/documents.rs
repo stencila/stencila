@@ -4,7 +4,7 @@ use eyre::{bail, Result};
 use formats::FormatSpec;
 use graph::{Graph, Plan, PlanOptions, PlanOrdering, PlanScope};
 use graph_triples::{resources, Relations};
-use kernels::KernelSpace;
+use kernels::{KernelInfos, KernelSpace, KernelSymbols};
 use maplit::hashset;
 use node_address::AddressMap;
 use node_execute::{
@@ -1240,7 +1240,7 @@ impl Document {
         Ok(request_id)
     }
 
-    /// Restart a kernel (or all kernels) in a document's kernel space
+    /// Restart a kernel (or all kernels) in the document's kernel space
     ///
     /// Cancels any execution plan that is running, destroy the document's
     /// existing kernel, and create's a new one
@@ -1254,6 +1254,18 @@ impl Document {
         kernels.restart(kernel_id).await?;
 
         Ok(())
+    }
+
+    /// Get the list of kernels in the document's kernel space
+    pub async fn kernels(&self) -> KernelInfos {
+        let kernel_space = &*self.kernels.read().await;
+        kernel_space.kernels().await
+    }
+
+    /// Get the list of symbols in the document's kernel space
+    pub async fn symbols(&self) -> KernelSymbols {
+        let kernel_space = &*self.kernels.read().await;
+        kernel_space.symbols().await
     }
 
     /// Update the `root` (and associated properties) of the document and publish updated encodings

@@ -272,12 +272,9 @@ impl KernelMap {
         )
     }
 
-    /// Get a list of kernels in the kernel space
-    #[cfg(feature = "cli")]
-    pub async fn display(&self) -> cli_utils::Result {
-        use cli_utils::result;
-
-        let mut list = Vec::new();
+    /// Get a list of kernels (including their details and status)
+    pub async fn list(&self) -> KernelInfos {
+        let mut list = KernelInfos::new();
         for (id, kernel) in self.iter() {
             let id = id.to_string();
             let spec = kernel.spec().await;
@@ -290,20 +287,32 @@ impl KernelMap {
             };
             let interruptable = kernel.is_interruptable().await;
             let forkable = kernel.is_forkable().await;
-            list.push(KernelInfo {
-                id,
-                status,
-                spec,
-                interruptable,
-                forkable,
-            })
+            list.insert(
+                id.to_string(),
+                KernelInfo {
+                    id,
+                    status,
+                    spec,
+                    interruptable,
+                    forkable,
+                },
+            );
         }
+        list
+    }
+
+    /// Display a list of kernels in the kernel space
+    #[cfg(feature = "cli")]
+    pub async fn display(&self) -> cli_utils::Result {
+        use cli_utils::result;
+
+        let list = self.list().await;
 
         let cols = "|--|------|----|----|---------|-------------|--------|";
         let head = "|Id|Status|Type|Name|Languages|Interruptable|Forkable|";
         let body = list
             .iter()
-            .map(|info| {
+            .map(|(_, info)| {
                 format!(
                     "|{}|{}|{}|{}|{}|{}|{}|",
                     info.id,
@@ -370,7 +379,7 @@ impl SymbolInfo {
     }
 }
 
-type KernelSymbols = HashMap<String, SymbolInfo>;
+pub type KernelSymbols = HashMap<String, SymbolInfo>;
 
 /// Disassociates a kernel with a symbol. If a symbol is mirrored in other kernels
 /// then the last kernel that is was mirrored to will become it's home.
@@ -801,6 +810,8 @@ impl Drop for KernelSpace {
     }
 }
 
+pub type KernelInfos = HashMap<KernelId, KernelInfo>;
+
 impl KernelSpace {
     /// Create a new kernel space and start its monitoring task
     pub fn new() -> Self {
@@ -834,6 +845,18 @@ impl KernelSpace {
             KernelSpace::clean_tasks(tasks).await;
             tokio::time::sleep(PERIOD).await;
         }
+    }
+
+    /// Get the list of kernels in the kernel space
+    pub async fn kernels(&self) -> KernelInfos {
+        let kernels = &*self.kernels.lock().await;
+        kernels.list().await
+    }
+
+    /// Get the list of symbols in the kernel space
+    pub async fn symbols(&self) -> KernelSymbols {
+        let symbols = &*self.symbols.lock().await;
+        symbols.clone()
     }
 
     /// Start a kernel

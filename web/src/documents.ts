@@ -232,6 +232,30 @@ export async function restart(
 }
 
 /**
+ * Get a list of kernels in a document's kernel space
+ */
+export async function kernels(
+  client: Client,
+  documentId: DocumentId
+): Promise<void> {
+  return client.call('documents.kernels', {
+    documentId,
+  }) as Promise<void>
+}
+
+/**
+ * Get a list of symbols in a document's kernel space
+ */
+export async function symbols(
+  client: Client,
+  documentId: DocumentId
+): Promise<void> {
+  return client.call('documents.symbols', {
+    documentId,
+  }) as Promise<void>
+}
+
+/**
  * Listen to browser window events that require passing on to server
  */
 export function listen(
