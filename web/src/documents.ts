@@ -1,4 +1,8 @@
 import { ViewUpdate } from '@codemirror/view'
+import {
+  CodeExecuteCancelEvent,
+  CodeExecuteEvent,
+} from '@stencila/components/dist/types/components/code/codeTypes'
 import { ValidatorTypes } from '@stencila/schema'
 import {
   Address,
@@ -256,6 +260,33 @@ export function listen(
       event as ParameterChangeEvent
     )
   )
+
+  // Code execution
+  const executeHandler = async ({ detail }: CodeExecuteEvent) => {
+    await execute(client, documentId, detail.nodeId, detail.ordering)
+  }
+
+  window.addEventListener('stencila-code-execute', (e) => {
+    executeHandler(e as CodeExecuteEvent)
+  })
+
+  // Code execution cancellation
+  const executeCancelHandler = async ({ detail }: CodeExecuteCancelEvent) => {
+    await cancel(client, documentId, detail.nodeId, detail.scope)
+  }
+
+  window.addEventListener('stencila-code-execute-cancel', (e) => {
+    executeCancelHandler(e as CodeExecuteCancelEvent)
+  })
+
+  // Kernel restart
+  const kernelRestartHandler = async () => {
+    await restart(client, documentId)
+  }
+
+  window.addEventListener('stencila-kernel-restart', () => {
+    kernelRestartHandler()
+  })
 }
 
 /**

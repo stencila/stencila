@@ -78,8 +78,6 @@ export const main = (
 
     documents.listen(client, clientId, document.id)
 
-    initComponents()
-
     return [client, document, session]
   }
 
@@ -89,45 +87,6 @@ export const main = (
       await sessions.stop(client, session.id)
       session = undefined
     }
-  }
-
-  function initComponents(): void {
-    window.removeEventListener('appload', initComponents)
-
-    // Code execution
-    const executeHandler = async ({ detail }: CodeExecuteEvent) => {
-      const [client, document] = await startup()
-      await documents.execute(
-        client,
-        document.id,
-        detail.nodeId,
-        detail.ordering
-      )
-    }
-
-    window.addEventListener('stencila-code-execute', (e) => {
-      executeHandler(e as CodeExecuteEvent)
-    })
-
-    // Code execution cancellation
-    const executeCancelHandler = async ({ detail }: CodeExecuteCancelEvent) => {
-      const [client, document] = await startup()
-      await documents.cancel(client, document.id, detail.nodeId, detail.scope)
-    }
-
-    window.addEventListener('stencila-code-execute-cancel', (e) => {
-      executeCancelHandler(e as CodeExecuteCancelEvent)
-    })
-
-    // Kernel restart
-    const kernelRestartHandler = async () => {
-      const [client, document] = await startup()
-      await documents.restart(client, document.id)
-    }
-
-    window.addEventListener('stencila-kernel-restart', () => {
-      kernelRestartHandler()
-    })
   }
 
   // Shutdown and disconnect on page unload
