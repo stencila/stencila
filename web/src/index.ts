@@ -6,7 +6,10 @@
 // - How do we migrate old published documents
 // - Attach Node IDs for required elements in published article HTML
 
-import { CodeChunk, CodeExpression } from '@stencila/schema'
+import {
+  CodeExecuteCancelEvent,
+  CodeExecuteEvent,
+} from '@stencila/components/dist/types/components/code/codeTypes'
 import { Document, Session } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
@@ -91,47 +94,40 @@ export const main = (
   function initComponents(): void {
     window.removeEventListener('appload', initComponents)
 
-    // `executeHandler` for `CodeChunk` and `CodeExpression` nodes
-    window.document
-      .querySelectorAll<
-        HTMLStencilaCodeChunkElement | HTMLStencilaCodeExpressionElement
-      >('stencila-code-chunk,stencila-code-expression')
-      .forEach((elem) => {
-        elem.executeHandler = async <C extends CodeChunk | CodeExpression>(
-          node: C
-        ): Promise<C> => {
-          const [client, document] = await startup()
-          await documents.execute(client, document.id, elem.id)
-          // The WebComponent for a `CodeExpression` has a `isOutputEmpty` property
-          // which is set based on the return value from this function and does not
-          // change later when we actually update the output. So, here's a hack to
-          // make that always true.
-          return Promise.resolve({ ...node, output: '' })
-        }
-      })
+    // Code execution
+    const executeHandler = async ({ detail }: CodeExecuteEvent) => {
+      const [client, document] = await startup()
+      await documents.execute(
+        client,
+        document.id,
+        detail.nodeId,
+        detail.ordering
+      )
+    }
 
-    // Temporary functions for testing in the console
-    // @ts-ignore
-    window.stencilaExecute = async (
-      nodeId: null | string,
-      ordering: 'Single' | 'Appearance' | 'Topological'
-    ) => {
+    window.addEventListener('stencila-code-execute', (e) => {
+      executeHandler(e as CodeExecuteEvent)
+    })
+
+    // Code execution cancellation
+    const executeCancelHandler = async ({ detail }: CodeExecuteCancelEvent) => {
       const [client, document] = await startup()
-      await documents.execute(client, document.id, nodeId, ordering)
+      await documents.cancel(client, document.id, detail.nodeId, detail.scope)
     }
-    // @ts-ignore
-    window.stencilaCancel = async (
-      nodeId: null | string,
-      scope: 'Single' | 'All'
-    ) => {
-      const [client, document] = await startup()
-      await documents.cancel(client, document.id, nodeId, scope)
-    }
-    // @ts-ignore
-    window.stencilaRestart = async () => {
+
+    window.addEventListener('stencila-code-execute-cancel', (e) => {
+      executeCancelHandler(e as CodeExecuteCancelEvent)
+    })
+
+    // Kernel restart
+    const kernelRestartHandler = async () => {
       const [client, document] = await startup()
       await documents.restart(client, document.id)
     }
+
+    window.addEventListener('stencila-kernel-restart', () => {
+      kernelRestartHandler()
+    })
   }
 
   // Shutdown and disconnect on page unload
