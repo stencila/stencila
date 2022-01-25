@@ -16,13 +16,13 @@ use regex::Regex;
 #[derive(Debug, Default)]
 pub struct DoiProvider {}
 
-const PROVIDER_NAME: &str = "DOI";
+const PROVIDER_NAME: &str = "doi";
 
 const DOI_URL: &str = "https://doi.org/";
 
 #[async_trait]
 impl ProviderTrait for DoiProvider {
-    fn spec(&self) -> Provider {
+    fn spec() -> Provider {
         Provider {
             name: PROVIDER_NAME.to_string(),
         }
@@ -39,7 +39,7 @@ impl ProviderTrait for DoiProvider {
     ///
     /// See https://www.crossref.org/blog/dois-and-matching-regular-expressions/
     /// for notes on DOI matching.
-    async fn detect(&self, root: &Node) -> Result<Vec<ProviderDetection>> {
+    async fn detect(root: &Node) -> Result<Vec<ProviderDetection>> {
         let mut detector = DoiDetector::default();
         walk(root, &mut detector);
         Ok(detector.detected)
@@ -49,7 +49,7 @@ impl ProviderTrait for DoiProvider {
     ///
     /// Currently just checks that the work has an identifier that is a DOI
     /// (`detect()` already identifies by extracting a DOI).
-    async fn identify(&self, node: &Node) -> Result<Node> {
+    async fn identify(node: &Node) -> Result<Node> {
         match node {
             Node::CreativeWork(CreativeWork { identifiers, .. })
             | Node::Article(Article { identifiers, .. }) => {
@@ -74,8 +74,8 @@ impl ProviderTrait for DoiProvider {
     ///
     /// Uses DOI content negotiation protocol to fetch schema.org JSON-LD or CSL JSON
     /// and properties of the node.
-    async fn enrich(&self, node: &Node) -> Result<Node> {
-        let node = self.identify(node).await?;
+    async fn enrich(node: &Node) -> Result<Node> {
+        let node = Self::identify(node).await?;
 
         let url = match node {
             Node::CreativeWork(CreativeWork { identifiers, .. })
@@ -139,38 +139,54 @@ pub struct DoiDetector {
     detected: Vec<ProviderDetection>,
 }
 
-impl Visitor for DoiDetector {
-    /// Visit an inline node, and if it is a string, attempt to detect DOIs within it
-    fn visit_inline(&mut self, address: &Address, node: &InlineContent) -> bool {
+impl DoiDetector {
+    /// Visit a string and attempt to detect DOIs within it
+    fn visit_string(&mut self, address: &Address, string: &str) {
         static REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"\b(10.\d{4,9}/[-._;()/:a-zA-Z0-9]+)\b").expect("Unable to create regex")
         });
 
-        if let InlineContent::String(content) = node {
-            let mut detected = REGEX
-                .captures_iter(content)
-                .into_iter()
-                .map(|captures| {
-                    let capture = captures.get(0).unwrap();
+        let mut detected = REGEX
+            .captures_iter(string)
+            .into_iter()
+            .map(|captures| {
+                let capture = captures.get(0).unwrap();
 
-                    let begin = address.add_index(capture.start());
-                    let end = address.add_index(capture.end());
-                    let node = Node::CreativeWork(CreativeWork {
-                        identifiers: Some(vec![ThingIdentifiers::String(
-                            ["https://doi.org/", capture.as_str()].concat(),
-                        )]),
-                        ..Default::default()
-                    });
+                let begin = address.add_index(capture.start());
+                let end = address.add_index(capture.end());
+                let node = Node::CreativeWork(CreativeWork {
+                    identifiers: Some(vec![ThingIdentifiers::String(
+                        ["https://doi.org/", capture.as_str()].concat(),
+                    )]),
+                    ..Default::default()
+                });
 
-                    ProviderDetection {
-                        provider: PROVIDER_NAME.to_string(),
-                        begin,
-                        end,
-                        node,
-                    }
-                })
-                .collect();
-            self.detected.append(&mut detected);
+                ProviderDetection {
+                    provider: PROVIDER_NAME.to_string(),
+                    confidence: 100,
+                    begin,
+                    end,
+                    node,
+                }
+            })
+            .collect();
+        self.detected.append(&mut detected);
+    }
+}
+
+impl Visitor for DoiDetector {
+    fn visit_node(&mut self, address: &Address, node: &Node) -> bool {
+        if let Node::String(string) = node {
+            self.visit_string(address, string);
+            false
+        } else {
+            true
+        }
+    }
+
+    fn visit_inline(&mut self, address: &Address, node: &InlineContent) -> bool {
+        if let InlineContent::String(string) = node {
+            self.visit_string(address, string);
             false
         } else {
             true
@@ -195,13 +211,7 @@ mod tests {
             "DOI: http://doi.org/10.5334/jors.182",
             "https://doi.org/10.5334/jors.182",
         ] {
-            let detections = DoiProvider {}
-                .detect(&Node::Paragraph(Paragraph {
-                    content: vec![InlineContent::String(str.to_string())],
-                    ..Default::default()
-                }))
-                .await?;
-
+            let detections = DoiProvider::detect(&Node::String(str.to_string())).await?;
             match &detections[0].node {
                 Node::CreativeWork(CreativeWork { identifiers, .. }) => {
                     assert_json_is!(identifiers, ["https://doi.org/10.5334/jors.182"])
@@ -253,12 +263,7 @@ mod tests {
             "https://doi.org/10.5281/zenodo.5011869",
             "https://dx.doi.org/10.17504/protocols.io.bazhif36",
         ] {
-            let detections = DoiProvider {}
-                .detect(&Node::Paragraph(Paragraph {
-                    content: vec![InlineContent::String(str.to_string())],
-                    ..Default::default()
-                }))
-                .await?;
+            let detections = DoiProvider::detect(&Node::String(str.to_string())).await?;
             assert_eq!(detections.len(), 1)
         }
 
