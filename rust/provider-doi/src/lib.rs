@@ -1,7 +1,11 @@
-use node_pointer::{bail, walk, Address, Visitor};
+use codec_csl::{CodecTrait, CslCodec};
+use node_pointer::{eyre::bail, walk, Address, Visitor};
 use once_cell::sync::Lazy;
 use provider::{
-    async_trait, stencila_schema::*, Provider, ProviderDetection, ProviderTrait, Result,
+    async_trait,
+    eyre::{eyre, Result},
+    stencila_schema::*,
+    Provider, ProviderDetection, ProviderTrait,
 };
 use regex::Regex;
 
@@ -47,7 +51,8 @@ impl ProviderTrait for DoiProvider {
     /// (`detect()` already identifies by extracting a DOI).
     async fn identify(&self, node: &Node) -> Result<Node> {
         match node {
-            Node::CreativeWork(CreativeWork { identifiers, .. }) => {
+            Node::CreativeWork(CreativeWork { identifiers, .. })
+            | Node::Article(Article { identifiers, .. }) => {
                 let found = identifiers.iter().flatten().any(|id| match id {
                     ThingIdentifiers::String(id) => id.starts_with(DOI_URL),
                     ThingIdentifiers::PropertyValue(PropertyValue { value, .. }) => match value {
@@ -63,6 +68,66 @@ impl ProviderTrait for DoiProvider {
             }
             _ => bail!("Unexpected type of node"),
         }
+    }
+
+    /// Enrich a [`CreativeWork`] node using it's DOI
+    ///
+    /// Uses DOI content negotiation protocol to fetch schema.org JSON-LD or CSL JSON
+    /// and properties of the node.
+    async fn enrich(&self, node: &Node) -> Result<Node> {
+        let node = self.identify(node).await?;
+
+        let url = match node {
+            Node::CreativeWork(CreativeWork { identifiers, .. })
+            | Node::Article(Article { identifiers, .. }) => {
+                identifiers.iter().flatten().find_map(|id| match id {
+                    ThingIdentifiers::String(id) => {
+                        if id.starts_with(DOI_URL) {
+                            Some(id.clone())
+                        } else {
+                            None
+                        }
+                    }
+                    ThingIdentifiers::PropertyValue(PropertyValue { value, .. }) => match value {
+                        PropertyValueValue::String(id) => {
+                            if id.starts_with(DOI_URL) {
+                                Some(id.clone())
+                            } else {
+                                None
+                            }
+                        }
+                        _ => None,
+                    },
+                })
+            }
+            _ => None,
+        }
+        .ok_or_else(|| eyre!("Node does not have DOI URL"))?;
+
+        let client = reqwest::Client::new();
+        let response = client
+            .get(url)
+            .header(
+                "Accept",
+                "application/vnd.schemaorg.ld+json;q=1,application/vnd.citationstyles.csl+json;q=0.5",
+            )
+            .header(
+                "User-Agent",
+                "Stencila (https://github.com/stencila/stencila/)",
+            )
+            .send()
+            .await?;
+
+        let _content_type = response.headers().get("Content-Type").map(|value| {
+            value
+                .to_str()
+                .expect("Unable to extract header")
+                .to_string()
+        });
+        let content = response.text().await?;
+
+        let node = CslCodec::from_str(&content, None)?;
+        Ok(node)
     }
 }
 
@@ -115,7 +180,6 @@ impl Visitor for DoiDetector {
 
 #[cfg(test)]
 mod tests {
-    use node_pointer::bail;
     use test_utils::assert_json_is;
 
     use super::*;
