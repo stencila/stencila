@@ -12,6 +12,7 @@ import {
   Patch,
 } from '@stencila/stencila'
 import { Client, ClientId } from './client'
+import { KernelId } from './kernels'
 import { JsonValue } from './patches/checks'
 import * as codemirror from './patches/codemirror'
 import { applyPatch } from './patches/dom'
@@ -214,14 +215,19 @@ export async function cancel(
 }
 
 /**
- * Restart the document's kernel space
+ * Restart one, or all, of the kernels in a document's kernel space
+ *
+ * If `kernelId` is not supplied then all kernels in the kernel space
+ * will be restarted.
  */
 export async function restart(
   client: Client,
-  documentId: DocumentId
+  documentId: DocumentId,
+  kernelId?: KernelId
 ): Promise<void> {
   return client.call('documents.restart', {
     documentId,
+    kernelId,
   }) as Promise<void>
 }
 

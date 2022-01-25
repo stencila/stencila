@@ -372,8 +372,15 @@ async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscri
 
 async fn documents_restart(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
+    let kernel_id = optional_string(params, "kernelId")?;
 
-    DOCUMENTS.get(&id).await?.lock().await.restart().await?;
+    DOCUMENTS
+        .get(&id)
+        .await?
+        .lock()
+        .await
+        .restart(kernel_id)
+        .await?;
     Ok((serde_json::Value::Null, Subscription::None))
 }
 
