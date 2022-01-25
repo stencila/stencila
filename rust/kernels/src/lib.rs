@@ -372,6 +372,25 @@ impl SymbolInfo {
 
 type KernelSymbols = HashMap<String, SymbolInfo>;
 
+/// Disassociates a kernel with a symbol. If a symbol is mirrored in other kernels
+/// then the last kernel that is was mirrored to will become it's home.
+fn purge_kernel_from_symbols(symbols: &mut KernelSymbols, kernel_id: &str) {
+    let mut remove = Vec::new();
+    for (symbol, symbol_info) in symbols.iter_mut() {
+        if symbol_info.home == kernel_id {
+            let mut mirrors = symbol_info.mirrored.iter().collect::<Vec<_>>();
+            mirrors.sort_by(|a, b| a.1.cmp(b.1));
+            match mirrors.last() {
+                Some((kernel, _)) => symbol_info.home = kernel.to_string(),
+                None => remove.push(symbol.to_string()),
+            }
+        } else {
+            symbol_info.mirrored.retain(|kernel, _| kernel != kernel_id);
+        }
+    }
+    symbols.retain(|symbol, _| !remove.contains(symbol));
+}
+
 /// Display kernel symbols
 #[cfg(feature = "cli")]
 fn display_symbols(symbols: &KernelSymbols) -> cli_utils::Result {
@@ -828,8 +847,8 @@ impl KernelSpace {
         let kernels = &mut *self.kernels.lock().await;
         kernels.stop(id).await?;
 
-        //let symbols = &mut *self.symbols.lock().await;
-        // TODO symbols.remove_kernel(id);
+        let symbols = &mut *self.symbols.lock().await;
+        purge_kernel_from_symbols(symbols, id);
 
         Ok(())
     }
@@ -837,20 +856,20 @@ impl KernelSpace {
     /// Restart one, or all, kernels in the kernel space
     pub async fn restart(&self, id: Option<String>) -> Result<()> {
         let kernels = &mut *self.kernels.lock().await;
-        //let symbols = &mut *self.symbols.lock().await;
+        let symbols = &mut *self.symbols.lock().await;
 
         let ids = match id {
             Some(id) => vec![id],
             None => kernels.keys().cloned().collect(),
         };
 
-        for id in ids {
-            let kernel = kernels.get(&id)?;
+        for id in &ids {
+            let kernel = kernels.get(id)?;
             let spec = kernel.spec().await;
             let selector = KernelSelector::new(Some(spec.name), None, None);
 
-            kernels.stop(&id).await?;
-            // TODO symbols.remove_kernel(id);
+            kernels.stop(id).await?;
+            purge_kernel_from_symbols(symbols, id);
             kernels.start(&selector).await?;
         }
 
