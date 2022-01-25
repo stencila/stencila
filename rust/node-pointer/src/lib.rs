@@ -1,8 +1,9 @@
+use eyre::{bail, Result};
 use node_transform::Transform;
 use stencila_schema::{BlockContent, CreativeWorkTypes, InlineContent, Node};
 
 // Re-exports for convenience of dependant crates
-pub use eyre::{bail, Result};
+pub use eyre;
 pub use node_address::Address;
 
 /// Resolve a node [`Address`] or id into a node [`Pointer`]

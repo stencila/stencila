@@ -1,14 +1,21 @@
 use once_cell::sync::Lazy;
 use provider::{
     eyre::{bail, Result},
-    Provider,
+    stencila_schema::Node,
+    ProviderTrait,
 };
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
+pub use provider::{Provider, ProviderDetection};
+
 // The following high level functions hide the implementation
 // detail of having a static list of providers. They are intended as the
 // only public interface for this crate.
+
+pub async fn detect(node: &Node) -> Result<Vec<ProviderDetection>> {
+    PROVIDERS.detect(node).await
+}
 
 /// The set of registered providers in the current process
 static PROVIDERS: Lazy<Arc<Providers>> = Lazy::new(|| Arc::new(Providers::new()));
@@ -24,9 +31,11 @@ struct Providers {
 macro_rules! dispatch_builtins {
     ($var:expr, $method:ident $(,$arg:expr)*) => {
         match $var.as_str() {
-            #[cfg(feature = "elife")]
+            #[cfg(feature = "provider-doi")]
+            "doi" => Some(provider_doi::DoiProvider::$method($($arg),*)),
+            #[cfg(feature = "provider-elife")]
             "elife" => Some(provider_elife::ElifeProvider::$method($($arg),*)),
-            #[cfg(feature = "github")]
+            #[cfg(feature = "provider-github")]
             "github" => Some(provider_github::GithubProvider::$method($($arg),*)),
             _ => None
         }
@@ -37,9 +46,11 @@ impl Providers {
     /// Create a set of providers
     pub fn new() -> Self {
         let inner = vec![
-            #[cfg(feature = "elife")]
+            #[cfg(feature = "provider-doi")]
+            ("doi", provider_doi::DoiProvider::spec()),
+            #[cfg(feature = "provider-elife")]
             ("elife", provider_elife::ElifeProvider::spec()),
-            #[cfg(feature = "github")]
+            #[cfg(feature = "provider-github")]
             ("github", provider_github::GithubProvider::spec()),
         ]
         .into_iter()
@@ -64,6 +75,18 @@ impl Providers {
             Some(provider) => Ok(provider.clone()),
             None => bail!("No provider with label `{}`", label),
         }
+    }
+
+    /// Decode a document node from a string
+    async fn detect(&self, node: &Node) -> Result<Vec<ProviderDetection>> {
+        let mut detected = Vec::new();
+        for provider in self.list() {
+            if let Some(future) = dispatch_builtins!(provider, detect, node) {
+                let mut result = future.await?;
+                detected.append(&mut result);
+            }
+        }
+        Ok(detected)
     }
 }
 
