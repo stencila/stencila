@@ -1,15 +1,3 @@
-// To iron out:
-// - race conditions for node execution responses
-// - cancelling execution
-// - handling stale status for downstream node dependencies
-// - what does a `documents.change` payload look like for HTML nodes?
-// - How do we migrate old published documents
-// - Attach Node IDs for required elements in published article HTML
-
-import {
-  CodeExecuteCancelEvent,
-  CodeExecuteEvent,
-} from '@stencila/components/dist/types/components/code/codeTypes'
 import { Document, Session } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
