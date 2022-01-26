@@ -93,10 +93,14 @@ impl ParserTrait for PyParser {
                         5 => "Function",
                         _ => unreachable!(),
                     };
-                    Some((
-                        relations::assigns(range),
-                        resources::symbol(path, &name, kind),
-                    ))
+
+                    let symbol = resources::symbol(path, &name, kind);
+                    let relation = match pattern {
+                        4 => relations::assigns(range),
+                        5 => relations::declares(range),
+                        _ => unreachable!(),
+                    };
+                    Some((relation, symbol))
                 }
                 6 => {
                     // Uses an identifier assigned elsewhere
