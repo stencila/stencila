@@ -1,24 +1,39 @@
-all: format lint build
+all: lint test build docs
 
 setup:
-	Rscript -e "install.packages('remotes', repos = 'https://cloud.r-project.org')"
-	Rscript -e "remotes::install_deps(dependencies = TRUE, force = TRUE)"
-
-format:
-	cargo fmt
+	Rscript -e "install.packages('devtools'); devtools::install_dev_deps()"
 
 lint:
-	cargo clippy
+	Rscript -e 'lintr::lint_package()'
+
+test:
+	Rscript -e 'devtools::test()'
+
+autotest:
+	Rscript -e 'testthat::auto_test_package()'
+
+cover:
+	Rscript -e 'covr::package_coverage()'
 
 check:
 	Rscript -e 'devtools::check()'
 
-audit:
-	cargo +nightly udeps
-
 build:
-	Rscript -e 'devtools::document()'
+	Rscript -e 'devtools::document(); warnings()'
 	Rscript -e 'devtools::build()'
 
+docs:
+	Rscript -e 'devtools::document(); pkgdown::build_site()'
+.PHONY: docs
+
 install: build
-	R CMD INSTALL .
+	Rscript -e 'devtools::install()'
+
+release: clean regen build
+	Rscript -e 'devtools::check()'
+	Rscript -e 'devtools::spell_check()'
+	Rscript -e 'devtools::check_rhub()'
+	Rscript -e 'devtools::check_win_devel()'
+
+clean:
+	rm -rf man stencilaschema_*.tar.gz stencilaschema.Rcheck

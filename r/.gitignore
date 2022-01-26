@@ -1,4 +1,7 @@
-.Rhistory
-.RData
+*.Rcheck
+*.RData
+*.Rhistory
+*.Rproj.user
 *.so
-/man
+docs
+man

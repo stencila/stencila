@@ -15,6 +15,8 @@ import {
   readSchemas,
 } from '../util/helpers'
 
+const DEST_FOLDER = path.join(__dirname, '..', '..', '..', 'r', 'R')
+
 /**
  * Run `build()` when this file is run as a Node script
  */
@@ -43,10 +45,7 @@ ${filterEnumSchemas(schemas).map(enumGenerator).join('\n')}
 ${filterUnionSchemas(schemas).map(unionGenerator).join('\n')}
 `
 
-  await fs.writeFile(
-    path.join(__dirname, '..', '..', 'r', 'R', 'types.R'),
-    code
-  )
+  await fs.writeFile(path.join(DEST_FOLDER, 'types.R'), code)
 }
 
 /**

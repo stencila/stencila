@@ -163,11 +163,6 @@
             "CHANGELOG.md",
             "package.json",
             "package-lock.json",
-            "python/stencila/schema/types.py",
-            "python/setup.py",
-            "r/R/types.R",
-            "r/NAMESPACE",
-            "r/DESCRIPTION",
             "ts/types.ts",
             ".vscode/settings.json"
           ]

@@ -1,36 +1,29 @@
 # A Makefile for running high level development tasks. For finer
-# grained tasks see `package.json` and use `npm run <task>`, or the
-# `Makefiles` for each language folder e.g. `python/Makefile`.
+# grained tasks see `package.json` and use `npm run <task>`
 
 all: format lint test build docs
 
 setup:
 	npm install
-	make -C r setup
 
 format:
 	npm run format
 
 lint:
 	npm run lint
-	make -C r lint
 
 test:
 	npm test
-	make -C r test
 
 build:
 	npm run build
-	make -C r build
 
 docs:
 	npm run docs
-	make -C r docs
 .PHONY: docs
 
 clean:
 	npm run clean
-	make -C r clean
 
 # Build Docker image for development
 build-image:
