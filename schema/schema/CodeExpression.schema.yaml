@@ -1,0 +1,17 @@
+title: CodeExpression
+'@id': stencila:CodeExpression
+extends: CodeExecutable
+role: secondary
+status: unstable
+category: code
+description: An executable programming code expression.
+properties:
+  output:
+    '@id': stencila:output
+    description: The value of the expression when it was last evaluated.
+    allOf:
+      - $ref: Node
+$comment:
+  Note that `CodeExpression` nodes lack the `executeAuto` and `executePure` properties that
+  `CodeChunk` nodes have because they will always be executed (when dependencies) change and
+  should be side-effect free.

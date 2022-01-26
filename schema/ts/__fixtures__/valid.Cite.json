@@ -1,0 +1,6 @@
+{
+  "type": "Cite",
+  "target": "URL or ID of reference",
+  "citationMode": "NarrativeAuthor",
+  "citationIntent": ["DisagreesWith"]
+}

@@ -1,0 +1,64 @@
+# Recreates the headers and first two rows from
+# https://www.w3.org/WAI/tutorials/tables/two-headers/#table-with-header-cells-in-the-top-row-and-first-column
+type: Table
+rows:
+  - type: TableRow
+    kind: header
+    cells:
+      - type: TableCell
+        content:
+          - Monday
+      - type: TableCell
+        content:
+          - Tuesday
+      - type: TableCell
+        content:
+          - Wednesday
+      - type: TableCell
+        content:
+          - Thursday
+      - type: TableCell
+        content:
+          - Friday
+  - type: TableRow
+    cells:
+      - type: TableCell
+        kind: header
+        content:
+          - '09:00 - 11:00'
+      - type: TableCell
+        content:
+          - Closed
+      - type: TableCell
+        content:
+          - Open
+      - type: TableCell
+        content:
+          - Open
+      - type: TableCell
+        content:
+          - Closed
+      - type: TableCell
+        content:
+          - Closed
+  - type: TableRow
+    cells:
+      - type: TableCell
+        kind: header
+        content:
+          - '11:00 - 13:00'
+      - type: TableCell
+        content:
+          - Open
+      - type: TableCell
+        content:
+          - Open
+      - type: TableCell
+        content:
+          - Closed
+      - type: TableCell
+        content:
+          - Closed
+      - type: TableCell
+        content:
+          - Closed

@@ -1,0 +1,15 @@
+__file_snapshots__
+.mypy_cache
+.tox
+.vscode/settings.json
+CHANGELOG.md
+CONTRIBUTING.md
+coverage
+dist
+docs
+node_modules
+package-lock.json
+public
+python/htmlcov
+README.md
+rust/target

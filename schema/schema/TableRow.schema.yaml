@@ -1,0 +1,24 @@
+title: TableRow
+'@id': stencila:TableRow
+extends: Entity
+role: secondary
+status: unstable
+category: text
+description: A row within a Table.
+properties:
+  cells:
+    '@id': stencila:cells
+    description: An array of cells in the row.
+    type: array
+    items:
+      $ref: TableCell
+  rowType:
+    '@id': stencila:rowType
+    description: |
+      If present, indicates that all cells in this row should be treated as header cells.
+    type: string
+    enum:
+      - Header
+      - Footer
+required:
+  - cells

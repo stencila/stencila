@@ -1,0 +1,18 @@
+title: Mark
+'@id': stencila:Mark
+extends: Entity
+role: base
+status: stable
+category: text
+description: |
+  A base class for nodes that mark some other inline content
+  in some way (e.g. as being emphasised, or quoted).
+properties:
+  content:
+    '@id': 'stencila:content'
+    description: The content that is marked.
+    type: array
+    items:
+      $ref: InlineContent
+required:
+  - content

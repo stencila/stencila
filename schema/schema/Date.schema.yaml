@@ -1,0 +1,24 @@
+title: Date
+'@id': schema:Date
+extends: Entity
+role: tertiary
+status: stable
+category: data
+description: A date encoded as a ISO 8601 string.
+$comment: |
+  This type serves mainly to disambiguate an ISO 8601 date string from
+  a plain string. It should generally be used instead of a date formatted string.
+parser: date
+properties:
+  value:
+    '@id': 'schema:value'
+    description: The date as an ISO 8601 string.
+    anyOf:
+      - type: string
+        format: date-time
+      - type: string
+        format: date
+      - type: string
+        pattern: \d{4}
+required:
+  - value

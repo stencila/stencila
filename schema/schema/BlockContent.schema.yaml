@@ -1,0 +1,18 @@
+title: BlockContent
+category: text
+status: stable
+description: Union type for valid block content.
+anyOf:
+  - $ref: Claim
+  - $ref: CodeBlock
+  - $ref: CodeChunk
+  - $ref: Collection
+  - $ref: Figure
+  - $ref: Heading
+  - $ref: Include
+  - $ref: List
+  - $ref: MathBlock
+  - $ref: Paragraph
+  - $ref: QuoteBlock
+  - $ref: Table
+  - $ref: ThematicBreak

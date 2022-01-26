@@ -1,0 +1,16 @@
+type: SoftwareSession
+environment:
+  type: Environment
+  name: StencilaMega
+volumeMounts:
+  - type: Mount
+    mountSource: /foo/bar
+    mountDestination: /baz/bax
+cpuResource:
+  type: ResourceParameters
+  resourceRequested: 500
+  resourceLimit: 1000
+memoryResource:
+  type: ResourceParameters
+  resourceRequested: 1024
+  resourceLimit: 2048

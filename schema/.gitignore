@@ -1,0 +1,10 @@
+.DS_Store
+.idea
+.Rproj.user
+*.out.*
+stencilaschema_*.tar.gz
+/coverage
+/dist
+/docs
+/node_modules
+/public

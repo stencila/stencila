@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declarationDir": "dist",
+    "module": "esnext"
+  },
+  "include": ["ts/**/*.ts"],
+  "exclude": ["ts/**/*.test.ts", "ts/**/__tests__", "ts/**/bindings"]
+}

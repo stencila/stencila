@@ -1,0 +1,81 @@
+# Redirect from /latest to root
+
+[[redirects]]
+  from = "/latest/*"
+  to = "/:splat"
+
+# The recommended way to serve JSON-LD is with "Cool URIs"
+# and content negotiation. eg. this is how schema.org does it:
+#   curl http://schema.org/Person -H "Accept:application/ld+json" -i
+# Netlify does not support content negotiation
+# (i.e. redirects based on the Accept header)
+# Therefore, to provide a URL that fits with
+# the norms for JSON-LD (no file extensions),
+# we need to provide a specific route.
+
+[[redirects]]
+  from = "/jsonld"
+  to = "/stencila.jsonld"
+
+[[redirects]]
+  from = "/jsonld/*"
+  to = "/:splat.jsonld"
+
+# Redirect to unpkg
+# Why? Because for the version redirects below
+# unpkg redirects to an expanded, but relative, URL
+# which Netlify thinks it should serve e.g:
+#   > curl --silent --head https://unpkg.com/@stencila/schema@0/dist/CodeChunk.schema.json | grep Location
+#   Location: /@stencila/schema@0.32.3/dist/CodeChunk.schema.json
+# So this redirects back to unpkg:
+[[redirects]]
+  from = "/@stencila/*"
+  to = "https://unpkg.com/@stencila/:splat"
+  force = true
+
+# Version redirects
+# These redirect intentionally use http, instead of https,
+# because that causes
+# Unfortunately, given the current URL pattern `v1` etc,
+# we can't make this work using placeholders
+# (i.e. using `v:number`; placeholders must come after a slash).
+# So more redirects for new versions will need to be added in
+# the future.
+
+[[redirects]]
+  from = "/v0/jsonld"
+  to = "https://unpkg.com/@stencila/schema@0/dist/stencila.jsonld"
+  force = true
+
+[[redirects]]
+  from = "/v0/jsonld/*"
+  to = "https://unpkg.com/@stencila/schema@0/dist/:splat.jsonld"
+  force = true
+
+[[redirects]]
+  from = "/v0/*"
+  to = "https://unpkg.com/@stencila/schema@0/dist/:splat"
+  force = true
+
+[[redirects]]
+  from = "/v1/jsonld"
+  to = "https://unpkg.com/@stencila/schema@1/dist/stencila.jsonld"
+  force = true
+
+[[redirects]]
+  from = "/v1/jsonld/*"
+  to = "https://unpkg.com/@stencila/schema@1/dist/:splat.jsonld"
+  force = true
+
+[[redirects]]
+  from = "/v1/*"
+  to = "https://unpkg.com/@stencila/schema@1/dist/:splat"
+  force = true
+
+# Redirect content not found here to https://help.stenci.la/references/schema
+# This is primarily intended for documentation e.g.
+#   https://schema.stenci.la/CodeChunk -> https://help.stenci.la/references/schema/CodeChunk
+
+[[redirects]]
+  from = "/*"
+  to = "https://help.stenci.la/references/schema/:splat"

@@ -1,0 +1,10 @@
+title: Validator
+'@id': stencila:Validator
+extends: Entity
+role: validation
+status: unstable
+category: data
+description: A base for all validator types.
+$comment: |
+  The main purpose of this type is to obtain a generated union type
+  for all validators.

@@ -1,0 +1,7 @@
+^_pkgdown.yml$
+^.*\.Rproj$
+^.covrignore$
+^.lintr$
+^\.Rproj\.user$
+^docs$
+^Makefile$

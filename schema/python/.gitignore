@@ -1,0 +1,13 @@
+__pycache__
+.coverage
+.DS_Store
+.idea
+.mypy_cache
+.tox
+*.egg-info
+build
+coverage.xml
+dist
+docs
+htmlcov
+version

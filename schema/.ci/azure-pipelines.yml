@@ -1,0 +1,155 @@
+trigger:
+  branches:
+    include:
+      - master
+      - refs/tags/*
+
+jobs:
+  - job: TypeScript
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 16.x
+        displayName: Install Node.js
+
+      - script: npm install
+        displayName: Install dependencies
+
+      # Temporarily skip due to eslint package version conflicts
+      #- script: npm run lint
+      #  displayName: Run linting
+
+      - script: npm run test:cover
+        displayName: Run tests
+
+      - script: bash <(curl -s https://codecov.io/bash) -cF ts
+        condition: succeeded()
+        displayName: Upload coverage
+
+      - script: npm run build
+        displayName: Generate language bindings and build TypeScript package
+
+      - script: |
+          set -e
+          npm run docs
+          tar -czvf docs.tar.gz docs
+        displayName: Build docs
+
+      - script: npx semantic-release
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        env:
+          GIT_AUTHOR_NAME: Stencila CI Bot
+          GIT_AUTHOR_EMAIL: ci@stenci.la
+          GIT_COMMITTER_NAME: Stencila CI Bot
+          GIT_COMMITTER_EMAIL: ci@stenci.la
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+          NPM_TOKEN: $(NPM_TOKEN)
+        displayName: Publish package
+
+      - script: bash .ci/publish-docs.sh deploy_typescript_docs_to_pages
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        displayName: Publish docs
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  - job: Python
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: 3.8
+        displayName: Install Python
+
+      - script: make -C python setup
+        displayName: Install dependencies
+
+      - script: make -C python lint
+        displayName: Run linting
+
+      - script: make -C python test
+        displayName: Run tests
+
+      - script: bash <(curl -s https://codecov.io/bash) -cF python
+        condition: succeeded()
+        displayName: Upload coverage
+
+      - script: make -C python build
+        displayName: Build package
+
+      - script: make -C python docs
+        displayName: Build docs
+
+      - script: cd python && twine upload dist/*
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        env:
+          TWINE_USERNAME: stencila
+          TWINE_PASSWORD: $(TWINE_PASSWORD)
+        displayName: Publish package
+
+      - script: bash .ci/publish-docs.sh deploy_python_docs_to_pages
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        displayName: Publish docs
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  - job: R
+    pool:
+      vmImage: ubuntu-20.04
+    container: rstudio/r-base:4.0-focal
+    variables:
+      CRAN: 'https://demo.rstudiopm.com/all/__linux__/focal/latest'
+      R_LIBS_USER: '$(Agent.BuildDirectory)/R/library'
+      TZ: UTC
+      CI: true
+    steps:
+      # From https://stackoverflow.com/a/57374105
+      - script: |
+          echo 'options(repos = "$(CRAN)")' > ~/.Rprofile
+          echo ".libPaths(c('$R_LIBS_USER', .libPaths()))" >> ~/.Rprofile
+          mkdir -p $(R_LIBS_USER)
+        displayName: Setup R library directory
+
+      - script: make -C r setup
+        displayName: Install dependencies
+
+      - script: make -C r lint
+        displayName: Run linting
+
+      - script: make -C r test
+        displayName: Run tests
+
+      # Git is not available in rstudio/r-base:4.0-focal currently being used
+      #      - script: cd r && Rscript -e 'covr::codecov()'
+      #        condition: succeeded()
+      #        displayName: Upload coverage
+
+      - script: make -C r build
+        displayName: Build package
+
+      - script: make -C r docs
+        displayName: Build docs
+  # Git is not available in rstudio/r-base:4.0-focal currently being used
+  #      - script: bash .ci/publish-docs.sh deploy_r_docs_to_pages
+  #        condition: condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  #        displayName: Publish docs
+  #        env:
+  #          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  - job: Rust
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: make -C rust lint
+        displayName: Run linting
+
+      - script: make -C rust test
+        displayName: Run tests
+
+      - script: cd rust && cargo login $(CRATES_TOKEN) && cargo publish
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        env:
+          CRATES_TOKEN: $(CRATES_TOKEN)
+        displayName: Publish crate

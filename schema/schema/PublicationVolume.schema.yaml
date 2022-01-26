@@ -1,0 +1,42 @@
+title: PublicationVolume
+'@id': schema:PublicationVolume
+extends: CreativeWork
+category: works
+role: secondary
+status: stable
+description: |
+  A part of a successively published publication such as a periodical or multi-volume work.
+$comment: |
+  Often embedded as the `isPartOf` property in a [`PublicationIssue`](./PublicationIssue).
+properties:
+  pageStart:
+    '@id': schema:pageStart
+    description: The page on which the volume starts; for example "135" or "xiii".
+    anyOf:
+      - type: integer
+      - type: string
+  pageEnd:
+    '@id': schema:pageEnd
+    description: The page on which the volume ends; for example "138" or "xvi".
+    anyOf:
+      - type: integer
+      - type: string
+  pagination:
+    '@id': schema:pagination
+    description: |
+      Any description of pages that is not separated into pageStart and pageEnd;
+      for example, "1-6, 9, 55".
+    type: string
+  volumeNumber:
+    '@id': schema:volumeNumber
+    description: |
+      Identifies the volume of publication or multi-part work; for example, "iii" or "2".
+    anyOf:
+      - type: integer
+      - type: string
+examples:
+  - type: PublicationVolume
+    volumeNumber: 571
+    isPartOf:
+      type: Periodical
+      title: Nature

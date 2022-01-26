@@ -1,0 +1,52 @@
+title: Parameter
+'@id': stencila:Parameter
+extends: Entity
+role: secondary
+status: experimental
+category: code
+description: A parameter of a document or function.
+properties:
+  name:
+    '@id': schema:name
+    description: The name of the parameter.
+    type: string
+    pattern: '[a-z_][A-z0-9_]*'
+    $comment: |
+      This regex allows for snake_case and camelCase names but excludes
+      PascalCase for names.
+  value:
+    '@id': schema:value
+    description: The current value of the parameter.
+    allOf:
+      - $ref: Node
+  default:
+    '@id': schema:defaultValue
+    description: The default value of the parameter.
+    allOf:
+      - $ref: Node
+  validator:
+    '@id': stencila:validator
+    description: The validator that the value is validated against.
+    allOf:
+      - $ref: ValidatorTypes
+  executeDigest:
+    '@id': stencila:executeDigest
+    description: The SHA-256 digest of the `value` property the last time the node was executed.
+    type: string
+    $comment: |
+      Used to determine whether it is necessary to re-execute the node (i.e to assign a variable
+      within the document session having `name` and `value`).
+  isRequired:
+    '@id': schema:valueRequired
+    description: Is this parameter required, if not it should have a default or default is assumed to be null.
+    type: boolean
+  isVariadic:
+    '@id': stencila:isVariadic
+    description: Indicates that this parameter is variadic and can accept multiple arguments.
+    type: boolean
+  isExtensible:
+    '@id': stencila:isExtensible
+    description: Indicates that this parameter is variadic and can accept multiple named arguments.
+    type: boolean
+required:
+  - name

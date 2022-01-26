@@ -1,0 +1,73 @@
+# Recreates the table from
+# https://www.w3.org/WAI/tutorials/tables/irregular/#table-with-two-tier-headers
+type: Table
+rows:
+  - type: TableRow
+    cells:
+      - type: TableCell
+        rowspan: 2
+        content: []
+      - type: TableCell
+        kind: header
+        colspan: 2
+        content:
+          - Mars
+      - type: TableCell
+        kind: header
+        colspan: 2
+        content:
+          - Venus
+  - type: TableRow
+    cells:
+      - type: TableCell
+        content:
+          - Produced
+      - type: TableCell
+        kind: header
+        content:
+          - Sold
+  - type: TableRow
+    cells:
+      - type: TableCell
+        content:
+          - Produced
+      - type: TableCell
+        kind: header
+        content:
+          - Sold
+  - type: TableRow
+    cells:
+      - type: TableCell
+        kind: header
+        content:
+          - Teddy Bears
+      - type: TableCell
+        content:
+          - 50,000
+      - type: TableCell
+        content:
+          - 30,000
+      - type: TableCell
+        content:
+          - 100,000
+      - type: TableCell
+        content:
+          - 80,000
+  - type: TableRow
+    cells:
+      - type: TableCell
+        kind: header
+        content:
+          - Board Games
+      - type: TableCell
+        content:
+          - 10,000
+      - type: TableCell
+        content:
+          - 5,000
+      - type: TableCell
+        content:
+          - 12,000
+      - type: TableCell
+        content:
+          - 9,000

@@ -1,0 +1,52 @@
+title: CodeChunk
+'@id': stencila:CodeChunk
+extends: CodeExecutable
+category: code
+role: secondary
+status: unstable
+description: A executable chunk of code.
+properties:
+  label:
+    '@id': stencila:label
+    description: A short label for the CodeChunk.
+    type: string
+  caption:
+    '@id': schema:caption
+    description: A caption for the CodeChunk.
+    $comment: |
+      An array of nodes or, to be compatible with https://schema.org/caption, a string.
+    anyOf:
+      - type: array
+        items:
+          $ref: BlockContent
+      - type: string
+  executeAuto:
+    '@id': stencila:executeAuto
+    description: Under which circumstances the node should be automatically executed.
+    enum:
+      - Never
+      - Needed
+      - Always
+    default: Needed
+    $comment: |
+      `Never`: Never automatically execute the code chunk. Only execute when the user explicitly runs
+      the code (or its containing document).
+      `Needed`: Automatically execute the code chunk if needed. Execute the code chunk if it is an 
+      upstream dependency of a node that has been executed, or is a downstream dependent of a node that
+      has been executed.
+      `Always`: Always execute the code, even if it, or its dependencies, are unchanged since the 
+      last time it was executed.
+  executePure:
+    '@id': stencila:executePure
+    description: Whether the code should be treated as side-effect free when executed.
+    type: boolean
+  outputs:
+    '@id': stencila:outputs
+    description: Outputs from executing the chunk.
+    type: array
+    items:
+      $ref: Node
+examples:
+  - type: CodeChunk
+    programmingLanguage: python
+    text: print('Hello world!')

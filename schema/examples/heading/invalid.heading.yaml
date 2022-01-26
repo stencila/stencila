@@ -1,0 +1,9 @@
+type: Heading
+# Missing property "depth".
+depths: 1
+# Property depths is not allowed.
+content:
+  - type: Heading
+    content:
+      - type: Text
+        value: bar

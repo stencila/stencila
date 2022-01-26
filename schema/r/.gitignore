@@ -1,0 +1,5 @@
+*.Rcheck
+*.Rhistory
+*.Rproj.user
+docs
+man

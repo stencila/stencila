@@ -1,0 +1,36 @@
+title: Entity
+'@id': stencila:Entity
+status: stable
+role: base
+category: other
+description: The most simple compound (ie. non-atomic like `number`, `string` etc) type.
+$comment: |
+  This type exists mainly to have a more simple base class than schema.org's `Thing`.
+  This schema includes special properties that are analogous to JSON-LDs `@type` and `@id`,
+  as well as a `meta` property that can be used by applications for ad-hoc extensions.
+properties:
+  type:
+    # This is a special property analogous to JSON-LD's `@type` keyword.
+    # It is extended with the titles of all descendant types during
+    # the generation of schema.json files.
+    '@id': schema:type
+    description: The name of the type.
+    type: string
+    enum: [Entity]
+    default: Entity
+  id:
+    # This is a special property analogous to JSON-LD's `@id` keyword.
+    '@id': schema:id
+    description: The identifier for this item.
+    type: string
+  meta:
+    # This property has been added to allow for tools that
+    # use this schema to add experimental, ad-hoc properties to
+    # entities.
+    # Ad-hoc properties that become commonly used may become part of
+    # the schema proper.
+    '@id': stencila:meta
+    description: Metadata associated with this item.
+    type: object
+required:
+  - type

@@ -1,0 +1,8 @@
+title: Strong
+'@id': stencila:Strong
+extends: Mark
+role: secondary
+status: stable
+category: text
+description: Strongly emphasised content.
+properties: {}

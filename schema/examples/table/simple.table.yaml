@@ -1,0 +1,10 @@
+type: Table
+rows:
+  - type: TableRow
+    cells:
+      - type: TableCell
+        content:
+          - 1
+      - type: TableCell
+        content:
+          - 2

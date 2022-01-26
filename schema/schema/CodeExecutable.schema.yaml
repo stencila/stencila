@@ -1,0 +1,100 @@
+title: CodeExecutable
+'@id': stencila:CodeExecutable
+extends: Code
+role: base
+status: stable
+category: code
+description: Base type for executable code nodes (i.e. `CodeChunk` and `CodeExpression`).
+$comment: |
+  Adds properties to the base `Code` node type that are necessary, or useful, for executable code.
+  Also makes the `programmingLanguage` property required since that is necessary to be able to execute it.
+properties:
+  codeDependencies:
+    '@id': stencila:codeDependencies
+    description: The upstream dependencies of the code.
+    type: array
+    items:
+      anyOf:
+        - $ref: CodeChunk
+        - $ref: Parameter
+    $comment: |
+      Note that this excludes `CodeExpression` nodes since they should not have side effects
+      (e.g. assigning variables) that would cause another node to be dependent upon them.
+  codeDependents:
+    '@id': stencila:codeDependents
+    description: The downstream dependents of the code.
+    type: array
+    items:
+      anyOf:
+        - $ref: CodeChunk
+        - $ref: CodeExpression
+    $comment: |
+      Note that in comparison to `codeDependencies`, this property does not allow for `Parameter`
+      dependents (because parameters are never dependent upon others).
+  compileDigest:
+    '@id': stencila:compileDigest
+    description: A digest of the content, semantics and dependencies of the node.
+    type: string
+  executeCount:
+    '@id': stencila:executeCount
+    description: A count of the number of times that the node has been executed.
+    type: integer
+    minimum: 0
+    $comment: |
+      Intended to increment with each successive execution of the node, including across sessions.
+      Note that this differs to the `execution_count` in Jupyter Notebook format which is
+      the "code cell's prompt number" and which resets at the start of each new session.
+  executeDigest:
+    '@id': stencila:executeDigest
+    description: The `compileDigest` of the node when it was last executed.
+    type: string
+  executeRequired:
+    '@id': stencila:executeRequired
+    description: Whether, and why, a node requires execution or re-execution.
+    enum:
+      - 'No'
+      - NeverExecuted
+      - SemanticsChanged
+      - DependenciesChanged
+      - DependenciesFailed
+    $comment: |
+      Derived from a comparison of `compileDigest` and `executeDigest` and the `executeStatus`
+      of dependencies.
+      `No`: no re-execution is required, the semantics of the code and its dependencies has not changed
+      since it was last executed.
+      `NeverExecuted`: execution is required because the code has never been executed (or any previous
+      execution was not persisted in its state).
+      `SemanticsChanged`: re-execution is required because the semantics of the code has changed since it was
+      last executed.
+      `DependenciesChanged`: the semantics of one or more dependencies (including transitive dependencies) 
+      changed since it was last executed.
+      `DependenciesFailed`: one or more dependencies (including transitive dependencies) failed when it was
+      last executed.
+  executeStatus:
+    '@id': stencila:executeStatus
+    description: Status of the most recent, including any current, execution of the code.
+    enum:
+      - Scheduled
+      - ScheduledPreviouslyFailed
+      - Running
+      - RunningPreviouslyFailed
+      - Succeeded
+      - Failed
+      - Cancelled
+  executeEnded:
+    '@id': stencila:executeEnded
+    description: The date-time that the the last execution of the code ended.
+    $ref: Date
+  executeDuration:
+    '@id': stencila:executeDuration
+    description: Duration in seconds of the last execution of the code.
+    type: number
+    minimum: 0
+  errors:
+    '@id': stencila:errors
+    description: Errors when compiling (e.g. syntax errors) or executing the chunk.
+    type: array
+    items:
+      $ref: CodeError
+required:
+  - programmingLanguage

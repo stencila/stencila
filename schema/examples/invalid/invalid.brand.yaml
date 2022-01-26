@@ -1,0 +1,7 @@
+type: Brand
+logo:
+  42
+  # Incorrect type. Expected a URI.
+reviews:
+  - []
+    # Incorrect type. Expected "string".
