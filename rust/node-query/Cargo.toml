@@ -12,6 +12,6 @@ default = ["jsonptr", "jmespath"]
 [dependencies]
 eyre = "0.6.5"
 serde_json = "1.0.75"
-stencila-schema = "1.16.1"
+stencila-schema = { path = "../schema" }
 
 jmespatch = { version = "0.3.0", optional = true }

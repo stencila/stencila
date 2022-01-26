@@ -3966,6 +3966,18 @@ checksum = "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c"
 
 [[package]]
 name = "pretty_assertions"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1cab0e7c02cf376875e9335e0ba1da535775beb5450d21e1dffca068818ed98b"
+dependencies = [
+ "ansi_term",
+ "ctor",
+ "diff",
+ "output_vt100",
+]
+
+[[package]]
+name = "pretty_assertions"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec0cfe1b2403f172ba0f234e500906ee0a3e493fb81092dac23ebefe129301cc"
@@ -4984,11 +4996,11 @@ dependencies = [
 [[package]]
 name = "stencila-schema"
 version = "1.16.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57b42e044fd27225b1af83689f278eee21e262bc6e5b9d955e8ea89f7173abd7"
 dependencies = [
  "chrono",
  "defaults",
+ "maplit",
+ "pretty_assertions 0.7.2",
  "serde",
  "serde_json",
  "serde_with",
@@ -5236,7 +5248,7 @@ dependencies = [
 name = "test-utils"
 version = "0.0.0"
 dependencies = [
- "pretty_assertions",
+ "pretty_assertions 1.0.0",
  "serde_json",
  "tempfile",
  "tracing",
