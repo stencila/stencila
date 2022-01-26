@@ -12,6 +12,7 @@ pub fn direction(relation: &Relation) -> Direction {
         Relation::Assign(..) => Direction::To,
         Relation::Alter(..) => Direction::To,
         Relation::Convert(..) => Direction::To,
+        Relation::Declare(..) => Direction::To,
         Relation::Embed => Direction::From,
         Relation::Import(..) => Direction::From,
         Relation::Include => Direction::From,
