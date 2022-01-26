@@ -6,7 +6,6 @@ all: format lint test build docs
 
 setup:
 	npm install
-	make -C python setup
 	make -C r setup
 
 format:
@@ -14,28 +13,23 @@ format:
 
 lint:
 	npm run lint
-	make -C python lint
 	make -C r lint
 
 test:
 	npm test
-	make -C python test
 	make -C r test
 
 build:
 	npm run build
-	make -C python build
 	make -C r build
 
 docs:
 	npm run docs
-	make -C python docs
 	make -C r docs
 .PHONY: docs
 
 clean:
 	npm run clean
-	make -C python clean
 	make -C r clean
 
 # Build Docker image for development

@@ -16,6 +16,16 @@ import {
 } from '../util/helpers'
 import { JsonSchema } from '../JsonSchema'
 
+const DEST_FOLDER = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'python',
+  'stencila',
+  'schema'
+)
+
 const MAX_LINE_LENGTH = 75 // Desired max length - 4 to allow for indent
 
 /**
@@ -77,18 +87,7 @@ ${enumsCode}
 ${unionsCode}
 `
 
-  await fs.writeFile(
-    path.join(
-      __dirname,
-      '..',
-      '..',
-      'python',
-      'stencila',
-      'schema',
-      'types.py'
-    ),
-    code
-  )
+  await fs.writeFile(path.join(DEST_FOLDER, 'types.py'), code)
 }
 
 /**
