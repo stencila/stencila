@@ -38,12 +38,6 @@
 
 (program
     [
-        (expression_statement
-            (assignment_expression
-                left: (identifier) @name
-                right: (_) @value
-            )
-        )
         (variable_declaration
             (variable_declarator
                 name: (identifier) @name
@@ -80,6 +74,15 @@
             )
         )
     ]
+)
+
+(program
+    (expression_statement
+        (assignment_expression
+            left: (identifier) @name
+            right: (_) @value
+        )
+    )
 )
 
 ((identifier) @identifer)

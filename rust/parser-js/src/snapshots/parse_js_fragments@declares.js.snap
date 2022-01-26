@@ -1,274 +1,257 @@
 ---
-source: rust/parser-ts/src/lib.rs
-assertion_line: 120
+source: rust/parser-js/src/lib.rs
+assertion_line: 215
 expression: resource_info
-input_file: fixtures/fragments/ts/assigns.ts
+input_file: fixtures/fragments/js/declares.js
 
 ---
 {
   "resource": {
     "type": "Code",
-    "path": "fragments/ts/assigns.ts",
+    "path": "fragments/js/declares.js",
     "id": "",
     "kind": "SoftwareSourceCode",
-    "language": "TypeScript"
+    "language": "JavaScript"
   },
   "relations": [
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          1,
+          0,
           4,
-          1,
+          0,
           8
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
-        "name": "var1",
-        "kind": "Object"
-      }
-    ],
-    [
-      {
-        "type": "Assign",
-        "range": [
-          2,
-          4,
-          2,
-          8
-        ]
-      },
-      {
-        "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "var2",
         "kind": "Number"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          3,
+          1,
           4,
-          3,
+          1,
           8
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "var3",
-        "kind": "String"
+        "kind": "Number"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          5,
+          2,
           6,
-          5,
+          2,
           10
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "var4",
-        "kind": "Array"
+        "kind": "Number"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          6,
+          3,
           13,
-          6,
+          3,
           17
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "var5",
-        "kind": "Object"
+        "kind": "Number"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          9,
+          5,
           6,
-          9,
+          5,
           10
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "var6",
         "kind": "Boolean"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          10,
           6,
-          10,
+          6,
+          6,
           10
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "var7",
         "kind": "Boolean"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          11,
+          7,
           6,
-          11,
+          7,
           10
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "var8",
         "kind": "Number"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          12,
+          8,
           6,
-          12,
+          8,
           10
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "var9",
         "kind": "Number"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          13,
+          9,
           6,
-          13,
+          9,
           11
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "var10",
         "kind": "String"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          14,
+          10,
           6,
-          14,
+          10,
           11
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "var11",
         "kind": "Array"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          15,
+          11,
           6,
-          15,
+          11,
           11
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "var12",
         "kind": "Object"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          17,
+          13,
           9,
-          17,
+          13,
           13
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "fun1",
         "kind": "Function"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          18,
+          14,
           6,
-          18,
+          14,
           10
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "fun2",
         "kind": "Function"
       }
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
-          19,
+          15,
           16,
-          19,
+          15,
           20
         ]
       },
       {
         "type": "Symbol",
-        "path": "fragments/ts/assigns.ts",
+        "path": "fragments/js/declares.js",
         "name": "fun3",
         "kind": "Function"
       }
     ]
   ],
-  "compile_digest": "TmNiWHcJoD-j7aIE-YzhbGIjySZqZ9JQH5JBj-VYtYw.rIqYb6gxX4RvJdWN3rt2PBfeCIfMOJxF6q5VPuKMtjo..0.0"
+  "compile_digest": "TL7oPmS8ga502icTs3J_gF28lcEZIzJTD2HZQ89Vk7g.8ctnk1bscaU5dolYvi01HCdCFAzZjHXikGCQ0QbHHdg..0.0"
 }

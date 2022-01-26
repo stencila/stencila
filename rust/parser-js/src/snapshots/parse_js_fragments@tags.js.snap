@@ -1,6 +1,6 @@
 ---
 source: rust/parser-js/src/lib.rs
-assertion_line: 200
+assertion_line: 215
 expression: resource_info
 input_file: fixtures/fragments/js/tags.js
 
@@ -14,6 +14,23 @@ input_file: fixtures/fragments/js/tags.js
     "language": "JavaScript"
   },
   "relations": [
+    [
+      {
+        "type": "Declare",
+        "range": [
+          8,
+          4,
+          8,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/tags.js",
+        "name": "ignore",
+        "kind": "Number"
+      }
+    ],
     [
       {
         "type": "Use",

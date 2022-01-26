@@ -18,6 +18,41 @@ static PARSER: Lazy<TreesitterParser> =
 /// Made public for use by `parser-ts`.
 pub const QUERY: &str = include_str!("query.txt");
 
+/// A parser for JavaScript
+pub struct JsParser {}
+
+impl ParserTrait for JsParser {
+    fn spec() -> Parser {
+        Parser {
+            language: Format::JavaScript.spec().title,
+        }
+    }
+
+    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
+        let code = code.as_bytes();
+        let tree = PARSER.parse(code);
+        let matches = PARSER.query(code, &tree);
+
+        let relations = matches
+            .iter()
+            .filter_map(|(pattern, capture)| handle_patterns(path, code, pattern, capture))
+            .collect();
+
+        let resource_info = resource_info(
+            resource,
+            path,
+            &Self::spec().language,
+            code,
+            &tree,
+            &["comment"],
+            matches,
+            0,
+            relations,
+        );
+        Ok(resource_info)
+    }
+}
+
 /// Handle a pattern match
 ///
 /// Made public for use by `parser-ts`.
@@ -59,28 +94,30 @@ pub fn handle_patterns(
             ))
         }
         5 | 6 => {
-            // Assigns a symbol at the top level of the module
+            // Declares a symbol at the top level of the module
             let range = captures[0].range;
             let name = captures[0].text.clone();
             let kind = match pattern {
-                5 => match captures[1].node.kind() {
-                    "true" | "false" => "Boolean",
-                    "number" => "Number",
-                    "string" => "String",
-                    "array" => "Array",
-                    "object" => "Object",
-                    "arrow_function" => "Function",
-                    _ => "",
-                },
+                5 => node_kind(captures[1].node.kind()),
                 6 => "Function",
                 _ => unreachable!(),
             };
+            Some((
+                relations::declares(range),
+                resources::symbol(path, &name, kind),
+            ))
+        }
+        7 => {
+            // Assigns a symbol at the top level of the module
+            let range = captures[0].range;
+            let name = captures[0].text.clone();
+            let kind = node_kind(captures[1].node.kind());
             Some((
                 relations::assigns(range),
                 resources::symbol(path, &name, kind),
             ))
         }
-        7 => {
+        8 => {
             // Uses an identifier assigned elsewhere
             let node = captures[0].node;
             let range = captures[0].range;
@@ -144,38 +181,16 @@ pub fn handle_patterns(
     }
 }
 
-/// A parser for JavaScript
-pub struct JsParser {}
-
-impl ParserTrait for JsParser {
-    fn spec() -> Parser {
-        Parser {
-            language: Format::JavaScript.spec().title,
-        }
-    }
-
-    fn parse(resource: Resource, path: &Path, code: &str) -> Result<ResourceInfo> {
-        let code = code.as_bytes();
-        let tree = PARSER.parse(code);
-        let matches = PARSER.query(code, &tree);
-
-        let relations = matches
-            .iter()
-            .filter_map(|(pattern, capture)| handle_patterns(path, code, pattern, capture))
-            .collect();
-
-        let resource_info = resource_info(
-            resource,
-            path,
-            &Self::spec().language,
-            code,
-            &tree,
-            &["comment"],
-            matches,
-            0,
-            relations,
-        );
-        Ok(resource_info)
+// Translate a `tree-sitter-javascript` AST node `kind` into a Stencila node `type`
+fn node_kind(kind: &str) -> &str {
+    match kind {
+        "true" | "false" => "Boolean",
+        "number" => "Number",
+        "string" => "String",
+        "array" => "Array",
+        "object" => "Object",
+        "arrow_function" => "Function",
+        _ => "",
     }
 }
 

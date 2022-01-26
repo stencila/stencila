@@ -69,7 +69,7 @@ impl ParserTrait for TsParser {
                         }
                     };
                     Some((
-                        relations::assigns(range),
+                        relations::declares(range),
                         resources::symbol(path, &name, kind),
                     ))
                 }
