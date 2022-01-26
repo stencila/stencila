@@ -17,6 +17,16 @@ import {
   readSchemas,
 } from '../util/helpers'
 
+const DEST_FOLDER = path.join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'rust',
+  'schema',
+  'src'
+)
+
 /**
  * Run `build()` when this file is run as a Node script
  */
@@ -206,10 +216,7 @@ ${enumEnums}
   
 ${unionEnums}`
 
-  await fs.writeFile(
-    path.join(__dirname, '..', '..', 'rust', 'src', 'types.rs'),
-    code
-  )
+  await fs.writeFile(path.join(DEST_FOLDER, 'types.rs'), code)
 }
 
 /**
@@ -546,7 +553,7 @@ async function buildSchemas(): Promise<void> {
     .join('\n')
 
   await fs.writeFile(
-    path.join(__dirname, '..', '..', 'rust', 'src', 'schemas.rs'),
+    path.join(DEST_FOLDER, 'schemas.rs'),
     `
 pub const SCHEMAS: &[(&str, &str)] = &[
 ${schemas}
