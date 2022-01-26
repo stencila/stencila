@@ -121,14 +121,15 @@ impl Parsers {
                 )
             };
 
-        // Normalize pairs by removing any `Uses` of locally assigned variables
+        // Normalize pairs by removing any `Uses` of locally declared or assigned symbols
         if let Some(relations) = resource_info.relations {
             let mut normalized: Pairs = Vec::with_capacity(relations.len());
             for (relation, object) in relations {
                 let mut include = true;
                 if matches!(relation, Relation::Use(..)) {
                     for (other_relation, other_object) in &normalized {
-                        if matches!(other_relation, Relation::Assign(..)) && *other_object == object
+                        if matches!(other_relation, Relation::Declare(..) | Relation::Assign(..))
+                            && *other_object == object
                         {
                             include = false;
                             break;

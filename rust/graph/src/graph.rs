@@ -1031,7 +1031,8 @@ impl Graph {
                             relation.to_string(),
                             if *active { "solid" } else { "dashed" },
                         ),
-                        Relation::Assign(relations::Assign { range })
+                        Relation::Declare(relations::Declare { range })
+                        | Relation::Assign(relations::Assign { range })
                         | Relation::Use(relations::Use { range })
                         | Relation::Import(relations::Import { range })
                         | Relation::Read(relations::Read { range })
