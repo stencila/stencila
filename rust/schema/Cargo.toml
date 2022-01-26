@@ -7,7 +7,7 @@ authors = ["Nokome Bentley <nokome@stenci.la>"]
 license = "Apache-2.0"
 readme = "README.md"
 homepage = "https://schema.stenci.la"
-repository = "https://github.com/stencila/schema"
+repository = "https://github.com/stencila/stencila"
 keywords = ["schema", "executable", "documents"]
 
 [dependencies]

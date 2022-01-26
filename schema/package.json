@@ -168,10 +168,6 @@
             "r/R/types.R",
             "r/NAMESPACE",
             "r/DESCRIPTION",
-            "rust/src/types.rs",
-            "rust/src/schemas.rs",
-            "rust/Cargo.toml",
-            "rust/Cargo.lock",
             "ts/types.ts",
             ".vscode/settings.json"
           ]
