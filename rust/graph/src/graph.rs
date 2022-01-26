@@ -298,33 +298,39 @@ impl Graph {
             // Add all the `Resource`s and `Relation`s that are in `relations`
             // for the resource
             if let Some(relations) = relations {
-                for (relation, object) in relations.into_iter() {
+                for (relation, object) in &relations {
+                    // Skip adding `Use` relations where the resource was declared or assigned
+                    // in the same resource. These are unnecessary and create a cyclic, one-to-one dependency.
+                    let mut skip = false;
+                    if matches!(relation, Relation::Use(..)) {
+                        for (other_relation, other_object) in &relations {
+                            if matches!(
+                                other_relation,
+                                Relation::Declare(..) | Relation::Assign(..)
+                            ) && other_object == object
+                            {
+                                skip = true;
+                                break;
+                            }
+                        }
+                    }
+                    if skip {
+                        continue;
+                    }
+
                     // Add the object resource (if it is not already)
-                    let object_index = self.add_resource(object, None);
+                    let object_index = self.add_resource(object.clone(), None);
 
                     // Add an edge
-                    let (from, to) = match direction(&relation) {
+                    let (from, to) = match direction(relation) {
                         Direction::From => (object_index, subject_index),
                         Direction::To => (subject_index, object_index),
                     };
-                    self.graph.add_edge(from, to, relation);
+                    self.graph.add_edge(from, to, relation.clone());
                 }
             }
         }
         self.update(None)?;
-        Ok(())
-    }
-
-    /// Update a [`ResourceInfo`] objects in the graph
-    ///
-    /// If the resource does not exist in the graph (it may have been removed since execution
-    /// was started for example) then no update is made.
-    pub fn update_resource_info(&mut self, resource_info: ResourceInfo) -> Result<()> {
-        let resource = resource_info.resource.clone();
-        if let Some(existing) = self.resources.get_mut(&resource) {
-            *existing = resource_info
-        }
-        self.update(Some(resource))?;
         Ok(())
     }
 

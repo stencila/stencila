@@ -92,6 +92,23 @@ expression: "&plan"
                   "name": "a",
                   "kind": "Number"
                 }
+              ],
+              [
+                {
+                  "type": "Use",
+                  "range": [
+                    2,
+                    0,
+                    2,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "a",
+                  "kind": "Number"
+                }
               ]
             ],
             "dependencies": [],
@@ -369,6 +386,23 @@ expression: "&plan"
                   "type": "Symbol",
                   "path": "articles/code-relations.md",
                   "name": "a",
+                  "kind": "Number"
+                }
+              ],
+              [
+                {
+                  "type": "Use",
+                  "range": [
+                    2,
+                    0,
+                    2,
+                    1
+                  ]
+                },
+                {
+                  "type": "Symbol",
+                  "path": "articles/code-relations.md",
+                  "name": "b",
                   "kind": "Number"
                 }
               ]
