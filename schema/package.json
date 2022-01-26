@@ -5,43 +5,43 @@
   "files": [
     "dist"
   ],
-  "source": "ts/index.ts",
+  "source": "src/index.ts",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "browser": "dist/browser/schema.mjs",
   "unpkg": "dist/browser/schema.umd.js",
-  "types": "dist/ts/index.d.ts",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
-    "lint": "npx eslint 'ts/**/*.{js,ts}' --fix",
+    "lint": "npx eslint 'src/**/*.{js,ts}' --fix",
     "test": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && jest --runInBand",
     "test:cover": "npm test -- --coverage",
     "build": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && npm run build:python && npm run build:r && npm run build:rust && npm run build:vscode && npm run build:dist",
-    "build:jsonschema": "ts-node ts/schema.ts",
-    "build:jsonld": "ts-node ts/bindings/jsonld.ts",
-    "build:python": "ts-node ts/bindings/python.ts",
-    "build:r": "ts-node ts/bindings/r.ts",
-    "build:rust": "ts-node ts/bindings/rust.ts",
-    "build:ts": "ts-node ts/bindings/typescript.ts",
-    "build:vscode": "ts-node ts/bindings/vscode.ts",
-    "build:browser": "microbundle --tsconfig tsconfig.browser.json -o dist/browser --format es,umd ts/index.browser.ts",
-    "build:node": "microbundle --tsconfig tsconfig.lib.json --target node --format es,cjs ts/index.ts",
+    "build:jsonschema": "ts-node src/schema.ts",
+    "build:jsonld": "ts-node src/bindings/jsonld.ts",
+    "build:python": "ts-node src/bindings/python.ts",
+    "build:r": "ts-node src/bindings/r.ts",
+    "build:rust": "ts-node src/bindings/rust.ts",
+    "build:ts": "ts-node src/bindings/typescript.ts",
+    "build:vscode": "ts-node src/bindings/vscode.ts",
+    "build:browser": "microbundle --tsconfig tsconfig.browser.json -o dist/browser --format es,umd src/index.browser.ts",
+    "build:node": "microbundle --tsconfig tsconfig.lib.json --target node --format es,cjs src/index.ts",
     "build:dist": "npm run build:node && npm run build:browser && cp public/*.schema.json dist && cp public/*.jsonld dist",
     "docs": "npm run docs:md && npm run docs:api",
-    "docs:md": "ts-node ts/docs.ts",
-    "docs:api": "ts-node ts/bindings/typescript.ts && typedoc ts/index.ts --readme ts/README.md --tsconfig tsconfig.docs.json --out ts/docs/",
-    "clean": "rimraf coverage dist public ts/types.ts ts/docs python/docs r/docs"
+    "docs:md": "ts-node src/docs.ts",
+    "docs:api": "ts-node src/bindings/typescript.ts && typedoc src/index.ts --readme src/README.md --tsconfig tsconfig.docs.json --out src/docs/",
+    "clean": "rimraf coverage dist public src/types.ts"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/stencila/schema.git"
+    "url": "https://github.com/stencila/stencila.git"
   },
-  "author": "Contributors https://github.com/stencila/schema/contributors",
+  "author": "Contributors https://github.com/stencila/stencila/contributors",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/stencila/schema/issues"
+    "url": "https://github.com/stencila/stencila/issues"
   },
-  "homepage": "https://github.com/stencila/schema#readme",
+  "homepage": "https://github.com/stencila/stencila#readme",
   "devDependencies": {
     "@semantic-release/exec": "6.0.3",
     "@stencila/dev-config": "3.0.4",
@@ -82,17 +82,17 @@
     "preset": "ts-jest",
     "testEnvironment": "node",
     "testMatch": [
-      "<rootDir>/ts/**/*.test.[jt]s?(x)"
+      "<rootDir>/src/**/*.test.[jt]s?(x)"
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/dist"
     ],
     "setupFilesAfterEnv": [
-      "<rootDir>/ts/__tests__/matchers.ts"
+      "<rootDir>/src/__tests__/matchers.ts"
     ],
     "collectCoverageFrom": [
-      "ts/util/*.ts",
-      "!ts/util/index.ts"
+      "src/util/*.ts",
+      "!src/util/index.ts"
     ],
     "watchPathIgnorePatterns": [
       "__file_snapshots__",
@@ -163,7 +163,7 @@
             "CHANGELOG.md",
             "package.json",
             "package-lock.json",
-            "ts/types.ts",
+            "src/types.ts",
             ".vscode/settings.json"
           ]
         }
