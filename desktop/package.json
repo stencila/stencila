@@ -42,7 +42,7 @@
     "@marshallofsound/webpack-asset-relocator-loader": "0.5.0",
     "@msgpack/msgpack": "2.7.1",
     "@rollup/plugin-replace": "3.0.0",
-    "@stencil/core": "2.12.0",
+    "@stencil/core": "2.13.0",
     "@stencil/postcss": "2.1.0",
     "@stencila/dev-config": "3.0.3",
     "@stencila/eslint-config-stencil": "2.0.4",
