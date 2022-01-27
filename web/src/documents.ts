@@ -292,30 +292,34 @@ export function listen(
   )
 
   // Code execution
-  const executeHandler = async ({ detail }: CodeExecuteEvent) => {
+  const executeHandler = async ({
+    detail,
+  }: CodeExecuteEvent): Promise<void> => {
     await execute(client, documentId, detail.nodeId, detail.ordering)
   }
 
   window.addEventListener('stencila-code-execute', (e) => {
-    executeHandler(e as CodeExecuteEvent)
+    executeHandler(e as CodeExecuteEvent).catch(console.error)
   })
 
   // Code execution cancellation
-  const executeCancelHandler = async ({ detail }: CodeExecuteCancelEvent) => {
+  const executeCancelHandler = async ({
+    detail,
+  }: CodeExecuteCancelEvent): Promise<void> => {
     await cancel(client, documentId, detail.nodeId, detail.scope)
   }
 
   window.addEventListener('stencila-code-execute-cancel', (e) => {
-    executeCancelHandler(e as CodeExecuteCancelEvent)
+    executeCancelHandler(e as CodeExecuteCancelEvent).catch(console.error)
   })
 
   // Kernel restart
-  const kernelRestartHandler = async () => {
+  const kernelRestartHandler = async (): Promise<void> => {
     await restart(client, documentId)
   }
 
   window.addEventListener('stencila-kernel-restart', () => {
-    kernelRestartHandler()
+    kernelRestartHandler().catch(console.error)
   })
 }
 
