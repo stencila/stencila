@@ -2,7 +2,7 @@ use formats::{match_name, Format};
 use once_cell::sync::Lazy;
 use parser::{
     eyre::{bail, Result},
-    graph_triples::{Pairs, Relation, Resource, ResourceInfo},
+    graph_triples::{Resource, ResourceInfo},
     ParserTrait,
 };
 use std::collections::BTreeMap;
@@ -111,7 +111,7 @@ impl Parsers {
 
         let format = match_name(&language);
 
-        let mut resource_info =
+        let resource_info =
             if let Some(result) = dispatch_builtins!(format, parse, resource, &path, code) {
                 result?
             } else {
@@ -120,29 +120,6 @@ impl Parsers {
                     language
                 )
             };
-
-        // Normalize pairs by removing any `Uses` of locally assigned variables
-        if let Some(relations) = resource_info.relations {
-            let mut normalized: Pairs = Vec::with_capacity(relations.len());
-            for (relation, object) in relations {
-                let mut include = true;
-                if matches!(relation, Relation::Use(..)) {
-                    for (other_relation, other_object) in &normalized {
-                        if matches!(other_relation, Relation::Assign(..)) && *other_object == object
-                        {
-                            include = false;
-                            break;
-                        }
-                    }
-                }
-                if !include {
-                    continue;
-                }
-
-                normalized.push((relation, object))
-            }
-            resource_info.relations = Some(normalized);
-        }
 
         Ok(resource_info)
     }
@@ -308,6 +285,14 @@ mod tests {
                 (
                     relations::assigns((1, 0, 1, 1)),
                     resources::symbol(&path, "b", "Number")
+                ),
+                (
+                    relations::uses((1, 4, 1, 5)),
+                    resources::symbol(&path, "a", "Number")
+                ),
+                (
+                    relations::uses((1, 8, 1, 9)),
+                    resources::symbol(&path, "a", "Number")
                 )
             ]
         );

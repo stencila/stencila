@@ -16,6 +16,23 @@ input_file: fixtures/fragments/js/tags.js
   "relations": [
     [
       {
+        "type": "Declare",
+        "range": [
+          8,
+          4,
+          8,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/tags.js",
+        "name": "ignore",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
         "type": "Use",
         "range": [
           1,

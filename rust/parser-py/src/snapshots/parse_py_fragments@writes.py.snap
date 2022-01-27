@@ -1,6 +1,6 @@
 ---
 source: rust/parser-py/src/lib.rs
-assertion_line: 209
+assertion_line: 213
 expression: resource_info
 input_file: fixtures/fragments/py/writes.py
 
@@ -127,7 +127,7 @@ input_file: fixtures/fragments/py/writes.py
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           10,
           4,

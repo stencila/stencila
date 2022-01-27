@@ -331,7 +331,7 @@ pub struct ResourceInfo {
     /// Whether the resource is marked as pure or impure.
     ///
     /// Pure resources do not modify other resources (i.e. they have no side effects).
-    /// This can be determined from whether the resource has any `Assign`, `Alter` or `Write`
+    /// This can be determined from whether the resource has any `Declare`, `Assign`, `Alter` or `Write`
     /// in its `relations`. Additionally, the user may mark the resource as pure or impure
     /// either using `@pure` or `@impure` tags in code comments or via user interfaces.
     /// This property stores that explicit mark. If it is `None` then the resources "purity"
@@ -395,21 +395,16 @@ impl ResourceInfo {
     /// returns `true` if there are no side-effect causing relations.
     pub fn is_pure(&self) -> bool {
         self.execute_pure.unwrap_or_else(|| match &self.relations {
-            Some(relations) => {
-                relations
-                    .iter()
-                    .filter(|(relation, ..)| {
-                        matches!(
-                            relation,
-                            Relation::Assign(..)
-                                | Relation::Alter(..)
-                                | Relation::Import(..)
-                                | Relation::Write(..)
-                        )
-                    })
-                    .count()
-                    == 0
-            }
+            Some(relations) => !relations.iter().any(|(relation, ..)| {
+                matches!(
+                    relation,
+                    Relation::Declare(..)
+                        | Relation::Assign(..)
+                        | Relation::Alter(..)
+                        | Relation::Import(..)
+                        | Relation::Write(..)
+                )
+            }),
             None => false,
         })
     }
@@ -435,7 +430,8 @@ impl ResourceInfo {
             Some(relations) => relations
                 .iter()
                 .filter_map(|pair| match pair {
-                    (Relation::Assign(..), Resource::Symbol(symbol))
+                    (Relation::Declare(..), Resource::Symbol(symbol))
+                    | (Relation::Assign(..), Resource::Symbol(symbol))
                     | (Relation::Alter(..), Resource::Symbol(symbol)) => Some(symbol),
                     _ => None,
                 })

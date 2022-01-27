@@ -144,7 +144,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           11,
           4,
@@ -177,7 +177,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           14,
           4,
@@ -227,7 +227,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           15,
           4,
@@ -277,7 +277,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           19,
           6,
@@ -294,7 +294,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           21,
           6,
@@ -311,7 +311,7 @@ input_file: fixtures/fragments/js/imports.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           22,
           6,

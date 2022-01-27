@@ -356,7 +356,7 @@ pub struct SymbolInfo {
 
     /// The time that the symbol was last modified in the home kernel
     ///
-    /// A symbol is considered modified when a `CodeChunk` with an `Assign` or `Alter`
+    /// A symbol is considered modified when a `CodeChunk` with an `Declare`, `Assign` or `Alter`
     /// relation to the symbol is executed or the `kernel.set` method is called.
     modified: DateTime<Utc>,
 

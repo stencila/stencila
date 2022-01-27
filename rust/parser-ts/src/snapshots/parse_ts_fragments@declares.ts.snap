@@ -1,0 +1,274 @@
+---
+source: rust/parser-ts/src/lib.rs
+assertion_line: 120
+expression: resource_info
+input_file: fixtures/fragments/ts/declares.ts
+
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/ts/declares.ts",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "TypeScript"
+  },
+  "relations": [
+    [
+      {
+        "type": "Declare",
+        "range": [
+          1,
+          4,
+          1,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var1",
+        "kind": "Object"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          2,
+          4,
+          2,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var2",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          3,
+          4,
+          3,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var3",
+        "kind": "String"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          5,
+          6,
+          5,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var4",
+        "kind": "Array"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          6,
+          13,
+          6,
+          17
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var5",
+        "kind": "Object"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          9,
+          6,
+          9,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var6",
+        "kind": "Boolean"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          10,
+          6,
+          10,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var7",
+        "kind": "Boolean"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          11,
+          6,
+          11,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var8",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          12,
+          6,
+          12,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var9",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          13,
+          6,
+          13,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var10",
+        "kind": "String"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          14,
+          6,
+          14,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var11",
+        "kind": "Array"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          15,
+          6,
+          15,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "var12",
+        "kind": "Object"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          17,
+          9,
+          17,
+          13
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "fun1",
+        "kind": "Function"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          18,
+          6,
+          18,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "fun2",
+        "kind": "Function"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          19,
+          16,
+          19,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/ts/declares.ts",
+        "name": "fun3",
+        "kind": "Function"
+      }
+    ]
+  ],
+  "compile_digest": "TmNiWHcJoD-j7aIE-YzhbGIjySZqZ9JQH5JBj-VYtYw.rIqYb6gxX4RvJdWN3rt2PBfeCIfMOJxF6q5VPuKMtjo..0.0"
+}

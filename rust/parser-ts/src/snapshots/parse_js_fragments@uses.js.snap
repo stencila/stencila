@@ -371,7 +371,7 @@ input_file: fixtures/fragments/js/uses.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           34,
           9,
@@ -388,7 +388,7 @@ input_file: fixtures/fragments/js/uses.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           38,
           6,
@@ -422,7 +422,7 @@ input_file: fixtures/fragments/js/uses.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           43,
           4,
@@ -439,7 +439,7 @@ input_file: fixtures/fragments/js/uses.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           44,
           4,
@@ -456,7 +456,7 @@ input_file: fixtures/fragments/js/uses.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           45,
           6,

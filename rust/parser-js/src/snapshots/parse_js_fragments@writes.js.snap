@@ -1,6 +1,6 @@
 ---
 source: rust/parser-js/src/lib.rs
-assertion_line: 200
+assertion_line: 215
 expression: resource_info
 input_file: fixtures/fragments/js/writes.js
 
@@ -48,7 +48,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           3,
           4,
@@ -163,7 +163,7 @@ input_file: fixtures/fragments/js/writes.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           6,
           9,

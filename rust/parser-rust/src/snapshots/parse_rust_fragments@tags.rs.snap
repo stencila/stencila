@@ -16,6 +16,23 @@ input_file: fixtures/fragments/rust/tags.rs
   "relations": [
     [
       {
+        "type": "Declare",
+        "range": [
+          8,
+          4,
+          8,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/rust/tags.rs",
+        "name": "ignore",
+        "kind": ""
+      }
+    ],
+    [
+      {
         "type": "Use",
         "range": [
           0,

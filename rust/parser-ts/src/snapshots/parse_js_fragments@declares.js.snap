@@ -1,0 +1,257 @@
+---
+source: rust/parser-ts/src/lib.rs
+assertion_line: 136
+expression: resource_info
+input_file: fixtures/fragments/js/declares.js
+
+---
+{
+  "resource": {
+    "type": "Code",
+    "path": "fragments/js/declares.js",
+    "id": "",
+    "kind": "SoftwareSourceCode",
+    "language": "JavaScript"
+  },
+  "relations": [
+    [
+      {
+        "type": "Declare",
+        "range": [
+          0,
+          4,
+          0,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "var2",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          1,
+          4,
+          1,
+          8
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "var3",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          2,
+          6,
+          2,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "var4",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          3,
+          13,
+          3,
+          17
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "var5",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          5,
+          6,
+          5,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "var6",
+        "kind": "Boolean"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          6,
+          6,
+          6,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "var7",
+        "kind": "Boolean"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          7,
+          6,
+          7,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "var8",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          8,
+          6,
+          8,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "var9",
+        "kind": "Number"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          9,
+          6,
+          9,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "var10",
+        "kind": "String"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          10,
+          6,
+          10,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "var11",
+        "kind": "Array"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          11,
+          6,
+          11,
+          11
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "var12",
+        "kind": "Object"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          13,
+          9,
+          13,
+          13
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "fun1",
+        "kind": "Function"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          14,
+          6,
+          14,
+          10
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "fun2",
+        "kind": "Function"
+      }
+    ],
+    [
+      {
+        "type": "Declare",
+        "range": [
+          15,
+          16,
+          15,
+          20
+        ]
+      },
+      {
+        "type": "Symbol",
+        "path": "fragments/js/declares.js",
+        "name": "fun3",
+        "kind": "Function"
+      }
+    ]
+  ],
+  "compile_digest": "TL7oPmS8ga502icTs3J_gF28lcEZIzJTD2HZQ89Vk7g.8ctnk1bscaU5dolYvi01HCdCFAzZjHXikGCQ0QbHHdg..0.0"
+}

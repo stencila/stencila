@@ -48,7 +48,7 @@ input_file: fixtures/fragments/js/reads.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           3,
           4,
@@ -129,7 +129,7 @@ input_file: fixtures/fragments/js/reads.js
     ],
     [
       {
-        "type": "Assign",
+        "type": "Declare",
         "range": [
           6,
           9,

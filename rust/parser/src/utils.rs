@@ -37,7 +37,7 @@ pub fn apply_tags(
 ) {
     static REGEX_TAGS: Lazy<Regex> = Lazy::new(|| {
         Regex::new(
-            r"@(pure|impure|autorun|imports|assigns|alters|uses|reads|writes|requires)((?:\s+).*?)?(\*/)?$",
+            r"@(pure|impure|autorun|imports|declares|assigns|alters|uses|reads|writes|requires)((?:\s+).*?)?(\*/)?$",
         )
         .expect("Unable to create regex")
     });
@@ -71,6 +71,7 @@ pub fn apply_tags(
                 }
 
                 "imports" => relations::uses(range),
+                "declares" => relations::declares(range),
                 "assigns" => relations::assigns(range),
                 "alters" => relations::alters(range),
                 "uses" => relations::uses(range),
@@ -94,7 +95,7 @@ pub fn apply_tags(
 
                 let resource = match tag {
                     "imports" => resources::module(lang, &arg),
-                    "assigns" | "alters" | "uses" => {
+                    "declares" | "assigns" | "alters" | "uses" => {
                         resources::symbol(path, &arg, &kind.clone().unwrap_or_default())
                     }
                     "reads" | "writes" => resources::file(&PathBuf::from(arg)),
@@ -111,6 +112,7 @@ pub fn apply_tags(
         for only in onlies {
             relations.retain(|(relation, _resource)| {
                 !(matches!(relation, Relation::Import(..)) && only == "imports"
+                    || matches!(relation, Relation::Declare(..)) && only == "declares"
                     || matches!(relation, Relation::Assign(..)) && only == "assigns"
                     || matches!(relation, Relation::Alter(..)) && only == "alters"
                     || matches!(relation, Relation::Use(..)) && only == "uses"

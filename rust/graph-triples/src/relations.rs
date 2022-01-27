@@ -12,6 +12,7 @@ pub enum Relation {
     Assign(Assign),
     Alter(Alter),
     Convert(Convert),
+    Declare(Declare),
     Embed,
     Import(Import),
     Include,
@@ -30,7 +31,24 @@ pub type Range = (usize, usize, usize, usize);
 /// in the `subject` the relation is defined.
 pub const NULL_RANGE: Range = (0, 0, 0, 0);
 
-/// Assigns a symbol
+/// Declares a symbol
+///
+/// For some languages, variable declaration is distinct to assignment
+/// (e.g. `let` in JavaScript). This relation allows for those to be
+/// distinguished.
+#[derive(Debug, Clone, JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
+pub struct Declare {
+    /// The range within code that the assignment is done
+    pub range: Range,
+}
+
+/// Create a new `Declare` relation
+pub fn declares(range: Range) -> Relation {
+    Relation::Declare(Declare { range })
+}
+
+/// Assigns to a symbol
 #[derive(Debug, Clone, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Assign {
