@@ -1,4 +1,8 @@
 import { ViewUpdate } from '@codemirror/view'
+import {
+  CodeExecuteCancelEvent,
+  CodeExecuteEvent,
+} from '@stencila/components/dist/types/components/code/codeTypes'
 import { ValidatorTypes } from '@stencila/schema'
 import {
   Address,
@@ -8,6 +12,7 @@ import {
   Patch,
 } from '@stencila/stencila'
 import { Client, ClientId } from './client'
+import { KernelId } from './kernels'
 import { JsonValue } from './patches/checks'
 import * as codemirror from './patches/codemirror'
 import { applyPatch } from './patches/dom'
@@ -210,13 +215,42 @@ export async function cancel(
 }
 
 /**
- * Restart the document's kernel space
+ * Restart one, or all, of the kernels in a document's kernel space
+ *
+ * If `kernelId` is not supplied then all kernels in the kernel space
+ * will be restarted.
  */
 export async function restart(
   client: Client,
-  documentId: DocumentId
+  documentId: DocumentId,
+  kernelId?: KernelId
 ): Promise<void> {
   return client.call('documents.restart', {
+    documentId,
+    kernelId,
+  }) as Promise<void>
+}
+
+/**
+ * Get a list of kernels in a document's kernel space
+ */
+export async function kernels(
+  client: Client,
+  documentId: DocumentId
+): Promise<void> {
+  return client.call('documents.kernels', {
+    documentId,
+  }) as Promise<void>
+}
+
+/**
+ * Get a list of symbols in a document's kernel space
+ */
+export async function symbols(
+  client: Client,
+  documentId: DocumentId
+): Promise<void> {
+  return client.call('documents.symbols', {
     documentId,
   }) as Promise<void>
 }
@@ -256,6 +290,33 @@ export function listen(
       event as ParameterChangeEvent
     )
   )
+
+  // Code execution
+  const executeHandler = async ({ detail }: CodeExecuteEvent) => {
+    await execute(client, documentId, detail.nodeId, detail.ordering)
+  }
+
+  window.addEventListener('stencila-code-execute', (e) => {
+    executeHandler(e as CodeExecuteEvent)
+  })
+
+  // Code execution cancellation
+  const executeCancelHandler = async ({ detail }: CodeExecuteCancelEvent) => {
+    await cancel(client, documentId, detail.nodeId, detail.scope)
+  }
+
+  window.addEventListener('stencila-code-execute-cancel', (e) => {
+    executeCancelHandler(e as CodeExecuteCancelEvent)
+  })
+
+  // Kernel restart
+  const kernelRestartHandler = async () => {
+    await restart(client, documentId)
+  }
+
+  window.addEventListener('stencila-kernel-restart', () => {
+    kernelRestartHandler()
+  })
 }
 
 /**

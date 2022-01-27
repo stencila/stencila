@@ -2,6 +2,11 @@ import { Client } from './client'
 import { SessionId } from './sessions'
 
 /**
+ * The id of a kernel
+ */
+export type KernelId = string
+
+/**
  * Get a list of languages supported by the kernels available in the current environment
  */
 export async function languages(

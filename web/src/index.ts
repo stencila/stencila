@@ -1,12 +1,3 @@
-// To iron out:
-// - race conditions for node execution responses
-// - cancelling execution
-// - handling stale status for downstream node dependencies
-// - what does a `documents.change` payload look like for HTML nodes?
-// - How do we migrate old published documents
-// - Attach Node IDs for required elements in published article HTML
-
-import { CodeChunk, CodeExpression } from '@stencila/schema'
 import { Document, Session } from '@stencila/stencila'
 import { Client, ClientId, connect, disconnect } from './client'
 import * as documents from './documents'
@@ -75,8 +66,6 @@ export const main = (
 
     documents.listen(client, clientId, document.id)
 
-    initComponents()
-
     return [client, document, session]
   }
 
@@ -85,52 +74,6 @@ export const main = (
     if (client !== undefined && session !== undefined) {
       await sessions.stop(client, session.id)
       session = undefined
-    }
-  }
-
-  function initComponents(): void {
-    window.removeEventListener('appload', initComponents)
-
-    // `executeHandler` for `CodeChunk` and `CodeExpression` nodes
-    window.document
-      .querySelectorAll<
-        HTMLStencilaCodeChunkElement | HTMLStencilaCodeExpressionElement
-      >('stencila-code-chunk,stencila-code-expression')
-      .forEach((elem) => {
-        elem.executeHandler = async <C extends CodeChunk | CodeExpression>(
-          node: C
-        ): Promise<C> => {
-          const [client, document] = await startup()
-          await documents.execute(client, document.id, elem.id)
-          // The WebComponent for a `CodeExpression` has a `isOutputEmpty` property
-          // which is set based on the return value from this function and does not
-          // change later when we actually update the output. So, here's a hack to
-          // make that always true.
-          return Promise.resolve({ ...node, output: '' })
-        }
-      })
-
-    // Temporary functions for testing in the console
-    // @ts-ignore
-    window.stencilaExecute = async (
-      nodeId: null | string,
-      ordering: 'Single' | 'Appearance' | 'Topological'
-    ) => {
-      const [client, document] = await startup()
-      await documents.execute(client, document.id, nodeId, ordering)
-    }
-    // @ts-ignore
-    window.stencilaCancel = async (
-      nodeId: null | string,
-      scope: 'Single' | 'All'
-    ) => {
-      const [client, document] = await startup()
-      await documents.cancel(client, document.id, nodeId, scope)
-    }
-    // @ts-ignore
-    window.stencilaRestart = async () => {
-      const [client, document] = await startup()
-      await documents.restart(client, document.id)
     }
   }
 

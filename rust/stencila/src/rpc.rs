@@ -60,6 +60,8 @@ impl Request {
             "documents.execute" => documents_execute(&self.params).await,
             "documents.cancel" => documents_cancel(&self.params).await,
             "documents.restart" => documents_restart(&self.params).await,
+            "documents.kernels" => documents_kernels(&self.params).await,
+            "documents.symbols" => documents_symbols(&self.params).await,
             "documents.subscribe" => documents_subscribe(&self.params, client).await,
             "documents.unsubscribe" => documents_unsubscribe(&self.params, client).await,
             _ => {
@@ -372,9 +374,30 @@ async fn documents_cancel(params: &Params) -> Result<(serde_json::Value, Subscri
 
 async fn documents_restart(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let id = required_string(params, "documentId")?;
+    let kernel_id = optional_string(params, "kernelId")?;
 
-    DOCUMENTS.get(&id).await?.lock().await.restart().await?;
+    DOCUMENTS
+        .get(&id)
+        .await?
+        .lock()
+        .await
+        .restart(kernel_id)
+        .await?;
     Ok((serde_json::Value::Null, Subscription::None))
+}
+
+async fn documents_kernels(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let id = required_string(params, "documentId")?;
+
+    let kernels = DOCUMENTS.get(&id).await?.lock().await.kernels().await;
+    Ok((json!(kernels), Subscription::None))
+}
+
+async fn documents_symbols(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let id = required_string(params, "documentId")?;
+
+    let symbols = DOCUMENTS.get(&id).await?.lock().await.symbols().await;
+    Ok((json!(symbols), Subscription::None))
 }
 
 // Helper functions for getting JSON-RPC parameters and raising appropriate errors

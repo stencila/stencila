@@ -4,7 +4,7 @@ use eyre::{bail, Result};
 use formats::FormatSpec;
 use graph::{Graph, Plan, PlanOptions, PlanOrdering, PlanScope};
 use graph_triples::{resources, Relations};
-use kernels::KernelSpace;
+use kernels::{KernelInfos, KernelSpace, KernelSymbols};
 use maplit::hashset;
 use node_address::AddressMap;
 use node_execute::{
@@ -1240,18 +1240,32 @@ impl Document {
         Ok(request_id)
     }
 
-    /// Restart the document's kernel space
+    /// Restart a kernel (or all kernels) in the document's kernel space
     ///
     /// Cancels any execution plan that is running, destroy the document's
     /// existing kernel, and create's a new one
     #[tracing::instrument(skip(self))]
-    pub async fn restart(&self) -> Result<()> {
-        tracing::debug!("Restarting kernel space for document `{}`", self.id);
+    pub async fn restart(&self, kernel_id: Option<String>) -> Result<()> {
+        tracing::debug!("Restarting kernel/s for document `{}`", self.id);
 
         self.cancel(None, Some(PlanScope::All)).await;
-        *self.kernels.write().await = KernelSpace::new();
+
+        let kernels = &*self.kernels.write().await;
+        kernels.restart(kernel_id).await?;
 
         Ok(())
+    }
+
+    /// Get the list of kernels in the document's kernel space
+    pub async fn kernels(&self) -> KernelInfos {
+        let kernel_space = &*self.kernels.read().await;
+        kernel_space.kernels().await
+    }
+
+    /// Get the list of symbols in the document's kernel space
+    pub async fn symbols(&self) -> KernelSymbols {
+        let kernel_space = &*self.kernels.read().await;
+        kernel_space.symbols().await
     }
 
     /// Update the `root` (and associated properties) of the document and publish updated encodings
@@ -1843,6 +1857,8 @@ pub mod commands {
         Cancel(kernel_commands::Cancel),
         #[cfg(feature = "kernels-cli")]
         Symbols(kernel_commands::Symbols),
+        #[cfg(feature = "kernels-cli")]
+        Restart(kernel_commands::Restart),
 
         Graph(Graph),
         Run(Runn),
@@ -1875,6 +1891,8 @@ pub mod commands {
                 Action::Cancel(action) => action.run().await,
                 #[cfg(feature = "kernels-cli")]
                 Action::Symbols(action) => action.run().await,
+                #[cfg(feature = "kernels-cli")]
+                Action::Restart(action) => action.run().await,
 
                 Action::Graph(action) => action.run().await,
                 Action::Run(action) => action.run().await,
@@ -2138,6 +2156,28 @@ pub mod commands {
                 let document = document.lock().await;
                 let kernels = document.kernels.read().await;
                 self.symbols.run(&*kernels).await
+            }
+        }
+
+        #[derive(Debug, StructOpt)]
+        #[structopt(
+            setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        pub struct Restart {
+            #[structopt(flatten)]
+            file: File,
+
+            #[structopt(flatten)]
+            restart: kernels::commands::Restart,
+        }
+        #[async_trait]
+        impl Run for Restart {
+            async fn run(&self) -> Result {
+                let document = self.file.get().await?;
+                let document = document.lock().await;
+                let kernels = document.kernels.read().await;
+                self.restart.run(&*kernels).await
             }
         }
     }

@@ -248,6 +248,13 @@ impl KernelMap {
         Ok(kernel_id)
     }
 
+    /// Stop one of the kernels and remove it from the kernel space
+    async fn stop(&mut self, id: &str) -> Result<()> {
+        self.get_mut(id)?.stop().await?;
+        self.remove(id);
+        Ok(())
+    }
+
     /// Connect to a running kernel
     #[allow(unused_variables)]
     async fn connect(&mut self, id_or_path: &str) -> Result<KernelId> {
@@ -265,19 +272,9 @@ impl KernelMap {
         )
     }
 
-    /// Stop one of the kernels and remove it from the kernel space
-    async fn stop(&mut self, id: &str) -> Result<()> {
-        self.get_mut(id)?.stop().await?;
-        self.remove(id);
-        Ok(())
-    }
-
-    /// Get a list of kernels in the kernel space
-    #[cfg(feature = "cli")]
-    pub async fn display(&self) -> cli_utils::Result {
-        use cli_utils::result;
-
-        let mut list = Vec::new();
+    /// Get a list of kernels (including their details and status)
+    pub async fn list(&self) -> KernelInfos {
+        let mut list = KernelInfos::new();
         for (id, kernel) in self.iter() {
             let id = id.to_string();
             let spec = kernel.spec().await;
@@ -290,20 +287,32 @@ impl KernelMap {
             };
             let interruptable = kernel.is_interruptable().await;
             let forkable = kernel.is_forkable().await;
-            list.push(KernelInfo {
-                id,
-                status,
-                spec,
-                interruptable,
-                forkable,
-            })
+            list.insert(
+                id.to_string(),
+                KernelInfo {
+                    id,
+                    status,
+                    spec,
+                    interruptable,
+                    forkable,
+                },
+            );
         }
+        list
+    }
+
+    /// Display a list of kernels in the kernel space
+    #[cfg(feature = "cli")]
+    pub async fn display(&self) -> cli_utils::Result {
+        use cli_utils::result;
+
+        let list = self.list().await;
 
         let cols = "|--|------|----|----|---------|-------------|--------|";
         let head = "|Id|Status|Type|Name|Languages|Interruptable|Forkable|";
         let body = list
             .iter()
-            .map(|info| {
+            .map(|(_, info)| {
                 format!(
                     "|{}|{}|{}|{}|{}|{}|{}|",
                     info.id,
@@ -370,7 +379,26 @@ impl SymbolInfo {
     }
 }
 
-type KernelSymbols = HashMap<String, SymbolInfo>;
+pub type KernelSymbols = HashMap<String, SymbolInfo>;
+
+/// Disassociates a kernel with a symbol. If a symbol is mirrored in other kernels
+/// then the last kernel that is was mirrored to will become it's home.
+fn purge_kernel_from_symbols(symbols: &mut KernelSymbols, kernel_id: &str) {
+    let mut remove = Vec::new();
+    for (symbol, symbol_info) in symbols.iter_mut() {
+        if symbol_info.home == kernel_id {
+            let mut mirrors = symbol_info.mirrored.iter().collect::<Vec<_>>();
+            mirrors.sort_by(|a, b| a.1.cmp(b.1));
+            match mirrors.last() {
+                Some((kernel, _)) => symbol_info.home = kernel.to_string(),
+                None => remove.push(symbol.to_string()),
+            }
+        } else {
+            symbol_info.mirrored.retain(|kernel, _| kernel != kernel_id);
+        }
+    }
+    symbols.retain(|symbol, _| !remove.contains(symbol));
+}
 
 /// Display kernel symbols
 #[cfg(feature = "cli")]
@@ -782,6 +810,8 @@ impl Drop for KernelSpace {
     }
 }
 
+pub type KernelInfos = HashMap<KernelId, KernelInfo>;
+
 impl KernelSpace {
     /// Create a new kernel space and start its monitoring task
     pub fn new() -> Self {
@@ -815,6 +845,58 @@ impl KernelSpace {
             KernelSpace::clean_tasks(tasks).await;
             tokio::time::sleep(PERIOD).await;
         }
+    }
+
+    /// Get the list of kernels in the kernel space
+    pub async fn kernels(&self) -> KernelInfos {
+        let kernels = &*self.kernels.lock().await;
+        kernels.list().await
+    }
+
+    /// Get the list of symbols in the kernel space
+    pub async fn symbols(&self) -> KernelSymbols {
+        let symbols = &*self.symbols.lock().await;
+        symbols.clone()
+    }
+
+    /// Start a kernel
+    pub async fn start(&self, selector: &KernelSelector) -> Result<KernelId> {
+        let kernels = &mut *self.kernels.lock().await;
+        Ok(kernels.start(selector).await?)
+    }
+
+    /// Stop a kernel
+    pub async fn stop(&self, id: &str) -> Result<()> {
+        let kernels = &mut *self.kernels.lock().await;
+        kernels.stop(id).await?;
+
+        let symbols = &mut *self.symbols.lock().await;
+        purge_kernel_from_symbols(symbols, id);
+
+        Ok(())
+    }
+
+    /// Restart one, or all, kernels in the kernel space
+    pub async fn restart(&self, id: Option<String>) -> Result<()> {
+        let kernels = &mut *self.kernels.lock().await;
+        let symbols = &mut *self.symbols.lock().await;
+
+        let ids = match id {
+            Some(id) => vec![id],
+            None => kernels.keys().cloned().collect(),
+        };
+
+        for id in &ids {
+            let kernel = kernels.get(id)?;
+            let spec = kernel.spec().await;
+            let selector = KernelSelector::new(Some(spec.name), None, None);
+
+            kernels.stop(id).await?;
+            purge_kernel_from_symbols(symbols, id);
+            kernels.start(&selector).await?;
+        }
+
+        Ok(())
     }
 
     /// Get a symbol from the kernel space
@@ -1583,6 +1665,7 @@ pub mod commands {
         Queues(Queues),
         Cancel(Cancel),
         Symbols(Symbols),
+        Restart(Restart),
 
         External(External),
         Directories(Directories),
@@ -1611,6 +1694,7 @@ pub mod commands {
                         Action::Queues(action) => action.run(kernel_space).await,
                         Action::Cancel(action) => action.run(kernel_space).await,
                         Action::Symbols(action) => action.run(kernel_space).await,
+                        Action::Restart(action) => action.run(kernel_space).await,
 
                         _ => bail!("Unhandled action: {:?}", action),
                     }
@@ -1882,9 +1966,9 @@ pub mod commands {
     }
     impl Start {
         pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
-            let mut kernels = kernel_space.kernels.lock().await;
             let selector = KernelSelector::parse(&self.selector);
-            let kernel_id = kernels.start(&selector).await?;
+            let kernel_id = kernel_space.start(&selector).await?;
+            let kernels = kernel_space.kernels.lock().await;
             let kernel = kernels.get(&kernel_id)?;
             tracing::info!("Successfully started kernel");
             result::value(kernel)
@@ -1904,14 +1988,30 @@ pub mod commands {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Stop {
-        /// The id of the kernel (see `kernels status`)
+        /// The id of the kernel
         id: String,
     }
     impl Stop {
         pub async fn run(&self, kernel_space: &mut KernelSpace) -> Result {
-            let mut kernels = kernel_space.kernels.lock().await;
-            kernels.stop(&self.id).await?;
+            kernel_space.stop(&self.id).await?;
             tracing::info!("Stopped kernel `{}`", self.id);
+            result::nothing()
+        }
+    }
+
+    /// Restart one or all of the kernels
+    #[derive(Debug, StructOpt)]
+    pub struct Restart {
+        /// The id of the kernel (defaults to all)
+        id: Option<String>,
+    }
+    impl Restart {
+        pub async fn run(&self, kernel_space: &KernelSpace) -> Result {
+            kernel_space.restart(self.id.clone()).await?;
+            match &self.id {
+                Some(id) => tracing::info!("Restarted kernel `{}`", id),
+                None => tracing::info!("Restarted all kernels"),
+            };
             result::nothing()
         }
     }
