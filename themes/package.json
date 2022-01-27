@@ -70,7 +70,7 @@
     "@stencila/eslint-config": "3.0.0",
     "@stencila/schema": "1.12.0",
     "@types/chromedriver": "81.0.0",
-    "@types/jest": "26.0.24",
+    "@types/jest": "27.4.0",
     "@types/jsdoc-to-markdown": "7.0.1",
     "@types/prismjs": "1.16.6",
     "@types/react": "17.0.31",
@@ -96,7 +96,7 @@
     "globby": "11.0.4",
     "html-loader": "3.0.0",
     "html-webpack-plugin": "5.4.0",
-    "jest": "26.6.3",
+    "jest": "27.4.7",
     "jest-junit": "13.0.0",
     "jsdoc-to-markdown": "7.1.0",
     "mathjax-node": "2.1.1",
@@ -126,7 +126,7 @@
     "stylelint-declaration-strict-value": "1.7.12",
     "stylelint-selector-pattern": "0.0.2",
     "stylelint-selector-tag-no-without-class": "2.0.4",
-    "ts-jest": "26.5.6",
+    "ts-jest": "27.1.3",
     "ts-loader": "9.2.6",
     "ts-node": "10.3.1",
     "typescript": "4.4.4",
@@ -169,6 +169,7 @@
   },
   "jest": {
     "preset": "ts-jest",
+    "testEnvironment": "jsdom",
     "testMatch": [
       "<rootDir>/(src|test)/**/*.test.[jt]s"
     ],
