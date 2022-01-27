@@ -63,6 +63,7 @@ fn primitives_deserialize() -> Result<()> {
 }
 
 #[test]
+#[allow(clippy::approx_constant)]
 fn primitives_serialize() -> Result<()> {
     let null = Primitive::Null(Null {});
     assert_eq!(serde_json::to_string(&null)?, "null");
@@ -139,7 +140,7 @@ fn article_fixture() -> Article {
 #[test]
 fn entity_is_clonable() {
     let article1 = article_fixture();
-    let _article2 = article1.clone();
+    let _article2 = article1;
 }
 
 #[test]
