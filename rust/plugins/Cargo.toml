@@ -39,4 +39,4 @@ tracing = "0.1.29"
 cli-utils = { path = "../cli-utils", version = "0.0.0", optional = true }
 structopt = { version = "0.3.25", optional = true }
 
-bollard = { version = "0.11.0", optional = true }
+bollard = { version = "0.11.1", optional = true }
