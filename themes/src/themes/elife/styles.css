@@ -79,12 +79,12 @@
 
   .content-header__icon--cc,
   .content-header__icon--cc:hover {
-    background-image: url('@elifesciences/pattern-library/source/assets/img/icons/cc.svg');
+    background-image: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/cc.svg');
   }
 
   .content-header__icon--oa,
   .content-header__icon--oa:hover {
-    background-image: url('@elifesciences/pattern-library/source/assets/img/icons/oa.svg');
+    background-image: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/oa.svg');
   }
 
   & :--authors {
@@ -106,7 +106,7 @@
       }
 
       :--emails::after {
-        content: url('@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+        content: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
       }
     }
 
@@ -126,7 +126,7 @@
       }
 
       :--emails::after {
-        content: url('@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+        content: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
       }
     }
 
@@ -266,11 +266,11 @@
     & > .download-link {
       flex: 0 0 var(--download-icon-block-size);
       height: var(--download-icon-block-size);
-      background: url('@elifesciences/pattern-library/source/assets/img/icons/download.svg')
+      background: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/download.svg')
         transparent no-repeat;
 
       @media only screen and (--medium-viewport) {
-        background-image: url('@elifesciences/pattern-library/source/assets/img/icons/download-full.svg');
+        background-image: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/download-full.svg');
       }
 
       & > .download-link-text {

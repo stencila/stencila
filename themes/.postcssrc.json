@@ -1,0 +1,29 @@
+{
+  "modules": false,
+  "plugins": {
+    "postcss-import": {},
+    "postcss-import-url": {
+      "modernBrowser": true,
+      "resolveUrls": true
+    },
+    "postcss-url": {
+      "url": "rebase"
+    },
+    "postcss-custom-media": {},
+    "postcss-custom-properties": { "preserve": true },
+    "postcss-nested": {},
+    "postcss-nested-import": {},
+    "postcss-custom-selectors": {
+      "importFrom": ["src/selectors.css", "src/extensions/code/styles.css"]
+    },
+    "postcss-extend": {},
+    "postcss-selector-replace": {
+      "before": ["/\\[class\\*=language-\\]\\)/gm"],
+      "after": [")"]
+    },
+    "postcss-selector-not": {},
+    "autoprefixer": {},
+    "cssnano": { "preset": "default" },
+    "postcss-sort-media-queries": {}
+  }
+}
