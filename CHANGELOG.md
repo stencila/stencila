@@ -1,3 +1,11 @@
+## [1.0.2](https://github.com/stencila/stencila/compare/v1.0.1...v1.0.2) (2022-01-31)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/components to v0.50.3 ([88bb419](https://github.com/stencila/stencila/commit/88bb4192b72eabca1d2f80a1348a9dbb0be27b03))
+* **dependencies:** update dependency fp-ts to v2.11.8 ([90d94c6](https://github.com/stencila/stencila/commit/90d94c656efb7205fd31952c65d382668a9e7372))
+
 ## [1.0.1](https://github.com/stencila/stencila/compare/v1.0.0...v1.0.1) (2022-01-27)
 
 
