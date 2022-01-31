@@ -6,11 +6,16 @@
 @import '../../fonts/merriweather/merriweather.css';
 
 :--root {
+  padding-bottom: 6rem;
+}
+
+:--root,
+:--content {
   --max-width: 600px;
   --max-width-media: 980px;
 
   /* Font Families */
-  --font-family-display: 'Montserrat', sans-serif;
+  --font-family-display: merriweather, serif;
   --font-family-body: merriweather, serif;
   --font-family-mono: 'IBM Plex Mono', 'Frra Code', monospace;
 
@@ -46,7 +51,7 @@
 
   /* Neutral: For backgrounds and borders */
   --color-neutral-50: #fffbf5;
-  --color-neutral-100: #f7f3ef;
+  --color-neutral-100: #f3ede7;
   --color-neutral-200: #f1eae1;
   --color-neutral-300: #e4d8c8;
   --color-neutral-400: #d4c4b2;
@@ -64,13 +69,16 @@
   font-family: var(--font-family-body);
   line-height: 1.75;
   font-size: var(--font-size-body);
-  padding: 0 2.5%;
+  padding-left: 2.5%;
+  padding-right: 2.5%;
+  width: 100%;
 
   @media screen and (min-width: 720px) {
-    padding: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
 
-  & > *:not(figure, table) {
+  & > [itemtype] {
     width: 100%;
   }
 
@@ -96,14 +104,18 @@
   :--authors,
   :--description,
   :--affiliations,
-  :--references {
+  :--references,
+  :--label,
+  figure > [slot='label'] {
     margin-left: auto;
     margin-right: auto;
     max-width: var(--max-width);
   }
 
   :--Figure,
-  :--CodeBlock {
+  :--CodeChunk,
+  :--CodeBlock,
+  :--QuoteBlock {
     margin-left: auto;
     margin-right: auto;
     max-width: var(--max-width-media);
@@ -146,6 +158,11 @@
   }
 }
 
+stencila-document-toolbar + :--title {
+  margin-top: 6rem;
+}
+
+:--title,
 :--Heading {
   margin-top: 2.75rem;
   margin-bottom: 1rem;
@@ -324,16 +341,12 @@ h6:--Heading {
   }
 }
 
-:--Figure > figcaption,
-:--Figure > :--caption {
+:--MediaTypes > figcaption,
+:--MediaTypes > :--caption {
   font-size: var(--font-size-80);
   background-color: var(--color-neutral-200);
   width: 100%;
   padding: 1.5rem 3rem 3rem;
-
-  & > * {
-    max-width: var(--max-width);
-  }
 
   :--Heading {
     font-size: var(--font-size-h6);
@@ -359,6 +372,26 @@ h6:--Heading {
   }
 }
 
+:--Figure {
+  background-color: var(--color-neutral-200);
+
+  :--content {
+    background-color: var(--color-stock);
+  }
+}
+
+:--Figure :--label,
+:--Table caption :--label,
+figure > [slot='label'] {
+  display: block;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-80);
+  font-style: italic;
+  font-weight: bold;
+  padding-top: 3rem;
+  max-width: var(--max-width);
+}
+
 :--Article :--Paragraph {
   margin-bottom: 1.25rem;
 }
@@ -367,9 +400,9 @@ h6:--Heading {
   margin: 1.25rem auto;
   padding: 2rem;
   color: var(--color-neutral-900);
-  background-color: var(--color-neutral-300);
-  border-top: 3px double var(--color-neutral-300);
-  border-right: 2px double var(--color-neutral-300);
+  background-color: var(--color-neutral-100);
+  border-top: 3px double var(--color-neutral-200);
+  border-right: 2px double var(--color-neutral-200);
   position: relative;
 
   &::before {
@@ -379,7 +412,7 @@ h6:--Heading {
     left: -1rem;
     font-size: var(--font-size-blockquote);
     font-weight: 900;
-    color: var(--color-neutral-700);
+    color: var(--color-neutral-400);
   }
 
   &::after {
@@ -389,7 +422,7 @@ h6:--Heading {
     right: -1rem;
     font-size: var(--font-size-blockquote);
     font-weight: 900;
-    color: var(--color-neutral-700);
+    color: var(--color-neutral-400);
   }
 
   & *:first-child {
@@ -405,14 +438,18 @@ h6:--Heading {
 :--Datatable {
   text-align: left;
   border-collapse: collapse;
-  font-size: var(--font-size-80);
+  font-size: var(--font-size-90);
   margin: 1rem auto;
   min-width: var(--max-width);
   overflow-x: auto;
-  border: 2px solid var(--color-neutral-300);
+  border: 2px solid var(--color-neutral-100);
 
   :--Figure & {
     margin: 0 auto;
+  }
+
+  :--label + :--caption :first-child {
+    margin-top: 0;
   }
 }
 
@@ -421,26 +458,28 @@ h6:--Heading {
   text-transform: uppercase;
   font-size: var(--font-size-75);
   letter-spacing: 1px;
-  border-bottom: 2px solid var(--color-neutral-300);
+  border-bottom: 2px solid var(--color-neutral-100);
 }
 
 :--Article th,
 :--Article tbody:first-child tr:first-child {
   font-weight: 900;
   padding: 0.5em 1em;
-  border-right: solid 1px var(--color-neutral-300);
+  border-right: solid 1px var(--color-neutral-100);
 }
 
 :--TableRow:nth-child(even) {
-  background-color: var(--color-neutral-300);
+  background-color: var(--color-neutral-100);
 }
 
 :--TableCell {
-  border-right: solid 1px var(--color-neutral-300);
+  border-right: solid 1px var(--color-neutral-100);
   padding: 0.25em 1em;
 }
 
-:--Link {
+:--Link,
+:--authors a,
+:--Paragraph a {
   transition: color 125ms ease-in-out;
 
   &:link,
