@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/stencila/stencila/compare/v1.0.2...v1.0.3) (2022-01-31)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency i18next to v21.6.10 ([02cbd46](https://github.com/stencila/stencila/commit/02cbd4615dbd88224d926e8419bbae72c96795a9))
+
 ## [1.0.2](https://github.com/stencila/stencila/compare/v1.0.1...v1.0.2) (2022-01-31)
 
 
