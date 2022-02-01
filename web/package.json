@@ -101,7 +101,7 @@
     "prosemirror-tables": "^1.1.1",
     "prosemirror-transform": "^1.3.3",
     "prosemirror-view": "^1.23.0",
-    "rpc-websockets": "^7.4.16"
+    "rpc-websockets": "^7.4.17"
   },
   "browserslist": [
     "defaults",
