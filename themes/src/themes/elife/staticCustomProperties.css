@@ -47,6 +47,15 @@
   /* Stencila WebComponent overrides */
   --font-family-display: 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
   --font-family-body: 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
+  --color-neutral-50: #e9eaf1;
   --color-neutral-100: #f7f7f7;
-  --color-netural-200: #e0e0e0;
+  --color-neutral-200: #e0e0e0;
+  --color-neutral-300: #9da3bc;
+  --color-neutral-400: #858ca8;
+  --color-neutral-500: #6e7591;
+  --color-neutral-600: #595f78;
+  --color-neutral-700: #444a5e;
+  --color-neutral-800: #313543;
+  --color-neutral-900: #1f212a;
+  --color-neutral-1000: #0c0d10;
 }

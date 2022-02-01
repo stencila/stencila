@@ -379,7 +379,22 @@
   }
 
   :--Figure {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
     margin: 1em 0;
+
+    :--label {
+      order: 1;
+    }
+
+    :--content {
+      order: 2;
+    }
+
+    :--caption {
+      order: 3;
+    }
 
     img {
       outline: 1px solid #e0e0e0;

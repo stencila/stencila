@@ -10,14 +10,14 @@ stencila-button {
   }
 
   .label {
-    line-height: 0.75;
-    vertical-align: middle;
+    line-height: 1;
+    vertical-align: bottom !important;
   }
 }
 
-stencila-executable-document-toolbar {
+stencila-document-toolbar {
   background-color: var(--COLOR-TEXT-UI-BACKGROUND);
-  border-bottom: 1px solid var(--color-netural-300);
+  border-bottom: 1px solid var(--color-neutral-300);
 
   stencila-toolbar {
     --background: transparent;
@@ -50,7 +50,7 @@ stencila-executable-document-toolbar {
   }
 
   &[position='fixed'] + .content-header {
-    margin-top: 3rem; /* Height of the executable toolbar */
+    margin-top: 3rem; /* Height of the document toolbar */
     padding-top: calc(var(--BASELINE-MEASURE-REM) * 0.5833333333);
   }
 }
@@ -132,7 +132,7 @@ stencila-executable-document-toolbar {
 
   /* Always show Source Toggle button */
   stencila-button.sourceToggle {
-    width: 2rem !important;
+    width: 1.5rem !important;
   }
 
   /* Hide `play (Run Code)` button when source code panel is hidden */
