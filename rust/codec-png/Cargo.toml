@@ -7,7 +7,7 @@ edition = "2021"
 [dependencies]
 base64 = "0.13.0"
 binaries = { path = "../binaries", version = "0.0.0" }
-chromiumoxide = { version = "0.3.2", features = ["tokio-runtime"] }
+chromiumoxide = { version = "0.3.4", features = ["tokio-runtime"] }
 codec-html = { path = "../codec-html", version = "0.0.0" }
 codec = { path = "../codec", version = "0.0.0" }
 futures = "0.3.19"
