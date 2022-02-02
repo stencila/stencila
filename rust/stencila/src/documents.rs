@@ -506,6 +506,22 @@ impl Document {
         }
     }
 
+    /// Create a new document, optionally with content.
+    pub async fn create<P: AsRef<Path>>(
+        path: Option<P>,
+        content: Option<String>,
+        format: Option<String>,
+    ) -> Result<Document> {
+        let path = path.map(|path| PathBuf::from(path.as_ref()));
+
+        let mut document = Document::new(path, format);
+        if let Some(content) = content {
+            document.load(content, None).await?;
+        }
+
+        Ok(document)
+    }
+
     /// Open a document from an existing file.
     ///
     /// # Arguments
@@ -1693,11 +1709,14 @@ impl Documents {
         Ok(paths)
     }
 
-    /// Create a new empty document
-    pub async fn create(&self, path: Option<String>, format: Option<String>) -> Result<Document> {
-        let path = path.map(PathBuf::from);
-
-        let document = Document::new(path, format);
+    /// Create a new document
+    pub async fn create<P: AsRef<Path>>(
+        &self,
+        path: Option<P>,
+        content: Option<String>,
+        format: Option<String>,
+    ) -> Result<Document> {
+        let document = Document::create(path, content, format).await?;
         let document_id = document.id.clone();
         let document_repr = document.repr();
         let handler = DocumentHandler::new(document, false);

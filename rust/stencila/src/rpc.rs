@@ -54,6 +54,7 @@ impl Request {
             "sessions.subscribe" => sessions_subscribe(&self.params, client).await,
             "sessions.unsubscribe" => sessions_unsubscribe(&self.params, client).await,
             "kernels.languages" => kernels_languages(&self.params).await,
+            "documents.create" => documents_create(&self.params).await,
             "documents.open" => documents_open(&self.params).await,
             "documents.close" => documents_close(&self.params).await,
             "documents.patch" => documents_patch(&self.params).await,
@@ -280,6 +281,15 @@ async fn kernels_languages(params: &Params) -> Result<(serde_json::Value, Subscr
 
     let kernels = kernels::languages().await?;
     Ok((json!(kernels), Subscription::None))
+}
+
+async fn documents_create(params: &Params) -> Result<(serde_json::Value, Subscription)> {
+    let path = optional_string(params, "path")?;
+    let content = optional_string(params, "content")?;
+    let format = optional_string(params, "format")?;
+
+    let document = DOCUMENTS.create(path, content, format).await?;
+    Ok((json!(document), Subscription::None))
 }
 
 async fn documents_open(params: &Params) -> Result<(serde_json::Value, Subscription)> {

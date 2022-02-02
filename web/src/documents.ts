@@ -65,6 +65,21 @@ export interface ContentChangeEvent extends CustomEvent {
 }
 
 /**
+ * Create a new document
+ * 
+ * Optionally pass the content, in some format, for the new document.
+ */
+export async function create(
+  client: Client,
+  content?: string,
+  format?: string
+): Promise<Document> {
+  return client.call('documents.create', {
+    content, format,
+  }) as Promise<Document>
+}
+
+/**
  * Open a document
  *
  * Loads the document into memory on the server and returns a document object
@@ -425,15 +440,15 @@ async function onContentChange(
  */
 export interface ValidatorChangeEvent extends CustomEvent {
   detail:
-    | {
-        type: 'property'
-        name: string
-        value: string
-      }
-    | {
-        type: 'validator'
-        value: Exclude<ValidatorTypes['type'], 'Validator'>
-      }
+  | {
+    type: 'property'
+    name: string
+    value: string
+  }
+  | {
+    type: 'validator'
+    value: Exclude<ValidatorTypes['type'], 'Validator'>
+  }
 }
 
 /**
@@ -450,16 +465,16 @@ async function onValidatorChange(
   const [address, value]: [Address, JsonValue] =
     event.detail.type === 'property'
       ? // The new validator property value
+      [
         [
-          [
-            // ...except for `default` which is actually a property of the parent parameter
-            ...(event.detail.name === 'default' ? [] : ['validator']),
-            event.detail.name,
-          ],
-          event.detail.value,
-        ]
+          // ...except for `default` which is actually a property of the parent parameter
+          ...(event.detail.name === 'default' ? [] : ['validator']),
+          event.detail.name,
+        ],
+        event.detail.value,
+      ]
       : // The new validator as an object with `type`
-        [['validator'], { type: event.detail.value }]
+      [['validator'], { type: event.detail.value }]
 
   const op: Operation = {
     type: 'Replace',

@@ -19,7 +19,7 @@ pub fn create(mut cx: FunctionContext) -> JsResult<JsString> {
     let path = not_empty_or_none(&cx.argument::<JsString>(0)?.value(&mut cx));
     let format = not_empty_or_none(&cx.argument::<JsString>(1)?.value(&mut cx));
 
-    let result = RUNTIME.block_on(async { DOCUMENTS.create(path, format).await });
+    let result = RUNTIME.block_on(async { DOCUMENTS.create(path, None, format).await });
     to_json_or_throw(cx, result)
 }
 
