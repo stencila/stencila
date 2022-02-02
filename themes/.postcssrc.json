@@ -21,6 +21,7 @@
       "before": ["/\\[class\\*=language-\\]\\)/gm"],
       "after": [")"]
     },
+    "postcss-mixins": {},
     "postcss-selector-not": {},
     "autoprefixer": {},
     "cssnano": { "preset": "default" },
