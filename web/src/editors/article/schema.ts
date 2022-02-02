@@ -16,7 +16,7 @@ import { codeChunk } from './components/codeChunk/codeChunk'
  *
  * - Properties of Stencila nodes are represented as ProseMirror `NodeSpec`s with
  *   a lowercase name (e.g. `title`, `abstract`) and `toDOM` and `parseDOM` rules
- *   which use the corresponding `data-itemprop` selector (e.g. [data-itemprop=title]).
+ *   which use the corresponding `data-prop` selector (e.g. [data-prop=title]).
  *   The `prop` function is a shortcut for creating these node specs.
  *
  * - Stencila node types are represented as ProseMirror node types with title
@@ -112,9 +112,9 @@ function prop(
     content,
     marks,
     defining: true,
-    parseDOM: [{ tag: `${tag}[data-itemprop=${name}]` }],
+    parseDOM: [{ tag: `${tag}[data-prop=${name}]` }],
     toDOM(_node) {
-      return [tag, { 'data-itemprop': name }, 0]
+      return [tag, { 'data-prop': name }, 0]
     },
   }
 }

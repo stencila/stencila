@@ -14,6 +14,7 @@ encode = [
     "html-escape",
     "itertools",
     "mime_guess",
+    "once_cell",
     "quick-xml",
     "serde",
     "serde_json",
@@ -33,6 +34,7 @@ markup5ever = { version = "0.10.1", optional = true }
 mime_guess = { version = "2.0.3", optional = true }
 node-dispatch = { path = "../node-dispatch", version = "0.0.0" }
 node-transform = { path = "../node-transform", version = "0.0.0" }
+once_cell = { version = "1.9.0", optional = true }
 quick-xml = { version = "0.22.0", optional = true }
 serde = { version = "1.0.130", optional = true }
 serde_json = { version = "1.0.75", optional = true }

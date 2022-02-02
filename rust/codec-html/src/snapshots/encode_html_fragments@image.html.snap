@@ -1,22 +1,22 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 442
+assertion_line: 455
 expression: encoded
 input_file: fixtures/fragments/html/image.html
 
 ---
-<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+<article data-root itemtype="https://schema.org/Article" itemscope>
   <stencila-document-toolbar>
   </stencila-document-toolbar>
-  <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+  <div data-prop="content">
+    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
       <span>An image</span>
-      <img itemtype="http://schema.org/ImageObject" itemscope  src="image.png"/>
+      <img itemtype="https://schema.org/ImageObject" itemscope  src="image.png"/>
       <span>.</span>
     </p>
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
       <span>An image with a title</span>
-      <img itemtype="http://schema.org/ImageObject" itemscope  src="image.png"/>
+      <img itemtype="https://schema.org/ImageObject" itemscope  src="image.png"/>
       <span>.</span>
     </p>
   </div>

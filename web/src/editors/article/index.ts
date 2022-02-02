@@ -120,7 +120,7 @@ export class ArticleEditor {
 
     // Create the editor <article> element
     const editorElem = document.createElement('article')
-    editorElem.setAttribute('data-itemscope', 'root')
+    editorElem.setAttribute('data-root', '')
     editorElem.setAttribute('itemtype', 'http://schema.org/Article')
     editorElem.setAttribute('itemscope', '')
     sourceElem.parentElement?.appendChild(editorElem)

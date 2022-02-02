@@ -1,7 +1,8 @@
 ---
 source: rust/codec-html/src/encode.rs
+assertion_line: 438
 expression: html
 input_file: fixtures/nodes/integer-validator.json
 
 ---
-<stencila-integer-validator data-itemscope="root" itemtype="http://schema.stenci.la/IntegerValidator" itemscope/>
+<stencila-integer-validator data-root itemtype="https://schema.stenci.la/IntegerValidator" itemscope/>

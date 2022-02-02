@@ -1,7 +1,8 @@
 ---
 source: rust/codec-html/src/encode.rs
+assertion_line: 438
 expression: html
 input_file: fixtures/nodes/boolean-validator.json
 
 ---
-<stencila-boolean-validator data-itemscope="root" itemtype="http://schema.stenci.la/BooleanValidator" itemscope/>
+<stencila-boolean-validator data-root itemtype="https://schema.stenci.la/BooleanValidator" itemscope/>

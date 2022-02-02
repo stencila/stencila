@@ -1,20 +1,20 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 442
+assertion_line: 455
 expression: encoded
 input_file: fixtures/fragments/html/code-block.html
 
 ---
-<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+<article data-root itemtype="https://schema.org/Article" itemscope>
   <stencila-document-toolbar>
   </stencila-document-toolbar>
-  <div data-itemprop="content">
-    <stencila-code-block itemtype="http://schema.stenci.la/CodeBlock" itemscope>
+  <div data-prop="content">
+    <stencila-code-block itemtype="https://schema.stenci.la/CodeBlock" itemscope>
       <pre slot="text">
         <code itemprop="text">Code with no language</code>
       </pre>
     </stencila-code-block>
-    <stencila-code-block itemtype="http://schema.stenci.la/CodeBlock" itemscope programming-language="python">
+    <stencila-code-block itemtype="https://schema.stenci.la/CodeBlock" itemscope programming-language="python">
       <meta itemprop="programmingLanguage" content="python"/>
       <pre slot="text">
         <code itemprop="text" class="language-python"># Some Python code

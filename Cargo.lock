@@ -766,6 +766,7 @@ dependencies = [
  "mime_guess",
  "node-dispatch",
  "node-transform",
+ "once_cell",
  "quick-xml 0.22.0",
  "reqwest",
  "serde",

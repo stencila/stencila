@@ -1,18 +1,18 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 442
+assertion_line: 455
 expression: encoded
 input_file: fixtures/fragments/html/audio.html
 
 ---
-<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+<article data-root itemtype="https://schema.org/Article" itemscope>
   <stencila-document-toolbar>
   </stencila-document-toolbar>
-  <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+  <div data-prop="content">
+    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
       <span>
       </span>
-      <audio itemtype="http://schema.org/AudioObject" itemscope controls src="audio.mp3">
+      <audio itemtype="https://schema.org/AudioObject" itemscope controls src="audio.mp3">
       </audio>
     </p>
   </div>

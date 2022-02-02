@@ -127,9 +127,9 @@ export function applyAddStruct(
     `Unable to find attribute or placeholder element for property "${name}"; will be appended as an invisible element`
   )
   if (!html.startsWith('<')) {
-    html = `<meta data-itemprop="${name}" content="${escapeAttr(html)}}">`
+    html = `<meta data-prop="${name}" content="${escapeAttr(html)}}">`
   } else {
-    html = `<div data-itemprop="${name}" style="display:none">${html}</div>`
+    html = `<div data-prop="${name}" style="display:none">${html}</div>`
   }
   const fragment = createFragment(html)
   struct.appendChild(fragment)

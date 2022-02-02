@@ -194,7 +194,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
 
     let given_names = match &person.given_names {
         Some(names) => [
-            "<span data-itemprop=\"givenNames\">",
+            "<span data-prop=\"givenNames\">",
             &concat(names, |name| {
                 ["<span itemprop=\"givenName\">", name, "</span>"].concat()
             }),
@@ -206,7 +206,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
 
     let family_names = match &person.family_names {
         Some(names) => [
-            "<span data-itemprop=\"familyNames\">",
+            "<span data-prop=\"familyNames\">",
             &concat(names, |name| {
                 ["<span itemprop=\"familyName\">", name, "</span>"].concat()
             }),
@@ -221,7 +221,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
         {
             #[cfg_attr(rustfmt, rustfmt_skip)]
             [
-                "<span data-itemprop=\"emails\">",
+                "<span data-prop=\"emails\">",
                 &concat(emails, |email| {
                     [
                         "<a itemprop=\"email\"", &attr("href", &["mailto:", email].concat()), ">",
@@ -239,7 +239,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
     let affiliations = if let (Some(affiliations), Some(orgs)) = (&person.affiliations, orgs) {
         #[cfg_attr(rustfmt, rustfmt_skip)]
         [
-            "<span data-itemprop=\"affiliations\">",
+            "<span data-prop=\"affiliations\">",
             &concat(affiliations, |affiliation| {
                 if let Some((index,..)) = orgs.iter().find_position(|org| {
                     org.name == affiliation.name

@@ -190,6 +190,7 @@
             "rust/stencila/Cargo.toml",
             "rust/schema/src/types.rs",
             "rust/schema/src/schemas.rs",
+            "rust/schema/src/ids.rs",
             "web/package.json",
             "web/package-lock.json"
           ]

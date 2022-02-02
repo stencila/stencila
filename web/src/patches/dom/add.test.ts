@@ -2,11 +2,11 @@ import { applyAdd, applyAddStruct, applyAddText, applyAddVec } from './add'
 
 test('applyAddStruct', () => {
   const elem = document.createElement('div')
-  elem.innerHTML = '<div data-itemprop="property"></div>'
+  elem.innerHTML = '<div data-prop="property"></div>'
   const html = '<p>A fragment</p>'
 
   applyAddStruct(elem, 'property', null, html)
-  expect(elem.querySelector('[data-itemprop="property"]')?.innerHTML).toEqual(
+  expect(elem.querySelector('[data-prop="property"]')?.innerHTML).toEqual(
     html
   )
 
@@ -64,14 +64,14 @@ test('applyAddText', () => {
 test('applyAdd', () => {
   // Start with an empty `Article`
   document.body.innerHTML =
-    '<article data-itemscope="root"><div data-itemprop="content"></div></article>'
+    '<article data-itemscope="root"><div data-prop="content"></div></article>'
   expect(document.body).toMatchInlineSnapshot(`
     <body>
       <article
         data-itemscope="root"
       >
         <div
-          data-itemprop="content"
+          data-prop="content"
         />
       </article>
     </body>
@@ -91,7 +91,7 @@ test('applyAdd', () => {
         data-itemscope="root"
       >
         <div
-          data-itemprop="content"
+          data-prop="content"
         >
           <p />
         </div>
@@ -113,7 +113,7 @@ test('applyAdd', () => {
     data-itemscope="root"
   >
     <div
-      data-itemprop="content"
+      data-prop="content"
     >
       <p>
         Some text.
@@ -137,7 +137,7 @@ test('applyAdd', () => {
     data-itemscope="root"
   >
     <div
-      data-itemprop="content"
+      data-prop="content"
     >
       <p>
         Some more text.
@@ -161,7 +161,7 @@ test('applyAdd', () => {
     data-itemscope="root"
   >
     <div
-      data-itemprop="content"
+      data-prop="content"
     >
       <p>
         Some 

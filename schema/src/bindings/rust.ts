@@ -36,6 +36,7 @@ if (require.main) build()
 async function build(): Promise<void> {
   await buildTypes()
   await buildSchemas()
+  await buildIds()
 }
 
 // Code generation context
@@ -501,11 +502,11 @@ function arrayToType(schema: JsonSchema, context: Context): string {
 }
 
 /**
- * Create a Rust HashMap containing the schemas for each struct type so that
- * they can be used at runtime.
+ * Create a Rust array containing the schemas for each struct type so that
+ * they can be used at runtime for validation and coercion.
  *
- * To reduce memory consumption, only keeps needed properties when
- * serializing.
+ * To reduce memory consumption, only writes properties that are needed for
+ * schema validation and coersion.
  */
 async function buildSchemas(): Promise<void> {
   const schemas = Object.entries(await jsonSchemas())
@@ -560,4 +561,59 @@ ${schemas}
 ];
 `
   )
+}
+
+/**
+ * Create a Rust array containing the mappings from type and property names
+ * to values suitable for the `itemtype` and `itemprop` attributes of
+ * HTML Microdata.
+ *
+ * To save space, only property names where the id is different from to the
+ * name are included in the map.
+ */
+async function buildIds(): Promise<void> {
+  const ids: Record<string, string> = {}
+
+  const schemas = await jsonSchemas()
+  for (const [name, schema] of Object.entries(schemas)) {
+    const idd = schema['@id']
+    if (idd === undefined) {
+      continue
+    }
+
+    const [prefix, id] = idd.split(':')
+    let url: string
+    switch (prefix) {
+      case 'schema':
+        url = 'https://schema.org'
+        break
+      case 'stencila':
+        url = 'https://schema.stenci.la'
+        break
+      default:
+        throw new Error(`Unhandled id prefix: ${prefix}`)
+    }
+    url += '/' + id
+    ids[name] = url
+
+    const props = schema['properties'] ?? []
+    for (const [name, subschema] of Object.entries(props)) {
+      const idd = subschema['@id']
+      if (idd === undefined) {
+        continue
+      }
+      const [_prefix, id] = idd.split(':')
+      if (id !== name) {
+        ids[name] = id
+      }
+    }
+  }
+
+  const rust = `pub const IDS: &[(&str, &str)] = &[
+${Object.entries(ids)
+  .map(([name, id]) => `    ("${name}", "${id}")`)
+  .join(',\n')}
+];`
+
+  await fs.writeFile(path.join(DEST_FOLDER, 'ids.rs'), rust)
 }

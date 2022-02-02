@@ -1,17 +1,17 @@
 ---
 source: rust/codec-html/src/encode.rs
-assertion_line: 442
+assertion_line: 455
 expression: encoded
 input_file: fixtures/fragments/html/superscript.html
 
 ---
-<article data-itemscope="root" itemtype="http://schema.org/Article" itemscope>
+<article data-root itemtype="https://schema.org/Article" itemscope>
   <stencila-document-toolbar>
   </stencila-document-toolbar>
-  <div data-itemprop="content">
-    <p itemtype="http://schema.stenci.la/Paragraph" itemscope>
+  <div data-prop="content">
+    <p itemtype="https://schema.stenci.la/Paragraph" itemscope>
       <span>Superscripts like CO</span>
-      <sup itemtype="http://schema.stenci.la/Superscript" itemscope>
+      <sup itemtype="https://schema.stenci.la/Superscript" itemscope>
         <span>2</span>
       </sup>
       <span>.</span>

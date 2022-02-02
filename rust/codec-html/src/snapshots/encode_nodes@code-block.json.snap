@@ -1,10 +1,11 @@
 ---
 source: rust/codec-html/src/encode.rs
+assertion_line: 438
 expression: html
 input_file: fixtures/nodes/code-block.json
 
 ---
-<stencila-code-block data-itemscope="root" itemtype="http://schema.stenci.la/CodeBlock" itemscope programming-language="python">
+<stencila-code-block data-root itemtype="https://schema.stenci.la/CodeBlock" itemscope programming-language="python">
   <meta itemprop="programmingLanguage" content="python"/>
   <pre slot="text">
     <code itemprop="text" class="language-python"># Some Python code

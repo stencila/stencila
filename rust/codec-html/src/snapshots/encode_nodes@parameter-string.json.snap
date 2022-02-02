@@ -1,13 +1,14 @@
 ---
 source: rust/codec-html/src/encode.rs
+assertion_line: 438
 expression: html
 input_file: fixtures/nodes/parameter-string.json
 
 ---
-<stencila-parameter data-itemscope="root" itemtype="http://schema.stenci.la/Parameter" itemscope>
-  <label data-itemprop="name" slot="name" for="input-id">par</label>
-  <meta itemprop="validator" itemtype="http://schema.stenci.la/StringValidator" itemscope/>
-  <meta itemprop="default" itemtype="http://schema.stenci.la/String" itemscope content="defaultstring"/>
-  <meta itemprop="value" itemtype="http://schema.stenci.la/String" itemscope content="hello"/>
+<stencila-parameter data-root itemtype="https://schema.stenci.la/Parameter" itemscope>
+  <label data-prop="name" slot="name" for="input-id">par</label>
+  <meta itemprop="validator" itemtype="https://schema.stenci.la/StringValidator" itemscope/>
+  <meta itemprop="defaultValue" itemtype="https://schema.org/Text" itemscope content="defaultstring"/>
+  <meta itemprop="value" itemtype="https://schema.org/Text" itemscope content="hello"/>
   <input id="input-id" slot="value" type="text" pattern="[a-z]+" placeholder="defaultstring" value="hello"/>
 </stencila-parameter>
