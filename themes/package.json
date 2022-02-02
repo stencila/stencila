@@ -78,7 +78,7 @@
     "@stencila/dev-config": "3.0.2",
     "@stencila/encoda": "0.119.0",
     "@stencila/eslint-config": "3.0.0",
-    "@stencila/schema": "1.12.0",
+    "@stencila/schema": "file:../schema",
     "@types/chromedriver": "81.0.0",
     "@types/jest": "27.4.0",
     "@types/jsdoc-to-markdown": "7.0.1",

@@ -16,7 +16,7 @@ const isOutsideRootNode = (rule: Rule): boolean => {
   return !(
     rule.selectors.length === 1 ||
     // TODO: Fix `translate` function never matching selector
-    rule.selectors[0] === '[itemtype~="http://schema.org/Article"]' ||
+    rule.selectors[0] === '[itemtype~="https://schema.org/Article"]' ||
     rule.selectors[0] === ':root' ||
     rule.selectors[0] === translate(':--root') ||
     // TODO: Remove once this branch is rebased on https://github.com/stencila/thema/pull/85
