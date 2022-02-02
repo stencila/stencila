@@ -37,7 +37,7 @@ export class CodeBlockView implements NodeView {
     this.incomingChanges = false
 
     this.dom = document.createElement('stencila-code-block')
-    this.dom.setAttribute('itemtype', 'http://schema.stenci.la/CodeBlock')
+    this.dom.setAttribute('itemtype', 'https://schema.stenci.la/CodeBlock')
 
     if (typeof node.attrs.id === 'string' && node.attrs.id !== '') {
       this.dom.setAttribute('id', node.attrs.id)

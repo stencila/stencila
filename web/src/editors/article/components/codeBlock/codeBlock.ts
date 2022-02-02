@@ -43,7 +43,7 @@ export function codeBlock(): NodeSpec {
     },
     parseDOM: [
       {
-        tag: '[itemtype="http://schema.stenci.la/CodeBlock"]',
+        tag: '[itemtype="https://schema.stenci.la/CodeBlock"]',
         preserveWhitespace: 'full',
         contentElement: 'code',
         getAttrs(dom) {
