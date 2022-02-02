@@ -1031,7 +1031,7 @@ mod tests {
                 "address": ["content", 0],
                 "value": [{"type": "Paragraph", "content": []}],
                 "length": 1,
-                "html": "<p itemtype=\"http://schema.stenci.la/Paragraph\" itemscope></p>",
+                "html": "<p itemtype=\"https://schema.stenci.la/Paragraph\" itemscope></p>",
             }]
         );
 
