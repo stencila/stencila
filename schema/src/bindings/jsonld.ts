@@ -99,8 +99,8 @@ export const build = async (): Promise<void> => {
 
     // Other contexts referred to, including this one
     // Note that http vs https, and trailing slashes are important!
-    schema: 'http://schema.org/',
-    cito: 'http://purl.org/spar/cito/',
+    schema: 'https://schema.org/',
+    cito: 'https://purl.org/spar/cito/',
     stencila: STENCILA_CONTEXT_URL,
 
     // Define that in this context all terms derive from this vocabulary
@@ -131,7 +131,7 @@ export const build = async (): Promise<void> => {
             path.join(DEST_DIR, `${name}.jsonld`),
             {
               '@context': {
-                schema: 'http://schema.org/',
+                schema: 'https://schema.org/',
                 stencila: STENCILA_CONTEXT_URL,
               },
               ...entry,
