@@ -1,3 +1,12 @@
+## [1.0.4](https://github.com/stencila/stencila/compare/v1.0.3...v1.0.4) (2022-02-02)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency rpc-websockets to ^7.4.17 ([0034ba0](https://github.com/stencila/stencila/commit/0034ba041931bca08a4279328f2f32924c02e006))
+* **dependencies:** update rust crate bollard to 0.11.1 ([2c17caa](https://github.com/stencila/stencila/commit/2c17caab1e86f34a98e206116bd0ad14f70bb5e3))
+* **dependencies:** update rust crate chromiumoxide to 0.3.4 ([017fbba](https://github.com/stencila/stencila/commit/017fbbae69d0118dee0cdfb05295ef4404cddc26))
+
 ## [1.0.3](https://github.com/stencila/stencila/compare/v1.0.2...v1.0.3) (2022-01-31)
 
 
