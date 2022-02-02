@@ -61,13 +61,15 @@
     }
 
     :--email {
-      display: none;
-    }
+      span {
+        display: none;
+      }
 
-    &::after {
-      content: '\00a0📧';
-      vertical-align: super;
-      color: var(--color-primary-100);
+      &::after {
+        content: '\00a0📧';
+        vertical-align: super;
+        color: var(--color-primary-100);
+      }
     }
   }
 

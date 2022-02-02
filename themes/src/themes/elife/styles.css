@@ -89,24 +89,34 @@
 
   & :--authors {
     @extend .content-header__author_list;
+    margin-bottom: 0;
 
     :--Person {
       @extend .content-header__author_list_item;
+      display: inline;
 
-      font-size: var(--TEXT-SIZE-MEDIUM-REM);
-
-      :--familyName::after {
+      &::after {
         content: ', ';
       }
 
       &:last-child {
-        :--familyName::after {
+        &::after {
           content: '';
         }
       }
 
-      :--emails::after {
-        content: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+      :--emails {
+        padding-left: 4px;
+      }
+
+      :--email {
+        span {
+          display: none;
+        }
+
+        &::after {
+          content: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+        }
       }
     }
 
@@ -125,8 +135,14 @@
         }
       }
 
-      :--emails::after {
-        content: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+      :--email {
+        span {
+          display: none;
+        }
+
+        &::after {
+          content: url('~/node_modules/@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
+        }
       }
     }
 
@@ -143,11 +159,12 @@
     margin-bottom: var(--BASELINE-MEASURE-REM);
 
     :--Organization {
+      @extend .content-header__institution_list_item;
       display: inline;
+      font-size: var(--TEXT-SIZE-MEDIUM-REM);
 
       :--name,
       :--address {
-        @extend .content-header__institution_list_item;
       }
 
       & :--parentOrganization::before {

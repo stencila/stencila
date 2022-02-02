@@ -225,7 +225,9 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
                 &concat(emails, |email| {
                     [
                         "<a itemprop=\"email\"", &attr("href", &["mailto:", email].concat()), ">",
-                            email,
+                            "<span>",
+                                email,
+                            "</span>",
                         "</a>",
                     ].concat()
                 }),
