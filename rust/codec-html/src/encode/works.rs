@@ -262,7 +262,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
 
     #[cfg_attr(rustfmt, rustfmt_skip)]
     [
-        "<li itemprop=\"author\" itemtype=\"http://schema.org/Person\" itemscope>",
+        "<li itemprop=\"author\" itemtype=\"https://schema.org/Person\" itemscope>",
             &name,
             &given_names,
             &family_names,
@@ -275,7 +275,7 @@ fn author_person_to_html(person: &Person, orgs: Option<&Vec<&Organization>>) -> 
 
 fn author_org_to_html(_org: &Organization) -> String {
     [
-        "<li itemprop=\"author\" itemtype=\"http://schema.org/Organization\" itemscope>",
+        "<li itemprop=\"author\" itemtype=\"https://schema.org/Organization\" itemscope>",
         // TODO
         "</li>",
     ]

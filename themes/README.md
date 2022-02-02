@@ -298,8 +298,8 @@ Please refer to the specific theme documentation for available variables.
 
 ##### Type selectors
 
-For types defined by [Schema.org](http://schema.org) (e.g. `Article`), or extensions such as,
-[schema.stenci.la](http://schema.stenci.la) (e.g. `CodeChunk`), [Bioschemas](http://bioschemas.org) (e.g. `Taxon`) etc.
+For types defined by [Schema.org](https://schema.org) (e.g. `Article`), or extensions such as,
+[schema.stenci.la](https://schema.stenci.la) (e.g. `CodeChunk`), [Bioschemas](http://bioschemas.org) (e.g. `Taxon`) etc.
 
 ###### Conventions:
 
@@ -548,7 +548,7 @@ Alternatively, the second argument can be an object of attribute name:value pair
 ```js
 
 create('figure #fig1 .fig :--Figure')
-// <figure id="fig1" class="fig" itemscope="" itemtype="http://schema.stenci.la/Figure">
+// <figure id="fig1" class="fig" itemscope="" itemtype="https://schema.stenci.la/Figure">
 // </figure>
 ```
 **Example** *(As above but using an object to specify attributes)*  
@@ -565,7 +565,7 @@ create('figure', {
 ```js
 
 create(':--Person', create('span :--name', 'John Doe'))
-// <div itemscope="" itemtype="http://schema.org/Person">
+// <div itemscope="" itemtype="https://schema.org/Person">
 //   <span itemprop="name">John Doe</span>
 // </div>
 ```

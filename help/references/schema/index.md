@@ -4,7 +4,6 @@ title: Stencila Schema
 slug: /schema
 ---
 
-
 **Extensions to schema.org to support semantic, composable, parameterize-able and executable documents**
 
 This is the Stencila Schema, an extension to [schema.org](https://schema.org) to support semantic, composable, parameterize-able and executable documents. It also provides implementations of schema.org types (and our extensions) for several languages including JSON Schema, Typescript, Python and R. It is a central part of our platform that is used widely throughout our open-source tools as the data model for executable documents.
@@ -60,7 +59,7 @@ as JSON-LD,
 
 ```json
 {
-  "@context": "http://schema.stenci.la/v1/jsonld/",
+  "@context": "https://schema.stenci.la/v1/jsonld/",
   "type": "Article",
   "content": [
     {
@@ -74,8 +73,8 @@ as JSON-LD,
 or as HTML with Microdata,
 
 ```html
-<article itemscope="" itemtype="http://schema.org/Article">
-  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Hello world!</p>
+<article itemscope="" itemtype="https://schema.org/Article">
+  <p itemscope="" itemtype="https://schema.stenci.la/Paragraph">Hello world!</p>
 </article>
 ```
 
@@ -141,7 +140,6 @@ With a JSON Schema, we are able to:
 
 JSON can be quite fiddly to write by hand. And JSON Schema lacks a way to easily express parent-child relationships between types. For these reasons, we define types using YAML with custom keywords such as `extends` and generate JSON Schema and ultimately bindings for each language from those.
 
-
 ### Programming language bindings
 
 Binding for this schema, in the form of installable packages, are currently generated for:
@@ -152,11 +150,10 @@ Binding for this schema, in the form of installable packages, are currently gene
 
 Depending on the capabilities of the host language, these packages expose type definitions as well as utility functions for constructing valid Stencila Schema nodes. Each packages has its own documentation auto-generated from the code.
 
-
-|  |||
-|--|-------|-------------|
-JSON-LD | [![Context](https://img.shields.io/badge/json--ld-%40context-success)](https://schema.stenci.la/stencila.jsonld) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/)
-JSON Schema | [![Schema](https://img.shields.io/badge/json%20schema-v1-success)](https://unpkg.com/browse/@stencila/schema@1/dist/) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/)
-TypeScript/JavaScript | [![NPM](https://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/ts/docs) |
-Python | [![PyPI](https://img.shields.io/pypi/v/stencila-schema.svg)](https://pypi.org/project/stencila-schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/py/docs) |
-R | [![CRAN](https://www.r-pkg.org/badges/version/stencilaschema)](https://cran.r-project.org/web/packages/stencilaschema/) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/r/docs) |
+|                       |                                                                                                                         |                                                                                                         |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| JSON-LD               | [![Context](https://img.shields.io/badge/json--ld-%40context-success)](https://schema.stenci.la/stencila.jsonld)        | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/)        |
+| JSON Schema           | [![Schema](https://img.shields.io/badge/json%20schema-v1-success)](https://unpkg.com/browse/@stencila/schema@1/dist/)   | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/)        |
+| TypeScript/JavaScript | [![NPM](https://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema)  | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/ts/docs) |
+| Python                | [![PyPI](https://img.shields.io/pypi/v/stencila-schema.svg)](https://pypi.org/project/stencila-schema)                  | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/py/docs) |
+| R                     | [![CRAN](https://www.r-pkg.org/badges/version/stencilaschema)](https://cran.r-project.org/web/packages/stencilaschema/) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/r/docs)  |
