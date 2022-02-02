@@ -6,9 +6,7 @@ test('applyAddStruct', () => {
   const html = '<p>A fragment</p>'
 
   applyAddStruct(elem, 'property', null, html)
-  expect(elem.querySelector('[data-prop="property"]')?.innerHTML).toEqual(
-    html
-  )
+  expect(elem.querySelector('[data-prop="property"]')?.innerHTML).toEqual(html)
 
   expect(() => applyAddStruct(elem, 1, '', '')).toThrow(/Expected string slot/)
 })

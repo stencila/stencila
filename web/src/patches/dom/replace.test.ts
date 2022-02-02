@@ -8,14 +8,10 @@ import {
 test('applyReplaceStruct', () => {
   const elem = document.createElement('div')
   elem.innerHTML = '<p data-prop="property">One</p>'
-  expect(elem.querySelector('[data-prop="property"]')?.innerHTML).toEqual(
-    'One'
-  )
+  expect(elem.querySelector('[data-prop="property"]')?.innerHTML).toEqual('One')
 
   applyReplaceStruct(elem, 'property', 1, 'Two', 'Two')
-  expect(elem.querySelector('[data-prop="property"]')?.innerHTML).toEqual(
-    'Two'
-  )
+  expect(elem.querySelector('[data-prop="property"]')?.innerHTML).toEqual('Two')
 
   applyReplaceStruct(elem, 'property', 1, 'Three', 'Three')
   expect(elem.querySelector('[data-prop="property"]')?.innerHTML).toEqual(

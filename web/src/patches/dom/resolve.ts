@@ -54,7 +54,7 @@ export function resolveTarget(target?: ElementId): Element {
  *   elements or attributes
  *
  * - `slot` is used because, even though one of the other attributes may be present
- *   in the original encoding, a Web Component may replace it; specifying `slot` 
+ *   in the original encoding, a Web Component may replace it; specifying `slot`
  *   here avoids this
  */
 export function slotSelector(name: string): string {
