@@ -1,6 +1,7 @@
 ---
-source: rust/src/methods/decode/html.rs
-expression: decode_fragment(&content)
+source: rust/codec-html/src/decode.rs
+assertion_line: 632
+expression: "decode_fragment(content, None)"
 input_file: fixtures/fragments/html/delete.html
 
 ---
