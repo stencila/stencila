@@ -6,6 +6,7 @@ setup:
 		cargo-audit --features=fix
 	cargo install \
 		cargo-edit \
+		cargo-insta \
 		cargo-strip \
 		cargo-tarpaulin \
 		cargo-udeps \
