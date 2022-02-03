@@ -196,9 +196,7 @@ describe('create', () => {
     expect(create(':--Article').getAttribute('itemtype')).toEqual(
       'https://schema.org/Article'
     )
-    expect(create(':--authors').getAttribute('data-prop')).toEqual(
-      'authors'
-    )
+    expect(create(':--authors').getAttribute('data-prop')).toEqual('authors')
     expect(create(':--author').getAttribute('itemprop')).toEqual('author')
   })
 

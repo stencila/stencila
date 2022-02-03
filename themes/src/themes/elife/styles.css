@@ -89,10 +89,12 @@
 
   & :--authors {
     @extend .content-header__author_list;
+
     margin-bottom: 0;
 
     :--Person {
       @extend .content-header__author_list_item;
+
       display: inline;
 
       &::after {
@@ -160,12 +162,9 @@
 
     :--Organization {
       @extend .content-header__institution_list_item;
+
       display: inline;
       font-size: var(--TEXT-SIZE-MEDIUM-REM);
-
-      :--name,
-      :--address {
-      }
 
       & :--parentOrganization::before {
         content: ', ';

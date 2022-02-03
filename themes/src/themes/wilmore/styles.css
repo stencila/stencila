@@ -326,7 +326,7 @@ h6:--Heading {
 }
 
 :--Figure {
-  background-color: var(--color-stock);
+  background-color: var(--color-neutral-200);
 
   :--ImageObject,
   :--ImageObject:not(div),
@@ -338,6 +338,10 @@ h6:--Heading {
   :--ImageObject {
     display: block;
     margin: 0 auto;
+  }
+
+  :--content {
+    background-color: var(--color-stock);
   }
 }
 
@@ -369,14 +373,6 @@ h6:--Heading {
 
   *:last-child {
     margin-bottom: 0;
-  }
-}
-
-:--Figure {
-  background-color: var(--color-neutral-200);
-
-  :--content {
-    background-color: var(--color-stock);
   }
 }
 
