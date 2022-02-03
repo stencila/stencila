@@ -322,8 +322,8 @@ impl ToHtml for IntegerValidator {
 /// Encodes all properties
 impl ToHtml for NumberValidator {
     fn to_html(&self, context: &EncodeContext) -> String {
-        // We use `.map(|value| value.to_string()` for properties so they get
-        // rendered as text, not wrapped as a `<span itemtype="https://schema.stenci.la/Number"...`
+        // We use `.map(|value| value.to_string())` for properties so they get
+        // rendered as text, not wrapped as a `<span itemtype="https://schema.org/Number"...`
 
         let minimum = elem_placeholder(
             "span",
