@@ -521,17 +521,17 @@ jobs:
           failTaskOnFailedTests: true
           searchFolder: themes
 
-      - script: |
-          npm run docs
-          npm run test:visual
-          npx percy upload test/screenshots/local
-        displayName: Run visual regression tests
-        workingDirectory: themes
-        condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['PERCY_TOKEN'], ''), not(contains(variables['Build.SourceBranch'], 'renovate')))
-        env:
-          PERCY_TOKEN: $(PERCY_TOKEN)
-          SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
-          SAUCE_USERNAME: $(SAUCE_USERNAME)
+      # - script: |
+      #     npm run docs
+      #     npm run test:visual
+      #     npx percy upload test/screenshots/local
+      #   displayName: Run visual regression tests
+      #   workingDirectory: themes
+      #   condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['PERCY_TOKEN'], ''), not(contains(variables['Build.SourceBranch'], 'renovate')))
+      #   env:
+      #     PERCY_TOKEN: $(PERCY_TOKEN)
+      #     SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
+      #     SAUCE_USERNAME: $(SAUCE_USERNAME)
 
       - script: npm run build
         condition: succeeded()
