@@ -6,7 +6,7 @@ edition = "2021"
 
 [features]
 default = []
-pretty = ["atty", "syntect", "serde_yaml", "termimad", "urlencoding"]
+pretty = ["atty", "once_cell", "syntect", "serde_yaml", "termimad", "urlencoding"]
 progress = ["events", "linya", "once_cell"]
 interact = ["rustyline", "rustyline-derive", "tracing"]
 

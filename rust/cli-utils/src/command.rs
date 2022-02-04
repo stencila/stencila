@@ -18,3 +18,18 @@ pub trait Run {
         }
     }
 }
+
+/// Mini CLI for testing crates at the command line without compiling the whole `stencila` binary.
+#[macro_export]
+macro_rules! mini_main {
+    ($command:ident) => {
+        #[tokio::main]
+        async fn main() {
+            use cli_utils::Run;
+            use structopt::StructOpt;
+            $command::from_args()
+                .print(&["md".to_string(), "yaml".to_string(), "json".to_string()])
+                .await
+        }
+    };
+}
