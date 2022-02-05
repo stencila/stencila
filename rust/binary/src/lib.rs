@@ -500,11 +500,19 @@ pub trait BinaryTrait: Send + Sync {
 
     /// Uninstall a version, or all versions, of a binary
     async fn uninstall(&self, version: Option<String>) -> Result<()> {
-        let dir = self.dir(version, false)?;
+        let dir = self.dir(version.clone(), false)?;
+        let name = self.spec().name;
+        let version = version.unwrap_or_default();
+        
         if dir.exists() {
-            fs::remove_dir_all(dir)?
+            fs::remove_dir_all(dir)?;
+            tracing::info!("🗑️ Uninstalled `{}` {}", name, version);
         } else {
-            tracing::warn!("No matching Stencila installed binary found")
+            tracing::warn!(
+                "No Stencila-installed binary found for `{}` {}",
+                name,
+                version
+            )
         }
 
         Ok(())
