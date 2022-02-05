@@ -34,6 +34,7 @@ static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
     binary_new!("binary-chrome", binary_chrome::ChromeBinary {});
     binary_new!("binary-chromium", binary_chromium::ChromiumBinary {});
     binary_new!("binary-node", binary_node::NodeBinary {});
+    binary_new!("binary-pack", binary_pack::PackBinary {});
     binary_new!("binary-pandoc", binary_pandoc::PandocBinary {});
     binary_new!("binary-python", binary_python::PythonBinary {});
     binary_new!("binary-rscript", binary_rscript::RscriptBinary {});
@@ -353,8 +354,6 @@ pub mod commands {
             let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
             let binary = registered(&self.name).unwrap_or(&unregistered);
             binary.uninstall(self.version.clone()).await?;
-
-            tracing::info!("🗑️ Uninstalled {}", self.name);
             result::nothing()
         }
     }
