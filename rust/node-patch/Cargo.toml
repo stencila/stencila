@@ -10,7 +10,7 @@ codec-html = { path = "../codec-html", version = "0.0.0" }
 codec-txt = { path = "../codec-txt", version = "0.0.0" }
 defaults = "0.2.0"
 derive_more = "0.99.17"
-eyre = "0.6.5"
+eyre = "0.6.6"
 itertools = "0.10.3"
 node-address = { path = "../node-address", version = "0.0.0" }
 node-coerce = { path = "../node-coerce", version = "0.0.0" }

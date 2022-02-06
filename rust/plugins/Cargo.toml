@@ -20,7 +20,7 @@ r = []
 
 chrono = "0.4.19"
 events = { path = "../events", version = "0.0.0" }
-eyre = "0.6.5"
+eyre = "0.6.6"
 futures = "0.3.19"
 humantime = "2.1.0"
 jsonschema = "0.13.2"
