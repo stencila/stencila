@@ -464,15 +464,48 @@ jobs:
         displayName: Determine version
 
       - task: Docker@2
+        displayName: Build stencila/builder
+        inputs:
+          command: build
+          dockerfile: docker/builder/focal/Dockerfile
+          arguments: --build-arg STENCILA_VERSION=$(GitVersion.SemVer)
+
+      - task: Docker@2
         displayName: Build and push stencila/stencila
         inputs:
           command: buildAndPush
-          dockerfile: docker/stencila/Dockerfile
+          dockerfile: docker/stencila/focal/Dockerfile
           containerRegistry: DockerHub
           repository: stencila/stencila
           tags: |
-            $(Build.BuildNumber)
-            $(GitVersion.SemVer)
+            focal
+            focal-$(GitVersion.SemVer)
+            latest
+
+      - task: Docker@2
+        displayName: Build and push stencila/build
+        inputs:
+          command: buildAndPush
+          dockerfile: docker/stacks/focal/Dockerfile
+          arguments: --target=build
+          containerRegistry: DockerHub
+          repository: stencila/build
+          tags: |
+            focal
+            focal-$(GitVersion.SemVer)
+            latest
+
+      - task: Docker@2
+        displayName: Build and push stencila/run
+        inputs:
+          command: buildAndPush
+          dockerfile: docker/stacks/focal/Dockerfile
+          arguments: --target=run
+          containerRegistry: DockerHub
+          repository: stencila/run
+          tags: |
+            focal
+            focal-$(GitVersion.SemVer)
             latest
 
   # Themes are only built if there are changes in the `themes` folder
