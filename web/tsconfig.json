@@ -1,13 +1,15 @@
 {
   "extends": "@stencila/dev-config/tsconfig.json",
   "compilerOptions": {
-    "declaration": false,
-    "module": "esnext",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "isolatedModules": true,
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "outDir": "dist",
     "moduleResolution": "node",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "skipLibCheck": true
   },
   "include": ["src"]
 }
