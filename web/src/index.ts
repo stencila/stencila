@@ -6,6 +6,9 @@ import { languages } from './kernels'
 import * as sessions from './sessions'
 import { ProjectId, SnapshotId } from './types'
 
+export type { Document, Session } from '@stencila/stencila'
+export { create } from './documents'
+
 export const main = (
   clientId: ClientId,
   projectId: ProjectId,

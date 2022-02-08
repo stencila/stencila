@@ -35,6 +35,8 @@ export const onDiscoverExecutableLanguages = (
     }
   )
 
+  window.stencilaWebClient = window.stencilaWebClient ?? {}
+
   window.stencilaWebClient.executableLanguages = executableLanguages
 
   window.dispatchEvent(event)
