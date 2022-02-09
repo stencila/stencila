@@ -53,7 +53,10 @@ impl BinaryTrait for NodeBinary {
         let archive = self.download(&url).await?;
         let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 1, &dest)?;
-        self.executable(&dest, &["bin/node", "bin/npm", "node.exe", "npm"])?;
+        self.executables(
+            &dest,
+            &["bin/node", "bin/npm", "bin/npx", "node.exe", "npm", "npx"],
+        )?;
 
         Ok(())
     }

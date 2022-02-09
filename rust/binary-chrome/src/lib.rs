@@ -77,7 +77,7 @@ impl BinaryTrait for ChromeBinary {
         let archive = self.download(&url).await?;
         let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 1, &self.dir(Some(version.into()), true)?)?;
-        self.executable(&dest, &["chrome", "chrome.exe"])?;
+        self.executables(&dest, &["chrome", "chrome.exe"])?;
 
         Ok(())
     }

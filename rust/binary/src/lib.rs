@@ -481,12 +481,19 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Make extracted files executable (if they exists)
+    /// 
+    /// # Arguments
+    /// 
+    /// - `dir`: The directory that executable have been installed to
+    /// 
+    /// - `paths`: The paths, within `dir`, that should be made executable;
+    ///            can be Unix style forward slash paths and not all need to exist
     ///
     /// While tar archives retain permissions, zip archives do not,
     /// so we need to make sure to do this.
-    fn executable(&self, dir: &Path, files: &[&str]) -> Result<()> {
-        for file in files {
-            let path = dir.join(file);
+    fn executables(&self, dir: &Path, paths: &[&str]) -> Result<()> {
+        for path in paths {
+            let path = dir.join(path);
             if path.exists() {
                 #[cfg(any(target_os = "linux", target_os = "macos"))]
                 {

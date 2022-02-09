@@ -41,7 +41,7 @@ impl BinaryTrait for PackBinary {
         let archive = self.download(&url).await?;
         let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 0, &dest)?;
-        self.executable(&dest, &["pack"])?;
+        self.executables(&dest, &["pack"])?;
 
         Ok(())
     }

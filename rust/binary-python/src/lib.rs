@@ -44,7 +44,7 @@ impl BinaryTrait for PythonBinary {
         let archive = self.download(&url).await?;
         let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 0, &dest)?;
-        self.executable(&dest, &["bin/python3", "python3.exe"])?;
+        self.executables(&dest, &["bin/python3", "python3.exe"])?;
 
         Ok(())
     }

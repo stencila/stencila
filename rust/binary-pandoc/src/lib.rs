@@ -54,7 +54,7 @@ impl BinaryTrait for PandocBinary {
         let archive = self.download(&url).await?;
         let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 1, &dest)?;
-        self.executable(&dest, &["bin/pandoc", "pandoc.exe"])?;
+        self.executables(&dest, &["bin/pandoc", "pandoc.exe"])?;
 
         Ok(())
     }
