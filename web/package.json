@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Web client for interacting with Stencila document server",
   "scripts": {
-    "build": "npm run build:js && npm run build:ts",
-    "build:js": "parcel build . --no-cache --no-autoinstall",
+    "build": "npm run build:js && npm run build:browser",
+    "build:browser": "parcel build . --no-autoinstall --target read,view,exec,edit",
+    "build:js": "microbundle",
     "build:ts": "tsc --emitDeclarationOnly",
     "build:watch": "parcel watch",
     "test": "jest",
@@ -14,9 +15,10 @@
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' --fix"
   },
+  "type": "module",
   "source": "src/index.ts",
   "main": "dist/index.js",
-  "module": "dist/module.js",
+  "module": "dist/index.module.js",
   "types": "dist/index.d.ts",
   "targets": {
     "default": {},
@@ -48,8 +50,8 @@
     "url": "https://github.com/stencila/stencila"
   },
   "devDependencies": {
-    "@parcel/transformer-typescript-tsc": "2.2.1",
-    "@parcel/transformer-typescript-types": "2.2.1",
+    "@parcel/transformer-typescript-tsc": "^2.0.0-nightly.993",
+    "@parcel/transformer-typescript-types": "^2.0.0-nightly.993",
     "@stencila/dev-config": "3.0.2",
     "@stencila/eslint-config": "3.0.0",
     "@stencila/schema": "1.13.0",
@@ -68,7 +70,8 @@
     "@types/prosemirror-transform": "1.1.4",
     "@types/prosemirror-view": "1.19.1",
     "jest": "27.1.0",
-    "parcel": "2.2.1",
+    "microbundle": "^0.14.2",
+    "parcel": "^2.0.0-nightly.991",
     "ts-jest": "27.0.5",
     "typescript": "4.4.2"
   },

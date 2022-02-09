@@ -2,7 +2,6 @@
   "extends": "@stencila/dev-config/tsconfig.json",
   "compilerOptions": {
     "declaration": true,
-    "emitDeclarationOnly": true,
     "isolatedModules": true,
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
