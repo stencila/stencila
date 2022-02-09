@@ -185,21 +185,14 @@ pub mod commands {
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Manage helper binaries",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]
-    pub struct Command {
-        #[structopt(subcommand)]
-        pub action: Action,
-    }
-
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
-    pub enum Action {
+    pub enum Command {
+        #[structopt(alias = "installable")]
+        List(List),
         Show(Show),
-        Installable(Installable),
         Install(Install),
         Uninstall(Uninstall),
         Run(Run_),
@@ -208,13 +201,12 @@ pub mod commands {
     #[async_trait]
     impl Run for Command {
         async fn run(&self) -> Result {
-            let Self { action } = self;
-            match action {
-                Action::Show(action) => action.run().await,
-                Action::Installable(action) => action.run().await,
-                Action::Install(action) => action.run().await,
-                Action::Uninstall(action) => action.run().await,
-                Action::Run(action) => action.run().await,
+            match self {
+                Command::List(action) => action.run().await,
+                Command::Show(action) => action.run().await,
+                Command::Install(action) => action.run().await,
+                Command::Uninstall(action) => action.run().await,
+                Command::Run(action) => action.run().await,
             }
         }
     }
@@ -274,10 +266,10 @@ pub mod commands {
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Installable {}
+    pub struct List {}
 
     #[async_trait]
-    impl Run for Installable {
+    impl Run for List {
         async fn run(&self) -> Result {
             let list: Vec<serde_json::Value> = BINARIES
                 .values()
@@ -427,11 +419,11 @@ mod tests {
     #[tokio::test]
     #[ignore]
     async fn install() -> Result<()> {
-        use super::commands::{Install, Installable, Show};
+        use super::commands::{Install, List, Show};
         use cli_utils::Run;
         use test_utils::assert_json_eq;
 
-        Installable {}.run().await?;
+        List {}.run().await?;
 
         for name in BINARIES.keys() {
             eprintln!("Testing {}", name);
