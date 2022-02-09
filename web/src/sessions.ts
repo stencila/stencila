@@ -1,6 +1,6 @@
 import { Session, SessionEvent } from '@stencila/stencila'
 import { Client } from './client'
-import { ProjectId, SnapshotId } from './types'
+import { ProjectId } from './types'
 
 export type SessionId = string
 
@@ -11,12 +11,10 @@ type SessionTopic = 'updated' | 'heartbeat'
  */
 export async function start(
   client: Client,
-  projectId: ProjectId,
-  snapshotId: SnapshotId
+  projectId: ProjectId
 ): Promise<Session> {
   return client.call('sessions.start', {
-    projectId,
-    snapshotId,
+    projectId
   }) as Promise<Session>
 }
 

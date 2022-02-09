@@ -1261,7 +1261,7 @@ pub fn html_rewrite(
     <link href="{static_root}/web/{mode}.css" rel="stylesheet">
     <script src="{static_root}/web/{mode}.js"></script>
     <script>
-        const startup = stencilaWebClient.main("{client}", "{project}", "{snapshot}", "{document}", null, "{token}");
+        const startup = stencilaWebClient.main("{client}", "{project}", "{document}", null, "{token}");
         startup().catch((err) => console.error('Error during startup', err))
     </script>"#,
         static_root = static_root,
@@ -1269,7 +1269,6 @@ pub fn html_rewrite(
         client = uuids::generate("cl"),
         token = token,
         project = project,
-        snapshot = "current",
         document = document.as_display().to_string()
     );
 

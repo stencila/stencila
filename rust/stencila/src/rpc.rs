@@ -240,9 +240,8 @@ impl Error {
 
 async fn sessions_start(params: &Params) -> Result<(serde_json::Value, Subscription)> {
     let project = required_string(params, "projectId")?;
-    let snapshot = required_string(params, "snapshotId")?;
 
-    let session = SESSIONS.start(&project, &snapshot).await?;
+    let session = SESSIONS.start(&project).await?;
     Ok((json!(session), Subscription::None))
 }
 

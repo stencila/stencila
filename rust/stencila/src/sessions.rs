@@ -56,9 +56,6 @@ pub struct Session {
     /// The id of the project that this session is for
     project: String,
 
-    /// The id of the snapshot that this session is for
-    snapshot: String,
-
     /// The clients that are subscribed to each topic for this session
     ///
     /// This is an optimization to avoid collecting session metrics
@@ -71,12 +68,11 @@ pub struct Session {
 }
 
 impl Session {
-    // Create a new session for a project and snapshot
-    pub fn new(project: &str, snapshot: &str) -> Session {
+    // Create a new session for a project
+    pub fn new(project: &str) -> Session {
         Session {
             id: uuids::generate("se").to_string(),
             project: project.to_string(),
-            snapshot: snapshot.to_string(),
             ..Default::default()
         }
     }
@@ -196,9 +192,9 @@ impl Sessions {
         }
     }
 
-    /// Start a session for a project and snapshot
-    pub async fn start(&self, project: &str, snapshot: &str) -> Result<Session> {
-        let mut session = Session::new(project, snapshot);
+    /// Start a session for a project
+    pub async fn start(&self, project: &str) -> Result<Session> {
+        let mut session = Session::new(project);
         session.start();
         let mut sessions = self.sessions.write().await;
         sessions.insert(session.id.clone(), RwLock::new(session.clone()));
