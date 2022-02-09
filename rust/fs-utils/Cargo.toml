@@ -1,0 +1,8 @@
+[package]
+name = "fs-utils"
+description = "File system utilities"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+eyre = "0.6.5"
