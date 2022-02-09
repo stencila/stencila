@@ -148,6 +148,18 @@ pub async fn require(name: &str, semver: &str) -> Result<BinaryInstallation> {
     }
 }
 
+/// Synchronous version of `require`
+pub fn require_sync(name: &str, semver: &str) -> Result<BinaryInstallation> {
+    let name = name.to_string();
+    let semver = semver.to_string();
+    let (sender, receiver) = std::sync::mpsc::channel();
+    tokio::spawn(async move {
+        let result = require(&name, &semver).await;
+        sender.send(result)
+    });
+    receiver.recv()?
+}
+
 /// Get a binary installation meeting one of the semantic versioning requirements.
 ///
 /// If none are installed, will install the first in the list (assuming auto-install
