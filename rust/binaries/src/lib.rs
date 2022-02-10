@@ -31,6 +31,7 @@ static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
         };
     }
 
+    binary_new!("binary-asdf", binary_asdf::AsdfBinary {});
     binary_new!("binary-chrome", binary_chrome::ChromeBinary {});
     binary_new!("binary-chromium", binary_chromium::ChromiumBinary {});
     binary_new!("binary-node", binary_node::NodeBinary {});
@@ -389,7 +390,10 @@ pub mod commands {
                 &self.semver.clone().unwrap_or_else(|| "*".to_string()),
             )
             .await?;
-            let output = installation.run(&self.args).await?;
+
+            let args: Vec<&str> = self.args.iter().map(|arg| arg.as_str()).collect();
+
+            let output = installation.run(&args).await?;
 
             use std::io::Write;
             std::io::stdout().write_all(output.stdout.as_ref())?;

@@ -37,8 +37,8 @@ impl BinaryTrait for PackBinary {
             "windows" => "windows.zip",
             _ => bail!("Unable to determine Node download URL"),
         };
+        let archive = self.download(&url, None, None).await?;
 
-        let archive = self.download(&url).await?;
         let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 0, &dest)?;
         self.executables(&dest, &["pack"])?;

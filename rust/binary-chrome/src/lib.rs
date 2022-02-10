@@ -73,8 +73,9 @@ impl BinaryTrait for ChromeBinary {
             "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/{suffix}?alt=media",
             suffix = suffix.replace("/", "%2F")
         );
+        let filename = format!("chrome-v{version}-{os}.zip", version = version, os = os);
+        let archive = self.download(&url, Some(filename), None).await?;
 
-        let archive = self.download(&url).await?;
         let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 1, &self.dir(Some(version.into()), true)?)?;
         self.executables(&dest, &["chrome", "chrome.exe"])?;

@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use defaults::Defaults;
-use eyre::{bail, Result};
+use eyre::{bail, eyre, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
@@ -109,7 +109,7 @@ impl Binary {
 
     /// Get the directory where versions of a binary are installed
     fn dir(&self, version: Option<String>, ensure: bool) -> Result<PathBuf> {
-        let dir = binaries_dir().join(&self.name);
+        let dir = binaries_dir().join("installs").join(&self.name);
         let dir = if let Some(version) = version {
             dir.join(version)
         } else {
@@ -166,6 +166,39 @@ pub trait BinaryTrait: Send + Sync {
     /// Get the version of the binary at a path
     fn version(&self, path: &Path) -> Option<String> {
         self.spec().version(path)
+    }
+
+    /// Get the environment variables that should be set when the binary is installed
+    fn install_env(&self, _version: Option<String>) -> Vec<(String, String)> {
+        Vec::new()
+    }
+
+    /// Get the environment variables that should be set when the binary is run
+    fn run_env(&self, _version: Option<String>) -> Vec<(String, String)> {
+        Vec::new()
+    }
+
+    /// Require a version of the binary
+    async fn require(&self, version: Option<String>, install: bool) -> Result<BinaryInstallation> {
+        match self.installed(version.clone())? {
+            Some(installation) => Ok(installation),
+            None => {
+                let spec = self.spec();
+                if install {
+                    self.install(version.clone(), None, None).await?;
+                    match self.installed(version)? {
+                        Some(installation) => Ok(installation),
+                        None => bail!("Failed to automatically install `{}`", spec.name),
+                    }
+                } else {
+                    bail!(
+                        "`{}` {} is not installed",
+                        spec.name,
+                        version.unwrap_or_default()
+                    )
+                }
+            }
+        }
     }
 
     /// Find installations of this binary
@@ -267,7 +300,11 @@ pub trait BinaryTrait: Send + Sync {
         // Get version of each executable found
         // tracing::debug!("Getting versions for paths {:?}", paths);
         let mut installs: Vec<BinaryInstallation> = paths
-            .map(|path| BinaryInstallation::new(name.clone(), path.clone(), self.version(&path)))
+            .map(|path| {
+                let version = self.version(&path);
+                let env = self.run_env(version.clone());
+                BinaryInstallation::new(name.clone(), path, version, env)
+            })
             .collect();
 
         // Sort the installations by descending order of version so that
@@ -337,6 +374,10 @@ pub trait BinaryTrait: Send + Sync {
                 false => None,
             }
         }) {
+            for (name, value) in self.install_env(Some(version.to_string())) {
+                env::set_var(name, value)
+            }
+
             let os = os.unwrap_or_else(|| OS.to_string());
             let arch = arch.unwrap_or_else(|| ARCH.to_string());
             self.install_version(version, &os, &arch).await?;
@@ -354,6 +395,8 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Install a specific version of the binary
+    ///
+    /// Implementations of this trait will usually override this method.
     async fn install_version(&self, _version: &str, _os: &str, _arch: &str) -> Result<()> {
         let spec = self.spec();
         bail!(
@@ -364,22 +407,32 @@ pub trait BinaryTrait: Send + Sync {
 
     /// Download a URL (usually an archive) to a temporary, but optionally cached, file
     #[cfg(feature = "download")]
-    async fn download(&self, url: &str) -> Result<PathBuf> {
-        let url_parsed = url::Url::parse(url)?;
-        let filename = url_parsed
-            .path_segments()
-            .expect("No segments in URL")
-            .last()
-            .expect("No file in URL");
-        let path = binaries_dir().join("downloads").join(filename);
+    async fn download(
+        &self,
+        url: &str,
+        filename: Option<String>,
+        directory: Option<PathBuf>,
+    ) -> Result<PathBuf> {
+        let filename = match filename {
+            Some(filename) => filename,
+            None => {
+                let url_parsed = url::Url::parse(url)?;
+                url_parsed
+                    .path_segments()
+                    .and_then(|segments| segments.last().map(|segment| segment.to_string()))
+                    .ok_or_else(|| eyre!("Unable to determine filename"))?
+            }
+        };
+
+        let directory =
+            directory.unwrap_or_else(|| binaries_dir().join("downloads").join(self.spec().name));
+
+        let path = directory.join(filename);
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)?
         }
 
-        // Reuse downloaded files, only use this during development
-        // and testing (to avoid multiple downloads) and avoid in production
-        // in case a previous download was corrupted or similar.
-        if path.exists() && cfg!(debug_assertions) {
+        if path.exists() {
             return Ok(path);
         }
 
@@ -556,15 +609,24 @@ pub struct BinaryInstallation {
 
     /// The version of the binary at the path
     pub version: Option<String>,
+
+    /// The environment variables to set before the binary is executed
+    pub env: Vec<(String, String)>,
 }
 
 impl BinaryInstallation {
     /// Create an instance
-    pub fn new(name: String, path: PathBuf, version: Option<String>) -> BinaryInstallation {
+    pub fn new(
+        name: String,
+        path: PathBuf,
+        version: Option<String>,
+        env_vars: Vec<(String, String)>,
+    ) -> BinaryInstallation {
         BinaryInstallation {
             name,
             path,
             version,
+            env: env_vars,
         }
     }
 
@@ -573,18 +635,37 @@ impl BinaryInstallation {
         Command::new(&self.path)
     }
 
+    /// Set the runtime environment for the binary
+    pub fn set_env(&self) {
+        for (name, value) in &self.env {
+            env::set_var(name, value)
+        }
+    }
+
     /// Run the binary
     ///
     /// Returns the output of the command
-    pub async fn run(&self, args: &[String]) -> Result<Output> {
-        let output = self.command().args(args).output().await?;
+    pub async fn run(&self, args: &[&str]) -> Result<Output> {
+        tracing::trace!("Running binary installation {:?}", self);
+
+        self.set_env();
+        let output = self
+            .command()
+            .args(args)
+            // TODO: instead of inheriting, forward to log INFO entries
+            .stderr(Stdio::inherit())
+            .output()
+            .await?;
         Ok(output)
     }
 
     /// Run the binary and connect to stdin, stdout and stderr streams
     ///
     /// Returns a `Child` process whose
-    pub fn interact(&self, args: &[String]) -> Result<Child> {
+    pub fn interact(&self, args: &[&str]) -> Result<Child> {
+        tracing::trace!("Interacting with binary installation {:?}", self);
+
+        self.set_env();
         Ok(self
             .command()
             .args(args)

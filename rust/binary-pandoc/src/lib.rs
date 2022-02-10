@@ -50,8 +50,8 @@ impl BinaryTrait for PandocBinary {
             },
             _ => bail!("Unable to determine Pandoc download URL"),
         };
+        let archive = self.download(&url, None, None).await?;
 
-        let archive = self.download(&url).await?;
         let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 1, &dest)?;
         self.executables(&dest, &["bin/pandoc", "pandoc.exe"])?;
