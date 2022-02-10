@@ -3,7 +3,7 @@ use std::{
     sync::Arc,
 };
 
-use eyre::{Report, Result};
+use eyre::{bail, Report, Result};
 use futures::stream::{FuturesUnordered, StreamExt};
 use graph::{Plan, PlanScope};
 use graph_triples::{Resource, ResourceInfo};
@@ -183,10 +183,15 @@ pub async fn execute(
         // Create a kernel task for each task in this stage
         for (task_index, task) in stage.tasks.iter().enumerate() {
             // Get the node info for the task
-            let mut node_info = node_infos
-                .get(&task.resource_info.resource)
-                .cloned()
-                .expect("Node info for resource should be available");
+            let mut node_info = match node_infos.get(&task.resource_info.resource) {
+                Some(node_info) => node_info.clone(),
+                None => {
+                    bail!(
+                        "Node info is not available for resource `{}`",
+                        &task.resource_info.resource.resource_id()
+                    )
+                }
+            };
             let node_id = node_info.node_id.clone();
 
             // Has the task been cancelled?
