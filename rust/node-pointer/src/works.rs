@@ -47,7 +47,7 @@ pointable_struct!(AudioObject);
 pointable_struct!(Claim, content);
 pointable_struct!(Collection, parts);
 pointable_struct!(Comment);
-pointable_struct!(CreativeWork);
+pointable_struct!(CreativeWork, content);
 pointable_struct!(Figure);
 pointable_struct!(ImageObject);
 pointable_struct!(MediaObject);
@@ -59,3 +59,9 @@ pointable_struct!(SoftwareApplication);
 pointable_struct!(SoftwareSourceCode);
 pointable_struct!(Table, caption, rows);
 pointable_struct!(VideoObject);
+
+pointable_variants!(
+    CreativeWorkContent,
+    CreativeWorkContent::String,
+    CreativeWorkContent::VecNode
+);
