@@ -1,0 +1,16 @@
+[package]
+name = "buildpack"
+description = "Provides Buildpack trait for defining Cloud Native Buildpacks for Stencila"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+dirs = "4.0.0"
+eyre = "0.6.5"
+fs-utils = { path = "../fs-utils", version = "0.0.0" }
+libcnb = { path = "/home/nokome/src/libcnb.rs/libcnb" }
+serde = { version = "1.0.130", features = ["derive"] }
+serde_json = "1.0.75"
+serde_with = "1.11.0"
+toml = "0.5.8"
+tracing = "0.1.29"

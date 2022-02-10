@@ -18,6 +18,7 @@ codecs-cli = ["codecs/cli"]
 parsers-cli = ["parsers/cli"]
 kernels-cli = ["kernels/cli"]
 binaries-cli = ["binaries/cli"]
+buildpacks-cli = ["buildpacks/cli"]
 
 server = [
   "jsonwebtoken",
@@ -87,7 +88,13 @@ default = [
   "binaries/binary-node",
   "binaries/binary-pandoc",
   "binaries/binary-python",
-  "binaries/binary-rscript",
+  "binaries/binary-r",
+
+  # Buildpacks
+  "buildpacks-cli",
+  "buildpacks/buildpack-node",
+  "buildpacks/buildpack-python",
+  "buildpacks/buildpack-r",
 
   # Server & upgrade
   "server",
@@ -145,6 +152,7 @@ validator = { version = "=0.14.0", features = ["derive"] }
 # Required internal crates
 
 binaries = { path = "../binaries", version = "0.0.0" }
+buildpacks = { path = "../buildpacks", version = "0.0.0" }
 codecs = { path = "../codecs", version = "0.0.0" }
 events = { path = "../events", version = "0.0.0" }
 formats = { path = "../formats", version = "0.0.0" }

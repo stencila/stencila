@@ -1,0 +1,9 @@
+[package]
+name = "buildpack-python"
+description = "A Cloud Native Buildpack for Python"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binaries = { path = "../binaries", version = "0.0.0", features = ["binary-python"] }
+buildpack = { path = "../buildpack", version = "0.0.0" }

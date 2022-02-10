@@ -1,0 +1,9 @@
+[package]
+name = "buildpack-node"
+description = "A Cloud Native Buildpack for Node.js"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binaries = { path = "../binaries", version = "0.0.0", features = ["binary-node"] }
+buildpack = { path = "../buildpack", version = "0.0.0" }

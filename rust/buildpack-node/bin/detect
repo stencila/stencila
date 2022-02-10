@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -eo pipefail
+stencila buildpacks detect node . $1 $2
