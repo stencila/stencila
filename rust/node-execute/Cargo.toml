@@ -29,7 +29,9 @@ uuids = { path = "../uuids", version = "0.0.0" }
 codec = { path = "../codec", version = "0.0.0" }
 codec-md = { path = "../codec-md", version = "0.0.0" }
 node-patch = { path = "../node-patch", version = "0.0.0" }
+serde_json = "1.0.75"
 test-snaps = { path = "../test-snaps", version = "0.0.0" }
+test-utils = { path = "../test-utils", version = "0.0.0" }
 # Enable the parser and kernel for any languages used in tests
 parsers = { path = "../parsers", version = "0.0.0", features = ["parser-calc", "parser-r", "parser-py"] }
 kernels = { path = "../kernels", version = "0.0.0", features = ["kernel-store", "kernel-calc"] }

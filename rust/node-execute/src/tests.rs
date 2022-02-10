@@ -1,15 +1,15 @@
-
-use std::sync::Arc;
+use std::{path::PathBuf, sync::Arc};
 
 use crate::*;
 use codec::CodecTrait;
 use codec_md::MdCodec;
 use eyre::Result;
-use graph::{PlanOptions, PlanOrdering};
+use graph::{Plan, PlanOptions, PlanOrdering};
 
 use kernels::{Kernel, KernelType};
 use node_address::Slot;
-use node_patch::Operation;
+use node_patch::{Operation, Patch};
+use stencila_schema::Node;
 use test_snaps::{
     fixtures,
     insta::{self, assert_json_snapshot},
@@ -158,4 +158,83 @@ async fn md_articles() -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Regression test for executing a `CreativeWork`
+///
+/// Normally we execute a type of creative work such as an `Article`.
+/// But sometimes, when you have a flat array of `Node`s, it is necessary
+/// to use a `CreativeWork`. The first time we tried to do that it failed.
+/// This just tests that there is a patch with an "execute_ended" op
+#[tokio::test]
+async fn regression_creative_work() -> Result<()> {
+    let node = serde_json::from_value(serde_json::json!({
+        "type": "CreativeWork",
+        "content": [
+            {
+                "type": "CodeChunk",
+                "text": "2 * 2",
+                "programmingLanguage": "calc"
+            }
+        ]
+    }))?;
+
+    let (_plan, patches) = compile_plan_execute(node).await?;
+    let was_executed = patches
+        .iter()
+        .flat_map(|patch| &patch.ops)
+        .any(|op| match op {
+            Operation::Add { address, .. } => match &address[0] {
+                Slot::Name(name) => name == "execute_ended",
+                _ => false,
+            },
+            _ => false,
+        });
+    assert!(was_executed);
+
+    Ok(())
+}
+
+/// Convenience function to compile, plan and execute a node
+///
+/// Returns the plan and generated patches.
+async fn compile_plan_execute(node: Node) -> Result<(Plan, Vec<Patch>)> {
+    let root = Arc::new(RwLock::new(node));
+
+    let (patch_request_sender, mut patch_request_receiver) =
+        mpsc::unbounded_channel::<PatchRequest>();
+    let patches = tokio::spawn(async move {
+        let mut patches = Vec::new();
+        while let Some(request) = patch_request_receiver.recv().await {
+            patches.push(request.patch)
+        }
+        patches
+    });
+
+    let (_cancel_request_sender, mut cancel_request_receiver) = mpsc::channel::<CancelRequest>(1);
+
+    let (addresses, graph) = compile(
+        &PathBuf::new(),
+        &PathBuf::new(),
+        &root,
+        &patch_request_sender,
+    )
+    .await?;
+
+    let plan = graph.plan(None, None, None).await?;
+
+    execute(
+        &plan,
+        &root,
+        &Arc::new(RwLock::new(addresses)),
+        &Arc::new(RwLock::new(KernelSpace::new())),
+        &patch_request_sender,
+        &mut cancel_request_receiver,
+    )
+    .await?;
+
+    drop(patch_request_sender);
+    let patches = patches.await?;
+
+    Ok((plan, patches))
 }
