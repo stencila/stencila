@@ -25,12 +25,10 @@ macro_rules! mini_main {
     ($command:ident) => {
         #[tokio::main]
         async fn main() {
-            use cli_utils::{Run, tracing_subscriber};
+            use cli_utils::{tracing_subscriber, Run};
             use structopt::StructOpt;
 
-            tracing_subscriber::fmt()
-                .pretty()
-                .init();
+            tracing_subscriber::fmt().pretty().init();
 
             $command::from_args()
                 .print(&["md".to_string(), "yaml".to_string(), "json".to_string()])

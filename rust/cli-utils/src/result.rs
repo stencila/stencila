@@ -190,7 +190,7 @@ pub mod print {
         let title = format!("CLI: {}", error);
         let body = format!(
             "Version: {}\nOS: {}\n\nPlease describe the error a little more...",
-            env!("CARGO_PKG_VERSION").to_string(),
+            env!("CARGO_PKG_VERSION"),
             std::env::consts::OS
         );
         let issue_url = format!(
