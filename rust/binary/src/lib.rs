@@ -179,20 +179,30 @@ pub trait BinaryTrait: Send + Sync {
 
         let mut dirs: Vec<PathBuf> = Vec::new();
 
-        // Collect the directories for previously installed versions
-        if let Ok(dir) = self.dir(None, false) {
-            if let Ok(entries) = fs::read_dir(dir) {
-                for entry in entries.flatten() {
-                    let path = entry.path();
-                    if path.is_dir() {
-                        // Search for binary in top level (Windows)
-                        dirs.push(path.clone());
-                        // Search for binary in `bin` (MacOS & Linux convention)
-                        dirs.push(path.join("bin"))
+        // Collect the directories of _all_ binaries installed by Stencila
+        // We don't only include the folder for this particular binary because we want to be able to find
+        // unregistered binaries such as `npx` and `RScript` that are installed alongside
+        // binaries `node` and `R`.
+        if let Ok(binary_dirs) = fs::read_dir(binaries_dir()) {
+            for binary_dir in binary_dirs.flatten() {
+                if let Ok(version_dirs) = fs::read_dir(binary_dir.path()) {
+                    for version_dir in version_dirs.flatten() {
+                        if let Ok(subdirs) = fs::read_dir(version_dir.path()) {
+                            for dir in subdirs.flatten() {
+                                let path = dir.path();
+                                if path.is_dir() {
+                                    // Search for binary in top level (Windows)
+                                    dirs.push(path.clone());
+                                    // Search for binary in `bin` (MacOS & Linux convention)
+                                    dirs.push(path.join("bin"))
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
+
         if !dirs.is_empty() {
             tracing::trace!("Found Stencila install dirs: {:?}", dirs);
         }
@@ -338,6 +348,8 @@ pub trait BinaryTrait: Send + Sync {
             )
         }
 
+        tracing::info!("Installed `{}`", name);
+
         Ok(())
     }
 
@@ -371,7 +383,7 @@ pub trait BinaryTrait: Send + Sync {
             return Ok(path);
         }
 
-        tracing::info!("📥 Downloading {} to {}", url, path.display());
+        tracing::info!("Downloading `{}` to `{}`", url, path.display());
         let response = reqwest::get(url).await?.error_for_status()?;
         let bytes = response.bytes().await?;
         let mut file = fs::File::create(&path)?;
@@ -384,7 +396,7 @@ pub trait BinaryTrait: Send + Sync {
     #[allow(unused_variables)]
     #[cfg(any(feature = "download-tar", feature = "download-zip"))]
     fn extract(&self, path: &Path, strip: usize, dest: &Path) -> Result<()> {
-        tracing::info!("🔓 Extracting {} to {}", path.display(), dest.display());
+        tracing::info!("Extracting `{}` to `{}`", path.display(), dest.display());
 
         let ext = path
             .extension()
@@ -481,11 +493,11 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Make extracted files executable (if they exists)
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// - `dir`: The directory that executable have been installed to
-    /// 
+    ///
     /// - `paths`: The paths, within `dir`, that should be made executable;
     ///            can be Unix style forward slash paths and not all need to exist
     ///
@@ -510,10 +522,10 @@ pub trait BinaryTrait: Send + Sync {
         let dir = self.dir(version.clone(), false)?;
         let name = self.spec().name;
         let version = version.unwrap_or_default();
-        
+
         if dir.exists() {
             fs::remove_dir_all(dir)?;
-            tracing::info!("🗑️ Uninstalled `{}` {}", name, version);
+            tracing::info!("Uninstalled `{}` {}", name, version);
         } else {
             tracing::warn!(
                 "No Stencila-installed binary found for `{}` {}",

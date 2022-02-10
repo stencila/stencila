@@ -1,5 +1,9 @@
-//! Utilities for managing and calling external binaries
-
+///! A module for locating, running and installing third party binaries.
+///!
+///! Binaries may be used as runtimes for plugins (e.g. Node.js, Python) or
+///! as helpers by sibling crates (e.g Pandoc by the `codec-pandoc` crate).
+///! Although we use the term `binaries`, they do not need to be compiled binaries
+///! and can be executable shell scripts for example.
 use binary::{
     eyre::{bail, Result},
     Binary, BinaryInstallation, BinaryTrait,
@@ -8,16 +12,12 @@ use once_cell::sync::Lazy;
 use std::collections::{BTreeMap, HashMap};
 use tokio::sync::RwLock;
 
-///! A module for locating, running and installing third party binaries.
-///!
-///! Binaries may be used as runtimes for plugins (e.g. Node.js, Python) or
-///! are used in created (e.g Pandoc by the `codec-pandoc` crate).
-
 /// A global store of binaries
 ///
 /// This is an immutable, lazily initialized list of "registered" binaries
-/// that Stencila knows how to install, get the version for etc. However,
-/// the functions below can be used for any other binary as well.
+/// that Stencila knows how to install, get the version for etc. However, many of
+/// the functions below can be used for any other binary that may be installed
+/// on the system as well.
 #[allow(unused_mut)]
 static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
     let mut map: BTreeMap<String, Box<dyn BinaryTrait>> = BTreeMap::new();
@@ -37,7 +37,7 @@ static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
     binary_new!("binary-pack", binary_pack::PackBinary {});
     binary_new!("binary-pandoc", binary_pandoc::PandocBinary {});
     binary_new!("binary-python", binary_python::PythonBinary {});
-    binary_new!("binary-rscript", binary_rscript::RscriptBinary {});
+    binary_new!("binary-r", binary_r::RBinary {});
 
     map
 });
@@ -322,7 +322,6 @@ pub mod commands {
                     binary
                         .install(self.semver.clone(), self.os.clone(), self.arch.clone())
                         .await?;
-                    tracing::info!("📦 Installed {}", self.name);
                 }
                 None => {
                     tracing::error!("Stencila is unable to install `{}`", self.name);
