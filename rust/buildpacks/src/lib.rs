@@ -1,7 +1,9 @@
+use binary_pack::{BinaryTrait, PackBinary};
 use buildpack::{
     buildpacks_dir,
     eyre::{bail, Result},
-    platform_is_stencila, toml, tracing, BuildPlan, BuildpackPlan, BuildpackToml, BuildpackTrait,
+    platform_is_stencila, tag_for_path, toml, tracing, BuildPlan, BuildpackPlan, BuildpackToml,
+    BuildpackTrait,
 };
 use once_cell::sync::Lazy;
 use std::{
@@ -265,6 +267,12 @@ impl Buildpacks {
             None => current_dir.clone(),
         };
 
+        tracing::info!(
+            "Building `{}` with buildpack `{}`",
+            working_dir.display(),
+            buildpack_label
+        );
+
         let layers_dir = match layers_dir {
             Some(dir) => dir.to_owned(),
             None => Self::layers_dir_default(buildpack_label)?,
@@ -304,6 +312,51 @@ impl Buildpacks {
 
         set_current_dir(current_dir)?;
         result
+    }
+
+    /// Build a container image for a project folder
+    ///
+    /// If the folder has a Dockerfile (or Containerfile) that will be used.
+    /// Otherwise, buildpacks will be applied using the `pack` tool.
+    async fn pack(&self, working_dir: Option<&Path>) -> Result<()> {
+        const CNB_BUILDER: &str = "stencila/buildpacks:focal";
+
+        let code = self
+            .detect("dockerfile", working_dir, None, None)
+            .unwrap_or(100);
+        if code == 0 {
+            self.build("dockerfile", working_dir, None, None, None)?;
+            return Ok(());
+        }
+
+        let working_dir = match working_dir {
+            Some(dir) => dir.to_owned(),
+            None => current_dir()?,
+        };
+
+        let tag = tag_for_path(&working_dir);
+
+        tracing::info!(
+            "Building container image `{}` for `{}` with `pack` binary",
+            tag,
+            working_dir.display()
+        );
+
+        let pack = PackBinary {}.require(None, true).await?;
+        let output = pack
+            .run(&[
+                "build",
+                &tag,
+                "--builder",
+                CNB_BUILDER,
+                "--path",
+                &working_dir.display().to_string(),
+            ])
+            .await?;
+
+        tracing::info!("Output from pack: {:#?}", output);
+
+        Ok(())
     }
 
     /// Clean build directories for one, or all, buildpacks
@@ -354,7 +407,7 @@ impl Buildpacks {
 
     /// Run `detect` for all buildpacks, run `build` for those that match, and return
     /// a map of the detection results.
-    /// 
+    ///
     /// If the directory matches the `dockerfile` buildpack, no other buildpacks will
     /// be built for the directory.
     fn build_all(&self, working_dir: Option<&Path>) -> Result<BTreeMap<String, bool>> {
@@ -403,6 +456,7 @@ pub mod commands {
         Show(Show),
         Detect(Detect),
         Build(Build),
+        Pack(Pack),
         Clean(Clean),
     }
 
@@ -414,6 +468,7 @@ pub mod commands {
                 Command::Show(cmd) => cmd.run().await,
                 Command::Detect(cmd) => cmd.run().await,
                 Command::Build(cmd) => cmd.run().await,
+                Command::Pack(cmd) => cmd.run().await,
                 Command::Clean(cmd) => cmd.run().await,
             }
         }
@@ -514,7 +569,12 @@ pub mod commands {
             let code = match result {
                 Ok(code) => {
                     let will = if code == 0 { "does" } else { "does NOT" };
-                    tracing::info!("Buildpack `{}` {} match against `{}`", label, will, working_dir);
+                    tracing::info!(
+                        "Buildpack `{}` {} match against `{}`",
+                        label,
+                        will,
+                        working_dir
+                    );
                     code
                 }
                 Err(error) => {
@@ -617,6 +677,24 @@ pub mod commands {
 
             // See `run` for `Detect` for why we call `process::exit` here
             process::exit(code)
+        }
+    }
+
+    ///
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Pack {
+        /// The working directory (defaults to the current directory)
+        path: Option<PathBuf>,
+    }
+
+    #[async_trait]
+    impl Run for Pack {
+        async fn run(&self) -> Result {
+            PACKS.pack(self.path.as_deref()).await?;
+            result::nothing()
         }
     }
 

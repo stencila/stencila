@@ -516,6 +516,7 @@ dependencies = [
  "dirs",
  "eyre",
  "fs-utils",
+ "hash-utils",
  "libcnb",
  "serde",
  "serde_json",
@@ -530,7 +531,6 @@ version = "0.0.0"
 dependencies = [
  "binaries",
  "buildpack",
- "hash-utils",
 ]
 
 [[package]]
@@ -561,6 +561,7 @@ dependencies = [
 name = "buildpacks"
 version = "0.0.0"
 dependencies = [
+ "binary-pack",
  "buildpack",
  "buildpack-dockerfile",
  "buildpack-node",
@@ -2778,7 +2779,7 @@ checksum = "1bf2e165bb3457c8e098ea76f3e3bc9db55f87aa90d52d0e6be741470916aaa4"
 [[package]]
 name = "libcnb"
 version = "0.5.0"
-source = "git+https://github.com/nokome/libcnb.rs/?rev=fd5fa4e5f83d6a1c2e13a859708ab14c5bd19b8a#fd5fa4e5f83d6a1c2e13a859708ab14c5bd19b8a"
+source = "git+https://github.com/nokome/libcnb.rs/?rev=7163330061c16085a4b19840645146c325b58798#7163330061c16085a4b19840645146c325b58798"
 dependencies = [
  "libcnb-data",
  "serde",
@@ -2789,7 +2790,7 @@ dependencies = [
 [[package]]
 name = "libcnb-data"
 version = "0.4.0"
-source = "git+https://github.com/nokome/libcnb.rs/?rev=fd5fa4e5f83d6a1c2e13a859708ab14c5bd19b8a#fd5fa4e5f83d6a1c2e13a859708ab14c5bd19b8a"
+source = "git+https://github.com/nokome/libcnb.rs/?rev=7163330061c16085a4b19840645146c325b58798#7163330061c16085a4b19840645146c325b58798"
 dependencies = [
  "fancy-regex",
  "libcnb-proc-macros",
@@ -2801,7 +2802,7 @@ dependencies = [
 [[package]]
 name = "libcnb-proc-macros"
 version = "0.1.1"
-source = "git+https://github.com/nokome/libcnb.rs/?rev=fd5fa4e5f83d6a1c2e13a859708ab14c5bd19b8a#fd5fa4e5f83d6a1c2e13a859708ab14c5bd19b8a"
+source = "git+https://github.com/nokome/libcnb.rs/?rev=7163330061c16085a4b19840645146c325b58798#7163330061c16085a4b19840645146c325b58798"
 dependencies = [
  "fancy-regex",
  "quote",

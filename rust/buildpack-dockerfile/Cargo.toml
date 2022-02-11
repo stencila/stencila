@@ -7,4 +7,3 @@ edition = "2021"
 [dependencies]
 binaries = { path = "../binaries", version = "0.0.0", features = ["binary-podman"] }
 buildpack = { path = "../buildpack", version = "0.0.0" }
-hash-utils = { path = "../hash-utils", version = "0.0.0" }

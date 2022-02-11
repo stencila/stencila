@@ -1,10 +1,11 @@
+pub use binary::BinaryTrait;
 use binary::{
     async_trait::async_trait,
     eyre::{bail, Result},
-    Binary, BinaryTrait,
+    Binary,
 };
 
-pub struct PackBinary {}
+pub struct PackBinary;
 
 #[async_trait]
 impl BinaryTrait for PackBinary {

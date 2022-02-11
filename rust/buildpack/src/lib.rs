@@ -172,6 +172,23 @@ pub fn buildpacks_dir() -> Result<PathBuf> {
     Ok(dir)
 }
 
+/// Generate a locally unique tag for an image based on a directory path
+///
+/// Build a container image with a tag `<name>-<hash>` where `<name>` is the
+/// name of the directory containing the `Dockerfile` and `<hash>` is the 12-character
+/// truncated SHA256 hash of its path (to avoid clashes between directories with the same name).
+pub fn tag_for_path(path: &Path) -> String {
+    let name = path
+        .file_name()
+        .map(|name| name.to_string_lossy().to_string())
+        .unwrap_or_else(|| "unnamed".to_string());
+
+    let mut hash = hash_utils::str_sha256_hex(&path.display().to_string());
+    hash.truncate(12);
+
+    [&name, "-", &hash].concat()
+}
+
 // The `libcnb` crate provides similar structs to those below, often with stronger typing,
 // but those do not implement `Serialize` or `Clone` and so for our purposes
 // it was easier to reimplement them here.

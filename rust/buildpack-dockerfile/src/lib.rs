@@ -9,16 +9,12 @@ use buildpack::{
         generic::{GenericMetadata, GenericPlatform},
         Buildpack, Error, Result,
     },
-    BuildpackTrait,
+    tag_for_path, BuildpackTrait,
 };
 
 pub struct DockerfileBuildpack;
 
 /// A buildpack for projects containing a `Dockerfile` (or `Containerfile`)
-///
-/// Build a container image with a tag `<dir-name>-<hash>` where `<dir-name>` is the
-/// name of the directory containing the `Dockerfile` and `<hash>` is the 12-character
-/// truncated SHA256 hash of its path (to avoid clashes between directories with the same name).
 ///
 /// Uses `podman`, rather than `docker`, to build the image because the former runs in
 /// userspace and is thus more secure.
@@ -44,19 +40,13 @@ impl Buildpack for DockerfileBuildpack {
     }
 
     fn build(&self, context: BuildContext<Self>) -> Result<BuildResult, Self::Error> {
-        let name = context
-            .app_dir
-            .file_name()
-            .map(|name| name.to_string_lossy().to_string())
-            .unwrap_or_else(|| "unnamed".to_string());
-        let mut hash = hash_utils::str_sha256_hex(&context.app_dir.display().to_string());
-        hash.truncate(12);
-        let tag = [&name, "-", &hash].concat();
+        let tag = tag_for_path(&context.app_dir);
 
         let podman = require_sync("podman", "*").map_err(Error::BuildpackError)?;
         podman
             .run_sync(&["build", "--tag", &tag, "."])
             .map_err(Error::BuildpackError)?;
+
         BuildResultBuilder::new().build()
     }
 }
