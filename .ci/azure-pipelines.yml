@@ -506,6 +506,15 @@ jobs:
             focal-$(GitVersion.SemVer)
             latest
 
+      # Build `buildpacks` image if the above image builds succeeded
+
+      - script: |
+          set -e
+          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.24.0/pack-v0.24.0-linux.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack
+          pack builder create stencila/buildpacks:focal --config docker/buildpacks/focal/builder.toml 
+        displayName: Build stencila/buildpacks
+        condition: succeeded()
+
       # Push images if on a tag
       # Note that if a image was built successfully it will be pushed, regardless of whether
       # any of the other images failed to build or not.
@@ -541,6 +550,18 @@ jobs:
           command: push
           containerRegistry: DockerHub
           repository: stencila/run
+          tags: |
+            focal
+            focal-$(GitVersion.SemVer)
+            latest
+
+      - task: Docker@2
+        displayName: Push stencila/buildpacks
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        inputs:
+          command: push
+          containerRegistry: DockerHub
+          repository: stencila/buildpacks
           tags: |
             focal
             focal-$(GitVersion.SemVer)
