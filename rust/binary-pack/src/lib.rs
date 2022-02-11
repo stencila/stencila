@@ -35,7 +35,10 @@ impl BinaryTrait for PackBinary {
                 _ => "macos.tgz",
             },
             "windows" => "windows.zip",
-            _ => bail!("Unable to determine Node download URL"),
+            _ => bail!(
+                "Installation of `pack` for operating system `{}` is not supported",
+                os
+            ),
         };
         let archive = self.download(&url, None, None).await?;
 
