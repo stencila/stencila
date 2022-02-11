@@ -298,12 +298,14 @@ name = "binaries"
 version = "0.0.0"
 dependencies = [
  "binary",
+ "binary-asdf",
  "binary-chrome",
  "binary-chromium",
  "binary-node",
+ "binary-pack",
  "binary-pandoc",
  "binary-python",
- "binary-rscript",
+ "binary-r",
  "cli-utils",
  "once_cell",
  "serde_json",
@@ -338,6 +340,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "binary-asdf"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
 name = "binary-chrome"
 version = "0.0.0"
 dependencies = [
@@ -359,6 +368,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "binary-pack"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
 name = "binary-pandoc"
 version = "0.0.0"
 dependencies = [
@@ -370,13 +386,15 @@ name = "binary-python"
 version = "0.0.0"
 dependencies = [
  "binary",
+ "binary-asdf",
 ]
 
 [[package]]
-name = "binary-rscript"
+name = "binary-r"
 version = "0.0.0"
 dependencies = [
  "binary",
+ "binary-asdf",
 ]
 
 [[package]]
@@ -481,6 +499,60 @@ checksum = "b953a6887648bb07a535631f2bc00fbdb2a2216f135552cb3f534ed136b9c07f"
 dependencies = [
  "memchr",
  "safemem",
+]
+
+[[package]]
+name = "buildpack"
+version = "0.0.0"
+dependencies = [
+ "dirs",
+ "eyre",
+ "fs-utils",
+ "libcnb",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "toml 0.5.8",
+ "tracing",
+]
+
+[[package]]
+name = "buildpack-node"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "buildpack",
+]
+
+[[package]]
+name = "buildpack-python"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "buildpack",
+]
+
+[[package]]
+name = "buildpack-r"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "buildpack",
+]
+
+[[package]]
+name = "buildpacks"
+version = "0.0.0"
+dependencies = [
+ "buildpack",
+ "buildpack-node",
+ "buildpack-python",
+ "buildpack-r",
+ "cli-utils",
+ "once_cell",
+ "structopt",
+ "test-utils",
+ "tokio",
 ]
 
 [[package]]
@@ -684,6 +756,7 @@ dependencies = [
  "syntect",
  "termimad",
  "tracing",
+ "tracing-subscriber",
  "urlencoding",
 ]
 
@@ -1567,6 +1640,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e88a8acf291dafb59c2d96e8f59828f3838bb1a70398823ade51a84de6a6deed"
 
 [[package]]
+name = "fancy-regex"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d6b8560a05112eb52f04b00e5d3790c0dd75d9d980eb8a122fb23b92a623ccf"
+dependencies = [
+ "bit-set",
+ "regex",
+]
+
+[[package]]
 name = "fasteval"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1661,6 +1744,13 @@ dependencies = [
  "schemars",
  "serde",
  "strum",
+]
+
+[[package]]
+name = "fs-utils"
+version = "0.0.0"
+dependencies = [
+ "eyre",
 ]
 
 [[package]]
@@ -2666,6 +2756,39 @@ name = "libc"
 version = "0.2.119"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1bf2e165bb3457c8e098ea76f3e3bc9db55f87aa90d52d0e6be741470916aaa4"
+
+[[package]]
+name = "libcnb"
+version = "0.5.0"
+source = "git+https://github.com/nokome/libcnb.rs/#af5cfec194242c01acb3b22797e2b8fc634f8735"
+dependencies = [
+ "libcnb-data",
+ "serde",
+ "thiserror",
+ "toml 0.5.8",
+]
+
+[[package]]
+name = "libcnb-data"
+version = "0.4.0"
+source = "git+https://github.com/nokome/libcnb.rs/#af5cfec194242c01acb3b22797e2b8fc634f8735"
+dependencies = [
+ "fancy-regex",
+ "libcnb-proc-macros",
+ "serde",
+ "thiserror",
+ "toml 0.5.8",
+]
+
+[[package]]
+name = "libcnb-proc-macros"
+version = "0.1.1"
+source = "git+https://github.com/nokome/libcnb.rs/#af5cfec194242c01acb3b22797e2b8fc634f8735"
+dependencies = [
+ "fancy-regex",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "libflate"
@@ -4914,6 +5037,7 @@ dependencies = [
  "async-recursion",
  "async-trait",
  "binaries",
+ "buildpacks",
  "chrono",
  "cli-utils",
  "codecs",
