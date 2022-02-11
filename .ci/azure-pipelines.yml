@@ -440,17 +440,13 @@ jobs:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
   # Docker images are built on tags (i.e. after a Release job) or if there is a
-  # change in the `docker` folder. It depends on Linux job to ensure that the latest
-  # Linux `stencila` binary is available to install into the image.
+  # change in the `docker` folder.
   - job: Docker
-    dependsOn: [Changes, Linux]
+    dependsOn: [Changes]
     condition: |
-      and(
-        in(dependencies.Linux.result, 'Succeeded', 'Skipped'),
-        or(
-          startsWith(variables['Build.SourceBranch'], 'refs/tags/'),
-          contains(dependencies.Changes.outputs['folders.changed'], 'docker')
-        )
+      or(
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/'),
+        contains(dependencies.Changes.outputs['folders.changed'], 'docker')
       )
     pool:
       vmImage: ubuntu-latest
@@ -476,10 +472,49 @@ jobs:
             latest
 
       - task: Docker@2
-        displayName: Build and push stencila/stencila
+        displayName: Build stencila/stencila
         inputs:
-          command: buildAndPush
+          command: build
           dockerfile: docker/stencila/focal/Dockerfile
+          repository: stencila/stencila
+          tags: |
+            focal
+            focal-$(GitVersion.SemVer)
+            latest
+
+      - task: Docker@2
+        displayName: Build stencila/build
+        inputs:
+          command: build
+          dockerfile: docker/buildpacks/focal/Dockerfile
+          arguments: --target=build
+          repository: stencila/build
+          tags: |
+            focal
+            focal-$(GitVersion.SemVer)
+            latest
+
+      - task: Docker@2
+        displayName: Build stencila/run
+        inputs:
+          command: build
+          dockerfile: docker/buildpacks/focal/Dockerfile
+          arguments: --target=run
+          repository: stencila/run
+          tags: |
+            focal
+            focal-$(GitVersion.SemVer)
+            latest
+
+      # Push images if on a tag
+      # Note that if a image was built successfully it will be pushed, regardless of whether
+      # any of the other images failed to build or not.
+
+      - task: Docker@2
+        displayName: Push stencila/stencila
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        inputs:
+          command: push
           containerRegistry: DockerHub
           repository: stencila/stencila
           tags: |
@@ -488,11 +523,10 @@ jobs:
             latest
 
       - task: Docker@2
-        displayName: Build and push stencila/build
+        displayName: Push stencila/build
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         inputs:
-          command: buildAndPush
-          dockerfile: docker/buildpacks/focal/Dockerfile
-          arguments: --target=build
+          command: push
           containerRegistry: DockerHub
           repository: stencila/build
           tags: |
@@ -501,11 +535,10 @@ jobs:
             latest
 
       - task: Docker@2
-        displayName: Build and push stencila/run
+        displayName: Push stencila/run
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         inputs:
-          command: buildAndPush
-          dockerfile: docker/buildpacks/focal/Dockerfile
-          arguments: --target=run
+          command: push
           containerRegistry: DockerHub
           repository: stencila/run
           tags: |
