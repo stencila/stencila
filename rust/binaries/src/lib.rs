@@ -37,6 +37,7 @@ static BINARIES: Lazy<BTreeMap<String, Box<dyn BinaryTrait>>> = Lazy::new(|| {
     binary_new!("binary-node", binary_node::NodeBinary {});
     binary_new!("binary-pack", binary_pack::PackBinary {});
     binary_new!("binary-pandoc", binary_pandoc::PandocBinary {});
+    binary_new!("binary-podman", binary_podman::PodmanBinary {});
     binary_new!("binary-python", binary_python::PythonBinary {});
     binary_new!("binary-r", binary_r::RBinary {});
 
@@ -325,7 +326,10 @@ pub mod commands {
                         .await?;
                 }
                 None => {
-                    tracing::error!("Stencila is unable to install `{}`", self.name);
+                    tracing::error!(
+                        "Sorry, I don't know how to install `{}`, perhaps install it manually?",
+                        self.name
+                    );
                 }
             }
             result::nothing()

@@ -304,6 +304,7 @@ dependencies = [
  "binary-node",
  "binary-pack",
  "binary-pandoc",
+ "binary-podman",
  "binary-python",
  "binary-r",
  "cli-utils",
@@ -376,6 +377,13 @@ dependencies = [
 
 [[package]]
 name = "binary-pandoc"
+version = "0.0.0"
+dependencies = [
+ "binary",
+]
+
+[[package]]
+name = "binary-podman"
 version = "0.0.0"
 dependencies = [
  "binary",
@@ -517,6 +525,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "buildpack-dockerfile"
+version = "0.0.0"
+dependencies = [
+ "binaries",
+ "buildpack",
+ "hash-utils",
+]
+
+[[package]]
 name = "buildpack-node"
 version = "0.0.0"
 dependencies = [
@@ -545,6 +562,7 @@ name = "buildpacks"
 version = "0.0.0"
 dependencies = [
  "buildpack",
+ "buildpack-dockerfile",
  "buildpack-node",
  "buildpack-python",
  "buildpack-r",
