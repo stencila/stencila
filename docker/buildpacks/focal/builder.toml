@@ -15,17 +15,22 @@ uri = "../../../rust/buildpack-python"
 uri = "../../../rust/buildpack-r"
 
 # The order in which groups of buildpacks will be tested during detection
+# All buildpacks are optional, so they can potentially all be applied to the
+# same project.
 
 [[order]]
 
   [[order.group]]
   id = "stencila/node"
+  optional = true
 
   [[order.group]]
   id = "stencila/python"
+  optional = true
 
   [[order.group]]
   id = "stencila/r"
+  optional = true
 
 # The stack to use for the builder
 
