@@ -486,7 +486,7 @@ jobs:
         displayName: Build and push stencila/build
         inputs:
           command: buildAndPush
-          dockerfile: docker/stacks/focal/Dockerfile
+          dockerfile: docker/buildpacks/focal/Dockerfile
           arguments: --target=build
           containerRegistry: DockerHub
           repository: stencila/build
@@ -499,7 +499,7 @@ jobs:
         displayName: Build and push stencila/run
         inputs:
           command: buildAndPush
-          dockerfile: docker/stacks/focal/Dockerfile
+          dockerfile: docker/buildpacks/focal/Dockerfile
           arguments: --target=run
           containerRegistry: DockerHub
           repository: stencila/run
