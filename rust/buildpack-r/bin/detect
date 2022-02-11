@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 set -eo pipefail
-stencila buildpacks detect r . $1 $2
+stencila buildpacks detect . r $1 $2

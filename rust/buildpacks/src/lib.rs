@@ -20,7 +20,7 @@ static PACKS: Lazy<Arc<Buildpacks>> = Lazy::new(|| Arc::new(Buildpacks::new()));
 /// At present all buildpacks are builtin, but, as for `codecs`, `parsers` and other
 /// collections it is possible that plugins could also provide buildpacks.
 struct Buildpacks {
-    inner: BTreeMap<String, BuildpackToml>,
+    inner: Vec<BuildpackToml>,
 }
 
 /// A macro to dispatch methods to builtin buildpacks
@@ -42,33 +42,23 @@ macro_rules! dispatch_builtins {
 
 impl Buildpacks {
     /// Create a new buildpack registry
-    ///
-    /// Note that the string keys are "labels" for the buildpack which
-    /// should be the same as the buildpack id sans the `stencila/` prefix.
-    /// They aim to be more convenient to use in commands such as `stencila buildpacks show`.
     pub fn new() -> Self {
-        let inner = vec![
-            #[cfg(feature = "buildpack-dockerfile")]
-            (
-                "dockerfile",
+        Self {
+            inner: vec![
+                #[cfg(feature = "buildpack-dockerfile")]
                 buildpack_dockerfile::DockerfileBuildpack::spec(),
-            ),
-            #[cfg(feature = "buildpack-node")]
-            ("node", buildpack_node::NodeBuildpack::spec()),
-            #[cfg(feature = "buildpack-python")]
-            ("python", buildpack_python::PythonBuildpack::spec()),
-            #[cfg(feature = "buildpack-r")]
-            ("r", buildpack_r::RBuildpack::spec()),
-        ]
-        .into_iter()
-        .map(|(label, buildpack): (_, _)| (label.to_string(), buildpack))
-        .collect();
-
-        Self { inner }
+                #[cfg(feature = "buildpack-node")]
+                buildpack_node::NodeBuildpack::spec(),
+                #[cfg(feature = "buildpack-python")]
+                buildpack_python::PythonBuildpack::spec(),
+                #[cfg(feature = "buildpack-r")]
+                buildpack_r::RBuildpack::spec(),
+            ],
+        }
     }
 
     /// List the available buildpacks
-    fn list(&self) -> &BTreeMap<String, BuildpackToml> {
+    fn list(&self) -> &Vec<BuildpackToml> {
         &self.inner
     }
 
@@ -79,11 +69,10 @@ impl Buildpacks {
         let body = self
             .inner
             .iter()
-            .map(|(label, buildpack_toml)| {
+            .map(|buildpack_toml| {
                 let buildpack = &buildpack_toml.buildpack;
                 format!(
-                    "|{}|{}|{}|{}|{}|",
-                    label,
+                    "|{}|{}|{}|{}|",
                     buildpack.id,
                     buildpack.name,
                     buildpack.version,
@@ -108,17 +97,12 @@ impl Buildpacks {
     /// Get the buildpack with the given label or id
     fn get(&self, label: &str) -> Result<&BuildpackToml> {
         let label_lower = label.to_ascii_lowercase();
-        match self.inner.get(&label_lower) {
-            Some(buildpack) => Ok(buildpack),
-            None => {
-                for buildpack in self.inner.values() {
-                    if buildpack.buildpack.id == label_lower {
-                        return Ok(buildpack);
-                    }
-                }
-                bail!("No buildpack with label or id `{}`", label)
+        for buildpack in &self.inner {
+            if buildpack.id() == label_lower || buildpack.label() == Some(label) {
+                return Ok(buildpack);
             }
         }
+        bail!("No buildpack with id or label `{}`", label)
     }
 
     /// Get the path to the CNB platform directory
@@ -349,6 +333,44 @@ impl Buildpacks {
 
         Ok(())
     }
+
+    /// Run `detect` for all buildpacks and return a map of the results
+    fn detect_all(&self, working_dir: Option<&Path>) -> Result<BTreeMap<String, bool>> {
+        let mut matched = BTreeMap::new();
+
+        for buildpack in &self.inner {
+            let id = buildpack.id();
+            let label = match buildpack.label() {
+                Some(label) => label,
+                None => bail!("Unable to determine label for buildpack `{}`", id),
+            };
+
+            let result = self.detect(label, working_dir, None, None)?;
+            matched.insert(label.to_string(), result == 0);
+        }
+
+        Ok(matched)
+    }
+
+    /// Run `detect` for all buildpacks, run `build` for those that match, and return
+    /// a map of the detection results.
+    /// 
+    /// If the directory matches the `dockerfile` buildpack, no other buildpacks will
+    /// be built for the directory.
+    fn build_all(&self, working_dir: Option<&Path>) -> Result<BTreeMap<String, bool>> {
+        let matched = self.detect_all(working_dir)?;
+
+        for (label, build) in &matched {
+            if *build {
+                self.build(label, working_dir, None, None, None)?;
+                if label == "dockerfile" {
+                    break;
+                }
+            }
+        }
+
+        Ok(matched)
+    }
 }
 
 impl Default for Buildpacks {
@@ -446,13 +468,16 @@ pub mod commands {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Detect {
-        /// The label of the buildpack
-        ///
-        /// To get the list of buildpack labels use `stencila build packs`.
-        label: String,
-
         /// The working directory (defaults to the current directory)
         working: Option<PathBuf>,
+
+        /// The label of the buildpack to detect with
+        ///
+        /// If not supplied, or "all", all buildpacks will be tested against the working directory
+        /// and a map of the results returned.
+        ///
+        /// To get the list of buildpack labels use `stencila buildpacks list`.
+        label: Option<String>,
 
         /// A directory containing platform provided configuration, such as environment variables
         platform: Option<PathBuf>,
@@ -466,8 +491,15 @@ pub mod commands {
     #[async_trait]
     impl Run for Detect {
         async fn run(&self) -> Result {
+            let label = self.label.clone().unwrap_or_else(|| "all".to_string());
+
+            if label == "all" {
+                let results = PACKS.detect_all(self.working.as_deref())?;
+                return result::value(results);
+            }
+
             let result = PACKS.detect(
-                &self.label,
+                &label,
                 self.working.as_deref(),
                 self.platform.as_deref(),
                 self.plan.as_deref(),
@@ -481,20 +513,15 @@ pub mod commands {
 
             let code = match result {
                 Ok(code) => {
-                    let will = if code == 0 { "will" } else { "will NOT" };
-                    tracing::info!(
-                        "Buildpack `{}` {} build `{}`",
-                        self.label,
-                        will,
-                        working_dir
-                    );
+                    let will = if code == 0 { "does" } else { "does NOT" };
+                    tracing::info!("Buildpack `{}` {} match against `{}`", label, will, working_dir);
                     code
                 }
                 Err(error) => {
                     tracing::error!(
                         "While detecting `{}` with buildpack `{}`: {}",
                         working_dir,
-                        self.label,
+                        label,
                         error
                     );
                     100
@@ -518,13 +545,16 @@ pub mod commands {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Build {
-        /// The label of the buildpack
-        ///
-        /// To get the list of buildpack labels use `stencila build packs`.
-        label: String,
-
         /// The working directory (defaults to the current directory)
         working: Option<PathBuf>,
+
+        /// The label of the buildpack to build
+        ///
+        /// If not supplied, or "all", all buildpacks will be tested against the working directory
+        /// and those that match will be built.
+        ///
+        /// To get the list of buildpack labels use `stencila buildpacks list`.
+        label: Option<String>,
 
         /// A directory that may contain subdirectories representing each layer created by the
         /// buildpack in the final image or build cache
@@ -542,8 +572,15 @@ pub mod commands {
     #[async_trait]
     impl Run for Build {
         async fn run(&self) -> Result {
+            let label = self.label.clone().unwrap_or_else(|| "all".to_string());
+
+            if label == "all" {
+                let results = PACKS.build_all(self.working.as_deref())?;
+                return result::value(results);
+            }
+
             let result = PACKS.build(
-                &self.label,
+                &label,
                 self.working.as_deref(),
                 self.layers.as_deref(),
                 self.platform.as_deref(),
@@ -562,7 +599,7 @@ pub mod commands {
                         tracing::info!(
                             "Successfully built `{}` with buildpack `{}`",
                             working_dir,
-                            self.label
+                            label
                         );
                     }
                     code
@@ -571,7 +608,7 @@ pub mod commands {
                     tracing::error!(
                         "While building `{}` with buildpack `{}`: {}",
                         working_dir,
-                        self.label,
+                        label,
                         error
                     );
                     100

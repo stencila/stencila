@@ -192,6 +192,16 @@ pub struct BuildpackToml {
     pub metadata: Option<serde_json::Value>,
 }
 
+impl BuildpackToml {
+    pub fn id(&self) -> &str {
+        self.buildpack.id.as_str()
+    }
+
+    pub fn label(&self) -> Option<&str> {
+        self.buildpack.id.split('/').last()
+    }
+}
+
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 pub struct Buildpack {
