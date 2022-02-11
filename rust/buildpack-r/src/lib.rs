@@ -16,7 +16,22 @@ impl Buildpack for RBuildpack {
     type Error = GenericError;
 
     fn detect(&self, _context: DetectContext<Self>) -> Result<DetectResult, Self::Error> {
-        DetectResultBuilder::pass().build()
+        if self.any_exist(&[
+            "main.R",
+            "index.R",
+            "main.r",
+            "index.r",
+            "install.R",
+            "install.r",
+            "DESCRIPTION",
+        ]) || self.file_contains(".tool-versions", "R ")
+        {
+            DetectResultBuilder::pass()
+                .build_plan(self.build_plan(&["r"]))
+                .build()
+        } else {
+            DetectResultBuilder::fail().build()
+        }
     }
 
     fn build(&self, _context: BuildContext<Self>) -> Result<BuildResult, Self::Error> {

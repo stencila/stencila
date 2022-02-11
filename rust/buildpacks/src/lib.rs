@@ -1,7 +1,7 @@
 use buildpack::{
     buildpacks_dir,
     eyre::{bail, Result},
-    toml, tracing, BuildPlan, BuildpackPlan, BuildpackToml, BuildpackTrait,
+    platform_is_stencila, toml, tracing, BuildPlan, BuildpackPlan, BuildpackToml, BuildpackTrait,
 };
 use once_cell::sync::Lazy;
 use std::{
@@ -117,8 +117,8 @@ impl Buildpacks {
     /// Get the path to the CNB platform directory
     ///
     /// This directory path is passed to buildpacks in the `detect` and `build` phases.
-    /// As a NCB platform, Stencila has its own platform directory which contains a
-    /// file names `stencila` containing the current version. This allows build packs
+    /// As a CNB platform, Stencila has its own platform directory which contains a
+    /// file named `STENCILA_VERSION` containing the current version. This allows build packs
     /// to act differently depending if the platform is Stencila (local installs) versus
     /// Pack (install into Docker images).
     fn platform_dir() -> Result<PathBuf> {
@@ -266,9 +266,13 @@ impl Buildpacks {
         buildpack_plan: Option<&Path>,
     ) -> Result<i32> {
         let current_dir = current_dir()?;
-        if let Some(working_dir) = working_dir {
-            set_current_dir(working_dir)?;
-        }
+        let working_dir = match working_dir {
+            Some(dir) => {
+                set_current_dir(dir)?;
+                dir.to_owned()
+            }
+            None => current_dir.clone(),
+        };
 
         let layers_dir = match layers_dir {
             Some(dir) => dir.to_owned(),
@@ -284,6 +288,20 @@ impl Buildpacks {
             Some(path) => path.to_owned(),
             None => Self::buildpack_plan_default(buildpack_label)?,
         };
+
+        if platform_is_stencila(&platform_dir) {
+            tracing::debug!("Buildpack platform is Stencila");
+
+            let code = self.detect(buildpack_label, None, Some(&platform_dir), None)?;
+            if code != 0 {
+                tracing::warn!(
+                    "Directory `{}` does not match buildpack `{}` so will not be built",
+                    working_dir.display(),
+                    buildpack_label
+                );
+                return Ok(100);
+            }
+        }
 
         let result = dispatch_builtins!(
             buildpack_label,

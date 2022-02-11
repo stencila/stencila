@@ -17,10 +17,15 @@ pub use toml;
 pub use tracing;
 
 /// The stack id
-/// 
+///
 /// Currently a constants (cause there's only one :) but in the
 /// future there may be more e.g. `stencila.stacks.jammy`
 const CNB_STACK_ID: &str = "stencila.stacks.focal";
+
+/// Test whether the current CNB platform is Stencila
+pub fn platform_is_stencila(platform_dir: &Path) -> bool {
+    platform_dir.join("env").join("STENCILA_VERSION").exists()
+}
 
 /// A local trait for buildpacks that extends `libcnb::Buildpack`
 ///
@@ -64,7 +69,7 @@ pub trait BuildpackTrait: libcnb::Buildpack {
     }
 
     /// Test whether any of the files exists in the working directory
-    /// 
+    ///
     /// A convenience method for use in `detect`.
     fn any_exist(&self, paths: &[&str]) -> bool {
         for path in paths {
@@ -75,8 +80,17 @@ pub trait BuildpackTrait: libcnb::Buildpack {
         false
     }
 
+    /// Test whether a file contains a string
+    ///
+    /// A convenience method for use in `detect`.
+    fn file_contains(&self, file: &str, string: &str) -> bool {
+        fs::read_to_string(file)
+            .map(|content| content.contains(string))
+            .unwrap_or(false)
+    }
+
     /// Generate a `libcnb` build plan from a list of dependency names
-    /// 
+    ///
     /// A convenience method for use in `detect` which ensures that each
     /// dependency is added as a `requires` and `provides`. If both of these
     /// are absent from the plan then `Pack` will fail `detect` for this buildpack.
