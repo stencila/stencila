@@ -1,6 +1,6 @@
-use binary::{async_trait::async_trait, Binary, BinaryTrait};
+use binary::{async_trait::async_trait, binary_clone_box, Binary, BinaryTrait};
 
-pub struct ChromiumBinary {}
+pub struct ChromiumBinary;
 
 #[async_trait]
 impl BinaryTrait for ChromiumBinary {
@@ -15,4 +15,6 @@ impl BinaryTrait for ChromiumBinary {
             &[],
         )
     }
+
+    binary_clone_box!();
 }

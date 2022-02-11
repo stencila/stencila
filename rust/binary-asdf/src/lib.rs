@@ -2,7 +2,7 @@ use std::{env, fs};
 
 use binary::{
     async_trait::async_trait,
-    binaries_dir,
+    binaries_dir, binary_clone_box,
     eyre::{bail, Result},
     Binary, BinaryTrait,
 };
@@ -29,6 +29,8 @@ impl BinaryTrait for AsdfBinary {
             ],
         )
     }
+
+    binary_clone_box!();
 
     fn run_env(&self, version: Option<String>) -> Vec<(String, String)> {
         if let Ok(dir) = self.dir(version, false) {

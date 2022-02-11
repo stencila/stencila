@@ -1,5 +1,6 @@
 use binary::{
     async_trait::async_trait,
+    binary_clone_box,
     eyre::{bail, Result},
     Binary, BinaryTrait,
 };
@@ -24,6 +25,8 @@ impl BinaryTrait for PythonBinary {
             ],
         )
     }
+
+    binary_clone_box!();
 
     async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
         // On Linux or Mac use `asdf` to install

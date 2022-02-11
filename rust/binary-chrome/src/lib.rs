@@ -5,7 +5,7 @@ use binary::{
 };
 use std::{fs::read_dir, path::Path};
 
-pub struct ChromeBinary {}
+pub struct ChromeBinary;
 
 #[async_trait]
 impl BinaryTrait for ChromeBinary {
@@ -24,6 +24,10 @@ impl BinaryTrait for ChromeBinary {
             // `install_version` method.
             &["96.0.0"],
         )
+    }
+
+    fn clone_box(&self) -> Box<dyn BinaryTrait> {
+        Box::new(Self {})
     }
 
     /// Get the version of the Chrome binary

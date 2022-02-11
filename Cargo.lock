@@ -529,7 +529,7 @@ dependencies = [
 name = "buildpack-dockerfile"
 version = "0.0.0"
 dependencies = [
- "binaries",
+ "binary-podman",
  "buildpack",
 ]
 
@@ -537,7 +537,7 @@ dependencies = [
 name = "buildpack-node"
 version = "0.0.0"
 dependencies = [
- "binaries",
+ "binary-node",
  "buildpack",
 ]
 
@@ -545,7 +545,7 @@ dependencies = [
 name = "buildpack-python"
 version = "0.0.0"
 dependencies = [
- "binaries",
+ "binary-python",
  "buildpack",
 ]
 
@@ -553,7 +553,7 @@ dependencies = [
 name = "buildpack-r"
 version = "0.0.0"
 dependencies = [
- "binaries",
+ "binary-r",
  "buildpack",
 ]
 

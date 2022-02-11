@@ -1,6 +1,7 @@
 pub use binary::BinaryTrait;
 use binary::{
     async_trait::async_trait,
+    binary_clone_box,
     eyre::{bail, Result},
     Binary,
 };
@@ -24,6 +25,8 @@ impl BinaryTrait for PackBinary {
             ],
         )
     }
+
+    binary_clone_box!();
 
     async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
         let url = format!(

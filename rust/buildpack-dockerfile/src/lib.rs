@@ -1,6 +1,6 @@
 //! A buildpack for Dockerfiles
 
-use binaries::require_sync;
+use binary_podman::{binary::BinaryTrait, PodmanBinary};
 use buildpack::{
     eyre::Report,
     libcnb::{
@@ -42,8 +42,9 @@ impl Buildpack for DockerfileBuildpack {
     fn build(&self, context: BuildContext<Self>) -> Result<BuildResult, Self::Error> {
         let tag = tag_for_path(&context.app_dir);
 
-        let podman = require_sync("podman", "*").map_err(Error::BuildpackError)?;
-        podman
+        PodmanBinary {}
+            .require_sync(None, true)
+            .map_err(Error::BuildpackError)?
             .run_sync(&["build", "--tag", &tag, "."])
             .map_err(Error::BuildpackError)?;
 

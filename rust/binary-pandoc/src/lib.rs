@@ -1,10 +1,11 @@
 use binary::{
     async_trait::async_trait,
+    binary_clone_box,
     eyre::{bail, Result},
     Binary, BinaryTrait,
 };
 
-pub struct PandocBinary {}
+pub struct PandocBinary;
 
 #[async_trait]
 impl BinaryTrait for PandocBinary {
@@ -29,6 +30,8 @@ impl BinaryTrait for PandocBinary {
             ],
         )
     }
+
+    binary_clone_box!();
 
     async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
         // Map standard semver triples to Pandoc's version numbers (if they differ).

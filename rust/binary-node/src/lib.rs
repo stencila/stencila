@@ -1,10 +1,11 @@
 use binary::{
     async_trait::async_trait,
+    binary_clone_box,
     eyre::{bail, Result},
     Binary, BinaryTrait,
 };
 
-pub struct NodeBinary {}
+pub struct NodeBinary;
 
 #[async_trait]
 impl BinaryTrait for NodeBinary {
@@ -29,6 +30,8 @@ impl BinaryTrait for NodeBinary {
             ],
         )
     }
+
+    binary_clone_box!();
 
     async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
         let url = format!(

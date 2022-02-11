@@ -1,5 +1,6 @@
 use binary::{
     async_trait::async_trait,
+    binary_clone_box,
     eyre::{bail, Result},
     Binary, BinaryTrait,
 };
@@ -18,6 +19,8 @@ impl BinaryTrait for RBinary {
             &["4.1.0"],
         )
     }
+
+    binary_clone_box!();
 
     async fn install_version(&self, version: &str, os: &str, _arch: &str) -> Result<()> {
         if os == "linux" || os == "macos" {

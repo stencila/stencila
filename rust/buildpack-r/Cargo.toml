@@ -5,5 +5,5 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-binaries = { path = "../binaries", version = "0.0.0", features = ["binary-r"] }
+binary-r = { path = "../binary-r", version = "0.0.0" }
 buildpack = { path = "../buildpack", version = "0.0.0" }

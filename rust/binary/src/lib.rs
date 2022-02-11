@@ -167,6 +167,12 @@ pub trait BinaryTrait: Send + Sync {
         self.spec().version(path)
     }
 
+    /// Create a `Box` of the trait
+    ///
+    /// This is needed because the `BinaryTrait` is not `Sized` and so can not
+    /// be `Clone`. We need to be able to "clone" for methods such as `require_sync`.
+    fn clone_box(&self) -> Box<dyn BinaryTrait>;
+
     /// Get the environment variables that should be set when the binary is installed
     fn install_env(&self, _version: Option<String>) -> Vec<(String, String)> {
         Vec::new()
@@ -198,6 +204,17 @@ pub trait BinaryTrait: Send + Sync {
                 }
             }
         }
+    }
+
+    /// Require a version of the binary (synchronously)
+    fn require_sync(&self, version: Option<String>, install: bool) -> Result<BinaryInstallation> {
+        let clone = self.clone_box();
+        let (sender, receiver) = std::sync::mpsc::channel();
+        tokio::spawn(async move {
+            let result = clone.require(version, install).await;
+            sender.send(result)
+        });
+        receiver.recv()?
     }
 
     /// Find installations of this binary
@@ -590,10 +607,25 @@ pub trait BinaryTrait: Send + Sync {
     }
 }
 
+/// A convenience macro for generating the required `clone_box` method
+/// in types that implement `BinaryTrait`
+#[macro_export]
+macro_rules! binary_clone_box {
+    () => {
+        fn clone_box(&self) -> Box<dyn BinaryTrait> {
+            Box::new(Self {})
+        }
+    };
+}
+
 #[async_trait]
 impl BinaryTrait for Binary {
     fn spec(&self) -> Binary {
         self.clone()
+    }
+
+    fn clone_box(&self) -> Box<dyn BinaryTrait> {
+        Box::new(self.clone())
     }
 }
 
