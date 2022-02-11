@@ -1,0 +1,10 @@
+[package]
+name = "buildpack-dockerfile"
+description = "A buildpack for Dockerfiles"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+binaries = { path = "../binaries", version = "0.0.0", features = ["binary-podman"] }
+buildpack = { path = "../buildpack", version = "0.0.0" }
+hash-utils = { path = "../hash-utils", version = "0.0.0" }

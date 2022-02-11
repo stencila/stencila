@@ -27,6 +27,8 @@ struct Buildpacks {
 macro_rules! dispatch_builtins {
     ($label:expr, $method:ident $(,$arg:expr)*) => {
         match $label {
+            #[cfg(feature = "buildpack-dockerfile")]
+            "dockerfile" => buildpack_dockerfile::DockerfileBuildpack{}.$method($($arg),*),
             #[cfg(feature = "buildpack-node")]
             "node" => buildpack_node::NodeBuildpack{}.$method($($arg),*),
             #[cfg(feature = "buildpack-python")]
@@ -46,6 +48,11 @@ impl Buildpacks {
     /// They aim to be more convenient to use in commands such as `stencila buildpacks show`.
     pub fn new() -> Self {
         let inner = vec![
+            #[cfg(feature = "buildpack-dockerfile")]
+            (
+                "dockerfile",
+                buildpack_dockerfile::DockerfileBuildpack::spec(),
+            ),
             #[cfg(feature = "buildpack-node")]
             ("node", buildpack_node::NodeBuildpack::spec()),
             #[cfg(feature = "buildpack-python")]

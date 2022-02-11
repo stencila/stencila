@@ -16,7 +16,6 @@ use std::{
     process::{Output, Stdio},
     str::FromStr,
 };
-use tokio::process::{Child, Command};
 
 /// Re-exports for the convenience of crates implementing `BinaryTrait`
 pub use ::async_trait;
@@ -631,8 +630,13 @@ impl BinaryInstallation {
     }
 
     /// Get the command for the binary
-    pub fn command(&self) -> Command {
-        Command::new(&self.path)
+    pub fn command(&self) -> tokio::process::Command {
+        tokio::process::Command::new(&self.path)
+    }
+
+    /// Get the synchronous command for the binary
+    pub fn command_sync(&self) -> std::process::Command {
+        std::process::Command::new(&self.path)
     }
 
     /// Set the runtime environment for the binary
@@ -659,10 +663,26 @@ impl BinaryInstallation {
         Ok(output)
     }
 
+    /// Run the binary synchronously
+    ///
+    /// The sync version of `run`. Returns the output of the command
+    pub fn run_sync(&self, args: &[&str]) -> Result<Output> {
+        tracing::trace!("Running binary installation {:?}", self);
+
+        self.set_env();
+        let output = self
+            .command_sync()
+            .args(args)
+            // TODO: instead of inheriting, forward to log INFO entries
+            .stderr(Stdio::inherit())
+            .output()?;
+        Ok(output)
+    }
+
     /// Run the binary and connect to stdin, stdout and stderr streams
     ///
     /// Returns a `Child` process whose
-    pub fn interact(&self, args: &[&str]) -> Result<Child> {
+    pub fn interact(&self, args: &[&str]) -> Result<tokio::process::Child> {
         tracing::trace!("Interacting with binary installation {:?}", self);
 
         self.set_env();
