@@ -1,12 +1,12 @@
-all: builder stacks stencila
+all: builder buildpacks stencila
 
 builder:
 	make -C builder/focal
 .PHONY: builder
 
-stacks:
-	make -C stacks/focal
-.PHONY: stacks
+buildpacks:
+	make -C buildpacks/focal
+.PHONY: buildpacks
 
 stencila:
 	make -C stencila/focal

@@ -1,0 +1,35 @@
+# Defines a CNB builder
+# See https://buildpacks.io/docs/reference/config/builder-config/
+
+description = "Stencila CNB builder based on Ubuntu 20.04"
+
+# The buildpacks to include in the builder
+
+[[buildpacks]]
+uri = "../../../rust/buildpack-node"
+
+[[buildpacks]]
+uri = "../../../rust/buildpack-python"
+
+[[buildpacks]]
+uri = "../../../rust/buildpack-r"
+
+# The order in which groups of buildpacks will be tested during detection
+
+[[order]]
+
+  [[order.group]]
+  id = "stencila/node"
+
+  [[order.group]]
+  id = "stencila/python"
+
+  [[order.group]]
+  id = "stencila/r"
+
+# The stack to use for the builder
+
+[stack]
+id = "stencila.stacks.focal"
+run-image = "stencila/run:focal"
+build-image = "stencila/build:focal"
