@@ -11,3 +11,7 @@ This image should not be confused with the [`stencila/build`](../stacks/) image 
 ## Usage
 
 This image is built for each release of the `stencila` CLI. It is built before other images that depend upon it such as, [`stencila/stencila`](../stencila/) and [`stencila/buildpacks`](../buildpacks/).
+
+## Building
+
+The build `ARG` `STENCILA_VERSION` can be a tag, branch or commit id.

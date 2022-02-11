@@ -19,8 +19,10 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 RUN curl -SL https://deb.nodesource.com/setup_16.x | bash - \
  && apt-get install -y nodejs
 
-ARG STENCILA_VERSION
-RUN git clone --branch v${STENCILA_VERSION} --depth 1 https://github.com/stencila/stencila
+ARG STENCILA_VERSION=HEAD
+RUN mkdir stencila \
+ && curl -sS -L https://github.com/stencila/stencila/archive/$STENCILA_VERSION.tar.gz \
+  | tar --strip-components=1 -C /stencila -xz
 WORKDIR stencila
 
 RUN cargo install cargo-strip

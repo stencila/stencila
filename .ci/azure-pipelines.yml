@@ -468,7 +468,7 @@ jobs:
         inputs:
           command: build
           dockerfile: docker/builder/focal/Dockerfile
-          arguments: --build-arg STENCILA_VERSION=$(GitVersion.SemVer)
+          arguments: --build-arg STENCILA_VERSION=$(Build.SourceVersion)
 
       - task: Docker@2
         displayName: Build and push stencila/stencila
