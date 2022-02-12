@@ -331,6 +331,7 @@ dependencies = [
  "reqwest",
  "semver 1.0.6",
  "serde",
+ "serde_json",
  "tar",
  "tokio",
  "tracing",

@@ -195,6 +195,7 @@ pub mod commands {
         #[structopt(alias = "installable")]
         List(List),
         Show(Show),
+        Versions(Versions),
         Install(Install),
         Uninstall(Uninstall),
         Run(Run_),
@@ -204,12 +205,40 @@ pub mod commands {
     impl Run for Command {
         async fn run(&self) -> Result {
             match self {
-                Command::List(action) => action.run().await,
-                Command::Show(action) => action.run().await,
-                Command::Install(action) => action.run().await,
-                Command::Uninstall(action) => action.run().await,
-                Command::Run(action) => action.run().await,
+                Command::List(cmd) => cmd.run().await,
+                Command::Show(cmd) => cmd.run().await,
+                Command::Versions(cmd) => cmd.run().await,
+                Command::Install(cmd) => cmd.run().await,
+                Command::Uninstall(cmd) => cmd.run().await,
+                Command::Run(cmd) => cmd.run().await,
             }
+        }
+    }
+
+    /// List binaries that can be installed using Stencila
+    ///
+    /// The returned list is a list of the binaries/versions that Stencila knows how to install.
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct List {}
+
+    #[async_trait]
+    impl Run for List {
+        async fn run(&self) -> Result {
+            let list: Vec<serde_json::Value> = BINARIES
+                .values()
+                .map(|binary| {
+                    let spec = binary.spec();
+                    serde_json::json!({
+                        "name": spec.name,
+                        "aliases": spec.aliases
+                    })
+                })
+                .collect();
+            result::value(list)
         }
     }
 
@@ -260,30 +289,32 @@ pub mod commands {
         }
     }
 
-    /// List binaries (and their versions) that can be installed using Stencila
-    ///
-    /// The returned list is a list of the binaries/versions that Stencila knows how to install.
+    /// List the versions that can be installed for a binary
     #[derive(Debug, StructOpt)]
     #[structopt(
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct List {}
+    pub struct Versions {
+        /// The name of the binary e.g. pandoc
+        pub name: String,
+
+        /// The operating system to list versions for (defaults to the current)
+        #[structopt(short, long, possible_values = &OS_VALUES )]
+        pub os: Option<String>,
+    }
 
     #[async_trait]
-    impl Run for List {
+    impl Run for Versions {
         async fn run(&self) -> Result {
-            let list: Vec<serde_json::Value> = BINARIES
-                .values()
-                .map(|binary| {
-                    let spec = binary.spec();
-                    serde_json::json!({
-                        "name": spec.name,
-                        "versions": spec.installable
-                    })
-                })
-                .collect();
-            result::value(list)
+            let unregistered: Box<dyn BinaryTrait> = Box::new(Binary::unregistered(&self.name));
+            let binary = registered(&self.name).unwrap_or(&unregistered);
+            let os = match &self.os {
+                Some(os) => os,
+                None => std::env::consts::OS,
+            };
+            let versions = binary.versions(os).await?;
+            result::value(versions)
         }
     }
 

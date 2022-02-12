@@ -3,30 +3,24 @@ use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, Result},
-    Binary,
+    semver_versions_matching, Binary,
 };
 
 pub struct PackBinary;
 
 #[async_trait]
 impl BinaryTrait for PackBinary {
-    #[rustfmt::skip]
     fn spec(&self) -> Binary {
-        Binary::new(
-            "pack",
-            &[],
-            &[],
-            // Release list at https://github.com/buildpacks/pack/releases
-            // Current strategy is to support the latest patch version of the last three minor version.
-            &[
-                "0.23.0",
-                "0.22.0",
-                "0.21.1"
-            ],
-        )
+        Binary::new("pack", &[], &[])
     }
 
     binary_clone_box!();
+
+    async fn versions(&self, _os: &str) -> Result<Vec<String>> {
+        self.versions_github_releases("buildpacks", "pack")
+            .await
+            .map(|versions| semver_versions_matching(versions, ">=0.20"))
+    }
 
     async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
         let url = format!(

@@ -20,6 +20,7 @@ use std::{
 /// Re-exports for the convenience of crates implementing `BinaryTrait`
 pub use ::async_trait;
 pub use ::eyre;
+pub use ::semver;
 
 /// Get the directory where binaries are stored
 pub fn binaries_dir() -> PathBuf {
@@ -62,9 +63,6 @@ pub struct Binary {
     #[serde(skip)]
     #[def = r#"Regex::new("\\d+.\\d+(.\\d+)?").unwrap()"#]
     pub version_regex: Regex,
-
-    /// Versions of the binary that can be installed by Stencila
-    pub installable: Vec<String>,
 }
 
 impl Clone for Binary {
@@ -73,7 +71,6 @@ impl Clone for Binary {
             name: self.name.clone(),
             aliases: self.aliases.clone(),
             globs: self.globs.clone(),
-            installable: self.installable.clone(),
             ..Default::default()
         }
     }
@@ -81,7 +78,7 @@ impl Clone for Binary {
 
 impl Binary {
     /// Define a binary
-    pub fn new(name: &str, aliases: &[&str], globs: &[&str], installable: &[&str]) -> Binary {
+    pub fn new(name: &str, aliases: &[&str], globs: &[&str]) -> Binary {
         Binary {
             name: name.to_string(),
             aliases: aliases
@@ -89,11 +86,6 @@ impl Binary {
                 .map(|s| String::from_str(s).unwrap())
                 .collect(),
             globs: globs.iter().map(|s| String::from_str(s).unwrap()).collect(),
-            installable: installable
-                .iter()
-                .map(|s| String::from_str(s).unwrap())
-                .rev()
-                .collect(),
             ..Default::default()
         }
     }
@@ -103,7 +95,7 @@ impl Binary {
     /// Used when we only know the name of the binary that the user is searching for
     /// and no nothing about aliases, path globs or how to install it.
     pub fn unregistered(name: &str) -> Binary {
-        Binary::new(name, &[], &[], &[])
+        Binary::new(name, &[], &[])
     }
 
     /// Get the directory where versions of a binary are installed
@@ -157,21 +149,81 @@ pub trait BinaryTrait: Send + Sync {
     /// Get the specification of the binary
     fn spec(&self) -> Binary;
 
+    /// Create a `Box` of the trait
+    ///
+    /// This is needed because the `BinaryTrait` is not `Sized` and so can not
+    /// be `Clone`. We need to be able to "clone" for methods such as `require_sync`.
+    fn clone_box(&self) -> Box<dyn BinaryTrait>;
+
     /// Get the directory where versions of a binary are installed
     fn dir(&self, version: Option<String>, ensure: bool) -> Result<PathBuf> {
         self.spec().dir(version, ensure)
+    }
+
+    /// Get the versions of the binary that can be installed
+    ///
+    /// The returned list of string should be `major.minor.patch` semantic version
+    /// numbers in **descending** order.
+    ///
+    /// This default implementation returns an empty list i.e. the binary is not
+    /// installable by Stencila
+    async fn versions(&self, _os: &str) -> Result<Vec<String>> {
+        Ok(Vec::new())
+    }
+
+    /// Get the versions of the binary from GitHub REST API
+    ///
+    /// This will usually be followed by a call to `semver_versions_sorted` or
+    /// `semver_versions_matching`.
+    ///
+    /// Fetches the most recent thirty releases.
+    /// At present this does not do authorization, so potentially runs foul of 60 req/s rate limiting.
+    /// In the future, we may add authorization and/or caching to avoid hitting
+    /// rate limit.
+    ///
+    /// See https://docs.github.com/en/rest/reference/releases.
+    #[cfg(feature = "download")]
+    async fn versions_github_releases(&self, org: &str, repo: &str) -> Result<Vec<String>> {
+        tracing::info!(
+            "Getting list of releases for https://github.com/{}/{}",
+            org,
+            repo
+        );
+
+        let url = format!(
+            "https://api.github.com/repos/{}/{}/releases?per_page=100",
+            org, repo
+        );
+        let client = reqwest::Client::new();
+        let response = client
+            .get(url)
+            .header(
+                "User-Agent",
+                "Stencila (https://github.com/stencila/stencila/)",
+            )
+            .send()
+            .await?
+            .error_for_status()?;
+        let releases: serde_json::Value = response.json().await?;
+
+        let versions = releases
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|release| {
+                release["tag_name"]
+                    .as_str()
+                    .map(|tag| tag.strip_prefix('v').unwrap_or(tag).to_string())
+            })
+            .collect();
+
+        Ok(versions)
     }
 
     /// Get the version of the binary at a path
     fn version(&self, path: &Path) -> Option<String> {
         self.spec().version(path)
     }
-
-    /// Create a `Box` of the trait
-    ///
-    /// This is needed because the `BinaryTrait` is not `Sized` and so can not
-    /// be `Clone`. We need to be able to "clone" for methods such as `require_sync`.
-    fn clone_box(&self) -> Box<dyn BinaryTrait>;
 
     /// Get the environment variables that should be set when the binary is installed
     fn install_env(&self, _version: Option<String>) -> Vec<(String, String)> {
@@ -362,27 +414,52 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Install the most recent version of the binary (meeting optional semver, OS, and arch requirements).
+    ///
+    /// If a `semver` is not supplied then the latest version is installed. If `semver` is
+    /// supplied then the latest version meeting its requirement is installed. if the `semver`
+    /// has no operator prefix e.g. "=" then a semver prefix is added as follows:
+    ///
+    /// - `x.y.z` => `=x.y.z`
+    /// - `x.y` =>  `~x.y`
+    /// - `x` =>  `^x`
     async fn install(
         &self,
         semver: Option<String>,
         os: Option<String>,
         arch: Option<String>,
     ) -> Result<()> {
-        let Binary {
-            name, installable, ..
-        } = self.spec();
+        let os = os.unwrap_or_else(|| OS.to_string());
+        let arch = arch.unwrap_or_else(|| ARCH.to_string());
+        let Binary { name, .. } = self.spec();
+
+        let versions = self.versions(&os).await?;
 
         let semver = if let Some(semver) = semver {
             semver
         } else {
-            installable
-                .first()
-                .expect("Always at least one version")
-                .clone()
+            match versions.first() {
+                Some(version) => version.to_string(),
+                None => bail!(
+                    "Sorry, I don't know how to install `{}`; perhaps install it manually?",
+                    name
+                ),
+            }
         };
+
+        let op = semver.chars().next().unwrap_or(' ');
+        let semver = match "=^~><*".matches(op).count() {
+            0 => match semver.matches('.').count() {
+                2 => ["=", &semver].concat(),
+                1 => ["~", &semver].concat(),
+                _ => ["^", &semver].concat(),
+            },
+            _ => semver.to_string(),
+        };
+
         let semver = semver::VersionReq::parse(&semver)?;
 
-        if let Some(version) = installable.iter().find_map(|version| {
+        // Get the latest version matching semver requirements
+        if let Some(version) = versions.iter().find_map(|version| {
             match semver
                 .matches(&semver::Version::parse(version).expect("Version to always be valid"))
             {
@@ -393,15 +470,13 @@ pub trait BinaryTrait: Send + Sync {
             for (name, value) in self.install_env(Some(version.to_string())) {
                 env::set_var(name, value)
             }
-
-            let os = os.unwrap_or_else(|| OS.to_string());
-            let arch = arch.unwrap_or_else(|| ARCH.to_string());
             self.install_version(version, &os, &arch).await?;
         } else {
             bail!(
-                "Sorry, I don't know how to install `{}` version `{}`. See `stencila binaries installable` or perhaps install it manually?",
+                "Sorry, I don't know how to install `{}` version `{}`. See `stencila binaries versions {}` or perhaps install it manually?",
                 name,
-                semver
+                semver,
+                name
             )
         }
 
@@ -616,6 +691,60 @@ macro_rules! binary_clone_box {
             Box::new(Self {})
         }
     };
+}
+
+/// Filter out any versions that are not valid semver versions.
+/// Also sorts in descending **semver** order
+pub fn semver_versions_sorted(versions: Vec<String>) -> Vec<String> {
+    let mut versions: Vec<semver::Version> = versions
+        .iter()
+        .filter_map(|version| {
+            // Parse a `VersionRe` because that allows for incomplete versions e.g. 2.15
+            semver::VersionReq::parse(version)
+                .ok()
+                .and_then(|version_req| {
+                    version_req.comparators.first().and_then(|comparator| {
+                        // Ignore pre-releases
+                        if comparator.pre.is_empty() {
+                            Some(semver::Version::new(
+                                comparator.major,
+                                comparator.minor.unwrap_or(0),
+                                comparator.patch.unwrap_or(0),
+                            ))
+                        } else {
+                            None
+                        }
+                    })
+                })
+        })
+        .collect();
+    versions.dedup();
+    versions.sort();
+    versions.reverse();
+    versions
+        .iter()
+        .map(|version| format!("{}.{}.{}", version.major, version.minor, version.patch))
+        .collect()
+}
+
+// Filter out versions that are not valid semver versions and do not meet a semver requirement
+pub fn semver_versions_matching(versions: Vec<String>, semver: &str) -> Vec<String> {
+    let versions = semver_versions_sorted(versions);
+
+    let req = match semver::VersionReq::parse(semver) {
+        Ok(req) => req,
+        Err(..) => return versions,
+    };
+    versions
+        .iter()
+        .filter_map(|version| match semver::Version::parse(version) {
+            Ok(ver) => match req.matches(&ver) {
+                true => Some(version.to_string()),
+                false => None,
+            },
+            Err(..) => None,
+        })
+        .collect()
 }
 
 #[async_trait]

@@ -12,7 +12,6 @@ impl BinaryTrait for ChromiumBinary {
                 "/Applications/Chromium.app/Contents/MacOS",
                 "C:\\Program Files\\Chromium\\Application",
             ],
-            &[],
         )
     }
 

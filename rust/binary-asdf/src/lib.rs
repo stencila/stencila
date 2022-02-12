@@ -4,7 +4,7 @@ use binary::{
     async_trait::async_trait,
     binaries_dir, binary_clone_box,
     eyre::{bail, Result},
-    Binary, BinaryTrait,
+    semver_versions_sorted, Binary, BinaryTrait,
 };
 
 /// A `BinaryTrait` for `asdf`
@@ -17,20 +17,17 @@ pub struct AsdfBinary;
 
 #[async_trait]
 impl BinaryTrait for AsdfBinary {
-    #[rustfmt::skip]
     fn spec(&self) -> Binary {
-        Binary::new(
-            "asdf",
-            &[],
-            &[],
-            // Release list at https://github.com/asdf-vm/asdf/releases
-            &[
-                "0.9.0"
-            ],
-        )
+        Binary::new("asdf", &[], &[])
     }
 
     binary_clone_box!();
+
+    async fn versions(&self, _os: &str) -> Result<Vec<String>> {
+        self.versions_github_releases("asdf-vm", "asdf")
+            .await
+            .map(semver_versions_sorted)
+    }
 
     fn run_env(&self, version: Option<String>) -> Vec<(String, String)> {
         if let Ok(dir) = self.dir(version, false) {
@@ -70,6 +67,30 @@ impl BinaryTrait for AsdfBinary {
         // TODO: use a setting to determine the keep downloads policy for both Stencila and asdf
         fs::write(dest.join(".asdfrc"), "always_keep_download = yes\n")?;
 
+        Ok(())
+    }
+}
+
+impl AsdfBinary {
+    /// List all versions for an `asdf` plugin
+    pub async fn list_all(plugin: &str) -> Result<Vec<String>> {
+        let asdf = AsdfBinary {}.require(None, true).await?;
+        asdf.run(&["plugin", "add", plugin]).await?;
+        let output = asdf.run(&["list", "all", plugin]).await?;
+
+        let versions: Vec<String> = std::str::from_utf8(&output.stdout)?
+            .split('\n')
+            .map(String::from)
+            .collect();
+
+        Ok(versions)
+    }
+
+    /// Install a version for an `asdf` plugin
+    pub async fn install(plugin: &str, version: &str) -> Result<()> {
+        let asdf = AsdfBinary {}.require(None, true).await?;
+        asdf.run(&["plugin", "add", plugin]).await?;
+        asdf.run(&["install", plugin, version]).await?;
         Ok(())
     }
 }

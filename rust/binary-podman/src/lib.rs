@@ -3,27 +3,24 @@ use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, Result},
-    Binary, BinaryTrait,
+    semver_versions_matching, Binary, BinaryTrait,
 };
 
 pub struct PodmanBinary;
 
 #[async_trait]
 impl BinaryTrait for PodmanBinary {
-    #[rustfmt::skip]
     fn spec(&self) -> Binary {
-        Binary::new(
-            "podman",
-            &[],
-            &[],
-            // Release list at https://github.com/containers/podman/releases
-            &[
-               "3.4.3"
-            ],
-        )
+        Binary::new("podman", &[], &[])
     }
 
     binary_clone_box!();
+
+    async fn versions(&self, _os: &str) -> Result<Vec<String>> {
+        self.versions_github_releases("containers", "podman")
+            .await
+            .map(|versions| semver_versions_matching(versions, ">=3"))
+    }
 
     async fn install_version(&self, version: &str, os: &str, _arch: &str) -> Result<()> {
         let url = format!(

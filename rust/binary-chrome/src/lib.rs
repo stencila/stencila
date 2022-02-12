@@ -17,17 +17,20 @@ impl BinaryTrait for ChromeBinary {
                 "/Applications/Google Chrome.app/Contents/MacOS",
                 "C:\\Program Files\\Google\\Chrome\\Application",
             ],
-            // Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history.
-            // Rather than support installing multiple versions, we normally only support the
-            // most recent version in the stable channel.
-            // Note: Use triples ending in `.0` here and make sure there is a mapping in the
-            // `install_version` method.
-            &["96.0.0"],
         )
     }
 
     fn clone_box(&self) -> Box<dyn BinaryTrait> {
         Box::new(Self {})
+    }
+
+    async fn versions(&self, _os: &str) -> Result<Vec<String>> {
+        // Version history at https://en.wikipedia.org/wiki/Google_Chrome_version_history.
+        // Rather than support installing multiple versions, we normally only support the
+        // most recent version in the stable channel.
+        // Note: Use triples ending in `.0` here and make sure there is a mapping in the
+        // `install_version` method.
+        Ok(vec!["96.0.0".to_string()])
     }
 
     /// Get the version of the Chrome binary

@@ -2,7 +2,7 @@ use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, Result},
-    Binary, BinaryTrait,
+    semver_versions_matching, Binary, BinaryTrait,
 };
 
 pub struct NodeBinary;
@@ -14,24 +14,17 @@ impl BinaryTrait for NodeBinary {
         Binary::new(
             "node",
             &[],
-            &["C:\\Program Files\\nodejs"],
-            // Release list at https://nodejs.org/en/download/releases/
-            // Current strategy is to support the latest patch version of each minor version.
-            // Support for older minor versions may be progressively  dropped if there are no
-            // plugins relying on them.
-            &[
-                "16.10.0",
-                "16.11.1",
-                "16.12.0",
-                "16.13.1",
-                "17.0.1",
-                "17.1.0",
-                "17.2.0"
-            ],
+            &["C:\\Program Files\\nodejs"]
         )
     }
 
     binary_clone_box!();
+
+    async fn versions(&self, _os: &str) -> Result<Vec<String>> {
+        self.versions_github_releases("nodejs", "node")
+            .await
+            .map(|versions| semver_versions_matching(versions, ">=10"))
+    }
 
     async fn install_version(&self, version: &str, os: &str, arch: &str) -> Result<()> {
         let url = format!(
