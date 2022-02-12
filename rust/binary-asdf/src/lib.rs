@@ -79,7 +79,7 @@ impl AsdfBinary {
         let output = asdf.run(&["list", "all", plugin]).await?;
 
         let versions: Vec<String> = std::str::from_utf8(&output.stdout)?
-            .split('\n')
+            .lines()
             .map(String::from)
             .collect();
 
