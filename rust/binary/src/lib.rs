@@ -4,6 +4,7 @@ use eyre::{bail, eyre, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
+use std::ffi::{OsStr, OsString};
 #[allow(unused_imports)]
 use std::{
     cmp::Ordering,
@@ -251,17 +252,21 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Get the environment variables that should be set when the binary is installed
-    fn install_env(&self, _version: Option<String>) -> Vec<(String, String)> {
+    fn install_env(&self, _version: Option<String>) -> Vec<(String, OsString)> {
         Vec::new()
     }
 
     /// Get the environment variables that should be set when the binary is run
-    fn run_env(&self, _version: Option<String>) -> Vec<(String, String)> {
+    fn run_env(&self, _version: Option<String>) -> Vec<(String, OsString)> {
         Vec::new()
     }
 
     /// Require a binary
-    async fn require(&self, requirement: Option<String>, install: bool) -> Result<BinaryInstallation> {
+    async fn require(
+        &self,
+        requirement: Option<String>,
+        install: bool,
+    ) -> Result<BinaryInstallation> {
         match self.installed(requirement.clone())? {
             Some(installation) => Ok(installation),
             None => {
@@ -284,7 +289,11 @@ pub trait BinaryTrait: Send + Sync {
     }
 
     /// Require a binary (synchronously)
-    fn require_sync(&self, requirement: Option<String>, install: bool) -> Result<BinaryInstallation> {
+    fn require_sync(
+        &self,
+        requirement: Option<String>,
+        install: bool,
+    ) -> Result<BinaryInstallation> {
         let clone = self.clone_box();
         let (sender, receiver) = std::sync::mpsc::channel();
         tokio::spawn(async move {
@@ -785,7 +794,7 @@ pub struct BinaryInstallation {
     pub version: Option<String>,
 
     /// The environment variables to set before the binary is executed
-    pub env: Vec<(String, String)>,
+    pub env: Vec<(String, OsString)>,
 }
 
 impl BinaryInstallation {
@@ -794,7 +803,7 @@ impl BinaryInstallation {
         name: String,
         path: PathBuf,
         version: Option<String>,
-        env_vars: Vec<(String, String)>,
+        env_vars: Vec<(String, OsString)>,
     ) -> BinaryInstallation {
         BinaryInstallation {
             name,
@@ -854,9 +863,34 @@ impl BinaryInstallation {
     }
 
     /// Set the runtime environment for the binary
-    pub fn set_env(&self) {
-        for (name, value) in &self.env {
-            env::set_var(name, value)
+    pub fn set_env(&mut self, vars: &[(impl AsRef<str>, impl AsRef<OsStr>)]) {
+        self.env = vars
+            .iter()
+            .map(|var| (var.0.as_ref().to_owned(), var.1.as_ref().to_owned()))
+            .collect();
+    }
+
+    /// Use the environment variables for this binary
+    ///
+    /// Private method used in run related methods below to temporarily set env vars.
+    fn apply_env(&self) -> Vec<(String, String)> {
+        let mut prev_env = Vec::with_capacity(self.env.len());
+        for (key, value) in &self.env {
+            if let Ok(prev) = env::var(key) {
+                prev_env.push((key.clone(), prev));
+            }
+            env::set_var(key, value);
+        }
+        prev_env
+    }
+
+    /// Restore environment variables that this binary may have overridden
+    ///
+    /// Private method used in run related methods below to remove this installations
+    /// env vars and restore others.
+    fn restore_env(&self, env: Vec<(String, String)>) {
+        for (key, value) in env {
+            env::set_var(key, value);
         }
     }
 
@@ -866,15 +900,17 @@ impl BinaryInstallation {
     pub async fn run(&self, args: &[&str]) -> Result<Output> {
         tracing::trace!("Running binary installation {:?}", self);
 
-        self.set_env();
-        let output = self
+        let prev_env = self.apply_env();
+        let result = self
             .command()
             .args(args)
             // TODO: instead of inheriting, forward to log INFO entries
             .stderr(Stdio::inherit())
             .output()
-            .await?;
-        Ok(output)
+            .await;
+        self.restore_env(prev_env);
+
+        Ok(result?)
     }
 
     /// Run the binary synchronously
@@ -883,14 +919,16 @@ impl BinaryInstallation {
     pub fn run_sync(&self, args: &[&str]) -> Result<Output> {
         tracing::trace!("Running binary installation {:?}", self);
 
-        self.set_env();
-        let output = self
+        let prev_env = self.apply_env();
+        let result = self
             .command_sync()
             .args(args)
             // TODO: instead of inheriting, forward to log INFO entries
             .stderr(Stdio::inherit())
-            .output()?;
-        Ok(output)
+            .output();
+        self.restore_env(prev_env);
+
+        Ok(result?)
     }
 
     /// Run the binary and connect to stdin, stdout and stderr streams
@@ -899,13 +937,16 @@ impl BinaryInstallation {
     pub fn interact(&self, args: &[&str]) -> Result<tokio::process::Child> {
         tracing::trace!("Interacting with binary installation {:?}", self);
 
-        self.set_env();
-        Ok(self
+        let prev_env = self.apply_env();
+        let result = self
             .command()
             .args(args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
-            .spawn()?)
+            .spawn();
+        self.restore_env(prev_env);
+
+        Ok(result?)
     }
 }

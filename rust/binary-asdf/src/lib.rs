@@ -1,4 +1,4 @@
-use std::{env, fs};
+use std::{env, ffi::OsString, fs};
 
 use binary::{
     async_trait::async_trait,
@@ -29,14 +29,15 @@ impl BinaryTrait for AsdfBinary {
             .map(semver_versions_sorted)
     }
 
-    fn run_env(&self, version: Option<String>) -> Vec<(String, String)> {
+    fn run_env(&self, version: Option<String>) -> Vec<(String, OsString)> {
         if let Ok(dir) = self.dir(version, false) {
             let binaries_dir = binaries_dir();
             if let Ok(..) = dir.strip_prefix(&binaries_dir) {
-                let asdf_config_file = dir.join(".asdfrc").display().to_string();
-                let asdf_dir = dir.display().to_string();
-                let asdf_data_dir = binaries_dir.display().to_string();
-                let path = format!("{}:{}", asdf_dir, env::var("PATH").unwrap_or_default());
+                let asdf_config_file = dir.join(".asdfrc").into_os_string();
+                let asdf_dir = dir.into_os_string();
+                let asdf_data_dir = binaries_dir.into_os_string();
+                let path = OsString::from(env::var("PATH").unwrap_or_default());
+                let path = env::join_paths(&[asdf_dir.clone(), path.clone()]).unwrap_or(path);
                 return vec![
                     ("ASDF_CONFIG_FILE".to_string(), asdf_config_file),
                     ("ASDF_DIR".to_string(), asdf_dir),
