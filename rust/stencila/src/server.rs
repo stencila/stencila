@@ -1269,7 +1269,7 @@ pub fn html_rewrite(
         client = uuids::generate("cl"),
         token = token,
         project = project,
-        document = document.as_display().to_string()
+        document = document.as_display()
     );
 
     // Head elements for web components

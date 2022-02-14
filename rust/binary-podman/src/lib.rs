@@ -1,9 +1,9 @@
-pub use binary;
+pub use binary::BinaryTrait;
 use binary::{
     async_trait::async_trait,
     binary_clone_box,
     eyre::{bail, Result},
-    semver_versions_matching, Binary, BinaryTrait,
+    semver_versions_matching, Binary,
 };
 
 pub struct PodmanBinary;

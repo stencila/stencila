@@ -1137,10 +1137,10 @@ impl KernelSpace {
                         .pop_front()
                         .expect("Should have at least one because we checked above");
 
-                    if let Some(mut task_info) = tasks.get_mut(&task_id) {
+                    if let Some(task_info) = tasks.get_mut(&task_id) {
                         tracing::debug!("Dispatching task `{}` to kernel `{}`", task_id, kernel_id);
                         if let Err(error) = KernelSpace::dispatch_deferred(
-                            &mut task_info,
+                            task_info,
                             kernel_id,
                             &mut *kernels,
                             &mut *symbols,

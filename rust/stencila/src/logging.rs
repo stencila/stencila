@@ -300,7 +300,7 @@ pub fn init(
     // e.g. `--log-scope=stencila` vs `--log-scope=all`.
     let directives = format!(
         "{},async_io=info,html5ever=info,hyper=info,mio=info,polling=info,reqwest=info,rustyline=info,tokio_tungstenite=info,tungstenite=info,warp=info",
-        min_level.to_string()
+        min_level
     );
 
     let registry = tracing_subscriber::registry()
