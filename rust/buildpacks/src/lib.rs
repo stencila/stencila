@@ -321,11 +321,11 @@ impl Buildpacks {
     }
 
     /// Generate a Markdown document of a set of build plans
-    fn plan_as_markdown(plans: &[(BuildpackId, Option<BuildPlan>)]) -> String {
+    fn plan_as_markdown(plans: &[(BuildpackId, Option<BuildPlan>)], show_all: bool) -> String {
         plans
             .iter()
             .map(|(id, plan)| {
-                let plan = match plan {
+                let md = match plan {
                     Some(plan) => plan
                         .requires
                         .iter()
@@ -352,10 +352,14 @@ impl Buildpacks {
                         .join("\n"),
                     None => "*Nothing*".to_string(),
                 };
-                format!("## Buildpack '{}'\n\n{}\n", id, plan)
+                if plan.is_some() || show_all {
+                    format!("## Buildpack '{}'\n\n{}\n\n", id, md)
+                } else {
+                    "".to_string()
+                }
             })
             .collect::<Vec<String>>()
-            .join("\n")
+            .concat()
     }
 
     /// Build image layers for a working directory using a buildpack
@@ -717,13 +721,17 @@ pub mod commands {
     pub struct Plan {
         /// The working directory (defaults to the current directory)
         path: Option<PathBuf>,
+
+        /// Show all buildpacks, including those that failed to match against the working directory
+        #[structopt(short, long)]
+        all: bool,
     }
 
     #[async_trait]
     impl Run for Plan {
         async fn run(&self) -> Result {
             let plans = PACKS.plan_all(self.path.as_deref())?;
-            let md = Buildpacks::plan_as_markdown(&plans);
+            let md = Buildpacks::plan_as_markdown(&plans, self.all);
             result::new("md", &md, plans)
         }
     }
