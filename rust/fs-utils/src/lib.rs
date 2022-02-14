@@ -1,7 +1,7 @@
 ///! File system utilities, particularly functionality that requires
 ///! alternative implementations for alternative operating systems.
 use eyre::Result;
-use std::{os, path::Path};
+use std::{fs, os, path::Path};
 
 /// Set permissions on a file
 #[allow(unused_variables)]
@@ -9,7 +9,7 @@ pub fn set_perms<File: AsRef<Path>>(path: File, mode: u32) -> Result<()> {
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
         use os::unix::fs::PermissionsExt;
-        std::fs::set_permissions(path, std::fs::Permissions::from_mode(mode))?;
+        fs::set_permissions(path, fs::Permissions::from_mode(mode))?;
     }
 
     Ok(())
@@ -40,5 +40,19 @@ pub fn symlink_dir<Original: AsRef<Path>, Link: AsRef<Path>>(
     #[cfg(target_os = "windows")]
     os::windows::fs::symlink_dir(original, link)?;
 
+    Ok(())
+}
+
+/// Recursively copy a directory to another
+pub fn copy_dir_all(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> Result<()> {
+    fs::create_dir_all(&dest)?;
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        if entry.file_type()?.is_dir() {
+            copy_dir_all(entry.path(), dest.as_ref().join(entry.file_name()))?;
+        } else {
+            fs::copy(entry.path(), dest.as_ref().join(entry.file_name()))?;
+        }
+    }
     Ok(())
 }
