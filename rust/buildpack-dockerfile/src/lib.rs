@@ -1,6 +1,6 @@
 //! A buildpack for Dockerfiles
 
-use binary_podman::{binary::BinaryTrait, PodmanBinary};
+use binary_podman::{BinaryTrait, PodmanBinary};
 use buildpack::{
     eyre::Report,
     libcnb::{
@@ -32,7 +32,7 @@ impl Buildpack for DockerfileBuildpack {
     type Error = Report;
 
     fn detect(&self, _context: DetectContext<Self>) -> Result<DetectResult, Self::Error> {
-        if self.any_exist(&["Dockerfile", "Containerfile"]) {
+        if Self::any_exist(&["Dockerfile", "Containerfile"]) {
             DetectResultBuilder::pass().build()
         } else {
             DetectResultBuilder::fail().build()

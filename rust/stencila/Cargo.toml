@@ -94,6 +94,7 @@ default = [
 
   # Buildpacks
   "buildpacks-cli",
+  "buildpacks/buildpack-dockerfile",
   "buildpacks/buildpack-node",
   "buildpacks/buildpack-python",
   "buildpacks/buildpack-r",
