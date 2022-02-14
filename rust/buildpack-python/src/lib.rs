@@ -300,6 +300,7 @@ impl Layer for PipLayer {
             } else {
                 // Require Python >=3.4 because that is when `ensurepip` was added (although we don't
                 // need to run that module explicitly)
+                // TODO: the version of Python that is created should be the one installed by the `PythonLayer`.
                 let python = PythonBinary {}.require_sync(Some(">=3.4,<4".to_string()), true)?;
                 python.run_sync(&["-m", "venv", "--clear", VENV])?;
             }

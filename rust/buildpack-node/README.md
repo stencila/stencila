@@ -10,18 +10,18 @@ Matches against a project that has:
 
 ## Node.js version
 
-The version of Node.js to be installed is determined from the following files (in descending order of precedence):
+The version of Node.js to be installed is determined by (in descending order of precedence):
 
   - the `nodejs` or `node` entry of any `.tool-versions` file,
 
   - the content of any `.nvmrc` file,
 
-  - the `engines.node` property of any `package.json`
+  - the `engines.node` property of any `package.json`, or else
 
-If none of these files are present, then the latest version of Node.js will be used.
+  - the latest version of Node.js.
 
 ## NPM packages
 
-Which NPM packages and their versions to install is determined from the following files (in descending order of precedence):
+NPM packages are installed into a `node_modules` folder (usually `.venv`) within the project folder. Which NPM packages and their versions to install is determined by (in descending order of precedence):
 
-  - if a `package.json` or `package-lock.json` file is present, then `npm install` will be used to install the version of packages specified in those files (see the `npm install` [docs](https://docs.npmjs.com/cli/v8/commands/npm-install) for more on the exact behavior).
+  - if a `package.json` or `package-lock.json` file is present, then `npm install` will be used to install the version of packages specified in those files (see the NPM [docs](https://docs.npmjs.com/cli/v8/commands/npm-install) for more on the exact behavior).
