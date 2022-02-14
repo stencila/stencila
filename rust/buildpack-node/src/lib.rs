@@ -14,7 +14,6 @@ use buildpack::{
         detect::{DetectContext, DetectResult, DetectResultBuilder},
         generic::{GenericMetadata, GenericPlatform},
         layer::{Layer, LayerResult, LayerResultBuilder},
-        layer_env::{LayerEnv, ModificationBehavior, Scope},
         Buildpack,
     },
     platform_is_stencila, BuildpackTrait,
