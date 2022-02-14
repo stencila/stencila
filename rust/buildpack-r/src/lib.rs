@@ -10,13 +10,19 @@ use buildpack::{
 
 pub struct RBuildpack;
 
+impl BuildpackTrait for RBuildpack {
+    fn toml() -> &'static str {
+        include_str!("../buildpack.toml")
+    }
+}
+
 impl Buildpack for RBuildpack {
     type Platform = GenericPlatform;
     type Metadata = GenericMetadata;
     type Error = GenericError;
 
     fn detect(&self, _context: DetectContext<Self>) -> Result<DetectResult, Self::Error> {
-        if self.any_exist(&[
+        if Self::any_exist(&[
             "main.R",
             "index.R",
             "main.r",
@@ -24,11 +30,9 @@ impl Buildpack for RBuildpack {
             "install.R",
             "install.r",
             "DESCRIPTION",
-        ]) || self.file_contains(".tool-versions", "R ")
+        ]) || Self::file_contains(".tool-versions", "R ")
         {
-            DetectResultBuilder::pass()
-                .build_plan(self.build_plan(&["r"]))
-                .build()
+            DetectResultBuilder::pass().build()
         } else {
             DetectResultBuilder::fail().build()
         }
@@ -36,11 +40,5 @@ impl Buildpack for RBuildpack {
 
     fn build(&self, _context: BuildContext<Self>) -> Result<BuildResult, Self::Error> {
         BuildResultBuilder::new().build()
-    }
-}
-
-impl BuildpackTrait for RBuildpack {
-    fn toml() -> &'static str {
-        include_str!("../buildpack.toml")
     }
 }
