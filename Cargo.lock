@@ -2782,6 +2782,7 @@ checksum = "1bf2e165bb3457c8e098ea76f3e3bc9db55f87aa90d52d0e6be741470916aaa4"
 [[package]]
 name = "libcnb"
 version = "0.5.0"
+source = "git+https://github.com/nokome/libcnb.rs/?rev=638e74de99b3acbf7e7923d8128551bb41c4aadc#638e74de99b3acbf7e7923d8128551bb41c4aadc"
 dependencies = [
  "libcnb-data",
  "serde",
@@ -2792,6 +2793,7 @@ dependencies = [
 [[package]]
 name = "libcnb-data"
 version = "0.4.0"
+source = "git+https://github.com/nokome/libcnb.rs/?rev=638e74de99b3acbf7e7923d8128551bb41c4aadc#638e74de99b3acbf7e7923d8128551bb41c4aadc"
 dependencies = [
  "fancy-regex",
  "libcnb-proc-macros",
@@ -2803,6 +2805,7 @@ dependencies = [
 [[package]]
 name = "libcnb-proc-macros"
 version = "0.1.1"
+source = "git+https://github.com/nokome/libcnb.rs/?rev=638e74de99b3acbf7e7923d8128551bb41c4aadc#638e74de99b3acbf7e7923d8128551bb41c4aadc"
 dependencies = [
  "fancy-regex",
  "quote",
