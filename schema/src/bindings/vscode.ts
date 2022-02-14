@@ -7,7 +7,7 @@
  *
  * @see https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings
  *
- * Run using `npx ts-node ts/bindings/vscode.ts`
+ * Run using `npx ts-node src/bindings/vscode.ts`
  */
 
 import fs from 'fs-extra'

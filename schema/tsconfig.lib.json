@@ -5,6 +5,6 @@
     "declarationDir": "dist",
     "module": "esnext"
   },
-  "include": ["ts/**/*.ts"],
-  "exclude": ["ts/**/*.test.ts", "ts/**/__tests__", "ts/**/bindings"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/__tests__", "src/**/bindings"]
 }
