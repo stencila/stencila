@@ -1,0 +1,13 @@
+[tool.poetry]
+name = "pyproject-toml"
+version = "0.1.0"
+description = ""
+authors = ["Nokome Bentley <nokome@stenci.la>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "1.22.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

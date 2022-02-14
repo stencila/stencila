@@ -21,6 +21,7 @@ use std::{
 /// Re-exports for the convenience of crates implementing `BinaryTrait`
 pub use ::async_trait;
 pub use ::eyre;
+pub use ::tracing;
 
 /// Get the directory where binaries are stored
 pub fn binaries_dir() -> PathBuf {
@@ -496,7 +497,7 @@ pub trait BinaryTrait: Send + Sync {
             self.install_version(version, &os, &arch).await?;
         } else {
             bail!(
-                "Sorry, I don't know how to install `{}` with requirement `{}`. See `stencila binaries versions {}` or perhaps install it manually?",
+                "Sorry, I don't know how to install `{}` with version requirement `{}`. See `stencila binaries versions {}` or perhaps install it manually?",
                 name,
                 requirement,
                 name
@@ -916,7 +917,7 @@ impl BinaryInstallation {
     /// Run the binary synchronously
     ///
     /// The sync version of `run`. Returns the output of the command
-    pub fn run_sync(&self, args: &[&str]) -> Result<Output> {
+    pub fn run_sync(&self, args: &[&str]) -> Result<String> {
         tracing::trace!("Running binary installation {:?}", self);
 
         let prev_env = self.apply_env();
@@ -928,7 +929,20 @@ impl BinaryInstallation {
             .output();
         self.restore_env(prev_env);
 
-        Ok(result?)
+        match result {
+            Ok(output) => match output.status.success() {
+                true => Ok(String::from_utf8_lossy(&output.stdout).to_string()),
+                false => bail!(
+                    "When running `{} {}` exit status was `{}`: {} {}",
+                    self.name,
+                    args.join(" "),
+                    output.status.code().unwrap_or_default(),
+                    String::from_utf8_lossy(&output.stderr),
+                    String::from_utf8_lossy(&output.stdout)
+                ),
+            },
+            Err(error) => bail!("When running `{}`: {}", self.name, error),
+        }
     }
 
     /// Run the binary and connect to stdin, stdout and stderr streams
