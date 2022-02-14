@@ -23,10 +23,7 @@ impl BinaryTrait for PodmanBinary {
     }
 
     async fn install_version(&self, version: &str, os: &str, _arch: &str) -> Result<()> {
-        let url = format!(
-            "https://github.com/containers/podman/releases/download/v{version}/podman-remote-",
-            version = version
-        ) + match os {
+        let suffix = match os {
             "linux" => "static.tar.gz",
             "macos" => "release-darwin.zip",
             "windows" => "release-windows.zip",
@@ -35,7 +32,12 @@ impl BinaryTrait for PodmanBinary {
                 os
             ),
         };
-        let archive = self.download(&url, None, None).await?;
+        let url = format!(
+            "https://github.com/containers/podman/releases/download/v{version}/podman-remote-",
+            version = version
+        ) + suffix;
+        let filename = ["podman-remote-", version, "-", suffix].concat();
+        let archive = self.download(&url, Some(filename), None).await?;
 
         let dest = self.dir(Some(version.into()), true)?;
         self.extract(&archive, 0, &dest)?;
