@@ -305,6 +305,7 @@ dependencies = [
  "binary-pack",
  "binary-pandoc",
  "binary-podman",
+ "binary-poetry",
  "binary-python",
  "binary-r",
  "cli-utils",
@@ -388,6 +389,14 @@ name = "binary-podman"
 version = "0.0.0"
 dependencies = [
  "binary",
+]
+
+[[package]]
+name = "binary-poetry"
+version = "0.0.0"
+dependencies = [
+ "binary",
+ "binary-python",
 ]
 
 [[package]]
@@ -547,6 +556,7 @@ dependencies = [
 name = "buildpack-python"
 version = "0.0.0"
 dependencies = [
+ "binary-poetry",
  "binary-python",
  "buildpack",
 ]
